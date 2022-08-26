@@ -3334,27 +3334,6 @@ void Platform::erase_save_sector()
 
 
 
-void SynchronizedBase::init(Platform& pf)
-{
-}
-
-
-
-void SynchronizedBase::lock()
-{
-}
-
-
-void SynchronizedBase::unlock()
-{
-}
-
-
-SynchronizedBase::~SynchronizedBase()
-{
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Logger
 ////////////////////////////////////////////////////////////////////////////////
@@ -4905,24 +4884,13 @@ void Platform::enable_glyph_mode(bool enabled)
 }
 
 
+
 u8* overlay_vram_tile_data(u16 tile_index)
 {
     return (u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0] +
            ((tile_index)*vram_tile_size());
 }
 
-
-bool Platform::overlay_texture_exists(const char* name)
-{
-    for (auto& info : overlay_textures) {
-
-        if (str_cmp(name, info.name_) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 
 bool Platform::load_overlay_texture(const char* name)

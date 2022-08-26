@@ -118,7 +118,7 @@ struct TimeBuffer
 class TimeStream
 {
 public:
-    static const auto max_buffers = 14;
+    static const auto max_buffers = 16;
 
 
     template <typename T> void push(TimeTracker& current, T& event)
@@ -140,14 +140,28 @@ public:
         }
 
         if (buffer_count_ == max_buffers) {
-            --buffer_count_;
             if (not buffers_ or not(*buffers_)->next_) {
                 Platform::fatal("timestream logic error!");
             }
             // Unlink the first element in the chain, thus dropping the oldest
             // history.
+            free_single_buffer();
+        }
+    }
+
+
+    void free_single_buffer()
+    {
+        if (buffers_ and (*buffers_)->next_) {
+            --buffer_count_;
             buffers_ = std::move(*(*buffers_)->next_);
         }
+    }
+
+
+    bool has_multiple_buffers() const
+    {
+        return buffers_ and (*buffers_)->next_;
     }
 
 

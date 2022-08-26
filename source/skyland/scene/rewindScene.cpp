@@ -713,6 +713,28 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::player_room_damaged_small: {
+            auto e = (time_stream::event::PlayerRoomDamagedSmall*)end;
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                room->__set_health(room->health() + e->diff_);
+                room->reset_injured_timer(1);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_damaged_small: {
+            auto e = (time_stream::event::OpponentRoomDamagedSmall*)end;
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                room->__set_health(room->health() + e->diff_);
+                room->reset_injured_timer(1);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::player_room_damaged: {
             auto e = (time_stream::event::PlayerRoomDamaged*)end;
             if (auto room = app.player_island().get_room({e->x_, e->y_})) {
@@ -855,7 +877,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 e->near_ ? &app.player_island() : app.opponent_island();
 
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
-                chr->__set_health(e->previous_health_.get());
+                chr->__set_health(e->previous_health_);
             } else {
                 Platform::fatal("rewind chr health changed: invalid chr id!");
             }

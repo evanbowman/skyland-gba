@@ -618,11 +618,12 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
     e.id_.set(id_);
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
-    e.previous_health_.set(health_);
+    static_assert(max_health <= 255);
+    e.previous_health_ = health_;
     app.time_stream().push(app.level_timer(), e);
 
-    if (health_ + amount > 255) {
-        health_ = 255;
+    if (health_ + amount > max_health) {
+        health_ = max_health;
     } else {
         health_ += amount;
     }
@@ -636,7 +637,7 @@ void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
     e.id_.set(id_);
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
-    e.previous_health_.set(health_);
+    e.previous_health_ = health_;
     app.time_stream().push(app.level_timer(), e);
 
     int current = health_;

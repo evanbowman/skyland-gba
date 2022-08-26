@@ -105,6 +105,9 @@ enum Type : u8 {
     player_room_damaged,
     opponent_room_damaged,
 
+    player_room_damaged_small,
+    opponent_room_damaged_small,
+
     player_room_repaired,
     opponent_room_repaired,
 
@@ -540,6 +543,32 @@ struct OpponentRocketBombDestroyed : MissileDestroyed
 
 
 
+// To save space in RAM, when a room takes less than 255 damage (pretty much all
+// cases), use a single byte to represent the amount of damage applied.
+struct RoomDamagedSmall
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 diff_;
+};
+
+
+
+struct PlayerRoomDamagedSmall : RoomDamagedSmall
+{
+    static constexpr const auto t = Type::player_room_damaged_small;
+};
+
+
+
+struct OpponentRoomDamagedSmall : RoomDamagedSmall
+{
+    static constexpr const auto t = Type::opponent_room_damaged_small;
+};
+
+
+
 struct RoomHealthChanged
 {
     Header header_;
@@ -654,7 +683,7 @@ struct CharacterHealthChanged
     u8 owned_by_player_ : 1;
     u8 near_ : 1;
     u8 unused_ : 6;
-    host_u16 previous_health_;
+    u8 previous_health_;
 
     static constexpr const auto t = Type::character_health_changed;
 };

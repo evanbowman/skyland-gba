@@ -111,7 +111,11 @@ App::App(Platform& pfrm, bool clean_boot)
     // of running out.
     set_scratch_buffer_oom_handler([this] {
         lisp::gc();
-        time_stream_.clear();
+        if (time_stream_.has_multiple_buffers()) {
+            time_stream_.free_single_buffer();
+        } else {
+            time_stream_.clear();
+        }
     });
 
     const auto sb = StateBit::remote_console_force_newline;

@@ -516,18 +516,40 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
 
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
-    if (parent_ == &app.player_island()) {
-        time_stream::event::PlayerRoomDamaged e;
-        e.x_ = position().x;
-        e.y_ = position().y;
-        e.previous_health_.set(health_);
-        app.time_stream().push(app.level_timer(), e);
-    } else {
-        time_stream::event::OpponentRoomDamaged e;
-        e.x_ = position().x;
-        e.y_ = position().y;
-        e.previous_health_.set(health_);
-        app.time_stream().push(app.level_timer(), e);
+    if (health_ not_eq 0) {
+        // NOTE: damage < health() because when we're rewinding the destruction
+        // of a block, we recreate the block with full health, and then rely on
+        // one of the non-small RoomDamaged messages to populate a room's actual
+        // health.
+        if (damage <= 255 and damage < health()) {
+            if (parent_ == &app.player_island()) {
+                time_stream::event::PlayerRoomDamagedSmall e;
+                e.x_ = position().x;
+                e.y_ = position().y;
+                e.diff_ = damage;
+                app.time_stream().push(app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomDamagedSmall e;
+                e.x_ = position().x;
+                e.y_ = position().y;
+                e.diff_ = damage;
+                app.time_stream().push(app.level_timer(), e);
+            }
+        } else {
+            if (parent_ == &app.player_island()) {
+                time_stream::event::PlayerRoomDamaged e;
+                e.x_ = position().x;
+                e.y_ = position().y;
+                e.previous_health_.set(health_);
+                app.time_stream().push(app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomDamaged e;
+                e.x_ = position().x;
+                e.y_ = position().y;
+                e.previous_health_.set(health_);
+                app.time_stream().push(app.level_timer(), e);
+            }
+        }
     }
 
     if (damage > health_) {

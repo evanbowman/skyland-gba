@@ -339,8 +339,6 @@ public:
     void load_background_texture(const char* name);
 
 
-    bool overlay_texture_exists(const char* name);
-
     // Sleep halts the game for an amount of time equal to some number
     // of game updates. Given that the game should be running at
     // 60fps, one update equals 1/60 of a second.
@@ -966,43 +964,6 @@ ColorConstant
 contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
 
 
-
-class SynchronizedBase
-{
-protected:
-    void init(Platform& pf);
-    void lock();
-    void unlock();
-
-    ~SynchronizedBase();
-
-private:
-    friend class Platform;
-
-    void* impl_;
-};
-
-
-template <typename T> class Synchronized : SynchronizedBase
-{
-public:
-    template <typename... Args>
-    Synchronized(Platform& pf, Args&&... args)
-        : data_(std::forward<Args>(args)...)
-    {
-        init(pf);
-    }
-
-    template <typename F> void acquire(F&& handler)
-    {
-        lock();
-        handler(data_);
-        unlock();
-    }
-
-private:
-    T data_;
-};
 
 
 // Helper function for drawing background tiles larger than the default size (8x8 pixels)
