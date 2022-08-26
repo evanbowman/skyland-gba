@@ -85,7 +85,7 @@
               (mktr (cdr item))
               (sel-input
                (cdr item)
-               (string "place first " (car item) ":")
+               (format "place first % (%x%):" (car item) (car (cdr item)) (cdr (cdr item)))
                (lambda
                  (room-new (player) (list (car item) $1 $2))
                  (mktr (cdr item))
