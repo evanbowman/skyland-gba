@@ -578,7 +578,6 @@ static const lisp::Binding script_api[] = {
          int y = m.data_->p().year_.get();
 
          auto arg = L_LOAD_INT(0);
-         arg = clamp((int)arg, 0, 50);
 
          if (arg not_eq 0) {
              m.advance(arg);

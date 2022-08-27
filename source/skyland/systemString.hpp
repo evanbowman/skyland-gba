@@ -438,6 +438,8 @@ enum class SystemString {
 
     zone_text,
 
+    loading,
+
     wg_visited,
     wg_neutral,
     wg_hostile,

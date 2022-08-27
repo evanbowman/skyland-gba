@@ -23,6 +23,7 @@
 #pragma once
 
 
+#include "graphics/overlay.hpp"
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/scene/module.hpp"
 
@@ -65,6 +66,9 @@ public:
     float scroll_ = 0;
 
     Vec3<u8> cursor_;
+
+    std::optional<Text> loading_text_;
+    bool skip_ = true;
 };
 
 

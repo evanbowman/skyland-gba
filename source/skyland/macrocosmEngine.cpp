@@ -288,7 +288,7 @@ void EngineImpl::advance(int years)
         do_advance(5);
     }
 
-    while (years) {
+    while (years > 0) {
         do_advance(1);
     }
 }
@@ -707,6 +707,8 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     }
 
     lisp::set_var("conf", conf.result());
+
+
     app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
 #endif
 

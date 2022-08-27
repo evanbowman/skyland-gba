@@ -32,7 +32,7 @@
                   (setq yrs (/ diff 12))
                 (setq diff 0))
 
-              (setq year (mcr-next yrs))
+              (setq year (mcr-next (min (list 50 yrs))))
 
               (dialog
                (format "Welcome back! Time seems to pass more slowly while you're gone, % years have passed, and the current year is %. Why not check on your cities and make sure they're ok!" (- year prev) (+ year 1)))))))))

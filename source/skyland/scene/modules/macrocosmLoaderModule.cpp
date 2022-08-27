@@ -67,6 +67,20 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().play_music(app.environment().music(), 0);
 
+    pfrm.load_overlay_texture("overlay_challenges");
+
+    loading_text_.emplace(pfrm, SYSTR(loading)->c_str(), OverlayCoord{1, 1});
+}
+
+
+
+ScenePtr<Scene>
+MacrocosmLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    if (skip_) {
+        skip_ = false;
+        return null_scene();
+    }
 
     app.camera().emplace<macro::Camera>(pfrm);
 
@@ -106,14 +120,8 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.system_call("vsync", nullptr);
     sector.render(pfrm);
 
-    pfrm.load_overlay_texture("overlay_challenges");
-}
+    loading_text_.reset();
 
-
-
-ScenePtr<Scene>
-MacrocosmLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
-{
     return scene_pool::alloc<macro::MacroverseScene>();
 }
 
