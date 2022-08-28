@@ -10,8 +10,8 @@
  ;; after defeating an
  ;; enemy.
  '((58 . "zone1_coin_yield")
-   (46 . "zone2_coin_yield")
-   (40 . "zone3_coin_yield")
-   (37 . "zone4_coin_yield")))
+   (50 . "zone2_coin_yield")
+   (45 . "zone3_coin_yield")
+   (40 . "zone4_coin_yield")))
 
 (syscall "setvar" "score_multiplier" 1)
