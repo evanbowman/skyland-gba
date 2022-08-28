@@ -431,6 +431,20 @@ o----------------------------o
  Remove room room at x y from
  island.
 
+o----------------------------o
+
+ (room-mut island x y type-sym)
+
+ Convert a room to a
+ completely different type!
+ See rooms.lisp for all of
+ the type symbols.
+
+ The converted room must have
+ the same dimensions as the
+ source room, or the game will
+ raise a fatal error.
+
 
 o----------------------------o
 
