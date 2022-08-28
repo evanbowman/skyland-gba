@@ -53,7 +53,7 @@
         (setq pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
 
         (dialog
-         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and two of our crew members to sweeten the deal!")
+         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
         (dialog-await-y/n)
 
         (setq on-dialog-declined exit)
@@ -72,6 +72,7 @@
 
                      (let ((c (chr-slots (player))))
                        (chr-new (player) (car (car c)) (cdr (car c)) 'neutral 0)))))
+              (mkch)
               (mkch)
               (mkch))
 
