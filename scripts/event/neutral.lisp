@@ -22,7 +22,7 @@
                                (lambda (equal cmp $0))
                                friendlies-seen))))
                      (gen
-                      (get '(6 7 5 2) (zone)) ;; number of levels to select from
+                      (get '(5 8 5 2) (zone)) ;; number of levels to select from
                                               ;; based on current zone
                       (lambda $0)))))
 
@@ -32,7 +32,7 @@
   (let ((lv (get avail-levels (choice (length avail-levels)))))
     (setq friendlies-seen (cons lv friendlies-seen))
 
-    (eval-file (string "/scripts/event/neutral/" (zone) "/" lv ".lisp"))))
+    (eval-file (format "scripts/event/neutral/%/%.lisp" (zone) lv)))
 
 
 (gc)

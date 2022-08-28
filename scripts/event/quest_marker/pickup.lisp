@@ -24,7 +24,7 @@
            (let ((s (construction-sites (player) '(1 . 2))))
              (if s
                  (progn
-                   (room-new (player) (list 'cargo-bay (car (car s)) (cdr (car s))))
+                   (room-new (player) (list 'ladder (car (car s)) (cdr (car s))))
                    (setq slot (chr-slots (player)))))))
        (if slot
            (progn

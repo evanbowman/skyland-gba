@@ -18,7 +18,7 @@
       (setq lv (sample lvs))))
 
 (eval-file
- (string "/scripts/event/quest/" lv ".lisp"))
+ (format "/scripts/event/quest/%.lisp" lv))
 
 (unbind 'lv)
 

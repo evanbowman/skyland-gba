@@ -53,7 +53,7 @@
         (setq pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
 
         (dialog
-         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in a solar-cell, a weapon, and two of our crew members to sweeten the deal!")
+         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and two of our crew members to sweeten the deal!")
         (dialog-await-y/n)
 
         (setq on-dialog-declined exit)
@@ -78,17 +78,21 @@
             (while (< (length (construction-sites (player) '(2 . 1))) 2)
               (terrain (player) (+ (terrain (player)) 1)))
 
-            (sel-input '(2 . 1)
-                       "Place solar-cell (2x1):"
-                       (lambda
-                         (room-new (player) `(solar-cell ,$1 ,$2))
-                         (let ((wpn (get '(flak-gun
-                                           fire-charge
-                                           nemesis)
-                                         (choice 3))))
-                           (sel-input '(2 . 1)
-                                      (format "Place % (2x1):" wpn)
-                                      (lambda
-                                        (room-new (player) `(,wpn ,$1 ,$2))
-                                        (dialog "<c:mayor:11>Thanks so much for the help!")
-                                        (setq on-dialog-closed exit))))))))))))
+            (let ((impl
+                   (lambda
+                     (let ((wpn (get '(flak-gun
+                                       fire-charge)
+                                     (choice 2)))
+                           (cb $0))
+
+                       (sel-input '(2 . 1)
+                                  (format "Place % (2x1):" wpn)
+                                  (lambda
+                                    (room-new (player) `(,wpn ,$1 ,$2))
+                                    (cb)))))))
+              (impl
+               (lambda
+                 (impl
+                  (lambda
+                    (dialog "<c:mayor:11>Thanks so much for the help!")
+                    (setq on-dialog-closed exit))))))))))))

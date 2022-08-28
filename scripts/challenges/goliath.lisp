@@ -29,7 +29,7 @@
 
 
 ;; testing...
-;; (eval-file "/scripts/event/hostile/3/2.lisp")
+;; (eval-file "/scripts/event/neutral/0/5.lisp")
 
 
 (opponent-init 9 'hostile)
