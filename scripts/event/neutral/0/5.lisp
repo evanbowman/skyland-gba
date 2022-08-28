@@ -84,11 +84,10 @@
                          (room-new (player) `(solar-cell ,$1 ,$2))
                          (let ((wpn (get '(flak-gun
                                            fire-charge
-                                           nemesis
                                            nemesis)
-                                         (choice 4))))
+                                         (choice 3))))
                            (sel-input '(2 . 1)
-                                      (format "Place % (2x1)" wpn)
+                                      (format "Place % (2x1):" wpn)
                                       (lambda
                                         (room-new (player) `(,wpn ,$1 ,$2))
                                         (dialog "<c:mayor:11>Thanks so much for the help!")
