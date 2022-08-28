@@ -119,6 +119,13 @@ public:
         }
     }
 
+
+    T& front()
+    {
+        return data_.begin_->data_;
+    }
+
+
     void clear()
     {
         while (data_.begin_)
@@ -202,6 +209,17 @@ public:
         // decrement operator on the Iterator. FIXME!
         return Iterator(nullptr);
     }
+
+
+    void move_contents(List& other)
+    {
+        while (not empty()) {
+            auto v = std::move(front());
+            pop();
+            other.push(std::move(v));
+        }
+    }
+
 
 private:
     Data data_;

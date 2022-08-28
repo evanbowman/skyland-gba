@@ -574,6 +574,9 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
 
     auto m_prev = metaclass_index();
 
+    EntityList<BasicCharacter> chr_list;
+    characters_.move_contents(chr_list);
+
     if (island == &app.player_island()) {
         time_stream::event::PlayerRoomTransmuted e;
         e.prev_type_ = m_prev;
@@ -596,6 +599,9 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
         Platform::fatal("attempt to transmute room of differing size");
     }
     mt->construct(address, island, pos);
+
+    auto new_room = (Room*)address;
+    chr_list.move_contents(new_room->characters_);
 
     island->schedule_repaint();
 }

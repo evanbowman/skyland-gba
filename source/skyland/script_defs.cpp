@@ -976,6 +976,31 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"room-mut",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(0, symbol);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, integer);
+         L_EXPECT_OP(3, user_data);
+
+         auto [app, pfrm] = interp_get_context();
+
+         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+
+         auto coord = RoomCoord{
+             (u8)lisp::get_op(2)->integer().value_,
+             (u8)lisp::get_op(1)->integer().value_,
+         };
+
+         if (auto room = island->get_room(coord)) {
+             auto tp_name = lisp::get_op(0)->symbol().name();
+             room->__unsafe__transmute(*pfrm, *app,
+                                       metaclass_index(tp_name));
+         }
+
+         return L_NIL;
+     }},
     {"chr-del",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);
