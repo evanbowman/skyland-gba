@@ -18,4 +18,5 @@
   ("Advanced Structures" . "tutorials/advanced_structures.lisp")
   ("Game Speed" . "tutorials/game_speed.lisp")
   ("Transporters" . "tutorials/transporter.lisp")
+  ("Moving Blocks" . "tutorials/moving_blocks.lisp")
   ("Replicators" . "tutorials/replicator.lisp"))

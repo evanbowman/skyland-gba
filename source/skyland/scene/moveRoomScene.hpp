@@ -24,13 +24,13 @@
 
 
 #include "constructionScene.hpp"
-#include "worldScene.hpp"
+#include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
-#include "skyland/systemString.hpp"
 #include "skyland/scene_pool.hpp"
-#include "readyScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/systemString.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -42,7 +42,6 @@ namespace skyland
 class MoveRoomScene : public ActiveWorldScene
 {
 public:
-
     void exit(Platform& pfrm, App& app, Scene& prev) override
     {
         ActiveWorldScene::exit(pfrm, app, prev);
@@ -55,9 +54,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
             return next;
@@ -135,9 +133,16 @@ public:
             if (player(app).key_down(pfrm, Key::action_1)) {
                 auto cursor_loc = globals().near_cursor_loc_;
                 if (auto r = app.player_island().get_room(cursor_loc)) {
+                    if (str_eq(r->name(), "mycelium")) {
+                        // Can't be moved!
+                        pfrm.speaker().play_sound("beep_error", 3);
+                        return null_scene();
+                    }
                     state_ = State::move_block;
                     move_src_ = r->position();
-                    move_diff_ = (cursor_loc.cast<int>() - move_src_.cast<int>()).cast<u8>();
+                    move_diff_ =
+                        (cursor_loc.cast<int>() - move_src_.cast<int>())
+                            .cast<u8>();
                     text_.reset();
                     pfrm.fill_overlay(0);
 
@@ -152,7 +157,6 @@ public:
                     for (int i = 0; i < text_->len(); ++i) {
                         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                     }
-
                 }
             }
             break;
@@ -162,7 +166,8 @@ public:
                 player(app).key_down(pfrm, Key::action_2)) {
 
                 auto cursor_loc = globals().near_cursor_loc_;
-                cursor_loc = (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
+                cursor_loc = (cursor_loc.cast<int>() - move_diff_.cast<int>())
+                                 .cast<u8>();
 
                 if (player(app).key_down(pfrm, Key::action_1)) {
                     if (auto room = app.player_island().get_room(move_src_)) {
@@ -171,26 +176,31 @@ public:
                                 RoomCoord c;
                                 c.x = cursor_loc.x + x;
                                 c.y = cursor_loc.y + y;
-                                if (c.x >= app.player_island().terrain().size()
-                                    or c.y >= 15
-                                    or c.y < construction_zone_min_y) {
+
+                                auto err = [&]() {
                                     pfrm.speaker().play_sound("beep_error", 3);
                                     return null_scene();
+                                };
+
+                                if (auto d = app.player_island().get_drone(c)) {
+                                    return err();
+                                }
+                                if (c.x >=
+                                        app.player_island().terrain().size() or
+                                    c.y >= 15 or
+                                    c.y < construction_zone_min_y) {
+                                    return err();
                                 }
                                 if (auto o = app.player_island().get_room(c)) {
                                     if (o not_eq room) {
-                                        pfrm.speaker().play_sound("beep_error",
-                                                                  3);
-                                        return null_scene();
+                                        return err();
                                     }
                                 }
                             }
                         }
                         pfrm.speaker().play_sound("build0", 4);
-                        app.player_island().move_room(pfrm,
-                                                      app,
-                                                      move_src_,
-                                                      cursor_loc);
+                        app.player_island().move_room(
+                            pfrm, app, move_src_, cursor_loc);
                     }
                 }
 
@@ -236,7 +246,6 @@ public:
                     ++cursor_loc.x;
                     sync_cursor();
                     pfrm.speaker().play_sound("cursor_tick", 0);
-
                 }
             }
 
@@ -292,7 +301,8 @@ public:
         if (state_ == State::move_block) {
             auto origin = player_island(app).visual_origin();
             auto cursor_loc = globals().near_cursor_loc_;
-            cursor_loc = (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
+            cursor_loc =
+                (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
             origin.x += cursor_loc.x * 16;
             origin.y += cursor_loc.y * 16;
             auto sz = mv_size_;
@@ -340,8 +350,7 @@ public:
 
 
 private:
-    enum class State
-    {
+    enum class State {
         setup_prompt,
         prompt,
         move_stuff,
@@ -362,4 +371,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -591,6 +591,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (await_b_key_ and app.player().key_up(pfrm, Key::action_2)) {
         await_b_key_ = false;
+        if (app.game_mode() == App::GameMode::tutorial) {
+            return scene_pool::alloc<MoveRoomScene>();
+        }
     }
     if (await_b_key_ and
         app.player().key_held(Key::action_2, milliseconds(400))) {
