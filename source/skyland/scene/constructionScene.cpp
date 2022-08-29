@@ -68,6 +68,10 @@ static Sound sound_openbag("openbag");
 
 
 
+bool ConstructionScene::constrain_;
+
+
+
 bool ConstructionScene::camera_update_check_key(Platform& pfrm, App& app)
 {
     if (state_ == State::choose_building) {
@@ -1167,6 +1171,8 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
         if (not explicitly_disabled and
             dependencies_satisfied and
+            (not constrain_ or
+             (constrain_ and site_has_space(app, i))) and
             (app.game_mode() not_eq App::GameMode::tutorial or
              // NOTE: for backwards compatibility with tutorials: The game used
              // to only display blocks that would fit into the selected

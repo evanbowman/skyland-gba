@@ -133,6 +133,8 @@ private:
     Island::BlockChecksum checksum_;
 
     bool near_;
+
+    static bool constrain_;
 };
 
 
