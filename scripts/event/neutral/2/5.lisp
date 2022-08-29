@@ -35,7 +35,8 @@
 (setq on-dialog-declined
       (lambda
         (if (bound 'fut)
-            (unbind 'fut))))
+            (unbind 'fut))
+        (exit)))
 
 
 (defn fut
