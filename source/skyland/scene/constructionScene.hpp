@@ -85,6 +85,9 @@ private:
     };
 
 
+    bool site_has_space(App& app, MetaclassIndex m);
+
+
     Island* island(App& app);
 
 

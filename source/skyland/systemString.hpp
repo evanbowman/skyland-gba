@@ -219,6 +219,7 @@ enum class SystemString {
     construction_insufficient_funds,
     construction_insufficient_power_supply,
     construction_too_many_rooms,
+    construction_not_enough_space,
 
     category_begin,
     category_wall = category_begin,

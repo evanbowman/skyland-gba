@@ -158,6 +158,7 @@ none
 insufficient funds!
 insufficient power supply!
 too many blocks
+not enough space!
 walls
 weapons
 factories

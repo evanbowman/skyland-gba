@@ -475,8 +475,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (tapclick == data_->construction_sites_[selector_] or
             app.player().key_down(pfrm, Key::action_1)) {
-            const auto& target = *load_metaclass(
-                data_->available_buildings_[building_selector_]);
+
+            auto mti = data_->available_buildings_[building_selector_];
+
+            const auto& target = *load_metaclass(mti);
 
             if (app.coins() < get_cost(island(app), target)) {
                 category_label_.reset();
@@ -501,6 +503,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
                 pfrm.speaker().play_sound("beep_error", 2);
+                state_ = State::insufficient_funds;
+                break;
+            }
+
+            if (not site_has_space(app, mti)) {
+                category_label_.reset();
+                pfrm.speaker().play_sound("beep_error", 2);
+                msg(pfrm, SYSTR(construction_not_enough_space)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -1035,20 +1045,17 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
 
 
 
-bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
+bool ConstructionScene::site_has_space(App& app, MetaclassIndex m)
 {
-    data_->available_buildings_.clear();
-
     u8 matrix[16][16];
     island(app)->plot_rooms(matrix);
 
     int avail_x_space = 0;
 
-    const auto current = data_->construction_sites_[selector_];
-
-
     // Avail y space per x coordinate of the room that we're constructing.
     u8 avail_y_space[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    const auto current = data_->construction_sites_[selector_];
 
     for (int x = current.x; x < (int)island(app)->terrain().size(); ++x) {
         if (matrix[x][current.y]) {
@@ -1072,7 +1079,6 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         return false;
     }
 
-
     auto calc_avail_y_space = [&](int room_width) {
         int min = avail_y_space[0];
         for (int x = 0; x < room_width; ++x) {
@@ -1083,6 +1089,17 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         return min;
     };
 
+    auto& meta = *load_metaclass(m);
+
+    return meta->size().x <= avail_x_space and
+           meta->size().y <= calc_avail_y_space(meta->size().x);
+}
+
+
+
+bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
+{
+    data_->available_buildings_.clear();
 
     const auto w_count =
         island(app)->workshop_count() + island(app)->manufactory_count();
@@ -1148,15 +1165,24 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             Platform::fatal("hidden rooms Bitvector requires resize!");
         }
 
-        if (not explicitly_disabled and meta->size().x <= avail_x_space and
-            meta->size().y <= calc_avail_y_space(meta->size().x) and
-            dependencies_satisfied) {
+        if (not explicitly_disabled and
+            dependencies_satisfied and
+            (app.game_mode() not_eq App::GameMode::tutorial or
+             // NOTE: for backwards compatibility with tutorials: The game used
+             // to only display blocks that would fit into the selected
+             // construction site. But players were confused during testing, so
+             // I instead decided to always show all of the blocks in the
+             // construction menu. The tutorials were recorded with the
+             // old-styled menu, and I don't want to re-record them, so tutorial
+             // mode still only displays the blocks that fit into the selected
+             // construction site.
+             (app.game_mode() == App::GameMode::tutorial and
+              site_has_space(app, i)))) {
             // Do not show decorations in the building list in tutorial mode.
             if (not(app.game_mode() == App::GameMode::tutorial and
                     meta->category() == Room::Category::decoration)) {
 
-                auto index = metaclass_index(meta->name());
-                if (not data_->available_buildings_.push_back(index)) {
+                if (not data_->available_buildings_.push_back(i)) {
                     Platform::fatal("TODO: available buildings buffer "
                                     "needs more memory");
                 }
