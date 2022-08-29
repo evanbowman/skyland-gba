@@ -3,117 +3,97 @@
 ;;;
 
 
-(dialog "A shop approaches! Looks like they have a discount on an advanced type of hull...")
-
-
-(opponent-init 8 'neutral)
+(opponent-init 11 'neutral)
 
 (island-configure
  (opponent)
- '((shrubbery 0 13)
-   (masonry 0 14)
-   (shrubbery 1 14)
-   (mirror-hull 2 11)
-   (mirror-hull 2 12)
-   (mirror-hull 2 13)
-   (mirror-hull 2 14)
-   (mirror-hull 3 12)
-   (mirror-hull 3 14)
-   (mirror-hull 3 13)
-   (mirror-hull 3 11)
+ '((shrubbery 0 11)
+   (bronze-hull 0 14)
+   (bronze-hull 0 13)
+   (bronze-hull 0 12)
+   (masonry 1 14)
+   (stairwell 1 9)
+   (workshop 1 7)
+   (masonry 1 13)
+   (bulkhead-door 2 11)
+   (masonry 2 14)
+   (masonry 2 13)
+   (bronze-hull 2 10)
+   (bronze-hull 2 9)
+   (water-source 3 14)
+   (workshop 3 7)
+   (bridge 3 12)
    (water-source 4 14)
-   (power-core 5 13)
-   (hull 6 12)
-   (masonry 7 14)
-   (masonry 7 13)
-   (hull 7 12)))
+   (water-source 5 14)
+   (backup-core 5 11)
+   (water-source 6 14)
+   (water-source 7 14)
+   (water-source 8 14)
+   (workshop 8 11)
+   (water-source 9 14)
+   (bronze-hull 10 14)
+   (banana-plant 10 13)))
 
 
-(chr-new (opponent) 6 11 'neutral 0)
+(let ((pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
+      (sc (filter (lambda (equal (car $0) 'backup-core)) (rooms (player)))))
 
-
-(setq on-dialog-declined
-      (lambda
-        (if (bound 'fut)
-            (unbind 'fut))))
-
-
-(defn fut
-  (if (bound 'fut) (unbind 'fut))
-
-  (if (< (coins) 2000)
+  (if (or sc (not pc)) ;; player must have a core and not already have a backup
       (progn
-        (dialog "<c:merchant:7> Sorry, that's not enough! Want a chance to salvage some stuff to come up with the funds? I'll check back in 15 seconds?")
-        (dialog-await-y/n)
-        (let ((f (this)))
-          (setq fut
-                (lambda
-                  (if (> (coins 1999))
-                      (progn
-                        (dialog "<c:merchant:7> Seems like you have enough now!")
-                        (setq on-dialog-closed f))
-                    (f)))))
-        (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
-        (setq on-dialog-declined (lambda (unbind 'fut) (exit))))
+        (defn on-converge
+          (dialog "<c:mayor:11>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
+          (exit)))
     (progn
-      ;; If there's no place to put a block, grant the player +1 terrain.
-      (if (not (construction-sites (player) '(1 . 1)))
-          (terrain (player) (+ (terrain (player)) 1)))
+      (dialog "A small village radios you... sounds like they're having trouble with their power-core...")
+      (defn on-converge
 
-      (coins-add -2000)
+        (setq on-converge nil)
 
-      (let ((cnt 0)) ; closure
-        ;; lambda invoked 8 times, ask user for input and create a block at
-        ;; position.
-        ((lambda
-           (let ((t (this))
-                 (del 0))
-             (sel-input
-              '(1 . 1)
-              (string "place block " (+ cnt 1) "/8:")
-              (lambda
-                (room-new (player) (list 'mirror-hull $1 $2))
-                (syscall "sound" "build0")
-                (+= cnt 1)
+        ;; In case anything changed...
+        (setq pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
 
-                ;; delete a block from the shop's inventory
-                (map (lambda
-                       (if (and (equal (car $0) 'mirror-hull)
-                                (not del))
-                           (progn
-                             (setq del 1)
-                             (room-del (opponent) (get $0 1) (get $0 2)))))
+        (dialog
+         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
+        (dialog-await-y/n)
 
-                     (rooms (opponent)))
+        (setq on-dialog-declined exit)
 
-                (if (equal cnt 8)
-                    (progn
-                      (dialog "<c:merchant:7> Good luck to ya!")
-                      (setq on-dialog-closed nil)
-                      (exit))
-                  (t)))))))))))
+        (defn on-dialog-accepted
+          (let ((c (car pc)))
+            (room-mut (player) (get c 1) (get c 2) 'backup-core)
+            (room-mut (opponent) 5 11 'power-core)
 
+            (let ((mkch
+                   (lambda
+                     (if (not (chr-slots (player)))
+                         (let ((c (construction-sites (player) '(1 . 2))))
+                           (if c
+                               (room-new (player) `(ladder ,(car (car c)) ,(cdr (car c)))))))
 
-(defn on-converge
-  (dialog
-   "<c:merchant:7> We're selling mirror-hull, and at a steep discount! 2000@ for eight,"
-   (if (< (coins) 2000)
-       " ...but you don't seem to have enough. Want a chance to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
-      " whaddya say?"))
+                     (let ((c (chr-slots (player))))
+                       (chr-new (player) (car (car c)) (cdr (car c)) 'neutral 0)))))
+              (mkch)
+              (mkch)
+              (mkch))
 
-  (setq on-dialog-accepted
-        (if (< (coins) 2000)
-            (let ((f fut))
-              (setq fut
-                    (lambda
-                      (if (> (coins) 1999)
-                          (progn
-                            (dialog "<c:merchant:7> Seems like you have enough now!")
-                            (setq on-dialog-closed f))
-                        (f))))
-              (lambda (on-timeout 15000 'fut)))
-          fut))
+            (while (< (length (construction-sites (player) '(2 . 1))) 2)
+              (terrain (player) (+ (terrain (player)) 1)))
 
-  (dialog-await-y/n)
-  ;; We don't want on-converge to be re-invoked, we add terrain in some cases.
-  (setq on-converge nil))
+            (let ((impl
+                   (lambda
+                     (let ((wpn (get '(flak-gun
+                                       fire-charge)
+                                     (choice 2)))
+                           (cb $0))
+
+                       (sel-input '(2 . 1)
+                                  (format "Place % (2x1):" wpn)
+                                  (lambda
+                                    (room-new (player) `(,wpn ,$1 ,$2))
+                                    (cb)))))))
+              (impl
+               (lambda
+                 (impl
+                  (lambda
+                    (dialog "<c:mayor:11>Thanks so much for the help!")
+                    (setq on-dialog-closed exit))))))))))))
