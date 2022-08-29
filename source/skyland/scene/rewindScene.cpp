@@ -266,9 +266,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
     // NOTE: IMPORTANT: any code called in this loop should not push a
     // time_stream event! You could get stuck in an endless loop!
-    while (end_timestamp and
-           ((*end_timestamp > current_timestamp) or
-            (app.level_timer().total() == 0))) {
+    while (end_timestamp and ((*end_timestamp > current_timestamp) or
+                              (app.level_timer().total() == 0))) {
         auto end = app.time_stream().end();
         switch ((time_stream::event::Type)end->type_) {
 

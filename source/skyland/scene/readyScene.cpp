@@ -32,6 +32,7 @@
 #include "levelCompleteOptionsScene.hpp"
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "moveRoomScene.hpp"
 #include "notificationScene.hpp"
 #include "platform/platform.hpp"
 #include "playerIslandDestroyedScene.hpp"
@@ -583,7 +584,17 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((*drone)->parent() == &app.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
+        } else if (not pfrm.network_peer().is_connected()) {
+            await_b_key_ = true;
         }
+    }
+
+    if (await_b_key_ and app.player().key_up(pfrm, Key::action_2)) {
+        await_b_key_ = false;
+    }
+    if (await_b_key_ and
+        app.player().key_held(Key::action_2, milliseconds(400))) {
+        return scene_pool::alloc<MoveRoomScene>();
     }
 
     if (describe_room_timer_ > 0) {

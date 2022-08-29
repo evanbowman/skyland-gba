@@ -141,6 +141,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/qrViewerScene.cpp
   ${SOURCE_DIR}/skyland/scene/lispReplScene.cpp
   ${SOURCE_DIR}/skyland/scene/selInputScene.cpp
+  ${SOURCE_DIR}/skyland/scene/moveRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/craneDropScene.cpp
   ${SOURCE_DIR}/skyland/scene/hideRoomsScene.cpp

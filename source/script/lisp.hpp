@@ -584,7 +584,6 @@ struct Value {
 };
 
 
-
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
 Value* make_integer(s32 value);

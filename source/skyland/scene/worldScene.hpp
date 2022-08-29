@@ -57,6 +57,7 @@ public:
 
 
     void persist_ui();
+    void unpersist_ui();
 
 
     void far_camera();

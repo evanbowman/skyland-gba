@@ -385,6 +385,10 @@ enum class SystemString {
     salvage_error_disallowed,
     salvage_drone,
 
+    move_room_prompt,
+    move_room_1,
+    move_room_2,
+
     achievement_msg_title,
     achievement_msg_unlocked,
 

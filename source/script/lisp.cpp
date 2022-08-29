@@ -217,7 +217,8 @@ static void set_left_subtree(Value* tree, Value* value)
 #define TKEY(T) T->cons().car()->cons().car()->symbol().unique_id()
 
 
-Value* globals_tree_splay(Value* t, Value* key) {
+Value* globals_tree_splay(Value* t, Value* key)
+{
     Value *L, *R, *Y;
     if (t == get_nil()) {
         return t;
@@ -232,35 +233,39 @@ Value* globals_tree_splay(Value* t, Value* key) {
     auto inp_key = key->symbol().unique_id();
 
     for (;;) {
-	if (inp_key < TKEY(t)) {
-	    if (LST(t) == get_nil()) break;
-	    if (inp_key < TKEY(LST(t))) {
-		Y = LST(t);                           /* rotate right */
+        if (inp_key < TKEY(t)) {
+            if (LST(t) == get_nil())
+                break;
+            if (inp_key < TKEY(LST(t))) {
+                Y = LST(t); /* rotate right */
                 SLST(t, RST(Y));
-		SRST(Y, t);
-		t = Y;
-		if (LST(t) == get_nil()) break;
-	    }
-            SLST(R, t);                               /* link right */
-	    R = t;
-	    t = LST(t);
-	} else if (inp_key > TKEY(t)) {
-	    if (RST(t) == get_nil()) break;
-	    if (inp_key > TKEY(RST(t))) {
-		Y = RST(t);                           /* rotate left */
+                SRST(Y, t);
+                t = Y;
+                if (LST(t) == get_nil())
+                    break;
+            }
+            SLST(R, t); /* link right */
+            R = t;
+            t = LST(t);
+        } else if (inp_key > TKEY(t)) {
+            if (RST(t) == get_nil())
+                break;
+            if (inp_key > TKEY(RST(t))) {
+                Y = RST(t); /* rotate left */
                 SRST(t, LST(Y));
                 SLST(Y, t);
-		t = Y;
-		if (RST(t) == get_nil()) break;
-	    }
-            SRST(L, t);                               /* link left */
-	    L = t;
-	    t = RST(t);
-	} else {
-	    break;
-	}
+                t = Y;
+                if (RST(t) == get_nil())
+                    break;
+            }
+            SRST(L, t); /* link left */
+            L = t;
+            t = RST(t);
+        } else {
+            break;
+        }
     }
-    SRST(L, LST(t));                                  /* assemble */
+    SRST(L, LST(t)); /* assemble */
     SLST(R, RST(t));
     SLST(t, RST(temp));
     SRST(t, LST(temp));
@@ -1593,19 +1598,20 @@ struct FinalizerTableEntry {
 };
 
 
-constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table = {
-    HeapNode::finalizer,
-    Nil::finalizer,
-    Integer::finalizer,
-    Cons::finalizer,
-    Function::finalizer,
-    Error::finalizer,
-    Symbol::finalizer,
-    UserData::finalizer,
-    DataBuffer::finalizer,
-    String::finalizer,
-    Character::finalizer,
-    __Reserved::finalizer,
+constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
+    {
+        HeapNode::finalizer,
+        Nil::finalizer,
+        Integer::finalizer,
+        Cons::finalizer,
+        Function::finalizer,
+        Error::finalizer,
+        Symbol::finalizer,
+        UserData::finalizer,
+        DataBuffer::finalizer,
+        String::finalizer,
+        Character::finalizer,
+        __Reserved::finalizer,
 };
 
 
@@ -3686,15 +3692,13 @@ void init(Platform& pfrm)
     bound_context->string_buffer_ = bound_context->nil_;
     bound_context->macros_ = bound_context->nil_;
 
-    bound_context->tree_nullnode_ = make_cons(get_nil(),
-                                              make_cons(get_nil(),
-                                                        get_nil()));
+    bound_context->tree_nullnode_ =
+        make_cons(get_nil(), make_cons(get_nil(), get_nil()));
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.
     push_op(get_nil());
     push_op(get_nil());
-
 
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {

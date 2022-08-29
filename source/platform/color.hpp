@@ -29,8 +29,7 @@
 class Color
 {
 public:
-    constexpr Color(ColorConstant k) :
-        r_(0), g_(0), b_(0)
+    constexpr Color(ColorConstant k) : r_(0), g_(0), b_(0)
     {
         const auto val = static_cast<int>(k);
         r_ = (val & 0xFF0000) >> 16;

@@ -784,6 +784,13 @@ void WorldScene::persist_ui()
 
 
 
+void WorldScene::unpersist_ui()
+{
+    persistent_ui_ = false;
+}
+
+
+
 void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     if (app.macrocosm()) {

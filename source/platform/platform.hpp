@@ -965,7 +965,6 @@ contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
 
 
 
-
 // Helper function for drawing background tiles larger than the default size (8x8 pixels)
 inline void draw_image(Platform& pfrm,
                        TileDesc start_tile,

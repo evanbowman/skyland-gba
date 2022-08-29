@@ -95,8 +95,6 @@ void __cxa_pure_virtual()
 {
     Platform::fatal("pure virtual call!");
 }
-
-
 }
 
 
@@ -832,7 +830,8 @@ static bool unlock_gameboy_player(Platform& pfrm)
     BG0_X_SCROLL = 0;
     BG0_Y_SCROLL = 0;
 
-    static constexpr const auto white_555 = Color(custom_color(0xffffff)).bgr_hex_555();
+    static constexpr const auto white_555 =
+        Color(custom_color(0xffffff)).bgr_hex_555();
 
     // The fade effect is costly, pre-populate the palette with the start color
     // to mitigate (visible) tearing.

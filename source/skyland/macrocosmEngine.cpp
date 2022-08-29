@@ -36,8 +36,8 @@ extern "C" {
 // FIXME!!!
 #include "heatshrink/heatshrink_decoder.c"
 }
-#include "script/listBuilder.hpp"
 #include "compression.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -364,7 +364,8 @@ template <u32 inflate> struct Sector
         }
 
         static_assert(sizeof blocks_ == 576);
-        struct Ctx {
+        struct Ctx
+        {
             Buffer<char, 900> compressed;
             Buffer<char, 900> decompressed;
         };
@@ -408,7 +409,8 @@ template <u32 inflate> struct Sector
         }
 
         static_assert(sizeof blocks_ == 576);
-        struct Ctx {
+        struct Ctx
+        {
             Buffer<char, 900> block_data;
             Buffer<char, 900> compressed;
         };

@@ -995,8 +995,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto room = island->get_room(coord)) {
              auto tp_name = lisp::get_op(0)->symbol().name();
-             room->__unsafe__transmute(*pfrm, *app,
-                                       metaclass_index(tp_name));
+             room->__unsafe__transmute(*pfrm, *app, metaclass_index(tp_name));
          }
 
          return L_NIL;
