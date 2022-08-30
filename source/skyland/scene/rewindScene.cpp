@@ -317,6 +317,24 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::player_room_destroyed_with_group: {
+            auto e = (time_stream::event::PlayerRoomDestroyedWithGroup*)end;
+            (*load_metaclass(e->type_))
+                ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                const bool quiet = (*room->metaclass())->properties() &
+                                   RoomProperties::destroy_quietly;
+                if (not quiet) {
+                    medium_explosion_inv(pfrm, app, room->origin());
+                }
+                room->set_group((Room::Group)e->group_);
+                app.player_island().repaint(pfrm, app);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::opponent_room_destroyed: {
             auto e = (time_stream::event::OpponentRoomDestroyed*)end;
             (*load_metaclass(e->type_))
@@ -994,6 +1012,18 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 Platform::fatal("error rewinding disembark: dest room missing");
             }
 
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::weapon_set_group: {
+            auto e = (time_stream::event::WeaponSetGroup*)end;
+            if (auto room = app.player_island().get_room({e->room_x_,
+                                                          e->room_y_})) {
+                room->set_group((Room::Group)e->prev_group_);
+                app.player_island().repaint(pfrm, app);
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }

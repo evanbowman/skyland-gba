@@ -888,14 +888,25 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 }
             }
 
+            const auto group = room->group();
+
             room->finalize(pfrm, app);
 
             if (&owner() == &app.player()) {
-                time_stream::event::PlayerRoomDestroyed p;
-                p.x_ = pos.x;
-                p.y_ = pos.y;
-                p.type_ = mt;
-                app.time_stream().push(app.level_timer(), p);
+                if (group not_eq Room::Group::none) {
+                    time_stream::event::PlayerRoomDestroyedWithGroup p;
+                    p.x_ = pos.x;
+                    p.y_ = pos.y;
+                    p.type_ = mt;
+                    p.group_ = (u8)group;
+                    app.time_stream().push(app.level_timer(), p);
+                } else {
+                    time_stream::event::PlayerRoomDestroyed p;
+                    p.x_ = pos.x;
+                    p.y_ = pos.y;
+                    p.type_ = mt;
+                    app.time_stream().push(app.level_timer(), p);
+                }
             } else {
                 time_stream::event::OpponentRoomDestroyed p;
                 p.x_ = pos.x;

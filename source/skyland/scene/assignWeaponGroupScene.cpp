@@ -26,6 +26,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -79,6 +80,13 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
                     //     room->set_group(current_group_);
                     // }
                     auto group = room->group();
+
+                    time_stream::event::WeaponSetGroup e;
+                    e.room_x_ = cursor_loc.x;
+                    e.room_y_ = cursor_loc.y;
+                    e.prev_group_ = (u8)group;
+                    app.time_stream().push(app.level_timer(), e);
+
                     if ((int)group < (int)Room::Group::three) {
                         group = (Room::Group)((int)group + 1);
                     } else {

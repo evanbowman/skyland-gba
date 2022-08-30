@@ -66,6 +66,8 @@ enum Type : u8 {
     player_room_destroyed,
     opponent_room_destroyed,
 
+    player_room_destroyed_with_group,
+
     player_room_transmuted,
     opponent_room_transmuted,
 
@@ -167,6 +169,8 @@ enum Type : u8 {
 
     player_fire_extinguished,
     opponent_fire_extinguished,
+
+    weapon_set_group,
 };
 
 
@@ -210,6 +214,19 @@ struct PlayerRoomDestroyed
     u8 type_;
 
     static constexpr const auto t = Type::player_room_destroyed;
+};
+
+
+
+struct PlayerRoomDestroyedWithGroup
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 type_;
+    u8 group_;
+
+    static constexpr const auto t = Type::player_room_destroyed_with_group;
 };
 
 
@@ -714,6 +731,18 @@ struct CharacterDisembark
     u8 unused_ : 7;
 
     static constexpr const auto t = Type::character_disembark;
+};
+
+
+
+struct WeaponSetGroup
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    u8 prev_group_;
+
+    static constexpr const auto t = Type::weapon_set_group;
 };
 
 

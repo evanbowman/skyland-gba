@@ -232,6 +232,13 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         island(app)->destroy_room(pfrm, app, cursor_loc);
 
                         if (island(app) == &app.player_island()) {
+                            if (room->group() not_eq Room::Group::none) {
+                                time_stream::event::WeaponSetGroup e;
+                                e.room_x_ = cursor_loc.x;
+                                e.room_y_ = cursor_loc.y;
+                                e.prev_group_ = (u8)room->group();
+                                app.time_stream().push(app.level_timer(), e);
+                            }
                             time_stream::event::PlayerRoomSalvaged e;
                             setup(e);
                             app.time_stream().push(app.level_timer(), e);
