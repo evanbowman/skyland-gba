@@ -249,8 +249,18 @@ Platform::Screen::Shader Storm::shader(App& app) const
 
         case ShaderPalette::spritesheet:
             switch (index) {
+
+            case 8:
+                return custom_color(0x5e728c);
+
             case 10:
                 return custom_color(0x1780bd);
+
+            case 11:
+                return custom_color(0x95bbbd);
+
+            case 12:
+                return custom_color(0x10405c);
 
             default:
                 break;
