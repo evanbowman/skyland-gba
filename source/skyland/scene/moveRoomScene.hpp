@@ -279,7 +279,11 @@ public:
         if ((int)state_ > (int)State::prompt) {
             Sprite cursor;
             cursor.set_size(Sprite::Size::w16_h32);
-            cursor.set_texture_index(15 + cursor_anim_frame_);
+            if (state_ == State::move_block) {
+                cursor.set_texture_index(110);
+            } else {
+                cursor.set_texture_index(15 + cursor_anim_frame_);
+            }
 
             auto origin = app.player_island().visual_origin();
 
@@ -292,14 +296,23 @@ public:
 
 
             pfrm.screen().draw(cursor);
-
-            if (auto room = app.player_island().get_room(cursor_loc)) {
-                room->display_on_hover(pfrm.screen(), app, cursor_loc);
-            }
         }
 
         if (state_ == State::move_block) {
+
             auto origin = player_island(app).visual_origin();
+            auto loc =
+                (move_src_.cast<int>() + move_diff_.cast<int>()).cast<u8>();
+            origin.x += loc.x * 16;
+            origin.y += loc.y * 16;
+
+            Sprite sprite;
+            sprite.set_position(origin);
+            sprite.set_texture_index(15 + cursor_anim_frame_);
+            sprite.set_size(Sprite::Size::w16_h32);
+            pfrm.screen().draw(sprite);
+
+            origin = player_island(app).visual_origin();
             auto cursor_loc = globals().near_cursor_loc_;
             cursor_loc =
                 (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
@@ -342,6 +355,13 @@ public:
                         pfrm.screen().draw(sprite);
                     }
                 }
+            }
+        }
+
+        if ((int)state_ > (int)State::prompt) {
+            auto& cursor_loc = globals().near_cursor_loc_;
+            if (auto room = app.player_island().get_room(cursor_loc)) {
+                room->display_on_hover(pfrm.screen(), app, cursor_loc);
             }
         }
 
