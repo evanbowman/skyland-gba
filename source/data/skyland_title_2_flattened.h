@@ -9,7 +9,7 @@
 //	+ 481 tiles not compressed
 //	Total size: 512 + 15392 = 15904
 //
-//	Time-stamp: 2022-04-24, 10:53:23
+//	Time-stamp: 2022-08-30, 12:36:13
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
