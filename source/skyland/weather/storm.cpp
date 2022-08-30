@@ -55,7 +55,8 @@ Storm::Storm()
 
 void Storm::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    const auto scale = rain_pos_scale;
+    static const auto scale = rain_pos_scale;
+    static_assert(scale % 2 == 0);
 
     auto& gen = rng::utility_state;
 
@@ -76,10 +77,14 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    const s16 sd = delta;
+    const s16 sx = pfrm.screen().size().x + 24;
+    const s16 sy = pfrm.screen().size().y;
+
     for (auto& rd : s.raindrops_) {
         if ((rd.x / scale) < 0 or
-            (rd.y / scale) > (s16)pfrm.screen().size().y or
-            (rd.x / scale) > (s16)pfrm.screen().size().x + 24 or
+            (rd.y / scale) > sy or
+            (rd.x / scale) > sx or
             (rd.y / scale) < -24) {
 
             if (delta == 0) {
@@ -95,8 +100,8 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
         } else {
-            rd.x -= (delta >> 6) + (delta >> 8);
-            rd.y += (delta >> 6) + (delta >> 8);
+            rd.x -= (sd >> 6) + (sd >> 8);
+            rd.y += (sd >> 6) + (sd >> 8);
 
             rd.x -= camera_diff_x * (scale + 48);
             rd.y -= camera_diff_y * (scale + 48);
