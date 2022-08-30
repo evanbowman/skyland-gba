@@ -90,9 +90,30 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
                 smoothstep(milliseconds(500), milliseconds(2000), timer_);
             pfrm.set_overlay_origin(0, amount * 30);
         }
+
+        if (timer_ > milliseconds(2100)) {
+            bird_seq_timer2_ += delta;
+        }
+
+        if (timer_ > milliseconds(1900)) {
+            bird_seq_timer3_ += delta;
+        }
+
+        if (timer_ > milliseconds(1300)) {
+            bird_seq_timer_ += delta;
+
+            bird_anim_timer_ += delta;
+            if (bird_anim_timer_ > milliseconds(150)) {
+                bird_anim_timer_ -= milliseconds(150);
+                ++bird_anim_;
+                if (bird_anim_ == 6) {
+                    bird_anim_ = 0;
+                }
+            }
+        }
+
         if (timer_ > milliseconds(2000)) {
             pfrm.set_overlay_origin(0, 30);
-
             draw_image(pfrm, 82, 4, 9, 22, 10, Layer::overlay);
         }
 
@@ -116,6 +137,9 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             copyright_text_.reset();
             pfrm.fill_overlay(0);
             timer_ = 0;
+            bird_seq_timer_ = 0;
+            bird_seq_timer2_ = 0;
+            bird_seq_timer3_ = 0;
         }
     } else {
         if (timer_ > milliseconds(400)) {
@@ -133,69 +157,76 @@ void IntroCreditsScene::show_sunflowers(Platform& pfrm,
                                         int scroll,
                                         Float darken)
 {
-    Sprite sprite;
-    sprite.set_priority(0);
-
-    if (darken not_eq 0.f) {
-        sprite.set_mix({ColorConstant::rich_black, u8(255 * darken)});
-    }
-
-    const Float sy = pfrm.screen().size().y;
-    const Float sx = pfrm.screen().size().x;
-
-    const auto view_origin = pfrm.screen().get_view().get_center();
-
-    auto spr = [&](int t, Float x, Float y) {
-        sprite.set_texture_index(t);
-        sprite.set_position({x + view_origin.x, y + view_origin.y});
-        pfrm.screen().draw(sprite);
-    };
-
-    sprite.set_size(Sprite::Size::w32_h32);
-    spr(21, 0 - scroll, (sy - 16) + scroll / 2);
-    spr(20, 0 - scroll, (sy - 48) + scroll / 2);
-    spr(19, 0 - scroll, (sy - 80) + scroll / 2);
-
-    spr(22, 32 - scroll, (sy - 16) + scroll / 2);
-    spr(23, 64 - scroll, (sy - 16) + scroll / 2);
-
-
-    spr(25, (sx - 32) + scroll, (sy - 32) + scroll / 2);
-    spr(24, (sx - 32) + scroll, (sy - 64) + scroll / 2);
-    spr(26, (sx - 64) + scroll, (sy - 32) + scroll / 2);
-    spr(27, (sx - 96) + scroll, (sy - 16) + scroll / 2);
-
-
-    spr(28, 0 - scroll, (sy - 112) + scroll / 4);
-    spr(29, 0 - scroll, (sy - 144) + scroll / 4);
-
-    spr(30, (sx - 32) + scroll, (sy - 124) + scroll / 4);
-
-    // spr(32, (sx - 32) + scroll, 0 - scroll / 4);
-    // spr(33, (sx - 32) + scroll, 32 - scroll / 4);
-    // spr(34, (sx - 64) + scroll, 0 - scroll / 4);
 }
-
 
 
 void IntroCreditsScene::display(Platform& pfrm, App& app)
 {
-    if (not flower_effect_) {
-        return;
+    if (bird_seq_timer_) {
+        Sprite spr;
+        spr.set_size(Sprite::Size::w16_h32);
+
+        Vec2<Float> pos;
+        if (bird_seq_timer_ < milliseconds(1000)) {
+            pos = interpolate(Vec2<Float>{191, 47},
+                              Vec2<Float>{240, 16},
+                              bird_seq_timer_ / Float(milliseconds(1000)));
+            spr.set_texture_index(38 + bird_anim_);
+        } else {
+            spr.set_texture_index(37);
+            pos.x = 191;
+            pos.y = 47;
+        }
+
+        spr.set_position(Vec2<Fixnum>{pos.x, pos.y});
+
+        spr.set_priority(0);
+        pfrm.screen().draw(spr);
     }
 
-    if (not wait_ and not text_) {
-        auto amount = smoothstep(milliseconds(0), milliseconds(1200), timer_);
+    if (bird_seq_timer2_) {
+        Sprite spr;
+        spr.set_size(Sprite::Size::w16_h32);
 
-        auto darken_amount =
-            smoothstep(milliseconds(0), milliseconds(600), timer_);
+        Vec2<Float> pos;
+        if (bird_seq_timer2_ < milliseconds(1000)) {
+            pos = interpolate(Vec2<Float>{160, 64},
+                              Vec2<Float>{240, 16},
+                              bird_seq_timer2_ / Float(milliseconds(1000)));
+            spr.set_texture_index(38 + bird_anim_);
+        } else {
+            spr.set_texture_index(37);
+            pos.x = 160;
+            pos.y = 64;
+        }
 
-        show_sunflowers(pfrm, 32 * amount, darken_amount);
-    } else {
-        auto amount = smoothstep(
-            milliseconds(100), milliseconds(4000), flower_effect_timer_);
+        spr.set_position(Vec2<Fixnum>{pos.x, pos.y});
 
-        show_sunflowers(pfrm, 64 * (1.f - amount), 0.f);
+        spr.set_priority(0);
+        pfrm.screen().draw(spr);
+    }
+
+    if (bird_seq_timer3_) {
+        Sprite spr;
+        spr.set_size(Sprite::Size::w16_h32);
+
+        Vec2<Float> pos;
+        if (bird_seq_timer3_ < milliseconds(1000)) {
+            pos = interpolate(Vec2<Float>{196, 72},
+                              Vec2<Float>{240, 16},
+                              bird_seq_timer3_ / Float(milliseconds(1000)));
+            spr.set_texture_index(38 + bird_anim_);
+        } else {
+            spr.set_flip({true, false});
+            spr.set_texture_index(37);
+            pos.x = 196;
+            pos.y = 72;
+        }
+
+        spr.set_position(Vec2<Fixnum>{pos.x, pos.y});
+
+        spr.set_priority(0);
+        pfrm.screen().draw(spr);
     }
 }
 

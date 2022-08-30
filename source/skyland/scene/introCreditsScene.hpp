@@ -59,6 +59,13 @@ private:
     std::optional<Text> copyright_text_;
     Microseconds timer_ = 0;
     Microseconds flower_effect_timer_ = 0;
+
+    Microseconds bird_anim_timer_ = 0;
+    Microseconds bird_seq_timer_ = 0;
+    Microseconds bird_seq_timer2_ = 0;
+    Microseconds bird_seq_timer3_ = 0;
+    u8 bird_anim_ = 1;
+    u8 bird_state_ = 0;
 };
 
 
