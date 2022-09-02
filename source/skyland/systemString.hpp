@@ -343,6 +343,9 @@ enum class SystemString {
     description_targeting_computer,
     description_backup_core,
     description_ladder,
+    description_infirmary,
+    description_replicator,
+    description_drone_bay,
 
     gs_paused,
     gs_slow,

@@ -51,6 +51,13 @@ void Replicator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Replicator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_replicator)->c_str();
+}
+
+
+
 bool Replicator::create_replicant(Platform& pfrm, App& app)
 {
     int character_count = 0;

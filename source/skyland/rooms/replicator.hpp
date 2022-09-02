@@ -65,6 +65,9 @@ public:
     }
 
 
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
     static Float atp_value()
     {
         return 800.f;

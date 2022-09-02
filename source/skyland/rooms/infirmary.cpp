@@ -69,6 +69,12 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
+void Infirmary::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_infirmary)->c_str();
+}
+
+
 void Infirmary::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::infirmary_1;

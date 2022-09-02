@@ -50,6 +50,13 @@ DroneBay::DroneBay(Island* parent, const RoomCoord& position)
 
 
 
+void DroneBay::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_drone_bay)->c_str();
+}
+
+
+
 void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);

@@ -222,7 +222,7 @@ A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% s
 Water! Puts out fire in adjacent tiles.
 Water source block.
 Slightly lowers the construction cost of all blocks.
-Scans the interior of hostile castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
+Shows the interior of hostile castles! Radars also improve transporter accuracy!
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
 "Give me your tired, your poor, Your huddled masses yearning to breathe free"
 Flows across an island, sets non-fireproof blocks aflame.
@@ -249,7 +249,7 @@ While ineffective against most modern weaponry, villagers in skyland still build
 A massively destructive weapon with a sluggish %.% second recharge. Reloads and fires only when inhabited by a character.
 A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
 A placeholder structure created after a character destroys a room by plundering.
-Programmable audio block. Must be placed within four tiles to the right of a speaker block. Position determines  channel (+1 sqr, +2 sqr, +3 wav, +4 noise).
+Programmable audio block. Must be placed within four tiles to the right of a speaker block. Position determines  channel (+1 sqr, +2 sqr, +3 noise).
 Stores one unit of cargo. Required for quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
@@ -268,6 +268,9 @@ Changes the weather to clear skies!
 Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 Like a stairwell, but half as tall.
+Heals inhabitants, slower for each additional inhabitant. Only heals crew originating from the same island as the infirmary.
+Produces replicants. A replicant has 75% of the health of the source character, and cannot heal.
+Deploys a drone! When destroyed, the deployed drone will also be destroyed.
 paused
 slow
 regular
