@@ -344,15 +344,28 @@ void App::on_remote_console_text(Platform& pfrm,
 
 
 
+#if not MAPBOX_ETERNAL_IS_CONSTEXPR
+#error "NON-Constexpr lookup table!"
+#endif
+
+
+
 static bool is_gui_sound(const char* sound_name)
 {
-    return str_eq(sound_name, "click") or str_eq(sound_name, "drone_beep") or
-           str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
-           str_eq(sound_name, "click_wooden") or
-           str_eq(sound_name, "button_wooden") or
-           str_eq(sound_name, "click_negative") or
-           str_eq(sound_name, "cursor_tick") or
-           str_eq(sound_name, "weapon_target");
+    MAPBOX_ETERNAL_CONSTEXPR const auto gui_sound_table =
+        mapbox::eternal::map<mapbox::eternal::string, int>({
+                    {"click", 0},
+                    {"drone_beep", 0},
+                    {"openbag", 0},
+                    {"beep_error", 0},
+                    {"click_wooden", 0},
+                    {"button_wooden", 0},
+                    {"click_negative", 0},
+                    {"cursor_tick", 0},
+                    {"weapon_target", 0}
+            });
+
+    return gui_sound_table.find(sound_name) not_eq gui_sound_table.end();
 }
 
 
