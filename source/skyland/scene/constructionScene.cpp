@@ -218,9 +218,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.y = globals().near_cursor_loc_.y;
                 return scene_pool::alloc<ConstructionScene>(false);
             }
-        }
-
-        if (test_key(Key::left)) {
+        } else if (test_key(Key::left)) {
             if (selector_ > 0) {
                 --selector_;
 
@@ -237,6 +235,24 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<ConstructionScene>(true);
+            }
+        } else if (test_key(Key::up)) {
+            if (selector_ > 0 and
+                data_->construction_sites_[selector_].x ==
+                data_->construction_sites_[selector_ - 1].x) {
+
+                --selector_;
+                sync_cursor = true;
+                pfrm.speaker().play_sound("cursor_tick", 0);
+            }
+        } else if (test_key(Key::down)) {
+            if (selector_ < data_->construction_sites_.size() - 1 and
+                data_->construction_sites_[selector_].x ==
+                data_->construction_sites_[selector_ + 1].x) {
+
+                ++selector_;
+                sync_cursor = true;
+                pfrm.speaker().play_sound("cursor_tick", 0);
             }
         }
 
