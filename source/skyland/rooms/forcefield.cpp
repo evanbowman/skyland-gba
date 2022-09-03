@@ -24,6 +24,7 @@
 #include "platform/platform.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -51,20 +52,26 @@ Forcefield::Forcefield(Island* parent,
 void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        schedule_repaint();
+    }
 }
 
 
 
 void Forcefield::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::forcefield;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void Forcefield::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::forcefield;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
@@ -78,14 +85,16 @@ void Forcefield2::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 void Forcefield2::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::forcefield2;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void Forcefield2::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::forcefield2;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
@@ -100,6 +109,43 @@ void Forcefield::finalize(Platform& pfrm, App& app)
 
     if (health() == 0) {
         glass_break_sound.play(pfrm, 3);
+    }
+}
+
+
+
+void Forcefield2::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        schedule_repaint();
+    }
+}
+
+
+
+extern SharedVariable block_crack_threshold_health;
+
+
+
+TileId Forcefield::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_forcefield;
+    } else {
+        return Tile::forcefield;
+    }
+}
+
+
+
+TileId Forcefield2::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_forcefield2;
+    } else {
+        return Tile::forcefield2;
     }
 }
 

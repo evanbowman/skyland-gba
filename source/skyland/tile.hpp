@@ -238,6 +238,8 @@ struct Tile
         damaged_mirror_hull,
         damaged_stacked_hull,
         damaged_energized_hull,
+        damaged_forcefield,
+        damaged_forcefield2,
     };
 };
 
@@ -447,6 +449,8 @@ struct InteriorTile
         damagad_mirror_hull,
         damaged_stacked_hull,
         damaged_energized_hull,
+        damaged_forcefield,
+        damaged_forcefield2,
     };
 };
 

@@ -63,6 +63,9 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
+    TileId tile() const;
+
+
     static Category category()
     {
         return Category::wall;
@@ -121,6 +124,9 @@ public:
                RoomProperties::accepts_ion_damage | RoomProperties::fireproof |
                RoomProperties::destroy_quietly;
     }
+
+protected:
+    TileId last_tile_;
 };
 
 
@@ -152,6 +158,9 @@ public:
     }
 
 
+    void update(Platform&, App&, Microseconds delta) override;
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
@@ -177,6 +186,10 @@ public:
     {
         return 2264;
     }
+
+
+    TileId tile() const;
+
 };
 
 
