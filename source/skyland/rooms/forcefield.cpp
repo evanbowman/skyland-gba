@@ -60,6 +60,17 @@ void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Forcefield::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        schedule_repaint();
+    }
+}
+
+
+
 void Forcefield::render_interior(App& app, TileId buffer[16][16])
 {
     last_tile_ = tile();
@@ -117,6 +128,17 @@ void Forcefield::finalize(Platform& pfrm, App& app)
 void Forcefield2::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        schedule_repaint();
+    }
+}
+
+
+
+void Forcefield2::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
