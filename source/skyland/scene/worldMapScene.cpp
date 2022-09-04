@@ -1079,12 +1079,6 @@ void WorldMapScene::display(Platform& pfrm, App& app)
             }
         }
 
-        for (auto& o : tier_2_reachable) {
-            cursor.set_mix({ColorConstant::rich_black, 180});
-            cursor.set_texture_index(76);
-            draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
-        }
-
     } else if (state_ == State::save_selected or
                state_ == State::save_button_depressed or
                state_ == State::save_button_released_wait) {
