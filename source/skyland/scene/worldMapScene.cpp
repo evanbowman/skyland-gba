@@ -1034,27 +1034,56 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_alpha(Sprite::Alpha::translucent);
         cursor.set_priority(2);
 
-        for (int i = 0; i < 4; ++i) {
-            cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 32});
-            pfrm.screen().draw(cursor);
-            cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8});
-            pfrm.screen().draw(cursor);
+        auto draw_range =
+            [&cursor, &pfrm](int x, int y) {
+                for (int i = 0; i < 4; ++i) {
+                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 32});
+                    pfrm.screen().draw(cursor);
+                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8});
+                    pfrm.screen().draw(cursor);
+                }
+
+                cursor.set_texture_index(74);
+                for (int i = 0; i < 4; ++i) {
+                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 64});
+                    pfrm.screen().draw(cursor);
+                }
+
+                cursor.set_texture_index(75);
+                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8});
+                pfrm.screen().draw(cursor);
+                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32});
+                pfrm.screen().draw(cursor);
+                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32 + 8});
+                pfrm.screen().draw(cursor);
+            };
+
+        draw_range(x, y);
+
+        cursor.set_mix({ColorConstant::rich_black, 64});
+        auto o = movement_targets_[movement_cursor_];
+        cursor.set_texture_index(76);
+        draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
+
+        Buffer<Vec2<s8>, 10> tier_2_reachable;
+        for (int x = o.x - 4; x < o.x + 5; ++x) {
+            for (int y = o.y - 4; y < o.y + 5; ++y) {
+                for (auto& node : app.world_graph().nodes_) {
+                    if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
+                        node.type_ not_eq WorldGraph::Node::Type::null and
+                        node.coord_ not_eq o and
+                        node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
+                        tier_2_reachable.push_back(node.coord_);
+                    }
+                }
+            }
         }
 
-        cursor.set_texture_index(74);
-        for (int i = 0; i < 4; ++i) {
-            cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 64});
-            pfrm.screen().draw(cursor);
+        for (auto& o : tier_2_reachable) {
+            cursor.set_mix({ColorConstant::rich_black, 180});
+            cursor.set_texture_index(76);
+            draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
         }
-
-        cursor.set_texture_index(75);
-        cursor.set_position({Float(x) * 8 + 64, Float(y) * 8});
-        pfrm.screen().draw(cursor);
-        cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32});
-        pfrm.screen().draw(cursor);
-        cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32 + 8});
-        pfrm.screen().draw(cursor);
-
 
     } else if (state_ == State::save_selected or
                state_ == State::save_button_depressed or
