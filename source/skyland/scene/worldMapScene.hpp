@@ -104,6 +104,11 @@ private:
 
     void render_map_key(Platform& pfrm, App&);
 
+    static bool show_tier_2_;
+    bool tier_2_visible_ = false;
+
+    Microseconds tier_2_timer_ = 0;
+
     std::optional<Text> heading_;
     std::optional<Text> warning_;
     std::optional<Text> exit_label_;

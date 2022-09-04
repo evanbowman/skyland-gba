@@ -411,6 +411,10 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
 
 
 
+bool WorldMapScene::show_tier_2_ = true;
+
+
+
 ScenePtr<Scene>
 WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -450,6 +454,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         render_map_key(pfrm, app);
     };
 
+
+    if (app.player().key_down(pfrm, Key::start)) {
+        show_tier_2_ = not show_tier_2_;
+    }
 
     switch (state_) {
     case State::deselected:
@@ -591,6 +599,13 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::move: {
+        if (not tier_2_visible_) {
+            tier_2_timer_ += delta;
+            if (tier_2_timer_ > milliseconds(1500)) {
+                tier_2_timer_ = 0;
+                tier_2_visible_ = true;
+            }
+        }
         if (app.player().key_down(pfrm, Key::action_1)) {
             app.world_graph().nodes_[cursor_].type_ =
                 WorldGraph::Node::Type::visited;
@@ -633,6 +648,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         // auto current = movement_targets_[movement_cursor_];
         if (app.player().key_down(pfrm, Key::left)) {
             Buffer<int, 10> left;
+
+            tier_2_visible_ = false;
+            tier_2_timer_ = 0;
 
             auto search = [&](int width) {
                 left.clear();
@@ -677,6 +695,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             render_map_key(pfrm, app);
         } else if (app.player().key_down(pfrm, Key::right)) {
             Buffer<int, 10> right;
+
+            tier_2_visible_ = false;
+            tier_2_timer_ = 0;
 
             auto search = [&](int width) {
                 right.clear();
@@ -725,6 +746,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::up)) {
             Buffer<int, 10> above;
 
+            tier_2_visible_ = false;
+            tier_2_timer_ = 0;
+
             auto search = [&](int width) {
                 above.clear();
                 for (u32 i = 0; i < movement_targets_.size(); ++i) {
@@ -769,6 +793,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             render_map_key(pfrm, app);
         } else if (app.player().key_down(pfrm, Key::down)) {
             Buffer<int, 10> beneath;
+
+            tier_2_visible_ = false;
+            tier_2_timer_ = 0;
 
             auto search = [&](int width) {
                 beneath.clear();
@@ -1076,6 +1103,15 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                         tier_2_reachable.push_back(node.coord_);
                     }
                 }
+            }
+        }
+
+
+        if (show_tier_2_ and tier_2_visible_) {
+            for (auto& o : tier_2_reachable) {
+                cursor.set_mix({ColorConstant::rich_black, 180});
+                cursor.set_texture_index(76);
+                draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
             }
         }
 
