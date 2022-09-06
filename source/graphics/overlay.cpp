@@ -134,7 +134,7 @@ void UIMetric::display(Platform& pfrm)
 
         Text::OptColors main_clr;
 
-        auto clr = [&] {
+        auto clr = [&]() -> Text::OptColors {
             if (v1 < v2) {
                 main_clr = Text::OptColors{{ColorConstant::rich_black,
                                             ColorConstant::aerospace_orange}};
@@ -149,7 +149,7 @@ void UIMetric::display(Platform& pfrm)
                     return Text::OptColors{{ColorConstant::med_blue_gray,
                                             ColorConstant::rich_black}};
                 } else {
-                    return Text::OptColors{};
+                    return std::nullopt;
                 }
             }
         }();

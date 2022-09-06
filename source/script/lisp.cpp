@@ -182,7 +182,7 @@ static std::optional<Context> bound_context;
 // i.e.: Each global variable binding uses three cons cells.
 
 
-using GlobalsTreeVisitor = ::Function<24, void(Value&, Value&)>;
+using GlobalsTreeVisitor = ::Function<6 * sizeof(void*), void(Value&, Value&)>;
 
 
 static Value* left_subtree(Value* tree)
@@ -467,7 +467,7 @@ Value* get_nil()
 }
 
 
-void get_interns(::Function<24, void(const char*)> callback)
+void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
@@ -482,7 +482,7 @@ void get_interns(::Function<24, void(const char*)> callback)
 }
 
 
-void get_env(::Function<24, void(const char*)> callback)
+void get_env(::Function<6 * sizeof(void*), void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
@@ -813,7 +813,7 @@ Value* make_databuffer(const char* sbr_tag)
 }
 
 
-void live_values(::Function<24, void(Value&)> callback);
+void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 
 Value* make_string_from_literal(const char* str)
@@ -1286,7 +1286,8 @@ Value* dostring(const char* code)
 }
 
 
-Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error)
+Value* dostring(CharSequence& code,
+                ::Function<4 * sizeof(void*), void(Value&)> on_error)
 {
     ++bound_context->interp_entry_count_;
 
@@ -1658,7 +1659,7 @@ static int gc_sweep()
 }
 
 
-void live_values(::Function<24, void(Value&)> callback)
+void live_values(::Function<6 * sizeof(void*), void(Value&)> callback)
 {
     for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
 

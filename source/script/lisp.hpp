@@ -632,8 +632,8 @@ struct Binding {
 void bind_functions(const Binding* bindings, int count);
 
 
-void get_interns(::Function<24, void(const char*)> callback);
-void get_env(::Function<24, void(const char*)> callback);
+void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback);
+void get_env(::Function<6 * sizeof(void*), void(const char*)> callback);
 
 
 Value* get_nil();
@@ -766,7 +766,8 @@ void load_module(Module* module);
 
 
 // Returns the result of the last expression in the string.
-Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error);
+Value* dostring(CharSequence& code,
+                ::Function<4 * sizeof(void*), void(Value&)> on_error);
 Value* dostring(const char* code);
 
 

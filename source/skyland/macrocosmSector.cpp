@@ -789,7 +789,7 @@ void terrain::Sector::render(Platform& pfrm)
         while (not stack.empty()) {
             int tile = stack.back();
             RASTER_DEBUG();
-            pfrm.blit_t0_tile_to_texture(tile + 480, i, overwrite);
+            pfrm.blit_t0_tile_to_texture(tile + RASTER_CELLCOUNT, i, overwrite);
             stack.pop_back();
             overwrite = false;
         }
@@ -802,7 +802,7 @@ void terrain::Sector::render(Platform& pfrm)
         while (not stack.empty()) {
             int tile = stack.back();
             RASTER_DEBUG();
-            pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
+            pfrm.blit_t1_tile_to_texture(tile + RASTER_CELLCOUNT, i, overwrite);
             stack.pop_back();
             overwrite = false;
         }
@@ -848,14 +848,16 @@ void terrain::Sector::render(Platform& pfrm)
                 // this only works because the two cursor frames occupy the same
                 // pixels.
                 RASTER_DEBUG();
-                if (t >= 480) {
-                    pfrm.blit_t1_tile_to_texture(stk[0] + 480, t - 480, false);
+                if (t >= RASTER_CELLCOUNT) {
+                    pfrm.blit_t1_tile_to_texture(
+                        stk[0] + RASTER_CELLCOUNT, t - 480, false);
                 } else {
-                    pfrm.blit_t0_tile_to_texture(stk[0] + 480, t, false);
+                    pfrm.blit_t0_tile_to_texture(
+                        stk[0] + RASTER_CELLCOUNT, t, false);
                 }
             } else {
                 auto stk_cpy = globalstate::_cursor_raster_stack[i];
-                if (t >= 480) {
+                if (t >= RASTER_CELLCOUNT) {
                     flush_stack_t1(stk_cpy, t - 480);
                 } else {
                     flush_stack_t0(stk_cpy, t);
@@ -876,7 +878,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     [[maybe_unused]] auto start = pfrm.delta_clock().sample();
 
-    for (int i = 0; i < 480; ++i) {
+    for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
         if (auto head = (*_db)->depth_1_->visible_[i]) {
 
@@ -919,7 +921,8 @@ void terrain::Sector::render(Platform& pfrm)
 
 
         } else if ((cursor_moved or shrunk) and
-                   raster::globalstate::_recalc_depth_test.get(i + 480)) {
+                   raster::globalstate::_recalc_depth_test.get(
+                       i + RASTER_CELLCOUNT)) {
             pfrm.blit_t1_erase(i);
         }
     }
@@ -940,10 +943,10 @@ void terrain::Sector::render(Platform& pfrm)
 
 
 
-std::optional<QRCode>
-terrain::Sector::qr_encode(Platform& pfrm,
-                           App& app,
-                           Function<16, void(const char*)> msg) const
+std::optional<QRCode> terrain::Sector::qr_encode(
+    Platform& pfrm,
+    App& app,
+    Function<4 * sizeof(void*), void(const char*)> msg) const
 {
     Vector<u8> data;
 

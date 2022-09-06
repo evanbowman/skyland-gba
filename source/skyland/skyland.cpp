@@ -353,17 +353,16 @@ void App::on_remote_console_text(Platform& pfrm,
 static bool is_gui_sound(const char* sound_name)
 {
     MAPBOX_ETERNAL_CONSTEXPR const auto gui_sound_table =
-        mapbox::eternal::map<mapbox::eternal::string, int>({
-                    {"click", 0},
-                    {"drone_beep", 0},
-                    {"openbag", 0},
-                    {"beep_error", 0},
-                    {"click_wooden", 0},
-                    {"button_wooden", 0},
-                    {"click_negative", 0},
-                    {"cursor_tick", 0},
-                    {"weapon_target", 0}
-            });
+        mapbox::eternal::map<mapbox::eternal::string, int>(
+            {{"click", 0},
+             {"drone_beep", 0},
+             {"openbag", 0},
+             {"beep_error", 0},
+             {"click_wooden", 0},
+             {"button_wooden", 0},
+             {"click_negative", 0},
+             {"cursor_tick", 0},
+             {"weapon_target", 0}});
 
     return gui_sound_table.find(sound_name) not_eq gui_sound_table.end();
 }

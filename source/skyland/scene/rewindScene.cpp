@@ -1019,8 +1019,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::weapon_set_group: {
             auto e = (time_stream::event::WeaponSetGroup*)end;
-            if (auto room = app.player_island().get_room({e->room_x_,
-                                                          e->room_y_})) {
+            if (auto room =
+                    app.player_island().get_room({e->room_x_, e->room_y_})) {
                 room->set_group((Room::Group)e->prev_group_);
                 app.player_island().repaint(pfrm, app);
             }

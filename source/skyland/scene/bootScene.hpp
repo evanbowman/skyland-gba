@@ -1,6 +1,7 @@
 #pragma once
 
 #include "modules/datetimeModule.hpp"
+#include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -70,7 +71,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         auto show_cursor = [&] {
             for (int y = 0; y < 20; ++y) {
@@ -106,6 +108,12 @@ public:
                     scene_pool::make_deferred_scene<IntroCreditsScene>();
                 return next;
             } else {
+                if (pfrm.device_name() == "MacroDesktopDemo") {
+                    app.gp_.stateflags_.set(
+                        GlobalPersistentData::freebuild_unlocked, true);
+                    return scene_pool::alloc<MacrocosmFreebuildModule>();
+                }
+
                 return scene_pool::alloc<IntroCreditsScene>();
             }
         }
@@ -251,6 +259,8 @@ static constexpr const char* console_header =
             msg.append(" ");
         }
         msg.__detach();
+
+        info(pfrm, text);
 
         pfrm.screen().clear();
         pfrm.screen().display();

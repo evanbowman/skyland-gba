@@ -459,10 +459,11 @@ public:
                     }
 
 
-                    if (t_start < 480) {
+                    if (t_start < RASTER_CELLCOUNT) {
                         (*_db)->depth_1_needs_repaint.set(t_start, true);
                     } else {
-                        (*_db)->depth_2_needs_repaint.set(t_start - 480, true);
+                        (*_db)->depth_2_needs_repaint.set(
+                            t_start - RASTER_CELLCOUNT, true);
                     }
                 };
 
@@ -501,39 +502,43 @@ public:
             }
 
             n->set_position(p);
-            n->tile_ = texture - 480;
+            n->tile_ = texture - RASTER_CELLCOUNT;
 
-            if (t_start < 480) {
+            if (t_start < RASTER_CELLCOUNT) {
                 n->next_ = (*_db)->depth_1_->visible_[t_start];
                 // NOTE: it's bulk allocation, there's no leak here. The destructor
                 // won't be called, but we're dealing with a primitive type.
                 (*_db)->depth_1_->visible_[t_start] = n.release();
             } else {
-                n->next_ = (*_db)->depth_2_->visible_[t_start - 480];
-                (*_db)->depth_2_->visible_[t_start - 480] = n.release();
+                n->next_ =
+                    (*_db)->depth_2_->visible_[t_start - RASTER_CELLCOUNT];
+                (*_db)->depth_2_->visible_[t_start - RASTER_CELLCOUNT] =
+                    n.release();
             }
         });
 
 
         if (cursor_moved) {
             for (auto& t : prev_cursor_raster_tiles) {
-                if (t < 480) {
+                if (t < RASTER_CELLCOUNT) {
                     (*_db)->depth_1_cursor_redraw.set(t, true);
                 } else {
-                    (*_db)->depth_2_cursor_redraw.set(t - 480, true);
+                    (*_db)->depth_2_cursor_redraw.set(t - RASTER_CELLCOUNT,
+                                                      true);
                 }
             }
             for (auto& t : globalstate::_cursor_raster_tiles) {
-                if (t < 480) {
+                if (t < RASTER_CELLCOUNT) {
                     (*_db)->depth_1_cursor_redraw.set(t, true);
                 } else {
-                    (*_db)->depth_2_cursor_redraw.set(t - 480, true);
+                    (*_db)->depth_2_cursor_redraw.set(t - RASTER_CELLCOUNT,
+                                                      true);
                 }
             }
         }
 
 
-        for (int i = 0; i < 480; ++i) {
+        for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
             if (auto head = (*_db)->depth_1_->visible_[i]) {
                 bool skip_repaint = true;
                 if ((*_db)->depth_1_cursor_redraw.get(i)) {
@@ -690,7 +695,7 @@ public:
         }
 
         // Performs drawing for jagged edge tiles in software.
-        for (int i = 0; i < 480; ++i) {
+        for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
             auto insert_edges = [&](auto head) {
                 bool has_tl = false;
@@ -748,8 +753,8 @@ public:
             globalstate::_cursor_raster_stack[i].clear();
 
             DepthNode* head = nullptr;
-            if (t >= 480) {
-                head = (*_db)->depth_2_->visible_[t - 480];
+            if (t >= RASTER_CELLCOUNT) {
+                head = (*_db)->depth_2_->visible_[t - RASTER_CELLCOUNT];
             } else {
                 head = (*_db)->depth_1_->visible_[t];
             }

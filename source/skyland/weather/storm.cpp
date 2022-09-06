@@ -82,9 +82,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     const s16 sy = pfrm.screen().size().y;
 
     for (auto& rd : s.raindrops_) {
-        if ((rd.x / scale) < 0 or
-            (rd.y / scale) > sy or
-            (rd.x / scale) > sx or
+        if ((rd.x / scale) < 0 or (rd.y / scale) > sy or (rd.x / scale) > sx or
             (rd.y / scale) < -24) {
 
             if (delta == 0) {

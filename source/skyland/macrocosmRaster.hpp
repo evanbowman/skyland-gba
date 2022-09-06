@@ -33,6 +33,18 @@ namespace skyland::macro
 
 
 
+enum {
+#ifdef __GBA__
+    // Sized based on the GBA's hardware vram limits.
+    RASTER_CELLCOUNT = 480,
+#else
+    // TODO: increase this?
+    RASTER_CELLCOUNT = 480,
+#endif
+};
+
+
+
 namespace raster
 {
 namespace globalstate
@@ -101,7 +113,7 @@ extern bool is_night;
 // worth noting. i.e. I had to be careful to make sure that the cursor block
 // does not scroll e.g. right then down in the same frame, would result in
 // erasure of tiles under the block's first (right) position.
-extern Bitvector<480 * 2> _recalc_depth_test;
+extern Bitvector<RASTER_CELLCOUNT * 2> _recalc_depth_test;
 
 } // namespace globalstate
 
@@ -111,12 +123,11 @@ struct DepthNode
 {
     DepthNode* next_;
 
-    // NOTE: a sector cube has dimensions 8x8x9. Bitfields sized accordingly.
     u16 tile_;
-    u16 x_pos_ : 4;
-    u16 y_pos_ : 4;
-    u16 z_pos_ : 4;
-    u16 unused_ : 4;
+    u16 x_pos_ : 5;
+    u16 y_pos_ : 5;
+    u16 z_pos_ : 5;
+    u16 unused_ : 1;
 
     void set_position(const Vec3<u8>& pos)
     {
@@ -145,7 +156,7 @@ struct DepthBufferSlab
     // minimal behavior needed to port the game to a new platform. Any feature
     // that I add to the Platform class makes my life more difficult when trying
     // to port the game.
-    DepthNode* visible_[480];
+    DepthNode* visible_[RASTER_CELLCOUNT];
 
     DepthBufferSlab()
     {
@@ -170,11 +181,11 @@ struct DepthBuffer
     {
     }
 
-    Bitvector<480> depth_1_needs_repaint;
-    Bitvector<480> depth_2_needs_repaint;
+    Bitvector<RASTER_CELLCOUNT> depth_1_needs_repaint;
+    Bitvector<RASTER_CELLCOUNT> depth_2_needs_repaint;
 
-    Bitvector<480> depth_1_cursor_redraw;
-    Bitvector<480> depth_2_cursor_redraw;
+    Bitvector<RASTER_CELLCOUNT> depth_1_cursor_redraw;
+    Bitvector<RASTER_CELLCOUNT> depth_2_cursor_redraw;
 };
 
 

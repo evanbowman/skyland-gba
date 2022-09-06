@@ -62,7 +62,7 @@ public:
     };
 
 
-    using Callback = Function<8, void(Platform&, App&)>;
+    using Callback = Function<2 * sizeof(void*), void(Platform&, App&)>;
 
 
     struct Binding

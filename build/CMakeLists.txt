@@ -296,7 +296,6 @@ add_library(FASTPATH
 
 target_compile_options(FASTPATH PRIVATE
   -O3
-  -fno-rtti
   ${G_COMPILE_FLAGS})
 
 
@@ -875,6 +874,7 @@ elseif(GAMEBOY_ADVANCE)
     ${G_COMPILE_FLAGS})
 
   target_compile_options(FASTPATH PRIVATE
+    -fno-rtti
     ${ARM7_THUMB_FLAGS}
     ${G_COMPILE_FLAGS})
 
@@ -915,13 +915,17 @@ elseif(APPLE)
 
 elseif(UNIX)
 
+  add_library(QR
+    ${ROOT_DIR}/external/qr/qrcodegen.c)
+
   target_link_libraries(SkylandEngine PRIVATE
     -lpthread
     -lsfml-window
     -lsfml-graphics
     -lsfml-system
     -lsfml-audio
-    -lsfml-network)
+    -lsfml-network
+    QR)
 
 endif()
 

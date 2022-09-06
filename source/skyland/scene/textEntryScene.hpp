@@ -37,7 +37,8 @@ namespace skyland
 class TextEntryScene : public Scene
 {
 public:
-    using Receiver = Function<16, ScenePtr<Scene>(const char* text)>;
+    using Receiver =
+        Function<4 * sizeof(void*), ScenePtr<Scene>(const char* text)>;
 
 
     TextEntryScene(const char* prompt,

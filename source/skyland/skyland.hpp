@@ -85,7 +85,7 @@ public:
     Coins terrain_cost(Island& island);
 
 
-    Boxed<Camera, Camera, 32>& camera()
+    Boxed<Camera, Camera, 8 * sizeof(void*)>& camera()
     {
         return camera_;
     }
@@ -176,7 +176,7 @@ public:
     }
 
 
-    using DeferredCallback = Function<16, void(Platform&, App&)>;
+    using DeferredCallback = Function<4 * sizeof(void*), void(Platform&, App&)>;
 
 
     bool on_timeout(Platform& pfrm,
@@ -230,7 +230,8 @@ public:
     }
 
 
-    void init_scripts(Platform& pfrm, Function<16, void(const char*)> msg);
+    void init_scripts(Platform& pfrm,
+                      Function<4 * sizeof(void*), void(const char*)> msg);
 
 
     Coins& victory_coins()
@@ -402,7 +403,8 @@ public:
     }
 
 
-    using MacrocosmEngine = Boxed<macro::Engine, macro::Engine, 16>;
+    using MacrocosmEngine =
+        Boxed<macro::Engine, macro::Engine, 4 * sizeof(void*)>;
     std::optional<MacrocosmEngine>& macrocosm()
     {
         return macrocosm_;
@@ -442,14 +444,15 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
-    Boxed<Camera, Camera, 32> camera_;
+    Boxed<Camera, Camera, 8 * sizeof(void*)> camera_;
     GameSpeed game_speed_ = GameSpeed::normal;
     u16 pause_count_ = 0;
     Rumble rumble_;
 
     KeyCallbackProcessor key_callback_processor_;
 
-    Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
+    Boxed<weather::Environment, weather::ClearSkies, 8 * sizeof(void*)>
+        environment_;
 
     enum class RemoteConsoleSyntax {
         none,

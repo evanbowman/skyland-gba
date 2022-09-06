@@ -218,6 +218,8 @@ void DatetimeModule::repaint(Platform& pfrm)
 
 void DatetimeModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    info(pfrm, "enter datetime module");
+
     if (auto tm = pfrm.system_clock().now()) {
         dt_ = *tm;
     } else {

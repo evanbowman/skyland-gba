@@ -65,7 +65,8 @@ int scratch_buffers_in_use();
 // An emergency function to invoke when the system runs out of scratch
 // buffers. This function should, if possible, drop any non-essential references
 // to scratch buffers.
-void set_scratch_buffer_oom_handler(Function<16, void()> callback);
+void set_scratch_buffer_oom_handler(
+    Function<4 * sizeof(void*), void()> callback);
 
 
 

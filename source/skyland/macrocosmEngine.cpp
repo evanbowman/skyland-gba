@@ -68,7 +68,7 @@ Buffer<u16, 6> _cursor_raster_tiles;
 Buffer<u16, 6> _cursor_raster_stack[6];
 bool is_night = false;
 
-Bitvector<480 * 2> _recalc_depth_test;
+Bitvector<RASTER_CELLCOUNT * 2> _recalc_depth_test;
 
 } // namespace globalstate
 } // namespace raster

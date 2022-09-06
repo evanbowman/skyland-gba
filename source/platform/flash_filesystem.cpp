@@ -26,7 +26,7 @@
 
 
 
-#ifndef __GBA__
+#ifdef __TEST__
 
 
 void arabic__to_string(int num, char* buffer, int base)
@@ -168,7 +168,7 @@ private:
 
 #else
 #include "platform/platform.hpp"
-#endif // __GBA__
+#endif // __TEST__
 
 
 
@@ -387,6 +387,10 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         return failed;
     }
 
+    if (pfrm.save_capacity() == 0) {
+        return initialized;
+    }
+
     start_offset = offset;
     auto root = load_root(pfrm);
 
@@ -490,7 +494,8 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
 
 
-void walk(Platform& pfrm, Function<32, void(const char*)> callback)
+void walk(Platform& pfrm,
+          Function<8 * sizeof(void*), void(const char*)> callback)
 {
     auto offset = start_offset;
 
@@ -516,7 +521,7 @@ void walk(Platform& pfrm, Function<32, void(const char*)> callback)
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
             callback(file_name);
         } else {
-#ifndef __GBA__
+#ifdef __TEST__
             callback(("(INVALID)" + std::string(file_name)).c_str());
 #endif
         }
@@ -940,7 +945,7 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-#ifndef __GBA__
+#ifdef __TEST__
 
 
 
@@ -1297,4 +1302,4 @@ int main()
     flash_filesystem::walk(
         pfrm, [](const char* name) { std::cout << name << std::endl; });
 }
-#endif // __GBA__
+#endif // __TEST__

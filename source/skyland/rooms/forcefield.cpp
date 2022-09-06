@@ -22,9 +22,9 @@
 
 #include "forcefield.hpp"
 #include "platform/platform.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 

@@ -485,7 +485,7 @@ int compile_impl(ScratchBuffer& buffer,
 }
 
 
-void live_values(::Function<24, void(Value&)> callback);
+void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 
 class PeepholeOptimizer {

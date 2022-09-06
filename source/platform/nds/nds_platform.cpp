@@ -846,7 +846,8 @@ void Platform::stackcheck()
 
 
 
-void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
+void Platform::walk_filesystem(
+    Function<8 * sizeof(void*), void(const char* path)> callback)
 {
     filesystem::walk(callback);
 }
@@ -894,7 +895,8 @@ ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 
-void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
+void Platform::set_scratch_buffer_oom_handler(
+    Function<4 * sizeof(void*), void()> callback)
 {
     // ...
 }

@@ -1533,7 +1533,8 @@ static const lisp::Binding script_api[] = {
 
 
 
-void App::init_scripts(Platform& pfrm, Function<16, void(const char*)> msg)
+void App::init_scripts(Platform& pfrm,
+                       Function<4 * sizeof(void*), void(const char*)> msg)
 {
     msg("lisp init...");
 

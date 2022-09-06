@@ -239,7 +239,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (test_key(Key::up)) {
             if (selector_ > 0 and
                 data_->construction_sites_[selector_].x ==
-                data_->construction_sites_[selector_ - 1].x) {
+                    data_->construction_sites_[selector_ - 1].x) {
 
                 --selector_;
                 sync_cursor = true;
@@ -248,7 +248,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (test_key(Key::down)) {
             if (selector_ < data_->construction_sites_.size() - 1 and
                 data_->construction_sites_[selector_].x ==
-                data_->construction_sites_[selector_ + 1].x) {
+                    data_->construction_sites_[selector_ + 1].x) {
 
                 ++selector_;
                 sync_cursor = true;
@@ -1185,10 +1185,8 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             Platform::fatal("hidden rooms Bitvector requires resize!");
         }
 
-        if (not explicitly_disabled and
-            dependencies_satisfied and
-            (not constrain_ or
-             (constrain_ and site_has_space(app, i))) and
+        if (not explicitly_disabled and dependencies_satisfied and
+            (not constrain_ or (constrain_ and site_has_space(app, i))) and
             (app.game_mode() not_eq App::GameMode::tutorial or
              // NOTE: for backwards compatibility with tutorials: The game used
              // to only display blocks that would fit into the selected

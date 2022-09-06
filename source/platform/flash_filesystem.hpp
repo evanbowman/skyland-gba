@@ -47,6 +47,8 @@ inline void info(Platform& pfrm, const StringBuffer<200>& msg)
 }
 #ifdef __FAKE_VECTOR__
 template <typename T> using Vector = Buffer<T, 32000>;
+#else
+#include "containers/vector.hpp"
 #endif
 #else
 #include "containers/vector.hpp"
@@ -162,7 +164,8 @@ store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
 
 
 
-void walk(Platform& pfrm, Function<32, void(const char*)> callback);
+void walk(Platform& pfrm,
+          Function<8 * sizeof(void*), void(const char*)> callback);
 
 
 

@@ -158,7 +158,9 @@ public:
     // The qrcode will hold binary data in the form:
     // first byte: island layout, rest: rle-encoded data.
     std::optional<QRCode>
-    qr_encode(Platform&, App& app, Function<16, void(const char*)> msg) const;
+    qr_encode(Platform&,
+              App& app,
+              Function<4 * sizeof(void*), void(const char*)> msg) const;
 
 
     using Exports = Buffer<ExportInfo, 24>;

@@ -1,16 +1,19 @@
 
+* September 2022
+** ???
+
 * July 2022
 ** DONE Add CRC to flash filesystem
 *** Upon startup, calculate CRC for each loaded file
 **** If not matching, then give up loading files and reformat disk
 **** See whether adjustments to CRC allows loading the corrupted sample data
-** TODO Write lots of unit tests for flash fs!
+** DONE Write lots of unit tests for flash fs!
 ** TODO Add new type of ion weapon?
 *** Extra-strong against forcefields?
 *** Causes forcefields to explode on contact
 **** Would need to be a reward for completing the challenge levels, as it would make them too easy
-** TODO Bugfix: enemy character walks off map when room in path destroyed
-** TODO Bugfix: enemy boarding multiplayer co-op
+** DONE Bugfix: enemy character walks off map when room in path destroyed
+** DONE Bugfix: enemy boarding multiplayer co-op
 
 * June 2022
 ** DONE Crane Minigame
@@ -22,7 +25,7 @@
 ** DONE Add a happiness/unhappiness mechanic to macro mode
 ** DONE Auto-pause & rewind option when island destroyed in easy mode
 ** DONE Add dialog boxes, description for macro mode
-** TODO Ending? Opening cutscene for adventure mode?
+** DONE Ending? Opening cutscene for adventure mode?
 ** TODO Random encounters in macrocosm, stuff to explore
 *** TODO Begin by selecting the positions of generated sectors and placing them on the map
 **** Q: how many to generate? Place them at small random offsets from fixed positions

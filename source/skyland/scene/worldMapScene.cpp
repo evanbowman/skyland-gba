@@ -1061,29 +1061,28 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_alpha(Sprite::Alpha::translucent);
         cursor.set_priority(2);
 
-        auto draw_range =
-            [&cursor, &pfrm](int x, int y) {
-                for (int i = 0; i < 4; ++i) {
-                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 32});
-                    pfrm.screen().draw(cursor);
-                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8});
-                    pfrm.screen().draw(cursor);
-                }
+        auto draw_range = [&cursor, &pfrm](int x, int y) {
+            for (int i = 0; i < 4; ++i) {
+                cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 32});
+                pfrm.screen().draw(cursor);
+                cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8});
+                pfrm.screen().draw(cursor);
+            }
 
-                cursor.set_texture_index(74);
-                for (int i = 0; i < 4; ++i) {
-                    cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 64});
-                    pfrm.screen().draw(cursor);
-                }
+            cursor.set_texture_index(74);
+            for (int i = 0; i < 4; ++i) {
+                cursor.set_position({Float(x) * 8 + i * 16, Float(y) * 8 + 64});
+                pfrm.screen().draw(cursor);
+            }
 
-                cursor.set_texture_index(75);
-                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8});
-                pfrm.screen().draw(cursor);
-                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32});
-                pfrm.screen().draw(cursor);
-                cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32 + 8});
-                pfrm.screen().draw(cursor);
-            };
+            cursor.set_texture_index(75);
+            cursor.set_position({Float(x) * 8 + 64, Float(y) * 8});
+            pfrm.screen().draw(cursor);
+            cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32});
+            pfrm.screen().draw(cursor);
+            cursor.set_position({Float(x) * 8 + 64, Float(y) * 8 + 32 + 8});
+            pfrm.screen().draw(cursor);
+        };
 
         draw_range(x, y);
 

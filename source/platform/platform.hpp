@@ -349,7 +349,8 @@ public:
     bool is_running() const;
 
 
-    using UnrecoverrableErrorCallback = Function<16, void(Platform& pfrm)>;
+    using UnrecoverrableErrorCallback =
+        Function<4 * sizeof(void*), void(Platform& pfrm)>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
 
@@ -491,7 +492,8 @@ public:
         Vec2<u32> size() const;
 
         using Shader =
-            Function<16, ColorConstant(ShaderPalette, ColorConstant, int, int)>;
+            Function<4 * sizeof(void*),
+                     ColorConstant(ShaderPalette, ColorConstant, int, int)>;
 
         void set_shader(Shader shader);
 

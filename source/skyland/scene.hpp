@@ -122,7 +122,7 @@ public:
 ScenePtr<Scene> initial_scene(bool clean_boot);
 
 
-using DeferredScene = Function<16, ScenePtr<Scene>()>;
+using DeferredScene = Function<sizeof(void*) * 4, ScenePtr<Scene>()>;
 
 
 

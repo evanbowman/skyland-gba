@@ -174,8 +174,14 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
         });
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
-        pfrm.speaker().play_sound("button_wooden", 3);
+    if (pfrm.device_name() == "MacroDesktopDemo" or
+        app.player().key_down(pfrm, Key::action_1)) {
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            pfrm.speaker().play_sound("button_wooden", 3);
+        } else {
+            size_sel_ = 2;
+        }
 
         init(pfrm, app);
 
