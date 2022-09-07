@@ -773,7 +773,7 @@ void terrain::Sector::render(Platform& pfrm)
 #ifdef RASTER_DEBUG_ENABLE
 #define RASTER_DEBUG()                                                         \
     do {                                                                       \
-        pfrm.sleep(20);                                                        \
+        pfrm.sleep(10);                                                        \
     } while (false)
 #else
 #define RASTER_DEBUG()                                                         \

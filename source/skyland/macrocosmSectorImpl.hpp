@@ -420,6 +420,8 @@ public:
             set_z_view(size().z);
         }
 
+        [[maybe_unused]] auto start = pfrm.delta_clock().sample();
+
         auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
         globalstate::_cursor_raster_tiles.clear();
 
@@ -539,6 +541,34 @@ public:
 
 
         for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
+
+            auto insert_edges = [](auto tail) {
+
+                const u16 edge_l = 496 - 480;
+                const u16 edge_r = 497 - 480;
+
+                auto cat = tile_category(tail->tile_);
+                if (tail->position().z == 0 and tail->tile_ not_eq edge_l and
+                    tail->tile_ not_eq edge_r) {
+                    if ((cat == bot_angled_l) or
+                        (cat == bot_angled_r)) {
+                        auto n =
+                            (*_db)->depth_node_allocator_.alloc<DepthNode>();
+                        n->set_position(tail->position());
+                        n->next_ = nullptr;
+
+                        if (cat == bot_angled_l) {
+                            n->tile_ = edge_l;
+                        } else if (cat == bot_angled_r) {
+                            n->tile_ = edge_r;
+                        }
+
+                        tail->next_ = n.release();
+                    }
+                }
+            };
+
+
             if (auto head = (*_db)->depth_1_->visible_[i]) {
                 bool skip_repaint = true;
                 if ((*_db)->depth_1_cursor_redraw.get(i)) {
@@ -560,11 +590,15 @@ public:
                 }
 
                 Buffer<TileCategory, 8> seen;
+                auto last = head;
+                bool occluded = false;
+
                 while (head) {
                     auto cg = tile_category(head->tile_);
                     if (cg == opaque) {
                         // Cull non-visible tiles.
                         head->next_ = nullptr;
+                        occluded = true;
                         break;
                     } else {
                         switch (cg) {
@@ -579,6 +613,7 @@ public:
                             // anything beneath.
                             for (auto& s : seen) {
                                 if (s == bot_angled_r) {
+                                    occluded = true;
                                     head->next_ = nullptr;
                                     break;
                                 }
@@ -588,6 +623,7 @@ public:
                         case top_angled_r:
                             for (auto& s : seen) {
                                 if (s == bot_angled_l) {
+                                    occluded = true;
                                     head->next_ = nullptr;
                                     break;
                                 }
@@ -597,6 +633,7 @@ public:
                         case bot_angled_l:
                             for (auto& s : seen) {
                                 if (s == top_angled_r) {
+                                    occluded = true;
                                     head->next_ = nullptr;
                                     break;
                                 }
@@ -606,6 +643,7 @@ public:
                         case bot_angled_r:
                             for (auto& s : seen) {
                                 if (s == top_angled_l) {
+                                    occluded = true;
                                     head->next_ = nullptr;
                                     break;
                                 }
@@ -615,7 +653,12 @@ public:
                         seen.push_back(cg);
                     }
 
+                    last = head;
                     head = head->next_;
+                }
+
+                if (last and not occluded) {
+                    insert_edges(last);
                 }
             }
 
@@ -634,10 +677,14 @@ public:
                     continue;
                 }
                 Buffer<TileCategory, 8> seen;
+                auto last = head;
+                bool occluded = false;
+
                 while (head) {
                     auto cg = tile_category(head->tile_);
                     if (cg == opaque) {
                         // Cull non-visible tiles.
+                        occluded = true;
                         head->next_ = nullptr;
                         break;
                     } else {
@@ -654,6 +701,7 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_r) {
                                     head->next_ = nullptr;
+                                    occluded = true;
                                     break;
                                 }
                             }
@@ -663,6 +711,7 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_l) {
                                     head->next_ = nullptr;
+                                    occluded = true;
                                     break;
                                 }
                             }
@@ -672,6 +721,7 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_r) {
                                     head->next_ = nullptr;
+                                    occluded = true;
                                     break;
                                 }
                             }
@@ -681,6 +731,7 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_l) {
                                     head->next_ = nullptr;
+                                    occluded = true;
                                     break;
                                 }
                             }
@@ -689,61 +740,12 @@ public:
                         seen.push_back(cg);
                     }
 
+                    last = head;
                     head = head->next_;
                 }
-            }
-        }
-
-        // Performs drawing for jagged edge tiles in software.
-        for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
-
-            auto insert_edges = [&](auto head) {
-                bool has_tl = false;
-                bool has_tr = false;
-
-                while (head->next_) {
-                    auto cat = tile_category(head->tile_);
-                    // The top-left or top-right tile would obscure the one that we
-                    // want to draw anyway, so skip it.
-                    if (cat == TileCategory::top_angled_l) {
-                        has_tl = true;
-                    }
-                    if (cat == TileCategory::top_angled_r) {
-                        has_tr = true;
-                    }
-                    head = head->next_;
+                if (last and not occluded) {
+                    insert_edges(last);
                 }
-
-                const u16 edge_l = 496 - 480;
-                const u16 edge_r = 497 - 480;
-
-                auto cat = tile_category(head->tile_);
-                if (head->position().z == 0 and head->tile_ not_eq edge_l and
-                    head->tile_ not_eq edge_r) {
-                    if ((cat == bot_angled_l and not has_tr) or
-                        (cat == bot_angled_r and not has_tl)) {
-                        auto n =
-                            (*_db)->depth_node_allocator_.alloc<DepthNode>();
-                        n->set_position(head->position());
-                        n->next_ = nullptr;
-
-                        if (cat == bot_angled_l) {
-                            n->tile_ = edge_l;
-                        } else if (cat == bot_angled_r) {
-                            n->tile_ = edge_r;
-                        }
-
-                        head->next_ = n.release();
-                    }
-                }
-            };
-
-            if (auto head = (*_db)->depth_1_->visible_[i]) {
-                insert_edges(head);
-            }
-
-            if (auto head = (*_db)->depth_2_->visible_[i]) {
-                insert_edges(head);
             }
         }
 
@@ -764,6 +766,10 @@ public:
                 head = head->next_;
             }
         }
+
+        [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
+        // pfrm.fatal(stringify(stop - start).c_str());
+
     }
 
 
