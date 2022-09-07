@@ -589,9 +589,13 @@ public:
                     continue;
                 }
 
-                Buffer<TileCategory, 8> seen;
                 auto last = head;
                 bool occluded = false;
+
+                bool seen_top_angled_l = false;
+                bool seen_top_angled_r = false;
+                bool seen_bot_angled_l = false;
+                bool seen_bot_angled_r = false;
 
                 while (head) {
                     auto cg = tile_category(head->tile_);
@@ -611,46 +615,39 @@ public:
                             // opposite direction has been rendered, then everything
                             // below would be covered up, so there's no need to draw
                             // anything beneath.
-                            for (auto& s : seen) {
-                                if (s == bot_angled_r) {
-                                    occluded = true;
-                                    head->next_ = nullptr;
-                                    break;
-                                }
+                            seen_top_angled_l = true;
+
+                            if (seen_bot_angled_r) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case top_angled_r:
-                            for (auto& s : seen) {
-                                if (s == bot_angled_l) {
-                                    occluded = true;
-                                    head->next_ = nullptr;
-                                    break;
-                                }
+                            seen_top_angled_r = true;
+
+                            if (seen_bot_angled_l) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case bot_angled_l:
-                            for (auto& s : seen) {
-                                if (s == top_angled_r) {
-                                    occluded = true;
-                                    head->next_ = nullptr;
-                                    break;
-                                }
+                            seen_bot_angled_l = true;
+                            if (seen_top_angled_r) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case bot_angled_r:
-                            for (auto& s : seen) {
-                                if (s == top_angled_l) {
-                                    occluded = true;
-                                    head->next_ = nullptr;
-                                    break;
-                                }
+                            seen_bot_angled_r = true;
+                            if (seen_top_angled_l) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
                         }
-                        seen.push_back(cg);
                     }
 
                     last = head;
@@ -676,9 +673,14 @@ public:
                     (*_db)->depth_2_->visible_[i] = nullptr;
                     continue;
                 }
-                Buffer<TileCategory, 8> seen;
+
                 auto last = head;
                 bool occluded = false;
+
+                bool seen_top_angled_l = false;
+                bool seen_top_angled_r = false;
+                bool seen_bot_angled_l = false;
+                bool seen_bot_angled_r = false;
 
                 while (head) {
                     auto cg = tile_category(head->tile_);
@@ -698,46 +700,39 @@ public:
                             // opposite direction has been rendered, then everything
                             // below would be covered up, so there's no need to draw
                             // anything beneath.
-                            for (auto& s : seen) {
-                                if (s == bot_angled_r) {
-                                    head->next_ = nullptr;
-                                    occluded = true;
-                                    break;
-                                }
+                            seen_top_angled_l = true;
+
+                            if (seen_bot_angled_r) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case top_angled_r:
-                            for (auto& s : seen) {
-                                if (s == bot_angled_l) {
-                                    head->next_ = nullptr;
-                                    occluded = true;
-                                    break;
-                                }
+                            seen_top_angled_r = true;
+
+                            if (seen_bot_angled_l) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case bot_angled_l:
-                            for (auto& s : seen) {
-                                if (s == top_angled_r) {
-                                    head->next_ = nullptr;
-                                    occluded = true;
-                                    break;
-                                }
+                            seen_bot_angled_l = true;
+                            if (seen_top_angled_r) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
 
                         case bot_angled_r:
-                            for (auto& s : seen) {
-                                if (s == top_angled_l) {
-                                    head->next_ = nullptr;
-                                    occluded = true;
-                                    break;
-                                }
+                            seen_bot_angled_r = true;
+                            if (seen_top_angled_l) {
+                                occluded = true;
+                                head->next_ = nullptr;
                             }
                             break;
                         }
-                        seen.push_back(cg);
                     }
 
                     last = head;
@@ -769,7 +764,6 @@ public:
 
         [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
         // pfrm.fatal(stringify(stop - start).c_str());
-
     }
 
 

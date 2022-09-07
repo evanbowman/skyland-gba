@@ -54,8 +54,8 @@ enum Keylock { nolock, buildlock, improvelock, deletelock };
 
 struct EngineImpl : public Engine
 {
-    static const int max_sectors = 20;
-    static const int max_outposts = 30;
+    static const int max_sectors = 28;
+    static const int max_outposts = 20;
 
     struct Data
     {
