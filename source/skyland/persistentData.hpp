@@ -49,6 +49,7 @@ struct GlobalPersistentData
         configured_clock,
         sandbox_prompt,
         freebuild_unlocked,
+        difficulty_prompt,
     };
 
     enum class Difficulty : u8 {

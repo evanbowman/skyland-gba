@@ -42,31 +42,30 @@ void AdventureModeSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
                      1});
 
 
-    const char* easy_str = "easy";
-
+    auto str1 = SYSTR(sf_casual);
     easy_text_.emplace(
         pfrm,
-        easy_str,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(easy_str)), 4});
+        str1->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str1->c_str())), 4});
 
 
-    const char* normal_str = "normal";
-
+    auto str2 = SYSTR(sf_normal);
     normal_text_.emplace(
         pfrm,
-        normal_str,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(normal_str)), 6});
+        str2->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str2->c_str())), 6});
 
 
-    const char* hard_str = "hard";
-
+    auto str3 = SYSTR(sf_hard);
     hard_text_.emplace(
         pfrm,
-        hard_str,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(hard_str)), 8});
+        str3->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str3->c_str())), 8});
 
     pfrm.screen().fade(0.96f);
     pfrm.screen().fade(1.f);
+
+    original_ = (u8)app.gp_.difficulty_;
 }
 
 
@@ -137,7 +136,9 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
 
-        save::store_global_data(pfrm, app.gp_);
+        if (writeback_ and (u8)app.gp_.difficulty_ not_eq original_) {
+            save::store_global_data(pfrm, app.gp_);
+        }
 
         return scene_pool::alloc<WorldMapScene>();
     }

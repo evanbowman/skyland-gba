@@ -20,6 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "adventureModeSettingsScene.hpp"
 #include "zoneImageScene.hpp"
 #include "highscoresScene.hpp"
 #include "newgameScene.hpp"
@@ -168,6 +169,11 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             text_.reset();
             pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
+            if (app.zone() == 1) {
+                return scene_pool::alloc<AdventureModeSettingsScene>(false);
+            }
+
             return scene_pool::alloc<WorldMapScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

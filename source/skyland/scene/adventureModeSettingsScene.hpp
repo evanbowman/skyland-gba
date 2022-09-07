@@ -35,6 +35,12 @@ namespace skyland
 class AdventureModeSettingsScene : public Scene
 {
 public:
+
+    AdventureModeSettingsScene(bool writeback = true) :
+        writeback_(writeback)
+    {
+    }
+
     void enter(Platform& pfrm, App& app, Scene& prev) override;
 
 
@@ -49,6 +55,8 @@ private:
     std::optional<Text> easy_text_;
     std::optional<Text> normal_text_;
     std::optional<Text> hard_text_;
+    bool writeback_;
+    u8 original_;
 };
 
 
