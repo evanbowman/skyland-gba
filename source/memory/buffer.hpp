@@ -139,6 +139,14 @@ public:
         }
     }
 
+    // unsafe! Assumes that you've already checked if full or know contextually
+    // that a buffer has enough space for everything that'll be pushed.
+    template <typename... Args> void emplace_unsafe(Args&&... args)
+    {
+        new (end_) T(std::forward<Args>(args)...);
+        ++end_;
+    }
+
     bool push_back(
         const T& elem,
         void* overflow_callback_data = nullptr,
@@ -246,8 +254,12 @@ public:
 
     void clear()
     {
-        while (not Buffer::empty())
-            Buffer::pop_back();
+        if constexpr (std::is_trivially_destructible<T>()) {
+            end_ = begin_;
+        } else {
+            while (not Buffer::empty())
+                Buffer::pop_back();
+        }
     }
 
     u32 size() const

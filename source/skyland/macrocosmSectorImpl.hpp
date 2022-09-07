@@ -393,6 +393,8 @@ public:
     {
         using namespace raster;
 
+        using fast_bool = int;
+
         if (globalstate::_recast_shadows) {
             shadowcast();
             globalstate::_recast_shadows = false;
@@ -425,9 +427,8 @@ public:
         auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
         globalstate::_cursor_raster_tiles.clear();
 
-        const bool cursor_moved = globalstate::_cursor_moved;
-        const bool grew = globalstate::_grew;
-
+        const fast_bool cursor_moved = globalstate::_cursor_moved;
+        const fast_bool grew = globalstate::_grew;
 
         auto rendering_pass = [&](auto rendering_function) {
             auto project_block = [&](int x, int y, int z) {
@@ -440,8 +441,9 @@ public:
                 }
 
                 int t_start = Derived::screen_mapping_lut[x][y];
-                t_start += 30 * screen_y_offset;
-                t_start -= 30 * z;
+                static constexpr const auto shift = 30 * screen_y_offset;
+                t_start += shift;
+                t_start -= z * 30;
 
                 int texture = (block.type_ - 1) * 12 + 480;
                 if (block.shadowed_) {
@@ -497,6 +499,8 @@ public:
                 allocate_dynamic<raster::DepthBuffer>("depth-buffer", pfrm));
         }
 
+        [[maybe_unused]] auto t2 = pfrm.delta_clock().sample();
+
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
             auto n = (*_db)->depth_node_allocator_.alloc();
 
@@ -513,6 +517,8 @@ public:
             }
         });
 
+
+        [[maybe_unused]] auto t3 = pfrm.delta_clock().sample();
 
         if (cursor_moved) {
             for (auto& t : prev_cursor_raster_tiles) {
@@ -533,6 +539,7 @@ public:
             }
         }
 
+        [[maybe_unused]] auto t4 = pfrm.delta_clock().sample();
 
         for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
@@ -563,7 +570,7 @@ public:
 
 
             if (auto head = (*_db)->depth_1_->visible_[i]) {
-                bool skip_repaint = true;
+                fast_bool skip_repaint = true;
                 if ((*_db)->depth_1_cursor_redraw.get(i)) {
                     skip_repaint = false;
                 }
@@ -583,12 +590,12 @@ public:
                 }
 
                 auto last = head;
-                bool occluded = false;
+                fast_bool occluded = false;
 
-                bool seen_top_angled_l = false;
-                bool seen_top_angled_r = false;
-                bool seen_bot_angled_l = false;
-                bool seen_bot_angled_r = false;
+                fast_bool seen_top_angled_l = false;
+                fast_bool seen_top_angled_r = false;
+                fast_bool seen_bot_angled_l = false;
+                fast_bool seen_bot_angled_r = false;
 
                 while (head) {
                     auto cg = tile_category(head->tile_);
@@ -659,7 +666,7 @@ public:
             }
 
             if (auto head = (*_db)->depth_2_->visible_[i]) {
-                bool skip_repaint = true;
+                fast_bool skip_repaint = true;
                 if ((*_db)->depth_2_cursor_redraw.get(i)) {
                     skip_repaint = false;
                 }
@@ -674,12 +681,12 @@ public:
                 }
 
                 auto last = head;
-                bool occluded = false;
+                fast_bool occluded = false;
 
-                bool seen_top_angled_l = false;
-                bool seen_top_angled_r = false;
-                bool seen_bot_angled_l = false;
-                bool seen_bot_angled_r = false;
+                fast_bool seen_top_angled_l = false;
+                fast_bool seen_top_angled_r = false;
+                fast_bool seen_bot_angled_l = false;
+                fast_bool seen_bot_angled_r = false;
 
                 while (head) {
                     auto cg = tile_category(head->tile_);
@@ -748,6 +755,8 @@ public:
             }
         }
 
+        [[maybe_unused]] auto t5 = pfrm.delta_clock().sample();
+
         for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
             auto t = globalstate::_cursor_raster_tiles[i];
 
@@ -767,7 +776,11 @@ public:
         }
 
         [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
-        // pfrm.fatal(stringify(stop - start).c_str());
+        // pfrm.fatal(format("%, %, %, %",
+        //                   t2 - start,
+        //                   t3 - t2,
+        //                   t4 - t3,
+        //                   t5 - t4).c_str());
     }
 
 

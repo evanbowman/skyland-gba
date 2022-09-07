@@ -286,25 +286,36 @@ public:
     BumpAllocator()
     {
         mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+        current_ = &*mem_.back();
+    }
+
+    static constexpr int block_capacity()
+    {
+        return (SCRATCH_BUFFER_SIZE / sizeof(T)) - 2;
     }
 
     template <typename ...Args>
     T* alloc(Args&& ...args)
     {
-        if (UNLIKELY(mem_.back()->full())) {
+        if (cnt_ == block_capacity()) {
             if (mem_.full()) {
                 Platform::fatal("Bump allocator oom!");
             }
             mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+            current_ = &*mem_.back();
+            cnt_ = 0;
         }
 
-        mem_.back()->emplace_back(std::forward<Args>(args)...);
-        return &mem_.back()->back();
+        ++cnt_;
+        current_->emplace_unsafe(std::forward<Args>(args)...);
+        return &current_->back();
     }
 
 private:
-    using Block = Buffer<T, (SCRATCH_BUFFER_SIZE / sizeof(T)) - 2>;
+    using Block = Buffer<T, block_capacity()>;
     Buffer<DynamicMemory<Block>, pages> mem_;
+    Block* current_;
+    int cnt_ = 0;
 };
 
 
