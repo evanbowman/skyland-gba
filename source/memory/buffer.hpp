@@ -143,7 +143,7 @@ public:
     // that a buffer has enough space for everything that'll be pushed.
     template <typename... Args> void emplace_unsafe(Args&&... args)
     {
-        new (end_) T(std::forward<Args>(args)...);
+        // new (end_) T(std::forward<Args>(args)...);
         ++end_;
     }
 
