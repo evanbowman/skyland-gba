@@ -34,14 +34,18 @@
       (lambda (equal (car $0) 'cargo-bay))
       rooms))))
 
+(defn/c clamp
+  (cond
+   ((< $0 $1) $1)
+   ((> $0 $2) $2)
+   (true $0)))
+
 (defn/c procgen
   (opponent-generate
    (cond
-    ((and (equal (zone) 0) (< (length enemies-seen) 2))
-     (push enemies-seen 0)
-     0)
-    ((equal (zone) 0) 3)
-    ((equal (zone) 1) 6)
+    ((equal (zone) 0)
+     (clamp (- (length enemies-seen) 1) 0 3))
+    ((equal (zone) 1) 5)
     ((equal (zone) 2) 12)
     (true 16))))
 
