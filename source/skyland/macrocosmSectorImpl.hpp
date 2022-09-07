@@ -498,24 +498,18 @@ public:
         }
 
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-            auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
-            if (n == nullptr) {
-                Platform::fatal("depth node allocator out of memory!");
-            }
+            auto n = (*_db)->depth_node_allocator_.alloc();
 
             n->set_position(p);
             n->tile_ = texture - RASTER_CELLCOUNT;
 
             if (t_start < RASTER_CELLCOUNT) {
                 n->next_ = (*_db)->depth_1_->visible_[t_start];
-                // NOTE: it's bulk allocation, there's no leak here. The destructor
-                // won't be called, but we're dealing with a primitive type.
-                (*_db)->depth_1_->visible_[t_start] = n.release();
+                (*_db)->depth_1_->visible_[t_start] = n;
             } else {
                 n->next_ =
                     (*_db)->depth_2_->visible_[t_start - RASTER_CELLCOUNT];
-                (*_db)->depth_2_->visible_[t_start - RASTER_CELLCOUNT] =
-                    n.release();
+                (*_db)->depth_2_->visible_[t_start - RASTER_CELLCOUNT] = n;
             }
         });
 
@@ -547,13 +541,12 @@ public:
                 const u16 edge_l = 496 - 480;
                 const u16 edge_r = 497 - 480;
 
-                auto cat = tile_category(tail->tile_);
                 if (tail->position().z == 0 and tail->tile_ not_eq edge_l and
                     tail->tile_ not_eq edge_r) {
+                    auto cat = tile_category(tail->tile_);
                     if ((cat == bot_angled_l) or
                         (cat == bot_angled_r)) {
-                        auto n =
-                            (*_db)->depth_node_allocator_.alloc<DepthNode>();
+                        auto n = (*_db)->depth_node_allocator_.alloc();
                         n->set_position(tail->position());
                         n->next_ = nullptr;
 
@@ -563,7 +556,7 @@ public:
                             n->tile_ = edge_r;
                         }
 
-                        tail->next_ = n.release();
+                        tail->next_ = n;
                     }
                 }
             };
@@ -620,6 +613,7 @@ public:
                             if (seen_bot_angled_r) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR1;
                             }
                             break;
 
@@ -629,6 +623,7 @@ public:
                             if (seen_bot_angled_l) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR1;
                             }
                             break;
 
@@ -637,6 +632,7 @@ public:
                             if (seen_top_angled_r) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR1;
                             }
                             break;
 
@@ -645,6 +641,7 @@ public:
                             if (seen_top_angled_l) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR1;
                             }
                             break;
                         }
@@ -657,6 +654,8 @@ public:
                 if (last and not occluded) {
                     insert_edges(last);
                 }
+
+            BR1:;
             }
 
             if (auto head = (*_db)->depth_2_->visible_[i]) {
@@ -705,6 +704,7 @@ public:
                             if (seen_bot_angled_r) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR2;
                             }
                             break;
 
@@ -714,6 +714,7 @@ public:
                             if (seen_bot_angled_l) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR2;
                             }
                             break;
 
@@ -722,6 +723,7 @@ public:
                             if (seen_top_angled_r) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR2;
                             }
                             break;
 
@@ -730,6 +732,7 @@ public:
                             if (seen_top_angled_l) {
                                 occluded = true;
                                 head->next_ = nullptr;
+                                goto BR2;
                             }
                             break;
                         }
@@ -741,6 +744,7 @@ public:
                 if (last and not occluded) {
                     insert_edges(last);
                 }
+            BR2:;
             }
         }
 

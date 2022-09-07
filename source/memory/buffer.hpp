@@ -155,6 +155,14 @@ public:
         }
     }
 
+    // Not bounds checked!
+    void push_unsafe(const T& elem)
+    {
+        static_assert(std::is_trivially_destructible<T>());
+        new (end_) T(elem);
+        ++end_;
+    }
+
     bool push_back(T&& elem)
     {
         if (Buffer::size() < Buffer::capacity()) {

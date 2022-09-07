@@ -277,6 +277,38 @@ private:
 };
 
 
+
+template <u8 pages, typename T>
+class BumpAllocator
+{
+public:
+
+    BumpAllocator()
+    {
+        mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+    }
+
+    template <typename ...Args>
+    T* alloc(Args&& ...args)
+    {
+        if (UNLIKELY(mem_.back()->full())) {
+            if (mem_.full()) {
+                Platform::fatal("Bump allocator oom!");
+            }
+            mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+        }
+
+        mem_.back()->emplace_back(std::forward<Args>(args)...);
+        return &mem_.back()->back();
+    }
+
+private:
+    using Block = Buffer<T, (SCRATCH_BUFFER_SIZE / sizeof(T)) - 2>;
+    Buffer<DynamicMemory<Block>, pages> mem_;
+};
+
+
+
 template <u8 pages> struct BulkAllocator
 {
     BulkAllocator(Platform& pfrm)
