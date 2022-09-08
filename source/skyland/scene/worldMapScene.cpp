@@ -688,6 +688,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                         if (not left.empty()) {
                             pfrm.speaker().play_sound("click_wooden", 2);
                             movement_cursor_ = left[0];
+                        } else {
+                            search(8);
+                            if (not left.empty()) {
+                                pfrm.speaker().play_sound("click_wooden", 2);
+                                movement_cursor_ = left[0];
+                            }
                         }
                     }
                 }
@@ -738,6 +744,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                         if (not right.empty()) {
                             pfrm.speaker().play_sound("click_wooden", 2);
                             movement_cursor_ = right[0];
+                        } else {
+                            search(8);
+                            if (not right.empty()) {
+                                pfrm.speaker().play_sound("click_wooden", 2);
+                                movement_cursor_ = right[0];
+                            }
                         }
                     }
                 }
@@ -1053,6 +1065,21 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_position({(target.x + map_start_x) * Float(8) - 4,
                              (target.y + map_start_y) * Float(8) - 4});
         pfrm.screen().draw(cursor);
+
+        for (auto& t : app.world_graph().nodes_) {
+            if (t.type_ not_eq WorldGraph::Node::Type::null and
+                t.type_ not_eq WorldGraph::Node::Type::corrupted and
+                (map_start_x + t.coord_.x) * 8 < (app.world_graph().storm_depth_ + 2) * 16) {
+                cursor.set_texture_index(111);
+                cursor.set_position(
+                {(t.coord_.x + map_start_x) * Float(8) - 3,
+                 (t.coord_.y + map_start_y) * Float(8) - (12)});
+                cursor.set_mix({});
+                cursor.set_priority(0);
+                cursor.set_alpha(Sprite::Alpha::opaque);
+                pfrm.screen().draw(cursor);
+            }
+        }
 
         auto current = app.world_graph().nodes_[cursor_];
         auto x = (current.coord_.x + map_start_x) - 4;

@@ -78,6 +78,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.current_world_location() = 0;
         app.world_graph().generate();
+        app.persistent_data().lives_ = 2;
 
         app.zone() = 1;
 

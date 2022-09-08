@@ -171,7 +171,7 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
             if (app.zone() == 1) {
-                return scene_pool::alloc<AdventureModeSettingsScene>(false);
+                return scene_pool::alloc<AdventureModeSettingsScene>(true);
             }
 
             return scene_pool::alloc<WorldMapScene>();

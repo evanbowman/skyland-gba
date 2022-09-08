@@ -136,8 +136,16 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
 
-        if (writeback_ and (u8)app.gp_.difficulty_ not_eq original_) {
+        if ((u8)app.gp_.difficulty_ not_eq original_) {
             save::store_global_data(pfrm, app.gp_);
+        }
+
+        if (newgame_) {
+            // Hack to add easy-mode coin bonus to player inventory when
+            // selecting initial difficulty.
+            if (app.gp_.difficulty_ == GlobalPersistentData::Difficulty::beginner) {
+                app.set_coins(pfrm, app.coins() + 1000);
+            }
         }
 
         return scene_pool::alloc<WorldMapScene>();

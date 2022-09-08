@@ -36,8 +36,8 @@ class AdventureModeSettingsScene : public Scene
 {
 public:
 
-    AdventureModeSettingsScene(bool writeback = true) :
-        writeback_(writeback)
+    AdventureModeSettingsScene(bool newgame = false) :
+        newgame_(newgame)
     {
     }
 
@@ -55,7 +55,7 @@ private:
     std::optional<Text> easy_text_;
     std::optional<Text> normal_text_;
     std::optional<Text> hard_text_;
-    bool writeback_;
+    bool newgame_;
     u8 original_;
 };
 

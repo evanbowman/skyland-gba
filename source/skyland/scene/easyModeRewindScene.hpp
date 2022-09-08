@@ -32,12 +32,16 @@ public:
 
         title_.emplace(pfrm, title_str->c_str(), OverlayCoord{mg, 1});
 
+        auto lives = SYSTR(easy_mode_auto_rewind_text);
+
         text_.emplace(pfrm,
-                      SYSTR(easy_mode_auto_rewind_text)->c_str(),
+                      format(lives->c_str(),
+                             app.persistent_data().lives_ + 1).c_str(),
                       OverlayCoord{1, 5});
 
         pfrm.screen().pixelate(128, false);
         pfrm.screen().schedule_fade(0.7f);
+
     }
 
 
@@ -112,6 +116,7 @@ private:
     std::optional<Text> text_;
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
+    std::optional<Text> lives_;
 
     int selected_ = 0;
 };

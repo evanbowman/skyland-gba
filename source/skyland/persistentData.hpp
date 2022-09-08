@@ -56,7 +56,7 @@ struct GlobalPersistentData
         beginner,
         experienced,
         expert,
-    } difficulty_ = Difficulty::experienced;
+    } difficulty_ = Difficulty::beginner;
 
     Bitvector<128> hidden_rooms_;
 
@@ -86,6 +86,8 @@ struct PersistentData
     HostInteger<u32> total_pauses_;
     HostInteger<s32> score_;
     HostInteger<s32> state_flags_;
+
+    u8 lives_ = 2;
 
     enum StateFlag {
         workshop_built = (1 << 0),
