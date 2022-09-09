@@ -832,13 +832,13 @@ public:
         }
 
         [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
-        pfrm.fatal(format("%, %, %, % (%)",
-                          t2 - start,
-                          t3 - t2,
-                          t4 - t3,
-                          t5 - t4,
-                          stop - start)
-                       .c_str());
+        // pfrm.fatal(format("%, %, %, % (%)",
+        //                   t2 - start,
+        //                   t3 - t2,
+        //                   t4 - t3,
+        //                   t5 - t4,
+        //                   stop - start)
+        //                .c_str());
     }
 
 
