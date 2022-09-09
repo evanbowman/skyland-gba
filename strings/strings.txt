@@ -377,7 +377,7 @@ difficulty
 beginner
 normal
 hard
-(lives: x%)
+Exit tutorial?
 Builder
 Build an island with more than ten structures!
 Architect

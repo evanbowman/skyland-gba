@@ -480,7 +480,7 @@ enum class SystemString {
     sf_normal,
     sf_hard,
 
-    lives,
+    exit_tutorial,
 
     achievement_builder_name,
     achievement_builder_description,

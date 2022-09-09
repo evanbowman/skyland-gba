@@ -38,6 +38,7 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "selectTutorialScene.hpp"
 #include "selectWeaponGroupScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -261,6 +262,74 @@ public:
 
 
 
+class SkipTutorialScene : public Scene
+{
+public:
+
+    static constexpr const auto sel_colors =
+        FontColors{custom_color(0x000010), custom_color(0xffffff)};
+
+
+    void enter(Platform& pfrm, App&, Scene& prev)
+    {
+        pfrm.screen().schedule_fade(1.f);
+        pfrm.fill_overlay(0);
+
+        msg_.emplace(pfrm, SYSTR(exit_tutorial)->c_str(), OverlayCoord{1, 1});
+        yes_text_.emplace(pfrm, OverlayCoord{2, 3});
+        no_text_.emplace(pfrm, SYSTR(no)->c_str(), OverlayCoord{2, 5});
+
+        yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
+    }
+
+
+    void exit(Platform& pfrm, App&, Scene& next)
+    {
+        pfrm.screen().schedule_fade(0);
+        pfrm.fill_overlay(0);
+
+        msg_.reset();
+        yes_text_.reset();
+        no_text_.reset();
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    {
+        if (key_down<Key::up>(pfrm)) {
+            selection_ = true;
+            yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
+            no_text_->assign(SYSTR(no)->c_str());
+        }
+
+        if (key_down<Key::down>(pfrm)) {
+            selection_ = false;
+            yes_text_->assign(SYSTR(yes)->c_str());
+            no_text_->assign(SYSTR(no)->c_str(), sel_colors);
+        }
+
+        if (key_down<Key::action_1>(pfrm)) {
+            if (selection_) {
+                return scene_pool::alloc<SelectTutorialScene>();
+            } else {
+                return scene_pool::alloc<ReadyScene>();
+            }
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    bool selection_ = true;
+
+    std::optional<Text> msg_;
+    std::optional<Text> yes_text_;
+    std::optional<Text> no_text_;
+};
+
+
+
 ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
 {
     if (app.player().key_down(pfrm, Key::alt_2)) {
@@ -455,6 +524,14 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.game_mode() not_eq App::GameMode::multiplayer and
             app.game_mode() not_eq App::GameMode::co_op) {
             return scene_pool::alloc<StartMenuScene>(0);
+        }
+
+        if (key_down<Key::start>(pfrm) and
+            not app.player().key_down(pfrm, Key::start)) {
+
+            // For tutorial mode: allows the player to raise the start key when
+            // the tutorial system has taken control of the player object.
+            return scene_pool::alloc<SkipTutorialScene>();
         }
 
     } else /* start pressed */ {
