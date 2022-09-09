@@ -46,21 +46,24 @@ void AdventureModeSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
     easy_text_.emplace(
         pfrm,
         str1->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str1->c_str())), 4});
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str1->c_str())),
+                     4});
 
 
     auto str2 = SYSTR(sf_normal);
     normal_text_.emplace(
         pfrm,
         str2->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str2->c_str())), 6});
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str2->c_str())),
+                     6});
 
 
     auto str3 = SYSTR(sf_hard);
     hard_text_.emplace(
         pfrm,
         str3->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str3->c_str())), 8});
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str3->c_str())),
+                     8});
 
     pfrm.screen().fade(0.96f);
     pfrm.screen().fade(1.f);
@@ -143,7 +146,8 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (newgame_) {
             // Hack to add easy-mode coin bonus to player inventory when
             // selecting initial difficulty.
-            if (app.gp_.difficulty_ == GlobalPersistentData::Difficulty::beginner) {
+            if (app.gp_.difficulty_ ==
+                GlobalPersistentData::Difficulty::beginner) {
                 app.set_coins(pfrm, app.coins() + 1000);
             }
         }

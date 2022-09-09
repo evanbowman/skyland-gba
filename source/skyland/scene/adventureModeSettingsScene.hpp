@@ -35,9 +35,7 @@ namespace skyland
 class AdventureModeSettingsScene : public Scene
 {
 public:
-
-    AdventureModeSettingsScene(bool newgame = false) :
-        newgame_(newgame)
+    AdventureModeSettingsScene(bool newgame = false) : newgame_(newgame)
     {
     }
 

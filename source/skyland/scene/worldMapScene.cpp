@@ -1069,11 +1069,12 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         for (auto& t : app.world_graph().nodes_) {
             if (t.type_ not_eq WorldGraph::Node::Type::null and
                 t.type_ not_eq WorldGraph::Node::Type::corrupted and
-                (map_start_x + t.coord_.x) * 8 < (app.world_graph().storm_depth_ + 2) * 16) {
+                (map_start_x + t.coord_.x) * 8 <
+                    (app.world_graph().storm_depth_ + 2) * 16) {
                 cursor.set_texture_index(111);
                 cursor.set_position(
-                {(t.coord_.x + map_start_x) * Float(8) - 3,
-                 (t.coord_.y + map_start_y) * Float(8) - (12)});
+                    {(t.coord_.x + map_start_x) * Float(8) - 3,
+                     (t.coord_.y + map_start_y) * Float(8) - (12)});
                 cursor.set_mix({});
                 cursor.set_priority(0);
                 cursor.set_alpha(Sprite::Alpha::opaque);

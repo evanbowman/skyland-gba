@@ -129,7 +129,9 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     bool changed = false;
 
-    if (not app.is_developer_mode()) {
+    if (not app.is_developer_mode() and
+        not(app.persistent_data().state_flags_.get() &
+            PersistentData::StateFlag::dev_mode_active)) {
         for (auto& highscore : reversed(highscores.values_)) {
             if (highscore.get() < (u32)score) {
                 highscore.set(score);

@@ -225,6 +225,11 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
         }
 
         memcpy(&d, &save_data.data_, sizeof d);
+
+        if (app.is_developer_mode()) {
+            d.set_flag(PersistentData::StateFlag::dev_mode_active);
+        }
+
     } else {
         return false;
     }

@@ -41,7 +41,6 @@ template <typename Derived, s32 sx, s32 sy, s32 sz, s32 screen_y_offset>
 class MacrocosmSectorImpl : public Sector
 {
 public:
-
     static_assert(sx < 32 and sy < 32 and sz < 32,
                   "Raster depthnode position_ holds data ranges of zero to "
                   "31. Therefore, sector size should not exceed 32 in any "
@@ -463,8 +462,7 @@ public:
 
             auto blit = [&](int t_start) {
                 if (t_start < 0 or
-                    not raster::globalstate::_recalc_depth_test.get(
-                        t_start)) {
+                    not raster::globalstate::_recalc_depth_test.get(t_start)) {
                     return;
                 }
 
@@ -604,15 +602,13 @@ public:
         for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
             auto insert_edges = [](auto tail) {
-
                 const u16 edge_l = 496 - 480;
                 const u16 edge_r = 497 - 480;
 
                 if (tail->position().z == 0 and tail->tile_ not_eq edge_l and
                     tail->tile_ not_eq edge_r) {
                     auto cat = tile_category(tail->tile_);
-                    if ((cat == bot_angled_l) or
-                        (cat == bot_angled_r)) {
+                    if ((cat == bot_angled_l) or (cat == bot_angled_r)) {
                         auto n = (*_db)->depth_node_allocator_.alloc();
                         n->set_position(tail->position());
                         n->next_ = nullptr;
@@ -836,12 +832,13 @@ public:
         }
 
         [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
-        // pfrm.fatal(format("%, %, %, % (%)",
-        //                   t2 - start,
-        //                   t3 - t2,
-        //                   t4 - t3,
-        //                   t5 - t4,
-        //                   stop - start).c_str());
+        pfrm.fatal(format("%, %, %, % (%)",
+                          t2 - start,
+                          t3 - t2,
+                          t4 - t3,
+                          t5 - t4,
+                          stop - start)
+                       .c_str());
     }
 
 

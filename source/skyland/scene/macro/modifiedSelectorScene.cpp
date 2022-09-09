@@ -130,8 +130,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             draw_compass(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 0);
-        } else if (test_key(Key::down) and
-                   sector.get_z_view() > 0) {
+        } else if (test_key(Key::down) and sector.get_z_view() > 0) {
             bool success = sector.set_z_view(sector.get_z_view() - 1);
             if (not success) {
                 pfrm.speaker().play_sound("beep_error", 2);

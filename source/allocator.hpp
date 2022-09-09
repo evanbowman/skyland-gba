@@ -278,11 +278,9 @@ private:
 
 
 
-template <u8 pages, typename T>
-class BumpAllocator
+template <u8 pages, typename T> class BumpAllocator
 {
 public:
-
     BumpAllocator()
     {
         mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
@@ -294,8 +292,7 @@ public:
         return (SCRATCH_BUFFER_SIZE / sizeof(T)) - 2;
     }
 
-    template <typename ...Args>
-    T* alloc(Args&& ...args)
+    template <typename... Args> T* alloc(Args&&... args)
     {
         constexpr int cap = block_capacity();
         if (cnt_ == cap) {

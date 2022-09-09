@@ -88,7 +88,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
             qr_->data_color_index(7);
             qr_->position_marker_outer_color_index(7);
-            qr_->position_marker_inner_color_index(8);
+            qr_->position_marker_inner_color_index(7);
 
             u8 margin = 1;
 

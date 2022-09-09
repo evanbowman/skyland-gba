@@ -249,27 +249,25 @@ public:
     Data(Platform& pfrm)
         : overlay_(&overlay_texture_, {8, 8}, 32, 32),
           map_0_{
-             {&tile0_texture_, {8, 8}, 64, 32},
-             {&tile0_texture_, {8, 8}, 64, 32},
-             {&tile0_texture_, {8, 8}, 64, 32},
-             {&tile0_texture_, {8, 8}, 64, 32},
-             {&tile0_texture_, {8, 8}, 64, 32},
-             {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
+              {&tile0_texture_, {8, 8}, 64, 32},
           },
           map_1_{
-             {&tile1_texture_, {8, 8}, 64, 32},
-             {&tile1_texture_, {8, 8}, 64, 32},
-             {&tile1_texture_, {8, 8}, 64, 32},
-             {&tile1_texture_, {8, 8}, 64, 32},
-             {&tile1_texture_, {8, 8}, 64, 32},
-             {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
+              {&tile1_texture_, {8, 8}, 64, 32},
           },
           background_(&background_texture_, {8, 8}, 32, 32),
           fullscreen_( // lisp::loadv<lisp::Integer>("fullscreen").value_
               false),
           window_scale_([&] {
-
-
               if (fullscreen_) {
                   auto ssize = sf::VideoMode::getDesktopMode();
                   auto x_scale = ssize.width / resolution.x;
@@ -985,7 +983,7 @@ void Platform::Screen::display()
         sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
         map1.setPosition(-::platform->data()->map_1_xscroll_,
                          -::platform->data()->map_1_yscroll_ + 136 // + 200
-                         );
+        );
         window.draw(map1);
     }
 

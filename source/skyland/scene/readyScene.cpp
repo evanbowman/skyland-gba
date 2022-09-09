@@ -265,7 +265,6 @@ public:
 class SkipTutorialScene : public Scene
 {
 public:
-
     static constexpr const auto sel_colors =
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
