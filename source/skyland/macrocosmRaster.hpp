@@ -124,21 +124,20 @@ struct DepthNode
     DepthNode* next_;
 
     u16 tile_;
-    u16 x_pos_ : 5;
-    u16 y_pos_ : 5;
-    u16 z_pos_ : 5;
-    u16 unused_ : 1;
+    u16 position_;
 
+    // NOTE: not bounds-checked! Do not specify coordinate values in excess of
+    // 31!
     void set_position(const Vec3<u8>& pos)
     {
-        x_pos_ = pos.x;
-        y_pos_ = pos.y;
-        z_pos_ = pos.z;
+        position_ = pos.x << 10 | pos.y << 5 | pos.z;
     }
 
     Vec3<u8> position()
     {
-        return {(u8)x_pos_, (u8)y_pos_, (u8)z_pos_};
+        return {u8(position_ >> 10),
+                u8((position_ >> 5) & 0b11111),
+                u8(position_ & 0b11111)};
     }
 };
 #ifdef __GBA__

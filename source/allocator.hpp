@@ -297,7 +297,8 @@ public:
     template <typename ...Args>
     T* alloc(Args&& ...args)
     {
-        if (cnt_ == block_capacity()) {
+        constexpr int cap = block_capacity();
+        if (cnt_ == cap) {
             if (mem_.full()) {
                 Platform::fatal("Bump allocator oom!");
             }

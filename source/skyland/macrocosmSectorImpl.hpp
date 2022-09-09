@@ -41,8 +41,15 @@ template <typename Derived, s32 sx, s32 sy, s32 sz, s32 screen_y_offset>
 class MacrocosmSectorImpl : public Sector
 {
 public:
-    // Sectors must be square.
-    static_assert(sx == sy);
+
+    static_assert(sx < 32 and sy < 32 and sz < 32,
+                  "Raster depthnode position_ holds data ranges of zero to "
+                  "31. Therefore, sector size should not exceed 32 in any "
+                  "dimension. raster::DepthNode::set_position() does not do "
+                  "any bounds check for performance reasons.");
+
+    static_assert(sx == sy,
+                  "Sectors must be square. Rotation logic assumes squareness.");
 
 
     MacrocosmSectorImpl(Vec2<s8> position, Sector::Shape shape)
@@ -430,8 +437,56 @@ public:
         const fast_bool cursor_moved = globalstate::_cursor_moved;
         const fast_bool grew = globalstate::_grew;
 
+        {
+            // NOTE: code from below copy-pasted here, while working on
+            // performance optimization. Need to map cursor tile indices, better
+            // done out-of-line here rather than in the main geometry loop.
+
+            auto c = cursor();
+            auto slab = blocks_[c.z];
+
+            auto& block = slab[c.x][c.y];
+
+            if (block.type() not_eq Type::selector) {
+                return;
+            }
+
+            int t_start = Derived::screen_mapping_lut[c.x][c.y];
+            static constexpr const auto shift = 30 * screen_y_offset;
+            t_start += shift;
+            t_start -= c.z * 30;
+
+            int texture = (block.type_ - 1) * 12;
+            if (block.shadowed_) {
+                texture += 6;
+            }
+
+            auto blit = [&](int t_start) {
+                if (t_start < 0 or
+                    not raster::globalstate::_recalc_depth_test.get(
+                        t_start)) {
+                    return;
+                }
+
+                globalstate::_cursor_raster_tiles.push_back(t_start);
+            };
+
+            blit(t_start);
+            blit(t_start + 1);
+
+            t_start += 30;
+
+            blit(t_start);
+            blit(t_start + 1);
+
+            t_start += 30;
+
+            blit(t_start);
+            blit(t_start + 1);
+        }
+
         auto rendering_pass = [&](auto rendering_function) {
-            auto project_block = [&](int x, int y, int z) {
+            auto project_block = [&](u8 x, u8 y, u8 z) {
                 auto slab = blocks_[z];
 
                 auto& block = slab[x][y];
@@ -445,7 +500,7 @@ public:
                 t_start += shift;
                 t_start -= z * 30;
 
-                int texture = (block.type_ - 1) * 12 + 480;
+                int texture = (block.type_ - 1) * 12;
                 if (block.shadowed_) {
                     texture += 6;
                 }
@@ -458,10 +513,6 @@ public:
                     }
                     rendering_function(
                         Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
-                    if (block.type() == Type::selector) {
-                        globalstate::_cursor_raster_tiles.push_back(t_start);
-                    }
-
 
                     if (t_start < RASTER_CELLCOUNT) {
                         (*_db)->depth_1_needs_repaint.set(t_start, true);
@@ -485,11 +536,18 @@ public:
                 blit(texture + 5, t_start + 1);
             };
 
-            for (int z = 0; z < z_view_; ++z) {
+            int z_limit = z_view_ - 1;
+
+            for (int z = 0; z < z_limit; ++z) {
 
                 for (auto& p : Derived::winding_path) {
                     project_block(p.x, p.y, z);
                 }
+            }
+
+            // NOTE: top layer is empty, only exists for cursor block.
+            if (cursor().z == sz - 1) {
+                project_block(cursor().x, cursor().y, cursor().z);
             }
         };
 
@@ -501,11 +559,13 @@ public:
 
         [[maybe_unused]] auto t2 = pfrm.delta_clock().sample();
 
+        auto& node_allocator = (*_db)->depth_node_allocator_;
+
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-            auto n = (*_db)->depth_node_allocator_.alloc();
+            auto n = node_allocator.alloc();
 
             n->set_position(p);
-            n->tile_ = texture - RASTER_CELLCOUNT;
+            n->tile_ = texture;
 
             if (t_start < RASTER_CELLCOUNT) {
                 n->next_ = (*_db)->depth_1_->visible_[t_start];
@@ -776,11 +836,12 @@ public:
         }
 
         [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
-        // pfrm.fatal(format("%, %, %, %",
+        // pfrm.fatal(format("%, %, %, % (%)",
         //                   t2 - start,
         //                   t3 - t2,
         //                   t4 - t3,
-        //                   t5 - t4).c_str());
+        //                   t5 - t4,
+        //                   stop - start).c_str());
     }
 
 
