@@ -190,6 +190,9 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
     save_data.script_length_.set(0);
 
     memcpy(&save_data.data_, &d, sizeof d);
+    if (app.is_developer_mode()) {
+        save_data.data_.set_flag(PersistentData::StateFlag::dev_mode_active);
+    }
 
     store(pfrm, save_data);
 
