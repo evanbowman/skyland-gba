@@ -204,7 +204,7 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-static Vector<char> encode_highscore_data(App& app)
+static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
 {
     StringBuffer<LoginToken::size> token_str;
     for (int i = 0; i < 8; ++i) {
@@ -216,9 +216,10 @@ static Vector<char> encode_highscore_data(App& app)
         host_u32 score_;
         u8 trick_1_;
         u8 login_token_[LoginToken::size];
-        u8 trick_2_;
+        // Split for backwards compatibility with the server.
+        u8 fs_checksum_1_;
         u8 score_multiplier_;
-        u8 trick_3_;
+        u8 fs_checksum_2_;
         host_u32 time_seconds_;
     } payload;
 
@@ -236,9 +237,20 @@ static Vector<char> encode_highscore_data(App& app)
     // something. We want to discourage cheaters, who might try to send
     // false data to the highscore server.
     payload.trick_1_ = ~(payload.score_.get());
-    payload.trick_2_ = 0xaa ^ (payload.score_.get());
-    payload.trick_3_ =
-        (payload.trick_1_ | payload.trick_2_) ^ payload.login_token_[3];
+
+    u16 fs_checksum = 0;
+
+    pfrm.walk_filesystem([&pfrm, &fs_checksum](const char* path) {
+        if (auto f = pfrm.load_file_contents("", path)) {
+            while (*f not_eq '\0') {
+                fs_checksum += *f;
+                ++f;
+            }
+        }
+    });
+
+    payload.fs_checksum_1_ = fs_checksum & 0xff;
+    payload.fs_checksum_2_ = (fs_checksum >> 8) & 0xff;
 
     static_assert(sizeof(Payload) % 5 == 0,
                   "Base32 string not multiple of five, i.e. will contain "
@@ -283,7 +295,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         auto p = title_screen_page_;
 
         auto next = [p, &app, &pfrm]() {
-            auto encoded = encode_highscore_data(app);
+            auto encoded = encode_highscore_data(pfrm, app);
 
             StringBuffer<64> temp;
             for (auto& c : encoded) {
