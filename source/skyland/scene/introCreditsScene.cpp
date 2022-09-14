@@ -173,9 +173,9 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
             pos = interpolate(Vec2<Float>{191, 47},
                               Vec2<Float>{240, 16},
                               bird_seq_timer_ / Float(milliseconds(1000)));
-            spr.set_texture_index(38 + bird_anim_);
+            spr.set_texture_index(45 + bird_anim_);
         } else {
-            spr.set_texture_index(37);
+            spr.set_texture_index(44);
             pos.x = 191;
             pos.y = 47;
         }
@@ -195,9 +195,9 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
             pos = interpolate(Vec2<Float>{160, 64},
                               Vec2<Float>{240, 16},
                               bird_seq_timer2_ / Float(milliseconds(1000)));
-            spr.set_texture_index(38 + bird_anim_);
+            spr.set_texture_index(45 + bird_anim_);
         } else {
-            spr.set_texture_index(37);
+            spr.set_texture_index(44);
             pos.x = 160;
             pos.y = 64;
         }
