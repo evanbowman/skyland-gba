@@ -524,6 +524,11 @@ void TitleScreenScene::play_gust_sound(Platform& pfrm)
 
 
 
+u8 TitleScreenScene::module_page_;
+std::optional<Vec2<u8>> TitleScreenScene::module_cursor_;
+
+
+
 static const int faded_music_volume = 6;
 
 
@@ -740,6 +745,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 pfrm.speaker().play_music("unaccompanied_wind", 0);
                 pfrm.speaker().play_sound("button_wooden", 3);
+                module_cursor_.reset();
+                module_page_ = 0;
             }
         }
 
@@ -968,6 +975,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (app.gp_.stateflags_.get(tutorial_flag)) {
                     return scene_pool::alloc<NewgameScene>();
                 } else {
+
+                    module_cursor_ = {0, 0};
+                    module_page_ = 1;
+
                     pfrm.speaker().clear_sounds();
                     app.gp_.stateflags_.set(tutorial_flag, true);
 
@@ -1087,7 +1098,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().schedule_fade(
                 0.7f, ColorConstant::rich_black, true, true);
 
-            module_cursor_ = {0, 0};
+            if (not module_cursor_) {
+                module_cursor_ = {0, 0};
+            }
 
             put_module_text(pfrm);
 
@@ -1115,7 +1128,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             pfrm.fill_overlay(0);
             redraw_margins(pfrm);
-            module_cursor_.reset();
+            // module_cursor_.reset();
         }
         if (module_cursor_) {
 
@@ -1335,7 +1348,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(spr);
     }
 
-    if (module_cursor_) {
+    if (module_cursor_ and
+        (state_ == State::show_modules)) {
         Sprite sprite;
         sprite.set_texture_index(36);
         sprite.set_size(Sprite::Size::w16_h32);

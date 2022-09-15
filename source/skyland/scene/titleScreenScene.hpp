@@ -63,8 +63,8 @@ private:
 
     void show_module_icons(Platform&, int page);
 
-    u8 module_page_ = 0;
-    std::optional<Vec2<u8>> module_cursor_;
+    static u8 module_page_;
+    static std::optional<Vec2<u8>> module_cursor_;
 
 
     void play_gust_sound(Platform& pfrm);
