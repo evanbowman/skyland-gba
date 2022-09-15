@@ -148,7 +148,7 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
             // selecting initial difficulty.
             if (app.gp_.difficulty_ ==
                 GlobalPersistentData::Difficulty::beginner) {
-                app.set_coins(pfrm, app.coins() + 1000);
+                app.set_coins(pfrm, app.coins() + 1500);
             }
         }
 
