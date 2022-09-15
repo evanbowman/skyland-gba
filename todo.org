@@ -1,7 +1,10 @@
 
+
+* Bugfixes
+** TODO Color palette bugfix after selecting continue-building
+** TODO 
 * September 2022
 ** ???
-
 * July 2022
 ** DONE Add CRC to flash filesystem
 *** Upon startup, calculate CRC for each loaded file
