@@ -101,7 +101,7 @@ private:
     };
 
 
-    void seek_chunk(Chunk*& current, int& index)
+    void seek_chunk(Chunk*& current, int& index) const
     {
         while ((u32)index >= Chunk::elems()) {
             if (current->header_.next_) {
@@ -246,7 +246,7 @@ public:
     }
 
 
-    Iterator end()
+    Iterator end() const
     {
         if (end_cache_) {
             return Iterator(size_, end_cache_);
@@ -443,6 +443,6 @@ private:
 
     // Improves the performance of push_back() and end() and other operations
     // dealing with the end of the vector.
-    Chunk* end_cache_ = nullptr;
-    u16 end_chunk_size_ = 0;
+    mutable Chunk* end_cache_ = nullptr;
+    mutable u16 end_chunk_size_ = 0;
 };

@@ -191,7 +191,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     }
     generate_weapons(pfrm, app, weapon_limit);
 
-    if (core_count_ >= 2 or difficulty_ >= 2) {
+    if (core_count_ >= 2) {
         generate_forcefields(pfrm, app);
         generate_missile_defenses(pfrm, app);
     }
@@ -656,12 +656,30 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     };
 
     int place_missile_count = 0;
+    int placed_ion_cannons = 0;
+    int fails = 0;
 
     for (int i = 0; i < max; ++i) {
+    RETRY:
         auto sel =
             c->distribution_[rng::choice(c->distribution_.size(), rng_source_)];
 
+        if (fails > 40) {
+            sel = load_metaclass("cannon");
+            fails = 0;
+        }
+
         if (power_remaining(app) > (*sel)->consumes_power()) {
+
+            if (str_eq((*sel)->name(), "ion-cannon") and
+                placed_ion_cannons > 1) {
+                ++fails;
+                goto RETRY;
+            }
+
+            if (str_eq((*sel)->name(), "ion-cannon")) {
+                ++placed_ion_cannons;
+            }
 
             if (str_eq((*sel)->name(), "missile-silo") or
                 str_eq((*sel)->name(), "rocket-bomb")) {
@@ -807,7 +825,8 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                     if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
                         if (auto room = get_room(x + 1, y)) {
                             if ((not str_eq(room->name(), "missile-silo") and
-                                 not str_eq(room->name(), "rocket-bomb")) and
+                                 not str_eq(room->name(), "rocket-bomb") and
+                                 not str_eq(room->name(), "ion-cannon")) and
                                 (*room->metaclass())->category() ==
                                     Room::Category::weapon) {
 
@@ -868,7 +887,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         RoomMeta* sel = &mt;
 
         if (core_count_ > 2 and rng::choice<2>(rng_source_) and
-            power > mt2->consumes_power() and difficulty_ > 0) {
+            power > mt2->consumes_power()) {
             sel = &mt2;
         }
 
@@ -992,12 +1011,11 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             ehull_count = rng::choice<6>(rng_source_);
             break;
         }
-        if (difficulty_ not_eq 0) {
-            if (missile_count > 4 or bomb_count > 2) {
-                missile_defense = true;
-            } else {
-                missile_defense = rng::choice<2>(rng_source_);
-            }
+
+        if (missile_count > 4 or bomb_count > 2) {
+            missile_defense = true;
+        } else {
+            missile_defense = rng::choice<2>(rng_source_);
         }
 
         if (not missile_defense and missile_count > 0 and lateral_count == 0) {
@@ -1028,7 +1046,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
                     bool place_bhull = false;
                     bool place_mhull = false;
-                    if (difficulty_ > 0 and levelgen_enemy_count_ > 8) {
+                    if (levelgen_enemy_count_ > 8) {
                         place_mhull = rng::choice<8>(rng_source_) == 0;
                     }
 
@@ -1052,15 +1070,9 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                         if (max_identical >= 6 and not place_mhull) {
                             place_mhull = rng::choice<2>(rng_source_) == 0;
                         } else if (max_identical >= 5 and not place_mhull) {
-                            if (difficulty_ > 0) {
-                                place_mhull = rng::choice<2>(rng_source_) == 0;
-                            } else {
-                                place_mhull = rng::choice<3>(rng_source_) == 0;
-                            }
+                            place_mhull = rng::choice<2>(rng_source_) == 0;
                         } else if (max_identical > 3 and not place_mhull) {
-                            if (difficulty_ > 0) {
-                                place_mhull = rng::choice<4>(rng_source_) == 0;
-                            }
+                            place_mhull = rng::choice<4>(rng_source_) == 0;
                         }
                     }
 
@@ -1093,7 +1105,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
     make_lateral_hull(true);
 
-    if ((flak_count >= 4 or lateral_count > 5) and difficulty_ > 0) {
+    if ((flak_count >= 4 or lateral_count > 5)) {
         // Generate an extra later of forward hull if the player has a lot of
         // cannon-type weapons.
 
@@ -1271,10 +1283,6 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
 void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
 {
-    if (difficulty_ == 0) {
-        return;
-    }
-
     int player_character_count = 0;
     int player_transporter_count = 0;
     int player_replicator_count = 0;
