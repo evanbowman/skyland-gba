@@ -21,6 +21,7 @@
 
 
 #include "readyScene.hpp"
+#include "achievementNotificationScene.hpp"
 #include "assignWeaponGroupScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "constructionScene.hpp"
@@ -427,6 +428,20 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         set_gamespeed(pfrm, app, GameSpeed::normal);
         if (auto next = process_exit_condition(pfrm, app, exit_cond)) {
             return next;
+        }
+    }
+
+
+    if (app.game_mode() == App::GameMode::adventure or
+        app.game_mode() == App::GameMode::skyland_forever) {
+        const auto achievement = achievements::update(pfrm, app);
+        if (achievement not_eq achievements::Achievement::none) {
+            achievements::award(pfrm, app, achievement);
+
+            auto next = scene_pool::make_deferred_scene<ReadyScene>();
+
+            return scene_pool::alloc<AchievementNotificationScene>(achievement,
+                                                                   next);
         }
     }
 
