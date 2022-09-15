@@ -243,9 +243,7 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
     pfrm.walk_filesystem([&pfrm, &fs_checksum](const char* path) {
         if (auto f = pfrm.load_file_contents("", path)) {
             StringBuffer<86> str_path(path);
-            // NOTE: do not include any .ini engine config files when computing
-            // a checksum.
-            if (not ends_with(StringBuffer<4>(".ini"), str_path)) {
+            if (ends_with(StringBuffer<4>(".lisp"), str_path)) {
                 while (*f not_eq '\0') {
                     fs_checksum += *f;
                     ++f;

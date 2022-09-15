@@ -1128,9 +1128,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             pfrm.fill_overlay(0);
             redraw_margins(pfrm);
-            // module_cursor_.reset();
-        }
-        if (module_cursor_) {
+        } else if (module_cursor_) {
 
             auto test_key = [&](Key k) {
                 return app.player().test_key(
@@ -1152,8 +1150,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     click_sound();
                 }
                 put_module_text(pfrm);
-            }
-            if (test_key(Key::left)) {
+            } else if (test_key(Key::left)) {
                 if (module_cursor_->x > 0) {
                     module_cursor_->x -= 1;
                     click_sound();
@@ -1170,8 +1167,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 module_cursor_->y -= 1;
                 put_module_text(pfrm);
                 click_sound();
-            }
-            if (test_key(Key::down) and module_cursor_->y < 1) {
+            } else if (test_key(Key::down) and module_cursor_->y < 1) {
                 module_cursor_->y += 1;
                 put_module_text(pfrm);
                 click_sound();
