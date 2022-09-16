@@ -24,10 +24,12 @@
 #include "localization.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qr.hpp"
+#include "rot13.hpp"
 #include "skyland/achievement.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene/bootScene.hpp"
 #include "skyland/skyland.hpp"
+#include "platform/conf.hpp"
 
 
 
@@ -46,6 +48,43 @@ namespace skyland
 static inline void main_loop(Platform& pf)
 {
     systemstring_bind_file("strings.txt");
+
+
+    {
+        Conf conf(pf);
+        if (conf.expect<Conf::String>("profile", "beta") == "yes") {
+            if (auto f = pf.load_file_contents("", "/licenses/user.txt")) {
+                pf.fill_overlay(112);
+                enable_text_icon_glyphs(false);
+                pf.load_overlay_texture("overlay");
+                pf.enable_glyph_mode(true);
+                StringBuffer<256> msg;
+                msg = "This beta test rom was assigned to ";
+                StringBuffer<27> fmt;
+                while (*f not_eq '\0' and *f not_eq '\n') {
+                    if (fmt.full()) {
+                        msg += fmt;
+                        fmt.clear();
+                        msg += " ";
+                    }
+                    fmt.push_back(rot13(*f));
+                    ++f;
+                }
+                msg += fmt;
+                msg += ". Please do not distribute!";
+
+                TextView tv(pf);
+                tv.assign(msg.c_str(), {1, 1}, {28, 18});
+
+                for (int i = 0; i < 180; ++i) {
+                    pf.screen().clear();
+                    pf.screen().display();
+                }
+                enable_text_icon_glyphs(true);
+            }
+        }
+    }
+
 
     BootScene::init(pf);
 

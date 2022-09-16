@@ -328,29 +328,44 @@ void print_double_char(Platform& pfrm,
 }
 
 
+
+static bool text_icon_glyphs_enabled = true;
+
+
+
+void enable_text_icon_glyphs(bool enable)
+{
+    text_icon_glyphs_enabled = enable;
+}
+
+
+
 void print_char(Platform& pfrm,
                 utf8::Codepoint c,
                 const OverlayCoord& coord,
                 const std::optional<FontColors>& colors = {})
 {
-    if (c == '@') {
-        // Really bad hack, to show a full color coin icon in place of the '@'
-        // char.
-        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 146);
-        return;
+    if (text_icon_glyphs_enabled) {
+        if (c == '@') {
+            // Really bad hack, to show a full color coin icon in place of the
+            // '@' char.
+            pfrm.set_tile(Layer::overlay, coord.x, coord.y, 146);
+            return;
+        }
+        if (c == '`') {
+            pfrm.set_tile(Layer::overlay, coord.x, coord.y, 147);
+            return;
+        }
+        if (c == (char)17) { // (device control 1 ascii char)
+            pfrm.set_tile(Layer::overlay, coord.x, coord.y, 422);
+            return;
+        }
+        if (c == (char)18) { // (device control 2 ascii char)
+            pfrm.set_tile(Layer::overlay, coord.x, coord.y, 148);
+            return;
+        }
     }
-    if (c == '`') {
-        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 147);
-        return;
-    }
-    if (c == (char)17) { // (device control 1 ascii char)
-        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 422);
-        return;
-    }
-    if (c == (char)18) { // (device control 2 ascii char)
-        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 148);
-        return;
-    }
+
     if (c not_eq 0) {
         auto mapping_info = locale_texture_map()(c);
 

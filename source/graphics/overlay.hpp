@@ -154,6 +154,11 @@ private:
 };
 
 
+
+void enable_text_icon_glyphs(bool enable);
+
+
+
 // Unlike Text, TextView understands words, reflows words onto new lines, and is
 // capable of scrolling vertically through a block of text.
 class TextView

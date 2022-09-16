@@ -204,6 +204,7 @@ enum class SystemString {
     module_macro,
     module_checkers,
     module_datetime,
+    module_feedback,
 
     months,
 
