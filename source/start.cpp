@@ -59,7 +59,7 @@ static inline void main_loop(Platform& pf)
                 pf.load_overlay_texture("overlay");
                 pf.enable_glyph_mode(true);
                 StringBuffer<256> msg;
-                msg = "This beta test rom was assigned to ";
+                msg = "This beta test rom was issued to ";
                 StringBuffer<27> fmt;
                 while (*f not_eq '\0' and *f not_eq '\n') {
                     if (fmt.full()) {
@@ -81,6 +81,7 @@ static inline void main_loop(Platform& pf)
                     pf.screen().display();
                 }
                 enable_text_icon_glyphs(true);
+                pf.fill_overlay(0);
             }
         }
     }
