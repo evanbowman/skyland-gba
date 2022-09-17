@@ -151,6 +151,8 @@ void SkylandForever::init(Platform& pfrm,
         break;
     }
 
+    app.persistent_data().total_seconds_.set(0);
+
     app.player_island().init_terrain(pfrm, 4);
 
     app.persistent_data().score_.set(0);

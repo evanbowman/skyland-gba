@@ -106,10 +106,15 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
     };
 
     switch (lines_.size()) {
-    case 0:
+    case 0: {
+        int secs = app.stat_timer().whole_seconds();
+        if (app.game_mode() == App::GameMode::skyland_forever) {
+            secs = app.persistent_data().total_seconds_.get();
+        }
         print_metric_impl(SYSTR(level_complete_time)->c_str(),
-                          format_time(app.stat_timer().whole_seconds(), true));
+                          format_time(secs, true));
         break;
+    }
 
     case 1:
         if (app.game_mode() == App::GameMode::skyland_forever or
