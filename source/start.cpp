@@ -76,7 +76,7 @@ static inline void main_loop(Platform& pf)
                 TextView tv(pf);
                 tv.assign(msg.c_str(), {1, 1}, {28, 18});
 
-                for (int i = 0; i < 180; ++i) {
+                for (int i = 0; i < 200; ++i) {
                     pf.screen().clear();
                     pf.screen().display();
                 }

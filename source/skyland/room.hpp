@@ -279,6 +279,18 @@ public:
     }
 
 
+    virtual Microseconds reload_interval() const
+    {
+        return 1;
+    }
+
+
+    virtual void override_reload_timer(Microseconds new_time)
+    {
+        // ...
+    }
+
+
     static Category category()
     {
         return Category::misc;

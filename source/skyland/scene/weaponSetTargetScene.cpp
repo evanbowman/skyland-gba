@@ -106,6 +106,13 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().key_held_distribute(pfrm);
 
 
+    if (app.player().key_down(pfrm, Key::alt_2) and
+        group_ not_eq Room::Group::none and
+        not pfrm.network_peer().is_connected()) {
+        firing_mode_ = (firing_mode_ + 1) % 3;
+    }
+
+
     if (test_key(Key::right)) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
@@ -166,12 +173,78 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (group_ not_eq Room::Group::none) {
 
+                auto with_group =
+                    [&](auto& callback) {
+                        for (auto& r : app.player_island().rooms()) {
+                            if (r->group() == group_) {
+                                callback(*r);
+                            }
+                        }
+                    };
+
                 // If the room has a group assigned, then assign a target
                 // for all rooms of the same group.
-                for (auto& r : app.player_island().rooms()) {
-                    if (r->group() == group_) {
-                        do_set_target(*r);
+                with_group(do_set_target);
+
+                switch (firing_mode_) {
+                case 1: { // barrage
+                    int count = 0;
+                    int interval_sum = 0;
+                    int max_reload = 0;
+
+                    auto collect =
+                        [&](Room& r) {
+                            ++count;
+                            interval_sum += r.reload_interval();
+                            auto rem = r.reload_time_remaining();
+                            if (rem > max_reload) {
+                                max_reload = rem;
+                            }
+                        };
+
+                    with_group(collect);
+
+                    if (count == 0) {
+                        // Note: just in case of division by zero.
+                        count = 1;
                     }
+
+                    const int average_reload = interval_sum / count;
+                    const int balance = average_reload / count;
+                    count = 0;
+
+                    auto update_timers =
+                        [&](Room& r) {
+                            r.override_reload_timer(max_reload + balance * count);
+                            ++count;
+                        };
+
+                    with_group(update_timers);
+
+                    break;
+                }
+
+                case 2: { // salvo
+                    Microseconds max_reload = 0;
+
+                    auto cb = [&max_reload](Room& r) {
+                                  auto rem = r.reload_time_remaining();
+                                  if (rem > max_reload) {
+                                      max_reload = rem;
+                                  }
+                              };
+
+                    with_group(cb);
+
+                    auto update_timers =
+                        [max_reload](Room& r) {
+                            r.override_reload_timer(max_reload);
+                        };
+
+                    with_group(update_timers);
+
+                    break;
+                }
                 }
 
                 return player_weapon_exit_scene();
@@ -294,6 +367,14 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
     sprite.set_size(Sprite::Size::w16_h32);
 
     pfrm.screen().draw(sprite);
+
+    if (firing_mode_) {
+        sprite.set_texture_index(111 + firing_mode_);
+        origin.x += 12;
+        origin.y += 10;
+        sprite.set_position(origin);
+        pfrm.screen().draw(sprite);
+    }
 }
 
 

@@ -68,7 +68,7 @@ private:
     bool resume_far_ = false;
 
     Room::Group group_ = Room::Group::none;
-
+    u8 firing_mode_ = false;
 
     std::optional<RoomCoord> initial_pos_;
 };

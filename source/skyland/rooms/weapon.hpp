@@ -39,10 +39,22 @@ public:
            Microseconds reload_time);
 
 
+    Microseconds reload_interval() const override
+    {
+        return reload();
+    }
+
+
     virtual Microseconds reload() const = 0;
 
 
     virtual void fire(Platform& pfrm, App& app) = 0;
+
+
+    void override_reload_timer(Microseconds new_time) override
+    {
+        reload_timer_ = new_time;
+    }
 
 
     Microseconds reload_time_remaining() const override

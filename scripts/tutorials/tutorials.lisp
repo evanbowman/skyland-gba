@@ -20,4 +20,5 @@
   ("Game Speed" . "tutorials/game_speed.lisp")
   ("Transporters" . "tutorials/transporter.lisp")
   ("Moving Blocks" . "tutorials/moving_blocks.lisp")
-  ("Replicators" . "tutorials/replicator.lisp"))
+  ("Replicators" . "tutorials/replicator.lisp")
+  ("Firing Patterns" . "tutorials/firing_patterns.lisp"))
