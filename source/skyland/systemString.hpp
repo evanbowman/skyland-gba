@@ -85,6 +85,7 @@ enum class SystemString {
     block_carved_crystal,
     block_crystal,
     block_crystal_pillar,
+    block_dome,
     block_stacked_hull,
     block_mirror_hull,
     block_bulkhead_door,

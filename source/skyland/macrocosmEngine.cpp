@@ -1109,6 +1109,9 @@ Coins terrain::cost(Type t)
     case terrain::Type::building:
         return b.mcr_building_cost;
 
+    case terrain::Type::dome:
+        return 80;
+
     case terrain::Type::basalt:
     case terrain::Type::terrain:
         return b.mcr_terrain_cost;
@@ -1279,6 +1282,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::building:
         return SystemString::block_building;
+
+    case terrain::Type::dome:
+        return SystemString::block_dome;
 
     case terrain::Type::terrain:
         return SystemString::block_terrain;
@@ -1579,6 +1585,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::building:
         return {2760, 2776};
 
+    case terrain::Type::dome:
+        return {3640, 3624};
+
     case terrain::Type::terrain:
         return {2632, 2648};
 
@@ -1766,7 +1775,7 @@ static bool destroyed_by_lava(terrain::Type t)
 {
     return t == terrain::Type::building or t == terrain::Type::port or
            t == terrain::Type::shrubbery or t == terrain::Type::ice or
-           t == terrain::Type::workshop or
+           t == terrain::Type::workshop or t == terrain::Type::dome or
            categories(t) & terrain::Categories::fluid_water;
 }
 
@@ -2583,6 +2592,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // ocher
     nullptr,
+    // dome
+    nullptr,
 };
 // clang-format on
 
@@ -2596,6 +2607,7 @@ bool blocks_light(terrain::Type t)
         t == terrain::Type::checker_highlight or t == terrain::Type::crystal or
         t == terrain::Type::carved_crystal or
         t == terrain::Type::crystal_pillar or
+        t == terrain::Type::dome or
         (terrain::categories(t) & terrain::Categories::fluid_water) or
         (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;
@@ -2989,6 +3001,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
+
+         irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
     };
     // clang-format on
 

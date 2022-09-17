@@ -143,6 +143,8 @@ enum class Type {
 
     ocher,
 
+    dome,
+
     count,
 };
 

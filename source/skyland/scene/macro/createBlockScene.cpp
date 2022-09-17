@@ -80,6 +80,15 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
 {
     options_.push_back(terrain::Type::terrain);
     options_.push_back(terrain::Type::building);
+    if (state.sector().cursor().z > 0) {
+        auto cursor = state.sector().cursor();
+        --cursor.z;
+        auto& block = state.sector().get_block(cursor);
+        if (block.type() == terrain::Type::building or
+            block.type() == terrain::Type::workshop) {
+            options_.push_back(terrain::Type::dome);
+        }
+    }
     options_.push_back(terrain::Type::workshop);
     options_.push_back(terrain::Type::water_source);
     options_.push_back(terrain::Type::lava_source);
