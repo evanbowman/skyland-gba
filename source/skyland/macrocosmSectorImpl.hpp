@@ -436,6 +436,9 @@ public:
         const fast_bool cursor_moved = globalstate::_cursor_moved;
         const fast_bool grew = globalstate::_grew;
 
+#ifndef __CMD_MACRO_RAST__
+        // NOTE: this block segfaults when creating a sector from qrcode
+        // data. FIXME!!!
         {
             // NOTE: code from below copy-pasted here, while working on
             // performance optimization. Need to map cursor tile indices, better
@@ -482,6 +485,7 @@ public:
             blit(t_start);
             blit(t_start + 1);
         }
+#endif // __CMD_MACRO_RAST__
 
         auto rendering_pass = [&](auto rendering_function) {
             auto project_block = [&](u8 x, u8 y, u8 z) {
