@@ -45,6 +45,7 @@ extern "C" {
 #include "rle.cpp"
 #include "sharedVariable.cpp"
 #include <SFML/Graphics.hpp>
+#include <sstream>
 
 
 
@@ -198,7 +199,7 @@ void Platform::Logger::clear()
 
 bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 {
-    std::cout << prompt << text << std::endl;
+    // std::cout << prompt << text << std::endl;
     return true;
 }
 
@@ -446,6 +447,27 @@ int main(int argc, char** argv)
 
     result.create(240, 240, bkg_color);
 
+    std::stringstream output_json;
+    output_json << "{";
+
+
+    bool json_output_has_field = false;
+
+
+    auto put_field =
+        [&](const char* name, int value)
+        {
+            if (json_output_has_field) {
+                output_json << ',';
+            }
+            json_output_has_field = true;
+            output_json << '"';
+            output_json << name;
+            output_json << "\":";
+            output_json << value;
+        };
+
+
     if (argc not_eq 4) {
         puts("usage: macro-rast <name> <texture_path> "
              "<base32-island-data-from-qr-code>");
@@ -475,7 +497,6 @@ int main(int argc, char** argv)
     auto shape = (macro::terrain::Sector::Shape)decomp[0];
     switch (shape) {
     case macro::terrain::Sector::Shape::cube:
-        puts("cube");
         if (decomp.size() not_eq 577) {
             puts("decoded bad input size");
             return EXIT_FAILURE;
@@ -483,7 +504,6 @@ int main(int argc, char** argv)
         break;
 
     case macro::terrain::Sector::Shape::pancake:
-        puts("pancake");
         if (decomp.size() not_eq 577) {
             puts("decoded bad input size");
             return EXIT_FAILURE;
@@ -491,7 +511,6 @@ int main(int argc, char** argv)
         break;
 
     case macro::terrain::Sector::Shape::pillar:
-        puts("pillar");
         if (decomp.size() not_eq 577) {
             puts("decoded bad input size");
             return EXIT_FAILURE;
@@ -499,7 +518,6 @@ int main(int argc, char** argv)
         break;
 
     case macro::terrain::Sector::Shape::freebuild_wide:
-        puts("freebuild_wide");
         if (decomp.size() not_eq 865) {
             puts("decoded bad input size");
             return EXIT_FAILURE;
@@ -507,7 +525,6 @@ int main(int argc, char** argv)
         break;
 
     case macro::terrain::Sector::Shape::freebuild_flat:
-        puts("freebuild_flat");
         if (decomp.size() not_eq 981) {
             puts("decoded bad input size");
             std::cout << decomp.size() << std::endl;
@@ -521,11 +538,9 @@ int main(int argc, char** argv)
             std::cout << decomp.size() << std::endl;
             return EXIT_FAILURE;
         }
-        puts("freebuild");
         break;
 
     case macro::terrain::Sector::Shape::outpost:
-        puts("outpost");
         break;
 
     default:
@@ -535,26 +550,27 @@ int main(int argc, char** argv)
 
     macro::EngineImpl engine(pfrm, nullptr);
 
+    int block_count = 0;
+
     if (auto s = engine.make_sector({0, 1}, shape)) {
         auto sz = s->size();
 
         for (u8 z = 0; z < sz.z; ++z) {
             for (u8 x = 0; x < sz.x; ++x) {
                 for (u8 y = 0; y < sz.y; ++y) {
-                    std::cout << (int)z << ", " << (int)x << ", " << (int)y
-                              << std::endl;
                     auto index = 1 + y + sz.y * (x + sz.x * z);
                     auto blk = (macro::terrain::Type)decomp[index];
                     if (blk not_eq macro::terrain::Type::selector) {
                         s->set_block({x, y, z}, blk);
+                        if (blk not_eq macro::terrain::Type::air) {
+                            ++block_count;
+                        }
                     } else {
                         s->set_block({x, y, z}, macro::terrain::Type::air);
                     }
                 }
             }
         }
-
-        puts("loaded blocks");
 
         std::string name(out_name);
 
@@ -578,7 +594,26 @@ int main(int argc, char** argv)
 
         s->render(pfrm);
         result.saveToFile(name + "4.png");
+
+        put_field("w", s->size().x);
+        put_field("h", s->size().z - 1);
+        put_field("freebuild",
+                  shape not_eq macro::terrain::Sector::Shape::cube and
+                  shape not_eq macro::terrain::Sector::Shape::pancake and
+                  shape not_eq macro::terrain::Sector::Shape::pillar and
+                  shape not_eq macro::terrain::Sector::Shape::outpost);
+
+        auto stats = s->stats();
+        put_field("food", stats.food_);
+        put_field("housing", stats.housing_);
+        put_field("employment", stats.employment_);
     }
 
-    std::cout << decomp.size() << std::endl;
+    put_field("block_count", block_count);
+
+    output_json << "}";
+
+    std::cout << output_json.str() << std::endl;
+
+    return EXIT_SUCCESS;
 }
