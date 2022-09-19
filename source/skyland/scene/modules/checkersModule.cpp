@@ -100,6 +100,8 @@ void CheckersModule::init(Platform& pfrm, App& app)
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
     auto bound = m.bind_sector({0, 1});
 
+    bound->set_cursor({0, 0, 1});
+
     // FIXME: I was using dynamic_cast previously... needs to be checked cast,
     // or method call.
     if (auto s = static_cast<macro::terrain::FreebuildSector*>(bound)) {
@@ -160,6 +162,13 @@ void CheckersModule::init(Platform& pfrm, App& app)
 
         s->set_block({9, 0, 0}, macro::terrain::Type::indigo);
         s->set_block({9, 9, 0}, macro::terrain::Type::indigo);
+
+        s->set_cursor({5, 5, 2});
+
+        s->rotate();
+        s->rotate();
+        s->rotate();
+        s->rotate();
     }
 
 
