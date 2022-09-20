@@ -200,11 +200,11 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (required_space_) {
             for (u8 x = cursor_loc.x; x < cursor_loc.x + required_space_->x;
                  ++x) {
-                for (u8 y = cursor_loc.y; y < cursor_loc.y + required_space_->y;
-                     ++y) {
-                    auto room = app.player_island().get_room({x, y});
+                for (u8 y = 0; y < required_space_->y; ++y) {
+                    u8 ry = cursor_loc.y - y;
+                    auto room = app.player_island().get_room({x, ry});
                     if (room or x == app.player_island().terrain().size() or
-                        y == 15) {
+                        ry < construction_zone_min_y) {
                         pfrm.speaker().play_sound("beep_error", 1);
                         return null_scene();
                     }
@@ -216,13 +216,15 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
                                                 : app.opponent_island()));
 
         lisp::push_op(lisp::make_integer(cursor_loc.x));
-        lisp::push_op(lisp::make_integer(cursor_loc.y));
+
+        int y = cursor_loc.y;
+        if (required_space_) {
+            y -= (required_space_->y - 1);
+        }
+        lisp::push_op(lisp::make_integer(y));
 
         lisp::funcall(parameters_->cons().car()->cons().cdr(), 3);
         lisp::pop_op(); // TODO: check for lisp::Error.
-
-        // globals().near_cursor_loc_ = cached_near_cursor_;
-        // globals().far_cursor_loc_ = cached_far_cursor_;
 
         if (started_near_) {
             return scene_pool::alloc<ReadyScene>();
@@ -233,6 +235,12 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     return null_scene();
 }
+
+
+
+void draw_required_space(Platform& pfrm,
+                         const Vec2<Fixnum> origin,
+                         const Vec2<u8>& sz);
 
 
 
@@ -265,6 +273,19 @@ void SelInputScene::display(Platform& pfrm, App& app)
     }
 
     pfrm.screen().draw(cursor);
+
+    if (required_space_) {
+        auto sz = *required_space_;
+
+        auto& cursor_loc = globals().near_cursor_loc_;
+
+        auto origin = player_island(app).visual_origin();
+        origin.x += cursor_loc.x * 16;
+        origin.y += cursor_loc.y * 16;
+        origin.y -= (required_space_->y - 1) * 16;
+
+        draw_required_space(pfrm, origin, sz);
+    }
 }
 
 

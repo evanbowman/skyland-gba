@@ -529,7 +529,7 @@ std::optional<Vec2<u8>> TitleScreenScene::module_cursor_;
 
 
 
-static const int faded_music_volume = 6;
+static const int faded_music_volume = 2;
 
 
 
