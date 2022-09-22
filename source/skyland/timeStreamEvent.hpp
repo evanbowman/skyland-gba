@@ -171,6 +171,11 @@ enum Type : u8 {
     opponent_fire_extinguished,
 
     weapon_set_group,
+
+    lightning,
+    lightning_done,
+
+    weather_changed,
 };
 
 
@@ -1006,6 +1011,31 @@ struct OpponentFireExtinguished
     u8 y_ : 4;
 
     static constexpr const auto t = Type::opponent_fire_extinguished;
+};
+
+
+
+struct Lightning
+{
+    Header header_;
+    static constexpr const auto t = Type::lightning;
+};
+
+
+
+struct LightningDone
+{
+    Header header_;
+    static constexpr const auto t = Type::lightning_done;
+};
+
+
+
+struct WeatherChanged
+{
+    Header header_;
+    u8 prev_weather_;
+    static constexpr const auto t = Type::weather_changed;
 };
 
 

@@ -40,9 +40,18 @@ public:
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     void on_lightning(Platform& pfrm) override;
+
+
+    void rewind_lightning() override
+    {
+        ls_ = LightningState::fade;
+        lightning_timer_ = 0;
+    }
+
 
 private:
     enum class LightningState : u8

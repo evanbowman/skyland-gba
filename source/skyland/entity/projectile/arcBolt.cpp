@@ -61,6 +61,25 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
 
 
+ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
+                 int dir,
+                 Island* source,
+                 const RoomCoord& origin_tile)
+    : Projectile({{8, 8}, {8, 8}}), source_(source), origin_tile_(origin_tile)
+{
+    sprite_.set_position(position);
+    sprite_.set_size(Sprite::Size::w16_h32);
+    sprite_.set_texture_index(78);
+
+    sprite_.set_origin({8, 8});
+
+    static const Float speed = 0.00011f;
+    auto step = rotate({1, 0}, dir) * speed;
+    step_vector_ = Vec2<Fixnum>{step.x, step.y};
+}
+
+
+
 void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();

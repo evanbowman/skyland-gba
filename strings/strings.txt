@@ -97,6 +97,7 @@ shellfish
 shrubbery
 singularity
 solar-cell
+spark-cannon
 speaker
 stairwell
 statue
@@ -266,13 +267,14 @@ Highly flammable, but takes no burn damage. Sandbox mode only.
 Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
-Changes the weather to clear skies!
+Changes the weather!
 Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 Like a stairwell, but half as tall.
 Heals inhabitants, slower for each additional inhabitant. Only heals crew originating from the same island as the infirmary.
 Produces replicants. A replicant has 75% of the health of the source character, and cannot heal.
 Deploys a drone! When destroyed, the deployed drone will also be destroyed.
+A powerful weapon that only works in the stormiest weather. Gains one ammo and charges one level per lightning strike.
 paused
 slow
 regular
@@ -420,6 +422,8 @@ Primitive
 Reach zone 3 without building a workshop!
 Hero
 Defeat the Storm King!
+Edge of the world!
+Reach the rightmost level of zone 4!
 options
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!

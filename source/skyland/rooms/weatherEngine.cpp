@@ -24,6 +24,7 @@
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -56,7 +57,17 @@ void environment_init(App& app, int type);
 ScenePtr<Scene>
 WeatherEngine::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
-    environment_init(app, 1);
+    time_stream::event::WeatherChanged e;
+
+    if (app.environment().is_overcast()) {
+        e.prev_weather_ = 3; // FIXME!
+        environment_init(app, 1);
+    } else {
+        e.prev_weather_ = 1;
+        environment_init(app, 3);
+    }
+    app.time_stream().push(app.level_timer(), e);
+
     pfrm.screen().set_shader(app.environment().shader(app));
     pfrm.screen().set_shader_argument(0);
 

@@ -70,6 +70,7 @@
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/solarCell.hpp"
+#include "skyland/rooms/sparkCannon.hpp"
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/stackedHull.hpp"
 #include "skyland/rooms/stairwell.hpp"
@@ -96,7 +97,9 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     InfoImpl()
         // NOTE: the game will fill in these parameters from configuration
         // later on.
-        : health_(10), cost_(10), power_(10)
+        : health_(T::default_health()),
+          cost_(T::default_cost()),
+          power_(T::default_power())
     {
     }
 
@@ -288,6 +291,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         FireCharge,
                                         Decimator,
                                         Annihilator,
+                                        SparkCannon,
                                         // Pummeler,
                                         MissileSilo,
                                         RocketSilo,

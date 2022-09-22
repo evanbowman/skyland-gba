@@ -148,6 +148,7 @@ enum class SystemString {
     block_shrubbery,
     block_singularity,
     block_solar_cell,
+    block_spark_cannon,
     block_speaker,
     block_stairwell,
     block_statue,
@@ -348,6 +349,7 @@ enum class SystemString {
     description_infirmary,
     description_replicator,
     description_drone_bay,
+    description_spark_cannon,
 
     gs_paused,
     gs_slow,
@@ -524,6 +526,8 @@ enum class SystemString {
     achievement_primitive_description,
     achievement_hero_name,
     achievement_hero_description,
+    achievement_end_of_line_name,
+    achievement_end_of_line_description,
 
     options,
 

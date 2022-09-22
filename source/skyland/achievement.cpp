@@ -310,6 +310,28 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[hero].reward_), awarded);
+     }},
+
+    {SystemString::achievement_end_of_line_name,
+     SystemString::achievement_end_of_line_description,
+     "spark-cannon",
+     [](Platform&, App& app) {
+         if (app.zone() == 4) {
+             auto current_x = app.world_graph()
+                 .nodes_[app.current_world_location()].coord_.x;
+
+             for (auto& node : app.world_graph().nodes_) {
+                 if (node.coord_.x > current_x) {
+                     return false;
+                 }
+             }
+
+             return true;
+         }
+         return false;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[edge_of_world].reward_), awarded);
      }}};
 
 

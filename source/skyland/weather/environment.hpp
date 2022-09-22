@@ -52,6 +52,12 @@ public:
     }
 
 
+    virtual void rewind_lightning()
+    {
+
+    }
+
+
     virtual void update(Platform& pfrm, App& app, Microseconds delta) = 0;
     virtual void rewind(Platform& pfrm, App& app, Microseconds delta) = 0;
 

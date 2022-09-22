@@ -202,6 +202,10 @@ void RewindScene::print_timestamp(Platform& pfrm, App& app)
 
 
 
+void environment_init(App& app, int type);
+
+
+
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
     // Playback history at a fixed delta.
@@ -1270,6 +1274,44 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::HitSoundCompleted*)end;
             pfrm.speaker().play_sound("impact", 3);
             app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::lightning: {
+            auto e = (time_stream::event::Lightning*)end;
+
+            for (auto& room : player_island(app).rooms()) {
+                room->on_lightning_rewind(pfrm, app);
+            }
+
+            if (opponent_island(app)) {
+                for (auto& room : opponent_island(app)->rooms()) {
+                    room->on_lightning_rewind(pfrm, app);
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::lightning_done: {
+            auto e = (time_stream::event::LightningDone*)end;
+            app.environment().rewind_lightning();
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::weather_changed: {
+            auto e = (time_stream::event::WeatherChanged*)end;
+            environment_init(app, e->prev_weather_);
+            pfrm.screen().set_shader(app.environment().shader(app));
+            pfrm.speaker().play_music(app.environment().music(), 0);
+            app.time_stream().pop(sizeof *e);
+            pfrm.screen().schedule_fade(1.f);
+            pfrm.screen().schedule_fade(0.f);
             break;
         }
 

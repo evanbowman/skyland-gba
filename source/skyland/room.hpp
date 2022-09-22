@@ -158,6 +158,23 @@ public:
     };
 
 
+    static int default_health()
+    {
+        return 10;
+    }
+
+
+    static int default_cost()
+    {
+        return 10;
+    }
+
+
+    static int default_power()
+    {
+        return 10;
+    }
+
 
     virtual ~Room();
 
@@ -360,6 +377,16 @@ public:
 
 
     virtual void plot_walkable_zones(App& app, bool matrix[16][16]);
+
+
+    virtual void on_lightning(Platform& pfrm, App& app)
+    {
+    }
+
+
+    virtual void on_lightning_rewind(Platform& pfrm, App& app)
+    {
+    }
 
 
     RoomMeta* metaclass() const;

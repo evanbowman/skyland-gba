@@ -367,6 +367,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             ++nemesis_count;
         } else if (str_eq(room->name(), "arc-gun")) {
             ++arc_count;
+        } else if (str_eq(room->name(), "spark-cannon")) {
+            ++arc_count;
         } else if (str_eq(room->name(), "ion-cannon")) {
             ++ion_cannon_count;
         } else if (str_eq(room->name(), "mycelium")) {
@@ -945,9 +947,14 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
         } else if (str_eq(room->name(), "flak-gun")) {
             ++flak_count;
             ++lateral_count;
-        } else if (str_eq(room->name(), "arc-gun")) {
+        } else if (str_eq(room->name(), "arc-gun") or
+                   str_eq(room->name(), "spark-cannon")) {
             ++arc_count;
             ++lateral_count;
+
+            if (str_eq(room->name(), "spark-cannon")) {
+                ++arc_count;
+            }
         } else if (str_eq(room->name(), "fire-charge")) {
             ++fire_count;
             ++lateral_count;

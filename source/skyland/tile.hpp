@@ -240,6 +240,10 @@ struct Tile
         damaged_energized_hull,
         damaged_forcefield,
         damaged_forcefield2,
+        spark_cannon_l1,
+        spark_cannon_l2,
+        spark_cannon_l3,
+        spark_cannon_front,
     };
 };
 
@@ -451,6 +455,10 @@ struct InteriorTile
         damaged_energized_hull,
         damaged_forcefield,
         damaged_forcefield2,
+        spark_cannon_l1,
+        spark_cannon_l2,
+        spark_cannon_l3,
+        spark_cannon_front,
     };
 };
 

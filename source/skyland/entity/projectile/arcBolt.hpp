@@ -46,6 +46,12 @@ public:
             const RoomCoord& origin_tile);
 
 
+    ArcBolt(const Vec2<Fixnum>& position,
+            int dir,
+            Island* source,
+            const RoomCoord& origin_tile);
+
+
     void update(Platform&, App&, Microseconds delta) override;
 
 
