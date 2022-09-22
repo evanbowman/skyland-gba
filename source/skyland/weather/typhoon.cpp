@@ -21,6 +21,7 @@
 
 
 #include "typhoon.hpp"
+#include "number/random.hpp"
 
 
 
@@ -102,7 +103,7 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
 
             pfrm.screen().schedule_fade(0.f);
         } else {
-            const auto amount = smoothstep(0.f, milliseconds(200), lightning_timer_);
+            const auto amount = smoothstep(0.f, milliseconds(430), lightning_timer_);
             pfrm.screen().schedule_fade(amount,
                                         ColorConstant::rich_black,
                                         true,
