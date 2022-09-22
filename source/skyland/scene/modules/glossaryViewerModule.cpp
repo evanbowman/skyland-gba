@@ -115,7 +115,12 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    load_page(pfrm, page_);
+    if (state_ == State::quickview) {
+        load_page(pfrm, page_);
+    } else {
+        load_categories(pfrm);
+    }
+
     pfrm.screen().fade(0.95f);
     pfrm.screen().fade(1.f);
 
@@ -140,6 +145,28 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+void GlossaryViewerModule::load_categories(Platform& pfrm)
+{
+    Text heading(pfrm, OverlayCoord{1, 1});
+    heading.assign("- ");
+    heading.append(SYSTR(module_glossary)->c_str());
+    heading.append(" -");
+    heading.__detach();
+
+    int row = 4;
+    for (int i = 0; i < (int)Room::Category::count; ++i) {
+        Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
+        auto category_str = (SystemString)(((int)SystemString::category_begin) +
+                                           i);
+        t.append(loadstr(pfrm, category_str)->c_str());
+        t.__detach();
+    }
+
+    pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+}
+
+
+
 ScenePtr<Scene>
 GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -153,20 +180,95 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
-    if (test_key(Key::right) and page_ < ms - 1 and
-        page_ < plugin_rooms_begin() - 1) {
-        load_page(pfrm, ++page_);
-    }
-
-    if (test_key(Key::left) and page_ > 0) {
-        load_page(pfrm, --page_);
-    }
-
-    if (app.player().key_down(pfrm, Key::action_2)) {
-        if (next_scene_) {
-            return (*next_scene_)();
+    switch (state_) {
+    case State::show_categories:
+        if (test_key(Key::up) and cg_cursor_ > 0) {
+            --cg_cursor_;
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            for (int y = 2; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
         }
-        return scene_pool::alloc<TitleScreenScene>(3);
+
+        if (test_key(Key::down) and cg_cursor_ <
+            (int)Room::Category::count - 1) {
+            ++cg_cursor_;
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            for (int y = 2; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            state_ = State::view;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+
+            auto [mt, ms] = room_metatable();
+
+            page_ = 0;
+            for (int i = 0; i < ms; ++i) {
+                if (mt[i]->category() == (Room::Category)cg_cursor_) {
+                    break;
+                }
+                ++page_;
+            }
+
+            filter_begin_ = page_;
+            filter_end_ = page_;
+            while (filter_end_ < ms and
+                   mt[filter_end_]->category() == (Room::Category)cg_cursor_) {
+                ++filter_end_;
+            }
+            if (filter_end_ == ms) {
+                ++filter_end_;
+            }
+
+            load_page(pfrm, page_);
+        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            if (next_scene_) {
+                return (*next_scene_)();
+            }
+            return scene_pool::alloc<TitleScreenScene>(3);
+        }
+        break;
+
+    case State::view:
+    case State::quickview:
+        if (test_key(Key::right) and page_ < ms - 1 and
+            page_ < plugin_rooms_begin() - 1 and
+            (not filter_end_ or (filter_end_ and filter_end_ - 1 > page_))) {
+            load_page(pfrm, ++page_);
+        }
+
+        if (test_key(Key::left) and page_ > 0 and
+            (not filter_begin_ or (filter_begin_ and filter_begin_ < page_))) {
+            load_page(pfrm, --page_);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            if (state_ == State::quickview) {
+                if (next_scene_) {
+                    return (*next_scene_)();
+                }
+                return scene_pool::alloc<TitleScreenScene>(3);
+            } else {
+                state_ = State::show_categories;
+                for (int x = 0; x < 30; ++x) {
+                    for (int y = 0; y < 20; ++y) {
+                        pfrm.set_tile(Layer::overlay, x, y, 0);
+                    }
+                }
+                Text::platform_retain_alphabet(pfrm);
+                load_categories(pfrm);
+            }
+        }
+        break;
     }
 
 

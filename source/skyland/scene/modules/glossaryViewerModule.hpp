@@ -24,6 +24,7 @@
 
 #include "graphics/overlay.hpp"
 #include "skyland/scene/module.hpp"
+#include "skyland/room.hpp"
 
 
 
@@ -35,8 +36,15 @@ namespace skyland
 class GlossaryViewerModule : public Module<GlossaryViewerModule>
 {
 public:
+
     GlossaryViewerModule(int page = 0) : page_(page)
     {
+    }
+
+
+    void skip_categories()
+    {
+        state_ = State::quickview;
     }
 
 
@@ -82,6 +90,8 @@ public:
 private:
     void load_page(Platform& pfrm, int page);
 
+    void load_categories(Platform& pfrm);
+
 
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
@@ -91,9 +101,18 @@ private:
 
     std::optional<DeferredScene> next_scene_;
 
+    enum class State
+    {
+        show_categories,
+        view,
+        quickview,
+    } state_ = State::show_categories;
 
     int page_ = 0;
+    int cg_cursor_ = 0;
 
+    int filter_begin_ = 0;
+    int filter_end_ = 0;
 
     static Factory factory_;
 };
