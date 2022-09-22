@@ -37,6 +37,24 @@ class Typhoon : public Storm
 {
 public:
     Platform::Screen::Shader shader(App& app) const override;
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override;
+
+
+    void on_lightning(Platform& pfrm) override;
+
+private:
+    enum class LightningState : u8
+    {
+        none,
+        begin1,
+        begin2,
+        hold,
+        fade,
+    } ls_ = LightningState::none;
+
+    Microseconds lightning_timer_ = 0;
 };
 
 

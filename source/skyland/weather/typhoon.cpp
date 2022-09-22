@@ -29,6 +29,102 @@ namespace skyland::weather
 
 
 
+void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Storm::update(pfrm, app, delta);
+
+    switch (ls_) {
+    case LightningState::none:
+        break;
+
+    case LightningState::begin1:
+        lightning_timer_ -= delta;
+        if (lightning_timer_ <= 0) {
+            lightning_timer_ = milliseconds(48);
+            ls_ = LightningState::begin2;
+            pfrm.screen().schedule_fade(0.25f,
+                                ColorConstant::rich_black,
+                                true,
+                                false,
+                                false,
+                                true,
+                                true);
+
+            pfrm.screen().schedule_fade(0.25f,
+                                        ColorConstant::silver_white,
+                                        false,
+                                        false,
+                                        true,
+                                        false,
+                                        true);
+        }
+        break;
+
+    case LightningState::begin2:
+        lightning_timer_ -= delta;
+        if (lightning_timer_ <= 0) {
+            lightning_timer_ = milliseconds(100);
+            ls_ = LightningState::hold;
+
+            pfrm.speaker().play_sound("thunder_close_1", 0);
+
+            pfrm.screen().schedule_fade(1.f,
+                                        ColorConstant::rich_black,
+                                        true,
+                                        false,
+                                        false,
+                                        true,
+                                        true);
+
+            pfrm.screen().schedule_fade(1.f,
+                                        ColorConstant::silver_white,
+                                        false,
+                                        false,
+                                        true,
+                                        false,
+                                        true);
+        }
+        break;
+
+    case LightningState::hold:
+        lightning_timer_ -= delta;
+        if (lightning_timer_ <= 0) {
+            lightning_timer_ = milliseconds(430);
+            ls_ = LightningState::fade;
+        }
+        break;
+
+    case LightningState::fade:
+        lightning_timer_ -= delta;
+        if (lightning_timer_ <= 0) {
+            lightning_timer_ = 0;
+            ls_ = LightningState::none;
+
+            pfrm.screen().schedule_fade(0.f);
+        } else {
+            const auto amount = smoothstep(0.f, milliseconds(200), lightning_timer_);
+            pfrm.screen().schedule_fade(amount,
+                                        ColorConstant::rich_black,
+                                        true,
+                                        false,
+                                        false,
+                                        true,
+                                        true);
+
+            pfrm.screen().schedule_fade(amount,
+                                        ColorConstant::silver_white,
+                                        false,
+                                        false,
+                                        true,
+                                        false,
+                                        true);
+        }
+        break;
+    }
+}
+
+
+
 Platform::Screen::Shader Typhoon::shader(App& app) const
 {
     return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
@@ -145,6 +241,30 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
 
         return k;
     };
+}
+
+
+
+void Typhoon::on_lightning(Platform& pfrm)
+{
+    ls_ = LightningState::begin1;
+    lightning_timer_ = milliseconds(65);
+
+    pfrm.screen().schedule_fade(0.6f,
+                                ColorConstant::rich_black,
+                                true,
+                                false,
+                                false,
+                                true,
+                                true);
+
+    pfrm.screen().schedule_fade(0.6f,
+                                ColorConstant::silver_white,
+                                false,
+                                false,
+                                true,
+                                false,
+                                true);
 }
 
 

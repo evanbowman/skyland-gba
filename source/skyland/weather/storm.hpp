@@ -41,6 +41,7 @@ protected:
     {
         Vec2<s16> raindrops_[6];
         Microseconds thunder_timer_;
+        Microseconds lightning_timer_;
 
         struct ColorTable
         {
@@ -76,6 +77,12 @@ public:
 
 
     const char* music() const override;
+
+
+    virtual void on_lightning(Platform& pfrm)
+    {
+        // ...
+    }
 
 
     Platform::Screen::Shader shader(App& app) const override;

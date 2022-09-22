@@ -67,6 +67,9 @@ public:
     virtual const char* background_texture() const = 0;
 
 
+    virtual void on_pause();
+
+
     virtual bool is_overcast() const
     {
         return false;

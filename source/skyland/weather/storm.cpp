@@ -40,7 +40,9 @@ Storm::Storm()
 {
     auto& s = *state_;
 
-    s.thunder_timer_ = seconds(6) + rng::choice(seconds(5), rng::utility_state);
+    auto& gen = rng::utility_state;
+    s.thunder_timer_ = seconds(6) + rng::choice(seconds(5), gen);
+    s.lightning_timer_ = seconds(7) + rng::choice(20, gen) * seconds(1);
 
     const auto scale = rain_pos_scale;
 
@@ -49,6 +51,13 @@ Storm::Storm()
         rd.x = rng::choice(240 * scale, rng::utility_state);
         rd.y = rng::choice(160 * scale, rng::utility_state);
     }
+}
+
+
+
+void Environment::on_pause()
+{
+    // ...
 }
 
 
@@ -76,6 +85,11 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    s.lightning_timer_ -= delta;
+    if (s.lightning_timer_ <= 0) {
+        s.lightning_timer_ = seconds(9) + rng::choice(16, gen) * seconds(1);
+        on_lightning(pfrm);
+    }
 
     const s16 sd = delta;
     const s16 sx = pfrm.screen().size().x + 24;

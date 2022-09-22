@@ -83,11 +83,6 @@ void AchievementViewerModule::load_page(Platform& pfrm, App& app, int page)
         Layer::overlay, 28, 15, room_category_icon((*mt)->category()));
 
     temp += (*mt)->ui_name(pfrm)->c_str();
-    temp += " (";
-    temp += stringify((*mt)->size().x);
-    temp += ",";
-    temp += stringify((*mt)->size().y);
-    temp += ")";
 
     item_name_->assign(temp.c_str());
 

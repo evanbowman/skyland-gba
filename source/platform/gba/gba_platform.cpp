@@ -2716,7 +2716,8 @@ void Platform::Screen::schedule_fade(Float amount,
                                      bool include_sprites,
                                      bool include_overlay,
                                      bool include_background,
-                                     bool include_tiles)
+                                     bool include_tiles,
+                                     bool dodge)
 {
     const u8 amt = amount * 255;
 
@@ -2736,39 +2737,57 @@ void Platform::Screen::schedule_fade(Float amount,
 
 
     // Sprite palette
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(sprite_palette[i]);
-        sp_palette_back_buffer[i] = blend(from, c, include_sprites ? amt : 0);
+    if (include_sprites or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+            sp_palette_back_buffer[i] = blend(from, c, include_sprites ? amt : 0);
+        }
     }
+
     // Tile0 palette
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-        bg_palette_back_buffer[i] = blend(from, c, include_tiles ? amt : 0);
+    if (include_tiles or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+            bg_palette_back_buffer[i] = blend(from, c, include_tiles ? amt : 0);
+        }
     }
+
     // Custom flag/tile/sprite palette:
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
-        auto val = blend(from, c, amt);
-        bg_palette_back_buffer[16 * 12 + i] = val;
-        sp_palette_back_buffer[16 + i] = val;
+    if (include_tiles or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+            auto val = blend(from, c, amt);
+            bg_palette_back_buffer[16 * 12 + i] = val;
+            sp_palette_back_buffer[16 + i] = val;
+        }
     }
+
     // Tile1 palette
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
-        bg_palette_back_buffer[32 + i] =
-            blend(from, c, include_tiles ? amt : 0);
+    if (include_tiles or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+            bg_palette_back_buffer[32 + i] =
+                blend(from, c, include_tiles ? amt : 0);
+        }
     }
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(background_palette[i]);
-        bg_palette_back_buffer[16 * 11 + i] =
-            blend(from, c, include_background ? amt : 0);
+
+    if (include_background or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(background_palette[i]);
+            bg_palette_back_buffer[16 * 11 + i] =
+                blend(from, c, include_background ? amt : 0);
+        }
     }
+
     // Overlay palette
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(overlay_palette[i]);
-        bg_palette_back_buffer[16 + i] =
-            blend(from, c, include_overlay ? amt : 0);
+    if (include_overlay or not dodge) {
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+            bg_palette_back_buffer[16 + i] =
+                blend(from, c, include_overlay ? amt : 0);
+        }
     }
+
 }
 
 
@@ -3524,6 +3543,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_scroll.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
+#include "data/sound_thunder_close_1.hpp"
 #include "data/sound_transporter.hpp"
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
@@ -3563,6 +3583,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(transporter, sound_transporter),
     DEF_SOUND(thunder_1, sound_thunder_1),
     DEF_SOUND(thunder_2, sound_thunder_2),
+    DEF_SOUND(thunder_close_1, sound_thunder_close_1),
     DEF_SOUND(core_destroyed, sound_core_destroyed),
     DEF_SOUND(pong_blip_1, sound_pong_blip1),
     DEF_SOUND(pong_blip_2, sound_pong_blip2),

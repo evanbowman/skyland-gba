@@ -529,7 +529,8 @@ public:
                            bool include_sprites = true,
                            bool include_overlay = false,
                            bool include_background = true,
-                           bool include_tiles = true);
+                           bool include_tiles = true,
+                           bool dodge = false);
 
 
         void pixelate(u8 amount,
