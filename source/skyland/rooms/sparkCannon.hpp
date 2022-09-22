@@ -49,7 +49,7 @@ public:
 
     static int default_cost()
     {
-        return 2450;
+        return 2500;
     }
 
 

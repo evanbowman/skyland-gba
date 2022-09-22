@@ -97,11 +97,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
             item_name_.emplace(pfrm, OverlayCoord{9, 11});
 
-            make_format(temp,
-                        "% (%,%)",
-                        (*mt)->ui_name(pfrm)->c_str(),
-                        (*mt)->size().x,
-                        (*mt)->size().y);
+            make_format(temp, "%", (*mt)->ui_name(pfrm)->c_str());
 
             item_name_->assign(temp.c_str());
 
