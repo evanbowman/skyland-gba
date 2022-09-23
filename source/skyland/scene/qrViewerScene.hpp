@@ -54,6 +54,12 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void set_origin_overworld()
+    {
+        overworld_ = true;
+    }
+
+
 protected:
     std::optional<QRCode> qr_;
     u32 binary_data_size_ = 0;
@@ -61,6 +67,7 @@ protected:
     StringBuffer<70> message_;
     DeferredScene next_;
     bool exit_ = false;
+    bool overworld_ = false;
     std::optional<TextView> tv_;
     std::optional<Text> next_text_;
     ColorConstant exit_color_;

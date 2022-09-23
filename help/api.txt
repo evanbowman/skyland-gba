@@ -389,6 +389,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (qr-set island x y value)
+
+ Populate a code block with
+ text!
+
+
+o----------------------------o
+
  (rcnt island name-sym)
 
  Return the number of room

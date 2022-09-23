@@ -602,9 +602,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (menu_selection_ == 0) {
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {
-            if (rng::choice<5>(rng::critical_state) == 0 and not
-                pfrm.speaker().is_sound_playing("seagull_1") and not
-                pfrm.speaker().is_sound_playing("seagull_2")) {
+            if (rng::choice<5>(rng::critical_state) == 0 and
+                not pfrm.speaker().is_sound_playing("seagull_1") and
+                not pfrm.speaker().is_sound_playing("seagull_2")) {
                 if (rng::choice<2>(rng::critical_state)) {
                     pfrm.speaker().play_sound("seagull_1", 0);
                 } else {
@@ -1353,8 +1353,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(spr);
     }
 
-    if (module_cursor_ and
-        (state_ == State::show_modules)) {
+    if (module_cursor_ and (state_ == State::show_modules)) {
         Sprite sprite;
         sprite.set_texture_index(36);
         sprite.set_size(Sprite::Size::w16_h32);

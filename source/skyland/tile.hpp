@@ -244,6 +244,7 @@ struct Tile
         spark_cannon_l2,
         spark_cannon_l3,
         spark_cannon_front,
+        qr_block,
     };
 };
 
@@ -459,6 +460,7 @@ struct InteriorTile
         spark_cannon_l2,
         spark_cannon_l3,
         spark_cannon_front,
+        qr_block,
     };
 };
 

@@ -243,6 +243,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/barrier.cpp
   ${SOURCE_DIR}/skyland/rooms/speaker.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
+  ${SOURCE_DIR}/skyland/rooms/qrBlock.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/pummeler.cpp

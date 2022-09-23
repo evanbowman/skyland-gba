@@ -55,7 +55,6 @@ public:
 
     virtual void rewind_lightning()
     {
-
     }
 
 

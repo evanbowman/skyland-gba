@@ -20,9 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "feedbackModule.hpp"
+#include "qrBlock.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene/qrViewerScene.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -30,21 +31,21 @@ namespace skyland
 {
 
 
-
 ScenePtr<Scene>
-FeedbackModule::update(Platform& pfrm, App& app, Microseconds delta)
+QrBlock::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
-    return scene_pool::alloc<ConfiguredURLQRViewerScene>(
-        "/scripts/config/feedback.lisp",
+    pfrm.speaker().play_sound("button_wooden", 3);
+
+    auto next = scene_pool::alloc<QRViewerScene>(
+        data_->c_str(),
         "",
-        "",
-        scene_pool::make_deferred_scene<TitleScreenScene>(3));
+        scene_pool::make_deferred_scene<InspectP2Scene>(),
+        ColorConstant::rich_black);
+
+    next->set_origin_overworld();
+
+    return next;
 }
-
-
-
-FeedbackModule::Factory FeedbackModule::factory_(false);
-
 
 
 } // namespace skyland

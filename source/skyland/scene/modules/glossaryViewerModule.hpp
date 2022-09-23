@@ -23,8 +23,8 @@
 #pragma once
 
 #include "graphics/overlay.hpp"
-#include "skyland/scene/module.hpp"
 #include "skyland/room.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -36,7 +36,6 @@ namespace skyland
 class GlossaryViewerModule : public Module<GlossaryViewerModule>
 {
 public:
-
     GlossaryViewerModule(int page = 0) : page_(page)
     {
     }
@@ -101,8 +100,7 @@ private:
 
     std::optional<DeferredScene> next_scene_;
 
-    enum class State
-    {
+    enum class State {
         show_categories,
         view,
         quickview,

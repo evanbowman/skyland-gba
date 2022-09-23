@@ -173,14 +173,13 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (group_ not_eq Room::Group::none) {
 
-                auto with_group =
-                    [&](auto& callback) {
-                        for (auto& r : app.player_island().rooms()) {
-                            if (r->group() == group_) {
-                                callback(*r);
-                            }
+                auto with_group = [&](auto& callback) {
+                    for (auto& r : app.player_island().rooms()) {
+                        if (r->group() == group_) {
+                            callback(*r);
                         }
-                    };
+                    }
+                };
 
                 // If the room has a group assigned, then assign a target
                 // for all rooms of the same group.
@@ -192,15 +191,14 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     int interval_sum = 0;
                     int max_reload = 0;
 
-                    auto collect =
-                        [&](Room& r) {
-                            ++count;
-                            interval_sum += r.reload_interval();
-                            auto rem = r.reload_time_remaining();
-                            if (rem > max_reload) {
-                                max_reload = rem;
-                            }
-                        };
+                    auto collect = [&](Room& r) {
+                        ++count;
+                        interval_sum += r.reload_interval();
+                        auto rem = r.reload_time_remaining();
+                        if (rem > max_reload) {
+                            max_reload = rem;
+                        }
+                    };
 
                     with_group(collect);
 
@@ -213,11 +211,10 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     const int balance = average_reload / count;
                     count = 0;
 
-                    auto update_timers =
-                        [&](Room& r) {
-                            r.override_reload_timer(max_reload + balance * count);
-                            ++count;
-                        };
+                    auto update_timers = [&](Room& r) {
+                        r.override_reload_timer(max_reload + balance * count);
+                        ++count;
+                    };
 
                     with_group(update_timers);
 
@@ -228,18 +225,17 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     Microseconds max_reload = 0;
 
                     auto cb = [&max_reload](Room& r) {
-                                  auto rem = r.reload_time_remaining();
-                                  if (rem > max_reload) {
-                                      max_reload = rem;
-                                  }
-                              };
+                        auto rem = r.reload_time_remaining();
+                        if (rem > max_reload) {
+                            max_reload = rem;
+                        }
+                    };
 
                     with_group(cb);
 
-                    auto update_timers =
-                        [max_reload](Room& r) {
-                            r.override_reload_timer(max_reload);
-                        };
+                    auto update_timers = [max_reload](Room& r) {
+                        r.override_reload_timer(max_reload);
+                    };
 
                     with_group(update_timers);
 

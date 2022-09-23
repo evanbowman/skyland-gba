@@ -318,7 +318,8 @@ static const AchievementInfo info[Achievement::count] = {
      [](Platform&, App& app) {
          if (app.zone() == 4) {
              auto current_x = app.world_graph()
-                 .nodes_[app.current_world_location()].coord_.x;
+                                  .nodes_[app.current_world_location()]
+                                  .coord_.x;
 
              for (auto& node : app.world_graph().nodes_) {
                  if (node.coord_.x > current_x) {

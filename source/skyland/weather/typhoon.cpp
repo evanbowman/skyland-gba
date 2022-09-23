@@ -22,8 +22,8 @@
 
 #include "typhoon.hpp"
 #include "number/random.hpp"
-#include "skyland/timeStreamEvent.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -56,12 +56,12 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
             ls_ = LightningState::begin1;
 
             pfrm.screen().schedule_fade(0.6f,
-                                ColorConstant::rich_black,
-                                true,
-                                false,
-                                false,
-                                true,
-                                true);
+                                        ColorConstant::rich_black,
+                                        true,
+                                        false,
+                                        false,
+                                        true,
+                                        true);
 
             pfrm.screen().schedule_fade(0.6f,
                                         ColorConstant::silver_white,
@@ -79,12 +79,12 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = 0;
 
             pfrm.screen().schedule_fade(0.25f,
-                                ColorConstant::rich_black,
-                                true,
-                                false,
-                                false,
-                                true,
-                                true);
+                                        ColorConstant::rich_black,
+                                        true,
+                                        false,
+                                        false,
+                                        true,
+                                        true);
 
             pfrm.screen().schedule_fade(0.25f,
                                         ColorConstant::silver_white,
@@ -104,13 +104,8 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = 0;
             ls_ = LightningState::hold;
 
-            pfrm.screen().schedule_fade(1.f,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            pfrm.screen().schedule_fade(
+                1.f, ColorConstant::rich_black, true, false, false, true, true);
 
             pfrm.screen().schedule_fade(1.f,
                                         ColorConstant::silver_white,
@@ -121,7 +116,8 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
                                         true);
 
         } else {
-            const auto amount = smoothstep(0.f, milliseconds(430), lightning_timer_);
+            const auto amount =
+                smoothstep(0.f, milliseconds(430), lightning_timer_);
             pfrm.screen().schedule_fade(amount,
                                         ColorConstant::rich_black,
                                         true,
@@ -158,12 +154,12 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = milliseconds(48);
             ls_ = LightningState::begin2;
             pfrm.screen().schedule_fade(0.25f,
-                                ColorConstant::rich_black,
-                                true,
-                                false,
-                                false,
-                                true,
-                                true);
+                                        ColorConstant::rich_black,
+                                        true,
+                                        false,
+                                        false,
+                                        true,
+                                        true);
 
             pfrm.screen().schedule_fade(0.25f,
                                         ColorConstant::silver_white,
@@ -196,13 +192,8 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            pfrm.screen().schedule_fade(1.f,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            pfrm.screen().schedule_fade(
+                1.f, ColorConstant::rich_black, true, false, false, true, true);
 
             pfrm.screen().schedule_fade(1.f,
                                         ColorConstant::silver_white,
@@ -234,7 +225,8 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
             app.time_stream().push(app.level_timer(), e);
 
         } else {
-            const auto amount = smoothstep(0.f, milliseconds(430), lightning_timer_);
+            const auto amount =
+                smoothstep(0.f, milliseconds(430), lightning_timer_);
             pfrm.screen().schedule_fade(amount,
                                         ColorConstant::rich_black,
                                         true,
@@ -382,21 +374,11 @@ void Typhoon::on_lightning(Platform& pfrm)
     ls_ = LightningState::begin1;
     lightning_timer_ = milliseconds(65);
 
-    pfrm.screen().schedule_fade(0.6f,
-                                ColorConstant::rich_black,
-                                true,
-                                false,
-                                false,
-                                true,
-                                true);
+    pfrm.screen().schedule_fade(
+        0.6f, ColorConstant::rich_black, true, false, false, true, true);
 
-    pfrm.screen().schedule_fade(0.6f,
-                                ColorConstant::silver_white,
-                                false,
-                                false,
-                                true,
-                                false,
-                                true);
+    pfrm.screen().schedule_fade(
+        0.6f, ColorConstant::silver_white, false, false, true, false, true);
 }
 
 

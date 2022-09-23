@@ -89,7 +89,8 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     if (s.lightning_timer_ <= 0) {
         s.lightning_timer_ = seconds(4) + rng::choice(13, gen) * seconds(1);
 
-        if (app.opponent_island() and not app.opponent_island()->is_destroyed() and
+        if (app.opponent_island() and
+            not app.opponent_island()->is_destroyed() and
             not app.player_island().is_destroyed()) {
             on_lightning(pfrm);
         }
@@ -300,8 +301,7 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
     if (timer_ <= 0) {
 
         timer_ += timer_ =
-            seconds(3) +
-            seconds(rng::choice<6>(rng::utility_state));
+            seconds(3) + seconds(rng::choice<6>(rng::utility_state));
 
         switch (rng::choice<3>(rng::utility_state)) {
         case 0:

@@ -54,8 +54,7 @@ public:
 
 
 private:
-    enum class LightningState : u8
-    {
+    enum class LightningState : u8 {
         none,
         begin1,
         begin2,

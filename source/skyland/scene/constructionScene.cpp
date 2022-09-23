@@ -880,8 +880,7 @@ void draw_required_space(Platform& pfrm,
 
         for (int x = 0; x < sz.x; ++x) {
             for (int y = 0; y < sz.y / 2; ++y) {
-                sprite.set_position(
-                                    {origin.x + x * 16, origin.y + y * 32});
+                sprite.set_position({origin.x + x * 16, origin.y + y * 32});
                 pfrm.screen().draw(sprite);
             }
         }
@@ -891,7 +890,7 @@ void draw_required_space(Platform& pfrm,
             sprite.set_texture_index(14);
             for (int x = 0; x < sz.x; ++x) {
                 sprite.set_position(
-                                    {origin.x + x * 16, origin.y + (sz.y - 2) * 16});
+                    {origin.x + x * 16, origin.y + (sz.y - 2) * 16});
                 pfrm.screen().draw(sprite);
             }
         }

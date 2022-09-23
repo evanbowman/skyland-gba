@@ -133,6 +133,7 @@ enum class SystemString {
     block_plundered_room,
     block_potatoes,
     block_energized_hull,
+    block_qr,
     block_radar,
     block_radiator,
     block_reactor,
@@ -350,6 +351,7 @@ enum class SystemString {
     description_replicator,
     description_drone_bay,
     description_spark_cannon,
+    description_qr,
 
     gs_paused,
     gs_slow,

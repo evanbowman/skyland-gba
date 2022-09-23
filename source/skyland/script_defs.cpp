@@ -33,6 +33,7 @@
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
+#include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "script/lisp.hpp"
@@ -1425,6 +1426,26 @@ static const lisp::Binding script_api[] = {
          if (auto room = island->get_room({x, y})) {
              if (auto cb = room->cast<CargoBay>()) {
                  cb->set_cargo(lisp::get_op(0)->string().value(), 1);
+             }
+         }
+
+         return L_NIL;
+     }},
+    {"qr-set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(0, string);  // cargo
+         L_EXPECT_OP(1, integer); // y
+         L_EXPECT_OP(2, integer); // x
+         L_EXPECT_OP(3, user_data);
+
+         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+         const u8 x = lisp::get_op(2)->integer().value_;
+         const u8 y = lisp::get_op(1)->integer().value_;
+
+         if (auto room = island->get_room({x, y})) {
+             if (auto cb = room->cast<QrBlock>()) {
+                 cb->set_message(lisp::get_op(0)->string().value());
              }
          }
 

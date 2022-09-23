@@ -24,14 +24,14 @@
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/misc/animatedEffect.hpp"
+#include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/entity/projectile/arcBolt.hpp"
-#include "skyland/entity/projectile/decimatorBurst.hpp"
 
 
 
@@ -171,18 +171,20 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     switch (level_) {
     case 1: {
-        auto ab =
-            app.alloc_entity<ArcBolt>(pfrm, start, right ? 0 : 180, parent(), position());
+        auto ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 20 : 160, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 340 : 200, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
@@ -190,28 +192,32 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
 
     default: {
-        auto ab =
-            app.alloc_entity<ArcBolt>(pfrm, start, right ? 0 : 180, parent(), position());
+        auto ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 10 : 190, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 10 : 190, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 350 : 170, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 350 : 170, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 20 : 160, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 340 : 200, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(
+            pfrm, start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
@@ -226,7 +232,7 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         }
 
         auto c = app.alloc_entity<DecimatorBurst>(
-                pfrm, start, target, parent(), position());
+            pfrm, start, target, parent(), position());
 
         if (c) {
             parent()->projectiles().push(std::move(c));
@@ -236,20 +242,19 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
     }
 
-    auto record_lv =
-        [&] {
-            if (parent() == &app.player_island()) {
-                time_stream::event::PlayerRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
-            } else {
-                time_stream::event::OpponentRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
-            }
-        };
+    auto record_lv = [&] {
+        if (parent() == &app.player_island()) {
+            time_stream::event::PlayerRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(app.level_timer(), e);
+        } else {
+            time_stream::event::OpponentRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(app.level_timer(), e);
+        }
+    };
 
     while (level_) {
         record_lv();

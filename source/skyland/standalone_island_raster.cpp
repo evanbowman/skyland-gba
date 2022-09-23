@@ -454,18 +454,16 @@ int main(int argc, char** argv)
     bool json_output_has_field = false;
 
 
-    auto put_field =
-        [&](const char* name, int value)
-        {
-            if (json_output_has_field) {
-                output_json << ',';
-            }
-            json_output_has_field = true;
-            output_json << '"';
-            output_json << name;
-            output_json << "\":";
-            output_json << value;
-        };
+    auto put_field = [&](const char* name, int value) {
+        if (json_output_has_field) {
+            output_json << ',';
+        }
+        json_output_has_field = true;
+        output_json << '"';
+        output_json << name;
+        output_json << "\":";
+        output_json << value;
+    };
 
 
     if (argc not_eq 4) {
@@ -599,9 +597,9 @@ int main(int argc, char** argv)
         put_field("h", s->size().z - 1);
         put_field("freebuild",
                   shape not_eq macro::terrain::Sector::Shape::cube and
-                  shape not_eq macro::terrain::Sector::Shape::pancake and
-                  shape not_eq macro::terrain::Sector::Shape::pillar and
-                  shape not_eq macro::terrain::Sector::Shape::outpost);
+                      shape not_eq macro::terrain::Sector::Shape::pancake and
+                      shape not_eq macro::terrain::Sector::Shape::pillar and
+                      shape not_eq macro::terrain::Sector::Shape::outpost);
 
         auto stats = s->stats();
         put_field("food", stats.food_);

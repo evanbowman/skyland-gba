@@ -64,7 +64,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (qr_ or not text_.empty()) {
 
-        {
+        if (not overworld_) {
             auto str = SYSTR(qr_prep);
             auto m = centered_text_margins(pfrm, utf8::len(str->c_str()));
             Text t(
@@ -161,7 +161,11 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
         exit_ = true;
         tv_.reset();
         pfrm.fill_overlay(0);
-        pfrm.screen().schedule_fade(1.f, exit_color_);
+        if (overworld_) {
+            pfrm.screen().schedule_fade(0.f);
+        } else {
+            pfrm.screen().schedule_fade(1.f, exit_color_);
+        }
     }
 
     return null_scene();

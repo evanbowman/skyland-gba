@@ -82,6 +82,7 @@ piston
 plundered-room
 potatoes
 energized-hull
+code
 radar
 radiator
 reactor
@@ -275,6 +276,7 @@ Heals inhabitants, slower for each additional inhabitant. Only heals crew origin
 Produces replicants. A replicant has 75% of the health of the source character, and cannot heal.
 Deploys a drone! When destroyed, the deployed drone will also be destroyed.
 A powerful weapon that only works in the stormiest weather. Gains one ammo and charges one level per lightning strike.
+Text written in some strange language... what could it mean?
 paused
 slow
 regular

@@ -156,8 +156,8 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
     int row = 4;
     for (int i = 0; i < (int)Room::Category::count; ++i) {
         Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
-        auto category_str = (SystemString)(((int)SystemString::category_begin) +
-                                           i);
+        auto category_str =
+            (SystemString)(((int)SystemString::category_begin) + i);
         t.append(loadstr(pfrm, category_str)->c_str());
         t.__detach();
     }
@@ -191,8 +191,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
         }
 
-        if (test_key(Key::down) and cg_cursor_ <
-            (int)Room::Category::count - 1) {
+        if (test_key(Key::down) and
+            cg_cursor_ < (int)Room::Category::count - 1) {
             ++cg_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {

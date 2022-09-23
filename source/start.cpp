@@ -22,6 +22,7 @@
 
 #include "globals.hpp"
 #include "localization.hpp"
+#include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qr.hpp"
 #include "rot13.hpp"
@@ -29,7 +30,6 @@
 #include "skyland/save.hpp"
 #include "skyland/scene/bootScene.hpp"
 #include "skyland/skyland.hpp"
-#include "platform/conf.hpp"
 
 
 

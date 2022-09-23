@@ -63,6 +63,7 @@
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/pummeler.hpp"
+#include "skyland/rooms/qrBlock.hpp"
 #include "skyland/rooms/radar.hpp"
 #include "skyland/rooms/radiator.hpp"
 #include "skyland/rooms/reactor.hpp"
@@ -97,8 +98,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     InfoImpl()
         // NOTE: the game will fill in these parameters from configuration
         // later on.
-        : health_(T::default_health()),
-          cost_(T::default_cost()),
+        : health_(T::default_health()), cost_(T::default_cost()),
           power_(T::default_power())
     {
     }
@@ -340,6 +340,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Shrubbery,
                                         BananaPlant,
                                         Masonry,
+                                        QrBlock,
                                         Basalt,
                                         PlunderedRoom>;
 
