@@ -24,6 +24,7 @@
 
 #include "graphics/color.hpp"
 #include "number/numeric.hpp"
+#include "number/random.hpp"
 #include "platform/platform.hpp"
 
 
@@ -159,6 +160,19 @@ public:
     {
         return "life_in_silco";
     }
+
+
+    ClearSkies()
+    {
+        timer_ = seconds(rng::choice<7>(rng::utility_state));
+    }
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override;
+
+
+private:
+    Microseconds timer_;
 };
 
 

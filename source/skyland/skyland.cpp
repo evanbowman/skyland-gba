@@ -361,6 +361,8 @@ static bool is_gui_sound(const char* sound_name)
              {"button_wooden", 0},
              {"click_negative", 0},
              {"cursor_tick", 0},
+             {"seagull_1", 0},
+             {"seagull_2", 0},
              {"weapon_target", 0}});
 
     return gui_sound_table.find(sound_name) not_eq gui_sound_table.end();
