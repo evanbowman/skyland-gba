@@ -29,6 +29,7 @@
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/sparkCannon.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -332,6 +333,10 @@ void EnemyAI::update_room(Platform& pfrm,
     } else if (auto ion_cannon = room.cast<IonCannon>()) {
         set_target(
             pfrm, app, matrix, *ion_cannon, owner, ai_island, target_island);
+    } else if (auto spark_cannon = room.cast<SparkCannon>()) {
+        if (spark_cannon->level() == 2) {
+            spark_cannon->select(pfrm, app, {});
+        }
     } else if (auto fire_charge = room.cast<FireCharge>()) {
         set_target(
             pfrm, app, matrix, *fire_charge, owner, ai_island, target_island);

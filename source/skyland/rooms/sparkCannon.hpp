@@ -115,7 +115,7 @@ public:
 
     static Float atp_value()
     {
-        return 800.f;
+        return 900.f;
     }
 
 
@@ -138,6 +138,16 @@ public:
 
     ScenePtr<Scene>
     select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+    Microseconds reload_time_remaining() const override
+    {
+        return seconds(level_) - 1;
+    }
+
+    u8 level() const
+    {
+        return level_;
+    }
 
 private:
     u8 level_ = 0;

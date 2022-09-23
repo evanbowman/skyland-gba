@@ -92,38 +92,48 @@ void SparkCannon::on_lightning_rewind(Platform& pfrm, App& app)
 
 void SparkCannon::render_interior(App& app, TileId buffer[16][16])
 {
+    int x1 = 0;
+    int x2 = 1;
+    if (parent() not_eq &app.player_island()) {
+        std::swap(x1, x2);
+    }
     switch (level_) {
     case 0:
-        buffer[position().x][position().y] = InteriorTile::spark_cannon_l1;
+        buffer[position().x + x1][position().y] = InteriorTile::spark_cannon_l1;
         break;
     case 1:
-        buffer[position().x][position().y] = InteriorTile::spark_cannon_l2;
+        buffer[position().x + x1][position().y] = InteriorTile::spark_cannon_l2;
         break;
     default:
-        buffer[position().x][position().y] = InteriorTile::spark_cannon_l3;
+        buffer[position().x + x1][position().y] = InteriorTile::spark_cannon_l3;
         break;
     }
 
-    buffer[position().x + 1][position().y] = InteriorTile::spark_cannon_front;
+    buffer[position().x + x2][position().y] = InteriorTile::spark_cannon_front;
 }
 
 
 
 void SparkCannon::render_exterior(App& app, TileId buffer[16][16])
 {
+    int x1 = 0;
+    int x2 = 1;
+    if (parent() not_eq &app.player_island()) {
+        std::swap(x1, x2);
+    }
     switch (level_) {
     case 0:
-        buffer[position().x][position().y] = Tile::spark_cannon_l1;
+        buffer[position().x + x1][position().y] = Tile::spark_cannon_l1;
         break;
     case 1:
-        buffer[position().x][position().y] = Tile::spark_cannon_l2;
+        buffer[position().x + x1][position().y] = Tile::spark_cannon_l2;
         break;
     default:
-        buffer[position().x][position().y] = Tile::spark_cannon_l3;
+        buffer[position().x + x1][position().y] = Tile::spark_cannon_l3;
         break;
     }
 
-    buffer[position().x + 1][position().y] = Tile::spark_cannon_front;
+    buffer[position().x + x2][position().y] = Tile::spark_cannon_front;
 }
 
 
@@ -149,7 +159,9 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     // This just makes it a bit less likely for cannonballs to
     // run into the player's own buildings, especially around
     // corners.
+    bool right = true;
     if (island == &app.player_island()) {
+        right = false;
         start.x -= 24;
     } else {
         start.x += 24;
@@ -160,17 +172,17 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     switch (level_) {
     case 1: {
         auto ab =
-            app.alloc_entity<ArcBolt>(pfrm, start, 0, parent(), position());
+            app.alloc_entity<ArcBolt>(pfrm, start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 20, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 340, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
@@ -179,27 +191,27 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     default: {
         auto ab =
-            app.alloc_entity<ArcBolt>(pfrm, start, 0, parent(), position());
+            app.alloc_entity<ArcBolt>(pfrm, start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 10, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 10 : 190, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 350, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 350 : 170, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 20, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(pfrm, start, 340, parent(), position());
+        ab = app.alloc_entity<ArcBolt>(pfrm, start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
