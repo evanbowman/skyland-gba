@@ -87,7 +87,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
 
     s.lightning_timer_ -= delta;
     if (s.lightning_timer_ <= 0) {
-        s.lightning_timer_ = seconds(9) + rng::choice(4, gen) * seconds(1);
+        s.lightning_timer_ = seconds(4) + rng::choice(13, gen) * seconds(1);
 
         if (app.opponent_island() and not app.opponent_island()->is_destroyed() and
             not app.player_island().is_destroyed()) {
