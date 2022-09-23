@@ -602,6 +602,15 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (menu_selection_ == 0) {
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {
+            if (rng::choice<5>(rng::critical_state) == 0 and not
+                pfrm.speaker().is_sound_playing("seagull_1") and not
+                pfrm.speaker().is_sound_playing("seagull_2")) {
+                if (rng::choice<2>(rng::critical_state)) {
+                    pfrm.speaker().play_sound("seagull_1", 0);
+                } else {
+                    pfrm.speaker().play_sound("seagull_2", 0);
+                }
+            }
             bird_timer_ =
                 seconds(12) + seconds(rng::choice<4>(rng::critical_state));
             if (rng::choice<6>(rng::critical_state)) {

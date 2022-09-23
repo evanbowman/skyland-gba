@@ -450,7 +450,7 @@ public:
             auto& block = slab[c.x][c.y];
 
             if (block.type() not_eq Type::selector) {
-                return;
+                goto SKIP_CURSOR;
             }
 
             int t_start = Derived::screen_mapping_lut[c.x][c.y];
@@ -486,6 +486,7 @@ public:
             blit(t_start + 1);
         }
 #endif // __CMD_MACRO_RAST__
+    SKIP_CURSOR:
 
         auto rendering_pass = [&](auto rendering_function) {
             auto project_block = [&](u8 x, u8 y, u8 z) {

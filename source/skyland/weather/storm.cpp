@@ -305,11 +305,15 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 
         switch (rng::choice<3>(rng::utility_state)) {
         case 0:
-            pfrm.speaker().play_sound("seagull_1", 0);
+            if (not app.birds().empty()) {
+                pfrm.speaker().play_sound("seagull_1", 0);
+            }
             break;
 
         case 1:
-            pfrm.speaker().play_sound("seagull_2", 0);
+            if (not app.birds().empty()) {
+                pfrm.speaker().play_sound("seagull_2", 0);
+            }
             break;
 
         case 2:
