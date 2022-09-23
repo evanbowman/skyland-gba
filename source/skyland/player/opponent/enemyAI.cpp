@@ -1546,7 +1546,7 @@ void EnemyAI::set_target(Platform& pfrm,
         return;
     }
 
-    Buffer<std::pair<Room*, Float>, 32> visible_rooms;
+    Buffer<std::pair<Room*, Float>, 64> visible_rooms;
 
 
     for (int x = 0; x < 16; ++x) {
@@ -1555,8 +1555,10 @@ void EnemyAI::set_target(Platform& pfrm,
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back(
                         {room, (*room->metaclass())->atp_value()});
+                    if (room->category() not_eq Room::Category::decoration) {
+                        break;
+                    }
                 }
-                break;
             }
         }
     }
