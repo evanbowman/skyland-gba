@@ -44,7 +44,7 @@
   (qr-set
    (opponent)
    1 14
-   (string "Notice: surpluss " wpn " in stock!"))
+   (string "Notice: surplus " wpn " in stock!"))
 
   (if (or sc (not pc)) ;; player must have a core and not already have a backup
       (progn
