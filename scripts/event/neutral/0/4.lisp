@@ -10,7 +10,7 @@
 
 (island-configure
  (opponent)
- '((hull 0 14)
+ '((code 0 14)
    (hull 0 13)
    (hull 0 12)
    (torch 0 11)
@@ -24,6 +24,12 @@
    (masonry 4 14)
    (power-core 5 13)
    (rocket-bomb 7 12)))
+
+
+(qr-set
+ (opponent)
+ 0 14
+ "Goblins from the surface! Now they too inhabit the skies... nowhere is safe...")
 
 
 (defn on-fadein

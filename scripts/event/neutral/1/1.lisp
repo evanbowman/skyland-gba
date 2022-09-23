@@ -14,20 +14,21 @@
  (opponent)
  '((hull 0 14)
    (power-core 1 13)
-   (hull 1 12)
+   (code 1 12)
    (workshop 3 13)))
 
 
-(setq on-converge
-      (lambda
-        (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
-        (setq on-converge '())
-        (dialog-await-y/n)))
+(let ((trap (choice 2)))
 
+  (qr-set
+   (opponent) 1 12
+   (if trap
+       "It's a trap!"
+     "Treasure buried within!"))
 
-(setq on-dialog-accepted
+  (setq on-dialog-accepted
       (lambda
-        (if (equal (choice 2) 0)
+        (if (not trap)
             (let ((val (+ 600 (choice 300))))
               (dialog "You explore, and salvage " (string val) "@ from the ruins.")
               (coins-add val)
@@ -43,7 +44,14 @@
                (missile-silo 3 13)
                (missile-silo 4 13)))
             (flag-show (opponent))
-            (dialog "It's a trap!")))))
+            (dialog "It's a trap!"))))))
+
+
+(setq on-converge
+      (lambda
+        (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
+        (setq on-converge '())
+        (dialog-await-y/n)))
 
 
 (setq on-dialog-declined

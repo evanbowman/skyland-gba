@@ -84,11 +84,18 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         if (qr_) {
 
+            if (overworld_) {
+                qr_->data_color_index(10)
+                    .position_marker_inner_color_index(10)
+                    .position_marker_outer_color_index(10);
+            } else {
+                qr_->data_color_index(7);
+                qr_->position_marker_outer_color_index(7);
+                qr_->position_marker_inner_color_index(7);
+            }
+
             pfrm.screen().display();
 
-            qr_->data_color_index(7);
-            qr_->position_marker_outer_color_index(7);
-            qr_->position_marker_inner_color_index(7);
 
             u8 margin = 1;
 
@@ -116,13 +123,21 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                             OptColors{{custom_color(0x392194),
                                        ColorConstant::silver_white}});
 
+                if (overworld_) {
+                    pfrm.fill_overlay(0);
+                }
+
                 auto next_str = SYSTR(a_next);
 
                 u8 next_start = st.x - utf8::len(next_str->c_str());
                 next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
                 next_text_->assign(next_str->c_str(),
-                                   OptColors{{ColorConstant::silver_white,
-                                              custom_color(0x392194)}});
+                                   OptColors{{overworld_ ?
+                                               custom_color(0x666691) :
+                                               ColorConstant::silver_white,
+                                               overworld_ ?
+                                               custom_color(0xd2d9a7) :
+                                               custom_color(0x392194)}});
             }
 
             qr_->draw(pfrm, {2, (u8)margin});
@@ -131,7 +146,10 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
+    pfrm.screen().schedule_fade(1.f,
+                                overworld_ ?
+                                custom_color(0x666691) :
+                                ColorConstant::silver_white);
 }
 
 
@@ -149,6 +167,10 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
         return next_();
+    }
+
+    if (overworld_) {
+        app.level_timer().count_up(delta);
     }
 
     timer_ += delta;

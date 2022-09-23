@@ -18,10 +18,14 @@
    (hull 4 12)
    (hull 1 14)
    (hull 2 14)
-   (hull 1 13)
    (hull 2 13)
    (hull 1 12)
-   (hull 2 12)))
+   (hull 2 12)
+   (code 1 13)))
+
+(qr-set
+ (opponent) 1 13
+ "Audit: Federation cruiser. Status: decommissioned due to missile weakness.")
 
 
 

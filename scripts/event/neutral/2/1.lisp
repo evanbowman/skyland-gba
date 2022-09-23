@@ -15,7 +15,7 @@
    (hull 2 13)
    (hull 2 14)
    (hull 3 12)
-   (hull 4 12)))
+   (code 4 12)))
 
 
 (chr-new (opponent) 1 14 'neutral 0)
@@ -30,31 +30,39 @@
         (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
+(let ((bad (choice 2)))
 
-        (setq temp (chr-slots (player)))
-        (setq temp (get temp (choice (length temp))))
+  (qr-set
+   (opponent)
+   4 12
+   (if bad
+       "Humans eaten: 17"
+     "Days alone on island: lll"))
 
+  (setq on-dialog-accepted
+        (lambda
 
-        (if temp
-            (progn
-              (chr-del (opponent) 1 14)
-              (if (equal (choice 2) 0)
+          (setq temp (chr-slots (player)))
+          (setq temp (get temp (choice (length temp))))
+
+          (if temp
+              (progn
+                (chr-del (opponent) 1 14)
+                (if (not bad)
+                    (progn
+                      (chr-new (player) (car temp) (cdr temp) 'neutral 0)
+                      (dialog "The survivor joined your crew!")
+                      (exit))
                   (progn
-                    (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                    (dialog "The survivor joined your crew!")
-                    (exit))
-                (progn
-                  (chr-new (player) (car temp) (cdr temp) 'hostile 0)
-                  (dialog "The survivor turned out to be a vicious goblin!")
-                  (setq on-dialog-closed
-                        (lambda
-                          (dialog "<c:goblin:2>Die humansss!")
-                          (setq on-dialog-closed '()))))))
-          (progn
-            (dialog "Sadly, there's no room...")
-            (exit)))))
+                    (chr-new (player) (car temp) (cdr temp) 'hostile 0)
+                    (dialog "The survivor turned out to be a vicious goblin!")
+                    (setq on-dialog-closed
+                          (lambda
+                            (dialog "<c:goblin:2>Die humansss!")
+                            (setq on-dialog-closed '()))))))
+            (progn
+              (dialog "Sadly, there's no room...")
+              (exit))))))
 
 
 (setq on-dialog-declined
