@@ -33,6 +33,15 @@
 
 
 
+(secret
+ 4 13
+ "I'm not going crazy, I'm not going crazy, I'm not going crazy...")
+
+(secret
+ 5 14
+ "BANANA! BANANAA!!! BANANA! BANANA?")
+
+
 (setq on-converge
       (lambda
         (dialog

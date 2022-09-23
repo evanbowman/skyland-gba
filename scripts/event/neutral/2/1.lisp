@@ -15,7 +15,7 @@
    (hull 2 13)
    (hull 2 14)
    (hull 3 12)
-   (code 4 12)))
+   (hull 4 12)))
 
 
 (chr-new (opponent) 1 14 'neutral 0)
@@ -32,12 +32,13 @@
 
 (let ((bad (choice 2)))
 
-  (qr-set
-   (opponent)
-   4 12
-   (if bad
-       "Humans eaten: 17"
-     "Days alone on island: lll"))
+  (if (< (zone) 2)
+      (secret
+       4 12
+       (if bad
+           "Humans eaten: 17"
+         "Days alone on island: lll")))
+
 
   (setq on-dialog-accepted
         (lambda

@@ -55,3 +55,7 @@
 ;; Choose a random element of a list.
 (defn/c sample
   (get $0 (choice (length $0))))
+
+(defn/c secret
+  (room-mut (opponent) $0 $1 'code)
+  (qr-set (opponent) $0 $1 $2))

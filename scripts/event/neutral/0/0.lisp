@@ -12,7 +12,13 @@
 (island-configure
  (opponent)
  '((power-core 3 13)
-   (coconut-palm 5 13)))
+   (coconut-palm 5 12)
+   (hull 5 14)))
+
+
+(secret
+ 5 14
+ "Days stranded: |||| |||| |||| |||| ||||...")
 
 
 (chr-new (opponent) 1 14 'neutral 0)

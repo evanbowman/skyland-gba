@@ -11,7 +11,7 @@
    (bronze-hull 0 14)
    (bronze-hull 0 13)
    (bronze-hull 0 12)
-   (code 1 14)
+   (hull 1 14)
    (stairwell 1 9)
    (workshop 1 7)
    (masonry 1 13)
@@ -41,10 +41,7 @@
                   fire-charge)
                 (choice 2))))
 
-  (qr-set
-   (opponent)
-   1 14
-   (string "Notice: surplus " wpn " in stock!"))
+  (secret 1 14 (string "Notice: surplus " wpn " in stock!"))
 
   (if (or sc (not pc)) ;; player must have a core and not already have a backup
       (progn

@@ -14,17 +14,11 @@
  (opponent)
  '((hull 0 14)
    (power-core 1 13)
-   (code 1 12)
+   (hull 1 12)
    (workshop 3 13)))
 
 
 (let ((trap (choice 2)))
-
-  (qr-set
-   (opponent) 1 12
-   (if trap
-       "It's a trap!"
-     "Treasure buried within!"))
 
   (setq on-dialog-accepted
       (lambda

@@ -32,17 +32,17 @@
    (hull 7 10)
    (hull 8 11)
    (hull 9 11)
-   (code 8 10)
+   (hull 8 10)
    (hull 9 10)
    (hull 6 9)
    (hull 7 9)
    (hull 5 10)
    (decimator 4 13)))
 
-(qr-set
- (opponent)
+(secret
+ 3
  8 10
- "Warship #1NRZ8. Commissioned year 2047. Stay clear of decimator.")
+ "Warship #1NRZ8. Commissioned year 2047. Stay clear of decimator!")
 
 (flag-show (opponent))
 

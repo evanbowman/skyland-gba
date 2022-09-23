@@ -133,7 +133,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                 next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
                 next_text_->assign(next_str->c_str(),
                                    OptColors{{overworld_ ?
-                                               custom_color(0x666691) :
+                                               custom_color(0x4e4e73) :
                                                ColorConstant::silver_white,
                                                overworld_ ?
                                                custom_color(0xd2d9a7) :
@@ -148,7 +148,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().schedule_fade(1.f,
                                 overworld_ ?
-                                custom_color(0x666691) :
+                                custom_color(0x4e4e73) :
                                 ColorConstant::silver_white);
 }
 

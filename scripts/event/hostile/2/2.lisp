@@ -35,15 +35,15 @@
    (hull 4 10)
    (hull 6 10)
    (hull 2 9)
-   (code 3 9)
+   (hull 3 9)
    (hull 7 11)))
 
 
 (flag-show (opponent))
 
 
-(qr-set
- (opponent)
+(secret
+ 3
  3 9
  "Yarrgg!! Goblin raiding vessel, occupancy: 6")
 

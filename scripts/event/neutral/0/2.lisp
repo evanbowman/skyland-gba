@@ -18,6 +18,13 @@
    (workshop 3 13)))
 
 
+(if (choice 2)
+    (secret
+     1 12
+     "To the earth below, I will not go"))
+
+
+
 (setq on-converge
       (lambda
         (setq temp (+ 400 (choice 900)))

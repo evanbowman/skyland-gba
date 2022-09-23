@@ -10,7 +10,7 @@
 
 (island-configure
  (opponent)
- '((code 0 14)
+ '((hull 0 14)
    (hull 0 13)
    (hull 0 12)
    (torch 0 11)
@@ -26,8 +26,8 @@
    (rocket-bomb 7 12)))
 
 
-(qr-set
- (opponent)
+(secret
+ 3
  0 14
  "Goblins from the surface! Now they too inhabit the skies... nowhere is safe...")
 
