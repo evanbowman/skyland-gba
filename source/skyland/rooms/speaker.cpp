@@ -133,7 +133,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
             }
             playing_ = false;
 
-            schedule_repaint();
+            parent()->repaint(pfrm, app);
 
             return;
         }
@@ -192,18 +192,6 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
             delta);
     }
 
-
-
-    if (auto w = wave()) {
-        pfrm.speaker().apply_chiptune_effect(
-            Platform::Speaker::Channel::wave,
-            load_effect((int)Platform::Speaker::Channel::wave),
-            w->effect_parameters()[index_].value_,
-            delta);
-    }
-
-
-
     if (auto p = square_2()) {
         pfrm.speaker().apply_chiptune_effect(
             Platform::Speaker::Channel::square_2,
@@ -247,13 +235,9 @@ void Speaker::render_exterior(App& app, TileId buffer[16][16])
 ScenePtr<Scene>
 Speaker::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
-    bool was_playing_ = playing_;
-
     play(pfrm);
 
-    if (not was_playing_) {
-        schedule_repaint();
-    }
+    parent()->repaint(pfrm, app);
 
     return null_scene();
 }

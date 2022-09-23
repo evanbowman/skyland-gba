@@ -123,7 +123,7 @@ ScenePtr<Scene> Synth::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 Speaker* Synth::speaker() const
 {
-    for (int x = 0; x < 4; ++x) {
+    for (int x = 0; x < 3; ++x) {
         int coord = position().x;
         coord -= x + 1;
         if (coord > -1) {
