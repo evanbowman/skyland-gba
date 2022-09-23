@@ -225,8 +225,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                    mt[filter_end_]->category() == (Room::Category)cg_cursor_) {
                 ++filter_end_;
             }
-            if (filter_end_ == ms) {
-                ++filter_end_;
+            if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
+                filter_end_ = ms;
             }
 
             load_page(pfrm, page_);
