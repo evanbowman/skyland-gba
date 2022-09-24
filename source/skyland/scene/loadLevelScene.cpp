@@ -78,10 +78,10 @@ void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static SHARED_VARIABLE(zone1_coin_yield);
-static SHARED_VARIABLE(zone2_coin_yield);
-static SHARED_VARIABLE(zone3_coin_yield);
-static SHARED_VARIABLE(zone4_coin_yield);
+SHARED_VARIABLE(zone1_coin_yield);
+SHARED_VARIABLE(zone2_coin_yield);
+SHARED_VARIABLE(zone3_coin_yield);
+SHARED_VARIABLE(zone4_coin_yield);
 
 
 

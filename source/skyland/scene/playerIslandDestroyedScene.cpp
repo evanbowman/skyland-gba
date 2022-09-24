@@ -929,6 +929,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+extern SharedVariable zone1_coin_yield;
+extern SharedVariable zone2_coin_yield;
+extern SharedVariable zone3_coin_yield;
+extern SharedVariable zone4_coin_yield;
+
+
+
 void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
@@ -952,7 +959,19 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
         WorldGraph::Node::Type::corrupted) {
 
         // At endgame, award the player score for any unused coins.
-        app.score().set(app.score().get() + app.coins() * 8);
+
+        int mult = 0.f;
+        if (app.zone() < 2) {
+            mult = (0.01f * zone1_coin_yield);
+        } else if (app.zone() < 3) {
+            mult = (0.01f * zone2_coin_yield);
+        } else if (app.zone() < 4) {
+            mult = (0.01f * zone3_coin_yield);
+        } else {
+            mult = (0.01f * zone4_coin_yield);
+        }
+
+        app.score().set(app.score().get() + app.coins() * mult);
 
         if (island_ not_eq &app.player_island()) {
             app.persistent_data().score_.set(
