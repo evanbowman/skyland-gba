@@ -27,7 +27,6 @@
 
 
 (secret
- 3
  0 14
  "Goblins from the surface! Now they too inhabit the skies... nowhere is safe...")
 

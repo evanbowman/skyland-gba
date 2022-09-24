@@ -43,7 +43,6 @@
 
 
 (secret
- 3
  3 9
  "Yarrgg!! Goblin raiding vessel, occupancy: 6")
 

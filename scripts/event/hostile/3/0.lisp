@@ -40,7 +40,6 @@
    (decimator 4 13)))
 
 (secret
- 3
  8 10
  "Jnefuvc #1AEM8. Pbzzvffvbarq lrne 2047. Fgnl pyrne bs qrpvzngbe!")
 
