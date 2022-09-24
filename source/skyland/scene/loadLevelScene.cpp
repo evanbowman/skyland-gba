@@ -127,7 +127,12 @@ void prep_level(Platform& pfrm, App& app)
             std::numeric_limits<Microseconds>::max() / 2);
 
         for (auto& room : app.opponent_island()->rooms()) {
-            if (app.zone() < 2) {
+            if (str_eq(room->name(), "mycelium")) {
+                // The construction cost of the initial block is high, and we
+                // don't want to award the player a large amount of coins for
+                // each block spawned.
+                app.victory_coins() += 100;
+            } else if (app.zone() < 2) {
                 app.victory_coins() +=
                     (0.01f * zone1_coin_yield) * (*room->metaclass())->cost();
             } else if (app.zone() < 3) {
