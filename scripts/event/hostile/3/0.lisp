@@ -42,7 +42,7 @@
 (secret
  3
  8 10
- "Warship #1NRZ8. Commissioned year 2047. Stay clear of decimator!")
+ "Jnefuvc #1AEM8. Pbzzvffvbarq lrne 2047. Fgnl pyrne bs qrpvzngbe!")
 
 (flag-show (opponent))
 
