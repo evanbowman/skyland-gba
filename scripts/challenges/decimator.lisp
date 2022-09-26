@@ -23,11 +23,11 @@
  (opponent)
  '((mirror-hull 0 7)
    (mirror-hull 0 8)
-   (forcefield 0 13)
+   (forcefield* 0 13)
    (forcefield* 0 12)
    (forcefield 0 11)
    (forcefield* 0 14)
-   (forcefield* 0 10)
+   (forcefield 0 10)
    (forcefield* 0 5)
    (hull 0 4)
    (forcefield* 0 6)
@@ -54,6 +54,8 @@
    (reactor 7 6)
    (hull 8 14)
    (hull 8 5)
+   (stacked-hull 7 4)
+   (stacked-hull 8 4)
    (hull 8 12)
    (hull 8 13)
    (hull 8 11)
@@ -62,7 +64,8 @@
    (hull 9 14)
    (hull 9 13)
    (hull 9 12)
-   (hull 9 11)))
+   (hull 9 11)
+   (forcefield 1 13)))
 
 
 (map
