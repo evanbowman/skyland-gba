@@ -361,8 +361,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             next->skip_categories();
             if (next) {
                 const bool near = near_;
-                next->set_next_scene([near, &pfrm]() {
-                    return scene_pool::alloc<ConstructionScene>(near);
+                const u8 mti_8 = mt;
+                next->set_next_scene([near, mti_8, &pfrm]() {
+                    auto s = scene_pool::alloc<ConstructionScene>(near);
+                    s->open_prompt_at(mti_8);
+                    return s;
                 });
                 return next;
             }
@@ -1271,7 +1274,19 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
         app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
     }
 
-    msg(pfrm, SYSTR(construction_build)->c_str());
+    if (jump_to_selection_) {
+        collect_available_buildings(pfrm, app);
+        state_ = State::choose_building;
+        for (u32 i = 0; i < data_->available_buildings_.size(); ++i) {
+            if (data_->available_buildings_[i] == *jump_to_selection_) {
+                building_selector_ = i;
+                break;
+            }
+        }
+        show_current_building_text(pfrm, app);
+    } else {
+        msg(pfrm, SYSTR(construction_build)->c_str());
+    }
 }
 
 

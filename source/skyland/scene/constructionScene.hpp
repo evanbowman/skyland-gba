@@ -76,6 +76,12 @@ public:
     }
 
 
+    void open_prompt_at(MetaclassIndex mti)
+    {
+        jump_to_selection_ = mti;
+    }
+
+
 private:
     enum class State {
         select_loc,
@@ -133,6 +139,8 @@ private:
     Island::BlockChecksum checksum_;
 
     bool near_;
+
+    std::optional<u8> jump_to_selection_;
 
     static bool constrain_;
 };
