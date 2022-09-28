@@ -357,6 +357,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::start)) {
             auto mt = data_->available_buildings_[building_selector_];
             auto next = scene_pool::alloc<GlossaryViewerModule>(mt);
+            category_label_.reset();
             next->skip_categories();
             if (next) {
                 const bool near = near_;

@@ -38,6 +38,7 @@ enum class StateBit {
     remote_console_force_newline,
     easy_mode_rewind_declined,
     crane_game_got_treasure,
+    disable_autopause,
     count,
 };
 

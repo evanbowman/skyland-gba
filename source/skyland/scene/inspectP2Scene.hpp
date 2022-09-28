@@ -52,6 +52,7 @@ public:
     std::optional<Text> room_description_;
     u8 cursor_anim_frame_;
     bool await_start_key_ = false;
+    bool await_b_key_ = false;
 };
 
 

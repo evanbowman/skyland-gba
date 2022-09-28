@@ -165,6 +165,7 @@ public:
             pause_if_hostile_ and app.opponent_island() and
             not app.opponent().is_friendly()) {
             set_gamespeed(pfrm, app, GameSpeed::stopped);
+            state_bit_store(app, StateBit::disable_autopause, true);
         }
 
         if (auto ws = prev.cast_world_scene()) {

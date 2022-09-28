@@ -27,6 +27,7 @@
 #include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "moveRoomScene.hpp"
 #include "notificationScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
@@ -328,8 +329,21 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<NotificationScene>(msg->c_str(),
                                                                 s);
                 }
+            } else if (not pfrm.network_peer().is_connected()) {
+                await_b_key_ = true;
             }
         }
+    }
+
+    if (await_b_key_ and app.player().key_up(pfrm, Key::action_2)) {
+        await_b_key_ = false;
+        if (app.game_mode() == App::GameMode::tutorial) {
+            return scene_pool::alloc<MoveRoomScene>(app, false);
+        }
+    }
+    if (await_b_key_ and
+        app.player().key_held(Key::action_2, milliseconds(400))) {
+        return scene_pool::alloc<MoveRoomScene>(app, false);
     }
 
     if (not is_far_camera()) {

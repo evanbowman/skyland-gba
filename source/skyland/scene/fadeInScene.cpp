@@ -74,6 +74,8 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
+        state_bit_store(app, StateBit::disable_autopause, false);
+
         pfrm.screen().fade(0.f);
         auto future_scene = [&pfrm, &app]() {
             auto next = scene_pool::alloc<ReadyScene>();
@@ -91,6 +93,9 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.on_timeout(
                         pfrm, milliseconds(250), [](Platform& pfrm, App& app) {
                             if (auto w = app.scene().cast_world_scene()) {
+                                if (state_bit_load(app, StateBit::disable_autopause)) {
+                                    return;
+                                }
                                 w->set_gamespeed(pfrm, app, GameSpeed::stopped);
                             }
                         });

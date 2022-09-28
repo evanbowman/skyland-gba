@@ -24,6 +24,7 @@
 
 
 #include "constructionScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
@@ -42,6 +43,36 @@ namespace skyland
 class MoveRoomScene : public ActiveWorldScene
 {
 public:
+
+
+    MoveRoomScene(App& app, bool near)
+    {
+        bind_island(app, near);
+    }
+
+
+    void bind_island(App& app, bool near)
+    {
+        if (near) {
+            island_ = &player_island(app);
+            near_camera();
+        } else {
+            island_ = opponent_island(app);
+            far_camera();
+        }
+    }
+
+
+    auto& cursor()
+    {
+        if (is_far_camera()) {
+            return globals().far_cursor_loc_;
+        } else {
+            return globals().near_cursor_loc_;
+        }
+    }
+
+
     void exit(Platform& pfrm, App& app, Scene& prev) override
     {
         ActiveWorldScene::exit(pfrm, app, prev);
@@ -102,6 +133,9 @@ public:
 
         case State::prompt:
             if (player(app).key_down(pfrm, Key::action_2)) {
+                if (is_far_camera()) {
+                    return scene_pool::alloc<InspectP2Scene>();
+                }
                 return scene_pool::alloc<ReadyScene>();
             }
             if (player(app).key_down(pfrm, Key::action_1)) {
@@ -131,8 +165,8 @@ public:
                 return scene_pool::alloc<ReadyScene>();
             }
             if (player(app).key_down(pfrm, Key::action_1)) {
-                auto cursor_loc = globals().near_cursor_loc_;
-                if (auto r = app.player_island().get_room(cursor_loc)) {
+                auto cursor_loc = cursor();
+                if (auto r = island_->get_room(cursor_loc)) {
                     if (str_eq(r->name(), "mycelium")) {
                         // Can't be moved!
                         pfrm.speaker().play_sound("beep_error", 3);
@@ -165,12 +199,12 @@ public:
             if (player(app).key_down(pfrm, Key::action_1) or
                 player(app).key_down(pfrm, Key::action_2)) {
 
-                auto cursor_loc = globals().near_cursor_loc_;
+                auto cursor_loc = cursor();
                 cursor_loc = (cursor_loc.cast<int>() - move_diff_.cast<int>())
                                  .cast<u8>();
 
                 if (player(app).key_down(pfrm, Key::action_1)) {
-                    if (auto room = app.player_island().get_room(move_src_)) {
+                    if (auto room = island_->get_room(move_src_)) {
                         for (u32 x = 0; x < room->size().x; ++x) {
                             for (int y = 0; y < room->size().y; ++y) {
                                 RoomCoord c;
@@ -182,16 +216,15 @@ public:
                                     return null_scene();
                                 };
 
-                                if (auto d = app.player_island().get_drone(c)) {
+                                if (auto d = island_->get_drone(c)) {
                                     return err();
                                 }
-                                if (c.x >=
-                                        app.player_island().terrain().size() or
+                                if (c.x >= island_->terrain().size() or
                                     c.y >= 15 or
                                     c.y < construction_zone_min_y) {
                                     return err();
                                 }
-                                if (auto o = app.player_island().get_room(c)) {
+                                if (auto o = island_->get_room(c)) {
                                     if (o not_eq room) {
                                         return err();
                                     }
@@ -199,8 +232,7 @@ public:
                             }
                         }
                         pfrm.speaker().play_sound("build0", 4);
-                        app.player_island().move_room(
-                            pfrm, app, move_src_, cursor_loc);
+                        island_->move_room(pfrm, app, move_src_, cursor_loc);
                     }
                 }
 
@@ -227,7 +259,7 @@ public:
                 pfrm, k, milliseconds(500), milliseconds(100));
         };
 
-        auto& cursor_loc = globals().near_cursor_loc_;
+        auto& cursor_loc = cursor();
 
         auto sync_cursor = [&] {
             app.player().network_sync_cursor(
@@ -242,7 +274,7 @@ public:
                     pfrm.speaker().play_sound("cursor_tick", 0);
                 }
             } else if (test_key(Key::right)) {
-                if (cursor_loc.x < app.player_island().terrain().size()) {
+                if (cursor_loc.x < island_->terrain().size()) {
                     ++cursor_loc.x;
                     sync_cursor();
                     pfrm.speaker().play_sound("cursor_tick", 0);
@@ -285,9 +317,9 @@ public:
                 cursor.set_texture_index(15 + cursor_anim_frame_);
             }
 
-            auto origin = app.player_island().visual_origin();
+            auto origin = island_->visual_origin();
 
-            auto& cursor_loc = globals().near_cursor_loc_;
+            auto& cursor_loc = this->cursor();
 
             origin.x += cursor_loc.x * 16;
             origin.y += cursor_loc.y * 16;
@@ -300,7 +332,7 @@ public:
 
         if (state_ == State::move_block) {
 
-            auto origin = player_island(app).visual_origin();
+            auto origin = island_->visual_origin();
             auto loc =
                 (move_src_.cast<int>() + move_diff_.cast<int>()).cast<u8>();
             origin.x += loc.x * 16;
@@ -312,8 +344,8 @@ public:
             sprite.set_size(Sprite::Size::w16_h32);
             pfrm.screen().draw(sprite);
 
-            origin = player_island(app).visual_origin();
-            auto cursor_loc = globals().near_cursor_loc_;
+            origin = island_->visual_origin();
+            auto cursor_loc = cursor();
             cursor_loc =
                 (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
             origin.x += cursor_loc.x * 16;
@@ -359,8 +391,8 @@ public:
         }
 
         if ((int)state_ > (int)State::prompt) {
-            auto& cursor_loc = globals().near_cursor_loc_;
-            if (auto room = app.player_island().get_room(cursor_loc)) {
+            auto& cursor_loc = cursor();
+            if (auto room = island_->get_room(cursor_loc)) {
                 room->display_on_hover(pfrm.screen(), app, cursor_loc);
             }
         }
@@ -378,8 +410,8 @@ private:
     } state_ = State::setup_prompt;
 
     Vec2<u8> move_diff_;
-    u8 cursor_anim_frame_;
-    Microseconds cursor_anim_timer_;
+    u8 cursor_anim_frame_ = 0;
+    Microseconds cursor_anim_timer_ = 0;
 
     std::optional<Text> text_;
     std::optional<Text> yes_text_;
@@ -387,6 +419,8 @@ private:
 
     RoomCoord move_src_;
     Vec2<u8> mv_size_;
+
+    Island* island_;
 };
 
 
