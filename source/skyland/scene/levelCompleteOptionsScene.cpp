@@ -108,8 +108,10 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(400);
         if (timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(0.f);
+            pfrm.screen().set_shader(app.environment().shader(app));
             pfrm.load_overlay_texture("overlay");
+            pfrm.screen().schedule_fade(0.1f); // palette bugfix
+            pfrm.screen().schedule_fade(0.f);
             pfrm.screen().pixelate(0, false);
             app.reset_opponent_island(pfrm);
             return scene_pool::alloc<ReadyScene>();
