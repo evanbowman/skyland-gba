@@ -39,7 +39,7 @@ namespace skyland
 void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
-    pfrm.screen().fade(1.f);
+    pfrm.screen().schedule_fade(1.f);
 
     app.player_island().show_flag(true);
 
@@ -61,9 +61,10 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     GenericBird::spawn(
         pfrm, app, app.player_island(), rng::choice<3>(rng::utility_state));
 
-    pfrm.screen().fade(0);
 
     show(pfrm, app);
+
+    pfrm.screen().schedule_fade(0);
 }
 
 
