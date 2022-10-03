@@ -1333,14 +1333,6 @@ void Island::move_room(Platform& pfrm,
                        const RoomCoord& from,
                        const RoomCoord& to)
 {
-    if (app.game_speed() not_eq GameSpeed::stopped and
-        app.game_speed() not_eq GameSpeed::rewind) {
-
-        Platform::fatal("Move room when not stopped or rewind! "
-                        "Relevant due to hack (below) for moving "
-                        "cloaked rooms.");
-    }
-
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
         if ((*it)->position() == from) {
             auto room = std::move(*it);
@@ -1388,7 +1380,8 @@ void Island::move_room(Platform& pfrm,
                 fire_create(pfrm, app, to);
             }
 
-            if (not room->ai_aware()) {
+            if (app.game_speed() == GameSpeed::stopped and
+                not room->ai_aware()) {
                 // The room is cloaked, and we're moving it. We want to update
                 // visibility in case the room was moved out of the range of a
                 // cloaking field.
