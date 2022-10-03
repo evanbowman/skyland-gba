@@ -812,6 +812,12 @@ void describe_room(Platform& pfrm,
                                   calc_screen_tiles(pfrm).y - 1,
                                   393 + ((int)room->group() - 1));
                 }
+
+                if (not room->ai_aware()) {
+                    const FontColors c{custom_color(0x66fff7),
+                                       ColorConstant::rich_black};
+                    room_description->append(" ?", c);
+                }
             }
 
         } else {

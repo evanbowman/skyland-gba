@@ -588,7 +588,17 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 room->init_ai_awareness(pfrm, app);
 
                 if (app.game_speed() == GameSpeed::stopped) {
+
                     room->init_ai_awareness_upon_unpause();
+
+                    if (str_eq("cloak", room->name())) {
+                        for (auto& room : island(app)->rooms()) {
+                            if (room->should_init_ai_awareness_upon_unpause()) {
+                                room->init_ai_awareness(pfrm, app);
+                                room->init_ai_awareness_upon_unpause();
+                            }
+                        }
+                    }
                 }
 
                 if (auto scene = room->setup(pfrm, app)) {
