@@ -804,8 +804,6 @@ void Room::init_ai_awareness(Platform& pfrm, App& app)
     if (fully_concealed) {
         set_ai_aware(pfrm, app, false);
         set_visually_cloaked(true);
-    } else {
-        info(pfrm, format("aware %", name()));
     }
 
     init_awareness_upon_unpause_ = false;
@@ -815,6 +813,12 @@ void Room::init_ai_awareness(Platform& pfrm, App& app)
 
 void Room::set_ai_aware(Platform& pfrm, App& app, bool ai_aware)
 {
+    if (str_eq(name(), "cloak")) {
+        // A cloak block cannot be cloaked.
+        ai_aware_ = true;
+        return;
+    }
+
     if (ai_aware_ not_eq ai_aware) {
         if (parent() == &app.player_island()) {
             time_stream::event::PlayerRoomAiAwareness e;

@@ -813,7 +813,7 @@ void describe_room(Platform& pfrm,
                                   393 + ((int)room->group() - 1));
                 }
 
-                if (not room->ai_aware()) {
+                if (room->visually_cloaked()) {
                     const FontColors c{custom_color(0x66fff7),
                                        ColorConstant::rich_black};
                     room_description->append(" ?", c);

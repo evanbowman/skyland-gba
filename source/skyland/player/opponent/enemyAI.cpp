@@ -2026,7 +2026,16 @@ void EnemyAI::set_target(Platform& pfrm,
         auto target = highest_weighted_room;
         if (highest_weighted_second_tier_room and highest_weight < 9.f and
             highest_second_tier_weight > highest_weight) {
-            target = highest_weighted_second_tier_room;
+            auto st = highest_weighted_second_tier_room;
+            if (auto rm = st->parent()->get_room({u8(st->position().x + 1),
+                                                  st->position().y})) {
+                if (rm->get_atp() > 0) {
+                    target = highest_weighted_second_tier_room;
+                }
+            } else {
+                target = highest_weighted_second_tier_room;
+            }
+
         }
 
         assign_weapon_target(
