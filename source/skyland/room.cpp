@@ -42,7 +42,9 @@ namespace skyland
 
 Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
-      x_position_(position.x), y_position_(position.y)
+      x_position_(position.x), y_position_(position.y), ai_aware_(true),
+      cloaked_(false),
+      init_awareness_upon_unpause_(false)
 {
 
     if (name == nullptr) {
@@ -755,6 +757,81 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 
         parent_->add_room(pfrm, app, std::move(*self));
     }
+}
+
+
+
+Float Room::get_atp() const
+{
+    if (ai_aware_) {
+        return (*metaclass())->atp_value();
+    } else {
+        return 2;
+    }
+}
+
+
+
+void Room::init_ai_awareness(Platform& pfrm, App& app)
+{
+    bool concealed[4][4];
+    memset(concealed, 0, sizeof concealed);
+
+    ai_aware_ = true;
+
+    for (auto& r : parent_->rooms()) {
+        auto rx = position().x;
+        auto ry = position().y;
+        for (int x = rx; x < rx + size().x; ++x) {
+            for (int y = ry; y < ry + size().y; ++y) {
+                if (r->cloaks_coordinate({(u8)x, (u8)y})) {
+                    concealed[x - rx][y - ry] = true;
+                }
+            }
+        }
+    }
+
+    bool fully_concealed = true;
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            if (not concealed[x][y]) {
+                fully_concealed = false;
+                break;
+            }
+        }
+    }
+
+    if (fully_concealed) {
+        set_ai_aware(pfrm, app, false);
+        set_visually_cloaked(true);
+    } else {
+        info(pfrm, format("aware %", name()));
+    }
+
+    init_awareness_upon_unpause_ = false;
+}
+
+
+
+void Room::set_ai_aware(Platform& pfrm, App& app, bool ai_aware)
+{
+    if (ai_aware_ not_eq ai_aware) {
+        if (parent() == &app.player_island()) {
+            time_stream::event::PlayerRoomAiAwareness e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            e.prev_aware_ = ai_aware_;
+            app.time_stream().push(app.level_timer(), e);
+        } else {
+            time_stream::event::OpponentRoomAiAwareness e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            e.prev_aware_ = ai_aware_;
+            app.time_stream().push(app.level_timer(), e);
+        }
+    }
+
+    ai_aware_ = ai_aware;
 }
 
 

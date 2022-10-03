@@ -176,6 +176,9 @@ enum Type : u8 {
     lightning_done,
 
     weather_changed,
+
+    player_room_ai_awareness,
+    opponent_room_ai_awareness,
 };
 
 
@@ -1036,6 +1039,28 @@ struct WeatherChanged
     Header header_;
     u8 prev_weather_;
     static constexpr const auto t = Type::weather_changed;
+};
+
+
+
+struct PlayerRoomAiAwareness
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    bool prev_aware_;
+    static constexpr const auto t = Type::player_room_ai_awareness;
+};
+
+
+
+struct OpponentRoomAiAwareness
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    bool prev_aware_;
+    static constexpr const auto t = Type::opponent_room_ai_awareness;
 };
 
 

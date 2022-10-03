@@ -585,6 +585,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
             if (auto room = island(app)->get_room({dest_x, dest_y})) {
+                room->init_ai_awareness(pfrm, app);
+
+                if (app.game_speed() == GameSpeed::stopped) {
+                    room->init_ai_awareness_upon_unpause();
+                }
+
                 if (auto scene = room->setup(pfrm, app)) {
                     return scene;
                 }

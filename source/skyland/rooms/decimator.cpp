@@ -144,6 +144,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (c) {
                 parent()->projectiles().push(std::move(c));
+                set_ai_aware(pfrm, app, true);
             }
 
             if (counter_ < 6) {

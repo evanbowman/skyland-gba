@@ -115,6 +115,8 @@ void prep_level(Platform& pfrm, App& app)
 
     app.level_begin_score() = app.persistent_data().score_.get();
 
+    app.player_island().init_ai_awareness(pfrm, app);
+
 
     if (app.opponent_island()) {
         app.opponent_island()->set_drift(pfrm, app, -0.000025f);
@@ -146,6 +148,9 @@ void prep_level(Platform& pfrm, App& app)
                     (0.01f * zone4_coin_yield) * (*room->metaclass())->cost();
             }
         }
+
+        app.opponent_island()->init_ai_awareness(pfrm, app);
+
 
         show_island_exterior(pfrm, app, app.opponent_island());
 

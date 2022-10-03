@@ -1316,6 +1316,30 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::player_room_ai_awareness: {
+            auto e = (time_stream::event::PlayerRoomAiAwareness*)end;
+            const RoomCoord c{e->room_x_, e->room_y_};
+            if (auto room = app.player_island().get_room(c)) {
+                room->set_ai_aware(pfrm, app, e->prev_aware_);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::opponent_room_ai_awareness: {
+            auto e = (time_stream::event::OpponentRoomAiAwareness*)end;
+            const RoomCoord c{e->room_x_, e->room_y_};
+            if (app.opponent_island()) {
+                if (auto room = app.opponent_island()->get_room(c)) {
+                    room->set_ai_aware(pfrm, app, e->prev_aware_);
+                }
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;
 

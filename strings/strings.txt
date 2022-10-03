@@ -27,6 +27,7 @@ bronze-hull
 building
 carved-hematite
 carved-stone
+cloak
 cocoa
 corn
 cesium
@@ -277,6 +278,7 @@ Produces replicants. A replicant has 75% of the health of the source character, 
 Deploys a drone! When destroyed, the deployed drone will also be destroyed.
 A powerful weapon that only works in the stormiest weather. Gains one ammo and charges one level per lightning strike.
 Text written in some strange language... what could it mean?
+Conceal blocks! AI player cannot see blocks created fully within a cloak. AI will guess cloaked blocks based on behavior. Takes ion damage.
 paused
 slow
 regular

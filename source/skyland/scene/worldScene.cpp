@@ -142,6 +142,16 @@ static void hide_multiplayer_pauses_remaining(Platform& pfrm)
 
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
+    if (app.game_speed() == GameSpeed::stopped and
+        speed not_eq GameSpeed::stopped) {
+
+        for (auto& room : app.player_island().rooms()) {
+            if (room->should_init_ai_awareness_upon_unpause()) {
+                room->init_ai_awareness(pfrm, app);
+            }
+        }
+    }
+
     switch (speed) {
     case GameSpeed::stopped:
     case GameSpeed::normal:

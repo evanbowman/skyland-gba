@@ -203,6 +203,18 @@ public:
 
     virtual void render_scaffolding(App& app, TileId buffer[16][16]);
 
+    virtual void render_cloak(App& app, TileId buffer[16][16])
+    {
+    }
+
+
+    virtual bool cloaks_coordinate(const RoomCoord& c)
+    {
+        return false;
+    }
+
+
+    void init_ai_awareness(Platform& pfrm, App& app);
 
 
     template <typename T> T* cast()
@@ -580,6 +592,48 @@ public:
     }
 
 
+    // Whether an AI can see this room. Relevant for rooms covered by cloaking
+    // fields. For a cloaked room, an AI will become aware of a room's identity
+    // under certain conditions.
+    bool ai_aware() const
+    {
+        return ai_aware_;
+    }
+
+
+    void set_ai_aware(Platform& pfrm, App& app, bool ai_aware);
+
+
+    // Players don't expect the AI algo to be running while the game is paused,
+    // but it does. Re-init ai awareness of cloaked structures created during
+    // pause upon unpause.
+    void init_ai_awareness_upon_unpause()
+    {
+        init_awareness_upon_unpause_ = true;
+    }
+
+
+    bool should_init_ai_awareness_upon_unpause() const
+    {
+        return init_awareness_upon_unpause_;
+    }
+
+
+    bool visually_cloaked() const
+    {
+        return cloaked_;
+    }
+
+
+    void set_visually_cloaked(bool cloaked)
+    {
+        cloaked_ = cloaked;
+    }
+
+
+    Float get_atp() const;
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -654,7 +708,12 @@ private:
 
     u8 partial_repaint_flag_ : 1;
 
-    u8 unused_ : 5;
+    u8 ai_aware_ : 1;
+    u8 cloaked_ : 1;
+
+    u8 init_awareness_upon_unpause_ : 1;
+
+    u8 unused_ : 2;
 
     // Bytes freed up by various space optimization techniques.
     u8 reserved_[6];

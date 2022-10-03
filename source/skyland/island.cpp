@@ -1333,6 +1333,14 @@ void Island::move_room(Platform& pfrm,
                        const RoomCoord& from,
                        const RoomCoord& to)
 {
+    if (app.game_speed() not_eq GameSpeed::stopped and
+        app.game_speed() not_eq GameSpeed::rewind) {
+
+        Platform::fatal("Move room when not stopped or rewind! "
+                        "Relevant due to hack (below) for moving "
+                        "cloaked rooms.");
+    }
+
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
         if ((*it)->position() == from) {
             auto room = std::move(*it);
@@ -1378,6 +1386,13 @@ void Island::move_room(Platform& pfrm,
             if (fire_present(from)) {
                 fire_extinguish(pfrm, app, from);
                 fire_create(pfrm, app, to);
+            }
+
+            if (not room->ai_aware()) {
+                // The room is cloaked, and we're moving it. We want to update
+                // visibility in case the room was moved out of the range of a
+                // cloaking field.
+                room->init_ai_awareness_upon_unpause();
             }
 
             return;
@@ -1506,6 +1521,10 @@ void Island::repaint_partial(Platform& pfrm, App& app)
                 r->render_exterior(app, buffer);
             }
         }
+    }
+
+    for (auto& r : rooms_) {
+        r->render_cloak(app, buffer);
     }
 
     for (u32 x = 0; x < terrain_.size(); ++x) {
@@ -1721,6 +1740,28 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
+    for (auto& r : rooms_) {
+        r->render_cloak(app, buffer);
+    }
+
+    if (flag_pos_) {
+        auto t = buffer[flag_pos_->x][flag_pos_->y];
+        if (t == Tile::cloaked or t == Tile::null) {
+            flag_pos_.reset();
+        }
+        t = buffer[flag_pos_->x][flag_pos_->y + 1];
+        if (t == Tile::null) {
+            flag_pos_.reset();
+        }
+    }
+
+    if (chimney_loc_) {
+        auto t = buffer[chimney_loc_->x][chimney_loc_->y];
+        if (t == Tile::cloaked or t == Tile::null) {
+            chimney_loc_.reset();
+        }
+    }
+
     if (not repaint_alloc_tiles(pfrm, app, buffer, false)) {
         repaint_alloc_tiles(pfrm, app, buffer, true);
     }
@@ -1731,11 +1772,13 @@ void Island::repaint(Platform& pfrm, App& app)
 
     render_terrain(pfrm);
 
+
     for (auto& room : rooms_) {
         if ((*room->metaclass())->category() == Room::Category::weapon) {
+            auto pos = room->position();
+            pos.y += room->size().y - 1;
+
             if (room->group() not_eq Room::Group::none) {
-                auto pos = room->position();
-                pos.y += room->size().y - 1;
                 // NOTE: 8x8px tile, so start index = 4 * 16ptile + 1.
                 // +1 to skip the none enumeration.
                 const auto tile = (6 * 4 - 1) + (int)room->group();
@@ -1820,6 +1863,15 @@ void Island::destroy_room(Platform& pfrm, App& app, const RoomCoord& coord)
             recalculate_power_usage(app);
             return;
         }
+    }
+}
+
+
+
+void Island::init_ai_awareness(Platform& pfrm, App& app)
+{
+    for (auto& r : rooms()) {
+        r->init_ai_awareness(pfrm, app);
     }
 }
 

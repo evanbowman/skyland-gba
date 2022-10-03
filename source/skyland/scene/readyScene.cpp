@@ -718,7 +718,7 @@ void describe_room(Platform& pfrm,
                 pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
         }
         if (room->parent() == &app.player_island() or
-            room->description_visible()) {
+            (room->description_visible() and not room->visually_cloaked())) {
 
             int i = 0;
             if (length(room->characters())) {

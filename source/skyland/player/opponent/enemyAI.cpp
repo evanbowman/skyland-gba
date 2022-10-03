@@ -458,7 +458,7 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
         }
         auto pwr = room->power_usage(app);
         if (pwr > 0) {
-            auto w = (*room->metaclass())->atp_value();
+            auto w = room->get_atp();
             if (w < lowest_weight) {
                 lowest_weighted_room = room.get();
                 lowest_weight = w;
@@ -633,7 +633,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     for (auto& slot : slots) {
         if (auto room = ai_island_->get_room(slot.coord_)) {
 
-            const auto base_weight = (*room->metaclass())->atp_value();
+            const auto base_weight = room->get_atp();
 
             // Increase room weight if damaged.
             slot.ai_weight_ =
@@ -861,7 +861,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     for (auto& slot : slots) {
         if (auto room = (*target_island_).get_room(slot.coord_)) {
-            slot.ai_weight_ = (*room->metaclass())->atp_value();
+            slot.ai_weight_ = room->get_atp();
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
             if ((*target_island_).fire_present(slot.coord_)) {
@@ -955,10 +955,12 @@ void EnemyAI::set_target(Platform& pfrm,
     for (auto& room : (*target_island).rooms()) {
         auto meta_c = room->metaclass();
 
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
-        if ((ai_island->has_radar() or (*target_island).is_boarded()) and
-            str_cmp((*meta_c)->name(), "reactor") == 0) {
+        if (not room->ai_aware()) {
+            // ...
+        } else if ((ai_island->has_radar() or (*target_island).is_boarded()) and
+                   str_cmp((*meta_c)->name(), "reactor") == 0) {
             w += 3 * manhattan_length(room->origin(), ion_cannon.origin())
                          .as_float();
         } else if (not is_forcefield(meta_c) and
@@ -1039,8 +1041,7 @@ static void place_offensive_drone(Platform& pfrm,
                     for (u8 x = 1; x < 16; ++x) {
                         if (player_rooms.get(x, y)) {
                             if (auto room = player_island.get_room({x, y})) {
-                                left_column_weights[y] =
-                                    (*room->metaclass())->atp_value();
+                                left_column_weights[y] = room->get_atp();
                                 break;
                             }
                         }
@@ -1059,8 +1060,7 @@ static void place_offensive_drone(Platform& pfrm,
                     for (u8 x = right_column; x > 0; --x) {
                         if (player_rooms.get(x, y)) {
                             if (auto room = player_island.get_room({x, y})) {
-                                left_column_weights[y] =
-                                    (*room->metaclass())->atp_value();
+                                left_column_weights[y] = room->get_atp();
                                 break;
                             }
                         }
@@ -1082,8 +1082,7 @@ static void place_offensive_drone(Platform& pfrm,
                     while (cursor.x < 16 and cursor.y < 15) {
                         if (player_rooms.get(cursor.x, cursor.y)) {
                             if (auto room = player_island.get_room(cursor)) {
-                                left_column_weights[y] =
-                                    (*room->metaclass())->atp_value();
+                                left_column_weights[y] = room->get_atp();
                                 break;
                             }
                         }
@@ -1105,8 +1104,7 @@ static void place_offensive_drone(Platform& pfrm,
                     while (cursor.x > 0 and cursor.y < 15) {
                         if (player_rooms.get(cursor.x, cursor.y)) {
                             if (auto room = player_island.get_room(cursor)) {
-                                left_column_weights[y] =
-                                    (*room->metaclass())->atp_value();
+                                left_column_weights[y] = room->get_atp();
                                 break;
                             }
                         }
@@ -1131,8 +1129,7 @@ static void place_offensive_drone(Platform& pfrm,
                     for (u8 y = yy; y < 15; ++y) {
                         if (player_rooms.get(x, y)) {
                             if (auto room = player_island.get_room({x, y})) {
-                                top_row_weights[x] =
-                                    (*room->metaclass())->atp_value();
+                                top_row_weights[x] = room->get_atp();
                             }
                             break;
                         }
@@ -1437,7 +1434,7 @@ void EnemyAI::offensive_drone_set_target(Platform& pfrm,
 
     auto enqueue = [&] {
         if (auto room = (*target_island_).get_room(cursor)) {
-            auto weight = (*room->metaclass())->atp_value();
+            auto weight = room->get_atp();
             if (weight > highest_weight) {
                 ideal_pos = cursor;
             }
@@ -1553,9 +1550,9 @@ void EnemyAI::set_target(Platform& pfrm,
         for (int y = 0; y < 15; ++y) {
             if (matrix.get(x, y)) {
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
-                    visible_rooms.push_back(
-                        {room, (*room->metaclass())->atp_value()});
-                    if (room->category() not_eq Room::Category::decoration) {
+                    visible_rooms.push_back({room, room->get_atp()});
+                    if (room->ai_aware() and
+                        room->category() not_eq Room::Category::decoration) {
                         break;
                     }
                 }
@@ -1571,7 +1568,7 @@ void EnemyAI::set_target(Platform& pfrm,
             if (not(*target_island).fire_present(room->position())) {
                 mult = 0.8f;
             }
-            info.second += mult * (*room->metaclass())->atp_value();
+            info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({pos.x, u8(pos.y + 1)})) {
@@ -1579,7 +1576,7 @@ void EnemyAI::set_target(Platform& pfrm,
             if (not(*target_island).fire_present(room->position())) {
                 mult = 0.8f;
             }
-            info.second += mult * (*room->metaclass())->atp_value();
+            info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x + 1), pos.y})) {
@@ -1587,7 +1584,7 @@ void EnemyAI::set_target(Platform& pfrm,
             if (not(*target_island).fire_present(room->position())) {
                 mult = 0.8f;
             }
-            info.second += mult * (*room->metaclass())->atp_value();
+            info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x - 1), pos.y})) {
@@ -1595,7 +1592,7 @@ void EnemyAI::set_target(Platform& pfrm,
             if (not(*target_island).fire_present(room->position())) {
                 mult = 0.8f;
             }
-            info.second += mult * (*room->metaclass())->atp_value();
+            info.second += mult * room->get_atp();
         }
     }
 
@@ -1678,11 +1675,12 @@ void EnemyAI::set_target(Platform& pfrm,
     Float highest_second_tier_weight = 3E-5;
     for (auto& room : second_tier) {
         auto meta_c = room->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
         // We don't have any cannons left, but the other player does. Try to
         // take out some of those cannons with missiles.
-        if (meta_c == cannon_metac and not cannons_remaining) {
+        if (room->ai_aware() and meta_c == cannon_metac and
+            not cannons_remaining) {
             w += 200.f;
         }
 
@@ -1694,7 +1692,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
     for (auto room : visible_rooms) {
         auto meta_c = room->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
         for (auto& chr : room->characters()) {
             const bool ai_owns_character = chr->owner() == owner;
@@ -1805,8 +1803,7 @@ void EnemyAI::set_target(Platform& pfrm,
     Float highest_weight = 3E-5;
 
     for (auto room_info : visible_rooms) {
-        auto meta_c = room_info.room_->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room_info.room_->get_atp();
 
         auto neighbor_weight = [&](int x_offset, int y_offset) {
             const auto x = room_info.x_ + x_offset;
@@ -1814,7 +1811,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
             if (x >= 0 and x < 15 and y >= 0 and y < 15) {
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
-                    return (*room->metaclass())->atp_value();
+                    return room->get_atp();
                 }
             }
 
@@ -1892,8 +1889,7 @@ void EnemyAI::set_target(Platform& pfrm,
     Float highest_weight = 3E-5;
 
     for (auto room : visible_rooms) {
-        auto meta_c = room->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
         u8 x = room->position().x;
         u8 y = room->position().y;
@@ -2002,8 +1998,7 @@ void EnemyAI::set_target(Platform& pfrm,
     Float highest_second_tier_weight = 3E-5;
 
     for (auto& room : second_tier) {
-        auto meta_c = room->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
         if (w > highest_second_tier_weight) {
             highest_weighted_second_tier_room = room;
@@ -2012,8 +2007,7 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     for (auto room : visible_rooms) {
-        auto meta_c = room->metaclass();
-        auto w = (*meta_c)->atp_value();
+        auto w = room->get_atp();
 
         if (w > highest_weight) {
             highest_weighted_room = room;

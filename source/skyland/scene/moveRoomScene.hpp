@@ -43,8 +43,6 @@ namespace skyland
 class MoveRoomScene : public ActiveWorldScene
 {
 public:
-
-
     MoveRoomScene(App& app, bool near)
     {
         bind_island(app, near);

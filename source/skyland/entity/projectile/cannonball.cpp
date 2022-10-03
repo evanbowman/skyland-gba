@@ -146,6 +146,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     room.apply_damage(pfrm, app, cannonball_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
+        room.set_ai_aware(pfrm, app, true);
         record_destroyed(pfrm, app);
         step_vector_.x *= -1;
         step_vector_.y *= -1;

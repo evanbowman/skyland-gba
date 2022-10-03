@@ -85,6 +85,11 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (island and not island->is_destroyed()) {
             fire(pfrm, app);
+
+            // If we emit a projectile, the AI player pretty much knows what
+            // block we are, even if we're concealed by cloaking.
+            set_ai_aware(pfrm, app, true);
+
             reload_timer_ += reload();
         }
     }

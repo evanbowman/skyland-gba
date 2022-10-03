@@ -22,9 +22,10 @@
 
 #pragma once
 
-#include "hull.hpp"
+#include "skyland/coins.hpp"
+#include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
-#include "skyland/tile.hpp"
 
 
 
@@ -33,67 +34,91 @@ namespace skyland
 
 
 
-class MirrorHull final : public Hull
+class Cloak : public Room
 {
 public:
-    MirrorHull(Island* parent, const RoomCoord& position);
+    Cloak(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
     void rewind(Platform&, App&, Microseconds delta) override;
 
 
-    static const char* name()
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
+
+    void render_scaffolding(App& app, TileId buffer[16][16]) override
     {
-        return "mirror-hull";
     }
 
 
-    static SystemString ui_name()
-    {
-        return SystemString::block_mirror_hull;
-    }
+    void render_cloak(App& app, TileId buffer[16][16]) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    bool cloaks_coordinate(const RoomCoord& c) override;
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    static Category category()
     {
-        buffer += SYSTR(description_mirror_hull)->c_str();
+        return Category::wall;
     }
 
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::manufactory_required | Hull::properties() |
+        return RoomProperties::roof_hidden | RoomProperties::disallow_chimney |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::locked_by_default;
+               RoomProperties::accepts_ion_damage |
+               RoomProperties::manufactory_required;
     }
 
 
-    static Icon icon()
+    bool description_visible() override
     {
-        return 1960;
-    }
-
-
-    static Icon unsel_icon()
-    {
-        return 1976;
+        return true;
     }
 
 
     static Float atp_value()
     {
-        return -100.f;
+        return 500.f;
     }
 
 
-    TileId tile() const;
+    static Vec2<u8> size()
+    {
+        return {1, 1};
+    }
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
+    static const char* name()
+    {
+        return "cloak";
+    }
 
 
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    static SystemString ui_name()
+    {
+        return SystemString::block_cloak;
+    }
+
+
+    static Icon icon()
+    {
+        return 3832;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 3816;
+    }
+
+private:
+    int timer_ = 0;
 };
 
 

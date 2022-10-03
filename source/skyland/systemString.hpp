@@ -78,6 +78,7 @@ enum class SystemString {
     block_building,
     block_carved_hematite,
     block_carved_masonry,
+    block_cloak,
     block_cocoa,
     block_corn,
     block_cesium,
@@ -352,6 +353,7 @@ enum class SystemString {
     description_drone_bay,
     description_spark_cannon,
     description_qr,
+    description_cloak,
 
     gs_paused,
     gs_slow,

@@ -384,6 +384,9 @@ public:
     }
 
 
+    void init_ai_awareness(Platform& pfrm, App& app);
+
+
 private:
     void repaint_partial(Platform& pfrm, App& app);
 

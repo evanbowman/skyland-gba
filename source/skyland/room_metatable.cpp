@@ -33,6 +33,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
+#include "skyland/rooms/cloak.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/crane.hpp"
 #include "skyland/rooms/decimator.hpp"
@@ -278,6 +279,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         PoweredHull,
                                         IonFizzler,
                                         Radiator,
+                                        Cloak,
                                         MirrorHull,
                                         StackedHull,
                                         Mycelium,
