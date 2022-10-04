@@ -34,7 +34,16 @@ Value* make_bytecode_function(Value* bytecode);
 u16 symbol_offset(const char* symbol);
 
 
-int compile_impl(ScratchBuffer& buffer,
+
+struct CompilerContext
+{
+    Value* local_bindings_ = nullptr;
+};
+
+
+
+int compile_impl(CompilerContext& ctx,
+                 ScratchBuffer& buffer,
                  int write_pos,
                  Value* code,
                  int jump_offset,
@@ -60,7 +69,8 @@ static Instruction* append(ScratchBuffer& buffer, int& write_pos)
 }
 
 
-int compile_lambda(ScratchBuffer& buffer,
+int compile_lambda(CompilerContext& ctx,
+                   ScratchBuffer& buffer,
                    int write_pos,
                    Value* code,
                    int jump_offset)
@@ -82,7 +92,7 @@ int compile_lambda(ScratchBuffer& buffer,
 
         bool tail_expr = lat->cons().cdr() == get_nil();
 
-        write_pos = compile_impl(
+        write_pos = compile_impl(ctx,
             buffer, write_pos, lat->cons().car(), jump_offset, tail_expr);
 
         lat = lat->cons().cdr();
@@ -94,13 +104,14 @@ int compile_lambda(ScratchBuffer& buffer,
 }
 
 
-int compile_quoted(ScratchBuffer& buffer,
+int compile_quoted(CompilerContext& ctx,
+                   ScratchBuffer& buffer,
                    int write_pos,
                    Value* code,
                    bool tail_expr)
 {
     if (code->type() == Value::Type::integer) {
-        write_pos = compile_impl(buffer, write_pos, code, 0, tail_expr);
+        write_pos = compile_impl(ctx, buffer, write_pos, code, 0, tail_expr);
     } else if (code->type() == Value::Type::symbol) {
         if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
             auto inst = append<instruction::PushSmallSymbol>(buffer, write_pos);
@@ -120,7 +131,7 @@ int compile_quoted(ScratchBuffer& buffer,
                 // ...
                 break;
             }
-            write_pos = compile_quoted(
+            write_pos = compile_quoted(ctx,
                 buffer, write_pos, code->cons().car(), tail_expr);
 
             code = code->cons().cdr();
@@ -142,7 +153,8 @@ int compile_quoted(ScratchBuffer& buffer,
 }
 
 
-int compile_let(ScratchBuffer& buffer,
+int compile_let(CompilerContext& ctx,
+                ScratchBuffer& buffer,
                 int write_pos,
                 Value* code,
                 int jump_offset,
@@ -160,6 +172,8 @@ int compile_let(ScratchBuffer& buffer,
         append<instruction::LexicalFramePush>(buffer, write_pos);
     }
 
+    auto prev_bindings = ctx.local_bindings_;
+
     foreach (code->cons().car(), [&](Value* val) {
         if (val->type() == Value::Type::cons) {
             auto sym = val->cons().car();
@@ -167,7 +181,7 @@ int compile_let(ScratchBuffer& buffer,
             if (sym->type() == Value::Type::symbol and
                 bind->type() == Value::Type::cons) {
 
-                write_pos = compile_impl(
+                write_pos = compile_impl(ctx,
                     buffer, write_pos, bind->cons().car(), jump_offset, false);
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
@@ -185,13 +199,15 @@ int compile_let(ScratchBuffer& buffer,
     })
         ;
 
+    ctx.local_bindings_ = code->cons().car();
+
     code = code->cons().cdr();
 
     while (code not_eq get_nil()) {
 
         bool tail = tail_expr and code->cons().cdr() == get_nil();
 
-        write_pos = compile_impl(
+        write_pos = compile_impl(ctx,
             buffer, write_pos, code->cons().car(), jump_offset, tail);
 
         code = code->cons().cdr();
@@ -201,11 +217,14 @@ int compile_let(ScratchBuffer& buffer,
         append<instruction::LexicalFramePop>(buffer, write_pos);
     }
 
+    ctx.local_bindings_ = prev_bindings;
+
     return write_pos;
 }
 
 
-int compile_impl(ScratchBuffer& buffer,
+int compile_impl(CompilerContext& ctx,
+                 ScratchBuffer& buffer,
                  int write_pos,
                  Value* code,
                  int jump_offset,
@@ -280,7 +299,25 @@ int compile_impl(ScratchBuffer& buffer,
 
         } else {
 
-            if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+            std::optional<int> local_slot;
+            if (ctx.local_bindings_) {
+                int i = 0;
+                foreach(ctx.local_bindings_,
+                        [&](Value* val) {
+                            auto sym = val->cons().car();
+                            if (str_eq(sym->symbol().name(), code->symbol().name())) {
+                                local_slot = i;
+                                return;
+                            } else {
+                                ++i;
+                            }
+                        });
+            }
+
+            if (local_slot) {
+                auto inst = append<instruction::LoadLocal>(buffer, write_pos);
+                inst->var_slot_ = *local_slot;
+            } else if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                 auto inst =
                     append<instruction::LoadVarSmall>(buffer, write_pos);
                 auto name = code->symbol().name();
@@ -300,7 +337,7 @@ int compile_impl(ScratchBuffer& buffer,
         if (fn->type() == Value::Type::symbol and
             str_eq(fn->symbol().name(), "let")) {
 
-            write_pos = compile_let(
+            write_pos = compile_let(ctx,
                 buffer, write_pos, lat->cons().cdr(), jump_offset, tail_expr);
 
         } else if (fn->type() == Value::Type::symbol and
@@ -312,7 +349,7 @@ int compile_impl(ScratchBuffer& buffer,
                     ; // TODO: raise error!
             }
 
-            write_pos = compile_impl(
+            write_pos = compile_impl(ctx,
                 buffer, write_pos, lat->cons().car(), jump_offset, false);
 
             auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
@@ -330,14 +367,14 @@ int compile_impl(ScratchBuffer& buffer,
                 }
             }
 
-            write_pos = compile_impl(
+            write_pos = compile_impl(ctx,
                 buffer, write_pos, true_branch, jump_offset, tail_expr);
 
             auto jmp = append<instruction::Jump>(buffer, write_pos);
 
             jne->offset_.set(write_pos - jump_offset);
 
-            write_pos = compile_impl(
+            write_pos = compile_impl(ctx,
                 buffer, write_pos, false_branch, jump_offset, tail_expr);
 
             jmp->offset_.set(write_pos - jump_offset);
@@ -355,7 +392,8 @@ int compile_impl(ScratchBuffer& buffer,
             auto lambda = append<instruction::PushLambda>(buffer, write_pos);
 
             // TODO: compile multiple nested expressions! FIXME... pretty broken.
-            write_pos = compile_impl(buffer,
+            write_pos = compile_impl(ctx,
+                                     buffer,
                                      write_pos,
                                      lat->cons().car(),
                                      jump_offset + write_pos,
@@ -369,7 +407,8 @@ int compile_impl(ScratchBuffer& buffer,
                    str_eq(fn->symbol().name(), "'")) {
 
             write_pos =
-                compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
+                compile_quoted(ctx,
+                               buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "while")) {
             Platform::fatal("'while' syntax unsupported in compiled lisp");
@@ -390,7 +429,7 @@ int compile_impl(ScratchBuffer& buffer,
                     break;
                 }
 
-                write_pos = compile_impl(
+                write_pos = compile_impl(ctx,
                     buffer, write_pos, lat->cons().car(), jump_offset, false);
 
                 lat = lat->cons().cdr();
@@ -434,7 +473,8 @@ int compile_impl(ScratchBuffer& buffer,
             } else {
 
                 write_pos =
-                    compile_impl(buffer, write_pos, fn, jump_offset, false);
+                    compile_impl(ctx,
+                                 buffer, write_pos, fn, jump_offset, false);
 
                 if (tail_expr) {
                     switch (argc) {
@@ -789,7 +829,8 @@ void compile(Value* code)
 
     int write_pos = 0;
 
-    write_pos = compile_lambda(*buffer, write_pos, code, 0);
+    CompilerContext ctx;
+    write_pos = compile_lambda(ctx, *buffer, write_pos, code, 0);
 
     write_pos = PeepholeOptimizer().run(
         *fn->function().bytecode_impl_.databuffer()->data_buffer().value(),

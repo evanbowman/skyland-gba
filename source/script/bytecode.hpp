@@ -783,6 +783,22 @@ struct LoadVarSmall {
 };
 
 
+struct LoadLocal {
+    Header header_;
+    u8 var_slot_;
+
+    static const char* name()
+    {
+        return "LOAD_LOCAL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 49;
+    }
+};
+
+
 // Just a utility intended for the compiler, not to be used by the vm.
 inline Header* load_instruction(ScratchBuffer& buffer, int index)
 {
@@ -858,6 +874,7 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(PushSmallSymbol)
             MATCH(LexicalDefSmall)
             MATCH(LoadVarSmall)
+            MATCH(LoadLocal)
         }
     }
     return nullptr;

@@ -121,6 +121,7 @@ void Cloak::render_cloak(App& app, TileId buffer[16][16])
                 case Tile::flag_start:
                 case Tile::tin_chimney:
                 case Tile::roof_strut_joined:
+                case Tile::flag_mount:
                     if (t == Tile::roof_flag and
                         buffer[xx][yy - 1] == Tile::flag_start) {
                         buffer[xx][yy - 1] = Tile::null;

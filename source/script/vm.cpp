@@ -127,6 +127,13 @@ TOP:
             break;
         }
 
+        case LoadLocal::op(): {
+            auto inst = read<LoadLocal>(code, pc);
+            Value* _get_local(u8 slot);
+            push_op(_get_local(inst->var_slot_));
+            break;
+        }
+
         case Dup::op(): {
             read<Dup>(code, pc);
             push_op(get_op0());

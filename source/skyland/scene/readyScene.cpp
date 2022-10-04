@@ -817,6 +817,10 @@ void describe_room(Platform& pfrm,
                     const FontColors c{custom_color(0x66fff7),
                                        ColorConstant::rich_black};
                     room_description->append(" ?", c);
+                    pfrm.set_tile(Layer::overlay,
+                                  room_description->len() - 1,
+                                  calc_screen_tiles(pfrm).y - 1,
+                                  156);
                 }
             }
 

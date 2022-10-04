@@ -1145,6 +1145,19 @@ Value* get_var_stable(const char* intern_str)
 }
 
 
+// unsafe! Intended only for executing compiled bytecode.
+Value* _get_local(u8 slot)
+{
+    auto stack = bound_context->lexical_bindings_;
+    auto bindings = stack->cons().car();
+
+    while (slot--) {
+        bindings = bindings->cons().cdr();
+    }
+    return bindings->cons().car()->cons().cdr();
+}
+
+
 Value* get_var(Value* symbol)
 {
     if (symbol->symbol().name()[0] == '$') {
@@ -3295,6 +3308,15 @@ static const Binding builtins[] = {
                      break;
                  }
 
+                 case LoadLocal::op(): {
+                     i += 1;
+                     out += "LOAD_LOCAL(";
+                     out += to_string<10>(*(u8*)(data->data_ + i));
+                     out += ")";
+                     i += 1;
+                     break;
+                 }
+
                  case LoadVarRelocatable::op():
                      i += 1;
                      out += "LOAD_VAR_RELOCATABLE(";
@@ -3544,6 +3566,7 @@ static const Binding builtins[] = {
 
                  case LexicalDefSmall::op(): {
                      out += LexicalDefSmall::name();
+                     out += "(";
                      i += 1;
                      StringBuffer<4> name;
                      for (int j = 0; j < 4; ++j) {

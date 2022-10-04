@@ -1352,6 +1352,14 @@ void Island::move_room(Platform& pfrm,
                 chr->drop_movement_path();
             }
 
+            if (app.game_speed() == GameSpeed::stopped and
+                not room->ai_aware()) {
+                // The room is cloaked, and we're moving it. We want to update
+                // visibility in case the room was moved out of the range of a
+                // cloaking field.
+                room->init_ai_awareness_upon_unpause();
+            }
+
             rooms_.insert_room(std::move(room));
 
             recalculate_power_usage(app);
@@ -1378,14 +1386,6 @@ void Island::move_room(Platform& pfrm,
             if (fire_present(from)) {
                 fire_extinguish(pfrm, app, from);
                 fire_create(pfrm, app, to);
-            }
-
-            if (app.game_speed() == GameSpeed::stopped and
-                not room->ai_aware()) {
-                // The room is cloaked, and we're moving it. We want to update
-                // visibility in case the room was moved out of the range of a
-                // cloaking field.
-                room->init_ai_awareness_upon_unpause();
             }
 
             return;
