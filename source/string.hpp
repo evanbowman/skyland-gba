@@ -223,6 +223,11 @@ public:
         return mem_.insert(pos, val);
     }
 
+    typename Buffer::Iterator erase(typename Buffer::Iterator slot)
+    {
+        return mem_.erase(slot);
+    }
+
     StringAdapter& operator+=(const char* str)
     {
         while (*str not_eq '\0') {

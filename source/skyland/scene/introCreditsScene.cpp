@@ -26,6 +26,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/systemString.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -34,7 +35,7 @@ namespace skyland
 
 
 
-void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
+void IntroCreditsScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().play_music("shadows", true);
     pfrm.speaker().play_sound("creaking", 9);
@@ -51,6 +52,13 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
     // if (pfrm.keyboard().pressed<Key::select>()) {
     //     flower_effect_ = true;
     // }
+
+    if (app.is_developer_mode()) {
+        pfrm.remote_console().start();
+        pfrm.remote_console().printline("Console ready!\r\n"
+                                        "\aOptions: (s: simple console, l: lisp repl)",
+                                        "> ");
+    }
 }
 
 
