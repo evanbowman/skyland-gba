@@ -65,6 +65,9 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
     Room::ready();
 
     if (&parent()->owner() == &app.opponent()) {
+        if (app.game_mode() == App::GameMode::multiplayer) {
+            return;
+        }
         apply_damage(pfrm, app, Room::health_upper_limit());
         return;
     }
