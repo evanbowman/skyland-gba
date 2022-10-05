@@ -84,6 +84,11 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {
+        // Bugfix: If stuff is even slightly de-syncd upon level entry, one game
+        // can jump ahead of another. Add in an additional seconds buffer to
+        // increase the liklihood that the targeting computer assigns weapon
+        // targets at the same time.
+        next_action_timer_ = seconds(4);
         return;
     }
 
