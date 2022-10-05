@@ -365,7 +365,9 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
         auto resume = scene_pool::make_deferred_scene<ReadyScene>();
         return scene_pool::alloc<SelectWeaponGroupScene>(resume);
     } else if (app.player().key_down(pfrm, Key::select)) {
-        return scene_pool::alloc<AutoassignCharactersScene>();
+        if (not pfrm.network_peer().is_connected()) {
+            return scene_pool::alloc<AutoassignCharactersScene>();
+        }
     }
 
     return null_scene();

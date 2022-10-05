@@ -1049,7 +1049,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() = App::GameMode::multiplayer;
                 run_init_scripts(pfrm, app, false);
 
-                return MultiplayerConnectScene::setup(pfrm);
+                return MultiplayerConnectScene::setup(pfrm, app);
             }
             }
         } else {

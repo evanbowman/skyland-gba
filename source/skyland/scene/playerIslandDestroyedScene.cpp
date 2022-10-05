@@ -26,6 +26,7 @@
 #include "coOpSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
+#include "linkScene.hpp"
 #include "platform/color.hpp"
 #include "readyScene.hpp"
 #include "sandboxResetScene.hpp"
@@ -715,7 +716,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (app.game_mode() == App::GameMode::multiplayer and
                     pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
-                    return scene_pool::alloc<TitleScreenScene>();
+                    return scene_pool::alloc<LinkScene>();
                 }
 
                 switch (app.game_mode()) {
@@ -761,9 +762,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<ReadyScene>();
 
                 case App::GameMode::multiplayer:
-                    // TODO: default to the multiplayer page of the Title
-                    // screen.
-                    return scene_pool::alloc<TitleScreenScene>();
+                    return scene_pool::alloc<LinkScene>();
 
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);
@@ -778,6 +777,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
+                    return scene_pool::alloc<LinkScene>();
                 }
 
                 switch (app.game_mode()) {
@@ -791,9 +791,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SandboxResetScene>();
 
                 case App::GameMode::multiplayer:
-                    // TODO: default to the multiplayer page of the Title
-                    // screen.
-                    return scene_pool::alloc<TitleScreenScene>();
+                    return scene_pool::alloc<LinkScene>();
 
                 case App::GameMode::co_op:
                 case App::GameMode::skyland_forever:

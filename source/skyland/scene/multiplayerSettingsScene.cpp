@@ -70,6 +70,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
         network::transmit(pfrm, p);
     }
 
+    pfrm.screen().set_view({});
 
     pfrm.screen().set_shader(passthrough_shader);
 

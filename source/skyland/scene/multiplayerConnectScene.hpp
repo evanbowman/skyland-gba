@@ -43,7 +43,7 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    static ScenePtr<Scene> setup(Platform&);
+    static ScenePtr<Scene> setup(Platform&, App&);
 
 
 private:

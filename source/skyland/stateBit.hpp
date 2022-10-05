@@ -39,6 +39,7 @@ enum class StateBit {
     easy_mode_rewind_declined,
     crane_game_got_treasure,
     disable_autopause,
+    successful_multiplayer_connect,
     count,
 };
 

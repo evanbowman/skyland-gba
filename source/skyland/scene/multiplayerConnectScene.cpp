@@ -22,6 +22,7 @@
 
 #include "multiplayerConnectScene.hpp"
 #include "fullscreenDialogScene.hpp"
+#include "linkScene.hpp"
 #include "globals.hpp"
 #include "multiplayerSettingsScene.hpp"
 #include "script/lisp.hpp"
@@ -85,39 +86,7 @@ void MultiplayerConnectScene::exit(Platform&, App&, Scene& next)
 
 
 
-class LinkScene : public Scene
-{
-public:
-    std::optional<Text> t_;
-
-    void enter(Platform& pfrm, App&, Scene&) override
-    {
-        pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
-
-        auto str = SYSTR(mt_hint);
-        u8 mr = centered_text_margins(pfrm, utf8::len(str->c_str()));
-        t_.emplace(pfrm, OverlayCoord{mr, 8});
-        FontColors c{custom_color(0x163061), ColorConstant::silver_white};
-        t_->assign(str->c_str(), c);
-    }
-
-    void exit(Platform&, App&, Scene&) override
-    {
-        t_.reset();
-    }
-
-    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds) override
-    {
-        if (key_down<Key::start>(pfrm)) {
-            return scene_pool::alloc<MultiplayerConnectScene>();
-        }
-        return null_scene();
-    }
-};
-
-
-
-ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm)
+ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm, App& app)
 {
     auto buffer = allocate_dynamic<DialogString>("dialog-string");
 
@@ -131,12 +100,19 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm)
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
     } else if (pfrm.device_name() == "GameboyAdvance") {
-        *buffer = SYSTR(link_gba_setup)->c_str();
 
         auto future_scene = [] { return scene_pool::alloc<LinkScene>(); };
 
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
-                                                        future_scene);
+        if (not state_bit_load(app, StateBit::successful_multiplayer_connect)) {
+            *buffer = SYSTR(link_gba_setup)->c_str();
+
+
+            return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
+                                                            future_scene);
+        } else {
+            return future_scene();
+        }
+
     } else {
         return scene_pool::alloc<TitleScreenScene>();
     }
@@ -167,6 +143,9 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
     } else {
+
+        state_bit_store(app, StateBit::successful_multiplayer_connect, true);
+
         network::packet::ProgramVersion packet;
         packet.major_.set(PROGRAM_MAJOR_VERSION);
         packet.minor_ = PROGRAM_MINOR_VERSION;
