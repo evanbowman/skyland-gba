@@ -23,6 +23,8 @@ public:
     {
         pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
 
+        pfrm.speaker().play_music("unaccompanied_wind", 0);
+
         auto str = SYSTR(mt_hint);
         u8 mr = centered_text_margins(pfrm, utf8::len(str->c_str()));
         t_.emplace(pfrm, OverlayCoord{mr, 8});
