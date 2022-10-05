@@ -7137,6 +7137,10 @@ Platform::Platform()
         }
     }
 
+    // Fix for the garbage MyBoy! emulator in Android, which, at time of
+    // writing, wipes out the value of REG_DISPCNT when overclocking ewram.
+    init_video(screen());
+
     for (u32 i = 0; i < Screen::sprite_limit; ++i) {
         // This was a really insidious bug to track down! When failing to hide
         // unused attributes in the back buffer, the uninitialized objects punch
