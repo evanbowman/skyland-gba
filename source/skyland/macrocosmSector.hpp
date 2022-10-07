@@ -105,7 +105,6 @@ public:
         pancake,
         pillar,
         freebuild,
-        outpost,
         freebuild_wide,
         freebuild_flat,
     };
@@ -137,13 +136,17 @@ public:
     void set_block(const Vec3<u8>& coord, Type type);
     virtual void rotate() = 0;
     virtual void update() = 0;
-    void advance(int years);
+
+    void soft_update();
 
     virtual void render_setup(Platform& pfrm) = 0;
     void render(Platform& pfrm);
 
-    using Population = float;
     void set_population(Population p);
+
+
+    void set_productivity(Productivity p);
+    Productivity productivity() const;
 
 
     using Happiness = float;
@@ -246,6 +249,7 @@ public:
 
         char name_[name_len];
         u8 population_packed_[sizeof(Population)];
+        u8 productivity_packed_[sizeof(Productivity)];
 
         s8 x_;
         s8 y_;
@@ -342,16 +346,15 @@ public:
         Platform::fatal("logic error: restore non-pillar from pillar data");
     }
 
-    virtual void restore(const Persistent& p, u8 blocks[4][5][5])
-    {
-        Platform::fatal("logic error: restore non-outpost from outpost data");
-    }
-
 
     const Persistent& persistent() const
     {
         return p_;
     }
+
+
+    void generate_terrain();
+
 };
 
 

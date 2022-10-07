@@ -95,12 +95,15 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     data_->current_sector_ = &data_->origin_sector_;
 
     data_->other_sectors_.clear();
-    data_->outpost_sectors_.clear();
     data_->p().year_.set(0);
+    data_->p().food_.set(100);
 
     auto& sector = this->sector();
     sector.erase();
     sector.set_name("origin");
+    sector.set_productivity(16);
+
+    sector.generate_terrain();
 
     if (data_->checkers_mode_) {
         // ...
@@ -112,7 +115,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
 
 
     sector.set_cursor({3, 3, 1});
-    sector.set_population(8);
+    sector.set_population(16);
 }
 
 
@@ -166,10 +169,6 @@ Coins EngineImpl::coin_yield()
         coins += sector->coin_yield();
     }
 
-    for (auto& sector : data_->outpost_sectors_) {
-        coins += sector.coin_yield();
-    }
-
     return coins;
 }
 
@@ -197,13 +196,7 @@ int EngineImpl::food_consumption_factor()
 
 
 
-std::pair<Coins, terrain::Sector::Population> EngineImpl::outpost_cost() const
-{
-    return {1000, 60};
-}
-
-
-std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
+std::pair<Coins, Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
@@ -215,81 +208,6 @@ std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
         return {6000 + 3600 * data_->other_sectors_.size(), 600};
     } else {
         return {7000 + 4000 * data_->other_sectors_.size(), 800};
-    }
-}
-
-
-
-void EngineImpl::advance(int years)
-{
-    auto do_advance = [&](int elapsed_years) {
-        data_->origin_sector_.advance(elapsed_years);
-
-        for (auto& s : data_->other_sectors_) {
-            s->advance(elapsed_years);
-        }
-
-        for (auto& s : data_->outpost_sectors_) {
-            s.advance(elapsed_years);
-        }
-
-        data_->p().year_.set(data_->p().year_.get() + elapsed_years);
-
-        auto add_coins = coin_yield() * elapsed_years;
-        data_->p().coins_.set(data_->p().coins_.get() + add_coins);
-
-        years -= elapsed_years;
-    };
-
-    // Explanation: we want to skip ahead in time quickly. If the player's been
-    // away a while, running the simulation for each year takes a long time.  We
-    // don't want to just begin by skipping a 100 year interval, because that
-    // could vastly overestimate changes by multiplying up a population growth
-    // rate or coin yeild too much, without accounting for equilibrium.
-    // Start by attempting to advance the simulation in small interval, before
-    // skipping past huge year ranges.
-
-    if (years > 5) {
-        do_advance(1);
-        do_advance(1);
-        do_advance(1);
-        do_advance(1);
-    }
-
-    if (years > 10) {
-        do_advance(5);
-        do_advance(5);
-        do_advance(5);
-    }
-
-    if (years > 20) {
-        do_advance(10);
-        do_advance(10);
-    }
-
-    if (years > 50) {
-        do_advance(10);
-        do_advance(10);
-    }
-
-    while (years > 75) {
-        do_advance(30);
-    }
-
-    while (years > 50) {
-        do_advance(25);
-    }
-
-    while (years > 50) {
-        do_advance(10);
-    }
-
-    while (years > 10) {
-        do_advance(5);
-    }
-
-    while (years > 0) {
-        do_advance(1);
     }
 }
 
@@ -337,7 +255,6 @@ template <u32 inflate> struct Sector
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
         u8 pillar_[16][6][6];
-        u8 outpost_[4][5][5];
     } blocks_;
     static_assert(sizeof blocks_ == 576);
 
@@ -484,16 +401,6 @@ template <u32 inflate> struct Sector
             }
             break;
 
-        case terrain::Sector::Shape::outpost:
-            for (u8 z = 0; z < 4; ++z) {
-                for (u8 x = 0; x < 5; ++x) {
-                    for (u8 y = 0; y < 5; ++y) {
-                        blocks_.outpost_[z][x][y] =
-                            source.get_block({x, y, z}).type_;
-                    }
-                }
-            }
-            break;
         }
     }
 };
@@ -526,8 +433,7 @@ void EngineImpl::save(Platform& pfrm)
 
     save::Header header;
     memcpy(&header.p_, &data_->persistent_, sizeof data_->persistent_);
-    header.num_sectors_ =
-        1 + data_->other_sectors_.size() + data_->outpost_sectors_.size();
+    header.num_sectors_ = 1 + data_->other_sectors_.size();
 
     for (u32 i = 0; i < sizeof header; ++i) {
         save_data.push_back(((u8*)&header)[i]);
@@ -553,10 +459,6 @@ void EngineImpl::save(Platform& pfrm)
 
     for (auto& s : data_->other_sectors_) {
         store_sector(*s);
-    }
-
-    for (auto& s : data_->outpost_sectors_) {
-        store_sector(s);
     }
 
     const int sbr_used = save_data.chunks_used();
@@ -638,10 +540,6 @@ bool EngineImpl::load(Platform& pfrm, App& app)
                 dest->restore(s.p_.p_, s.blocks_.pillar_);
                 break;
 
-            case terrain::Sector::Shape::outpost:
-                dest->restore(s.p_.p_, s.blocks_.outpost_);
-                break;
-
             case terrain::Sector::Shape::freebuild_wide:
             case terrain::Sector::Shape::freebuild_flat:
             case terrain::Sector::Shape::freebuild:
@@ -669,8 +567,6 @@ bool EngineImpl::load(Platform& pfrm, App& app)
         load_sector(&data_->origin_sector_);
 
         data_->other_sectors_.clear();
-        data_->outpost_sectors_.clear();
-
 
         for (int i = 0; i < header.num_sectors_ - 1; ++i) {
             load_sector(nullptr);
@@ -747,16 +643,6 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
                 allocate_dynamic<terrain::PillarSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
-        case terrain::Sector::Shape::outpost: {
-            if (data_->outpost_sectors_.size() > max_outposts) {
-                return nullptr;
-            }
-            data_->outpost_sectors_.emplace_back(coord);
-            auto result = data_->outpost_sectors_.end();
-            --result;
-            return &*result;
-        }
-
         case terrain::Sector::Shape::freebuild_wide:
             data_->other_sectors_.emplace_back(
                 allocate_dynamic<terrain::FreebuildWideSector>("sector-mem",
@@ -780,13 +666,8 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
     }();
     if (s) {
         StringBuffer<terrain::Sector::name_len - 1> n;
-        if (shape == terrain::Sector::Shape::outpost) {
-            n += "atol_";
-            n += stringify(data_->outpost_sectors_.size());
-        } else {
-            n += "isle_";
-            n += stringify(data_->other_sectors_.size() + 1).c_str();
-        }
+        n += "isle_";
+        n += stringify(data_->other_sectors_.size() + 1).c_str();
 
         s->set_name(n);
         return s;
@@ -811,134 +692,71 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::workshop:
-        result.employment_ += 100;
         result.housing_ += 6;
         break;
 
     case terrain::Type::terrain:
-        result.food_ += 1;
         break;
 
     case terrain::Type::wheat:
-        result.food_ += 5;
-        result.employment_ += 2;
         break;
 
     case terrain::Type::potatoes:
-        result.food_ += 15;
-        result.employment_ += 3;
         break;
 
     case terrain::Type::sunflowers:
-        if (not shadowed) {
-            result.commodities_.push_back(
-                {Commodity::Type::sunflowers, false, 1});
-        }
-        result.employment_ += 1;
-        result.happiness_ += 1;
         break;
 
     case terrain::Type::tulips:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::tulips, false, 1});
-        }
-        result.employment_ += 1;
-        result.happiness_ += 1;
         break;
 
     case terrain::Type::indigo:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::indigo, false, 1});
-        }
-        result.employment_ += 4;
         break;
 
     case terrain::Type::madder:
-        if (not shadowed) {
-            result.commodities_.push_back(
-                {Commodity::Type::rose_madder, false, 1});
-        }
-        result.employment_ += 4;
         break;
 
     case terrain::Type::shellfish:
-        if (not shadowed) {
-            result.commodities_.push_back(
-                {Commodity::Type::shellfish, false, 1});
-        }
-        result.employment_ += 1;
-        result.food_ += 2;
         break;
 
     case terrain::Type::pearls:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::pearls, false, 3});
-        }
-        result.employment_ += 1;
         break;
 
     case terrain::Type::honey:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::honey, false, 2});
-        }
-        result.employment_ += 1;
         break;
 
     case terrain::Type::cocoa:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::cocoa, false, 3});
-            result.employment_ += 6;
-        }
         break;
 
     case terrain::Type::tea:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::tea, false, 3});
-            result.employment_ += 4;
-        }
         break;
 
     case terrain::Type::lumber:
-        if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::lumber, false, 2});
-            result.employment_ += 6;
-        }
         break;
 
     case terrain::Type::wool:
-        result.employment_ += 1;
-        result.food_ += 1;
-        result.commodities_.push_back({Commodity::Type::wool, false, 2});
         break;
 
     case terrain::Type::saffron:
-        result.employment_ += 6;
-        result.commodities_.push_back({Commodity::Type::saffron, false, 2});
         break;
 
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
-        result.employment_ += 20;
         break;
 
     case terrain::Type::port:
-        result.employment_ += 8;
         break;
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
-        result.happiness_ += 2;
         break;
 
     case terrain::Type::carved_crystal:
     case terrain::Type::crystal_pillar:
-        result.happiness_ += 8;
         break;
 
     case terrain::Type::crystal:
-        result.happiness_ += 5;
         break;
-
 
     default:
         break;
@@ -1015,17 +833,6 @@ SystemString terrain::Commodity::name() const
 
 
 
-terrain::Stats terrain::Block::stats() const
-{
-    auto st = terrain::stats(type(), shadowed_day_);
-    if (shadowed_day_) {
-        st.food_ /= 2;
-    }
-    return st;
-}
-
-
-
 terrain::Improvements terrain::Block::improvements() const
 {
     return terrain::improvements(type());
@@ -1087,79 +894,147 @@ terrain::Categories terrain::categories(Type t)
 
 
 
-Coins terrain::cost(Type t)
+std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 {
-    auto& b = *_bound_state->data_->bindings_;
+    Cost cost;
+    Type nt = terrain::Type::air;
+
+    switch (t) {
+    case terrain::Type::ice:
+        cost.water_ = 10;
+        cost.productivity_ = 8;
+        break;
+
+    case terrain::Type::volcanic_soil:
+    case terrain::Type::terrain:
+        cost.stone_ = 10;
+        cost.productivity_ = 10;
+        break;
+
+    case terrain::Type::basalt:
+        cost.stone_ = 20;
+        cost.productivity_ = 20;
+        break;
+
+    case terrain::Type::crystal:
+        cost.crystal_ = 10;
+        cost.productivity_ = 70;
+        break;
+
+    case terrain::Type::marble:
+    case terrain::Type::marble_top:
+        cost.marble_ = 10;
+        cost.productivity_ = 45;
+        break;
+
+    case terrain::Type::wheat:
+        nt = terrain::Type::volcanic_soil;
+        cost.productivity_ = 1;
+        cost.food_ = 15;
+        break;
+
+    case terrain::Type::potatoes:
+        nt = terrain::Type::volcanic_soil;
+        cost.productivity_ = 3;
+        cost.food_ = 45;
+        break;
+
+    default:
+        return {terrain::cost(t), terrain::Type::air};
+    }
+
+    return {cost, nt};
+}
+
+
+
+terrain::Cost terrain::cost(Type t)
+{
+    Cost cost;
 
     switch (t) {
     case terrain::Type::food:
     case terrain::Type::__invalid:
-        break;
-
     case terrain::Type::air:
-        return 0;
-
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
     case terrain::Type::checker_red_king:
     case terrain::Type::checker_black_king:
     case terrain::Type::checker_highlight:
-        return 0;
+        break;
 
     case terrain::Type::building:
-        return b.mcr_building_cost;
+        cost.stone_ = 8;
+        cost.lumber_ = 16;
+        cost.productivity_ = 20;
+        break;
 
     case terrain::Type::dome:
-        return 80;
+        cost.stone_ = 10;
+        cost.lumber_ = 10;
+        cost.productivity_ = 14;
+        break;
 
     case terrain::Type::basalt:
     case terrain::Type::terrain:
-        return b.mcr_terrain_cost;
+        cost.stone_ = 10;
+        break;
 
-    case terrain::Type::hematite:
     case terrain::Type::carved_hematite:
     case terrain::Type::hematite_pillar:
     case terrain::Type::carved_basalt:
     case terrain::Type::basalt_brick:
-    case terrain::Type::masonry:
     case terrain::Type::carved_stone:
     case terrain::Type::stone_pillar:
+    case terrain::Type::carved_crystal:
+    case terrain::Type::crystal_pillar:
+        cost.productivity_ = 6;
+        break;
+
+    case terrain::Type::hematite:
+    case terrain::Type::masonry:
     case terrain::Type::ocher:
     case terrain::Type::hull:
-        return b.mcr_masonry_cost;
+        cost.stone_ = 5;
+        cost.productivity_ = 8;
+        break;
+
+    case terrain::Type::arch:
+        cost.stone_ = 4;
+        cost.productivity_ = 12;
+        break;
 
     case terrain::Type::road_ns:
     case terrain::Type::road_we:
     case terrain::Type::road_hub:
-        return b.mcr_road_cost;
+        cost.stone_ = 2;
+        cost.productivity_ = 6;
+        break;
 
     case terrain::Type::scaffolding:
-        return b.mcr_scaffolding_cost;
+        cost.stone_ = 6;
+        cost.productivity_ = 8;
+        break;
 
     case terrain::Type::sand:
-        return b.mcr_sand_cost;
-
-    case terrain::Type::arch:
-        return b.mcr_arch_cost;
+        cost.stone_ = 2;
+        cost.productivity_ = 2;
+        break;
 
     case terrain::Type::volcanic_soil:
-        return 100;
-
-    case terrain::Type::cocoa:
-        return b.mcr_cocoa_cost;
-
-    case terrain::Type::tea:
-        return b.mcr_tea_cost;
+        cost.productivity_ = 3;
+        break;
 
     case terrain::Type::ice:
-        return b.mcr_ice_cost;
+        cost.productivity_ = 4;
+        break;
 
     case terrain::Type::shrubbery:
-        return b.mcr_shrubbery_cost;
+        break;
 
     case terrain::Type::count:
     case terrain::Type::selector:
-        return 0;
+        break;
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
@@ -1171,7 +1046,8 @@ Coins terrain::cost(Type t)
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
-        return b.mcr_water_cost;
+        cost.water_ = 10;
+        break;
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
@@ -1183,78 +1059,73 @@ Coins terrain::cost(Type t)
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
     case terrain::Type::lava_slant_d:
-        return b.mcr_lava_cost;
+        break;
 
     case terrain::Type::wheat:
-        return b.mcr_wheat_cost;
-
     case terrain::Type::potatoes:
-        return b.mcr_potatoes_cost;
-
     case terrain::Type::sunflowers:
-        return b.mcr_sunflowers_cost;
-
     case terrain::Type::tulips:
-        return b.mcr_tulips_cost;
-
     case terrain::Type::indigo:
-        return b.mcr_indigo_cost;
-
     case terrain::Type::pearls:
-        return b.mcr_pearls_cost;
-
     case terrain::Type::honey:
-        return b.mcr_honey_cost;
+    case terrain::Type::shellfish:
+    case terrain::Type::wool:
+    case terrain::Type::saffron:
+    case terrain::Type::madder:
+    case terrain::Type::tea:
+    case terrain::Type::cocoa:
+        cost.productivity_ = 2;
+        break;
 
     case terrain::Type::singularity:
-        return 1;
-
-    case terrain::Type::shellfish:
-        return b.mcr_shellfish_cost;
-
-    case terrain::Type::wool:
-        return b.mcr_wool_cost;
-
-    case terrain::Type::saffron:
-        return b.mcr_saffron_cost;
-
-    case terrain::Type::madder:
-        return b.mcr_madder_cost;
+        break;
 
     case terrain::Type::gold:
-        return b.mcr_gold_cost;
-
-    case terrain::Type::carved_crystal:
-    case terrain::Type::crystal_pillar:
-        return b.mcr_masonry_cost;
+        break;
 
     case terrain::Type::crystal:
-        return b.mcr_crystal_cost;
+        cost.crystal_ = 10;
+        cost.productivity_ = 4;
+        break;
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
-        return b.mcr_marble_cost;
+        cost.marble_ = 10;
+        cost.productivity_ = 16;
+        break;
 
     case terrain::Type::workshop:
-        return b.mcr_workshop_cost;
+        cost.lumber_ = 4;
+        cost.stone_ = 8;
+        cost.productivity_ = 6;
+        break;
 
     case terrain::Type::light_source:
-        return b.mcr_light_source_cost;
+        cost.stone_ = 5;
+        cost.lumber_ = 4;
+        cost.crystal_ = 1;
+        break;
 
     case terrain::Type::windmill_stone_base:
-        return b.mcr_windmill_stone_base_cost;
+        cost.stone_ = 14;
+        cost.productivity_ = 6;
+        break;
 
     case terrain::Type::windmill:
-        return b.mcr_windmill_cost;
+        cost.stone_ = 14;
+        cost.productivity_ = 6;
+        break;
 
     case terrain::Type::port:
-        return b.mcr_port_cost;
+        break;
 
     case terrain::Type::lumber:
-        return b.mcr_lumber_cost;
+        cost.lumber_ = 12;
+        cost.productivity_ = 6;
+        break;
     }
 
-    return 0;
+    return cost;
 }
 
 
@@ -1496,18 +1367,19 @@ terrain::Improvements terrain::improvements(Type t)
     auto push_terrain_defaults = [&] {
         result.push_back(Type::wheat);
         result.push_back(Type::potatoes);
-        result.push_back(Type::windmill);
-        result.push_back(Type::indigo);
-        result.push_back(Type::madder);
-        result.push_back(Type::sunflowers);
-        result.push_back(Type::tulips);
-        result.push_back(Type::saffron);
-        result.push_back(Type::wool);
-        result.push_back(Type::honey);
+        // result.push_back(Type::windmill);
+        // result.push_back(Type::indigo);
+        // result.push_back(Type::madder);
+        // result.push_back(Type::sunflowers);
+        // result.push_back(Type::tulips);
+        // result.push_back(Type::saffron);
+        // result.push_back(Type::wool);
+        // result.push_back(Type::honey);
         remove_self();
     };
 
     switch (t) {
+    case Type::volcanic_soil:
     case Type::wheat:
     case Type::potatoes:
     case Type::sunflowers:
@@ -1544,11 +1416,6 @@ terrain::Improvements terrain::improvements(Type t)
     case Type::hematite:
         result.push_back(Type::carved_hematite);
         result.push_back(Type::hematite_pillar);
-        break;
-
-    case Type::volcanic_soil:
-        result.push_back(Type::cocoa);
-        result.push_back(Type::tea);
         break;
 
     case Type::basalt:
@@ -2322,7 +2189,21 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         update_lava_slanted(s, block, position);
     },
     // volcanic_soil
-    nullptr,
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.z < terrain::Sector::z_limit) {
+            position.z++;
+            auto& above = s.get_block(position);
+            if (above.type() == terrain::Type::air) {
+                block.data_++;
+                if (block.data_ > 62) {
+                    block.data_ = 0;
+                    position.z--;
+                    s.set_block(position, terrain::Type::terrain);
+                }
+            }
+        }
+    },
     // cocoa
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -2718,25 +2599,6 @@ void terrain::FreebuildSector::update()
     for (int z = 0; z < 9; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {
-
-                auto& block = blocks_[z][x][y];
-
-                auto update = update_functions[block.type_];
-                if (update) {
-                    update(*this, block, {x, y, (u8)z});
-                }
-            }
-        }
-    }
-}
-
-
-
-void terrain::OutpostSector::update()
-{
-    for (int z = 0; z < 4; ++z) {
-        for (u8 x = 0; x < 5; ++x) {
-            for (u8 y = 0; y < 5; ++y) {
 
                 auto& block = blocks_[z][x][y];
 

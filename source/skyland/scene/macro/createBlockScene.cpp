@@ -94,13 +94,13 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::lava_source);
     options_.push_back(terrain::Type::shrubbery);
 
-    if (not state.data_->freebuild_mode_ and
-        not state.data_->other_sectors_.empty()) {
-        auto stats = state.sector().base_stats();
-        if (not stats.commodities_.empty() and state.sector().exports()) {
-            options_.push_back(terrain::Type::port);
-        }
-    }
+    // if (not state.data_->freebuild_mode_ and
+    //     not state.data_->other_sectors_.empty()) {
+    //     auto stats = state.sector().base_stats();
+    //     if (not stats.commodities_.empty() and state.sector().exports()) {
+    //         options_.push_back(terrain::Type::port);
+    //     }
+    // }
 
     if (state.sector().cursor().z > 0) {
         auto cursor = state.sector().cursor();
@@ -115,14 +115,12 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
         }
     }
 
-    options_.push_back(terrain::Type::gold);
+    // options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
     options_.push_back(terrain::Type::ocher);
     options_.push_back(terrain::Type::hematite);
 
-    if (state.data_->freebuild_mode_) {
-        options_.push_back(terrain::Type::basalt);
-    }
+    options_.push_back(terrain::Type::basalt);
 
     options_.push_back(terrain::Type::light_source);
     options_.push_back(terrain::Type::sand);
@@ -152,65 +150,64 @@ void CreateBlockScene::exit(Platform& pfrm,
 
 
 
-Coins CreateBlockScene::cost(macro::EngineImpl& state, terrain::Type t)
+terrain::Cost CreateBlockScene::cost(macro::EngineImpl& state, terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
-        return 0;
+        return terrain::Cost{};
     }
     return terrain::cost(t);
 }
 
 
 
-void CreateBlockScene::message(Platform& pfrm, macro::EngineImpl& state)
+void render_cost(Platform& pfrm,
+                 macro::EngineImpl& state,
+                 terrain::Type t,
+                 Text& text,
+                 bool harvest)
 {
     auto st = calc_screen_tiles(pfrm);
 
-    StringBuffer<30> message = SYSTR(construction_build)->c_str();
-    message += " ";
-    message += loadstr(pfrm, terrain::name(options_[selector_]))->c_str();
+    StringBuffer<30> message;
+
+    text.append(message.c_str());
 
     if (not state.data_->freebuild_mode_) {
-        message += " ";
-        message += stringify(cost(state, options_[selector_]));
-        message += "@";
-    }
 
-    Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
-    text.assign(message.c_str());
-
-    if (not state.data_->freebuild_mode_) {
-        auto stats = terrain::stats(options_[selector_],
-                                    // FIXME!
-                                    false);
-        if (stats.food_) {
-            text.append("  ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
-            text.append(stats.food_);
+        auto c = terrain::cost(t);
+        if (harvest) {
+            c = terrain::harvest(t).first;
         }
 
-        if (stats.housing_) {
-            text.append("  ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
-            text.append(stats.housing_);
-        }
-
-        if (stats.employment_) {
-            text.append("  ");
+        if (c.productivity_.as_integer()) {
+            text.append(" -");
+            text.append(c.productivity_.as_integer());
+            text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
-            text.append(stats.employment_);
         }
 
-        if (stats.happiness_) {
-            text.append("  ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 409);
-            text.append(stats.happiness_);
-        }
-
-        if (not stats.commodities_.empty()) {
-            text.append("  ");
+        if (c.stone_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.stone_);
+            text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
-            text.append(stats.commodities_[0].supply_);
+        }
+
+        if (c.lumber_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.lumber_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
         }
     }
 
@@ -219,6 +216,18 @@ void CreateBlockScene::message(Platform& pfrm, macro::EngineImpl& state)
         pfrm.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
     }
 
+}
+
+
+
+void CreateBlockScene::message(Platform& pfrm, macro::EngineImpl& state)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    text.append(":");
+    text.append(loadstr(pfrm, terrain::name(options_[selector_]))->c_str());
+    render_cost(pfrm, state, options_[selector_], text, false);
     text.__detach();
 }
 
@@ -379,11 +388,7 @@ ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
     }
 
     if (player.key_pressed(pfrm, Key::alt_1)) {
-        if (player.key_down(pfrm, Key::right)) {
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            state.advance(1);
-            update_ui(state);
-        }
+        // ...
     } else {
 
         // adjust_cursor_z(pfrm, player, state);
@@ -428,12 +433,29 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
 {
     auto cursor = state.sector().cursor();
     if (not check_z() or cursor.z < state.sector().size().z - 1) {
+
         auto cost = this->cost(state, options_[selector_]);
-        if (cost > state.data_->p().coins_.get()) {
+
+        auto& p = state.data_->p();
+        if (cost.stone_ > p.stone_.get() or
+            cost.lumber_ > p.lumber_.get() or
+            cost.marble_ > p.marble_.get() or
+            cost.water_ > p.water_.get() or
+            cost.crystal_ > p.crystal_.get() or
+            cost.productivity_ > state.sector().productivity()) {
+
             pfrm.speaker().play_sound("beep_error", 2);
             return null_scene();
         } else {
-            state.data_->p().coins_.set(state.data_->p().coins_.get() - cost);
+            auto prod = state.sector().productivity();
+            prod -= cost.productivity_;
+            state.sector().set_productivity(prod);
+            auto& p = state.data_->p();
+            p.stone_.set(p.stone_.get() - cost.stone_);
+            p.lumber_.set(p.lumber_.get() - cost.lumber_);
+            p.marble_.set(p.marble_.get() - cost.marble_);
+            p.crystal_.set(p.crystal_.get() - cost.crystal_);
+            p.water_.set(p.water_.get() - cost.water_);
         }
 
         edit(pfrm, state, options_[selector_]);
@@ -495,73 +517,13 @@ void CreateBlockScene::edit(Platform& pfrm,
 
 
 
-Coins BuildImprovementScene::cost(macro::EngineImpl& state, terrain::Type t)
+terrain::Cost BuildImprovementScene::cost(macro::EngineImpl& state, terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
-        return 0;
+        return terrain::Cost{};
     }
 
-    const auto base_cost = terrain::cost(t);
-
-    if (t == terrain::Type::terrain) {
-        // The player's just clearing land to plant something else, don't levy
-        // excessive costs for doing so.
-        return base_cost / 4;
-    }
-
-    if (not(terrain::categories(t) & terrain::Categories::crop) and
-        not(terrain::categories(t) & terrain::Categories::livestock)) {
-        return base_cost;
-    }
-
-    // Cheaper to build a crop next to an existing crop of the same type.
-
-    int cost = base_cost;
-
-    auto cursor = state.sector().cursor();
-    --cursor.z;
-
-    if (cursor.x > 0) {
-        auto temp = cursor;
-        --temp.x;
-        auto& block = state.sector().get_block(temp);
-        if (block.type() == t) {
-            cost -= base_cost / 3;
-        }
-    }
-
-    if (cursor.x < state.sector().size().x - 1) {
-        auto temp = cursor;
-        ++temp.x;
-        auto& block = state.sector().get_block(temp);
-        if (block.type() == t) {
-            cost -= base_cost / 3;
-        }
-    }
-
-    if (cursor.y > 0) {
-        auto temp = cursor;
-        --temp.y;
-        auto& block = state.sector().get_block(temp);
-        if (block.type() == t) {
-            cost -= base_cost / 3;
-        }
-    }
-
-    if (cursor.y < state.sector().size().y - 1) {
-        auto temp = cursor;
-        ++temp.y;
-        auto& block = state.sector().get_block(temp);
-        if (block.type() == t) {
-            cost -= base_cost / 3;
-        }
-    }
-
-    if (cost < 0) {
-        cost = 0;
-    }
-
-    return cost;
+    return terrain::cost(t);
 }
 
 
@@ -619,70 +581,70 @@ void ConfigurePortScene::collect_options(Platform&, macro::EngineImpl& state)
 {
     selector_ = 0;
 
-    auto st = state.sector().base_stats();
-    for (auto& c : st.commodities_) {
-        switch (c.type_) {
-        case terrain::Commodity::indigo:
-            options_.push_back(terrain::Type::indigo);
-            break;
+    // auto st = state.sector().base_stats();
+    // for (auto& c : st.commodities_) {
+    //     switch (c.type_) {
+    //     case terrain::Commodity::indigo:
+    //         options_.push_back(terrain::Type::indigo);
+    //         break;
 
-        case terrain::Commodity::rose_madder:
-            options_.push_back(terrain::Type::madder);
-            break;
+    //     case terrain::Commodity::rose_madder:
+    //         options_.push_back(terrain::Type::madder);
+    //         break;
 
-        case terrain::Commodity::shellfish:
-            options_.push_back(terrain::Type::shellfish);
-            break;
+    //     case terrain::Commodity::shellfish:
+    //         options_.push_back(terrain::Type::shellfish);
+    //         break;
 
-        case terrain::Commodity::pearls:
-            options_.push_back(terrain::Type::pearls);
-            break;
+    //     case terrain::Commodity::pearls:
+    //         options_.push_back(terrain::Type::pearls);
+    //         break;
 
-        case terrain::Commodity::honey:
-            options_.push_back(terrain::Type::honey);
-            break;
+    //     case terrain::Commodity::honey:
+    //         options_.push_back(terrain::Type::honey);
+    //         break;
 
-        case terrain::Commodity::sunflowers:
-            options_.push_back(terrain::Type::sunflowers);
-            break;
+    //     case terrain::Commodity::sunflowers:
+    //         options_.push_back(terrain::Type::sunflowers);
+    //         break;
 
-        case terrain::Commodity::tulips:
-            options_.push_back(terrain::Type::tulips);
-            break;
+    //     case terrain::Commodity::tulips:
+    //         options_.push_back(terrain::Type::tulips);
+    //         break;
 
-        case terrain::Commodity::wool:
-            options_.push_back(terrain::Type::wool);
-            break;
+    //     case terrain::Commodity::wool:
+    //         options_.push_back(terrain::Type::wool);
+    //         break;
 
-        case terrain::Commodity::saffron:
-            options_.push_back(terrain::Type::saffron);
-            break;
+    //     case terrain::Commodity::saffron:
+    //         options_.push_back(terrain::Type::saffron);
+    //         break;
 
-        case terrain::Commodity::lumber:
-            options_.push_back(terrain::Type::lumber);
-            break;
+    //     case terrain::Commodity::lumber:
+    //         options_.push_back(terrain::Type::lumber);
+    //         break;
 
-        case terrain::Commodity::cocoa:
-            options_.push_back(terrain::Type::cocoa);
-            break;
+    //     case terrain::Commodity::cocoa:
+    //         options_.push_back(terrain::Type::cocoa);
+    //         break;
 
-        case terrain::Commodity::tea:
-            options_.push_back(terrain::Type::tea);
-            break;
+    //     case terrain::Commodity::tea:
+    //         options_.push_back(terrain::Type::tea);
+    //         break;
 
-        case terrain::Commodity::food:
-            Platform::fatal("Food is a special case, and no tiles should "
-                            "ideally produce food as a commodity.");
-            break;
-        }
+    //     case terrain::Commodity::food:
+    //         Platform::fatal("Food is a special case, and no tiles should "
+    //                         "ideally produce food as a commodity.");
+    //         break;
+    //     }
 
-        commodity_types_.push_back(c.type_);
-    }
+    //     commodity_types_.push_back(c.type_);
+    // }
 
-    if (st.food_ > 0) {
-        options_.push_back(terrain::Type::food);
-        commodity_types_.push_back(terrain::Commodity::Type::food);
-    }
+    // if (st.food_ > 0) {
+    //     options_.push_back(terrain::Type::food);
+    //     commodity_types_.push_back(terrain::Commodity::Type::food);
+    // }
 }
 
 

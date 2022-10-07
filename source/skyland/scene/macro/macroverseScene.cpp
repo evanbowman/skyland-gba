@@ -329,7 +329,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         push_opt(SystemString::macro_enter, st.y - 6);
         push_opt(SystemString::macro_create_colony, st.y - 4);
         push_opt(SystemString::options, st.y - 2);
-        outpost_colony_ = false;
     };
 
     auto enter_opt2_state = [&] {
@@ -641,10 +640,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                          1 + m.data_->other_sectors_.size(),
                          EngineImpl::max_sectors);
 
-                push_opt(SystemString::macro_outpost_colony,
-                         st.y - 4,
-                         m.data_->outpost_sectors_.size(),
-                         EngineImpl::max_outposts);
                 break;
             }
 
@@ -671,17 +666,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             u8 y = text_objs_[i].coord().y;
 
             auto cursor_tile = 0;
-            if (outpost_colony_ == i) {
-                cursor_tile = 87;
-                sel_pos = {x, y};
-            }
 
             pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
         if (app.player().key_down(pfrm, Key::up) or
             app.player().key_down(pfrm, Key::down)) {
-            outpost_colony_ = not outpost_colony_;
             pfrm.speaker().play_sound("click_wooden", 2);
         }
 
@@ -733,8 +723,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 };
 
 
-                auto cost =
-                    outpost_colony_ ? m.outpost_cost() : m.colony_cost();
+                auto cost = m.colony_cost();
 
                 state_ = State::create_colony;
                 text_objs_.clear();
@@ -746,15 +735,15 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                              .c_str(),
                          calc_screen_tiles(pfrm).y - 2);
 
-                text_objs_.emplace_back(
-                    pfrm,
-                    stringify(m.data_->p().coins_.get()).c_str(),
-                    OverlayCoord{2, 3});
-                pfrm.set_tile(Layer::overlay, 1, 3, 88);
+                // text_objs_.emplace_back(
+                //     pfrm,
+                //     stringify(m.data_->p().coins_.get()).c_str(),
+                //     OverlayCoord{2, 3});
+                // pfrm.set_tile(Layer::overlay, 1, 3, 88);
 
                 text_objs_.emplace_back(
                     pfrm,
-                    stringify(m.sector().population()).c_str(),
+                    stringify(m.sector().population().as_integer()).c_str(),
                     OverlayCoord{2, 4});
                 pfrm.set_tile(Layer::overlay, 1, 4, 85);
             }
@@ -782,59 +771,20 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (selected_colony_) {
-                auto cost =
-                    outpost_colony_ ? m.outpost_cost() : m.colony_cost();
-                if (m.data_->p().coins_.get() >= cost.first and
-                    m.sector().population() >= cost.second) {
+                auto cost = m.colony_cost();
+                if (// m.data_->p().coins_.get() >= cost.first and
+                    m.sector().population().as_integer() >= cost.second) {
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
-                    if (outpost_colony_) {
+                    state_ = State::select_colony_layout;
 
-                        if (m.make_sector(*selected_colony_,
-                                          terrain::Sector::Shape::outpost)) {
+                    pfrm.set_tile(Layer::overlay, 1, 3, 0);
+                    pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                    text_objs_.clear();
 
-                            m.data_->p().coins_.set(m.data_->p().coins_.get() -
-                                                    cost.first);
+                    show_layout_text(pfrm);
 
-                            m.sector().set_population(m.sector().population() -
-                                                      cost.second);
-
-                            colony_create_slots_.clear();
-                            text_objs_.clear();
-
-                            state_ = State::show;
-                            describe_selected(pfrm, m);
-
-                            if (not m.bind_sector(*selected_colony_)) {
-                                Platform::fatal("logic error (bind sector)");
-                            }
-
-                            u8 width = m.sector().size().x;
-                            m.sector().set_block(
-                                {u8(width / 2), u8(width / 2), 0},
-                                terrain::Type::terrain);
-
-                            m.sector().set_block(
-                                {u8(width / 2), u8(width / 2), 1},
-                                terrain::Type::building);
-
-                            m.sector().set_cursor(
-                                {u8(width / 2), u8(width / 2), 2});
-
-                            pfrm.speaker().play_sound("button_wooden", 2);
-                        }
-
-
-                    } else {
-                        state_ = State::select_colony_layout;
-
-                        pfrm.set_tile(Layer::overlay, 1, 3, 0);
-                        pfrm.set_tile(Layer::overlay, 1, 4, 0);
-                        text_objs_.clear();
-
-                        show_layout_text(pfrm);
-                    }
 
                     break;
 
@@ -908,8 +858,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (m.make_sector(*selected_colony_, shape_)) {
 
-                m.data_->p().coins_.set(m.data_->p().coins_.get() - cost.first);
-
                 m.sector().set_population(m.sector().population() -
                                           cost.second);
 
@@ -925,8 +873,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                     Platform::fatal("logic error (bind sector)");
                 }
 
-                m.sector().set_block({3, 3, 0}, terrain::Type::terrain);
-                m.sector().set_block({3, 3, 1}, terrain::Type::building);
+                m.sector().generate_terrain();;
 
                 pfrm.speaker().play_sound("button_wooden", 2);
             }
@@ -965,7 +912,7 @@ void MacroverseScene::describe_selected(Platform& pfrm,
 
     pfrm.set_tile(Layer::overlay, 1, st.y - 2, 85);
 
-    text_objs_[1].assign(state.sector().population());
+    text_objs_[1].assign(state.sector().population().as_integer());
 }
 
 
@@ -1079,49 +1026,6 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     };
 
 
-    auto draw_tiny_node = [&](const Vec2<s8>& c) {
-        Sprite spr;
-
-        const bool darkened = manhattan_length(c, selected_) > 1;
-
-        if (manhattan_length(c, selected_) > 3) {
-            return;
-        } else if (manhattan_length(c, selected_) > 2) {
-            spr.set_alpha(Sprite::Alpha::translucent);
-        }
-
-        if (state_ == State::reveal) {
-            spr.set_mix({ColorConstant::rich_black,
-                         u8(255 * (1.f - (float(timer_) / reveal_time)))});
-        } else if ((state_ == State::options or state_ == State::options_2 or
-                    state_ == State::create_colony_options or
-                    state_ == State::create_colony) and
-                   c not_eq selected_) {
-            return;
-        }
-
-        auto origin = sector_map_display_pos(pfrm, c);
-        origin.x += 8;
-        origin.y += 8;
-
-        int t_start = 76;
-
-        spr.set_size(Sprite::Size::w16_h32);
-
-        if (c == selected_) {
-            t_start = 78;
-        } else if ((int)state_ < (int)State::show) {
-            return;
-        } else if (darkened) {
-            t_start = 77;
-        }
-
-        spr.set_position(origin);
-        spr.set_texture_index(t_start);
-        pfrm.screen().draw(spr);
-    };
-
-
     auto draw_rng_node = [&](const Vec2<s8>& c) {
         Sprite spr;
 
@@ -1194,10 +1098,6 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
     for (auto& s : m.data_->other_sectors_) {
         draw_node(*s);
-    }
-
-    for (auto& s : m.data_->outpost_sectors_) {
-        draw_tiny_node(s.coordinate());
     }
 
     (void)draw_rng_node;

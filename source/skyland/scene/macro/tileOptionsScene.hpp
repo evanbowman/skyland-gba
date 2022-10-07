@@ -45,10 +45,10 @@ public:
     update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
 
 
-    void show_options(Platform& pfrm);
+    void show_options(Platform& pfrm, macro::EngineImpl& state);
 
 
-    void msg(Platform& pfrm, const char* text);
+    void msg(Platform& pfrm, macro::EngineImpl& state, const char* text);
 
 
 

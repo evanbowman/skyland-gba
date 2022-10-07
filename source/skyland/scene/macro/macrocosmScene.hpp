@@ -104,12 +104,15 @@ private:
 
     struct UIObjects
     {
-        std::optional<UIMetric> coins_;
         std::optional<UIMetric> population_;
         std::optional<UIMetric> food_;
-        std::optional<UIMetric> employment_;
         std::optional<UIMetric> housing_;
         std::optional<UIMetric> happiness_;
+        std::optional<UIMetric> lumber_;
+        std::optional<UIMetric> stone_;
+        std::optional<UIMetric> productivity_;
+        std::optional<UIMetric> marble_;
+        std::optional<UIMetric> crystal_;
     };
 
     u8 last_season_ = 255;

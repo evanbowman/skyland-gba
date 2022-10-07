@@ -49,7 +49,7 @@ public:
             terrain::Sector::Orientation orientation_;
             terrain::Sector::Shape shape_;
             char name_[terrain::Sector::name_len];
-            u8 population_[sizeof(terrain::Sector::Population)];
+            u8 population_[sizeof(Population)];
             u8 blocks_[576]; // Max blocks in a sector
         } payload_;
 
@@ -151,7 +151,6 @@ public:
 
         case State::wait: {
             if (receive_complete_) {
-                auto rx = reinterpret_cast<Schema*>(&*data_in_);
                 network::packet::MacroTradeStatus pkt;
                 // NOTE: we do not want to allow the trade to occur if we have
                 // no room to store the received island. We allow twenty large
@@ -160,13 +159,7 @@ public:
                 // trade. This comment is only relevant when trading a tiny
                 // island (outpost) for a fullsize island, as they're stored in
                 // different containers.
-                pkt.status_ =
-                    (rx->payload_.shape_ == terrain::Sector::Shape::outpost and
-                     m.data_->outpost_sectors_.size() <
-                         EngineImpl::max_outposts) or
-                    (rx->payload_.shape_ not_eq
-                         terrain::Sector::Shape::outpost and
-                     not m.data_->other_sectors_.full());
+                pkt.status_ = not m.data_->other_sectors_.full();
                 network::transmit(pfrm, pkt);
                 state_ = State::await_status;
             }
@@ -209,8 +202,8 @@ public:
                         }
                     }
                 }
-                terrain::Sector::Population population;
-                memcpy(&population,
+                Population population;
+                memcpy((u8*)&population,
                        rx->payload_.population_,
                        sizeof rx->payload_.population_);
 

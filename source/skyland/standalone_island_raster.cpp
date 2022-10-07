@@ -604,7 +604,7 @@ int main(int argc, char** argv)
         auto stats = s->stats();
         put_field("food", stats.food_);
         put_field("housing", stats.housing_);
-        put_field("employment", stats.employment_);
+        put_field("employment", stats.productivity_);
     }
 
     put_field("block_count", block_count);

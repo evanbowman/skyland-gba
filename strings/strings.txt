@@ -116,7 +116,7 @@ dynamite
 dynamite-ii
 torch
 transporter
-volcanic-soil
+soil
 water
 water*
 weather-engine
@@ -175,7 +175,7 @@ Copyright ©2022
 year:
 create block:
 build improvement:
-demolish block:
+harvest:
 :rotate
 :raise
 :layers

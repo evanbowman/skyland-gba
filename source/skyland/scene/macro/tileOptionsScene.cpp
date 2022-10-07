@@ -39,7 +39,7 @@ void TileOptionsScene::enter(Platform& pfrm,
 {
     MacrocosmScene::enter(pfrm, state, prev);
     collect_options(pfrm, state);
-    show_options(pfrm);
+    show_options(pfrm, state);
 }
 
 
@@ -66,8 +66,17 @@ struct TileOptionsScene::OptionInfo
     SystemString name_;
     int sel_icon_;
     int unsel_icon_;
+    void (*render_cost_)(Platform&, macro::EngineImpl&, terrain::Type, Text&);
     ScenePtr<Scene> (*next_)(MacrocosmScene&, macro::EngineImpl&);
 };
+
+
+
+void render_cost(Platform& pfrm,
+                 macro::EngineImpl& state,
+                 terrain::Type t,
+                 Text& text,
+                 bool harvest);
 
 
 
@@ -75,22 +84,48 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_create_block,
      2568,
      2584,
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
+     {
+     },
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<CreateBlockScene>();
      }},
     {SystemString::macro_build_improvement,
      2520,
      2536,
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
+     {
+     },
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<BuildImprovementScene>();
      }},
     {SystemString::macro_demolish,
      2600,
      2616,
+     [](Platform& pfrm, macro::EngineImpl& state, terrain::Type t, Text& text)
+     {
+         render_cost(pfrm, state, t, text, true);
+     },
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          auto c = state.sector().cursor();
          c.z--;
-         state.sector().set_block(c, terrain::Type::air);
+         auto t = state.sector().get_block(c).type();
+         auto [cost, nt] = harvest(t);
+         if (cost.productivity_ > state.sector().productivity()) {
+             Platform::instance().speaker().play_sound("beep_error", 2);
+             return scene_pool::alloc<TileOptionsScene>();
+         }
+         auto prod = state.sector().productivity();
+         prod -= cost.productivity_;
+         state.sector().set_productivity(prod);
+         auto& p = state.data_->p();
+         p.stone_.set(p.stone_.get() + cost.stone_);
+         p.lumber_.set(p.lumber_.get() + cost.lumber_);
+         p.marble_.set(p.marble_.get() + cost.marble_);
+         p.crystal_.set(p.crystal_.get() + cost.crystal_);
+         p.food_.set(p.food_.get() + cost.food_);
+         p.water_.set(p.water_.get() + cost.water_);
+         state.sector().set_block(c, nt);
          state.sector().remove_export(c);
          s.update_ui(state);
          return scene_pool::alloc<SelectorScene>();
@@ -98,6 +133,9 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_export,
      776,
      760,
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
+     {
+     },
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<ConfigurePortScene>();
      }}};
@@ -143,14 +181,14 @@ ScenePtr<Scene> TileOptionsScene::update(Platform& pfrm,
         } else {
             --selector_;
         }
-        show_options(pfrm);
+        show_options(pfrm, state);
         pfrm.speaker().play_sound("click", 1);
     }
 
     if (player.key_down(pfrm, Key::right)) {
         ++selector_;
         selector_ %= options_.size();
-        show_options(pfrm);
+        show_options(pfrm, state);
         pfrm.speaker().play_sound("click", 1);
     }
 
@@ -187,18 +225,11 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
             selector_ = i;
         }
     }
-
-    if (block.type() == terrain::Type::port) {
-        auto stats = state.sector().base_stats();
-        if (not stats.commodities_.empty() or stats.food_) {
-            options_.push_back(&options[3]);
-        }
-    }
 }
 
 
 
-void TileOptionsScene::show_options(Platform& pfrm)
+void TileOptionsScene::show_options(Platform& pfrm, macro::EngineImpl& state)
 {
     if (options_.empty()) {
         return;
@@ -207,7 +238,7 @@ void TileOptionsScene::show_options(Platform& pfrm)
     auto st = calc_screen_tiles(pfrm);
 
     StringBuffer<32> str = loadstr(pfrm, options_[selector_]->name_)->c_str();
-    msg(pfrm, str.c_str());
+    msg(pfrm, state, str.c_str());
 
     for (int y = st.y - 5; y < st.y - 2; ++y) {
         pfrm.set_tile(Layer::overlay, st.x - 22, y, 128);
@@ -242,10 +273,20 @@ void TileOptionsScene::show_options(Platform& pfrm)
 
 
 
-void TileOptionsScene::msg(Platform& pfrm, const char* text)
+void TileOptionsScene::msg(Platform& pfrm,
+                           macro::EngineImpl& state,
+                           const char* text)
 {
     auto st = calc_screen_tiles(pfrm);
     text_.emplace(pfrm, text, OverlayCoord{0, u8(st.y - 1)});
+
+    if (state.sector().cursor().z > 0) {
+        auto c = state.sector().cursor();
+        --c.z;
+        auto t = state.sector().get_block(c).type();
+        options_[selector_]->render_cost_(pfrm, state, t, *text_);
+    }
+
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
