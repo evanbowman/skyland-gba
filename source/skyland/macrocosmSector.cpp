@@ -93,11 +93,8 @@ fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
         }
     };
 
-    add_entry(SystemString::category_misc, 1);
-    // add_entry(SystemString::macro_commodities, 2 * commodity_supply);
-    // add_entry(SystemString::macro_food_supply, 0.3f * food_avail);
-    // add_entry(SystemString::macro_housing_scarcity, 0.2f * housing_avail);
-    // add_entry(SystemString::macro_population_density, population() * -0.1f);
+    add_entry(SystemString::category_misc, stats().happiness_);
+    add_entry(SystemString::category_misc, -population().as_integer() / 64);
 
     return result;
 }
@@ -389,6 +386,7 @@ terrain::Stats terrain::Sector::base_stats() const
 
                 result.housing_ += block_stats.housing_;
                 result.food_storage_ += block_stats.food_storage_;
+                result.happiness_ += block_stats.happiness_;
             }
         }
     }
@@ -427,7 +425,9 @@ void terrain::Sector::soft_update()
 {
     auto prod = productivity();
     if (prod < population()) {
-        prod += (Productivity(0.02f) * population()) * 8;
+        auto diff = (Productivity(0.02f) * population()) * 8;
+        auto h = Productivity(clamp((int)get_happiness(), -7, 5)) * Productivity(0.1f);
+        prod += diff * (Productivity(1.f) + h);
         if (prod > population() * Population(0.75f)) {
             prod = population() * Population(0.75f);
         }

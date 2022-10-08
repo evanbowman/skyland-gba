@@ -182,9 +182,35 @@ void render_cost(Platform& pfrm,
 
     if (not state.data_->freebuild_mode_) {
 
+        auto stat = stats(t, false);
+
         auto c = terrain::cost(t);
         if (harvest) {
             c = terrain::harvest(t).first;
+        }
+
+        if (stat.housing_) {
+            text.append(" ");
+            if (harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(stat.housing_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
+        }
+
+        if (stat.happiness_) {
+            text.append(" ");
+            if (harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(stat.happiness_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 409);
         }
 
         if (c.productivity_.as_integer()) {

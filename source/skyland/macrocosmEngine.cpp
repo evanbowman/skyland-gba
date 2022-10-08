@@ -711,9 +711,8 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::sunflowers:
-        break;
-
     case terrain::Type::tulips:
+        result.happiness_ += 2;
         break;
 
     case terrain::Type::indigo:
@@ -928,7 +927,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::crystal:
         cost.crystal_ = 10;
-        cost.productivity_ = 500;
+        cost.productivity_ = 370;
         break;
 
     case terrain::Type::marble:
@@ -1415,14 +1414,8 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::wheat);
         result.push_back(Type::potatoes_planted);
         result.push_back(Type::lumber_spawn);
-        // result.push_back(Type::windmill);
-        // result.push_back(Type::indigo);
-        // result.push_back(Type::madder);
-        // result.push_back(Type::sunflowers);
-        // result.push_back(Type::tulips);
-        // result.push_back(Type::saffron);
-        // result.push_back(Type::wool);
-        // result.push_back(Type::honey);
+        result.push_back(Type::sunflowers);
+        result.push_back(Type::tulips);
         remove_self();
     };
 
@@ -2582,7 +2575,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 30) {
+            if (block.data_ > 34) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;

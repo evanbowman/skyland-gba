@@ -195,6 +195,7 @@ struct Stats
 {
     s16 housing_ = 0;
     s16 food_storage_ = 0;
+    s16 happiness_ = 0;
 };
 
 

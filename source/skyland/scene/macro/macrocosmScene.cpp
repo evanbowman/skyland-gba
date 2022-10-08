@@ -330,6 +330,8 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
     (*ui_)->marble_->sync_value(state.data_->p().marble_.get());
     (*ui_)->crystal_->sync_value(state.data_->p().crystal_.get());
     (*ui_)->productivity_->sync_value(state.sector().productivity().as_integer());
+    s32 happiness = sector.get_happiness();
+    (*ui_)->happiness_->sync_value((u32)happiness);
 }
 
 
