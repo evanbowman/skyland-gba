@@ -27,7 +27,6 @@
 #include "entity.hpp"
 #include "macrocosmCubeSector.hpp"
 #include "macrocosmEngineOpaque.hpp"
-#include "macrocosmOutpostSector.hpp"
 #include "macrocosmRaster.hpp"
 #include "macrocosmSector.hpp"
 #include "number/int.h"
@@ -54,8 +53,7 @@ enum Keylock { nolock, buildlock, improvelock, deletelock };
 
 struct EngineImpl : public Engine
 {
-    static const int max_sectors = 28;
-    static const int max_outposts = 20;
+    static const int max_sectors = 30;
 
     struct Data
     {
@@ -134,8 +132,6 @@ struct EngineImpl : public Engine
 
         SectorArray other_sectors_;
 
-        Vector<terrain::OutpostSector> outpost_sectors_;
-
 
         u16 singularity_count_ = 0;
         bool singularity_expand_ = false;
@@ -152,8 +148,10 @@ struct EngineImpl : public Engine
 
         // For palette animations.
         Microseconds fluid_anim_timer_ = 0;
+        u16 realtime_update_index_ = 0;
         u8 water_anim_index_ = 0;
         u8 lava_anim_index_ = 128;
+        u8 cropcycle_index_ = 0;
 
         Keylock keylock_ = nolock;
 
@@ -161,33 +159,27 @@ struct EngineImpl : public Engine
         macro::terrain::Type last_improved_ = terrain::Type::terrain;
 
 
-        // NOTE: random encounters not yet implemented.
-        struct RandomEncounters
-        {
-            u16 seed_ = 42;
-
-            struct SectorDesc
-            {
-                Vec2<s8> coordinate_;
-                u8 variant_;
-            };
-
-            Buffer<SectorDesc, 20> sectors_;
-
-        } random_encounters_;
-
-
-
         // Contents will be written to save data.
         struct Persistent
         {
             host_u16 year_;
-            HostInteger<Coins> coins_;
+            HostInteger<Food> food_;
+            HostInteger<Stone> stone_;
+            HostInteger<Lumber> lumber_;
+            HostInteger<Marble> marble_;
+            HostInteger<Crystal> crystal_;
+            HostInteger<Water> water_;
+            HostInteger<s32> reserved_words_[10];
 
             Persistent()
             {
                 year_.set(0);
-                coins_.set(0);
+                food_.set(0);
+                stone_.set(0);
+                lumber_.set(0);
+                marble_.set(0);
+                crystal_.set(0);
+                water_.set(0);
                 static_assert(std::is_trivially_copyable<Persistent>());
             }
 
@@ -200,9 +192,7 @@ struct EngineImpl : public Engine
     };
 
 
-
-    std::pair<Coins, terrain::Sector::Population> colony_cost() const;
-    std::pair<Coins, terrain::Sector::Population> outpost_cost() const;
+    std::pair<Coins, Population> colony_cost() const;
 
 
     terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
@@ -238,18 +228,6 @@ struct EngineImpl : public Engine
                 ++it;
             }
         }
-
-        for (auto it = data_->outpost_sectors_.begin();
-             it not_eq data_->outpost_sectors_.end();
-             /* ... */) {
-
-            if (it->coordinate() == coord) {
-                data_->outpost_sectors_.erase(it);
-                return;
-            } else {
-                ++it;
-            }
-        }
     }
 
 
@@ -264,13 +242,6 @@ struct EngineImpl : public Engine
                 if (s->coordinate() == coord) {
                     data_->current_sector_ = &*s;
                     return &*s;
-                }
-            }
-
-            for (auto& s : data_->outpost_sectors_) {
-                if (s.coordinate() == coord) {
-                    data_->current_sector_ = &s;
-                    return &s;
                 }
             }
 
@@ -292,12 +263,6 @@ struct EngineImpl : public Engine
                 }
             }
 
-            for (auto& s : data_->outpost_sectors_) {
-                if (s.coordinate() == coord) {
-                    return &s;
-                }
-            }
-
             return nullptr;
         }
     }
@@ -308,8 +273,6 @@ struct EngineImpl : public Engine
     {
         if (id == -1) {
             return &data_->origin_sector_;
-        } else if (id < -1) {
-            return &data_->outpost_sectors_[-1 * (2 + id)];
         } else if (id < (int)data_->other_sectors_.size()) {
             return &*data_->other_sectors_[id];
         } else {
@@ -317,6 +280,8 @@ struct EngineImpl : public Engine
         }
     }
 
+
+    int food_storage();
 
 
     macro::terrain::Sector& sector();
@@ -337,9 +302,6 @@ struct EngineImpl : public Engine
 
 
     DynamicMemory<Data> data_;
-
-
-    void advance(int elapsed_years);
 };
 
 

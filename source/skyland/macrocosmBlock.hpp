@@ -25,6 +25,7 @@
 #include "memory/buffer.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
+#include "number/fixnum.hpp"
 
 
 
@@ -33,7 +34,14 @@ namespace skyland::macro
 
 
 using Coins = s32;
-
+using Food = s32;
+using Stone = s32;
+using Lumber = s32;
+using Marble = s32;
+using Crystal = s32;
+using Productivity = FixedPoint<16, u32>;
+using Population = FixedPoint<16, u32>;
+using Water = s32;
 
 
 }
@@ -145,6 +153,12 @@ enum class Type {
 
     dome,
 
+    potatoes_planted,
+    wheat_ripe,
+    lumber_spawn,
+
+    granary,
+
     count,
 };
 
@@ -179,13 +193,9 @@ struct Commodity
 
 struct Stats
 {
-    s16 food_ = 0;
-    s16 food_exports_ = 0;
     s16 housing_ = 0;
-    s16 employment_ = 0;
+    s16 food_storage_ = 0;
     s16 happiness_ = 0;
-
-    Buffer<Commodity, 24> commodities_;
 };
 
 
@@ -238,11 +248,29 @@ Categories categories(Type t);
 
 
 Stats stats(Type t, bool shadowed);
+inline Stats Block::stats() const
+{
+    return terrain::stats((Type)type_, (bool)shadowed_);
+}
 SystemString name(Type t);
 SystemString name(Commodity::Type t);
 std::pair<int, int> icons(Type t);
 Improvements improvements(Type t);
-Coins cost(Type t);
+
+struct Cost
+{
+    Food food_ = 0;
+    Stone stone_ = 0;
+    Lumber lumber_ = 0;
+    Marble marble_ = 0;
+    Crystal crystal_ = 0;
+    Water water_ = 0;
+    Productivity productivity_ = 0;
+};
+
+
+Cost cost(Type t);
+std::pair<Cost, Type> harvest(Type t);
 
 
 

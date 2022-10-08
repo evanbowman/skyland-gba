@@ -52,6 +52,7 @@ forcefield
 forcefield*
 fountain
 gold-block
+granary
 port
 hematite
 hematite-pillar
@@ -116,7 +117,7 @@ dynamite
 dynamite-ii
 torch
 transporter
-volcanic-soil
+soil
 water
 water*
 weather-engine
@@ -175,7 +176,7 @@ Copyright ©2022
 year:
 create block:
 build improvement:
-demolish block:
+harvest:
 :rotate
 :raise
 :layers

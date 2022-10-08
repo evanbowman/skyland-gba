@@ -557,35 +557,11 @@ static const lisp::Binding script_api[] = {
              result.push_back(L_CONS(x, y));
          }
 
-         for (auto& sector : m.data_->outpost_sectors_) {
-             lisp::Protected x(L_INT(sector.coordinate().x));
-             lisp::Protected y(L_INT(sector.coordinate().y));
-             result.push_back(L_CONS(x, y));
-         }
-
          lisp::Protected x(L_INT(m.data_->origin_sector_.coordinate().x));
          lisp::Protected y(L_INT(m.data_->origin_sector_.coordinate().y));
          result.push_back(L_CONS(x, y));
 
          return result.result();
-     }},
-    {"mcr-next",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-         L_EXPECT_OP(0, integer);
-
-         auto& m = macrocosm(*interp_get_app());
-
-         int y = m.data_->p().year_.get();
-
-         auto arg = L_LOAD_INT(0);
-
-         if (arg not_eq 0) {
-             m.advance(arg);
-             y += arg;
-         }
-
-         return L_INT(y);
      }},
     {"rcnt",
      [](int argc) {
@@ -1222,7 +1198,8 @@ static const lisp::Binding script_api[] = {
      [](int argc) {
          auto app = interp_get_app();
          if (app->macrocosm()) {
-             return lisp::make_integer(macrocosm(*app).data_->p().coins_.get());
+             // return lisp::make_integer(macrocosm(*app).data_->p().coins_.get());
+             return L_NIL;
          } else {
              return lisp::make_integer(app->coins());
          }
@@ -1235,10 +1212,10 @@ static const lisp::Binding script_api[] = {
          auto app = interp_get_app();
 
          if (app->macrocosm()) {
-             auto current = macrocosm(*app).data_->p().coins_.get();
-             current += L_LOAD_INT(0);
-             macrocosm(*app).data_->p().coins_.set(
-                 std::min(std::numeric_limits<macro::Coins>::max(), current));
+             // auto current = macrocosm(*app).data_->p().coins_.get();
+             // current += L_LOAD_INT(0);
+             // macrocosm(*app).data_->p().coins_.set(
+             //     std::min(std::numeric_limits<macro::Coins>::max(), current));
          } else {
              app->set_coins(*lisp::interp_get_pfrm(),
                             std::max(0, (int)(L_LOAD_INT(0) + app->coins())));
@@ -1253,9 +1230,9 @@ static const lisp::Binding script_api[] = {
 
          auto app = interp_get_app();
          if (app->macrocosm()) {
-             auto val = L_LOAD_INT(0);
-             macrocosm(*app).data_->p().coins_.set(
-                 std::min(std::numeric_limits<macro::Coins>::max(), val));
+             // auto val = L_LOAD_INT(0);
+             // macrocosm(*app).data_->p().coins_.set(
+             //     std::min(std::numeric_limits<macro::Coins>::max(), val));
          } else {
              app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
          }

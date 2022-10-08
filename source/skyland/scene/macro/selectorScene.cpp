@@ -148,6 +148,21 @@ void SelectorScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 ScenePtr<Scene>
 SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
+    if (player.key_down(pfrm, Key::select)) {
+        paused_text_.reset();
+        paused_ = not paused_;
+        if (paused_) {
+            paused_text_.emplace(pfrm, "paused", OverlayCoord{12, 8});
+            pfrm.screen().schedule_fade(0.25f);
+        } else {
+            pfrm.screen().schedule_fade(0);
+        }
+    }
+
+    if (paused_) {
+        return null_scene();
+    }
+
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
     }
@@ -168,14 +183,6 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             return scene_pool::alloc<StartMenuScene>(0);
         }
     }
-
-
-    if (player.key_down(pfrm, Key::select)) {
-        pfrm.speaker().play_sound("button_wooden", 3);
-        StringBuffer<48> temp;
-        return scene_pool::alloc<NextTurnScene>();
-    }
-
 
     auto test_key = [&](Key k) {
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
@@ -346,13 +353,13 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
     auto s = SystemString::block_air;
     auto cursor = sector.cursor();
     auto tp = terrain::Type::air;
-    bool shadowed = false;
+    // bool shadowed = false;
     if (cursor.z > 0) {
         --cursor.z;
         auto& block = sector.get_block(cursor);
         tp = block.type();
         s = block.name();
-        shadowed = block.shadowed_day_;
+        // shadowed = block.shadowed_day_;
     }
 
     if (tp == terrain::Type::port) {
@@ -396,42 +403,42 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
         return;
     }
 
-    auto stats = terrain::stats(tp, shadowed);
+    // auto stats = terrain::stats(tp, shadowed);
 
-    if ((terrain::categories(tp) & terrain::Categories::crop) and shadowed) {
-        text_->append("  ");
-        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 411);
-    } else {
-        if (stats.food_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
-            text_->append(stats.food_);
-        }
+    // if ((terrain::categories(tp) & terrain::Categories::crop) and shadowed) {
+    //     text_->append("  ");
+    //     pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 411);
+    // } else {
+    //     if (stats.food_) {
+    //         text_->append("  ");
+    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
+    //         text_->append(stats.food_);
+    //     }
 
-        if (stats.housing_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
-            text_->append(stats.housing_);
-        }
+    //     if (stats.housing_) {
+    //         text_->append("  ");
+    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
+    //         text_->append(stats.housing_);
+    //     }
 
-        if (stats.employment_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
-            text_->append(stats.employment_);
-        }
+    //     if (stats.productivity_) {
+    //         text_->append("  ");
+    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
+    //         text_->append(stats.productivity_);
+    //     }
 
-        if (stats.happiness_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 409);
-            text_->append(stats.happiness_);
-        }
+    //     if (stats.happiness_) {
+    //         text_->append("  ");
+    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 409);
+    //         text_->append(stats.happiness_);
+    //     }
 
-        if (not stats.commodities_.empty()) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
-            text_->append(stats.commodities_[0].supply_);
-        }
-    }
+    //     if (not stats.commodities_.empty()) {
+    //         text_->append("  ");
+    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
+    //         text_->append(stats.commodities_[0].supply_);
+    //     }
+    // }
 
     for (int i = 0; i < text_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 18, 425);

@@ -6926,9 +6926,32 @@ void Platform::Speaker::start()
 
 
 
+static bool detect_android_myboy_emulator()
+{
+    const u16 prev_dispcnt = REG_DISPCNT;
+
+    REG_DISPCNT = MODE_0 | BG0_ENABLE;
+
+    object_attribute_memory[0].attribute_1 = 0;
+
+    // RAM overclocking in MyBoy! erroneously clears REG_DISPCNT.
+    ram_overclock();
+
+    const bool detected = not (REG_DISPCNT & BG0_ENABLE);
+
+    REG_DISPCNT = prev_dispcnt;
+    return detected;
+}
+
+
+
 Platform::Platform()
 {
     ::platform = this;
+
+    if (detect_android_myboy_emulator()) {
+        info(*this, "Detected MyBoy! emulator");
+    }
 
     const auto tm1 = system_clock_.now();
 

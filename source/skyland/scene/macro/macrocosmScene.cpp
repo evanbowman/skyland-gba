@@ -162,36 +162,38 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (ui_ and not m.data_->freebuild_mode_) {
-        m.data_->year_timer_ += delta;
+        // m.data_->year_timer_ += delta;
+        // auto secs = year_length(m);
+        // auto secs_per_season = secs / 4;
 
-        auto secs = year_length(m);
-        auto secs_per_season = secs / 4;
+        // if (m.data_->year_timer_ > secs) {
+        //     m.data_->year_timer_ = 0;
+        //     m.advance(1);
+        //     pfrm.speaker().play_sound("openbook", 1);
+        //     draw_year(pfrm, m);
+        //     if (ui_) {
+        //         update_ui(m);
+        //     }
+        // }
 
-        if (m.data_->year_timer_ > secs) {
-            m.data_->year_timer_ = 0;
-            m.advance(1);
-            pfrm.speaker().play_sound("openbook", 1);
-            draw_year(pfrm, m);
-            if (ui_) {
-                update_ui(m);
-            }
-        }
+        // const int season =
+        //     current_season(m.data_->year_timer_, secs_per_season);
 
-        const int season =
-            current_season(m.data_->year_timer_, secs_per_season);
-
-        if (season not_eq last_season_) {
-            draw_season(pfrm, m, season);
-        }
+        // if (season not_eq last_season_) {
+        //     draw_season(pfrm, m, season);
+        // }
     }
 
     if (ui_) {
-        (*ui_)->coins_->update(pfrm, delta);
         (*ui_)->population_->update(pfrm, delta);
         (*ui_)->food_->update(pfrm, delta);
-        (*ui_)->employment_->update(pfrm, delta);
         (*ui_)->housing_->update(pfrm, delta);
         (*ui_)->happiness_->update(pfrm, delta);
+        (*ui_)->lumber_->update(pfrm, delta);
+        (*ui_)->stone_->update(pfrm, delta);
+        (*ui_)->productivity_->update(pfrm, delta);
+        (*ui_)->crystal_->update(pfrm, delta);
+        (*ui_)->marble_->update(pfrm, delta);
     }
 
 
@@ -238,10 +240,65 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
 
 
+u32 format_ui_fraction(u16 avail, u16 used)
+{
+    return (avail & 0x0000ffff) | ((used & 0x0000ffff) << 16);
+}
+
+
+
+void cropcycle(bool on);
+
+
+
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
+
+    if (state.data_->realtime_update_index_++ == 60 * 8) {
+
+        cropcycle(true);
+
+        state.data_->origin_sector_.soft_update(state);
+        state.data_->origin_sector_.update();
+
+        for (auto& s : state.data_->other_sectors_) {
+            s->soft_update(state);
+            s->update();
+        }
+
+        cropcycle(false);
+
+        state.data_->realtime_update_index_ = 0;
+
+        auto update_food =
+            [&](macro::terrain::Sector& s) {
+                auto pop = s.population();
+                auto f = state.data_->p().food_.get();
+                if (f -= pop.as_integer() / 4) {
+                    if (f < 0) {
+                        f = 0;
+                        pop *= Population(0.75f);
+                    }
+                }
+                state.data_->p().food_.set(f);
+                s.set_population(pop);
+            };
+
+        update_food(state.data_->origin_sector_);
+        for (auto& s : state.data_->other_sectors_) {
+            update_food(*s);
+        }
+    }
+
+    if (ui_) {
+        (*ui_)->productivity_->sync_value(state.sector().productivity().as_integer());
+        (*ui_)->population_->sync_value(state.sector().population().as_integer());
+        (*ui_)->food_->sync_value(format_ui_fraction(state.food_storage(),
+                                                     state.data_->p().food_.get()));
+    }
+
 
     return null_scene();
 }
@@ -255,13 +312,6 @@ void MacrocosmScene::display(Platform& pfrm, macro::EngineImpl& state)
 
 
 
-u32 format_ui_fraction(u16 avail, u16 used)
-{
-    return (avail & 0x0000ffff) | ((used & 0x0000ffff) << 16);
-}
-
-
-
 void MacrocosmScene::update_ui(macro::EngineImpl& state)
 {
     if (not ui_) {
@@ -271,32 +321,18 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
 
     auto& sector = state.sector();
 
-    auto stat = sector.stats();
-    auto pop = sector.population();
 
-
-    (*ui_)->food_->sync_value(format_ui_fraction(
-        stat.food_ + stat.food_exports_,
-        stat.food_exports_ + pop / EngineImpl::food_consumption_factor()));
-
-    (*ui_)->population_->sync_value(
-        format_ui_fraction(pop, sector.population_growth_rate()));
-
-    auto disp_coins = (int)state.data_->p().coins_.get();
-    if (disp_coins > std::numeric_limits<u16>::max()) {
-        disp_coins /= 1000;
-        (*ui_)->coins_->use_large_numerator(true);
-    } else {
-        (*ui_)->coins_->use_large_numerator(false);
-    }
-
-    (*ui_)->coins_->sync_value(
-        format_ui_fraction(disp_coins, state.coin_yield()));
-
-    (*ui_)->housing_->sync_value(stat.housing_);
-
-    (*ui_)->employment_->sync_value(stat.employment_);
-    (*ui_)->happiness_->sync_value((s32)sector.get_happiness());
+    (*ui_)->food_->sync_value(format_ui_fraction(state.food_storage(),
+                                                 state.data_->p().food_.get()));
+    (*ui_)->population_->sync_value(sector.population().as_integer());
+    (*ui_)->lumber_->sync_value(state.data_->p().lumber_.get());
+    (*ui_)->stone_->sync_value(state.data_->p().stone_.get());
+    (*ui_)->marble_->sync_value(state.data_->p().marble_.get());
+    (*ui_)->crystal_->sync_value(state.data_->p().crystal_.get());
+    (*ui_)->productivity_->sync_value(state.sector().productivity().as_integer());
+    s32 happiness = sector.get_happiness(state);
+    happiness = clamp((int)happiness, -7, 5);
+    (*ui_)->happiness_->sync_value((u32)happiness);
 }
 
 
@@ -305,8 +341,7 @@ Microseconds MacrocosmScene::year_length(macro::EngineImpl& state)
 {
     auto& b = *state.data_->bindings_;
     auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
-    added_secs *= 1 + state.data_->other_sectors_.size() +
-                  state.data_->outpost_sectors_.size();
+    added_secs *= 1 + state.data_->other_sectors_.size();
     return added_secs + seconds(b.mcr_base_seconds_per_year);
 }
 
@@ -316,11 +351,11 @@ void MacrocosmScene::enter(Platform& pfrm,
                            macro::EngineImpl& state,
                            Scene& prev)
 {
-    auto secs = year_length(state);
-    auto secs_per_season = secs / 4;
+    // auto secs = year_length(state);
+    // auto secs_per_season = secs / 4;
 
-    const int season =
-        current_season(state.data_->year_timer_, secs_per_season);
+    // const int season =
+    //     current_season(state.data_->year_timer_, secs_per_season);
 
     auto m = prev.cast_macrocosm_scene();
     if (m and m->ui_) {
@@ -336,67 +371,77 @@ void MacrocosmScene::enter(Platform& pfrm,
         auto& sector = state.sector();
 
         auto stat = sector.stats();
-        auto pop = sector.population();
+        auto pop = sector.population().as_integer();
 
         (*ui_)->food_.emplace(
             pfrm,
             OverlayCoord{1, 1},
             414,
-            format_ui_fraction(stat.food_exports_ + stat.food_,
-                               stat.food_exports_ +
-                                   pop / EngineImpl::food_consumption_factor()),
+            format_ui_fraction(state.food_storage(),
+                               state.data_->p().food_.get()),
             UIMetric::Align::left,
-            UIMetric::Format::fraction_p_m);
+            UIMetric::Format::fraction);
 
         (*ui_)->population_.emplace(
             pfrm,
             OverlayCoord{1, 3},
             413,
-            format_ui_fraction(pop, sector.population_growth_rate()),
-            UIMetric::Align::left,
-            UIMetric::Format::integer_with_rate);
-
-
-        auto disp_coins = (int)state.data_->p().coins_.get();
-        bool coins_large_numerator = false;
-        if (disp_coins > std::numeric_limits<u16>::max()) {
-            disp_coins /= 1000;
-            coins_large_numerator = true;
-        }
-
-        (*ui_)->coins_.emplace(
-            pfrm,
-            OverlayCoord{1, 2},
-            146,
-            format_ui_fraction(disp_coins, state.coin_yield()),
-            UIMetric::Align::left,
-            UIMetric::Format::integer_with_rate,
-            coins_large_numerator);
-
-
-        (*ui_)->employment_.emplace(pfrm,
-                                    OverlayCoord{1, 4},
-                                    415,
-                                    stat.employment_,
-                                    UIMetric::Align::left);
+            pop,
+            UIMetric::Align::left);
 
         (*ui_)->housing_.emplace(pfrm,
-                                 OverlayCoord{1, 5},
+                                 OverlayCoord{1, 2},
                                  416,
                                  stat.housing_,
                                  UIMetric::Align::left);
 
-        s32 happiness = sector.get_happiness();
+        s32 happiness = sector.get_happiness(state);
+        happiness = clamp((int)happiness, -7, 5);
         (*ui_)->happiness_.emplace(pfrm,
                                    OverlayCoord{1, 6},
                                    409,
                                    (u32)happiness,
                                    UIMetric::Align::left,
                                    UIMetric::Format::signed_integer);
+
+        (*ui_)->productivity_.emplace(
+            pfrm,
+            OverlayCoord{1, 4},
+            415,
+            sector.productivity().as_integer(),
+            UIMetric::Align::left);
+
+        (*ui_)->stone_.emplace(
+            pfrm,
+            OverlayCoord{1, 7},
+            417,
+            state.data_->p().stone_.get(),
+            UIMetric::Align::left);
+
+        (*ui_)->lumber_.emplace(
+            pfrm,
+            OverlayCoord{1, 8},
+            423,
+            state.data_->p().lumber_.get(),
+            UIMetric::Align::left);
+
+        (*ui_)->marble_.emplace(
+            pfrm,
+            OverlayCoord{1, 9},
+            372,
+            state.data_->p().marble_.get(),
+            UIMetric::Align::left);
+
+        (*ui_)->crystal_.emplace(
+            pfrm,
+            OverlayCoord{1, 10},
+            424,
+            state.data_->p().crystal_.get(),
+            UIMetric::Align::left);
     }
 
-    draw_year(pfrm, state);
-    draw_season(pfrm, state, season);
+    // draw_year(pfrm, state);
+    // draw_season(pfrm, state, season);
 
     draw_compass(pfrm, state);
     draw_keylock(pfrm, state);
@@ -456,7 +501,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
 
-    int start_y = 4;
+    int start_y = 1;
     if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         start_y = 1;
     }

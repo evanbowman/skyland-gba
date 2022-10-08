@@ -63,7 +63,7 @@ public:
     virtual void edit(Platform&, macro::EngineImpl& state, terrain::Type t);
 
 
-    virtual Coins cost(macro::EngineImpl& state, terrain::Type t);
+    virtual terrain::Cost cost(macro::EngineImpl& state, terrain::Type t);
 
 
     virtual bool check_z()
@@ -91,7 +91,7 @@ public:
 
     void init_cursor(macro::EngineImpl& state) override;
 
-    Coins cost(macro::EngineImpl& state, terrain::Type t) override;
+    terrain::Cost cost(macro::EngineImpl& state, terrain::Type t) override;
 
 
     bool check_z() override

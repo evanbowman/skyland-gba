@@ -56,22 +56,6 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto stats = sector.base_stats();
 
-    for (auto& cm : stats.commodities_) {
-        if (auto e = sector.exports()) {
-            for (auto& exp : *e) {
-                if (exp.c == cm.type_) {
-                    cm.supply_ =
-                        std::max(0, cm.supply_ - exp.export_supply_.get());
-                }
-            }
-        }
-
-        if (cm.supply_ not_eq 0) {
-            s_->info_.push_back(
-                {cm.type_, cm.supply_, State::CommodityInfo::local, {}});
-        }
-    }
-
     auto gather_imports = [&](terrain::Sector& other) {
         if (other.coordinate() not_eq sector.coordinate()) {
             if (auto e = other.exports()) {

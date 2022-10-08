@@ -55,8 +55,10 @@ private:
 
     std::optional<Text> text_;
     std::optional<Text> text_2_;
+    std::optional<Text> paused_text_;
     bool await_start_key_ = false;
     bool show_island_size_ = false;
+    bool paused_ = false;
 };
 
 
