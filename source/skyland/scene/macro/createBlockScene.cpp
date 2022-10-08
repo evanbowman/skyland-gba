@@ -111,7 +111,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
              (terrain::categories(block.type()) & terrain::Categories::crop) and
              not(terrain::categories(block.type()) &
                  terrain::Categories::fluid_water))) {
-            options_.push_back(terrain::Type::lumber);
+            // options_.push_back(terrain::Type::lumber);
         }
     }
 
@@ -208,6 +208,42 @@ void render_cost(Platform& pfrm,
             text.append(c.lumber_);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
+        }
+
+        if (c.marble_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.marble_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 372);
+        }
+
+        if (c.crystal_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.crystal_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 424);
+        }
+
+        if (c.food_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.food_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
         }
     }
 

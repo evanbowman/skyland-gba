@@ -201,13 +201,13 @@ std::pair<Coins, Population> EngineImpl::colony_cost() const
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
     } else if (data_->other_sectors_.size() < 5) {
-        return {1500 + 3000 * data_->other_sectors_.size(), 300};
+        return {1500 + 3000 * data_->other_sectors_.size(), 100};
     } else if (data_->other_sectors_.size() < 11) {
-        return {4000 + 3200 * data_->other_sectors_.size(), 400};
+        return {4000 + 3200 * data_->other_sectors_.size(), 200};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 3600 * data_->other_sectors_.size(), 600};
+        return {6000 + 3600 * data_->other_sectors_.size(), 400};
     } else {
-        return {7000 + 4000 * data_->other_sectors_.size(), 800};
+        return {7000 + 4000 * data_->other_sectors_.size(), 600};
     }
 }
 
@@ -699,6 +699,7 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::wheat:
+    case terrain::Type::wheat_ripe:
         break;
 
     case terrain::Type::potatoes:
@@ -733,6 +734,7 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::lumber:
+    case terrain::Type::lumber_spawn:
         break;
 
     case terrain::Type::wool:
@@ -851,6 +853,7 @@ terrain::Categories terrain::categories(Type t)
         return Categories::livestock;
 
     case terrain::Type::wheat:
+    case terrain::Type::wheat_ripe:
     case terrain::Type::potatoes:
     case terrain::Type::potatoes_planted:
     case terrain::Type::madder:
@@ -860,6 +863,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::cocoa:
     case terrain::Type::tea:
     case terrain::Type::lumber:
+    case terrain::Type::lumber_spawn:
     case terrain::Type::tulips:
     case terrain::Type::honey:
         return Categories::crop;
@@ -930,6 +934,11 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         break;
 
     case terrain::Type::wheat:
+        nt = terrain::Type::volcanic_soil;
+        cost.productivity_ = 1;
+        break;
+
+    case terrain::Type::wheat_ripe:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 1;
         cost.food_ = 15;
@@ -1068,6 +1077,7 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::lava_slant_d:
         break;
 
+    case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
     case terrain::Type::potatoes_planted:
@@ -1131,6 +1141,12 @@ terrain::Cost terrain::cost(Type t)
         cost.lumber_ = 12;
         cost.productivity_ = 6;
         break;
+
+    case terrain::Type::lumber_spawn:
+        cost.lumber_ = 0;
+        cost.productivity_ = 2;
+        break;
+
     }
 
     return cost;
@@ -1271,6 +1287,7 @@ SystemString terrain::name(Type t)
     case terrain::Type::ice:
         return SystemString::block_ice;
 
+    case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
         return SystemString::block_wheat;
 
@@ -1306,6 +1323,7 @@ SystemString terrain::name(Type t)
         return SystemString::block_tea;
 
     case terrain::Type::lumber:
+    case terrain::Type::lumber_spawn:
         return SystemString::block_lumber;
 
     case terrain::Type::wool:
@@ -1376,6 +1394,7 @@ terrain::Improvements terrain::improvements(Type t)
     auto push_terrain_defaults = [&] {
         result.push_back(Type::wheat);
         result.push_back(Type::potatoes_planted);
+        result.push_back(Type::lumber_spawn);
         // result.push_back(Type::windmill);
         // result.push_back(Type::indigo);
         // result.push_back(Type::madder);
@@ -1390,6 +1409,7 @@ terrain::Improvements terrain::improvements(Type t)
     switch (t) {
     case Type::volcanic_soil:
     case Type::wheat:
+    case Type::wheat_ripe:
     case Type::potatoes:
     case Type::potatoes_planted:
     case Type::sunflowers:
@@ -1566,6 +1586,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::tulips:
         return {3176, 3192};
 
+    case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
         return {2728, 2744};
 
@@ -1603,6 +1624,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {2984, 3000};
 
     case terrain::Type::lumber:
+    case terrain::Type::lumber_spawn:
         return {3016, 3032};
 
     case terrain::Type::crystal:
@@ -2038,6 +2060,13 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 2) {
+                block.data_ = 0;
+                s.set_block(position, terrain::Type::wheat_ripe);
+            }
+        }
     },
     // indigo
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
@@ -2501,12 +2530,29 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 4) {
+            if (block.data_ > 5) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }
         }
 
+    },
+    // wheat_ripe
+    nullptr,
+    // lumber_spawn
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 14) {
+                block.data_ = 0;
+                s.set_block(position, terrain::Type::volcanic_soil);
+                ++position.z;
+                s.set_block(position, terrain::Type::lumber);
+            }
+        }
     },
 };
 // clang-format on
@@ -2898,6 +2944,12 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

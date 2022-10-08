@@ -413,7 +413,7 @@ void MacrocosmScene::enter(Platform& pfrm,
             pfrm,
             OverlayCoord{1, 8},
             423,
-            state.data_->p().stone_.get(),
+            state.data_->p().lumber_.get(),
             UIMetric::Align::left);
 
         (*ui_)->marble_.emplace(

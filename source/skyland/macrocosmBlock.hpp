@@ -154,6 +154,8 @@ enum class Type {
     dome,
 
     potatoes_planted,
+    wheat_ripe,
+    lumber_spawn,
 
     count,
 };
