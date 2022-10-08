@@ -27,7 +27,6 @@
 #include "base32.cpp"
 #include "macrocosmCubeSector.cpp"
 #include "macrocosmEngine.cpp"
-#include "macrocosmOutpostSector.cpp"
 #include "macrocosmPancakeSector.cpp"
 #include "macrocosmPillarSector.cpp"
 #include "macrocosmSector.cpp"
@@ -538,9 +537,6 @@ int main(int argc, char** argv)
         }
         break;
 
-    case macro::terrain::Sector::Shape::outpost:
-        break;
-
     default:
         puts("invalid sector type!");
         return EXIT_FAILURE;
@@ -598,13 +594,12 @@ int main(int argc, char** argv)
         put_field("freebuild",
                   shape not_eq macro::terrain::Sector::Shape::cube and
                       shape not_eq macro::terrain::Sector::Shape::pancake and
-                      shape not_eq macro::terrain::Sector::Shape::pillar and
-                      shape not_eq macro::terrain::Sector::Shape::outpost);
+                      shape not_eq macro::terrain::Sector::Shape::pillar);
 
         auto stats = s->stats();
-        put_field("food", stats.food_);
+        put_field("food", 0);
         put_field("housing", stats.housing_);
-        put_field("employment", stats.productivity_);
+        put_field("employment", 0);
     }
 
     put_field("block_count", block_count);
