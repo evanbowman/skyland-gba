@@ -426,15 +426,23 @@ void terrain::Sector::soft_update()
 {
     auto prod = productivity();
     if (prod < population()) {
-        prod += Productivity(0.04f) * population();
+        prod += (Productivity(0.02f) * population()) * 8;
+        if (prod > population() * Population(0.75f)) {
+            prod = population() * Population(0.75f);
+        }
         set_productivity(prod);
     }
 
     if (population() < stats().housing_) {
         auto pop = population();
         auto diff = stats().housing_ - pop.as_integer();
-        pop += Population(0.008f) * diff;
+        pop += (Population(0.008f) * diff) * 4;
+        if (pop > stats().housing_) {
+            pop = stats().housing_;
+        }
         set_population(pop);
+    } else if (population() > stats().housing_) {
+        set_population(stats().housing_);
     }
 }
 

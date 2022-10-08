@@ -688,7 +688,7 @@ Stats stats(Type t, bool shadowed)
 
     switch (t) {
     case terrain::Type::building:
-        result.housing_ += 40;
+        result.housing_ += 20;
         break;
 
     case terrain::Type::workshop:
@@ -702,6 +702,7 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::potatoes:
+    case terrain::Type::potatoes_planted:
         break;
 
     case terrain::Type::sunflowers:
@@ -851,6 +852,7 @@ terrain::Categories terrain::categories(Type t)
 
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
+    case terrain::Type::potatoes_planted:
     case terrain::Type::madder:
     case terrain::Type::indigo:
     case terrain::Type::sunflowers:
@@ -912,19 +914,19 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         break;
 
     case terrain::Type::basalt:
-        cost.stone_ = 20;
-        cost.productivity_ = 20;
+        cost.stone_ = 10;
+        cost.productivity_ = 40;
         break;
 
     case terrain::Type::crystal:
         cost.crystal_ = 10;
-        cost.productivity_ = 70;
+        cost.productivity_ = 300;
         break;
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
         cost.marble_ = 10;
-        cost.productivity_ = 45;
+        cost.productivity_ = 100;
         break;
 
     case terrain::Type::wheat:
@@ -933,10 +935,15 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         cost.food_ = 15;
         break;
 
-    case terrain::Type::potatoes:
+    case terrain::Type::potatoes_planted:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 3;
-        cost.food_ = 45;
+        break;
+
+    case terrain::Type::potatoes:
+        nt = terrain::Type::volcanic_soil;
+        cost.food_ = 60;
+        cost.productivity_ = 8;
         break;
 
     default:
@@ -964,13 +971,13 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::building:
-        cost.stone_ = 8;
-        cost.lumber_ = 16;
-        cost.productivity_ = 20;
+        cost.stone_ = 10;
+        cost.lumber_ = 18;
+        cost.productivity_ = 10;
         break;
 
     case terrain::Type::dome:
-        cost.stone_ = 10;
+        cost.stone_ = 16;
         cost.lumber_ = 10;
         cost.productivity_ = 14;
         break;
@@ -1063,6 +1070,7 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
+    case terrain::Type::potatoes_planted:
     case terrain::Type::sunflowers:
     case terrain::Type::tulips:
     case terrain::Type::indigo:
@@ -1267,6 +1275,7 @@ SystemString terrain::name(Type t)
         return SystemString::block_wheat;
 
     case terrain::Type::potatoes:
+    case terrain::Type::potatoes_planted:
         return SystemString::block_potatoes;
 
     case terrain::Type::sunflowers:
@@ -1366,7 +1375,7 @@ terrain::Improvements terrain::improvements(Type t)
 
     auto push_terrain_defaults = [&] {
         result.push_back(Type::wheat);
-        result.push_back(Type::potatoes);
+        result.push_back(Type::potatoes_planted);
         // result.push_back(Type::windmill);
         // result.push_back(Type::indigo);
         // result.push_back(Type::madder);
@@ -1382,6 +1391,7 @@ terrain::Improvements terrain::improvements(Type t)
     case Type::volcanic_soil:
     case Type::wheat:
     case Type::potatoes:
+    case Type::potatoes_planted:
     case Type::sunflowers:
     case Type::indigo:
     case Type::madder:
@@ -1546,6 +1556,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::lava_slant_d:
         return {2152, 2168};
 
+    case terrain::Type::potatoes_planted:
     case terrain::Type::potatoes:
         return {2856, 2872};
 
@@ -1968,6 +1979,16 @@ bool parent_exists_dir_d(terrain::Sector& s,
         return typecheck(block.type());
     }
     return true;
+}
+
+
+
+static bool cropcycle_;
+
+
+void cropcycle(bool on)
+{
+    cropcycle_ = on;
 }
 
 
@@ -2475,6 +2496,18 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // dome
     nullptr,
+    // potatoes_planted
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 4) {
+                block.data_ = 0;
+                s.set_block(position, terrain::Type::potatoes);
+            }
+        }
+
+    },
 };
 // clang-format on
 
@@ -2865,6 +2898,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
     };
     // clang-format on
 

@@ -153,6 +153,8 @@ enum class Type {
 
     dome,
 
+    potatoes_planted,
+
     count,
 };
 

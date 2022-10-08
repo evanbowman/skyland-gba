@@ -240,41 +240,47 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
 
 
+void cropcycle(bool on);
+
+
+
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
 
-    if (state.data_->realtime_update_index_++ == 60) {
+    if (state.data_->realtime_update_index_++ == 60 * 8) {
+
+        cropcycle(true);
 
         state.data_->origin_sector_.soft_update();
+        state.data_->origin_sector_.update();
         for (auto& s : state.data_->other_sectors_) {
             s->soft_update();
+            s->update();
         }
+
+        cropcycle(false);
 
         state.data_->realtime_update_index_ = 0;
 
-        if (state.data_->food_update_index_++ == 30) {
-            state.data_->food_update_index_ = 0;
-
-            auto update_food =
-                [&](macro::terrain::Sector& s) {
-                    auto pop = s.population();
-                    auto f = state.data_->p().food_.get();
-                    if (f -= pop.as_integer() / 2) {
-                        if (f < 0) {
-                            f = 0;
-                            pop *= Population(0.75f);
-                        }
+        auto update_food =
+            [&](macro::terrain::Sector& s) {
+                auto pop = s.population();
+                auto f = state.data_->p().food_.get();
+                if (f -= pop.as_integer() / 4) {
+                    if (f < 0) {
+                        f = 0;
+                        pop *= Population(0.75f);
                     }
-                    state.data_->p().food_.set(f);
-                    s.set_population(pop);
-                };
+                }
+                state.data_->p().food_.set(f);
+                s.set_population(pop);
+            };
 
-            update_food(state.data_->origin_sector_);
-            for (auto& s : state.data_->other_sectors_) {
-                update_food(*s);
-            }
+        update_food(state.data_->origin_sector_);
+        for (auto& s : state.data_->other_sectors_) {
+            update_food(*s);
         }
     }
 
@@ -383,7 +389,7 @@ void MacrocosmScene::enter(Platform& pfrm,
 
         s32 happiness = sector.get_happiness();
         (*ui_)->happiness_.emplace(pfrm,
-                                   OverlayCoord{1, 5},
+                                   OverlayCoord{1, 6},
                                    409,
                                    (u32)happiness,
                                    UIMetric::Align::left,
@@ -398,28 +404,28 @@ void MacrocosmScene::enter(Platform& pfrm,
 
         (*ui_)->stone_.emplace(
             pfrm,
-            OverlayCoord{1, 6},
+            OverlayCoord{1, 7},
             417,
             state.data_->p().stone_.get(),
             UIMetric::Align::left);
 
         (*ui_)->lumber_.emplace(
             pfrm,
-            OverlayCoord{1, 7},
+            OverlayCoord{1, 8},
             423,
             state.data_->p().stone_.get(),
             UIMetric::Align::left);
 
         (*ui_)->marble_.emplace(
             pfrm,
-            OverlayCoord{1, 8},
+            OverlayCoord{1, 9},
             372,
             state.data_->p().marble_.get(),
             UIMetric::Align::left);
 
         (*ui_)->crystal_.emplace(
             pfrm,
-            OverlayCoord{1, 9},
+            OverlayCoord{1, 10},
             424,
             state.data_->p().crystal_.get(),
             UIMetric::Align::left);

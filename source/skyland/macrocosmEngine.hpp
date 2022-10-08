@@ -148,10 +148,10 @@ struct EngineImpl : public Engine
 
         // For palette animations.
         Microseconds fluid_anim_timer_ = 0;
+        u16 realtime_update_index_ = 0;
         u8 water_anim_index_ = 0;
         u8 lava_anim_index_ = 128;
-        u8 realtime_update_index_ = 0;
-        u8 food_update_index_ = 0;
+        u8 cropcycle_index_ = 0;
 
         Keylock keylock_ = nolock;
 

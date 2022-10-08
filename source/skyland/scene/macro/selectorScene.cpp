@@ -148,6 +148,21 @@ void SelectorScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 ScenePtr<Scene>
 SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
+    if (player.key_down(pfrm, Key::select)) {
+        paused_text_.reset();
+        paused_ = not paused_;
+        if (paused_) {
+            paused_text_.emplace(pfrm, "paused", OverlayCoord{12, 8});
+            pfrm.screen().schedule_fade(0.25f);
+        } else {
+            pfrm.screen().schedule_fade(0);
+        }
+    }
+
+    if (paused_) {
+        return null_scene();
+    }
+
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
     }
