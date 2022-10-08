@@ -281,6 +281,8 @@ struct EngineImpl : public Engine
     }
 
 
+    int food_storage();
+
 
     macro::terrain::Sector& sector();
 

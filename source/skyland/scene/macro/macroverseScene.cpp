@@ -873,7 +873,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                     Platform::fatal("logic error (bind sector)");
                 }
 
-                m.sector().generate_terrain();;
+                m.sector().generate_terrain(160, 2);
+                m.sector().set_population(40);
 
                 pfrm.speaker().play_sound("button_wooden", 2);
             }

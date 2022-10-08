@@ -157,6 +157,8 @@ enum class Type {
     wheat_ripe,
     lumber_spawn,
 
+    granary,
+
     count,
 };
 
@@ -192,6 +194,7 @@ struct Commodity
 struct Stats
 {
     s16 housing_ = 0;
+    s16 food_storage_ = 0;
 };
 
 

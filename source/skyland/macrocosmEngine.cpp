@@ -103,7 +103,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     sector.set_name("origin");
     sector.set_productivity(16);
 
-    sector.generate_terrain();
+    sector.generate_terrain(120, 1);
 
     if (data_->checkers_mode_) {
         // ...
@@ -201,7 +201,7 @@ std::pair<Coins, Population> EngineImpl::colony_cost() const
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
     } else if (data_->other_sectors_.size() < 5) {
-        return {1500 + 3000 * data_->other_sectors_.size(), 100};
+        return {1500 + 3000 * data_->other_sectors_.size(), 150};
     } else if (data_->other_sectors_.size() < 11) {
         return {4000 + 3200 * data_->other_sectors_.size(), 200};
     } else if (data_->other_sectors_.size() < 16) {
@@ -695,6 +695,10 @@ Stats stats(Type t, bool shadowed)
         result.housing_ += 6;
         break;
 
+    case terrain::Type::granary:
+        result.food_storage_ += 200;
+        break;
+
     case terrain::Type::terrain:
         break;
 
@@ -924,7 +928,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::crystal:
         cost.crystal_ = 10;
-        cost.productivity_ = 300;
+        cost.productivity_ = 500;
         break;
 
     case terrain::Type::marble:
@@ -941,7 +945,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     case terrain::Type::wheat_ripe:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 1;
-        cost.food_ = 15;
+        cost.food_ = 20;
         break;
 
     case terrain::Type::potatoes_planted:
@@ -951,12 +955,20 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::potatoes:
         nt = terrain::Type::volcanic_soil;
-        cost.food_ = 60;
+        cost.food_ = 100;
         cost.productivity_ = 8;
         break;
 
-    default:
-        return {terrain::cost(t), terrain::Type::air};
+    case terrain::Type::lumber:
+        cost.lumber_ = 12;
+        cost.productivity_ = 6;
+        break;
+
+    default: {
+        auto c = terrain::cost(t);
+        c.lumber_ /= 4;
+        return {c, terrain::Type::air};
+    }
     }
 
     return {cost, nt};
@@ -977,6 +989,12 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::checker_red_king:
     case terrain::Type::checker_black_king:
     case terrain::Type::checker_highlight:
+        break;
+
+    case terrain::Type::granary:
+        cost.stone_ = 20;
+        cost.lumber_ = 30;
+        cost.productivity_ = 10;
         break;
 
     case terrain::Type::building:
@@ -1138,13 +1156,12 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::lumber:
-        cost.lumber_ = 12;
         cost.productivity_ = 6;
         break;
 
     case terrain::Type::lumber_spawn:
         cost.lumber_ = 0;
-        cost.productivity_ = 2;
+        cost.productivity_ = 8;
         break;
 
     }
@@ -1347,6 +1364,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::marble:
     case terrain::Type::marble_top:
         return SystemString::block_marble;
+
+    case terrain::Type::granary:
+        return SystemString::block_granary;
 
     case terrain::Type::workshop:
         return SystemString::block_workshop;
@@ -1599,6 +1619,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::gold:
         return {2440, 2456};
 
+    case terrain::Type::granary:
     case terrain::Type::workshop:
         return {776, 760};
 
@@ -1676,6 +1697,7 @@ static bool destroyed_by_lava(terrain::Type t)
     return t == terrain::Type::building or t == terrain::Type::port or
            t == terrain::Type::shrubbery or t == terrain::Type::ice or
            t == terrain::Type::workshop or t == terrain::Type::dome or
+           t == terrain::Type::granary or
            categories(t) & terrain::Categories::fluid_water;
 }
 
@@ -2005,6 +2027,20 @@ bool parent_exists_dir_d(terrain::Sector& s,
 
 
 
+int EngineImpl::food_storage()
+{
+    int result = 80;
+    result += data_->origin_sector_.stats().food_storage_;
+
+    for (auto& s : data_->other_sectors_) {
+        result += s->stats().food_storage_;
+    }
+
+    return result;
+}
+
+
+
 static bool cropcycle_;
 
 
@@ -2060,7 +2096,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
-        if (cropcycle_) {
+        if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
             if (block.data_ > 2) {
                 block.data_ = 0;
@@ -2528,9 +2564,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // potatoes_planted
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (cropcycle_) {
+        if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 5) {
+            if (block.data_ > 6) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }
@@ -2546,7 +2582,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 14) {
+            if (block.data_ > 30) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;
@@ -2554,6 +2590,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             }
         }
     },
+    // granary
+    nullptr,
 };
 // clang-format on
 
@@ -2944,6 +2982,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

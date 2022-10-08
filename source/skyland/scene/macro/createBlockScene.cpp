@@ -89,10 +89,14 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
             options_.push_back(terrain::Type::dome);
         }
     }
-    options_.push_back(terrain::Type::workshop);
+    // options_.push_back(terrain::Type::workshop);
+    options_.push_back(terrain::Type::granary);
     options_.push_back(terrain::Type::water_source);
-    options_.push_back(terrain::Type::lava_source);
-    options_.push_back(terrain::Type::shrubbery);
+
+    if (state.data_->freebuild_mode_) {
+        options_.push_back(terrain::Type::shrubbery);
+        options_.push_back(terrain::Type::lava_source);
+    }
 
     // if (not state.data_->freebuild_mode_ and
     //     not state.data_->other_sectors_.empty()) {
@@ -117,7 +121,9 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
 
     // options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
-    options_.push_back(terrain::Type::ocher);
+    if (state.data_->freebuild_mode_) {
+        options_.push_back(terrain::Type::ocher);
+    }
     options_.push_back(terrain::Type::hematite);
 
     options_.push_back(terrain::Type::basalt);
@@ -126,7 +132,9 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::sand);
     options_.push_back(terrain::Type::marble_top);
     options_.push_back(terrain::Type::scaffolding);
-    options_.push_back(terrain::Type::hull);
+    if (state.data_->freebuild_mode_) {
+        options_.push_back(terrain::Type::hull);
+    }
     options_.push_back(terrain::Type::arch);
     options_.push_back(terrain::Type::masonry);
     options_.push_back(terrain::Type::air);
@@ -479,7 +487,6 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             cost.water_ > p.water_.get() or
             cost.crystal_ > p.crystal_.get() or
             cost.productivity_ > state.sector().productivity()) {
-
             pfrm.speaker().play_sound("beep_error", 2);
             return null_scene();
         } else {

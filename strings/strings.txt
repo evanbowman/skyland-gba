@@ -52,6 +52,7 @@ forcefield
 forcefield*
 fountain
 gold-block
+granary
 port
 hematite
 hematite-pillar

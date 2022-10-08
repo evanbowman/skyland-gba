@@ -353,7 +353,7 @@ public:
     }
 
 
-    void generate_terrain();
+    void generate_terrain(int min_blocks, int buildings);
 
 };
 

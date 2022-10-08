@@ -388,6 +388,7 @@ terrain::Stats terrain::Sector::base_stats() const
                 auto block_stats = get_block({(u8)x, (u8)y, (u8)z}).stats();
 
                 result.housing_ += block_stats.housing_;
+                result.food_storage_ += block_stats.food_storage_;
             }
         }
     }
@@ -993,7 +994,7 @@ void terrain::Sector::unpack(Vector<char>& input)
 
 
 
-void terrain::Sector::generate_terrain()
+void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 {
     int count = 0;
 
@@ -1041,7 +1042,7 @@ void terrain::Sector::generate_terrain()
         };
 
 
-    while (count < 120) {
+    while (count < min_blocks) {
 
         for (u8 x = 0; x < size().x; ++x) {
             for (u8 y = 0; y < size().y; ++y) {
@@ -1084,24 +1085,23 @@ void terrain::Sector::generate_terrain()
 
                     auto hide = rng::choice<8>(rng::critical_state);
                     switch (hide) {
-                    default:
                         break;
 
                     case 0:
                     case 1:
                         break;
 
-
+                    default:
                     case 2:
+                    case 3:
                     case 5:
-                        if (rng::choice<3>(rng::critical_state) == 0) {
+                        if (rng::choice<2>(rng::critical_state) == 0) {
                             set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::crystal);
                         } else {
                             set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::marble);
                         }
                         break;
 
-                    case 3:
                     case 4:
                         set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::lava_source);
                         break;
@@ -1137,7 +1137,9 @@ void terrain::Sector::generate_terrain()
             Vec3<u8> building_coord;
             building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
             set_block(building_coord, terrain::Type::building);
-            goto PLACED_BUILDING;
+            if (--building_count == 0) {
+                goto PLACED_BUILDING;
+            }
         }
     }
  PLACED_BUILDING:
