@@ -112,7 +112,7 @@ void CitizensInfoScene::show(Platform& pfrm, macro::EngineImpl& state)
     Float total = 0.f;
 
     if (s_->page_ == 0) {
-        auto b = state.sector().annotate_happiness();
+        auto b = state.sector().annotate_happiness(state);
 
         int skip = s_->lines_.capacity() * s_->page_;
 

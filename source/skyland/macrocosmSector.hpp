@@ -46,6 +46,10 @@ namespace skyland::macro
 
 
 
+struct EngineImpl;
+
+
+
 namespace fiscal
 {
 
@@ -137,7 +141,7 @@ public:
     virtual void rotate() = 0;
     virtual void update() = 0;
 
-    void soft_update();
+    void soft_update(EngineImpl& state);
 
     virtual void render_setup(Platform& pfrm) = 0;
     void render(Platform& pfrm);
@@ -150,8 +154,9 @@ public:
 
 
     using Happiness = float;
-    Happiness get_happiness() const;
-    fiscal::Ledger annotate_happiness(bool skip_labels = false) const;
+    Happiness get_happiness(EngineImpl& state) const;
+    fiscal::Ledger annotate_happiness(EngineImpl& state,
+                                      bool skip_labels = false) const;
 
 
     virtual void shadowcast() = 0;

@@ -927,7 +927,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::crystal:
         cost.crystal_ = 10;
-        cost.productivity_ = 370;
+        cost.productivity_ = 320;
         break;
 
     case terrain::Type::marble:
@@ -954,7 +954,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::potatoes:
         nt = terrain::Type::volcanic_soil;
-        cost.food_ = 100;
+        cost.food_ = 160;
         cost.productivity_ = 8;
         break;
 
@@ -2559,7 +2559,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 6) {
+            if (block.data_ > 8) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }

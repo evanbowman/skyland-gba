@@ -50,9 +50,9 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
 
 
 
-terrain::Sector::Happiness terrain::Sector::get_happiness() const
+terrain::Sector::Happiness terrain::Sector::get_happiness(EngineImpl& state) const
 {
-    auto ledger = annotate_happiness(true);
+    auto ledger = annotate_happiness(state, true);
 
     auto ent = ledger.entries();
 
@@ -68,7 +68,8 @@ terrain::Sector::Happiness terrain::Sector::get_happiness() const
 
 
 
-fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
+fiscal::Ledger terrain::Sector::annotate_happiness(EngineImpl& state,
+                                                   bool skip_labels) const
 {
 
     // const auto food_avail =
@@ -95,6 +96,10 @@ fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
 
     add_entry(SystemString::category_misc, stats().happiness_);
     add_entry(SystemString::category_misc, -population().as_integer() / 64);
+
+    if (state.data_->p().food_.get() < population()) {
+        add_entry(SystemString::category_misc, -4);
+    }
 
     return result;
 }
@@ -150,13 +155,6 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
         add_entry(SystemString::macro_fiscal_homelessness,
                   -unproductive_population * 0.01f *
                       EngineImpl::bindings().mcr_homelessness_penalty_percent);
-    }
-
-    auto happiness = get_happiness();
-    if (happiness < 0) {
-        add_entry(SystemString::macro_fiscal_unhappiness, happiness / 2);
-    } else {
-        add_entry(SystemString::macro_fiscal_happiness, happiness / 2);
     }
 
     return result;
@@ -421,12 +419,12 @@ Float terrain::Sector::population_growth_rate_from_housing_supply() const
 
 
 
-void terrain::Sector::soft_update()
+void terrain::Sector::soft_update(EngineImpl& s)
 {
     auto prod = productivity();
     if (prod < population()) {
         auto diff = (Productivity(0.02f) * population()) * 8;
-        auto h = Productivity(clamp((int)get_happiness(), -7, 5)) * Productivity(0.1f);
+        auto h = Productivity(clamp((int)get_happiness(s), -7, 5)) * Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);
         if (prod > population() * Population(0.75f)) {
             prod = population() * Population(0.75f);

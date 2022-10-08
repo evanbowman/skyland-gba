@@ -260,11 +260,11 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
         cropcycle(true);
 
-        state.data_->origin_sector_.soft_update();
+        state.data_->origin_sector_.soft_update(state);
         state.data_->origin_sector_.update();
 
         for (auto& s : state.data_->other_sectors_) {
-            s->soft_update();
+            s->soft_update(state);
             s->update();
         }
 
@@ -330,7 +330,8 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
     (*ui_)->marble_->sync_value(state.data_->p().marble_.get());
     (*ui_)->crystal_->sync_value(state.data_->p().crystal_.get());
     (*ui_)->productivity_->sync_value(state.sector().productivity().as_integer());
-    s32 happiness = sector.get_happiness();
+    s32 happiness = sector.get_happiness(state);
+    happiness = clamp((int)happiness, -7, 5);
     (*ui_)->happiness_->sync_value((u32)happiness);
 }
 
@@ -394,7 +395,8 @@ void MacrocosmScene::enter(Platform& pfrm,
                                  stat.housing_,
                                  UIMetric::Align::left);
 
-        s32 happiness = sector.get_happiness();
+        s32 happiness = sector.get_happiness(state);
+        happiness = clamp((int)happiness, -7, 5);
         (*ui_)->happiness_.emplace(pfrm,
                                    OverlayCoord{1, 6},
                                    409,
