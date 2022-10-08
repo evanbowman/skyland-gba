@@ -37,6 +37,7 @@ crystal
 crystal-pillar
 dome
 stacked-hull
+sugar-beat
 mirror-hull
 bulkhead-door
 cannon

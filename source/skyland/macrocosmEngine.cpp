@@ -215,7 +215,7 @@ std::pair<Coins, Population> EngineImpl::colony_cost() const
 
 namespace save
 {
-static const char* path = "/save/macro.dat";
+static const char* path = "/save/macro2.dat";
 static const char* timestamp_path = "/save/mt.dat";
 
 static const char version = 'a';
@@ -463,8 +463,7 @@ void EngineImpl::save(Platform& pfrm)
 
     const int sbr_used = save_data.chunks_used();
 
-    if (not flash_filesystem::store_file_data_binary(
-            pfrm, save::path, save_data)) {
+    if (not flash_filesystem::store_file_data_binary(pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     } else {
         info(pfrm, format("macro save used % buffers", sbr_used).c_str());

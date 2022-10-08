@@ -159,6 +159,9 @@ enum class Type {
 
     granary,
 
+    // sugar_beat_ripe,
+    // sugar_beat_planted,
+
     count,
 };
 
