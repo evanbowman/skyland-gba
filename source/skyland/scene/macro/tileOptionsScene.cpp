@@ -109,27 +109,13 @@ static const TileOptionsScene::OptionInfo options[] = {
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          auto c = state.sector().cursor();
          c.z--;
-         auto t = state.sector().get_block(c).type();
-         auto [cost, nt] = harvest(t);
-         if (cost.productivity_ > state.sector().productivity()) {
+         if (not harvest_block(state, state.sector(), c)) {
              Platform::instance().speaker().play_sound("beep_error", 2);
              return scene_pool::alloc<TileOptionsScene>();
+         } else {
+             s.update_ui(state);
+             return scene_pool::alloc<SelectorScene>();
          }
-         auto prod = state.sector().productivity();
-         prod -= cost.productivity_;
-         state.sector().set_productivity(prod);
-         auto& p = state.data_->p();
-         p.stone_.set(std::min(int(p.stone_.get() + cost.stone_), 64));
-         p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 64));
-         p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 64));
-         p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 64));
-         p.food_.set(std::min((int)(p.food_.get() + cost.food_),
-                              state.food_storage()));
-         p.water_.set(p.water_.get() + cost.water_);
-         state.sector().set_block(c, nt);
-         state.sector().remove_export(c);
-         s.update_ui(state);
-         return scene_pool::alloc<SelectorScene>();
      }},
     {SystemString::macro_export,
      776,

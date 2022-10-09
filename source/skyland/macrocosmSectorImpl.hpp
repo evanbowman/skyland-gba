@@ -90,17 +90,6 @@ public:
             }
         }
 
-        auto rotate_coord = [](Vec3<u8> input) -> Vec3<u8> {
-            return {(u8)((sx - 1) - input.y), input.x, input.z};
-        };
-
-        if (auto e = exports()) {
-            for (auto& exp : *e) {
-                exp.source_coord_ = rotate_coord(exp.source_coord_);
-            }
-        }
-
-
         for (int z = 0; z < sz; ++z) {
             for (int x = 0; x < sx; ++x) {
                 for (int y = 0; y < sy; ++y) {
@@ -222,10 +211,6 @@ public:
                     block.shadowed_day_ = true;
                 }
             }
-        }
-
-        if (auto e = exports()) {
-            e->clear();
         }
 
         raster::globalstate::_recalc_depth_test.fill();
@@ -866,43 +851,6 @@ public:
     }
 
 
-    Sector::Exports* exports() override
-    {
-        return &exports_;
-    }
-
-
-    void set_export(const Sector::ExportInfo& e) override
-    {
-        this->coin_yield_cache_clear();
-
-        remove_export(e.source_coord_);
-
-        auto& block = this->get_block(e.source_coord_);
-        if (block.type() not_eq Type::port) {
-            return;
-        }
-
-        if (not exports_.full()) {
-            exports_.emplace_back();
-            memcpy(&exports_.back(), &e, sizeof e);
-        }
-    }
-
-
-    void remove_export(Vec3<u8> source_coord) override
-    {
-        for (auto it = exports_.begin(); it not_eq exports_.end();) {
-            if (it->source_coord_ == source_coord) {
-                it = exports_.erase(it);
-                return;
-            } else {
-                ++it;
-            }
-        }
-    }
-
-
     void base_stats_cache_clear() const override
     {
         base_stats_cache_.reset();
@@ -940,7 +888,6 @@ public:
 
 
 private:
-    Sector::Exports exports_;
 
     // Recalculating stats for everything when we have multiple levels slows
     // down the game significantly, so we cache previous results. I mean, a
@@ -949,6 +896,13 @@ private:
     mutable std::optional<Stats> base_stats_cache_;
 
     mutable std::optional<Coins> coin_yield_cache_;
+
+    Sector::BackgroundUpdateBlocks bkg_update_blocks_;
+
+    Sector::BackgroundUpdateBlocks* background_update_blocks() override
+    {
+        return &bkg_update_blocks_;
+    }
 };
 
 

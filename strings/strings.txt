@@ -46,6 +46,7 @@ power-core
 decimator
 drone-bay
 escape-beacon
+farmhouse
 flak-gun
 fire-charge
 food

@@ -256,6 +256,17 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
 
+    auto bound_sector = &state.sector();
+
+    if (&state.data_->origin_sector_ not_eq bound_sector) {
+        state.data_->origin_sector_.background_update();
+    }
+
+    for (auto& s : state.data_->other_sectors_) {
+        s->background_update();
+    }
+
+
     if (state.data_->realtime_update_index_++ == 60 * 8) {
 
         cropcycle(true);

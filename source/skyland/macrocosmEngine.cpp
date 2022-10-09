@@ -443,15 +443,16 @@ void EngineImpl::save(Platform& pfrm)
         save::Sector<0> out(sector);
         out.write(save_data);
 
-        if (not sector.exports()) {
+        if (// not sector.exports()
+            true) {
             save_data.push_back(0);
         } else {
-            save_data.push_back((u8)sector.exports()->size());
-            for (auto& exp : *sector.exports()) {
-                for (u32 j = 0; j < sizeof exp; ++j) {
-                    save_data.push_back(((u8*)&exp)[j]);
-                }
-            }
+            // save_data.push_back((u8)sector.exports()->size());
+            // for (auto& exp : *sector.exports()) {
+            //     for (u32 j = 0; j < sizeof exp; ++j) {
+            //         save_data.push_back(((u8*)&exp)[j]);
+            //     }
+            // }
         }
     };
 
@@ -546,19 +547,8 @@ bool EngineImpl::load(Platform& pfrm, App& app)
                 break;
             }
 
+            [[maybe_unused]]
             u8 export_count = *(it++);
-
-            for (int i = 0; i < export_count; ++i) {
-                terrain::Sector::ExportInfo info;
-                for (u32 i = 0; i < sizeof info; ++i) {
-                    if (it == input.end()) {
-                        Platform::fatal("failed while loading exports");
-                    }
-                    ((u8*)&info)[i] = *it;
-                    ++it;
-                }
-                dest->set_export(info);
-            }
 
             dest->shadowcast();
         };
@@ -608,6 +598,12 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 
     app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
 #endif
+
+    for (auto& s : data_->other_sectors_) {
+        s->bkg_update_start();
+    }
+    data_->origin_sector_.bkg_update_start();
+
 
     return true;
 }
@@ -688,6 +684,10 @@ Stats stats(Type t, bool shadowed)
     switch (t) {
     case terrain::Type::building:
         result.housing_ += 20;
+        break;
+
+    case terrain::Type::farmhouse:
+        result.housing_ += 2;
         break;
 
     case terrain::Type::workshop:
@@ -953,7 +953,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::potatoes:
         nt = terrain::Type::volcanic_soil;
-        cost.food_ = 160;
+        cost.food_ = 100;
         cost.productivity_ = 8;
         break;
 
@@ -979,6 +979,8 @@ terrain::Cost terrain::cost(Type t)
     Cost cost;
 
     switch (t) {
+    case terrain::Type::reserved_1:
+    case terrain::Type::reserved_2:
     case terrain::Type::food:
     case terrain::Type::__invalid:
     case terrain::Type::air:
@@ -999,6 +1001,12 @@ terrain::Cost terrain::cost(Type t)
         cost.stone_ = 10;
         cost.lumber_ = 18;
         cost.productivity_ = 10;
+        break;
+
+    case terrain::Type::farmhouse:
+        cost.stone_ = 20;
+        cost.lumber_ = 20;
+        cost.productivity_ = 20;
         break;
 
     case terrain::Type::dome:
@@ -1137,7 +1145,7 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::light_source:
         cost.stone_ = 5;
         cost.lumber_ = 4;
-        cost.crystal_ = 1;
+        cost.crystal_ = 10;
         break;
 
     case terrain::Type::windmill_stone_base:
@@ -1159,9 +1167,9 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::lumber_spawn:
         cost.lumber_ = 0;
-        cost.productivity_ = 8;
+        cost.marble_ = 1;
+        cost.productivity_ = 60;
         break;
-
     }
 
     return cost;
@@ -1172,6 +1180,8 @@ terrain::Cost terrain::cost(Type t)
 SystemString terrain::name(Type t)
 {
     switch (t) {
+    case terrain::Type::reserved_1:
+    case terrain::Type::reserved_2:
     case terrain::Type::__invalid:
         break;
 
@@ -1192,6 +1202,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::building:
         return SystemString::block_building;
+
+    case terrain::Type::farmhouse:
+        return SystemString::block_farmhouse;
 
     case terrain::Type::dome:
         return SystemString::block_dome;
@@ -1482,6 +1495,8 @@ terrain::Improvements terrain::improvements(Type t)
 std::pair<int, int> terrain::icons(Type t)
 {
     switch (t) {
+    case terrain::Type::reserved_1:
+    case terrain::Type::reserved_2:
     case terrain::Type::checker_highlight:
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
@@ -1492,6 +1507,9 @@ std::pair<int, int> terrain::icons(Type t)
         return {2488, 2504};
 
     case terrain::Type::building:
+        return {2760, 2776};
+
+    case terrain::Type::farmhouse:
         return {2760, 2776};
 
     case terrain::Type::dome:
@@ -1689,7 +1707,7 @@ static bool destroyed_by_lava(terrain::Type t)
     return t == terrain::Type::building or t == terrain::Type::port or
            t == terrain::Type::shrubbery or t == terrain::Type::ice or
            t == terrain::Type::workshop or t == terrain::Type::dome or
-           t == terrain::Type::granary or
+        t == terrain::Type::granary or t == terrain::Type::farmhouse or
            categories(t) & terrain::Categories::fluid_water;
 }
 
@@ -2029,6 +2047,32 @@ int EngineImpl::food_storage()
     }
 
     return result;
+}
+
+
+
+bool harvest_block(macro::EngineImpl& state,
+                   terrain::Sector& s,
+                   Vec3<u8> c)
+{
+    auto t = s.get_block(c).type();
+    auto [cost, nt] = harvest(t);
+    if (cost.productivity_ > s.productivity()) {
+        return false;
+    }
+    auto prod = s.productivity();
+    prod -= cost.productivity_;
+    s.set_productivity(prod);
+    auto& p = state.data_->p();
+    p.stone_.set(std::min(int(p.stone_.get() + cost.stone_), 64));
+    p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 64));
+    p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 64));
+    p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 64));
+    p.food_.set(std::min((int)(p.food_.get() + cost.food_),
+                         state.food_storage()));
+    p.water_.set(p.water_.get() + cost.water_);
+    s.set_block(c, nt);
+    return true;
 }
 
 
@@ -2574,7 +2618,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 34) {
+            if (block.data_ > 60) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;
@@ -2584,6 +2628,81 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     // granary
     nullptr,
+    // reserved_1
+    nullptr,
+    // reserved_2
+    nullptr,
+    // farmhouse
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        s.bkg_update_push(position);
+
+        const int px = position.x;
+        const int py = position.y;
+        const u8 pz = position.z - 1;
+
+        const auto sz = s.size();
+
+        if (position.z == 0) {
+            return;
+        }
+
+        block.data_++;
+        if (block.data_ == 16) {
+            block.data_ = 0;
+
+            bool found = false;
+
+            for (int x = px - 1; x < px + 2; ++x) {
+                for (int y = py - 1; y < py + 2; ++y) {
+                    if (found) {
+                        break;
+                    }
+                    if (x == px and y == py) {
+                        continue;
+                    }
+                    if (x > -1 and y > -1 and x < sz.x and y < sz.y) {
+                        const Vec3<u8> coord{(u8)x, (u8)y, pz};
+                        auto& block = s.get_block(coord);
+
+                        if (not _bound_state) {
+                            Platform::fatal("logic error");
+                        }
+                        auto& state = *_bound_state;
+                        auto& p = state.data_->p();
+
+                        switch (block.type()) {
+                        case terrain::Type::potatoes:
+                            if (p.food_.get() not_eq state.food_storage()) {
+                                if (harvest_block(state, s, coord)) {
+                                    if (&s not_eq &state.sector()) {
+                                        // If we're a background sector, skip
+                                        // conversion to soil and generate
+                                        // terrain directly, because then we
+                                        // need to store the soil block in the
+                                        // background update queue so that it
+                                        // converts back into terrain so that the
+                                        // farmhouse block plants crops on it.
+                                        s.set_block(coord, terrain::Type::terrain);
+                                    }
+                                }
+                                found = true;
+                            }
+                            break;
+
+                        case terrain::Type::terrain:
+                            s.set_block(coord, terrain::Type::potatoes_planted);
+                            found = true;
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 };
 // clang-format on
 
@@ -2608,8 +2727,30 @@ bool blocks_light(terrain::Type t)
 
 
 
+void terrain::Sector::background_update()
+{
+    if (auto b = background_update_blocks()) {
+
+        auto copy = *b;
+        bkg_update_clear();
+
+        for (auto& coord : copy) {
+            Vec3<u8> c{coord.x_, coord.y_, coord.z_};
+            auto& block = ref_block(c);
+
+            auto update = update_functions[block.type_];
+            if (update) {
+                update(*this, block, c);
+            }
+        }
+    }
+}
+
+
 void terrain::CubeSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
@@ -2629,6 +2770,8 @@ void terrain::CubeSector::update()
 
 void terrain::PillarSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < 16; ++z) {
         for (u8 x = 0; x < 6; ++x) {
             for (u8 y = 0; y < 6; ++y) {
@@ -2648,6 +2791,8 @@ void terrain::PillarSector::update()
 
 void terrain::PancakeSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < length; ++x) {
             for (u8 y = 0; y < length; ++y) {
@@ -2667,6 +2812,8 @@ void terrain::PancakeSector::update()
 
 void terrain::FreebuildWideSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < 6; ++z) {
         for (u8 x = 0; x < 12; ++x) {
             for (u8 y = 0; y < 12; ++y) {
@@ -2686,6 +2833,8 @@ void terrain::FreebuildWideSector::update()
 
 void terrain::FreebuildFlatSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < 5; ++z) {
         for (u8 x = 0; x < 14; ++x) {
             for (u8 y = 0; y < 14; ++y) {
@@ -2705,6 +2854,8 @@ void terrain::FreebuildFlatSector::update()
 
 void terrain::FreebuildSector::update()
 {
+    bkg_update_clear();
+
     for (int z = 0; z < 9; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {

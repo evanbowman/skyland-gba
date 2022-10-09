@@ -162,24 +162,6 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
 
 
-u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
-{
-    int total = 0;
-
-    if (auto exp = exports()) {
-        for (auto& e : *exp) {
-            if (e.c == t) {
-                total -= e.export_supply_.get();
-            }
-        }
-    }
-
-
-    return std::max(0, total);
-}
-
-
-
 void terrain::Sector::repaint()
 {
     raster::globalstate::_recalc_depth_test.fill();
@@ -321,28 +303,6 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
             stats.push_back({sector->coordinate(), sector->base_stats()});
         }
     }
-
-
-    for (auto& st : stats) {
-        if (auto src_sector = state.load_sector(st.first)) {
-            if (auto e = src_sector->exports()) {
-                for (auto& exp : *e) {
-
-                    auto supply = exp.export_supply_.get();
-
-                    auto exported = remove_supply(st.second, exp.c, supply);
-
-                    for (auto& target : stats) {
-                        if (target.first == exp.destination_) {
-                            add_supply(target.second, exp.c, exported);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     for (auto& data : stats) {
         if (data.first == source_sector) {
@@ -1151,7 +1111,7 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                 }
                 if (t == terrain::Type::terrain) {
 
-                    if (rng::choice<2>(rng::critical_state) == 0) {
+                    if (rng::choice<4>(rng::critical_state) > 0) {
                         set_block({(u8)x, (u8)y, (u8)(z + 1)},
                                   terrain::Type::lumber);
                         set_block({(u8)x, (u8)y, (u8)(z)},

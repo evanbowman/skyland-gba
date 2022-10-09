@@ -141,6 +141,8 @@ public:
     virtual void rotate() = 0;
     virtual void update() = 0;
 
+    void background_update();
+
     void soft_update(EngineImpl& state);
 
     virtual void render_setup(Platform& pfrm) = 0;
@@ -171,24 +173,52 @@ public:
               Function<4 * sizeof(void*), void(const char*)> msg) const;
 
 
-    using Exports = Buffer<ExportInfo, 24>;
+    // For some blocks, we need to run updates even when a sector is not
+    // currently selected. Iterating over every sector cube to update all blocks
+    // each time would be super expensive, especially for large
+    // civilizations. So each sector keeps a list of coordinates to update in
+    // the background. For each Sector::update() call, the sector clears the
+    // queue of background blocks, then, each block implementation calls
+    // bkg_update_push to schedule the next background update.
+    struct BackgroundUpdateCoord {
+        u8 x_ : 5;
+        u8 y_ : 5;
+        u8 z_ : 5;
+    };
+    using BackgroundUpdateBlocks = Buffer<BackgroundUpdateCoord, 24>;
 
-
-    virtual Exports* exports()
+    virtual BackgroundUpdateBlocks* background_update_blocks()
     {
         return nullptr;
     }
 
-    virtual void set_export(const ExportInfo& e)
+
+    // Begin background updates! Should be called once for each sector upon
+    // loading a save file.
+    void bkg_update_start()
     {
+        update();
     }
 
-    virtual void remove_export(Vec3<u8> source_coord)
+
+    void bkg_update_clear()
     {
+        if (auto b = background_update_blocks()) {
+            b->clear();
+        }
     }
 
 
-    u16 quantity_non_exported(Commodity::Type t);
+    void bkg_update_push(const Vec3<u8>& coord)
+    {
+        if (auto b = background_update_blocks()) {
+            BackgroundUpdateCoord c;
+            c.x_ = coord.x;
+            c.y_ = coord.y;
+            c.z_ = coord.z;
+            b->push_back(c);
+        }
+    }
 
 
     virtual const Block& get_block(const Vec3<u8>& coord) const = 0;

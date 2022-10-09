@@ -20,6 +20,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+
+// NOTE: about the code:
+// Yeah, this code is pretty horrible. I made the macro mode, then heavily
+// revised it during beta testing, at which point, I was pretty burnt out and
+// didn't really care about anything other than player experience. Code quality
+// sort of went out the window.
+
+
+
 #pragma once
 
 #include "allocator.hpp"
@@ -307,6 +316,12 @@ struct EngineImpl : public Engine
 
 
 void background_init(Platform&);
+
+
+
+bool harvest_block(macro::EngineImpl& state,
+                   terrain::Sector& s,
+                   Vec3<u8> c);
 
 
 

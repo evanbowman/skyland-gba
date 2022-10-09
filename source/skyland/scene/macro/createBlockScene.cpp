@@ -91,6 +91,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     }
     // options_.push_back(terrain::Type::workshop);
     options_.push_back(terrain::Type::granary);
+    options_.push_back(terrain::Type::farmhouse);
     options_.push_back(terrain::Type::water_source);
 
     if (state.data_->freebuild_mode_) {
@@ -723,7 +724,6 @@ ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm,
 {
     auto c = state.sector().cursor();
     --c.z;
-    state.sector().remove_export(c);
     update_ui_on_exit();
     return scene_pool::alloc<ConfigurePortCountScene>(
         commodity_types_[selector_]);
@@ -793,7 +793,6 @@ void ConfigurePortCountScene::show(Platform& pfrm, macro::EngineImpl& state)
     text_->assign(message.c_str());
     text_->append(count_);
     text_->append("/");
-    text_->append(state.sector().quantity_non_exported(type_));
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
@@ -814,16 +813,6 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
     auto test_key = [&](Key k) {
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
     };
-
-
-
-    if (test_key(Key::up)) {
-        if (count_ < state.sector().quantity_non_exported(type_)) {
-            ++count_;
-            show(pfrm, state);
-            pfrm.speaker().play_sound("click", 1);
-        }
-    }
 
     if (test_key(Key::down)) {
         if (count_ > 0) {
@@ -948,7 +937,6 @@ ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
         info.destination_ =
             state.load_sector(export_options_[selection_])->coordinate();
         info.export_supply_.set((u16)export_count_);
-        state.sector().set_export(info);
 
         update_ui_on_exit();
 

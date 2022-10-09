@@ -162,6 +162,11 @@ enum class Type {
     // sugar_beat_ripe,
     // sugar_beat_planted,
 
+    reserved_1,
+    reserved_2,
+
+    farmhouse,
+
     count,
 };
 

@@ -364,19 +364,6 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
 
     if (tp == terrain::Type::port) {
         StringBuffer<48> b;
-        if (auto exp = sector.exports()) {
-            for (auto& e : *exp) {
-                if (e.source_coord_ == cursor) {
-                    b += loadstr(pfrm, name(e.c))->c_str();
-                    b += "(";
-                    b += stringify(e.export_supply_.get());
-                    b += ")->";
-                    if (auto dest = state.load_sector(e.destination_)) {
-                        b += dest->name();
-                    }
-                }
-            }
-        }
 
         if (not b.empty()) {
             text_->assign(b.c_str());

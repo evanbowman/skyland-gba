@@ -97,6 +97,7 @@ enum class SystemString {
     block_decimator,
     block_drone_bay,
     block_escape_beacon,
+    block_farmhouse,
     block_flak_gun,
     block_fire_charge,
     block_food,
