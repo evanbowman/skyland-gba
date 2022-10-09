@@ -3740,6 +3740,16 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 static Buffer<const char*, 4> completed_sounds_buffer;
 static volatile bool completed_sounds_lock = false;
+const char* completed_music;
+
+
+
+const char* Platform::Speaker::completed_music()
+{
+    auto ret = ::completed_music;
+    ::completed_music = nullptr;
+    return ret;
+}
 
 
 
@@ -4118,6 +4128,7 @@ static void clear_music()
     // than adding another if condition to the audio isr.
     snd_ctx.music_track = reinterpret_cast<const AudioSample*>(null_music);
     snd_ctx.music_track_length = null_music_len - 1;
+    snd_ctx.music_track_name = "(null)";
     snd_ctx.music_track_pos = 0;
 }
 
@@ -4148,6 +4159,7 @@ static void play_music(const char* name, Microseconds offset)
         snd_ctx.music_track_length = track->length_;
         snd_ctx.music_track = track->data_;
         snd_ctx.music_track_pos = (sample_offset / 4) % track->length_;
+        snd_ctx.music_track_name = name;
     });
 }
 
@@ -4291,6 +4303,7 @@ static void audio_update_music_volume_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
         snd_ctx.music_track_pos = 0;
+        completed_music = snd_ctx.music_track_name;
     }
 
     for (AudioSample& s : mixing_buffer) {
@@ -4382,6 +4395,7 @@ static void audio_update_doublespeed_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length + 2)) {
         snd_ctx.music_track_pos = 0;
+        completed_music = snd_ctx.music_track_name;
     }
 
     for (auto it = snd_ctx.active_sounds.begin();
@@ -4425,6 +4439,7 @@ static void audio_update_halfspeed_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
         snd_ctx.music_track_pos = 0;
+        completed_music = snd_ctx.music_track_name;
     }
 
     for (auto it = snd_ctx.active_sounds.begin();
@@ -4474,6 +4489,7 @@ static void audio_update_fast_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
         snd_ctx.music_track_pos = 0;
+        completed_music = snd_ctx.music_track_name;
     }
 
     for (auto it = snd_ctx.active_sounds.begin();

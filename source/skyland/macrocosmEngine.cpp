@@ -940,6 +940,11 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         cost.productivity_ = 1;
         break;
 
+    case terrain::Type::farmhouse:
+        cost = terrain::cost(terrain::Type::farmhouse);
+        cost.productivity_ = 0;
+        break;
+
     case terrain::Type::wheat_ripe:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 1;
@@ -1167,7 +1172,7 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::lumber_spawn:
         cost.lumber_ = 0;
-        cost.marble_ = 1;
+        cost.marble_ = 6;
         cost.productivity_ = 60;
         break;
     }
@@ -2064,10 +2069,10 @@ bool harvest_block(macro::EngineImpl& state,
     prod -= cost.productivity_;
     s.set_productivity(prod);
     auto& p = state.data_->p();
-    p.stone_.set(std::min(int(p.stone_.get() + cost.stone_), 64));
-    p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 64));
-    p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 64));
-    p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 64));
+    p.stone_.set(std::min(int(p.stone_.get() + cost.stone_), 99));
+    p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 99));
+    p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 99));
+    p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
     p.food_.set(std::min((int)(p.food_.get() + cost.food_),
                          state.food_storage()));
     p.water_.set(p.water_.get() + cost.water_);

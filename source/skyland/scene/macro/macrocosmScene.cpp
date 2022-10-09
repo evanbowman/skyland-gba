@@ -266,6 +266,12 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         s->background_update();
     }
 
+    if (auto music = pfrm.speaker().completed_music()) {
+        if (str_eq(music, "life_in_silco")) {
+            pfrm.speaker().play_music("unaccompanied_wind", 0);
+        }
+    }
+
 
     if (state.data_->realtime_update_index_++ == 60 * 8) {
 

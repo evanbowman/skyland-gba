@@ -811,6 +811,8 @@ public:
         // Return a buffer containing any sounds that finished playing.
         Buffer<const char*, 4> completed_sounds();
 
+        const char* completed_music();
+
         void clear_sounds();
         void stop_sound(const char* name);
 
