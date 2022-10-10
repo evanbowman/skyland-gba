@@ -245,6 +245,30 @@ void render_cost(Platform& pfrm,
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
         }
 
+        if (c.clay_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.clay_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 370);
+        }
+
+        if (c.water_) {
+            text.append(" ");
+            if (not harvest) {
+                text.append("-");
+            } else {
+                text.append("+");
+            }
+            text.append(c.water_);
+            text.append(" ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 371);
+        }
+
         if (c.marble_) {
             text.append(" ");
             if (not harvest) {
@@ -509,7 +533,8 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
         auto& p = state.data_->p();
         if (cost.stone_ > p.stone_.get() or cost.lumber_ > p.lumber_.get() or
             cost.marble_ > p.marble_.get() or cost.water_ > p.water_.get() or
-            cost.crystal_ > p.crystal_.get() or
+            cost.crystal_ > p.crystal_.get() or cost.clay_ > p.clay_.get() or
+            cost.water_ > p.water_.get() or
             cost.productivity_ > state.sector().productivity()) {
             pfrm.speaker().play_sound("beep_error", 2);
             return null_scene();
@@ -521,6 +546,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             p.stone_.set(p.stone_.get() - cost.stone_);
             p.lumber_.set(p.lumber_.get() - cost.lumber_);
             p.marble_.set(p.marble_.get() - cost.marble_);
+            p.clay_.set(p.clay_.get() - cost.clay_);
             p.crystal_.set(p.crystal_.get() - cost.crystal_);
             p.water_.set(p.water_.get() - cost.water_);
         }

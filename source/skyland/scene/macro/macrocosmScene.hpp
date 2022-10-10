@@ -113,6 +113,8 @@ private:
         std::optional<UIMetric> productivity_;
         std::optional<UIMetric> marble_;
         std::optional<UIMetric> crystal_;
+        std::optional<UIMetric> water_;
+        std::optional<UIMetric> clay_;
     };
 
     u8 last_season_ = 255;

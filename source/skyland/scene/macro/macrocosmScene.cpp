@@ -194,6 +194,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         (*ui_)->productivity_->update(pfrm, delta);
         (*ui_)->crystal_->update(pfrm, delta);
         (*ui_)->marble_->update(pfrm, delta);
+        (*ui_)->water_->update(pfrm, delta);
+        (*ui_)->clay_->update(pfrm, delta);
     }
 
 
@@ -295,7 +297,7 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             if (f -= pop.as_integer() / 4) {
                 if (f < 0) {
                     f = 0;
-                    pop *= Population(0.75f);
+                    pop *= Population(0.95f);
                 }
             }
             state.data_->p().food_.set(f);
@@ -349,6 +351,8 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
     (*ui_)->stone_->sync_value(state.data_->p().stone_.get());
     (*ui_)->marble_->sync_value(state.data_->p().marble_.get());
     (*ui_)->crystal_->sync_value(state.data_->p().crystal_.get());
+    (*ui_)->water_->sync_value(state.data_->p().water_.get());
+    (*ui_)->clay_->sync_value(state.data_->p().clay_.get());
     (*ui_)->productivity_->sync_value(format_ui_fraction(
         (state.sector().population() * Population(0.75f)).as_integer(),
         state.sector().productivity().as_integer()));
@@ -443,14 +447,26 @@ void MacrocosmScene::enter(Platform& pfrm,
                                 state.data_->p().lumber_.get(),
                                 UIMetric::Align::left);
 
+        (*ui_)->clay_.emplace(pfrm,
+                              OverlayCoord{1, 9},
+                              370,
+                              state.data_->p().clay_.get(),
+                              UIMetric::Align::left);
+
+        (*ui_)->water_.emplace(pfrm,
+                               OverlayCoord{1, 10},
+                               371,
+                               state.data_->p().water_.get(),
+                               UIMetric::Align::left);
+
         (*ui_)->marble_.emplace(pfrm,
-                                OverlayCoord{1, 9},
+                                OverlayCoord{1, 11},
                                 372,
                                 state.data_->p().marble_.get(),
                                 UIMetric::Align::left);
 
         (*ui_)->crystal_.emplace(pfrm,
-                                 OverlayCoord{1, 10},
+                                 OverlayCoord{1, 12},
                                  424,
                                  state.data_->p().crystal_.get(),
                                  UIMetric::Align::left);

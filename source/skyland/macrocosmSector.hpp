@@ -196,10 +196,7 @@ public:
 
     // Begin background updates! Should be called once for each sector upon
     // loading a save file.
-    void bkg_update_start()
-    {
-        update();
-    }
+    void bkg_update_start();
 
 
     void bkg_update_clear()

@@ -1018,7 +1018,7 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::farmhouse:
-        cost.stone_ = 20;
+        cost.stone_ = 30;
         cost.lumber_ = 20;
         cost.productivity_ = 20;
         break;
@@ -1049,13 +1049,15 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::masonry:
     case terrain::Type::ocher:
     case terrain::Type::hull:
-        cost.stone_ = 5;
-        cost.productivity_ = 8;
+        cost.stone_ = 6;
+        cost.clay_ = 3;
+        cost.productivity_ = 15;
         break;
 
     case terrain::Type::arch:
-        cost.stone_ = 4;
-        cost.productivity_ = 12;
+        cost.stone_ = 5;
+        cost.clay_ = 4;
+        cost.productivity_ = 30;
         break;
 
     case terrain::Type::road_ns:
@@ -1071,7 +1073,8 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::sand:
-        cost.stone_ = 2;
+        cost.stone_ = 1;
+        cost.clay_ = 7;
         cost.productivity_ = 2;
         break;
 
@@ -1091,6 +1094,9 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::water_source:
+        cost.water_ = 10;
+        break;
+
     case terrain::Type::water_spread_downwards:
     case terrain::Type::water_spread_laterally_a:
     case terrain::Type::water_spread_laterally_b:
@@ -1100,7 +1106,6 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
-        cost.water_ = 10;
         break;
 
     case terrain::Type::lava_source:
@@ -2080,6 +2085,8 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
     p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 99));
     p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 99));
     p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
+    p.clay_.set(std::min(int(p.clay_.get() + cost.clay_), 99));
+    p.water_.set(std::min(int(p.water_.get() + cost.water_), 99));
     p.food_.set(
         std::min((int)(p.food_.get() + cost.food_), state.food_storage()));
     p.water_.set(p.water_.get() + cost.water_);
@@ -2627,6 +2634,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
+
+        if (position.z == s.size().z - 1) {
+            s.set_block(position, terrain::Type::terrain);
+        }
 
         if (cropcycle_) {
             block.data_++;

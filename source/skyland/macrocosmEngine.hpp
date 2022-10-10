@@ -178,7 +178,8 @@ struct EngineImpl : public Engine
             HostInteger<Marble> marble_;
             HostInteger<Crystal> crystal_;
             HostInteger<Water> water_;
-            HostInteger<s32> reserved_words_[10];
+            HostInteger<Clay> clay_;
+            HostInteger<s32> reserved_words_[9];
 
             Persistent()
             {
@@ -189,6 +190,9 @@ struct EngineImpl : public Engine
                 marble_.set(0);
                 crystal_.set(0);
                 water_.set(0);
+                for (auto& r : reserved_words_) {
+                    r.set(0);
+                }
                 static_assert(std::is_trivially_copyable<Persistent>());
             }
 

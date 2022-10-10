@@ -42,6 +42,7 @@ using Crystal = s32;
 using Productivity = FixedPoint<16, u32>;
 using Population = FixedPoint<16, u32>;
 using Water = s32;
+using Clay = s32;
 
 
 } // namespace skyland::macro
@@ -271,6 +272,7 @@ struct Cost
     Stone stone_ = 0;
     Lumber lumber_ = 0;
     Marble marble_ = 0;
+    Clay clay_ = 0;
     Crystal crystal_ = 0;
     Water water_ = 0;
     Productivity productivity_ = 0;

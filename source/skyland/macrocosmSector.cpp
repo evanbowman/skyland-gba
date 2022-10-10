@@ -971,7 +971,10 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
             }
         }
 
-        const u8 snowline = size().z * 0.7f;
+        u8 snowline = size().z * 0.7f;
+        if (p_.shape_ == Shape::pillar) {
+            snowline = 10;
+        }
 
         for (int x = 0; x < size().x; ++x) {
             for (int y = 0; y < size().y; ++y) {
@@ -1116,7 +1119,7 @@ PLACED_BUILDING:
                 }
                 if (t == terrain::Type::terrain) {
 
-                    if (rng::choice<4>(rng::critical_state) > 0) {
+                    if (rng::choice<4>(rng::critical_state)) {
                         set_block({(u8)x, (u8)y, (u8)(z + 1)},
                                   terrain::Type::lumber);
                         set_block({(u8)x, (u8)y, (u8)(z)},
@@ -1124,6 +1127,24 @@ PLACED_BUILDING:
                     }
 
                     break;
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::bkg_update_start()
+{
+    update();
+
+    for (u8 x = 0; x < size().x; ++x) {
+        for (u8 y = 0; y < size().y; ++y) {
+            for (u8 z = 0; z < size().z; ++z) {
+                auto& block = ref_block({x, y, z});
+                if (block.type() == terrain::Type::potatoes_planted) {
+                    block.data_ = 4;
                 }
             }
         }
