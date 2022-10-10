@@ -343,8 +343,8 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         if (prod > max_prod) {
             prod = max_prod;
         }
-        (*ui_)->productivity_->sync_value(format_ui_fraction(max_prod.as_integer(),
-                                                             prod.as_integer()));
+        (*ui_)->productivity_->sync_value(
+            format_ui_fraction(max_prod.as_integer(), prod.as_integer()));
         (*ui_)->population_->sync_value(
             state.sector().population().as_integer());
         (*ui_)->food_->sync_value(format_ui_fraction(
@@ -384,9 +384,9 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
     (*ui_)->crystal_->sync_value(state.data_->p().crystal_.get());
     (*ui_)->water_->sync_value(state.data_->p().water_.get());
     (*ui_)->clay_->sync_value(state.data_->p().clay_.get());
-    (*ui_)->productivity_->sync_value(format_ui_fraction(
-        state.sector().population().as_integer(),
-        state.sector().productivity().as_integer()));
+    (*ui_)->productivity_->sync_value(
+        format_ui_fraction(state.sector().population().as_integer(),
+                           state.sector().productivity().as_integer()));
     s32 happiness = sector.get_happiness(state);
     happiness = clamp((int)happiness, -9, 9);
     (*ui_)->happiness_->sync_value((u32)happiness);
@@ -460,9 +460,8 @@ void MacrocosmScene::enter(Platform& pfrm,
             pfrm,
             OverlayCoord{1, 2},
             415,
-            format_ui_fraction(
-                state.sector().population().as_integer(),
-                state.sector().productivity().as_integer()),
+            format_ui_fraction(state.sector().population().as_integer(),
+                               state.sector().productivity().as_integer()),
             UIMetric::Align::left,
             UIMetric::Format::fraction);
 

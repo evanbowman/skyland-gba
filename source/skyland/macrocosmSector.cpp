@@ -975,7 +975,8 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 
 
 
-void terrain::Sector::generate_terrain_regular(int min_blocks, int building_count)
+void terrain::Sector::generate_terrain_regular(int min_blocks,
+                                               int building_count)
 {
     int count = 0;
 
@@ -1086,7 +1087,8 @@ void terrain::Sector::generate_terrain_regular(int min_blocks, int building_coun
                                   terrain::Type::lava_source);
                         break;
                     }
-                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                    if (z == 0 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3)) {
                         if (rng::choice<3>(rng::critical_state) > 0) {
                             set_block({(u8)x, (u8)y, (u8)z},
                                       terrain::Type::crystal);
@@ -1095,8 +1097,9 @@ void terrain::Sector::generate_terrain_regular(int min_blocks, int building_coun
                                       terrain::Type::marble);
                         }
                     }
-                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
-                        and rng::choice<2>(rng::critical_state)) {
+                    if (z == 1 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3) and
+                        rng::choice<2>(rng::critical_state)) {
                         if (rng::choice<2>(rng::critical_state) == 0) {
                             set_block({(u8)x, (u8)y, (u8)z},
                                       terrain::Type::crystal);
@@ -1167,7 +1170,8 @@ PLACED_BUILDING:
 
 
 
-void terrain::Sector::generate_terrain_desert(int min_blocks, int building_count)
+void terrain::Sector::generate_terrain_desert(int min_blocks,
+                                              int building_count)
 {
     int count = 0;
 
@@ -1218,7 +1222,6 @@ void terrain::Sector::generate_terrain_desert(int min_blocks, int building_count
                             second = false;
                         }
                         first = false;
-
                     }
 
                     set_block({(u8)x, (u8)y, (u8)z}, t);
@@ -1287,12 +1290,14 @@ void terrain::Sector::generate_terrain_desert(int min_blocks, int building_count
                         }
                         break;
                     }
-                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                    if (z == 0 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
-                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
-                        and rng::choice<2>(rng::critical_state)) {
+                    if (z == 1 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3) and
+                        rng::choice<2>(rng::critical_state)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
@@ -1307,8 +1312,7 @@ void terrain::Sector::generate_terrain_desert(int min_blocks, int building_count
             for (int y = 0; y < size().y; ++y) {
                 auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
                 auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if ((t == terrain::Type::terrain or
-                     t == terrain::Type::sand or
+                if ((t == terrain::Type::terrain or t == terrain::Type::sand or
                      t == terrain::Type::masonry) and
                     above == terrain::Type::air) {
                     goto PLACE_BUILDING;
@@ -1324,8 +1328,8 @@ PLACE_BUILDING:
 
         auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
         auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-        if ((t == terrain::Type::terrain or t == terrain::Type::sand
-             or t == terrain::Type::masonry) and
+        if ((t == terrain::Type::terrain or t == terrain::Type::sand or
+             t == terrain::Type::masonry) and
             above == terrain::Type::air) {
             Vec3<u8> building_coord;
             building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
@@ -1364,7 +1368,8 @@ PLACED_BUILDING:
 
 
 
-void terrain::Sector::generate_terrain_tundra(int min_blocks, int building_count)
+void terrain::Sector::generate_terrain_tundra(int min_blocks,
+                                              int building_count)
 {
     int count = 0;
 
@@ -1474,12 +1479,14 @@ void terrain::Sector::generate_terrain_tundra(int min_blocks, int building_count
                         }
                         break;
                     }
-                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                    if (z == 0 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
-                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
-                        and rng::choice<2>(rng::critical_state)) {
+                    if (z == 1 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3) and
+                        rng::choice<2>(rng::critical_state)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
@@ -1547,7 +1554,8 @@ PLACED_BUILDING:
 
 
 
-void terrain::Sector::generate_terrain_molten(int min_blocks, int building_count)
+void terrain::Sector::generate_terrain_molten(int min_blocks,
+                                              int building_count)
 {
     int count = 0;
 
@@ -1656,12 +1664,14 @@ void terrain::Sector::generate_terrain_molten(int min_blocks, int building_count
                         }
                         break;
                     }
-                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                    if (z == 0 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
-                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
-                        and rng::choice<2>(rng::critical_state)) {
+                    if (z == 1 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3) and
+                        rng::choice<2>(rng::critical_state)) {
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::crystal);
                     }
