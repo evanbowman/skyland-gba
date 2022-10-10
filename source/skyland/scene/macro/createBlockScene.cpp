@@ -286,7 +286,6 @@ void render_cost(Platform& pfrm,
     for (int i = 0; i < count; ++i) {
         pfrm.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
     }
-
 }
 
 
@@ -508,10 +507,8 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
         auto cost = this->cost(state, options_[selector_]);
 
         auto& p = state.data_->p();
-        if (cost.stone_ > p.stone_.get() or
-            cost.lumber_ > p.lumber_.get() or
-            cost.marble_ > p.marble_.get() or
-            cost.water_ > p.water_.get() or
+        if (cost.stone_ > p.stone_.get() or cost.lumber_ > p.lumber_.get() or
+            cost.marble_ > p.marble_.get() or cost.water_ > p.water_.get() or
             cost.crystal_ > p.crystal_.get() or
             cost.productivity_ > state.sector().productivity()) {
             pfrm.speaker().play_sound("beep_error", 2);
@@ -587,7 +584,8 @@ void CreateBlockScene::edit(Platform& pfrm,
 
 
 
-terrain::Cost BuildImprovementScene::cost(macro::EngineImpl& state, terrain::Type t)
+terrain::Cost BuildImprovementScene::cost(macro::EngineImpl& state,
+                                          terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
         return terrain::Cost{};

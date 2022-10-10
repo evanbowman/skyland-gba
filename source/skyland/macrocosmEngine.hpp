@@ -319,9 +319,7 @@ void background_init(Platform&);
 
 
 
-bool harvest_block(macro::EngineImpl& state,
-                   terrain::Sector& s,
-                   Vec3<u8> c);
+bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c);
 
 
 

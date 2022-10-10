@@ -309,21 +309,19 @@ void App::on_remote_console_text(Platform& pfrm,
                 pfrm.remote_console().printline("file not found!", "sc> ");
             }
         } else if (parsed.size() == 2 and parsed[0] == "ls") {
-            flash_filesystem::
-                walk_directory(pfrm, parsed[1].c_str(),
-                               [&](const char* path) {
-                                   pfrm.remote_console().printline(path, "");
-                                   pfrm.sleep(1);
-                               });
+            flash_filesystem::walk_directory(
+                pfrm, parsed[1].c_str(), [&](const char* path) {
+                    pfrm.remote_console().printline(path, "");
+                    pfrm.sleep(1);
+                });
 
             pfrm.walk_filesystem([&](const char* path) {
-                                     StringBuffer<64> prefix(parsed[1].c_str());
-                                     if (starts_with(prefix.c_str(),
-                                                     StringBuffer<64>(path))) {
-                                         pfrm.remote_console().printline(path, "");
-                                         pfrm.sleep(1);
-                                     }
-                                 });
+                StringBuffer<64> prefix(parsed[1].c_str());
+                if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
+                    pfrm.remote_console().printline(path, "");
+                    pfrm.sleep(1);
+                }
+            });
             pfrm.sleep(1);
             pfrm.remote_console().printline("\r\n", "sc> ");
 

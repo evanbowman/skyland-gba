@@ -84,26 +84,21 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_create_block,
      2568,
      2584,
-     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
-     {
-     },
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&) {},
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<CreateBlockScene>();
      }},
     {SystemString::macro_build_improvement,
      2520,
      2536,
-     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
-     {
-     },
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&) {},
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<BuildImprovementScene>();
      }},
     {SystemString::macro_demolish,
      2600,
      2616,
-     [](Platform& pfrm, macro::EngineImpl& state, terrain::Type t, Text& text)
-     {
+     [](Platform& pfrm, macro::EngineImpl& state, terrain::Type t, Text& text) {
          render_cost(pfrm, state, t, text, true);
      },
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
@@ -120,9 +115,7 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_export,
      776,
      760,
-     [](Platform&, macro::EngineImpl&, terrain::Type, Text&)
-     {
-     },
+     [](Platform&, macro::EngineImpl&, terrain::Type, Text&) {},
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<ConfigurePortScene>();
      }}};

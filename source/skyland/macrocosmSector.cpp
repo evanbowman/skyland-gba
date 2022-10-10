@@ -50,7 +50,8 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
 
 
 
-terrain::Sector::Happiness terrain::Sector::get_happiness(EngineImpl& state) const
+terrain::Sector::Happiness
+terrain::Sector::get_happiness(EngineImpl& state) const
 {
     auto ledger = annotate_happiness(state, true);
 
@@ -370,10 +371,10 @@ Float terrain::Sector::population_growth_rate_from_housing_supply() const
 
     if (population().as_integer() > s.housing_) {
         return -0.001f * b.mcr_pop_growth_housing_factor *
-            (population().as_integer() - s.housing_);
+               (population().as_integer() - s.housing_);
     } else {
         return 0.001f * b.mcr_pop_growth_housing_factor *
-            (s.housing_ - population().as_integer());
+               (s.housing_ - population().as_integer());
     }
 }
 
@@ -384,7 +385,8 @@ void terrain::Sector::soft_update(EngineImpl& s)
     auto prod = productivity();
     if (prod < population()) {
         auto diff = (Productivity(0.02f) * population()) * 8;
-        auto h = Productivity(clamp((int)get_happiness(s), -7, 5)) * Productivity(0.1f);
+        auto h = Productivity(clamp((int)get_happiness(s), -7, 5)) *
+                 Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);
         if (prod > population() * Population(0.75f)) {
             prod = population() * Population(0.75f);
@@ -957,47 +959,44 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
     int count = 0;
 
 
-    auto gen =
-        [&](int height_scale, Float freq) {
+    auto gen = [&](int height_scale, Float freq) {
+        Float data[16][16];
 
-            Float data[16][16];
+        fnl_state noise = fnlCreateState(rng::get(rng::critical_state), freq);
+        noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
 
-            fnl_state noise = fnlCreateState(rng::get(rng::critical_state),
-                                             freq);
-            noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
-
-            for (int x = 0; x < size().x; ++x) {
-                for (int y = 0; y < size().y; ++y) {
-                    data[x][y] = fnlGetNoise2D(&noise, x, y);
-                }
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                data[x][y] = fnlGetNoise2D(&noise, x, y);
             }
+        }
 
-            const u8 snowline = size().z * 0.7f;
+        const u8 snowline = size().z * 0.7f;
 
-            for (int x = 0; x < size().x; ++x) {
-                for (int y = 0; y < size().y; ++y) {
-                    u8 height = height_scale * data[x][y];
-                    bool first = true;
-                    for (int z = height - 1; z > -1; --z) {
-                        terrain::Type t = terrain::Type::basalt;
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                u8 height = height_scale * data[x][y];
+                bool first = true;
+                for (int z = height - 1; z > -1; --z) {
+                    terrain::Type t = terrain::Type::basalt;
 
-                        if (first) {
-                            if (z > snowline) {
-                                t = terrain::Type::ice;
-                            } else if (z == 0) {
-                                t = terrain::Type::sand;
-                            } else if (z < snowline) {
-                                t = terrain::Type::terrain;
-                            }
-                            first = false;
+                    if (first) {
+                        if (z > snowline) {
+                            t = terrain::Type::ice;
+                        } else if (z == 0) {
+                            t = terrain::Type::sand;
+                        } else if (z < snowline) {
+                            t = terrain::Type::terrain;
                         }
-
-                        set_block({(u8)x, (u8)y, (u8)z}, t);
-                        ++count;
+                        first = false;
                     }
+
+                    set_block({(u8)x, (u8)y, (u8)z}, t);
+                    ++count;
                 }
             }
-        };
+        }
+    };
 
 
     while (count < min_blocks) {
@@ -1020,24 +1019,18 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
         for (int y = 1; y < size().y - 1; ++y) {
             for (int z = 1; z < size().z - 1; ++z) {
                 auto get_type = [&](int xoff, int yoff, int zoff) {
-                                    return get_block({
-                                                      (u8)(x + xoff),
-                                                      (u8)(y + yoff),
-                                                      (u8)(z + zoff)
-                                        }).type();
-                                 };
+                    return get_block(
+                               {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
+                        .type();
+                };
 
                 auto is_air = [&](int xoff, int yoff, int zoff) {
-                                  return get_type(xoff, yoff, zoff) ==
-                                      terrain::Type::air;
-                              };
+                    return get_type(xoff, yoff, zoff) == terrain::Type::air;
+                };
 
-                if (not is_air(0, 0, 0) and
-                    not is_air(0, 0, -1) and
-                    not is_air(0, 0, 1) and
-                    not is_air(-1, 0, 0) and
-                    not is_air(1, 0, 0) and
-                    not is_air(0, -1, 0) and
+                if (not is_air(0, 0, 0) and not is_air(0, 0, -1) and
+                    not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
+                    not is_air(1, 0, 0) and not is_air(0, -1, 0) and
                     not is_air(0, 1, 0) and
                     get_type(0, 0, -1) not_eq terrain::Type::terrain) {
 
@@ -1054,19 +1047,20 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                     case 3:
                     case 5:
                         if (rng::choice<2>(rng::critical_state) == 0) {
-                            set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::crystal);
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
                         } else {
-                            set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::marble);
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
                         }
                         break;
 
                     case 4:
-                        set_block({(u8)x, (u8)y, (u8)z}, terrain::Type::lava_source);
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::lava_source);
                         break;
                     }
-
                 }
-
             }
         }
     }
@@ -1077,13 +1071,14 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
             for (int y = 0; y < size().y; ++y) {
                 auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
                 auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if (t == terrain::Type::terrain and above == terrain::Type::air) {
+                if (t == terrain::Type::terrain and
+                    above == terrain::Type::air) {
                     goto PLACE_BUILDING;
                 }
             }
         }
     }
- PLACE_BUILDING:
+PLACE_BUILDING:
     while (true) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
@@ -1091,7 +1086,7 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 
         auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
         auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-        if (t == terrain::Type::terrain and  above == terrain::Type::air) {
+        if (t == terrain::Type::terrain and above == terrain::Type::air) {
             Vec3<u8> building_coord;
             building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
             set_block(building_coord, terrain::Type::building);
@@ -1100,7 +1095,7 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
             }
         }
     }
- PLACED_BUILDING:
+PLACED_BUILDING:
 
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {

@@ -24,9 +24,9 @@
 #include "newgameScene.hpp"
 #include "number/random.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "titleScreenScene.hpp"
-#include "skyland/skyland.hpp"
 
 
 
@@ -55,9 +55,10 @@ void IntroCreditsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (app.is_developer_mode()) {
         pfrm.remote_console().start();
-        pfrm.remote_console().printline("Console ready!\r\n"
-                                        "\aOptions: (s: simple console, l: lisp repl)",
-                                        "> ");
+        pfrm.remote_console().printline(
+            "Console ready!\r\n"
+            "\aOptions: (s: simple console, l: lisp repl)",
+            "> ");
     }
 }
 

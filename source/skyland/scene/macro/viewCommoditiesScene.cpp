@@ -58,7 +58,6 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto gather_imports = [&](terrain::Sector& other) {
         if (other.coordinate() not_eq sector.coordinate()) {
-
         }
     };
 

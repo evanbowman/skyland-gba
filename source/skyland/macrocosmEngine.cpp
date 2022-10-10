@@ -400,7 +400,6 @@ template <u32 inflate> struct Sector
                 }
             }
             break;
-
         }
     }
 };
@@ -443,7 +442,7 @@ void EngineImpl::save(Platform& pfrm)
         save::Sector<0> out(sector);
         out.write(save_data);
 
-        if (// not sector.exports()
+        if ( // not sector.exports()
             true) {
             save_data.push_back(0);
         } else {
@@ -464,7 +463,8 @@ void EngineImpl::save(Platform& pfrm)
 
     const int sbr_used = save_data.chunks_used();
 
-    if (not flash_filesystem::store_file_data_binary(pfrm, save::path, save_data)) {
+    if (not flash_filesystem::store_file_data_binary(
+            pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     } else {
         info(pfrm, format("macro save used % buffers", sbr_used).c_str());
@@ -547,8 +547,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
                 break;
             }
 
-            [[maybe_unused]]
-            u8 export_count = *(it++);
+            [[maybe_unused]] u8 export_count = *(it++);
 
             dest->shadowcast();
         };
@@ -1712,7 +1711,7 @@ static bool destroyed_by_lava(terrain::Type t)
     return t == terrain::Type::building or t == terrain::Type::port or
            t == terrain::Type::shrubbery or t == terrain::Type::ice or
            t == terrain::Type::workshop or t == terrain::Type::dome or
-        t == terrain::Type::granary or t == terrain::Type::farmhouse or
+           t == terrain::Type::granary or t == terrain::Type::farmhouse or
            categories(t) & terrain::Categories::fluid_water;
 }
 
@@ -2056,9 +2055,7 @@ int EngineImpl::food_storage()
 
 
 
-bool harvest_block(macro::EngineImpl& state,
-                   terrain::Sector& s,
-                   Vec3<u8> c)
+bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
 {
     auto t = s.get_block(c).type();
     auto [cost, nt] = harvest(t);
@@ -2073,8 +2070,8 @@ bool harvest_block(macro::EngineImpl& state,
     p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 99));
     p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 99));
     p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
-    p.food_.set(std::min((int)(p.food_.get() + cost.food_),
-                         state.food_storage()));
+    p.food_.set(
+        std::min((int)(p.food_.get() + cost.food_), state.food_storage()));
     p.water_.set(p.water_.get() + cost.water_);
     s.set_block(c, nt);
     return true;

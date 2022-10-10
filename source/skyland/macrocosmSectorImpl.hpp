@@ -888,7 +888,6 @@ public:
 
 
 private:
-
     // Recalculating stats for everything when we have multiple levels slows
     // down the game significantly, so we cache previous results. I mean, a
     // sector has ~512 blocks, and if you have 20 sectors, that's a lot of

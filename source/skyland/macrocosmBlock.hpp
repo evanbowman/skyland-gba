@@ -23,9 +23,9 @@
 #pragma once
 
 #include "memory/buffer.hpp"
+#include "number/fixnum.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
-#include "number/fixnum.hpp"
 
 
 
@@ -44,7 +44,7 @@ using Population = FixedPoint<16, u32>;
 using Water = s32;
 
 
-}
+} // namespace skyland::macro
 
 
 

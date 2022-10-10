@@ -6953,7 +6953,7 @@ static bool detect_android_myboy_emulator()
     // RAM overclocking in MyBoy! erroneously clears REG_DISPCNT.
     ram_overclock();
 
-    const bool detected = not (REG_DISPCNT & BG0_ENABLE);
+    const bool detected = not(REG_DISPCNT & BG0_ENABLE);
 
     REG_DISPCNT = prev_dispcnt;
     return detected;

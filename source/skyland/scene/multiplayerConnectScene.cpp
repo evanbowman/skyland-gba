@@ -22,8 +22,8 @@
 
 #include "multiplayerConnectScene.hpp"
 #include "fullscreenDialogScene.hpp"
-#include "linkScene.hpp"
 #include "globals.hpp"
+#include "linkScene.hpp"
 #include "multiplayerSettingsScene.hpp"
 #include "script/lisp.hpp"
 #include "skyland/player/opponent/multiplayerPeer.hpp"

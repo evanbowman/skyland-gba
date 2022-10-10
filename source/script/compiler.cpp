@@ -34,12 +34,9 @@ Value* make_bytecode_function(Value* bytecode);
 u16 symbol_offset(const char* symbol);
 
 
-
-struct CompilerContext
-{
+struct CompilerContext {
     Value* local_bindings_ = nullptr;
 };
-
 
 
 int compile_impl(CompilerContext& ctx,
@@ -92,8 +89,8 @@ int compile_lambda(CompilerContext& ctx,
 
         bool tail_expr = lat->cons().cdr() == get_nil();
 
-        write_pos = compile_impl(ctx,
-            buffer, write_pos, lat->cons().car(), jump_offset, tail_expr);
+        write_pos = compile_impl(
+            ctx, buffer, write_pos, lat->cons().car(), jump_offset, tail_expr);
 
         lat = lat->cons().cdr();
     }
@@ -131,8 +128,8 @@ int compile_quoted(CompilerContext& ctx,
                 // ...
                 break;
             }
-            write_pos = compile_quoted(ctx,
-                buffer, write_pos, code->cons().car(), tail_expr);
+            write_pos = compile_quoted(
+                ctx, buffer, write_pos, code->cons().car(), tail_expr);
 
             code = code->cons().cdr();
 
@@ -182,7 +179,11 @@ int compile_let(CompilerContext& ctx,
                 bind->type() == Value::Type::cons) {
 
                 write_pos = compile_impl(ctx,
-                    buffer, write_pos, bind->cons().car(), jump_offset, false);
+                                         buffer,
+                                         write_pos,
+                                         bind->cons().car(),
+                                         jump_offset,
+                                         false);
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                     auto inst =
@@ -207,8 +208,8 @@ int compile_let(CompilerContext& ctx,
 
         bool tail = tail_expr and code->cons().cdr() == get_nil();
 
-        write_pos = compile_impl(ctx,
-            buffer, write_pos, code->cons().car(), jump_offset, tail);
+        write_pos = compile_impl(
+            ctx, buffer, write_pos, code->cons().car(), jump_offset, tail);
 
         code = code->cons().cdr();
     }
@@ -302,22 +303,23 @@ int compile_impl(CompilerContext& ctx,
             std::optional<int> local_slot;
             if (ctx.local_bindings_) {
                 int i = 0;
-                foreach(ctx.local_bindings_,
-                        [&](Value* val) {
-                            auto sym = val->cons().car();
-                            if (str_eq(sym->symbol().name(), code->symbol().name())) {
-                                local_slot = i;
-                                return;
-                            } else {
-                                ++i;
-                            }
-                        });
+                foreach (ctx.local_bindings_, [&](Value* val) {
+                    auto sym = val->cons().car();
+                    if (str_eq(sym->symbol().name(), code->symbol().name())) {
+                        local_slot = i;
+                        return;
+                    } else {
+                        ++i;
+                    }
+                })
+                    ;
             }
 
             if (local_slot) {
                 auto inst = append<instruction::LoadLocal>(buffer, write_pos);
                 inst->var_slot_ = *local_slot;
-            } else if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+            } else if (code->symbol().hdr_.mode_bits_ ==
+                       (u8)Symbol::ModeBits::small) {
                 auto inst =
                     append<instruction::LoadVarSmall>(buffer, write_pos);
                 auto name = code->symbol().name();
@@ -338,7 +340,11 @@ int compile_impl(CompilerContext& ctx,
             str_eq(fn->symbol().name(), "let")) {
 
             write_pos = compile_let(ctx,
-                buffer, write_pos, lat->cons().cdr(), jump_offset, tail_expr);
+                                    buffer,
+                                    write_pos,
+                                    lat->cons().cdr(),
+                                    jump_offset,
+                                    tail_expr);
 
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "if")) {
@@ -349,8 +355,8 @@ int compile_impl(CompilerContext& ctx,
                     ; // TODO: raise error!
             }
 
-            write_pos = compile_impl(ctx,
-                buffer, write_pos, lat->cons().car(), jump_offset, false);
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
 
             auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
 
@@ -367,15 +373,15 @@ int compile_impl(CompilerContext& ctx,
                 }
             }
 
-            write_pos = compile_impl(ctx,
-                buffer, write_pos, true_branch, jump_offset, tail_expr);
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, true_branch, jump_offset, tail_expr);
 
             auto jmp = append<instruction::Jump>(buffer, write_pos);
 
             jne->offset_.set(write_pos - jump_offset);
 
-            write_pos = compile_impl(ctx,
-                buffer, write_pos, false_branch, jump_offset, tail_expr);
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, false_branch, jump_offset, tail_expr);
 
             jmp->offset_.set(write_pos - jump_offset);
 
@@ -406,9 +412,8 @@ int compile_impl(CompilerContext& ctx,
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "'")) {
 
-            write_pos =
-                compile_quoted(ctx,
-                               buffer, write_pos, lat->cons().cdr(), tail_expr);
+            write_pos = compile_quoted(
+                ctx, buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "while")) {
             Platform::fatal("'while' syntax unsupported in compiled lisp");
@@ -430,7 +435,11 @@ int compile_impl(CompilerContext& ctx,
                 }
 
                 write_pos = compile_impl(ctx,
-                    buffer, write_pos, lat->cons().car(), jump_offset, false);
+                                         buffer,
+                                         write_pos,
+                                         lat->cons().car(),
+                                         jump_offset,
+                                         false);
 
                 lat = lat->cons().cdr();
 
@@ -472,9 +481,8 @@ int compile_impl(CompilerContext& ctx,
                 append<instruction::Not>(buffer, write_pos);
             } else {
 
-                write_pos =
-                    compile_impl(ctx,
-                                 buffer, write_pos, fn, jump_offset, false);
+                write_pos = compile_impl(
+                    ctx, buffer, write_pos, fn, jump_offset, false);
 
                 if (tail_expr) {
                     switch (argc) {

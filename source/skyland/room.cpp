@@ -43,8 +43,7 @@ namespace skyland
 Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
       x_position_(position.x), y_position_(position.y), ai_aware_(true),
-      cloaked_(false),
-      init_awareness_upon_unpause_(false)
+      cloaked_(false), init_awareness_upon_unpause_(false)
 {
 
     if (name == nullptr) {

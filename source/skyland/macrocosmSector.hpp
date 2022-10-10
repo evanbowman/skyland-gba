@@ -180,7 +180,8 @@ public:
     // the background. For each Sector::update() call, the sector clears the
     // queue of background blocks, then, each block implementation calls
     // bkg_update_push to schedule the next background update.
-    struct BackgroundUpdateCoord {
+    struct BackgroundUpdateCoord
+    {
         u8 x_ : 5;
         u8 y_ : 5;
         u8 z_ : 5;
@@ -389,7 +390,6 @@ public:
 
 
     void generate_terrain(int min_blocks, int buildings);
-
 };
 
 
