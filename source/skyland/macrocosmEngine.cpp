@@ -200,14 +200,14 @@ std::pair<Coins, Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
-    } else if (data_->other_sectors_.size() < 5) {
+    } else if (data_->other_sectors_.size() < 3) {
         return {1500 + 3000 * data_->other_sectors_.size(), 150};
-    } else if (data_->other_sectors_.size() < 11) {
+    } else if (data_->other_sectors_.size() < 8) {
         return {4000 + 3200 * data_->other_sectors_.size(), 200};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 3600 * data_->other_sectors_.size(), 400};
+        return {6000 + 3600 * data_->other_sectors_.size(), 800};
     } else {
-        return {7000 + 4000 * data_->other_sectors_.size(), 600};
+        return {7000 + 4000 * data_->other_sectors_.size(), 2000};
     }
 }
 
@@ -681,6 +681,10 @@ Stats stats(Type t, bool shadowed)
 
 
     switch (t) {
+    case terrain::Type::dome:
+        result.happiness_ += 4;
+        break;
+
     case terrain::Type::building:
         result.housing_ += 20;
         break;
@@ -710,7 +714,7 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::sunflowers:
     case terrain::Type::tulips:
-        result.happiness_ += 2;
+        result.happiness_ += 1;
         break;
 
     case terrain::Type::indigo:
@@ -907,6 +911,8 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     Type nt = terrain::Type::air;
 
     switch (t) {
+        break;
+
     case terrain::Type::ice:
         cost.water_ = 10;
         cost.productivity_ = 8;
@@ -918,11 +924,15 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         cost.productivity_ = 10;
         break;
 
+    case terrain::Type::carved_basalt:
+    case terrain::Type::basalt_brick:
     case terrain::Type::basalt:
         cost.stone_ = 10;
         cost.productivity_ = 40;
         break;
 
+    case terrain::Type::carved_crystal:
+    case terrain::Type::crystal_pillar:
     case terrain::Type::crystal:
         cost.crystal_ = 10;
         cost.productivity_ = 320;

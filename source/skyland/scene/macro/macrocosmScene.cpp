@@ -316,6 +316,7 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             state.sector().population().as_integer());
         (*ui_)->food_->sync_value(format_ui_fraction(
             state.food_storage(), state.data_->p().food_.get()));
+        (*ui_)->housing_->sync_value(state.sector().stats().housing_);
     }
 
 
@@ -352,7 +353,7 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
         (state.sector().population() * Population(0.75f)).as_integer(),
         state.sector().productivity().as_integer()));
     s32 happiness = sector.get_happiness(state);
-    happiness = clamp((int)happiness, -7, 5);
+    happiness = clamp((int)happiness, -9, 9);
     (*ui_)->happiness_->sync_value((u32)happiness);
 }
 
@@ -406,13 +407,13 @@ void MacrocosmScene::enter(Platform& pfrm,
             pfrm, OverlayCoord{1, 3}, 413, pop, UIMetric::Align::left);
 
         (*ui_)->housing_.emplace(pfrm,
-                                 OverlayCoord{1, 2},
+                                 OverlayCoord{1, 4},
                                  416,
                                  stat.housing_,
                                  UIMetric::Align::left);
 
         s32 happiness = sector.get_happiness(state);
-        happiness = clamp((int)happiness, -7, 5);
+        happiness = clamp((int)happiness, -9, 9);
         (*ui_)->happiness_.emplace(pfrm,
                                    OverlayCoord{1, 6},
                                    409,
@@ -422,7 +423,7 @@ void MacrocosmScene::enter(Platform& pfrm,
 
         (*ui_)->productivity_.emplace(
             pfrm,
-            OverlayCoord{1, 4},
+            OverlayCoord{1, 2},
             415,
             format_ui_fraction(
                 (state.sector().population() * Population(0.75f)).as_integer(),

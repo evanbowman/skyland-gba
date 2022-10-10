@@ -385,7 +385,7 @@ void terrain::Sector::soft_update(EngineImpl& s)
     auto prod = productivity();
     if (prod < population()) {
         auto diff = (Productivity(0.02f) * population()) * 8;
-        auto h = Productivity(clamp((int)get_happiness(s), -7, 5)) *
+        auto h = Productivity(clamp((int)get_happiness(s), -9, 9)) *
                  Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);
         if (prod > population() * Population(0.75f)) {
@@ -1017,7 +1017,7 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 
     for (int x = 1; x < size().x - 1; ++x) {
         for (int y = 1; y < size().y - 1; ++y) {
-            for (int z = 1; z < size().z - 1; ++z) {
+            for (int z = 0; z < size().z - 1; ++z) {
                 auto get_type = [&](int xoff, int yoff, int zoff) {
                     return get_block(
                                {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
@@ -1028,7 +1028,8 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                     return get_type(xoff, yoff, zoff) == terrain::Type::air;
                 };
 
-                if (not is_air(0, 0, 0) and not is_air(0, 0, -1) and
+                if (not is_air(0, 0, 0) and
+                    (z == 0 or (z > 0 and not is_air(0, 0, -1))) and
                     not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
                     not is_air(1, 0, 0) and not is_air(0, -1, 0) and
                     not is_air(0, 1, 0) and
@@ -1059,6 +1060,15 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                         set_block({(u8)x, (u8)y, (u8)z},
                                   terrain::Type::lava_source);
                         break;
+                    }
+                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
+                        and rng::choice<2>(rng::critical_state)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
                     }
                 }
             }
