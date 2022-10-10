@@ -161,6 +161,33 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.system_call("psync", nullptr);
     }
 
+    const bool is_night = raster::globalstate::is_night;
+    int interval = day_frames;
+    if (is_night) {
+        interval = night_frames;
+    }
+
+    m.data_->p().day_night_cyc_.set(m.data_->p().day_night_cyc_.get() + 1);
+    if (m.data_->p().day_night_cyc_.get() > interval) {
+        m.data_->p().day_night_cyc_.set(0);
+
+        // pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        raster::globalstate::is_night = not raster::globalstate::is_night;
+        if (raster::globalstate::is_night) {
+            pfrm.load_background_texture("background_macro_night");
+        } else {
+            pfrm.load_background_texture("background_macro");
+        }
+        raster::globalstate::_recalc_depth_test.fill();
+        m.sector().shadowcast();
+        raster::globalstate::_changed = true;
+        m.sector().render(pfrm);
+        pfrm.screen().schedule_fade(0.1f, ColorConstant::rich_black);
+        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+    }
+
     if (ui_ and not m.data_->freebuild_mode_) {
         // m.data_->year_timer_ += delta;
         // auto secs = year_length(m);
@@ -311,9 +338,13 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     }
 
     if (ui_) {
-        (*ui_)->productivity_->sync_value(format_ui_fraction(
-            (state.sector().population() * Population(0.75f)).as_integer(),
-            state.sector().productivity().as_integer()));
+        auto prod = state.sector().productivity();
+        auto max_prod = state.sector().population();
+        if (prod > max_prod) {
+            prod = max_prod;
+        }
+        (*ui_)->productivity_->sync_value(format_ui_fraction(max_prod.as_integer(),
+                                                             prod.as_integer()));
         (*ui_)->population_->sync_value(
             state.sector().population().as_integer());
         (*ui_)->food_->sync_value(format_ui_fraction(
@@ -354,7 +385,7 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
     (*ui_)->water_->sync_value(state.data_->p().water_.get());
     (*ui_)->clay_->sync_value(state.data_->p().clay_.get());
     (*ui_)->productivity_->sync_value(format_ui_fraction(
-        (state.sector().population() * Population(0.75f)).as_integer(),
+        state.sector().population().as_integer(),
         state.sector().productivity().as_integer()));
     s32 happiness = sector.get_happiness(state);
     happiness = clamp((int)happiness, -9, 9);
@@ -430,7 +461,7 @@ void MacrocosmScene::enter(Platform& pfrm,
             OverlayCoord{1, 2},
             415,
             format_ui_fraction(
-                (state.sector().population() * Population(0.75f)).as_integer(),
+                state.sector().population().as_integer(),
                 state.sector().productivity().as_integer()),
             UIMetric::Align::left,
             UIMetric::Format::fraction);

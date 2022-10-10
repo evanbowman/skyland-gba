@@ -179,7 +179,10 @@ struct EngineImpl : public Engine
             HostInteger<Crystal> crystal_;
             HostInteger<Water> water_;
             HostInteger<Clay> clay_;
-            HostInteger<s32> reserved_words_[9];
+
+            HostInteger<s16> day_night_cyc_;
+            HostInteger<s16> unused_;
+            HostInteger<s32> reserved_words_[8];
 
             Persistent()
             {
@@ -325,6 +328,14 @@ void background_init(Platform&);
 
 bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c);
 
+
+
+EngineImpl& bound_state();
+
+
+
+static const int day_frames = 8000;
+static const int night_frames = 1500;
 
 
 } // namespace skyland::macro

@@ -78,6 +78,17 @@ Bitvector<RASTER_CELLCOUNT * 2> _recalc_depth_test;
 EngineImpl* _bound_state;
 
 
+
+EngineImpl& bound_state()
+{
+    if (not _bound_state) {
+        Platform::fatal("unbound macro engine state");
+    }
+    return *_bound_state;
+}
+
+
+
 EngineImpl::EngineImpl(Platform& pfrm, App* app)
     : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
@@ -94,16 +105,22 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
 {
     data_->current_sector_ = &data_->origin_sector_;
 
+    pfrm.load_background_texture("background_macro");
+    raster::globalstate::is_night = false;
+
     data_->other_sectors_.clear();
+    memset((void*)&data_->p(), 0, sizeof(Data::Persistent));
+
     data_->p().year_.set(0);
-    data_->p().food_.set(100);
+    data_->p().food_.set(80);
+
 
     auto& sector = this->sector();
     sector.erase();
     sector.set_name("origin");
     sector.set_productivity(16);
 
-    sector.generate_terrain(120, 1);
+    sector.generate_terrain_regular(120, 1);
 
     if (data_->checkers_mode_) {
         // ...
@@ -200,6 +217,8 @@ std::pair<Coins, Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
+    } else if (data_->other_sectors_.size() == 0) {
+        return {1500 + 3000 * data_->other_sectors_.size(), 70};
     } else if (data_->other_sectors_.size() < 3) {
         return {1500 + 3000 * data_->other_sectors_.size(), 150};
     } else if (data_->other_sectors_.size() < 8) {
@@ -698,7 +717,7 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::granary:
-        result.food_storage_ += 200;
+        result.food_storage_ += 120;
         break;
 
     case terrain::Type::terrain:
@@ -920,14 +939,20 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::volcanic_soil:
     case terrain::Type::terrain:
-        cost.stone_ = 10;
+        cost.stone_ = 8;
         cost.productivity_ = 10;
+        break;
+
+    case terrain::Type::masonry:
+    case terrain::Type::arch:
+        cost = terrain::cost(t);
+        cost.productivity_ = 6;
         break;
 
     case terrain::Type::carved_basalt:
     case terrain::Type::basalt_brick:
     case terrain::Type::basalt:
-        cost.stone_ = 10;
+        cost.stone_ = 12;
         cost.productivity_ = 40;
         break;
 
@@ -957,7 +982,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     case terrain::Type::wheat_ripe:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 1;
-        cost.food_ = 20;
+        cost.food_ = 10;
         break;
 
     case terrain::Type::potatoes_planted:
@@ -1026,12 +1051,15 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::dome:
         cost.stone_ = 16;
         cost.lumber_ = 10;
-        cost.productivity_ = 14;
+        cost.productivity_ = 60;
+        break;
+
+    case terrain::Type::terrain:
+        cost.stone_ = 8;
         break;
 
     case terrain::Type::basalt:
-    case terrain::Type::terrain:
-        cost.stone_ = 10;
+        cost.stone_ = 12;
         break;
 
     case terrain::Type::carved_hematite:
@@ -1050,14 +1078,14 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::ocher:
     case terrain::Type::hull:
         cost.stone_ = 6;
-        cost.clay_ = 3;
-        cost.productivity_ = 15;
+        cost.clay_ = 6;
+        cost.productivity_ = 8;
         break;
 
     case terrain::Type::arch:
         cost.stone_ = 5;
-        cost.clay_ = 4;
-        cost.productivity_ = 30;
+        cost.clay_ = 6;
+        cost.productivity_ = 15;
         break;
 
     case terrain::Type::road_ns:
@@ -1074,8 +1102,8 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::sand:
         cost.stone_ = 1;
-        cost.clay_ = 7;
-        cost.productivity_ = 2;
+        cost.clay_ = 8;
+        cost.productivity_ = 6;
         break;
 
     case terrain::Type::volcanic_soil:
@@ -1186,8 +1214,10 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::lumber_spawn:
         cost.lumber_ = 0;
-        cost.marble_ = 6;
-        cost.productivity_ = 60;
+        cost.marble_ = 2;
+        cost.clay_ = 10;
+        cost.water_ = 10;
+        cost.productivity_ = 20;
         break;
     }
 
@@ -1473,9 +1503,6 @@ terrain::Improvements terrain::improvements(Type t)
     case terrain::Type::water_spread_laterally_b:
     case terrain::Type::water_spread_laterally_c:
     case terrain::Type::water_spread_laterally_d:
-        result.push_back(Type::ice);
-        result.push_back(Type::shellfish);
-        result.push_back(Type::pearls);
         break;
 
     case Type::masonry:
@@ -2153,7 +2180,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         revert_if_covered(s, block, position, terrain::Type::terrain);
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 2) {
+            if (block.data_ > 3) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::wheat_ripe);
             }
@@ -2621,7 +2648,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 8) {
+            if (block.data_ > 18) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }
@@ -2641,7 +2668,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 60) {
+            if (block.data_ > 30) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;

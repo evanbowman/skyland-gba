@@ -384,12 +384,12 @@ void terrain::Sector::soft_update(EngineImpl& s)
 {
     auto prod = productivity();
     if (prod < population()) {
-        auto diff = (Productivity(0.02f) * population()) * 8;
+        auto diff = (Productivity(0.04f) * population()) * 8;
         auto h = Productivity(clamp((int)get_happiness(s), -9, 9)) *
                  Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);
-        if (prod > population() * Population(0.75f)) {
-            prod = population() * Population(0.75f);
+        if (prod > population()) {
+            prod = population();
         }
         set_productivity(prod);
     }
@@ -397,7 +397,7 @@ void terrain::Sector::soft_update(EngineImpl& s)
     if (population() < stats().housing_) {
         auto pop = population();
         auto diff = stats().housing_ - pop.as_integer();
-        pop += (Population(0.008f) * diff) * 4;
+        pop += (Population(0.02f) * diff) * 4;
         if (pop > stats().housing_) {
             pop = stats().housing_;
         }
@@ -956,6 +956,27 @@ void terrain::Sector::unpack(Vector<char>& input)
 
 void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 {
+    switch (rng::choice<5>(rng::critical_state)) {
+    case 0:
+    case 1:
+        generate_terrain_regular(min_blocks, building_count);
+        break;
+
+    case 2:
+    case 3:
+        generate_terrain_desert(min_blocks, building_count);
+        break;
+
+    case 4:
+        generate_terrain_tundra(min_blocks, building_count);
+        break;
+    }
+}
+
+
+
+void terrain::Sector::generate_terrain_regular(int min_blocks, int building_count)
+{
     int count = 0;
 
 
@@ -1050,7 +1071,8 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                     case 2:
                     case 3:
                     case 5:
-                        if (rng::choice<2>(rng::critical_state) == 0) {
+                        if (z < 3 and
+                            rng::choice<2>(rng::critical_state) == 0) {
                             set_block({(u8)x, (u8)y, (u8)z},
                                       terrain::Type::crystal);
                         } else {
@@ -1065,13 +1087,23 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
                         break;
                     }
                     if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
-                        set_block({(u8)x, (u8)y, (u8)z},
-                                  terrain::Type::crystal);
+                        if (rng::choice<3>(rng::critical_state) > 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
                     }
                     if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
                         and rng::choice<2>(rng::critical_state)) {
-                        set_block({(u8)x, (u8)y, (u8)z},
-                                  terrain::Type::crystal);
+                        if (rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
                     }
                 }
             }
@@ -1135,6 +1167,587 @@ PLACED_BUILDING:
 
 
 
+void terrain::Sector::generate_terrain_desert(int min_blocks, int building_count)
+{
+    int count = 0;
+
+
+    auto gen = [&](int height_scale, Float freq) {
+        Float data[16][16];
+
+        fnl_state noise = fnlCreateState(rng::get(rng::critical_state), freq);
+        noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                data[x][y] = fnlGetNoise2D(&noise, x, y);
+            }
+        }
+
+        u8 snowline = size().z * 0.7f;
+        if (p_.shape_ == Shape::pillar) {
+            snowline = 10;
+        }
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                u8 height = height_scale * data[x][y];
+                bool first = true;
+                bool second = true;
+                bool third = true;
+                for (int z = height - 1; z > -1; --z) {
+                    terrain::Type t = terrain::Type::basalt;
+
+                    if (first or second or third) {
+                        if (z > snowline) {
+                            t = terrain::Type::basalt;
+                        } else if (z == 0) {
+                            t = terrain::Type::sand;
+                        } else if (z < snowline) {
+                            t = terrain::Type::sand;
+                        }
+                        if (first) {
+                            if (rng::choice<8>(rng::critical_state) == 0) {
+                                t = terrain::Type::masonry;
+                            }
+                        }
+                        if (not second) {
+                            third = false;
+                        }
+                        if (not first) {
+                            second = false;
+                        }
+                        first = false;
+
+                    }
+
+                    set_block({(u8)x, (u8)y, (u8)z}, t);
+                    ++count;
+                }
+            }
+        }
+    };
+
+
+    while (count < min_blocks) {
+
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                for (u8 z = 0; z < size().z; ++z) {
+                    set_block({x, y, z}, terrain::Type::air);
+                }
+            }
+        }
+
+        count = 0;
+
+        gen(3, 0.25f);
+        gen(size().z, 0.1f);
+    }
+
+    for (int x = 1; x < size().x - 1; ++x) {
+        for (int y = 1; y < size().y - 1; ++y) {
+            for (int z = 0; z < size().z - 1; ++z) {
+                auto get_type = [&](int xoff, int yoff, int zoff) {
+                    return get_block(
+                               {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
+                        .type();
+                };
+
+                auto is_air = [&](int xoff, int yoff, int zoff) {
+                    return get_type(xoff, yoff, zoff) == terrain::Type::air;
+                };
+
+                if (not is_air(0, 0, 0) and
+                    (z == 0 or (z > 0 and not is_air(0, 0, -1))) and
+                    not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
+                    not is_air(1, 0, 0) and not is_air(0, -1, 0) and
+                    not is_air(0, 1, 0) and
+                    get_type(0, 0, -1) not_eq terrain::Type::terrain) {
+
+                    auto hide = rng::choice<8>(rng::critical_state);
+                    switch (hide) {
+                        break;
+
+                    case 0:
+                    case 1:
+                    case 4:
+                        break;
+
+                    default:
+                    case 2:
+                    case 3:
+                    case 5:
+                        if (rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                        break;
+                    }
+                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
+                        and rng::choice<2>(rng::critical_state)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                }
+            }
+        }
+    }
+
+    u8 z = 0;
+    for (; z < size().z; ++z) {
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+                if ((t == terrain::Type::terrain or
+                     t == terrain::Type::sand or
+                     t == terrain::Type::masonry) and
+                    above == terrain::Type::air) {
+                    goto PLACE_BUILDING;
+                }
+            }
+        }
+    }
+PLACE_BUILDING:
+    while (true) {
+        auto x = rng::choice(size().x, rng::critical_state);
+        auto y = rng::choice(size().y, rng::critical_state);
+
+
+        auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+        auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        if ((t == terrain::Type::terrain or t == terrain::Type::sand
+             or t == terrain::Type::masonry) and
+            above == terrain::Type::air) {
+            Vec3<u8> building_coord;
+            building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
+            set_block(building_coord, terrain::Type::building);
+            building_coord.z -= 1;
+            set_block(building_coord, terrain::Type::masonry);
+            if (--building_count == 0) {
+                goto PLACED_BUILDING;
+            }
+        }
+    }
+PLACED_BUILDING:
+
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            for (int z = size().z - 2; z > -1; --z) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                if (t == terrain::Type::building) {
+                    break;
+                }
+                if (t == terrain::Type::sand) {
+
+                    if (rng::choice<7>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z + 1)},
+                                  terrain::Type::lumber);
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::volcanic_soil);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::generate_terrain_tundra(int min_blocks, int building_count)
+{
+    int count = 0;
+
+
+    auto gen = [&](int height_scale, Float freq) {
+        Float data[16][16];
+
+        fnl_state noise = fnlCreateState(rng::get(rng::critical_state), freq);
+        noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                data[x][y] = fnlGetNoise2D(&noise, x, y);
+            }
+        }
+
+        u8 snowline = size().z * 0.7f;
+        if (p_.shape_ == Shape::pillar) {
+            snowline = 10;
+        }
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                u8 height = height_scale * data[x][y];
+                bool first = true;
+                bool second = true;
+                for (int z = height - 1; z > -1; --z) {
+                    terrain::Type t = terrain::Type::basalt;
+
+                    if (first or second) {
+                        if (z >= snowline) {
+                            t = terrain::Type::ice;
+                        } else if (z == 0) {
+                            t = terrain::Type::basalt;
+                        } else if (z < snowline) {
+                            t = terrain::Type::ice;
+                        }
+                        if (not first) {
+                            second = false;
+                        }
+                        first = false;
+                    }
+
+                    set_block({(u8)x, (u8)y, (u8)z}, t);
+                    ++count;
+                }
+            }
+        }
+    };
+
+
+    while (count < min_blocks) {
+
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                for (u8 z = 0; z < size().z; ++z) {
+                    set_block({x, y, z}, terrain::Type::air);
+                }
+            }
+        }
+
+        count = 0;
+
+        gen(3, 0.25f);
+        gen(size().z, 0.1f);
+    }
+
+    for (int x = 1; x < size().x - 1; ++x) {
+        for (int y = 1; y < size().y - 1; ++y) {
+            for (int z = 0; z < size().z - 1; ++z) {
+                auto get_type = [&](int xoff, int yoff, int zoff) {
+                    return get_block(
+                               {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
+                        .type();
+                };
+
+                auto is_air = [&](int xoff, int yoff, int zoff) {
+                    return get_type(xoff, yoff, zoff) == terrain::Type::air;
+                };
+
+                if (not is_air(0, 0, 0) and
+                    (z == 0 or (z > 0 and not is_air(0, 0, -1))) and
+                    not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
+                    not is_air(1, 0, 0) and not is_air(0, -1, 0) and
+                    not is_air(0, 1, 0) and
+                    get_type(0, 0, -1) not_eq terrain::Type::terrain) {
+
+                    auto hide = rng::choice<8>(rng::critical_state);
+                    switch (hide) {
+                        break;
+
+                    case 0:
+                    case 1:
+                    case 4:
+                        break;
+
+                    default:
+                    case 2:
+                    case 3:
+                    case 5:
+                        if (rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                        break;
+                    }
+                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
+                        and rng::choice<2>(rng::critical_state)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                }
+            }
+        }
+    }
+
+    u8 z = 0;
+    for (; z < size().z; ++z) {
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+                if ((t == terrain::Type::terrain or
+                     t == terrain::Type::basalt) and
+                    above == terrain::Type::air) {
+                    goto PLACE_BUILDING;
+                }
+            }
+        }
+    }
+PLACE_BUILDING:
+    while (true) {
+        auto x = rng::choice(size().x, rng::critical_state);
+        auto y = rng::choice(size().y, rng::critical_state);
+
+
+        auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+        auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        if ((t == terrain::Type::terrain or t == terrain::Type::basalt) and
+            above == terrain::Type::air) {
+            Vec3<u8> building_coord;
+            building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
+            set_block(building_coord, terrain::Type::building);
+            if (--building_count == 0) {
+                goto PLACED_BUILDING;
+            }
+        }
+    }
+PLACED_BUILDING:
+
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            for (int z = size().z - 2; z > -1; --z) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                if (t == terrain::Type::building) {
+                    break;
+                }
+                if (t == terrain::Type::ice and z < size().z - 2) {
+
+                    if (rng::choice<4>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z + 1)},
+                                  terrain::Type::lumber);
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::volcanic_soil);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::generate_terrain_molten(int min_blocks, int building_count)
+{
+    int count = 0;
+
+    auto gen = [&](int height_scale, Float freq) {
+        Float data[16][16];
+
+        fnl_state noise = fnlCreateState(rng::get(rng::critical_state), freq);
+        noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                data[x][y] = fnlGetNoise2D(&noise, x, y);
+            }
+        }
+
+        u8 snowline = size().z * 0.7f;
+        if (p_.shape_ == Shape::pillar) {
+            snowline = 10;
+        }
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                u8 height = height_scale * data[x][y];
+                bool first = true;
+                bool second = true;
+                for (int z = height - 1; z > -1; --z) {
+                    terrain::Type t = terrain::Type::basalt;
+
+                    if (first or second) {
+                        if (z >= snowline) {
+                            t = terrain::Type::basalt;
+                        } else if (z == 0) {
+                            t = terrain::Type::basalt;
+                        } else if (z < snowline) {
+                            t = terrain::Type::basalt;
+                        }
+                        if (not first) {
+                            second = false;
+                        }
+                        first = false;
+                    }
+
+                    set_block({(u8)x, (u8)y, (u8)z}, t);
+                    ++count;
+                }
+            }
+        }
+    };
+
+
+    while (count < min_blocks) {
+
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                for (u8 z = 0; z < size().z; ++z) {
+                    set_block({x, y, z}, terrain::Type::air);
+                }
+            }
+        }
+
+        count = 0;
+
+        gen(3, 0.25f);
+        gen(size().z, 0.1f);
+    }
+
+    for (int x = 1; x < size().x - 1; ++x) {
+        for (int y = 1; y < size().y - 1; ++y) {
+            for (int z = 0; z < size().z - 1; ++z) {
+                auto get_type = [&](int xoff, int yoff, int zoff) {
+                    return get_block(
+                               {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
+                        .type();
+                };
+
+                auto is_air = [&](int xoff, int yoff, int zoff) {
+                    return get_type(xoff, yoff, zoff) == terrain::Type::air;
+                };
+
+                if (not is_air(0, 0, 0) and
+                    (z == 0 or (z > 0 and not is_air(0, 0, -1))) and
+                    not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
+                    not is_air(1, 0, 0) and not is_air(0, -1, 0) and
+                    not is_air(0, 1, 0) and
+                    get_type(0, 0, -1) not_eq terrain::Type::terrain) {
+
+                    auto hide = rng::choice<8>(rng::critical_state);
+                    switch (hide) {
+                        break;
+
+                    case 0:
+                    case 1:
+                    case 4:
+                        break;
+
+                    default:
+                    case 2:
+                    case 3:
+                    case 5:
+                        if (rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                        break;
+                    }
+                    if (z == 0 and not is_air(0, 0, 2) and not is_air(0, 0, 3)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                    if (z == 1 and not is_air(0, 0, 2) and not is_air(0, 0, 3)
+                        and rng::choice<2>(rng::critical_state)) {
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::crystal);
+                    }
+                }
+            }
+        }
+    }
+
+    u8 z = 0;
+    for (; z < size().z; ++z) {
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+                if ((t == terrain::Type::terrain or
+                     t == terrain::Type::basalt) and
+                    above == terrain::Type::air) {
+                    goto PLACE_BUILDING;
+                }
+            }
+        }
+    }
+PLACE_BUILDING:
+    while (true) {
+        auto x = rng::choice(size().x, rng::critical_state);
+        auto y = rng::choice(size().y, rng::critical_state);
+
+
+        auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+        auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        if ((t == terrain::Type::terrain or t == terrain::Type::basalt) and
+            above == terrain::Type::air) {
+            Vec3<u8> building_coord;
+            building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
+            set_block(building_coord, terrain::Type::building);
+            if (--building_count == 0) {
+                goto PLACED_BUILDING;
+            }
+        }
+    }
+PLACED_BUILDING:
+
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            for (int z = size().z - 2; z > -1; --z) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                if (t == terrain::Type::building) {
+                    break;
+                }
+                if (t == terrain::Type::basalt and z < size().z - 2) {
+
+                    if (rng::choice<4>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z + 1)},
+                                  terrain::Type::lumber);
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::volcanic_soil);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            for (int z = size().z - 2; z > -1; --z) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                if (t == terrain::Type::building) {
+                    break;
+                }
+                if (t == terrain::Type::basalt and z < size().z - 2) {
+                    if (rng::choice<6>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::lava_source);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+
 void terrain::Sector::bkg_update_start()
 {
     update();
@@ -1144,7 +1757,7 @@ void terrain::Sector::bkg_update_start()
             for (u8 z = 0; z < size().z; ++z) {
                 auto& block = ref_block({x, y, z});
                 if (block.type() == terrain::Type::potatoes_planted) {
-                    block.data_ = 4;
+                    block.data_ = 9;
                 }
             }
         }

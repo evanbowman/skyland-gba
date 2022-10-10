@@ -1942,6 +1942,7 @@ void Platform::Screen::clear()
 
         memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer, 8);
         memcpy32(MEM_BG_PALETTE + 32, bg_palette_back_buffer + 32, 8);
+        memcpy32(&MEM_BG_PALETTE[16 * 11], &bg_palette_back_buffer[16 * 11], 8);
 
         set_gflag(GlobalFlag::partial_palette_sync, false);
     }
@@ -6684,6 +6685,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
     } else if (str_eq(feature_name, "psync")) {
         memcpy32(bg_palette_back_buffer + 32, tilesheet_1_palette, 8);
         memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
+        memcpy32(&bg_palette_back_buffer[16 * 11], background_palette, 8);
         set_gflag(GlobalFlag::partial_palette_sync, true);
     } else if (str_eq(feature_name, "feed-watchdog")) {
         ::watchdog_counter = 0;

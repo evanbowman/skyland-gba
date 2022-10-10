@@ -193,7 +193,7 @@ isle (fullsize)
 atol (tiny)
 edit name
 available: %
-cost: %_ %_
+cost: %_
 select export:
 how many?
 where?

@@ -387,6 +387,11 @@ public:
 
 
     void generate_terrain(int min_blocks, int buildings);
+
+    void generate_terrain_regular(int min_blocks, int buildings);
+    void generate_terrain_desert(int min_blocks, int buildings);
+    void generate_terrain_tundra(int min_blocks, int buildings);
+    void generate_terrain_molten(int min_blocks, int buildings);
 };
 
 

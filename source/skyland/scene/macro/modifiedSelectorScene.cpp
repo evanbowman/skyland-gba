@@ -151,21 +151,21 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
         } else if (player.key_down(pfrm, Key::action_2)) {
-            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-            pfrm.screen().clear();
-            pfrm.screen().display();
-            raster::globalstate::is_night = not raster::globalstate::is_night;
-            if (raster::globalstate::is_night) {
-                pfrm.load_background_texture("background_macro_night");
-            } else {
-                pfrm.load_background_texture("background_macro");
-            }
-            raster::globalstate::_recalc_depth_test.fill();
-            sector.shadowcast();
-            raster::globalstate::_changed = true;
-            sector.render(pfrm);
-            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            // pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            // pfrm.screen().clear();
+            // pfrm.screen().display();
+            // raster::globalstate::is_night = not raster::globalstate::is_night;
+            // if (raster::globalstate::is_night) {
+            //     pfrm.load_background_texture("background_macro_night");
+            // } else {
+            //     pfrm.load_background_texture("background_macro");
+            // }
+            // raster::globalstate::_recalc_depth_test.fill();
+            // sector.shadowcast();
+            // raster::globalstate::_changed = true;
+            // sector.render(pfrm);
+            // pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            // pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (player.key_down(pfrm, Key::action_1)) {
             auto c = sector.cursor();
             if (c.z < sector.size().z - 1) {

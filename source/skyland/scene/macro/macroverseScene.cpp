@@ -76,7 +76,133 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
+    auto blend = [](ColorConstant from, ColorConstant to, u8 interp)
+                 {
+                     const Color input(from);
+                     const Color k2(to);
+                     Color result(fast_interpolate(input.r_, k2.r_, interp),
+                                  fast_interpolate(input.g_, k2.g_, interp),
+                                  fast_interpolate(input.b_, k2.b_, interp));
+                     return result.hex();
+                 };
+
+    if (p == ShaderPalette::background) {
+        auto& s = bound_state();
+
+        auto cyc = s.data_->p().day_night_cyc_.get();
+
+        if (raster::globalstate::is_night) {
+            if (cyc > night_frames - 256) {
+                auto interp = (cyc - (night_frames - 256));
+                switch (index) {
+                case 1:
+                    return blend(custom_color(0xe6b673),
+                                 custom_color(0xe61c05),
+                                 interp);
+                case 4:
+                    return blend(custom_color(0x7e96ed),
+                                 custom_color(0x404e82), interp);
+                }
+            } else if (cyc > night_frames - 512) {
+                auto interp = (cyc - (night_frames - 512));
+                switch (index) {
+                case 1:
+                    return blend(k,
+                                 custom_color(0xe61c05),
+                                 255 - interp);
+
+                case 4:
+                    return blend(custom_color(0x404e82), k, interp);
+                }
+            } else if (cyc < 256) {
+                auto interp = 255 - cyc;
+                switch (index) {
+                case 1:
+                    return blend(custom_color(0xe6b673),
+                                 custom_color(0xe61c05),
+                                 interp);
+                case 4:
+                    return blend(custom_color(0x7e96ed),
+                                 custom_color(0x404e82), interp);
+                }
+            } else if (cyc < 512) {
+                auto interp = (cyc - 256);
+
+                switch (index) {
+                case 1:
+                    return blend(k,
+                                 custom_color(0xe61c05),
+                                 interp);
+
+                case 4:
+                    return blend(custom_color(0x404e82), k, 255 - interp);
+                }
+            }
+        } else {
+            if (cyc < 256) {
+                auto interp = cyc;
+                switch (index) {
+                case 1:
+                    return blend(k,
+                                 custom_color(0xe6b673),
+                                 interp);
+                case 4:
+                    return blend(k, custom_color(0x7e96ed), interp);
+                }
+            } else if (cyc > day_frames - 256) {
+                auto interp = (cyc - (day_frames - 256));
+                switch (index) {
+                case 1:
+                    return blend(k,
+                                 custom_color(0xe6b673),
+                                 255 - interp);
+                case 4:
+                    return blend(k, custom_color(0x7e96ed), 255 - interp);
+                }
+            }
+        }
+    }
+
     if (p == ShaderPalette::tile0 or p == ShaderPalette::tile1) {
+        if (not raster::globalstate::is_night) {
+            auto& s = bound_state();
+            auto cyc = s.data_->p().day_night_cyc_.get();
+
+            if (cyc < 256 or cyc > day_frames - 256) {
+                auto interp = cyc;
+                if (cyc > day_frames - 256) {
+                    interp = 255 - (cyc - (day_frames - 256));
+                }
+                switch (index) {
+                case 4:
+                    return blend(k,
+                                 custom_color(0x67b94b),
+                                 interp);
+
+                case 5:
+                    return blend(k,
+                                 custom_color(0xcc590c),
+                                 interp);
+
+                case 8:
+                    return blend(k,
+                                 custom_color(0xdee86d),
+                                 interp);
+
+                case 9:
+                    return blend(k,
+                                 custom_color(0xf5f5cb),
+                                 interp);
+
+                case 13:
+                    return blend(k,
+                                 custom_color(0xe0eb9d),
+                                 interp);
+                }
+            }
+
+
+        }
         if (index == 11) {
 
             int v1 = (var & 0xff00) >> 8;
@@ -705,17 +831,10 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm, str.c_str(), OverlayCoord{1, y});
                     u32 i = 0;
 
-                    bool coin_icon = false;
-
                     auto s = str.c_str();
                     while (*s not_eq '\0') {
                         if (*s == '_') {
-                            if (not coin_icon) {
-                                coin_icon = true;
-                                pfrm.set_tile(Layer::overlay, 1 + i, y, 88);
-                            } else {
-                                pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
-                            }
+                            pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
                         }
                         ++s;
                         ++i;
@@ -730,7 +849,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.speaker().play_sound("button_wooden", 2);
 
                 textline(format(SYSTR(macro_colony_cost)->c_str(),
-                                cost.first,
                                 cost.second)
                              .c_str(),
                          calc_screen_tiles(pfrm).y - 2);
@@ -873,8 +991,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                     Platform::fatal("logic error (bind sector)");
                 }
 
-                m.sector().generate_terrain(160, 2);
-                m.sector().set_population(40);
+                m.sector().generate_terrain(160, 1);
+                m.sector().set_population(20);
 
                 pfrm.speaker().play_sound("button_wooden", 2);
             }
