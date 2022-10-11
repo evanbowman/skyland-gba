@@ -1762,12 +1762,18 @@ void terrain::Sector::bkg_update_start()
 {
     update();
 
+    u8 data = 9;
+
     for (u8 x = 0; x < size().x; ++x) {
         for (u8 y = 0; y < size().y; ++y) {
             for (u8 z = 0; z < size().z; ++z) {
                 auto& block = ref_block({x, y, z});
                 if (block.type() == terrain::Type::potatoes_planted) {
-                    block.data_ = 9;
+                    block.data_ = data;
+                    ++data;
+                    if (data > 18) {
+                        data = 1;
+                    }
                 }
             }
         }
