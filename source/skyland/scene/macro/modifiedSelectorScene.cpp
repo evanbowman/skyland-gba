@@ -45,26 +45,21 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
     Text::platform_retain_alphabet(pfrm);
 
-    day_night_text_.emplace(pfrm, OverlayCoord{1, 1});
-    day_night_text_->assign(
-        "b", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
-    day_night_text_->append(SYSTR(macro_day_or_night)->c_str());
-
-    cursor_text_.emplace(pfrm, OverlayCoord{1, 4});
+    cursor_text_.emplace(pfrm, OverlayCoord{1, 3});
     cursor_text_->assign(
         "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
     cursor_text_->append(SYSTR(macro_raise)->c_str());
 
     rotate_text_.emplace(
-        pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 2});
+        pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 1});
 
     layers_text_.emplace(
-        pfrm, SYSTR(macro_layers)->c_str(), OverlayCoord{3, 3});
+        pfrm, SYSTR(macro_layers)->c_str(), OverlayCoord{3, 2});
 
-    pfrm.set_tile(Layer::overlay, 1, 2, 394);
-    pfrm.set_tile(Layer::overlay, 2, 2, 395);
-    pfrm.set_tile(Layer::overlay, 1, 3, 392);
-    pfrm.set_tile(Layer::overlay, 2, 3, 393);
+    pfrm.set_tile(Layer::overlay, 1, 1, 394);
+    pfrm.set_tile(Layer::overlay, 2, 1, 395);
+    pfrm.set_tile(Layer::overlay, 1, 2, 392);
+    pfrm.set_tile(Layer::overlay, 2, 2, 393);
 
     visible_layers_text_.emplace(
         pfrm, OverlayCoord{0, (u8)(calc_screen_tiles(pfrm).y - 1)});
@@ -82,7 +77,6 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
     MacrocosmScene::exit(pfrm, state, next);
     rotate_text_.reset();
     layers_text_.reset();
-    day_night_text_.reset();
     visible_layers_text_.reset();
     cursor_text_.reset();
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
