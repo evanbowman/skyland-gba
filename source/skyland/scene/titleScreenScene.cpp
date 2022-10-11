@@ -49,6 +49,61 @@ namespace skyland
 
 
 
+class EmberParticle : public Entity
+{
+public:
+
+    EmberParticle(TitleScreenScene* parent,
+                  const Vec2<Fixnum>& position,
+                  u16 tile) :
+        Entity({{}, {}}),
+        parent_(parent)
+    {
+        sprite_.set_size(Sprite::Size::w16_h32);
+        sprite_.set_texture_index(tile);
+        sprite_.set_position(position);
+        sprite_.set_origin({8, 8});
+        sprite_.set_alpha(Sprite::Alpha::translucent);
+        y_pos_ = position.y;
+    }
+
+
+    void update(Platform&, App&, Microseconds delta)
+    {
+        delta *= 2;
+        timer_ += delta;
+
+        auto pos = sprite_.get_position();
+
+        // pos.x -= +Float(delta) * 0.00001f;
+        y_pos_ -= +Float(delta) * 0.00001f;
+        pos.y = y_pos_ + parent_->ambient_movement();
+
+        Float interval = Float(timer_) / seconds(3);
+
+        const s16 shrink_amount =
+            interpolate(-450, -24, interval);
+
+        sprite_.set_mix({ColorConstant::silver_white, u8(255 - 255 * interval)});
+
+        sprite_.set_scale({shrink_amount, shrink_amount});
+
+        sprite_.set_position(pos);
+
+        if (timer_ > seconds(3)) {
+            this->kill();
+        }
+    }
+
+private:
+    TitleScreenScene* parent_;
+    Microseconds timer_ = 0;
+    Fixnum y_pos_ = 0.f;
+};
+
+
+
+
 void init_clouds(Platform& pfrm);
 
 
@@ -599,6 +654,27 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         island_offset_ = 2 *
                          float(sine(2 * 3.14f * 0.0005f * hover_timer_ + 180)) /
                          std::numeric_limits<s16>::max();
+        furnace_timer_ += delta;
+
+        // Because the island in the background in the challenge mode room has a
+        // specific priority set, sprites rendered at a higher priority will
+        // cause overlapping background sprites to punch a hole in intermediary
+        // tile layers. Do not create EmberParticle objects if they would
+        // overlap with background sprites.
+        const bool gba_sprite_priority_hardware_bug =
+            (state_ == State::scroll_from_end and
+             timer_ < milliseconds(600));
+
+        if (furnace_timer_ > milliseconds(380) and
+            not gba_sprite_priority_hardware_bug) {
+
+            furnace_timer_ = -milliseconds(rng::choice<200>(rng::utility_state));
+            Vec2<Fixnum> pos{435, 154};
+            pos = rng::sample<4>(pos, rng::utility_state);
+            if (auto e = alloc_entity<EmberParticle>(this, pos, 51)) {
+                app.effects().push(std::move(e));
+            }
+        }
     } else if (menu_selection_ == 0) {
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {

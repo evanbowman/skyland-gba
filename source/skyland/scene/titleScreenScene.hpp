@@ -48,6 +48,12 @@ public:
     void display(Platform&, App&) override;
 
 
+    Float ambient_movement() const
+    {
+        return ambient_movement_;
+    }
+
+
 private:
     bool wait_ = true;
     std::optional<Text> text_;
@@ -130,6 +136,7 @@ private:
     int island_offset_ = 0;
     Microseconds bird_timer_ = seconds(7);
     Microseconds note_timer_ = milliseconds(600);
+    Microseconds furnace_timer_ = 0;
 };
 
 
