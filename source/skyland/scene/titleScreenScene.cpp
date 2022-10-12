@@ -1112,7 +1112,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.birds().clear();
                 app.effects().clear();
 
-                globals().entity_pools_.destroy();
+                globals().entity_pools_.create("macro-entity-pool", 1);
 
                 app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
 

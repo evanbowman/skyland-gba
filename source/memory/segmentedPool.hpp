@@ -51,7 +51,19 @@ public:
 
     void create(const char* pool_label)
     {
-        while (not pools_.full()) {
+        create(pool_label, pools_.capacity());
+    }
+
+
+    void create(const char* pool_label, u32 segment_count)
+    {
+        destroy();
+
+        if (segment_count > pools_.capacity()) {
+            Platform::fatal("pool init request invalid");
+        }
+
+        for (u32 i = 0; i < segment_count; ++i) {
             pools_.push_back(allocate_dynamic<Pool>(pool_label, pool_label));
         }
     }

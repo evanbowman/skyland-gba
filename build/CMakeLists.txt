@@ -80,6 +80,7 @@ set(SOURCES
   ${SOURCE_DIR}/graphics/view.cpp
   ${SOURCE_DIR}/localization.cpp
   ${SOURCE_DIR}/localization_extended.cpp
+  ${SOURCE_DIR}/memory/malloc.cpp
   ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/globals.cpp

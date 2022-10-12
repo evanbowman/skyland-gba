@@ -95,6 +95,16 @@ public:
         }
     }
 
+    bool empty() const
+    {
+        for (auto byte : data_) {
+            if (byte) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     constexpr void fill()
     {
         for (u8& byte : data_) {

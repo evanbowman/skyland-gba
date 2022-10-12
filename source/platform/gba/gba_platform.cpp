@@ -71,19 +71,6 @@ int strcmp(const char* p1, const char* p2)
     return str_cmp(p1, p2);
 }
 
-void* malloc(size_t sz)
-{
-    // malloc banned in this codebase. libstdc++ mallocs a bunch of junk for an
-    // emergency exception pool, and I'm not using malloc anyway. The default
-    // malloc, from newlib, is kinda garbage (or at least, not well suited for
-    // gba, as it dumps large arrays into iwram).
-    return nullptr;
-}
-
-void free(void*)
-{
-}
-
 
 int __aeabi_atexit(void*, void (*)(void*), void*)
 {

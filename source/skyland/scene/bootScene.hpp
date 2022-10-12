@@ -248,7 +248,7 @@ static constexpr const char* console_header =
     }
 
 
-    static void message(Platform& pfrm, const char* text)
+    static void message(Platform& pfrm, const char* text, bool log = true)
     {
         const auto st = calc_screen_tiles(pfrm);
 
@@ -260,7 +260,9 @@ static constexpr const char* console_header =
         }
         msg.__detach();
 
-        info(pfrm, text);
+        if (log) {
+            info(pfrm, text);
+        }
 
         pfrm.screen().clear();
         pfrm.screen().display();
@@ -287,20 +289,11 @@ static constexpr const char* console_header =
 
         app.init_scripts(pfrm, [&](const char* text) { message(pfrm, text); });
 
-        message(pfrm, "doing stuff...");
+        message(pfrm, "reticulating splines...", false);
         skyland::achievements::init(pfrm, app);
 
         message(pfrm, "lisp gc sweep...");
         lisp::gc();
-
-        StringBuffer<320> msg(console_header);
-
-        msg += "engine ";
-        msg += vn;
-
-        pfrm.remote_console().printline(msg.c_str());
-
-        info(pfrm, vn.c_str());
 
         pfrm.fill_overlay(0);
         pfrm.screen().schedule_fade(1.f);

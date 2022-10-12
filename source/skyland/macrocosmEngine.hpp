@@ -32,8 +32,10 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "alloc_entity.hpp"
 #include "containers/vector.hpp"
 #include "entity.hpp"
+#include "entity/macro/macrocosmEntity.hpp"
 #include "macrocosmCubeSector.hpp"
 #include "macrocosmEngineOpaque.hpp"
 #include "macrocosmRaster.hpp"
@@ -166,6 +168,8 @@ struct EngineImpl : public Engine
 
         macro::terrain::Type last_created_ = terrain::Type::terrain;
         macro::terrain::Type last_improved_ = terrain::Type::terrain;
+
+        EntityList<MacrocosmEntity> entities_;
 
 
         // Contents will be written to save data.
@@ -315,6 +319,19 @@ struct EngineImpl : public Engine
 
 
     EngineImpl(Platform&, App*);
+
+
+
+    template <typename T, typename ...Args>
+    T* add_entity(Args&& ...args)
+    {
+        if (auto e = alloc_entity<T>(std::forward<Args>(args)...)) {
+            auto ret = e.get();
+            data_->entities_.push(std::move(e));
+            return ret;
+        }
+        return nullptr;
+    }
 
 
     DynamicMemory<Data> data_;

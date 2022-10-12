@@ -384,7 +384,7 @@ void terrain::Sector::soft_update(EngineImpl& s)
 {
     auto prod = productivity();
     if (prod < population()) {
-        auto diff = (Productivity(0.04f) * population()) * 8;
+        auto diff = (Productivity(0.05f) * population()) * 8;
         auto h = Productivity(clamp((int)get_happiness(s), -9, 9)) *
                  Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);

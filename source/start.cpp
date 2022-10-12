@@ -22,6 +22,7 @@
 
 #include "globals.hpp"
 #include "localization.hpp"
+#include "memory/malloc.hpp"
 #include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qr.hpp"
@@ -48,7 +49,6 @@ namespace skyland
 static inline void main_loop(Platform& pf)
 {
     systemstring_bind_file("strings.txt");
-
 
     {
         Conf conf(pf);
@@ -141,7 +141,10 @@ static inline void main_loop(Platform& pf)
 } // namespace skyland
 
 
+
 void start(Platform& pfrm)
 {
+    malloc_compat::create_heap();
+
     return skyland::main_loop(pfrm);
 }
