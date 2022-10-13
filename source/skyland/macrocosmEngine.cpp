@@ -1692,9 +1692,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::wheat:
         return {2728, 2744};
 
-    case terrain::Type::rice_terrace: // FIXME
+    case terrain::Type::rice_terrace:
     case terrain::Type::rice_ripe:
-        return {2728, 2744};
+        return {3864, 3848};
 
     case terrain::Type::indigo:
         return {2696, 2712};
@@ -1706,6 +1706,8 @@ std::pair<int, int> terrain::icons(Type t)
         return {2440, 2456};
 
     case terrain::Type::granary:
+        return {3896, 3880};
+
     case terrain::Type::workshop:
         return {776, 760};
 
