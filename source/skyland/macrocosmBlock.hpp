@@ -168,6 +168,9 @@ enum class Type {
 
     farmhouse,
 
+    rice_terrace,
+    rice_ripe,
+
     count,
 };
 

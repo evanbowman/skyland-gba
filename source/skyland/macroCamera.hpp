@@ -13,6 +13,10 @@ namespace skyland::macro
 
 class Camera : public ::skyland::Camera
 {
+private:
+    u8 ambient_movement_ = 0;
+    Microseconds timer_ = 0;
+
 public:
     Camera(Platform& pfrm)
     {
@@ -27,13 +31,22 @@ public:
                 Island&,
                 const RoomCoord&,
                 Microseconds delta,
-                bool)
+                bool checkers_mode)
     {
         if (not app.macrocosm()) {
             return;
         }
 
         auto& m = macrocosm(app);
+
+        timer_ += milliseconds(16);
+        u8 ambient_offset = 2 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+            std::numeric_limits<s16>::max();
+
+        ambient_movement_ = ambient_offset;
+        if (checkers_mode) { // Fixme
+            ambient_movement_ = 0;
+        }
 
         if (m.sector().size().x < 6) {
             // For outposts, which are tiny:
@@ -64,9 +77,14 @@ public:
             current_ = interpolate(
                 target_.cast<Float>(), current_, delta * 0.0000021f);
 
-            pfrm.set_scroll(Layer::map_0, current_.x, current_.y);
-            pfrm.set_scroll(Layer::map_1, current_.x, current_.y + 8);
         }
+
+        pfrm.set_scroll(Layer::map_0, current_.x,
+                        current_.y + ambient_movement_);
+
+        pfrm.set_scroll(Layer::map_1, current_.x,
+                        current_.y + 8 + ambient_movement_);
+
     }
 };
 

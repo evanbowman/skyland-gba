@@ -40,6 +40,7 @@ class MacrocosmEntity : public Entity
 public:
     MacrocosmEntity() : Entity({})
     {
+        health_ = 1;
     }
 
 

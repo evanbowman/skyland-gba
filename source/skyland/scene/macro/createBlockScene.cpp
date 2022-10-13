@@ -25,6 +25,7 @@
 #include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/macro/macrocosmEffect.hpp"
 
 
 
@@ -595,6 +596,10 @@ void CreateBlockScene::edit(Platform& pfrm,
 
             network::transmit(pfrm, p);
         }
+
+        auto pos = screen_coord(pfrm, state.sector().cursor_raster_pos());
+
+        state.add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));
     }
 
     ++cursor.z;
@@ -664,6 +669,11 @@ void BuildImprovementScene::edit(Platform& pfrm,
 
             network::transmit(pfrm, p);
         }
+
+        auto pos = screen_coord(pfrm, state.sector().cursor_raster_pos());
+        pos.y += 4;
+
+        state.add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));
     }
 
     state.data_->last_improved_ = options_[selector_];

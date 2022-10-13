@@ -142,6 +142,7 @@ enum class SystemString {
     block_radiator,
     block_reactor,
     block_replicator,
+    block_rice,
     block_road_ns,
     block_road_we,
     block_road_hub,

@@ -91,6 +91,7 @@ radar
 radiator
 reactor
 replicator
+rice
 rail-ns (decoration)
 rail-we (decoration)
 rail-hub

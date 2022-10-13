@@ -312,6 +312,7 @@ public:
 
 
     void set_scroll(Layer layer, u16 x, u16 y);
+    Vec2<u16> get_scroll(Layer layer);
 
 
     // A special version of set_tile meant for glyphs. Allows you to set custom

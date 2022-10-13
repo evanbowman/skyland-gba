@@ -85,7 +85,7 @@ public:
     Coins terrain_cost(Island& island);
 
 
-    Boxed<Camera, Camera, 8 * sizeof(void*)>& camera()
+    Boxed<Camera, Camera, 9 * sizeof(void*)>& camera()
     {
         return camera_;
     }
@@ -444,7 +444,7 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
-    Boxed<Camera, Camera, 8 * sizeof(void*)> camera_;
+    Boxed<Camera, Camera, 9 * sizeof(void*)> camera_;
     GameSpeed game_speed_ = GameSpeed::normal;
     u16 pause_count_ = 0;
     Rumble rumble_;

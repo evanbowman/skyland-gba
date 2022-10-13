@@ -136,12 +136,13 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         return next;
     }
 
+    auto& m = macrocosm(app);
+
     app.player().update(pfrm, app, delta);
-    app.camera()->update(pfrm, app, app.player_island(), {}, delta, true);
+    app.camera()->update(pfrm, app, app.player_island(), {}, delta,
+                         m.data_->checkers_mode_);
 
     app.environment().update(pfrm, app, delta);
-
-    auto& m = macrocosm(app);
 
     m.data_->fluid_anim_timer_ += delta;
     bool was_gre = false;
@@ -168,6 +169,11 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     m.data_->p().day_night_cyc_.set(m.data_->p().day_night_cyc_.get() + 1);
+
+    if (m.data_->checkers_mode_) {
+        m.data_->p().day_night_cyc_.set(800);
+    }
+
     if (m.data_->p().day_night_cyc_.get() > interval) {
         m.data_->p().day_night_cyc_.set(0);
 
@@ -228,6 +234,16 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto next = update(pfrm, app.player(), m);
 
+    auto& entities = m.data_->entities_;
+    for (auto e = entities.begin(); e not_eq entities.end();) {
+        if (not (*e)->alive()) {
+            e = entities.erase(e);
+        } else {
+            (*e)->update(pfrm, m, delta);
+            ++e;
+        }
+    }
+
 
     m.sector().render_setup(pfrm);
 
@@ -263,6 +279,10 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
     pfrm.system_call("_prlx_macro",
                      (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+
+    for (auto& e : m.data_->entities_) {
+        pfrm.screen().draw(e->sprite());
+    }
 
     display(pfrm, macrocosm(app));
 }

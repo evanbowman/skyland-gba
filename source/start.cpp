@@ -144,7 +144,5 @@ static inline void main_loop(Platform& pf)
 
 void start(Platform& pfrm)
 {
-    malloc_compat::create_heap();
-
     return skyland::main_loop(pfrm);
 }

@@ -31,6 +31,8 @@
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
+#include "skyland/entity/macro/macrocosmEffect.hpp"
+
 
 
 
@@ -300,9 +302,10 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
         } else {
             switch (state.data_->keylock_) {
-            case Keylock::nolock:
+            case Keylock::nolock: {
                 pfrm.speaker().play_sound("button_wooden", 3);
                 return scene_pool::alloc<TileOptionsScene>();
+            }
 
             case Keylock::buildlock:
                 pfrm.speaker().play_sound("button_wooden", 3);

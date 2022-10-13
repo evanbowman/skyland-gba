@@ -321,7 +321,6 @@ struct EngineImpl : public Engine
     EngineImpl(Platform&, App*);
 
 
-
     template <typename T, typename ...Args>
     T* add_entity(Args&& ...args)
     {
@@ -348,6 +347,10 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c);
 
 
 EngineImpl& bound_state();
+
+
+
+Vec2<Fixnum> screen_coord(Platform& pfrm, int tile_coord);
 
 
 

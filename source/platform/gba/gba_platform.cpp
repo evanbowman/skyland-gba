@@ -1971,6 +1971,25 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 }
 
 
+Vec2<u16> Platform::get_scroll(Layer layer)
+{
+    switch (layer) {
+    case Layer::background:
+    case Layer::overlay:
+        break;
+
+    case Layer::map_0_ext:
+    case Layer::map_0:
+        return {x0_scroll, y0_scroll};
+
+    case Layer::map_1_ext:
+    case Layer::map_1:
+        return {x3_scroll, y3_scroll};
+    }
+
+    return {};
+}
+
 
 [[noreturn]] static void restart()
 {

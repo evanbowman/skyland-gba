@@ -761,6 +761,10 @@ Stats stats(Type t, bool shadowed)
     case terrain::Type::lumber_spawn:
         break;
 
+    case terrain::Type::rice_terrace:
+    case terrain::Type::rice_ripe:
+        break;
+
     case terrain::Type::wool:
         break;
 
@@ -890,6 +894,8 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::lumber_spawn:
     case terrain::Type::tulips:
     case terrain::Type::honey:
+    case terrain::Type::rice_terrace:
+    case terrain::Type::rice_ripe:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -930,8 +936,6 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     Type nt = terrain::Type::air;
 
     switch (t) {
-        break;
-
     case terrain::Type::ice:
         cost.water_ = 10;
         cost.productivity_ = 8;
@@ -972,6 +976,12 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     case terrain::Type::wheat:
         nt = terrain::Type::volcanic_soil;
         cost.productivity_ = 1;
+        break;
+
+    case terrain::Type::rice_ripe:
+        nt = terrain::Type::rice_terrace;
+        cost.productivity_ = 16;
+        cost.food_ = 26;
         break;
 
     case terrain::Type::farmhouse:
@@ -1060,6 +1070,14 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::basalt:
         cost.stone_ = 12;
+        break;
+
+    case terrain::Type::rice_terrace:
+        cost.productivity_ = 20;
+        cost.water_ = 5;
+        break;
+
+    case terrain::Type::rice_ripe:
         break;
 
     case terrain::Type::carved_hematite:
@@ -1152,6 +1170,9 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
     case terrain::Type::potatoes_planted:
+        cost.productivity_ = 2;
+        break;
+
     case terrain::Type::sunflowers:
     case terrain::Type::tulips:
     case terrain::Type::indigo:
@@ -1163,7 +1184,7 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::madder:
     case terrain::Type::tea:
     case terrain::Type::cocoa:
-        cost.productivity_ = 2;
+        cost.productivity_ = 20;
         break;
 
     case terrain::Type::singularity:
@@ -1215,9 +1236,9 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::lumber_spawn:
         cost.lumber_ = 0;
         cost.marble_ = 2;
-        cost.clay_ = 10;
-        cost.water_ = 10;
-        cost.productivity_ = 20;
+        cost.clay_ = 5;
+        cost.water_ = 5;
+        cost.productivity_ = 10;
         break;
     }
 
@@ -1367,6 +1388,10 @@ SystemString terrain::name(Type t)
     case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
         return SystemString::block_wheat;
+
+    case terrain::Type::rice_terrace:
+    case terrain::Type::rice_ripe:
+        return SystemString::block_rice;
 
     case terrain::Type::potatoes:
     case terrain::Type::potatoes_planted:
@@ -1520,6 +1545,7 @@ terrain::Improvements terrain::improvements(Type t)
         break;
 
     case Type::basalt:
+        result.push_back(Type::rice_terrace);
         result.push_back(Type::carved_basalt);
         result.push_back(Type::basalt_brick);
         break;
@@ -1664,6 +1690,10 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
+        return {2728, 2744};
+
+    case terrain::Type::rice_terrace: // FIXME
+    case terrain::Type::rice_ripe:
         return {2728, 2744};
 
     case terrain::Type::indigo:
@@ -2668,7 +2698,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 30) {
+            if (block.data_ > 60) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;
@@ -2722,6 +2752,13 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
                         auto& p = state.data_->p();
 
                         switch (block.type()) {
+                        case terrain::Type::rice_ripe:
+                            if (p.food_.get() not_eq state.food_storage()) {
+                                harvest_block(state, s, coord);
+                                found = true;
+                            }
+                            break;
+
                         case terrain::Type::potatoes:
                             if (p.food_.get() not_eq state.food_storage()) {
                                 if (harvest_block(state, s, coord)) {
@@ -2752,7 +2789,24 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
                 }
             }
         }
-    }
+    },
+    // rice_terrace
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::basalt);
+        if (not block.shadowed_day_ and cropcycle_) {
+            block.data_++;
+            if (block.data_ > 4) {
+                block.data_ = 0;
+                s.set_block(position, terrain::Type::rice_ripe);
+            }
+        }
+    },
+    // rice_ripe
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::basalt);
+    },
 };
 // clang-format on
 
@@ -3191,6 +3245,22 @@ raster::TileCategory raster::tile_category(int texture_id)
     // clang-format on
 
     return category[texture_id];
+}
+
+
+
+Vec2<Fixnum> screen_coord(Platform& pfrm, int p)
+{
+    Vec2<Fixnum> pos;
+    int y = p / 30;
+    int x = p % 30;
+    int real_y = y * 8 + 8;
+    int real_x = x * 8;
+    pos.y = real_y;
+    pos.x = real_x;
+    pos.y -= pfrm.get_scroll(Layer::map_1).y;
+
+    return pos;
 }
 
 

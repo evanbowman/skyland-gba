@@ -1763,6 +1763,7 @@ void terrain::Sector::bkg_update_start()
     update();
 
     u8 data = 9;
+    u8 rice = 3;
 
     for (u8 x = 0; x < size().x; ++x) {
         for (u8 y = 0; y < size().y; ++y) {
@@ -1772,6 +1773,12 @@ void terrain::Sector::bkg_update_start()
                     block.data_ = data;
                     ++data;
                     if (data > 18) {
+                        data = 1;
+                    }
+                } else if (block.type() == terrain::Type::rice_terrace) {
+                    block.data_ = rice;
+                    ++rice;
+                    if (data > 5) {
                         data = 1;
                     }
                 }
