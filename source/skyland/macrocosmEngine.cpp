@@ -1582,7 +1582,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {2760, 2776};
 
     case terrain::Type::farmhouse:
-        return {2760, 2776};
+        return {3928, 3912};
 
     case terrain::Type::dome:
         return {3640, 3624};
