@@ -45,6 +45,8 @@
 #include "spectatorScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "surrenderConfirmScene.hpp"
+
 
 
 namespace skyland
@@ -508,6 +510,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                            SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
+            } else if (not app.opponent().is_friendly()) {
+                add_option(pfrm,
+                           SYSTR(start_menu_end_run)->c_str(),
+                           scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
+                           fade_sweep);
             }
             break;
 

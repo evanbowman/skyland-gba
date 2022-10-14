@@ -51,7 +51,9 @@ public:
 
     void create(const char* pool_label)
     {
-        create(pool_label, pools_.capacity());
+        for (u32 i = 0; i < segment_count(); ++i) {
+            pools_.push_back(allocate_dynamic<Pool>(pool_label, pool_label));
+        }
     }
 
 

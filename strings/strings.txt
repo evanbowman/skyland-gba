@@ -312,6 +312,8 @@ share island
 spectate
 continue building
 script console
+surrender
+Are you sure?
 START: drop in
 please wait...
 really salvage?  +

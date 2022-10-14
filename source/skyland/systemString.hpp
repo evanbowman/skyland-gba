@@ -389,6 +389,9 @@ enum class SystemString {
     start_menu_spectate,
     start_menu_continue_building,
     start_menu_repl,
+    start_menu_end_run,
+
+    are_you_sure,
 
     spectate_msg,
 
