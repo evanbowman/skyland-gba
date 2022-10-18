@@ -54,6 +54,9 @@ public:
     }
 
 
+    void macro_gen_sample_island(Platform&, App&);
+
+
 private:
     bool wait_ = true;
     std::optional<Text> text_;
@@ -117,6 +120,10 @@ private:
         resume_end,
         resume_macro,
         resume_challenges,
+        macro_island_init,
+        macro_island_enter,
+        macro_island,
+        macro_island_exit,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;
@@ -131,6 +138,10 @@ private:
     int x_scroll_ = 0;
 
     bool dev_;
+
+    bool repeat_left_ = false;
+    bool repeat_right_ = false;
+    bool repeat_action1_ = false;
 
     Microseconds island_mov_timer_ = 0;
     int island_offset_ = 0;

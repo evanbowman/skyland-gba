@@ -155,7 +155,7 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
     if (unproductive_population) {
         add_entry(SystemString::macro_fiscal_homelessness,
                   -unproductive_population * 0.01f *
-                      EngineImpl::bindings().mcr_homelessness_penalty_percent);
+                  1);
     }
 
     return result;
@@ -366,16 +366,7 @@ Float terrain::Sector::population_growth_rate_from_food_supply() const
 
 Float terrain::Sector::population_growth_rate_from_housing_supply() const
 {
-    auto s = stats();
-    auto& b = EngineImpl::bindings();
-
-    if (population().as_integer() > s.housing_) {
-        return -0.001f * b.mcr_pop_growth_housing_factor *
-               (population().as_integer() - s.housing_);
-    } else {
-        return 0.001f * b.mcr_pop_growth_housing_factor *
-               (s.housing_ - population().as_integer());
-    }
+    return 1.f;
 }
 
 
@@ -664,7 +655,16 @@ void terrain::Sector::render(Platform& pfrm)
     };
 
 
-    auto flush_stack_t1 = [&pfrm](auto& stack, int i) {
+    const auto uho = macro::raster::globalstate::_upper_half_only;
+
+
+    auto flush_stack_t1 = [&pfrm, uho](auto& stack, int i) {
+
+        if (uho) {
+            return;
+        }
+
+
         bool overwrite = true;
 
         while (not stack.empty()) {
@@ -716,7 +716,7 @@ void terrain::Sector::render(Platform& pfrm)
                 // this only works because the two cursor frames occupy the same
                 // pixels.
                 RASTER_DEBUG();
-                if (t >= RASTER_CELLCOUNT) {
+                if (t >= RASTER_CELLCOUNT and not uho) {
                     pfrm.blit_t1_tile_to_texture(
                         stk[0] + RASTER_CELLCOUNT, t - 480, false);
                 } else {
@@ -791,7 +791,9 @@ void terrain::Sector::render(Platform& pfrm)
         } else if ((cursor_moved or shrunk) and
                    raster::globalstate::_recalc_depth_test.get(
                        i + RASTER_CELLCOUNT)) {
-            pfrm.blit_t1_erase(i);
+            if (not uho) {
+                pfrm.blit_t1_erase(i);
+            }
         }
     }
 

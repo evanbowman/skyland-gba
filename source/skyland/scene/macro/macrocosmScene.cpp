@@ -416,10 +416,7 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
 
 Microseconds MacrocosmScene::year_length(macro::EngineImpl& state)
 {
-    auto& b = *state.data_->bindings_;
-    auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
-    added_secs *= 1 + state.data_->other_sectors_.size();
-    return added_secs + seconds(b.mcr_base_seconds_per_year);
+    return 1;
 }
 
 

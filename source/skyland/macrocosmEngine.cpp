@@ -67,6 +67,7 @@ bool _changed_cursor_flicker_only = false;
 Buffer<u16, 6> _cursor_raster_tiles;
 Buffer<u16, 6> _cursor_raster_stack[6];
 bool is_night = false;
+bool _upper_half_only = false;
 
 Bitvector<RASTER_CELLCOUNT * 2> _recalc_depth_test;
 
@@ -167,17 +168,6 @@ const LineItem* Ledger::entries() const
 
 
 
-EngineImpl::Data::Bindings& EngineImpl::bindings()
-{
-    if (not _bound_state) {
-        Platform::fatal("access to bindings without macro context");
-    }
-
-    return *_bound_state->data_->bindings_;
-}
-
-
-
 Coins EngineImpl::coin_yield()
 {
     auto coins = data_->origin_sector_.coin_yield();
@@ -193,22 +183,14 @@ Coins EngineImpl::coin_yield()
 
 Float EngineImpl::commodity_diminishing_return_percent()
 {
-    int p = _bound_state->data_->bindings_
-                ->mcr_commodity_diminishing_return_percent;
-    return p * 0.01;
+    return 0;
 }
 
 
 
 int EngineImpl::food_consumption_factor()
 {
-    int factor = _bound_state->data_->bindings_->mcr_food_consumption_factor;
-
-    if (factor == 0) {
-        Platform::fatal("food consumption factor cannot be zero!");
-    }
-
-    return factor;
+    return 1;
 }
 
 
@@ -2133,7 +2115,8 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
 {
     auto t = s.get_block(c).type();
     auto [cost, nt] = harvest(t);
-    if (cost.productivity_ > s.productivity()) {
+    if (not state.data_->freebuild_mode_ and
+        cost.productivity_ > s.productivity()) {
         return false;
     }
     auto prod = s.productivity();

@@ -511,6 +511,29 @@ static const lisp::Binding script_api[] = {
          auto& sector = macrocosm(*interp_get_app()).sector();
          return L_INT((int)sector.get_block({x, y, z}).type());
      }},
+    {"mcr-blocks",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+         auto& sector = macrocosm(*interp_get_app()).sector();
+         lisp::ListBuilder lat;
+
+         for (u8 z = 0; z < sector.size().z; ++z) {
+             for (u8 x = 0; x < sector.size().x; ++x) {
+                 for (u8 y = 0; y < sector.size().y; ++y) {
+                     auto b = sector.get_block({x, y, z}).type_;
+                     if (b not_eq 0) {
+                         lisp::ListBuilder sub;
+                         sub.push_back(L_INT(b));
+                         sub.push_back(L_INT(x));
+                         sub.push_back(L_INT(y));
+                         sub.push_back(L_INT(z));
+                         lat.push_back(sub.result());
+                     }
+                 }
+             }
+         }
+         return lat.result();
+     }},
     {"mcr-sector",
      [](int argc) {
          if (argc == 2) {

@@ -764,6 +764,27 @@ void window_init_effectmode()
 
 
 
+void Platform::override_priority(Layer layer, int priority)
+{
+    switch (layer) {
+    default:
+        // TODO...
+        break;
+
+    case Layer::map_0:
+        BG0_CONTROL &= ~0x3;
+        BG0_CONTROL |= BG_PRIORITY(priority);
+        break;
+
+    case Layer::map_1:
+        BG3_CONTROL &= ~0x3;
+        BG3_CONTROL |= BG_PRIORITY(priority);
+        break;
+    }
+}
+
+
+
 // Most of the game uses tile-based graphics modes, but some parts of the intro
 // sequence, which display the gameboy player logo, currently use the bitmap
 // graphics modes, for simplicity.
@@ -4745,6 +4766,8 @@ __attribute__((section(".ewram"))) int _ewram_static_data = 0;
 
 bool ram_overclock()
 {
+    const u16 prev_dispcnt = REG_DISPCNT;
+
     volatile unsigned& memctrl_register =
         *reinterpret_cast<unsigned*>(0x4000800);
     memctrl_register = 0x0E000020;
@@ -4752,14 +4775,29 @@ bool ram_overclock()
     volatile int& ewram_static_data = _ewram_static_data;
     ewram_static_data = 1;
 
+    bool result = false;
+
     if (ewram_static_data != 1) {
         memctrl_register = 0x0D000020;
         info(*::platform, "ewram overclocking disabled");
-        return false;
+        result = false;
     } else {
         info(*::platform, "overclocked ewram");
-        return true;
+        result = true;
     }
+
+    // In MyBoy! and a few other inaccurate emulators, ewram overclocking
+    // overwrites REG_DISPCNT for some reason.
+    const bool emulator_bug = REG_DISPCNT not_eq prev_dispcnt;
+    REG_DISPCNT = prev_dispcnt;
+
+    if (emulator_bug) {
+        info(*::platform,
+             "The software has detected that the emulator that you're running "
+             "this thing on kinda sucks.");
+    }
+
+    return result;
 }
 
 
@@ -6950,32 +6988,9 @@ void Platform::Speaker::start()
 
 
 
-static bool detect_android_myboy_emulator()
-{
-    const u16 prev_dispcnt = REG_DISPCNT;
-
-    REG_DISPCNT = MODE_0 | BG0_ENABLE;
-
-    object_attribute_memory[0].attribute_1 = 0;
-
-    // RAM overclocking in MyBoy! erroneously clears REG_DISPCNT.
-    ram_overclock();
-
-    const bool detected = not(REG_DISPCNT & BG0_ENABLE);
-
-    REG_DISPCNT = prev_dispcnt;
-    return detected;
-}
-
-
-
 Platform::Platform()
 {
     ::platform = this;
-
-    if (detect_android_myboy_emulator()) {
-        info(*this, "Detected MyBoy! emulator");
-    }
 
     const auto tm1 = system_clock_.now();
 
@@ -7176,11 +7191,9 @@ Platform::Platform()
     bool is_gameboy_micro = false;
 
     CONF_BOOL(ewram_overclock);
-    if (ewram_overclock) {
+    if (ewram_overclock and bios_version not_eq BiosVersion::NDS) {
         if (not ram_overclock()) {
-            if (bios_version == BiosVersion::NDS) {
-                is_gameboy_micro = true;
-            }
+            is_gameboy_micro = true;
         }
     }
 

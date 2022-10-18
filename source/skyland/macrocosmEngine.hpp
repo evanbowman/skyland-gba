@@ -70,66 +70,8 @@ struct EngineImpl : public Engine
     {
 #define MCR_SHARED(name) SharedVariable name = #name
 
-        struct Bindings
-        {
-            // Variables exposed to the script engine.
-            MCR_SHARED(mcr_building_cost);
-            MCR_SHARED(mcr_water_cost);
-            MCR_SHARED(mcr_lava_cost);
-            MCR_SHARED(mcr_terrain_cost);
-            MCR_SHARED(mcr_masonry_cost);
-            MCR_SHARED(mcr_wheat_cost);
-            MCR_SHARED(mcr_indigo_cost);
-            MCR_SHARED(mcr_madder_cost);
-            MCR_SHARED(mcr_gold_cost);
-            MCR_SHARED(mcr_workshop_cost);
-            MCR_SHARED(mcr_light_source_cost);
-            MCR_SHARED(mcr_windmill_cost);
-            MCR_SHARED(mcr_windmill_stone_base_cost);
-            MCR_SHARED(mcr_shellfish_cost);
-            MCR_SHARED(mcr_port_cost);
-            MCR_SHARED(mcr_potatoes_cost);
-            MCR_SHARED(mcr_sunflowers_cost);
-            MCR_SHARED(mcr_shrubbery_cost);
-            MCR_SHARED(mcr_wool_cost);
-            MCR_SHARED(mcr_saffron_cost);
-            MCR_SHARED(mcr_ice_cost);
-            MCR_SHARED(mcr_cocoa_cost);
-            MCR_SHARED(mcr_tea_cost);
-            MCR_SHARED(mcr_lumber_cost);
-            MCR_SHARED(mcr_arch_cost);
-            MCR_SHARED(mcr_sand_cost);
-            MCR_SHARED(mcr_crystal_cost);
-            MCR_SHARED(mcr_marble_cost);
-            MCR_SHARED(mcr_scaffolding_cost);
-            MCR_SHARED(mcr_tulips_cost);
-            MCR_SHARED(mcr_pearls_cost);
-            MCR_SHARED(mcr_road_cost);
-            MCR_SHARED(mcr_honey_cost);
 
-            MCR_SHARED(mcr_food_consumption_factor);
-            MCR_SHARED(mcr_commodity_diminishing_return_percent);
-            MCR_SHARED(mcr_employment_yield_percent);
-            MCR_SHARED(mcr_jobless_yield_percent);
-            MCR_SHARED(mcr_homelessness_penalty_percent);
-            MCR_SHARED(mcr_starvation_penalty_percent);
-
-            MCR_SHARED(mcr_pop_growth_food_surplus_percent);
-            MCR_SHARED(mcr_pop_growth_food_shortage_percent);
-            MCR_SHARED(mcr_pop_growth_housing_factor);
-
-            MCR_SHARED(mcr_base_seconds_per_year);
-            MCR_SHARED(mcr_added_seconds_per_year_per_island);
-        };
-
-
-        DynamicMemory<Bindings> bindings_;
-
-
-
-        Data()
-            : bindings_(allocate_dynamic<Bindings>("mcr-script-bindings")),
-              origin_sector_({0, 0})
+        Data() : origin_sector_({0, 0})
         {
         }
 
@@ -217,9 +159,6 @@ struct EngineImpl : public Engine
 
     terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
 
-
-
-    static Data::Bindings& bindings();
 
 
     static int food_consumption_factor();

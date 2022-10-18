@@ -79,10 +79,10 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
     layers_text_.reset();
     visible_layers_text_.reset();
     cursor_text_.reset();
+    pfrm.set_tile(Layer::overlay, 1, 1, 0);
+    pfrm.set_tile(Layer::overlay, 2, 1, 0);
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
     pfrm.set_tile(Layer::overlay, 2, 2, 0);
-    pfrm.set_tile(Layer::overlay, 1, 3, 0);
-    pfrm.set_tile(Layer::overlay, 2, 3, 0);
 }
 
 

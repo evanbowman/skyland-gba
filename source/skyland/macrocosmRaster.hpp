@@ -115,6 +115,11 @@ extern bool is_night;
 // erasure of tiles under the block's first (right) position.
 extern Bitvector<RASTER_CELLCOUNT * 2> _recalc_depth_test;
 
+
+// Only render to the upper half of the renderwindow. Used for the title screen.
+extern bool _upper_half_only;
+
+
 } // namespace globalstate
 
 

@@ -41,6 +41,9 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/macrocosmEngine.hpp"
+#include "skyland/macrocosmRaster.hpp"
+#include "platform/color.hpp"
 
 
 
@@ -633,18 +636,32 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         view.set_center(c);
         pfrm.screen().set_view(view);
 
+        bool macro_island_view =
+            state_ == State::macro_island_enter or
+            state_ == State::macro_island or
+            state_ == State::macro_island_exit or
+            state_ == State::macro_island_init;
+
         if (x_scroll_ < -240) {
+            if (not macro_island_view) {
+                set_scroll(pfrm, Layer::map_0_ext, x_scroll_ - 32, -offset + 8);
+            }
             set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
-            set_scroll(pfrm, Layer::map_0_ext, x_scroll_ - 32, -offset + 8);
         } else if (x_scroll_ < 0) {
+            if (not macro_island_view) {
+                set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
+            }
             set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
-            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
         } else if (x_scroll_ > 240) {
+            if (not macro_island_view) {
+                set_scroll(pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
+            }
             set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
-            set_scroll(pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
         } else {
+            if (not macro_island_view) {
+                set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
+            }
             set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
-            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
         }
     }
 
@@ -729,6 +746,118 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     switch (state_) {
+    case State::macro_island_enter:
+        timer_ += delta;
+
+        if (app.player().key_pressed(pfrm, Key::left) or
+            app.player().key_pressed(pfrm, Key::up)) {
+            state_ = State::macro_island_exit;
+            repeat_left_ = true;
+            const auto amount = 1.f - smoothstep(0.f,
+                                                 milliseconds(1500),
+                                                 timer_);
+            timer_ = amount * milliseconds(550);
+            break;
+        }
+        if (app.player().key_pressed(pfrm, Key::down) or
+            app.player().key_pressed(pfrm, Key::right)) {
+            state_ = State::macro_island_exit;
+            repeat_right_ = true;
+            const auto amount = 1.f - smoothstep(0.f,
+                                                 milliseconds(1500),
+                                                 timer_);
+            timer_ = amount * milliseconds(550);
+            break;
+        }
+
+        if (timer_ > milliseconds(1500)) {
+            state_ = State::macro_island;
+            set_scroll(pfrm, Layer::map_0_ext, -4, 192);
+        } else {
+            const auto amount = 1.f - smoothstep(0.f,
+                                                 milliseconds(1500),
+                                                 timer_);
+            auto scroll = 192 - 192 * amount;
+            set_scroll(pfrm, Layer::map_0_ext, -4,
+                       clamp((int)scroll, 40, 192));
+        }
+
+        break;
+
+    case State::macro_island_exit:
+        timer_ += delta;
+        if (timer_ > milliseconds(400)) {
+            state_ = State::wait;
+            timer_ = 0;
+            const auto offset = 60 + ambient_movement_;
+            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
+            pfrm.screen().set_shader(passthrough_shader);
+            pfrm.screen().set_shader_argument(0);
+            pfrm.override_priority(Layer::map_1, 2);
+        } else {
+            const auto amount = smoothstep(0.f,
+                                           milliseconds(550),
+                                           timer_);
+            auto scroll = 192 - 192 * amount;
+            set_scroll(pfrm, Layer::map_0_ext, -4,
+                       clamp((int)scroll, 40, 192));
+        }
+        break;
+
+    case State::macro_island:
+
+        if (pfrm.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released(pfrm)) {
+            timer_ = 0;
+            state_ = State::macro_island_exit;
+            repeat_action1_ = true;
+            pfrm.speaker().play_music("unaccompanied_wind", 0);
+            pfrm.speaker().play_sound("button_wooden", 3);
+        }
+
+        if (app.player().key_pressed(pfrm, Key::left) or
+            app.player().key_pressed(pfrm, Key::up)) {
+            timer_ = 0;
+            state_ = State::macro_island_exit;
+            repeat_left_ = true;
+        }
+        if (app.player().key_pressed(pfrm, Key::down) or
+            app.player().key_pressed(pfrm, Key::right)) {
+            timer_ = 0;
+            state_ = State::macro_island_exit;
+            repeat_right_ = true;
+        }
+
+        selector_timer_ += delta;
+        if (selector_timer_ > milliseconds(100)) {
+            selector_timer_ = 0;
+            selector_shaded_ = not selector_shaded_;
+
+            const auto st = calc_screen_tiles(pfrm);
+            if (selector_shaded_) {
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_start_ - 4,
+                              st.y - text_offset(pfrm),
+                              373);
+
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_stop_ - 1,
+                              st.y - text_offset(pfrm),
+                              374);
+            } else {
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_start_ - 4,
+                              st.y - text_offset(pfrm),
+                              375);
+
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_stop_ - 1,
+                              st.y - text_offset(pfrm),
+                              376);
+            }
+        }
+        break;
+
     case State::resume_challenges:
         state_ = State::quick_fade_in;
         menu_selection_ = 1;
@@ -746,6 +875,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::resume_macro:
         state_ = State::quick_fade_in;
         menu_selection_ = 2;
+        timer_ = 0;
         pfrm.load_tile1_texture("skyland_title_2_flattened");
         x_scroll_ = -240;
         break;
@@ -822,24 +952,39 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().pressed<Key::action_1>() or
+        if (repeat_action1_ or
+            pfrm.keyboard().pressed<Key::action_1>() or
             app.player().tap_released(pfrm)) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
             } else {
-                pfrm.speaker().play_music("unaccompanied_wind", 0);
-                pfrm.speaker().play_sound("button_wooden", 3);
+                if (not repeat_action1_) {
+                    pfrm.speaker().play_music("unaccompanied_wind", 0);
+                    pfrm.speaker().play_sound("button_wooden", 3);
+                }
                 module_cursor_.reset();
                 module_page_ = 0;
             }
+            repeat_action1_ = false;
         }
 
-        if (app.player().key_pressed(pfrm, Key::right) or
+        if (menu_selection_ == 2) {
+            timer_ += delta;
+            if (timer_ > milliseconds(700)) {
+                state_ = State::macro_island_init;
+                timer_ = 0;
+                break;
+            }
+        }
+
+        if (repeat_right_ or
+            app.player().key_pressed(pfrm, Key::right) or
             app.player().key_pressed(pfrm, Key::down) or
             (app.player().touch_held(milliseconds(150)) and
              app.player().touch_velocity(pfrm).x and
              app.player().touch_velocity(pfrm).x * delta < -0.08f)) {
+            repeat_right_ = false;
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -853,6 +998,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::scroll_to_center;
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile0_texture("skyland_title_0_flattened");
+                __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
             } else if (menu_selection_ == 1) {
                 menu_selection_ = 3;
@@ -870,9 +1016,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (app.player().key_pressed(pfrm, Key::left) or
+        if (repeat_left_ or
+            app.player().key_pressed(pfrm, Key::left) or
             app.player().key_pressed(pfrm, Key::up) or
             app.player().touch_velocity(pfrm).x * delta > 0.08f) {
+            repeat_left_ = false;
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
@@ -900,6 +1048,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::scroll_multiplayer;
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile0_texture("skyland_title_4_flattened");
+                __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
             }
         }
@@ -932,6 +1081,41 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
     }
+
+    case State::macro_island_init:
+        timer_ = 0;
+        state_ = State::macro_island_enter;
+
+        pfrm.override_priority(Layer::map_1, 1);
+
+        pfrm.screen()
+            .set_shader([](ShaderPalette p,
+                           ColorConstant k,
+                           int var,
+                           int index) {
+
+                            auto blend = [](ColorConstant from, ColorConstant to, u8 interp) {
+                                             const Color input(from);
+                                             const Color k2(to);
+                                             Color result(fast_interpolate(input.r_, k2.r_, interp),
+                                                          fast_interpolate(input.g_, k2.g_, interp),
+                                                          fast_interpolate(input.b_, k2.b_, interp));
+                                             return result.hex();
+                                         };
+
+                            // 0x63b5e7;
+
+                            if (p == ShaderPalette::tile0) {
+                                return blend(k, custom_color(0x63b5e7), 128);
+                            }
+
+                            return k;
+                        });
+        pfrm.screen().set_shader_argument(1);
+
+        pfrm.load_tile0_texture("macro_rendertexture");
+        macro_gen_sample_island(pfrm, app);
+        break;
 
     case State::scroll_macro: {
         timer_ += delta;
@@ -1046,6 +1230,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(600);
         if (timer_ > fade_duration) {
+
+            pfrm.screen().set_shader(passthrough_shader);
+            pfrm.screen().set_shader_argument(0);
+            pfrm.override_priority(Layer::map_1, 2);
+
             text_.reset();
             if (menu_selection_ not_eq 0) {
                 pfrm.speaker().clear_sounds();
@@ -1289,6 +1478,30 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     return null_scene();
+}
+
+
+
+void TitleScreenScene::macro_gen_sample_island(Platform& pfrm, App& app)
+{
+    app.macrocosm().emplace();
+    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
+
+    macro::raster::globalstate::_upper_half_only = true;
+
+    __draw_image(pfrm, 0, 0, 0, 30, 16, Layer::map_0);
+    auto& m = macrocosm(app);
+    m.make_sector({0, 1}, macro::terrain::Sector::Shape::pancake);
+    m.bind_sector({0, 1});
+    auto& s = m.sector();
+
+    app.invoke_script(pfrm, "/scripts/config/title_screen_isle.lisp");
+
+    s.render(pfrm);
+
+    macro::raster::globalstate::_upper_half_only = false;
+
+    app.macrocosm().reset();
 }
 
 

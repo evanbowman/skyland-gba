@@ -153,6 +153,9 @@ public:
     TilePixels extract_tile(Layer layer, u16 tile);
 
 
+    void override_priority(Layer layer, int priority);
+
+
     Screen& screen()
     {
         return screen_;

@@ -96,6 +96,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::water_source);
 
     if (state.data_->freebuild_mode_) {
+        options_.push_back(terrain::Type::ice);
         options_.push_back(terrain::Type::shrubbery);
         options_.push_back(terrain::Type::lava_source);
     }
