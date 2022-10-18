@@ -749,6 +749,20 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::macro_island_enter:
         timer_ += delta;
 
+        if (pfrm.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released(pfrm)) {
+            timer_ = 0;
+            state_ = State::macro_island_exit;
+            repeat_action1_ = true;
+            pfrm.speaker().play_music("unaccompanied_wind", 0);
+            pfrm.speaker().play_sound("button_wooden", 3);
+
+            const auto amount = 1.f - smoothstep(0.f,
+                                                 milliseconds(1500),
+                                                 timer_);
+            timer_ = amount * milliseconds(550);
+        }
+
         if (app.player().key_pressed(pfrm, Key::left) or
             app.player().key_pressed(pfrm, Key::up)) {
             state_ = State::macro_island_exit;

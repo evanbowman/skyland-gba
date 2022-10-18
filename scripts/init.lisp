@@ -59,7 +59,3 @@
 (defn/c secret
   (room-mut (opponent) $0 $1 'code)
   (qr-set (opponent) $0 $1 $2))
-
-
-(defn/c log (syscall "log" $0))
-(defn/c die (syscall "fatal" $0))
