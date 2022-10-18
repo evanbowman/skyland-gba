@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include "allocator.hpp"
 #include "alloc_entity.hpp"
+#include "allocator.hpp"
 #include "containers/vector.hpp"
 #include "entity.hpp"
 #include "entity/macro/macrocosmEntity.hpp"
@@ -260,8 +260,7 @@ struct EngineImpl : public Engine
     EngineImpl(Platform&, App*);
 
 
-    template <typename T, typename ...Args>
-    T* add_entity(Args&& ...args)
+    template <typename T, typename... Args> T* add_entity(Args&&... args)
     {
         if (auto e = alloc_entity<T>(std::forward<Args>(args)...)) {
             auto ret = e.get();

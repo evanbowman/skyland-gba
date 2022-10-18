@@ -29,6 +29,7 @@
 #include "modules/macrocosmLoaderModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
+#include "platform/color.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
@@ -36,14 +37,13 @@
 #include "skyland/entity/birds/smallBird.hpp"
 #include "skyland/entity/misc/titleScreenMusicNote.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
+#include "skyland/macrocosmEngine.hpp"
+#include "skyland/macrocosmRaster.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
-#include "skyland/macrocosmEngine.hpp"
-#include "skyland/macrocosmRaster.hpp"
-#include "platform/color.hpp"
 
 
 
@@ -55,12 +55,10 @@ namespace skyland
 class EmberParticle : public Entity
 {
 public:
-
     EmberParticle(TitleScreenScene* parent,
                   const Vec2<Fixnum>& position,
-                  u16 tile) :
-        Entity({{}, {}}),
-        parent_(parent)
+                  u16 tile)
+        : Entity({{}, {}}), parent_(parent)
     {
         sprite_.set_size(Sprite::Size::w16_h32);
         sprite_.set_texture_index(tile);
@@ -84,10 +82,10 @@ public:
 
         Float interval = Float(timer_) / seconds(3);
 
-        const s16 shrink_amount =
-            interpolate(-450, -24, interval);
+        const s16 shrink_amount = interpolate(-450, -24, interval);
 
-        sprite_.set_mix({ColorConstant::silver_white, u8(255 - 255 * interval)});
+        sprite_.set_mix(
+            {ColorConstant::silver_white, u8(255 - 255 * interval)});
 
         sprite_.set_scale({shrink_amount, shrink_amount});
 
@@ -103,7 +101,6 @@ private:
     Microseconds timer_ = 0;
     Fixnum y_pos_ = 0.f;
 };
-
 
 
 
@@ -636,11 +633,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         view.set_center(c);
         pfrm.screen().set_view(view);
 
-        bool macro_island_view =
-            state_ == State::macro_island_enter or
-            state_ == State::macro_island or
-            state_ == State::macro_island_exit or
-            state_ == State::macro_island_init;
+        bool macro_island_view = state_ == State::macro_island_enter or
+                                 state_ == State::macro_island or
+                                 state_ == State::macro_island_exit or
+                                 state_ == State::macro_island_init;
 
         if (x_scroll_ < -240) {
             if (not macro_island_view) {
@@ -679,13 +675,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         // tile layers. Do not create EmberParticle objects if they would
         // overlap with background sprites.
         const bool gba_sprite_priority_hardware_bug =
-            (state_ == State::scroll_from_end and
-             timer_ < milliseconds(600));
+            (state_ == State::scroll_from_end and timer_ < milliseconds(600));
 
         if (furnace_timer_ > milliseconds(380) and
             not gba_sprite_priority_hardware_bug) {
 
-            furnace_timer_ = -milliseconds(rng::choice<200>(rng::utility_state));
+            furnace_timer_ =
+                -milliseconds(rng::choice<200>(rng::utility_state));
             Vec2<Fixnum> pos{435, 154};
             pos = rng::sample<4>(pos, rng::utility_state);
             if (auto e = alloc_entity<EmberParticle>(this, pos, 51)) {
@@ -757,9 +753,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().play_music("unaccompanied_wind", 0);
             pfrm.speaker().play_sound("button_wooden", 3);
 
-            const auto amount = 1.f - smoothstep(0.f,
-                                                 milliseconds(1500),
-                                                 timer_);
+            const auto amount =
+                1.f - smoothstep(0.f, milliseconds(1500), timer_);
             timer_ = amount * milliseconds(550);
         }
 
@@ -767,9 +762,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_pressed(pfrm, Key::up)) {
             state_ = State::macro_island_exit;
             repeat_left_ = true;
-            const auto amount = 1.f - smoothstep(0.f,
-                                                 milliseconds(1500),
-                                                 timer_);
+            const auto amount =
+                1.f - smoothstep(0.f, milliseconds(1500), timer_);
             timer_ = amount * milliseconds(550);
             break;
         }
@@ -777,9 +771,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_pressed(pfrm, Key::right)) {
             state_ = State::macro_island_exit;
             repeat_right_ = true;
-            const auto amount = 1.f - smoothstep(0.f,
-                                                 milliseconds(1500),
-                                                 timer_);
+            const auto amount =
+                1.f - smoothstep(0.f, milliseconds(1500), timer_);
             timer_ = amount * milliseconds(550);
             break;
         }
@@ -788,12 +781,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::macro_island;
             set_scroll(pfrm, Layer::map_0_ext, -4, 192);
         } else {
-            const auto amount = 1.f - smoothstep(0.f,
-                                                 milliseconds(1500),
-                                                 timer_);
+            const auto amount =
+                1.f - smoothstep(0.f, milliseconds(1500), timer_);
             auto scroll = 192 - 192 * amount;
-            set_scroll(pfrm, Layer::map_0_ext, -4,
-                       clamp((int)scroll, 40, 192));
+            set_scroll(pfrm, Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
         }
 
         break;
@@ -809,12 +800,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().set_shader_argument(0);
             pfrm.override_priority(Layer::map_1, 2);
         } else {
-            const auto amount = smoothstep(0.f,
-                                           milliseconds(550),
-                                           timer_);
+            const auto amount = smoothstep(0.f, milliseconds(550), timer_);
             auto scroll = 192 - 192 * amount;
-            set_scroll(pfrm, Layer::map_0_ext, -4,
-                       clamp((int)scroll, 40, 192));
+            set_scroll(pfrm, Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
         }
         break;
 
@@ -966,8 +954,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (repeat_action1_ or
-            pfrm.keyboard().pressed<Key::action_1>() or
+        if (repeat_action1_ or pfrm.keyboard().pressed<Key::action_1>() or
             app.player().tap_released(pfrm)) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
@@ -992,8 +979,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (repeat_right_ or
-            app.player().key_pressed(pfrm, Key::right) or
+        if (repeat_right_ or app.player().key_pressed(pfrm, Key::right) or
             app.player().key_pressed(pfrm, Key::down) or
             (app.player().touch_held(milliseconds(150)) and
              app.player().touch_velocity(pfrm).x and
@@ -1030,8 +1016,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (repeat_left_ or
-            app.player().key_pressed(pfrm, Key::left) or
+        if (repeat_left_ or app.player().key_pressed(pfrm, Key::left) or
             app.player().key_pressed(pfrm, Key::up) or
             app.player().touch_velocity(pfrm).x * delta > 0.08f) {
             repeat_left_ = false;
@@ -1102,29 +1087,30 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         pfrm.override_priority(Layer::map_1, 1);
 
-        pfrm.screen()
-            .set_shader([](ShaderPalette p,
-                           ColorConstant k,
-                           int var,
-                           int index) {
+        pfrm.screen().set_shader(
+            [](ShaderPalette p, ColorConstant k, int var, int index) {
+                if (index == 0) {
+                    return k;
+                }
 
-                            auto blend = [](ColorConstant from, ColorConstant to, u8 interp) {
-                                             const Color input(from);
-                                             const Color k2(to);
-                                             Color result(fast_interpolate(input.r_, k2.r_, interp),
-                                                          fast_interpolate(input.g_, k2.g_, interp),
-                                                          fast_interpolate(input.b_, k2.b_, interp));
-                                             return result.hex();
-                                         };
+                auto blend =
+                    [](ColorConstant from, ColorConstant to, u8 interp) {
+                        const Color input(from);
+                        const Color k2(to);
+                        Color result(fast_interpolate(input.r_, k2.r_, interp),
+                                     fast_interpolate(input.g_, k2.g_, interp),
+                                     fast_interpolate(input.b_, k2.b_, interp));
+                        return result.hex();
+                    };
 
-                            // 0x63b5e7;
+                // 0x63b5e7;
 
-                            if (p == ShaderPalette::tile0) {
-                                return blend(k, custom_color(0x63b5e7), 128);
-                            }
+                if (p == ShaderPalette::tile0) {
+                    return blend(k, custom_color(0x63b5e7), 128);
+                }
 
-                            return k;
-                        });
+                return k;
+            });
         pfrm.screen().set_shader_argument(1);
 
         pfrm.load_tile0_texture("macro_rendertexture");

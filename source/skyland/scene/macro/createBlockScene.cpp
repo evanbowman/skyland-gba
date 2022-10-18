@@ -22,10 +22,10 @@
 
 #include "createBlockScene.hpp"
 #include "selectorScene.hpp"
+#include "skyland/entity/macro/macrocosmEffect.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/entity/macro/macrocosmEffect.hpp"
 
 
 

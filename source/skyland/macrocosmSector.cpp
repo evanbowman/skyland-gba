@@ -154,8 +154,7 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
     if (unproductive_population) {
         add_entry(SystemString::macro_fiscal_homelessness,
-                  -unproductive_population * 0.01f *
-                  1);
+                  -unproductive_population * 0.01f * 1);
     }
 
     return result;
@@ -659,7 +658,6 @@ void terrain::Sector::render(Platform& pfrm)
 
 
     auto flush_stack_t1 = [&pfrm, uho](auto& stack, int i) {
-
         if (uho) {
             return;
         }

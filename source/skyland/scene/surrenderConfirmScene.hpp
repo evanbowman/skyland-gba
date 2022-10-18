@@ -24,9 +24,9 @@
 
 
 #include "graphics/overlay.hpp"
+#include "readyScene.hpp"
 #include "skyland/scene.hpp"
 #include "skyland/skyland.hpp"
-#include "readyScene.hpp"
 
 
 
@@ -38,14 +38,12 @@ namespace skyland
 class SurrenderConfirmScene : public Scene
 {
 public:
-
     static constexpr const auto sel_colors =
-    FontColors{custom_color(0x000010), custom_color(0xffffff)};
+        FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (app.player().key_down(pfrm, Key::up)) {
             selection_ = false;
@@ -68,7 +66,6 @@ public:
         }
 
         return null_scene();
-
     }
 
 
@@ -93,15 +90,13 @@ public:
 
 
 private:
-
     bool selection_ = false;
 
     std::optional<Text> msg_;
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
-
 };
 
 
 
-}
+} // namespace skyland

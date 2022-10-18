@@ -43,9 +43,9 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "spectatorScene.hpp"
+#include "surrenderConfirmScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "surrenderConfirmScene.hpp"
 
 
 
@@ -399,10 +399,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     add_macro_share_opt();
 
-                    add_option(pfrm,
-                               SYSTR(start_menu_repl)->c_str(),
-                               [&app]() { return scene_pool::alloc<LispReplScene>(); },
-                               cut);
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_repl)->c_str(),
+                        [&app]() { return scene_pool::alloc<LispReplScene>(); },
+                        cut);
 
                     add_option(
                         pfrm,
@@ -516,10 +517,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
             } else if (not app.opponent().is_friendly()) {
-                add_option(pfrm,
-                           SYSTR(start_menu_end_run)->c_str(),
-                           scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
-                           fade_sweep);
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_end_run)->c_str(),
+                    scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
+                    fade_sweep);
             }
             break;
 

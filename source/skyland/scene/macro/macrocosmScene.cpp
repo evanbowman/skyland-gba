@@ -139,8 +139,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto& m = macrocosm(app);
 
     app.player().update(pfrm, app, delta);
-    app.camera()->update(pfrm, app, app.player_island(), {}, delta,
-                         m.data_->checkers_mode_);
+    app.camera()->update(
+        pfrm, app, app.player_island(), {}, delta, m.data_->checkers_mode_);
 
     app.environment().update(pfrm, app, delta);
 
@@ -236,7 +236,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& entities = m.data_->entities_;
     for (auto e = entities.begin(); e not_eq entities.end();) {
-        if (not (*e)->alive()) {
+        if (not(*e)->alive()) {
             e = entities.erase(e);
         } else {
             (*e)->update(pfrm, m, delta);

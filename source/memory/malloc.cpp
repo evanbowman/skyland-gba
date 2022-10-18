@@ -68,8 +68,8 @@ bool Heap::Sector::empty() const
 void Heap::Sector::free(Word* addr)
 {
     if (((intptr_t)addr) % sizeof(Word) not_eq 0) {
-        Platform::fatal(format("free misaligned address! %",
-                               (intptr_t)addr).c_str());
+        Platform::fatal(
+            format("free misaligned address! %", (intptr_t)addr).c_str());
     }
 
     --addr; // fetch size from slot -1
@@ -89,8 +89,8 @@ void Heap::Sector::free(Word* addr)
 void* Heap::Sector::try_alloc(u32 size)
 {
     if (size > (word_count + 1) * sizeof(Word)) {
-        Platform::fatal(format("allocation of % exceeds max size!",
-                               size).c_str());
+        Platform::fatal(
+            format("allocation of % exceeds max size!", size).c_str());
     }
 
     int required_words = size / sizeof(Word);
@@ -132,7 +132,7 @@ void* Heap::Sector::try_alloc(u32 size)
 
 
 
-}
+} // namespace malloc_compat
 
 
 
@@ -180,7 +180,4 @@ void free(void* ptr)
 
     Platform::fatal("invalid address passed to free!");
 }
-
-
-
 }

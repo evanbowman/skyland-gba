@@ -40,8 +40,9 @@ public:
         auto& m = macrocosm(app);
 
         timer_ += milliseconds(16);
-        u8 ambient_offset = 2 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
-            std::numeric_limits<s16>::max();
+        u8 ambient_offset = 2 *
+                            float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+                            std::numeric_limits<s16>::max();
 
         ambient_movement_ = ambient_offset;
         if (checkers_mode) { // Fixme
@@ -76,15 +77,13 @@ public:
         if (real_y < (current_.y + 10) or real_y > current_.y + 120) {
             current_ = interpolate(
                 target_.cast<Float>(), current_, delta * 0.0000021f);
-
         }
 
-        pfrm.set_scroll(Layer::map_0, current_.x,
-                        current_.y + ambient_movement_);
+        pfrm.set_scroll(
+            Layer::map_0, current_.x, current_.y + ambient_movement_);
 
-        pfrm.set_scroll(Layer::map_1, current_.x,
-                        current_.y + 8 + ambient_movement_);
-
+        pfrm.set_scroll(
+            Layer::map_1, current_.x, current_.y + 8 + ambient_movement_);
     }
 };
 

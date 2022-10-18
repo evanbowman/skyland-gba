@@ -78,7 +78,6 @@ struct Heap
 
 
         void* try_alloc(u32 size);
-
     };
 
     using Sectors = Vector<Sector>;
@@ -88,5 +87,4 @@ struct Heap
 
 
 
-
-}
+} // namespace malloc_compat
