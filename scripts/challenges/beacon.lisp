@@ -20,7 +20,7 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 8))
+  (syscall "challenge-complete" 9))
 
 
 (terrain (player) 5)
