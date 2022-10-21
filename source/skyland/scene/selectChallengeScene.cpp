@@ -34,6 +34,11 @@ namespace skyland
 
 
 
+u8 SelectChallengeScene::page_ = 0;
+u8 SelectChallengeScene::cursor_ = 0;
+
+
+
 static const Float default_fade = 0.6f;
 
 
@@ -185,6 +190,8 @@ ScenePtr<Scene>
 SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
+        page_ = 0;
+        cursor_ = 0;
         return scene_pool::alloc<TitleScreenScene>(2);
     }
 

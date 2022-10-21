@@ -60,8 +60,8 @@ private:
     std::optional<lisp::Protected> challenges_;
     Buffer<Text, 5> text_;
 
-    int page_ = 0;
-    int cursor_ = 0;
+    static u8 page_;
+    static u8 cursor_;
 
     int page_count_ = 0;
 
