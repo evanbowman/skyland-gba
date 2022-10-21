@@ -175,7 +175,9 @@ void render_cost(Platform& pfrm,
                  macro::EngineImpl& state,
                  terrain::Type t,
                  Text& text,
-                 bool harvest)
+                 bool harvest,
+                 Text::OptColors text_colors = {},
+                 std::optional<terrain::Cost> inp_c = {})
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -191,15 +193,18 @@ void render_cost(Platform& pfrm,
         if (harvest) {
             c = terrain::harvest(t).first;
         }
+        if (inp_c) {
+            c = *inp_c;
+        }
 
         if (stat.housing_) {
             text.append(" ");
             if (harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(stat.housing_);
+            text.append(stat.housing_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
         }
@@ -207,18 +212,18 @@ void render_cost(Platform& pfrm,
         if (stat.happiness_) {
             text.append(" ");
             if (harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(stat.happiness_);
+            text.append(stat.happiness_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 409);
         }
 
         if (c.productivity_.as_integer()) {
-            text.append(" -");
-            text.append(c.productivity_.as_integer());
+            text.append(" -", text_colors);
+            text.append(c.productivity_.as_integer(), text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
         }
@@ -226,11 +231,11 @@ void render_cost(Platform& pfrm,
         if (c.stone_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.stone_);
+            text.append(c.stone_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
         }
@@ -238,11 +243,11 @@ void render_cost(Platform& pfrm,
         if (c.lumber_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.lumber_);
+            text.append(c.lumber_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
         }
@@ -250,11 +255,11 @@ void render_cost(Platform& pfrm,
         if (c.clay_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.clay_);
+            text.append(c.clay_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 370);
         }
@@ -262,11 +267,11 @@ void render_cost(Platform& pfrm,
         if (c.water_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.water_);
+            text.append(c.water_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 371);
         }
@@ -274,11 +279,11 @@ void render_cost(Platform& pfrm,
         if (c.marble_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.marble_);
+            text.append(c.marble_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 372);
         }
@@ -286,11 +291,11 @@ void render_cost(Platform& pfrm,
         if (c.crystal_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.crystal_);
+            text.append(c.crystal_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 424);
         }
@@ -298,11 +303,11 @@ void render_cost(Platform& pfrm,
         if (c.food_) {
             text.append(" ");
             if (not harvest) {
-                text.append("-");
+                text.append("-", text_colors);
             } else {
-                text.append("+");
+                text.append("+", text_colors);
             }
-            text.append(c.food_);
+            text.append(c.food_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
         }
@@ -524,6 +529,74 @@ ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
 
 
 
+class InsufficentResourcesScene : public MacrocosmScene
+{
+public:
+    InsufficentResourcesScene(macro::EngineImpl& state,
+                              terrain::Cost c)
+    {
+        auto& p = state.data_->p();
+#define ASSIGN(NAME) \
+        deficit_.NAME = c.NAME - p.NAME.get();   \
+        if (deficit_.NAME <= 0) {                \
+            deficit_.NAME = 0;                   \
+        }
+
+        ASSIGN(food_);
+        ASSIGN(stone_);
+        ASSIGN(lumber_);
+        ASSIGN(marble_);
+        ASSIGN(clay_);
+        ASSIGN(crystal_);
+        ASSIGN(water_);
+
+        int prod = (c.productivity_).as_integer() - state.sector().productivity().as_integer();
+        deficit_.productivity_ = 0;
+        if (prod > 0) {
+            deficit_.productivity_ = prod;
+        }
+
+    }
+
+
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    {
+        text_.emplace(pfrm, OverlayCoord{0, 19});
+
+        render_cost(pfrm, state, terrain::Type::air,
+                    *text_, false,
+                    {{custom_color(0xe66428),
+                      ColorConstant::rich_black}},
+                    deficit_);
+    }
+
+
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    {
+        text_.reset();
+        pfrm.fill_overlay(0);
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm,
+                           Player& player,
+                           macro::EngineImpl& state)
+    {
+        if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
+            return scene_pool::alloc<SelectorScene>();
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    terrain::Cost deficit_;
+    std::optional<Text> text_;
+};
+
+
+
 ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
                                           macro::EngineImpl& state)
 {
@@ -539,7 +612,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             cost.water_ > p.water_.get() or
             cost.productivity_ > state.sector().productivity()) {
             pfrm.speaker().play_sound("beep_error", 2);
-            return null_scene();
+            return scene_pool::alloc<InsufficentResourcesScene>(state, cost);
         } else {
             auto prod = state.sector().productivity();
             prod -= cost.productivity_;

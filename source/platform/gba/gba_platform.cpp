@@ -3476,7 +3476,6 @@ void Platform::Logger::flush()
 
 
 
-#include "data/music_isle_of_the_dead.hpp"
 #include "data/music_life_in_silco.hpp"
 #include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"

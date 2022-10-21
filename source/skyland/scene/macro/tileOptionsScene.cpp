@@ -76,7 +76,9 @@ void render_cost(Platform& pfrm,
                  macro::EngineImpl& state,
                  terrain::Type t,
                  Text& text,
-                 bool harvest);
+                 bool harvest,
+                 Text::OptColors text_colors = {},
+                 std::optional<terrain::Cost> inp_c = {});
 
 
 
