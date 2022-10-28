@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "skyland/entity.hpp"
-#include "skyland/skyland.hpp"
 #include "explosion.hpp"
 #include "explosion2.hpp"
+#include "skyland/entity.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -130,21 +130,34 @@ inline void core_explosion(Platform& pfrm,
         return;
     }
 
-    app.effects().clear();
 
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            if (auto exp = app.alloc_entity<Explosion2>(pfrm, pos)) {
-                auto dir = rotate({1, 0}, j * 90 + 45 + i * 3);
-                dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
-                Vec2<Fixnum> spd;
-                spd.x = Fixnum(dir.x);
-                spd.y = Fixnum(dir.y);
-                exp->set_speed(spd);
-                app.effects().push(std::move(exp));
+    int min_x = pfrm.screen().get_view().get_center().x - 48;
+    int max_x =
+        pfrm.screen().get_view().get_center().x + pfrm.screen().size().x + 48;
+    int max_y = 700;
+    int min_y = 450;
+
+    if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
+        pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
+        // Don't create the explosion effect if way outside of the camera range.
+    } else {
+        app.effects().clear();
+
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (auto exp = app.alloc_entity<Explosion2>(pfrm, pos)) {
+                    auto dir = rotate({1, 0}, j * 90 + 45 + i * 3);
+                    dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
+                    Vec2<Fixnum> spd;
+                    spd.x = Fixnum(dir.x);
+                    spd.y = Fixnum(dir.y);
+                    exp->set_speed(spd);
+                    app.effects().push(std::move(exp));
+                }
             }
         }
     }
+
 
     auto dt = pfrm.make_dynamic_texture();
     if (dt) {

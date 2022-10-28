@@ -532,15 +532,14 @@ ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
 class InsufficentResourcesScene : public MacrocosmScene
 {
 public:
-    InsufficentResourcesScene(macro::EngineImpl& state,
-                              terrain::Cost c)
+    InsufficentResourcesScene(macro::EngineImpl& state, terrain::Cost c)
     {
         auto& p = state.data_->p();
-#define ASSIGN(NAME) \
-        deficit_.NAME = c.NAME - p.NAME.get();   \
-        if (deficit_.NAME <= 0) {                \
-            deficit_.NAME = 0;                   \
-        }
+#define ASSIGN(NAME)                                                           \
+    deficit_.NAME = c.NAME - p.NAME.get();                                     \
+    if (deficit_.NAME <= 0) {                                                  \
+        deficit_.NAME = 0;                                                     \
+    }
 
         ASSIGN(food_);
         ASSIGN(stone_);
@@ -550,12 +549,12 @@ public:
         ASSIGN(crystal_);
         ASSIGN(water_);
 
-        int prod = (c.productivity_).as_integer() - state.sector().productivity().as_integer();
+        int prod = (c.productivity_).as_integer() -
+                   state.sector().productivity().as_integer();
         deficit_.productivity_ = 0;
         if (prod > 0) {
             deficit_.productivity_ = prod;
         }
-
     }
 
 
@@ -563,10 +562,12 @@ public:
     {
         text_.emplace(pfrm, OverlayCoord{0, 19});
 
-        render_cost(pfrm, state, terrain::Type::air,
-                    *text_, false,
-                    {{custom_color(0xe66428),
-                      ColorConstant::rich_black}},
+        render_cost(pfrm,
+                    state,
+                    terrain::Type::air,
+                    *text_,
+                    false,
+                    {{custom_color(0xe66428), ColorConstant::rich_black}},
                     deficit_);
     }
 
@@ -578,9 +579,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           Player& player,
-                           macro::EngineImpl& state)
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     {
         if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
             return scene_pool::alloc<SelectorScene>();

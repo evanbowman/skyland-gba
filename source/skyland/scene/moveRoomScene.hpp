@@ -25,10 +25,10 @@
 
 #include "constructionScene.hpp"
 #include "inspectP2Scene.hpp"
-#include "skyland/scene/notificationScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
@@ -139,7 +139,8 @@ public:
             }
             if (player(app).key_down(pfrm, Key::action_1)) {
                 if (app.coins() < 800) {
-                    auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();
+                    auto future_scene =
+                        scene_pool::make_deferred_scene<ReadyScene>();
                     auto str = SYSTR(construction_insufficient_funds);
                     pfrm.speaker().play_sound("beep_error", 2);
                     return scene_pool::alloc<NotificationScene>(str->c_str(),
