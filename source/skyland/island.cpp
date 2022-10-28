@@ -36,6 +36,7 @@
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/entity/ghost.hpp"
 #include "tile.hpp"
 
 
@@ -705,6 +706,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::transmit(pfrm, packet);
 
                 record_character_died(**it);
+
+                const auto pos = (*it)->sprite().get_position();
+                if (auto e = alloc_entity<Ghost>(pos)) {
+                    app.effects().push(std::move(e));
+                }
 
                 it = chr_list.erase(it);
             } else {

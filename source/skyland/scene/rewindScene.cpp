@@ -26,6 +26,8 @@
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/entity/explosion/explosion2.hpp"
+#include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/entity/projectile/antimatter.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
@@ -1335,6 +1337,47 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     room->set_ai_aware(pfrm, app, e->prev_aware_);
                 }
             }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::explosion: {
+            auto e = (time_stream::event::Explosion*)end;
+            Vec2<Fixnum> pos;
+            pos.x = e->x_.get();
+            pos.y = e->y_.get();
+            const u8 ha = e->half_angle_;
+            const u8 sp = e->spd_;
+            if (auto exp = app.alloc_entity<Explosion2>(pfrm, pos, ha, sp)) {
+                exp->restore(*e);
+                app.effects().push(std::move(exp));
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::core_explosion: {
+            auto e = (time_stream::event::CoreExplosion*)end;
+
+            auto dt = pfrm.make_dynamic_texture();
+            if (dt) {
+                Vec2<Fixnum> p;
+                p.x = e->x_.get();
+                p.y = e->y_.get();
+                auto make_segment = [&](int q) {
+                     if (auto e = app.alloc_entity<CoreExplosionQuarter>(pfrm, *dt, p, q)) {
+                         e->jump_to_end();
+                         return app.effects().push(std::move(e));
+                     }
+                };
+                make_segment(3);
+                make_segment(2);
+                make_segment(1);
+                make_segment(0);
+            }
+
             app.time_stream().pop(sizeof *e);
             break;
         }

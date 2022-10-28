@@ -104,6 +104,31 @@ public:
         }
     }
 
+    void pop_last()
+    {
+        if (not data_.begin_) {
+            return;
+        }
+        if (data_.begin_->right_ == nullptr) {
+            pop(); // Just pop the front node in this case
+        } else {
+            auto current = data_.begin_;
+            auto prev = current;
+
+            while (current) {
+                const bool is_tail_node = current->right_ == nullptr;
+                if (is_tail_node) {
+                    prev->right_ = nullptr; // Detach self
+                    current->~Node();
+                    data_.pool().free(reinterpret_cast<u8*>(current));
+                    return;
+                }
+                prev = current;
+                current = current->right_;
+            }
+        }
+    }
+
     void pop()
     {
         if (data_.begin_) {

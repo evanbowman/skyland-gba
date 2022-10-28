@@ -26,6 +26,8 @@
 #include "explosion2.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
+
 
 
 
@@ -80,6 +82,13 @@ public:
 
             if (keyframe_ == 5) {
                 kill();
+                if (quarter_ == 0) {
+                    time_stream::event::CoreExplosion e;
+                    const auto pos = sprite_.get_position();
+                    e.x_.set(pos.x.as_integer());
+                    e.y_.set(pos.y.as_integer());
+                    app.time_stream().push(app.level_timer(), e);
+                }
             } else {
                 if (quarter_ == 0) {
                     dt_->remap((70 + keyframe_) * 2);
@@ -87,6 +96,14 @@ public:
                 keyframe_++;
             }
         }
+    }
+
+
+    void jump_to_end()
+    {
+        timer_ = milliseconds(200);
+        keyframe_ = 4;
+        dt_->remap((70 + keyframe_) * 2);
     }
 
 
@@ -145,8 +162,13 @@ inline void core_explosion(Platform& pfrm,
 
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 4; ++j) {
-                if (auto exp = app.alloc_entity<Explosion2>(pfrm, pos)) {
-                    auto dir = rotate({1, 0}, j * 90 + 45 + i * 3);
+                const int angle = j * 90 + 45 + i * 3;
+                const u8 half_angle = angle / 2;
+                if (auto exp = app.alloc_entity<Explosion2>(pfrm,
+                                                            pos,
+                                                            half_angle,
+                                                            (u8)i)) {
+                    auto dir = rotate({1, 0}, angle);
                     dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
                     Vec2<Fixnum> spd;
                     spd.x = Fixnum(dir.x);

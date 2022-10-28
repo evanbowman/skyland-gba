@@ -118,7 +118,7 @@ struct TimeBuffer
 class TimeStream
 {
 public:
-    static const auto max_buffers = 16;
+    static const auto max_buffers = 24;
 
 
     template <typename T> void push(TimeTracker& current, T& event)

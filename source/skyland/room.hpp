@@ -715,8 +715,11 @@ private:
 
     u8 unused_ : 2;
 
+    u8 accumulated_damage_ = 0;
+    u8 show_damage_delay_frames_ = 0;
+
     // Bytes freed up by various space optimization techniques.
-    u8 reserved_[6];
+    u8 reserved_[4];
 };
 
 

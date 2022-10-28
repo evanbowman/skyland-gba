@@ -31,6 +31,7 @@
 #include "skyland/network.hpp"
 #include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/ghost.hpp"
 #include "timeStreamEvent.hpp"
 
 
@@ -206,6 +207,76 @@ void Room::schedule_repaint()
 
 
 
+class UIDamageNumber : public Entity
+{
+public:
+
+    UIDamageNumber(const Vec2<Fixnum>& position, int value) :
+        Entity({})
+    {
+        sprite_.set_texture_index(114 + value);
+        sprite_.set_position(position);
+        sprite_.set_size(Sprite::Size::w16_h32);
+    }
+
+
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        kill();
+    }
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        if (delta == 0) {
+            return;
+        }
+
+        timer_ += delta;
+        if (timer_ > seconds(1) - milliseconds(400)) {
+            kill();
+        } else if (timer_ < milliseconds(300)) {
+            auto pos = sprite_.get_position();
+            pos.y -= Fixnum(0.25f);
+            while (delta > 16667) {
+                delta -= 16667;
+                pos.y -= Fixnum(0.25f);
+            }
+
+            sprite_.set_position(pos);
+        } else if (timer_ > milliseconds(550)) {
+            sprite_.set_alpha(Sprite::Alpha::translucent);
+        }
+    }
+
+
+    static void create(Platform& pfrm,
+                       App& app,
+                       int value,
+                       Vec2<Fixnum> pos)
+    {
+        auto numstr = stringify(value);
+
+        // Centered over input position
+        pos.x -= (numstr.length() * 6) / 2;
+
+        for (char c : numstr) {
+            int value = c - '0';
+            if (auto e = app.alloc_entity<UIDamageNumber>(pfrm, pos, value)) {
+                app.effects().push(std::move(e));
+            }
+            pos.x += 6;
+        }
+    }
+
+
+private:
+    Microseconds timer_ = 0;
+};
+
+
+
+
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
     dispatch_queued_ = false;
@@ -261,6 +332,14 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
         }
+    }
+
+    if (accumulated_damage_) {
+        if (--show_damage_delay_frames_ == 0) {
+            UIDamageNumber::create(pfrm, app, accumulated_damage_, center());
+            accumulated_damage_ = 0;
+        }
+        ready();
     }
 }
 
@@ -553,6 +632,11 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
         }
     }
 
+    auto diff = damage;
+    if (diff > health_) {
+        diff -= diff - health_;
+    }
+
     if (damage > health_) {
         health_ = 0;
     } else {
@@ -560,6 +644,13 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     }
     set_injured(pfrm);
     parent_->owner().on_room_damaged(pfrm, app, *this);
+
+    if ((int)accumulated_damage_ + damage < 256) {
+        accumulated_damage_ += damage;
+        show_damage_delay_frames_ = 60;
+    } else {
+        // Spawn damage info immediately?
+    }
 
     ready();
 }
@@ -849,6 +940,19 @@ Health Room::max_health() const
 void Room::finalize(Platform& pfrm, App& app)
 {
     finalized_ = true;
+
+    if (health_ == 0) {
+        for (auto& c : characters_) {
+
+            auto position = c->sprite().get_position();
+            app.on_timeout(pfrm, milliseconds(500),
+                           [pos = position](Platform&, App& app) {
+                               if (auto e = alloc_entity<Ghost>(pos)) {
+                                   app.effects().push(std::move(e));
+                               }
+                           });
+        }
+    }
 
     if (co_op_locked_) {
         // What else can we do? Yeah, maybe not perfectly correct. But if we

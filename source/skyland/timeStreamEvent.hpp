@@ -179,6 +179,9 @@ enum Type : u8 {
 
     player_room_ai_awareness,
     opponent_room_ai_awareness,
+
+    explosion,
+    core_explosion,
 };
 
 
@@ -1061,6 +1064,29 @@ struct OpponentRoomAiAwareness
     u8 room_y_ : 4;
     bool prev_aware_;
     static constexpr const auto t = Type::opponent_room_ai_awareness;
+};
+
+
+
+struct Explosion
+{
+    Header header_;
+
+    HostInteger<s16> x_;
+    HostInteger<s16> y_;
+    u8 half_angle_; // movement angle divided by 2 (to fit in a u8)
+    u8 spd_;
+    static constexpr const auto t = Type::explosion;
+};
+
+
+
+struct CoreExplosion
+{
+    Header header_;
+    HostInteger<s16> x_;
+    HostInteger<s16> y_;
+    static constexpr const auto t = Type::core_explosion;
 };
 
 

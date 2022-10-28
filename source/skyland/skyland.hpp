@@ -163,9 +163,10 @@ public:
             return e;
         }
 
-        // If we fail to allocate an entity, try clearing out all of the special
-        // effects, and allocating again. This should free up enough space...
-        effects().clear();
+        // If we fail to allocate an entity, try clearing out an entity from the
+        // special effects, and allocating again. This may free up enough
+        // space...
+        effects().pop_last();
 
         auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
         if (not e) {

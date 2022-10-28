@@ -25,6 +25,7 @@
 
 #include "skyland/entity.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -39,7 +40,13 @@ public:
     static const int start_index = 19;
 
 
-    Explosion2(const Vec2<Fixnum>& position, int priority = 1) : Entity({{}, {}})
+    Explosion2(const Vec2<Fixnum>& position,
+               u8 half_angle,
+               u8 speed_int,
+               int priority = 1) :
+        Entity({{}, {}}),
+        half_angle_(half_angle),
+        speed_int_(speed_int)
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h32);
@@ -64,6 +71,12 @@ public:
             if (index < start_index + 5) {
                 sprite_.set_texture_index(index + 1);
             } else {
+                time_stream::event::Explosion e;
+                e.x_.set(pos.x.as_integer());
+                e.y_.set(pos.y.as_integer());
+                e.half_angle_ = half_angle_;
+                e.spd_ = speed_int_;
+                app.time_stream().push(app.level_timer(), e);
                 kill();
             }
         }
@@ -75,7 +88,8 @@ public:
 
         if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
             pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
-            kill();
+            // kill();
+            sprite_.set_alpha(Sprite::Alpha::transparent);
         }
     }
 
@@ -98,13 +112,34 @@ public:
                 kill();
             }
         }
+
+        int min_x = pfrm.screen().get_view().get_center().x - 48;
+        int max_x = pfrm.screen().get_view().get_center().x + pfrm.screen().size().x + 48;
+        int max_y = 700;
+        int min_y = 450;
+
+        if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
+            pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
+            // kill();
+            sprite_.set_alpha(Sprite::Alpha::transparent);
+        } else {
+            sprite_.set_alpha(Sprite::Alpha::opaque);
+        }
     }
 
 
-    void seek_end()
+    void restore(time_stream::event::Explosion e)
     {
         timer_ = milliseconds(200);
         sprite_.set_texture_index(start_index + 5);
+
+        const auto angle = e.half_angle_ * 2;
+        auto dir = rotate({1, 0}, angle);
+        dir = dir * (((e.spd_ + 1 / 2.f) * 1.5f) * 0.00005f);
+        speed_.x = Fixnum(dir.x);
+        speed_.y = Fixnum(dir.y);
+        half_angle_ = e.half_angle_;
+        speed_int_ = e.spd_;
     }
 
 
@@ -117,6 +152,8 @@ public:
 private:
     Microseconds timer_ = 0;
     Vec2<Fixnum> speed_;
+    u8 half_angle_;
+    u8 speed_int_;
 };
 
 
