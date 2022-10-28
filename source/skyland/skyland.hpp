@@ -166,7 +166,21 @@ public:
         // If we fail to allocate an entity, try clearing out an entity from the
         // special effects, and allocating again. This may free up enough
         // space...
-        effects().pop_last();
+        for (int i = 0; i < 10; ++i) {
+            auto e = effects().pop_last();
+            if (not e) { // No last element, i.e. empty list
+                break;
+            }
+            // The effect is one of the few somewhat important ones, do not
+            // deallocate it, add it back to the front of the list.
+            if (not (*e)->entity_oom_deletable()) {
+                effects().push(std::move(*e));
+            } else {
+                // drop last element e, frees a slot
+                break;
+            }
+            // try again...
+        }
 
         auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
         if (not e) {

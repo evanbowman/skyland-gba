@@ -134,6 +134,12 @@ public:
     }
 
 
+    virtual bool entity_oom_deletable() const
+    {
+        return true;
+    }
+
+
 protected:
     Sprite sprite_;
     HitBox hitbox_;

@@ -104,13 +104,15 @@ public:
         }
     }
 
-    void pop_last()
+    std::optional<T> pop_last()
     {
         if (not data_.begin_) {
-            return;
+            return {};
         }
         if (data_.begin_->right_ == nullptr) {
+            std::optional<T> result = std::move(front());
             pop(); // Just pop the front node in this case
+            return result;
         } else {
             auto current = data_.begin_;
             auto prev = current;
@@ -119,15 +121,19 @@ public:
                 const bool is_tail_node = current->right_ == nullptr;
                 if (is_tail_node) {
                     prev->right_ = nullptr; // Detach self
+                    std::optional<T> result;
+                    result = std::move(current->data_);
                     current->~Node();
                     data_.pool().free(reinterpret_cast<u8*>(current));
-                    return;
+                    return result;
                 }
                 prev = current;
                 current = current->right_;
             }
         }
+        return {};
     }
+
 
     void pop()
     {

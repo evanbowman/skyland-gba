@@ -74,14 +74,20 @@ public:
     }
 
 
+    bool entity_oom_deletable() const override
+    {
+        return false;
+    }
+
+
     void rewind(Platform& pfrm, App& app, Microseconds delta) override
     {
         kill();
     }
 
 private:
-    Microseconds timer_;
-    int cycles_;
+    Microseconds timer_ = 0;
+    int cycles_ = 0;
 };
 
 
