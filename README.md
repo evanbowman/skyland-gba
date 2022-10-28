@@ -21,4 +21,4 @@ The production version of SKYLAND for gameboy advance.
 
 ## License
 
-GPL-2. Actually, I'm generally pretty skeptical of GPL, and I usually prefer more permissive licenses. The FSF has always struck me as somewhat dogmatic and cult-like. But I spent a thousands of hours on this project, and I don't feel that other people should be able to take the source code without giving their contributions back. If you would like any of the library classes or any particular code snippets licensed under MIT or something else, I would be more than happy to give you specific portions of the code under a different license, as long as you ask first.
+I have mixed feelings about GPL. I've never used a copy-left license like this. But I spent so much time on this project, and I think it's only fair that if someone else adds code to the project, they should share their changes too. If you want some code snippet or a few files under a more free license like BSD or MIT, then contact me.
