@@ -97,6 +97,7 @@ public:
     {
         return RoomProperties::manufactory_required |
                RoomProperties::has_chimney |
+               RoomProperties::destroy_quietly |
                RoomProperties::accepts_ion_damage | RoomProperties::habitable;
     }
 };

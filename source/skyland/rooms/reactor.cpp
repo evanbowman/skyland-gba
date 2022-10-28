@@ -63,7 +63,7 @@ void Reactor::finalize(Platform& pfrm, App& app)
 
     if (health() == 0) {
         core_destroyed.play(pfrm, 4, milliseconds(600));
-        core_explosion(pfrm, app, center());
+        core_explosion(pfrm, app, parent(), center());
     }
 }
 

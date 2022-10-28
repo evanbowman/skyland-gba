@@ -97,7 +97,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
-               RoomProperties::habitable;
+            RoomProperties::habitable | RoomProperties::destroy_quietly;
     }
 };
 

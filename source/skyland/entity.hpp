@@ -142,7 +142,7 @@ protected:
 
 
 
-static constexpr const int entity_pool_size = 64;
+static constexpr const int entity_pool_size = 84;
 static constexpr const int entity_pool_align = 8;
 
 #if defined(__GBA__) or defined(__NDS__)

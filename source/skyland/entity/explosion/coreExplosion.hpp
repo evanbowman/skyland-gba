@@ -24,6 +24,8 @@
 
 #include "skyland/entity.hpp"
 #include "skyland/skyland.hpp"
+#include "explosion.hpp"
+#include "explosion2.hpp"
 
 
 
@@ -116,8 +118,34 @@ private:
 
 
 
-inline void core_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& pos)
+inline void core_explosion(Platform& pfrm,
+                           App& app,
+                           Island* parent,
+                           const Vec2<Fixnum>& pos)
 {
+    if (parent->core_count() == 1) {
+        // There's a special death sequence animation for the final destroyed
+        // core.
+        big_explosion(pfrm, app, pos);
+        return;
+    }
+
+    app.effects().clear();
+
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            if (auto exp = app.alloc_entity<Explosion2>(pfrm, pos)) {
+                auto dir = rotate({1, 0}, j * 90 + 45 + i * 3);
+                dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
+                Vec2<Fixnum> spd;
+                spd.x = Fixnum(dir.x);
+                spd.y = Fixnum(dir.y);
+                exp->set_speed(spd);
+                app.effects().push(std::move(exp));
+            }
+        }
+    }
+
     auto dt = pfrm.make_dynamic_texture();
     if (dt) {
         auto p = pos;
@@ -132,6 +160,8 @@ inline void core_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& pos)
         make_segment(1);
         make_segment(0);
     }
+
+    app.camera()->shake(28);
 }
 
 
