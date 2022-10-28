@@ -30,6 +30,7 @@
 #include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
+#include "skyland/rooms/bighull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -284,6 +285,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         StackedHull,
                                         Mycelium,
                                         Barrier,
+                                        BigHull,
                                         // weapons
                                         Cannon,
                                         IonCannon,

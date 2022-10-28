@@ -54,6 +54,9 @@ public:
                   RoomPtr<Room> insert,
                   bool do_repaint = true)
     {
+        if (rooms().full()) {
+            return false;
+        }
         auto result = rooms_.insert_room(std::move(insert));
         if (do_repaint) {
             repaint(pfrm, app);
@@ -71,6 +74,9 @@ public:
                   bool do_repaint,
                   Args&&... args)
     {
+        if (rooms().full()) {
+            return false;
+        }
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {
             if (rooms_.insert_room({room.release(), room_pool::deleter})) {

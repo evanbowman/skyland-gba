@@ -456,6 +456,10 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
             // supply.
             continue;
         }
+        if ((*room->metaclass())->properties() &
+            RoomProperties::salvage_disallowed) {
+            continue;
+        }
         auto pwr = room->power_usage(app);
         if (pwr > 0) {
             auto w = room->get_atp();

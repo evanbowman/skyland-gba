@@ -247,6 +247,10 @@ struct Tile
         qr_block,
         cloak,
         cloaked,
+        bighull_1,
+        bighull_2,
+        bighull_3,
+        bighull_4,
     };
 };
 
@@ -465,6 +469,10 @@ struct InteriorTile
         qr_block,
         cloak,
         cloaked,
+        bighull_1,
+        bighull_2,
+        bighull_3,
+        bighull_4,
     };
 };
 

@@ -73,6 +73,7 @@ enum class SystemString {
     block_basalt,
     block_basalt_brick,
     block_basalt_carved,
+    block_big_hull,
     block_bridge,
     block_bronze_hull,
     block_building,
@@ -358,6 +359,7 @@ enum class SystemString {
     description_spark_cannon,
     description_qr,
     description_cloak,
+    description_bighull,
 
     gs_paused,
     gs_slow,
