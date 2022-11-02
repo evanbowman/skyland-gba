@@ -74,6 +74,7 @@ enum class SystemString {
     block_basalt_brick,
     block_basalt_carved,
     block_big_hull,
+    block_boarding_pod,
     block_bridge,
     block_bronze_hull,
     block_building,
@@ -360,6 +361,7 @@ enum class SystemString {
     description_qr,
     description_cloak,
     description_bighull,
+    description_boarding_pod,
 
     gs_paused,
     gs_slow,

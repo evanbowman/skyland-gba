@@ -282,17 +282,17 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     const bool is_bridge = str_eq((*metac)->name(), "bridge");
                     const bool is_ladder = str_eq((*metac)->name(), "ladder");
 
-                    if (&room->parent()->owner() not_eq owner() and
+                    if (&room->owner()->owner() not_eq owner() and
                         not is_plundered and not is_stairwell and
                         not is_bridge and not is_ladder) {
                         state_ = State::plunder_room;
                         timer_ = 0;
-                    } else if (&room->parent()->owner() == owner() and
+                    } else if (&room->owner()->owner() == owner() and
                                room->parent()->fire_present(grid_position())) {
                         state_ = State::exstinguish_fire;
                         timer_ = 0;
                         anim_timer_ = 0;
-                    } else if (&room->parent()->owner() == owner() and
+                    } else if (&room->owner()->owner() == owner() and
                                not is_plundered and
                                room->health() < room->max_health()) {
                         state_ = State::repair_room;

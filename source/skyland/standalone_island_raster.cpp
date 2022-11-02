@@ -17,7 +17,7 @@
 // the image class, which just wraps stb_image, so it's not really as bad as it
 // looks. This repository includes both stb and the sfml source code.
 //
-// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -I../../external/SFML-2.5.1/src/ -I../../external/stb/ -o macro_rast ../../external/SFML-2.5.1/src/SFML/Graphics/Image.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/Color.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/ImageLoader.cpp ../../external/SFML-2.5.1/src/SFML/System/Err.cpp -D__CMD_MACRO_RAST__
+// g++ standalone_island_raster.cpp ../number/random.cpp -std=c++17 -I../ -I../../external -I../../external/SFML-2.5.1/src/ -I../../external/stb/ -o macro_rast ../../external/SFML-2.5.1/src/SFML/Graphics/Image.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/Color.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/ImageLoader.cpp ../../external/SFML-2.5.1/src/SFML/System/Err.cpp -D__CMD_MACRO_RAST__
 //
 // This file produces a commandline tool that accepts data extracted from a
 // qr-encoded island and outputs an image. Intended for the skyland webserver.
@@ -105,6 +105,21 @@ void Platform::set_tile(Layer layer,
 
 static sf::Image* texture;
 static sf::Image* img;
+
+
+
+void Platform::load_background_texture(char const*)
+{
+
+}
+
+
+
+Vec2<u16> Platform::get_scroll(Layer)
+{
+    return {};
+}
+
 
 
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)

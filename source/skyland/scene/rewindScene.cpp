@@ -208,6 +208,14 @@ void environment_init(App& app, int type);
 
 
 
+
+void restore_boarding_pod_entity(Platform& pfrm,
+                                 App& app,
+                                 Room& src,
+                                 time_stream::event::BoardingPodLanded& e);
+
+
+
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
     // Playback history at a fixed delta.
@@ -1382,6 +1390,30 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
+        case time_stream::event::boarding_pod_landed: {
+            auto e = (time_stream::event::BoardingPodLanded*)end;
+            auto dt = pfrm.make_dynamic_texture();
+            RoomCoord c;
+            c.x = e->room_x_;
+            c.y = e->room_y_;
+            Room* room = nullptr;
+            Island* island = nullptr;
+            if (e->source_near_) {
+                island = app.opponent_island();
+            } else {
+                island = &app.player_island();
+            }
+            if (island) {
+                room = island->get_room(c);
+            }
+            if (room) {
+                restore_boarding_pod_entity(pfrm, app, *room, *e);
+                island->destroy_room(pfrm, app, c);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
 
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;

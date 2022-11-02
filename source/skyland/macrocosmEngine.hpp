@@ -111,7 +111,9 @@ struct EngineImpl : public Engine
         macro::terrain::Type last_created_ = terrain::Type::terrain;
         macro::terrain::Type last_improved_ = terrain::Type::terrain;
 
+#ifndef __CMD_MACRO_RAST__
         EntityList<MacrocosmEntity> entities_;
+#endif
 
 
         // Contents will be written to save data.
@@ -260,6 +262,7 @@ struct EngineImpl : public Engine
     EngineImpl(Platform&, App*);
 
 
+#ifndef __CMD_MACRO_RAST__
     template <typename T, typename... Args> T* add_entity(Args&&... args)
     {
         if (auto e = alloc_entity<T>(std::forward<Args>(args)...)) {
@@ -269,6 +272,7 @@ struct EngineImpl : public Engine
         }
         return nullptr;
     }
+#endif
 
 
     DynamicMemory<Data> data_;

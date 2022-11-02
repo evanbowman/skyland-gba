@@ -645,6 +645,10 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 (base_weight -
                  base_weight * (Float(room->health()) / room->max_health()));
 
+            if (room->owner() not_eq ai_island_) {
+                slot.ai_weight_ += 150;
+            }
+
             if (ai_island_->fire_present(slot.coord_) and
                 // NOTE: if room health less than eight, don't move into the
                 // slot that's on fire, because we may not be able to put out

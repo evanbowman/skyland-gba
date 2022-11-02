@@ -443,6 +443,19 @@ Vec2<Fixnum> Room::center() const
 
 
 
+Vec2<Fixnum> Room::visual_center() const
+{
+    auto o = parent_->visual_origin();
+    o.x += x_position_ * 16;
+    o.y += y_position_ * 16;
+    o.x += (size().x * 0.5f) * 16;
+    o.y += (size().y * 0.5f) * 16;
+
+    return o;
+}
+
+
+
 bool Room::description_visible()
 {
     return parent_->interior_visible();

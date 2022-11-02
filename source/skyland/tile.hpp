@@ -251,6 +251,12 @@ struct Tile
         bighull_2,
         bighull_3,
         bighull_4,
+        boarding_pod1,
+        boarding_pod2,
+        boarding_pod3,
+        boarding_pod4,
+        boarding_pod5,
+        boarding_pod6,
     };
 };
 
@@ -473,6 +479,12 @@ struct InteriorTile
         bighull_2,
         bighull_3,
         bighull_4,
+        boarding_pod1,
+        boarding_pod2,
+        boarding_pod3,
+        boarding_pod4,
+        boarding_pod5,
+        boarding_pod6,
     };
 };
 

@@ -182,6 +182,8 @@ enum Type : u8 {
 
     explosion,
     core_explosion,
+
+    boarding_pod_landed,
 };
 
 
@@ -1087,6 +1089,25 @@ struct CoreExplosion
     HostInteger<s16> x_;
     HostInteger<s16> y_;
     static constexpr const auto t = Type::core_explosion;
+};
+
+
+
+struct BoardingPodLanded
+{
+    Header header_;
+    HostInteger<Microseconds> timer_;
+    bool source_near_;
+    u8 src_x_ : 4;
+    u8 src_y_ : 4;
+    u8 dst_x_ : 4;
+    u8 dst_y_ : 4;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    HostInteger<u16> x_;
+    HostInteger<u16> y_;
+
+    static constexpr const auto t = Type::boarding_pod_landed;
 };
 
 

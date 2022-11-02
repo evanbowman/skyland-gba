@@ -401,6 +401,12 @@ public:
     }
 
 
+    virtual Island* owner() const
+    {
+        return parent();
+    }
+
+
     RoomMeta* metaclass() const;
 
 
@@ -414,6 +420,9 @@ public:
 
 
     WorldCoord center() const;
+
+
+    WorldCoord visual_center() const;
 
 
     Island* parent() const

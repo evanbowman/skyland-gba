@@ -28,6 +28,7 @@
 #include "skyland/rooms/bananaPlant.hpp"
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
+#include "skyland/rooms/boardingPod.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bighull.hpp"
@@ -325,6 +326,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Cesium,
                                         Radar,
                                         Transporter,
+                                        BoardingPod,
                                         TargetingComputer,
                                         EscapeBeacon,
                                         Replicator,
