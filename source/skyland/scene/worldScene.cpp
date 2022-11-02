@@ -319,14 +319,24 @@ void WorldScene::display(Platform& pfrm, App& app)
 
             auto origin = app.player_island().visual_origin();
 
-            origin.x += cursor_loc.x * 16;
+            int x = cursor_loc.x * 16;
+            if (cursor_loc.x == 255) {
+                x = -16;
+            }
+
+            origin.x += x;
             origin.y += cursor_loc.y * 16;
 
             cursor.set_position(origin);
         } else if (app.opponent_island()) {
             auto origin = app.opponent_island()->visual_origin();
 
-            origin.x += cursor_loc.x * 16;
+            int x = cursor_loc.x * 16;
+            if (cursor_loc.x == 255) {
+                x = -16;
+            }
+
+            origin.x += x;
             origin.y += cursor_loc.y * 16;
 
             cursor.set_position(origin);

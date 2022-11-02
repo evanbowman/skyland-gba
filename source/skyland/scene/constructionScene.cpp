@@ -139,7 +139,20 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    auto exit_scene = [this]() -> ScenePtr<Scene> {
+    auto& cursor_loc =
+        near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
+
+    auto fixup_cursor = [&] {
+                            if ((s8)cursor_loc.x < 0) {
+                                cursor_loc.x = 0;
+                            }
+                            if (cursor_loc.y == 15) {
+                                cursor_loc.y = 14;
+                            }
+                        };
+
+    auto exit_scene = [this, fixup_cursor]() -> ScenePtr<Scene> {
+        fixup_cursor();
         if (near_) {
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -148,16 +161,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        fixup_cursor();
         return new_scene;
     }
 
     if (not island(app)) {
         return exit_scene();
     }
-
-    auto& cursor_loc =
-        near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
-
 
     if (tapped_topleft_corner(pfrm, app) or
         app.player().key_down(pfrm, Key::alt_2) or
@@ -171,11 +181,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto tapclick = [&]() -> std::optional<RoomCoord> {
+    auto tapclick = [&]() -> std::optional<Vec2<s8>> {
         if (auto pos = app.player().tap_released(pfrm)) {
             auto clk = get_local_tapclick(pfrm, island(app), *pos);
 
-            return clk;
+            if (clk) {
+                return clk->cast<s8>();
+            }
         }
         return std::nullopt;
     }();
@@ -322,7 +334,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // If the player presses and holds the touch screen, scroll
                 // through available construction sites.
                 if (auto pos = app.player().touch_current(pfrm)) {
-                    tapclick = get_local_tapclick(pfrm, island(app), *pos);
+                    if (auto t = get_local_tapclick(pfrm, island(app), *pos)) {
+                        tapclick = t->cast<s8>();
+                    }
                 }
             }
 
@@ -602,6 +616,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 if (auto scene = room->setup(pfrm, app)) {
+                    fixup_cursor();
                     return scene;
                 }
             }
@@ -662,15 +677,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             network::transmit(pfrm, packet);
 
 
-            if (island(app) == app.opponent_island()) {
-                // Supporting this is just convenient for players. Because
-                // terrain is added to the righthand side of the map in all
-                // cases, let's be nice to the player and shift everything over
-                // in sandbox mode, so that adding terrain works the same way
-                // for both islands; new terrain is effectively inserted at the
-                // island's leading edge.
+            if (data_->construction_sites_[selector_].x == -1) {
                 auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
-                for (auto& room : app.opponent_island()->rooms()) {
+                for (auto& room : island(app)->rooms()) {
                     tmp->push_back(room.get());
                 }
                 for (auto& r : reversed(*tmp)) {
@@ -689,12 +698,18 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 // Furthermore... all weapons on the players' island need to
                 // have their targets adjusted accordingly:
-                for (auto& r : app.player_island().rooms()) {
-                    if (auto t = r->get_target()) {
-                        t->x += 1;
-                        r->set_target(pfrm, app, *t);
+                Island* other_island = (island(app) == &app.player_island()) ?
+                    app.opponent_island() : &app.player_island();
+
+                if (other_island) {
+                    for (auto& r : other_island->rooms()) {
+                        if (auto t = r->get_target()) {
+                            t->x += 1;
+                            r->set_target(pfrm, app, *t);
+                        }
                     }
                 }
+
             }
 
             find_construction_sites(pfrm, app);
@@ -949,9 +964,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_texture_index(12);
             }
 
+            if (data_->construction_sites_[selector_].x == -1) {
+                sprite.set_flip({true, false});
+            }
+
             sprite.set_size(Sprite::Size::w16_h32);
 
             pfrm.screen().draw(sprite);
+
+            sprite.set_flip({});
 
 
             if (data_->construction_sites_[selector_].y == 15) {
@@ -959,21 +980,42 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 origin.x += (island(app)->terrain().size() - 1) * 16;
                 origin.y += 15 * 16;
 
+                int tid_1 = 99;
+                int tid_2 = 100;
+
+                if (data_->construction_sites_[selector_].x == -1) {
+                    sprite.set_flip({true, false});
+                    std::swap(tid_1, tid_2);
+                    origin.x = island(app)->visual_origin().x - 16;
+                }
+
                 sprite.set_position(origin);
-                sprite.set_texture_index(99);
+                sprite.set_texture_index(tid_1);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 pfrm.screen().draw(sprite);
-                sprite.set_texture_index(100);
+                sprite.set_texture_index(tid_2);
                 origin.x += 16;
                 sprite.set_position(origin);
                 pfrm.screen().draw(sprite);
-            } else if (data_->construction_sites_[selector_].x ==
+            } else if ((u32)data_->construction_sites_[selector_].x ==
                        island(app)->terrain().size() - 1) {
                 origin = island(app)->visual_origin();
                 origin.x += (island(app)->terrain().size()) * 16;
                 origin.y += 15 * 16;
 
                 sprite.set_position(origin);
+                sprite.set_texture_index(101);
+                sprite.set_alpha(Sprite::Alpha::translucent);
+                pfrm.screen().draw(sprite);
+            }
+
+            if (data_->construction_sites_[selector_].x == 0) {
+                origin = island(app)->visual_origin();
+                origin.x -= 16;
+                origin.y += 15 * 16;
+
+                sprite.set_position(origin);
+                sprite.set_flip({true, false});
                 sprite.set_texture_index(101);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 pfrm.screen().draw(sprite);
@@ -1003,22 +1045,35 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         const RoomCoord loc = {u8(terrain.size()), 15};
         auto origin = island(app)->visual_origin();
         origin.x += loc.x * 16;
+        if (data_->construction_sites_[selector_].x == -1) {
+            origin.x = island(app)->visual_origin().x - 16;
+        }
         origin.y -= 32;
         Sprite sprite;
         sprite.set_texture_index(14);
         sprite.set_size(Sprite::Size::w16_h32);
         sprite.set_position(origin);
         pfrm.screen().draw(sprite);
-        {
+
+        int tid_1 = 99;
+        int tid_2 = 100;
+
+        if (data_->construction_sites_[selector_].x == -1) {
+            sprite.set_flip({true, false});
+            std::swap(tid_1, tid_2);
+            origin.x = island(app)->visual_origin().x - 16;
+            origin.y = island(app)->visual_origin().y + 15 * 16;
+        } else {
             origin = island(app)->visual_origin();
             origin.x += (island(app)->terrain().size() - 1) * 16;
             origin.y += 15 * 16;
-
+        }
+        {
             sprite.set_position(origin);
-            sprite.set_texture_index(99);
+            sprite.set_texture_index(tid_1);
             sprite.set_alpha(Sprite::Alpha::translucent);
             pfrm.screen().draw(sprite);
-            sprite.set_texture_index(100);
+            sprite.set_texture_index(tid_2);
             origin.x += 16;
             sprite.set_position(origin);
             pfrm.screen().draw(sprite);
@@ -1038,20 +1093,28 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     checksum_ = island(app)->checksum();
 
+    const auto& terrain = island(app)->terrain();
+    if (not terrain.full() and
+        app.game_mode() not_eq App::GameMode::multiplayer and
+        app.game_mode() not_eq App::GameMode::co_op) {
+        // Construct terrain on lefthand side of island
+        data_->construction_sites_.push_back({-1, 15});
+    }
+
+
     island(app)->plot_construction_zones(matrix);
 
-    for (u8 x = 0; x < 16; ++x) {
-        for (u8 y = 0; y < 16; ++y) {
+    for (s8 x = 0; x < 16; ++x) {
+        for (s8 y = 0; y < 16; ++y) {
             if (matrix[x][y] and y >= construction_zone_min_y) {
                 data_->construction_sites_.push_back({x, y});
             }
         }
     }
 
-    auto& terrain = island(app)->terrain();
     if (not terrain.full() and
         app.game_mode() not_eq App::GameMode::multiplayer) {
-        data_->construction_sites_.push_back({u8(terrain.size()), 15});
+        data_->construction_sites_.push_back({s8(terrain.size()), 15});
     }
 
     if (data_->construction_sites_.empty()) {

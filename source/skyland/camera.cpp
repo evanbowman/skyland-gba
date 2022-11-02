@@ -66,12 +66,22 @@ void Camera::update(Platform& pfrm,
 
     auto tpos = fvec(target.get_position());
 
+    int x = cursor_loc.x;
+    if (x == 255) {
+        // FIXME: Late in development, I decided I wanted players to be able to
+        // build terrain on both sides of an island, requiring the player to be
+        // able to move cursor location to x index -1. The ConstructionScene now
+        // uses an s8 cursor index, and the rest of the rest of the codebase
+        // uses a u8 index.
+        x = -1;
+    }
+
     if (near) {
-        target_.x = tpos.x + ((cursor_loc.x - 3) * 16) / 2;
+        target_.x = tpos.x + ((x - 3) * 16) / 2;
         target_.x = clamp(target_.x, (int)tpos.x - 40, (int)tpos.x + 48);
         target_.x -= 16;
     } else {
-        target_.x = tpos.x + ((cursor_loc.x + 3) * 16) / 2;
+        target_.x = tpos.x + ((x + 3) * 16) / 2;
         target_.x = clamp(target_.x, (int)tpos.x - 48, (int)tpos.x + 256);
         target_.x -= 100;
     }
