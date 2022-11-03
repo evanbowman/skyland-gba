@@ -73,6 +73,12 @@ public:
         }
 
 
+        bool entity_oom_deletable() const
+        {
+            return false;
+        }
+
+
         Sprite& spr()
         {
             return sprite_;
@@ -98,8 +104,27 @@ public:
     {
         auto pos = sprite_.get_position();
 
+        auto spawn_flames =
+            [&](Microseconds timeout) {
+                flame_spawn_count_ += delta;
+                if (flame_spawn_count_ > timeout) {
+                    flame_spawn_count_ -= timeout;
+                    auto p = pos;
+                    p.x += 8;
+                    p.y += 16;
+                    if (auto exp = app.alloc_entity<Explosion2>(pfrm,
+                                                                p,
+                                                                270 / 2,
+                                                                1)) {
+                        exp->set_speed({0, 0.0001f});
+                        app.effects().push(std::move(exp));
+                    }
+                }
+            };
+
         switch (state_) {
         case State::rising_1:
+            spawn_flames(milliseconds(80));
             timer_ += delta;
             pos.y -= app.delta_fp() * 0.00006_fixed;
             if (timer_ > milliseconds(200)) {
@@ -109,6 +134,7 @@ public:
             break;
 
         case State::wait_1:
+            spawn_flames(milliseconds(250));
             timer_ += delta;
             pos.y -= app.delta_fp() * 0.00001_fixed;
             if (timer_ > milliseconds(500)) {
@@ -118,6 +144,7 @@ public:
             break;
 
         case State::rising_2:
+            spawn_flames(milliseconds(40));
             timer_ += delta;
             pos.y -= app.delta_fp() * 0.00027_fixed;
             if (timer_ > milliseconds(600)) {
