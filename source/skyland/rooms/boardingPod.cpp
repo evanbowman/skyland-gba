@@ -47,6 +47,42 @@ class BoardingPodEntity : public Entity
 {
 public:
 
+
+    class Upper : public Entity
+    {
+    public:
+        Upper(Platform::DynamicTexturePtr dt,
+              Vec2<Fixnum> position) : Entity({}),
+                                       dt_(dt)
+        {
+            position.y -= 48;
+            position.x -= 16;
+            sprite_.set_position(position);
+            dt_->remap(81 * 2);
+            sprite_.set_texture_index(dt->mapping_index());
+        }
+
+
+        void update(Platform& pfrm, App& app, Microseconds delta) override
+        {
+        }
+
+
+        void rewind(Platform& pfrm, App& app, Microseconds delta) override
+        {
+        }
+
+
+        Sprite& spr()
+        {
+            return sprite_;
+        }
+
+    private:
+        Platform::DynamicTexturePtr dt_;
+    };
+
+
     BoardingPodEntity(Platform::DynamicTexturePtr dt,
                       Vec2<Fixnum> position) : Entity({{32, 32}, {16, 16}}),
                                                dt_(dt)
@@ -115,10 +151,21 @@ public:
 
         sprite_.set_position(pos);
 
+        Sprite::Alpha a;
         if (sprite_.get_position().y < 450.0_fixed) {
-            sprite_.set_alpha(Sprite::Alpha::transparent);
+            a = Sprite::Alpha::transparent;
         } else {
-            sprite_.set_alpha(Sprite::Alpha::opaque);
+            a = Sprite::Alpha::opaque;
+        }
+
+        sprite_.set_alpha(a);
+
+        pos.y -= 48;
+        pos.x -= 16;
+
+        if (upper_) {
+            upper_->spr().set_position(pos);
+            upper_->spr().set_alpha(a);
         }
     }
 
@@ -134,6 +181,9 @@ public:
             pos.y += app.delta_fp() * 0.00006_fixed;
             if (timer_ <= 0) {
                 kill();
+                if (upper_) {
+                    upper_->kill();
+                }
             }
             break;
 
@@ -181,10 +231,21 @@ public:
 
         sprite_.set_position(pos);
 
+        Sprite::Alpha a;
         if (sprite_.get_position().y < 450.0_fixed) {
-            sprite_.set_alpha(Sprite::Alpha::transparent);
+            a = Sprite::Alpha::transparent;
         } else {
-            sprite_.set_alpha(Sprite::Alpha::opaque);
+            a = Sprite::Alpha::opaque;
+        }
+
+        sprite_.set_alpha(a);
+
+        pos.y -= 48;
+        pos.x -= 16;
+
+        if (upper_) {
+            upper_->spr().set_position(pos);
+            upper_->spr().set_alpha(a);
         }
     }
 
@@ -194,16 +255,46 @@ public:
     {
         if ((*room.metaclass())->category() == Room::Category::wall or
             (*room.metaclass())->category() == Room::Category::decoration) {
-            room.apply_damage(pfrm, app, 9999);
+            room.apply_damage(pfrm, app, Room::health_upper_limit());
             return;
+        }
+
+        Room* r = &room;
+        auto rc = room.position();
+        rc.x = target_.x;
+        for (u8 x = rc.x; x < rc.x + BoardingPod::size().x; ++x) {
+            for (u8 y = 0; y < rc.y + BoardingPod::size().y; ++y) {
+                if (auto r2 = target_island_->get_room({x, y})) {
+                    if ((*r2->metaclass())->properties() &
+                        RoomProperties::habitable) {
+                        if (rc.y >= r2->position().y) {
+                            r = r2;
+                        }
+                    }
+                }
+            }
         }
 
         kill();
         app.camera()->shake(32);
 
-        auto coord = room.position();
+        if (upper_) {
+            upper_->kill();
+            upper_ = nullptr;
+        }
+
+        auto coord = r->position();
         coord.y -= 3;
         coord.x = target_.x;
+
+        for (u8 x = coord.x; x < coord.x + BoardingPod::size().x; ++x) {
+            for (u8 y = 0; y < coord.y + BoardingPod::size().y; ++y) {
+                if (auto r2 = target_island_->get_room({x, y})) {
+                    r2->apply_damage(pfrm, app, Room::health_upper_limit());
+                }
+            }
+        }
+
         target_island_->add_room<BoardingPod>(pfrm,
                                               app,
                                               coord,
@@ -296,6 +387,7 @@ public:
     Platform::DynamicTexturePtr dt_;
     Island* target_island_ = nullptr;
     Island* source_island_ = nullptr;
+    Upper* upper_ = nullptr;
 
     Microseconds flame_spawn_count_ = 0;
     Microseconds timer_ = 0;
@@ -323,6 +415,15 @@ void restore_boarding_pod_entity(Platform& pfrm,
     pos.y = e.y_.get();
     if (auto bp = app.alloc_entity<BoardingPodEntity>(pfrm, *dt, pos)) {
         bp->restore(app, e, src);
+
+        if (auto dt2 = pfrm.make_dynamic_texture()) {
+            pos.y -= 16;
+            if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(pfrm, *dt2, pos)) {
+                bp->upper_ = e.get();
+                app.effects().push(std::move(e));
+            }
+        }
+
         app.effects().push(std::move(bp));
     }
 }
@@ -347,6 +448,17 @@ void BoardingPod::rewind(Platform& pfrm, App& app, Microseconds delta)
     } else {
         launch_timer_ = 0;
     }
+}
+
+
+
+void BoardingPod::apply_damage(Platform& pfrm, App& app, Health damage)
+{
+    if (parent() not_eq owner_) {
+        damage /= 4;
+    }
+
+    Room::apply_damage(pfrm, app, damage);
 }
 
 
@@ -379,7 +491,8 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                     // rewinding purposes.
                     c.apply_damage(pfrm, app, 0);
 
-                    if (((time_stream::event::Header*)app.time_stream().end())
+                    if (app.time_stream().pushes_enabled() and
+                        ((time_stream::event::Header*)app.time_stream().end())
                         ->type_ not_eq
                         time_stream::event::Type::character_health_changed) {
                         Platform::fatal("logic error: apply_damage(0) "
@@ -404,6 +517,12 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                 bp->target_ = *target_;
                 bp->source_island_ = parent();
                 bp->target_island_ = other_island(app);
+
+                if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(pfrm, *dt2, pos)) {
+                    bp->upper_ = e.get();
+                    app.effects().push(std::move(e));
+                }
+
                 app.effects().push(std::move(bp));
                 apply_damage(pfrm, app, 9999);
                 app.camera()->shake(6);
@@ -472,6 +591,17 @@ void BoardingPod::plot_walkable_zones(App& app, bool matrix[16][16])
 
 void BoardingPod::set_target(Platform& pfrm, App& app, const RoomCoord& target)
 {
+    auto island = other_island(app);
+    if (island) {
+        if (auto room = island->get_room(target)) {
+            if (not ((*room->metaclass())->properties() &
+                     RoomProperties::habitable)) {
+                pfrm.speaker().play_sound("beep_error", 3);
+                return;
+            }
+        }
+    }
+
     target_ = target;
     ready();
     launch_timer_ = 1;
