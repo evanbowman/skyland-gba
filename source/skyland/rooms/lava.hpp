@@ -35,7 +35,7 @@ namespace skyland
 class Lava : public Room
 {
 public:
-    Lava(Island* parent, const RoomCoord& position, const char* name = name());
+    Lava(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void set_flood_parent(RoomCoord parent)

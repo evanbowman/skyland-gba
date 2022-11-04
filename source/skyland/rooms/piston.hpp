@@ -37,7 +37,7 @@ class Piston : public Room
 public:
     Piston(Island* parent,
            const RoomCoord& position,
-           const char* name = name());
+           const char* n = name());
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;

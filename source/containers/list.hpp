@@ -23,6 +23,7 @@
 #pragma once
 
 #include <new>
+#include <optional>
 
 #include "binaryNode.hpp"
 #include "memory/pool.hpp"

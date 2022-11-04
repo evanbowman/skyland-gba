@@ -27,6 +27,7 @@
 #include "platform/key.hpp"
 #include "skyland/coord.hpp"
 #include <tuple>
+#include <optional>
 
 
 

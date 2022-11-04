@@ -10,12 +10,13 @@ set(SOURCE_DIR ${ROOT_DIR}/source)
 set(IMAGE_DIR ${ROOT_DIR}/images)
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_language(ASM)
 
 
 
+option(PSP "PlayStationPortable" OFF)
 option(GAMEBOY_ADVANCE "GameboyAdvance" ON)
 option(NINTENDO_DS "NintendoDS" OFF)
 option(GBA_AUTOBUILD_IMG "AutobuildImg" OFF)
@@ -59,7 +60,6 @@ configure_file(dirlocals.in ${SOURCE_DIR}/.dir-locals.el)
 set(G_COMPILE_FLAGS
   -g3
   -Wall
-  -Werror
   -pedantic
   -ffast-math
   -fno-math-errno
@@ -467,6 +467,12 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
 
     ${SOURCE_DIR}/platform/gba/dlc_download.cpp)
+
+elseif(PSP)
+
+set(SOURCES
+    ${SOURCES}
+    ${SOURCE_DIR}/platform/psp/psp_platform.cpp)
 
 else()
   set(SOURCES
@@ -920,6 +926,42 @@ elseif(APPLE)
     # COMMAND cp -r ${SFML_DIR}/lib/* SkylandEngine.app/Contents/Frameworks
     # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* SkylandEngine.app/Contents/Frameworks
     )
+
+elseif(PSP)
+
+  set(PSP_FLAGS
+    -I/usr/local/pspdev/psp/sdk/include
+    -G0
+    -g3
+    -mpreferred-stack-boundary=4
+    -ffast-math
+    -gdwarf-2
+    -I.
+    -I/usr/local/pspdev/psp/sdk/ninclude)
+
+  target_compile_options(LISP PRIVATE
+    ${PSP_FLAGS}
+    ${G_COMPILE_FLAGS})
+
+  target_compile_options(FASTPATH PRIVATE
+    ${PSP_FLAGS}
+    ${G_COMPILE_FLAGS})
+
+  target_compile_options(SkylandEngine PRIVATE
+    ${PSP_FLAGS}
+    -fno-rtti
+    ${G_COMPILE_FLAGS})
+
+  add_library(QR
+    ${ROOT_DIR}/external/qr/qrcodegen.c)
+
+  target_compile_options(QR PRIVATE
+    -O2
+    ${PSP_FLAGS})
+
+  target_link_libraries(SkylandEngine PRIVATE
+    QR)
+
 
 elseif(UNIX)
 

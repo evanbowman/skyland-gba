@@ -39,7 +39,7 @@ class Forcefield : public Room
 public:
     Forcefield(Island* parent,
                const RoomCoord& position,
-               const char* name = name());
+               const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
