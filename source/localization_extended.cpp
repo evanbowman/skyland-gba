@@ -43,6 +43,16 @@
 #endif
 
 
+// Fuck char8_t. I used to use u8 literals, then c++20 broke my code. No longer
+// using u8 lterals. The whole point of utf8 is easy compatibility with
+// ascii. Who cares about bizare edge case compilers that don't use ascii as the
+// encoding for string literals? Why would you break source code for people who
+// are trying to do the right thing and use u8 lterals in the first place?
+// Breaking compatibility is evil, and sometimes you need to, but defining u8
+// literals as char8_t and then barely supporting char8_t in the standard
+// library is A POOR FUCKING REASON.
+
+
 // Needs to be a macro because there's no way to pass a str_const as a
 // constexpr parameter. Converts the first utf-8 codepoint in a string to a
 // 32-bit integer, for use in a giant switch statement (below).
@@ -73,16 +83,16 @@
 class str_const
 {
 private:
-    const char* const p_;
+    const char8_t* const p_;
     const size_t sz_;
 
 public:
     template <size_t N>
-    constexpr str_const(const char (&a)[N]) : p_(a), sz_(N - 1)
+    constexpr str_const(const char8_t (&a)[N]) : p_(a), sz_(N - 1)
     {
     }
 
-    constexpr char operator[](std::size_t n)
+    constexpr char8_t operator[](std::size_t n)
     {
         return n < sz_ ? p_[n] : '0';
     }

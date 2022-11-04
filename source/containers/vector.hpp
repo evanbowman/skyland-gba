@@ -190,7 +190,7 @@ public:
             ++chunk_index_;
             ++index_;
 
-            if (chunk_index_ == Chunk::elems()) {
+            if (chunk_index_ == (int)Chunk::elems()) {
                 chunk_index_ = 0;
                 if (chunk_->header_.next_) {
                     chunk_ = (Chunk*)(*chunk_->header_.next_)->data_;
@@ -331,7 +331,7 @@ public:
             seek_chunk(current, size);
         }
 
-        if (size == Chunk::elems() and not current->header_.next_) {
+        if (size == (int)Chunk::elems() and not current->header_.next_) {
             auto sbr = make_scratch_buffer(t);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
@@ -361,7 +361,7 @@ public:
             seek_chunk(current, size);
         }
 
-        if (size == Chunk::elems() and not current->header_.next_) {
+        if (size == (int)Chunk::elems() and not current->header_.next_) {
             auto sbr = make_scratch_buffer("vector-segment");
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;

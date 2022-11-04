@@ -42,11 +42,15 @@ public:
     using ReverseIterator = reverse_iterator;
 
 
-    Buffer() : begin_((Iterator)mem_.data()), end_(begin_)
+    Buffer() :
+        mem_{},
+        begin_((Iterator)mem_.data()), end_(begin_)
     {
     }
 
-    Buffer(const Buffer& other) : begin_((Iterator)mem_.data()), end_(begin_)
+    Buffer(const Buffer& other) :
+        mem_{},
+        begin_((Iterator)mem_.data()), end_(begin_)
     {
         for (auto& elem : other) {
             push_back(elem);
@@ -62,7 +66,9 @@ public:
         return *this;
     }
 
-    Buffer(Buffer&& other) : begin_((Iterator)mem_.data()), end_(begin_)
+    Buffer(Buffer&& other) :
+        mem_{},
+        begin_((Iterator)mem_.data()), end_(begin_)
     {
         for (auto& elem : other) {
             this->push_back(std::move(elem));

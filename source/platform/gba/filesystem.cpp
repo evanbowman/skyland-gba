@@ -27,6 +27,7 @@
 // various reasons, and we're mounting a filesystem at __rom_end__ anyway, so...
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic ignored "-Wstringop-overread"
 
 
 #include "filesystem.hpp"

@@ -52,7 +52,7 @@ extern "C" {
 }
 
 
-PSP_MODULE_INFO("Blind Jump", 0, 1, 1);
+PSP_MODULE_INFO("SKYLAND", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 
 
@@ -111,27 +111,6 @@ bool Platform::is_running() const
 }
 
 
-extern "C" {
-// FIXME!
-#include "../../../build/psp/includes.img.h"
-}
-
-
-#include "../../../build/psp/stub.hpp"
-
-
-const ImageData* find_image(const char* name)
-{
-    StringBuffer<64> str_name = name;
-    for (auto& entry : image_table) {
-        if (str_name == entry.name_) {
-            return &entry;
-        }
-    }
-    return nullptr;
-}
-
-
 Platform::Platform()
 {
     setup_callbacks();
@@ -141,103 +120,10 @@ Platform::Platform()
 }
 
 
-static ObjectPool<RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock,
-                  scratch_buffer_count>
-    scratch_buffer_pool;
-
-
-static int scratch_buffers_in_use = 0;
-static int scratch_buffer_highwater = 0;
-
-
-ScratchBufferPtr Platform::make_scratch_buffer()
-{
-    auto finalizer =
-        [](RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock* ctrl) {
-            --scratch_buffers_in_use;
-            ctrl->pool_->free(ctrl);
-        };
-
-    auto maybe_buffer = Rc<ScratchBuffer, scratch_buffer_count>::create(
-        &scratch_buffer_pool, finalizer);
-    if (maybe_buffer) {
-        ++scratch_buffers_in_use;
-        if (scratch_buffers_in_use > scratch_buffer_highwater) {
-            scratch_buffer_highwater = scratch_buffers_in_use;
-
-            // StringBuffer<60> str = "sbr highwater: ";
-
-            // str += to_string<10>(scratch_buffer_highwater).c_str();
-
-            // info(*::platform, str.c_str());
-        }
-        return *maybe_buffer;
-    } else {
-        // screen().fade(1.f, ColorConstant::electric_blue);
-        fatal("scratch buffer pool exhausted");
-        while (true)
-            ;
-    }
-}
-
-
-int Platform::scratch_buffers_remaining()
-{
-    return scratch_buffer_count - scratch_buffers_in_use;
-}
-
-
-static Buffer<Platform::Task*, 7> task_queue_;
-
-
-void Platform::push_task(Task* task)
-{
-    task->complete_ = false;
-    task->running_ = true;
-
-    if (not task_queue_.push_back(task)) {
-        // error(*this, "failed to enqueue task");
-        while (true)
-            ;
-    }
-}
-
-
-void Platform::feed_watchdog()
-{
-    // TODO
-}
-
-
 Platform::~Platform()
 {
 }
 
-
-void SynchronizedBase::init(Platform& pf)
-{
-}
-
-
-void SynchronizedBase::lock()
-{
-}
-
-
-void SynchronizedBase::unlock()
-{
-}
-
-
-SynchronizedBase::~SynchronizedBase()
-{
-}
-
-
-static ObjectPool<RcBase<Platform::DynamicTexture,
-                         Platform::dynamic_texture_count>::ControlBlock,
-                  Platform::dynamic_texture_count>
-    dynamic_texture_pool;
 
 
 void Platform::DynamicTexture::remap(u16 spritesheet_offset)
@@ -259,301 +145,22 @@ bool Platform::NetworkPeer::supported_by_device()
 
 std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
-    auto finalizer =
-        [](RcBase<Platform::DynamicTexture,
-                  Platform::dynamic_texture_count>::ControlBlock* ctrl) {
-            // Nothing managed, so nothing to do.
-            dynamic_texture_pool.free(ctrl);
-        };
-
-    auto dt = DynamicTexturePtr::create(&dynamic_texture_pool, finalizer, 0);
-    if (dt) {
-        return *dt;
-    }
-
-    warning(*this, "Failed to allocate DynamicTexture.");
     return {};
-}
-
-
-struct SpriteMemory
-{
-    alignas(16) g2dColor pixels_[64 * 64];
-};
-
-
-constexpr auto sprite_image_ram_capacity = 200;
-
-
-static SpriteMemory sprite_image_ram[sprite_image_ram_capacity];
-
-// Unfortunately, the PSP does not support shaders. For some of the palette
-// effects that we want to support, we need to be able to blend any sprite with
-// an arbitrary color. So when we load a spritesheet, we mask out each sprite
-// texture, and replace all of the pixels with solid white. Then, when drawing,
-// we draw the regular sprite, then push the white mask, blended with a color,
-// and alpha-blended with the underlying sprite. It's complicated and uses tons
-// of extra memory, but at least it looks pretty.
-static SpriteMemory sprite_image_mask[sprite_image_ram_capacity];
-
-
-struct TileMemory
-{
-    alignas(16) g2dColor pixels_[64 * 64];
-};
-
-
-constexpr auto map_image_ram_capacity = 37;
-
-
-static TileMemory map0_image_ram[map_image_ram_capacity];
-static TileMemory map1_image_ram[map_image_ram_capacity];
-
-
-struct OverlayMemory
-{
-    alignas(16) g2dColor pixels_[16 * 16];
-};
-
-
-constexpr auto overlay_image_ram_capacity = 504;
-
-
-static OverlayMemory overlay_image_ram[overlay_image_ram_capacity];
-
-
-constexpr auto charset_image_ram_capacity = 300;
-
-
-static OverlayMemory charset_image_ram[charset_image_ram_capacity];
-static OverlayMemory charset_image_ram2[charset_image_ram_capacity];
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Image Format:
-//
-// The game stores images as linear uncompressed arrays of bytes, i.e.:
-// r, g, b, r, g, b, r, g, b, ...
-//
-// We could use PNG, or something, but then we'd need to decode the images. For
-// historical reasons (related to gameboy texture mapping), BlindJump uses very
-// wide spritesheet images (thousands of pixels wide). De-compressing these
-// sorts of pngs is memory intensive, so we convert images to plain rgb values.
-//
-// The repository stores data as PNG files anyway, and given that we are not
-// using PNG, we'd have to convert to some uncompressed format. BMP is tedious
-// to work with, so we're just converting images to arrays of rgb values.
-// Because we are able to assume the heights of the various image files, we do
-// not need to store any metadata about the images.
-//
-// BlindJump uses indexed color by design, so there are certainly changes that
-// we could make to decrease the size of the image data, but the images are not
-// too big to begin with.
-//
-// A final note: Because the PSP screen is a lot more dense than the Gameboy
-// Advance, we're upsampling all textures by 2x. The PSP screen is exactly twice
-// the width of the GBA screen, but less than twice the height. So there is a
-// bit of cropping going on, but nothing too excessive (PSP: 480x272, GBA:
-// 240x160 (480x320, so the GBA display is 48 virtual pixels taller)).
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-static g2dColor
-load_pixel(const u8* img_data, u32 img_size, int img_height, int x, int y)
-{
-    const auto line_width = (img_size / img_height) / 3;
-    u8 r = img_data[(x * 3) + (y * line_width * 3)];
-    u8 g = img_data[(x * 3) + 1 + (y * line_width * 3)];
-    u8 b = img_data[(x * 3) + 2 + (y * line_width * 3)];
-
-    auto pixel = G2D_RGBA(r, g, b, 255);
-
-    if (r == 0xFF and g == 0x00 and b == 0xFF) {
-        pixel = G2D_RGBA(255, 0, 255, 0);
-    }
-
-    return pixel;
 }
 
 
 void Platform::load_sprite_texture(const char* name)
 {
-    auto img_data = find_image(name);
-    if (not img_data) {
-        return;
-    }
-
-    static const auto line_height = 32;
-    const auto line_width = (img_data->size_ / line_height) / 3;
-
-    if (img_data->size_ % line_height not_eq 0) {
-        fatal("Invalid image format. "
-              "Spritesheet images must be 32px in height.");
-    }
-
-    for (int x = 0; x < line_width; ++x) {
-        for (int y = 0; y < line_height; ++y) {
-
-            auto color =
-                load_pixel(img_data->data_, img_data->size_, line_height, x, y);
-
-            auto target_sprite = x / 32;
-
-            if (target_sprite >= sprite_image_ram_capacity) {
-                ::platform->fatal("sprite texture too large");
-            }
-
-            auto& spr = sprite_image_ram[target_sprite];
-
-            auto set_pixel = [&](int x, int y) {
-                spr.pixels_[x % 64 + y * 64] = color;
-            };
-
-            set_pixel((x * 2), (y * 2));
-            set_pixel((x * 2) + 1, (y * 2));
-            set_pixel((x * 2), (y * 2) + 1);
-            set_pixel((x * 2) + 1, (y * 2) + 1);
-
-            auto& mask = sprite_image_mask[target_sprite];
-
-            auto set_mask_pixel = [&](int x, int y) {
-                if (G2D_GET_R(color) == 0xFF and G2D_GET_G(color) == 0x00 and
-                    G2D_GET_B(color) == 0xFF) {
-                    // Our pixel is not part of the mask.
-                    mask.pixels_[x % 64 + y * 64] = color;
-                } else {
-                    mask.pixels_[x % 64 + y * 64] = g2dColors::WHITE;
-                }
-            };
-
-            set_mask_pixel((x * 2), (y * 2));
-            set_mask_pixel((x * 2) + 1, (y * 2));
-            set_mask_pixel((x * 2), (y * 2) + 1);
-            set_mask_pixel((x * 2) + 1, (y * 2) + 1);
-        }
-    }
 }
-
-
-void load_map_texture(Platform& pfrm,
-                      TileMemory* dest,
-                      const u8* src_data,
-                      u32 src_size,
-                      bool meta)
-{
-    static const auto line_height = 24;
-    const auto line_width = (src_size / line_height) / 3;
-
-    if (src_size % line_height not_eq 0) {
-        pfrm.fatal("Invalid tile image format. "
-                   "Tileset images must be 24px in height.");
-    }
-
-    if (meta) {
-        //
-        // 11112222    11115555
-        // 33334444 -> 22226666
-        // 55556666    33337777
-        // 77778888    44448888
-        //
-
-        const auto line_height = 8;
-
-        for (int x = 0; x < (src_size / 8) / 3; ++x) {
-            for (int y = 0; y < line_height; ++y) {
-
-                auto color = load_pixel(src_data, src_size, line_height, x, y);
-
-                auto& tile = dest[x / (32 * 3)];
-
-                const int scl = x % (32 * 3);
-                int row;
-                if (scl < 32) {
-                    row = 0;
-                } else if (scl < 64) {
-                    row = 1;
-                } else {
-                    row = 2;
-                }
-
-                const int packed_x = x % 32;
-                const int packed_y = y + row * 8;
-
-                auto set_pixel = [&](int x, int y) {
-                    tile.pixels_[x % 64 + y * 64] = color;
-                };
-
-                set_pixel((packed_x * 2), (packed_y * 2));
-                set_pixel((packed_x * 2) + 1, (packed_y * 2));
-                set_pixel((packed_x * 2), (packed_y * 2) + 1);
-                set_pixel((packed_x * 2) + 1, (packed_y * 2) + 1);
-            }
-        }
-
-    } else {
-        for (int x = 0; x < line_width; ++x) {
-            for (int y = 0; y < line_height; ++y) {
-
-                auto color = load_pixel(src_data, src_size, line_height, x, y);
-
-                auto target_tile = x / 32;
-                if (target_tile >= map_image_ram_capacity) {
-                    pfrm.fatal("map texture too large");
-                }
-
-                auto& tile = dest[target_tile];
-
-                auto set_pixel = [&](int x, int y) {
-                    tile.pixels_[x % 64 + y * 64] = color;
-                };
-
-                set_pixel((x * 2), (y * 2));
-                set_pixel((x * 2) + 1, (y * 2));
-                set_pixel((x * 2), (y * 2) + 1);
-                set_pixel((x * 2) + 1, (y * 2) + 1);
-            }
-        }
-    }
-}
-
-
-static g2dColor clear_color;
 
 
 void Platform::load_tile0_texture(const char* name)
 {
-    // if (str_cmp(name, "title_1_flattened")) {
-    //     while (true) ;
-    // }
-
-    auto img_data = find_image(name);
-    if (not img_data) {
-        return;
-    }
-
-    load_map_texture(*this,
-                     map0_image_ram,
-                     img_data->data_,
-                     img_data->size_,
-                     strstr(name, "_flattened"));
-
-    const auto tile_block = 60 / 12;
-    const auto block_offset = 60 % 12;
-    clear_color = map0_image_ram[tile_block].pixels_[0];
 }
 
 
 void Platform::load_tile1_texture(const char* name)
 {
-    auto img_data = find_image(name);
-    if (not img_data) {
-        return;
-    }
-
-    load_map_texture(
-        *this, map1_image_ram, img_data->data_, img_data->size_, false);
 }
 
 
@@ -570,96 +177,9 @@ static g2dColor default_text_foreground_color;
 static g2dColor default_text_background_color;
 
 
-bool Platform::overlay_texture_exists(const char* name)
-{
-    return find_image(name);
-}
-
 
 bool Platform::load_overlay_texture(const char* name)
 {
-    StringBuffer<64> str_name = name;
-
-    auto img_data = find_image(name);
-    if (not img_data) {
-        return false;
-    }
-
-    static const auto line_height = 8;
-    const auto line_width = (img_data->size_ / line_height) / 3;
-
-    if (img_data->size_ % line_height not_eq 0) {
-        fatal("Invalid image format. "
-              "Overlay images must be 8px in height.");
-    }
-
-    for (int x = 0; x < line_width; ++x) {
-        for (int y = 0; y < line_height; ++y) {
-
-            auto color =
-                load_pixel(img_data->data_, img_data->size_, line_height, x, y);
-
-            if (x == 648 and y == 0) {
-                default_text_foreground_color = color;
-            } else if (x == 649 and y == 0) {
-                default_text_background_color = color;
-            }
-
-            auto target_overlay = x / 8;
-
-            if (target_overlay >= overlay_image_ram_capacity) {
-                ::platform->fatal("Overlay texture too large");
-            }
-
-            auto& overlay = overlay_image_ram[target_overlay];
-
-            auto set_pixel = [&](int x, int y) {
-                overlay.pixels_[x % 16 + y * 16] = color;
-            };
-
-            set_pixel((x * 2), (y * 2));
-            set_pixel((x * 2) + 1, (y * 2));
-            set_pixel((x * 2), (y * 2) + 1);
-            set_pixel((x * 2) + 1, (y * 2) + 1);
-        }
-    }
-
-    const auto charset_line_width = (size_charset_img / line_height) / 3;
-    for (int x = 0; x < charset_line_width; ++x) {
-        for (int y = 0; y < line_height; ++y) {
-
-            auto color =
-                load_pixel(charset_img, size_charset_img, line_height, x, y);
-
-            auto target_charset = x / 8;
-
-            if (target_charset >= charset_image_ram_capacity) {
-                ::platform->fatal("Charset texture too large");
-            }
-
-            auto& charset = charset_image_ram[target_charset];
-            auto& charset2 = charset_image_ram2[target_charset];
-
-            auto set_pixel = [&](int x, int y) {
-                if (color == G2D_RGBA(0, 0, 16, 255)) {
-                    charset.pixels_[x % 16 + y * 16] =
-                        G2D_RGBA(255, 255, 255, 255);
-                    charset2.pixels_[x % 16 + y * 16] = G2D_RGBA(0, 0, 0, 0);
-                } else {
-                    charset.pixels_[x % 16 + y * 16] = G2D_RGBA(0, 0, 0, 0);
-                    charset2.pixels_[x % 16 + y * 16] =
-                        G2D_RGBA(255, 255, 255, 255);
-                }
-            };
-
-            set_pixel((x * 2), (y * 2));
-            set_pixel((x * 2) + 1, (y * 2));
-            set_pixel((x * 2), (y * 2) + 1);
-            set_pixel((x * 2) + 1, (y * 2) + 1);
-        }
-    }
-
-    return true;
 }
 
 
@@ -671,17 +191,11 @@ static u16 overlay_tiles[32][32];
 
 void Platform::fill_overlay(u16 TileDesc)
 {
-    for (int x = 0; x < 32; ++x) {
-        for (int y = 0; y < 32; ++y) {
-            overlay_tiles[x][y] = 0;
-        }
-    }
 }
 
 
 static void set_overlay_tile(Platform& pfrm, int x, int y, u16 val)
 {
-    overlay_tiles[x][y] = val;
 }
 
 
@@ -760,28 +274,9 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
 }
 
 
-static FontColors font_extra_palettes[16];
-static u32 font_extra_palette_write_index = 0;
-
 
 void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
 {
-    glyph |= (1 << 10);
-
-    for (int i = 0; i < 16; ++i) {
-        if (font_extra_palettes[i].foreground_ == colors.foreground_ and
-            font_extra_palettes[i].background_ == colors.background_) {
-            glyph |= ((i & 0xf) << 11);
-            set_tile(Layer::overlay, x, y, glyph);
-            return;
-        }
-    }
-
-    font_extra_palettes[(font_extra_palette_write_index) % 16] = colors;
-    glyph |= (((font_extra_palette_write_index % 16) & 0xf) << 11);
-    set_tile(Layer::overlay, x, y, glyph);
-
-    font_extra_palette_write_index++;
 }
 
 
@@ -815,19 +310,9 @@ const char* Platform::get_opt(char opt)
 }
 
 
-// FIXME...
-#include "platform/gba/files.cpp"
-
-
 const char* Platform::load_file_contents(const char* folder,
                                          const char* filename) const
 {
-    for (auto& file : files) {
-        if (str_cmp(file.name_, filename) == 0 and
-            str_cmp(file.root_, folder) == 0) {
-            return reinterpret_cast<const char*>(file.data_);
-        }
-    }
     return nullptr;
 }
 
@@ -835,21 +320,10 @@ const char* Platform::load_file_contents(const char* folder,
 TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                              TextureCpMapper mapper)
 {
-    if (not ::glyph_mode) {
-        return 111;
-    }
-
-    const auto mapping_info = mapper(glyph);
-
-    if (not mapping_info) {
-        return 111;
-    }
-
-    return mapping_info->offset_ | (1 << 15);
 }
 
 
-const char* savefile_name = "ms0:/blind_jump.sav";
+const char* savefile_name = "ms0:/skyland.sav";
 
 
 bool Platform::read_save_data(void* buffer, u32 length, u32 offset)

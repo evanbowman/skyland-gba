@@ -35,7 +35,7 @@ namespace skyland
 class Water : public Room
 {
 public:
-    Water(Island* parent, const RoomCoord& position, const char* name = name());
+    Water(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void set_flood_parent(RoomCoord parent)

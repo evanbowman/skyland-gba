@@ -34,6 +34,7 @@
 #include "scene.hpp"
 #include "script/value.hpp"
 #include "tileId.hpp"
+#include <limits>
 
 
 

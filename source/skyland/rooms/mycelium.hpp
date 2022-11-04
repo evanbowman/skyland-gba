@@ -37,7 +37,7 @@ class Mycelium final : public Room
 public:
     Mycelium(Island* parent,
              const RoomCoord& position,
-             const char* name = name());
+             const char* n = name());
 
 
     void render_scaffolding(App& app, TileId buffer[16][16]) override
