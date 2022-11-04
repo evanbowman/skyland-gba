@@ -500,6 +500,30 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
 
     Room::ready();
 
+    int characters_healing = 0;
+
+    for (auto& character : characters()) {
+        if (character->owner() == &parent()->owner() and
+            character->state() not_eq BasicCharacter::State::fighting) {
+            ++characters_healing;
+        }
+    }
+
+    if (characters_healing) {
+        heal_timer_ += delta;
+        if (heal_timer_ > milliseconds(1000)) {
+            heal_timer_ -= milliseconds(1000);
+            int distribute_health = 16;
+            distribute_health /= characters_healing;
+            for (auto& character : characters()) {
+                if (character->owner() == &parent()->owner() and
+                    character->state() not_eq BasicCharacter::State::fighting) {
+                    character->heal(pfrm, app, distribute_health);
+                }
+            }
+        }
+    }
+
     if (launch_timer_) {
         launch_timer_ += delta;
 

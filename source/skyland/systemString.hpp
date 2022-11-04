@@ -543,6 +543,8 @@ enum class SystemString {
     achievement_hero_description,
     achievement_end_of_line_name,
     achievement_end_of_line_description,
+    achievement_raid_name,
+    achievement_raid_description,
 
     options,
 

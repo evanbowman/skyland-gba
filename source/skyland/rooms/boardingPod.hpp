@@ -83,8 +83,10 @@ public:
     {
         return RoomProperties::habitable | RoomProperties::roof_hidden |
                RoomProperties::disallow_chimney | RoomProperties::destroy_quietly |
-            RoomProperties::disabled_in_tutorials |
-            RoomProperties::multiplayer_unsupported;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::multiplayer_unsupported//  |
+               // RoomProperties::locked_by_default
+            ;
     }
 
 
@@ -147,6 +149,7 @@ public:
 private:
     std::optional<RoomCoord> target_;
     Microseconds launch_timer_ = 0;
+    Microseconds heal_timer_ = 0;
 };
 
 

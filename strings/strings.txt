@@ -286,7 +286,7 @@ A powerful weapon that only works in the stormiest weather. Gains one ammo and c
 Text written in some strange language... what could it mean?
 Conceal blocks! AI player cannot see blocks created fully within a cloak. AI will guess cloaked blocks based on behavior. Takes ion damage.
 Only constructible in sandbox mode.
-Attaches to an opponent's island, giving you a base within the enemy's island. Crewmembers heal inside the pod, but more slowly than in an infirmary.
+Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.
 paused
 slow
 regular
@@ -438,6 +438,8 @@ Hero
 Defeat the Storm King!
 Edge of the world!
 Reach the rightmost level of zone 4!
+Raid
+Board opponent's island w/ more than 5 of your own crew
 options
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!
