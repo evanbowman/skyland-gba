@@ -176,7 +176,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera()->shake(26);
     big_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, decimator_burst_damage);
+    room.apply_damage(pfrm, app, decimator_burst_damage, source_);
 }
 
 

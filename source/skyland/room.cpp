@@ -607,6 +607,13 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
+void Room::apply_damage(Platform& pfrm, App& app, Health damage, Island* src)
+{
+    apply_damage(pfrm, app, damage);
+}
+
+
+
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
     if (health_ not_eq 0) {

@@ -67,7 +67,8 @@ public:
     static void burst(Platform& pfrm,
                       App& app,
                       const Vec2<Fixnum>& position,
-                      Room& origin_room);
+                      Room& origin_room,
+                      Island* source);
 
 
 private:

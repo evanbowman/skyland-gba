@@ -45,7 +45,10 @@ public:
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
-    void apply_damage(Platform& pfrm, App& app, Health damage) override;
+    void apply_damage(Platform& pfrm,
+                      App& app,
+                      Health damage,
+                      Island* source) override;
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;
@@ -93,13 +96,19 @@ public:
 
     static Icon icon()
     {
-        return 616;
+        return 3960;
     }
 
 
     static Icon unsel_icon()
     {
-        return 600;
+        return 3944;
+    }
+
+
+    bool description_visible() override
+    {
+        return true;
     }
 
 

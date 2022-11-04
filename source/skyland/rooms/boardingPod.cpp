@@ -28,7 +28,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/sound.hpp"
-#include "skyland/entity/explosion/explosion2.hpp"
+#include "skyland/entity/explosion/explosion3.hpp"
 #include "skyland/room_metatable.hpp"
 
 
@@ -112,7 +112,7 @@ public:
                     auto p = pos;
                     p.x += 8;
                     p.y += 16;
-                    if (auto exp = app.alloc_entity<Explosion2>(pfrm,
+                    if (auto exp = app.alloc_entity<Explosion3>(pfrm,
                                                                 p,
                                                                 270 / 2,
                                                                 1)) {
@@ -479,9 +479,13 @@ void BoardingPod::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BoardingPod::apply_damage(Platform& pfrm, App& app, Health damage)
+void BoardingPod::apply_damage(Platform& pfrm,
+                               App& app,
+                               Health damage,
+                               Island* source)
 {
-    if (parent() not_eq owner_) {
+    if (source == parent()) {
+    } else if (parent() not_eq owner_) {
         damage /= 4;
     }
 
@@ -551,7 +555,7 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 app.effects().push(std::move(bp));
-                apply_damage(pfrm, app, 9999);
+                apply_damage(pfrm, app, 9999, parent());
                 app.camera()->shake(6);
             }
         }

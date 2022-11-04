@@ -378,6 +378,7 @@ public:
 
 
     virtual void apply_damage(Platform&, App&, Health damage);
+    virtual void apply_damage(Platform&, App&, Health damage, Island* src);
 
 
     virtual void burn_damage(Platform& pfrm, App& app, Health damage);

@@ -136,7 +136,7 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
 
     timestream_record_destroyed(pfrm, app);
 
-    room.apply_damage(pfrm, app, damage());
+    room.apply_damage(pfrm, app, damage(), source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(pfrm, app, true);

@@ -253,11 +253,11 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
     auto metac = room.metaclass();
 
     if (str_cmp((*metac)->name(), "hull") == 0) {
-        room.apply_damage(pfrm, app, missile_damage * 0.9f);
+        room.apply_damage(pfrm, app, missile_damage * 0.9f, source_);
     } else if (str_cmp((*metac)->name(), "stacked-hull") == 0) {
-        room.apply_damage(pfrm, app, missile_damage / 4);
+        room.apply_damage(pfrm, app, missile_damage / 4, source_);
     } else {
-        room.apply_damage(pfrm, app, missile_damage);
+        room.apply_damage(pfrm, app, missile_damage, source_);
     }
 
     if (room.health()) {

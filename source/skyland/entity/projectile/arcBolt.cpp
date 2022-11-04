@@ -223,7 +223,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
     for (auto& room : state->rooms_) {
-        room->apply_damage(pfrm, app, arcbolt_damage);
+        room->apply_damage(pfrm, app, arcbolt_damage, source_);
     }
 
 

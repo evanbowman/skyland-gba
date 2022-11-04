@@ -213,7 +213,8 @@ void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
 void Flak::burst(Platform& pfrm,
                  App& app,
                  const Vec2<Fixnum>& position,
-                 Room& origin_room)
+                 Room& origin_room,
+                 Island* source)
 {
 
     int grid_x_start = origin_room.position().x;
@@ -225,7 +226,7 @@ void Flak::burst(Platform& pfrm,
         const int y = grid_y_start + y_off;
         if (x >= 0 and x < 16 and y >= 0 and y < 16) {
             if (auto room = island->get_room({u8(x), u8(y)})) {
-                room->apply_damage(pfrm, app, damage);
+                room->apply_damage(pfrm, app, damage, source);
             }
         }
     };
@@ -289,7 +290,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    Flak::burst(pfrm, app, sprite_.get_position(), room);
+    Flak::burst(pfrm, app, sprite_.get_position(), room, source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(pfrm, app, true);
