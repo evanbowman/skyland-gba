@@ -773,13 +773,13 @@ void Platform::override_priority(Layer layer, int priority)
         break;
 
     case Layer::map_0:
-        BG0_CONTROL &= ~0x3;
-        BG0_CONTROL |= BG_PRIORITY(priority);
+        BG0_CONTROL = BG0_CONTROL & ~0x3;
+        BG0_CONTROL = BG0_CONTROL | BG_PRIORITY(priority);
         break;
 
     case Layer::map_1:
-        BG3_CONTROL &= ~0x3;
-        BG3_CONTROL |= BG_PRIORITY(priority);
+        BG3_CONTROL = BG3_CONTROL & ~0x3;
+        BG3_CONTROL = BG3_CONTROL | BG_PRIORITY(priority);
         break;
     }
 }
@@ -2400,14 +2400,14 @@ static void vblank_circle_effect_isr()
 
     // NOTE: fixes an audio bug that occurs when an audio timer irq occurs while
     // drawing the circle effect.
-    REG_SOUNDCNT_H &= ~(1 << 8);
-    REG_SOUNDCNT_H &= ~(1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
     win_circle((*opt_dma_buffer_)->data(),
                dma_effect_params[1],
                dma_effect_params[2],
                dma_effect_params[0]);
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
 
     DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
 }
@@ -3282,8 +3282,8 @@ void sram_save(const void* data, u32 offset, u32 length)
     // enabled.
     const bool sound_was_enabled = (REG_SOUNDCNT_X & 1 << 7);
     if (sound_was_enabled) {
-        REG_SNDDMGCNT &= ~(1 << 0xb);
-        REG_SNDDMGCNT &= ~(1 << 0xf);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
     }
 
     u16 ime = REG_IME;
@@ -3300,8 +3300,8 @@ void sram_save(const void* data, u32 offset, u32 length)
     REG_IME = ime;
 
     if (sound_was_enabled) {
-        REG_SOUNDCNT_H |= (1 << 9);
-        REG_SOUNDCNT_H |= (1 << 8);
+        REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+        REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
     }
 }
 
@@ -3898,24 +3898,24 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
 {
     switch (channel) {
     case Channel::square_1:
-        REG_SNDDMGCNT &= ~(1 << 8);
-        REG_SNDDMGCNT &= ~(1 << 0xc);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 8);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xc);
         break;
 
     case Channel::square_2:
-        REG_SNDDMGCNT &= ~(1 << 9);
-        REG_SNDDMGCNT &= ~(1 << 0xd);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 9);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xd);
         break;
 
     case Channel::noise:
         // FIXME!?
-        REG_SNDDMGCNT &= ~SDMG_LNOISE;
-        REG_SNDDMGCNT &= ~SDMG_RNOISE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_LNOISE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_RNOISE;
         break;
 
     case Channel::wave:
-        REG_SNDDMGCNT &= ~(1 << 0xb);
-        REG_SNDDMGCNT &= ~(1 << 0xf);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
         break;
 
     default:
@@ -3924,8 +3924,8 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
     }
 
     // Turn directsound back on!
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
 }
 
 
@@ -3945,13 +3945,13 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
 
 
     // Turn off directsound!
-    REG_SOUNDCNT_H &= ~(1 << 8);
-    REG_SOUNDCNT_H &= ~(1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
 
     switch (channel) {
     case Channel::square_1:
-        REG_SNDDMGCNT |= SDMG_LSQR1;
-        REG_SNDDMGCNT |= SDMG_RSQR1;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR1;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR1;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3959,8 +3959,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         break;
 
     case Channel::square_2:
-        REG_SNDDMGCNT |= SDMG_LSQR2;
-        REG_SNDDMGCNT |= SDMG_RSQR2;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR2;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR2;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3968,8 +3968,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         break;
 
     case Channel::noise: {
-        REG_SNDDMGCNT |= SDMG_LNOISE;
-        REG_SNDDMGCNT |= SDMG_RNOISE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LNOISE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RNOISE;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3983,8 +3983,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
     }
 
     case Channel::wave:
-        REG_SNDDMGCNT |= SDMG_LWAVE;
-        REG_SNDDMGCNT |= SDMG_RWAVE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LWAVE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RWAVE;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -4028,15 +4028,15 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
         vib *= (amplitude << 2);
         rate += vib;
-        *freq_register &= ~SFREQ_RATE_MASK;
-        *freq_register |= rate;
+        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+        *freq_register = *freq_register | rate;
     };
 
 
     auto apply_duty = [&](volatile u16* ctrl_register) {
-        *ctrl_register &= ~SSQR_DUTY_MASK;
+        *ctrl_register = *ctrl_register & ~SSQR_DUTY_MASK;
         // (Only four possible duty cycles, hence the mask)
-        *ctrl_register |= SSQR_DUTY((argument >> 4) & 0x03);
+        *ctrl_register = *ctrl_register | SSQR_DUTY((argument >> 4) & 0x03);
     };
 
 
@@ -4061,9 +4061,9 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 
     auto cancel_effect = [&](volatile u16* freq_register) {
-        *freq_register &= ~SFREQ_RATE_MASK;
-        *freq_register |= SND_RATE(analog_channel[ch_num].last_note_,
-                                   analog_channel[ch_num].last_octave_);
+        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+        *freq_register = *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
+                                                   analog_channel[ch_num].last_octave_);
 
         analog_channel[ch_num].effect_timer_ = 0;
     };
@@ -6287,8 +6287,8 @@ IrqState critical_section_enter()
     DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
     DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
 
-    REG_SOUNDCNT_H &= ~(1 << 8);
-    REG_SOUNDCNT_H &= ~(1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
 
     const u16 ime = REG_IME;
     REG_IME = 0;
@@ -6305,8 +6305,8 @@ void critical_section_exit(IrqState state)
     REG_IE = state.second;
     REG_IME = state.first;
 
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
 }
 
 
