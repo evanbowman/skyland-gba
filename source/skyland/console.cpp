@@ -2,6 +2,7 @@
 #include "script/lisp.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "base32.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -124,6 +125,7 @@ public:
                 "rom dump               | dump entire rom as hex (slow)\r\n"
                 "download <path>        | dump file to console, base32 encoded\r\n"
                 "quit                   | select a different console mode\r\n"
+                "call <path>            | invoke a lisp script"
                 "ls <path>              | list files in a directory\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
@@ -177,6 +179,11 @@ public:
             pfrm.sleep(1);
             pfrm.remote_console().printline("\r\n", "sc> ");
 
+        } else if (parsed.size() == 2 and parsed[0] == "call") {
+            auto result = app.invoke_script(pfrm, parsed[1].c_str());
+            RemoteConsoleLispPrinter printer(pfrm);
+            format(result, printer);
+            pfrm.remote_console().printline(printer.fmt_.c_str(), "sc> ");
         } else {
             pfrm.remote_console().printline("error: type help for options",
                                             "sc> ");
