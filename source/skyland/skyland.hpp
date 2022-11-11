@@ -27,6 +27,7 @@
 #include "boxed.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
+#include "console.hpp"
 #include "dialog.hpp"
 #include "entity/birds/bird.hpp"
 #include "flag.hpp"
@@ -46,6 +47,7 @@
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
 #include "weather/environment.hpp"
+
 
 
 
@@ -140,7 +142,7 @@ public:
     }
 
 
-    enum class GameMode {
+    enum class GameMode : u8 {
         adventure,
         challenge,
         tutorial,
@@ -299,7 +301,7 @@ public:
     }
 
 
-    enum class ExitCondition {
+    enum class ExitCondition : u8 {
         none,
         misc,
         victory,
@@ -449,50 +451,38 @@ private:
         rng::LinearGenerator crane_game_rng_;
     };
 
-    void on_remote_console_text(Platform& pfrm,
-                                const Platform::RemoteConsole::Line& str);
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Fields with eight-byte (?) alignment:
+    TimeTracker level_timer_;
+    TimeTracker stat_timer_;
+    Fixnum delta_fp_ = 1.f;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Fields with four-byte alignment:
     PersistentData persistent_data_;
     DynamicMemory<WorldState> world_state_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
-    Fixnum delta_fp_ = 1.f;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
     Boxed<Camera, Camera, 9 * sizeof(void*)> camera_;
-    GameSpeed game_speed_ = GameSpeed::normal;
-    u16 pause_count_ = 0;
     Rumble rumble_;
+
+    std::optional<lisp::Protected> input_setup_info_;
+
 
     KeyCallbackProcessor key_callback_processor_;
 
     Boxed<weather::Environment, weather::ClearSkies, 8 * sizeof(void*)>
         environment_;
 
-    enum class RemoteConsoleSyntax {
-        none,
-        simple_console,
-        lisp,
-    } remote_console_syntax_ = RemoteConsoleSyntax::none;
-
-    s32 level_begin_score_ = 0;
-
     std::optional<DialogBuffer> dialog_buffer_;
-    ExitCondition exit_condition_ = ExitCondition::none;
-    bool launch_input_ = false;
-    GameMode game_mode_ = GameMode::adventure;
-
-    StateBitvector state_bitvector_;
-
-    std::optional<lisp::Protected> input_setup_info_;
 
     EntityList<Entity> effects_;
     EntityList<Bird> birds_;
-
-    TimeTracker level_timer_;
-    TimeTracker stat_timer_;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 
@@ -508,6 +498,30 @@ private:
     time_stream::TimeStream time_stream_;
 
     std::optional<MacrocosmEngine> macrocosm_;
+
+    s32 level_begin_score_ = 0;
+
+
+    std::optional<DynamicMemory<ConsoleState>> console_state_;
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Fields with two-byte alignment
+    u16 pause_count_ = 0;
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // unaligned fields
+    StateBitvector state_bitvector_;
+    ExitCondition exit_condition_ = ExitCondition::none;
+    GameSpeed game_speed_ = GameSpeed::normal;
+    bool launch_input_ = false;
+    GameMode game_mode_ = GameMode::adventure;
+    enum class RemoteConsoleSyntax : u8 {
+        none,
+        simple_console,
+        lisp,
+    } remote_console_syntax_ = RemoteConsoleSyntax::none;
 };
 
 

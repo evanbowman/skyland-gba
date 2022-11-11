@@ -21,7 +21,6 @@
 
 
 #include "skyland.hpp"
-#include "base32.hpp"
 #include "eternal/eternal.hpp"
 #include "globals.hpp"
 #include "graphics/overlay.hpp"
@@ -61,13 +60,14 @@ Player& player(App& app)
 
 
 App::App(Platform& pfrm, bool clean_boot)
-    : world_state_(allocate_dynamic<WorldState>("env-buffer",
+    : level_timer_(0),
+      stat_timer_(0),
+      world_state_(allocate_dynamic<WorldState>("env-buffer",
                                                 pfrm,
                                                 Layer::map_0_ext,
                                                 5,
                                                 player())),
-      current_scene_(null_scene()), next_scene_(null_scene()), level_timer_(0),
-      stat_timer_(0),
+      current_scene_(null_scene()), next_scene_(null_scene()),
       backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
 {
     player_.emplace<PlayerP1>();
@@ -191,195 +191,6 @@ void App::start_console(Platform& pfrm)
 
 
 
-class RemoteConsoleLispPrinter : public lisp::Printer
-{
-public:
-    RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
-    {
-    }
-
-    void put_str(const char* str) override
-    {
-        fmt_ += str;
-    }
-
-    Platform::RemoteConsole::Line fmt_;
-    Platform& pfrm_;
-};
-
-
-
-static auto split(const Platform::RemoteConsole::Line& line)
-{
-    Vector<StringBuffer<64>> result("console-parse-buffer");
-
-    StringBuffer<64> current;
-
-    auto pos = line.begin();
-    while (pos not_eq line.end()) {
-        if (*pos == ' ' and not current.empty()) {
-            result.push_back(current, "console-parse-buffer");
-            current.clear();
-        } else {
-            current.push_back(*pos);
-        }
-        ++pos;
-    }
-
-    if (not current.empty()) {
-        result.push_back(current, "console-parse-buffer");
-    }
-
-    return result;
-}
-
-
-
-void App::on_remote_console_text(Platform& pfrm,
-                                 const Platform::RemoteConsole::Line& str)
-{
-    if (state_bit_load(*this, StateBit::remote_console_force_newline)) {
-        // Force-printing newlines required for some uart consoles. Our UART
-        // console requires local echo to be turned on regardless. But some
-        // serial consoles, like Putty, don't echo newlines, even with local
-        // echo turned on.
-        pfrm.remote_console().printline("", "");
-        pfrm.sleep(2);
-    }
-
-    if (str[0] == 0x04) { // EOT, i.e. ctrl-D
-        remote_console_syntax_ = RemoteConsoleSyntax::none;
-        pfrm.remote_console().printline("");
-        return;
-    }
-
-    const char* usage = "\aOptions: (s: simple console, l: lisp repl)";
-
-    switch (remote_console_syntax_) {
-    case RemoteConsoleSyntax::none:
-        if (str.length() == 1 and str[0] == 'f') {
-            const auto sb = StateBit::remote_console_force_newline;
-            const auto force = not state_bit_load(*this, sb);
-            state_bit_store(*this, sb, force);
-            if (force) {
-                pfrm.remote_console().printline("forced newline echo on");
-            } else {
-                pfrm.remote_console().printline("forced newline echo off");
-            }
-        } else if (str.length() == 1 and str[0] == 's') {
-            remote_console_syntax_ = RemoteConsoleSyntax::simple_console;
-            const char* hint =
-                "Simple Console ready, type help to list commands";
-            pfrm.remote_console().printline(hint, "sc> ");
-        } else if (str.length() == 1 and str[0] == 'l') {
-            remote_console_syntax_ = RemoteConsoleSyntax::lisp;
-            pfrm.remote_console().printline("Skyland LISP ready!", "lisp> ");
-        } else {
-            pfrm.remote_console().printline(usage);
-        }
-        break;
-
-    case RemoteConsoleSyntax::simple_console: {
-
-        auto parsed = split(str);
-
-        if (str == "help") {
-            // clang-format off
-            const char* msg =
-                "help                   | show this help message\r\n"
-                "pools annotate         | show memory pool statistics\r\n"
-                "sbr annotate           | show memory buffers in use\r\n"
-                "sbr dump @<buffer id>  | dump memory buffer as hex\r\n"
-                "rom dump               | dump entire rom as hex (slow)\r\n"
-                "download <path>        | dump file to console, base32 encoded\r\n"
-                "quit                   | select a different console mode\r\n"
-                "ls <path>              | list files in a directory\r\n";
-            // clang-format on
-            pfrm.remote_console().printline(msg, "sc> ");
-        } else if (str == "sbr annotate") {
-            pfrm.system_call("print-memory-diagnostics", nullptr);
-        } else if (parsed.size() == 3 and parsed[0] == "sbr" and
-                   parsed[1] == "dump") {
-            auto num = parsed[2].c_str();
-            if (num[0] == '@') {
-                ++num;
-            }
-            scratch_buffer_dump_sector(pfrm, parse_int(num, str_len(num)));
-        } else if (str == "pools annotate") {
-            GenericPool::print_diagnostics(pfrm);
-        } else if (str == "quit") {
-            pfrm.remote_console().printline("");
-            remote_console_syntax_ = RemoteConsoleSyntax::none;
-        } else if (str == "rom dump") {
-            pfrm.remote_console().printline("Dumping the entire rom as hex. "
-                                            "This will take a couple hours...",
-                                            "");
-            pfrm.sleep(180);
-            pfrm.system_call("dump-rom", nullptr);
-            pfrm.remote_console().printline("\r\nDone!", "sc> ");
-        } else if (parsed.size() == 2 and parsed[0] == "download") {
-            Vector<char> data;
-            if (flash_filesystem::read_file_data_binary(
-                    pfrm, parsed[1].c_str(), data)) {
-                auto enc = base32::encode(data);
-                pfrm.system_call("console-write-buffer", &enc);
-                pfrm.remote_console().printline("\r\nComplete!", "sc> ");
-            } else {
-                pfrm.remote_console().printline("file not found!", "sc> ");
-            }
-        } else if (parsed.size() == 2 and parsed[0] == "ls") {
-            flash_filesystem::walk_directory(
-                pfrm, parsed[1].c_str(), [&](const char* path) {
-                    pfrm.remote_console().printline(path, "");
-                    pfrm.sleep(1);
-                });
-
-            pfrm.walk_filesystem([&](const char* path) {
-                StringBuffer<64> prefix(parsed[1].c_str());
-                if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
-                    pfrm.remote_console().printline(path, "");
-                    pfrm.sleep(1);
-                }
-            });
-            pfrm.sleep(1);
-            pfrm.remote_console().printline("\r\n", "sc> ");
-
-        } else {
-            pfrm.remote_console().printline("error: type help for options",
-                                            "sc> ");
-        }
-        break;
-    }
-
-    case RemoteConsoleSyntax::lisp: {
-        if (str == "(quit)") {
-            pfrm.remote_console().printline("");
-            remote_console_syntax_ = RemoteConsoleSyntax::none;
-        } else {
-            RemoteConsoleLispPrinter printer(pfrm);
-
-            lisp::BasicCharSequence seq(str.c_str());
-            lisp::read(seq);
-            lisp::eval(lisp::get_op(0));
-
-            if (lisp::get_op(0)->type() == lisp::Value::Type::error) {
-                printer.fmt_.push_back('\a');
-            }
-
-            format(lisp::get_op(0), printer);
-
-            lisp::pop_op();
-            lisp::pop_op();
-
-            pfrm.remote_console().printline(printer.fmt_.c_str(), "lisp> ");
-            break;
-        }
-    }
-    }
-}
-
-
-
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
 #error "NON-Constexpr lookup table!"
 #endif
@@ -421,7 +232,13 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     auto line = pfrm.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
-        on_remote_console_text(pfrm, *line);
+        if (not console_state_) {
+            console_state_.emplace(allocate_dynamic<ConsoleState>("console"));
+        }
+        (*console_state_)->impl_->on_text(pfrm,
+                                          *this,
+                                          (*console_state_)->impl_,
+                                          *line);
     }
 
     rumble_.update(pfrm, delta);
