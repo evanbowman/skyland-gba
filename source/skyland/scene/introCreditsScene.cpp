@@ -49,16 +49,8 @@ void IntroCreditsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     info(pfrm, "enter intro credits scene");
 
-    // if (pfrm.keyboard().pressed<Key::select>()) {
-    //     flower_effect_ = true;
-    // }
-
     if (app.is_developer_mode()) {
-        pfrm.remote_console().start();
-        pfrm.remote_console().printline(
-            "Console ready!\r\n"
-            "\aOptions: (s: simple console, l: lisp repl)",
-            "> ");
+        app.start_console(pfrm);
     }
 }
 

@@ -645,6 +645,35 @@ public:
     Float get_atp() const;
 
 
+
+    class ExtensionFields
+    {
+    public:
+
+        virtual ~ExtensionFields()
+        {
+        }
+
+
+        virtual void free()
+        {
+            Platform::fatal("free unimplemented!");
+        }
+
+        ExtensionFields* next_;
+    };
+
+
+    template <typename ExtensionType, typename Allocator>
+    void add_extension(Allocator& mem)
+    {
+        if (auto obj = mem.template alloc<ExtensionType>()) {
+            obj->next_ = extensions_;
+            extensions_ = obj;
+        }
+    }
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -670,6 +699,12 @@ private:
     // Many rooms sit around doing nothing most of the time. Each island
     // maintains a dispatch list of rooms, for which it'll run update code.
     Room* dispatch_list_;
+
+
+    // Reserved for future use, for platforms with more memory and cpu, where we
+    // may want to conditionally enable certain features.
+    ExtensionFields* extensions_ = nullptr;
+
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -728,9 +763,6 @@ private:
 
     u8 accumulated_damage_ = 0;
     u8 show_damage_delay_frames_ = 0;
-
-    // Bytes freed up by various space optimization techniques.
-    u8 reserved_[4];
 };
 
 

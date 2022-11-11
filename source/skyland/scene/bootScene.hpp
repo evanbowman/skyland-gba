@@ -160,15 +160,6 @@ private:
 class BootScene : public Scene
 {
 public:
-    // clang-format off
-
-static constexpr const char* console_header =
-"\r\n"
-"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
-"|  Skyland Console                                                             |\r\n"
-"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n";
-
-    // clang-format on
 
 
     bool clean_boot_;

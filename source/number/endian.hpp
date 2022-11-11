@@ -24,6 +24,7 @@
 
 #include "numeric.hpp"
 #include <string.h>
+#include <bit>
 
 // Because most processors are little endian, I am using little endian byte
 // order for binary encoded data.
@@ -55,15 +56,14 @@
 
 
 #if defined(__GBA__) or defined(__NDS__)
-inline bool is_little_endian()
+inline constexpr bool is_little_endian()
 {
     return true;
 }
 #else
-inline bool is_little_endian()
+inline constexpr bool is_little_endian()
 {
-    static const u16 i = 0x000f;
-    return ((u8*)&i)[0] == 0x0f;
+    return std::endian::native == std::endian::little;
 }
 #endif
 

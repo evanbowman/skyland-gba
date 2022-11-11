@@ -846,9 +846,11 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
 
+         auto [app, pfrm] = interp_get_context();
+
          switch (L_LOAD_INT(0)) {
          case 1:
-             lisp::interp_get_pfrm()->remote_console().start();
+             app->start_console(*pfrm);
              break;
          }
 

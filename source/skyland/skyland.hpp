@@ -113,6 +113,8 @@ public:
     }
 
 
+    void start_console(Platform& pfrm);
+
 
     void create_opponent_island(Platform& pfrm, int terrain_size)
     {

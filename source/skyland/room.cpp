@@ -989,6 +989,11 @@ void Room::finalize(Platform& pfrm, App& app)
         // edge-cases.
         co_op_peer_release_lock();
     }
+
+    while (extensions_) {
+        extensions_->free();
+        extensions_ = extensions_->next_;
+    }
 }
 
 

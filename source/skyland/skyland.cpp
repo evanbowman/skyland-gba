@@ -172,6 +172,25 @@ void write_custom_graphics(Platform& pfrm, App& app)
 
 
 
+// clang-format off
+static constexpr const char* console_header =
+"\r\n"
+"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
+"|  Skyland Console                                                             |\r\n"
+"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
+"Options: (s: simple console, l: lisp repl)\r\n";
+// clang-format on
+
+
+
+void App::start_console(Platform& pfrm)
+{
+    pfrm.remote_console().start();
+    pfrm.remote_console().printline(console_header);
+}
+
+
+
 class RemoteConsoleLispPrinter : public lisp::Printer
 {
 public:
