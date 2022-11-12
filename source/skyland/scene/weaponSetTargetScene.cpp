@@ -359,12 +359,13 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 
     Sprite sprite;
     sprite.set_position(origin);
-    sprite.set_texture_index(17);
-    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index((17 * 2));
+    sprite.set_size(Sprite::Size::w16_h16);
 
     pfrm.screen().draw(sprite);
 
     if (firing_mode_) {
+        sprite.set_size(Sprite::Size::w16_h32);
         sprite.set_texture_index(111 + firing_mode_);
         origin.x += 12;
         origin.y += 10;

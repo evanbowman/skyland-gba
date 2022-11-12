@@ -170,8 +170,8 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
     ActiveWorldScene::display(pfrm, app);
 
     Sprite cursor;
-    cursor.set_size(Sprite::Size::w16_h32);
-    cursor.set_texture_index(15 + cursor_anim_frame_);
+    cursor.set_size(Sprite::Size::w16_h16);
+    cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {

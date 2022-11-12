@@ -310,7 +310,7 @@ void WorldScene::display(Platform& pfrm, App& app)
 
     if (app.game_mode() == App::GameMode::co_op) {
         Sprite cursor;
-        cursor.set_size(Sprite::Size::w16_h32);
+        cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_texture_index(globals().co_op_cursor_icon_);
 
         auto cursor_loc = globals().co_op_cursor_;

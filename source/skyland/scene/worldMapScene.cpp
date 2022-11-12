@@ -1051,17 +1051,19 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
     cursor.set_mix({});
 
+    cursor.set_size(Sprite::Size::w16_h16);
+
 
     if (state_ == State::selected) {
         auto current = app.world_graph().nodes_[cursor_].coord_;
-        cursor.set_texture_index(15 + cursor_keyframe_);
+        cursor.set_texture_index((15 * 2) + cursor_keyframe_);
         cursor.set_position({(current.x + map_start_x) * Float(8) - 4,
                              (current.y + map_start_y) * Float(8) - 4});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::move) {
 
         auto target = movement_targets_[movement_cursor_];
-        cursor.set_texture_index(15 + cursor_keyframe_);
+        cursor.set_texture_index((15 * 2) + cursor_keyframe_);
         cursor.set_position({(target.x + map_start_x) * Float(8) - 4,
                              (target.y + map_start_y) * Float(8) - 4});
         pfrm.screen().draw(cursor);
@@ -1077,6 +1079,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                      (t.coord_.y + map_start_y) * Float(8) - (12)});
                 cursor.set_mix({});
                 cursor.set_priority(0);
+                cursor.set_size(Sprite::Size::w16_h32);
                 cursor.set_alpha(Sprite::Alpha::opaque);
                 pfrm.screen().draw(cursor);
             }
@@ -1086,6 +1089,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         auto x = (current.coord_.x + map_start_x) - 4;
         auto y = (current.coord_.y + map_start_y) - 4;
         cursor.set_texture_index(76);
+        cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_alpha(Sprite::Alpha::translucent);
         cursor.set_priority(2);
 

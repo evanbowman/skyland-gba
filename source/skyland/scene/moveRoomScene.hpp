@@ -321,7 +321,8 @@ public:
             if (state_ == State::move_block) {
                 cursor.set_texture_index(110);
             } else {
-                cursor.set_texture_index(15 + cursor_anim_frame_);
+                cursor.set_size(Sprite::Size::w16_h16);
+                cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
             }
 
             auto origin = island_->visual_origin();
@@ -347,9 +348,11 @@ public:
 
             Sprite sprite;
             sprite.set_position(origin);
-            sprite.set_texture_index(15 + cursor_anim_frame_);
-            sprite.set_size(Sprite::Size::w16_h32);
+            sprite.set_texture_index((15 * 2) + cursor_anim_frame_);
+            sprite.set_size(Sprite::Size::w16_h16);
             pfrm.screen().draw(sprite);
+
+            sprite.set_size(Sprite::Size::w16_h32);
 
             origin = island_->visual_origin();
             auto cursor_loc = cursor();

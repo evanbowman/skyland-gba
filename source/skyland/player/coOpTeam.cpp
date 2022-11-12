@@ -146,18 +146,18 @@ void CoOpTeam::receive(Platform& pfrm,
             // which is guaranteed to be the same, at least for now, but who
             // knows how I might change things in the future. So anyway, I
             // want to create a separation between what constitutes an icon
-            // and a vram tile offset.
+            // and a vram tile offset. P.S.: turns out I was right.
         case 0:
-            return 30;
+            return (16 * 2);
 
         case 1:
-            return 31;
+            return (16 * 2) + 1;
 
         case 2:
-            return 32;
+            return (16 * 2) + 3;
 
         case 3:
-            return 33;
+            return (33 * 2);
         }
     }();
 }

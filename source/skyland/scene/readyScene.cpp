@@ -893,8 +893,8 @@ void describe_room(Platform& pfrm,
 void ReadyScene::display(Platform& pfrm, App& app)
 {
     Sprite cursor;
-    cursor.set_size(Sprite::Size::w16_h32);
-    cursor.set_texture_index(15 + cursor_anim_frame_);
+    cursor.set_size(Sprite::Size::w16_h16);
+    cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
     auto origin = app.player_island().visual_origin();
 
