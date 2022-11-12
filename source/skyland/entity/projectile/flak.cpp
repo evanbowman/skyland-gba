@@ -56,8 +56,8 @@ Flak::Flak(const Vec2<Fixnum>& position,
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
-    sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(60);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_texture_index(18 * 2 + 1);
 
     sprite_.set_origin({9, 9});
 

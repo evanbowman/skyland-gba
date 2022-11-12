@@ -264,7 +264,6 @@ public:
     {
         pfrm.load_background_texture(app.environment().background_texture());
 
-
         const auto st = calc_screen_tiles(pfrm);
 
         auto vn = format("version %.%.%.%",

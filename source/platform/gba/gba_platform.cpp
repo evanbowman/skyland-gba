@@ -1325,7 +1325,11 @@ void Platform::Screen::draw(const Sprite& spr)
         pb = ATTR2_PALBANK(spr.palette());
     }
 
-    auto draw_sprite = [&](int tex_off, int x_off, int scale) {
+    auto draw_sprite = [&](int tex_off,
+                           int x_off,
+                           int scale,
+                           int shape,
+                           int size) {
         if (UNLIKELY(oam_write_index == oam_count)) {
             return;
         }
@@ -1335,11 +1339,11 @@ void Platform::Screen::draw(const Sprite& spr)
         const auto view_center = get_view_center(*this);
         auto oa = object_attribute_back_buffer + oam_write_index;
         if (spr.get_alpha() not_eq Sprite::Alpha::translucent) {
-            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
+            oa->attribute_0 = ATTR0_COLOR_16 | shape;
         } else {
-            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL | ATTR0_BLEND;
+            oa->attribute_0 = ATTR0_COLOR_16 | shape | ATTR0_BLEND;
         }
-        oa->attribute_1 = ATTR1_SIZE_32; // clear attr1
+        oa->attribute_1 = size; // clear attr1
 
         auto abs_position = position - view_center;
 
@@ -1417,19 +1421,24 @@ void Platform::Screen::draw(const Sprite& spr)
         // flipped, and then we need to swap the drawing X-offsets, so that the
         // second strip will be drawn first.
         if (not spr.get_flip().x) {
-            draw_sprite(0, 0, 16);
-            draw_sprite(8, 16, 16);
+            draw_sprite(0, 0, 16, ATTR0_TALL, ATTR1_SIZE_32);
+            draw_sprite(8, 16, 16, ATTR0_TALL, ATTR1_SIZE_32);
 
         } else {
-            draw_sprite(0, 16, 16);
-            draw_sprite(8, 0, 16);
+            draw_sprite(0, 16, 16, ATTR0_TALL, ATTR1_SIZE_32);
+            draw_sprite(8, 0, 16, ATTR0_TALL, ATTR1_SIZE_32);
         }
 
         break;
 
     case Sprite::Size::w16_h32:
-        draw_sprite(0, 0, 8);
+        draw_sprite(0, 0, 8, ATTR0_TALL, ATTR1_SIZE_32);
         break;
+
+    case Sprite::Size::w16_h16: {
+        draw_sprite(0, 0, 4, ATTR0_SQUARE, ATTR1_SIZE_16);
+        break;
+    }
     }
 }
 

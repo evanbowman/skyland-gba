@@ -50,7 +50,7 @@ IonBurst::IonBurst(const Vec2<Fixnum>& position,
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(56);
+    sprite_.set_texture_index(22 * 2);
 
     sprite_.set_origin({8, 8});
 
@@ -78,10 +78,10 @@ void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
     if (anim_timer_ > milliseconds(90)) {
         anim_timer_ = 0;
         const auto kf = sprite_.get_texture_index();
-        if (kf < 58) {
+        if (kf < (22 * 2) + 2) {
             sprite_.set_texture_index(kf + 1);
         } else {
-            sprite_.set_texture_index(56);
+            sprite_.set_texture_index(22 * 2);
         }
     }
 
@@ -117,10 +117,10 @@ void IonBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
     if (anim_timer_ < 0) {
         anim_timer_ = milliseconds(90);
         const auto kf = sprite_.get_texture_index();
-        if (kf < 58) {
+        if (kf < (22 * 2) + 2) {
             sprite_.set_texture_index(kf + 1);
         } else {
-            sprite_.set_texture_index(56);
+            sprite_.set_texture_index(22 * 2);
         }
     }
 

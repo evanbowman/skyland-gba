@@ -214,9 +214,9 @@ public:
     UIDamageNumber(const Vec2<Fixnum>& position, int value) :
         Entity({})
     {
-        sprite_.set_texture_index(114 + value);
+        sprite_.set_texture_index((114 * 2) + value);
         sprite_.set_position(position);
-        sprite_.set_size(Sprite::Size::w16_h32);
+        sprite_.set_size(Sprite::Size::w16_h16);
     }
 
 

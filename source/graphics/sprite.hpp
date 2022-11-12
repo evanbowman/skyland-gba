@@ -42,7 +42,7 @@ public:
         count
     };
 
-    enum Size : u8 { w32_h32, w16_h32 };
+    enum Size : u8 { w32_h32, w16_h32, w16_h16 };
 
     enum Flags1 : u8 {};
     enum Flags2 : u8 {};
@@ -139,7 +139,7 @@ private:
     // memory. Packing the engine into 32kB has benefits for other platforms
     // too--this game is very cache-friendly.
     u8 alpha_ : 2;
-    u8 size_ : 1;
+    u8 size_ : 2;
     bool flip_x_ : 1;
     bool flip_y_ : 1;
 
@@ -147,7 +147,7 @@ private:
     u8 flags1_ : 3;
     u8 priority_ : 2;
     u8 palette_ : 1;
-    u8 reserved_ : 2;
+    u8 reserved_ : 1;
 
     // Because sprites are only 16x32 or 32x32, 16bits for the origin field is
     // quite generous...
