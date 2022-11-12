@@ -183,7 +183,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     struct Temp
     {
         u8 matrix_[16][16];
-        Buffer<Room*, 70> rooms_;
+        Buffer<Room*, 90> rooms_;
     };
 
     auto state = allocate_dynamic<Temp>("arcbolt-fill-buffer");
