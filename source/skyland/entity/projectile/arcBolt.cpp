@@ -49,8 +49,8 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
     : Projectile({{8, 8}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
-    sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(78);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_texture_index(26 * 2);
 
     sprite_.set_origin({8, 8});
 
@@ -68,8 +68,8 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
     : Projectile({{8, 8}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
-    sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(78);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_texture_index(26 * 2);
 
     sprite_.set_origin({8, 8});
 
@@ -92,10 +92,10 @@ void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
     if (anim_timer_ < 0) {
         anim_timer_ = milliseconds(90);
         const auto kf = sprite_.get_texture_index();
-        if (kf == 78) {
-            sprite_.set_texture_index(79);
+        if (kf == 26 * 2) {
+            sprite_.set_texture_index(26 * 2 + 1);
         } else {
-            sprite_.set_texture_index(78);
+            sprite_.set_texture_index(26 * 2);
         }
     }
 
@@ -122,10 +122,10 @@ void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
     if (anim_timer_ > milliseconds(90)) {
         anim_timer_ = 0;
         const auto kf = sprite_.get_texture_index();
-        if (kf == 78) {
-            sprite_.set_texture_index(79);
+        if (kf == 26 * 2) {
+            sprite_.set_texture_index(26 * 2 + 1);
         } else {
-            sprite_.set_texture_index(78);
+            sprite_.set_texture_index(26 * 2);
         }
     }
 
