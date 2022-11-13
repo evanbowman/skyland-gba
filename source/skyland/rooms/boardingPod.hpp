@@ -84,8 +84,9 @@ public:
         return RoomProperties::habitable | RoomProperties::roof_hidden |
                RoomProperties::disallow_chimney | RoomProperties::destroy_quietly |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::multiplayer_unsupported |
-               RoomProperties::locked_by_default;
+               RoomProperties::multiplayer_unsupported//  |
+               // RoomProperties::locked_by_default
+            ;
     }
 
 

@@ -503,7 +503,7 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
     int characters_healing = 0;
 
     for (auto& character : characters()) {
-        if (character->owner() == &parent()->owner() and
+        if (character->owner() == &owner()->owner() and
             character->state() not_eq BasicCharacter::State::fighting) {
             ++characters_healing;
         }
@@ -516,7 +516,7 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
             int distribute_health = 16;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
-                if (character->owner() == &parent()->owner() and
+                if (character->owner() == &owner()->owner() and
                     character->state() not_eq BasicCharacter::State::fighting) {
                     character->heal(pfrm, app, distribute_health);
                 }

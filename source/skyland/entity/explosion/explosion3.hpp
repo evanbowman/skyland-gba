@@ -37,7 +37,7 @@ namespace skyland
 class Explosion3 : public Entity
 {
 public:
-    static const int start_index = 19;
+    static const int start_index = 19 * 2;
 
 
     Explosion3(const Vec2<Fixnum>& position,
@@ -49,7 +49,7 @@ public:
         speed_int_(speed_int)
     {
         sprite_.set_position(position);
-        sprite_.set_size(Sprite::Size::w16_h32);
+        sprite_.set_size(Sprite::Size::w16_h16);
         sprite_.set_texture_index(start_index);
         sprite_.set_origin({8, 8});
         sprite_.set_priority(priority);
