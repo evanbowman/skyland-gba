@@ -968,6 +968,71 @@ Health Room::max_health() const
 
 
 
+class Debris : public Entity
+{
+public:
+    Debris(const Vec2<Fixnum>& position,
+           Fixnum max_y,
+           int tile) :
+        Entity({}),
+        max_y_(max_y)
+    {
+        sprite_.set_tidx_8x8(30, 3 + tile);
+        sprite_.set_position(position);
+        sprite_.set_size(Sprite::Size::w8_h8);
+        sprite_.set_origin({4, 4});
+    }
+
+
+    void update(Platform&, App&, Microseconds delta) override
+    {
+        // NOTE: a lot of our update logic simply multiplies speed by delta
+        // time. But debris has gravity applied, so we run multiple update steps
+        // in a loop.
+
+        if (delta == 0) {
+            return;
+        }
+        timer_ += delta;
+        if (timer_ > seconds(2)) {
+            kill();
+        }
+
+        delta += remainder_;
+        remainder_ = 0;
+
+        auto pos = sprite_.get_position();
+        while (delta >= 16666 / 4) {
+            delta -= 16666 / 4;
+            speed_.y = speed_.y + gravity_;
+            pos = pos + speed_;
+        }
+        remainder_ += delta;
+        sprite_.set_position(pos);
+
+        if (pos.y > max_y_) {
+            kill();
+        }
+    }
+
+
+    void rewind(Platform&, App&, Microseconds delta) override
+    {
+        kill();
+    }
+
+
+    Vec2<Fixnum> speed_;
+    Fixnum gravity_;
+
+private:
+    Microseconds timer_ = 0;
+    Microseconds remainder_ = 0;
+    Fixnum max_y_;
+};
+
+
+
 void Room::finalize(Platform& pfrm, App& app)
 {
     finalized_ = true;
@@ -982,6 +1047,29 @@ void Room::finalize(Platform& pfrm, App& app)
                                    app.effects().push(std::move(e));
                                }
                            });
+        }
+
+        const auto max_y = parent()->origin().y + 16 * 16 + 32;
+
+        const int t = debris_tile();
+        if (t) {
+            const int count = debris_count();
+            for (int i = 0; i < count; ++i) {
+                if (auto e = alloc_entity<Debris>(center(), max_y, t)) {
+                    int angle = rng::choice<45>(rng::utility_state);
+                    if (rng::choice<2>(rng::utility_state)) {
+                        angle = 360 - 45;
+                    }
+                    auto dir = rotate({0, 1}, angle);
+                    e->speed_.x = Fixnum(dir.x);
+                    e->speed_.y = -1 * Fixnum(dir.y);
+                    e->speed_.y -= 0.3_fixed;
+                    e->speed_ = e->speed_ * 0.5_fixed;
+                    e->gravity_ = Fixnum(0.06f * 0.15f) +
+                        rng::choice<3>(rng::utility_state) * 0.003_fixed;
+                    app.effects().push(std::move(e));
+                }
+            }
         }
     }
 

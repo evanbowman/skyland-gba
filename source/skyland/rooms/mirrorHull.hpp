@@ -43,6 +43,12 @@ public:
     void rewind(Platform&, App&, Microseconds delta) override;
 
 
+    int debris_tile() override
+    {
+        return 2;
+    }
+
+
     static const char* name()
     {
         return "mirror-hull";

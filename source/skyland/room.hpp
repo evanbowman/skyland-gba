@@ -521,6 +521,18 @@ public:
     }
 
 
+    virtual int debris_tile()
+    {
+        return 0;
+    }
+
+
+    virtual int debris_count()
+    {
+        return 3;
+    }
+
+
     // Do not call directly! Use Island::move_room() instead.
     void __set_position(const RoomCoord& pos)
     {

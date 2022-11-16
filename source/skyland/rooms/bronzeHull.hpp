@@ -42,6 +42,12 @@ public:
     using Hull::Hull;
 
 
+    int debris_tile() override
+    {
+        return 2;
+    }
+
+
     static const char* name()
     {
         return "bronze-hull";

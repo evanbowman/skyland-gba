@@ -91,6 +91,12 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 1;
+    }
+
+
     static SystemString ui_name()
     {
         return SystemString::block_hull;

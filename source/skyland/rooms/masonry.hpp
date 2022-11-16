@@ -43,6 +43,18 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 2;
+    }
+
+
+    int debris_count() override
+    {
+        return 2;
+    }
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_masonry)->c_str();
