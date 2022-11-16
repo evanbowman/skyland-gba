@@ -41,6 +41,12 @@ namespace skyland
 
 
 
+void draw_required_space(Platform& pfrm,
+                         const Vec2<Fixnum> origin,
+                         const Vec2<u8>& sz);
+
+
+
 class MoveRoomScene : public ActiveWorldScene
 {
 public:
@@ -361,43 +367,7 @@ public:
             origin.x += cursor_loc.x * 16;
             origin.y += cursor_loc.y * 16;
             auto sz = mv_size_;
-            if (sz.x == 1 and sz.y == 1) {
-                Sprite sprite;
-                sprite.set_texture_index(14);
-                sprite.set_size(Sprite::Size::w16_h32);
-                sprite.set_position({origin.x, origin.y - 16});
-                pfrm.screen().draw(sprite);
-            } else if (sz.x == 2 and sz.y == 1) {
-                Sprite sprite;
-                sprite.set_texture_index(14);
-                sprite.set_size(Sprite::Size::w16_h32);
-                sprite.set_position({origin.x, origin.y - 16});
-                pfrm.screen().draw(sprite);
-                sprite.set_position({origin.x + 16, origin.y - 16});
-                pfrm.screen().draw(sprite);
-            } else {
-                Sprite sprite;
-                sprite.set_texture_index(13);
-                sprite.set_size(Sprite::Size::w16_h32);
-
-                for (int x = 0; x < sz.x; ++x) {
-                    for (int y = 0; y < sz.y / 2; ++y) {
-                        sprite.set_position(
-                            {origin.x + x * 16, origin.y + y * 32});
-                        pfrm.screen().draw(sprite);
-                    }
-                }
-
-                if (sz.y % 2 not_eq 0) {
-                    // Odd sized room in y direction. Draw bottom row:
-                    sprite.set_texture_index(14);
-                    for (int x = 0; x < sz.x; ++x) {
-                        sprite.set_position(
-                            {origin.x + x * 16, origin.y + (sz.y - 2) * 16});
-                        pfrm.screen().draw(sprite);
-                    }
-                }
-            }
+            draw_required_space(pfrm, origin, sz);
         }
 
         if ((int)state_ > (int)State::prompt) {

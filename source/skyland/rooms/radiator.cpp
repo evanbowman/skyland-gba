@@ -137,13 +137,14 @@ void Radiator::display_on_hover(Platform::Screen& screen,
 
 
         if (x not_eq pos.x) {
-            sprite.set_texture_index(14);
+            sprite.set_size(Sprite::Size::w16_h16);
+            sprite.set_tidx_16x16(13, 1);
 
             sprite.set_position(
-                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+                {origin.x + x * 16, origin.y + (pos.y) * 16});
 
             screen.draw(sprite);
-
+            sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_texture_index(13);
         }
 

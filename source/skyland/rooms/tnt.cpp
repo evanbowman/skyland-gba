@@ -228,10 +228,13 @@ static void display_damage_range_dist1(Platform::Screen& screen, Room& room)
     for (int x = pos.x - 1; x < pos.x + 2; ++x) {
 
         if (x == pos.x) {
-            sprite.set_texture_index(14);
+
+            sprite.set_size(Sprite::Size::w16_h16);
+            sprite.set_tidx_16x16(13, 1);
             sprite.set_position(
-                {origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
         } else {
+            sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_texture_index(13);
             sprite.set_position(
                 {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
@@ -239,8 +242,9 @@ static void display_damage_range_dist1(Platform::Screen& screen, Room& room)
 
         screen.draw(sprite);
 
-        sprite.set_texture_index(14);
-        sprite.set_position({origin.x + x * 16, origin.y + (pos.y) * 16});
+        sprite.set_size(Sprite::Size::w16_h16);
+        sprite.set_tidx_16x16(13, 1);
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y + 1) * 16});
         screen.draw(sprite);
         sprite.set_texture_index(13);
     }
@@ -264,13 +268,15 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
 
 
         if (x not_eq pos.x) {
-            sprite.set_texture_index(14);
+            sprite.set_size(Sprite::Size::w16_h16);
+            sprite.set_tidx_16x16(13, 1);
 
             sprite.set_position(
-                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+                {origin.x + x * 16, origin.y + (pos.y) * 16});
 
             screen.draw(sprite);
 
+            sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_texture_index(13);
         }
 

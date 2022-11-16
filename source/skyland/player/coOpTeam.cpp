@@ -157,7 +157,7 @@ void CoOpTeam::receive(Platform& pfrm,
             return (16 * 2) + 3;
 
         case 3:
-            return (33 * 2);
+            return (12 * 2) + 1;
         }
     }();
 }

@@ -33,4 +33,4 @@ one has to cut corners to ship something while maintaining one's sanity.
 
 ## License
 
-I have mixed feelings about GPL. I've never used a copy-left license like this. But I spent so much time on this project, and I think it's only fair that if someone else adds code to the project, they should share their changes too. If you want some code snippet or a few files under a more free license like BSD or MIT, then contact me.
+I feel conflicted about GPL. I've never used a copy-left license like this. But I spent so much time on this project, and I think it's only fair that if someone else adds code to the project, they should share their changes too. If you want some code snippet or a few files under a more free license like BSD or MIT, then contact me.

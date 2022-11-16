@@ -289,7 +289,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                         timer_ = 0;
                     } else if (&room->owner()->owner() == owner() and
                                room->parent()->fire_present(grid_position())) {
-                        state_ = State::exstinguish_fire;
+                        state_ = State::extinguish_fire;
                         timer_ = 0;
                         anim_timer_ = 0;
                     } else if (&room->owner()->owner() == owner() and
@@ -366,7 +366,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
 
-    case State::exstinguish_fire:
+    case State::extinguish_fire:
         awaiting_movement_ = true;
         can_move_ = false;
 
@@ -446,7 +446,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 if (room->parent()->fire_present(grid_position_)) {
-                    state_ = State::exstinguish_fire;
+                    state_ = State::extinguish_fire;
                     timer_ = 0;
                     anim_timer_ = 0;
                 } else if (has_opponent(room)) {

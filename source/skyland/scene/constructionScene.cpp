@@ -896,17 +896,17 @@ void draw_required_space(Platform& pfrm,
 {
     if (sz.x == 1 and sz.y == 1) {
         Sprite sprite;
-        sprite.set_texture_index(14);
-        sprite.set_size(Sprite::Size::w16_h32);
-        sprite.set_position({origin.x, origin.y - 16});
+        sprite.set_tidx_16x16(13, 1);
+        sprite.set_size(Sprite::Size::w16_h16);
+        sprite.set_position({origin.x, origin.y});
         pfrm.screen().draw(sprite);
     } else if (sz.x == 2 and sz.y == 1) {
         Sprite sprite;
-        sprite.set_texture_index(14);
-        sprite.set_size(Sprite::Size::w16_h32);
-        sprite.set_position({origin.x, origin.y - 16});
+        sprite.set_tidx_16x16(13, 1);
+        sprite.set_size(Sprite::Size::w16_h16);
+        sprite.set_position({origin.x, origin.y});
         pfrm.screen().draw(sprite);
-        sprite.set_position({origin.x + 16, origin.y - 16});
+        sprite.set_position({origin.x + 16, origin.y});
         pfrm.screen().draw(sprite);
     } else {
         Sprite sprite;
@@ -922,10 +922,11 @@ void draw_required_space(Platform& pfrm,
 
         if (sz.y % 2 not_eq 0) {
             // Odd sized room in y direction. Draw bottom row:
-            sprite.set_texture_index(14);
+            sprite.set_size(Sprite::Size::w16_h16);
+            sprite.set_tidx_16x16(13, 1);
             for (int x = 0; x < sz.x; ++x) {
                 sprite.set_position(
-                    {origin.x + x * 16, origin.y + (sz.y - 2) * 16});
+                    {origin.x + x * 16, origin.y + (sz.y - 2) * 16 + 16});
                 pfrm.screen().draw(sprite);
             }
         }
@@ -960,18 +961,20 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 // Display a different icon when constructing terrain, as a hint
                 // to the player that he/she can expand an island's terrain.
                 sprite.set_texture_index(73);
+                sprite.set_size(Sprite::Size::w16_h32);
             } else {
-                sprite.set_texture_index(12);
+                sprite.set_tidx_16x16(12, 0);
+                sprite.set_size(Sprite::Size::w16_h16);
             }
 
             if (data_->construction_sites_[selector_].x == -1) {
                 sprite.set_flip({true, false});
             }
 
-            sprite.set_size(Sprite::Size::w16_h32);
 
             pfrm.screen().draw(sprite);
 
+            sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_flip({});
 
 
@@ -980,23 +983,24 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 origin.x += (island(app)->terrain().size() - 1) * 16;
                 origin.y += 15 * 16;
 
-                int tid_1 = 99;
-                int tid_2 = 100;
+                int tid_1 = 0;
+                int tid_2 = 1;
 
                 if (data_->construction_sites_[selector_].x == -1) {
                     sprite.set_flip({true, false});
                     std::swap(tid_1, tid_2);
                     origin.x = island(app)->visual_origin().x - 16;
                 }
-
+                sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_position(origin);
-                sprite.set_texture_index(tid_1);
+                sprite.set_tidx_16x16(14, tid_1);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 pfrm.screen().draw(sprite);
-                sprite.set_texture_index(tid_2);
+                sprite.set_tidx_16x16(14, tid_2);
                 origin.x += 16;
                 sprite.set_position(origin);
                 pfrm.screen().draw(sprite);
+                sprite.set_size(Sprite::Size::w16_h32);
             } else if ((u32)data_->construction_sites_[selector_].x ==
                        island(app)->terrain().size() - 1) {
                 origin = island(app)->visual_origin();
@@ -1050,13 +1054,14 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         }
         origin.y -= 32;
         Sprite sprite;
-        sprite.set_texture_index(14);
-        sprite.set_size(Sprite::Size::w16_h32);
-        sprite.set_position(origin);
+        sprite.set_tidx_16x16(13, 1);
+        sprite.set_size(Sprite::Size::w16_h16);
+        sprite.set_position({origin.x, origin.y + 16});
         pfrm.screen().draw(sprite);
+        sprite.set_size(Sprite::Size::w16_h32);
 
-        int tid_1 = 99;
-        int tid_2 = 100;
+        int tid_1 = 0;
+        int tid_2 = 1;
 
         if (data_->construction_sites_[selector_].x == -1) {
             sprite.set_flip({true, false});
@@ -1069,11 +1074,12 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             origin.y += 15 * 16;
         }
         {
+            sprite.set_size(Sprite::Size::w16_h16);
             sprite.set_position(origin);
-            sprite.set_texture_index(tid_1);
+            sprite.set_tidx_16x16(14, tid_1);
             sprite.set_alpha(Sprite::Alpha::translucent);
             pfrm.screen().draw(sprite);
-            sprite.set_texture_index(tid_2);
+            sprite.set_tidx_16x16(14, tid_2);
             origin.x += 16;
             sprite.set_position(origin);
             pfrm.screen().draw(sprite);

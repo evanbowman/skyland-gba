@@ -1435,10 +1435,13 @@ void Platform::Screen::draw(const Sprite& spr)
         draw_sprite(0, 0, 8, ATTR0_TALL, ATTR1_SIZE_32);
         break;
 
-    case Sprite::Size::w16_h16: {
+    case Sprite::Size::w16_h16:
         draw_sprite(0, 0, 4, ATTR0_SQUARE, ATTR1_SIZE_16);
         break;
-    }
+
+    case Sprite::Size::w8_h8:
+        draw_sprite(0, 0, 1, ATTR0_SQUARE, ATTR1_SIZE_8);
+        break;
     }
 }
 

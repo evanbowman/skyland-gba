@@ -84,8 +84,8 @@ public:
     void display(Platform& pfrm, App& app) override
     {
         Sprite sprite;
-        sprite.set_texture_index(29);
-        sprite.set_size(Sprite::Size::w16_h32);
+        sprite.set_tidx_16x16(28, 1);
+        sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_origin({8, 8});
         sprite.set_priority(0);
         sprite.set_mix({ColorConstant::silver_white, 1});
@@ -107,7 +107,7 @@ public:
         sprite.set_flip({true, false});
         pfrm.screen().draw(sprite);
 
-        origin.y += 23;
+        origin.y += 23 + 16;
         sprite.set_position(origin);
         sprite.set_flip({true, true});
         pfrm.screen().draw(sprite);

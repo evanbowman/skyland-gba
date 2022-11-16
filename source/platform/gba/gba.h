@@ -80,6 +80,7 @@ typedef u16 ScreenBlock[1024];
 #define ATTR0_TALL OBJ_SHAPE(2)
 #define ATTR0_WIDE OBJ_SHAPE(1)
 #define ATTR0_BLEND 0x0400
+#define ATTR1_SIZE_8 (0 << 14)
 #define ATTR1_SIZE_16 (1 << 14)
 #define ATTR1_SIZE_32 (2 << 14)
 #define ATTR1_SIZE_64 (3 << 14)

@@ -155,13 +155,24 @@ Power Room::power_usage(App& app) const
 }
 
 
+
 void Room::display(Platform::Screen& screen)
 {
-    if (parent_->interior_visible()) {
-        for (auto& c : characters()) {
-            const auto& pos = c->sprite().get_position();
-            if (pos.y.as_integer() < 700) {
+    for (auto& c : characters()) {
+        const auto& pos = c->sprite().get_position();
+        if (pos.y.as_integer() < 700) {
+            if (parent_->interior_visible()) {
                 screen.draw(c->sprite());
+            } else if (c->state() == BasicCharacter::State::repair_room or
+                       c->state() == BasicCharacter::State::extinguish_fire) {
+                auto spr = c->sprite();
+                if (parent()->layer() == Layer::map_1_ext) {
+                    spr.set_mix({custom_color(0x28457b), 50});
+                } else {
+                    spr.set_mix({custom_color(0x28457b), 200});
+                }
+                spr.set_alpha(Sprite::Alpha::translucent);
+                screen.draw(spr);
             }
         }
     }
@@ -214,9 +225,9 @@ public:
     UIDamageNumber(const Vec2<Fixnum>& position, int value) :
         Entity({})
     {
-        sprite_.set_texture_index((114 * 2) + value);
+        sprite_.set_tidx_8x8(29, value);
         sprite_.set_position(position);
-        sprite_.set_size(Sprite::Size::w16_h16);
+        sprite_.set_size(Sprite::Size::w8_h8);
     }
 
 

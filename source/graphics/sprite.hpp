@@ -42,7 +42,7 @@ public:
         count
     };
 
-    enum Size : u8 { w32_h32, w16_h32, w16_h16 };
+    enum Size : u8 { w32_h32, w16_h32, w16_h16, w8_h8 };
 
     enum Flags1 : u8 {};
     enum Flags2 : u8 {};
@@ -89,6 +89,18 @@ public:
 
 
     TextureIndex get_texture_index() const;
+
+
+    void set_tidx_8x8(u16 begin_index_16x32, u16 offset)
+    {
+        set_texture_index(begin_index_16x32 * 8 + offset);
+    }
+
+
+    void set_tidx_16x16(u16 begin_index_16x32, u16 offset)
+    {
+        set_texture_index(begin_index_16x32 * 2 + offset);
+    }
 
 
     Vec2<bool> get_flip() const;

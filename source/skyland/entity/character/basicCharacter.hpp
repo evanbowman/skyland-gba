@@ -163,7 +163,7 @@ public:
         fighting,
         plunder_room,
         repair_room,
-        exstinguish_fire,
+        extinguish_fire,
         after_transport,
     };
 

@@ -1035,14 +1035,13 @@ void WorldMapScene::display(Platform& pfrm, App& app)
     Sprite cursor;
     cursor.set_priority(0);
 
-    cursor.set_size(Sprite::Size::w16_h32);
-
     Vec2<s8> cursor_loc = app.world_graph().nodes_[cursor_].coord_;
     cursor_loc.x += 5;
     cursor_loc.y += 3;
 
 
-    cursor.set_texture_index(28);
+    cursor.set_size(Sprite::Size::w16_h16);
+    cursor.set_tidx_16x16(28, 0);
     cursor.set_position(
         {Float((int)cursor_loc.x * 8) - 8, Float((int)cursor_loc.y * 8) - 12});
     cursor.set_mix(cmix_);
