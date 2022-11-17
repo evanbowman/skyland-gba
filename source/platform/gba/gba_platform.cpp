@@ -491,6 +491,11 @@ Microseconds Platform::DeltaClock::duration(TimePoint t1, TimePoint t2)
 }
 
 
+
+static EWRAM_DATA Microseconds last_delta = 0;
+
+
+
 Microseconds Platform::DeltaClock::reset()
 {
     // (1 second / 60 frames) x (1,000,000 microseconds / 1 second) =
@@ -507,8 +512,17 @@ Microseconds Platform::DeltaClock::reset()
     REG_TM3CNT_L = 0;
     REG_TM3CNT_H = 1 << 7 | 1 << 6;
 
-    return delta_convert_tics(tics);
+    ::last_delta = delta_convert_tics(tics);
+    return ::last_delta;
 }
+
+
+
+Microseconds Platform::DeltaClock::last_delta() const
+{
+    return ::last_delta;
+}
+
 
 
 Platform::DeltaClock::~DeltaClock()

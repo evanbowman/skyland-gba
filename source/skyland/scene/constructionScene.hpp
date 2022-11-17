@@ -139,6 +139,7 @@ private:
     Island::BlockChecksum checksum_;
 
     bool near_;
+    u8 stack_ = 0;
 
     std::optional<u8> jump_to_selection_;
 

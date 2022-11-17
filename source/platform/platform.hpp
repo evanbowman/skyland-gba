@@ -391,6 +391,9 @@ public:
         Microseconds reset();
 
 
+        Microseconds last_delta() const;
+
+
         using TimePoint = int;
 
         TimePoint sample() const;

@@ -44,6 +44,81 @@ namespace skyland
 
 
 
+class ConstructionAnim : public Entity
+{
+public:
+
+    ConstructionAnim(Vec2<Fixnum> pos) : Entity({})
+    {
+        sprite_.set_size(Sprite::Size::w16_h16);
+        sprite_.set_tidx_16x16(31, 0);
+        sprite_.set_position(pos);
+        sprite_.set_origin({});
+        // sprite_.set_alpha(Sprite::Alpha::translucent);
+        sprite_.set_mix({custom_color(0x80a5cd), 40});
+    }
+
+
+    void update(Platform& pfrm, App&, Microseconds delta) override
+    {
+        // The game manipulates the time delta for slow motion stuff, etc. But
+        // we always want this UI effect to play at the same rate.
+        delta = pfrm.delta_clock().last_delta();
+
+        timer_ += delta;
+        if (timer_ >= milliseconds(80)) {
+            timer_ -= milliseconds(80);
+            auto t = sprite_.get_texture_index();
+            if (t == 31 * 2 + 5) {
+                kill();
+                return;
+            }
+
+            ++t;
+            sprite_.set_texture_index(t);
+        }
+    }
+
+
+    void rewind(Platform&, App&, Microseconds delta) override
+    {
+        kill();
+    }
+
+
+    Sprite& sprite()
+    {
+        return sprite_;
+    }
+
+private:
+    Microseconds timer_ = 0;
+};
+
+
+
+void make_construction_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
+{
+    auto segment =
+        [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
+            auto p = pos;
+            p.x += xoff;
+            p.y += yoff;
+            if (auto e = app.alloc_entity<ConstructionAnim>(pfrm, p)) {
+                e->sprite().set_flip({xflip, yflip});
+                app.effects().push(std::move(e));
+            }
+        };
+
+    segment(-16, -16, false, false);
+    segment(-16, 0, false, true);
+    segment(0, -16, true, false);
+    segment(0, 0, true, true);
+}
+
+
+
+
 u16 room_category_icon(Room::Category category)
 {
     return 379 + static_cast<u16>(category);
@@ -214,6 +289,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::right)) {
+            stack_ = 0;
             if (selector_ < data_->construction_sites_.size() - 1) {
                 ++selector_;
 
@@ -231,6 +307,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return scene_pool::alloc<ConstructionScene>(false);
             }
         } else if (test_key(Key::left)) {
+            stack_ = 0;
             if (selector_ > 0) {
                 --selector_;
 
@@ -249,6 +326,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return scene_pool::alloc<ConstructionScene>(true);
             }
         } else if (test_key(Key::up)) {
+            stack_ = 0;
             if (selector_ > 0 and
                 data_->construction_sites_[selector_].x ==
                     data_->construction_sites_[selector_ - 1].x) {
@@ -258,6 +336,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::down)) {
+            stack_ = 0;
             if (selector_ < data_->construction_sites_.size() - 1 and
                 data_->construction_sites_[selector_].x ==
                     data_->construction_sites_[selector_ + 1].x) {
@@ -568,6 +647,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             target->create(pfrm, app, island(app), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
 
+            stack_ += target->size().y;
+
             checksum_ = island(app)->checksum();
 
             if (str_eq(target->name(), "workshop")) {
@@ -614,6 +695,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
                 }
+
+                make_construction_effect(pfrm, app, room->visual_center());
 
                 if (auto scene = room->setup(pfrm, app)) {
                     fixup_cursor();
@@ -941,6 +1024,10 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
     if (not island(app)) {
         return;
+    }
+
+    if (stack_ > 4) {
+        camera_update_timer_ = milliseconds(500);
     }
 
     switch (state_) {
