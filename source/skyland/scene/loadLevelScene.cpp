@@ -95,6 +95,7 @@ void prep_level(Platform& pfrm, App& app)
     far_cursor_loc.y = 14;
 
 
+    app.dropped_frames_ = 0;
     app.victory_coins() = 0;
     app.pause_count() = 0;
     app.stat_timer().reset(0);

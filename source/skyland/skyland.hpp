@@ -509,6 +509,10 @@ private:
     // Fields with two-byte alignment
     u16 pause_count_ = 0;
 
+public:
+    u16 dropped_frames_ = 0;
+private:
+
 
     ////////////////////////////////////////////////////////////////////////////
     // unaligned fields

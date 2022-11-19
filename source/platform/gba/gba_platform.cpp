@@ -3507,6 +3507,7 @@ void Platform::Logger::flush()
 #include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
+#include "data/music_box.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -3537,7 +3538,7 @@ static const struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
+    DEF_MUSIC(box, music_box),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),

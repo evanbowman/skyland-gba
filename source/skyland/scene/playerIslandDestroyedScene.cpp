@@ -297,6 +297,17 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     const bool opponent_defeated = island_ not_eq &app.player_island();
 
 
+
+    const bool endgame =
+        app.game_mode() == App::GameMode::adventure and
+        ((not opponent_defeated and
+          app.player_island().power_supply()) // surrender condition
+         or
+         (opponent_defeated and
+          app.world_graph().nodes_[app.current_world_location()]
+          .type_ == WorldGraph::Node::Type::corrupted));
+
+
     if (confetti_ and *confetti_) {
         update_confetti(pfrm, app, **confetti_, delta);
     }
@@ -354,6 +365,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto origin = island_->visual_origin();
     origin.x += 16 * (island_->terrain().size() / 2);
 
+    const auto prev_timer = timer_;
     timer_ += delta;
 
     if (stat_timer_) {
@@ -375,15 +387,20 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         music_fadeback_timer_ -= delta;
         auto amount = interpolate(
             1, 12, Float(music_fadeback_timer_) / music_fadeback_seconds);
-        pfrm.speaker().set_music_volume(amount);
+        if (not endgame) {
+            pfrm.speaker().set_music_volume(amount);
+        }
     }
 
     switch (anim_state_) {
     case AnimState::init: {
         pfrm.speaker().clear_sounds();
-        pfrm.speaker().set_music_volume(1);
+        if (not endgame) {
+            pfrm.speaker().set_music_volume(1);
+        }
 
-        if ((app.game_mode() not_eq App::GameMode::adventure and
+        if (((app.game_mode() not_eq App::GameMode::adventure or
+              endgame) and
              app.game_mode() not_eq App::GameMode::skyland_forever and
              app.game_mode() not_eq App::GameMode::co_op)) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
@@ -516,6 +533,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         circ_effect_radius_ = 0;
 
+        if (prev_timer < seconds(1) and timer_ >= seconds(1)) {
+            if (endgame) {
+                pfrm.speaker().play_music("box", 0);
+            }
+        }
+
         sink_speed_ += 0.0000013f;
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
@@ -547,6 +570,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::level_exit_forced:
         anim_state_ = AnimState::show_coins;
         timer_ = 0;
+
+        if (endgame) {
+            pfrm.speaker().play_music("box", 0);
+        }
 
         for (int i = 0; i < 64; ++i) {
             const auto achievement = achievements::update(pfrm, app);
@@ -596,7 +623,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        pfrm.speaker().set_music_volume(12);
+        if (not endgame) {
+            pfrm.speaker().set_music_volume(12);
+        }
         break;
 
     case AnimState::show_coins: {
@@ -740,7 +769,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         next->disallow_fastforward();
 
                         restore_volume_ = false;
-                        pfrm.speaker().set_music_volume(13);
+                        if (not endgame) {
+                            pfrm.speaker().set_music_volume(13);
+                        }
 
                         next->set_next_scene(
                             scene_pool::make_deferred_scene<HighscoresScene>(

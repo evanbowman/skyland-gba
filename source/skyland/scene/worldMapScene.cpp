@@ -1167,6 +1167,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_position({184, 128});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::show_node_death_icons) {
+        cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_texture_index(77);
         const int offset =
             interpolate(9, 0, Float(timer_) / node_death_sequence_time);

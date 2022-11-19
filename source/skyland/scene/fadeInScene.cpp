@@ -102,6 +102,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
                         });
                 }
             }
+            app.dropped_frames_ = 0;
             return next;
         };
         return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);
