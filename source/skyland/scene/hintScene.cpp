@@ -41,8 +41,9 @@ struct HintInfo
 
 
 
-static const std::array<HintInfo, 10> hints = {
-    {{"<none>", SystemString::hint_gamespeed},
+static const std::array<HintInfo, 11> hints = {
+     {{"<none>", SystemString::hint_boss},
+     {"<none>", SystemString::hint_gamespeed},
      {"hint_infirmary", SystemString::hint_infirmary},
      {"<none>", SystemString::hint_navigation},
      {"hint_goblin", SystemString::hint_doors},

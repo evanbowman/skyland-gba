@@ -559,6 +559,7 @@ enum class SystemString {
     hint_plunder,
     hint_damaged_core,
     hint_tutorials,
+    hint_boss,
 
     no_dlc_prompt,
     dlc_erase_hint,

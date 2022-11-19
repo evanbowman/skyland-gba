@@ -452,6 +452,7 @@ The Glossary, found on the title screen extras menu, describes all structures in
 Raid and plunder castles for extra coins!
 If you lose a power-core, systems may shut down til you rebalance power.
 For more help, scroll right on the title screen and open the tutorial viewer!
+Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
 You don't have any DLC installed!
 hold A to erase!
 Set piston direction:
