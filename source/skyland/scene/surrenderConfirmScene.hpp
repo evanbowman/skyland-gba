@@ -59,6 +59,12 @@ public:
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (selection_) {
+                if (app.opponent_island()) {
+                    app.swap_opponent<FriendlyAI>();
+                    for (auto& r : app.opponent_island()->rooms()) {
+                        r->unset_target(pfrm, app);
+                    }
+                }
                 app.exit_condition() = App::ExitCondition::defeat;
                 pfrm.speaker().stop_music();
             }
