@@ -43,10 +43,8 @@ public:
     Explosion3(const Vec2<Fixnum>& position,
                u8 half_angle,
                u8 speed_int,
-               int priority = 1) :
-        Entity({{}, {}}),
-        half_angle_(half_angle),
-        speed_int_(speed_int)
+               int priority = 1)
+        : Entity({{}, {}}), half_angle_(half_angle), speed_int_(speed_int)
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h16);
@@ -76,7 +74,8 @@ public:
         }
 
         int min_x = pfrm.screen().get_view().get_center().x - 48;
-        int max_x = pfrm.screen().get_view().get_center().x + pfrm.screen().size().x + 48;
+        int max_x = pfrm.screen().get_view().get_center().x +
+                    pfrm.screen().size().x + 48;
         int max_y = 700;
         int min_y = 450;
 
@@ -108,7 +107,8 @@ public:
         }
 
         int min_x = pfrm.screen().get_view().get_center().x - 48;
-        int max_x = pfrm.screen().get_view().get_center().x + pfrm.screen().size().x + 48;
+        int max_x = pfrm.screen().get_view().get_center().x +
+                    pfrm.screen().size().x + 48;
         int max_y = 700;
         int min_y = 450;
 

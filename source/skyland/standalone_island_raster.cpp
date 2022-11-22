@@ -110,7 +110,6 @@ static sf::Image* img;
 
 void Platform::load_background_texture(char const*)
 {
-
 }
 
 

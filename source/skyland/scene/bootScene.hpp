@@ -160,8 +160,6 @@ private:
 class BootScene : public Scene
 {
 public:
-
-
     bool clean_boot_;
 
 

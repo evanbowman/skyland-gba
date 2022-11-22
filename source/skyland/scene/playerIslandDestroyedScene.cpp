@@ -302,10 +302,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.game_mode() == App::GameMode::adventure and
         ((not opponent_defeated and
           app.player_island().power_supply()) // surrender condition
-         or
-         (opponent_defeated and
-          app.world_graph().nodes_[app.current_world_location()]
-          .type_ == WorldGraph::Node::Type::corrupted));
+         or (opponent_defeated and
+             app.world_graph().nodes_[app.current_world_location()].type_ ==
+                 WorldGraph::Node::Type::corrupted));
 
 
     if (confetti_ and *confetti_) {
@@ -399,8 +398,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().set_music_volume(1);
         }
 
-        if (((app.game_mode() not_eq App::GameMode::adventure or
-              endgame) and
+        if (((app.game_mode() not_eq App::GameMode::adventure or endgame) and
              app.game_mode() not_eq App::GameMode::skyland_forever and
              app.game_mode() not_eq App::GameMode::co_op)) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);

@@ -204,6 +204,9 @@ public:
     static void __reset_ids(int start_id = 1);
 
 
+    static void __rebase_ids(CharacterId id);
+
+
     bool co_op_acquire_lock();
     void co_op_release_lock();
 
@@ -249,6 +252,8 @@ public:
         ai_mark_ = 0;
     }
 
+
+    const char* name() const;
 
 
 private:

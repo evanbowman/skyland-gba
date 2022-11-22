@@ -60,8 +60,7 @@ Player& player(App& app)
 
 
 App::App(Platform& pfrm, bool clean_boot)
-    : level_timer_(0),
-      stat_timer_(0),
+    : level_timer_(0), stat_timer_(0),
       world_state_(allocate_dynamic<WorldState>("env-buffer",
                                                 pfrm,
                                                 Layer::map_0_ext,
@@ -235,10 +234,8 @@ void App::update(Platform& pfrm, Microseconds delta)
         if (not console_state_) {
             console_state_.emplace(allocate_dynamic<ConsoleState>("console"));
         }
-        (*console_state_)->impl_->on_text(pfrm,
-                                          *this,
-                                          (*console_state_)->impl_,
-                                          *line);
+        (*console_state_)
+            ->impl_->on_text(pfrm, *this, (*console_state_)->impl_, *line);
     }
 
     rumble_.update(pfrm, delta);

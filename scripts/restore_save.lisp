@@ -12,7 +12,7 @@
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))
 
-      (if (> (load 'save-protocol) 0)
+      (if (> (load 'save-protocol) 2)
           (progn
             (terrain (player) (load 'terrain))
 
@@ -20,22 +20,29 @@
 
             (map
              (lambda
-               (chr-new (player)
-                        (get $0 0) ;; x
-                        (get $0 1) ;; y
-                        'neutral
-                        (if (> (length $0) 3)
-                            (get $0 3) ;; 1/0 possibly in this index if chr is replicant
-                          0))
+               (let ((plst (cdr (cdr $0))))
+                 (let ((chr -1))
+                   (setq chr (chr-new (player)
+                                      (get $0 0) ;; x
+                                      (get $0 1) ;; y
+                                      'neutral
+                                      ;; Check if replicate
+                                      (if (assoc 'rplc plst) 1 0)))
 
-               (if (> (length $0) 2)
-                   (chr-hp (player) (get $0 0) (get $0 1) (get $0 2))))
+                   (let ((hp (assoc 'hp plst)))
+                     (if hp
+                         (chr-hp chr (cdr hp))))
+
+                   (chr-id chr (cdr (assoc 'id plst))))))
+
              (load 'chrs))
 
             (setq enemies-seen (load 'enemies-seen))
             (setq friendlies-seen (load 'friendlies-seen))
 
             (setq quests (load 'quests))
+
+            (setq chr-names (load 'chr-names))
 
             (setq last-zone (load 'last-zone))
 

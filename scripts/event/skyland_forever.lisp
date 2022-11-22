@@ -20,3 +20,6 @@
      (range 0 3))
 
 (flag-show (player))
+
+
+(setq 'chr-names '())

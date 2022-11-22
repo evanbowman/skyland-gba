@@ -482,6 +482,8 @@ ai thinking...
 if you can jump, you must!
 % wins!
 jump again!
+Name crewmember:
+ENTER: submit
 spring
 summer
 fall

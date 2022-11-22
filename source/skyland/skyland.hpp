@@ -50,7 +50,6 @@
 
 
 
-
 namespace skyland
 {
 
@@ -177,7 +176,7 @@ public:
             }
             // The effect is one of the few somewhat important ones, do not
             // deallocate it, add it back to the front of the list.
-            if (not (*e)->entity_oom_deletable()) {
+            if (not(*e)->entity_oom_deletable()) {
                 effects().push(std::move(*e));
             } else {
                 // drop last element e, frees a slot
@@ -511,9 +510,8 @@ private:
 
 public:
     u16 dropped_frames_ = 0;
+
 private:
-
-
     ////////////////////////////////////////////////////////////////////////////
     // unaligned fields
     StateBitvector state_bitvector_;

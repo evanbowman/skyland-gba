@@ -101,7 +101,24 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 
         const int target_line = static_cast<int>(str);
 
-        int index = 0;
+        // Scan upwards in the cache until we find a previously-cached line,
+        // speeding up lookup in many cases. If we're loading a system string
+        // near the end of the file, we can waste a lot of cpu time if we start
+        // at the beginning and count newlines.
+        int index = target_line - 1;
+        while (index > 0) {
+            const auto off = (*index_cache)->file_offset_[index];
+            if (off) {
+                data += off;
+                break;
+            }
+            --index;
+        }
+
+        if (index < 0) {
+            index = 0;
+        }
+
         while (index not_eq target_line) {
             while (*data not_eq '\n') {
                 if (*data == '\0') {

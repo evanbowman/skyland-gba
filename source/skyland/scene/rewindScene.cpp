@@ -25,9 +25,9 @@
 #include "readyScene.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
+#include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/explosion/explosion2.hpp"
-#include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/entity/projectile/antimatter.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
@@ -205,7 +205,6 @@ void RewindScene::print_timestamp(Platform& pfrm, App& app)
 
 
 void environment_init(App& app, int type);
-
 
 
 
@@ -1375,10 +1374,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 p.x = e->x_.get();
                 p.y = e->y_.get();
                 auto make_segment = [&](int q) {
-                     if (auto e = app.alloc_entity<CoreExplosionQuarter>(pfrm, *dt, p, q)) {
-                         e->jump_to_end();
-                         return app.effects().push(std::move(e));
-                     }
+                    if (auto e = app.alloc_entity<CoreExplosionQuarter>(
+                            pfrm, *dt, p, q)) {
+                        e->jump_to_end();
+                        return app.effects().push(std::move(e));
+                    }
                 };
                 make_segment(3);
                 make_segment(2);

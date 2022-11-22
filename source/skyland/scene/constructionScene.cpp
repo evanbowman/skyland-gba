@@ -47,7 +47,6 @@ namespace skyland
 class ConstructionAnim : public Entity
 {
 public:
-
     ConstructionAnim(Vec2<Fixnum> pos) : Entity({})
     {
         sprite_.set_size(Sprite::Size::w16_h16);
@@ -99,23 +98,21 @@ private:
 
 void make_construction_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
 {
-    auto segment =
-        [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
-            auto p = pos;
-            p.x += xoff;
-            p.y += yoff;
-            if (auto e = app.alloc_entity<ConstructionAnim>(pfrm, p)) {
-                e->sprite().set_flip({xflip, yflip});
-                app.effects().push(std::move(e));
-            }
-        };
+    auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
+        auto p = pos;
+        p.x += xoff;
+        p.y += yoff;
+        if (auto e = app.alloc_entity<ConstructionAnim>(pfrm, p)) {
+            e->sprite().set_flip({xflip, yflip});
+            app.effects().push(std::move(e));
+        }
+    };
 
     segment(-16, -16, false, false);
     segment(-16, 0, false, true);
     segment(0, -16, true, false);
     segment(0, 0, true, true);
 }
-
 
 
 
@@ -218,13 +215,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
     auto fixup_cursor = [&] {
-                            if ((s8)cursor_loc.x < 0) {
-                                cursor_loc.x = 0;
-                            }
-                            if (cursor_loc.y == 15) {
-                                cursor_loc.y = 14;
-                            }
-                        };
+        if ((s8)cursor_loc.x < 0) {
+            cursor_loc.x = 0;
+        }
+        if (cursor_loc.y == 15) {
+            cursor_loc.y = 14;
+        }
+    };
 
     auto exit_scene = [this, fixup_cursor]() -> ScenePtr<Scene> {
         fixup_cursor();
@@ -781,8 +778,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 // Furthermore... all weapons on the players' island need to
                 // have their targets adjusted accordingly:
-                Island* other_island = (island(app) == &app.player_island()) ?
-                    app.opponent_island() : &app.player_island();
+                Island* other_island = (island(app) == &app.player_island())
+                                           ? app.opponent_island()
+                                           : &app.player_island();
 
                 if (other_island) {
                     for (auto& r : other_island->rooms()) {
@@ -792,7 +790,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
                 }
-
             }
 
             find_construction_sites(pfrm, app);

@@ -604,6 +604,9 @@ enum class SystemString {
     checker_wins,
     checkers_jump_again,
 
+    name_chr,
+    submit_hint,
+
     spring,
     summer,
     fall,

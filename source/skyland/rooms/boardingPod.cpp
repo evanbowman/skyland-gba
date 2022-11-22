@@ -21,15 +21,15 @@
 
 
 #include "boardingPod.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/timeStreamEvent.hpp"
-#include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/weaponSetTargetScene.hpp"
-#include "skyland/scene/notificationScene.hpp"
-#include "skyland/sound.hpp"
 #include "skyland/entity/explosion/explosion3.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/notificationScene.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -46,14 +46,11 @@ namespace
 class BoardingPodEntity : public Entity
 {
 public:
-
-
     class Upper : public Entity
     {
     public:
-        Upper(Platform::DynamicTexturePtr dt,
-              Vec2<Fixnum> position) : Entity({}),
-                                       dt_(dt)
+        Upper(Platform::DynamicTexturePtr dt, Vec2<Fixnum> position)
+            : Entity({}), dt_(dt)
         {
             position.y -= 48;
             position.x -= 16;
@@ -89,9 +86,8 @@ public:
     };
 
 
-    BoardingPodEntity(Platform::DynamicTexturePtr dt,
-                      Vec2<Fixnum> position) : Entity({{32, 32}, {16, 16}}),
-                                               dt_(dt)
+    BoardingPodEntity(Platform::DynamicTexturePtr dt, Vec2<Fixnum> position)
+        : Entity({{32, 32}, {16, 16}}), dt_(dt)
     {
         sprite_.set_position(position);
         sprite_.set_origin({16, 16});
@@ -104,23 +100,20 @@ public:
     {
         auto pos = sprite_.get_position();
 
-        auto spawn_flames =
-            [&](Microseconds timeout) {
-                flame_spawn_count_ += delta;
-                if (flame_spawn_count_ > timeout) {
-                    flame_spawn_count_ -= timeout;
-                    auto p = pos;
-                    p.x += 8;
-                    p.y += 16;
-                    if (auto exp = app.alloc_entity<Explosion3>(pfrm,
-                                                                p,
-                                                                270 / 2,
-                                                                1)) {
-                        exp->set_speed({0, 0.0001f});
-                        app.effects().push(std::move(exp));
-                    }
+        auto spawn_flames = [&](Microseconds timeout) {
+            flame_spawn_count_ += delta;
+            if (flame_spawn_count_ > timeout) {
+                flame_spawn_count_ -= timeout;
+                auto p = pos;
+                p.x += 8;
+                p.y += 16;
+                if (auto exp =
+                        app.alloc_entity<Explosion3>(pfrm, p, 270 / 2, 1)) {
+                    exp->set_speed({0, 0.0001f});
+                    app.effects().push(std::move(exp));
                 }
-            };
+            }
+        };
 
         switch (state_) {
         case State::rising_1:
@@ -322,10 +315,7 @@ public:
             }
         }
 
-        target_island_->add_room<BoardingPod>(pfrm,
-                                              app,
-                                              coord,
-                                              true);
+        target_island_->add_room<BoardingPod>(pfrm, app, coord, true);
 
         int x_diff = coord.x - source_.x;
         int y_diff = coord.y - source_.y;
@@ -364,9 +354,7 @@ public:
     }
 
 
-    void restore(App& app,
-                 time_stream::event::BoardingPodLanded e,
-                 Room& r)
+    void restore(App& app, time_stream::event::BoardingPodLanded e, Room& r)
     {
         timer_ = e.timer_.get();
         state_ = State::falling;
@@ -422,9 +410,15 @@ public:
     RoomCoord source_;
     RoomCoord target_;
 
-    enum class State { rising_1, wait_1, rising_2, wait_2, falling, } state_ = State::rising_1;
+    enum class State {
+        rising_1,
+        wait_1,
+        rising_2,
+        wait_2,
+        falling,
+    } state_ = State::rising_1;
 };
-}
+} // namespace
 
 
 
@@ -445,7 +439,8 @@ void restore_boarding_pod_entity(Platform& pfrm,
 
         if (auto dt2 = pfrm.make_dynamic_texture()) {
             pos.y -= 16;
-            if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(pfrm, *dt2, pos)) {
+            if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(
+                    pfrm, *dt2, pos)) {
                 bp->upper_ = e.get();
                 app.effects().push(std::move(e));
             }
@@ -454,7 +449,6 @@ void restore_boarding_pod_entity(Platform& pfrm,
         app.effects().push(std::move(bp));
     }
 }
-
 
 
 
@@ -548,8 +542,8 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
 
                     if (app.time_stream().pushes_enabled() and
                         ((time_stream::event::Header*)app.time_stream().end())
-                        ->type_ not_eq
-                        time_stream::event::Type::character_health_changed) {
+                                ->type_ not_eq time_stream::event::Type::
+                                                   character_health_changed) {
                         Platform::fatal("logic error: apply_damage(0) "
                                         "does not record hp");
                     }
@@ -573,7 +567,8 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                 bp->source_island_ = parent();
                 bp->target_island_ = other_island(app);
 
-                if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(pfrm, *dt2, pos)) {
+                if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(
+                        pfrm, *dt2, pos)) {
                     bp->upper_ = e.get();
                     app.effects().push(std::move(e));
                 }
@@ -649,8 +644,8 @@ void BoardingPod::set_target(Platform& pfrm, App& app, const RoomCoord& target)
     auto island = other_island(app);
     if (island) {
         if (auto room = island->get_room(target)) {
-            if (not ((*room->metaclass())->properties() &
-                     RoomProperties::habitable)) {
+            if (not((*room->metaclass())->properties() &
+                    RoomProperties::habitable)) {
                 pfrm.speaker().play_sound("beep_error", 3);
                 return;
             }
@@ -731,4 +726,4 @@ BoardingPod::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-}
+} // namespace skyland

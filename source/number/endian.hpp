@@ -23,8 +23,8 @@
 #pragma once
 
 #include "numeric.hpp"
-#include <string.h>
 #include <bit>
+#include <string.h>
 
 // Because most processors are little endian, I am using little endian byte
 // order for binary encoded data.

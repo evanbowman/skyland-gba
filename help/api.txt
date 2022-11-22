@@ -57,15 +57,16 @@ o----------------------------o
    is-replicant)
 
  Add character to island at
- (x, y).
+ (x, y). Returns a unique
+ integer id.
 
 
 o----------------------------o
 
- (chr-hp island x y hp)
+ (chr-hp id hp)
 
- Set health of character at
- (x, y).
+ Set health of character by
+ id.
 
 
 o----------------------------o

@@ -55,8 +55,8 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
-#include <setjmp.h>
 #include <limits>
+#include <setjmp.h>
 
 
 
@@ -3503,11 +3503,11 @@ void Platform::Logger::flush()
 
 
 
+#include "data/music_box.hpp"
 #include "data/music_life_in_silco.hpp"
 #include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
-#include "data/music_box.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -4089,8 +4089,9 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
     auto cancel_effect = [&](volatile u16* freq_register) {
         *freq_register = *freq_register & ~SFREQ_RATE_MASK;
-        *freq_register = *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
-                                                   analog_channel[ch_num].last_octave_);
+        *freq_register =
+            *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
+                                      analog_channel[ch_num].last_octave_);
 
         analog_channel[ch_num].effect_timer_ = 0;
     };

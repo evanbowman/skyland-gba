@@ -738,8 +738,15 @@ void describe_room(Platform& pfrm,
                                 auto str = SYSTR(character_label_replicant);
                                 room_description->append(str->c_str(), opts);
                             } else {
-                                auto str = SYSTR(character_label_human);
-                                room_description->append(str->c_str(), opts);
+                                if (auto n = chr->name()) {
+                                    room_description->append("(", opts);
+                                    room_description->append(n, opts);
+                                    room_description->append(") ", opts);
+                                } else {
+                                    auto str = SYSTR(character_label_human);
+                                    room_description->append(str->c_str(),
+                                                             opts);
+                                }
                             }
                         } else {
                             opts = {custom_color(0xcf54ff),

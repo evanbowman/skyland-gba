@@ -72,6 +72,7 @@ private:
 
     std::optional<Text> entry_;
     std::optional<Text> prompt_text_;
+    std::optional<Text> submit_text_;
 
     int required_chars_;
     int char_limit_;

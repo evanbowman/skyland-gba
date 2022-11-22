@@ -1,7 +1,7 @@
 #pragma once
 
-#include "platform/platform.hpp"
 #include "boxed.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -17,12 +17,12 @@ class App;
 class ConsoleState
 {
 public:
-
     class Impl
     {
     public:
-
-        virtual ~Impl() {}
+        virtual ~Impl()
+        {
+        }
 
 
         using Self = Boxed<Impl, Impl, 1900>;
@@ -39,4 +39,4 @@ public:
 
 
 
-}
+} // namespace skyland

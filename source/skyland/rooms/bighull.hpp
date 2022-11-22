@@ -38,7 +38,6 @@ namespace skyland
 class BigHull : public Room
 {
 public:
-
     BigHull(Island* parent, const RoomCoord& position, const char* n = name())
         : Room(parent, n, position)
     {

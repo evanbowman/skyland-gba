@@ -66,6 +66,15 @@ void BasicCharacter::__reset_ids(int start_id)
 
 
 
+void BasicCharacter::__rebase_ids(CharacterId id)
+{
+    if (character_id_generator < id) {
+        character_id_generator = id;
+    }
+}
+
+
+
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const RoomCoord& position,
@@ -731,6 +740,31 @@ std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(App& app,
     }
 
     return {nullptr, nullptr};
+}
+
+
+
+const char* BasicCharacter::name() const
+{
+    if (is_replicant_) {
+        // Replicants may not be named (would create confusion...)
+        return nullptr;
+    }
+
+    if (auto v = lisp::get_var("chr-names")) {
+        const char* found = nullptr;
+        lisp::foreach (v, [&found, this](lisp::Value* val) {
+            if (not found) {
+                auto c_id = val->cons().car()->integer().value_;
+                if (c_id == id_) {
+                    found = val->cons().cdr()->string().value();
+                }
+            }
+        });
+        return found;
+    }
+
+    return nullptr;
 }
 
 

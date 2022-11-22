@@ -82,7 +82,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable | RoomProperties::roof_hidden |
-               RoomProperties::disallow_chimney | RoomProperties::destroy_quietly |
+               RoomProperties::disallow_chimney |
+               RoomProperties::destroy_quietly |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::multiplayer_unsupported |
                RoomProperties::locked_by_default;

@@ -33,10 +33,10 @@
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/ghost.hpp"
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/entity/ghost.hpp"
 #include "tile.hpp"
 
 

@@ -661,7 +661,6 @@ public:
     class ExtensionFields
     {
     public:
-
         virtual ~ExtensionFields()
         {
         }

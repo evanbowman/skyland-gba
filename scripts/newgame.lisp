@@ -15,6 +15,9 @@
 ;; Ids of previously seen quests
 (setq qids '())
 
+(setq chr-names '())
+
+
 (setq quests '())
 (setq enemy-count 0)
 

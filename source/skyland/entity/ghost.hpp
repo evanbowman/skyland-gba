@@ -36,8 +36,7 @@ namespace skyland
 class Ghost : public Entity
 {
 public:
-    Ghost(const Vec2<Fixnum>& position) :
-        Entity({})
+    Ghost(const Vec2<Fixnum>& position) : Entity({})
     {
         sprite_.set_position(position);
         sprite_.set_texture_index(83 + rng::choice<3>(rng::utility_state));
@@ -92,4 +91,4 @@ private:
 
 
 
-}
+} // namespace skyland

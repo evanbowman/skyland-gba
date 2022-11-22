@@ -30,7 +30,6 @@
 
 
 
-
 namespace skyland
 {
 
@@ -164,10 +163,8 @@ inline void core_explosion(Platform& pfrm,
             for (int j = 0; j < 4; ++j) {
                 const int angle = j * 90 + 45 + i * 3;
                 const u8 half_angle = angle / 2;
-                if (auto exp = app.alloc_entity<Explosion2>(pfrm,
-                                                            pos,
-                                                            half_angle,
-                                                            (u8)i)) {
+                if (auto exp = app.alloc_entity<Explosion2>(
+                        pfrm, pos, half_angle, (u8)i)) {
                     auto dir = rotate({1, 0}, angle);
                     dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
                     Vec2<Fixnum> spd;

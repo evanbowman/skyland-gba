@@ -23,6 +23,7 @@
 #include "textEntryScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/player/playerP1.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -52,6 +53,18 @@ TextEntryScene::TextEntryScene(const char* prompt,
 void TextEntryScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     render_keyboard(pfrm);
+
+    auto submit_str = SYSTR(submit_hint);
+    auto submit_cstr = submit_str->c_str();
+    auto slen = utf8::len(submit_cstr);
+
+    submit_text_.emplace(pfrm,
+                         OverlayCoord{u8(centered_text_margins(pfrm, slen)),
+                                          18});
+
+    submit_text_->assign(submit_cstr,
+                         FontColors{custom_color(0xcdc3eb),
+                                    custom_color(0x392194)});
 
     entry_.emplace(
         pfrm, OverlayCoord{u8(centered_text_margins(pfrm, char_limit_)), 5});
@@ -224,6 +237,7 @@ void TextEntryScene::render_keyboard(Platform& pfrm)
 void TextEntryScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     entry_.reset();
+    submit_text_.reset();
     prompt_text_.reset();
     pfrm.fill_overlay(0);
 }

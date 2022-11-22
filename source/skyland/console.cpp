@@ -1,9 +1,8 @@
 #include "console.hpp"
-#include "script/lisp.hpp"
-#include "platform/flash_filesystem.hpp"
 #include "base32.hpp"
+#include "platform/flash_filesystem.hpp"
+#include "script/lisp.hpp"
 #include "skyland/skyland.hpp"
-
 
 
 
@@ -13,8 +12,6 @@ namespace skyland
 
 
 const char* console_usage = "\aOptions: (s: simple console, l: lisp repl)";
-
-
 
 
 
@@ -65,7 +62,6 @@ static auto split(const Platform::RemoteConsole::Line& line)
 class LispConsoleImpl : public ConsoleState::Impl
 {
 public:
-
     void on_text(Platform& pfrm,
                  App& app,
                  Self& self,
@@ -104,7 +100,6 @@ public:
 class ShellConsoleImpl : public ConsoleState::Impl
 {
 public:
-
     void on_text(Platform& pfrm,
                  App& app,
                  Self& self,
@@ -202,8 +197,7 @@ void ConsoleState::Impl::on_text(Platform& pfrm,
     pfrm.sleep(2);
 
     if (line.length() == 1 and line[0] == 's') {
-        const char* hint =
-            "Simple Console ready, type help to list commands";
+        const char* hint = "Simple Console ready, type help to list commands";
         pfrm.remote_console().printline(hint, "sc> ");
         self.emplace<ShellConsoleImpl>();
         return;
@@ -219,4 +213,4 @@ void ConsoleState::Impl::on_text(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

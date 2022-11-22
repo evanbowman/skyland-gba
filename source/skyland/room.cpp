@@ -28,10 +28,10 @@
 #include "scene/moveCharacterScene.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/ghost.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/entity/ghost.hpp"
 #include "timeStreamEvent.hpp"
 
 
@@ -221,9 +221,7 @@ void Room::schedule_repaint()
 class UIDamageNumber : public Entity
 {
 public:
-
-    UIDamageNumber(const Vec2<Fixnum>& position, int value) :
-        Entity({})
+    UIDamageNumber(const Vec2<Fixnum>& position, int value) : Entity({})
     {
         sprite_.set_tidx_8x8(29, value);
         sprite_.set_position(position);
@@ -261,10 +259,7 @@ public:
     }
 
 
-    static void create(Platform& pfrm,
-                       App& app,
-                       int value,
-                       Vec2<Fixnum> pos)
+    static void create(Platform& pfrm, App& app, int value, Vec2<Fixnum> pos)
     {
         auto numstr = stringify(value);
 
@@ -284,7 +279,6 @@ public:
 private:
     Microseconds timer_ = 0;
 };
-
 
 
 
@@ -971,11 +965,8 @@ Health Room::max_health() const
 class Debris : public Entity
 {
 public:
-    Debris(const Vec2<Fixnum>& position,
-           Fixnum max_y,
-           int tile) :
-        Entity({}),
-        max_y_(max_y)
+    Debris(const Vec2<Fixnum>& position, Fixnum max_y, int tile)
+        : Entity({}), max_y_(max_y)
     {
         sprite_.set_tidx_8x8(30, 3 + tile);
         sprite_.set_position(position);
@@ -1041,12 +1032,12 @@ void Room::finalize(Platform& pfrm, App& app)
         for (auto& c : characters_) {
 
             auto position = c->sprite().get_position();
-            app.on_timeout(pfrm, milliseconds(500),
-                           [pos = position](Platform&, App& app) {
-                               if (auto e = alloc_entity<Ghost>(pos)) {
-                                   app.effects().push(std::move(e));
-                               }
-                           });
+            app.on_timeout(
+                pfrm, milliseconds(500), [pos = position](Platform&, App& app) {
+                    if (auto e = alloc_entity<Ghost>(pos)) {
+                        app.effects().push(std::move(e));
+                    }
+                });
         }
 
         const auto max_y = parent()->origin().y + 16 * 16 + 32;
@@ -1065,7 +1056,8 @@ void Room::finalize(Platform& pfrm, App& app)
                     e->speed_.y = -1 * Fixnum(dir.y);
                     e->speed_.y -= 0.3_fixed;
                     e->speed_ = e->speed_ * 0.5_fixed;
-                    e->gravity_ = Fixnum(0.06f * 0.15f) +
+                    e->gravity_ =
+                        Fixnum(0.06f * 0.15f) +
                         rng::choice<3>(rng::utility_state) * 0.003_fixed;
                     app.effects().push(std::move(e));
                 }

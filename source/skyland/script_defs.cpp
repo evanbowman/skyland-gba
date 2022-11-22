@@ -742,17 +742,20 @@ static const lisp::Binding script_api[] = {
          for (auto& room : island->rooms()) {
              for (auto& chr : room->characters()) {
                  if (chr->owner() == &island->owner()) {
-                     lisp::ListBuilder chr_info;
-                     chr_info.push_back(
-                         lisp::make_integer(chr->grid_position().x));
-                     chr_info.push_back(
-                         lisp::make_integer(chr->grid_position().y));
+                     using namespace lisp;
+                     ListBuilder chr_info;
+                     chr_info.push_back(make_integer(chr->grid_position().x));
+                     chr_info.push_back(make_integer(chr->grid_position().y));
                      if (chr->health() not_eq 255) {
-                         chr_info.push_back(lisp::make_integer(chr->health()));
+                         chr_info.push_back(make_cons(
+                             make_symbol("hp"), make_integer(chr->health())));
                      }
                      if (chr->is_replicant()) {
-                         chr_info.push_back(lisp::make_integer(1));
+                         chr_info.push_back(
+                             make_cons(make_symbol("rplc"), make_integer(1)));
                      }
+                     chr_info.push_back(
+                         make_cons(make_symbol("id"), make_integer(chr->id())));
                      list.push_front(chr_info.result());
                  }
              }
@@ -1020,27 +1023,40 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"chr-id",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, integer); // new-id
+         L_EXPECT_OP(1, integer); // old-id
+
+         auto [app, pfrm] = interp_get_context();
+         auto old_id = lisp::get_op(1)->integer().value_;
+         auto new_id = lisp::get_op(0)->integer().value_;
+
+         if (auto chr = BasicCharacter::find_by_id(*app, old_id).first) {
+             chr->__assign_id(new_id);
+             BasicCharacter::__rebase_ids(new_id);
+         }
+
+         return lisp::get_op(0);
+     }},
     {"chr-hp",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 4);
-         L_EXPECT_OP(1, integer); // y
-         L_EXPECT_OP(2, integer); // x
-         L_EXPECT_OP(3, user_data);
+         auto [app, pfrm] = interp_get_context();
 
-         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
-
-         auto coord = RoomCoord{
-             (u8)lisp::get_op(2)->integer().value_,
-             (u8)lisp::get_op(1)->integer().value_,
-         };
-
-         auto arg0 = lisp::get_op(0);
-
-         if (auto chr = island->character_at_location(coord)) {
-             if (arg0->type() == lisp::Value::Type::integer) {
-                 chr->__set_health(arg0->integer().value_);
+         if (argc == 2) {
+             auto hp = lisp::get_op(0)->integer().value_;
+             auto id = lisp::get_op(1)->integer().value_;
+             if (auto chr = BasicCharacter::find_by_id(*app, id).first) {
+                 chr->__set_health(hp);
              }
-             return lisp::make_integer(chr->health());
+         } else if (argc == 1) {
+             auto id = lisp::get_op(0)->integer().value_;
+             if (auto chr = BasicCharacter::find_by_id(*app, id).first) {
+                 return lisp::make_integer(chr->health());
+             }
+         } else {
+             return L_NIL;
          }
          return L_NIL;
      }},
@@ -1104,6 +1120,8 @@ static const lisp::Binding script_api[] = {
 
          const bool is_replicant = lisp::get_op(0)->integer().value_;
 
+         s32 id = -1;
+
          auto conf = lisp::get_op(1);
          if (str_cmp(conf->symbol().name(), "hostile") == 0) {
              app->swap_opponent<EnemyAI>();
@@ -1111,6 +1129,7 @@ static const lisp::Binding script_api[] = {
                  island, &app->opponent(), coord, is_replicant);
 
              if (chr) {
+                 id = chr->id();
                  island->add_character(std::move(chr));
              }
          } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
@@ -1118,11 +1137,12 @@ static const lisp::Binding script_api[] = {
                  island, &app->player(), coord, is_replicant);
 
              if (chr) {
+                 id = chr->id();
                  island->add_character(std::move(chr));
              }
          }
 
-         return L_NIL;
+         return lisp::make_integer(id);
      }},
     {"click",
      [](int argc) {
