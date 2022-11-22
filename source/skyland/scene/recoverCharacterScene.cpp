@@ -124,8 +124,8 @@ void RecoverCharacterScene::display(Platform& pfrm, App& app)
     }
 
     Sprite cursor;
-    cursor.set_size(Sprite::Size::w16_h32);
-    cursor.set_texture_index(17);
+    cursor.set_size(Sprite::Size::w16_h16);
+    cursor.set_tidx_16x16(17, 0);
 
     auto origin = app.opponent_island()->visual_origin();
 

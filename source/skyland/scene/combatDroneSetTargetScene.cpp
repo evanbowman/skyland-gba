@@ -181,8 +181,8 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
 
         Sprite sprite;
         sprite.set_position(origin);
-        sprite.set_texture_index(17);
-        sprite.set_size(Sprite::Size::w16_h32);
+        sprite.set_tidx_16x16(17, 0);
+        sprite.set_size(Sprite::Size::w16_h16);
 
         pfrm.screen().draw(sprite);
     }
