@@ -35,10 +35,7 @@ static Heap* bound_heap_;
 
 Heap::Heap()
 {
-    if (bound_heap_) {
-        Platform::fatal("attempt to create malloc heap when "
-                        "one already exists!");
-    }
+    parent_ = bound_heap_;
     bound_heap_ = this;
 }
 
@@ -46,7 +43,7 @@ Heap::Heap()
 
 Heap::~Heap()
 {
-    bound_heap_ = nullptr;
+    bound_heap_ = parent_;
 }
 
 
@@ -118,7 +115,7 @@ void* Heap::Sector::try_alloc(u32 size)
                 *(int*)(start) = required_words;
                 ++start;
 
-                for (int ii = i; ii < required_words; ++ii) {
+                for (int ii = i; ii - i < required_words; ++ii) {
                     taken_.set(ii, true);
                 }
 

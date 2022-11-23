@@ -52,6 +52,7 @@ struct Heap
     Heap(const Heap&) = delete;
     ~Heap();
 
+
     struct Sector
     {
         static const int word_count = 460;
@@ -83,8 +84,22 @@ struct Heap
     using Sectors = Vector<Sector>;
 
     Sectors sectors_;
+    Heap* parent_ = nullptr;
 };
 
 
 
 } // namespace malloc_compat
+
+
+
+extern "C" {
+
+
+
+void* malloc(size_t sz);
+void free(void* ptr);
+
+
+
+}
