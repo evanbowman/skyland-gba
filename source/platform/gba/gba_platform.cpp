@@ -2418,11 +2418,8 @@ static void vblank_circle_effect_isr()
 {
     DMA_TRANSFER(
         (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    DMA_TRANSFER((volatile short*)0x4000016,
-                 &vertical_parallax_table[1],
-                 1,
-                 3,
-                 DMA_HDMA);
+    DMA_TRANSFER(
+        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
 
     // NOTE: fixes an audio bug that occurs when an audio timer irq occurs while
     // drawing the circle effect.
@@ -3626,12 +3623,11 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(ion_cannon, sound_ion_cannon),
     DEF_SOUND(gust1, sound_gust),
     DEF_SOUND(gust2, sound_gust2),
-    DEF_SOUND(openbook, sound_open_book),
     DEF_SOUND(openbag, sound_openbag),
     DEF_SOUND(tw_bell, sound_tw_bell),
     DEF_SOUND(click, sound_scroll),
     DEF_SOUND(cursor_tick, sound_cursor_click),
-    DEF_SOUND(click_negative, sound_click_negative),
+    // DEF_SOUND(click_negative, sound_click_negative),
     DEF_SOUND(click_wooden, sound_click_wooden),
     DEF_SOUND(button_wooden, sound_button_wooden),
     DEF_SOUND(click_digital_1, sound_digital_click_1),
@@ -6930,7 +6926,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
                     allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
                 memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
                 window_init_effectmode();
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
                 win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
                 DMA_TRANSFER(
                     &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
                 fill_overlay(491);
