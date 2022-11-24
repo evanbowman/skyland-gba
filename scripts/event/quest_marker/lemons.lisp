@@ -4,12 +4,30 @@
 
 
 
-(opponent-init 6 'neutral)
+(opponent-init 9 'neutral)
 
 (island-configure
  (opponent)
- '((power-core 3 13)
-   (coconut-palm 5 13)))
+ '((bronze-hull 0 13)
+   (bronze-hull 0 12)
+   (bronze-hull 0 11)
+   (bronze-hull 0 14)
+   (masonry 1 13)
+   (water-source 1 14)
+   (masonry 2 13)
+   (masonry 2 14)
+   (water-source 3 14)
+   (masonry 3 13)
+   (masonry 4 14)
+   (masonry 4 13)
+   (masonry 5 13)
+   (water-source 5 14)
+   (power-core 6 13)
+   (bronze-hull 6 12)
+   (bronze-hull 7 12)
+   (workshop 7 10)
+   (bronze-hull 7 9)
+   (bronze-hull 8 9)))
 
 
 (setq on-converge
@@ -46,9 +64,9 @@
 
               (map
                (lambda
-                 ((room-new
-                   (opponent)
-                   (list 'lemon-tree (car $0) (cdr $0)))))
+                 (room-new
+                  (opponent)
+                  (list 'lemon-tree (car $0) (cdr $0))))
                (construction-sites (opponent) '(1 . 2)))
 
               ;; For the lemon-tree achievement

@@ -8,6 +8,7 @@
 
 (if (not (equal (zone) last-zone))
     (progn
+      (setq quests '())
       (setq friendlies-seen '())
       (setq enemies-seen '())))
 

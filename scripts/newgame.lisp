@@ -5,8 +5,6 @@
 ;;;
 
 
-(eval-file "/scripts/reset_hooks.lisp")
-
 (setq last-zone 0)
 
 (setq enemies-seen '())
@@ -38,3 +36,6 @@
 
 
 (chr-new (player) 2 14 'neutral 0)
+
+
+(eval-file "/scripts/reset_hooks.lisp")
