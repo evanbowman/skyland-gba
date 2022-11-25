@@ -99,7 +99,4 @@ extern "C" {
 
 void* malloc(size_t sz);
 void free(void* ptr);
-
-
-
 }

@@ -58,13 +58,12 @@ void TextEntryScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto submit_cstr = submit_str->c_str();
     auto slen = utf8::len(submit_cstr);
 
-    submit_text_.emplace(pfrm,
-                         OverlayCoord{u8(centered_text_margins(pfrm, slen)),
-                                          18});
+    submit_text_.emplace(
+        pfrm, OverlayCoord{u8(centered_text_margins(pfrm, slen)), 18});
 
-    submit_text_->assign(submit_cstr,
-                         FontColors{custom_color(0xcdc3eb),
-                                    custom_color(0x392194)});
+    submit_text_->assign(
+        submit_cstr,
+        FontColors{custom_color(0xcdc3eb), custom_color(0x392194)});
 
     entry_.emplace(
         pfrm, OverlayCoord{u8(centered_text_margins(pfrm, char_limit_)), 5});

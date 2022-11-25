@@ -1034,11 +1034,8 @@ private:
     u8 gfx_;
 
 public:
-    OffscreenWarning(RoomCoord c, Island* island, u8 gfx) :
-        Entity({}),
-        coord_(c),
-        island_(island),
-        gfx_(gfx)
+    OffscreenWarning(RoomCoord c, Island* island, u8 gfx)
+        : Entity({}), coord_(c), island_(island), gfx_(gfx)
     {
         sprite_.set_size(Sprite::Size::w16_h16);
         sprite_.set_tidx_16x16(gfx, 0);
@@ -1057,10 +1054,9 @@ public:
         pos.y += coord_.y * 16;
 
         if (pos.x + 8 >
-            pfrm.screen().get_view().get_center().x +
-            pfrm.screen().size().x) {
+            pfrm.screen().get_view().get_center().x + pfrm.screen().size().x) {
             pos.x = pfrm.screen().get_view().get_center().x +
-                pfrm.screen().size().x - (16 + 4);
+                    pfrm.screen().size().x - (16 + 4);
             sprite_.set_flip({true, false});
             sprite_.set_tidx_16x16(gfx_, 0);
         } else if (pos.x < pfrm.screen().get_view().get_center().x) {
@@ -1115,11 +1111,9 @@ void Room::finalize(Platform& pfrm, App& app)
 
         bool is_offscreen =
             (visual_center().x < pfrm.screen().get_view().get_center().x + 8 -
-                                (size().x * 16) / 2)
-            or
+                                     (size().x * 16) / 2) or
             (visual_center().x - (size().x * 16) / 2 >
-             pfrm.screen().get_view().get_center().x +
-             pfrm.screen().size().x);
+             pfrm.screen().get_view().get_center().x + pfrm.screen().size().x);
 
         const int t = debris_tile();
 
@@ -1128,7 +1122,8 @@ void Room::finalize(Platform& pfrm, App& app)
             if (parent() == app.opponent_island()) {
                 gfx = 57;
             }
-            if (auto ent = alloc_entity<OffscreenWarning>(position(), parent_, gfx)) {
+            if (auto ent =
+                    alloc_entity<OffscreenWarning>(position(), parent_, gfx)) {
                 app.effects().push(std::move(ent));
             }
         } else if (t) {
