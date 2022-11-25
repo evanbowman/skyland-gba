@@ -1024,6 +1024,77 @@ private:
 
 
 
+class OffscreenWarning : public Entity
+{
+private:
+    Microseconds timer_ = 0;
+    RoomCoord coord_;
+    bool countdown_ = false;
+    Island* island_;
+    u8 gfx_;
+
+public:
+    OffscreenWarning(RoomCoord c, Island* island, u8 gfx) :
+        Entity({}),
+        coord_(c),
+        island_(island),
+        gfx_(gfx)
+    {
+        sprite_.set_size(Sprite::Size::w16_h16);
+        sprite_.set_tidx_16x16(gfx, 0);
+    }
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        if (not app.opponent_island()) {
+            kill();
+            return;
+        }
+
+        auto pos = island_->visual_origin();
+        pos.x += coord_.x * 16;
+        pos.y += coord_.y * 16;
+
+        if (pos.x + 8 >
+            pfrm.screen().get_view().get_center().x +
+            pfrm.screen().size().x) {
+            pos.x = pfrm.screen().get_view().get_center().x +
+                pfrm.screen().size().x - (16 + 4);
+            sprite_.set_flip({true, false});
+            sprite_.set_tidx_16x16(gfx_, 0);
+        } else if (pos.x < pfrm.screen().get_view().get_center().x) {
+            pos.x = pfrm.screen().get_view().get_center().x + 4;
+            sprite_.set_flip({});
+            sprite_.set_tidx_16x16(gfx_, 0);
+        } else {
+            sprite_.set_flip({});
+            sprite_.set_tidx_16x16(gfx_, 1);
+            countdown_ = true;
+        }
+
+        if (countdown_) {
+            timer_ += delta;
+            if (timer_ > milliseconds(1450)) {
+                sprite_.set_alpha(Sprite::Alpha::translucent);
+            }
+            if (timer_ > milliseconds(1500)) {
+                kill();
+            }
+        }
+
+        sprite_.set_position(pos);
+    }
+
+
+    void rewind(Platform&, App&, Microseconds delta) override
+    {
+        kill();
+    }
+};
+
+
+
 void Room::finalize(Platform& pfrm, App& app)
 {
     finalized_ = true;
@@ -1042,8 +1113,25 @@ void Room::finalize(Platform& pfrm, App& app)
 
         const auto max_y = parent()->origin().y + 16 * 16 + 32;
 
+        bool is_offscreen =
+            (visual_center().x < pfrm.screen().get_view().get_center().x + 8 -
+                                (size().x * 16) / 2)
+            or
+            (visual_center().x - (size().x * 16) / 2 >
+             pfrm.screen().get_view().get_center().x +
+             pfrm.screen().size().x);
+
         const int t = debris_tile();
-        if (t) {
+
+        if (is_offscreen) {
+            u8 gfx = 56;
+            if (parent() == app.opponent_island()) {
+                gfx = 57;
+            }
+            if (auto ent = alloc_entity<OffscreenWarning>(position(), parent_, gfx)) {
+                app.effects().push(std::move(ent));
+            }
+        } else if (t) {
             const int count = debris_count();
             for (int i = 0; i < count; ++i) {
                 if (auto e = alloc_entity<Debris>(center(), max_y, t)) {
