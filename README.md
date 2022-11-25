@@ -12,12 +12,6 @@ The production version of SKYLAND for gameboy advance.
 <img src="imgs_for_readme/macro.png"/>
 
 
-## Code Quality
-
-I originally built Skyland in 20 days for a game jam, and a few parts of the code are
-a bit rough.
-
-
 ## Building
 
 1) Install all of the standard devkitpro libgba stuff.
