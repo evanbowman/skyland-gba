@@ -21,4 +21,5 @@ The production version of SKYLAND for gameboy advance.
 
 ## License
 
-GPL2. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
+All artwork and music assets are proprietary.
+I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
