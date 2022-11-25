@@ -48,6 +48,7 @@ namespace skyland
 class App;
 class Room;
 class Drone;
+class OffscreenWarning;
 
 
 
@@ -137,6 +138,13 @@ public:
     virtual bool entity_oom_deletable() const
     {
         return true;
+    }
+
+
+    // B/C no RTTI
+    virtual OffscreenWarning* cast_offscreen_warning()
+    {
+        return nullptr;
     }
 
 

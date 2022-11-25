@@ -1034,11 +1034,25 @@ private:
     u8 gfx_;
 
 public:
-    OffscreenWarning(RoomCoord c, Island* island, u8 gfx)
+    OffscreenWarning(RoomCoord c, Island* island, u8 gfx, App& app)
         : Entity({}), coord_(c), island_(island), gfx_(gfx)
     {
         sprite_.set_size(Sprite::Size::w16_h16);
         sprite_.set_tidx_16x16(gfx, 0);
+
+        for (auto& ent : app.effects()) {
+            if (auto other = ent->cast_offscreen_warning()) {
+                if (other->coord_.y == coord_.y) {
+                    kill();
+                }
+            }
+        }
+    }
+
+
+    OffscreenWarning* cast_offscreen_warning() override
+    {
+        return this;
     }
 
 
@@ -1123,7 +1137,10 @@ void Room::finalize(Platform& pfrm, App& app)
                 gfx = 57;
             }
             if (auto ent =
-                    alloc_entity<OffscreenWarning>(position(), parent_, gfx)) {
+                    alloc_entity<OffscreenWarning>(position(),
+                                                   parent_,
+                                                   gfx,
+                                                   app)) {
                 app.effects().push(std::move(ent));
             }
         } else if (t) {
