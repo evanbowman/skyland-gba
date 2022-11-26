@@ -51,6 +51,14 @@
 (setq add +)
 
 
+;; A shortcut for defining functions with named arguments. e.g.:
+;; (defun foo (a b c)
+;;   (+ a b c))
+;; Currently disabled, as named arguments require more memory and I personally
+;; don't mind refering to arguments by number.
+;; (macro defun (NAME ARGS BODY) `(set ,(cons $q NAME) (fn ,ARGS ,@BODY)))
+
+
 ;; Because we're running lisp in an embedded system (a gameboy) with limited
 ;; memory, we need to be really careful about symbol table usage, which is why,
 ;; traditionally, we only support numbered arguments for lambdas. But this
