@@ -12,25 +12,14 @@ The production version of SKYLAND for gameboy advance.
 <img src="imgs_for_readme/macro.png"/>
 
 
-## Code Quality
-
-I originally built Skyland in 20 days for a game jam, and parts of the code are
-a bit rough. Through beta testing, deadlines, bugfixes, etc., Skyland,
-accumulated some bad code. Ultimately, this is a video game, and everything must
-be in service to the user experience. Singlehandedly writing a large production
-quality game on a system with less than 300kb of memory is quite hard. Sometimes
-one has to cut corners to ship something while maintaining one's sanity.
-
-
 ## Building
 
 1) Install all of the standard devkitpro libgba stuff.
 2) Install cmake
 3) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
-4) run `make`
-5) run `./bundle.sh`. The bundle script creates Skyland.gba by appending the game's scripts and resources to the compiled engine ROM.
-
+4) run ./build.sh
 
 ## License
 
-I feel conflicted about GPL. I've never used a copy-left license like this. But I spent so much time on this project, and I think it's only fair that if someone else adds code to the project, they should share their changes too. If you want some code snippet or a few files under a more free license like BSD or MIT, then contact me.
+All artwork and music assets are proprietary.
+I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.

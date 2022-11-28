@@ -29,13 +29,6 @@
 
 
 
-// NOTE: saving is a bit of a mess. Originally, we wrote stuff to fixed
-// locations in SRAM. Now, we implement a filesystem in SRAM, but some things
-// still need to be written to fixed locations at the beginning of SRAM, so that
-// we don't break backwards compatibility.
-
-
-
 namespace skyland
 {
 namespace save
