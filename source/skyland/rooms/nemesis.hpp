@@ -59,7 +59,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return Weapon::properties() | RoomProperties::roof_hidden |
-               RoomProperties::manufactory_required;
+               RoomProperties::manufactory_required |
+               RoomProperties::multiboot_compatible;
     }
 
 

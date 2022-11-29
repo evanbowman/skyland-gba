@@ -106,7 +106,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::workshop_required | RoomProperties::habitable;
+        return RoomProperties::workshop_required | RoomProperties::habitable |
+               RoomProperties::multiboot_compatible;
     }
 
 

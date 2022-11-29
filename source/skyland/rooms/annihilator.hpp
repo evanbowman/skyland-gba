@@ -100,7 +100,8 @@ public:
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::manufactory_required |
-               RoomProperties::locked_by_default;
+               RoomProperties::locked_by_default |
+               RoomProperties::multiboot_compatible;
     }
 
 

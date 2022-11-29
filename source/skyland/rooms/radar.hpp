@@ -100,7 +100,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required |
-               RoomProperties::disallow_chimney | RoomProperties::roof_hidden;
+               RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
+               RoomProperties::multiboot_compatible;
     }
 
 

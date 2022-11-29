@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # The LISP interpreter is already compiled into BlindJump, this cmakelists,
@@ -23,6 +23,20 @@ add_executable(LISP
 target_compile_options(LISP PRIVATE
   -g3
   -O3)
+
+
+add_executable(EDITOR
+  vm.cpp
+  lisp.cpp
+  editor.cpp
+  compiler.cpp
+  bootstrap.cpp)
+
+target_compile_options(EDITOR PRIVATE
+  -O3)
+
+target_link_libraries(EDITOR
+  ncurses)
 
 
 # add_executable(LISPC

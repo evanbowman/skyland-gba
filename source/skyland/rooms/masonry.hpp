@@ -76,7 +76,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return (Decoration::properties() & ~RoomProperties::disallow_chimney) |
-               RoomProperties::fireproof;
+               RoomProperties::fireproof |
+               RoomProperties::multiboot_compatible;
     }
 
 

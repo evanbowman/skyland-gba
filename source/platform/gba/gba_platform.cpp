@@ -57,7 +57,7 @@
 #include <algorithm>
 #include <limits>
 #include <setjmp.h>
-
+#include "send_multiboot.h"
 
 
 extern "C" {
@@ -703,21 +703,6 @@ static const u32 affine_transform_limit = 32;
 static u32 affine_transform_write_index = 0;
 static u32 last_affine_transform_write_index = 0;
 
-
-#define BG0_CONTROL (*((volatile u16*)0x4000008))
-#define BG1_CONTROL (*((volatile u16*)0x400000a))
-#define BG2_CONTROL (*((volatile u16*)0x400000c))
-#define BG3_CONTROL (*((volatile u16*)0x400000e))
-
-
-#define BG0_X_SCROLL (*((volatile short*)0x4000010))
-#define BG0_Y_SCROLL (*((volatile short*)0x4000012))
-#define BG1_X_SCROLL (*((volatile short*)0x4000014))
-#define BG1_Y_SCROLL (*((volatile short*)0x4000016))
-#define BG2_X_SCROLL (*((volatile short*)0x4000018))
-#define BG2_Y_SCROLL (*((volatile short*)0x400001a))
-#define BG3_X_SCROLL (*((volatile short*)0x400001c))
-#define BG3_Y_SCROLL (*((volatile short*)0x400001e))
 
 
 static u8 last_fade_amt;
@@ -6743,6 +6728,11 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
 
 
 
+#include "incbin.h"
+INCBIN(Skyland_MB_ROM, "SkylandClient_mb.gba");
+
+
+
 void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_eq(feature_name, "sc")) { // Stackcheck, abreviated for speed.
@@ -7016,8 +7006,17 @@ void Platform::Speaker::start()
 
 
 
+void mb_server_setup_vram(Platform&);
+
+
+
 Platform::Platform()
 {
+    const bool mb_sent = mb_send_rom((u16*)gSkyland_MB_ROMData,
+                                     (u16*)((u8*)gSkyland_MB_ROMData +
+                                            gSkyland_MB_ROMSize),
+                                     MB_DEFAULT_TRIES / 8);
+
     ::platform = this;
 
     const auto tm1 = system_clock_.now();
@@ -7025,6 +7024,10 @@ Platform::Platform()
     logger().set_threshold(Severity::fatal);
 
     keyboard().poll();
+
+    if (mb_sent) {
+        info(*this, "sent multiboot rom!");
+    }
 
     Conf conf(*this);
 
@@ -7329,6 +7332,87 @@ Platform::Platform()
     } else {
         model_id = ModelId::gba;
     }
+
+    if (mb_sent) {
+        mb_server_setup_vram(*this);
+    }
+}
+
+
+
+u16 mb_exchange(u16 value)
+{
+    while (REG_SIOCNT & SIO_START) ;
+    REG_SIOMLT_SEND = value;
+    REG_SIOCNT = REG_SIOCNT | SIO_START;
+    while (REG_SIOCNT & SIO_START) ;
+    u16 result = REG_SIOMULTI1;
+    return result;
+}
+
+
+// Gross. The platform implementation includes game data. But what else can we
+// do? This multiboot code is very gba specific, as it involves distributing
+// tile graphics over a link cable...
+#include "skyland/room_metatable.hpp"
+
+
+void mb_server_setup_vram(Platform& pfrm)
+{
+    for (int i = 0; i < 120; ++i) {
+        VBlankIntrWait();
+    }
+
+    pfrm.load_overlay_texture("overlay");
+    pfrm.screen().schedule_fade(0);
+    pfrm.enable_glyph_mode(true);
+    pfrm.screen().clear();
+    Text text(pfrm, "Sending lots of stuff...", {1, 1});
+    Text text2(pfrm, {1, 3});
+    pfrm.screen().display();
+
+    auto print = [&](const char* str) {
+                     text2.assign(str);
+                     pfrm.screen().clear();
+                     pfrm.screen().display();
+                 };
+
+    set_gflag(GlobalFlag::watchdog_disabled, true);
+
+    pfrm.load_sprite_texture("spritesheet");
+
+    print("mb handshake...");
+
+    REG_RCNT = R_MULTI;
+    REG_SIOCNT = SIO_MULTI;
+    REG_SIOCNT = REG_SIOCNT | SIO_115200;
+
+    while (true) {
+        if (mb_exchange(0xBBBB) == 0xAAAA) {
+            break;
+        }
+    }
+
+    mb_exchange(0xABCD);
+
+    // TODO: handshake with multiboot program
+    // TODO: tell multiboot program how many tiles we'll be sending over
+
+    print("transfer sprites...");
+
+    auto spritesheet_mem = ((u16*)&MEM_TILE[4][1]);
+    const u32 iters = (vram_tile_size() * 8 * 126) / sizeof(u16);
+    for (u32 i = 0; i < iters; ++i) {
+        mb_exchange(spritesheet_mem[i]);
+        if (i % 128 == 0) {
+            print(format("transfer sprites... %/100%",
+                         100 * (float(i) / iters),
+                         "%").c_str());
+        }
+    }
+
+    watchdog_counter = 0;
+    set_gflag(GlobalFlag::watchdog_disabled, false);
 }
 
 

@@ -123,7 +123,8 @@ public:
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage | RoomProperties::fireproof |
-               RoomProperties::destroy_quietly;
+               RoomProperties::destroy_quietly |
+               RoomProperties::multiboot_compatible;
     }
 
 protected:

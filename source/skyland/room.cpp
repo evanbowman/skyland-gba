@@ -1067,23 +1067,23 @@ public:
         pos.x += coord_.x * 16;
         pos.y += coord_.y * 16;
 
-        if (pos.x + 8 >
-            pfrm.screen().get_view().get_center().x + pfrm.screen().size().x) {
-            pos.x = pfrm.screen().get_view().get_center().x +
+        if (not countdown_) {
+            if (pos.x + 8 >
+                pfrm.screen().get_view().get_center().x + pfrm.screen().size().x) {
+                pos.x = pfrm.screen().get_view().get_center().x +
                     pfrm.screen().size().x - (16 + 4);
-            sprite_.set_flip({true, false});
-            sprite_.set_tidx_16x16(gfx_, 0);
-        } else if (pos.x < pfrm.screen().get_view().get_center().x) {
-            pos.x = pfrm.screen().get_view().get_center().x + 4;
-            sprite_.set_flip({});
-            sprite_.set_tidx_16x16(gfx_, 0);
+                sprite_.set_flip({true, false});
+                sprite_.set_tidx_16x16(gfx_, 0);
+            } else if (pos.x < pfrm.screen().get_view().get_center().x) {
+                pos.x = pfrm.screen().get_view().get_center().x + 4;
+                sprite_.set_flip({});
+                sprite_.set_tidx_16x16(gfx_, 0);
+            } else {
+                sprite_.set_flip({});
+                sprite_.set_tidx_16x16(gfx_, 1);
+                countdown_ = true;
+            }
         } else {
-            sprite_.set_flip({});
-            sprite_.set_tidx_16x16(gfx_, 1);
-            countdown_ = true;
-        }
-
-        if (countdown_) {
             timer_ += delta;
             if (timer_ > milliseconds(1450)) {
                 sprite_.set_alpha(Sprite::Alpha::translucent);

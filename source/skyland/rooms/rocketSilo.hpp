@@ -108,7 +108,8 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::manufactory_required |
-               RoomProperties::disabled_in_tutorials;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::multiboot_compatible;
     }
 
 

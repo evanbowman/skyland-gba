@@ -140,6 +140,9 @@ struct RoomProperties
 
         // Only available in easy-mode.
         easy_mode_only = (1 << 24),
+
+        // Available in multiboot games.
+        multiboot_compatible = (1 << 25),
     };
 };
 

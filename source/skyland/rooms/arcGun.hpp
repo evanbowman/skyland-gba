@@ -113,7 +113,9 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden;
+               RoomProperties::roof_hidden |
+               RoomProperties::multiboot_compatible |
+               RoomProperties::multiboot_compatible;
     }
 };
 
