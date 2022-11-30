@@ -7364,15 +7364,17 @@ void mb_server_setup_vram(Platform& pfrm)
     }
 
     pfrm.load_overlay_texture("overlay");
-    pfrm.screen().schedule_fade(0);
     pfrm.enable_glyph_mode(true);
     pfrm.screen().clear();
     Text text(pfrm, "Sending lots of stuff...", {1, 1});
     Text text2(pfrm, {1, 3});
+    Text text3(pfrm, {1, 5});
+    Text text4(pfrm, {1, 7});
+    Text text5(pfrm, {1, 9});
     pfrm.screen().display();
 
-    auto print = [&](const char* str) {
-                     text2.assign(str);
+    auto print = [&](Text& t, const char* str) {
+                     t.assign(str);
                      pfrm.screen().clear();
                      pfrm.screen().display();
                  };
@@ -7380,8 +7382,13 @@ void mb_server_setup_vram(Platform& pfrm)
     set_gflag(GlobalFlag::watchdog_disabled, true);
 
     pfrm.load_sprite_texture("spritesheet");
+    pfrm.load_background_texture("background");
+    pfrm.load_tile0_texture("tilesheet_interior");
+    pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
 
-    print("mb handshake...");
+    pfrm.screen().schedule_fade(1.f);
+
+    print(text2, "mb handshake...");
 
     REG_RCNT = R_MULTI;
     REG_SIOCNT = SIO_MULTI;
@@ -7398,18 +7405,58 @@ void mb_server_setup_vram(Platform& pfrm)
     // TODO: handshake with multiboot program
     // TODO: tell multiboot program how many tiles we'll be sending over
 
-    print("transfer sprites...");
+    print(text2, "transfer sprites...");
 
     auto spritesheet_mem = ((u16*)&MEM_TILE[4][1]);
     const u32 iters = (vram_tile_size() * 8 * 126) / sizeof(u16);
     for (u32 i = 0; i < iters; ++i) {
         mb_exchange(spritesheet_mem[i]);
         if (i % 128 == 0) {
-            print(format("transfer sprites... %/100%",
-                         100 * (float(i) / iters),
-                         "%").c_str());
+            print(text2, format("transfer sprites... %/100%",
+                                100 * (float(i) / iters),
+                                "%").c_str());
         }
     }
+    print(text2, "transfer sprites... 100/100%");
+
+    print(text3, "transfer clouds...");
+    auto background_mem = (u16*)&MEM_SCREENBLOCKS[sbb_background_texture][0];
+    const u32 bg_iters = (vram_tile_size() * 127) / sizeof(u16);
+    for (u32 i = 0; i < bg_iters; ++i) {
+        mb_exchange(background_mem[i]);
+        if (i % 128 == 0) {
+            print(text3, format("transfer clouds... %/100%",
+                                100 * (float(i) / bg_iters),
+                                "%").c_str());
+        }
+    }
+    print(text3, "transfer clouds... 100/100%");
+
+
+    print(text4, "transfer tile0...");
+    auto t0_mem = (u16*)&MEM_SCREENBLOCKS[sbb_t0_texture][0];
+    const u32 t0_iters = (vram_tile_size() * 4 * 111) / sizeof(u16);
+    for (u32 i = 0; i < t0_iters; ++i) {
+        mb_exchange(t0_mem[i]);
+        if (i % 128 == 0) {
+            print(text4, format("transfer tile0... %/100%",
+                                100 * (float(i) / t0_iters),
+                                "%").c_str());
+        }
+    }
+    print(text4, "transfer tile0... 100/100%");
+
+    print(text5, "transfer tile1...");
+    auto t1_mem = (u16*)&MEM_SCREENBLOCKS[sbb_t1_texture][0];
+    for (u32 i = 0; i < t0_iters; ++i) {
+        mb_exchange(t1_mem[i]);
+        if (i % 128 == 0) {
+            print(text5, format("transfer tile1... %/100%",
+                                100 * (float(i) / t0_iters),
+                                "%").c_str());
+        }
+    }
+    print(text5, "transfer tile1... 100/100%");
 
     watchdog_counter = 0;
     set_gflag(GlobalFlag::watchdog_disabled, false);

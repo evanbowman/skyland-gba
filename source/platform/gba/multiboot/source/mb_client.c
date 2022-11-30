@@ -274,10 +274,38 @@ void multi_vram_setup_isr()
         if (++isr_vram_write_counter == (VRAM_TILE_SIZE * 8 * 126) / sizeof(u16)) {
             // Transferred entire spritesheet...
             isr_vram_write_state = 2;
+            isr_vram_write_counter = 0;
+            isr_vram_out_addr = (u16*)&MEM_SCREENBLOCKS[sbb_background_texture][0];
         }
         break;
 
     case 2:
+        *(isr_vram_out_addr++) = REG_SIOMULTI0;
+        if (++isr_vram_write_counter == (VRAM_TILE_SIZE * 127) / sizeof(u16)) {
+            isr_vram_write_state = 3;
+            isr_vram_write_counter = 0;
+            isr_vram_out_addr = (u16*)&MEM_SCREENBLOCKS[sbb_t0_texture][0];
+        }
+        break;
+
+    case 3:
+        *(isr_vram_out_addr++) = REG_SIOMULTI0;
+        if (++isr_vram_write_counter == (VRAM_TILE_SIZE * 4 * 111) / sizeof(u16)) {
+            isr_vram_write_state = 4;
+            isr_vram_write_counter = 0;
+            isr_vram_out_addr = (u16*)&MEM_SCREENBLOCKS[sbb_t1_texture][0];
+        }
+        break;
+
+    case 4:
+        *(isr_vram_out_addr++) = REG_SIOMULTI0;
+        if (++isr_vram_write_counter == (VRAM_TILE_SIZE * 4 * 111) / sizeof(u16)) {
+            isr_vram_write_state = 5;
+            isr_vram_write_counter = 0;
+        }
+        break;
+
+    case 5:
         break;
     }
 
@@ -303,15 +331,22 @@ void mb_client_receive_vram()
 
 
 static const u16 spritesheet_palette[16] = {
-    0x7C1F,0x2C7D,0x30CB,0x77DE,0x029E,0x45BE,0x3D34,0x6893,
+    0x72CC,0x2C7D,0x30CB,0x77DE,0x029E,0x45BE,0x3D34,0x6893,
     0x498C,0x7FF2,0x7DA0,0x6690,0x30C2,0x43B7,0x4244,0x1DAD
 };
 
 
 
 static const u16 island_interior_palette[16] = {
-    0x7C1F,0x30C2,0x498C,0x62D3,0x3E31,0x113C,0x24AD,0x35E4,
+    0x72CC,0x30C2,0x498C,0x62D3,0x3E31,0x113C,0x24AD,0x35E4,
     0x43B7,0x77DE,0x4B1B,0x7BEC,0x6562,0x539B,0x3ED5,0x1DAD
+};
+
+
+
+static const u16 background_palette[16] = {
+    0x72CC,0x72CC,0x77DE,0x7774,0x76AB,0x0000,0x0000,0x0000,
+    0x0421,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421
 };
 
 
@@ -322,6 +357,7 @@ void init_palettes()
         MEM_PALETTE[i] = spritesheet_palette[i];
         MEM_BG_PALETTE[i] = island_interior_palette[i];
         MEM_BG_PALETTE[i + 16] = island_interior_palette[i];
+        MEM_BG_PALETTE[16 * 11 + i] = background_palette[i];
     }
 }
 
