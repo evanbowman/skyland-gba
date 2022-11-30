@@ -84,7 +84,7 @@ TileId PoweredHull::tile() const
 
 
 
-void PoweredHull::render_interior(App& app, TileId buffer[16][16])
+void PoweredHull::render_interior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;
@@ -92,7 +92,7 @@ void PoweredHull::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void PoweredHull::render_exterior(App& app, TileId buffer[16][16])
+void PoweredHull::render_exterior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;

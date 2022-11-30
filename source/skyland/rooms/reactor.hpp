@@ -41,8 +41,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     void finalize(Platform& pfrm, App& app) override;
@@ -97,7 +97,8 @@ public:
     {
         return RoomProperties::manufactory_required |
                RoomProperties::has_chimney | RoomProperties::destroy_quietly |
-               RoomProperties::accepts_ion_damage | RoomProperties::habitable;
+               RoomProperties::accepts_ion_damage | RoomProperties::habitable |
+               RoomProperties::multiboot_compatible;
     }
 };
 

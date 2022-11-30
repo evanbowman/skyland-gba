@@ -43,14 +43,14 @@ void Barrier::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Barrier::render_interior(App& app, TileId buffer[16][16])
+void Barrier::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::barrier;
 }
 
 
 
-void Barrier::render_exterior(App& app, TileId buffer[16][16])
+void Barrier::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::barrier;
 }

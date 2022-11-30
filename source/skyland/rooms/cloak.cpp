@@ -78,14 +78,14 @@ void Cloak::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Cloak::render_interior(App& app, TileId buffer[16][16])
+void Cloak::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::cloak;
 }
 
 
 
-void Cloak::render_exterior(App& app, TileId buffer[16][16])
+void Cloak::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cloak;
 }

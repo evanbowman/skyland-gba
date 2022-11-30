@@ -46,8 +46,8 @@ public:
     TileId tile() const;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     void render_scaffolding(App& app, TileId buffer[16][16]) override
@@ -115,7 +115,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden | RoomProperties::accepts_ion_damage;
+               RoomProperties::roof_hidden | RoomProperties::accepts_ion_damage |
+               RoomProperties::multiboot_compatible;
     }
 
 private:

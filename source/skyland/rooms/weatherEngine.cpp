@@ -95,7 +95,7 @@ void WeatherEngine::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void WeatherEngine::render_interior(App& app, TileId buffer[16][16])
+void WeatherEngine::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::weather_engine_1;
     buffer[position().x][position().y + 1] = InteriorTile::weather_engine_2;
@@ -103,7 +103,7 @@ void WeatherEngine::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void WeatherEngine::render_exterior(App& app, TileId buffer[16][16])
+void WeatherEngine::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::weather_engine_1;
     buffer[position().x][position().y + 1] = Tile::weather_engine_2;

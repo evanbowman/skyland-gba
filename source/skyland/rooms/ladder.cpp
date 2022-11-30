@@ -52,7 +52,7 @@ void Ladder::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Ladder::render_interior(App& app, TileId buffer[16][16])
+void Ladder::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::ladder_top;
     buffer[position().x][position().y + 1] = InteriorTile::ladder_base;
@@ -60,7 +60,7 @@ void Ladder::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Ladder::render_exterior(App& app, TileId buffer[16][16])
+void Ladder::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

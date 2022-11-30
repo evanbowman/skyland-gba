@@ -74,7 +74,7 @@ void BronzeHull::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BronzeHull::render_interior(App& app, TileId buffer[16][16])
+void BronzeHull::render_interior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;
@@ -82,7 +82,7 @@ void BronzeHull::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void BronzeHull::render_exterior(App& app, TileId buffer[16][16])
+void BronzeHull::render_exterior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;

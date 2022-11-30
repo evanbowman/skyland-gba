@@ -48,8 +48,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     void render_scaffolding(App& app, TileId buffer[16][16]) override
@@ -84,7 +84,8 @@ public:
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
                RoomProperties::locked_by_default |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::highly_flammable;
+               RoomProperties::highly_flammable |
+               RoomProperties::multiboot_compatible;
     }
 
 
@@ -203,8 +204,8 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 };
 
 
@@ -279,8 +280,8 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 };
 
 

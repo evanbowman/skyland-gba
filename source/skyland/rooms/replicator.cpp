@@ -163,7 +163,7 @@ Replicator::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void Replicator::render_interior(App& app, TileId buffer[16][16])
+void Replicator::render_interior(App* app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
@@ -183,7 +183,7 @@ void Replicator::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Replicator::render_exterior(App& app, TileId buffer[16][16])
+void Replicator::render_exterior(App* app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

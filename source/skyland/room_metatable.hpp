@@ -53,6 +53,11 @@ struct RoomMeta
         virtual void
         construct(void* address, Island* parent, const RoomCoord& position) = 0;
 
+        // DO NOT CALL THIS FUNCTION UNLESS YOU REALLY KNOW WHAT YOU'RE DOING. I
+        // added this interface as a hack to make multiboot stuff easier to
+        // write.
+        virtual void __unsafe__render_interior(u8 tiles[16][16]);
+
         virtual void create(Platform&,
                             App&,
                             Island*,
@@ -73,7 +78,6 @@ struct RoomMeta
         virtual Room::Category category() const = 0;
         virtual void format_description(Platform& pfrm,
                                         StringBuffer<512>& buffer) const = 0;
-
 
         virtual void configure(Health health, Coins cost, Power power)
         {

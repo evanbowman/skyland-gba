@@ -140,6 +140,9 @@ struct RoomProperties
 
         // Only available in easy-mode.
         easy_mode_only = (1 << 24),
+
+        // Available in multiboot games.
+        multiboot_compatible = (1 << 25),
     };
 };
 
@@ -199,8 +202,8 @@ public:
     }
 
 
-    virtual void render_interior(App& app, TileId buffer[16][16]) = 0;
-    virtual void render_exterior(App& app, TileId buffer[16][16]) = 0;
+    virtual void render_interior(App* app, TileId buffer[16][16]) = 0;
+    virtual void render_exterior(App* app, TileId buffer[16][16]) = 0;
 
     virtual void render_scaffolding(App& app, TileId buffer[16][16]);
 
@@ -328,6 +331,12 @@ public:
 
 
     virtual void finalize(Platform& pfrm, App& app);
+
+
+    void __unsafe__ignore_finalizer()
+    {
+        finalized_ = true;
+    }
 
 
     // NOTE: The first three elements of the result list must be room name

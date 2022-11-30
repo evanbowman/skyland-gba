@@ -156,6 +156,14 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return T::size();
     }
 
+    void __unsafe__render_interior(u8 tiles[16][16]) override
+    {
+        T temp(nullptr, RoomCoord{6, 6});
+        // This is quite unsafe!!!
+        temp.render_interior(nullptr, tiles);
+        temp.__unsafe__ignore_finalizer();
+    }
+
     Coins cost() const override
     {
         return cost_;

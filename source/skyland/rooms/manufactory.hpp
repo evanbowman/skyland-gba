@@ -43,8 +43,8 @@ public:
     void update(Platform&, App&, Microseconds delta);
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
@@ -94,7 +94,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::workshop_required | RoomProperties::habitable;
+        return RoomProperties::workshop_required | RoomProperties::habitable |
+               RoomProperties::multiboot_compatible;
     }
 };
 

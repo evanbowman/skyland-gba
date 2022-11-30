@@ -327,7 +327,7 @@ ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void Crane::render_interior(App& app, TileId buffer[16][16])
+void Crane::render_interior(App* app, TileId buffer[16][16])
 {
     const auto x = position().x;
     const auto y = position().y;
@@ -342,7 +342,7 @@ void Crane::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Crane::render_exterior(App& app, TileId buffer[16][16])
+void Crane::render_exterior(App* app, TileId buffer[16][16])
 {
     const auto x = position().x;
     const auto y = position().y;

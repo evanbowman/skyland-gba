@@ -108,7 +108,7 @@ Microseconds Annihilator::reload() const
 
 
 
-void Annihilator::render_interior(App& app, TileId buffer[16][16])
+void Annihilator::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::annihilator_1;
     buffer[position().x][position().y + 1] = InteriorTile::annihilator_2;
@@ -116,7 +116,7 @@ void Annihilator::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Annihilator::render_exterior(App& app, TileId buffer[16][16])
+void Annihilator::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::annihilator_1;
     buffer[position().x][position().y + 1] = Tile::annihilator_2;

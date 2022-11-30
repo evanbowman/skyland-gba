@@ -75,7 +75,7 @@ void Infirmary::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 }
 
 
-void Infirmary::render_interior(App& app, TileId buffer[16][16])
+void Infirmary::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::infirmary_1;
     buffer[position().x][position().y + 1] = InteriorTile::infirmary_2;
@@ -84,7 +84,7 @@ void Infirmary::render_interior(App& app, TileId buffer[16][16])
 }
 
 
-void Infirmary::render_exterior(App& app, TileId buffer[16][16])
+void Infirmary::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

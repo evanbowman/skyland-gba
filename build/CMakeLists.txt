@@ -465,6 +465,8 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/gba_platform.cpp
     ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
     ${SOURCE_DIR}/platform/gba/memcpy.s
+    ${SOURCE_DIR}/platform/gba/MultiBoot.s
+    ${SOURCE_DIR}/platform/gba/send_multiboot.c
     ${SOURCE_DIR}/platform/gba/filesystem.cpp
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
 
@@ -882,7 +884,7 @@ elseif(GAMEBOY_ADVANCE)
 
   set(CMAKE_EXE_LINKER_FLAGS
     #  -Wl,--trace-symbol=__cxa_allocate_exception
-    "-mthumb -mthumb-interwork -Wl,--trace-symbol=__cxa_guard_acquire  -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
+    "-mthumb -mthumb-interwork  -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE

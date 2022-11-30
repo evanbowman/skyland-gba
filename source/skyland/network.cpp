@@ -45,7 +45,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         // }
 
         switch (header.message_type_) {
-        case packet::Header::null:
+        case packet::Header::invalid:
             pfrm.network_peer().poll_consume(sizeof(packet::Header));
             continue;
 

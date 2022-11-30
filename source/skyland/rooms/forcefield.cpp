@@ -71,7 +71,7 @@ void Forcefield::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Forcefield::render_interior(App& app, TileId buffer[16][16])
+void Forcefield::render_interior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;
@@ -79,7 +79,7 @@ void Forcefield::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Forcefield::render_exterior(App& app, TileId buffer[16][16])
+void Forcefield::render_exterior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;
@@ -94,7 +94,7 @@ void Forcefield2::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-void Forcefield2::render_interior(App& app, TileId buffer[16][16])
+void Forcefield2::render_interior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;
@@ -102,7 +102,7 @@ void Forcefield2::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Forcefield2::render_exterior(App& app, TileId buffer[16][16])
+void Forcefield2::render_exterior(App* app, TileId buffer[16][16])
 {
     last_tile_ = tile();
     buffer[position().x][position().y] = last_tile_;

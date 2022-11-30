@@ -103,7 +103,7 @@ void CargoBay::display(Platform::Screen& screen)
 
 
 
-void CargoBay::render_interior(App& app, TileId buffer[16][16])
+void CargoBay::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::cargo_bay;
     buffer[position().x][position().y + 1] = InteriorTile::plain_floor;
@@ -111,7 +111,7 @@ void CargoBay::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void CargoBay::render_exterior(App& app, TileId buffer[16][16])
+void CargoBay::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

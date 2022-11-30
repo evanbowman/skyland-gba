@@ -49,8 +49,8 @@ public:
     Microseconds reload() const override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
@@ -108,7 +108,8 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::manufactory_required |
-               RoomProperties::disabled_in_tutorials;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::multiboot_compatible;
     }
 
 

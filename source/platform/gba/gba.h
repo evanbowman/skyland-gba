@@ -775,6 +775,49 @@ typedef struct DMA_REC
 #define DMA_HDMA	(DMA_ENABLE | DMA_REPEAT | DMA_AT_HBLANK | DMA_DST_RELOAD)
 
 
+#define BG0_CONTROL (*((volatile u16*)0x4000008))
+#define BG1_CONTROL (*((volatile u16*)0x400000a))
+#define BG2_CONTROL (*((volatile u16*)0x400000c))
+#define BG3_CONTROL (*((volatile u16*)0x400000e))
+
+
+#define BG0_X_SCROLL (*((volatile short*)0x4000010))
+#define BG0_Y_SCROLL (*((volatile short*)0x4000012))
+#define BG1_X_SCROLL (*((volatile short*)0x4000014))
+#define BG1_Y_SCROLL (*((volatile short*)0x4000016))
+#define BG2_X_SCROLL (*((volatile short*)0x4000018))
+#define BG2_Y_SCROLL (*((volatile short*)0x400001a))
+#define BG3_X_SCROLL (*((volatile short*)0x400001c))
+#define BG3_Y_SCROLL (*((volatile short*)0x400001e))
+
+
+
+typedef	struct
+{
+	u32	reserved1[5];
+	u8	handshake_data;
+	u8	padding;
+	u16	handshake_timeout;
+	u8	probe_count;
+	u8	client_data[3];
+	u8	palette_data;
+	u8	response_bit;
+	u8	client_bit;
+	u8	reserved2;
+	u8	*boot_srcp;
+	u8	*boot_endp;
+	u8	*masterp;
+	u8	*reserved3[3];
+	u32	system_work2[4];
+	u8	sendflag;
+	u8	probe_target_bit;
+	u8	check_wait;
+	u8	server_type;
+} MultiBootParam;
+
+
+int MultiBoot(MultiBootParam* mb, u32 mode);
+
 
 #ifdef __cplusplus
 }	   // extern "C"

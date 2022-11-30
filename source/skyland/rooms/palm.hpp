@@ -42,14 +42,14 @@ public:
     }
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override
+    void render_interior(App* app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = Tile::palm_1;
         buffer[position().x][position().y + 1] = Tile::palm_2;
     }
 
 
-    void render_exterior(App& app, TileId buffer[16][16]) override
+    void render_exterior(App* app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = Tile::palm_1;
         buffer[position().x][position().y + 1] = Tile::palm_2;

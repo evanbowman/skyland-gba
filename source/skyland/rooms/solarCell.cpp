@@ -53,7 +53,7 @@ void SolarCell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-void SolarCell::render_interior(App& app, TileId buffer[16][16])
+void SolarCell::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::solar_cell;
     buffer[position().x + 1][position().y] = InteriorTile::solar_cell;
@@ -61,7 +61,7 @@ void SolarCell::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void SolarCell::render_exterior(App& app, TileId buffer[16][16])
+void SolarCell::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::solar_cell;
     buffer[position().x + 1][position().y] = Tile::solar_cell;

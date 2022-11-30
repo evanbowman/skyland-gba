@@ -210,7 +210,7 @@ Platform::Speaker::Effect Speaker::load_effect(int channel)
 
 
 
-void Speaker::render_interior(App& app, TileId buffer[16][16])
+void Speaker::render_interior(App* app, TileId buffer[16][16])
 {
     if (playing_) {
         buffer[position().x][position().y] = InteriorTile::speaker_active;
@@ -221,7 +221,7 @@ void Speaker::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Speaker::render_exterior(App& app, TileId buffer[16][16])
+void Speaker::render_exterior(App* app, TileId buffer[16][16])
 {
     if (playing_) {
         buffer[position().x][position().y] = InteriorTile::speaker_active;

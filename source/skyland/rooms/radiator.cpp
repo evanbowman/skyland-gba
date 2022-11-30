@@ -105,14 +105,14 @@ void Radiator::emit_radiation(Platform& pfrm, App& app)
 
 
 
-void Radiator::render_interior(App& app, TileId buffer[16][16])
+void Radiator::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::radiator;
 }
 
 
 
-void Radiator::render_exterior(App& app, TileId buffer[16][16])
+void Radiator::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::radiator;
 }

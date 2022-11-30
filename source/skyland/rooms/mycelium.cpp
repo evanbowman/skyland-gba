@@ -142,7 +142,7 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Mycelium::render_interior(App& app, TileId buffer[16][16])
+void Mycelium::render_interior(App* app, TileId buffer[16][16])
 {
     bool above = false;
     bool below = false;
@@ -172,7 +172,7 @@ void Mycelium::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Mycelium::render_exterior(App& app, TileId buffer[16][16])
+void Mycelium::render_exterior(App* app, TileId buffer[16][16])
 {
     bool above = false;
     bool below = false;

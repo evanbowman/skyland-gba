@@ -47,8 +47,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
     void render_scaffolding(App& app, TileId buffer[16][16]) override
     {
