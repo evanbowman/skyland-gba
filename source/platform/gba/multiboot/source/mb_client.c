@@ -502,7 +502,7 @@ void process_server_message(u8* message)
         break;
 
     case heartbeat:
-        send_message(message); // echo
+        multiplayer_send_message(message); // echo
         break;
 
     case room_constructed:
