@@ -22,4 +22,4 @@
 (flag-show (player))
 
 
-(setq 'chr-names '())
+(setq chr-names '())

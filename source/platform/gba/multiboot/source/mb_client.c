@@ -7,12 +7,155 @@
 
 
 #include "../../gba.h"
+#include "../../multiboot_room_metatable.h"
 #include "charblock.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Room Metatable (received from Skyland server)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+SharedRoomMetatable room_metatable;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Tile Graphics
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+
 #define VRAM_TILE_SIZE 32
+
+
+typedef enum Layer {
+    layer_overlay,
+    layer_background,
+    layer_map_1_ext,
+    layer_map_0_ext,
+} Layer;
+
+
+
+static void tile_set(Layer layer,
+              u16 x,
+              u16 y,
+              u16 val)
+{
+    switch (layer) {
+    /* case Layer::overlay: */
+    /*     if (x > 31 or y > 31) { */
+    /*         return; */
+    /*     } */
+    /*     set_overlay_tile(*this, x, y, val, 1); */
+    /*     break; */
+
+    /* case Layer::map_1_ext: */
+    /*     set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 2); */
+    /*     break; */
+
+    /* case Layer::map_0_ext: */
+    /*     set_map_tile_16p(sbb_t0_tiles, x, y, val, palette ? *palette : 0); */
+    /*     break; */
+    default:
+        break;
+
+    case layer_background:
+        if (x > 31 || y > 31) {
+            return;
+        }
+        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val | SE_PALBANK(11);
+        break;
+    }
+}
+
+
+
+static void cloud_block_put(int x, int y, int offset)
+{
+    tile_set(layer_background, x, y, offset++);
+    tile_set(layer_background, x + 1, y, offset++);
+    tile_set(layer_background, x, y + 1, offset++);
+    tile_set(layer_background, x + 1, y + 1, offset);
+}
+
+
+
+static void cloud_block_put_fg(int x, int type)
+{
+    cloud_block_put(x * 2, 16, 8 + type * 4);
+    cloud_block_put(x * 2, 18, 48 + type * 4);
+}
+
+
+
+static void cloud_block_put_bg(int x, int type)
+{
+    cloud_block_put(x * 2, 14, 32 + type * 4);
+}
+
+
+
+static void clouds_init()
+{
+    for (int i = 0; i < 32; ++i) {
+        for (int j = 0; j < 32; ++j) {
+            tile_set(layer_background, i, j, 4);
+        }
+    }
+
+    for (int x = 0; x < 32; ++x) {
+        for (int y = 0; y < 2; ++y) {
+            tile_set(layer_background, x, y, 72);
+        }
+        for (int y = 2; y < 4; ++y) {
+            tile_set(layer_background, x, y, 73);
+        }
+        for (int y = 4; y < 6; ++y) {
+            tile_set(layer_background, x, y, 74);
+        }
+        for (int y = 6; y < 8; ++y) {
+            tile_set(layer_background, x, y, 75);
+        }
+    }
+
+    for (int i = 0; i < 32; ++i) {
+        tile_set(layer_background, i, 18, 5);
+        tile_set(layer_background, i, 19, 5);
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        const int offset = i * 6;
+        cloud_block_put_fg(offset + 0, 0);
+        cloud_block_put_fg(offset + 1, 1);
+        cloud_block_put_fg(offset + 2, 2);
+        cloud_block_put_fg(offset + 3, 3);
+        cloud_block_put_fg(offset + 4, 4);
+        cloud_block_put_fg(offset + 5, 5);
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        const int offset = i * 4;
+        cloud_block_put_bg(offset + 0, 0);
+        cloud_block_put_bg(offset + 1, 1);
+        cloud_block_put_bg(offset + 2, 2);
+        cloud_block_put_bg(offset + 3, 3);
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Multiplayer Protocol
+//
+////////////////////////////////////////////////////////////////////////////////
 
 
 static int multiplayer_is_master()
@@ -61,7 +204,6 @@ typedef WireMessage RxInfo;
 #define PACKET_POOL_SIZE 32
 WireMessage packet_pool_data[PACKET_POOL_SIZE];
 WireMessage* packet_pool;
-
 
 
 void packet_pool_init()
@@ -321,10 +463,20 @@ void multi_vram_setup_isr()
         if (++isr_vram_write_counter == (VRAM_TILE_SIZE * 4 * 111) / sizeof(u16)) {
             isr_vram_write_state = 5;
             isr_vram_write_counter = 0;
+            isr_vram_out_addr = (u16*)&room_metatable;
         }
         break;
 
     case 5:
+        *(isr_vram_out_addr++) = REG_SIOMULTI0;
+        if (++isr_vram_write_counter == sizeof(room_metatable) / sizeof(u16)) {
+            isr_vram_write_state = 6;
+            isr_vram_write_counter = 0;
+        }
+        break;
+
+    case 6:
+        // ...
         break;
     }
 
@@ -344,7 +496,7 @@ void mb_client_receive_vram()
     irqEnable(IRQ_SERIAL);
     irqSet(IRQ_SERIAL, multi_vram_setup_isr);
 
-    while (isr_vram_write_state != 5) ;
+    while (isr_vram_write_state != 6) ;
 }
 
 
@@ -566,6 +718,7 @@ int main()
 
     comms_init();
 
+    clouds_init();
 
     while (1) {
         multiplayer_message_loop();

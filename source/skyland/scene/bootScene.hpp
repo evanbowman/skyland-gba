@@ -7,6 +7,9 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
+#include "skyland/scene/modules/skylandForever.hpp"
+#include "skyland/player/coOpTeam.hpp"
+#include "fadeInScene.hpp"
 
 
 
@@ -288,6 +291,24 @@ public:
         pfrm.screen().clear();
         pfrm.screen().display();
         pfrm.sleep(10);
+
+        // Special case: if we're connected to a networked multiplayer peer upon
+        // boot, then we've started a multiboot game, and should progress
+        // immediately to a co op match after starting up.
+        if (pfrm.network_peer().is_connected()) {
+            globals().room_pools_.create("room-mem");
+            globals().entity_pools_.create("entity-mem");
+            app.time_stream().enable_pushes(false);
+            app.invoke_script(pfrm, "/scripts/config/rooms.lisp");
+            app.invoke_script(pfrm, "/scripts/config/damage.lisp");
+            app.invoke_script(pfrm, "/scripts/config/timing.lisp");
+            SkylandForever::init(pfrm, app, 1, rng::get(rng::critical_state));
+            app.persistent_data().score_.set(0);
+            app.set_coins(pfrm, std::max(0, app.coins() - 1000));
+            app.swap_player<CoOpTeam>();
+            app.game_mode() = App::GameMode::co_op;
+            return scene_pool::alloc<FadeInScene>();
+        }
 
         if (not flash_filesystem::file_exists(pfrm, lang_file) or clean_boot_) {
             return scene_pool::alloc<LanguageSelectScene>(pfrm, clean_boot_);

@@ -7357,6 +7357,8 @@ u16 mb_exchange(u16 value)
 // do? This multiboot code is very gba specific, as it involves distributing
 // tile graphics over a link cable...
 #include "skyland/room_metatable.hpp"
+#include "multiboot_room_metatable.h"
+
 
 
 void mb_server_setup_vram(Platform& pfrm)
@@ -7375,27 +7377,48 @@ void mb_server_setup_vram(Platform& pfrm)
     Text text5(pfrm, {1, 9});
     Text text6(pfrm, {1, 11});
     Text text7(pfrm, {1, 13});
+    Text text8(pfrm, {1, 15});
     pfrm.screen().display();
 
     pfrm.load_tile0_texture("tilesheet_interior");
     pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
 
+    auto mt_buffer = allocate_dynamic<SharedRoomMetatable>("mb-buffer");
 
     using namespace skyland;
     auto [mt, ms] = room_metatable();
+    int mt_copy_index = 0;
     for (int i = 0; i < ms; ++i) {
         auto& meta = mt[i];
         if (meta->properties() & RoomProperties::multiboot_compatible) {
+            if (mt_copy_index == SHARED_MT_COUNT) {
+                Platform::fatal("mt_copy_index exceeds SHARED_MT_COUNT!");
+            }
+
+            auto& shared_mt = mt_buffer->metaclasses_[mt_copy_index++];
+            shared_mt.size_x_ = meta->size().x;
+            shared_mt.size_y_ = meta->size().y;
+
+            const char* name = meta->name();
+            memset(shared_mt.name_, '\0', sizeof(shared_mt.name_));
+            if (str_len(name) < sizeof(SharedMetaclass::name_)) {
+                memcpy(shared_mt.name_, name, str_len(name));
+            }
+
             u8 tiles[16][16];
             memset(tiles, 0, sizeof tiles);
 
+            int tile_out_index = 0;
+
             meta->__unsafe__render_interior(tiles);
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
+            for (int j = 0; j < 16; ++j) {
+                for (int i = 0; i < 16; ++i) {
                     const u8 t = tiles[i][j];
                     if (t) {
-                        pfrm.map_tile0_chunk(t);
+                        const int mapped = pfrm.map_tile0_chunk(t);
                         pfrm.map_tile1_chunk(t);
+
+                        shared_mt.tiles_[tile_out_index++] = mapped;
                     }
                 }
             }
@@ -7485,6 +7508,18 @@ void mb_server_setup_vram(Platform& pfrm)
     }
     print(text5, "transfer tile1... 100/100%");
 
+    print(text6, "sharing metatable...");
+
+    const auto mt_iters = sizeof(*mt_buffer) / sizeof(u16);
+    for (u32 i = 0; i < mt_iters; ++i) {
+        mb_exchange(((u16*)&*mt_buffer)[i]);
+        print(text6, format("sharing metatable... %/100%",
+                            100 * (float(i) / mt_iters),
+                            "%").c_str());
+    }
+    print(text6, "sharing metatable... 100/100%");
+
+
     watchdog_counter = 0;
     set_gflag(GlobalFlag::watchdog_disabled, false);
 
@@ -7494,16 +7529,18 @@ void mb_server_setup_vram(Platform& pfrm)
         VBlankIntrWait();
     }
 
-    print(text6, "init link...");
+    print(text7, "init link...");
 
     multiplayer_init();
 
     if (pfrm.network_peer().is_connected()) {
-        print(text7, "success!");
+        print(text8, "success!");
         for (int i = 0; i < 60; ++i) {
             VBlankIntrWait();
         }
     }
+
+
 }
 
 
