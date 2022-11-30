@@ -52,7 +52,7 @@ void Workshop::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Workshop::render_interior(App& app, TileId buffer[16][16])
+void Workshop::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::workshop_1;
     buffer[position().x][position().y + 1] = InteriorTile::workshop_2;
@@ -62,7 +62,7 @@ void Workshop::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Workshop::render_exterior(App& app, TileId buffer[16][16])
+void Workshop::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

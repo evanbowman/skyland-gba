@@ -1515,9 +1515,9 @@ void Island::repaint_partial(Platform& pfrm, App& app)
     for (auto& r : rooms_) {
         if (r->poll_repaint()) {
             if (interior_visible_) {
-                r->render_interior(app, buffer);
+                r->render_interior(&app, buffer);
             } else {
-                r->render_exterior(app, buffer);
+                r->render_exterior(&app, buffer);
             }
         }
     }
@@ -1573,11 +1573,11 @@ void Island::repaint(Platform& pfrm, App& app)
 
     if (interior_visible_) {
         for (auto& room : rooms()) {
-            room->render_interior(app, buffer);
+            room->render_interior(&app, buffer);
         }
     } else {
         for (auto& room : rooms()) {
-            room->render_exterior(app, buffer);
+            room->render_exterior(&app, buffer);
         }
     }
 

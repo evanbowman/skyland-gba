@@ -52,7 +52,7 @@ void PlunderedRoom::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void PlunderedRoom::render_interior(App& app, TileId buffer[16][16])
+void PlunderedRoom::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::plundered_room;
     buffer[position().x][position().y + 1] = InteriorTile::plundered_room;
@@ -60,7 +60,7 @@ void PlunderedRoom::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void PlunderedRoom::render_exterior(App& app, TileId buffer[16][16])
+void PlunderedRoom::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::plundered_room;
     buffer[position().x][position().y + 1] = Tile::plundered_room;

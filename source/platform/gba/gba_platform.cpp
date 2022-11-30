@@ -7373,6 +7373,31 @@ void mb_server_setup_vram(Platform& pfrm)
     Text text5(pfrm, {1, 9});
     pfrm.screen().display();
 
+    pfrm.load_tile0_texture("tilesheet_interior");
+    pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
+
+
+    using namespace skyland;
+    auto [mt, ms] = room_metatable();
+    for (int i = 0; i < ms; ++i) {
+        auto& meta = mt[i];
+        if (meta->properties() & RoomProperties::multiboot_compatible) {
+            u8 tiles[16][16];
+            memset(tiles, 0, sizeof tiles);
+
+            meta->__unsafe__render_interior(tiles);
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    const u8 t = tiles[i][j];
+                    if (t) {
+                        pfrm.map_tile0_chunk(t);
+                        pfrm.map_tile1_chunk(t);
+                    }
+                }
+            }
+        }
+    }
+
     auto print = [&](Text& t, const char* str) {
                      t.assign(str);
                      pfrm.screen().clear();
@@ -7383,10 +7408,8 @@ void mb_server_setup_vram(Platform& pfrm)
 
     pfrm.load_sprite_texture("spritesheet");
     pfrm.load_background_texture("background");
-    pfrm.load_tile0_texture("tilesheet_interior");
-    pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
 
-    pfrm.screen().schedule_fade(1.f);
+    // pfrm.screen().schedule_fade(1.f);
 
     print(text2, "mb handshake...");
 

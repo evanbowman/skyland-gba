@@ -206,11 +206,16 @@ void Decimator::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-void Decimator::render_interior(App& app, TileId buffer[16][16])
+void Decimator::render_interior(App* app, TileId buffer[16][16])
 {
     auto pos = position();
 
-    if (parent() == &app.player_island()) {
+    bool right = false;
+    if (app) {
+        right = parent() == &app->player_island();
+    }
+
+    if (right) {
         buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
         buffer[pos.x + 1][pos.y + 1] = InteriorTile::decimator_2;
         buffer[pos.x][pos.y + 1] = InteriorTile::plain_floor;
@@ -225,11 +230,16 @@ void Decimator::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Decimator::render_exterior(App& app, TileId buffer[16][16])
+void Decimator::render_exterior(App* app, TileId buffer[16][16])
 {
     auto pos = position();
 
-    if (parent() == &app.player_island()) {
+    bool right = false;
+    if (app) {
+        right = parent() == &app->player_island();
+    }
+
+    if (right) {
         buffer[pos.x + 1][pos.y] = Tile::decimator_1;
         buffer[pos.x + 1][pos.y + 1] = Tile::decimator_2;
         buffer[pos.x][pos.y] = Tile::armored_wall_1;

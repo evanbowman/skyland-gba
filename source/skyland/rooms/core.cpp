@@ -71,7 +71,7 @@ void Core::finalize(Platform& pfrm, App& app)
 
 
 
-void Core::render_interior(App& app, TileId buffer[16][16])
+void Core::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::core_1;
     buffer[position().x][position().y + 1] = InteriorTile::core_2;
@@ -81,7 +81,7 @@ void Core::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Core::render_exterior(App& app, TileId buffer[16][16])
+void Core::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;
@@ -142,7 +142,7 @@ void BackupCore::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-void BackupCore::render_interior(App& app, TileId buffer[16][16])
+void BackupCore::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::core_1;
     buffer[position().x][position().y + 1] = InteriorTile::core_2;

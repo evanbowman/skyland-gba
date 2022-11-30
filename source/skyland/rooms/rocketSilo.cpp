@@ -127,7 +127,7 @@ Microseconds RocketSilo::reload() const
 
 
 
-void RocketSilo::render_interior(App& app, TileId buffer[16][16])
+void RocketSilo::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::rocket_silo_1;
     buffer[position().x][position().y + 1] = InteriorTile::rocket_silo_2;
@@ -136,7 +136,7 @@ void RocketSilo::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void RocketSilo::render_exterior(App& app, TileId buffer[16][16])
+void RocketSilo::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::rocket_silo_1;
     buffer[position().x][position().y + 1] = Tile::rocket_silo_2;

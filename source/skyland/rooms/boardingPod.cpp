@@ -602,7 +602,7 @@ void BoardingPod::render_scaffolding(App& app, TileId buffer[16][16])
 
 
 
-void BoardingPod::render_interior(App& app, TileId buffer[16][16])
+void BoardingPod::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::boarding_pod1;
     buffer[position().x + 1][position().y] = InteriorTile::boarding_pod2;
@@ -614,7 +614,7 @@ void BoardingPod::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void BoardingPod::render_exterior(App& app, TileId buffer[16][16])
+void BoardingPod::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::boarding_pod1;
     buffer[position().x + 1][position().y] = Tile::boarding_pod2;

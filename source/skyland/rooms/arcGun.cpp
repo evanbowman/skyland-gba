@@ -112,14 +112,14 @@ Microseconds ArcGun::reload() const
 
 
 
-void ArcGun::render_interior(App& app, TileId buffer[16][16])
+void ArcGun::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::arc_gun;
 }
 
 
 
-void ArcGun::render_exterior(App& app, TileId buffer[16][16])
+void ArcGun::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::arc_gun;
 }

@@ -342,7 +342,7 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 }
 
 
-void Transporter::render_interior(App& app, TileId buffer[16][16])
+void Transporter::render_interior(App* app, TileId buffer[16][16])
 {
     if (recharge_) {
         buffer[position().x][position().y] = InteriorTile::transporter_recharge;
@@ -354,7 +354,7 @@ void Transporter::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void Transporter::render_exterior(App& app, TileId buffer[16][16])
+void Transporter::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

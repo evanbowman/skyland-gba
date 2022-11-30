@@ -90,11 +90,17 @@ void SparkCannon::on_lightning_rewind(Platform& pfrm, App& app)
 
 
 
-void SparkCannon::render_interior(App& app, TileId buffer[16][16])
+void SparkCannon::render_interior(App* app, TileId buffer[16][16])
 {
     int x1 = 0;
     int x2 = 1;
-    if (parent() not_eq &app.player_island()) {
+
+    bool right = false;
+    if (app) {
+        right = parent() == &app->player_island();
+    }
+
+    if (not right) {
         std::swap(x1, x2);
     }
     switch (level_) {
@@ -114,11 +120,17 @@ void SparkCannon::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void SparkCannon::render_exterior(App& app, TileId buffer[16][16])
+void SparkCannon::render_exterior(App* app, TileId buffer[16][16])
 {
     int x1 = 0;
     int x2 = 1;
-    if (parent() not_eq &app.player_island()) {
+
+    bool right = false;
+    if (app) {
+        right = parent() == &app->player_island();
+    }
+
+    if (not right) {
         std::swap(x1, x2);
     }
     switch (level_) {

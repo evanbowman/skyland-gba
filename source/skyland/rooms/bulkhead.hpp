@@ -42,8 +42,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, TileId buffer[16][16]) override;
-    void render_exterior(App& app, TileId buffer[16][16]) override;
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override

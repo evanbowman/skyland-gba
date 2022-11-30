@@ -161,7 +161,7 @@ void TargetingComputer::___rewind___finished_reload(Platform& pfrm, App& app)
 
 
 
-void TargetingComputer::render_interior(App& app, TileId buffer[16][16])
+void TargetingComputer::render_interior(App* app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
@@ -177,7 +177,7 @@ void TargetingComputer::render_interior(App& app, TileId buffer[16][16])
 
 
 
-void TargetingComputer::render_exterior(App& app, TileId buffer[16][16])
+void TargetingComputer::render_exterior(App* app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
