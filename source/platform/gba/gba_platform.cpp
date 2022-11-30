@@ -7409,7 +7409,7 @@ void mb_server_setup_vram(Platform& pfrm)
     pfrm.load_sprite_texture("spritesheet");
     pfrm.load_background_texture("background");
 
-    // pfrm.screen().schedule_fade(1.f);
+    pfrm.screen().schedule_fade(1.f);
 
     print(text2, "mb handshake...");
 
