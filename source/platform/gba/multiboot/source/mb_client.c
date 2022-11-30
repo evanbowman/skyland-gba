@@ -126,19 +126,6 @@ struct MultiplayerComms
 
 
 
-void comms_init()
-{
-    packet_pool_init();
-
-    for (int i = 0; i < sizeof mc; ++i) {
-        ((u8*)&mc)[i] = 0;
-    }
-
-    mc.rx_current_all_zeroes = true;
-}
-
-
-
 static TxInfo* tx_ring_pop()
 {
     TxInfo* msg = NULL;
@@ -236,11 +223,43 @@ static void multiplayer_rx_receive()
 }
 
 
-static bool multiplayer_busy()
+
+static void multiplayer_tx_send()
 {
-    return REG_SIOCNT & SIO_START;
+    if (mc.tx_iter_state == MESSAGE_ITERS) {
+        if (mc.tx_current_message) {
+            packet_pool_free(mc.tx_current_message);
+        }
+        mc.tx_current_message = tx_ring_pop();
+        mc.tx_iter_state = 0;
+    }
+
+    if (mc.tx_current_message) {
+        REG_SIOMLT_SEND = mc.tx_current_message->data_[mc.tx_iter_state++];
+    } else {
+        mc.null_bytes_written += 2;
+        mc.tx_iter_state++;
+        REG_SIOMLT_SEND = 0;
+    }
 }
 
+
+
+static void multiplayer_schedule_tx()
+{
+    multiplayer_tx_send();
+}
+
+
+static void multiplayer_serial_isr()
+{
+    if (multiplayer_error()) {
+        return;
+    }
+
+    multiplayer_rx_receive();
+    multiplayer_schedule_tx();
+}
 
 
 u16 mb_exchange(u16 value)
@@ -254,7 +273,7 @@ u16 mb_exchange(u16 value)
 
 
 u16* isr_vram_out_addr;
-int isr_vram_write_state = 0;
+volatile int isr_vram_write_state = 0;
 int isr_vram_write_counter;
 
 
@@ -325,7 +344,113 @@ void mb_client_receive_vram()
     irqEnable(IRQ_SERIAL);
     irqSet(IRQ_SERIAL, multi_vram_setup_isr);
 
-    while (true) ;
+    while (isr_vram_write_state != 5) ;
+}
+
+
+
+bool multiplayer_send_message(u8* data)
+{
+    if (mc.tx_ring[mc.tx_ring_write_pos]) {
+        WireMessage* lost_message = mc.tx_ring[mc.tx_ring_write_pos];
+        mc.tx_ring[mc.tx_ring_write_pos] = NULL;
+        packet_pool_free(lost_message);
+    }
+
+    WireMessage* msg = packet_pool_alloc();
+    if (msg == NULL) {
+        // error! Could not transmit messages fast enough, i.e. we've exhausted
+        // the message pool! How to handle this condition!?
+        return false;
+    }
+
+    __builtin_memcpy(msg->data_, data, 6);
+
+    mc.tx_ring[mc.tx_ring_write_pos] = msg;
+    mc.tx_ring_write_pos += 1;
+    mc.tx_ring_write_pos %= TX_RING_SIZE;
+
+    return true;
+}
+
+
+
+WireMessage* multiplayer_poll_message()
+{
+    if (mc.rx_iter_state == MESSAGE_ITERS) {
+        return NULL;
+    }
+    WireMessage* msg = rx_ring_pop();
+    if (msg) {
+        if (mc.poller_current_message != NULL) {
+            // failure to deallocate/consume message!
+            // TODO: raise error...
+            while (1);
+        }
+        mc.poller_current_message = msg;
+        return msg;
+    }
+    return NULL;
+}
+
+
+
+void multiplayer_poll_consume()
+{
+    if (mc.poller_current_message) {
+        packet_pool_free(mc.poller_current_message);
+    } else {
+        while (1) ;
+    }
+    mc.poller_current_message = NULL;
+}
+
+
+
+void comms_init()
+{
+    REG_SIOCNT = 0;
+
+    packet_pool_init();
+
+    for (int i = 0; i < sizeof mc; ++i) {
+        ((u8*)&mc)[i] = 0;
+    }
+
+    mc.rx_current_all_zeroes = true;
+
+    REG_RCNT = R_MULTI;
+    REG_SIOCNT = SIO_MULTI;
+    REG_SIOCNT = REG_SIOCNT | SIO_IRQ | SIO_115200;
+
+    irqEnable(IRQ_SERIAL);
+    irqSet(IRQ_SERIAL, multiplayer_serial_isr);
+
+    REG_SIOMLT_SEND = 0x5555;
+
+    while (!multiplayer_validate()) {
+        // ...
+    }
+
+    const char* handshake =
+        "lnsk06"; // Link cable program, skyland, 6 byte packet.
+
+    multiplayer_send_message((u8*)handshake);
+
+    multiplayer_schedule_tx();
+
+    while (1) {
+        WireMessage* msg = multiplayer_poll_message();
+        if (msg) {
+            for (u32 i = 0; i < sizeof handshake; ++i) {
+                if (((u8*)msg->data_)[i] != handshake[i]) {
+                    while (1) ; // failed handshake
+                }
+            }
+            multiplayer_poll_consume(6);
+            return;
+        }
+    }
 }
 
 
@@ -363,6 +488,56 @@ void init_palettes()
 
 
 
+// NOTE: see skyland/network.hpp for message definitions.
+enum ServerMessageType {
+#include "skyland/network_header_enum"
+};
+
+
+
+void process_server_message(u8* message)
+{
+    switch (message[0]) {
+    case invalid:
+        break;
+
+    case heartbeat:
+        send_message(message); // echo
+        break;
+
+    case room_constructed:
+        // TODO...
+        break;
+
+    case terrain_constructed:
+        break;
+
+    case room_salvaged:
+        break;
+
+    default:
+        // ignored...
+        break;
+    }
+}
+
+
+
+void multiplayer_message_loop()
+{
+    WireMessage* msg;
+    do {
+        msg = multiplayer_poll_message();
+        if (msg) {
+            process_server_message((u8*)msg->data_);
+            multiplayer_poll_consume(6);
+            return;
+        }
+    } while (msg);
+}
+
+
+
 int main()
 {
     init_palettes();
@@ -393,6 +568,7 @@ int main()
 
 
     while (1) {
+        multiplayer_message_loop();
         VBlankIntrWait();
     }
 }

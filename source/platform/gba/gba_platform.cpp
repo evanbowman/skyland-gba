@@ -5547,7 +5547,7 @@ struct MultiplayerComms
     int tx_message_count = 0;
 
 
-    static constexpr const int tx_ring_size = 32;
+    static constexpr const int tx_ring_size = 64;
     ObjectPool<TxInfo, tx_ring_size> tx_message_pool;
 
     int tx_ring_write_pos = 0;
@@ -5947,6 +5947,8 @@ MASTER_RETRY:
 
     // Put this here for now, not sure whether it's really necessary...
     REG_SIOMLT_SEND = 0x5555;
+
+    ::platform->delta_clock().reset();
 
     while (not multiplayer_validate()) {
         delta += ::platform->delta_clock().reset();
@@ -7371,6 +7373,8 @@ void mb_server_setup_vram(Platform& pfrm)
     Text text3(pfrm, {1, 5});
     Text text4(pfrm, {1, 7});
     Text text5(pfrm, {1, 9});
+    Text text6(pfrm, {1, 11});
+    Text text7(pfrm, {1, 13});
     pfrm.screen().display();
 
     pfrm.load_tile0_texture("tilesheet_interior");
@@ -7483,6 +7487,23 @@ void mb_server_setup_vram(Platform& pfrm)
 
     watchdog_counter = 0;
     set_gflag(GlobalFlag::watchdog_disabled, false);
+
+    REG_SIOCNT = 0;
+
+    for (int i = 0; i < 120; ++i) {
+        VBlankIntrWait();
+    }
+
+    print(text6, "init link...");
+
+    multiplayer_init();
+
+    if (pfrm.network_peer().is_connected()) {
+        print(text7, "success!");
+        for (int i = 0; i < 60; ++i) {
+            VBlankIntrWait();
+        }
+    }
 }
 
 
