@@ -40,6 +40,7 @@ enum class StateBit {
     crane_game_got_treasure,
     disable_autopause,
     successful_multiplayer_connect,
+    multiboot,
     count,
 };
 

@@ -61,6 +61,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
     }
 
             HANDLE_MESSAGE(packet::RoomConstructed)
+            HANDLE_MESSAGE(packet::OpponentRoomCreated)
             HANDLE_MESSAGE(packet::RoomSalvaged)
             HANDLE_MESSAGE(packet::TerrainConstructed)
             HANDLE_MESSAGE(packet::WeaponSetTarget)

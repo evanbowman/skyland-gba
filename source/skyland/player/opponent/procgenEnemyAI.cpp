@@ -29,6 +29,7 @@
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -92,6 +93,28 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             g.multiplayer_prep_seconds_ = prep_seconds;
             g.multiplayer_pauses_remaining_ = 3;
             g.multiplayer_pause_owner_ = false;
+
+            if (state_bit_load(app, StateBit::multiboot)) {
+                // The multiboot peer doesn't run the same game logic, it's just
+                // an empty shell that recieves all updates from the server host
+                // (this code). We need to tell the multiboot instance what the
+                // opponent's island looks like.
+
+                int counter = 0;
+                for (auto& room : app.opponent_island()->rooms()) {
+                    if (++counter == 16) {
+                        counter = 0;
+                        // Wait for some queued transmits to finish
+                        pfrm.sleep(4);
+                    }
+
+                    network::packet::OpponentRoomCreated p;
+                    p.x_ = room->position().x;
+                    p.y_ = room->position().y;
+                    p.metaclass_index_.set(room->metaclass_index());
+                    network::transmit(pfrm, p);
+                }
+            }
         }
     } else {
         auto mt_prep_seconds = globals().multiplayer_prep_seconds_;

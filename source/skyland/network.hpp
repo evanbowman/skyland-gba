@@ -91,6 +91,19 @@ struct RoomConstructed
 
 
 
+struct OpponentRoomCreated
+{
+    Header header_;
+    HostInteger<MetaclassIndex> metaclass_index_;
+    u8 x_;
+    u8 y_;
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::opponent_room_created;
+};
+
+
+
 struct TerrainConstructed
 {
     Header header_;
@@ -108,7 +121,8 @@ struct RoomSalvaged
     u8 x_;
     u8 y_;
 
-    u8 unused_[3];
+    HostInteger<MetaclassIndex> metaclass_index_;
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::room_salvaged;
 };
@@ -583,11 +597,9 @@ struct CoOpSyncBlock
 {
     Header header_;
     u8 block_metaclass_index_;
-    u8 block_x_ : 4;
-    u8 block_y_ : 4;
+    u8 block_x_;
+    u8 block_y_;
     HostInteger<u16> health_;
-
-    u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_sync_block;
 };
@@ -904,6 +916,14 @@ public:
 
 
     virtual void receive(Platform& pfrm, App& app, const packet::CoOpSyncEnd& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm,
+                         App& app,
+                         const packet::OpponentRoomCreated& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

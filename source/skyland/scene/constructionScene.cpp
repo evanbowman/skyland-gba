@@ -1361,7 +1361,9 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
                  RoomProperties::skyland_forever_unsupported) or
             (app.gp_.difficulty_ not_eq
                  GlobalPersistentData::Difficulty::beginner and
-             meta->properties() & RoomProperties::easy_mode_only);
+             meta->properties() & RoomProperties::easy_mode_only) or
+            (state_bit_load(app, StateBit::multiboot) and not
+             (meta->properties() & RoomProperties::multiboot_compatible));
 
         if (i >= app.gp_.hidden_rooms_.size()) {
             Platform::fatal("hidden rooms Bitvector requires resize!");

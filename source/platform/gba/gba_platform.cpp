@@ -7357,6 +7357,7 @@ u16 mb_exchange(u16 value)
 // do? This multiboot code is very gba specific, as it involves distributing
 // tile graphics over a link cable...
 #include "skyland/room_metatable.hpp"
+#include "skyland/tile.hpp"
 #include "multiboot_room_metatable.h"
 
 
@@ -7378,6 +7379,7 @@ void mb_server_setup_vram(Platform& pfrm)
     Text text6(pfrm, {1, 11});
     Text text7(pfrm, {1, 13});
     Text text8(pfrm, {1, 15});
+    Text text9(pfrm, {1, 18});
     pfrm.screen().display();
 
     pfrm.load_tile0_texture("tilesheet_interior");
@@ -7386,6 +7388,16 @@ void mb_server_setup_vram(Platform& pfrm)
     auto mt_buffer = allocate_dynamic<SharedRoomMetatable>("mb-buffer");
 
     using namespace skyland;
+
+    // Map terrain tiles into vram
+    pfrm.map_tile0_chunk(Tile::terrain_middle);
+    pfrm.map_tile1_chunk(Tile::terrain_middle);
+    pfrm.map_tile0_chunk(Tile::terrain_left);
+    pfrm.map_tile1_chunk(Tile::terrain_left);
+    pfrm.map_tile0_chunk(Tile::terrain_right);
+    pfrm.map_tile1_chunk(Tile::terrain_right);
+
+
     auto [mt, ms] = room_metatable();
     int mt_copy_index = 0;
     for (int i = 0; i < ms; ++i) {
@@ -7398,6 +7410,7 @@ void mb_server_setup_vram(Platform& pfrm)
             auto& shared_mt = mt_buffer->metaclasses_[mt_copy_index++];
             shared_mt.size_x_ = meta->size().x;
             shared_mt.size_y_ = meta->size().y;
+            shared_mt.metaclass_index_ = i;
 
             const char* name = meta->name();
             memset(shared_mt.name_, '\0', sizeof(shared_mt.name_));
@@ -7455,10 +7468,27 @@ void mb_server_setup_vram(Platform& pfrm)
     // TODO: handshake with multiboot program
     // TODO: tell multiboot program how many tiles we'll be sending over
 
+    const u32 iters = (vram_tile_size() * 8 * 126) / sizeof(u16);
+    const u32 mt_iters = sizeof(*mt_buffer) / sizeof(u16);
+    const u32 bg_iters = (vram_tile_size() * 127) / sizeof(u16);
+    const u32 t0_iters = (vram_tile_size() * 4 * 111) / sizeof(u16);
+
+    int iter_count = 0;
+    auto on_iter =
+        [&]() {
+            const u32 total_iters = iters + mt_iters + bg_iters + t0_iters * 2;
+            ++iter_count;
+            if (iter_count % 256 == 0) {
+                print(text9, format("(total %/100%)",
+                                    100 * (float(iter_count) / total_iters),
+                                    "%").c_str());
+            }
+        };
+
+
     print(text2, "transfer sprites...");
 
     auto spritesheet_mem = ((u16*)&MEM_TILE[4][1]);
-    const u32 iters = (vram_tile_size() * 8 * 126) / sizeof(u16);
     for (u32 i = 0; i < iters; ++i) {
         mb_exchange(spritesheet_mem[i]);
         if (i % 128 == 0) {
@@ -7466,12 +7496,12 @@ void mb_server_setup_vram(Platform& pfrm)
                                 100 * (float(i) / iters),
                                 "%").c_str());
         }
+        on_iter();
     }
     print(text2, "transfer sprites... 100/100%");
 
     print(text3, "transfer clouds...");
     auto background_mem = (u16*)&MEM_SCREENBLOCKS[sbb_background_texture][0];
-    const u32 bg_iters = (vram_tile_size() * 127) / sizeof(u16);
     for (u32 i = 0; i < bg_iters; ++i) {
         mb_exchange(background_mem[i]);
         if (i % 128 == 0) {
@@ -7479,13 +7509,13 @@ void mb_server_setup_vram(Platform& pfrm)
                                 100 * (float(i) / bg_iters),
                                 "%").c_str());
         }
+        on_iter();
     }
     print(text3, "transfer clouds... 100/100%");
 
 
     print(text4, "transfer tile0...");
     auto t0_mem = (u16*)&MEM_SCREENBLOCKS[sbb_t0_texture][0];
-    const u32 t0_iters = (vram_tile_size() * 4 * 111) / sizeof(u16);
     for (u32 i = 0; i < t0_iters; ++i) {
         mb_exchange(t0_mem[i]);
         if (i % 128 == 0) {
@@ -7493,6 +7523,7 @@ void mb_server_setup_vram(Platform& pfrm)
                                 100 * (float(i) / t0_iters),
                                 "%").c_str());
         }
+        on_iter();
     }
     print(text4, "transfer tile0... 100/100%");
 
@@ -7505,19 +7536,24 @@ void mb_server_setup_vram(Platform& pfrm)
                                 100 * (float(i) / t0_iters),
                                 "%").c_str());
         }
+        on_iter();
     }
     print(text5, "transfer tile1... 100/100%");
 
     print(text6, "sharing metatable...");
 
-    const auto mt_iters = sizeof(*mt_buffer) / sizeof(u16);
     for (u32 i = 0; i < mt_iters; ++i) {
         mb_exchange(((u16*)&*mt_buffer)[i]);
-        print(text6, format("sharing metatable... %/100%",
-                            100 * (float(i) / mt_iters),
-                            "%").c_str());
+        if (i % 128 == 0) {
+            print(text6, format("sharing metatable... %/100%",
+                                100 * (float(i) / mt_iters),
+                                "%").c_str());
+        }
+        on_iter();
     }
     print(text6, "sharing metatable... 100/100%");
+
+    on_iter();
 
 
     watchdog_counter = 0;
@@ -7542,7 +7578,6 @@ void mb_server_setup_vram(Platform& pfrm)
 
 
 }
-
 
 
 #endif // __GBA__

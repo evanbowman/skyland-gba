@@ -12,6 +12,244 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <string.h>
+static void mgba_log(const char* msg)
+{
+    *(volatile uint16_t*)(0x4FFF780) = 0xC0DE;
+
+    char* reg_debug_string = (char*)(0x4FFF600);
+    int characters_left = strlen(msg);
+
+    while (characters_left > 0) {
+        volatile u16* reg_debug_flags = (u16*)(0x4FFF700);
+
+        int characters_to_write = characters_left;
+        __builtin_memcpy(reg_debug_string, msg, characters_to_write);
+        *reg_debug_flags = 2 | 0x100;
+        msg += characters_to_write;
+        characters_left -= characters_to_write;
+    }
+}
+
+
+
+bool game_paused = false;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CursorData
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+typedef struct CursorData
+{
+    u8 near_cursor_x;
+    u8 near_cursor_y;
+    u8 far_cursor_x;
+    u8 far_cursor_y;
+    u8 cursor_sprite;
+    bool cursor_is_far;
+    u8 cursor_anim_counter;
+
+    u8 co_op_cursor_x;
+    u8 co_op_cursor_y;
+    u8 co_op_cursor_sprite;
+    bool co_op_cursor_is_far;
+} CursorData;
+
+
+
+CursorData cursor_data;
+
+
+
+void CursorData_update()
+{
+    if (++cursor_data.cursor_anim_counter == 12) {
+        cursor_data.cursor_anim_counter = 0;
+        cursor_data.cursor_sprite = !cursor_data.cursor_sprite;
+    }
+}
+
+
+
+void CursorData_init()
+{
+    memset(&cursor_data, 0, sizeof cursor_data);
+    cursor_data.near_cursor_x = 0;
+    cursor_data.near_cursor_y = 14;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Camera
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+struct Camera
+{
+    s16 view_offset_x;
+    s16 view_offset_y;
+} camera;
+
+
+
+void Camera_init()
+{
+
+}
+
+
+
+void Camera_update()
+{
+    // TODO...
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Island
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+typedef struct Island
+{
+    u16 x_pos;
+    u16 y_pos;
+} Island;
+
+
+
+Island player_island;
+Island opponent_island;
+
+
+
+void Island_move(Island* self, u16 x_pos, u16 y_pos)
+{
+    self->x_pos = x_pos;
+    self->y_pos = y_pos;
+}
+
+
+
+void Island_update(Island* island)
+{
+    // TODO...
+}
+
+
+
+void Island_display(Island* island)
+{
+    s16 x_scroll = -island->x_pos + -camera.view_offset_x;
+    s16 y_scroll = -island->y_pos + -camera.view_offset_y;
+
+    if (island == &player_island) {
+        BG0_X_SCROLL = x_scroll;
+        BG0_Y_SCROLL = y_scroll;
+    } else {
+        BG3_X_SCROLL = x_scroll;
+        BG3_Y_SCROLL = y_scroll;
+    }
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Scene
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+typedef struct Scene
+{
+    struct Scene* (*update)(struct Scene* self);
+    void (*display)();
+    void (*enter)(struct Scene* prev);
+    void (*exit)(struct Scene* next);
+} Scene;
+
+
+
+Scene* scene_current;
+
+
+
+void scene_bind(Scene* new_scene)
+{
+    scene_current = new_scene;
+}
+
+
+
+void scene_update()
+{
+    scene_current->update(scene_current);
+}
+
+
+
+void scene_display()
+{
+    scene_current->display();
+}
+
+
+
+struct ReadyScene
+{
+    Scene scene;
+} ready_scene;
+
+
+
+Scene* ReadyScene_update()
+{
+    Island_update(&player_island);
+    Island_update(&opponent_island);
+
+    CursorData_update();
+
+    return NULL;
+}
+
+
+
+void ReadyScene_display()
+{
+    Island_display(&player_island);
+    Island_display(&opponent_island);
+}
+
+
+
+Scene* ReadyScene_init()
+{
+    ready_scene.scene.update = ReadyScene_update;
+    ready_scene.scene.enter = NULL;
+    ready_scene.scene.exit = NULL;
+    return &ready_scene.scene;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -21,6 +259,18 @@
 
 
 SharedRoomMetatable room_metatable;
+
+
+
+SharedMetaclass* load_metaclass(u8 metaclass_index)
+{
+    for (int i = 0; i < SHARED_MT_COUNT; ++i) {
+        if (room_metatable.metaclasses_[i].metaclass_index_ == metaclass_index) {
+            return &room_metatable.metaclasses_[i];
+        }
+    }
+    return NULL;
+}
 
 
 
@@ -43,12 +293,42 @@ typedef enum Layer {
 
 
 
+static void tile_set_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
+{
+    u8 screen_block = base;
+    if (x > 15) {
+        x %= 16;
+        screen_block = base + 1;
+    }
+#define REF(X, Y) ((X) * 2 + (Y) * 32 * 2)
+
+    MEM_SCREENBLOCKS[screen_block][0 + REF(x % 16, y)] =
+        (tile_id * 4 + 0) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][1 + REF(x % 16, y)] =
+        (tile_id * 4 + 1) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][0 + REF(x % 16, y) + 32] =
+        (tile_id * 4 + 2) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][1 + REF(x % 16, y) + 32] =
+        (tile_id * 4 + 3) | SE_PALBANK(palette);
+
+#undef REF
+}
+
+
+
 static void tile_set(Layer layer,
               u16 x,
               u16 y,
               u16 val)
 {
     switch (layer) {
+
+    default:
+        break;
+
     /* case Layer::overlay: */
     /*     if (x > 31 or y > 31) { */
     /*         return; */
@@ -56,14 +336,12 @@ static void tile_set(Layer layer,
     /*     set_overlay_tile(*this, x, y, val, 1); */
     /*     break; */
 
-    /* case Layer::map_1_ext: */
-    /*     set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 2); */
-    /*     break; */
+    case layer_map_1_ext:
+        tile_set_16p(sbb_t1_tiles, x, y, val, 1);
+        break;
 
-    /* case Layer::map_0_ext: */
-    /*     set_map_tile_16p(sbb_t0_tiles, x, y, val, palette ? *palette : 0); */
-    /*     break; */
-    default:
+    case layer_map_0_ext:
+        tile_set_16p(sbb_t0_tiles, x, y, val, 0);
         break;
 
     case layer_background:
@@ -98,6 +376,22 @@ static void cloud_block_put_fg(int x, int type)
 static void cloud_block_put_bg(int x, int type)
 {
     cloud_block_put(x * 2, 14, 32 + type * 4);
+}
+
+
+
+static void terrain_init(Layer layer, u8 size)
+{
+    int palette = 0;
+    if (layer == layer_map_1_ext) {
+        palette = 2;
+    }
+
+    tile_set_16p(layer, 0, 15, 9, palette);
+    for (int x = 0; x < size - 2; ++x) {
+        tile_set_16p(layer, 1 + x, 15, 8, palette);
+    }
+    tile_set_16p(layer, size - 1, 15, 10, palette);
 }
 
 
@@ -646,6 +940,28 @@ enum ServerMessageType {
 };
 
 
+typedef u8 ClientMessage[6];
+
+
+
+void draw_room(u8 metaclass_index, u8 rx, u8 ry, Layer layer)
+{
+    SharedMetaclass* mt = load_metaclass(metaclass_index);
+    if (mt) {
+
+        int t = 0;
+        for (int y = 0; y < mt->size_y_; ++y) {
+            for (int x = 0; x < mt->size_x_; ++x) {
+                tile_set(layer,
+                         rx + x,
+                         ry + y,
+                         mt->tiles_[t++]);
+            }
+        }
+    }
+}
+
+
 
 void process_server_message(u8* message)
 {
@@ -657,14 +973,61 @@ void process_server_message(u8* message)
         multiplayer_send_message(message); // echo
         break;
 
+    case opponent_room_created:
+        draw_room(message[1], message[3], message[4], layer_map_1_ext);
+        break;
+
     case room_constructed:
-        // TODO...
+        draw_room(message[1], message[3], message[4], layer_map_0_ext);
         break;
 
     case terrain_constructed:
+        terrain_init(layer_map_0_ext, message[1]);
+        break;
+
+    case room_destroyed:
+        // TODO...
         break;
 
     case room_salvaged:
+        // TODO...
+        break;
+
+    case co_op_room_lock_acquire: {
+        // FIXME: this code yields the lock to the host console in all
+        // cases... but is that really a problem? Just let the server host be
+        // the ultimate decider upon any conflicts.
+        ClientMessage out;
+        out[0] = co_op_room_lock_response;
+        out[1] = message[1];
+        out[2] = message[2];
+        out[3] = 0;
+        multiplayer_send_message(out);
+        break;
+    }
+
+    case co_op_cursor: {
+        cursor_data.co_op_cursor_x = message[1];
+        cursor_data.co_op_cursor_y = message[2];
+        cursor_data.co_op_cursor_is_far = !message[3];
+        cursor_data.co_op_cursor_sprite = message[4];
+        break;
+    }
+
+    case paused:
+        game_paused = message[1];
+        break;
+
+    case co_op_sync_begin:
+        // TODO...
+        break;
+
+    case co_op_sync_block:
+        draw_room(message[1], message[2], message[3], layer_map_0_ext);
+        break;
+
+    case co_op_sync_end:
+        // TODO...
         break;
 
     default:
@@ -696,13 +1059,7 @@ int main()
 
 
     REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE | BG1_ENABLE |
-                  BG2_ENABLE | BG3_ENABLE | WIN0_ENABLE;
-
-    irqInit();
-
-    mb_client_receive_vram();
-
-    irqEnable(IRQ_VBLANK);
+                  BG2_ENABLE | BG3_ENABLE /* | WIN0_ENABLE */;
 
     BG0_CONTROL = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) | BG_REG_64x32 |
                   BG_PRIORITY(2) | BG_MOSAIC;
@@ -716,12 +1073,35 @@ int main()
     BG2_CONTROL = BG_CBB(cbb_overlay_texture) | BG_SBB(sbb_overlay_tiles) |
                   BG_PRIORITY(0) | BG_MOSAIC;
 
+    irqInit();
+
+    mb_client_receive_vram();
+
+    irqEnable(IRQ_VBLANK);
+
     comms_init();
 
     clouds_init();
 
+    CursorData_init();
+    Camera_init();
+
+    scene_bind(ReadyScene_init());
+
     while (1) {
         multiplayer_message_loop();
+
+        ClientMessage cursor_msg;
+        cursor_msg[0] = co_op_cursor;
+        cursor_msg[1] = cursor_data.near_cursor_x;
+        cursor_msg[2] = cursor_data.near_cursor_y;
+        cursor_msg[3] = !cursor_data.cursor_is_far;
+        cursor_msg[4] = cursor_data.cursor_sprite;
+        multiplayer_send_message(cursor_msg);
+
+        Camera_update();
+
+        scene_update();
         VBlankIntrWait();
     }
 }

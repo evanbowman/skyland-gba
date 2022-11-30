@@ -22,6 +22,10 @@ static constexpr const char* lang_file = "/lang.txt";
 
 
 
+void init_clouds(Platform& pfrm);
+
+
+
 void __draw_image(Platform& pfrm,
                   TileDesc start_tile,
                   u16 start_x,
@@ -296,17 +300,33 @@ public:
         // boot, then we've started a multiboot game, and should progress
         // immediately to a co op match after starting up.
         if (pfrm.network_peer().is_connected()) {
+            state_bit_store(app, StateBit::multiboot, true);
             globals().room_pools_.create("room-mem");
             globals().entity_pools_.create("entity-mem");
             app.time_stream().enable_pushes(false);
             app.invoke_script(pfrm, "/scripts/config/rooms.lisp");
             app.invoke_script(pfrm, "/scripts/config/damage.lisp");
             app.invoke_script(pfrm, "/scripts/config/timing.lisp");
+            init_clouds(pfrm);
+            pfrm.load_tile0_texture(app.environment().player_island_texture());
+            pfrm.load_tile1_texture(app.environment().opponent_island_texture());
+            pfrm.load_sprite_texture(app.environment().sprite_texture());
+            pfrm.load_background_texture(app.environment().background_texture());
+            pfrm.system_call("v-parallax", (void*)true);
             SkylandForever::init(pfrm, app, 1, rng::get(rng::critical_state));
             app.persistent_data().score_.set(0);
             app.set_coins(pfrm, std::max(0, app.coins() - 1000));
             app.swap_player<CoOpTeam>();
             app.game_mode() = App::GameMode::co_op;
+
+            for (auto& room : app.player_island().rooms()) {
+                network::packet::RoomConstructed packet;
+                packet.metaclass_index_.set(room->metaclass_index());
+                packet.x_ = room->position().x;
+                packet.y_ = room->position().y;
+                network::transmit(pfrm, packet);
+            }
+
             return scene_pool::alloc<FadeInScene>();
         }
 
