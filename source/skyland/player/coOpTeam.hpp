@@ -100,6 +100,11 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
+                 const network::packet::TerrainConstructedLeft& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
                  const network::packet::DynamiteActivated& packet) override;
 
 

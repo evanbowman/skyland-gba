@@ -7014,10 +7014,10 @@ void mb_server_setup_vram(Platform&);
 
 Platform::Platform()
 {
-    const bool mb_sent = mb_send_rom((u16*)gSkyland_MB_ROMData,
-                                     (u16*)((u8*)gSkyland_MB_ROMData +
-                                            gSkyland_MB_ROMSize),
-                                     MB_DEFAULT_TRIES / 8);
+    const bool mb_sent = false;// mb_send_rom((u16*)gSkyland_MB_ROMData,
+                         //             (u16*)((u8*)gSkyland_MB_ROMData +
+                         //                    gSkyland_MB_ROMSize),
+                         //             MB_DEFAULT_TRIES / 8);
 
     ::platform = this;
 

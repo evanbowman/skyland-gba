@@ -208,6 +208,44 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 
 
 
+void shift_rooms_left(Platform& pfrm, App& app, Island& island)
+{
+    auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
+    for (auto& room : island.rooms()) {
+        tmp->push_back(room.get());
+    }
+    for (auto& r : reversed(*tmp)) {
+        island.move_room(
+                               pfrm,
+                               app,
+                               r->position(),
+                               {(u8)(r->position().x + 1), r->position().y});
+    }
+    // NOTE: because we shifted all blocks to the right by one
+    // coordinate, a drone may now be inside of a block, which we
+    // don't want to deal with at the moment, so just destroy them
+    // all.
+    for (auto& d : island.drones()) {
+        d->apply_damage(pfrm, app, 999);
+    }
+    // Furthermore... all weapons on the players' island need to
+    // have their targets adjusted accordingly:
+    Island* other_island = (&island == &app.player_island())
+        ? app.opponent_island()
+        : &app.player_island();
+
+    if (other_island) {
+        for (auto& r : other_island->rooms()) {
+            if (auto t = r->get_target()) {
+                t->x += 1;
+                r->set_target(pfrm, app, *t);
+            }
+        }
+    }
+}
+
+
+
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -752,44 +790,16 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             island(app)->render_terrain(pfrm);
 
-            network::packet::TerrainConstructed packet;
-            packet.new_terrain_size_ = island(app)->terrain().size();
-            network::transmit(pfrm, packet);
-
 
             if (data_->construction_sites_[selector_].x == -1) {
-                auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
-                for (auto& room : island(app)->rooms()) {
-                    tmp->push_back(room.get());
-                }
-                for (auto& r : reversed(*tmp)) {
-                    island(app)->move_room(
-                        pfrm,
-                        app,
-                        r->position(),
-                        {(u8)(r->position().x + 1), r->position().y});
-                }
-                // NOTE: because we shifted all blocks to the right by one
-                // coordinate, a drone may now be inside of a block, which we
-                // don't want to deal with at the moment, so just destroy them
-                // all.
-                for (auto& d : island(app)->drones()) {
-                    d->apply_damage(pfrm, app, 999);
-                }
-                // Furthermore... all weapons on the players' island need to
-                // have their targets adjusted accordingly:
-                Island* other_island = (island(app) == &app.player_island())
-                                           ? app.opponent_island()
-                                           : &app.player_island();
-
-                if (other_island) {
-                    for (auto& r : other_island->rooms()) {
-                        if (auto t = r->get_target()) {
-                            t->x += 1;
-                            r->set_target(pfrm, app, *t);
-                        }
-                    }
-                }
+                shift_rooms_left(pfrm, app, *island(app));
+                network::packet::TerrainConstructedLeft packet;
+                packet.new_terrain_size_ = island(app)->terrain().size();
+                network::transmit(pfrm, packet);
+            } else {
+                network::packet::TerrainConstructed packet;
+                packet.new_terrain_size_ = island(app)->terrain().size();
+                network::transmit(pfrm, packet);
             }
 
             find_construction_sites(pfrm, app);
@@ -1185,8 +1195,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     const auto& terrain = island(app)->terrain();
     if (not terrain.full() and
-        app.game_mode() not_eq App::GameMode::multiplayer and
-        app.game_mode() not_eq App::GameMode::co_op) {
+        app.game_mode() not_eq App::GameMode::multiplayer) {
         // Construct terrain on lefthand side of island
         data_->construction_sites_.push_back({-1, 15});
     }

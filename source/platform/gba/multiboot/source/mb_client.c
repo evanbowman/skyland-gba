@@ -36,6 +36,76 @@ static void mgba_log(const char* msg)
 bool game_paused = false;
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Buttons
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+typedef enum Key {
+    key_action_1,
+    key_action_2,
+    key_start,
+    key_select,
+    key_left,
+    key_right,
+    key_up,
+    key_down,
+    key_alt_1,
+    key_alt_2,
+    key_count,
+} Key;
+
+
+
+bool previous_keystates[key_count];
+bool current_keystates[key_count];
+
+
+
+void Keys_init()
+{
+    memset(previous_keystates, 0, sizeof previous_keystates);
+    memset(current_keystates, 0, sizeof current_keystates);
+}
+
+
+
+void Keys_poll()
+{
+    for (int i = 0; i < key_count; ++i) {
+        previous_keystates[i] = current_keystates[i];
+    }
+
+#define KEYS ((volatile u32*)0x04000130)
+    current_keystates[key_action_1] = ~(*KEYS) & KEY_A;
+    current_keystates[key_action_2] = ~(*KEYS) & KEY_B;
+    current_keystates[key_start] = ~(*KEYS) & KEY_START;
+    current_keystates[key_select] = ~(*KEYS) & KEY_SELECT;
+    current_keystates[key_right] = ~(*KEYS) & KEY_RIGHT;
+    current_keystates[key_left] = ~(*KEYS) & KEY_LEFT;
+    current_keystates[key_down] = ~(*KEYS) & KEY_DOWN;
+    current_keystates[key_up] = ~(*KEYS) & KEY_UP;
+    current_keystates[key_alt_1] = ~(*KEYS) & KEY_L;
+    current_keystates[key_alt_2] = ~(*KEYS) & KEY_R;
+}
+
+
+
+bool is_key_down(Key k)
+{
+    return current_keystates[k] && !previous_keystates[k];
+}
+
+
+
+bool is_key_pressed(Key k)
+{
+    return current_keystates[k];
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -47,16 +117,16 @@ bool game_paused = false;
 
 typedef struct CursorData
 {
-    u8 near_cursor_x;
-    u8 near_cursor_y;
-    u8 far_cursor_x;
-    u8 far_cursor_y;
+    s8 near_cursor_x;
+    s8 near_cursor_y;
+    s8 far_cursor_x;
+    s8 far_cursor_y;
     u8 cursor_sprite;
     bool cursor_is_far;
     u8 cursor_anim_counter;
 
-    u8 co_op_cursor_x;
-    u8 co_op_cursor_y;
+    s8 co_op_cursor_x;
+    s8 co_op_cursor_y;
     u8 co_op_cursor_sprite;
     bool co_op_cursor_is_far;
 } CursorData;
@@ -67,7 +137,7 @@ CursorData cursor_data;
 
 
 
-void CursorData_update()
+static void CursorData_update()
 {
     if (++cursor_data.cursor_anim_counter == 12) {
         cursor_data.cursor_anim_counter = 0;
@@ -77,7 +147,7 @@ void CursorData_update()
 
 
 
-void CursorData_init()
+static void CursorData_init()
 {
     memset(&cursor_data, 0, sizeof cursor_data);
     cursor_data.near_cursor_x = 0;
@@ -98,23 +168,29 @@ struct Camera
 {
     s16 view_offset_x;
     s16 view_offset_y;
+    s16 target_y;
+    s16 target_x;
 } camera;
 
 
 
-void Camera_init()
+static void Camera_init()
 {
-
+    memset(&camera, 0, sizeof camera);
 }
 
 
 
-void Camera_update()
+int clamp(int x, int floor, int ceil)
 {
-    // TODO...
+    if (x < floor) {
+        return floor;
+    } else if (x > ceil) {
+        return ceil;
+    } else {
+        return x;
+    }
 }
-
-
 
 
 
@@ -128,8 +204,9 @@ void Camera_update()
 
 typedef struct Island
 {
-    u16 x_pos;
-    u16 y_pos;
+    s16 x_pos;
+    s16 y_pos;
+    u8 terrain_size;
 } Island;
 
 
@@ -139,7 +216,7 @@ Island opponent_island;
 
 
 
-void Island_move(Island* self, u16 x_pos, u16 y_pos)
+static void Island_move(Island* self, u16 x_pos, u16 y_pos)
 {
     self->x_pos = x_pos;
     self->y_pos = y_pos;
@@ -147,17 +224,25 @@ void Island_move(Island* self, u16 x_pos, u16 y_pos)
 
 
 
-void Island_update(Island* island)
+static void Island_set_positions()
+{
+    Island_move(&player_island, 10, 374);
+    Island_move(&opponent_island, 350, 374);
+}
+
+
+
+static void Island_update(Island* island)
 {
     // TODO...
 }
 
 
 
-void Island_display(Island* island)
+static void Island_display(Island* island)
 {
-    s16 x_scroll = -island->x_pos + -camera.view_offset_x;
-    s16 y_scroll = -island->y_pos + -camera.view_offset_y;
+    s16 x_scroll = -island->x_pos + camera.view_offset_x;
+    s16 y_scroll = -island->y_pos + camera.view_offset_y;
 
     if (island == &player_island) {
         BG0_X_SCROLL = x_scroll;
@@ -193,21 +278,21 @@ Scene* scene_current;
 
 
 
-void scene_bind(Scene* new_scene)
+static void scene_bind(Scene* new_scene)
 {
     scene_current = new_scene;
 }
 
 
 
-void scene_update()
+static void scene_update()
 {
     scene_current->update(scene_current);
 }
 
 
 
-void scene_display()
+static void scene_display()
 {
     scene_current->display();
 }
@@ -221,19 +306,35 @@ struct ReadyScene
 
 
 
-Scene* ReadyScene_update()
+int dummy_2 = 0;
+
+
+static Scene* ReadyScene_update()
 {
     Island_update(&player_island);
     Island_update(&opponent_island);
 
     CursorData_update();
 
+    if (is_key_down(key_right)) {
+        ++cursor_data.near_cursor_x;
+    }
+    if (is_key_down(key_left) && cursor_data.near_cursor_x > 0) {
+        --cursor_data.near_cursor_x;
+    }
+    if (is_key_down(key_down) && cursor_data.near_cursor_y < 15) {
+        ++cursor_data.near_cursor_y;
+    }
+    if (is_key_down(key_up) && cursor_data.near_cursor_y > 0) {
+        --cursor_data.near_cursor_y;
+    }
+
     return NULL;
 }
 
 
 
-void ReadyScene_display()
+static void ReadyScene_display()
 {
     Island_display(&player_island);
     Island_display(&opponent_island);
@@ -241,9 +342,10 @@ void ReadyScene_display()
 
 
 
-Scene* ReadyScene_init()
+static Scene* ReadyScene_init()
 {
     ready_scene.scene.update = ReadyScene_update;
+    ready_scene.scene.display = ReadyScene_display;
     ready_scene.scene.enter = NULL;
     ready_scene.scene.exit = NULL;
     return &ready_scene.scene;
@@ -262,7 +364,7 @@ SharedRoomMetatable room_metatable;
 
 
 
-SharedMetaclass* load_metaclass(u8 metaclass_index)
+static SharedMetaclass* load_metaclass(u8 metaclass_index)
 {
     for (int i = 0; i < SHARED_MT_COUNT; ++i) {
         if (room_metatable.metaclasses_[i].metaclass_index_ == metaclass_index) {
@@ -500,7 +602,7 @@ WireMessage packet_pool_data[PACKET_POOL_SIZE];
 WireMessage* packet_pool;
 
 
-void packet_pool_init()
+static void packet_pool_init()
 {
     packet_pool = NULL;
 
@@ -513,7 +615,7 @@ void packet_pool_init()
 
 
 
-WireMessage* packet_pool_alloc()
+static WireMessage* packet_pool_alloc()
 {
     if (packet_pool) {
         WireMessage* result = packet_pool;
@@ -526,7 +628,7 @@ WireMessage* packet_pool_alloc()
 
 
 
-void packet_pool_free(WireMessage* packet)
+static void packet_pool_free(WireMessage* packet)
 {
     packet->next_ = packet_pool;
     packet_pool = packet;
@@ -698,22 +800,12 @@ static void multiplayer_serial_isr()
 }
 
 
-u16 mb_exchange(u16 value)
-{
-    REG_SIOMLT_SEND = value;
-    REG_SIOCNT = REG_SIOCNT | SIO_START;
-    while (REG_SIOCNT & SIO_START) ;
-    u16 result = REG_SIOMULTI1;
-    return result;
-}
-
-
 u16* isr_vram_out_addr;
 volatile int isr_vram_write_state = 0;
 int isr_vram_write_counter;
 
 
-void multi_vram_setup_isr()
+static void multi_vram_setup_isr()
 {
     switch (isr_vram_write_state) {
     case 0:
@@ -780,7 +872,7 @@ void multi_vram_setup_isr()
 
 
 // Receive video memory from the host game
-void mb_client_receive_vram()
+static void mb_client_receive_vram()
 {
     REG_RCNT = R_MULTI;
     REG_SIOCNT = SIO_MULTI;
@@ -795,7 +887,7 @@ void mb_client_receive_vram()
 
 
 
-bool multiplayer_send_message(u8* data)
+static bool multiplayer_send_message(u8* data)
 {
     if (mc.tx_ring[mc.tx_ring_write_pos]) {
         WireMessage* lost_message = mc.tx_ring[mc.tx_ring_write_pos];
@@ -821,7 +913,7 @@ bool multiplayer_send_message(u8* data)
 
 
 
-WireMessage* multiplayer_poll_message()
+static WireMessage* multiplayer_poll_message()
 {
     if (mc.rx_iter_state == MESSAGE_ITERS) {
         return NULL;
@@ -841,7 +933,7 @@ WireMessage* multiplayer_poll_message()
 
 
 
-void multiplayer_poll_consume()
+static void multiplayer_poll_consume()
 {
     if (mc.poller_current_message) {
         packet_pool_free(mc.poller_current_message);
@@ -853,7 +945,7 @@ void multiplayer_poll_consume()
 
 
 
-void comms_init()
+static void comms_init()
 {
     REG_SIOCNT = 0;
 
@@ -922,7 +1014,7 @@ static const u16 background_palette[16] = {
 
 
 
-void init_palettes()
+static void init_palettes()
 {
     for (int i = 0; i < 16; ++i) {
         MEM_PALETTE[i] = spritesheet_palette[i];
@@ -944,7 +1036,7 @@ typedef u8 ClientMessage[6];
 
 
 
-void draw_room(u8 metaclass_index, u8 rx, u8 ry, Layer layer)
+static void draw_room(u8 metaclass_index, u8 rx, u8 ry, Layer layer)
 {
     SharedMetaclass* mt = load_metaclass(metaclass_index);
     if (mt) {
@@ -963,7 +1055,7 @@ void draw_room(u8 metaclass_index, u8 rx, u8 ry, Layer layer)
 
 
 
-void process_server_message(u8* message)
+static void process_server_message(u8* message)
 {
     switch (message[0]) {
     case invalid:
@@ -1038,7 +1130,47 @@ void process_server_message(u8* message)
 
 
 
-void multiplayer_message_loop()
+static void Camera_update()
+{
+    s8 cursor_loc_x;
+    s8 cursor_loc_y;
+
+    if (cursor_data.cursor_is_far) {
+        cursor_loc_x = cursor_data.far_cursor_x;
+        cursor_loc_y = cursor_data.far_cursor_y;
+    } else {
+        cursor_loc_x = cursor_data.near_cursor_x;
+        cursor_loc_y = cursor_data.near_cursor_y;
+    }
+
+    camera.target_y = (-((15 - (cursor_loc_y + 1)) * 16) / 2);
+    camera.target_y = clamp(camera.target_y, -80, 0);
+
+    s16 tpos_x = player_island.x_pos;
+
+    int x = cursor_loc_x;
+    if (x == 255) {
+        x = -1;
+    }
+
+    if (!cursor_data.cursor_is_far) {
+        camera.target_x = tpos_x + ((x - 3) * 16) / 2;
+        camera.target_x = clamp(camera.target_x, (int)tpos_x - 40, (int)tpos_x + 48);
+        camera.target_x -= 16;
+    } else {
+        camera.target_x = tpos_x + ((x + 3) * 16) / 2;
+        camera.target_x = clamp(camera.target_x, (int)tpos_x - 48, (int)tpos_x + 256);
+        camera.target_x -= 100;
+    }
+
+    camera.view_offset_x = (4 * camera.view_offset_x + 4 * camera.target_x) / 8;
+    camera.view_offset_y = (4 * camera.view_offset_y + 4 * camera.target_y) / 8;
+}
+
+
+
+
+static void multiplayer_message_loop()
 {
     WireMessage* msg;
     do {
@@ -1083,6 +1215,8 @@ int main()
 
     clouds_init();
 
+    Island_set_positions();
+
     CursorData_init();
     Camera_init();
 
@@ -1101,7 +1235,9 @@ int main()
 
         Camera_update();
 
+        Keys_poll();
         scene_update();
         VBlankIntrWait();
+        scene_display();
     }
 }

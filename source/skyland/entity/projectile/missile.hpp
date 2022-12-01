@@ -78,6 +78,9 @@ public:
     void on_collision(Platform& pfrm, App& app, Entity& entity) override;
 
 
+    Fixnum fall_speed(Platform& pfrm);
+
+
 protected:
     virtual void destroy(Platform& pfrm, App& app);
 

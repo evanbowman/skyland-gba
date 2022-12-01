@@ -115,6 +115,17 @@ struct TerrainConstructed
 
 
 
+struct TerrainConstructedLeft
+{
+    Header header_;
+    u8 new_terrain_size_;
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::terrain_constructed_left;
+};
+
+
+
 struct RoomSalvaged
 {
     Header header_;
@@ -664,6 +675,13 @@ public:
 
     virtual void
     receive(Platform& pfrm, App& app, const packet::TerrainConstructed& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::TerrainConstructedLeft& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

@@ -64,6 +64,17 @@ Missile::Missile(const Vec2<Fixnum>& position,
 
 
 
+Fixnum Missile::fall_speed(Platform& pfrm)
+{
+    if (pfrm.network_peer().is_connected()) {
+        return 0.00034_fixed;
+    } else {
+        return 0.00041_fixed;
+    }
+}
+
+
+
 void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     if (sprite_.get_position().y < 450.0_fixed) {
@@ -81,7 +92,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
         }
         auto pos = sprite_.get_position();
-        pos.y -= app.delta_fp() * 0.00041_fixed;
+        pos.y -= app.delta_fp() * fall_speed(pfrm);
         sprite_.set_position(pos);
         break;
     }
@@ -174,7 +185,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += app.delta_fp() * 0.00041_fixed;
+        pos.y += app.delta_fp() * fall_speed(pfrm);
         sprite_.set_position(pos);
 
         Island* target;
