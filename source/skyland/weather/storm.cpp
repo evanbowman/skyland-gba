@@ -96,7 +96,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    const s16 sd = delta;
+    const u16 sd = delta;
     const s16 sx = pfrm.screen().size().x + 24;
     const s16 sy = pfrm.screen().size().y;
 
