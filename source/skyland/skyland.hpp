@@ -455,7 +455,7 @@ private:
     // Fields with eight-byte (?) alignment:
     TimeTracker level_timer_;
     TimeTracker stat_timer_;
-    Fixnum delta_fp_ = 1.f;
+    Fixnum delta_fp_ = 1.0_fixed;
 
     ////////////////////////////////////////////////////////////////////////////
     // Fields with four-byte alignment:

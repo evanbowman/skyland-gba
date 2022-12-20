@@ -141,11 +141,11 @@ public:
                     if (target_) {
 
                         auto start = sprite_.get_position();
-                        start.x += 8;
-                        start.y += 8;
+                        start.x += 8.0_fixed;
+                        start.y += 8.0_fixed;
                         auto target = target_island->origin();
-                        target.x += target_->x * 16 + 8;
-                        target.y += target_->y * 16 + 8;
+                        target.x += Fixnum::from_integer(target_->x * 16 + 8);
+                        target.y += Fixnum::from_integer(target_->y * 16 + 8);
 
                         auto c = app.alloc_entity<Flak>(
                             pfrm, start, target, parent(), position());

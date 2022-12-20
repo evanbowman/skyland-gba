@@ -162,7 +162,8 @@ void SkylandForever::init(Platform& pfrm,
     app.invoke_script(pfrm, "/scripts/event/skyland_forever.lisp");
 
     prep_level(pfrm, app);
-    app.player_island().set_position({10, 374});
+    app.player_island().set_position({Fixnum::from_integer(10),
+                                      Fixnum::from_integer(374)});
 
     app.reset_opponent_island(pfrm);
     app.swap_opponent<ProcgenEnemyAI>(seed, difficulty);
@@ -255,7 +256,8 @@ void SkylandForever::display(Platform& pfrm, App& app)
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
     spr.set_texture_index(59);
-    spr.set_position({2, ((settings_start * 8) - 1.f) + cursor_ * 16});
+    spr.set_position({2.0_fixed,
+                      Fixnum::from_integer(((settings_start * 8) - 1.f) + cursor_ * 16)});
 
     pfrm.screen().draw(spr);
 }

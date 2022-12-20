@@ -89,6 +89,23 @@ template <typename T> struct Vec2
 
 
 
+template <> struct Vec2<Fixnum>
+{
+    Fixnum x;
+    Fixnum y;
+
+    template <typename U> Vec2<U> cast() const
+    {
+        Vec2<U> result;
+        result.x = x;
+        result.y = y;
+        return result;
+    }
+};
+
+
+
+
 template <typename T, typename U = T> struct Rect
 {
     T x_off = 0;

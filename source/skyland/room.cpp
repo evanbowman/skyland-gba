@@ -264,14 +264,14 @@ public:
         auto numstr = stringify(value);
 
         // Centered over input position
-        pos.x -= (numstr.length() * 6) / 2;
+        pos.x -= Fixnum::from_integer((numstr.length() * 6) / 2);
 
         for (char c : numstr) {
             int value = c - '0';
             if (auto e = app.alloc_entity<UIDamageNumber>(pfrm, pos, value)) {
                 app.effects().push(std::move(e));
             }
-            pos.x += 6;
+            pos.x += 6.0_fixed;
         }
     }
 
@@ -430,8 +430,8 @@ Island* Room::other_island(App& app)
 Vec2<Fixnum> Room::origin() const
 {
     auto origin = parent_->origin();
-    origin.x += x_position_ * 16;
-    origin.y += y_position_ * 16;
+    origin.x += Fixnum::from_integer(x_position_ * 16);
+    origin.y += Fixnum::from_integer(y_position_ * 16);
     return origin;
 }
 
@@ -440,8 +440,8 @@ Vec2<Fixnum> Room::origin() const
 Vec2<Fixnum> Room::center() const
 {
     auto o = origin();
-    o.x += (size().x * 0.5f) * 16;
-    o.y += (size().y * 0.5f) * 16;
+    o.x += Fixnum::from_integer((size().x * 0.5f) * 16);
+    o.y += Fixnum::from_integer((size().y * 0.5f) * 16);
 
     return o;
 }
@@ -451,10 +451,10 @@ Vec2<Fixnum> Room::center() const
 Vec2<Fixnum> Room::visual_center() const
 {
     auto o = parent_->visual_origin();
-    o.x += x_position_ * 16;
-    o.y += y_position_ * 16;
-    o.x += (size().x * 0.5f) * 16;
-    o.y += (size().y * 0.5f) * 16;
+    o.x += Fixnum::from_integer(x_position_ * 16);
+    o.y += Fixnum::from_integer(y_position_ * 16);
+    o.x += (Fixnum::from_integer(size().x) * 0.5_fixed) * 16.0_fixed;
+    o.y += (Fixnum::from_integer(size().y) * 0.5_fixed) * 16.0_fixed;
 
     return o;
 }
@@ -1064,18 +1064,18 @@ public:
         }
 
         auto pos = island_->visual_origin();
-        pos.x += coord_.x * 16;
-        pos.y += coord_.y * 16;
+        pos.x += Fixnum::from_integer(coord_.x * 16);
+        pos.y += Fixnum::from_integer(coord_.y * 16);
 
         if (not countdown_) {
-            if (pos.x + 8 >
-                pfrm.screen().get_view().get_center().x + pfrm.screen().size().x) {
-                pos.x = pfrm.screen().get_view().get_center().x +
+            if (pos.x.as_integer() + 8 >
+                pfrm.screen().get_view().int_center().x + pfrm.screen().size().x) {
+                pos.x = pfrm.screen().get_view().int_center().x +
                     pfrm.screen().size().x - (16 + 4);
                 sprite_.set_flip({true, false});
                 sprite_.set_tidx_16x16(gfx_, 0);
-            } else if (pos.x < pfrm.screen().get_view().get_center().x) {
-                pos.x = pfrm.screen().get_view().get_center().x + 4;
+            } else if (pos.x.as_integer() < pfrm.screen().get_view().int_center().x) {
+                pos.x = pfrm.screen().get_view().int_center().x + 4;
                 sprite_.set_flip({});
                 sprite_.set_tidx_16x16(gfx_, 0);
             } else {
@@ -1121,13 +1121,14 @@ void Room::finalize(Platform& pfrm, App& app)
                 });
         }
 
-        const auto max_y = parent()->origin().y + 16 * 16 + 32;
+        const auto max_y = parent()->origin().y +
+            16.0_fixed * 16.0_fixed + 32.0_fixed;
 
         bool is_offscreen =
-            (visual_center().x < pfrm.screen().get_view().get_center().x + 8 -
+            (visual_center().x.as_integer() < pfrm.screen().get_view().int_center().x + 8 -
                                      (size().x * 16) / 2) or
-            (visual_center().x - (size().x * 16) / 2 >
-             pfrm.screen().get_view().get_center().x + pfrm.screen().size().x);
+            (visual_center().x.as_integer() - (size().x * 16) / 2 >
+             pfrm.screen().get_view().int_center().x + pfrm.screen().size().x);
 
         const int t = debris_tile();
 
@@ -1153,12 +1154,13 @@ void Room::finalize(Platform& pfrm, App& app)
                     }
                     auto dir = rotate({0, 1}, angle);
                     e->speed_.x = Fixnum(dir.x);
-                    e->speed_.y = -1 * Fixnum(dir.y);
+                    e->speed_.y = Fixnum(-1 * dir.y);
                     e->speed_.y -= 0.3_fixed;
                     e->speed_ = e->speed_ * 0.5_fixed;
                     e->gravity_ =
                         Fixnum(0.06f * 0.15f) +
-                        rng::choice<3>(rng::utility_state) * 0.003_fixed;
+                        Fixnum::from_integer(rng::choice<3>(rng::utility_state))
+                        * 0.003_fixed;
                     app.effects().push(std::move(e));
                 }
             }

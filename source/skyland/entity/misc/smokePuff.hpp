@@ -53,8 +53,8 @@ public:
 
         auto pos = sprite_.get_position();
 
-        pos.x -= +Float(seconds(3)) * 0.00001f;
-        pos.y -= +Float(seconds(3)) * 0.00001f;
+        pos.x -= Fixnum(+Float(seconds(3)) * 0.00001f);
+        pos.y -= Fixnum(+Float(seconds(3)) * 0.00001f);
 
         const s16 shrink_amount =
             interpolate(-450, -24, Float(timer_) / seconds(3));
@@ -80,8 +80,8 @@ public:
 
         auto pos = sprite_.get_position();
 
-        pos.x += +Float(delta) * 0.00001f;
-        pos.y += +Float(delta) * 0.00001f;
+        pos.x += Fixnum(+Float(delta) * 0.00001f);
+        pos.y += Fixnum(+Float(delta) * 0.00001f);
 
         const s16 shrink_amount =
             interpolate(-450, -24, Float(timer_) / seconds(3));
@@ -99,8 +99,8 @@ public:
 
         auto pos = sprite_.get_position();
 
-        pos.x -= +Float(delta) * 0.00001f;
-        pos.y -= +Float(delta) * 0.00001f;
+        pos.x -= Fixnum(+Float(delta) * 0.00001f);
+        pos.y -= Fixnum(+Float(delta) * 0.00001f);
 
         const s16 shrink_amount =
             interpolate(-450, -24, Float(timer_) / seconds(3));

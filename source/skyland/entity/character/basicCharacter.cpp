@@ -88,8 +88,8 @@ BasicCharacter::BasicCharacter(Island* parent,
     ai_mark_ = false;
 
     auto o = parent_->visual_origin();
-    o.x += grid_position_.x * 16;
-    o.y += grid_position_.y * 16 - 3;
+    o.x += Fixnum::from_integer(grid_position_.x * 16);
+    o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
     sprite_.set_position(o);
 
@@ -125,8 +125,8 @@ void BasicCharacter::transported()
 void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
-    o.x += grid_position_.x * 16;
-    o.y += grid_position_.y * 16 - 3;
+    o.x += Fixnum::from_integer(grid_position_.x * 16);
+    o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
     sprite_.set_position(o);
 
@@ -145,8 +145,8 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
     if (movement_path_ and not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
         auto dest = parent_->visual_origin();
-        dest.x += dest_grid_pos.x * 16;
-        dest.y += dest_grid_pos.y * 16 - 3; // floor is two pixels thick
+        dest.x += Fixnum::from_integer(dest_grid_pos.x * 16);
+        dest.y += Fixnum::from_integer(dest_grid_pos.y * 16 - 3); // floor is two pixels thick
 
         if (dest_grid_pos.x < grid_position_.x) {
             sprite_.set_flip({false, false});
@@ -160,7 +160,8 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
             auto fpos = interpolate(
                 fvec(dest), fvec(o), Float(timer_) / movement_step_duration);
 
-            sprite_.set_position(Vec2<Fixnum>{fpos.x, fpos.y});
+            sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x),
+                                              Fixnum(fpos.y)});
         }
 
         anim_timer_ -= delta;
@@ -205,23 +206,26 @@ void BasicCharacter::set_idle(App& app)
 
 
 
+bool BasicCharacter::has_opponent(Room* room)
+{
+    for (auto& character : room->characters()) {
+        if (character->owner() not_eq owner() and
+            character->grid_position() == grid_position_) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    // const auto t1 = pfrm.delta_clock().sample();
+
     auto o = parent_->visual_origin();
-    o.x += grid_position_.x * 16;
-    o.y += grid_position_.y * 16 - 3;
-
-
-    auto has_opponent = [&](Room* room) {
-        for (auto& character : room->characters()) {
-            if (character->owner() not_eq owner() and
-                character->grid_position() == grid_position_) {
-                return true;
-            }
-        }
-        return false;
-    };
-
+    o.x += Fixnum::from_integer(grid_position_.x * 16);
+    o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
     switch (state_) {
     case State::fighting:
@@ -246,7 +250,8 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
-    case State::moving_or_idle:
+    case State::moving_or_idle: {
+
         if (movement_path_) {
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
@@ -284,16 +289,13 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     timer_ = 0;
                     anim_timer_ = 0;
                 } else {
+                    const char* name = (*metac)->name();
                     const bool is_plundered =
-                        str_eq((*metac)->name(), "plundered-room");
-                    const bool is_stairwell =
-                        str_eq((*metac)->name(), "stairwell");
-                    const bool is_bridge = str_eq((*metac)->name(), "bridge");
-                    const bool is_ladder = str_eq((*metac)->name(), "ladder");
+                        str_eq(name, "plundered-room");
 
                     if (&room->owner()->owner() not_eq owner() and
-                        not is_plundered and not is_stairwell and
-                        not is_bridge and not is_ladder) {
+                        not is_plundered and not str_eq(name, "stairwell") and
+                        not str_eq(name, "bridge") and not str_eq(name, "ladder")) {
                         state_ = State::plunder_room;
                         timer_ = 0;
                     } else if (&room->owner()->owner() == owner() and
@@ -311,6 +313,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         break;
+    }
 
     case State::plunder_room:
         awaiting_movement_ = true;
@@ -469,14 +472,22 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 
         break;
     }
+
+    // const auto t2 = pfrm.delta_clock().sample();
+
+    // if (pfrm.keyboard().pressed<Key::select>()) {
+    //     Platform::fatal(format("%",
+    //                            t2 - t1).c_str());
+    // }
+
 }
 
 
 void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
-    o.x += grid_position_.x * 16;
-    o.y += grid_position_.y * 16 - 3;
+    o.x += Fixnum::from_integer(grid_position_.x * 16);
+    o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
     awaiting_movement_ = true;
     can_move_ = false;
@@ -525,8 +536,8 @@ void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
 void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
-    o.x += grid_position_.x * 16;
-    o.y += grid_position_.y * 16 - 3;
+    o.x += Fixnum::from_integer(grid_position_.x * 16);
+    o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
     awaiting_movement_ = false;
     can_move_ = false;
@@ -535,8 +546,8 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
     if (not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
         auto dest = parent_->visual_origin();
-        dest.x += dest_grid_pos.x * 16;
-        dest.y += dest_grid_pos.y * 16 - 3; // floor is two pixels thick
+        dest.x += Fixnum::from_integer(dest_grid_pos.x * 16);
+        dest.y += Fixnum::from_integer(dest_grid_pos.y * 16 - 3); // floor is two pixels thick
 
         if (dest_grid_pos.x < grid_position_.x) {
             sprite_.set_flip({false, false});
@@ -547,7 +558,8 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
         auto fpos = interpolate(
             fvec(dest), fvec(o), Float(timer_) / movement_step_duration);
 
-        sprite_.set_position(Vec2<Fixnum>{fpos.x, fpos.y});
+        sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x),
+                                              Fixnum(fpos.y)});
     }
 
     if (timer_ > movement_step_duration) {

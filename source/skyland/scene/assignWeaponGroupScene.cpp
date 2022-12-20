@@ -170,8 +170,8 @@ void AssignWeaponGroupScene::display(Platform& pfrm, App& app)
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
-    origin.x += cursor_loc.x * 16 + 3;
-    origin.y += cursor_loc.y * 16;
+    origin.x += Fixnum::from_integer(cursor_loc.x * 16 + 3);
+    origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
     Sprite sprite;
     sprite.set_position(origin);

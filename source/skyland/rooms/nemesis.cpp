@@ -75,8 +75,8 @@ void Nemesis::fire(Platform& pfrm, App& app)
     Vec2<Fixnum> target;
 
     auto origin = island->origin();
-    origin.x += target_->x * 16 + 8;
-    origin.y += target_->y * 16 + 8;
+    origin.x += Fixnum::from_integer(target_->x * 16 + 8);
+    origin.y += Fixnum::from_integer(target_->y * 16 + 8);
     target = origin;
 
     app.camera()->shake(4);
@@ -84,9 +84,9 @@ void Nemesis::fire(Platform& pfrm, App& app)
     auto start = center();
 
     if (island == &app.player_island()) {
-        start.x -= 22;
+        start.x -= 22.0_fixed;
     } else {
-        start.x += 22;
+        start.x += 22.0_fixed;
     }
 
     if (not pfrm.network_peer().is_connected() and

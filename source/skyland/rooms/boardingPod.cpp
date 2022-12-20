@@ -52,8 +52,8 @@ public:
         Upper(Platform::DynamicTexturePtr dt, Vec2<Fixnum> position)
             : Entity({}), dt_(dt)
         {
-            position.y -= 48;
-            position.x -= 16;
+            position.y -= 48.0_fixed;
+            position.x -= 16.0_fixed;
             sprite_.set_position(position);
             dt_->remap(81 * 2);
             sprite_.set_texture_index(dt->mapping_index());
@@ -105,11 +105,11 @@ public:
             if (flame_spawn_count_ > timeout) {
                 flame_spawn_count_ -= timeout;
                 auto p = pos;
-                p.x += 8;
-                p.y += 16;
+                p.x += 8.0_fixed;
+                p.y += 16.0_fixed;
                 if (auto exp =
                         app.alloc_entity<Explosion3>(pfrm, p, 270 / 2, 1)) {
-                    exp->set_speed({0, 0.0001f});
+                    exp->set_speed({0.0_fixed, 0.0001_fixed});
                     app.effects().push(std::move(exp));
                 }
             }
@@ -156,7 +156,7 @@ public:
 
         case State::falling:
             if (target_island_) {
-                pos.x = target_island_->visual_origin().x + target_.x * 16 + 16;
+                pos.x = target_island_->visual_origin().x + Fixnum::from_integer(target_.x * 16 + 16);
             }
             pos.y += app.delta_fp() * 0.00041_fixed;
             timer_ += delta;
@@ -180,8 +180,8 @@ public:
 
         sprite_.set_alpha(a);
 
-        pos.y -= 48;
-        pos.x -= 16;
+        pos.y -= 48.0_fixed;
+        pos.x -= 16.0_fixed;
 
         if (upper_) {
             upper_->spr().set_position(pos);
@@ -232,7 +232,7 @@ public:
                 state_ = State::rising_2;
             }
             if (target_island_) {
-                pos.x = source_island_->visual_origin().x + source_.x * 16 + 16;
+                pos.x = source_island_->visual_origin().x + Fixnum::from_integer(source_.x * 16 + 16);
             }
             break;
 
@@ -260,8 +260,8 @@ public:
 
         sprite_.set_alpha(a);
 
-        pos.y -= 48;
-        pos.x -= 16;
+        pos.y -= 48.0_fixed;
+        pos.x -= 16.0_fixed;
 
         if (upper_) {
             upper_->spr().set_position(pos);
@@ -438,7 +438,7 @@ void restore_boarding_pod_entity(Platform& pfrm,
         bp->restore(app, e, src);
 
         if (auto dt2 = pfrm.make_dynamic_texture()) {
-            pos.y -= 16;
+            pos.y -= 16.0_fixed;
             if (auto e = app.alloc_entity<BoardingPodEntity::Upper>(
                     pfrm, *dt2, pos)) {
                 bp->upper_ = e.get();
@@ -531,7 +531,7 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                 return;
             }
             auto pos = visual_center();
-            pos.y += 10;
+            pos.y += 10.0_fixed;
             if (auto bp = app.alloc_entity<BoardingPodEntity>(pfrm, *dt, pos)) {
                 for (auto& chr : characters()) {
                     auto& c = *chr;

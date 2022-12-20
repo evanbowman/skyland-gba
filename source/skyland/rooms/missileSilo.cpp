@@ -88,8 +88,8 @@ void MissileSilo::fire(Platform& pfrm, App& app)
         target = room->center();
     } else {
         auto origin = island->origin();
-        origin.x += target_->x * 16 + 8;
-        origin.y += target_->y * 16 + 8;
+        origin.x += Fixnum::from_integer(target_->x * 16 + 8);
+        origin.y += Fixnum::from_integer(target_->y * 16 + 8);
         target = origin;
     }
 
@@ -99,7 +99,7 @@ void MissileSilo::fire(Platform& pfrm, App& app)
     }
 
     auto start = center();
-    start.y -= 24;
+    start.y -= 24.0_fixed;
 
     app.camera()->shake(6);
 

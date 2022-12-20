@@ -45,7 +45,7 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
     p_.x_ = position.x;
     p_.y_ = position.y;
 
-    set_population(4);
+    set_population(FixedPoint<16, u32>::from_integer(4));
 }
 
 
@@ -98,7 +98,7 @@ fiscal::Ledger terrain::Sector::annotate_happiness(EngineImpl& state,
     add_entry(SystemString::category_misc, stats().happiness_);
     add_entry(SystemString::category_misc, -population().as_integer() / 64);
 
-    if (state.data_->p().food_.get() < population()) {
+    if (state.data_->p().food_.get() < population().as_float()) {
         add_entry(SystemString::category_misc, -4);
     }
 
@@ -116,7 +116,7 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
     // int productive_population = population();
     int unproductive_population = 0;
 
-    if (st.housing_ < population()) {
+    if (st.housing_ < population().as_float()) {
         // Homeless people are less economically productive? Sounds cynical, but
         // probably true.
         // productive_population = st.housing_;
@@ -374,7 +374,7 @@ void terrain::Sector::soft_update(EngineImpl& s)
 {
     auto prod = productivity();
     if (prod < population()) {
-        auto diff = (Productivity(0.05f) * population()) * 8;
+        auto diff = (Productivity(0.05f) * population()) * Population(8);
         auto h = Productivity(clamp((int)get_happiness(s), -9, 9)) *
                  Productivity(0.1f);
         prod += diff * (Productivity(1.f) + h);
@@ -384,16 +384,16 @@ void terrain::Sector::soft_update(EngineImpl& s)
         set_productivity(prod);
     }
 
-    if (population() < stats().housing_) {
+    if (population().as_float() < stats().housing_) {
         auto pop = population();
         auto diff = stats().housing_ - pop.as_integer();
-        pop += (Population(0.02f) * diff) * 4;
-        if (pop > stats().housing_) {
+        pop += (Population(0.02f) * Population(diff)) * Population(4);
+        if (pop.as_float() > stats().housing_) {
             pop = stats().housing_;
         }
         set_population(pop);
-    } else if (population() > stats().housing_) {
-        set_population(stats().housing_);
+    } else if (population().as_float() > stats().housing_) {
+        set_population(Population(stats().housing_));
     }
 }
 

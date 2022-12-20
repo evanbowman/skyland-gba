@@ -354,8 +354,8 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 
     auto& cursor_loc = globals().far_cursor_loc_;
 
-    origin.x += cursor_loc.x * 16;
-    origin.y += cursor_loc.y * 16;
+    origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+    origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
     Sprite sprite;
     sprite.set_position(origin);
@@ -367,8 +367,8 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
     if (firing_mode_) {
         sprite.set_size(Sprite::Size::w16_h32);
         sprite.set_texture_index(111 + firing_mode_);
-        origin.x += 12;
-        origin.y += 10;
+        origin.x += 12.0_fixed;
+        origin.y += 10.0_fixed;
         sprite.set_position(origin);
         pfrm.screen().draw(sprite);
     }

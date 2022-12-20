@@ -50,18 +50,18 @@ public:
         switch (quarter) {
         case 1:
             sprite_.set_flip({true, false});
-            p.x += 32;
+            p.x += 32.0_fixed;
             break;
 
         case 2:
             sprite_.set_flip({false, true});
-            p.y += 32;
+            p.y += 32.0_fixed;
             break;
 
         case 3:
             sprite_.set_flip({true, true});
-            p.x += 32;
-            p.y += 32;
+            p.x += 32.0_fixed;
+            p.y += 32.0_fixed;
             break;
         }
 
@@ -147,9 +147,9 @@ inline void core_explosion(Platform& pfrm,
     }
 
 
-    int min_x = pfrm.screen().get_view().get_center().x - 48;
+    int min_x = pfrm.screen().get_view().int_center().x - 48;
     int max_x =
-        pfrm.screen().get_view().get_center().x + pfrm.screen().size().x + 48;
+        pfrm.screen().get_view().int_center().x + pfrm.screen().size().x + 48;
     int max_y = 700;
     int min_y = 450;
 
@@ -181,8 +181,8 @@ inline void core_explosion(Platform& pfrm,
     auto dt = pfrm.make_dynamic_texture();
     if (dt) {
         auto p = pos;
-        p.x -= 32;
-        p.y -= 32;
+        p.x -= 32.0_fixed;
+        p.y -= 32.0_fixed;
         auto make_segment = [&](int q) {
             return app.effects().push(
                 app.alloc_entity<CoreExplosionQuarter>(pfrm, *dt, p, q));

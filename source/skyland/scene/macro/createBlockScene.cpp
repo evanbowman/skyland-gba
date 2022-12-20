@@ -745,7 +745,7 @@ void BuildImprovementScene::edit(Platform& pfrm,
         }
 
         auto pos = screen_coord(pfrm, state.sector().cursor_raster_pos());
-        pos.y += 4;
+        pos.y += 4.0_fixed;
 
         state.add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));
     }

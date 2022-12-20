@@ -64,7 +64,7 @@ public:
         }
 
         auto pos = sprite_.get_position();
-        pos.x += speed_ * delta;
+        pos.x += Fixnum(speed_ * delta);
         sprite_.set_position(pos);
 
         if (timer2_ > seconds(10)) {

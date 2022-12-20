@@ -108,10 +108,10 @@ void make_construction_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
         }
     };
 
-    segment(-16, -16, false, false);
-    segment(-16, 0, false, true);
-    segment(0, -16, true, false);
-    segment(0, 0, true, true);
+    segment(Fixnum::from_integer(-16), Fixnum::from_integer(-16), false, false);
+    segment(Fixnum::from_integer(-16), 0.0_fixed, false, true);
+    segment(0.0_fixed, Fixnum::from_integer(-16), true, false);
+    segment(0.0_fixed, 0.0_fixed, true, true);
 }
 
 
@@ -186,14 +186,14 @@ bool tapped_topleft_corner(Platform& pfrm, App& app);
 std::optional<RoomCoord>
 get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 {
-    const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+    const auto view_offset = pfrm.screen().get_view().int_center();
 
     auto island_pos = island->get_position();
-    island_pos.x -= view_offset.x;
-    island_pos.y -= view_offset.y;
+    island_pos.x -= Fixnum::from_integer(view_offset.x);
+    island_pos.y -= Fixnum::from_integer(view_offset.y);
 
-    if (pos.x >= island_pos.x and
-        pos.x <= island_pos.x + (1 + island->terrain().size()) * 16) {
+    if (Fixnum::from_integer(pos.x) >= island_pos.x and
+        Fixnum::from_integer(pos.x) <= island_pos.x + Fixnum::from_integer((1 + island->terrain().size()) * 16)) {
 
         int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
         int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
@@ -996,7 +996,7 @@ void draw_required_space(Platform& pfrm,
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_position({origin.x, origin.y});
         pfrm.screen().draw(sprite);
-        sprite.set_position({origin.x + 16, origin.y});
+        sprite.set_position({origin.x + 16.0_fixed, origin.y});
         pfrm.screen().draw(sprite);
     } else {
         Sprite sprite;
@@ -1005,7 +1005,8 @@ void draw_required_space(Platform& pfrm,
 
         for (int x = 0; x < sz.x; ++x) {
             for (int y = 0; y < sz.y / 2; ++y) {
-                sprite.set_position({origin.x + x * 16, origin.y + y * 32});
+                sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
+                                     origin.y + Fixnum::from_integer(y * 32)});
                 pfrm.screen().draw(sprite);
             }
         }
@@ -1016,7 +1017,8 @@ void draw_required_space(Platform& pfrm,
             sprite.set_tidx_16x16(13, 1);
             for (int x = 0; x < sz.x; ++x) {
                 sprite.set_position(
-                    {origin.x + x * 16, origin.y + (sz.y - 2) * 16 + 16});
+                                    {origin.x + Fixnum::from_integer(x * 16),
+                                     origin.y + Fixnum::from_integer((sz.y - 2) * 16 + 16)});
                 pfrm.screen().draw(sprite);
             }
         }
@@ -1045,8 +1047,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         if (not data_->construction_sites_.empty()) {
             auto origin = island(app)->visual_origin();
 
-            origin.x += data_->construction_sites_[selector_].x * 16;
-            origin.y += (data_->construction_sites_[selector_].y) * 16;
+            origin.x += Fixnum::from_integer(data_->construction_sites_[selector_].x * 16);
+            origin.y += Fixnum::from_integer((data_->construction_sites_[selector_].y) * 16);
 
             Sprite sprite;
             sprite.set_position(origin);
@@ -1074,8 +1076,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
             if (data_->construction_sites_[selector_].y == 15) {
                 origin = island(app)->visual_origin();
-                origin.x += (island(app)->terrain().size() - 1) * 16;
-                origin.y += 15 * 16;
+                origin.x += Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
+                origin.y += 15.0_fixed * 16.0_fixed;
 
                 int tid_1 = 0;
                 int tid_2 = 1;
@@ -1083,7 +1085,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 if (data_->construction_sites_[selector_].x == -1) {
                     sprite.set_flip({true, false});
                     std::swap(tid_1, tid_2);
-                    origin.x = island(app)->visual_origin().x - 16;
+                    origin.x = island(app)->visual_origin().x - 16.0_fixed;
                 }
                 sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_position(origin);
@@ -1091,15 +1093,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 pfrm.screen().draw(sprite);
                 sprite.set_tidx_16x16(14, tid_2);
-                origin.x += 16;
+                origin.x += 16.0_fixed;
                 sprite.set_position(origin);
                 pfrm.screen().draw(sprite);
                 sprite.set_size(Sprite::Size::w16_h32);
             } else if ((u32)data_->construction_sites_[selector_].x ==
                        island(app)->terrain().size() - 1) {
                 origin = island(app)->visual_origin();
-                origin.x += (island(app)->terrain().size()) * 16;
-                origin.y += 15 * 16;
+                origin.x += Fixnum::from_integer((island(app)->terrain().size()) * 16);
+                origin.y += 15.0_fixed * 16.0_fixed;
 
                 sprite.set_position(origin);
                 sprite.set_texture_index(101);
@@ -1109,8 +1111,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
             if (data_->construction_sites_[selector_].x == 0) {
                 origin = island(app)->visual_origin();
-                origin.x -= 16;
-                origin.y += 15 * 16;
+                origin.x -= 16.0_fixed;
+                origin.y += 15.0_fixed * 16.0_fixed;
 
                 sprite.set_position(origin);
                 sprite.set_flip({true, false});
@@ -1129,9 +1131,9 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             const auto sz = meta->size();
 
             auto origin = island(app)->visual_origin();
-            origin.x += data_->construction_sites_[selector_].x * 16;
+            origin.x += Fixnum::from_integer(data_->construction_sites_[selector_].x * 16);
             origin.y +=
-                (data_->construction_sites_[selector_].y - (sz.y - 1)) * 16;
+                Fixnum::from_integer((data_->construction_sites_[selector_].y - (sz.y - 1)) * 16);
 
             draw_required_space(pfrm, origin, sz);
         }
@@ -1142,15 +1144,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         auto& terrain = island(app)->terrain();
         const RoomCoord loc = {u8(terrain.size()), 15};
         auto origin = island(app)->visual_origin();
-        origin.x += loc.x * 16;
+        origin.x += Fixnum::from_integer(loc.x * 16);
         if (data_->construction_sites_[selector_].x == -1) {
-            origin.x = island(app)->visual_origin().x - 16;
+            origin.x = island(app)->visual_origin().x - 16.0_fixed;
         }
-        origin.y -= 32;
+        origin.y -= 32.0_fixed;
         Sprite sprite;
         sprite.set_tidx_16x16(13, 1);
         sprite.set_size(Sprite::Size::w16_h16);
-        sprite.set_position({origin.x, origin.y + 16});
+        sprite.set_position({origin.x, origin.y + 16.0_fixed});
         pfrm.screen().draw(sprite);
         sprite.set_size(Sprite::Size::w16_h32);
 
@@ -1160,12 +1162,12 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         if (data_->construction_sites_[selector_].x == -1) {
             sprite.set_flip({true, false});
             std::swap(tid_1, tid_2);
-            origin.x = island(app)->visual_origin().x - 16;
-            origin.y = island(app)->visual_origin().y + 15 * 16;
+            origin.x = island(app)->visual_origin().x - 16.0_fixed;
+            origin.y = island(app)->visual_origin().y + 15.0_fixed * 16.0_fixed;
         } else {
             origin = island(app)->visual_origin();
-            origin.x += (island(app)->terrain().size() - 1) * 16;
-            origin.y += 15 * 16;
+            origin.x += Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
+            origin.y += 15.0_fixed * 16.0_fixed;
         }
         {
             sprite.set_size(Sprite::Size::w16_h16);
@@ -1174,7 +1176,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             sprite.set_alpha(Sprite::Alpha::translucent);
             pfrm.screen().draw(sprite);
             sprite.set_tidx_16x16(14, tid_2);
-            origin.x += 16;
+            origin.x += 16.0_fixed;
             sprite.set_position(origin);
             pfrm.screen().draw(sprite);
         }

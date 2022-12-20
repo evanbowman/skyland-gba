@@ -56,7 +56,7 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
     static const Float speed = 0.00011f;
     auto step = direction(fvec(position), fvec(target)) * speed;
-    step_vector_ = Vec2<Fixnum>{step.x, step.y};
+    step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 }
 
 
@@ -75,7 +75,7 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
     static const Float speed = 0.00011f;
     auto step = rotate({1, 0}, dir) * speed;
-    step_vector_ = Vec2<Fixnum>{step.x, step.y};
+    step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 }
 
 
@@ -230,8 +230,8 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(pfrm, app, true);
         record_destroyed(pfrm, app);
-        step_vector_.x *= -1;
-        step_vector_.y *= -1;
+        step_vector_.x *= Fixnum::from_integer(-1);
+        step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;

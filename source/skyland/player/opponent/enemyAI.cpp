@@ -348,7 +348,7 @@ void EnemyAI::update_room(Platform& pfrm,
     } else if (auto db = room.cast<DroneBay>()) {
         // Don't spawn drones until the level's been running for a
         // bit.
-        if (ai_island->get_drift() == 0.f) {
+        if (ai_island->get_drift() == 0.0_fixed) {
             if (app.game_speed() not_eq GameSpeed::stopped) {
                 update_drone_bay(
                     pfrm, app, matrix, *db, ai_island, target_island);
@@ -947,6 +947,20 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
 
 
+template <typename T> T abs_fp(const T& val)
+{
+    return (val > 0.0_fixed) ? val : val * Fixnum::from_integer(-1);
+}
+
+
+
+template <typename T> T manhattan_length_fp(const Vec2<T>& a, const Vec2<T>& b)
+{
+    return abs_fp(a.x - b.x) + abs_fp(a.y - b.y);
+}
+
+
+
 void EnemyAI::set_target(Platform& pfrm,
                          App& app,
                          const Bitmatrix<16, 16>& matrix,
@@ -969,13 +983,13 @@ void EnemyAI::set_target(Platform& pfrm,
             // ...
         } else if ((ai_island->has_radar() or (*target_island).is_boarded()) and
                    str_cmp((*meta_c)->name(), "reactor") == 0) {
-            w += 3 * manhattan_length(room->origin(), ion_cannon.origin())
+            w += 3 * manhattan_length_fp(room->origin(), ion_cannon.origin())
                          .as_float();
         } else if (not is_forcefield(meta_c) and
                    str_cmp((*meta_c)->name(), "energized-hull") not_eq 0) {
             continue;
         } else {
-            w += 3 * manhattan_length(room->origin(), ion_cannon.origin())
+            w += 3 * manhattan_length_fp(room->origin(), ion_cannon.origin())
                          .as_float();
         }
 
@@ -1546,7 +1560,7 @@ void EnemyAI::set_target(Platform& pfrm,
                          Island* ai_island,
                          Island* target_island)
 {
-    if (silo.parent()->get_drift() not_eq 0) {
+    if (silo.parent()->get_drift() not_eq 0.0_fixed) {
         // Wait until we've stopped moving
         return;
     }
@@ -1636,7 +1650,7 @@ void EnemyAI::set_target(Platform& pfrm,
                          Island* ai_island,
                          Island* target_island)
 {
-    if (silo.parent()->get_drift() not_eq 0) {
+    if (silo.parent()->get_drift() not_eq 0.0_fixed) {
         // Wait until we've stopped moving
         return;
     }

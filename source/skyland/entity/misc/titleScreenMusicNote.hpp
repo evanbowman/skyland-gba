@@ -64,11 +64,11 @@ public:
 
         auto pos = sprite_.get_position();
 
-        x_anchor_ -= Float(delta) * 0.00002f;
+        x_anchor_ -= Fixnum(Float(delta) * 0.00002f);
         auto wave_amp =
             (4 * (int)sine(4 * 3.14f * 0.001f * timer_ + 180)) / INT16_MAX;
-        pos.x = x_anchor_ + (wave_flip_ ? -wave_amp : wave_amp);
-        pos.y -= +Float(delta) * 0.00002f;
+        pos.x = x_anchor_ + Fixnum((wave_flip_ ? -wave_amp : wave_amp));
+        pos.y -= Fixnum(+Float(delta) * 0.00002f);
 
         sprite_.set_priority(3);
 

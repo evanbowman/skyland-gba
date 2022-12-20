@@ -26,6 +26,8 @@
 void View::set_center(const Vec2<Float>& center)
 {
     center_ = center;
+    int_center_.x = center.x;
+    int_center_.y = center.y;
 }
 
 

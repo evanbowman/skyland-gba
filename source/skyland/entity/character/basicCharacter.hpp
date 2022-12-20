@@ -51,7 +51,7 @@ public:
                    bool is_replicant);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(Platform&, App&, Microseconds delta) override final;
 
 
     void rewind(Platform&, App&, Microseconds delta) override;
@@ -277,6 +277,8 @@ private:
     u16 idle_count_ = 0;
 
     CharacterId id_;
+
+    bool has_opponent(Room* room);
 
     std::optional<Path> movement_path_;
 

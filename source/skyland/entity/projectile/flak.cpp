@@ -63,7 +63,7 @@ Flak::Flak(const Vec2<Fixnum>& position,
 
     static const Float speed = 0.00015f;
     const auto step = direction(fvec(position), fvec(target)) * speed;
-    step_vector_ = Vec2<Fixnum>{step.x, step.y};
+    step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 }
 
 
@@ -297,8 +297,8 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         record_destroyed(pfrm, app);
         explode(pfrm, app);
         app.camera()->shake(8);
-        step_vector_.x *= -1;
-        step_vector_.y *= -1;
+        step_vector_.x *= Fixnum::from_integer(-1);
+        step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;

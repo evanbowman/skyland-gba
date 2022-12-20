@@ -96,23 +96,23 @@ public:
         Vec2<Fixnum> origin;
         origin.x = 5;
         origin.y = (4 + 5 * cursor_) * 8 - 3;
-        origin.x += view.x;
-        origin.y += view.y;
+        origin.x += Fixnum(view.x);
+        origin.y += Fixnum(view.y);
 
         sprite.set_position(origin);
         pfrm.screen().draw(sprite);
 
-        origin.x += ((pfrm.screen().size().x - 16) + 7);
+        origin.x += Fixnum::from_integer((pfrm.screen().size().x - 16) + 7);
         sprite.set_position(origin);
         sprite.set_flip({true, false});
         pfrm.screen().draw(sprite);
 
-        origin.y += 23 + 16;
+        origin.y += Fixnum::from_integer(23 + 16);
         sprite.set_position(origin);
         sprite.set_flip({true, true});
         pfrm.screen().draw(sprite);
 
-        origin.x -= ((pfrm.screen().size().x - 16) + 7);
+        origin.x -= Fixnum::from_integer((pfrm.screen().size().x - 16) + 7);
         sprite.set_position(origin);
         sprite.set_flip({false, true});
         pfrm.screen().draw(sprite);
@@ -270,7 +270,7 @@ public:
         pfrm.fill_overlay(0);
 
         set_island_positions(app.player_island(), *app.opponent_island());
-        app.opponent_island()->set_drift(pfrm, app, -0.000025f);
+        app.opponent_island()->set_drift(pfrm, app, Fixnum(-0.000025f));
 
         app.time_stream().clear();
 

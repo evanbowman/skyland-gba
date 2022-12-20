@@ -93,7 +93,7 @@ void CargoBay::display(Platform::Screen& screen)
             Sprite sprite;
             sprite.set_texture_index(51);
             auto pos = origin();
-            pos.y += 16 + parent()->get_ambient_movement();
+            pos.y += Fixnum::from_integer(16 + parent()->get_ambient_movement());
             sprite.set_position(pos);
             sprite.set_size(Sprite::Size::w16_h32);
             screen.draw(sprite);

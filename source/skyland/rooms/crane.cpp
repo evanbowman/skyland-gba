@@ -84,10 +84,10 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::idle;
 
             auto pos = center();
-            pos.x += 14;
-            pos.y += parent()->get_ambient_movement();
-            pos.y += 2;
-            pos.y += timer_ * Fixnum(0.00004f);
+            pos.x += 14.0_fixed;
+            pos.y += Fixnum::from_integer(parent()->get_ambient_movement());
+            pos.y += 2.0_fixed;
+            pos.y += Fixnum::from_integer(timer_) * Fixnum(0.00004f);
 
             if (item_ == Discoveries::Item::bomb) {
                 pfrm.speaker().play_sound("explosion1", 2);
@@ -110,11 +110,11 @@ void Crane::display_on_hover(Platform::Screen& screen,
     auto origin = parent()->visual_origin();
 
     const auto pos = position();
-    origin.x += pos.x * 16;
-    origin.y += pos.y * 16;
+    origin.x += Fixnum::from_integer(pos.x * 16);
+    origin.y += Fixnum::from_integer(pos.y * 16);
 
     if (cursor.y == pos.y) {
-        origin.y += 16;
+        origin.y += 16.0_fixed;
     }
 
     Sprite icon;
@@ -127,7 +127,7 @@ void Crane::display_on_hover(Platform::Screen& screen,
     screen.draw(icon);
 
     auto p2 = origin;
-    p2.x += 32;
+    p2.x += 32.0_fixed;
     icon.set_position(p2);
     icon.set_texture_index(50);
 
@@ -142,12 +142,12 @@ void Crane::display(Platform::Screen& screen)
     spr.set_size(Sprite::Size::w16_h32);
 
     auto pos = center();
-    pos.x += 14;
-    pos.y += parent()->get_ambient_movement();
-    pos.y += 2;
+    pos.x += 14.0_fixed;
+    pos.y += Fixnum::from_integer(parent()->get_ambient_movement());
+    pos.y += 2.0_fixed;
     const auto start_pos = pos;
 
-    pos.y += timer_ * Fixnum(0.00004f);
+    pos.y += Fixnum::from_integer(timer_) * Fixnum(0.00004f);
     spr.set_position(pos);
 
 
@@ -175,11 +175,11 @@ void Crane::display(Platform::Screen& screen)
     spr.set_texture_index(93);
 
     pos = start_pos;
-    pos.y -= 1;
-    while (pos.y < claw_pos.y - 3) {
+    pos.y -= 1.0_fixed;
+    while (pos.y < claw_pos.y - 3.0_fixed) {
         spr.set_position(pos);
         screen.draw(spr);
-        pos.y += 8;
+        pos.y += 8.0_fixed;
     }
 }
 

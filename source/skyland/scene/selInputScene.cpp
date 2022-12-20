@@ -257,8 +257,8 @@ void SelInputScene::display(Platform& pfrm, App& app)
 
         auto& cursor_loc = globals().near_cursor_loc_;
 
-        origin.x += cursor_loc.x * 16;
-        origin.y += cursor_loc.y * 16;
+        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
         cursor.set_position(origin);
     } else if (app.opponent_island()) {
@@ -266,8 +266,8 @@ void SelInputScene::display(Platform& pfrm, App& app)
 
         auto& cursor_loc = globals().far_cursor_loc_;
 
-        origin.x += cursor_loc.x * 16;
-        origin.y += cursor_loc.y * 16;
+        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
         cursor.set_position(origin);
     }
@@ -280,9 +280,9 @@ void SelInputScene::display(Platform& pfrm, App& app)
         auto& cursor_loc = globals().near_cursor_loc_;
 
         auto origin = player_island(app).visual_origin();
-        origin.x += cursor_loc.x * 16;
-        origin.y += cursor_loc.y * 16;
-        origin.y -= (required_space_->y - 1) * 16;
+        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
+        origin.y -= Fixnum::from_integer((required_space_->y - 1) * 16);
 
         draw_required_space(pfrm, origin, sz);
     }

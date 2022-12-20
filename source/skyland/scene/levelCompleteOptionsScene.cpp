@@ -168,7 +168,8 @@ void LevelCompleteOptionsScene::display(Platform& pfrm, App& app)
         for (auto& c : **confetti_) {
             Sprite spr_;
             spr_.set_priority(0);
-            spr_.set_position({c.x_, c.y_});
+            spr_.set_position({Fixnum(c.x_),
+                               Fixnum(c.y_)});
             spr_.set_size(Sprite::Size::w16_h32);
             spr_.set_mix({[&] {
                               switch (c.clr_) {

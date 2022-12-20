@@ -184,13 +184,14 @@ draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
     pfrm.screen().draw(spr);
 
     auto pos = offset;
-    while (pos.y > -16) {
+    while (pos.y > Fixnum::from_integer(-16)) {
         spr.set_texture_index(22);
         spr.set_size(Sprite::Size::w16_h32);
-        spr.set_position({offset.x + 8, pos.y - 28});
+        spr.set_position({offset.x + Fixnum::from_integer(8),
+                          pos.y - Fixnum::from_integer(28)});
         pfrm.screen().draw(spr);
 
-        pos.y -= 30;
+        pos.y -= 30.0_fixed;
     }
 }
 
@@ -292,7 +293,7 @@ public:
             for (int y = 0; y < 7; ++y) {
                 if (chunk[y][x]) {
                     object.x_.set(Fixnum(15 + x * spacing).data());
-                    object.y_.set((y_offset + y * spacing).as_integer());
+                    object.y_.set((y_offset + Fixnum::from_integer(y * spacing)).as_integer());
                     level_->objects_.push_back(object);
                 }
             }
@@ -321,12 +322,12 @@ public:
         }
 
 
-        load_chunk(init_chunk, 100.f);
+        load_chunk(init_chunk, Fixnum(100.f));
 
 
         int offset = 1;
         for (auto& c : result) {
-            load_chunk(*c, 100.f + spacing * ((offset++) * 7));
+            load_chunk(*c, 100.0_fixed + Fixnum::from_integer(spacing * ((offset++) * 7)));
         }
 
         Level::Object object;
@@ -357,17 +358,17 @@ public:
         descent_speed_ =
             clamp(descent_speed_, Fixnum(0.000055f), Fixnum(0.000065f));
 
-        if (depth_ > 6 * 7 * spacing + 90) {
-            crane_pos_.x = interpolate(Fixnum(120.f), crane_pos_.x, 0.15f);
+        if (depth_ > Fixnum::from_integer(6 * 7 * spacing + 90)) {
+            crane_pos_.x = Fixnum(interpolate(120.f, crane_pos_.x.as_float(), 0.15f));
         }
 
 
         if (got_treasure_ or got_bomb_) {
-            if (crane_pos_.y < 120) {
-                crane_pos_.y += Fixnum(0.00003f) * delta;
-                depth_ -= Fixnum(0.00006f) * delta;
+            if (crane_pos_.y < 120.0_fixed) {
+                crane_pos_.y += Fixnum(0.00003f) * Fixnum(delta);
+                depth_ -= Fixnum(0.00006f) * Fixnum(delta);
             } else {
-                depth_ -= descent_speed_ * delta;
+                depth_ -= descent_speed_ * Fixnum(delta);
             }
 
             bomb_timer_ += delta;
@@ -392,18 +393,18 @@ public:
                 return scene_pool::alloc<CraneFadeinScene>(got_treasure_);
             }
         } else {
-            if (crane_pos_.y > 30) {
-                crane_pos_.y -= descent_speed_ * delta;
+            if (crane_pos_.y > 30.0_fixed) {
+                crane_pos_.y -= descent_speed_ * Fixnum(delta);
             }
-            depth_ += descent_speed_ * delta;
+            depth_ += descent_speed_ * Fixnum(delta);
         }
 
 
         x_speed_ = clamp(x_speed_, Fixnum(-0.0001f), Fixnum(0.0001f));
 
-        if (x_speed_ > 0) {
+        if (x_speed_ > 0.0_fixed) {
             x_speed_ -= Fixnum(0.0000007f);
-        } else if (x_speed_ < 0) {
+        } else if (x_speed_ < 0.0_fixed) {
             x_speed_ += Fixnum(0.0000007f);
         }
 
@@ -416,7 +417,7 @@ public:
             x_speed_ -= Fixnum(0.0000045f);
         }
 
-        crane_pos_.x += x_speed_ * delta;
+        crane_pos_.x += x_speed_ * Fixnum(delta);
 
 
         HitBox crane_hb;
@@ -430,8 +431,8 @@ public:
              it not_eq level_->objects_.end();) {
             auto& object = *it;
 
-            auto screen_y = object.y_.get() - depth_;
-            if (screen_y < -24 or screen_y > 180) {
+            auto screen_y = Fixnum::from_integer(object.y_.get()) - depth_;
+            if (screen_y < Fixnum::from_integer(-24) or screen_y > 180.0_fixed) {
                 if (seen_object) {
                     break;
                 } else {
@@ -442,7 +443,7 @@ public:
             seen_object = true;
 
             Vec2<Fixnum> object_pos;
-            object_pos.y = (object.y_.get() - depth_);
+            object_pos.y = (Fixnum::from_integer(object.y_.get()) - depth_);
             object_pos.x = Fixnum::create(object.x_.get());
 
             HitBox object_hb;
@@ -489,8 +490,8 @@ public:
         Sprite spr;
 
         for (auto& object : level_->objects_) {
-            auto y = object.y_.get() - depth_;
-            if (y < -24 or y > 180) {
+            auto y = Fixnum::from_integer(object.y_.get()) - depth_;
+            if (y < Fixnum::from_integer(-24) or y > 180.0_fixed) {
                 continue;
             }
 
@@ -524,8 +525,8 @@ public:
                 break;
             }
             spr.set_origin({16, 16});
-            spr.set_position({crane_pos_.x + object.crane_x_offset_ / 2,
-                              crane_pos_.y + object.crane_y_offset_ / 2});
+            spr.set_position({crane_pos_.x + Fixnum::from_integer(object.crane_x_offset_ / 2),
+                              crane_pos_.y + Fixnum::from_integer(object.crane_y_offset_ / 2)});
             pfrm.screen().draw(spr);
         }
     }
@@ -623,9 +624,9 @@ public:
 
         x_speed_ = clamp(x_speed_, Fixnum(-0.00004f), Fixnum(0.00004f));
 
-        if (x_speed_ > 0) {
+        if (x_speed_ > 0.0_fixed) {
             x_speed_ -= Fixnum(0.000001f);
-        } else if (x_speed_ < 0) {
+        } else if (x_speed_ < 0.0_fixed) {
             x_speed_ += Fixnum(0.000001f);
         }
 
@@ -638,7 +639,7 @@ public:
             x_speed_ -= Fixnum(0.000003f);
         }
 
-        crane_x_ += x_speed_ * delta;
+        crane_x_ += x_speed_ * Fixnum(delta);
 
 
         if (timer_ < seconds(5)) {
@@ -685,31 +686,31 @@ public:
                 }
             }
 
-            crane_offset_ += Fixnum(0.00001f) * delta;
+            crane_offset_ += Fixnum(0.00001f) * Fixnum::from_integer(delta);
 
 
             for (auto& cloud : data_->clouds_) {
                 switch (cloud.graphics_) {
                 case 0:
-                    cloud.position_.y -= Fixnum(0.00020f) * delta;
+                    cloud.position_.y -= Fixnum(0.00020f) * Fixnum::from_integer(delta);
                     break;
 
                 case 1:
-                    cloud.position_.y -= Fixnum(0.00029f) * delta;
+                    cloud.position_.y -= Fixnum(0.00029f) * Fixnum::from_integer(delta);
                     break;
                 }
             }
 
             for (auto it = data_->clouds_.begin();
                  it not_eq data_->clouds_.end();) {
-                if (it->position_.y < -24) {
+                if (it->position_.y < Fixnum::from_integer(-24)) {
                     it = data_->clouds_.erase(it);
                 } else {
                     ++it;
                 }
             }
         } else {
-            crane_offset_ -= Fixnum(0.000015f) * delta;
+            crane_offset_ -= Fixnum(0.000015f) * Fixnum::from_integer(delta);
 
             if (timer_ < seconds(7) and timer_ + delta > seconds(7)) {
                 for (int x = 0; x < 16; ++x) {
@@ -757,12 +758,12 @@ public:
                 spr.set_position(pos);
                 pfrm.screen().draw(spr);
 
-                pos.x += 32;
+                pos.x += 32.0_fixed;
                 spr.set_texture_index(8);
                 spr.set_position(pos);
                 pfrm.screen().draw(spr);
 
-                pos.x += 32;
+                pos.x += 32.0_fixed;
                 spr.set_texture_index(9);
                 spr.set_position(pos);
                 pfrm.screen().draw(spr);
@@ -777,9 +778,9 @@ private:
     Microseconds fadein_timer_ = 0;
     Microseconds timer_ = 0;
     Microseconds cloud_respawn_ = milliseconds(30);
-    Fixnum crane_offset_ = 20;
-    Fixnum crane_x_ = 120;
-    Fixnum x_speed_ = 0;
+    Fixnum crane_offset_ = 20.0_fixed;
+    Fixnum crane_x_ = 120.0_fixed;
+    Fixnum x_speed_ = 0.0_fixed;
 
     struct CloudInfo
     {

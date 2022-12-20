@@ -62,7 +62,7 @@ public:
     }
 
 
-    constexpr FixedPoint(float value)
+    constexpr explicit FixedPoint(float value)
         : data_(static_cast<ValueType>(value * scale()))
     {
     }

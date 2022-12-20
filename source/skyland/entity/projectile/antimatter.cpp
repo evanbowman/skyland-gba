@@ -53,7 +53,7 @@ Antimatter::Antimatter(const Vec2<Fixnum>& position,
 
     static const Float speed = 0.00015f;
     auto step = direction(fvec(position), fvec(target)) * speed;
-    step_vector_ = Vec2<Fixnum>{step.x, step.y};
+    step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 }
 
 

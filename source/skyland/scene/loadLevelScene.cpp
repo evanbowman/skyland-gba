@@ -52,10 +52,10 @@ void set_island_positions(Island& left_island, Island& right_island)
     // I didn't know how big the islands were going to be originally, so I gave
     // myself extra space to work with.
 
-    left_island.set_position({10, 374});
+    left_island.set_position({Fixnum::from_integer(10), Fixnum::from_integer(374)});
     // Pretty much as far away as possible, without wrapping across the screen.
-    right_island.set_position(
-        {Float(250 + 16 * (10 - right_island.terrain().size())), 374});
+    right_island.set_position({Fixnum(Float(250 + 16 * (10 - right_island.terrain().size()))),
+                               Fixnum::from_integer(374)});
 }
 
 
@@ -120,7 +120,7 @@ void prep_level(Platform& pfrm, App& app)
 
 
     if (app.opponent_island()) {
-        app.opponent_island()->set_drift(pfrm, app, -0.000025f);
+        app.opponent_island()->set_drift(pfrm, app, Fixnum(-0.000025f));
 
         set_island_positions(app.player_island(), *app.opponent_island());
 

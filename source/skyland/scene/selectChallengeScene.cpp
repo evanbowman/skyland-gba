@@ -189,8 +189,8 @@ void SelectChallengeScene::display(Platform& pfrm, App& app)
     auto ambient_movement = 2 * float(sine(4 * 3.14f * 0.004f * timer_ + 180)) /
                             std::numeric_limits<s16>::max();
 
-    origin.x += 16 + ambient_movement;
-    origin.y += 32 + cursor_ * 16 - 1;
+    origin.x += Fixnum(16 + ambient_movement);
+    origin.y += Fixnum(32 + cursor_ * 16 - 1);
 
     cursor.set_position(origin);
 

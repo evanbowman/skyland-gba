@@ -126,16 +126,16 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
             // run into the player's own buildings, especially around
             // corners.
             if (island == &app.player_island()) {
-                start.x -= 18;
+                start.x -= 18.0_fixed;
             } else {
-                start.x += 18;
+                start.x += 18.0_fixed;
             }
 
             auto target = center();
             if (parent() == &app.player_island()) {
-                target.x += 100.f;
+                target.x += 100.0_fixed;
             } else {
-                target.x -= 100.f;
+                target.x -= 100.0_fixed;
             }
 
 

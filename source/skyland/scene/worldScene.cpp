@@ -39,6 +39,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "surrenderWaitScene.hpp"
+#include "skyland/latency.hpp"
 
 
 
@@ -324,8 +325,8 @@ void WorldScene::display(Platform& pfrm, App& app)
                 x = -16;
             }
 
-            origin.x += x;
-            origin.y += cursor_loc.y * 16;
+            origin.x += Fixnum::from_integer(x);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
             cursor.set_position(origin);
         } else if (app.opponent_island()) {
@@ -336,8 +337,8 @@ void WorldScene::display(Platform& pfrm, App& app)
                 x = -16;
             }
 
-            origin.x += x;
-            origin.y += cursor_loc.y * 16;
+            origin.x += Fixnum::from_integer(x);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
             cursor.set_position(origin);
         }
@@ -392,6 +393,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto& g = globals();
 
+    TIMEPOINT(t1);
+
 
     if (not pfrm.network_peer().is_connected()) {
         // We scale game updates based on frame delta. But if the game starts to
@@ -429,6 +432,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto& mt_prep_timer = g.multiplayer_prep_timer_;
 
     auto& mt_prep_seconds = g.multiplayer_prep_seconds_;
+
+
+    TIMEPOINT(t2);
 
 
     if (pfrm.network_peer().is_connected()) {
@@ -552,6 +558,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         set_gamespeed_keyheld_timer_ = 0;
     }
 
+    TIMEPOINT(t3);
+
     if (app.opponent_island()) {
 
         const bool show_opponent_interior =
@@ -580,17 +588,17 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // a certain distance. If the player extends the terrain on his own
         // island, drift the opponent island away to maintain the ideal
         // distance between the two.
-        if ((app.opponent_island()->get_drift() < 0 and
+        if ((app.opponent_island()->get_drift() < 0.0_fixed and
              app.opponent_island()->get_position().x.as_integer() <=
                  (int)app.player_island().terrain().size() * 16 + 48) or
-            (app.opponent_island()->get_drift() > 0 and
+            (app.opponent_island()->get_drift() > 0.0_fixed and
              app.opponent_island()->get_position().x.as_integer() >
                  (int)app.player_island().terrain().size() * 16 + 48)) {
 
             app.opponent_island()->set_position(
-                {(Float)app.player_island().terrain().size() * 16 + 48,
-                 app.opponent_island()->get_position().y});
-            app.opponent_island()->set_drift(pfrm, app, 0);
+                                                {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
+                                                 Fixnum(app.opponent_island()->get_position().y)});
+            app.opponent_island()->set_drift(pfrm, app, 0.0_fixed);
 
             app.on_timeout(
                 pfrm, milliseconds(500), [](Platform& pfrm, App& app) {
@@ -598,10 +606,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 });
         }
 
-        if (app.opponent_island()->get_drift() == 0) {
+        if (app.opponent_island()->get_drift() == 0.0_fixed) {
             if (app.opponent_island()->get_position().x.as_integer() <
                 (int)app.player_island().terrain().size() * 16 + 48) {
-                app.opponent_island()->set_drift(pfrm, app, 0.00003f);
+                app.opponent_island()->set_drift(pfrm, app, 0.00003_fixed);
             }
         }
     }
@@ -659,15 +667,23 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    TIMEPOINT(t4);
+
     app.player_island().update(pfrm, app, world_delta);
+
+    TIMEPOINT(t5);
 
     if (app.opponent_island()) {
         app.opponent_island()->update(pfrm, app, world_delta);
     }
 
+    TIMEPOINT(t6);
+
     update_entities(pfrm, app, world_delta, app.effects());
 
     update_entities(pfrm, app, world_delta, app.birds());
+
+    TIMEPOINT(t7);
 
     for (auto& bird : app.birds()) {
         pfrm.screen().draw(bird->sprite());
@@ -761,6 +777,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    TIMEPOINT(t8);
+
     if (app.opponent_island()) {
         for (auto& projectile : app.player_island().projectiles()) {
             app.opponent_island()->test_collision(pfrm, app, *projectile);
@@ -778,6 +796,20 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.opponent_island()->test_collision(pfrm, app, *projectile);
         }
     }
+
+    TIMEPOINT(t9);
+
+    // if (pfrm.keyboard().pressed<Key::select>()) {
+    //     Platform::fatal(format("% % % % % % % %",
+    //                            t2 - t1,
+    //                            t3 - t2,
+    //                            t4 - t3,
+    //                            t5 - t4,
+    //                            t6 - t5,
+    //                            t7 - t6,
+    //                            t8 - t7,
+    //                            t9 - t8).c_str());
+    // }
 
     return ret;
 }

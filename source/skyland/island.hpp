@@ -422,7 +422,7 @@ private:
     Vec2<Fixnum> position_;
     u8 ambient_movement_;
     Microseconds timer_;
-    Fixnum drift_ = 0;
+    Fixnum drift_ = 0.0_fixed;
 
     bool interior_visible_ : 1;
     bool show_flag_ : 1;

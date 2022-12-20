@@ -38,6 +38,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "latency.hpp"
 
 
 
@@ -256,10 +257,10 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 
             auto o = origin();
 
-            o.x += chimney_loc_->x * 16 + 8;
-            o.y += chimney_loc_->y * 16 - 4;
+            o.x += Fixnum::from_integer(chimney_loc_->x * 16 + 8);
+            o.y += Fixnum::from_integer(chimney_loc_->y * 16 - 4);
 
-            if (drift_ == 0.f) {
+            if (drift_ == 0.0_fixed) {
                 // FIXME: faking the rewound smoke effects doesn't work if the
                 // island is moving. So just don't spawn them. We'll need to
                 // think of another way.
@@ -288,8 +289,8 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (drift_ not_eq 0) {
-        position_.x -= drift_ * delta;
+    if (drift_ not_eq 0.0_fixed) {
+        position_.x -= drift_ * Fixnum::from_integer(delta);
     }
 
 
@@ -641,6 +642,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
 
+    TIMEPOINT(t1);
+
     if (not hidden_ and show_flag_ and flag_pos_) {
         flag_anim_timer_ += dt;
         if (flag_anim_timer_ > milliseconds(80)) {
@@ -662,14 +665,16 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             auto o = origin();
 
-            o.x += chimney_loc_->x * 16 + 8;
-            o.y += chimney_loc_->y * 16 - 4;
+            o.x += Fixnum::from_integer(chimney_loc_->x * 16 + 8);
+            o.y += Fixnum::from_integer(chimney_loc_->y * 16 - 4);
 
             if (auto e = app.alloc_entity<SmokePuff>(pfrm, o)) {
                 app.effects().push(std::move(e));
             }
         }
     }
+
+    TIMEPOINT(t2);
 
     u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
@@ -714,6 +719,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
                 it = chr_list.erase(it);
             } else {
+
+
                 if ((*it)->is_awaiting_movement()) {
                     if (movement_ready) {
                         (*it)->set_can_move();
@@ -728,6 +735,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 } else {
                     ++character_count_;
                 }
+
                 (*it)->update(pfrm, app, dt);
                 ++it;
             }
@@ -791,7 +799,19 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     dispatch_list_ = nullptr;
 
 
+    TIMEPOINT(t3);
+
+    int dispatch_count = 0;
+    int dispatch_max_lat = 0;
+    int dispatch_min_lat = std::numeric_limits<int>::max();
+    [[maybe_unused]] RoomMeta* max_mt = nullptr;
+
+
     while (room) {
+
+        TIMEPOINT(before);
+
+        ++dispatch_count;
         const auto next = room->dispatch_next();
 
         if (room->health() == 0) {
@@ -994,9 +1014,21 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             update_characters(room->characters(), false);
         }
 
+        TIMEPOINT(after);
+        const auto lat = after - before;
+        if (lat < dispatch_min_lat) {
+            dispatch_min_lat = lat;
+        }
+        if (lat > dispatch_max_lat) {
+            dispatch_max_lat = lat;
+            max_mt = room->metaclass();
+        }
+
         room = next;
+
     }
 
+    TIMEPOINT(t4);
 
     if (do_repaint) {
         repaint(pfrm, app);
@@ -1007,20 +1039,54 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
 
+    TIMEPOINT(t5);
+
+
     update_characters(characters_, true);
+
+
+    TIMEPOINT(t6);
 
 
     update_entities(pfrm, app, dt, projectiles_);
 
-    if (drift_ not_eq 0) {
-        position_.x += drift_ * dt;
+
+    TIMEPOINT(t7);
+
+
+    if (drift_ not_eq 0.0_fixed) {
+        position_.x += drift_ * Fixnum::from_integer(dt);
     }
+
+    TIMEPOINT(t8);
 
     pfrm.set_scroll(layer(),
                     -get_position().x.as_integer(),
                     -get_position().y.as_integer() - ambient_offset);
 
     fire_.update(pfrm, app, *this, dt);
+
+
+    TIMEPOINT(t9);
+
+// #define ISLAND_PROFILE_LATENCY
+#ifdef ISLAND_PROFILE_LATENCY
+    if (pfrm.keyboard().pressed<Key::select>()) {
+        Platform::fatal(format("% % % % % % % % cnt:% max:% min:% max-mt:%",
+                               t2 - t1,
+                               t3 - t2,
+                               t4 - t3,
+                               t5 - t4,
+                               t6 - t5,
+                               t7 - t6,
+                               t8 - t7,
+                               t9 - t8,
+                               dispatch_count,
+                               dispatch_max_lat,
+                               dispatch_min_lat,
+                               (*max_mt)->name()).c_str());
+    }
+#endif
 }
 
 
@@ -1101,7 +1167,7 @@ void Island::display(Platform& pfrm)
         Sprite cpy = c->sprite();
         auto pos = cpy.get_position();
         if (pos.y.as_integer() < screen_limit_y) {
-            pos.y += 2;
+            pos.y += 2.0_fixed;
             cpy.set_position(pos);
             pfrm.screen().draw(cpy);
         }
@@ -1156,8 +1222,11 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                     static constexpr const int tile_size = 16;
 
                     auto hitbox_pos = this->origin();
-                    hitbox_pos.x += room->position().x * tile_size;
-                    hitbox_pos.y += room->position().y * tile_size;
+                    hitbox_pos.x +=
+                        Fixnum::from_integer(room->position().x * tile_size);
+
+                    hitbox_pos.y +=
+                        Fixnum::from_integer(room->position().y * tile_size);
 
                     HitBox room_hitbox;
                     room_hitbox.position_ = &hitbox_pos;
@@ -1820,7 +1889,7 @@ Vec2<Fixnum> Island::origin() const
 
 Vec2<Fixnum> Island::visual_origin() const
 {
-    return {position_.x, position_.y + ambient_movement_};
+    return {position_.x, position_.y + Fixnum::from_integer(ambient_movement_)};
 }
 
 

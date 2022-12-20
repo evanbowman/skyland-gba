@@ -174,9 +174,9 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     bool right = true;
     if (island == &app.player_island()) {
         right = false;
-        start.x -= 24;
+        start.x -= 24.0_fixed;
     } else {
-        start.x += 24;
+        start.x += 24.0_fixed;
     }
 
     cannon_sound.play(pfrm, 3);
@@ -234,13 +234,13 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
             parent()->projectiles().push(std::move(ab));
         }
 
-        start.y += 4;
+        start.y += 4.0_fixed;
 
         auto target = center();
         if (parent() == &app.player_island()) {
-            target.x += 100.f;
+            target.x += 100.0_fixed;
         } else {
-            target.x -= 100.f;
+            target.x -= 100.0_fixed;
         }
 
         auto c = app.alloc_entity<DecimatorBurst>(

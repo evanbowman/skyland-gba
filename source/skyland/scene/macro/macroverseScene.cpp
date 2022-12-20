@@ -248,9 +248,10 @@ static Vec2<Fixnum> sector_map_display_pos(Platform& pfrm, Vec2<s8> coord)
 {
     const auto sw = pfrm.screen().size();
 
-    Vec2<Fixnum> origin{sw.x / 2 - 16, sw.y / 2 - 16};
-    origin.x += coord.x * 32;
-    origin.y += coord.y * 38;
+    Vec2<Fixnum> origin{Fixnum::from_integer(sw.x / 2 - 16),
+                        Fixnum::from_integer(sw.y / 2 - 16)};
+    origin.x += Fixnum::from_integer(coord.x * 32);
+    origin.y += Fixnum::from_integer(coord.y * 38);
 
     return origin;
 }
@@ -867,7 +868,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (selected_colony_) {
                 auto cost = m.colony_cost();
                 if ( // m.data_->p().coins_.get() >= cost.first and
-                    m.sector().population().as_integer() >= cost.second) {
+                    m.sector().population().as_integer() >= cost.second.as_integer()) {
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
@@ -968,7 +969,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 m.sector().generate_terrain(160, 1);
-                m.sector().set_population(20);
+                m.sector().set_population(Population(20));
 
                 pfrm.speaker().play_sound("button_wooden", 2);
             }
@@ -1025,7 +1026,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     if (state_ == State::select_colony_layout) {
 
         auto origin = camera_.cast<Fixnum>();
-        origin.y += 8 * layout_icon_y_start_row;
+        origin.y += Fixnum::from_integer(8 * layout_icon_y_start_row);
 
         auto draw = [&pfrm](int t_start, Vec2<Fixnum> origin) {
             Sprite spr;
@@ -1033,18 +1034,18 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             spr.set_position(origin);
             pfrm.screen().draw(spr);
 
-            origin.x += 32;
+            origin.x += 32.0_fixed;
             spr.set_texture_index(t_start++);
             spr.set_position(origin);
             pfrm.screen().draw(spr);
 
-            origin.x -= 32;
-            origin.y += 32;
+            origin.x -= 32.0_fixed;
+            origin.y += 32.0_fixed;
             spr.set_texture_index(t_start++);
             spr.set_position(origin);
             pfrm.screen().draw(spr);
 
-            origin.x += 32;
+            origin.x += 32.0_fixed;
             spr.set_texture_index(t_start);
             spr.set_position(origin);
             pfrm.screen().draw(spr);
@@ -1067,11 +1068,11 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             ic2 = 22;
         }
 
-        draw(ic1, origin + Vec2<Fixnum>{mrgn * 8, 0});
-        draw(ic2, origin + Vec2<Fixnum>{(mrgn * 2 + layout_icon_width) * 8, 0});
+        draw(ic1, origin + Vec2<Fixnum>{Fixnum::from_integer(mrgn * 8), 0.0_fixed});
+        draw(ic2, origin + Vec2<Fixnum>{Fixnum::from_integer((mrgn * 2 + layout_icon_width) * 8), 0.0_fixed});
         draw(ic3,
              origin +
-                 Vec2<Fixnum>{(mrgn * 3 + layout_icon_width * 2) * 8, -16});
+             Vec2<Fixnum>{Fixnum::from_integer((mrgn * 3 + layout_icon_width * 2) * 8), Fixnum::from_integer(-16)});
 
         return;
     }
@@ -1116,7 +1117,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         spr.set_texture_index(t_start);
         pfrm.screen().draw(spr);
         spr.set_texture_index(t_start + 1);
-        spr.set_position({origin.x, origin.y + 32});
+        spr.set_position({origin.x, origin.y + 32.0_fixed});
         pfrm.screen().draw(spr);
     };
 
@@ -1143,8 +1144,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         }
 
         auto origin = sector_map_display_pos(pfrm, c);
-        origin.x += 8;
-        origin.y += 8;
+        origin.x += 8.0_fixed;
+        origin.y += 8.0_fixed;
 
         int t_start = 79;
 
@@ -1167,8 +1168,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     if (state_ == State::create_colony) {
         for (auto& slot : colony_create_slots_) {
             auto origin = sector_map_display_pos(pfrm, slot);
-            origin.x += 8;
-            origin.y += 8;
+            origin.x += 8.0_fixed;
+            origin.y += 8.0_fixed;
 
             Sprite spr;
             spr.set_size(Sprite::Size::w16_h32);

@@ -119,7 +119,7 @@ void respawn_missile(Platform& pfrm,
                      Fixnum::from_integer(e.y_pos_.get())},
         Vec2<Fixnum>{
             Fixnum::from_integer(e.target_x_.get()),
-            0.f // TODO: change target parameter to simple float, y unused.
+            0.0_fixed // TODO: change target parameter to simple float, y unused.
         },
         (u8)e.source_x_,
         (u8)e.source_y_,
@@ -148,7 +148,7 @@ void respawn_rocketbomb(Platform& pfrm,
                      Fixnum::from_integer(e.y_pos_.get())},
         Vec2<Fixnum>{
             Fixnum::from_integer(e.target_x_.get()),
-            0.f // TODO: change target parameter to simple float, y unused.
+            0.0_fixed // TODO: change target parameter to simple float, y unused.
         },
         (u8)e.source_x_,
         (u8)e.source_y_,

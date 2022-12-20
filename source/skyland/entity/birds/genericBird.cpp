@@ -85,8 +85,8 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
 {
     auto o = island->origin();
-    o.x += position_.x * 16;
-    o.y += position_.y * 16;
+    o.x += Fixnum::from_integer(position_.x * 16);
+    o.y += Fixnum::from_integer(position_.y * 16);
 
     auto layer = island->layer();
     auto t = pfrm.get_tile(layer, position_.x, position_.y);
@@ -105,7 +105,7 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
 
     case InteriorTile::roof_1:
     case InteriorTile::roof_3:
-        o.y -= 10;
+        o.y -= 10.0_fixed;
         break;
 
     case InteriorTile::roof_2:
@@ -114,13 +114,13 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
         break;
 
     case InteriorTile::flag_mount:
-        o.y -= 32;
-        o.x += 5;
+        o.y -= 32.0_fixed;
+        o.x += 5.0_fixed;
         break;
 
     case InteriorTile::roof_flag:
-        o.y -= 32;
-        o.x += 5;
+        o.y -= 32.0_fixed;
+        o.x += 5.0_fixed;
         break;
 
     case InteriorTile::null:
@@ -136,7 +136,7 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
         break;
     }
 
-    o.y += island->get_ambient_movement();
+    o.y += Fixnum::from_integer(island->get_ambient_movement());
 
     sprite_.set_position(o);
 }
@@ -231,7 +231,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto pos = sprite_.get_position();
 
-        if (pos.y < 450) {
+        if (pos.y < 450.0_fixed) {
 
             if (alive()) {
                 time_stream::event::BirdLeftMap e;
@@ -251,13 +251,13 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (delta > 0) {
-            pos.y -= delta * 0.0001f;
+            pos.y -= Fixnum::from_integer(delta) * 0.0001_fixed;
         }
 
         if (sprite_.get_flip().x) {
-            pos.x += delta * speed_;
+            pos.x += Fixnum::from_integer(delta) * Fixnum(speed_);
         } else {
-            pos.x -= delta * speed_;
+            pos.x -= Fixnum::from_integer(delta) * Fixnum(speed_);
         }
 
         sprite_.set_position(pos);
@@ -327,13 +327,13 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
         auto pos = sprite_.get_position();
 
         if (delta > 0) {
-            pos.y += delta * 0.0001f;
+            pos.y += Fixnum(delta * 0.0001f);
         }
 
         if (sprite_.get_flip().x) {
-            pos.x -= delta * speed_;
+            pos.x -= Fixnum(delta * speed_);
         } else {
-            pos.x += delta * speed_;
+            pos.x += Fixnum(delta * speed_);
         }
 
         sprite_.set_position(pos);

@@ -335,8 +335,8 @@ public:
 
             auto& cursor_loc = this->cursor();
 
-            origin.x += cursor_loc.x * 16;
-            origin.y += cursor_loc.y * 16;
+            origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
             cursor.set_position(origin);
 
@@ -349,8 +349,8 @@ public:
             auto origin = island_->visual_origin();
             auto loc =
                 (move_src_.cast<int>() + move_diff_.cast<int>()).cast<u8>();
-            origin.x += loc.x * 16;
-            origin.y += loc.y * 16;
+            origin.x += Fixnum::from_integer(loc.x * 16);
+            origin.y += Fixnum::from_integer(loc.y * 16);
 
             Sprite sprite;
             sprite.set_position(origin);
@@ -364,8 +364,8 @@ public:
             auto cursor_loc = cursor();
             cursor_loc =
                 (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
-            origin.x += cursor_loc.x * 16;
-            origin.y += cursor_loc.y * 16;
+            origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16);
             auto sz = mv_size_;
             draw_required_space(pfrm, origin, sz);
         }

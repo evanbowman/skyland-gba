@@ -77,8 +77,8 @@ public:
         auto pos = sprite_.get_position();
 
         // pos.x -= +Float(delta) * 0.00001f;
-        y_pos_ -= +Float(delta) * 0.00001f;
-        pos.y = y_pos_ + parent_->ambient_movement();
+        y_pos_ -= Fixnum(+Float(delta) * 0.00001f);
+        pos.y = y_pos_ + Fixnum::from_integer(parent_->ambient_movement());
 
         Float interval = Float(timer_) / seconds(3);
 
@@ -99,7 +99,7 @@ public:
 private:
     TitleScreenScene* parent_;
     Microseconds timer_ = 0;
-    Fixnum y_pos_ = 0.f;
+    Fixnum y_pos_ = 0.0_fixed;
 };
 
 
@@ -682,7 +682,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             furnace_timer_ =
                 -milliseconds(rng::choice<200>(rng::utility_state));
-            Vec2<Fixnum> pos{435, 154};
+            Vec2<Fixnum> pos{Fixnum::from_integer(435),
+                             Fixnum::from_integer(154)};
             pos = rng::sample<4>(pos, rng::utility_state);
             if (auto e = alloc_entity<EmberParticle>(this, pos, 51)) {
                 app.effects().push(std::move(e));
@@ -707,10 +708,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     milliseconds(1300) -
                     milliseconds(rng::choice<700>(rng::critical_state));
             }
-            auto pos = Vec2<Fixnum>{1, 130};
+            auto pos = Vec2<Fixnum>{Fixnum::from_integer(1),
+                                    Fixnum::from_integer(130)};
             auto speed =
                 (5 + rng::choice<4>(rng::critical_state)) / Float(100000);
-            pos.y += rng::choice<20>(rng::critical_state);
+            pos.y += Fixnum::from_integer(rng::choice<20>(rng::critical_state));
             if (auto e = alloc_entity<SmallBird>(pos, speed)) {
                 app.birds().push(std::move(e));
             }
@@ -722,7 +724,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 note_timer_ =
                     milliseconds(400) + milliseconds(500) -
                     milliseconds(rng::choice<700>(rng::critical_state));
-                Vec2<Fixnum> pos{552, 140};
+                Vec2<Fixnum> pos{Fixnum::from_integer(552),
+                                 Fixnum::from_integer(140)};
                 u16 gfx = 62 + rng::choice<2>(rng::utility_state);
                 if (auto e = alloc_entity<TitleScreenMusicNote>(pos, gfx)) {
                     app.effects().push(std::move(e));
@@ -733,7 +736,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& bird : app.birds()) {
         if (bird->sprite().get_position().x >
-            (scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2)) {
+            Fixnum::from_integer((scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2))) {
             bird->kill();
         }
     }
@@ -1593,11 +1596,11 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     if (x_scroll_ > 160) {
         Sprite sprite;
 
-        Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) + island_offset_,
+        Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) + Fixnum::from_integer(island_offset_),
                          Fixnum(110 - 0.25f * (240 - x_scroll_))};
         auto scl = spr_scale_offset(pfrm);
-        pos.x += scl.x;
-        pos.y += scl.y;
+        pos.x += Fixnum::from_integer(scl.x);
+        pos.y += Fixnum::from_integer(scl.y);
         sprite.set_position(pos);
         sprite.set_priority(3);
         sprite.set_texture_index(6);
@@ -1609,7 +1612,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     for (auto& effect : app.effects()) {
         auto spr = effect->sprite();
         auto pos = spr.get_position();
-        pos.x = pos.x - x_scroll_;
+        pos.x = pos.x - Fixnum::from_integer(x_scroll_);
         spr.set_position(pos);
         pfrm.screen().draw(spr);
     }
@@ -1617,11 +1620,11 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         auto spr = bird->sprite();
         auto pos = spr.get_position();
 
-        if (state_ == State::scroll_to_center and pos.x < -x_scroll_) {
+        if (state_ == State::scroll_to_center and pos.x < Fixnum::from_integer(-x_scroll_)) {
             continue;
         }
 
-        pos.x = pos.x - x_scroll_ / 2;
+        pos.x = pos.x - Fixnum::from_integer(x_scroll_ / 2);
 
         // FIXME!!!! checked cast.
         auto b = static_cast<SmallBird*>(bird.get());
@@ -1633,10 +1636,10 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                      180)) /
             std::numeric_limits<s16>::max();
 
-        pos.y += ambient_movement;
+        pos.y += Fixnum(ambient_movement);
         auto scl = spr_scale_offset(pfrm);
-        pos.x += scl.x;
-        pos.y += scl.y;
+        pos.x += Fixnum::from_integer(scl.x);
+        pos.y += Fixnum::from_integer(scl.y);
 
         spr.set_position(pos);
         pfrm.screen().draw(spr);
@@ -1655,41 +1658,41 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         scl.y = scale_offset(pfrm).y;
 
 
-        sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
-                                             (selector_shaded_ ? 1 : 0),
-                                         ambient_movement_ + 60 + 8 +
-                                             64.f * module_cursor_->y +
-                                             (selector_shaded_ ? 1 : 0)} +
+        sprite.set_position(Vec2<Fixnum>{Fixnum(28 + 64.f * module_cursor_->x +
+                                                (selector_shaded_ ? 1 : 0)),
+                                             Fixnum(ambient_movement_ + 60 + 8 +
+                                                    64.f * module_cursor_->y +
+                                                    (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
-        sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
-                                             (selector_shaded_ ? 1 : 0),
-                                         ambient_movement_ + 60 + 8 +
+        sprite.set_position(Vec2<Fixnum>{Fixnum(83 + 64.f * module_cursor_->x -
+                                             (selector_shaded_ ? 1 : 0)),
+                                             Fixnum(ambient_movement_ + 60 + 8 +
                                              64.f * module_cursor_->y +
-                                             (selector_shaded_ ? 1 : 0)} +
+                                             (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
-        sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
-                                             (selector_shaded_ ? 1 : 0),
-                                         ambient_movement_ + 60 + 8 +
+        sprite.set_position(Vec2<Fixnum>{Fixnum(28 + 64.f * module_cursor_->x +
+                                             (selector_shaded_ ? 1 : 0)),
+                                             Fixnum(ambient_movement_ + 60 + 8 +
                                              64.f * module_cursor_->y + 40 -
-                                             (selector_shaded_ ? 1 : 0)} +
+                                             (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
-        sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
-                                             (selector_shaded_ ? 1 : 0),
-                                         ambient_movement_ + 60 + 8 +
+        sprite.set_position(Vec2<Fixnum>{Fixnum(83 + 64.f * module_cursor_->x -
+                                             (selector_shaded_ ? 1 : 0)),
+                                             Fixnum(ambient_movement_ + 60 + 8 +
                                              64.f * module_cursor_->y + 40 -
-                                             (selector_shaded_ ? 1 : 0)} +
+                                             (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
     }
@@ -1752,7 +1755,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
 
-    const Vec2<Fixnum> anchor = {73.f, (c.y - 64) + 148};
+    const Vec2<Fixnum> anchor = {Fixnum(73.f), Fixnum((c.y - 64) + 148)};
 
     Vec2<Fixnum> scl;
     scl.x = spr_scale_offset(pfrm).x;
@@ -1764,26 +1767,26 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     sprite.set_origin({1, 2});
     sprite.set_position(
         Vec2<Fixnum>{
-            (anchor.x) - (480 + x_scroll),
-            anchor.y +
-                clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
+            Fixnum((anchor.x) - Fixnum::from_integer(480 + x_scroll)),
+                Fixnum(anchor.y +
+                       Fixnum::from_integer(clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                       0.f,
-                      19.f)} +
+                                                  19.f)))} +
         scl);
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
-        Vec2<Fixnum>{(anchor.x + 24) - (480 + x_scroll),
+                        Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) - Fixnum::from_integer(480 + x_scroll)),
                      anchor.y +
-                         interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
+                                         Fixnum::from_integer(interpolate(ball_.y, pad2_.pos_, ball_.x / 22))} +
         scl);
 
     pfrm.screen().draw(sprite);
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
-    sprite.set_position(Vec2<Fixnum>{(ball_.x + anchor.x) - (480 + x_scroll),
-                                     ball_.y + anchor.y} +
+    sprite.set_position(Vec2<Fixnum>{(Fixnum::from_integer(ball_.x) + anchor.x) - Fixnum::from_integer(480 + x_scroll),
+                                         Fixnum::from_integer(ball_.y) + anchor.y} +
                         scl);
     pfrm.screen().draw(sprite);
 }

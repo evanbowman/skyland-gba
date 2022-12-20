@@ -103,7 +103,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::rising;
 
             auto pos = sprite_.get_position();
-            pos.x = (source_x_ * 16) + 8 + source_->origin().x;
+            pos.x = Fixnum::from_integer((source_x_ * 16) + 8) + source_->origin().x;
             sprite_.set_position(pos);
             sprite_.set_flip({false, false});
         }
@@ -147,7 +147,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::wait;
             sprite_.set_alpha(Sprite::Alpha::transparent);
-        } else if (sprite_.get_position().y < 460) {
+        } else if (sprite_.get_position().y < 460.0_fixed) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
             sprite_.set_alpha(Sprite::Alpha::opaque);
@@ -175,7 +175,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::falling: {
-        if (sprite_.get_position().y < 460) {
+        if (sprite_.get_position().y < 460.0_fixed) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
             sprite_.set_alpha(Sprite::Alpha::opaque);
@@ -197,7 +197,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (target) {
             auto max_y = target->origin().y;
-            max_y += 16 * 16 + 32;
+            max_y += Fixnum::from_integer(16 * 16 + 32);
             if (pos.y > max_y) {
                 this->destroy(pfrm, app);
                 pfrm.speaker().play_sound("explosion1", 2);

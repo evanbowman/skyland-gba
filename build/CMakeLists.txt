@@ -250,7 +250,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/qrBlock.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
-  ${SOURCE_DIR}/skyland/rooms/pummeler.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
   ${SOURCE_DIR}/skyland/rooms/mycelium.cpp
   ${SOURCE_DIR}/skyland/rooms/radiator.cpp

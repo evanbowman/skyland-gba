@@ -119,7 +119,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     auto& sector = this->sector();
     sector.erase();
     sector.set_name("origin");
-    sector.set_productivity(16);
+    sector.set_productivity(FixedPoint<16, u32>::from_integer(16));
 
     sector.generate_terrain_regular(120, 1);
 
@@ -133,7 +133,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
 
 
     sector.set_cursor({3, 3, 1});
-    sector.set_population(16);
+    sector.set_population(FixedPoint<16, u32>::from_integer(16));
 }
 
 
@@ -198,17 +198,22 @@ int EngineImpl::food_consumption_factor()
 std::pair<Coins, Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
-        return {999999999, 9999};
+        return {999999999, FixedPoint<16, u32>::from_integer(9999)};
     } else if (data_->other_sectors_.size() == 0) {
-        return {1500 + 3000 * data_->other_sectors_.size(), 70};
+        return {1500 + 3000 * data_->other_sectors_.size(),
+                FixedPoint<16, u32>::from_integer(70)};
     } else if (data_->other_sectors_.size() < 3) {
-        return {1500 + 3000 * data_->other_sectors_.size(), 150};
+        return {1500 + 3000 * data_->other_sectors_.size(),
+                FixedPoint<16, u32>::from_integer(150)};
     } else if (data_->other_sectors_.size() < 8) {
-        return {4000 + 3200 * data_->other_sectors_.size(), 200};
+        return {4000 + 3200 * data_->other_sectors_.size(),
+                FixedPoint<16, u32>::from_integer(200)};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 3600 * data_->other_sectors_.size(), 800};
+        return {6000 + 3600 * data_->other_sectors_.size(),
+                FixedPoint<16, u32>::from_integer(800)};
     } else {
-        return {7000 + 4000 * data_->other_sectors_.size(), 2000};
+        return {7000 + 4000 * data_->other_sectors_.size(),
+                FixedPoint<16, u32>::from_integer(2000)};
     }
 }
 
@@ -3258,7 +3263,7 @@ Vec2<Fixnum> screen_coord(Platform& pfrm, int p)
     int real_x = x * 8;
     pos.y = real_y;
     pos.x = real_x;
-    pos.y -= pfrm.get_scroll(Layer::map_1).y;
+    pos.y -= Fixnum::from_integer(pfrm.get_scroll(Layer::map_1).y);
 
     return pos;
 }

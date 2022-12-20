@@ -185,7 +185,7 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
         for (auto& c : **confetti_) {
             Sprite spr_;
             spr_.set_priority(0);
-            spr_.set_position({c.x_, c.y_});
+            spr_.set_position({Fixnum(c.x_), Fixnum(c.y_)});
             spr_.set_size(Sprite::Size::w16_h32);
             spr_.set_mix({[&] {
                               switch (c.clr_) {
@@ -346,7 +346,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         const auto layer = island_->layer();
 
         for (int y = 15; y > 0; --y) {
-            const auto y_pos = pos.y + y * 16;
+            const auto y_pos = pos.y + Fixnum::from_integer(y * 16);
             if (y_pos > 700.0_fixed) {
                 if (island_->flag_pos() and island_->flag_pos()->y >= y) {
                     island_->show_flag(false);
@@ -362,7 +362,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto origin = island_->visual_origin();
-    origin.x += 16 * (island_->terrain().size() / 2);
+    origin.x += Fixnum::from_integer(16 * (island_->terrain().size() / 2));
 
     const auto prev_timer = timer_;
     timer_ += delta;
@@ -408,7 +408,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         big_explosion(pfrm, app, origin, 0);
 
-        const auto off = 50.f;
+        const auto off = 50.0_fixed;
 
         if (not opponent_defeated) {
             app.swap_player<PlayerP1>();
@@ -437,7 +437,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().play_sound("explosion1", 3);
 
             big_explosion(pfrm, app, origin, 0);
-            const auto off = -50.f;
+            const auto off = Fixnum::from_integer(-50);
 
             big_explosion(pfrm, app, {origin.x - off, origin.y + off}, 0);
             big_explosion(pfrm, app, {origin.x + off, origin.y - off}, 0);
@@ -537,7 +537,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        sink_speed_ += 0.0000013f;
+        sink_speed_ += 0.0000013_fixed;
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
             timer_ = 0;

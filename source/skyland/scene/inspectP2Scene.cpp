@@ -226,12 +226,12 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto view_offset =
                 pfrm.screen().get_view().get_center().cast<s32>();
             auto island_pos = app.opponent_island()->get_position();
-            island_pos.x -= view_offset.x;
-            island_pos.y -= view_offset.y;
+            island_pos.x -= Fixnum::from_integer(view_offset.x);
+            island_pos.y -= Fixnum::from_integer(view_offset.y);
 
-            if (pos->x >= island_pos.x and
-                pos->x <= island_pos.x +
-                              app.opponent_island()->terrain().size() * 16) {
+            if (Fixnum::from_integer(pos->x) >= island_pos.x and
+                Fixnum::from_integer(pos->x) <= island_pos.x +
+                Fixnum::from_integer(app.opponent_island()->terrain().size() * 16)) {
 
                 int x_tile = -((island_pos.x.as_integer() - pos->x) / 16);
                 int y_tile = -((island_pos.y.as_integer() - pos->y) / 16);
@@ -286,9 +286,9 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto view_offset =
                 pfrm.screen().get_view().get_center().cast<s32>();
             auto island_pos = app.opponent_island()->get_position();
-            island_pos.x -= view_offset.x;
+            island_pos.x -= Fixnum::from_integer(view_offset.x);
 
-            if (pos->x < island_pos.x) {
+            if (Fixnum::from_integer(pos->x) < island_pos.x) {
                 globals().near_cursor_loc_ = {0, cursor_loc.y};
                 return scene_pool::alloc<ReadyScene>();
             }
@@ -386,8 +386,8 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         auto& cursor_loc = globals().far_cursor_loc_;
 
-        origin.x += cursor_loc.x * 16;
-        origin.y += cursor_loc.y * 16;
+        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
         cursor.set_position(origin);
 

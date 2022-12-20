@@ -106,12 +106,12 @@ public:
                     if (auto drone = island->get_drone(*target_)) {
 
                         auto start = sprite_.get_position();
-                        start.x += 8;
-                        start.y += 8;
+                        start.x += 8.0_fixed;
+                        start.y += 8.0_fixed;
                         auto target = island->origin();
 
-                        target.x += (*drone)->position().x * 16 + 8;
-                        target.y += (*drone)->position().y * 16 + 8;
+                        target.x += Fixnum::from_integer((*drone)->position().x * 16 + 8);
+                        target.y += Fixnum::from_integer((*drone)->position().y * 16 + 8);
 
                         cannon_sound.play(pfrm, 3);
 

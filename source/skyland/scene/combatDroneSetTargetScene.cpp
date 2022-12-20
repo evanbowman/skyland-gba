@@ -176,8 +176,8 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
     if (island) {
         auto origin = island->visual_origin();
 
-        origin.x += cursor_loc_.x * 16;
-        origin.y += cursor_loc_.y * 16;
+        origin.x += Fixnum::from_integer(cursor_loc_.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc_.y * 16);
 
         Sprite sprite;
         sprite.set_position(origin);

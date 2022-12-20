@@ -151,8 +151,8 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
     if (target_island) {
         auto pos = target_island->visual_origin();
-        pos.x += target_->x * 16;
-        pos.y += target_->y * 16;
+        pos.x += Fixnum::from_integer(target_->x * 16);
+        pos.y += Fixnum::from_integer(target_->y * 16);
 
         Sprite spr;
         spr.set_position(pos);

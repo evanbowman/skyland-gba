@@ -278,7 +278,7 @@ struct Cost
     Clay clay_ = 0;
     Crystal crystal_ = 0;
     Water water_ = 0;
-    Productivity productivity_ = 0;
+    Productivity productivity_;
 };
 
 
