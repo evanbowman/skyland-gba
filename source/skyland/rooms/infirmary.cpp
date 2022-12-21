@@ -41,6 +41,11 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    // Optimization: room has no inhabitants, don't schedule for updates.
+    if (characters().empty()) {
+        return;
+    }
+
     Room::ready();
 
     int characters_healing = 0;

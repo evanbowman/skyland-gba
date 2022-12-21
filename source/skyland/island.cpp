@@ -26,6 +26,7 @@
 #include "entity/misc/smokePuff.hpp"
 #include "entity/projectile/projectile.hpp"
 #include "globals.hpp"
+#include "latency.hpp"
 #include "network.hpp"
 #include "number/random.hpp"
 #include "platform/flash_filesystem.hpp"
@@ -38,7 +39,6 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "latency.hpp"
 
 
 
@@ -71,10 +71,12 @@ void Island::init_terrain(Platform& pfrm, int width, bool render)
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : layer_(layer), timer_(0), interior_visible_(false), show_flag_(false),
+    : owner_(&owner),
+      layer_(layer), timer_(0), flag_anim_index_(Tile::flag_start),
+      interior_visible_(false), show_flag_(false),
       dispatch_cancelled_(false), schedule_repaint_(false),
       schedule_repaint_partial_(false), has_radar_(false), is_boarded_(false),
-      hidden_(false), flag_anim_index_(Tile::flag_start), owner_(&owner)
+      hidden_(false)
 {
     init_terrain(pfrm, width, false);
 }
@@ -281,6 +283,8 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
             ++it;
         }
     }
+
+    bulk_timer_.rewind(pfrm, app, delta);
 
     for (auto& room : rooms_) {
         room->rewind(pfrm, app, delta);
@@ -792,6 +796,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
 
+    bulk_timer_.update(pfrm, app, dt);
+
+
     resolve_cancelled_dispatch();
 
 
@@ -1025,7 +1032,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
 
         room = next;
-
     }
 
     TIMEPOINT(t4);
@@ -1084,7 +1090,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                                dispatch_count,
                                dispatch_max_lat,
                                dispatch_min_lat,
-                               (*max_mt)->name()).c_str());
+                               (*max_mt)->name())
+                            .c_str());
     }
 #endif
 }

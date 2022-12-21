@@ -736,7 +736,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& bird : app.birds()) {
         if (bird->sprite().get_position().x >
-            Fixnum::from_integer((scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2))) {
+            Fixnum::from_integer(
+                (scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2))) {
             bird->kill();
         }
     }
@@ -1596,7 +1597,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     if (x_scroll_ > 160) {
         Sprite sprite;
 
-        Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) + Fixnum::from_integer(island_offset_),
+        Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) +
+                             Fixnum::from_integer(island_offset_),
                          Fixnum(110 - 0.25f * (240 - x_scroll_))};
         auto scl = spr_scale_offset(pfrm);
         pos.x += Fixnum::from_integer(scl.x);
@@ -1620,7 +1622,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         auto spr = bird->sprite();
         auto pos = spr.get_position();
 
-        if (state_ == State::scroll_to_center and pos.x < Fixnum::from_integer(-x_scroll_)) {
+        if (state_ == State::scroll_to_center and
+            pos.x < Fixnum::from_integer(-x_scroll_)) {
             continue;
         }
 
@@ -1660,39 +1663,39 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
         sprite.set_position(Vec2<Fixnum>{Fixnum(28 + 64.f * module_cursor_->x +
                                                 (selector_shaded_ ? 1 : 0)),
-                                             Fixnum(ambient_movement_ + 60 + 8 +
-                                                    64.f * module_cursor_->y +
-                                                    (selector_shaded_ ? 1 : 0))} +
+                                         Fixnum(ambient_movement_ + 60 + 8 +
+                                                64.f * module_cursor_->y +
+                                                (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
         sprite.set_position(Vec2<Fixnum>{Fixnum(83 + 64.f * module_cursor_->x -
-                                             (selector_shaded_ ? 1 : 0)),
-                                             Fixnum(ambient_movement_ + 60 + 8 +
-                                             64.f * module_cursor_->y +
-                                             (selector_shaded_ ? 1 : 0))} +
+                                                (selector_shaded_ ? 1 : 0)),
+                                         Fixnum(ambient_movement_ + 60 + 8 +
+                                                64.f * module_cursor_->y +
+                                                (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
         sprite.set_position(Vec2<Fixnum>{Fixnum(28 + 64.f * module_cursor_->x +
-                                             (selector_shaded_ ? 1 : 0)),
-                                             Fixnum(ambient_movement_ + 60 + 8 +
-                                             64.f * module_cursor_->y + 40 -
-                                             (selector_shaded_ ? 1 : 0))} +
+                                                (selector_shaded_ ? 1 : 0)),
+                                         Fixnum(ambient_movement_ + 60 + 8 +
+                                                64.f * module_cursor_->y + 40 -
+                                                (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
         sprite.set_position(Vec2<Fixnum>{Fixnum(83 + 64.f * module_cursor_->x -
-                                             (selector_shaded_ ? 1 : 0)),
-                                             Fixnum(ambient_movement_ + 60 + 8 +
-                                             64.f * module_cursor_->y + 40 -
-                                             (selector_shaded_ ? 1 : 0))} +
+                                                (selector_shaded_ ? 1 : 0)),
+                                         Fixnum(ambient_movement_ + 60 + 8 +
+                                                64.f * module_cursor_->y + 40 -
+                                                (selector_shaded_ ? 1 : 0))} +
                             scl);
         pfrm.screen().draw(sprite);
     }
@@ -1768,26 +1771,30 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     sprite.set_position(
         Vec2<Fixnum>{
             Fixnum((anchor.x) - Fixnum::from_integer(480 + x_scroll)),
-                Fixnum(anchor.y +
-                       Fixnum::from_integer(clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
-                      0.f,
-                                                  19.f)))} +
+            Fixnum(anchor.y +
+                   Fixnum::from_integer(clamp(
+                       interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
+                       0.f,
+                       19.f)))} +
         scl);
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
-                        Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) - Fixnum::from_integer(480 + x_scroll)),
-                     anchor.y +
-                                         Fixnum::from_integer(interpolate(ball_.y, pad2_.pos_, ball_.x / 22))} +
+        Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) -
+                            Fixnum::from_integer(480 + x_scroll)),
+                     anchor.y + Fixnum::from_integer(interpolate(
+                                    ball_.y, pad2_.pos_, ball_.x / 22))} +
         scl);
 
     pfrm.screen().draw(sprite);
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
-    sprite.set_position(Vec2<Fixnum>{(Fixnum::from_integer(ball_.x) + anchor.x) - Fixnum::from_integer(480 + x_scroll),
-                                         Fixnum::from_integer(ball_.y) + anchor.y} +
-                        scl);
+    sprite.set_position(
+        Vec2<Fixnum>{(Fixnum::from_integer(ball_.x) + anchor.x) -
+                         Fixnum::from_integer(480 + x_scroll),
+                     Fixnum::from_integer(ball_.y) + anchor.y} +
+        scl);
     pfrm.screen().draw(sprite);
 }
 

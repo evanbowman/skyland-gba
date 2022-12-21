@@ -104,6 +104,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/bulkTimer.cpp
   ${SOURCE_DIR}/skyland/loginToken.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/achievement.cpp
@@ -122,6 +123,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/weather/typhoon.cpp
   ${SOURCE_DIR}/skyland/weather/dynamic.cpp
+  ${SOURCE_DIR}/skyland/weather/blizzard.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp

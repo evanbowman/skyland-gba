@@ -236,8 +236,8 @@ void Paint::display(Platform& pfrm, App& app)
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_position({
-                         Fixnum::from_integer(-8 + cursor_.x * 8.f + 8 * origin_x_),
-                         Fixnum::from_integer(2 + cursor_.y * 8.f + 8 * origin_y_ + view_shift_),
+        Fixnum::from_integer(-8 + cursor_.x * 8.f + 8 * origin_x_),
+        Fixnum::from_integer(2 + cursor_.y * 8.f + 8 * origin_y_ + view_shift_),
     });
 
     sprite.set_texture_index(62);

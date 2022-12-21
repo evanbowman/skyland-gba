@@ -868,7 +868,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (selected_colony_) {
                 auto cost = m.colony_cost();
                 if ( // m.data_->p().coins_.get() >= cost.first and
-                    m.sector().population().as_integer() >= cost.second.as_integer()) {
+                    m.sector().population().as_integer() >=
+                    cost.second.as_integer()) {
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
@@ -1068,11 +1069,16 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             ic2 = 22;
         }
 
-        draw(ic1, origin + Vec2<Fixnum>{Fixnum::from_integer(mrgn * 8), 0.0_fixed});
-        draw(ic2, origin + Vec2<Fixnum>{Fixnum::from_integer((mrgn * 2 + layout_icon_width) * 8), 0.0_fixed});
+        draw(ic1,
+             origin + Vec2<Fixnum>{Fixnum::from_integer(mrgn * 8), 0.0_fixed});
+        draw(ic2,
+             origin + Vec2<Fixnum>{Fixnum::from_integer(
+                                       (mrgn * 2 + layout_icon_width) * 8),
+                                   0.0_fixed});
         draw(ic3,
-             origin +
-             Vec2<Fixnum>{Fixnum::from_integer((mrgn * 3 + layout_icon_width * 2) * 8), Fixnum::from_integer(-16)});
+             origin + Vec2<Fixnum>{Fixnum::from_integer(
+                                       (mrgn * 3 + layout_icon_width * 2) * 8),
+                                   Fixnum::from_integer(-16)});
 
         return;
     }

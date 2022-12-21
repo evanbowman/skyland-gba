@@ -103,7 +103,8 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::rising;
 
             auto pos = sprite_.get_position();
-            pos.x = Fixnum::from_integer((source_x_ * 16) + 8) + source_->origin().x;
+            pos.x = Fixnum::from_integer((source_x_ * 16) + 8) +
+                    source_->origin().x;
             sprite_.set_position(pos);
             sprite_.set_flip({false, false});
         }

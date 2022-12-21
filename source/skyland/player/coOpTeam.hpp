@@ -98,9 +98,10 @@ public:
                  const network::packet::TerrainConstructed& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::TerrainConstructedLeft& packet) override;
+    void
+    receive(Platform& pfrm,
+            App& app,
+            const network::packet::TerrainConstructedLeft& packet) override;
 
 
     void receive(Platform& pfrm,

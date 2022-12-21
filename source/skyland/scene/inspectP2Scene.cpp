@@ -230,8 +230,10 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             island_pos.y -= Fixnum::from_integer(view_offset.y);
 
             if (Fixnum::from_integer(pos->x) >= island_pos.x and
-                Fixnum::from_integer(pos->x) <= island_pos.x +
-                Fixnum::from_integer(app.opponent_island()->terrain().size() * 16)) {
+                Fixnum::from_integer(pos->x) <=
+                    island_pos.x +
+                        Fixnum::from_integer(
+                            app.opponent_island()->terrain().size() * 16)) {
 
                 int x_tile = -((island_pos.x.as_integer() - pos->x) / 16);
                 int y_tile = -((island_pos.y.as_integer() - pos->y) / 16);

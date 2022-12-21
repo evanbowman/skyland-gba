@@ -939,9 +939,8 @@ public:
     }
 
 
-    virtual void receive(Platform& pfrm,
-                         App& app,
-                         const packet::OpponentRoomCreated& p)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::OpponentRoomCreated& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

@@ -33,6 +33,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/typhoon.hpp"
+#include "skyland/weather/blizzard.hpp"
 
 
 
@@ -52,10 +53,12 @@ void set_island_positions(Island& left_island, Island& right_island)
     // I didn't know how big the islands were going to be originally, so I gave
     // myself extra space to work with.
 
-    left_island.set_position({Fixnum::from_integer(10), Fixnum::from_integer(374)});
+    left_island.set_position(
+        {Fixnum::from_integer(10), Fixnum::from_integer(374)});
     // Pretty much as far away as possible, without wrapping across the screen.
-    right_island.set_position({Fixnum(Float(250 + 16 * (10 - right_island.terrain().size()))),
-                               Fixnum::from_integer(374)});
+    right_island.set_position(
+        {Fixnum(Float(250 + 16 * (10 - right_island.terrain().size()))),
+         Fixnum::from_integer(374)});
 }
 
 
@@ -174,7 +177,9 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
     app.player_island().drones().clear();
 
-    if (app.zone() > 2) {
+    if (app.zone() > 3) {
+        app.swap_environment<weather::Blizzard>();
+    } else if (app.zone() > 2) {
         app.swap_environment<weather::Storm>();
     } else {
         app.swap_environment<weather::ClearSkies>();

@@ -23,6 +23,7 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "bulkTimer.hpp"
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
 #include "entity/drones/drone.hpp"
@@ -393,6 +394,12 @@ public:
     void init_ai_awareness(Platform& pfrm, App& app);
 
 
+    BulkTimer& bulk_timer()
+    {
+        return bulk_timer_;
+    }
+
+
 private:
     void repaint_partial(Platform& pfrm, App& app);
 
@@ -412,27 +419,23 @@ private:
     void check_destroyed();
 
 
-    Power power_supply_ = 0;
-    Power power_drain_ = 0;
+    BulkTimer bulk_timer_;
+
+    EntityList<BasicCharacter> characters_;
+    EntityList<Entity> projectiles_;
+    SharedEntityList<Drone> drones_;
+
+    Player* owner_;
 
     Rooms rooms_;
     Room* dispatch_list_ = nullptr;
     const Layer layer_;
     Terrain terrain_;
-    Vec2<Fixnum> position_;
-    u8 ambient_movement_;
+    Microseconds chimney_spawn_timer_ = 0;
+    Microseconds flag_anim_timer_ = 0;
     Microseconds timer_;
+    Vec2<Fixnum> position_;
     Fixnum drift_ = 0.0_fixed;
-
-    bool interior_visible_ : 1;
-    bool show_flag_ : 1;
-    bool dispatch_cancelled_ : 1;
-    bool schedule_repaint_ : 1;
-    bool schedule_repaint_partial_ : 1;
-
-    bool has_radar_ : 1;
-    bool is_boarded_ : 1;
-    bool hidden_ : 1;
 
     struct FireState
     {
@@ -453,11 +456,17 @@ private:
 
     } fire_;
 
+    Power power_supply_ = 0;
+    Power power_drain_ = 0;
+
+    BlockChecksum checksum_ = 0;
+
+    u8 flag_anim_index_;
     u8 workshop_count_ = 0;
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
     u8 min_y_ = 0;
-    BlockChecksum checksum_ = 0;
+    u8 ambient_movement_;
 
     // These parameters represent the location where a power core might possibly
     // be. Used during the death animation when placing the center of the
@@ -467,27 +476,28 @@ private:
 
     u8 character_count_ = 0;
     u8 offensive_capabilities_ = 0;
-    u8 flag_anim_index_;
-
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;
+
+    bool interior_visible_ : 1;
+    bool show_flag_ : 1;
+    bool dispatch_cancelled_ : 1;
+    bool schedule_repaint_ : 1;
+    bool schedule_repaint_partial_ : 1;
+
+    bool has_radar_ : 1;
+    bool is_boarded_ : 1;
+    bool hidden_ : 1;
+
 
     // During repaint(), the game caches the results of plot_rooms() in this
     // matrix of bitflags. We use the result to speed up collision checking.
     Bitmatrix<16, 16> rooms_plot_;
 
     std::optional<RoomCoord> flag_pos_;
-    Microseconds flag_anim_timer_ = 0;
-
-    EntityList<BasicCharacter> characters_;
-    EntityList<Entity> projectiles_;
-    SharedEntityList<Drone> drones_;
-
-    Player* owner_;
 
     std::optional<RoomCoord> chimney_loc_;
-    Microseconds chimney_spawn_timer_ = 0;
 };
 
 

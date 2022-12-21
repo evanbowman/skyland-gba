@@ -22,7 +22,9 @@
 
 #pragma once
 
+#include "skyland/bulkTimer.hpp"
 #include "skyland/room.hpp"
+
 
 
 namespace skyland
@@ -30,13 +32,19 @@ namespace skyland
 
 
 
-class Weapon : public Room
+class Weapon : public Room, public Timer
 {
 public:
     Weapon(Island* parent,
            const char* name,
            const RoomCoord& position,
            Microseconds reload_time);
+
+
+    ~Weapon();
+
+
+    void timer_expired(Platform&, App&) override;
 
 
     Microseconds reload_interval() const override
@@ -53,13 +61,13 @@ public:
 
     void override_reload_timer(Microseconds new_time) override
     {
-        reload_timer_ = new_time;
+        Timer::__override_clock(new_time);
     }
 
 
     Microseconds reload_time_remaining() const override
     {
-        return reload_timer_;
+        return Timer::remaining();
     }
 
 
@@ -114,7 +122,6 @@ public:
 
 protected:
     std::optional<RoomCoord> target_;
-    Microseconds reload_timer_;
 };
 
 

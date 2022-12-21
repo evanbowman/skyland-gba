@@ -46,7 +46,7 @@ static int y_max(Platform& pfrm)
 
 
 static const auto status_colors =
-    FontColors{custom_color(0x000010), custom_color(0xffffff)};
+    FontColors{custom_color(0xeceff4), custom_color(0x4c566a)};
 
 
 static const auto highlight_colors =
@@ -341,13 +341,13 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0x6eb98e), custom_color(0x110731)});
+                    FontColors{custom_color(0x8FBCBB), custom_color(0x2E3440)});
             } else if (ps.keyword and c not_eq '(') {
                 pfrm.set_tile(
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0xde2f79), custom_color(0x110731)});
+                    FontColors{custom_color(0x5E81AC), custom_color(0x2E3440)});
             } else {
                 pfrm.set_tile(Layer::overlay, x, y, t);
             }

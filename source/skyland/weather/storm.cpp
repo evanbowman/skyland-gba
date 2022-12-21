@@ -36,9 +36,14 @@ static_assert(rain_pos_scale % 2 == 0);
 
 
 
-Storm::Storm()
+Storm::Storm(int particle_count)
 {
     auto& s = *state_;
+    s.particle_count_ = particle_count;
+
+    if (particle_count > State::particle_max) {
+        Platform::fatal("logic error: particle_count");
+    }
 
     auto& gen = rng::utility_state;
     s.thunder_timer_ = seconds(6) + rng::choice(seconds(5), gen);
@@ -46,8 +51,8 @@ Storm::Storm()
 
     const auto scale = rain_pos_scale;
 
-    for (auto& rd : s.raindrops_) {
-        // FIXME: pass in Platform::screen() and use screen size!
+    for (int i = 0; i < s.particle_count_; ++i) {
+        auto& rd = s.raindrops_[i];
         rd.x = rng::choice(240 * scale, rng::utility_state);
         rd.y = rng::choice(160 * scale, rng::utility_state);
     }
@@ -100,7 +105,8 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     const s16 sx = pfrm.screen().size().x + 24;
     const s16 sy = pfrm.screen().size().y;
 
-    for (auto& rd : s.raindrops_) {
+    for (int i = 0; i < s.particle_count_; ++i) {
+        auto& rd = s.raindrops_[i];
         if ((rd.x / scale) < 0 or (rd.y / scale) > sy or (rd.x / scale) > sx or
             (rd.y / scale) < -24) {
 
@@ -140,7 +146,8 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     auto& s = *state_;
 
-    for (auto& rd : s.raindrops_) {
+    for (int i = 0; i < s.particle_count_; ++i) {
+        auto& rd = s.raindrops_[i];
         if ((rd.x / scale) > (s16)pfrm.screen().size().x or
             (rd.y / scale) < 0) {
             if (rng::choice<2>(rng::utility_state)) {
@@ -167,7 +174,8 @@ void Storm::display(Platform& pfrm, App& app)
 
     auto& s = *state_;
 
-    for (auto& rd : s.raindrops_) {
+    for (int i = 0; i < s.particle_count_; ++i) {
+        auto& rd = s.raindrops_[i];
         batch->push_back({rd.x / scale, rd.y / scale});
     }
 

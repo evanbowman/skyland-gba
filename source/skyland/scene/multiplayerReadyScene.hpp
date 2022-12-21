@@ -66,10 +66,11 @@ public:
         }
 
         case State::wait:
-            app.player_island().set_position({Fixnum::from_integer(10),
-                                              Fixnum::from_integer(374)});
-            app.opponent_island()->set_position({Fixnum::from_integer(10 + 16 * 14),
-                                                 Fixnum::from_integer(374)});
+            app.player_island().set_position(
+                {Fixnum::from_integer(10), Fixnum::from_integer(374)});
+            app.opponent_island()->set_position(
+                {Fixnum::from_integer(10 + 16 * 14),
+                 Fixnum::from_integer(374)});
             return scene_pool::alloc<FadeInScene>();
             break;
         }

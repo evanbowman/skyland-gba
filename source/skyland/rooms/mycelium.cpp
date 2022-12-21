@@ -38,6 +38,107 @@ namespace skyland
 Mycelium::Mycelium(Island* parent, const RoomCoord& position, const char* n)
     : Room(parent, n, position)
 {
+    parent->bulk_timer().schedule(this, flood_time);
+}
+
+
+
+Mycelium::~Mycelium()
+{
+    parent()->bulk_timer().deschedule(this);
+}
+
+
+
+void Mycelium::timer_expired(Platform& pfrm, App& app)
+{
+    if (parent()->is_destroyed()) {
+        return;
+    }
+
+    const auto x = position().x;
+    const auto y = position().y;
+
+    if (parent()->fire_present({x, y})) {
+        // Do not grow if we're burning.
+        parent()->bulk_timer().schedule(this, flood_time);
+        return;
+    }
+
+    auto substrate = [&](u8 x, u8 y) {
+                         if (auto room = parent()->get_room({x, y})) {
+                             // Mycelium substrate must be non-mycelium room.
+                             return room->metaclass() not_eq metaclass() and
+                                 not((*room->metaclass())->properties() &
+                                     RoomProperties::fluid) and
+                                 not is_forcefield(room->metaclass());
+                         }
+
+                         return false;
+                     };
+
+    if (not substrate(x + 1, y) and not substrate(x - 1, y) and
+        not substrate(x, y - 1) and not substrate(x, y + 1) and
+        not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
+        not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
+        y not_eq 14) {
+        this->apply_damage(pfrm, app, health_upper_limit());
+        return;
+    }
+
+    auto slot_valid = [&](u8 x, u8 y) {
+                          if (x > parent()->terrain().size() - 1 or y > 14 or
+                              y < construction_zone_min_y) {
+                              return false;
+                          }
+                          if (not parent()->get_room({x, y})) {
+                              if (y == 14) {
+                                  return true;
+                              }
+
+
+                              return substrate(x + 1, y) or substrate(x - 1, y) or
+                                  substrate(x, y - 1) or substrate(x, y + 1) or
+                                  substrate(x + 1, y + 1) or substrate(x - 1, y - 1) or
+                                  substrate(x + 1, y - 1) or substrate(x - 1, y + 1);
+                          }
+                          return false;
+                      };
+
+    auto spread = [&](u8 x, u8 y) {
+                      (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
+
+                      parent()->schedule_repaint();
+
+                      if (parent() == &app.player_island()) {
+                          time_stream::event::PlayerRoomCreated p;
+                          p.x_ = x;
+                          p.y_ = y;
+                          app.time_stream().push(app.level_timer(), p);
+                      } else {
+                          time_stream::event::OpponentRoomCreated p;
+                          p.x_ = x;
+                          p.y_ = y;
+                          app.time_stream().push(app.level_timer(), p);
+                      }
+                  };
+
+    auto try_spread = [&](u8 x, u8 y) {
+                          if (slot_valid(x, y)) {
+                              spread(x, y);
+                          }
+                      };
+
+    try_spread(x + 1, y);
+    try_spread(x - 1, y);
+    try_spread(x, y + 1);
+    try_spread(x, y - 1);
+    try_spread(x + 1, y + 1);
+    try_spread(x - 1, y - 1);
+    try_spread(x - 1, y + 1);
+    try_spread(x + 1, y - 1);
+
+    parent()->bulk_timer().schedule(this, flood_time);
 }
 
 
@@ -45,99 +146,6 @@ Mycelium::Mycelium(Island* parent, const RoomCoord& position, const char* n)
 void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
-
-    if (parent()->is_destroyed()) {
-        return;
-    }
-
-    Room::ready();
-
-    flood_timer_ += delta;
-
-    if (flood_timer_ > flood_time) {
-        flood_timer_ -= flood_time;
-
-        const auto x = position().x;
-        const auto y = position().y;
-
-        if (parent()->fire_present({x, y})) {
-            // Do not grow if we're burning.
-            return;
-        }
-
-        auto substrate = [&](u8 x, u8 y) {
-            if (auto room = parent()->get_room({x, y})) {
-                // Mycelium substrate must be non-mycelium room.
-                return room->metaclass() not_eq metaclass() and
-                       not((*room->metaclass())->properties() &
-                           RoomProperties::fluid) and
-                       not is_forcefield(room->metaclass());
-            }
-
-            return false;
-        };
-
-        if (not substrate(x + 1, y) and not substrate(x - 1, y) and
-            not substrate(x, y - 1) and not substrate(x, y + 1) and
-            not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
-            not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
-            y not_eq 14) {
-            this->apply_damage(pfrm, app, health_upper_limit());
-            return;
-        }
-
-        auto slot_valid = [&](u8 x, u8 y) {
-            if (x > parent()->terrain().size() - 1 or y > 14 or
-                y < construction_zone_min_y) {
-                return false;
-            }
-            if (not parent()->get_room({x, y})) {
-                if (y == 14) {
-                    return true;
-                }
-
-
-                return substrate(x + 1, y) or substrate(x - 1, y) or
-                       substrate(x, y - 1) or substrate(x, y + 1) or
-                       substrate(x + 1, y + 1) or substrate(x - 1, y - 1) or
-                       substrate(x + 1, y - 1) or substrate(x - 1, y + 1);
-            }
-            return false;
-        };
-
-        auto spread = [&](u8 x, u8 y) {
-            (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
-
-            parent()->schedule_repaint();
-
-            if (parent() == &app.player_island()) {
-                time_stream::event::PlayerRoomCreated p;
-                p.x_ = x;
-                p.y_ = y;
-                app.time_stream().push(app.level_timer(), p);
-            } else {
-                time_stream::event::OpponentRoomCreated p;
-                p.x_ = x;
-                p.y_ = y;
-                app.time_stream().push(app.level_timer(), p);
-            }
-        };
-
-        auto try_spread = [&](u8 x, u8 y) {
-            if (slot_valid(x, y)) {
-                spread(x, y);
-            }
-        };
-
-        try_spread(x + 1, y);
-        try_spread(x - 1, y);
-        try_spread(x, y + 1);
-        try_spread(x, y - 1);
-        try_spread(x + 1, y + 1);
-        try_spread(x - 1, y - 1);
-        try_spread(x - 1, y + 1);
-        try_spread(x + 1, y - 1);
-    }
 }
 
 

@@ -137,8 +137,7 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
                             Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
                             Float(amount));
 
-            sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x),
-                                              Fixnum(pos.y)});
+            sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
             if (parent() not_eq &app.player_island()) {
                 sprite_.set_flip({true, false});
@@ -240,8 +239,7 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
         auto pos = interpolate(fvec(dest),
                                Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
                                Float(amount));
-        sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x),
-                                          Fixnum(pos.y)});
+        sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         if (parent() not_eq &app.player_island()) {
             sprite_.set_flip({true, false});

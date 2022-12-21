@@ -293,7 +293,8 @@ public:
             for (int y = 0; y < 7; ++y) {
                 if (chunk[y][x]) {
                     object.x_.set(Fixnum(15 + x * spacing).data());
-                    object.y_.set((y_offset + Fixnum::from_integer(y * spacing)).as_integer());
+                    object.y_.set((y_offset + Fixnum::from_integer(y * spacing))
+                                      .as_integer());
                     level_->objects_.push_back(object);
                 }
             }
@@ -327,7 +328,9 @@ public:
 
         int offset = 1;
         for (auto& c : result) {
-            load_chunk(*c, 100.0_fixed + Fixnum::from_integer(spacing * ((offset++) * 7)));
+            load_chunk(*c,
+                       100.0_fixed +
+                           Fixnum::from_integer(spacing * ((offset++) * 7)));
         }
 
         Level::Object object;
@@ -359,7 +362,8 @@ public:
             clamp(descent_speed_, Fixnum(0.000055f), Fixnum(0.000065f));
 
         if (depth_ > Fixnum::from_integer(6 * 7 * spacing + 90)) {
-            crane_pos_.x = Fixnum(interpolate(120.f, crane_pos_.x.as_float(), 0.15f));
+            crane_pos_.x =
+                Fixnum(interpolate(120.f, crane_pos_.x.as_float(), 0.15f));
         }
 
 
@@ -432,7 +436,8 @@ public:
             auto& object = *it;
 
             auto screen_y = Fixnum::from_integer(object.y_.get()) - depth_;
-            if (screen_y < Fixnum::from_integer(-24) or screen_y > 180.0_fixed) {
+            if (screen_y < Fixnum::from_integer(-24) or
+                screen_y > 180.0_fixed) {
                 if (seen_object) {
                     break;
                 } else {
@@ -525,8 +530,10 @@ public:
                 break;
             }
             spr.set_origin({16, 16});
-            spr.set_position({crane_pos_.x + Fixnum::from_integer(object.crane_x_offset_ / 2),
-                              crane_pos_.y + Fixnum::from_integer(object.crane_y_offset_ / 2)});
+            spr.set_position({crane_pos_.x + Fixnum::from_integer(
+                                                 object.crane_x_offset_ / 2),
+                              crane_pos_.y + Fixnum::from_integer(
+                                                 object.crane_y_offset_ / 2)});
             pfrm.screen().draw(spr);
         }
     }
@@ -692,11 +699,13 @@ public:
             for (auto& cloud : data_->clouds_) {
                 switch (cloud.graphics_) {
                 case 0:
-                    cloud.position_.y -= Fixnum(0.00020f) * Fixnum::from_integer(delta);
+                    cloud.position_.y -=
+                        Fixnum(0.00020f) * Fixnum::from_integer(delta);
                     break;
 
                 case 1:
-                    cloud.position_.y -= Fixnum(0.00029f) * Fixnum::from_integer(delta);
+                    cloud.position_.y -=
+                        Fixnum(0.00029f) * Fixnum::from_integer(delta);
                     break;
                 }
             }

@@ -110,8 +110,10 @@ public:
                         start.y += 8.0_fixed;
                         auto target = island->origin();
 
-                        target.x += Fixnum::from_integer((*drone)->position().x * 16 + 8);
-                        target.y += Fixnum::from_integer((*drone)->position().y * 16 + 8);
+                        target.x += Fixnum::from_integer(
+                            (*drone)->position().x * 16 + 8);
+                        target.y += Fixnum::from_integer(
+                            (*drone)->position().y * 16 + 8);
 
                         cannon_sound.play(pfrm, 3);
 

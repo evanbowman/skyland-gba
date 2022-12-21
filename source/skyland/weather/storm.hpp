@@ -39,9 +39,13 @@ protected:
 
     struct State
     {
-        Vec2<s16> raindrops_[6];
+        static const int particle_max = 12;
+
+        Vec2<s16> raindrops_[particle_max];
         Microseconds thunder_timer_;
         Microseconds lightning_timer_;
+
+        int particle_count_ = 6;
 
         struct ColorTable
         {
@@ -58,7 +62,7 @@ protected:
     ScratchMemory<State> state_;
 
 public:
-    Storm();
+    Storm(int particle_count = 6);
 
 
     bool is_overcast() const override

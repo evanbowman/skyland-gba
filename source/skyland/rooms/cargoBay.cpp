@@ -74,7 +74,9 @@ void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    Room::ready();
+    if (count_) {
+        Room::ready();
+    }
 }
 
 
@@ -93,7 +95,8 @@ void CargoBay::display(Platform::Screen& screen)
             Sprite sprite;
             sprite.set_texture_index(51);
             auto pos = origin();
-            pos.y += Fixnum::from_integer(16 + parent()->get_ambient_movement());
+            pos.y +=
+                Fixnum::from_integer(16 + parent()->get_ambient_movement());
             sprite.set_position(pos);
             sprite.set_size(Sprite::Size::w16_h32);
             screen.draw(sprite);

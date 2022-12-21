@@ -63,7 +63,7 @@ public:
     {
         Text title(pfrm, OverlayCoord{1, 1});
         auto colors =
-            FontColors{custom_color(0xc2d9a9), custom_color(0x110731)};
+            FontColors{custom_color(0xE5E9F0), custom_color(0x2e3440)};
         title.append(path_.c_str(), colors);
         title.__detach();
 
@@ -78,7 +78,7 @@ public:
         Text t(pfrm, "abcdef0123456789.", OverlayCoord{0, 20});
         t.__detach();
 
-        pfrm.screen().schedule_fade(1.f, custom_color(0x110731));
+        pfrm.screen().schedule_fade(1.f, custom_color(0x2e3440));
     }
 
 
@@ -88,7 +88,7 @@ public:
 
         Text offset(pfrm, OverlayCoord{14, 18});
         auto colors =
-            FontColors{custom_color(0xc2d9a9), custom_color(0x110731)};
+            FontColors{custom_color(0xE5E9F0), custom_color(0x2e3440)};
         offset.append("offset ", colors);
         offset.append(row_offset * 8, colors);
         offset.append("       ", colors);
@@ -130,7 +130,7 @@ public:
                     1 + i,
                     y,
                     t,
-                    FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
+                    FontColors{custom_color(0xE5E9F0), custom_color(0x2e3440)});
             }
 
             for (u32 i = start; i < end; ++i) {
@@ -148,7 +148,7 @@ public:
                     21 + (i - start),
                     y,
                     t,
-                    FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
+                    FontColors{custom_color(0xE5E9F0), custom_color(0x2e3440)});
             }
         };
 

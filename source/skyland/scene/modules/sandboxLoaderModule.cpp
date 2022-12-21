@@ -28,6 +28,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
 #include "skyland/weather/typhoon.hpp"
+#include "skyland/weather/blizzard.hpp"
 
 
 
@@ -50,7 +51,7 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
         {SystemString::sandbox_building_dependencies, 1, 0, 1},
-        {SystemString::sandbox_weather, 1, 1, 3},
+        {SystemString::sandbox_weather, 1, 1, 4},
         {SystemString::sandbox_characters, 1, 1, 6}};
 
 
@@ -78,6 +79,10 @@ void environment_init(App& app, int type)
 
     case 3:
         app.swap_environment<weather::Typhoon>();
+        break;
+
+    case 4:
+        app.swap_environment<weather::Blizzard>();
         break;
     }
 }

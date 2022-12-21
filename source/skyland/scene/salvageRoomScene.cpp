@@ -218,7 +218,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     u16 mt_index = 0;
                     if (auto room = island(app)->get_room(cursor_loc)) {
-                        mt_index = metaclass_index((*room->metaclass())->name());
+                        mt_index =
+                            metaclass_index((*room->metaclass())->name());
 
                         const auto room_x = room->position().x;
                         const auto room_y = room->position().y;

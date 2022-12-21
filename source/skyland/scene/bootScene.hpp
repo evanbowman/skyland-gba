@@ -1,15 +1,15 @@
 #pragma once
 
+#include "fadeInScene.hpp"
 #include "modules/datetimeModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "skyland/player/coOpTeam.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
+#include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
-#include "skyland/scene/modules/skylandForever.hpp"
-#include "skyland/player/coOpTeam.hpp"
-#include "fadeInScene.hpp"
 
 
 
@@ -309,9 +309,11 @@ public:
             app.invoke_script(pfrm, "/scripts/config/timing.lisp");
             init_clouds(pfrm);
             pfrm.load_tile0_texture(app.environment().player_island_texture());
-            pfrm.load_tile1_texture(app.environment().opponent_island_texture());
+            pfrm.load_tile1_texture(
+                app.environment().opponent_island_texture());
             pfrm.load_sprite_texture(app.environment().sprite_texture());
-            pfrm.load_background_texture(app.environment().background_texture());
+            pfrm.load_background_texture(
+                app.environment().background_texture());
             pfrm.system_call("v-parallax", (void*)true);
             SkylandForever::init(pfrm, app, 1, rng::get(rng::critical_state));
             app.persistent_data().score_.set(0);

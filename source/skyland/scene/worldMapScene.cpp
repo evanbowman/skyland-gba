@@ -1042,8 +1042,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_tidx_16x16(28, 0);
-    cursor.set_position(
-        {Fixnum((int)cursor_loc.x * 8) - 8.0_fixed, Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
+    cursor.set_position({Fixnum((int)cursor_loc.x * 8) - 8.0_fixed,
+                         Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
     cursor.set_mix(cmix_);
     pfrm.screen().draw(cursor);
 
@@ -1074,8 +1074,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                     (app.world_graph().storm_depth_ + 2) * 16) {
                 cursor.set_texture_index(111);
                 cursor.set_position(
-                                    {Fixnum((t.coord_.x + map_start_x) * Float(8) - 3),
-                                     Fixnum((t.coord_.y + map_start_y) * Float(8) - (12))});
+                    {Fixnum((t.coord_.x + map_start_x) * Float(8) - 3),
+                     Fixnum((t.coord_.y + map_start_y) * Float(8) - (12))});
                 cursor.set_mix({});
                 cursor.set_priority(0);
                 cursor.set_size(Sprite::Size::w16_h32);
@@ -1094,30 +1094,30 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
         auto draw_range = [&cursor, &pfrm](int x, int y) {
             for (int i = 0; i < 4; ++i) {
-                cursor.set_position({Fixnum(Float(x) * 8 + i * 16),
-                                     Fixnum(Float(y) * 8 + 32)});
+                cursor.set_position(
+                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8 + 32)});
                 pfrm.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x) * 8 + i * 16),
-                                     Fixnum(Float(y) * 8)});
+                cursor.set_position(
+                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8)});
                 pfrm.screen().draw(cursor);
             }
 
             cursor.set_texture_index(74);
             for (int i = 0; i < 4; ++i) {
-                cursor.set_position({Fixnum(Float(x) * 8 + i * 16),
-                                     Fixnum(Float(y) * 8 + 64)});
+                cursor.set_position(
+                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8 + 64)});
                 pfrm.screen().draw(cursor);
             }
 
             cursor.set_texture_index(75);
-            cursor.set_position({Fixnum(Float(x) * 8 + 64),
-                                 Fixnum(Float(y) * 8)});
+            cursor.set_position(
+                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8)});
             pfrm.screen().draw(cursor);
-            cursor.set_position({Fixnum(Float(x) * 8 + 64),
-                                 Fixnum(Float(y) * 8 + 32)});
+            cursor.set_position(
+                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8 + 32)});
             pfrm.screen().draw(cursor);
-            cursor.set_position({Fixnum(Float(x) * 8 + 64),
-                                 Fixnum(Float(y) * 8 + 32 + 8)});
+            cursor.set_position(
+                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8 + 32 + 8)});
             pfrm.screen().draw(cursor);
         };
 
@@ -1156,24 +1156,24 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                state_ == State::save_button_released_wait) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
-        cursor.set_position({Fixnum::from_integer(208),
-                             Fixnum::from_integer(128)});
+        cursor.set_position(
+            {Fixnum::from_integer(208), Fixnum::from_integer(128)});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::help_selected or
                state_ == State::help_button_depressed or
                state_ == State::help_button_released_wait) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
-        cursor.set_position({Fixnum::from_integer(160),
-                             Fixnum::from_integer(128)});
+        cursor.set_position(
+            {Fixnum::from_integer(160), Fixnum::from_integer(128)});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::settings_selected or
                state_ == State::settings_button_depressed or
                state_ == State::settings_button_released_wait) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
-        cursor.set_position({Fixnum::from_integer(184),
-                             Fixnum::from_integer(128)});
+        cursor.set_position(
+            {Fixnum::from_integer(184), Fixnum::from_integer(128)});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::show_node_death_icons) {
         cursor.set_size(Sprite::Size::w16_h32);
@@ -1182,8 +1182,10 @@ void WorldMapScene::display(Platform& pfrm, App& app)
             interpolate(9, 0, Float(timer_) / node_death_sequence_time);
         for (auto& node : dead_nodes_) {
             cursor.set_position({});
-            cursor.set_position({Fixnum::from_integer((node.x + map_start_x) * Float(8) - 1),
-                                                      Fixnum::from_integer((node.y + map_start_y) * Float(8) - (4 + offset))});
+            cursor.set_position(
+                {Fixnum::from_integer((node.x + map_start_x) * Float(8) - 1),
+                 Fixnum::from_integer((node.y + map_start_y) * Float(8) -
+                                      (4 + offset))});
             pfrm.screen().draw(cursor);
         }
     }

@@ -55,8 +55,8 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm, app, app.player_island(), "'((power-core 1 13))");
 
     app.player_island().render_exterior(pfrm, app);
-    app.player_island().set_position({Fixnum::from_integer(152),
-                                      Fixnum::from_integer(370)});
+    app.player_island().set_position(
+        {Fixnum::from_integer(152), Fixnum::from_integer(370)});
 
 
     GenericBird::spawn(

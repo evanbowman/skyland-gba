@@ -62,9 +62,10 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    Room::ready();
-
     if (recharge_ > 0) {
+
+        Room::ready();
+
         recharge_ -= delta;
 
         if (recharge_ < 0) {
@@ -141,6 +142,8 @@ void Transporter::recover_character(Platform& pfrm,
         return;
     }
 
+    ready();
+
     if (auto room = island->get_room(position)) {
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
@@ -211,6 +214,8 @@ void Transporter::transport_occupant(Platform& pfrm,
                                      std::optional<RoomCoord> destination)
 {
     begin_recharge();
+
+    ready();
 
     if (parent()->interior_visible()) {
         schedule_repaint();

@@ -232,21 +232,23 @@ static void display_damage_range_dist1(Platform::Screen& screen, Room& room)
             sprite.set_size(Sprite::Size::w16_h16);
             sprite.set_tidx_16x16(13, 1);
             sprite.set_position(
-                                {origin.x + Fixnum::from_integer(x * 16),
-                                 origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
+                {origin.x + Fixnum::from_integer(x * 16),
+                 origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
         } else {
             sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_texture_index(13);
-            sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                                 origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
+            sprite.set_position(
+                {origin.x + Fixnum::from_integer(x * 16),
+                 origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
         }
 
         screen.draw(sprite);
 
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_tidx_16x16(13, 1);
-        sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                             origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
+        sprite.set_position(
+            {origin.x + Fixnum::from_integer(x * 16),
+             origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
         screen.draw(sprite);
         sprite.set_texture_index(13);
     }
@@ -265,8 +267,9 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
     sprite.set_texture_index(13);
 
     for (int x = pos.x - 2; x < pos.x + 3; ++x) {
-        sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                             origin.y + Fixnum::from_integer((pos.y - 2) * 16)});
+        sprite.set_position(
+            {origin.x + Fixnum::from_integer(x * 16),
+             origin.y + Fixnum::from_integer((pos.y - 2) * 16)});
         screen.draw(sprite);
 
 
@@ -274,8 +277,9 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
             sprite.set_size(Sprite::Size::w16_h16);
             sprite.set_tidx_16x16(13, 1);
 
-            sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                                 origin.y + Fixnum::from_integer((pos.y) * 16)});
+            sprite.set_position(
+                {origin.x + Fixnum::from_integer(x * 16),
+                 origin.y + Fixnum::from_integer((pos.y) * 16)});
 
             screen.draw(sprite);
 
@@ -284,8 +288,9 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
         }
 
 
-        sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                             origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
+        sprite.set_position(
+            {origin.x + Fixnum::from_integer(x * 16),
+             origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
 
         screen.draw(sprite);
     }

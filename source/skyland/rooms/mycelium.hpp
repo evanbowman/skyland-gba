@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "skyland/bulkTimer.hpp"
 #include "skyland/room.hpp"
 #include "skyland/systemString.hpp"
 
@@ -32,10 +33,13 @@ namespace skyland
 
 
 
-class Mycelium final : public Room
+class Mycelium final : public Room, public Timer
 {
 public:
     Mycelium(Island* parent, const RoomCoord& position, const char* n = name());
+
+
+    ~Mycelium();
 
 
     void render_scaffolding(App& app, TileId buffer[16][16]) override
@@ -47,6 +51,9 @@ public:
     {
         // one cannot walk through this tile, intentionally do nothing.
     }
+
+
+    void timer_expired(Platform&, App&) override;
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -125,12 +132,8 @@ public:
 
     Microseconds reload_time_remaining() const override
     {
-        return flood_time - flood_timer_;
+        return Timer::remaining();
     }
-
-
-protected:
-    Microseconds flood_timer_ = 0;
 };
 
 

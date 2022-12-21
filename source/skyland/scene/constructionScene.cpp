@@ -193,7 +193,9 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
     island_pos.y -= Fixnum::from_integer(view_offset.y);
 
     if (Fixnum::from_integer(pos.x) >= island_pos.x and
-        Fixnum::from_integer(pos.x) <= island_pos.x + Fixnum::from_integer((1 + island->terrain().size()) * 16)) {
+        Fixnum::from_integer(pos.x) <=
+            island_pos.x +
+                Fixnum::from_integer((1 + island->terrain().size()) * 16)) {
 
         int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
         int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
@@ -215,11 +217,10 @@ void shift_rooms_left(Platform& pfrm, App& app, Island& island)
         tmp->push_back(room.get());
     }
     for (auto& r : reversed(*tmp)) {
-        island.move_room(
-                               pfrm,
-                               app,
-                               r->position(),
-                               {(u8)(r->position().x + 1), r->position().y});
+        island.move_room(pfrm,
+                         app,
+                         r->position(),
+                         {(u8)(r->position().x + 1), r->position().y});
     }
     // NOTE: because we shifted all blocks to the right by one
     // coordinate, a drone may now be inside of a block, which we
@@ -231,8 +232,8 @@ void shift_rooms_left(Platform& pfrm, App& app, Island& island)
     // Furthermore... all weapons on the players' island need to
     // have their targets adjusted accordingly:
     Island* other_island = (&island == &app.player_island())
-        ? app.opponent_island()
-        : &app.player_island();
+                               ? app.opponent_island()
+                               : &app.player_island();
 
     if (other_island) {
         for (auto& r : other_island->rooms()) {
@@ -1017,8 +1018,8 @@ void draw_required_space(Platform& pfrm,
             sprite.set_tidx_16x16(13, 1);
             for (int x = 0; x < sz.x; ++x) {
                 sprite.set_position(
-                                    {origin.x + Fixnum::from_integer(x * 16),
-                                     origin.y + Fixnum::from_integer((sz.y - 2) * 16 + 16)});
+                    {origin.x + Fixnum::from_integer(x * 16),
+                     origin.y + Fixnum::from_integer((sz.y - 2) * 16 + 16)});
                 pfrm.screen().draw(sprite);
             }
         }
@@ -1047,8 +1048,10 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         if (not data_->construction_sites_.empty()) {
             auto origin = island(app)->visual_origin();
 
-            origin.x += Fixnum::from_integer(data_->construction_sites_[selector_].x * 16);
-            origin.y += Fixnum::from_integer((data_->construction_sites_[selector_].y) * 16);
+            origin.x += Fixnum::from_integer(
+                data_->construction_sites_[selector_].x * 16);
+            origin.y += Fixnum::from_integer(
+                (data_->construction_sites_[selector_].y) * 16);
 
             Sprite sprite;
             sprite.set_position(origin);
@@ -1076,7 +1079,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
             if (data_->construction_sites_[selector_].y == 15) {
                 origin = island(app)->visual_origin();
-                origin.x += Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
+                origin.x += Fixnum::from_integer(
+                    (island(app)->terrain().size() - 1) * 16);
                 origin.y += 15.0_fixed * 16.0_fixed;
 
                 int tid_1 = 0;
@@ -1100,7 +1104,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             } else if ((u32)data_->construction_sites_[selector_].x ==
                        island(app)->terrain().size() - 1) {
                 origin = island(app)->visual_origin();
-                origin.x += Fixnum::from_integer((island(app)->terrain().size()) * 16);
+                origin.x +=
+                    Fixnum::from_integer((island(app)->terrain().size()) * 16);
                 origin.y += 15.0_fixed * 16.0_fixed;
 
                 sprite.set_position(origin);
@@ -1131,9 +1136,10 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             const auto sz = meta->size();
 
             auto origin = island(app)->visual_origin();
-            origin.x += Fixnum::from_integer(data_->construction_sites_[selector_].x * 16);
-            origin.y +=
-                Fixnum::from_integer((data_->construction_sites_[selector_].y - (sz.y - 1)) * 16);
+            origin.x += Fixnum::from_integer(
+                data_->construction_sites_[selector_].x * 16);
+            origin.y += Fixnum::from_integer(
+                (data_->construction_sites_[selector_].y - (sz.y - 1)) * 16);
 
             draw_required_space(pfrm, origin, sz);
         }
@@ -1166,7 +1172,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             origin.y = island(app)->visual_origin().y + 15.0_fixed * 16.0_fixed;
         } else {
             origin = island(app)->visual_origin();
-            origin.x += Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
+            origin.x +=
+                Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
             origin.y += 15.0_fixed * 16.0_fixed;
         }
         {
@@ -1373,8 +1380,8 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (app.gp_.difficulty_ not_eq
                  GlobalPersistentData::Difficulty::beginner and
              meta->properties() & RoomProperties::easy_mode_only) or
-            (state_bit_load(app, StateBit::multiboot) and not
-             (meta->properties() & RoomProperties::multiboot_compatible));
+            (state_bit_load(app, StateBit::multiboot) and
+             not(meta->properties() & RoomProperties::multiboot_compatible));
 
         if (i >= app.gp_.hidden_rooms_.size()) {
             Platform::fatal("hidden rooms Bitvector requires resize!");

@@ -115,7 +115,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden | RoomProperties::accepts_ion_damage |
+               RoomProperties::roof_hidden |
+               RoomProperties::accepts_ion_damage |
                RoomProperties::multiboot_compatible;
     }
 

@@ -336,7 +336,8 @@ void MultiplayerSettingsScene::display(Platform& pfrm, App& app)
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
     spr.set_texture_index(59);
-    spr.set_position({2.0_fixed, 31.0_fixed + Fixnum::from_integer(player_cursor_ * 16)});
+    spr.set_position(
+        {2.0_fixed, 31.0_fixed + Fixnum::from_integer(player_cursor_ * 16)});
 
     pfrm.screen().draw(spr);
 }

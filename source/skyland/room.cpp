@@ -1069,12 +1069,14 @@ public:
 
         if (not countdown_) {
             if (pos.x.as_integer() + 8 >
-                pfrm.screen().get_view().int_center().x + pfrm.screen().size().x) {
+                pfrm.screen().get_view().int_center().x +
+                    pfrm.screen().size().x) {
                 pos.x = pfrm.screen().get_view().int_center().x +
-                    pfrm.screen().size().x - (16 + 4);
+                        pfrm.screen().size().x - (16 + 4);
                 sprite_.set_flip({true, false});
                 sprite_.set_tidx_16x16(gfx_, 0);
-            } else if (pos.x.as_integer() < pfrm.screen().get_view().int_center().x) {
+            } else if (pos.x.as_integer() <
+                       pfrm.screen().get_view().int_center().x) {
                 pos.x = pfrm.screen().get_view().int_center().x + 4;
                 sprite_.set_flip({});
                 sprite_.set_tidx_16x16(gfx_, 0);
@@ -1121,12 +1123,13 @@ void Room::finalize(Platform& pfrm, App& app)
                 });
         }
 
-        const auto max_y = parent()->origin().y +
-            16.0_fixed * 16.0_fixed + 32.0_fixed;
+        const auto max_y =
+            parent()->origin().y + 16.0_fixed * 16.0_fixed + 32.0_fixed;
 
         bool is_offscreen =
-            (visual_center().x.as_integer() < pfrm.screen().get_view().int_center().x + 8 -
-                                     (size().x * 16) / 2) or
+            (visual_center().x.as_integer() <
+             pfrm.screen().get_view().int_center().x + 8 -
+                 (size().x * 16) / 2) or
             (visual_center().x.as_integer() - (size().x * 16) / 2 >
              pfrm.screen().get_view().int_center().x + pfrm.screen().size().x);
 
@@ -1137,11 +1140,8 @@ void Room::finalize(Platform& pfrm, App& app)
             if (parent() == app.opponent_island()) {
                 gfx = 57;
             }
-            if (auto ent =
-                    alloc_entity<OffscreenWarning>(position(),
-                                                   parent_,
-                                                   gfx,
-                                                   app)) {
+            if (auto ent = alloc_entity<OffscreenWarning>(
+                    position(), parent_, gfx, app)) {
                 app.effects().push(std::move(ent));
             }
         } else if (t) {
@@ -1157,10 +1157,10 @@ void Room::finalize(Platform& pfrm, App& app)
                     e->speed_.y = Fixnum(-1 * dir.y);
                     e->speed_.y -= 0.3_fixed;
                     e->speed_ = e->speed_ * 0.5_fixed;
-                    e->gravity_ =
-                        Fixnum(0.06f * 0.15f) +
-                        Fixnum::from_integer(rng::choice<3>(rng::utility_state))
-                        * 0.003_fixed;
+                    e->gravity_ = Fixnum(0.06f * 0.15f) +
+                                  Fixnum::from_integer(
+                                      rng::choice<3>(rng::utility_state)) *
+                                      0.003_fixed;
                     app.effects().push(std::move(e));
                 }
             }

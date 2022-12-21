@@ -42,42 +42,46 @@ Weapon::Weapon(Island* parent,
                Microseconds reload_time)
     : Room(parent, name, position)
 {
-    reload_timer_ = reload_time;
+    parent->bulk_timer().schedule(this, reload_time);
 }
 
 
 
-void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
+Weapon::~Weapon()
 {
-    Room::update(pfrm, app, delta);
+    parent()->bulk_timer().deschedule(this);
+}
 
-    Room::ready();
 
-    if (reload_timer_ > 0) {
-        reload_timer_ -= delta;
-        if (reload_timer_ < 0) {
-            // We need to store the point at which we finished reloading. A
-            // weapon does not fire if it does not have a target, or if the
-            // parent island's power drain exceeds its power supply. So,
-            // basically, we have no way of knowing how to roll back a reload
-            // timer in certain cases. We could perhaps save some space by not
-            // pushing this event in cases where we know that it's most likely
-            // unnecessary.
-            if (parent() == &app.player_island()) {
-                time_stream::event::PlayerRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
-            } else {
-                time_stream::event::OpponentRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
-            }
+
+void Weapon::timer_expired(Platform& pfrm, App& app)
+{
+    if (Timer::interval() == reload()) {
+        // We need to store the point at which we finished reloading. A
+        // weapon does not fire if it does not have a target, or if the
+        // parent island's power drain exceeds its power supply. So,
+        // basically, we have no way of knowing how to roll back a reload
+        // timer in certain cases. We could perhaps save some space by not
+        // pushing this event in cases where we know that it's most likely
+        // unnecessary.
+        if (parent() == &app.player_island()) {
+            time_stream::event::PlayerRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(app.level_timer(), e);
+        } else {
+            time_stream::event::OpponentRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(app.level_timer(), e);
         }
-    } else if (target_) {
+    }
+
+    if (target_) {
 
         if (parent()->power_supply() < parent()->power_drain()) {
+            parent()->bulk_timer().schedule(this, reload() - 1);
+            Timer::__override_clock(0);
             return;
         }
 
@@ -90,9 +94,22 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
             // block we are, even if we're concealed by cloaking.
             set_ai_aware(pfrm, app, true);
 
-            reload_timer_ += reload();
+            parent()->bulk_timer().schedule(this, reload());
+            return;
         }
     }
+
+    parent()->bulk_timer().schedule(this, reload() - 1); // FIXME: using
+                                                         // reload() above to
+                                                         // record events.
+    Timer::__override_clock(0);
+}
+
+
+
+void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
 }
 
 
@@ -100,15 +117,6 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
 void Weapon::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::rewind(pfrm, app, delta);
-
-    if (reload_timer_ <= 0) {
-        // Nothing to do, fully reloaded weapon.
-    } else if (reload_timer_ < reload()) {
-        // Ok, so a weapon was in the process of reloading, but the reload timer
-        // is not yet zero, so we want to increment the timer until it reaches
-        // the reload interval. Remember, we're going back in time.
-        reload_timer_ += delta;
-    }
 }
 
 
@@ -118,7 +126,7 @@ void Weapon::___rewind___finished_reload(Platform&, App&)
     // NOTE: the reload logic, above, increments the reload counter if the
     // reload timer is greater than zero. A bit hacky, but better than wasting
     // memory with a state variable for this relatively simple purpose.
-    reload_timer_ = 1;
+    Timer::__override_clock(1);
 }
 
 
@@ -134,7 +142,7 @@ void Weapon::___rewind___ability_used(Platform&, App&)
     // Generally, for weapons, the projectile itself is responsible for calling
     // this function, when it's clock rewinds past zero.
     //
-    reload_timer_ = 0;
+    Timer::__override_clock(0);
 }
 
 

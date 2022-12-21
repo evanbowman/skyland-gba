@@ -181,8 +181,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
             pos.y = 47;
         }
 
-        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x),
-                                      Fixnum(pos.y)});
+        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
         pfrm.screen().draw(spr);
@@ -204,8 +203,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
             pos.y = 64;
         }
 
-        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x),
-                                      Fixnum(pos.y)});
+        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
         pfrm.screen().draw(spr);
@@ -228,8 +226,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
             pos.y = 72;
         }
 
-        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x),
-                                      Fixnum(pos.y)});
+        spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
         pfrm.screen().draw(spr);

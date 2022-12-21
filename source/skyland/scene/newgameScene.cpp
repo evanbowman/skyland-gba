@@ -95,8 +95,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
-    app.player_island().set_position({Fixnum::from_integer(10),
-                                      Fixnum::from_integer(374)});
+    app.player_island().set_position(
+        {Fixnum::from_integer(10), Fixnum::from_integer(374)});
 
     return scene_pool::alloc<ZoneImageScene>();
 }

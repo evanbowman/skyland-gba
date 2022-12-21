@@ -105,7 +105,6 @@ template <> struct Vec2<Fixnum>
 
 
 
-
 template <typename T, typename U = T> struct Rect
 {
     T x_off = 0;

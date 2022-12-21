@@ -52,12 +52,12 @@
 #include "platform/platform.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
+#include "send_multiboot.h"
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <limits>
 #include <setjmp.h>
-#include "send_multiboot.h"
 
 
 extern "C" {
@@ -7014,10 +7014,10 @@ void mb_server_setup_vram(Platform&);
 
 Platform::Platform()
 {
-    const bool mb_sent = false;// mb_send_rom((u16*)gSkyland_MB_ROMData,
-                         //             (u16*)((u8*)gSkyland_MB_ROMData +
-                         //                    gSkyland_MB_ROMSize),
-                         //             MB_DEFAULT_TRIES / 8);
+    const bool mb_sent = false; // mb_send_rom((u16*)gSkyland_MB_ROMData,
+                                //             (u16*)((u8*)gSkyland_MB_ROMData +
+                                //                    gSkyland_MB_ROMSize),
+                                //             MB_DEFAULT_TRIES / 8);
 
     ::platform = this;
 
@@ -7344,10 +7344,12 @@ Platform::Platform()
 
 u16 mb_exchange(u16 value)
 {
-    while (REG_SIOCNT & SIO_START) ;
+    while (REG_SIOCNT & SIO_START)
+        ;
     REG_SIOMLT_SEND = value;
     REG_SIOCNT = REG_SIOCNT | SIO_START;
-    while (REG_SIOCNT & SIO_START) ;
+    while (REG_SIOCNT & SIO_START)
+        ;
     u16 result = REG_SIOMULTI1;
     return result;
 }
@@ -7356,9 +7358,9 @@ u16 mb_exchange(u16 value)
 // Gross. The platform implementation includes game data. But what else can we
 // do? This multiboot code is very gba specific, as it involves distributing
 // tile graphics over a link cable...
+#include "multiboot_room_metatable.h"
 #include "skyland/room_metatable.hpp"
 #include "skyland/tile.hpp"
-#include "multiboot_room_metatable.h"
 
 
 
@@ -7439,10 +7441,10 @@ void mb_server_setup_vram(Platform& pfrm)
     }
 
     auto print = [&](Text& t, const char* str) {
-                     t.assign(str);
-                     pfrm.screen().clear();
-                     pfrm.screen().display();
-                 };
+        t.assign(str);
+        pfrm.screen().clear();
+        pfrm.screen().display();
+    };
 
     set_gflag(GlobalFlag::watchdog_disabled, true);
 
@@ -7474,16 +7476,17 @@ void mb_server_setup_vram(Platform& pfrm)
     const u32 t0_iters = (vram_tile_size() * 4 * 111) / sizeof(u16);
 
     int iter_count = 0;
-    auto on_iter =
-        [&]() {
-            const u32 total_iters = iters + mt_iters + bg_iters + t0_iters * 2;
-            ++iter_count;
-            if (iter_count % 256 == 0) {
-                print(text9, format("(total %/100%)",
-                                    100 * (float(iter_count) / total_iters),
-                                    "%").c_str());
-            }
-        };
+    auto on_iter = [&]() {
+        const u32 total_iters = iters + mt_iters + bg_iters + t0_iters * 2;
+        ++iter_count;
+        if (iter_count % 256 == 0) {
+            print(text9,
+                  format("(total %/100%)",
+                         100 * (float(iter_count) / total_iters),
+                         "%")
+                      .c_str());
+        }
+    };
 
 
     print(text2, "transfer sprites...");
@@ -7492,9 +7495,11 @@ void mb_server_setup_vram(Platform& pfrm)
     for (u32 i = 0; i < iters; ++i) {
         mb_exchange(spritesheet_mem[i]);
         if (i % 128 == 0) {
-            print(text2, format("transfer sprites... %/100%",
-                                100 * (float(i) / iters),
-                                "%").c_str());
+            print(text2,
+                  format("transfer sprites... %/100%",
+                         100 * (float(i) / iters),
+                         "%")
+                      .c_str());
         }
         on_iter();
     }
@@ -7505,9 +7510,11 @@ void mb_server_setup_vram(Platform& pfrm)
     for (u32 i = 0; i < bg_iters; ++i) {
         mb_exchange(background_mem[i]);
         if (i % 128 == 0) {
-            print(text3, format("transfer clouds... %/100%",
-                                100 * (float(i) / bg_iters),
-                                "%").c_str());
+            print(text3,
+                  format("transfer clouds... %/100%",
+                         100 * (float(i) / bg_iters),
+                         "%")
+                      .c_str());
         }
         on_iter();
     }
@@ -7519,9 +7526,11 @@ void mb_server_setup_vram(Platform& pfrm)
     for (u32 i = 0; i < t0_iters; ++i) {
         mb_exchange(t0_mem[i]);
         if (i % 128 == 0) {
-            print(text4, format("transfer tile0... %/100%",
-                                100 * (float(i) / t0_iters),
-                                "%").c_str());
+            print(text4,
+                  format("transfer tile0... %/100%",
+                         100 * (float(i) / t0_iters),
+                         "%")
+                      .c_str());
         }
         on_iter();
     }
@@ -7532,9 +7541,11 @@ void mb_server_setup_vram(Platform& pfrm)
     for (u32 i = 0; i < t0_iters; ++i) {
         mb_exchange(t1_mem[i]);
         if (i % 128 == 0) {
-            print(text5, format("transfer tile1... %/100%",
-                                100 * (float(i) / t0_iters),
-                                "%").c_str());
+            print(text5,
+                  format("transfer tile1... %/100%",
+                         100 * (float(i) / t0_iters),
+                         "%")
+                      .c_str());
         }
         on_iter();
     }
@@ -7545,9 +7556,11 @@ void mb_server_setup_vram(Platform& pfrm)
     for (u32 i = 0; i < mt_iters; ++i) {
         mb_exchange(((u16*)&*mt_buffer)[i]);
         if (i % 128 == 0) {
-            print(text6, format("sharing metatable... %/100%",
-                                100 * (float(i) / mt_iters),
-                                "%").c_str());
+            print(text6,
+                  format("sharing metatable... %/100%",
+                         100 * (float(i) / mt_iters),
+                         "%")
+                      .c_str());
         }
         on_iter();
     }
@@ -7575,8 +7588,6 @@ void mb_server_setup_vram(Platform& pfrm)
             VBlankIntrWait();
         }
     }
-
-
 }
 
 

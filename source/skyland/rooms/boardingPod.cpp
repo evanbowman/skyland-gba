@@ -156,7 +156,8 @@ public:
 
         case State::falling:
             if (target_island_) {
-                pos.x = target_island_->visual_origin().x + Fixnum::from_integer(target_.x * 16 + 16);
+                pos.x = target_island_->visual_origin().x +
+                        Fixnum::from_integer(target_.x * 16 + 16);
             }
             pos.y += app.delta_fp() * 0.00041_fixed;
             timer_ += delta;
@@ -232,7 +233,8 @@ public:
                 state_ = State::rising_2;
             }
             if (target_island_) {
-                pos.x = source_island_->visual_origin().x + Fixnum::from_integer(source_.x * 16 + 16);
+                pos.x = source_island_->visual_origin().x +
+                        Fixnum::from_integer(source_.x * 16 + 16);
             }
             break;
 

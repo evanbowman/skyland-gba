@@ -35,11 +35,11 @@
 #include "skyland/achievement.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birds/smallBird.hpp"
+#include "skyland/latency.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "surrenderWaitScene.hpp"
-#include "skyland/latency.hpp"
 
 
 
@@ -596,8 +596,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                  (int)app.player_island().terrain().size() * 16 + 48)) {
 
             app.opponent_island()->set_position(
-                                                {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
-                                                 Fixnum(app.opponent_island()->get_position().y)});
+                {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
+                 Fixnum(app.opponent_island()->get_position().y)});
             app.opponent_island()->set_drift(pfrm, app, 0.0_fixed);
 
             app.on_timeout(
@@ -808,7 +808,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     //                            t6 - t5,
     //                            t7 - t6,
     //                            t8 - t7,
-    //                            t9 - t8).c_str());
+    //                            t9 - t8)
+    //                         .c_str());
     // }
 
     return ret;
