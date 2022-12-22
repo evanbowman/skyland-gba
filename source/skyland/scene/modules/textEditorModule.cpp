@@ -1180,7 +1180,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
                 if (filesystem_ == FileSystem::device) {
-                    scene_pool::alloc<FileBrowserModule>();
+                    return scene_pool::alloc<FileBrowserModule>();
                 }
                 return scene_pool::alloc<FileBrowserModule>(
                     std::move(user_context_),

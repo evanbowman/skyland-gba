@@ -40,6 +40,11 @@ namespace skyland
 
 
 
+static const auto highlight_colors =
+    FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
+
+
+
 FileBrowserModule::FileBrowserModule(UserContext&& user_context,
                                      const char* path,
                                      bool is_rom_path)
@@ -283,6 +288,11 @@ void FileBrowserModule::repaint(Platform& pfrm)
     while (line_count < lines_.size()) {
         lines_.pop_back();
     }
+
+    if (lines_.size() > (u32)scroll_index_) {
+        lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+                                     highlight_colors);
+    }
 }
 
 
@@ -379,7 +389,14 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (scroll_index_ + line_offset_ <
                    (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
+            if (lines_.size() > (u32)scroll_index_) {
+                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str());
+            }
             ++scroll_index_;
+            if (lines_.size() > (u32)scroll_index_) {
+                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+                                             highlight_colors);
+            }
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);
         }
@@ -393,7 +410,14 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().play_sound("click_wooden", 2);
         } else if (scroll_index_ > 0) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
+            if (lines_.size() > (u32)scroll_index_) {
+                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str());
+            }
             --scroll_index_;
+            if (lines_.size() > (u32)scroll_index_) {
+                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+                                             highlight_colors);
+            }
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);
         }
