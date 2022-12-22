@@ -290,8 +290,9 @@ void FileBrowserModule::repaint(Platform& pfrm)
     }
 
     if (lines_.size() > (u32)scroll_index_) {
-        lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-                                     highlight_colors);
+        lines_[scroll_index_].assign(
+            (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+            highlight_colors);
     }
 }
 
@@ -372,7 +373,8 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (faded_) {
         faded_ = false;
-        pfrm.screen().fade(0.95f, custom_color(0x2e3440)); // Reset the fade parameters
+        pfrm.screen().fade(0.95f,
+                           custom_color(0x2e3440)); // Reset the fade parameters
 
         // Black background behind the text.
         pfrm.screen().fade(1.f, custom_color(0x2e3440));
@@ -394,12 +396,14 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                    (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str());
+                lines_[scroll_index_].assign(
+                    (**cwd_names_)[scroll_index_ + line_offset_].c_str());
             }
             ++scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-                                             highlight_colors);
+                lines_[scroll_index_].assign(
+                    (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+                    highlight_colors);
             }
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);
@@ -415,12 +419,14 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (scroll_index_ > 0) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str());
+                lines_[scroll_index_].assign(
+                    (**cwd_names_)[scroll_index_ + line_offset_].c_str());
             }
             --scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign((**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-                                             highlight_colors);
+                lines_[scroll_index_].assign(
+                    (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
+                    highlight_colors);
             }
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);

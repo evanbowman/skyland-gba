@@ -215,15 +215,9 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
                 return;
             }
 
-            if (word == "if" or
-                word == "with" or
-                word == "import" or
-                word == "def" or
-                word == "elif" or
-                word == "else" or
-                word == "for" or
-                word == "as" or
-                word == "in") {
+            if (word == "if" or word == "with" or word == "import" or
+                word == "def" or word == "elif" or word == "else" or
+                word == "for" or word == "as" or word == "in") {
                 ps.keyword = true;
             }
         }
