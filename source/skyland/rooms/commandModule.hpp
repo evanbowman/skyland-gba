@@ -111,8 +111,16 @@ private:
     Microseconds next_action_timer_ = seconds(1);
 
     using IdBuffer = Buffer<CharacterId, 80>;
-    DynamicMemory<IdBuffer> local_chrs_;
-    u32 buffer_index_ = 0;
+
+    struct IdBuffers
+    {
+        IdBuffer local_;
+        IdBuffer boarded_;
+    };
+
+    DynamicMemory<IdBuffers> id_buffers_;
+    u32 local_buffer_index_ = 0;
+    u32 boarded_buffer_index_ = 0;
 
     u16 room_check_index_ = 0;
 };

@@ -41,7 +41,7 @@ CommandModule::CommandModule(Island* parent,
                              const RoomCoord& position,
                              const char* n)
     : Room(parent, n, position),
-      local_chrs_(allocate_dynamic<IdBuffer>("command-module-buffer"))
+      id_buffers_(allocate_dynamic<IdBuffers>("command-module-buffer"))
 {
 }
 
@@ -74,22 +74,23 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (next_action_timer_ <= 0) {
         next_action_timer_ = milliseconds(1500);
 
-        if (local_chrs_->empty() or buffer_index_ >= local_chrs_->size()) {
-            buffer_index_ = 0;
-            local_chrs_->clear();
+        if (id_buffers_->local_.empty() or
+            local_buffer_index_ >= id_buffers_->local_.size()) {
+            local_buffer_index_ = 0;
+            id_buffers_->local_.clear();
 
             for (auto& room : app.player_island().rooms()) {
                 for (auto& chr : room->characters()) {
                     if (chr->owner() == &app.player() and
                         not chr->co_op_locked()) {
-                        local_chrs_->push_back(chr->id());
+                        id_buffers_->local_.push_back(chr->id());
                     }
                 }
             }
         }
 
-        if (not local_chrs_->empty()) {
-            auto chr_id = (*local_chrs_)[buffer_index_++];
+        if (not id_buffers_->local_.empty()) {
+            auto chr_id = (id_buffers_->local_)[local_buffer_index_++];
             auto info = app.player_island().find_character_by_id(chr_id);
             if (info.first) {
                 EnemyAI::assign_local_character(pfrm,
@@ -98,6 +99,38 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
                                                 &app.player(),
                                                 &app.player_island(),
                                                 app.opponent_island());
+            }
+        }
+
+        if (id_buffers_->boarded_.empty() or
+            boarded_buffer_index_ >= id_buffers_->boarded_.size()) {
+            boarded_buffer_index_ = 0;
+            id_buffers_->boarded_.clear();
+
+            if (app.opponent_island()) {
+                for (auto& room : app.opponent_island()->rooms()) {
+                    for (auto& chr : room->characters()) {
+                        if (chr->owner() == &app.player() and
+                            not chr->co_op_locked()) {
+                            id_buffers_->boarded_.push_back(chr->id());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (not id_buffers_->boarded_.empty()) {
+            auto chr_id = (id_buffers_->boarded_)[boarded_buffer_index_++];
+            if (app.opponent_island()) {
+                auto info = app.opponent_island()->find_character_by_id(chr_id);
+                if (info.first) {
+                    EnemyAI::assign_boarded_character(pfrm,
+                                                      app,
+                                                      *info.first,
+                                                      &app.player(),
+                                                      &app.player_island(),
+                                                      app.opponent_island());
+                }
             }
         }
     }
