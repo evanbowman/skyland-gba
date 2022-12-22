@@ -130,7 +130,7 @@ public:
         u32 i = x_jump_table_[coord.x];
         for (; i < rooms_.size(); ++i) {
             Room* room = rooms_[i].get();
-            if (coord.x >= room->position().x and
+            if (not room->hidden() and coord.x >= room->position().x and
                 coord.y >= room->position().y and
                 coord.x < room->position().x + room->size().x and
                 coord.y < room->position().y + room->size().y) {

@@ -184,6 +184,9 @@ enum Type : u8 {
     core_explosion,
 
     boarding_pod_landed,
+
+    move_region_begin,
+    move_region_end,
 };
 
 
@@ -1108,6 +1111,22 @@ struct BoardingPodLanded
     HostInteger<u16> y_;
 
     static constexpr const auto t = Type::boarding_pod_landed;
+};
+
+
+
+struct MoveRegionBegin
+{
+    Header header_;
+    static constexpr const auto t = Type::move_region_begin;
+};
+
+
+
+struct MoveRegionEnd
+{
+    Header header_;
+    static constexpr const auto t = Type::move_region_end;
 };
 
 

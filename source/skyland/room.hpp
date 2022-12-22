@@ -694,6 +694,18 @@ public:
     }
 
 
+    void set_hidden(bool h)
+    {
+        hidden_ = h;
+    }
+
+
+    // Required in special cases for re-arranging blocks.
+    bool hidden() const
+    {
+        return hidden_;
+    }
+
 
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
@@ -780,7 +792,8 @@ private:
 
     u8 init_awareness_upon_unpause_ : 1;
 
-    u8 unused_ : 2;
+    u8 hidden_ : 1;
+    u8 unused_ : 1;
 
     u8 accumulated_damage_ = 0;
     u8 show_damage_delay_frames_ = 0;

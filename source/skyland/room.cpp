@@ -60,6 +60,8 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
 
     auto metatable = room_metatable();
 
+    hidden_ = false;
+
     if (metatable.second > 255) {
         Platform::fatal("metaclass index exceeds 255! More bytes required to "
                         "store the full 16 bit metaclass index!");

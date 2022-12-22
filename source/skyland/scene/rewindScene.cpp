@@ -239,6 +239,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     print_timestamp(pfrm, app);
 
 
+    bool move_region = false;
+
 
     if (far_camera_) {
         auto& cursor_loc = globals().far_cursor_loc_;
@@ -408,8 +410,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_room_moved: {
             auto e = (time_stream::event::PlayerRoomMoved*)end;
-            app.player_island().move_room(
-                pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+            if (auto r = app.player_island().get_room({e->x_, e->y_})) {
+                app.player_island().move_room(pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                if (move_region) {
+                    r->set_hidden(true);
+                }
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -417,8 +423,35 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_room_moved: {
             auto e = (time_stream::event::OpponentRoomMoved*)end;
-            app.opponent_island()->move_room(
+            if (auto r = app.opponent_island()->get_room({e->x_, e->y_})) {
+                app.opponent_island()->move_room(
                 pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                if (move_region) {
+                    r->set_hidden(true);
+                }
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::move_region_begin: {
+            auto e = (time_stream::event::MoveRegionBegin*)end;
+            move_region = false;
+            for (auto& room : app.player_island().rooms()) {
+                room->set_hidden(false);
+            }
+            for (auto& room : app.opponent_island()->rooms()) {
+                room->set_hidden(false);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::move_region_end: {
+            auto e = (time_stream::event::MoveRegionEnd*)end;
+            move_region = true;
             app.time_stream().pop(sizeof *e);
             break;
         }

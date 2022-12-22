@@ -1415,7 +1415,7 @@ void Island::move_room(Platform& pfrm,
                        const RoomCoord& to)
 {
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
-        if ((*it)->position() == from) {
+        if (not(*it)->hidden() and (*it)->position() == from) {
             auto room = std::move(*it);
             it = rooms_.erase(it);
 
