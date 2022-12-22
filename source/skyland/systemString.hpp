@@ -82,6 +82,7 @@ enum class SystemString {
     block_carved_masonry,
     block_cloak,
     block_cocoa,
+    block_command_module,
     block_corn,
     block_cesium,
     block_crane,
@@ -362,6 +363,7 @@ enum class SystemString {
     description_cloak,
     description_bighull,
     description_boarding_pod,
+    description_command_module,
 
     gs_paused,
     gs_slow,

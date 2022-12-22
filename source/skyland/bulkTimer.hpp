@@ -46,8 +46,9 @@ class App;
 class Timer
 {
 public:
-
-    virtual ~Timer() {}
+    virtual ~Timer()
+    {
+    }
 
 
     virtual void timer_expired(Platform&, App&) = 0;
@@ -81,11 +82,9 @@ private:
 
 
 
-
 class BulkTimer
 {
 public:
-
     void update(Platform&, App&, Microseconds elapsed_delta);
     void rewind(Platform&, App&, Microseconds elapsed_delta);
 
@@ -102,4 +101,4 @@ private:
 
 
 
-}
+} // namespace skyland

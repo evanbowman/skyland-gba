@@ -70,6 +70,8 @@ FileBrowserModule::FileBrowserModule(UserContext&& user_context,
 
 void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
 {
+    pfrm.load_overlay_texture("overlay_editor");
+
     cwd_names_ = allocate_dynamic<CwdNames>("fs-cwd-names");
 
     if (not path_) {
@@ -77,9 +79,11 @@ void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
         (*path_)->push_back("/");
     }
 
-    pfrm.screen().fade(0.95f);
+    pfrm.screen().schedule_fade(0.95f, custom_color(0x2e3440));
+    pfrm.screen().clear();
+    pfrm.screen().display();
 
-    pfrm.fill_overlay(112);
+    pfrm.fill_overlay(0);
 
     repaint(pfrm);
 }
@@ -90,7 +94,10 @@ void FileBrowserModule::exit(Platform& pfrm, App&, Scene& next)
 {
     lines_.clear();
     info_.reset();
+    pfrm.screen().schedule_fade(1, custom_color(0x000010));
+    pfrm.screen().clear();
     pfrm.fill_overlay(0);
+    pfrm.screen().display();
 }
 
 
@@ -108,7 +115,7 @@ StringBuffer<200> FileBrowserModule::cwd() const
 void FileBrowserModule::repaint(Platform& pfrm)
 {
     // Cover text with black during transition
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    pfrm.screen().fade(1.f, custom_color(0x2e3440), {}, true, true);
     faded_ = true;
 
     // If we clear all the lines, the engine will deallocate all of the tile
@@ -132,7 +139,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
     (*cwd_names_)->clear();
 
     for (int y = 1; y < 20; ++y) {
-        pfrm.set_tile(Layer::overlay, 1, y, 112);
+        pfrm.set_tile(Layer::overlay, 1, y, 0);
     }
 
 
@@ -268,10 +275,10 @@ void FileBrowserModule::repaint(Platform& pfrm)
             FontColors{custom_color(0x000010), custom_color(0xffffff)});
     }
 
-    pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+    pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
 
-    pfrm.set_tile(Layer::overlay, 0, 0, 450);
-    pfrm.set_tile(Layer::overlay, 29, 0, 451);
+    pfrm.set_tile(Layer::overlay, 0, 0, 114);
+    pfrm.set_tile(Layer::overlay, 29, 0, 115);
 
     while (line_count < lines_.size()) {
         lines_.pop_back();
@@ -351,10 +358,10 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (faded_) {
         faded_ = false;
-        pfrm.screen().fade(0.95f); // Reset the fade parameters
+        pfrm.screen().fade(0.95f, custom_color(0x2e3440)); // Reset the fade parameters
 
         // Black background behind the text.
-        pfrm.screen().fade(1.f);
+        pfrm.screen().fade(1.f, custom_color(0x2e3440));
     }
 
     auto on_dir_changed = [&] {
@@ -365,29 +372,29 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
     auto scroll_down = [&] {
         if (scroll_index_ == 14 and
             scroll_index_ + line_offset_ < (int)(*cwd_names_)->size() - 1) {
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             ++line_offset_;
             repaint(pfrm);
             pfrm.speaker().play_sound("click_wooden", 2);
         } else if (scroll_index_ + line_offset_ <
                    (int)(*cwd_names_)->size() - 1) {
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             ++scroll_index_;
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     };
 
     auto scroll_up = [&] {
         if (scroll_index_ == 0 and line_offset_ > 0) {
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             --line_offset_;
             repaint(pfrm);
             pfrm.speaker().play_sound("click_wooden", 2);
         } else if (scroll_index_ > 0) {
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             --scroll_index_;
-            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     };

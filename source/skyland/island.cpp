@@ -71,10 +71,9 @@ void Island::init_terrain(Platform& pfrm, int width, bool render)
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : owner_(&owner),
-      layer_(layer), timer_(0), flag_anim_index_(Tile::flag_start),
-      interior_visible_(false), show_flag_(false),
-      dispatch_cancelled_(false), schedule_repaint_(false),
+    : owner_(&owner), layer_(layer), timer_(0),
+      flag_anim_index_(Tile::flag_start), interior_visible_(false),
+      show_flag_(false), dispatch_cancelled_(false), schedule_repaint_(false),
       schedule_repaint_partial_(false), has_radar_(false), is_boarded_(false),
       hidden_(false)
 {

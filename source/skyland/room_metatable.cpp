@@ -36,6 +36,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/cloak.hpp"
+#include "skyland/rooms/commandModule.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/crane.hpp"
 #include "skyland/rooms/decimator.hpp"
@@ -336,6 +337,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Transporter,
                                         BoardingPod,
                                         TargetingComputer,
+                                        CommandModule,
                                         EscapeBeacon,
                                         Replicator,
                                         DroneBay,

@@ -63,7 +63,7 @@ public:
     {
         Text title(pfrm, OverlayCoord{1, 1});
         auto colors =
-            FontColors{custom_color(0xE5E9F0), custom_color(0x2e3440)};
+            FontColors{custom_color(0xe5e9f0), custom_color(0x2e3440)};
         title.append(path_.c_str(), colors);
         title.__detach();
 

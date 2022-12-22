@@ -32,8 +32,8 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/weather/typhoon.hpp"
 #include "skyland/weather/blizzard.hpp"
+#include "skyland/weather/typhoon.hpp"
 
 
 

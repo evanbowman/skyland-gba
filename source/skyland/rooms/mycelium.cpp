@@ -66,16 +66,16 @@ void Mycelium::timer_expired(Platform& pfrm, App& app)
     }
 
     auto substrate = [&](u8 x, u8 y) {
-                         if (auto room = parent()->get_room({x, y})) {
-                             // Mycelium substrate must be non-mycelium room.
-                             return room->metaclass() not_eq metaclass() and
-                                 not((*room->metaclass())->properties() &
-                                     RoomProperties::fluid) and
-                                 not is_forcefield(room->metaclass());
-                         }
+        if (auto room = parent()->get_room({x, y})) {
+            // Mycelium substrate must be non-mycelium room.
+            return room->metaclass() not_eq metaclass() and
+                   not((*room->metaclass())->properties() &
+                       RoomProperties::fluid) and
+                   not is_forcefield(room->metaclass());
+        }
 
-                         return false;
-                     };
+        return false;
+    };
 
     if (not substrate(x + 1, y) and not substrate(x - 1, y) and
         not substrate(x, y - 1) and not substrate(x, y + 1) and
@@ -87,47 +87,47 @@ void Mycelium::timer_expired(Platform& pfrm, App& app)
     }
 
     auto slot_valid = [&](u8 x, u8 y) {
-                          if (x > parent()->terrain().size() - 1 or y > 14 or
-                              y < construction_zone_min_y) {
-                              return false;
-                          }
-                          if (not parent()->get_room({x, y})) {
-                              if (y == 14) {
-                                  return true;
-                              }
+        if (x > parent()->terrain().size() - 1 or y > 14 or
+            y < construction_zone_min_y) {
+            return false;
+        }
+        if (not parent()->get_room({x, y})) {
+            if (y == 14) {
+                return true;
+            }
 
 
-                              return substrate(x + 1, y) or substrate(x - 1, y) or
-                                  substrate(x, y - 1) or substrate(x, y + 1) or
-                                  substrate(x + 1, y + 1) or substrate(x - 1, y - 1) or
-                                  substrate(x + 1, y - 1) or substrate(x - 1, y + 1);
-                          }
-                          return false;
-                      };
+            return substrate(x + 1, y) or substrate(x - 1, y) or
+                   substrate(x, y - 1) or substrate(x, y + 1) or
+                   substrate(x + 1, y + 1) or substrate(x - 1, y - 1) or
+                   substrate(x + 1, y - 1) or substrate(x - 1, y + 1);
+        }
+        return false;
+    };
 
     auto spread = [&](u8 x, u8 y) {
-                      (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
+        (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
 
-                      parent()->schedule_repaint();
+        parent()->schedule_repaint();
 
-                      if (parent() == &app.player_island()) {
-                          time_stream::event::PlayerRoomCreated p;
-                          p.x_ = x;
-                          p.y_ = y;
-                          app.time_stream().push(app.level_timer(), p);
-                      } else {
-                          time_stream::event::OpponentRoomCreated p;
-                          p.x_ = x;
-                          p.y_ = y;
-                          app.time_stream().push(app.level_timer(), p);
-                      }
-                  };
+        if (parent() == &app.player_island()) {
+            time_stream::event::PlayerRoomCreated p;
+            p.x_ = x;
+            p.y_ = y;
+            app.time_stream().push(app.level_timer(), p);
+        } else {
+            time_stream::event::OpponentRoomCreated p;
+            p.x_ = x;
+            p.y_ = y;
+            app.time_stream().push(app.level_timer(), p);
+        }
+    };
 
     auto try_spread = [&](u8 x, u8 y) {
-                          if (slot_valid(x, y)) {
-                              spread(x, y);
-                          }
-                      };
+        if (slot_valid(x, y)) {
+            spread(x, y);
+        }
+    };
 
     try_spread(x + 1, y);
     try_spread(x - 1, y);
