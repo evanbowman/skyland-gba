@@ -52,7 +52,7 @@ public:
 
 
 
-    enum class SyntaxMode : u8 { lisp, plain_text };
+    enum class SyntaxMode : u8 { lisp, plain_text, ini, python, };
 
 
 

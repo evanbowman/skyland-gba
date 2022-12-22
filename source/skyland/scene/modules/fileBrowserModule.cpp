@@ -323,6 +323,10 @@ TextEditorModule::SyntaxMode file_edit_mode(const StringBuffer<200>& path)
     auto ext = get_extension(path);
     if (ext == ".lisp") {
         return TextEditorModule::SyntaxMode::lisp;
+    } else if (ext == ".ini") {
+        return TextEditorModule::SyntaxMode::ini;
+    } else if (ext == ".py") {
+        return TextEditorModule::SyntaxMode::python;
     } else {
         return TextEditorModule::SyntaxMode::plain_text;
     }

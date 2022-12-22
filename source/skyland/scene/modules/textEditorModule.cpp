@@ -172,6 +172,69 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
 
     if (syntax_mode_ == SyntaxMode::plain_text) {
         return;
+    } else if (syntax_mode_ == SyntaxMode::python) {
+
+        bool start_of_line = false;
+        if (data == text_buffer_.begin()) {
+            start_of_line = true;
+        } else {
+            auto iter_cpy = data;
+            --iter_cpy;
+            if (*iter_cpy == '\n') {
+                start_of_line = true;
+            }
+        }
+
+        if (c == '#') {
+            ps.comment = true;
+        } else if (c == '"') {
+            if (not ps.quotation) {
+                ps.quotation = true;
+            } else {
+                ps.endquote = true;
+            }
+        } else if (c == '\n' or c == ' ' or c == ')' or c == '(' or
+                   start_of_line) {
+            ps.keyword = false;
+
+            auto seek = data;
+            if (not start_of_line) {
+                ++seek;
+            }
+
+            auto& word = ps.parse_word_;
+
+            while (*seek not_eq '\0' and *seek not_eq ' ' and
+                   *seek not_eq '(' and *seek not_eq ')' and
+                   *seek not_eq '\n') {
+                word.push_back(*seek);
+                ++seek;
+            }
+
+            if (word.empty()) {
+                return;
+            }
+
+            if (word == "if" or
+                word == "with" or
+                word == "import" or
+                word == "def" or
+                word == "elif" or
+                word == "else" or
+                word == "for" or
+                word == "as" or
+                word == "in") {
+                ps.keyword = true;
+            }
+        }
+    } else if (syntax_mode_ == SyntaxMode::ini) {
+        if (c == '#') {
+            ps.comment = true;
+        } else if (c == '[') {
+            ps.quotation = true;
+        } else if (c == ']') {
+            ps.endquote = true;
+        }
     } else if (syntax_mode_ == SyntaxMode::lisp) {
         if (c == ';') {
             ps.comment = true;
@@ -574,6 +637,14 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
 
     case SyntaxMode::plain_text:
         temp += "(text mode)";
+        break;
+
+    case SyntaxMode::python:
+        temp += "(python)   ";
+        break;
+
+    case SyntaxMode::ini:
+        temp += "(ini mode) ";
         break;
     }
     temp += "    ";
