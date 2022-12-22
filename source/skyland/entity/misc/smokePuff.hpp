@@ -80,11 +80,18 @@ public:
 
         auto pos = sprite_.get_position();
 
-        pos.x += Fixnum(+Float(delta) * 0.00001f);
-        pos.y += Fixnum(+Float(delta) * 0.00001f);
+        pos.x += Fixnum::from_integer(delta) * 0.00001_fixed;
+        pos.y += Fixnum::from_integer(delta) * 0.00001_fixed;
+
+        while (delta >= 16666 / 4) {
+            shrink_amount_ += 1.774929_fixed;
+            delta -= 16666;
+        }
 
         const s16 shrink_amount =
             interpolate(-450, -24, Float(timer_) / seconds(3));
+
+        shrink_amount_ = shrink_amount;
 
         sprite_.set_scale({shrink_amount, shrink_amount});
 
@@ -99,13 +106,17 @@ public:
 
         auto pos = sprite_.get_position();
 
-        pos.x -= Fixnum(+Float(delta) * 0.00001f);
-        pos.y -= Fixnum(+Float(delta) * 0.00001f);
+        pos.x -= Fixnum::from_integer(delta) * 0.00001_fixed;
+        pos.y -= Fixnum::from_integer(delta) * 0.00001_fixed;
 
-        const s16 shrink_amount =
-            interpolate(-450, -24, Float(timer_) / seconds(3));
 
-        sprite_.set_scale({shrink_amount, shrink_amount});
+        while (delta >= 16666 / 4) {
+            shrink_amount_ -= 1.774929_fixed;
+            delta -= 16666;
+        }
+
+        sprite_.set_scale({(s16)shrink_amount_.as_integer(),
+                           (s16)shrink_amount_.as_integer()});
 
         sprite_.set_position(pos);
 
@@ -117,6 +128,7 @@ public:
 
 private:
     Microseconds timer_ = 0;
+    Fixnum shrink_amount_ = Fixnum::from_integer(-24);
 };
 
 
