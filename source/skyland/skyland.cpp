@@ -40,6 +40,7 @@ extern "C" {
 // FIXME! CMake target_link_libraries isn't working for some reason?
 #include "heatshrink/heatshrink_encoder.c"
 }
+#include "latency.hpp"
 
 
 
@@ -219,6 +220,8 @@ static bool is_gui_sound(const char* sound_name)
 
 void App::update(Platform& pfrm, Microseconds delta)
 {
+    TIMEPOINT(t1);
+
     const auto previous_rng = rng::critical_state;
 
     if (next_scene_) {
@@ -228,6 +231,8 @@ void App::update(Platform& pfrm, Microseconds delta)
     }
 
     Sound::update_all(delta);
+
+    TIMEPOINT(t2);
 
     auto line = pfrm.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
@@ -239,6 +244,8 @@ void App::update(Platform& pfrm, Microseconds delta)
     }
 
     rumble_.update(pfrm, delta);
+
+    TIMEPOINT(t3);
 
     if (game_speed() not_eq GameSpeed::stopped) {
         for (auto it = deferred_callbacks_.begin();
@@ -255,7 +262,11 @@ void App::update(Platform& pfrm, Microseconds delta)
         }
     }
 
+    TIMEPOINT(t4);
+
     next_scene_ = current_scene_->update(pfrm, *this, delta);
+
+    TIMEPOINT(t5);
 
     if (next_scene_) {
         current_scene_->exit(pfrm, *this, *next_scene_);
@@ -267,6 +278,8 @@ void App::update(Platform& pfrm, Microseconds delta)
 
         time_stream_.push(level_timer_, e);
     }
+
+    TIMEPOINT(t6);
 
     for (const char* sound : pfrm.speaker().completed_sounds()) {
         // Do not play sounds associated with the game's ui.
@@ -288,14 +301,28 @@ void App::update(Platform& pfrm, Microseconds delta)
             }
         }
     }
+
+    TIMEPOINT(t7);
+
+
+    // if (pfrm.keyboard().pressed<Key::select>()) {
+    //     Platform::fatal(format("% % % % % %",
+    //                            t2 - t1,
+    //                            t3 - t2,
+    //                            t4 - t3,
+    //                            t5 - t4,
+    //                            t6 - t5,
+    //                            t7 - t6)
+    //                         .c_str());
+    // }
 }
 
 
 
 void App::update_parallax(Microseconds delta)
 {
-    cloud_scroll_1_ += 0.00002f * delta;
-    cloud_scroll_2_ += 0.00004f * delta;
+    cloud_scroll_1fp_ += 0.00002_fixed * Fixnum::from_integer(delta);
+    cloud_scroll_2fp_ += 0.00004_fixed * Fixnum::from_integer(delta);
 }
 
 
@@ -303,8 +330,10 @@ void App::update_parallax(Microseconds delta)
 void App::render(Platform& pfrm)
 {
     if (not macrocosm()) {
-        pfrm.system_call("_prlx7", (void*)(intptr_t)(u8)cloud_scroll_1_);
-        pfrm.system_call("_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2_);
+        pfrm.system_call("_prlx7",
+                         (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
+        pfrm.system_call("_prlx8",
+                         (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
     }
 
     current_scene_->display(pfrm, *this);

@@ -461,8 +461,8 @@ private:
     // Fields with four-byte alignment:
     PersistentData persistent_data_;
     DynamicMemory<WorldState> world_state_;
-    Float cloud_scroll_1_;
-    Float cloud_scroll_2_;
+    Fixnum cloud_scroll_1fp_;
+    Fixnum cloud_scroll_2fp_;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;

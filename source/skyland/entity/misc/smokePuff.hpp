@@ -24,6 +24,7 @@
 
 
 #include "skyland/entity.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -99,7 +100,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta)
+    void update(Platform&, App& app, Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -111,8 +112,8 @@ public:
 
 
         while (delta >= 16666 / 4) {
-            shrink_amount_ -= 1.774929_fixed;
-            delta -= 16666;
+            shrink_amount_ -= 0.614929_fixed;
+            delta -= 16666 / 4;
         }
 
         sprite_.set_scale({(s16)shrink_amount_.as_integer(),

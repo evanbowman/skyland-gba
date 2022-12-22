@@ -111,7 +111,7 @@ public:
     }
 
 
-    static FixedPoint from_integer(s32 value)
+    static constexpr FixedPoint from_integer(s32 value)
     {
         return create(value * scale());
     }
