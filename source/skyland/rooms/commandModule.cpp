@@ -98,7 +98,8 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
                                                 *info.first,
                                                 &app.player(),
                                                 &app.player_island(),
-                                                app.opponent_island());
+                                                app.opponent_island(),
+                                                true);
             }
         }
 

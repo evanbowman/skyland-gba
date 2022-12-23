@@ -491,7 +491,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                                      BasicCharacter& character,
                                      Player* owner,
                                      Island* ai_island_,
-                                     Island* target_island_)
+                                     Island* target_island_,
+                                     bool repair_priority)
 {
     // This code is so cluttered and sprawling. I had to write an AI and only
     // had two weeks for this project, so it's kind of a mess.
@@ -539,7 +540,13 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     auto flak_gun_mt = load_metaclass("flak-gun");
 
 
+    bool damaged_habitable_rooms = false;
+
     for (auto& room : ai_island_->rooms()) {
+        if (room->health() not_eq room->max_health() and
+            (*room->metaclass())->properties() & RoomProperties::habitable) {
+            damaged_habitable_rooms = true;
+        }
         if (room->metaclass() == cannon_mt) {
             ++weapon_count;
             ++cannon_count;
@@ -672,11 +679,15 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // go to the infirmary.
                 if (character.is_replicant()) {
                     // Replicants cannot heal, so don't bother.
-                } else if (character.health() < 25) {
-                    slot.ai_weight_ += 2000.f;
-                } else if (character.health() < 200 and
-                           not player_characters_local) {
-                    slot.ai_weight_ += 2000.f;
+                } else {
+                    if (not damaged_habitable_rooms) {
+                        slot.ai_weight_ += 5000.f;
+                    } else if (character.health() < 25) {
+                        slot.ai_weight_ += 2000.f;
+                    } else if (character.health() < 200 and
+                               not player_characters_local) {
+                        slot.ai_weight_ += 2000.f;
+                    }
                 }
             } else if (auto transporter = room->cast<Transporter>()) {
                 // Now, let's see. We want to raid the player's island if we
@@ -685,7 +696,9 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // TODO: Increase the transporter weight a lot if we don't have
                 // any remaining offensive capabilities. In that case, raids
                 // would be our only offense.
-                if (transporter->ready()) {
+                if (damaged_habitable_rooms and repair_priority) {
+                    // ...
+                } else if (transporter->ready()) {
 
                     const bool co_op_mode =
                         app.game_mode() == App::GameMode::co_op;

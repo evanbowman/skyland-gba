@@ -89,7 +89,8 @@ public:
                                        BasicCharacter& character,
                                        Player* owner,
                                        Island* ai_island,
-                                       Island* target_island);
+                                       Island* target_island,
+                                       bool repair_priority = false);
 
 
     static void update_room(Platform&,

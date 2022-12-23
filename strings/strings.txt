@@ -178,7 +178,7 @@ power
 misc
 decor
 Evan Bowman presents
-Copyright ©2022
+Copyright ©2021-2023
 year:
 create block:
 build improvement:
