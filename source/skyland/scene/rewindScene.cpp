@@ -1500,6 +1500,17 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     app.player_island().rewind(pfrm, app, delta);
     app.opponent_island()->rewind(pfrm, app, delta);
 
+    // Potential bugfix: some moved blocks caused the move region begin message
+    // to age-out of the history buffer.
+    if (move_region) {
+        for (auto& room : app.player_island().rooms()) {
+            room->set_hidden(false);
+        }
+        for (auto& room : app.opponent_island()->rooms()) {
+            room->set_hidden(false);
+        }
+    }
+
     return null_scene();
 }
 
