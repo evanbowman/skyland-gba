@@ -190,7 +190,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return Lava::properties() & ~RoomProperties::not_constructible;
+        return (Lava::properties() & ~RoomProperties::not_constructible) |
+            RoomProperties::sandbox_mode_only;
     }
 };
 
