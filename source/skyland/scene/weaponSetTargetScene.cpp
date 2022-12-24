@@ -290,6 +290,10 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return null_scene();
     };
 
+    if (test_key(Key::start)) {
+        snap(pfrm, app);
+        camera_update_timer_ = milliseconds(500);
+    }
     if (test_key(Key::action_1)) {
         if (auto scene = onclick(cursor_loc)) {
             return scene;
@@ -419,49 +423,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (initial_pos_) {
         cursor_loc = *initial_pos_;
     } else {
-
-        bool weapon_is_missile = false;
-        if (auto weapon = app.player_island().get_room(weapon_loc_)) {
-            weapon_is_missile = str_eq(weapon->name(), "missile-silo") or
-                                str_eq(weapon->name(), "rocket-bomb");
-        }
-
-        Buffer<std::pair<Room*, RoomCoord>, 16> choices;
-
-        if (weapon_is_missile) {
-            for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
-                for (int y = construction_zone_min_y; y < 15; ++y) {
-                    auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
-                    if (room) {
-                        choices.push_back({room, {(u8)x, (u8)y}});
-                        break;
-                    }
-                }
-            }
-        } else {
-            for (int y = construction_zone_min_y; y < 15; ++y) {
-                for (u32 x = 0; x < app.opponent_island()->terrain().size();
-                     ++x) {
-                    auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
-                    if (room) {
-                        choices.push_back({room, {(u8)x, (u8)y}});
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (choices.empty()) {
-            return;
-        }
-
-        std::sort(choices.begin(), choices.end(), [](auto& lhs, auto& rhs) {
-            return (*lhs.first->metaclass())->atp_value() >
-                   (*rhs.first->metaclass())->atp_value();
-        });
-
-        cursor_loc.x = choices[0].second.x;
-        cursor_loc.y = choices[0].second.y;
+        snap(pfrm, app);
     }
 
     if (not app.player_island().get_drone(weapon_loc_)) {
@@ -477,6 +439,55 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     far_camera();
+}
+
+
+
+void WeaponSetTargetScene::snap(Platform& pfrm, App& app)
+{
+    auto& cursor_loc = globals().far_cursor_loc_;
+
+    bool weapon_is_missile = false;
+    if (auto weapon = app.player_island().get_room(weapon_loc_)) {
+        weapon_is_missile = str_eq(weapon->name(), "missile-silo") or
+                            str_eq(weapon->name(), "rocket-bomb");
+    }
+
+    Buffer<std::pair<Room*, RoomCoord>, 16> choices;
+
+    if (weapon_is_missile) {
+        for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
+            for (int y = construction_zone_min_y; y < 15; ++y) {
+                auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
+                if (room) {
+                    choices.push_back({room, {(u8)x, (u8)y}});
+                    break;
+                }
+            }
+        }
+    } else {
+        for (int y = construction_zone_min_y; y < 15; ++y) {
+            for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
+                auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
+                if (room) {
+                    choices.push_back({room, {(u8)x, (u8)y}});
+                    break;
+                }
+            }
+        }
+    }
+
+    if (choices.empty()) {
+        return;
+    }
+
+    std::sort(choices.begin(), choices.end(), [](auto& lhs, auto& rhs) {
+        return (*lhs.first->metaclass())->atp_value() >
+               (*rhs.first->metaclass())->atp_value();
+    });
+
+    cursor_loc.x = choices[0].second.x;
+    cursor_loc.y = choices[0].second.y;
 }
 
 

@@ -59,6 +59,9 @@ private:
     const RoomCoord weapon_loc_;
 
 
+    void snap(Platform&, App&);
+
+
     int selector_ = 0;
 
     Microseconds describe_room_timer_ = milliseconds(400);
