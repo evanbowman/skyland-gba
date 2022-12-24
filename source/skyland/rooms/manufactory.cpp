@@ -21,6 +21,7 @@
 
 
 #include "manufactory.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -78,6 +79,17 @@ void Manufactory::render_exterior(App* app, TileId buffer[16][16])
     buffer[x + 1][y + 1] = Tile::wall_plain_2;
     buffer[x + 2][y] = Tile::wall_window_1;
     buffer[x + 2][y + 1] = Tile::wall_window_2;
+}
+
+
+
+void Manufactory::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        ExploSpawner::create(pfrm, app, center());
+    }
 }
 
 

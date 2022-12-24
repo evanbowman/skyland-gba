@@ -115,6 +115,12 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 3;
+    }
+
+
     void finalize(Platform& pfrm, App& app) override;
 
 

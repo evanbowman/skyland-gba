@@ -111,6 +111,12 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 1;
+    }
+
+
     void display_on_hover(Platform::Screen& screen,
                           App& app,
                           const RoomCoord& cursor) override;

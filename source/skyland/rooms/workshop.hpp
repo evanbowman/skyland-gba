@@ -46,6 +46,9 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
@@ -76,6 +79,12 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable | RoomProperties::multiboot_compatible;
+    }
+
+
+    int debris_tile() override
+    {
+        return 2;
     }
 
 

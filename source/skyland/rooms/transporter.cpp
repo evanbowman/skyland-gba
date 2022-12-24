@@ -24,6 +24,7 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/recoverCharacterScene.hpp"
@@ -269,7 +270,6 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     if (auto room = island->get_room(*dest)) {
 
-
         network::packet::ChrBoardedV2 packet;
         packet.chr_id_.set((*chr)->id());
         packet.dst_x_ = dest->x;
@@ -418,6 +418,17 @@ void transport_character_impl(App& app,
                 ++it;
             }
         }
+    }
+}
+
+
+
+void Transporter::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        ExploSpawner::create(pfrm, app, center());
     }
 }
 

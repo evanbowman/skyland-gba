@@ -21,6 +21,7 @@
 
 
 #include "infirmary.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/island.hpp"
 #include "skyland/tile.hpp"
 
@@ -95,6 +96,17 @@ void Infirmary::render_exterior(App* app, TileId buffer[16][16])
     buffer[position().x][position().y + 1] = Tile::wall_window_2;
     buffer[position().x + 1][position().y] = Tile::wall_plain_1;
     buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
+}
+
+
+
+void Infirmary::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        ExploSpawner::create(pfrm, app, center());
+    }
 }
 
 

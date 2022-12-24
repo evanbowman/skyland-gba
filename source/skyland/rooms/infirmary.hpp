@@ -91,6 +91,9 @@ public:
     }
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
+
 private:
     Microseconds heal_timer_ = 0;
 };

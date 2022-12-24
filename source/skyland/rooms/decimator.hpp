@@ -131,6 +131,8 @@ public:
     }
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
 
 private:
     int counter_ = 0;

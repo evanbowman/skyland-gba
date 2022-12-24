@@ -21,6 +21,7 @@
 
 
 #include "decimator.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
@@ -249,6 +250,17 @@ void Decimator::render_exterior(App* app, TileId buffer[16][16])
         buffer[pos.x][pos.y + 1] = Tile::decimator_2;
         buffer[pos.x + 1][pos.y] = Tile::armored_wall_1;
         buffer[pos.x + 1][pos.y + 1] = Tile::wall_plain_2;
+    }
+}
+
+
+
+void Decimator::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        ExploSpawner::create(pfrm, app, center());
     }
 }
 
