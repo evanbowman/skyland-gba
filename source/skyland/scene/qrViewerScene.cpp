@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (C) 2022  Evan Bowman
 //
@@ -99,15 +99,15 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
             u8 margin = 1;
 
-            if (qr_->size() <= 38) {
+            if (qr_->drawsize(format_) <= 38 / 2) {
                 const auto st = calc_screen_tiles(pfrm);
 
-                margin = (st.y - qr_->size() / 2) / 2;
+                margin = (st.y - qr_->drawsize(format_)) / 2;
 
                 int lc = [&] {
                     return tv_->assign(message_.c_str(),
-                                       {u8(5 + qr_->size() / 2), 1},
-                                       {u8(st.x - (6 + qr_->size() / 2)), 18},
+                                       {u8(5 + qr_->drawsize(format_)), 1},
+                                       {u8(st.x - (6 + qr_->drawsize(format_))), 18},
                                        0);
                 }();
 
@@ -117,8 +117,8 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
                 u8 text_margin = (st.y - lc) / 2;
                 tv_->assign(message_.c_str(),
-                            {u8(5 + qr_->size() / 2), text_margin},
-                            {u8(st.x - (6 + qr_->size() / 2)), 18},
+                            {u8(5 + qr_->drawsize(format_)), text_margin},
+                            {u8(st.x - (6 + qr_->drawsize(format_))), 18},
                             0,
                             OptColors{{custom_color(0x392194),
                                        ColorConstant::silver_white}});
@@ -139,7 +139,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                                           : custom_color(0x392194)}});
             }
 
-            qr_->draw(pfrm, {2, (u8)margin});
+            qr_->draw(pfrm, {2, (u8)margin}, (int)format_);
         } else {
             Platform::fatal("qr gen failed");
         }

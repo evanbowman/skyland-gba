@@ -46,13 +46,15 @@ public:
     Sidelength size() const;
 
 
-    void copy_to_vram(Platform& pfrm, u16 tile_start_offset);
+    void copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format);
 
 
     // NOTE: calls copy_to_vram(), and overwrites tiles starting at overlay tile
     // index 181. The caller may need to reload the overlay tile texture to
     // recover any overwritten tiles.
-    void draw(Platform& pfrm, const Vec2<u8>& screen_coord);
+    void draw(Platform& pfrm,
+              const Vec2<u8>& screen_coord,
+              int format = 0);
 
 
     QRCode& data_color_index(u8 color)
@@ -74,6 +76,9 @@ public:
         position_marker_outer_color_ = color;
         return *this;
     }
+
+
+    int drawsize(int format) const;
 
 
 private:

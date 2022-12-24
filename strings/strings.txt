@@ -160,6 +160,7 @@ Macro Freebuild
 Checkers
 Date/Time
 Feedback
+Bug Report
 January,February,March,April,May,June,July,August,September,October,November,December,
 Enable developer mode? Lets you run custom code, but highscores will not be recorded while enabled.
 Developer mode successfully disabled!

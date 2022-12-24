@@ -216,6 +216,7 @@ enum class SystemString {
     module_checkers,
     module_datetime,
     module_feedback,
+    module_bug_report,
 
     months,
 

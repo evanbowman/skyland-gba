@@ -80,7 +80,7 @@ QRCode::Sidelength QRCode::size() const
 
 
 
-void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
+void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format)
 {
     auto sz = size();
 
@@ -98,7 +98,7 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
         return not is_position_marker_inner(x, y) and x < 7 and y < 7;
     };
 
-    if (sz > 76) {
+    if (sz > 76 or format == 1) {
         for (int y = 0; y < sz; y += 8) {
             for (int x = 0; x < sz; x += 8) {
                 u8 tile_data[16][16];
@@ -118,7 +118,7 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
                                             pfrm.encode_tile(tile_data));
             }
         }
-    } else if (sz > 36) {
+    } else if (sz > 36 or format == 2) {
         for (int y = 0; y < sz; y += 4) {
             for (int x = 0; x < sz; x += 4) {
                 u8 tile_data[16][16];
@@ -181,37 +181,35 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
 
 
 
-void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord)
+int QRCode::drawsize(int format) const
+{
+    const auto sz = size();
+    if (sz > 76 or format == 1) {
+        return size() / 8 + (size() % 8 > 0);
+    } else if (sz > 36 or format == 2) {
+        return size() / 4 + (size() % 4 > 0);
+    } else {
+        return size() / 2 + size() % 2;
+    }
+}
+
+
+
+void QRCode::draw(Platform& pfrm,
+                  const Vec2<u8>& screen_coord,
+                  int format)
 {
     const auto sz = size();
 
-    copy_to_vram(pfrm, 181);
+    copy_to_vram(pfrm, 181, format);
 
-    if (sz > 76) {
-        draw_image(pfrm,
-                   181,
-                   screen_coord.x,
-                   screen_coord.y,
-                   size() / 8 + (size() % 8 > 0),
-                   size() / 8 + (size() % 8 > 0),
-                   Layer::overlay);
-    } else if (sz > 36) {
-        draw_image(pfrm,
-                   181,
-                   screen_coord.x,
-                   screen_coord.y,
-                   size() / 4 + (size() % 4 > 0),
-                   size() / 4 + (size() % 4 > 0),
-                   Layer::overlay);
-    } else {
-        draw_image(pfrm,
-                   181,
-                   screen_coord.x,
-                   screen_coord.y,
-                   size() / 2 + size() % 2,
-                   size() / 2 + size() % 2,
-                   Layer::overlay);
-    }
+    draw_image(pfrm,
+               181,
+               screen_coord.x,
+               screen_coord.y,
+               drawsize(format),
+               drawsize(format),
+               Layer::overlay);
 }
 
 
