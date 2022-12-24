@@ -1035,7 +1035,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto chr = BasicCharacter::find_by_id(*app, old_id).first) {
              chr->__assign_id(new_id);
-             BasicCharacter::__rebase_ids(new_id);
+             BasicCharacter::__rebase_ids(new_id + 1);
          }
 
          return lisp::get_op(0);
