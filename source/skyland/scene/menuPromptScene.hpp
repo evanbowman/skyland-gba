@@ -36,8 +36,7 @@ namespace skyland
 class MenuPromptScene : public Scene
 {
 public:
-
-    using OptCallback = Function<4, void (Platform&, App&)>;
+    using OptCallback = Function<4, void(Platform&, App&)>;
 
 
     MenuPromptScene(SystemString msg,
@@ -45,13 +44,9 @@ public:
                     SystemString opt_2,
                     DeferredScene next,
                     OptCallback opt_1_callback,
-                    OptCallback opt_2_callback) :
-        next_(next),
-        msg_(msg),
-        opt_1_(opt_1),
-        opt_2_(opt_2),
-        opt_1_callback_(opt_1_callback),
-        opt_2_callback_(opt_2_callback)
+                    OptCallback opt_2_callback)
+        : next_(next), msg_(msg), opt_1_(opt_1), opt_2_(opt_2),
+          opt_1_callback_(opt_1_callback), opt_2_callback_(opt_2_callback)
     {
     }
 
@@ -66,19 +61,13 @@ public:
         pfrm.screen().schedule_fade(1);
 
         text_.emplace(pfrm);
-        text_->assign(loadstr(pfrm, msg_)->c_str(),
-                      {1, 1},
-                      {28, 14},
-                      0);
+        text_->assign(loadstr(pfrm, msg_)->c_str(), {1, 1}, {28, 14}, 0);
 
-        t1_.emplace(pfrm,
-                    OverlayCoord{3, 16});
+        t1_.emplace(pfrm, OverlayCoord{3, 16});
 
         t1_->assign(loadstr(pfrm, opt_1_)->c_str(), sel_colors);
 
-        t2_.emplace(pfrm,
-                    loadstr(pfrm, opt_2_)->c_str(),
-                    OverlayCoord{3, 18});
+        t2_.emplace(pfrm, loadstr(pfrm, opt_2_)->c_str(), OverlayCoord{3, 18});
 
         pfrm.set_tile(Layer::overlay, 1, 16, 475);
         pfrm.set_tile(Layer::overlay, 1, 18, 0);
@@ -142,4 +131,4 @@ private:
 
 
 
-}
+} // namespace skyland

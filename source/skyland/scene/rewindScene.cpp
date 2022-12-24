@@ -411,7 +411,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::player_room_moved: {
             auto e = (time_stream::event::PlayerRoomMoved*)end;
             if (auto r = app.player_island().get_room({e->x_, e->y_})) {
-                app.player_island().move_room(pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                app.player_island().move_room(
+                    pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
                 if (move_region) {
                     r->set_hidden(true);
                 }
@@ -425,7 +426,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentRoomMoved*)end;
             if (auto r = app.opponent_island()->get_room({e->x_, e->y_})) {
                 app.opponent_island()->move_room(
-                pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                    pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
                 if (move_region) {
                     r->set_hidden(true);
                 }

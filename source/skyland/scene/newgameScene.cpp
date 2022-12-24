@@ -106,20 +106,20 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     const bool skip_save_prompt = app.gp_.stateflags_.get(sv_flag);
 
-    auto dont_remind =
-        [](Platform& pfrm, App& app) {
-            app.gp_.stateflags_.set(sv_flag, true);
-            save::store_global_data(pfrm, app.gp_);
-        };
+    auto dont_remind = [](Platform& pfrm, App& app) {
+        app.gp_.stateflags_.set(sv_flag, true);
+        save::store_global_data(pfrm, app.gp_);
+    };
 
     if (loaded and not skip_save_prompt) {
         auto next = scene_pool::make_deferred_scene<ZoneImageScene>();
-        return scene_pool::alloc<MenuPromptScene>(SystemString::save_prompt,
-                                                  SystemString::ok,
-                                                  SystemString::do_not_show_again,
-                                                  next,
-                                                  [](Platform&, App&) {},
-                                                  dont_remind);
+        return scene_pool::alloc<MenuPromptScene>(
+            SystemString::save_prompt,
+            SystemString::ok,
+            SystemString::do_not_show_again,
+            next,
+            [](Platform&, App&) {},
+            dont_remind);
     } else {
         return scene_pool::alloc<ZoneImageScene>();
     }
