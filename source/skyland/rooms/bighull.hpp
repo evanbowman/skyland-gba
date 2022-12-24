@@ -70,7 +70,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-               RoomProperties::sandbox_mode_only;
+               RoomProperties::sandbox_mode_only |
+               RoomProperties::not_constructible;
     }
 
 
