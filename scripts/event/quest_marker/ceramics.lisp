@@ -7,8 +7,19 @@
 
 (island-configure
  (opponent)
- '((power-core 3 13)
-   (coconut-palm 5 13)))
+ '((masonry 0 14 0)
+   (coconut-palm 0 12)
+   (masonry 1 14 1)
+   (masonry 1 13 1)
+   (power-core 2 11)
+   (masonry 2 14 1)
+   (masonry 2 13 0)
+   (masonry 3 14 1)
+   (masonry 3 13 0)
+   (masonry 4 14 1)
+   (masonry 4 13 1)
+   (coconut-palm 4 11)
+   (masonry 5 14 0)))
 
 
 (setq on-converge
