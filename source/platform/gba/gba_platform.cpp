@@ -4412,6 +4412,41 @@ static void audio_update_rewind_music_isr()
 
 
 
+static void audio_update_rewind4x_music_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // Four-times rewind speed. Pick the first byte of the prior four words.
+    mixing_buffer[0] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[1] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[2] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[3] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+
+    if (snd_ctx.music_track_pos < 4) {
+        snd_ctx.music_track_pos = snd_ctx.music_track_length;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ == 0)) {
+            it->position_ = it->length_ - 1;
+            ++it;
+        } else if (UNLIKELY(it->position_ - 16 <= 0)) {
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[3 - i] += (s8)it->data_[it->position_];
+                it->position_ -= 4;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
 static void audio_update_doublespeed_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
@@ -4564,6 +4599,10 @@ void Platform::Speaker::set_music_speed(MusicSpeed speed)
 
     case MusicSpeed::reversed:
         irqSet(IRQ_TIMER1, audio_update_rewind_music_isr);
+        break;
+
+    case MusicSpeed::reversed4x:
+        irqSet(IRQ_TIMER1, audio_update_rewind4x_music_isr);
         break;
 
     case MusicSpeed::halved:
