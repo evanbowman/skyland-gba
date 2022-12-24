@@ -18,6 +18,9 @@
 
             (island-configure (player) (load 'rooms))
 
+            (if (assoc 'qvar data)
+                (setq qvar (load 'qvar)))
+
             (map
              (lambda
                (let ((plst (cdr (cdr $0))))

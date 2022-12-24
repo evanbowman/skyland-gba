@@ -3182,6 +3182,11 @@ static const Binding builtins[] = {
     {"get",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
+
+         if (get_op0()->type() == lisp::Value::Type::nil) {
+             return L_NIL;
+         }
+
          L_EXPECT_OP(1, cons);
          L_EXPECT_OP(0, integer);
 

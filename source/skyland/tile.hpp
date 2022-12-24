@@ -257,6 +257,9 @@ struct Tile
         boarding_pod4,
         boarding_pod5,
         boarding_pod6,
+        void1,
+        void2,
+        tile,
     };
 };
 
@@ -487,6 +490,7 @@ struct InteriorTile
         boarding_pod6,
         command_module_1,
         command_module_2,
+        tile,
     };
 };
 

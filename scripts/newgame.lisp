@@ -34,6 +34,9 @@
  '((power-core 1 13)))
 
 
+;; Variables associated with quests
+(setq qvar '())
+
 
 (chr-new (player) 2 14 'neutral 0)
 

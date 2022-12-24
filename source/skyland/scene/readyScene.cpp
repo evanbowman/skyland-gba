@@ -793,6 +793,7 @@ void describe_room(Platform& pfrm,
                     StringBuffer<32> desc;
                     desc += "(";
                     desc += (*metac)->ui_name(pfrm)->c_str();
+                    room->append_name_suffix(pfrm, desc);
                     desc += ") ";
                     room_description->assign(desc.c_str());
                     room_description->append(room->health());

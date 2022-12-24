@@ -183,6 +183,8 @@ enum class SystemString {
     block_wool,
     block_workshop,
 
+    tiled_suffix,
+
     red,
     black,
 

@@ -346,6 +346,12 @@ public:
     virtual void deserialize(lisp::Value*);
 
 
+    virtual void append_name_suffix(Platform&, StringBuffer<32>& result)
+    {
+        return;
+    }
+
+
     Health health() const
     {
         return health_;

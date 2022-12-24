@@ -143,9 +143,11 @@ lisp::Value* CargoBay::serialize()
 
 void CargoBay::deserialize(lisp::Value* list)
 {
-    auto c = lisp::get_list(list, 3);
-    if (c->type() == lisp::Value::Type::string) {
-        set_cargo(c->string().value(), str_len(c->string().value()));
+    if (lisp::length(list) >= 4) {
+        auto c = lisp::get_list(list, 3);
+        if (c->type() == lisp::Value::Type::string) {
+            set_cargo(c->string().value(), str_len(c->string().value()));
+        }
     }
 
     if (lisp::length(list) >= 5) {

@@ -13,7 +13,7 @@
         (lambda
           (let ((cmp $0))
             (not (filter (lambda (equal cmp $0)) qids))))
-        (range 0 4))))
+        (range 0 5))))
   (if lvs
       (setq lv (sample lvs))))
 
