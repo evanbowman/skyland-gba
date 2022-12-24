@@ -56,6 +56,7 @@ private:
     std::optional<Text> text_;
     std::optional<Text> speed_text1_;
     std::optional<Text> speed_text2_;
+    std::optional<Text> speed_text3_;
     int speed_ = 0;
     bool far_camera_;
 };

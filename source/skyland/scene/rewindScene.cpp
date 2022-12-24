@@ -217,24 +217,48 @@ void restore_boarding_pod_entity(Platform& pfrm,
 
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
+    bool speed_changed = false;
 
-    if (app.player().key_down(pfrm, Key::up)) {
-        pfrm.set_tile(Layer::overlay, 0, 17, 475);
-        pfrm.set_tile(Layer::overlay, 0, 18, 112);
-        speed_ = 0;
-        pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed);
+    if (app.player().key_down(pfrm, Key::up) and speed_ > 0) {
+        --speed_;
+        speed_changed = true;
     }
-    if (app.player().key_down(pfrm, Key::down)) {
-        pfrm.set_tile(Layer::overlay, 0, 17, 112);
-        pfrm.set_tile(Layer::overlay, 0, 18, 475);
-        speed_ = 1;
-        pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed4x);
+    if (app.player().key_down(pfrm, Key::down) and speed_ < 3) {
+        ++speed_;
+        speed_changed = true;
+    }
+
+    if (speed_changed) {
+        switch (speed_) {
+        case 0:
+            pfrm.set_tile(Layer::overlay, 0, 16, 475);
+            pfrm.set_tile(Layer::overlay, 0, 17, 112);
+            pfrm.set_tile(Layer::overlay, 0, 18, 112);
+            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed);
+            break;
+
+        case 1:
+            pfrm.set_tile(Layer::overlay, 0, 16, 112);
+            pfrm.set_tile(Layer::overlay, 0, 17, 475);
+            pfrm.set_tile(Layer::overlay, 0, 18, 112);
+            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed4x);
+            break;
+
+        case 2:
+            pfrm.set_tile(Layer::overlay, 0, 16, 112);
+            pfrm.set_tile(Layer::overlay, 0, 17, 112);
+            pfrm.set_tile(Layer::overlay, 0, 18, 475);
+            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed8x);
+            break;
+        }
     }
 
     // Playback history at a fixed delta.
     Microseconds delta = 2 * (seconds(1) / 60);
     if (speed_ == 1) {
         delta *= 2;
+    } else if (speed_ == 2) {
+        delta *= 4;
     }
 
     app.delta_fp() = delta;
@@ -1545,10 +1569,12 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
         Platform::fatal("entering rewind scene from non-overworld scene");
     }
 
-    speed_text1_.emplace(pfrm, "2x", OverlayCoord{1, 17});
-    speed_text2_.emplace(pfrm, "4x", OverlayCoord{1, 18});
+    speed_text1_.emplace(pfrm, "2x", OverlayCoord{1, 16});
+    speed_text2_.emplace(pfrm, "4x", OverlayCoord{1, 17});
+    speed_text3_.emplace(pfrm, "8x", OverlayCoord{1, 18});
 
-    pfrm.set_tile(Layer::overlay, 0, 17, 475);
+    pfrm.set_tile(Layer::overlay, 0, 16, 475);
+    pfrm.set_tile(Layer::overlay, 0, 17, 112);
     pfrm.set_tile(Layer::overlay, 0, 18, 112);
 }
 
@@ -1558,7 +1584,9 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     speed_text1_.reset();
     speed_text2_.reset();
+    speed_text3_.reset();
 
+    pfrm.set_tile(Layer::overlay, 0, 16, 0);
     pfrm.set_tile(Layer::overlay, 0, 17, 0);
     pfrm.set_tile(Layer::overlay, 0, 18, 0);
 
