@@ -22,6 +22,7 @@
 
 #include "newgameScene.hpp"
 #include "globals.hpp"
+#include "menuPromptScene.hpp"
 #include "readyScene.hpp"
 #include "script/lisp.hpp"
 #include "skyland/alloc_entity.hpp"
@@ -65,8 +66,11 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
+    bool loaded = false;
+
     if (save::load(pfrm, app, app.persistent_data())) {
         save::erase(pfrm);
+        loaded = true;
     } else {
         app.set_coins(pfrm, 0);
 
@@ -98,7 +102,27 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player_island().set_position(
         {Fixnum::from_integer(10), Fixnum::from_integer(374)});
 
-    return scene_pool::alloc<ZoneImageScene>();
+    const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
+
+    const bool skip_save_prompt = app.gp_.stateflags_.get(sv_flag);
+
+    auto dont_remind =
+        [](Platform& pfrm, App& app) {
+            app.gp_.stateflags_.set(sv_flag, true);
+            save::store_global_data(pfrm, app.gp_);
+        };
+
+    if (loaded and not skip_save_prompt) {
+        auto next = scene_pool::make_deferred_scene<ZoneImageScene>();
+        return scene_pool::alloc<MenuPromptScene>(SystemString::save_prompt,
+                                                  SystemString::ok,
+                                                  SystemString::do_not_show_again,
+                                                  next,
+                                                  [](Platform&, App&) {},
+                                                  dont_remind);
+    } else {
+        return scene_pool::alloc<ZoneImageScene>();
+    }
 }
 
 

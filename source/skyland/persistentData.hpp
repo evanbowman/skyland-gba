@@ -50,6 +50,7 @@ struct GlobalPersistentData
         sandbox_prompt,
         freebuild_unlocked,
         difficulty_prompt,
+        save_prompt_dont_remind_me,
     };
 
     enum class Difficulty : u8 {

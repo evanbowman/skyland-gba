@@ -614,6 +614,10 @@ enum class SystemString {
     fall,
     winter,
 
+    save_prompt,
+    ok,
+    do_not_show_again,
+
     __NOTICE__,
     patchfix_retain_alphabet,
     count,
