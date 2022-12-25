@@ -18,8 +18,9 @@
 
             (island-configure (player) (load 'rooms))
 
-            (if (assoc 'qvar data)
-                (setq qvar (load 'qvar)))
+            (setq qvar (if (assoc 'qvar data)
+                           (load 'qvar)
+                         '()))
 
             (map
              (lambda
