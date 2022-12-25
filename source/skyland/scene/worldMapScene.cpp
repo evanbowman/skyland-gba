@@ -1137,7 +1137,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::save_exit:
         timer_ += delta;
-        if (timer_ > milliseconds(500)) {
+        if (timer_ > milliseconds(350)) {
             return scene_pool::alloc<TitleScreenScene>();
         }
         break;
