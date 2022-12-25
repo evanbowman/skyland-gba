@@ -526,7 +526,12 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         fade_sweep);
                 }
 
-                if (app.has_backup()) {
+                bool is_final_boss =
+                    app.world_graph()
+                    .nodes_[app.current_world_location()]
+                    .type_ == WorldGraph::Node::Type::corrupted;
+
+                if (app.has_backup() and not is_final_boss) {
                     add_option(pfrm,
                                SYSTR(retry)->c_str(),
                                [&pfrm, &app]() -> ScenePtr<Scene> {
