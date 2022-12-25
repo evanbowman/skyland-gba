@@ -42,18 +42,20 @@
 
 (setq on-dialog-accepted
       (lambda
-
-        (setq temp (chr-slots (player)))
-
-        (if temp
+        (let ((temp (chr-slots (player))))
+          (if temp
+              (progn
+                (setq temp (get temp (choice (length temp))))
+                (chr-new (player) (car temp) (cdr temp) 'neutral 0)
+                (chr-del (opponent) 1 14)
+                (if (or (equal (choice 2) 1) (< (coins) 300))
+                    (dialog "The castaway joined your crew!")
+                  (progn
+                    (coins-set (- (coins) 300))
+                    (dialog "The castaway joined your crew. "
+                            "Starving, he ate 300@ of your food supplies!"))))
             (progn
-              (setq temp (get temp (choice (length temp))))
-              (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-              (chr-del (opponent) 1 14)
-              (setq temp '())
-              (dialog "The castaway joined your crew!"))
-          (progn
-            (dialog "Sadly, there's no room...")))
+              (dialog "Sadly, there's no room..."))))
 
         (exit)))
 

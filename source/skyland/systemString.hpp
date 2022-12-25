@@ -481,6 +481,8 @@ enum class SystemString {
     wg_uncharted,
     wg_quest_marker,
     wg_saved,
+    wg_saved_description,
+    wg_saved_come_back_soon,
     wg_title,
     wg_storm_label,
     wg_exit,

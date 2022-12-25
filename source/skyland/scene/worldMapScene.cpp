@@ -415,6 +415,16 @@ bool WorldMapScene::show_tier_2_ = true;
 
 
 
+void __draw_image(Platform& pfrm,
+                  TileDesc start_tile,
+                  u16 start_x,
+                  u16 start_y,
+                  u16 width,
+                  u16 height,
+                  Layer layer);
+
+
+
 ScenePtr<Scene>
 WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -1006,23 +1016,132 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
-    case State::print_saved_text:
+    case State::print_saved_text: {
         pfrm.load_overlay_texture("overlay");
-        heading_.emplace(pfrm, SYSTR(wg_saved)->c_str(), OverlayCoord{1, 1});
-        pfrm.screen().fade(1.f);
-        state_ = State::show_saved_text;
-        break;
-
-
-    case State::show_saved_text:
-        timer_ += delta;
-        if (timer_ > milliseconds(1200)) {
-            heading_.reset();
+        const auto screen_tiles = calc_screen_tiles(pfrm);
+        for (int i = 0; i < screen_tiles.x; ++i) {
+            pfrm.set_tile(Layer::overlay, i, 0, 112);
+            pfrm.set_tile(Layer::overlay, i, 1, 112);
+            pfrm.set_tile(Layer::overlay, i, 2, 112);
+            pfrm.set_tile(Layer::overlay, i, 3, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 5, 112);
         }
-        if (timer_ > milliseconds(1300)) {
+        state_ = State::show_saved_text;
+        pfrm.load_tile1_texture("savegame_flattened");
+        __draw_image(pfrm, 1, 0, 4, 30, 13, Layer::map_1);
+        heading_.emplace(pfrm, SYSTR(wg_saved)->c_str(), OverlayCoord{1, 1});
+        break;
+    }
+
+
+    case State::show_saved_text: {
+        if (timer_ == 0) {
+            pfrm.screen().schedule_fade(0.f);
+            pfrm.load_tile1_texture("savegame_flattened");
+        }
+        const auto prev_timer = timer_;
+        timer_ += delta;
+        if (timer_ > milliseconds(7500)) {
+            heading_.reset();
+            for (int i = 0; i < 30; ++i) {
+                pfrm.set_tile(Layer::overlay, i, 1, 112);
+            }
+        }
+
+        const bool skip =
+            app.player().key_down(pfrm, Key::action_1) or
+            app.player().key_down(pfrm, Key::action_2);
+
+        if (timer_ > milliseconds(7600) or skip) {
+            heading_.reset();
+            const auto screen_tiles = calc_screen_tiles(pfrm);
+            for (int i = 0; i < 30; ++i) {
+                pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
+            }
+        }
+
+        if (timer_ > milliseconds(7700) or skip) {
+            heading_.reset();
+            const auto screen_tiles = calc_screen_tiles(pfrm);
+            for (int i = 0; i < 30; ++i) {
+                pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+            }
+        }
+
+        const auto t1_thresh = milliseconds(750);
+        if (prev_timer < t1_thresh and timer_ > t1_thresh) {
+            Text t(pfrm, SYSTR(wg_saved_description)->c_str(), OverlayCoord{1, 16});
+            t.__detach();
+        }
+
+        const auto t2_thresh = milliseconds(1450);
+        if (prev_timer < t2_thresh and timer_ > t2_thresh) {
+            Text t(pfrm, SYSTR(wg_saved_come_back_soon)->c_str(), OverlayCoord{1, 18});
+            t.__detach();
+        }
+
+
+        if (timer_ > milliseconds(7800) or skip) {
+            timer_ = 0;
+            state_ = State::save_animate_out;
+        }
+        break;
+    }
+
+    case State::save_animate_out: {
+        timer_ += delta;
+
+        const auto transition_time = milliseconds(250);
+
+        constexpr int pixels_per_tile = 8;
+        const auto total_pixels = 6 * pixels_per_tile;
+
+        const Float percentage = smoothstep(0.f, transition_time, timer_);
+        const int fractional_pixels = percentage * total_pixels;
+
+        for (int y = 4; y < 4 + 6; ++y) {
+            if ((y - 4) * 8 < fractional_pixels) {
+                for (int x = 0; x < 30; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, y, 112);
+                }
+                for (int x = 0; x < 30; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, 14 - (y - 4), 112);
+                }
+            } else if (((y + 1) - 4) * 8 > fractional_pixels and
+                       fractional_pixels % 8) {
+                for (int x = 0; x < 30; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                }
+                for (int x = 0; x < 30; ++x) {
+                    pfrm.set_tile(Layer::overlay,
+                                  x,
+                                  14 - (y - 4),
+                                  128 - (fractional_pixels % 8));
+                }
+                break;
+            }
+        }
+
+        if (timer_ >= transition_time) {
+            timer_ = 0;
+            state_ = State::save_exit;
+        }
+
+        break;
+    }
+
+    case State::save_exit:
+        timer_ += delta;
+        if (timer_ > milliseconds(500)) {
             return scene_pool::alloc<TitleScreenScene>();
         }
         break;
+
     }
 
 
@@ -1034,6 +1153,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void WorldMapScene::display(Platform& pfrm, App& app)
 {
+    if (state_ == State::show_saved_text or
+        state_ == State::save_animate_out or
+        state_ == State::save_exit) {
+        return;
+    }
+
     Sprite cursor;
     cursor.set_priority(0);
 

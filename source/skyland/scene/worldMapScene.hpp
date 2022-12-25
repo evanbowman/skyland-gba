@@ -84,6 +84,8 @@ private:
         print_saved_text,
         show_saved_text,
         show_node_death_icons,
+        save_animate_out,
+        save_exit,
     } state_ = State::fade_in;
 
     bool move_arrow_sel_[3] = {false, true, false};

@@ -380,6 +380,8 @@ outpost
 uncharted
 quest marker
 progress saved...
+Your crew is taking a break,
+come back soon!
 sky map - zone %
 storm >>
 exit
