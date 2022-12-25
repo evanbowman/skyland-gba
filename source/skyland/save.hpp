@@ -49,8 +49,14 @@ struct EmergencyBackup
 {
     PersistentData persistent_data_;
     std::optional<Vector<char>> lisp_data_;
+    rng::LinearGenerator rng_state_;
 
     bool valid_ = false;
+
+    // Used when restoring a backup when retrying a level, rather than restoring
+    // from a crash. Restoring from a crash puts you back on the world map,
+    // while retrying a level puts you at the beginning of the level.
+    s8 next_world_location_ = -1;
 
     void init(Platform& pfrm, App& app);
 

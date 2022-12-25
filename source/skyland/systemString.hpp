@@ -612,14 +612,11 @@ enum class SystemString {
     name_chr,
     submit_hint,
 
-    spring,
-    summer,
-    fall,
-    winter,
-
     save_prompt,
     ok,
     do_not_show_again,
+
+    retry,
 
     __NOTICE__,
     patchfix_retain_alphabet,

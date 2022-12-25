@@ -46,6 +46,7 @@
 #include "surrenderConfirmScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "loadLevelScene.hpp"
 
 
 
@@ -516,12 +517,26 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                            SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
-            } else if (not app.opponent().is_friendly()) {
-                add_option(
-                    pfrm,
-                    SYSTR(start_menu_end_run)->c_str(),
-                    scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
-                    fade_sweep);
+            } else {
+                if (not app.opponent().is_friendly()) {
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_end_run)->c_str(),
+                        scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
+                        fade_sweep);
+                }
+
+                if (app.has_backup()) {
+                    add_option(pfrm,
+                               SYSTR(retry)->c_str(),
+                               [&pfrm, &app]() -> ScenePtr<Scene> {
+                                   pfrm.fill_overlay(0);
+                                   app.restore_backup(pfrm);
+                                   pfrm.speaker().clear_sounds();
+                                   return scene_pool::alloc<LoadLevelScene>();
+                               },
+                               fade_sweep);
+                }
             }
             break;
 

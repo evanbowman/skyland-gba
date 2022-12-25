@@ -67,45 +67,6 @@ static const u8 sine8[256] = {
 
 
 
-void MacrocosmScene::draw_season(Platform& pfrm,
-                                 macro::EngineImpl& state,
-                                 int season)
-{
-    if (state.data_->checkers_mode_ or state.data_->freebuild_mode_) {
-        return;
-    }
-
-    auto str = [&] {
-        switch (season) {
-        case 0:
-            return SYSTR(spring);
-        case 1:
-            return SYSTR(summer);
-        case 2:
-            return SYSTR(fall);
-        case 3:
-            return SYSTR(winter);
-        default:
-            return SYSTR(empty);
-        }
-    }();
-
-    u8 pos = calc_screen_tiles(pfrm).x - (utf8::len(str->c_str()) + 1);
-    for (int x = pos - 8; x < calc_screen_tiles(pfrm).x; ++x) {
-        pfrm.set_tile(Layer::overlay, x, 2, 0);
-    }
-    Text season_text(pfrm, OverlayCoord{pos, 2});
-
-    season_text.assign(str->c_str(),
-                       Text::OptColors{{ColorConstant::med_blue_gray,
-                                        ColorConstant::rich_black}});
-
-    season_text.__detach();
-
-    last_season_ = season;
-}
-
-
 
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
@@ -213,7 +174,6 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         //     current_season(m.data_->year_timer_, secs_per_season);
 
         // if (season not_eq last_season_) {
-        //     draw_season(pfrm, m, season);
         // }
     }
 
@@ -520,7 +480,6 @@ void MacrocosmScene::enter(Platform& pfrm,
     }
 
     // draw_year(pfrm, state);
-    // draw_season(pfrm, state, season);
 
     draw_compass(pfrm, state);
     draw_keylock(pfrm, state);

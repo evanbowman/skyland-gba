@@ -616,7 +616,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             // In case anything goes wrong: create an emergency backup!
-            app.create_backup(pfrm);
+            app.create_backup(pfrm, App::BackupContext{
+                    .next_world_location_ = (s8)cursor_,
+                });
 
             app.current_world_location() = cursor_;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);

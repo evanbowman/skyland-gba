@@ -144,4 +144,4 @@
    (500 L-np)
 
    (1000 nil)
-   (100 "<c:Milo:5>Alright, I think I've showed you all the different game speeds: slow, regular, fast, paused, and rewind! Just so you know... rewinding often does affect your highscore quite a bit!")))
+   (100 "<c:Milo:5>Alright, I think I've showed you all the different game speeds: slow, regular, fast, paused, and rewind!")))

@@ -128,6 +128,8 @@ void EmergencyBackup::init(Platform& pfrm, App& app)
 
     lisp_data_->push_back('\0');
 
+    rng_state_ = rng::critical_state;
+
     valid_ = true;
 }
 

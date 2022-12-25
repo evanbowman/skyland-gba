@@ -187,6 +187,11 @@ enum Type : u8 {
 
     move_region_begin,
     move_region_end,
+
+    score_increased_small,
+    score_increased_large,
+    score_increased_huge,
+    score_decreased,
 };
 
 
@@ -1127,6 +1132,51 @@ struct MoveRegionEnd
 {
     Header header_;
     static constexpr const auto t = Type::move_region_end;
+};
+
+
+
+struct ScoreIncreasedSmall__packed
+{
+    Header header_;
+
+    // Many score increases are an even power of ten.
+
+    // Amount, multiplied by ten N times based on value of mul_10_
+    u8 amount_ : 6;
+    u8 mul_10_ : 2;
+
+    static constexpr const auto t = Type::score_increased_small;
+};
+
+
+
+struct ScoreIncreasedLarge
+{
+    Header header_;
+    HostInteger<u16> amount_;
+
+    static constexpr const auto t = Type::score_increased_large;
+};
+
+
+
+struct ScoreIncreasedHuge
+{
+    Header header_;
+    HostInteger<u32> amount_;
+
+    static constexpr const auto t = Type::score_increased_huge;
+};
+
+
+
+struct ScoreDecreased
+{
+    Header header_;
+    HostInteger<u32> amount_;
+
+    static constexpr const auto t = Type::score_decreased;
 };
 
 

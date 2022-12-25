@@ -380,8 +380,15 @@ public:
     void set_developer_mode(bool value);
 
 
-    void create_backup(Platform& pfrm);
+    struct BackupContext
+    {
+        s8 next_world_location_ = -1;
+    };
+
+    void create_backup(Platform& pfrm, const BackupContext& ctx);
     void delete_backup();
+    bool has_backup();
+    void restore_backup(Platform& pfrm);
 
 
     Scene& scene()
@@ -524,6 +531,9 @@ private:
         simple_console,
         lisp,
     } remote_console_syntax_ = RemoteConsoleSyntax::none;
+
+
+    void record_score_diff(Platform& pfrm, int diff);
 };
 
 

@@ -170,6 +170,7 @@ ScenePtr<Scene>
 LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     const auto loc = app.current_world_location();
+    info(pfrm, format("%", loc));
     auto& node = app.world_graph().nodes_[loc];
 
     for (auto& room : app.player_island().rooms()) {

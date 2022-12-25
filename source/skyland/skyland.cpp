@@ -150,9 +150,52 @@ Coins App::terrain_cost(Island& island)
 
 
 
-void App::create_backup(Platform& pfrm)
+bool App::has_backup()
+{
+    return backup_->valid_;
+}
+
+
+
+void App::restore_backup(Platform& pfrm)
+{
+    if (not backup_->valid_) {
+        Platform::fatal("restore from invalid backup!");
+    }
+
+    persistent_data_ = backup_->persistent_data_;
+    rng::critical_state = backup_->rng_state_;
+
+    invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+
+    lisp::VectorCharSequence seq(*backup_->lisp_data_);
+    lisp::read(seq);
+    lisp::eval(lisp::get_op(0));
+
+    auto arg = lisp::get_op(0); // result of eval()
+
+    auto fn = invoke_script(pfrm, "/scripts/restore_save.lisp");
+    if (fn->type() == lisp::Value::Type::function) {
+        lisp::push_op(arg); // pass save data buffer on stack
+        funcall(fn, 1);     // one argument (the save data)
+        lisp::pop_op();     // funcall result
+    } else {
+        pfrm.fatal("not function!");
+    }
+
+    lisp::pop_op(); // result of eval() (1)
+    lisp::pop_op(); // result of read() (0)
+
+    current_world_location() = backup_->next_world_location_;
+    ++world_graph().storm_depth_;
+}
+
+
+
+void App::create_backup(Platform& pfrm, const BackupContext& ctx)
 {
     backup_->init(pfrm, *this);
+    backup_->next_world_location_ = ctx.next_world_location_;
 }
 
 
@@ -223,6 +266,7 @@ void App::update(Platform& pfrm, Microseconds delta)
     TIMEPOINT(t1);
 
     const auto previous_rng = rng::critical_state;
+    const auto previous_score = score().get();
 
     if (next_scene_) {
         next_scene_->enter(pfrm, *this, *current_scene_);
@@ -279,6 +323,10 @@ void App::update(Platform& pfrm, Microseconds delta)
         time_stream_.push(level_timer_, e);
     }
 
+    if (score().get() not_eq previous_score) {
+        record_score_diff(pfrm, score().get() - previous_score);
+    }
+
     TIMEPOINT(t6);
 
     for (const char* sound : pfrm.speaker().completed_sounds()) {
@@ -315,6 +363,45 @@ void App::update(Platform& pfrm, Microseconds delta)
     //                            t7 - t6)
     //                         .c_str());
     // }
+}
+
+
+
+void App::record_score_diff(Platform& pfrm, int diff)
+{
+    if (diff > 0) {
+
+        int packed_diff = diff;
+        int packed_exp = 0;
+
+        for (int i = 0; i < 3; ++i) {
+            if (packed_diff % 10 == 0) {
+                packed_diff /= 10;
+                ++packed_exp;
+            } else {
+                break;
+            }
+        }
+
+        if (packed_diff <= (2 << 6) - 1) {
+            time_stream::event::ScoreIncreasedSmall__packed e;
+            e.amount_ = packed_diff;
+            e.mul_10_ = packed_exp;
+            time_stream().push(level_timer(), e);
+        } else if (diff <= std::numeric_limits<u16>::max()) {
+            time_stream::event::ScoreIncreasedLarge e;
+            e.amount_.set(diff);
+            time_stream().push(level_timer(), e);
+        } else {
+            time_stream::event::ScoreIncreasedHuge e;
+            e.amount_.set(diff);
+            time_stream().push(level_timer(), e);
+        }
+    } else {
+        time_stream::event::ScoreDecreased e;
+        e.amount_.set(-1 * diff);
+        time_stream().push(level_timer(), e);
+    }
 }
 
 

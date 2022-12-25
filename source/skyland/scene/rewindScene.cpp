@@ -1489,6 +1489,41 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+        case time_stream::event::score_increased_small: {
+            auto e = (time_stream::event::ScoreIncreasedSmall__packed*)end;
+            int amount = e->amount_;
+            for (int i = 0; i < e->mul_10_; ++i) {
+                amount *= 10;
+            }
+            app.score().set(app.score().get() - amount);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::score_increased_large: {
+            auto e = (time_stream::event::ScoreIncreasedLarge*)end;
+            int amount = e->amount_.get();
+            app.score().set(app.score().get() - amount);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::score_increased_huge: {
+            auto e = (time_stream::event::ScoreIncreasedHuge*)end;
+            int amount = e->amount_.get();
+            app.score().set(app.score().get() - amount);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::score_decreased: {
+            auto e = (time_stream::event::ScoreDecreased*)end;
+            int amount = e->amount_.get();
+            app.score().set(app.score().get() + amount);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;
 
@@ -1589,10 +1624,6 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.set_tile(Layer::overlay, 0, 16, 0);
     pfrm.set_tile(Layer::overlay, 0, 17, 0);
     pfrm.set_tile(Layer::overlay, 0, 18, 0);
-
-
-    // Score penalty: you lose accumulated score for a level when you rewind.
-    app.score().set(app.level_begin_score());
 
     if (not app.time_stream().pushes_enabled()) {
         Platform::fatal("sanity check: exit rewind scene, pushes not enabled");

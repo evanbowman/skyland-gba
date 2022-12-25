@@ -204,7 +204,6 @@ private:
     static const auto drone_update_timeout_ = seconds(1);
     Microseconds drone_update_timer_ = 0;
 
-    Microseconds score_subtract_timer_ = 0;
     Microseconds total_time_ = 0;
 
     u32 room_update_index_ = 0;

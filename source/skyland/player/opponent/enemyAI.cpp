@@ -97,20 +97,6 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-
-    if (not ai_island_->is_destroyed() and
-        not(*target_island_).is_destroyed()) {
-
-        score_subtract_timer_ += delta;
-        if (score_subtract_timer_ > seconds(1)) {
-            // For level score calculation. The player earns score after
-            // destroying an AI's rooms, and loses score for each second
-            // spent in the level.
-            score_subtract_timer_ -= seconds(1);
-            app.score().set(app.score().get() - 1);
-        }
-    }
-
     next_action_timer_ -= delta;
     character_reassign_timer_ -= delta;
     local_character_reassign_timer_ -= delta;

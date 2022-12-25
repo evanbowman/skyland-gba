@@ -488,12 +488,9 @@ if you can jump, you must!
 jump again!
 Name crewmember:
 ENTER: submit
-spring
-summer
-fall
-winter
 You've just loaded a saved game. Each adventure mode save may only be restored once. Remember to save again before turning off the game!
 ok
 don't show again
+retry
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
 abcdefghijklmnopqrstuvwxyz- ()0123456789
