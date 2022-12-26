@@ -490,7 +490,7 @@ if you can jump, you must!
 jump again!
 Name crewmember:
 ENTER: submit
-You've just loaded a saved game. Each adventure mode save may only be restored once. Remember to save again before turning off the game!
+You've just loaded a saved game. Each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
 ok
 don't show again
 retry
