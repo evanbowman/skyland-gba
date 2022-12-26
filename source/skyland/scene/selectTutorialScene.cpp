@@ -112,6 +112,20 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     pfrm.delta_clock().reset();
+
+    pfrm.set_tile(Layer::overlay, 1, 2, 90);
+    pfrm.set_tile(Layer::overlay, 28, 2, 92);
+    pfrm.set_tile(Layer::overlay, 1, 15, 94);
+    pfrm.set_tile(Layer::overlay, 28, 15, 96);
+    for (int x = 2; x < 28; ++x) {
+        pfrm.set_tile(Layer::overlay, x, 2, 91);
+        pfrm.set_tile(Layer::overlay, x, 15, 95);
+    }
+    for (int y = 3; y < 15; ++y) {
+        pfrm.set_tile(Layer::overlay, 1, y, 93);
+        pfrm.set_tile(Layer::overlay, 28, y, 97);
+    }
+
 }
 
 
