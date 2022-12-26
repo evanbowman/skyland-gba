@@ -660,19 +660,34 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
             if (room->metaclass() == infirmary_metac) {
+
+                auto chr_room = ai_island_->get_room(character.grid_position());
+
                 // If our health is really low, we probably want to go to the
                 // infirmary. If our health is just kinda low, we maybe want to
                 // go to the infirmary.
                 if (character.is_replicant()) {
                     // Replicants cannot heal, so don't bother.
                 } else {
-                    if (not damaged_habitable_rooms) {
+                    if (not damaged_habitable_rooms and
+                        character.health() < 255) {
+                        // Character has no rooms to repair and character is
+                        // injured.
                         slot.ai_weight_ += 5000.f;
                     } else if (character.health() < 25) {
                         slot.ai_weight_ += 2000.f;
                     } else if (character.health() < 200 and
                                not player_characters_local) {
                         slot.ai_weight_ += 2000.f;
+                    } else {
+                        if (chr_room and chr_room == room and
+                            room->health() == room->max_health()) {
+                            // The crewmember is in the infirmary, and the
+                            // crewmember is fully healed, and the infirmary is
+                            // fully healed, then vacate the infirmary to allow
+                            // someone else to heal.
+                            slot.ai_weight_ -= 400;
+                        }
                     }
                 }
             } else if (auto transporter = room->cast<Transporter>()) {

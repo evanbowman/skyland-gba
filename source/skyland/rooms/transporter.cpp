@@ -143,7 +143,7 @@ void Transporter::recover_character(Platform& pfrm,
         return;
     }
 
-    ready();
+    Room::ready();
 
     if (auto room = island->get_room(position)) {
         for (auto it = room->characters().begin();

@@ -105,6 +105,17 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.dropped_frames_ = 0;
             return next;
         };
+
+        if (app.opponent_island() and
+            app.opponent_island()->get_drift() == 0.0_fixed) {
+            // Bugfix: converge callback never fires because islands are both
+            // really large.
+            app.on_timeout(
+                pfrm, milliseconds(500), [](Platform& pfrm, App& app) {
+                    invoke_hook(pfrm, app, "on-converge");
+                });
+        }
+
         return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);
     } else {
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);

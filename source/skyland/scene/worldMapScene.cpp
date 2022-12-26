@@ -1035,6 +1035,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_tile1_texture("savegame_flattened");
         __draw_image(pfrm, 1, 0, 4, 30, 13, Layer::map_1);
         heading_.emplace(pfrm, SYSTR(wg_saved)->c_str(), OverlayCoord{1, 1});
+        pfrm.speaker().play_sound("button_wooden", 3);
+        pfrm.speaker().stop_music();
         break;
     }
 
@@ -1046,6 +1048,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         const auto prev_timer = timer_;
         timer_ += delta;
+
+        if (app.player().key_down(pfrm, Key::action_1) or
+            app.player().key_down(pfrm, Key::action_2)) {
+            timer_ = milliseconds(7450);
+        }
+
         if (timer_ > milliseconds(7500)) {
             heading_.reset();
             for (int i = 0; i < 30; ++i) {
@@ -1053,20 +1061,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        const bool skip =
-            app.player().key_down(pfrm, Key::action_1) or
-            app.player().key_down(pfrm, Key::action_2);
-
-        if (timer_ > milliseconds(7600) or skip) {
-            heading_.reset();
+        if (timer_ > milliseconds(7600)) {
             const auto screen_tiles = calc_screen_tiles(pfrm);
             for (int i = 0; i < 30; ++i) {
                 pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
             }
         }
 
-        if (timer_ > milliseconds(7700) or skip) {
-            heading_.reset();
+        if (timer_ > milliseconds(7700)) {
             const auto screen_tiles = calc_screen_tiles(pfrm);
             for (int i = 0; i < 30; ++i) {
                 pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
@@ -1086,7 +1088,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        if (timer_ > milliseconds(7800) or skip) {
+        if (timer_ > milliseconds(7800)) {
             timer_ = 0;
             state_ = State::save_animate_out;
         }
