@@ -2,3 +2,4 @@
 source/data/* linguist-vendored
 useful_documents/* linguist-documentation
 external/* linguist-vendored
+*.lisp linguist-language=lisp
