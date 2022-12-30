@@ -27,6 +27,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "titleScreenScene.hpp"
+#include "version.hpp"
 
 
 
@@ -128,7 +129,10 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
                     (u8)centered_text_margins(pfrm, utf8::len(cpystr->c_str())),
                     20});
 
-            copyright_text_->assign(cpystr->c_str(),
+            copyright_text_->assign(format(cpystr->c_str(),
+                                           // NOTE: because we use yyyy.mm.dd
+                                           // for version numbers.
+                                           PROGRAM_MAJOR_VERSION).c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
                                                ColorConstant::rich_black});
         }

@@ -25,6 +25,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/rooms/mindControl.hpp"
 
 
 
@@ -40,9 +41,17 @@ static const auto movement_step_duration = milliseconds(300);
 static u16 base_frame(BasicCharacter* character, App& app)
 {
     if (character->owner() == &app.player()) {
-        return 35;
+        if (character->mind_controlled()) {
+            return 42;
+        } else {
+            return 35;
+        }
     } else {
-        return 42;
+        if (character->mind_controlled()) {
+            return 35;
+        } else {
+            return 42;
+        }
     }
 }
 
@@ -78,12 +87,15 @@ void BasicCharacter::__rebase_ids(CharacterId id)
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const RoomCoord& position,
-                               bool is_replicant)
+                               bool is_replicant,
+                               bool is_mind_controlled)
     : Entity({{}, {}}), parent_(parent), owner_(owner),
       grid_position_(position), id_(alloc_character_id())
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
+
+    mind_controlled_ = is_mind_controlled;
 
     ai_mark_ = false;
 
@@ -226,6 +238,10 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
+
+    if (mind_controlled() and state_ not_eq State::after_transport) {
+        sprite_.set_mix({ColorConstant::stil_de_grain, 40});
+    }
 
     switch (state_) {
     case State::fighting:
@@ -776,6 +792,52 @@ const char* BasicCharacter::name() const
     }
 
     return nullptr;
+}
+
+
+
+void BasicCharacter::start_mind_control(App& app,
+                                        Player* new_owner,
+                                        Room* controller)
+{
+    mind_controlled_ = 1;
+    owner_ = new_owner;
+    state_ = State::moving_or_idle;
+
+    time_stream::event::MindControlStarted e;
+    e.prev_id_.set(((MindControl*)controller)->bound_character());
+    ((MindControl*)controller)->bind_character(id());
+    e.controller_x_ = controller->position().x;
+    e.controller_y_ = controller->position().y;
+    if (controller->parent() == &app.player_island()) {
+        e.controller_near_ = 1;
+    } else {
+        e.controller_near_ = 0;
+    }
+    app.time_stream().push(app.level_timer(), e);
+}
+
+
+
+void BasicCharacter::stop_mind_control(App& app,
+                                       Player* new_owner,
+                                       Room* controller)
+{
+    mind_controlled_ = 0;
+    owner_ = new_owner;
+    state_ = State::moving_or_idle;
+
+    time_stream::event::MindControlStopped e;
+    e.id_.set(id());
+    e.controller_x_ = controller->position().x;
+    e.controller_y_ = controller->position().y;
+    if (controller->parent() == &app.player_island()) {
+        e.controller_near_ = 1;
+    } else {
+        e.controller_near_ = 0;
+    }
+    app.time_stream().push(app.level_timer(), e);
+    sprite_.set_mix({});
 }
 
 

@@ -351,6 +351,18 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[raid].reward_), awarded);
+     }},
+
+    {SystemString::achievement_pacifist_name,
+     SystemString::achievement_pacifist_description,
+     "mind-control",
+     [](Platform&, App& app) {
+         return app.zone() > 3 and
+             not(app.persistent_data().state_flags_.get() &
+                 PersistentData::opponent_crew_died);
+     },
+     [](Platform&, App&, bool awarded){
+         set_enabled(metaclass_index(info[raid].reward_), awarded);
      }}};
 
 

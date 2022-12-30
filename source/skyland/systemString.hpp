@@ -83,7 +83,6 @@ enum class SystemString {
     block_cloak,
     block_cocoa,
     block_command_module,
-    block_corn,
     block_cesium,
     block_crane,
     block_carved_crystal,
@@ -91,8 +90,8 @@ enum class SystemString {
     block_crystal_pillar,
     block_dome,
     block_stacked_hull,
-    block_sugar_beat,
     block_mirror_hull,
+    block_mind_control,
     block_bulkhead_door,
     block_cannon,
     block_cargo_bay,
@@ -367,6 +366,7 @@ enum class SystemString {
     description_bighull,
     description_boarding_pod,
     description_command_module,
+    description_mind_control,
 
     gs_paused,
     gs_slow,
@@ -458,6 +458,8 @@ enum class SystemString {
     transporter_transport_char,
     transporter_recover_char,
 
+    mind_control_prompt,
+
     repair_range,
 
     create_replicant,
@@ -495,8 +497,6 @@ enum class SystemString {
     sandbox_title,
     sandbox_prompt,
     sandbox_characters,
-
-    weather_dynamic,
 
     sf_description,
     sf_hint,
@@ -552,6 +552,8 @@ enum class SystemString {
     achievement_end_of_line_description,
     achievement_raid_name,
     achievement_raid_description,
+    achievement_pacifist_name,
+    achievement_pacifist_description,
 
     options,
 
@@ -572,7 +574,6 @@ enum class SystemString {
     dlc_erase_hint,
 
     piston_setup,
-    piston_error,
 
     error_power_out,
     error_friendly,

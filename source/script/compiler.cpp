@@ -170,6 +170,7 @@ int compile_let(CompilerContext& ctx,
     }
 
     auto prev_bindings = ctx.local_bindings_;
+    ctx.local_bindings_ = code->cons().car();
 
     foreach (code->cons().car(), [&](Value* val) {
         if (val->type() == Value::Type::cons) {
@@ -199,8 +200,6 @@ int compile_let(CompilerContext& ctx,
         }
     })
         ;
-
-    ctx.local_bindings_ = code->cons().car();
 
     code = code->cons().cdr();
 
@@ -315,7 +314,7 @@ int compile_impl(CompilerContext& ctx,
                     ;
             }
 
-            if (local_slot) {
+            if (false and local_slot) {
                 auto inst = append<instruction::LoadLocal>(buffer, write_pos);
                 inst->var_slot_ = *local_slot;
             } else if (code->symbol().hdr_.mode_bits_ ==
@@ -416,7 +415,28 @@ int compile_impl(CompilerContext& ctx,
                 ctx, buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "while")) {
-            Platform::fatal("'while' syntax unsupported in compiled lisp");
+            lat = lat->cons().cdr();
+            const auto loop_top = write_pos;
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
+            auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
+            auto true_branch = lat->cons().cdr();
+            bool first = true;
+            while (true_branch not_eq get_nil()) {
+                if (not first) {
+                    append<instruction::Pop>(buffer, write_pos);
+                } else {
+                    first = false;
+                }
+                write_pos = compile_impl(
+                ctx, buffer, write_pos, true_branch->cons().car(), jump_offset, false);
+                true_branch = true_branch->cons().cdr();
+            }
+            append<instruction::Pop>(buffer, write_pos);
+            auto jmp = append<instruction::Jump>(buffer, write_pos);
+            jmp->offset_.set(loop_top - jump_offset);
+            jne->offset_.set(write_pos - jump_offset);
+            append<instruction::PushNil>(buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "`")) {
             while (true)
@@ -698,7 +718,7 @@ public:
             }
 
             case Jump::op():
-                if (((Jump*)inst)->offset_.get() < 255) {
+                if (abs(((Jump*)inst)->offset_.get()) < 127) {
                     SmallJump j;
                     j.header_.op_ = SmallJump::op();
                     j.offset_ = ((Jump*)inst)->offset_.get();
@@ -709,7 +729,7 @@ public:
                 break;
 
             case JumpIfFalse::op():
-                if (((JumpIfFalse*)inst)->offset_.get() < 255) {
+                if (abs(((JumpIfFalse*)inst)->offset_.get()) < 127) {
                     SmallJumpIfFalse j;
                     j.header_.op_ = SmallJumpIfFalse::op();
                     j.offset_ = ((JumpIfFalse*)inst)->offset_.get();

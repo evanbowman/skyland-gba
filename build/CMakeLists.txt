@@ -179,6 +179,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/repairDroneRangeScene.cpp
   ${SOURCE_DIR}/skyland/scene/assignWeaponGroupScene.cpp
+  ${SOURCE_DIR}/skyland/scene/mindControlTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/sramFileWritebackScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
@@ -279,6 +280,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/stackedHull.cpp
   ${SOURCE_DIR}/skyland/rooms/sparkCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/manufactory.cpp
+  ${SOURCE_DIR}/skyland/rooms/mindControl.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/escapeBeacon.cpp

@@ -58,6 +58,7 @@
 #include "skyland/rooms/lemonTree.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
+#include "skyland/rooms/mindControl.hpp"
 #include "skyland/rooms/mirrorHull.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/mycelium.hpp"
@@ -333,6 +334,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Explosive,
                                         TNT,
                                         Cesium,
+                                        MindControl,
                                         Radar,
                                         Transporter,
                                         BoardingPod,

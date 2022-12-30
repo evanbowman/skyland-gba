@@ -8,4 +8,5 @@
   ("7: Porcupine 2" . "challenges/porcupine2.lisp")
   ("8: Highwater" . "challenges/decimator.lisp")
   ("9: Arc Defense" . "challenges/arcgun_defense.lisp")
-  ("10: Pursuit" . "challenges/beacon.lisp"))
+  ("10: Pursuit" . "challenges/beacon.lisp")
+  ("11: Exchange" . "challenges/exchange.lisp"))

@@ -75,6 +75,7 @@ enum Achievement : u8 {
     hero            = 20,
     edge_of_world   = 21,
     raid            = 22,
+    pacifist        = 23,
     count
     // clang-format on
 };

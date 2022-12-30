@@ -164,6 +164,15 @@ void Room::display(Platform::Screen& screen)
         const auto& pos = c->sprite().get_position();
         if (pos.y.as_integer() < 700) {
             if (parent_->interior_visible()) {
+                if (c->mind_controlled()) {
+                    auto cpy = c->sprite();
+                    auto p = pos;
+                    p.y -= 8.0_fixed;
+                    cpy.set_position(p);
+                    cpy.set_size(Sprite::Size::w16_h16);
+                    cpy.set_tidx_16x16(58, 0);
+                    screen.draw(cpy);
+                }
                 screen.draw(c->sprite());
             } else if (c->state() == BasicCharacter::State::repair_room or
                        c->state() == BasicCharacter::State::extinguish_fire) {

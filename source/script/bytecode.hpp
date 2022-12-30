@@ -262,7 +262,7 @@ struct Funcall3 {
 
 struct Jump {
     Header header_;
-    host_u16 offset_;
+    host_s16 offset_;
 
     static const char* name()
     {
@@ -278,7 +278,7 @@ struct Jump {
 
 struct SmallJump {
     Header header_;
-    u8 offset_;
+    s8 offset_;
 
     static const char* name()
     {
@@ -294,7 +294,7 @@ struct SmallJump {
 
 struct JumpIfFalse {
     Header header_;
-    host_u16 offset_;
+    host_s16 offset_;
 
     static const char* name()
     {
@@ -310,7 +310,7 @@ struct JumpIfFalse {
 
 struct SmallJumpIfFalse {
     Header header_;
-    u8 offset_;
+    s8 offset_;
 
     static const char* name()
     {

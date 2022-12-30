@@ -192,6 +192,9 @@ enum Type : u8 {
     score_increased_large,
     score_increased_huge,
     score_decreased,
+
+    mind_control_started,
+    mind_control_stopped,
 };
 
 
@@ -707,7 +710,8 @@ struct CharacterDied
     u8 owned_by_player_ : 1;
     u8 near_ : 1;
     u8 is_replicant_ : 1;
-    u8 unused_ : 5;
+    u8 mind_controlled_ : 1;
+    u8 unused_ : 4;
 
     static constexpr const auto t = Type::character_died;
 };
@@ -1177,6 +1181,32 @@ struct ScoreDecreased
     HostInteger<u32> amount_;
 
     static constexpr const auto t = Type::score_decreased;
+};
+
+
+
+struct MindControlStarted
+{
+    Header header_;
+    HostInteger<CharacterId> prev_id_;
+    u8 controller_x_ : 4;
+    u8 controller_y_ : 4;
+    u8 controller_near_ : 1;
+
+    static constexpr const auto t = Type::mind_control_started;
+};
+
+
+
+struct MindControlStopped
+{
+    Header header_;
+    HostInteger<CharacterId> id_;
+    u8 controller_x_ : 4;
+    u8 controller_y_ : 4;
+    u8 controller_near_ : 1;
+
+    static constexpr const auto t = Type::mind_control_stopped;
 };
 
 

@@ -32,7 +32,6 @@ carved-stone
 cloak
 cocoa
 command-module
-corn
 cesium
 salvage-arm
 carved-crystal
@@ -40,8 +39,8 @@ crystal
 crystal-pillar
 dome
 stacked-hull
-sugar-beat
 mirror-hull
+mind-control
 bulkhead-door
 cannon
 cargo-bay
@@ -180,7 +179,7 @@ power
 misc
 decor
 Evan Bowman presents
-Copyright ©2021-2023
+Copyright ©2021-%
 year:
 create block:
 build improvement:
@@ -291,6 +290,7 @@ Conceal blocks! AI player cannot see blocks created fully within a cloak. AI wil
 Only constructible in sandbox mode.
 Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.
 Automatically assigns positions to your crew.
+Take control of one of your opponent's crewmembers.
 paused
 slow
 regular
@@ -363,6 +363,7 @@ coins spent
 blocks built/lost
 select a destination:
 recover character?
+start mind control?
 showing: repair range
 create replicant? -
 Reset sandbox?
@@ -393,7 +394,6 @@ weather
 Sandbox Settings
 Press A to begin
 characters
-dynamic
 Endless new levels! Survive as long as possible!
 Press A to begin
 SKYLAND Forever
@@ -446,6 +446,8 @@ Edge of the world!
 Reach the rightmost level of zone 4!
 Raid
 Board opponent's island w/ more than 5 of your own crew
+Pacifist
+Reach zone 4 without killing any opponent crewmembers!
 options
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!
@@ -462,7 +464,6 @@ Objective: defeat the Storm King! Build up your castle until you're strong enoug
 You don't have any DLC installed!
 hold A to erase!
 Set piston direction:
-Failed to extend piston!
 power outage!
 castle may be friendly!
 out of pauses!

@@ -93,6 +93,7 @@ struct PersistentData
     enum StateFlag {
         workshop_built = (1 << 0),
         dev_mode_active = (1 << 1),
+        opponent_crew_died = (1 << 2),
     };
 
     void set_flag(StateFlag flag)

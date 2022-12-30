@@ -48,7 +48,8 @@ public:
     BasicCharacter(Island* parent,
                    Player* owner,
                    const RoomCoord& position,
-                   bool is_replicant);
+                   bool is_replicant,
+                   bool is_mind_controlled = false);
 
 
     void update(Platform&, App&, Microseconds delta) override final;
@@ -256,6 +257,21 @@ public:
     const char* name() const;
 
 
+    void start_mind_control(App& app,
+                            Player* new_owner,
+                            Room* controller);
+
+    void stop_mind_control(App& app,
+                           Player* prev_owner,
+                           Room* controller);
+
+
+    bool mind_controlled() const
+    {
+        return mind_controlled_;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -271,7 +287,8 @@ private:
 
     u8 mark_ : 1;
     u8 ai_mark_ : 1;
-    u8 unused_ : 2;
+    u8 mind_controlled_ : 1;
+    u8 unused_ : 1;
 
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;

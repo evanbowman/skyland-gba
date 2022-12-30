@@ -148,7 +148,18 @@ void Transporter::recover_character(Platform& pfrm,
     if (auto room = island->get_room(position)) {
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
-            if ((*it)->owner() not_eq &island->owner() and
+
+            bool owned_character_in_slot = false;
+            for (auto& chr : room->characters()) {
+                if (chr->owner() not_eq &island->owner() and
+                    chr->grid_position() == position) {
+                    owned_character_in_slot = true;
+                }
+            }
+
+            if ((not owned_character_in_slot or
+                 (owned_character_in_slot and
+                  (*it)->owner() not_eq &island->owner())) and
                 (*it)->grid_position() == position) {
                 auto unlinked = std::move(*it);
                 room->characters().erase(it);
