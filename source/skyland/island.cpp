@@ -691,6 +691,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
     auto record_character_died = [&](BasicCharacter& c) {
+        c.finalize(app);
         time_stream::event::CharacterDied e;
         e.x_ = c.grid_position().x;
         e.y_ = c.grid_position().y;

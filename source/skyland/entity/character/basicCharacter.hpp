@@ -52,6 +52,9 @@ public:
                    bool is_mind_controlled = false);
 
 
+    void finalize(App& app);
+
+
     void update(Platform&, App&, Microseconds delta) override final;
 
 

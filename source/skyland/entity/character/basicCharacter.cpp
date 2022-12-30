@@ -117,6 +117,37 @@ BasicCharacter::BasicCharacter(Island* parent,
 
 
 
+void BasicCharacter::finalize(App& app)
+{
+    if (mind_controlled_) {
+        mind_controlled_ = false;
+        for (auto& room : app.player_island().rooms()) {
+            if (auto mc = room->cast<MindControl>()) {
+                if (mc->bound_character() == id()) {
+                    stop_mind_control(app,
+                                      &mc->other_island(app)->owner(),
+                                      mc);
+                    return;
+                }
+            }
+        }
+        if (app.opponent_island()) {
+            for (auto& room : app.opponent_island()->rooms()) {
+                if (auto mc = room->cast<MindControl>()) {
+                    if (mc->bound_character() == id()) {
+                        stop_mind_control(app,
+                                          &mc->other_island(app)->owner(),
+                                          mc);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
 void BasicCharacter::set_can_move()
 {
     can_move_ = true;
