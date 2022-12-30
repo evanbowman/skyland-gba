@@ -61,7 +61,8 @@ public:
     {
         return RoomProperties::roof_hidden |
                RoomProperties::manufactory_required |
-               RoomProperties::multiplayer_unsupported;
+               RoomProperties::multiplayer_unsupported |
+               RoomProperties::locked_by_default;
     }
 
 
