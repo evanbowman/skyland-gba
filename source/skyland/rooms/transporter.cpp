@@ -301,6 +301,14 @@ void Transporter::transport_occupant(Platform& pfrm,
         (*chr)->set_parent(island);
         (*chr)->transported();
 
+        // While it isn't really humanly possible to move a character out of a
+        // transporter and then click the transporter to transport the occupant
+        // before the occupant moves out of the transporter, the command-module
+        // AI block is able to do this sometimes, hence we really do need to
+        // throw out a character's movement path, as it technically could have a
+        // path assigned.
+        (*chr)->drop_movement_path();
+
         room->characters().push(std::move(*chr));
         room->ready();
     } else {
