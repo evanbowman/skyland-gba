@@ -48,8 +48,6 @@ void IntroCreditsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     rng::critical_state = 2021;
 
-    info(pfrm, "enter intro credits scene");
-
     if (app.is_developer_mode()) {
         app.start_console(pfrm);
     }

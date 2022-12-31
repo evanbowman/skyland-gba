@@ -70,14 +70,14 @@ static const char* const page_01_lines[] = {"-- Programming (contd.) --",
 
 static const char* const page_02_lines[] = {"-- Programming (contd.) --",
                                             "",
-                                            "",
                                             "Thanks to Martin Korth",
                                             "for the GBATEK hardware docs",
                                             "",
                                             "Thanks to the GBA",
                                             "homebrew dev community",
                                             "",
-                                            "",
+                                            "Thanks to Endrift",
+                                            "for the mGBA Emulator",
                                             "",
                                             nullptr};
 

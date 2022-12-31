@@ -195,8 +195,6 @@ static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    info(pfrm, "enter title screen...");
-
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
     pfrm.screen().schedule_fade(1.f);
