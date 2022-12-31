@@ -41,17 +41,9 @@ static const auto movement_step_duration = milliseconds(300);
 static u16 base_frame(BasicCharacter* character, App& app)
 {
     if (character->owner() == &app.player()) {
-        if (character->mind_controlled()) {
-            return 42;
-        } else {
-            return 35;
-        }
+        return 35;
     } else {
-        if (character->mind_controlled()) {
-            return 35;
-        } else {
-            return 42;
-        }
+        return 42;
     }
 }
 
@@ -95,7 +87,7 @@ BasicCharacter::BasicCharacter(Island* parent,
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
 
-    mind_controlled_ = is_mind_controlled;
+    mind_controlled_ = false; // is_mind_controlled;
 
     ai_mark_ = false;
 
@@ -119,31 +111,31 @@ BasicCharacter::BasicCharacter(Island* parent,
 
 void BasicCharacter::finalize(App& app)
 {
-    if (mind_controlled_) {
-        mind_controlled_ = false;
-        for (auto& room : app.player_island().rooms()) {
-            if (auto mc = room->cast<MindControl>()) {
-                if (mc->bound_character() == id()) {
-                    stop_mind_control(app,
-                                      &mc->other_island(app)->owner(),
-                                      mc);
-                    return;
-                }
-            }
-        }
-        if (app.opponent_island()) {
-            for (auto& room : app.opponent_island()->rooms()) {
-                if (auto mc = room->cast<MindControl>()) {
-                    if (mc->bound_character() == id()) {
-                        stop_mind_control(app,
-                                          &mc->other_island(app)->owner(),
-                                          mc);
-                        return;
-                    }
-                }
-            }
-        }
-    }
+    // if (mind_controlled_) {
+    //     mind_controlled_ = false;
+    //     for (auto& room : app.player_island().rooms()) {
+    //         if (auto mc = room->cast<MindControl>()) {
+    //             if (mc->bound_character() == id()) {
+    //                 stop_mind_control(app,
+    //                                   &mc->other_island(app)->owner(),
+    //                                   mc);
+    //                 return;
+    //             }
+    //         }
+    //     }
+    //     if (app.opponent_island()) {
+    //         for (auto& room : app.opponent_island()->rooms()) {
+    //             if (auto mc = room->cast<MindControl>()) {
+    //                 if (mc->bound_character() == id()) {
+    //                     stop_mind_control(app,
+    //                                       &mc->other_island(app)->owner(),
+    //                                       mc);
+    //                     return;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 
@@ -270,9 +262,9 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
-    if (mind_controlled() and state_ not_eq State::after_transport) {
-        sprite_.set_mix({ColorConstant::stil_de_grain, 40});
-    }
+    // if (mind_controlled() and state_ not_eq State::after_transport) {
+    //     sprite_.set_mix({ColorConstant::stil_de_grain, 40});
+    // }
 
     switch (state_) {
     case State::fighting:
@@ -831,21 +823,21 @@ void BasicCharacter::start_mind_control(App& app,
                                         Player* new_owner,
                                         Room* controller)
 {
-    mind_controlled_ = 1;
-    owner_ = new_owner;
-    state_ = State::moving_or_idle;
+    // mind_controlled_ = 1;
+    // owner_ = new_owner;
+    // state_ = State::moving_or_idle;
 
-    time_stream::event::MindControlStarted e;
-    e.prev_id_.set(((MindControl*)controller)->bound_character());
-    ((MindControl*)controller)->bind_character(id());
-    e.controller_x_ = controller->position().x;
-    e.controller_y_ = controller->position().y;
-    if (controller->parent() == &app.player_island()) {
-        e.controller_near_ = 1;
-    } else {
-        e.controller_near_ = 0;
-    }
-    app.time_stream().push(app.level_timer(), e);
+    // time_stream::event::MindControlStarted e;
+    // e.prev_id_.set(((MindControl*)controller)->bound_character());
+    // ((MindControl*)controller)->bind_character(id());
+    // e.controller_x_ = controller->position().x;
+    // e.controller_y_ = controller->position().y;
+    // if (controller->parent() == &app.player_island()) {
+    //     e.controller_near_ = 1;
+    // } else {
+    //     e.controller_near_ = 0;
+    // }
+    // app.time_stream().push(app.level_timer(), e);
 }
 
 
@@ -854,21 +846,21 @@ void BasicCharacter::stop_mind_control(App& app,
                                        Player* new_owner,
                                        Room* controller)
 {
-    mind_controlled_ = 0;
-    owner_ = new_owner;
-    state_ = State::moving_or_idle;
+    // mind_controlled_ = 0;
+    // owner_ = new_owner;
+    // state_ = State::moving_or_idle;
 
-    time_stream::event::MindControlStopped e;
-    e.id_.set(id());
-    e.controller_x_ = controller->position().x;
-    e.controller_y_ = controller->position().y;
-    if (controller->parent() == &app.player_island()) {
-        e.controller_near_ = 1;
-    } else {
-        e.controller_near_ = 0;
-    }
-    app.time_stream().push(app.level_timer(), e);
-    sprite_.set_mix({});
+    // time_stream::event::MindControlStopped e;
+    // e.id_.set(id());
+    // e.controller_x_ = controller->position().x;
+    // e.controller_y_ = controller->position().y;
+    // if (controller->parent() == &app.player_island()) {
+    //     e.controller_near_ = 1;
+    // } else {
+    //     e.controller_near_ = 0;
+    // }
+    // app.time_stream().push(app.level_timer(), e);
+    // sprite_.set_mix({});
 }
 
 

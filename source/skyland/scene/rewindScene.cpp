@@ -1529,58 +1529,58 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::mind_control_started: {
             auto e = (time_stream::event::MindControlStarted*)end;
-            Island* ctrl_island = nullptr;
-            if (e->controller_near_) {
-                ctrl_island = &app.player_island();
-            } else {
-                ctrl_island = app.opponent_island();
-            }
-            if (ctrl_island) {
-                Vec2<u8> pos{e->controller_x_,
-                             e->controller_y_};
-                if (auto room = ctrl_island->get_room(pos)) {
-                    if (auto ctrl = room->cast<MindControl>()) {
-                        auto current = ctrl->bound_character();
-                        ctrl->bind_character(e->prev_id_.get());
-                        auto [chr, room] = BasicCharacter::find_by_id(app, current);
-                        if (chr) {
-                            Player* owner = &app.opponent();
-                            if (ctrl_island == app.opponent_island()) {
-                                owner = &app.player();
-                            }
-                            chr->stop_mind_control(app, owner, room);
-                        }
-                    }
-                }
-            }
+            // Island* ctrl_island = nullptr;
+            // if (e->controller_near_) {
+            //     ctrl_island = &app.player_island();
+            // } else {
+            //     ctrl_island = app.opponent_island();
+            // }
+            // if (ctrl_island) {
+            //     Vec2<u8> pos{e->controller_x_,
+            //                  e->controller_y_};
+            //     if (auto room = ctrl_island->get_room(pos)) {
+            //         if (auto ctrl = room->cast<MindControl>()) {
+            //             auto current = ctrl->bound_character();
+            //             ctrl->bind_character(e->prev_id_.get());
+            //             auto [chr, room] = BasicCharacter::find_by_id(app, current);
+            //             if (chr) {
+            //                 Player* owner = &app.opponent();
+            //                 if (ctrl_island == app.opponent_island()) {
+            //                     owner = &app.player();
+            //                 }
+            //                 chr->stop_mind_control(app, owner, room);
+            //             }
+            //         }
+            //     }
+            // }
             app.time_stream().pop(sizeof *e);
             break;
         }
 
         case time_stream::event::mind_control_stopped: {
             auto e = (time_stream::event::MindControlStopped*)end;
-            Island* ctrl_island = nullptr;
-            if (e->controller_near_) {
-                ctrl_island = &app.player_island();
-            } else {
-                ctrl_island = app.opponent_island();
-            }
-            if (ctrl_island) {
-                Vec2<u8> pos{e->controller_x_, e->controller_y_};
-                if (auto room = ctrl_island->get_room(pos)) {
-                    if (auto ctrl = room->cast<MindControl>()) {
-                        ctrl->bind_character(e->id_.get());
-                        auto [chr, room] = BasicCharacter::find_by_id(app, e->id_.get());
-                        if (chr) {
-                            Player* owner = &app.player();
-                            if (ctrl_island == app.opponent_island()) {
-                                owner = &app.opponent();
-                            }
-                            chr->start_mind_control(app, owner, room);
-                        }
-                    }
-                }
-            }
+            // Island* ctrl_island = nullptr;
+            // if (e->controller_near_) {
+            //     ctrl_island = &app.player_island();
+            // } else {
+            //     ctrl_island = app.opponent_island();
+            // }
+            // if (ctrl_island) {
+            //     Vec2<u8> pos{e->controller_x_, e->controller_y_};
+            //     if (auto room = ctrl_island->get_room(pos)) {
+            //         if (auto ctrl = room->cast<MindControl>()) {
+            //             ctrl->bind_character(e->id_.get());
+            //             auto [chr, room] = BasicCharacter::find_by_id(app, e->id_.get());
+            //             if (chr) {
+            //                 Player* owner = &app.player();
+            //                 if (ctrl_island == app.opponent_island()) {
+            //                     owner = &app.opponent();
+            //                 }
+            //                 chr->start_mind_control(app, owner, room);
+            //             }
+            //         }
+            //     }
+            // }
             app.time_stream().pop(sizeof *e);
             break;
         }
