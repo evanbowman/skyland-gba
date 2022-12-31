@@ -22,7 +22,6 @@
 
 #include "globals.hpp"
 #include "localization.hpp"
-#include "memory/malloc.hpp"
 #include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qr.hpp"

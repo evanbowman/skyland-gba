@@ -119,6 +119,8 @@ App::App(Platform& pfrm, bool clean_boot)
 
     const auto sb = StateBit::remote_console_force_newline;
     state_bit_store(*this, sb, true);
+
+    info(pfrm, "initialized application...");
 }
 
 

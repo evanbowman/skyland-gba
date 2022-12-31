@@ -333,8 +333,10 @@ public:
         }
 
         if (not flash_filesystem::file_exists(pfrm, lang_file) or clean_boot_) {
+            info(pfrm, "lang selection...");
             return scene_pool::alloc<LanguageSelectScene>(pfrm, clean_boot_);
         } else {
+            message(pfrm, "bind strings file...");
             Vector<char> data;
             if (flash_filesystem::read_file_data(pfrm, lang_file, data)) {
                 StringBuffer<48> path;

@@ -65,7 +65,7 @@
 
 Platform::DeviceName Platform::device_name() const
 {
-    return "MacroDesktopDemo";
+    return "PC";
 }
 
 
@@ -179,7 +179,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-static constexpr Vec2<u32> resolution{640, 320};
+static constexpr Vec2<u32> resolution{240, 160};
 
 
 static const TileDesc glyph_region_start = 504;
@@ -382,6 +382,17 @@ std::chrono::time_point throttle_stop =
 static int sleep_time;
 
 
+static Microseconds last_delta = 1;
+
+
+
+Microseconds Platform::DeltaClock::last_delta() const
+{
+    return ::last_delta;
+}
+
+
+
 Microseconds Platform::DeltaClock::reset()
 {
     // NOTE: I originally developed the game on the nintendo gameboy
@@ -422,7 +433,8 @@ Microseconds Platform::DeltaClock::reset()
     // get things to run correctly.
     constexpr float scaling_factor = (60.f / 59.59f);
 
-    return val * scaling_factor;
+    ::last_delta = val * scaling_factor;
+    return ::last_delta;
 }
 
 
@@ -988,18 +1000,18 @@ void Platform::Screen::display()
     }
 
 
-    // ::platform->data()->fade_overlay_.setPosition(
-    //     {view_.get_center().x, view_.get_center().y});
+    ::platform->data()->fade_overlay_.setPosition(
+        {view_.get_center().x, view_.get_center().y});
 
-    // const bool fade_sprites = ::platform->data()->fade_include_sprites_;
-    // const bool fade_overlay = ::platform->data()->fade_include_overlay_;
+    const bool fade_sprites = ::platform->data()->fade_include_sprites_;
+    const bool fade_overlay = ::platform->data()->fade_include_overlay_;
 
-    // // If we don't want the sprites to be included in the color fade, we'll want
-    // // to draw the fade overlay prior to drawing the sprites... or we could quit
-    // // being lazy and use a shader instead of a dumb rectangleshape :)
-    // if (not fade_sprites) {
-    //     rt.draw(::platform->data()->fade_overlay_);
-    // }
+    // If we don't want the sprites to be included in the color fade, we'll want
+    // to draw the fade overlay prior to drawing the sprites... or we could quit
+    // being lazy and use a shader instead of a dumb rectangleshape :)
+    if (not fade_sprites) {
+        window.draw(::platform->data()->fade_overlay_);
+    }
 
     // for (auto& spr : reversed(::draw_queue)) {
     //     if (spr.get_alpha() == Sprite::Alpha::transparent) {
@@ -1058,10 +1070,10 @@ void Platform::Screen::display()
     //     }
     // }
 
-    // const auto cached_view = view;
-    // if (fade_sprites and not fade_overlay) {
-    //     rt.draw(::platform->data()->fade_overlay_);
-    // }
+    const auto cached_view = view;
+    if (fade_sprites and not fade_overlay) {
+        window.draw(::platform->data()->fade_overlay_);
+    }
 
     auto& origin = ::platform->data()->overlay_origin_;
 
@@ -1077,7 +1089,7 @@ void Platform::Screen::display()
     //     rt.draw(vignette, sf::BlendMultiply);
     // }
 
-    // rt.draw(::platform->data()->overlay_);
+    window.draw(::platform->data()->overlay_);
 
     // if (fade_overlay) {
     //     rt.setView(cached_view);
@@ -1142,9 +1154,10 @@ void Platform::Screen::schedule_fade(Float amount,
                                      bool include_sprites,
                                      bool include_overlay,
                                      bool include_background,
-                                     bool include_tiles)
+                                     bool include_tiles,
+                                     bool dodge)
 {
-    fade(amount, k, {}, include_sprites, include_overlay);
+    fade(amount, k, {}, include_sprites or not dodge, include_overlay);
 }
 
 
@@ -1181,6 +1194,13 @@ void Platform::Screen::draw_batch(TextureIndex t,
 Buffer<const char*, 4> Platform::Speaker::completed_sounds()
 {
     return {};
+}
+
+
+
+const char* Platform::Speaker::completed_music()
+{
+    return nullptr;
 }
 
 
@@ -1890,6 +1910,8 @@ int main(int argc, char** argv)
     ::argc = argc;
     ::argv = argv;
 
+    std::cout << "creating platform..." << std::endl;
+
     Platform pf;
     start(pf);
 }
@@ -2232,6 +2254,29 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
+Vec2<u16> Platform::get_scroll(Layer layer)
+{
+    switch (layer) {
+    case Layer::background:
+    case Layer::overlay:
+        break;
+
+    case Layer::map_0_ext:
+    case Layer::map_0:
+        return {(u16)::platform->data()->map_0_xscroll_,
+                (u16)::platform->data()->map_0_yscroll_};
+
+    case Layer::map_1_ext:
+    case Layer::map_1:
+        return {(u16)::platform->data()->map_1_xscroll_,
+                (u16)::platform->data()->map_1_yscroll_};
+    }
+
+    return {};
+}
+
+
+
 void Platform::set_scroll(Layer layer, u16 x, u16 y)
 {
     s16 sx = x;
@@ -2329,7 +2374,7 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
     case Layer::map_0:
         ::platform->data()->map_0_changed_ = true;
         ::platform->data()->map_0_[0].set_tile(x, y, val);
-        std::cout << "set tile " << x << ", " << y << ", " << val << std::endl;
+        // std::cout << "set tile " << x << ", " << y << ", " << val << std::endl;
         break;
 
     case Layer::map_1:
@@ -2355,6 +2400,13 @@ void Platform::Screen::set_shader(Shader shader)
 
 void Platform::Screen::set_shader_argument(int arg)
 {
+}
+
+
+
+void Platform::override_priority(Layer layer, int priority)
+{
+    // TODO...
 }
 
 
