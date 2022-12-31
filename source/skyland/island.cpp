@@ -1309,13 +1309,20 @@ void Island::render(Platform& pfrm, App& app)
 
 
 
-void Island::render_interior(Platform& pfrm, App& app)
+void Island::render_interior_fast(Platform& pfrm, App& app)
 {
     if (interior_visible_) {
         repaint(pfrm, app);
         return;
     }
 
+    render_interior(pfrm, app);
+}
+
+
+
+void Island::render_interior(Platform& pfrm, App& app)
+{
     interior_visible_ = true;
 
     if (layer_ == Layer::map_0_ext) {

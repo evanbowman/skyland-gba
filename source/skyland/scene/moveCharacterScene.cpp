@@ -67,7 +67,7 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
         island = app.opponent_island();
     }
 
-    island->render_interior(pfrm, app);
+    island->render_interior_fast(pfrm, app);
 
     if (app.game_mode() == App::GameMode::co_op) {
 

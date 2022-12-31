@@ -158,6 +158,7 @@ public:
 
 
     void render_interior(Platform& pfrm, App& app);
+    void render_interior_fast(Platform& pfrm, App& app);
 
 
     void render_exterior(Platform& pfrm, App& app);
