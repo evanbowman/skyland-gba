@@ -428,8 +428,12 @@ int compile_impl(CompilerContext& ctx,
                 } else {
                     first = false;
                 }
-                write_pos = compile_impl(
-                ctx, buffer, write_pos, true_branch->cons().car(), jump_offset, false);
+                write_pos = compile_impl(ctx,
+                                         buffer,
+                                         write_pos,
+                                         true_branch->cons().car(),
+                                         jump_offset,
+                                         false);
                 true_branch = true_branch->cons().cdr();
             }
             append<instruction::Pop>(buffer, write_pos);

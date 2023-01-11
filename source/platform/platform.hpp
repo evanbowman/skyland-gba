@@ -785,7 +785,15 @@ public:
         void set_music_volume(u8 volume);
         void set_sounds_volume(u8 volume);
 
-        enum class MusicSpeed { regular, reversed, reversed4x, reversed8x, doubled, halved, reversed_slow };
+        enum class MusicSpeed {
+            regular,
+            reversed,
+            reversed4x,
+            reversed8x,
+            doubled,
+            halved,
+            reversed_slow
+        };
 
         void set_music_speed(MusicSpeed speed);
 

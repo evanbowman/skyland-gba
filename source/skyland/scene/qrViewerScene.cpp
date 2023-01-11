@@ -105,10 +105,11 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                 margin = (st.y - qr_->drawsize(format_)) / 2;
 
                 int lc = [&] {
-                    return tv_->assign(message_.c_str(),
-                                       {u8(5 + qr_->drawsize(format_)), 1},
-                                       {u8(st.x - (6 + qr_->drawsize(format_))), 18},
-                                       0);
+                    return tv_->assign(
+                        message_.c_str(),
+                        {u8(5 + qr_->drawsize(format_)), 1},
+                        {u8(st.x - (6 + qr_->drawsize(format_))), 18},
+                        0);
                 }();
 
                 pfrm.fill_overlay(0);

@@ -53,8 +53,8 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    auto& cursor_loc = near_ ?
-        globals().near_cursor_loc_ : globals().far_cursor_loc_;
+    auto& cursor_loc =
+        near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
     auto test_key = [&](Key k) {
         return app.player().test_key(
@@ -71,8 +71,7 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (cursor_loc.x == 0 and not near_) {
             near_ = true;
             near_camera();
-            globals().near_cursor_loc_.x =
-                app.player_island().terrain().size();
+            globals().near_cursor_loc_.x = app.player_island().terrain().size();
             globals().near_cursor_loc_.y = globals().far_cursor_loc_.y;
         }
     }
@@ -81,7 +80,8 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             pfrm.speaker().play_sound("cursor_tick", 0);
-            if (near_ and cursor_loc.x == app.opponent_island()->terrain().size()) {
+            if (near_ and
+                cursor_loc.x == app.opponent_island()->terrain().size()) {
                 far_camera();
                 near_ = false;
                 globals().far_cursor_loc_.x = 0;
@@ -131,7 +131,8 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     if (id and ch) {
                         if (auto controller = origin->cast<MindControl>()) {
-                            ch->start_mind_control(app, &app.player(), controller);
+                            ch->start_mind_control(
+                                app, &app.player(), controller);
                             globals().near_cursor_loc_ = room->position();
                             return scene_pool::alloc<ReadyScene>();
                         }
@@ -163,8 +164,8 @@ void MindControlTargetScene::display(Platform& pfrm, App& app)
 
         auto origin = island->visual_origin();
 
-        auto& cursor_loc = near_ ?
-            globals().near_cursor_loc_ : globals().far_cursor_loc_;
+        auto& cursor_loc =
+            near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
         origin.x += Fixnum::from_integer(cursor_loc.x * 16);
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);

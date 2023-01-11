@@ -804,8 +804,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     //                            t2 - t1,
     //                            t3 - t2,
     //                            t4 - t3,
-    //                            t5 - t4,
-    //                            t6 - t5,
+    //                            t5 - t4, // player island
+    //                            t6 - t5, // opponent_island
     //                            t7 - t6,
     //                            t8 - t7,
     //                            t9 - t8)

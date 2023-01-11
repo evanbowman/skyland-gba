@@ -398,6 +398,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().set_music_volume(1);
         }
 
+        app.effects().clear();
+
         if (((app.game_mode() not_eq App::GameMode::adventure or endgame) and
              app.game_mode() not_eq App::GameMode::skyland_forever and
              app.game_mode() not_eq App::GameMode::co_op)) {

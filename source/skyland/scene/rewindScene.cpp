@@ -40,8 +40,8 @@
 #include "skyland/entity/projectile/pluginProjectile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/rooms/mindControl.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/mindControl.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -235,21 +235,24 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             pfrm.set_tile(Layer::overlay, 0, 16, 475);
             pfrm.set_tile(Layer::overlay, 0, 17, 112);
             pfrm.set_tile(Layer::overlay, 0, 18, 112);
-            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed);
+            pfrm.speaker().set_music_speed(
+                Platform::Speaker::MusicSpeed::reversed);
             break;
 
         case 1:
             pfrm.set_tile(Layer::overlay, 0, 16, 112);
             pfrm.set_tile(Layer::overlay, 0, 17, 475);
             pfrm.set_tile(Layer::overlay, 0, 18, 112);
-            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed4x);
+            pfrm.speaker().set_music_speed(
+                Platform::Speaker::MusicSpeed::reversed4x);
             break;
 
         case 2:
             pfrm.set_tile(Layer::overlay, 0, 16, 112);
             pfrm.set_tile(Layer::overlay, 0, 17, 112);
             pfrm.set_tile(Layer::overlay, 0, 18, 475);
-            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed8x);
+            pfrm.speaker().set_music_speed(
+                Platform::Speaker::MusicSpeed::reversed8x);
             break;
         }
     }
@@ -937,9 +940,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             const bool is_replicant = e->is_replicant_;
             const bool is_mind_controlled = e->mind_controlled_;
 
-            auto chr = app.alloc_entity<BasicCharacter>(
-                pfrm, island, owner, RoomCoord{e->x_, e->y_}, is_replicant,
-                is_mind_controlled);
+            auto chr = app.alloc_entity<BasicCharacter>(pfrm,
+                                                        island,
+                                                        owner,
+                                                        RoomCoord{e->x_, e->y_},
+                                                        is_replicant,
+                                                        is_mind_controlled);
 
             chr->__assign_id(e->id_.get());
 

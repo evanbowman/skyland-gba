@@ -377,6 +377,11 @@ std::optional<Platform::DynamicTexturePtr> Island::fire_texture()
 
 bool Island::fire_present(const RoomCoord& coord) const
 {
+    if (not fire_.texture_) {
+        // If the fire texture doesn't exist, then we know the island isn't
+        // burning, and don't need to do a lookup.
+        return false;
+    }
     return fire_.positions_.get(coord.x, coord.y);
 }
 
@@ -705,7 +710,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     character_count_ = 0;
 
-    auto update_characters = [&](auto& chr_list, bool exterior) {
+    auto update_characters = [&](Room* room, auto& chr_list, bool exterior) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
 
@@ -740,7 +745,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     ++character_count_;
                 }
 
-                (*it)->update(pfrm, app, dt);
+                (*it)->update(pfrm, app, dt, room);
                 ++it;
             }
         }
@@ -1018,7 +1023,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 dispatch_room(room);
             }
 
-            update_characters(room->characters(), false);
+            update_characters(room, room->characters(), false);
         }
 
         TIMEPOINT(after);
@@ -1048,7 +1053,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     TIMEPOINT(t5);
 
 
-    update_characters(characters_, true);
+    update_characters(nullptr, characters_, true);
 
 
     TIMEPOINT(t6);

@@ -626,9 +626,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             // In case anything goes wrong: create an emergency backup!
-            app.create_backup(pfrm, App::BackupContext{
-                    .next_world_location_ = (s8)cursor_,
-                });
+            app.create_backup(pfrm,
+                              App::BackupContext{
+                                  .next_world_location_ = (s8)cursor_,
+                              });
 
             app.current_world_location() = cursor_;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
@@ -1077,13 +1078,17 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const auto t1_thresh = milliseconds(750);
         if (prev_timer < t1_thresh and timer_ > t1_thresh) {
-            Text t(pfrm, SYSTR(wg_saved_description)->c_str(), OverlayCoord{1, 16});
+            Text t(pfrm,
+                   SYSTR(wg_saved_description)->c_str(),
+                   OverlayCoord{1, 16});
             t.__detach();
         }
 
         const auto t2_thresh = milliseconds(1450);
         if (prev_timer < t2_thresh and timer_ > t2_thresh) {
-            Text t(pfrm, SYSTR(wg_saved_come_back_soon)->c_str(), OverlayCoord{1, 18});
+            Text t(pfrm,
+                   SYSTR(wg_saved_come_back_soon)->c_str(),
+                   OverlayCoord{1, 18});
             t.__detach();
         }
 
@@ -1117,7 +1122,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (((y + 1) - 4) * 8 > fractional_pixels and
                        fractional_pixels % 8) {
                 for (int x = 0; x < 30; ++x) {
-                    pfrm.set_tile(Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                    pfrm.set_tile(
+                        Layer::overlay, x, y, 119 - (fractional_pixels % 8));
                 }
                 for (int x = 0; x < 30; ++x) {
                     pfrm.set_tile(Layer::overlay,
@@ -1143,7 +1149,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<TitleScreenScene>();
         }
         break;
-
     }
 
 
@@ -1155,8 +1160,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void WorldMapScene::display(Platform& pfrm, App& app)
 {
-    if (state_ == State::show_saved_text or
-        state_ == State::save_animate_out or
+    if (state_ == State::show_saved_text or state_ == State::save_animate_out or
         state_ == State::save_exit) {
         return;
     }

@@ -55,6 +55,9 @@ public:
     void finalize(App& app);
 
 
+    void update(Platform&, App&, Microseconds delta, Room* room);
+
+
     void update(Platform&, App&, Microseconds delta) override final;
 
 
@@ -260,13 +263,9 @@ public:
     const char* name() const;
 
 
-    void start_mind_control(App& app,
-                            Player* new_owner,
-                            Room* controller);
+    void start_mind_control(App& app, Player* new_owner, Room* controller);
 
-    void stop_mind_control(App& app,
-                           Player* prev_owner,
-                           Room* controller);
+    void stop_mind_control(App& app, Player* prev_owner, Room* controller);
 
 
     bool mind_controlled() const

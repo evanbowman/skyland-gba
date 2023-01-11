@@ -85,25 +85,25 @@ std::optional<Path> find_path(Platform& pfrm,
         if (data->coord_.x > 0) {
             auto n = vertex_mat[data->coord_.x - 1][data->coord_.y];
             if (n) {
-                result.push_back(n);
+                result.push_unsafe(n);
             }
         }
         if (data->coord_.x < 15) {
             auto n = vertex_mat[data->coord_.x + 1][data->coord_.y];
             if (n) {
-                result.push_back(n);
+                result.push_unsafe(n);
             }
         }
         if (data->coord_.y > 0) {
             auto n = vertex_mat[data->coord_.x][data->coord_.y - 1];
             if (n) {
-                result.push_back(n);
+                result.push_unsafe(n);
             }
         }
         if (data->coord_.y < 15) {
             auto n = vertex_mat[data->coord_.x][data->coord_.y + 1];
             if (n) {
-                result.push_back(n);
+                result.push_unsafe(n);
             }
         }
         return result;

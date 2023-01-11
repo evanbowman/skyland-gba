@@ -67,7 +67,6 @@ static const u8 sine8[256] = {
 
 
 
-
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 {

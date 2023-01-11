@@ -52,9 +52,7 @@ public:
     // NOTE: calls copy_to_vram(), and overwrites tiles starting at overlay tile
     // index 181. The caller may need to reload the overlay tile texture to
     // recover any overwritten tiles.
-    void draw(Platform& pfrm,
-              const Vec2<u8>& screen_coord,
-              int format = 0);
+    void draw(Platform& pfrm, const Vec2<u8>& screen_coord, int format = 0);
 
 
     QRCode& data_color_index(u8 color)

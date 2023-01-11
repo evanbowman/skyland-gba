@@ -39,16 +39,15 @@ namespace skyland
 
 
 MindControl::MindControl(Island* parent,
-                             const RoomCoord& position,
-                             const char* n)
+                         const RoomCoord& position,
+                         const char* n)
     : Room(parent, n, position)
 {
 }
 
 
 
-void MindControl::format_description(Platform& pfrm,
-                                       StringBuffer<512>& buffer)
+void MindControl::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_mind_control)->c_str();
 }
@@ -148,7 +147,8 @@ MindControl::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     if (app.opponent_island() and controlled_character_ == 0) {
         return scene_pool::alloc<MindControlTargetScene>(position());
     } else if (controlled_character_) {
-        auto [chr, room] = BasicCharacter::find_by_id(app, controlled_character_);
+        auto [chr, room] =
+            BasicCharacter::find_by_id(app, controlled_character_);
         if (not chr) {
             return scene_pool::alloc<MindControlTargetScene>(position());
         }
@@ -192,7 +192,8 @@ void MindControl::finalize(Platform& pfrm, App& app)
     Room::finalize(pfrm, app);
 
     if (controlled_character_) {
-        auto [chr, room] = BasicCharacter::find_by_id(app, controlled_character_);
+        auto [chr, room] =
+            BasicCharacter::find_by_id(app, controlled_character_);
         if (chr) {
             chr->stop_mind_control(app, &other_island(app)->owner(), this);
         }

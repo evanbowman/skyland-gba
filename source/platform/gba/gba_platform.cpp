@@ -4453,10 +4453,14 @@ static void audio_update_rewind4x_music_isr()
     alignas(4) AudioSample mixing_buffer[4];
 
     // Four-times rewind speed. Pick the first byte of the prior four words.
-    mixing_buffer[0] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
-    mixing_buffer[1] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
-    mixing_buffer[2] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
-    mixing_buffer[3] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[0] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[1] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[2] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
+    mixing_buffer[3] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos--);
 
     if (snd_ctx.music_track_pos < 4) {
         snd_ctx.music_track_pos = snd_ctx.music_track_length;
@@ -4488,13 +4492,17 @@ static void audio_update_rewind8x_music_isr()
     alignas(4) AudioSample mixing_buffer[4];
 
     // Four-times rewind speed. Pick the first byte of the prior four words.
-    mixing_buffer[0] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
+    mixing_buffer[0] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
     snd_ctx.music_track_pos -= 2;
-    mixing_buffer[1] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
+    mixing_buffer[1] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
     snd_ctx.music_track_pos -= 2;
-    mixing_buffer[2] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
+    mixing_buffer[2] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
     snd_ctx.music_track_pos -= 2;
-    mixing_buffer[3] = *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
+    mixing_buffer[3] =
+        *(s8*)(((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos);
     snd_ctx.music_track_pos -= 2;
 
     if (snd_ctx.music_track_pos < 8) {

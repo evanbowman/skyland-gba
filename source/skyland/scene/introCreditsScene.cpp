@@ -130,7 +130,8 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             copyright_text_->assign(format(cpystr->c_str(),
                                            // NOTE: because we use yyyy.mm.dd
                                            // for version numbers.
-                                           PROGRAM_MAJOR_VERSION).c_str(),
+                                           PROGRAM_MAJOR_VERSION)
+                                        .c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
                                                ColorConstant::rich_black});
         }

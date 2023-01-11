@@ -125,7 +125,6 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, 1, y, 93);
         pfrm.set_tile(Layer::overlay, 28, y, 97);
     }
-
 }
 
 

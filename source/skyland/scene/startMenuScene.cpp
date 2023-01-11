@@ -25,6 +25,7 @@
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
 #include "lispReplScene.hpp"
+#include "loadLevelScene.hpp"
 #include "macro/freebuildConnectFriendScene.hpp"
 #include "macro/macroverseScene.hpp"
 #include "macro/modifiedSelectorScene.hpp"
@@ -46,7 +47,6 @@
 #include "surrenderConfirmScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "loadLevelScene.hpp"
 
 
 
@@ -519,28 +519,29 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                            cut);
             } else {
                 if (not app.opponent().is_friendly()) {
-                    add_option(
-                        pfrm,
-                        SYSTR(start_menu_end_run)->c_str(),
-                        scene_pool::make_deferred_scene<SurrenderConfirmScene>(),
-                        fade_sweep);
+                    add_option(pfrm,
+                               SYSTR(start_menu_end_run)->c_str(),
+                               scene_pool::make_deferred_scene<
+                                   SurrenderConfirmScene>(),
+                               fade_sweep);
                 }
 
                 bool is_final_boss =
                     app.world_graph()
-                    .nodes_[app.current_world_location()]
-                    .type_ == WorldGraph::Node::Type::corrupted;
+                        .nodes_[app.current_world_location()]
+                        .type_ == WorldGraph::Node::Type::corrupted;
 
                 if (app.has_backup() and not is_final_boss) {
-                    add_option(pfrm,
-                               SYSTR(retry)->c_str(),
-                               [&pfrm, &app]() -> ScenePtr<Scene> {
-                                   pfrm.fill_overlay(0);
-                                   app.restore_backup(pfrm);
-                                   pfrm.speaker().clear_sounds();
-                                   return scene_pool::alloc<LoadLevelScene>();
-                               },
-                               fade_sweep);
+                    add_option(
+                        pfrm,
+                        SYSTR(retry)->c_str(),
+                        [&pfrm, &app]() -> ScenePtr<Scene> {
+                            pfrm.fill_overlay(0);
+                            app.restore_backup(pfrm);
+                            pfrm.speaker().clear_sounds();
+                            return scene_pool::alloc<LoadLevelScene>();
+                        },
+                        fade_sweep);
                 }
             }
             break;

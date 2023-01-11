@@ -23,9 +23,9 @@
 #include "basicCharacter.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/mindControl.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/rooms/mindControl.hpp"
 
 
 
@@ -254,7 +254,18 @@ bool BasicCharacter::has_opponent(Room* room)
 
 
 
-void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
+void BasicCharacter::update(Platform&, App&, Microseconds delta)
+{
+    Platform::fatal("BasicCharacter::update() called... "
+                    "Use other update method instead.");
+}
+
+
+
+void BasicCharacter::update(Platform& pfrm,
+                            App& app,
+                            Microseconds delta,
+                            Room* room)
 {
     // const auto t1 = pfrm.delta_clock().sample();
 
@@ -318,8 +329,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             sprite_.set_texture_index(base_frame(this, app) + 5);
             ++idle_count_;
 
-            if (auto room = parent_->get_room(grid_position_)) {
-
+            if (room) {
 
                 auto metac = room->metaclass();
 
@@ -328,25 +338,25 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     timer_ = 0;
                     anim_timer_ = 0;
                 } else {
-                    const char* name = (*metac)->name();
-                    const bool is_plundered = str_eq(name, "plundered-room");
-
-                    if (&room->owner()->owner() not_eq owner() and
-                        not is_plundered and not str_eq(name, "stairwell") and
-                        not str_eq(name, "bridge") and
-                        not str_eq(name, "ladder")) {
-                        state_ = State::plunder_room;
-                        timer_ = 0;
-                    } else if (&room->owner()->owner() == owner() and
-                               room->parent()->fire_present(grid_position())) {
-                        state_ = State::extinguish_fire;
-                        timer_ = 0;
-                        anim_timer_ = 0;
-                    } else if (&room->owner()->owner() == owner() and
-                               not is_plundered and
-                               room->health() < room->max_health()) {
-                        state_ = State::repair_room;
-                        anim_timer_ = 0;
+                    if (&room->owner()->owner() not_eq owner()) {
+                        const char* name = (*metac)->name();
+                        if (not str_eq(name, "plundered-room")
+                            and not str_eq(name, "stairwell") and
+                            not str_eq(name, "bridge") and
+                            not str_eq(name, "ladder")) {
+                            state_ = State::plunder_room;
+                            timer_ = 0;
+                        }
+                    } else {
+                        if (room->parent()->fire_present(grid_position())) {
+                            state_ = State::extinguish_fire;
+                            timer_ = 0;
+                            anim_timer_ = 0;
+                        } else if (room->health() < room->max_health() and
+                                   not str_eq((*metac)->name(), "plundered-room")) {
+                            state_ = State::repair_room;
+                            anim_timer_ = 0;
+                        }
                     }
                 }
             }
@@ -392,7 +402,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (auto room = parent_->get_room(grid_position_)) {
+            if (room) {
                 auto metac = room->metaclass();
                 const bool is_plundered =
                     str_cmp((*metac)->name(), "plundered-room") == 0;
@@ -445,7 +455,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         if (timer_ > milliseconds(3000)) {
             timer_ = 0;
-            if (auto room = parent_->get_room(grid_position_)) {
+            if (room) {
                 room->parent()->fire_extinguish(pfrm, app, grid_position_);
                 if (has_opponent(room)) {
                     state_ = State::fighting;
@@ -488,7 +498,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         if (timer_ > milliseconds(500)) {
             timer_ = 0;
-            if (auto room = parent_->get_room(grid_position_)) {
+            if (room) {
                 if (room->health() not_eq room->max_health()) {
                     room->heal(pfrm, app, 2);
                 } else {
