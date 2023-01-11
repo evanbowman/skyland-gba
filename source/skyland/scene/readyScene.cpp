@@ -931,6 +931,10 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
     if (auto room = app.player_island().get_room(cursor_loc)) {
         room->display_on_hover(pfrm.screen(), app, cursor_loc);
+    } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
+        if ((*drone)->parent() == &app.player_island()) {
+            (*drone)->display_on_hover(pfrm.screen(), app, cursor_loc);
+        }
     }
 
     WorldScene::display(pfrm, app);

@@ -186,6 +186,37 @@ public:
         }
     }
 
+
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const RoomCoord& cursor)
+    {
+        if (not target_) {
+            return;
+        }
+
+        Island* target_island;
+        if (parent() == &app.player_island()) {
+            target_island = app.opponent_island();
+        } else {
+            target_island = &app.player_island();
+        }
+
+        if (target_island) {
+            auto pos = target_island->visual_origin();
+            pos.x += Fixnum::from_integer(target_->x * 16);
+            pos.y += Fixnum::from_integer(target_->y * 16);
+
+            Sprite spr;
+            spr.set_position(pos);
+            spr.set_texture_index(45);
+            spr.set_size(Sprite::Size::w16_h32);
+
+            screen.draw(spr);
+        }
+    }
+
+
     enum State : u8 {
         __derived = Drone::State::ready,
         wait,
