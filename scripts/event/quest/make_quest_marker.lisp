@@ -24,7 +24,7 @@
                ;; that's no fun.
                (> (car (cdr $0))
                   (if c
-                      (+ 4 (car (cdr (car c))))
+                      (+ 6 (car (cdr (car c))))
                     4))))
             (wg-nodes))))
 

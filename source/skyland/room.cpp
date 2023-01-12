@@ -1073,6 +1073,10 @@ public:
             kill();
             return;
         }
+        if (app.opponent_island()->is_destroyed() or
+            app.player_island().is_destroyed()) {
+            kill();
+        }
 
         auto pos = island_->visual_origin();
         pos.x += Fixnum::from_integer(coord_.x * 16);

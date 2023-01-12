@@ -477,7 +477,18 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case DisplayMode::key_released_check2:
         text_state_.timer_ = seconds(1);
-        display_mode_ = DisplayMode::done;
+        if (expects_answer_y_n_) {
+            display_mode_ = DisplayMode::y_n_wait;
+            wait_ = 0;
+        } else {
+            display_mode_ = DisplayMode::done;
+        }
+        break;
+
+    case DisplayMode::y_n_wait:
+        if (++wait_ == 15) {
+            display_mode_ = DisplayMode::done;
+        }
         break;
 
     case DisplayMode::done:

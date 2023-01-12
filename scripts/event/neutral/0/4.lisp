@@ -52,7 +52,8 @@
              "Pick a slot (1x3)"
              (lambda
                (room-new (player) (list 'rocket-bomb $1 $2))
-               (dialog "A useful addition!")
+               (syscall "sound" "build0")
+               (dialog "Like a missile-silo, but starts fires! A useful addition!")
                (setq on-dialog-closed exit))))
 
 (defn on-dialog-declined

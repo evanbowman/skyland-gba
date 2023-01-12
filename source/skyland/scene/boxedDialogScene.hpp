@@ -99,6 +99,7 @@ private:
         done,
         animate_out,
         boolean_choice,
+        y_n_wait,
         clear,
     } display_mode_ = DisplayMode::animate_in;
 
@@ -109,6 +110,7 @@ private:
     u8 expects_answer_y_n_ : 1;
     u8 goto_tutorial_ : 5;
     u8 allow_fastforward_ : 1;
+    u8 wait_ = 0;
 
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
