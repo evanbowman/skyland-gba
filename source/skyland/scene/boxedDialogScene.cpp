@@ -478,21 +478,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::key_released_check2:
         text_state_.timer_ = seconds(1);
         if (expects_answer_y_n_) {
-            display_mode_ = DisplayMode::y_n_wait;
-            wait_ = 0;
-        } else {
-            display_mode_ = DisplayMode::done;
-        }
-        break;
 
-    case DisplayMode::y_n_wait:
-        if (++wait_ == 28) {
-            display_mode_ = DisplayMode::done;
-        }
-        break;
-
-    case DisplayMode::done:
-        if (expects_answer_y_n_) {
             const auto st = calc_screen_tiles(pfrm);
 
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (10 + y_start), 83);
@@ -536,6 +522,23 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 "no",
                 OverlayCoord{u8(st.x - 4), u8(st.y - (7 + y_start))});
+
+            display_mode_ = DisplayMode::y_n_wait;
+            wait_ = 0;
+        } else {
+            display_mode_ = DisplayMode::done;
+        }
+        break;
+
+    case DisplayMode::y_n_wait:
+        if (++wait_ == 28) {
+            display_mode_ = DisplayMode::done;
+        }
+        break;
+
+    case DisplayMode::done:
+        if (expects_answer_y_n_) {
+
 
             display_mode_ = DisplayMode::boolean_choice;
             break;
