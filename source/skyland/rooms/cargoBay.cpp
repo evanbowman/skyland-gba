@@ -21,10 +21,13 @@
 
 
 #include "cargoBay.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland/island.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 #include <string.h>
 
 
@@ -154,6 +157,31 @@ void CargoBay::deserialize(lisp::Value* list)
         __set_health(lisp::get_list(list, 4)->integer().value_);
     }
 }
+
+
+
+void CargoBay::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        ExploSpawner::create(pfrm, app, center());
+
+        if (cargo_[0] not_eq '\0') {
+            time_stream::event::CargoBayContents e;
+
+            static_assert(sizeof e.cargo_ == sizeof cargo_);
+            memcpy(e.cargo_, cargo_, sizeof cargo_);
+            e.count_ = count_;
+            e.x_ = position().x;
+            e.y_ = position().y;
+            e.near_ = parent() == &app.player_island();
+
+            app.time_stream().push(app.level_timer(), e);
+        }
+    }
+}
+
 
 
 

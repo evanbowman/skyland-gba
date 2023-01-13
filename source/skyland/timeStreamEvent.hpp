@@ -195,6 +195,8 @@ enum Type : u8 {
 
     mind_control_started,
     mind_control_stopped,
+
+    cargo_bay_contents,
 };
 
 
@@ -1207,6 +1209,20 @@ struct MindControlStopped
     u8 controller_near_ : 1;
 
     static constexpr const auto t = Type::mind_control_stopped;
+};
+
+
+
+struct CargoBayContents
+{
+    Header header_;
+    char cargo_[19];
+    u8 count_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    bool near_;
+
+    static constexpr const auto t = Type::cargo_bay_contents;
 };
 
 

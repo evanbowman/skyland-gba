@@ -117,6 +117,9 @@ public:
     bool set_cargo(const char* cargo, u8 count);
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
+
 private:
     char cargo_[19];
     u8 count_;

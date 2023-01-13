@@ -41,6 +41,7 @@
 #include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/mindControl.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -1587,6 +1588,27 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             //         }
             //     }
             // }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::cargo_bay_contents: {
+            auto e = (time_stream::event::CargoBayContents*)end;
+            Island* island =
+                e->near_ ? &app.player_island() : app.opponent_island();
+
+            if (island) {
+                if (auto r = island->get_room({e->x_, e->y_})) {
+                    if (auto cb = r->cast<CargoBay>()) {
+                        StringBuffer<20> temp;
+                        for (int i = 0; i < e->count_; ++i) {
+                            temp.push_back(e->cargo_[i]);
+                        }
+                        cb->set_cargo(temp.c_str(), e->count_);
+                    }
+                }
+            }
+
             app.time_stream().pop(sizeof *e);
             break;
         }
