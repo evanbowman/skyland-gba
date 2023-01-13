@@ -472,7 +472,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                         pfrm.fill_overlay(0);
                         pfrm.screen().set_shader(passthrough_shader);
-                        return scene_pool::alloc<TitleScreenScene>(3);
+                        return scene_pool::alloc<TitleScreenScene>(4);
                     },
                     fade_sweep);
                 break;

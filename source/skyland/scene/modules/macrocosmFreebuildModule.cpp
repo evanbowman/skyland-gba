@@ -166,13 +166,13 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
 ScenePtr<Scene>
 MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (not app.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
-        auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
-        *buffer = SYSTR(freebuild_locked_text)->c_str();
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
-            return scene_pool::alloc<TitleScreenScene>(3);
-        });
-    }
+    // if (not app.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
+    //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+    //     *buffer = SYSTR(freebuild_locked_text)->c_str();
+    //     return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
+    //         return scene_pool::alloc<TitleScreenScene>(3);
+    //     });
+    // }
 
     if (pfrm.device_name() == "MacroDesktopDemo" or
         app.player().key_down(pfrm, Key::action_1)) {
@@ -230,7 +230,7 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
+// MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
 
 
 

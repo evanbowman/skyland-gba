@@ -26,7 +26,7 @@
 #include "loadModuleScene.hpp"
 #include "module.hpp"
 #include "modules/fileBrowserModule.hpp"
-#include "modules/macrocosmLoaderModule.hpp"
+#include "modules/macrocosmFreebuildModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "platform/color.hpp"
@@ -1309,7 +1309,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
 
-                return scene_pool::alloc<MacrocosmLoaderModule>();
+                return scene_pool::alloc<MacrocosmFreebuildModule>();
 
             case 3:
                 pfrm.fatal("logic error, this should be unreachable");
