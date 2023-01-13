@@ -486,7 +486,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::y_n_wait:
-        if (++wait_ == 15) {
+        if (++wait_ == 28) {
             display_mode_ = DisplayMode::done;
         }
         break;
