@@ -334,6 +334,8 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
                 return custom_color(0x80acb0);
             case 4:
                 return custom_color(0x395e70);
+            case 5:
+                return custom_color(0x6a92a1);
             }
             break;
 

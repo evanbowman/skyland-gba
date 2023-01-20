@@ -117,6 +117,8 @@ Platform::Screen::Shader Blizzard::shader(App& app) const
                 return custom_color(0x9db3c9);
             case 4:
                 return custom_color(0x5b6987);
+            case 5:
+                return custom_color(0x8a9dbd);
             }
             break;
 

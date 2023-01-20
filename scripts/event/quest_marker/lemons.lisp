@@ -72,4 +72,5 @@
               ;; For the lemon-tree achievement
               (achieve 14)
 
-              (setq on-dialog-closed exit))))))
+              (setq on-dialog-closed exit)
+              (setq on-converge nil))))))

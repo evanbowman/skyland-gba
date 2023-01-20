@@ -97,6 +97,10 @@ void prep_level(Platform& pfrm, App& app)
     far_cursor_loc.x = 0;
     far_cursor_loc.y = 14;
 
+    const auto pl_terrain_size = app.player_island().terrain().size();
+    if (pl_terrain_size > 8) {
+        cursor_loc.x = pl_terrain_size / 2;
+    }
 
     app.dropped_frames_ = 0;
     app.victory_coins() = 0;

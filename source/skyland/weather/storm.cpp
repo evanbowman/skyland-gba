@@ -269,6 +269,8 @@ Platform::Screen::Shader Storm::shader(App& app) const
                 return custom_color(0x9adbd6);
             case 4:
                 return custom_color(0x49a7b8);
+            case 5:
+                return custom_color(0x81c7c3);
             }
             break;
 
