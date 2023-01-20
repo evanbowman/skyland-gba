@@ -353,6 +353,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 for (int x = 0; x < 16; ++x) {
                     pfrm.set_tile(layer, x, y, 0);
+                    if (island_->fire_present({(u8)x, (u8)y})) {
+                        island_->fire_extinguish(pfrm, app, {(u8)x, (u8)y});
+                    }
                 }
                 island_->clear_rooms(pfrm, app);
             }
