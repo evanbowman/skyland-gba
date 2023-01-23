@@ -36,6 +36,7 @@
 #include "skyland/network.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/player/playerP1.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
@@ -528,6 +529,14 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.system_call("vsync", 0);
         pfrm.fill_overlay(0);
         pfrm.screen().fade(1.f, ColorConstant::silver_white, {}, true, true);
+
+        auto origin_coord = island_->critical_core_loc();
+        int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16) + 8;
+        int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16) + 16;
+        Vec2<Fixnum> pos;
+        pos.x = circ_center_x;
+        pos.y = circ_center_y;
+        ExploSpawner::create(pfrm, app, pos);
         break;
     }
 
