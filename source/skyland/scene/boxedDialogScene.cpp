@@ -255,19 +255,26 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
                 return true;
             }
             bool done = false;
+            bool seen_char = false;
             utf8::scan(
                 [&](const utf8::Codepoint& cp, const char*, int) {
                     if (done) {
                         return;
                     }
-                    if (cp == ' ' or cp == '<') {
+                    if (cp == ' ' or cp == '<' or cp == '\0') {
                         done = true;
                     } else {
+                        seen_char = true;
                         text_state_.current_word_remaining_++;
                     }
                 },
                 text_state_.current_word_,
                 str_len(text_state_.current_word_));
+
+            if (not seen_char and *text_state_.current_word_ == '\0') {
+                display_mode_ = DisplayMode::key_released_check2;
+                return true;
+            }
         }
 
         // At this point, we know the length of the next space-delimited word in
