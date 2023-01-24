@@ -102,6 +102,10 @@ void prep_level(Platform& pfrm, App& app)
         cursor_loc.x = pl_terrain_size / 2;
     }
 
+    // Bugfix: in case an island is destroyed by a projectile after processing a
+    // lisp exit call. e.g. island surrenders then hit by a missile.
+    app.exit_condition() = App::ExitCondition::none;
+
     app.dropped_frames_ = 0;
     app.victory_coins() = 0;
     app.pause_count() = 0;

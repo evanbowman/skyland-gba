@@ -51,6 +51,8 @@
 //;
 #include "data/savegame_flattened.h"
 //;
+#include "data/ending_img_flattened.h"
+//;
 #include "data/macro_rendertexture.h"
 //;
 #include "data/developer_mode_flattened.h"
@@ -186,6 +188,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(boot_img_flattened),
 //;
     TEXTURE_INFO(savegame_flattened),
+//;
+    TEXTURE_INFO(ending_img_flattened),
 //;
     TEXTURE_INFO(macro_rendertexture),
 //;

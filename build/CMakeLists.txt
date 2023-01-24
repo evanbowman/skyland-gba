@@ -375,6 +375,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_0_flattened.s
     ${DATA_DIR}/boot_img_flattened.s
     ${DATA_DIR}/savegame_flattened.s
+    ${DATA_DIR}/ending_img_flattened.s
     ${DATA_DIR}/macro_rendertexture.s
     ${DATA_DIR}/developer_mode_flattened.s
     ${DATA_DIR}/gba_health_safety_logo_flattened.s
@@ -698,6 +699,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(skyland_title_0 0 0 YES NO)
     add_tilesheet(boot_img 0 0 YES NO)
     add_tilesheet(savegame 0 0 YES NO)
+    add_tilesheet(ending_img 0 0 YES NO)
     add_tilesheet(macro_rendertexture 0 0 NO NO)
     add_tilesheet(developer_mode 0 0 YES NO)
     add_tilesheet(intro_crops_snow 0 0 YES NO)

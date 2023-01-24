@@ -117,7 +117,7 @@ private:
     std::optional<UIMetric> coins_;
     std::optional<Text> character_name_text_;
     bool choice_sel_ = true;
-
+    bool img_view_ = false;
 
 
     struct Data

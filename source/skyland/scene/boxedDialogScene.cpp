@@ -41,6 +41,16 @@ namespace skyland
 
 
 
+void __draw_image(Platform& pfrm,
+                  TileDesc start_tile,
+                  u16 start_x,
+                  u16 start_y,
+                  u16 width,
+                  u16 height,
+                  Layer layer);
+
+
+
 extern SharedVariable text_scroll_direction;
 
 
@@ -125,6 +135,44 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
 
     case 'f': {
         pfrm.screen().schedule_fade(parse_command_int() / 100.f);
+        break;
+    }
+
+    case 'b': {
+        const auto bkg_name = parse_command_str();
+        pfrm.screen().set_shader(passthrough_shader);
+        pfrm.screen().set_view(View{});
+        app.camera().emplace<Camera>();
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                pfrm.set_tile(Layer::map_0_ext, i, j, 0);
+                pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+            }
+        }
+            for (int x = 0; x < 32; ++x) {
+                for (int y = 0; y < 4; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 123);
+                }
+                pfrm.set_tile(Layer::overlay, x, 13, 123);
+                pfrm.set_tile(Layer::overlay, x, 19, 123);
+            }
+        pfrm.load_tile1_texture(bkg_name.c_str());
+        pfrm.set_scroll(Layer::map_1_ext, 0, 0);
+        __draw_image(pfrm, 1, 0, 4, 30, 9, Layer::map_1);
+
+        // Replace the textbox border with a tileset with an opaque dark
+        // background.
+        pfrm.load_overlay_chunk(83, 124, 8);
+        img_view_ = true;
+
+        int frames = 45;
+        for (int i = 0; i < frames; ++i) {
+            pfrm.screen().schedule_fade(1 - Float(i) / frames,
+                                        ColorConstant::rich_black);
+            pfrm.screen().clear();
+            pfrm.screen().display();
+        }
+
         break;
     }
 
@@ -386,6 +434,21 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
+    if (img_view_) {
+        pfrm.fill_overlay(123);
+        pfrm.screen().schedule_fade(1.f);
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+            }
+        }
+        pfrm.load_tile1_texture("tilesheet");
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        pfrm.fill_overlay(0);
+    }
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
@@ -598,6 +661,18 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case DisplayMode::animate_out:
         display_mode_ = DisplayMode::clear;
+        if (img_view_) {
+            int frames = 60;
+            for (int i = 0; i < frames; ++i) {
+                pfrm.screen().schedule_fade(Float(i) / frames,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            true);
+                pfrm.screen().clear();
+                pfrm.screen().display();
+            }
+            pfrm.sleep(20);
+        }
         pfrm.fill_overlay(0);
         break;
 

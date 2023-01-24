@@ -57,3 +57,12 @@ o----------------------------o
 
 
 o----------------------------o
+
+ <b:STRING>
+
+ Display background from 
+ image with name provided by
+ string. Mainly intended for
+ the ending dialog.
+
+o----------------------------o
