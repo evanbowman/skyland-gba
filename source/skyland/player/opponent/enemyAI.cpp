@@ -835,11 +835,14 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
             network::packet::ChrSetTargetV2 packet;
             packet.target_x_ = target.coord_.x;
-            packet.target_y_ = target.coord_.x;
+            packet.target_y_ = target.coord_.y;
             packet.chr_id_.set(character.id());
 
-            // Intentionally inverted, for historical reasons
-            packet.near_island_ = true;
+            if (app.game_mode() == App::GameMode::multiplayer) {
+                packet.near_island_ = false;
+            } else {
+                packet.near_island_ = true;
+            }
 
             network::transmit(pfrm, packet);
         }
@@ -1005,9 +1008,16 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
             network::packet::ChrSetTargetV2 packet;
             packet.target_x_ = target.coord_.x;
-            packet.target_y_ = target.coord_.x;
+            packet.target_y_ = target.coord_.y;
             packet.chr_id_.set(character.id());
-            packet.near_island_ = false;
+            if (app.game_mode() == App::GameMode::multiplayer) {
+                // NOTE: because in multiplayer, both players are on the same
+                // side of the screen, so we need to invert some fields so that
+                // things are correct from the receiver's perspective.
+                packet.near_island_ = true;
+            } else {
+                packet.near_island_ = false;
+            }
             network::transmit(pfrm, packet);
         }
     }

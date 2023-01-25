@@ -50,7 +50,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::locked_by_default | RoomProperties::fragile;
+               RoomProperties::locked_by_default | RoomProperties::fragile |
+               RoomProperties::multiplayer_unsupported;
     }
 
 

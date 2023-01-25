@@ -62,8 +62,17 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
     Room::ready();
 
     if (&parent()->owner() == &app.opponent()) {
-        apply_damage(pfrm, app, Room::health_upper_limit());
-        return;
+        if (app.game_mode() == App::GameMode::multiplayer) {
+            // While we don't want players placing a command module in opponent
+            // castles in the sandbox mode, we still want to allow this block's
+            // existence in opponent's castles in multiplayer mode, although it
+            // shouldn't do anything as the block on the connected device is
+            // already orchestrating character movement.
+            return;
+        } else {
+            apply_damage(pfrm, app, Room::health_upper_limit());
+            return;
+        }
     }
 
     if (app.opponent().is_friendly()) {

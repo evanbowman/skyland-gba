@@ -74,6 +74,18 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 4;
+    }
+
+
+    int debris_count() override
+    {
+        return 2;
+    }
+
+
     static Vec2<u8> size()
     {
         return {1, 2};

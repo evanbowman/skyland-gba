@@ -85,6 +85,18 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 4;
+    }
+
+
+    int debris_count() override
+    {
+        return 2;
+    }
+
+
     static Icon icon()
     {
         return 1864;

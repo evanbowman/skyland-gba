@@ -134,7 +134,9 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return (Decoration::properties() & ~RoomProperties::disallow_chimney) |
+        return (Decoration::properties()
+                & ~RoomProperties::disallow_chimney
+                & ~RoomProperties::multiplayer_unsupported) |
                RoomProperties::fireproof | RoomProperties::multiboot_compatible;
     }
 

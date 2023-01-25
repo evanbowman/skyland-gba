@@ -60,8 +60,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable |
-               RoomProperties::disabled_in_tutorials |
-               RoomProperties::multiplayer_unsupported;
+               RoomProperties::disabled_in_tutorials;
     }
 
 

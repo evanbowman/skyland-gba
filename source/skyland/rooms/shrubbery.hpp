@@ -74,6 +74,18 @@ public:
     }
 
 
+    int debris_tile() override
+    {
+        return 4;
+    }
+
+
+    int debris_count() override
+    {
+        return 2;
+    }
+
+
     static SystemString ui_name()
     {
         return SystemString::block_shrubbery;
