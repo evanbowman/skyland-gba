@@ -75,6 +75,11 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (app.game_mode() == App::GameMode::co_op) {
+        // Unsupported in co-op mode.
+        apply_damage(pfrm, app, Room::health_upper_limit());
+    }
+
     if (app.opponent().is_friendly()) {
         return;
     }
