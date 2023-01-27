@@ -23,6 +23,8 @@
 #include "stairwell.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
+
 
 
 namespace skyland
@@ -73,6 +75,22 @@ void Stairwell::plot_walkable_zones(App& app, bool matrix[16][16])
         matrix[position().x][position().y + y] = true;
     }
 }
+
+
+
+void Stairwell::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() <= 0) {
+        auto pos = center();
+        pos.y += 16.0_fixed;
+        ExploSpawner::create(pfrm, app, pos);
+        pos.y -= 32.0_fixed;
+        ExploSpawner::create(pfrm, app, pos);
+    }
+}
+
 
 
 

@@ -92,6 +92,9 @@ public:
     {
         return 600;
     }
+
+
+    void finalize(Platform& pfrm, App& app) override;
 };
 
 
