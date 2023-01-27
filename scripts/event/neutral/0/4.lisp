@@ -33,7 +33,8 @@
 
 (defn on-fadein
   (fire-new (opponent) 0 11)
-  (fire-new (opponent) 2 10))
+  (fire-new (opponent) 2 10)
+  (setq on-fadein nil))
 
 
 (defn on-converge

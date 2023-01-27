@@ -67,6 +67,14 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.stat_timer().reset(0);
 
+    app.effects().clear();
+
+    for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 0; y < 16; ++y) {
+            app.player_island().fire_extinguish(pfrm, app, {x, y});
+        }
+    }
+
     // In case we came from a previous tutorial, give control back to the
     // player.
     app.swap_player<PlayerP1>();
