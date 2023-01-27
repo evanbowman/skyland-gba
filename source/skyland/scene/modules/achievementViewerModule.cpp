@@ -125,9 +125,27 @@ void AchievementViewerModule::load_page(Platform& pfrm, App& app, int page)
 
 void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    achievements_heading_.emplace(pfrm, OverlayCoord{0, 1});
+
+    const auto banner_color = Text::OptColors{{ColorConstant::rich_black,
+                                               custom_color(0xead873)}};
+
+    achievements_heading_->append(" ", banner_color);
+    achievements_heading_->append(SYSTR(module_achievements)->c_str(),
+                                  banner_color);
+
+    pfrm.set_tile(Layer::overlay,
+                  achievements_heading_->len(),
+                  1,
+                  476);
+
+    for (int x = 0; x < achievements_heading_->len() + 1; ++x) {
+        pfrm.set_tile(Layer::overlay, x, 0, 477);
+    }
+
     load_page(pfrm, app, 0);
-    pfrm.screen().fade(0.95f);
-    pfrm.screen().fade(1.f);
+    pfrm.screen().fade(1.f, custom_color(0x39395a));
+    // pfrm.screen().fade(1.f);
 
     // TODO: remove screen fade entirely, we want to show a banner across the
     // top of the achievements page.
@@ -143,6 +161,7 @@ void AchievementViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.screen().fade(1.f);
 
+    achievements_heading_.reset();
     item_name_.reset();
     item_details_.reset();
     achievement_description_.reset();

@@ -83,8 +83,24 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
                 Platform::fatal("missing metaclass for achievement");
             }
 
-            achievement_text_.emplace(pfrm, OverlayCoord{4, 4});
-            achievement_text_->assign(SYSTR(achievement_msg_title)->c_str());
+            const auto banner_color = Text::OptColors{{ColorConstant::rich_black,
+                                                       custom_color(0xead873)}};
+
+
+            achievement_text_.emplace(pfrm, OverlayCoord{3, 4});
+            achievement_text_->append(" ", banner_color);
+            achievement_text_->append(SYSTR(achievement_msg_title)->c_str(),
+                                      banner_color);
+
+
+            pfrm.set_tile(Layer::overlay, 3 + achievement_text_->len(), 4, 482);
+            for (int x = 0; x < achievement_text_->len() + 1; ++x) {
+                pfrm.set_tile(Layer::overlay, 3 + x, 3, 478);
+            }
+            pfrm.set_tile(Layer::overlay, 2, 4, 480);
+            pfrm.set_tile(Layer::overlay, 2, 5, 481);
+            pfrm.set_tile(Layer::overlay, 2, 3, 479);
+
 
             achievement_name_.emplace(pfrm, OverlayCoord{4, 6});
             achievement_name_->assign(
