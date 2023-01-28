@@ -73,6 +73,7 @@ private:
 
 
     std::optional<Text> achievements_heading_;
+    std::optional<Text> count_text_;
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
     std::optional<TextView> achievement_description_;

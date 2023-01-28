@@ -145,7 +145,21 @@ void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     load_page(pfrm, app, 0);
     pfrm.screen().fade(1.f, custom_color(0x39395a));
-    // pfrm.screen().fade(1.f);
+
+    int count = 0;
+    for (int i = 0; i < achievements::count; ++i) {
+        if (achievements::is_unlocked(app, (achievements::Achievement)i)) {
+            ++count;
+        }
+    }
+
+    auto count_str = format("(%/%)", count, achievements::count);
+    count_text_.emplace(pfrm, OverlayCoord{u8(29 - count_str.length()), 1});
+    count_text_->assign(count_str.c_str(),
+                        Text::OptColors{{
+                                custom_color(0xead873),
+                                custom_color(0x39395a)
+                            }});
 
     // TODO: remove screen fade entirely, we want to show a banner across the
     // top of the achievements page.
@@ -161,6 +175,7 @@ void AchievementViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.screen().fade(1.f);
 
+    count_text_.reset();
     achievements_heading_.reset();
     item_name_.reset();
     item_details_.reset();
