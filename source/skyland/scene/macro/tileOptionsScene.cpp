@@ -223,7 +223,7 @@ void TileOptionsScene::show_options(Platform& pfrm, macro::EngineImpl& state)
     msg(pfrm, state, str.c_str());
 
     for (int y = st.y - 5; y < st.y - 2; ++y) {
-        pfrm.set_tile(Layer::overlay, st.x - 22, y, 128);
+        pfrm.set_tile(Layer::overlay, st.x - 22, y, 130);
         pfrm.set_tile(Layer::overlay, st.x - 9, y, 433);
     }
 

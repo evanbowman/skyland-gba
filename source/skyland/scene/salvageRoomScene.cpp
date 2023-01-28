@@ -118,7 +118,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 128);
+    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
     persist_ui();
 }

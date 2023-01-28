@@ -130,7 +130,7 @@ public:
             }
 
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 128);
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
             state_ = State::prompt;
             persist_ui();

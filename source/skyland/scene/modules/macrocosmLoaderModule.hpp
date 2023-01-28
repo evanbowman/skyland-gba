@@ -39,7 +39,7 @@ class MacrocosmLoaderModule : public Module<MacrocosmLoaderModule>
 public:
     static SystemString module_name()
     {
-        return SystemString::module_macro;
+        return SystemString::empty;
     }
 
 

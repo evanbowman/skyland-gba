@@ -353,7 +353,7 @@ void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
     }
 
     for (int y = st.y - 5; y < st.y - 2; ++y) {
-        pfrm.set_tile(Layer::overlay, st.x - 26, y, 128);
+        pfrm.set_tile(Layer::overlay, st.x - 26, y, 130);
         pfrm.set_tile(Layer::overlay, st.x - 5, y, 433);
     }
 
