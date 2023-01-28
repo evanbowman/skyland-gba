@@ -1127,7 +1127,7 @@ void terrain::Sector::generate_terrain_regular(int min_blocks,
         }
     }
 PLACE_BUILDING:
-    while (true) {
+    while (building_count) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
 

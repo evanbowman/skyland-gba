@@ -289,7 +289,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (not pfrm.network_peer().is_connected() and
-            app.game_mode() not_eq App::GameMode::sandbox) {
+            app.game_mode() not_eq App::GameMode::sandbox and
+            (app.game_mode() not_eq App::GameMode::macro or
+             (app.game_mode() == App::GameMode::macro and
+              not macrocosm(app).data_->freebuild_mode_))) {
             // Don't support the hibernate feature for active multiplayer
             // games. On some devices, a serial interrupt for multiplayer will
             // wake the system out of low power mode anyway.
@@ -380,6 +383,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             } else if (macrocosm(app).data_->freebuild_mode_) {
 
+                diff_percent_ = 0.22f;
+
                 if (not pfrm.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're
                     // already in a multiplayer session.
@@ -399,6 +404,17 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
 
                     add_macro_share_opt();
+
+                    add_option(pfrm,
+                               SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
+                               [&pfrm, &app]() {
+                                   auto& current = macrocosm(app).sector();
+                                   current.generate_terrain(160, 1);
+                                   pfrm.screen().schedule_fade(0.f);
+                                   pfrm.screen().pixelate(0);
+                                   return scene_pool::alloc<macro::SelectorScene>();
+                               },
+                               cut);
 
                     add_option(
                         pfrm,

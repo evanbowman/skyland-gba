@@ -2666,9 +2666,16 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // potatoes_planted
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        const auto shape = s.persistent().shape_;
+        const bool is_freebuild =
+            shape == terrain::Sector::Shape::freebuild or
+            shape == terrain::Sector::Shape::freebuild_wide or
+            shape == terrain::Sector::Shape::freebuild_flat;
+
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 18) {
+            if (block.data_ > 18 or
+                (block.data_ > 4 and is_freebuild)) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }
@@ -2686,9 +2693,16 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             s.set_block(position, terrain::Type::terrain);
         }
 
+        const auto shape = s.persistent().shape_;
+        const bool is_freebuild =
+            shape == terrain::Sector::Shape::freebuild or
+            shape == terrain::Sector::Shape::freebuild_wide or
+            shape == terrain::Sector::Shape::freebuild_flat;
+
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 60) {
+            if (block.data_ > 60 or
+                (block.data_ > 8 and is_freebuild)) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;
@@ -2784,9 +2798,17 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::basalt);
+
+        const auto shape = s.persistent().shape_;
+        const bool is_freebuild =
+            shape == terrain::Sector::Shape::freebuild or
+            shape == terrain::Sector::Shape::freebuild_wide or
+            shape == terrain::Sector::Shape::freebuild_flat;
+
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 4) {
+            if (block.data_ > 4 or
+                (is_freebuild and block.data_ > 2)) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::rice_ripe);
             }

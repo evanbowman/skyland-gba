@@ -302,12 +302,11 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         } else {
             switch (state.data_->keylock_) {
             case Keylock::nolock: {
-                pfrm.speaker().play_sound("button_wooden", 3);
+                pfrm.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<TileOptionsScene>();
             }
 
             case Keylock::buildlock:
-                pfrm.speaker().play_sound("button_wooden", 3);
                 return scene_pool::alloc<CreateBlockScene>();
 
             case Keylock::improvelock: {

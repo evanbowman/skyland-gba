@@ -156,7 +156,6 @@ Text Editor
 Highscores
 Tutorials
 Developer Mode
-Macro Freebuild
 Checkers
 Date/Time
 Feedback
@@ -187,7 +186,6 @@ harvest:
 :rotate
 :raise
 :layers
-:day night
 view threshold: 
 :next year
 :budget
@@ -321,6 +319,8 @@ spectate
 continue building
 script console
 surrender
+samples
+generate terrain
 Are you sure?
 START: drop in
 please wait...

@@ -213,7 +213,6 @@ enum class SystemString {
     module_highscores,
     module_tutorials,
     module_developer_mode,
-    module_macro,
     module_checkers,
     module_datetime,
     module_feedback,
@@ -254,7 +253,6 @@ enum class SystemString {
     macro_rotate,
     macro_raise,
     macro_layers,
-    macro_day_or_night,
     macro_visible_layers,
     macro_next_turn,
     macro_budget,
@@ -399,6 +397,8 @@ enum class SystemString {
     start_menu_continue_building,
     start_menu_repl,
     start_menu_end_run,
+    start_menu_freebuild_samples,
+    start_menu_freebuild_gen_terrain,
 
     are_you_sure,
 
