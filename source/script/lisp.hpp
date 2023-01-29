@@ -912,4 +912,9 @@ template <typename F> void foreach (Value* list, F && fn)
 }
 
 
+
+void safecall(Value* fn, u8 argc);
+
+
+
 } // namespace lisp

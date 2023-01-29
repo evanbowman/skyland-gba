@@ -1127,6 +1127,19 @@ void funcall(Value* obj, u8 argc)
 }
 
 
+void safecall(Value* fn, u8 argc)
+{
+    lisp::funcall(fn, argc);
+    auto result = lisp::get_op(0);
+    if (result->type() == lisp::Value::Type::error) {
+        const char* tag = "lisp-fmt-buffer";
+        auto p = allocate_dynamic<DefaultPrinter>(tag);
+        format(result, *p);
+        Platform::fatal(p->data_.c_str());
+    }
+}
+
+
 u8 get_argc()
 {
     return bound_context->current_fn_argc_;

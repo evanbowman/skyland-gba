@@ -3,14 +3,16 @@
 ;;;
 
 
-(setq on-fadein '())
-(setq on-converge '())
-(setq on-dialog-accepted '())
-(setq on-dialog-declined '())
-(setq on-dialog-closed '())
-(setq on-hostile-transition '())
-(setq on-victory '())
-(setq on-room-destroyed '())
+;; Callbacks invoked by the engine for various events.
+(setq on-fadein '())           ; After fadein at beginning of level.
+(setq on-converge '())         ; When other island finishes approaching player.
+(setq on-dialog-accepted '())  ; Upon selecting yes in a dialog prompt.
+(setq on-dialog-declined '())  ; Upon selecting no in a dialog prompt.
+(setq on-dialog-closed '())    ; Dialog box closed.
+(setq on-victory '())          ; Defeated opponent island.
+(setq on-room-destroyed '())   ; A block was destroyed. [island, type, x, y]
+(setq on-crew-added '())       ; Crewmember added to island. [island, chr-id]
+(setq on-crew-died '())        ; Crewmember died. Parameters: [island, chr-id]
 
 
 

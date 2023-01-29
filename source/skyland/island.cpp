@@ -695,7 +695,19 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     is_boarded_ = false;
 
 
-    auto record_character_died = [&](BasicCharacter& c) {
+    auto on_character_died = [&](BasicCharacter& c) {
+        if (not pfrm.network_peer().is_connected()) {
+            auto fn = lisp::get_var("on-crew-died");
+            if (fn->type() == lisp::Value::Type::function) {
+                // NOTE: fn is in a global var, as we accessed it through
+                // get_var. So there's no need to protect fn from the gc, as
+                // it's already attached to a gc root.
+                lisp::push_op(lisp::make_userdata(this));
+                lisp::push_op(lisp::make_integer(c.id()));
+                lisp::safecall(fn, 2);
+                lisp::pop_op(); // result
+            }
+        }
         c.finalize(app);
         time_stream::event::CharacterDied e;
         e.x_ = c.grid_position().x;
@@ -719,7 +731,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 packet.near_island_ = this not_eq &app.player_island();
                 network::transmit(pfrm, packet);
 
-                record_character_died(**it);
+                on_character_died(**it);
 
                 const auto pos = (*it)->sprite().get_position();
                 if (auto e = alloc_entity<Ghost>(pos)) {
@@ -867,7 +879,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             for (auto& chr : room->characters()) {
                 // The room was destroyed, along with any inhabitants.
-                record_character_died(*chr);
+                on_character_died(*chr);
             }
 
 
@@ -898,14 +910,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     lisp::push_op(lisp::make_symbol(room->name()));
                     lisp::push_op(lisp::make_integer(room->position().x));
                     lisp::push_op(lisp::make_integer(room->position().y));
-                    lisp::funcall(fn, 4);
-                    auto result = lisp::get_op(0);
-                    if (result->type() == lisp::Value::Type::error) {
-                        const char* tag = "lisp-fmt-buffer";
-                        auto p = allocate_dynamic<lisp::DefaultPrinter>(tag);
-                        lisp::format(result, *p);
-                        pfrm.fatal(p->data_.c_str());
-                    }
+                    lisp::safecall(fn, 4);
                     lisp::pop_op(); // result
 
                     // We cannot know how much latency that the custom script
