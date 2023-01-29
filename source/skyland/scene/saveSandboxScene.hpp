@@ -239,7 +239,7 @@ public:
         auto fn = app.invoke_script(pfrm, "/scripts/sandbox/restore.lisp");
         if (fn->type() == lisp::Value::Type::function) {
             lisp::push_op(arg); // pass save data buffer on stack
-            safecall(fn, 1);     // one argument (the save data)
+            safecall(fn, 1);    // one argument (the save data)
             lisp::pop_op();     // funcall result
         } else {
             pfrm.fatal("restore.lisp does not return a function!");
