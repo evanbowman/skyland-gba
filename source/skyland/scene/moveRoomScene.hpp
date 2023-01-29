@@ -156,7 +156,7 @@ public:
                 unpersist_ui();
                 pfrm.speaker().play_sound("coin", 2);
                 app.set_coins(pfrm, app.coins() - 800);
-                state_ = State::move_stuff;
+                state_ = State::check_keys;
                 yes_text_.reset();
                 no_text_.reset();
                 text_.reset();
@@ -171,6 +171,20 @@ public:
                 for (int i = 0; i < text_->len(); ++i) {
                     pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
+            }
+            break;
+
+        case State::check_keys:
+            if (player(app).key_down(pfrm, Key::action_2)) {
+                return scene_pool::alloc<ReadyScene>();
+            }
+            // We need this state in the state machine because we want to begin
+            // moving blocks upon key-up, to allow players to create a
+            // multi-block selection without needing to begin the selection over
+            // an empty space. But we don't want the key-up to fire a second
+            // time when releasing the a-key upon dropping a grabbed block.
+            if (player(app).key_down(pfrm, Key::action_1)) {
+                state_ = State::move_stuff;
             }
             break;
 
@@ -196,7 +210,7 @@ public:
             if (player(app).key_down(pfrm, Key::action_2)) {
                 return scene_pool::alloc<ReadyScene>();
             }
-            if (player(app).key_down(pfrm, Key::action_1)) {
+            if (player(app).key_up(pfrm, Key::action_1)) {
                 auto cursor_loc = cursor();
                 if (auto r = island_->get_room(cursor_loc)) {
                     if (str_eq(r->name(), "mycelium")) {
@@ -281,7 +295,7 @@ public:
                     pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
 
-                state_ = State::move_stuff;
+                state_ = State::check_keys;
             }
             break;
 
@@ -404,7 +418,7 @@ public:
                 }
 
                 group_selection_.reset();
-                state_ = State::move_stuff;
+                state_ = State::check_keys;
                 break;
             }
             break;
@@ -692,6 +706,7 @@ private:
     enum class State {
         setup_prompt,
         prompt,
+        check_keys,
         move_stuff,
         move_block,
         select_group,
