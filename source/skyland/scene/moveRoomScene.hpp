@@ -183,7 +183,8 @@ public:
             // multi-block selection without needing to begin the selection over
             // an empty space. But we don't want the key-up to fire a second
             // time when releasing the a-key upon dropping a grabbed block.
-            if (player(app).key_down(pfrm, Key::action_1)) {
+            if (player(app).key_down(pfrm, Key::action_1) or
+                player(app).key_down(pfrm, Key::start)) {
                 state_ = State::move_stuff;
             }
             break;
