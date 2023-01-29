@@ -156,7 +156,7 @@ public:
                 unpersist_ui();
                 pfrm.speaker().play_sound("coin", 2);
                 app.set_coins(pfrm, app.coins() - 800);
-                state_ = State::check_keys;
+                state_ = State::move_block;
                 yes_text_.reset();
                 no_text_.reset();
                 text_.reset();
@@ -175,18 +175,7 @@ public:
             break;
 
         case State::check_keys:
-            if (player(app).key_down(pfrm, Key::action_2)) {
-                return scene_pool::alloc<ReadyScene>();
-            }
-            // We need this state in the state machine because we want to begin
-            // moving blocks upon key-up, to allow players to create a
-            // multi-block selection without needing to begin the selection over
-            // an empty space. But we don't want the key-up to fire a second
-            // time when releasing the a-key upon dropping a grabbed block.
-            if (player(app).key_down(pfrm, Key::action_1) or
-                player(app).key_down(pfrm, Key::start)) {
-                state_ = State::move_stuff;
-            }
+            // Removed
             break;
 
         case State::move_stuff:
@@ -211,7 +200,7 @@ public:
             if (player(app).key_down(pfrm, Key::action_2)) {
                 return scene_pool::alloc<ReadyScene>();
             }
-            if (player(app).key_up(pfrm, Key::action_1)) {
+            if (player(app).key_down(pfrm, Key::action_1)) {
                 auto cursor_loc = cursor();
                 if (auto r = island_->get_room(cursor_loc)) {
                     if (str_eq(r->name(), "mycelium")) {
@@ -296,7 +285,7 @@ public:
                     pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
 
-                state_ = State::check_keys;
+                state_ = State::move_block;
             }
             break;
 
@@ -419,7 +408,7 @@ public:
                 }
 
                 group_selection_.reset();
-                state_ = State::check_keys;
+                state_ = State::move_block;
                 break;
             }
             break;
