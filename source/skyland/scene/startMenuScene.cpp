@@ -343,10 +343,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                         using namespace lisp;
 
-                        funcall(hint, 0);
-                        if (get_op(0)->type() == Value::Type::error) {
-                            Platform::fatal("unexpected error (sb-help)!");
-                        }
+                        safecall(hint, 0);
                         pop_op(); // result
 
                         pfrm.screen().schedule_fade(0.f);
@@ -405,16 +402,17 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     add_macro_share_opt();
 
-                    add_option(pfrm,
-                               SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
-                               [&pfrm, &app]() {
-                                   auto& current = macrocosm(app).sector();
-                                   current.generate_terrain(160, 1);
-                                   pfrm.screen().schedule_fade(0.f);
-                                   pfrm.screen().pixelate(0);
-                                   return scene_pool::alloc<macro::SelectorScene>();
-                               },
-                               cut);
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
+                        [&pfrm, &app]() {
+                            auto& current = macrocosm(app).sector();
+                            current.generate_terrain(160, 1);
+                            pfrm.screen().schedule_fade(0.f);
+                            pfrm.screen().pixelate(0);
+                            return scene_pool::alloc<macro::SelectorScene>();
+                        },
+                        cut);
 
                     add_option(
                         pfrm,
@@ -587,10 +585,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                         using namespace lisp;
 
-                        funcall(hint, 0);
-                        if (get_op(0)->type() == Value::Type::error) {
-                            Platform::fatal("unexpected error (ch hint)!");
-                        }
+                        safecall(hint, 0);
                         pop_op(); // result
 
                         pfrm.screen().schedule_fade(0.f);

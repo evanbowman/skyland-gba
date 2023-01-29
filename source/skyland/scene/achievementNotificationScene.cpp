@@ -83,8 +83,8 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
                 Platform::fatal("missing metaclass for achievement");
             }
 
-            const auto banner_color = Text::OptColors{{ColorConstant::rich_black,
-                                                       custom_color(0xead873)}};
+            const auto banner_color = Text::OptColors{
+                {ColorConstant::rich_black, custom_color(0xead873)}};
 
 
             achievement_text_.emplace(pfrm, OverlayCoord{3, 4});

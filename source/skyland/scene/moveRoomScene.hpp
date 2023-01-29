@@ -196,7 +196,7 @@ public:
             if (player(app).key_down(pfrm, Key::action_2)) {
                 return scene_pool::alloc<ReadyScene>();
             }
-            if (player(app).key_down(pfrm, Key::action_1)) {
+            if (player(app).key_up(pfrm, Key::action_1)) {
                 auto cursor_loc = cursor();
                 if (auto r = island_->get_room(cursor_loc)) {
                     if (str_eq(r->name(), "mycelium")) {

@@ -340,8 +340,8 @@ void BasicCharacter::update(Platform& pfrm,
                 } else {
                     if (&room->owner()->owner() not_eq owner()) {
                         const char* name = (*metac)->name();
-                        if (not str_eq(name, "plundered-room")
-                            and not str_eq(name, "stairwell") and
+                        if (not str_eq(name, "plundered-room") and
+                            not str_eq(name, "stairwell") and
                             not str_eq(name, "bridge") and
                             not str_eq(name, "ladder")) {
                             state_ = State::plunder_room;
@@ -353,7 +353,8 @@ void BasicCharacter::update(Platform& pfrm,
                             timer_ = 0;
                             anim_timer_ = 0;
                         } else if (room->health() < room->max_health() and
-                                   not str_eq((*metac)->name(), "plundered-room")) {
+                                   not str_eq((*metac)->name(),
+                                              "plundered-room")) {
                             state_ = State::repair_room;
                             anim_timer_ = 0;
                         }

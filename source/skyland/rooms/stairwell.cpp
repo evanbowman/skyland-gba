@@ -22,8 +22,8 @@
 
 #include "stairwell.hpp"
 #include "platform/platform.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -90,7 +90,6 @@ void Stairwell::finalize(Platform& pfrm, App& app)
         ExploSpawner::create(pfrm, app, pos);
     }
 }
-
 
 
 

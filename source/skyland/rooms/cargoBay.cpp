@@ -21,9 +21,9 @@
 
 
 #include "cargoBay.hpp"
-#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
@@ -181,7 +181,6 @@ void CargoBay::finalize(Platform& pfrm, App& app)
         }
     }
 }
-
 
 
 

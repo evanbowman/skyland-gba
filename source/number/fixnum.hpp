@@ -58,12 +58,12 @@ public:
 
 
 
-    template<s32 other_precision, typename U>
+    template <s32 other_precision, typename U>
     constexpr static FixedPoint from_fp(FixedPoint<other_precision, U> other)
     {
-        return create(precision < other_precision ?
-                      other.data() / (other.scale() / scale()) :
-                      other.data() * (scale() / other.scale()));
+        return create(precision < other_precision
+                          ? other.data() / (other.scale() / scale())
+                          : other.data() * (scale() / other.scale()));
     }
 
 

@@ -127,17 +127,14 @@ void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     achievements_heading_.emplace(pfrm, OverlayCoord{0, 1});
 
-    const auto banner_color = Text::OptColors{{ColorConstant::rich_black,
-                                               custom_color(0xead873)}};
+    const auto banner_color =
+        Text::OptColors{{ColorConstant::rich_black, custom_color(0xead873)}};
 
     achievements_heading_->append(" ", banner_color);
     achievements_heading_->append(SYSTR(module_achievements)->c_str(),
                                   banner_color);
 
-    pfrm.set_tile(Layer::overlay,
-                  achievements_heading_->len(),
-                  1,
-                  476);
+    pfrm.set_tile(Layer::overlay, achievements_heading_->len(), 1, 476);
 
     for (int x = 0; x < achievements_heading_->len() + 1; ++x) {
         pfrm.set_tile(Layer::overlay, x, 0, 477);
@@ -155,11 +152,9 @@ void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto count_str = format("(%/%)", count, achievements::count);
     count_text_.emplace(pfrm, OverlayCoord{u8(29 - count_str.length()), 1});
-    count_text_->assign(count_str.c_str(),
-                        Text::OptColors{{
-                                custom_color(0xead873),
-                                custom_color(0x39395a)
-                            }});
+    count_text_->assign(
+        count_str.c_str(),
+        Text::OptColors{{custom_color(0xead873), custom_color(0x39395a)}});
 
     // TODO: remove screen fade entirely, we want to show a banner across the
     // top of the achievements page.
