@@ -42,10 +42,3 @@
       (lambda
         (opponent-mode 'hostile)
         (dialog "Prepare for attack!")))
-
-
-(setq on-hostile-transition
-      (lambda
-        ;; when the island is preemtively attacked, skip all of the dialog and
-        ;; other hooks.
-        (eval-file "/scripts/reset_hooks.lisp")))

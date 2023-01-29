@@ -288,7 +288,6 @@ o----------------------------o
  (on-dialog-accepted)
  (on-dialog-declined)
  (on-dialog-closed)
- (on-hostile-transition)
  (on-room-destroyed)
 
  A set of event functions,
