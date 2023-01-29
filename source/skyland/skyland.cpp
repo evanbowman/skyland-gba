@@ -179,7 +179,7 @@ void App::restore_backup(Platform& pfrm)
     auto fn = invoke_script(pfrm, "/scripts/restore_save.lisp");
     if (fn->type() == lisp::Value::Type::function) {
         lisp::push_op(arg); // pass save data buffer on stack
-        funcall(fn, 1);     // one argument (the save data)
+        safecall(fn, 1);    // one argument (the save data)
         lisp::pop_op();     // funcall result
     } else {
         pfrm.fatal("not function!");

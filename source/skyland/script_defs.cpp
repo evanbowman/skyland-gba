@@ -615,7 +615,7 @@ static const lisp::Binding script_api[] = {
                                          [s](Platform& pfrm, App& app) {
                                              // Bad hack: construct dummy symbol.
                                              auto fn = lisp::get_var(s.name());
-                                             lisp::funcall(fn, 0);
+                                             lisp::safecall(fn, 0);
                                              lisp::pop_op(); // funcall result
                                          }};
 

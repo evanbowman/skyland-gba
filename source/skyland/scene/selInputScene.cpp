@@ -223,8 +223,8 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         lisp::push_op(lisp::make_integer(y));
 
-        lisp::funcall(parameters_->cons().car()->cons().cdr(), 3);
-        lisp::pop_op(); // TODO: check for lisp::Error.
+        lisp::safecall(parameters_->cons().car()->cons().cdr(), 3);
+        lisp::pop_op();
 
         if (started_near_) {
             return scene_pool::alloc<ReadyScene>();
