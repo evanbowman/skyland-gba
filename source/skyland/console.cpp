@@ -120,7 +120,7 @@ public:
                 "rom dump               | dump entire rom as hex (slow)\r\n"
                 "download <path>        | dump file to console, base32 encoded\r\n"
                 "quit                   | select a different console mode\r\n"
-                "call <path>            | invoke a lisp script"
+                "call <path>            | invoke a lisp script\r\n"
                 "ls <path>              | list files in a directory\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
