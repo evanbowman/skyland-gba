@@ -111,6 +111,7 @@ public:
         freebuild,
         freebuild_wide,
         freebuild_flat,
+        reserved_important_never_use,
     };
 
 

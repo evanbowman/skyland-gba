@@ -23,53 +23,53 @@
 #pragma once
 
 
-#include "function.hpp"
-#include "number/endian.hpp"
-#include "number/int.h"
+#include "graphics/overlay.hpp"
+#include "script/lisp.hpp"
+#include "skyland/scene.hpp"
 
 
 
-namespace filesystem
+namespace skyland
 {
 
 
 
-struct Root
+class SelectSampleScene : public Scene
 {
-    char magic_[4];
-    host_u32 file_count_;
+public:
+    void enter(Platform&, App&, Scene& prev) override;
+    void exit(Platform&, App&, Scene& next) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void display(Platform&, App&) override;
+
+
+private:
+    void show_options(Platform&, App&);
+
+    enum class State {
+        fade_in,
+        idle,
+        fade_out,
+    } state_ = State::fade_in;
+
+
+    std::optional<lisp::Protected> samples_;
+    Buffer<Text, 5> text_;
+
+    u8 page_ = 0;
+    u8 cursor_ = 0;
+
+    int page_count_ = 0;
+
+    Microseconds timer_ = 0;
+
+    bool exit_ = false;
 };
 
 
 
-struct FileHeader
-{
-    char path_[64]; // Must be null-terminated.
-    host_u32 size_;
-};
-
-
-
-using NullTerminatedString = const char*;
-using FileContents = NullTerminatedString;
-using FilePath = NullTerminatedString;
-using FileSize = u32;
-
-
-
-bool is_mounted();
-
-
-
-std::pair<FileContents, FileSize> load(FilePath path);
-
-
-void walk(Function<8 * sizeof(void*), void(const char* path)> callback);
-
-
-
-u32 size();
-
-
-
-} // namespace filesystem
+} // namespace skyland

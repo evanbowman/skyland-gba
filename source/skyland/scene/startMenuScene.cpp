@@ -45,6 +45,7 @@
 #include "skyland/skyland.hpp"
 #include "spectatorScene.hpp"
 #include "surrenderConfirmScene.hpp"
+#include "selectSampleScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
 
@@ -55,10 +56,11 @@ namespace skyland
 
 
 
-StartMenuScene::StartMenuScene(int fade_direction)
+StartMenuScene::StartMenuScene(int fade_direction, int default_cursor)
     : data_(allocate_dynamic<Data>("start-menu-options-buffer")),
       fade_direction_(fade_direction)
 {
+    data_->cursor_ = default_cursor;
 }
 
 
@@ -380,7 +382,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             } else if (macrocosm(app).data_->freebuild_mode_) {
 
-                diff_percent_ = 0.22f;
+                diff_percent_ = 0.18f;
 
                 if (not pfrm.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're
@@ -402,17 +404,23 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     add_macro_share_opt();
 
-                    add_option(
-                        pfrm,
-                        SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
-                        [&pfrm, &app]() {
-                            auto& current = macrocosm(app).sector();
-                            current.generate_terrain(160, 1);
-                            pfrm.screen().schedule_fade(0.f);
-                            pfrm.screen().pixelate(0);
-                            return scene_pool::alloc<macro::SelectorScene>();
-                        },
-                        cut);
+                    add_option(pfrm,
+                               SYSTR(start_menu_freebuild_samples)->c_str(),
+                               [&pfrm, &app]() {
+                                   return scene_pool::alloc<SelectSampleScene>();
+                               },
+                               cut);
+
+                    add_option(pfrm,
+                               SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
+                               [&pfrm, &app]() {
+                                   auto& current = macrocosm(app).sector();
+                                   current.generate_terrain(160, 1);
+                                   pfrm.screen().schedule_fade(0.f);
+                                   pfrm.screen().pixelate(0);
+                                   return scene_pool::alloc<macro::SelectorScene>();
+                               },
+                               cut);
 
                     add_option(
                         pfrm,
@@ -644,6 +652,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (fade_direction_ == 0) {
                 pfrm.screen().schedule_fade(0.75f * step);
                 pfrm.screen().pixelate(step * 128, false);
+            } else if (fade_direction_ == -1) {
+                pfrm.screen().pixelate(128, false);
+                // skip...
             } else {
                 pfrm.screen().pixelate(128, false);
                 pfrm.screen().schedule_fade(1.f - 0.25f * step);

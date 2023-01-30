@@ -36,7 +36,7 @@ namespace skyland
 class StartMenuScene : public Scene
 {
 public:
-    StartMenuScene(int fade_direction);
+    StartMenuScene(int fade_direction, int default_cursor = 0);
 
 
     void enter(Platform&, App&, Scene& prev) override;

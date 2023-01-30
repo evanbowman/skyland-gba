@@ -118,7 +118,8 @@ void walk(Function<8 * sizeof(void*), void(const char* path)> callback)
 }
 
 
-FileContents load(FilePath path)
+
+std::pair<FileContents, FileSize> load(FilePath path)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);
@@ -132,16 +133,15 @@ FileContents load(FilePath path)
         auto hdr = (FileHeader*)current;
 
         if (str_eq(hdr->path_, path)) {
-            return current + sizeof(FileHeader);
+            return {current + sizeof(FileHeader), hdr->size_.get()};
         }
 
         --files_remaining;
         current += sizeof(FileHeader) + hdr->size_.get();
     }
 
-    return nullptr;
+    return {nullptr, 0};
 }
-
 
 
 } // namespace filesystem

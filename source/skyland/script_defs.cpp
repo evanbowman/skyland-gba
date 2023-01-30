@@ -489,11 +489,13 @@ static const lisp::Binding script_api[] = {
          u8 z = L_LOAD_INT(1);
          auto type = (macro::terrain::Type)L_LOAD_INT(0);
 
-         x %= 8;
-         y %= 8;
-         z %= 9;
+         auto& s = macrocosm(*interp_get_app()).sector();
 
-         macrocosm(*interp_get_app()).sector().set_block({x, y, z}, type);
+         x %= s.size().x;
+         y %= s.size().y;
+         z %= s.size().z;
+
+         s.set_block({x, y, z}, type);
 
          return L_NIL;
      }},

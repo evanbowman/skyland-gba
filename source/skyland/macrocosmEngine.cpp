@@ -368,6 +368,7 @@ template <u32 inflate> struct Sector
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
         switch (source.persistent().shape_) {
+        case terrain::Sector::Shape::reserved_important_never_use:
         case terrain::Sector::Shape::freebuild_wide:
         case terrain::Sector::Shape::freebuild_flat:
         case terrain::Sector::Shape::freebuild:
@@ -546,6 +547,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
                 dest->restore(s.p_.p_, s.blocks_.pillar_);
                 break;
 
+            case terrain::Sector::Shape::reserved_important_never_use:
             case terrain::Sector::Shape::freebuild_wide:
             case terrain::Sector::Shape::freebuild_flat:
             case terrain::Sector::Shape::freebuild:
@@ -660,6 +662,9 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
                 allocate_dynamic<terrain::FreebuildSector>("sector-mem",
                                                            coord));
             return &*data_->other_sectors_.back();
+
+        case terrain::Sector::Shape::reserved_important_never_use:
+            break;
         }
 
         return nullptr;
@@ -672,7 +677,8 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
         s->set_name(n);
         return s;
     } else {
-        Platform::fatal("failed to allocate sector!");
+        Platform::fatal(format("failed to allocate sector! %",
+                               (int)shape).c_str());
     }
     return nullptr;
 }
@@ -1489,6 +1495,7 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::lumber_spawn);
         result.push_back(Type::sunflowers);
         result.push_back(Type::tulips);
+        result.push_back(Type::wool);
         remove_self();
     };
 
