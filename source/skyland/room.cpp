@@ -724,7 +724,15 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
 
     auto& mt = *load_metaclass(m);
     if (mt->size() not_eq sz) {
-        Platform::fatal("attempt to transmute room of differing size");
+        Platform::fatal(format("attempt to transmute room "
+                               "of differing size (%:% %), "
+                               "(%:% %)",
+                               mt->name(),
+                               mt->size().x,
+                               mt->size().y,
+                               name(),
+                               size().x,
+                               size().y).c_str());
     }
     mt->construct(address, island, pos);
 
