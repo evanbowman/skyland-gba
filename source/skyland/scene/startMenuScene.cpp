@@ -125,6 +125,85 @@ static const char* fb_save_file = "/save/fbld.dat";
 
 
 
+class GenerateAgainScene : public macro::MacrocosmScene
+{
+public:
+
+    void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev) override
+    {
+        StringBuffer<30> text(SYSTR(repeat_query)->c_str());
+
+        auto st = calc_screen_tiles(pfrm);
+
+        const int count = st.x - text_->len();
+        for (int i = 0; i < count; ++i) {
+            pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        }
+
+        for (int i = 0; i < st.x; ++i) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        }
+
+        yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+        no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+
+        yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+        no_text_->assign(SYSTR(salvage_option_B)->c_str());
+
+        for (int i = 23; i < st.x; ++i) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
+        }
+
+        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+
+        text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+    }
+
+
+    void exit(Platform& pfrm, macro::EngineImpl&, Scene& prev) override
+    {
+        text_.reset();
+        yes_text_.reset();
+        no_text_.reset();
+
+        const auto st = calc_screen_tiles(pfrm);
+        for (int x = 0; x < st.x; ++x) {
+            pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
+            pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
+            pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
+            pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
+        }
+    }
+
+
+    virtual ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    {
+        if (player.key_down(pfrm, Key::action_1)) {
+            pfrm.speaker().play_sound("button_wooden", 3);
+            auto& current = state.sector();
+            current.generate_terrain(160, 1);
+            auto sz = current.size();
+            current.set_cursor({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
+            return null_scene();
+        }
+        if (player.key_down(pfrm, Key::action_2)) {
+            return scene_pool::alloc<macro::SelectorScene>();
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    std::optional<Text> text_;
+    std::optional<Text> yes_text_;
+    std::optional<Text> no_text_;
+};
+
+
+
 ScenePtr<Scene>
 StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -416,9 +495,13 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                                [&pfrm, &app]() {
                                    auto& current = macrocosm(app).sector();
                                    current.generate_terrain(160, 1);
+                                   auto sz = current.size();
+                                   current.set_cursor({u8(sz.x / 2),
+                                                       u8(sz.y / 2),
+                                                       u8(sz.z / 2)});
                                    pfrm.screen().schedule_fade(0.f);
                                    pfrm.screen().pixelate(0);
-                                   return scene_pool::alloc<macro::SelectorScene>();
+                                   return scene_pool::alloc<GenerateAgainScene>();
                                },
                                cut);
 

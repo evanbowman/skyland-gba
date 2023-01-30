@@ -182,7 +182,7 @@ Copyright ©2021-%
 year:
 create block:
 build improvement:
-harvest:
+remove:
 :rotate
 :raise
 :layers
@@ -463,7 +463,6 @@ For more help, scroll right on the title screen and open the tutorial viewer!
 Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
 You don't have any DLC installed!
 hold A to erase!
-Set piston direction:
 power outage!
 castle may be friendly!
 out of pauses!
@@ -495,5 +494,6 @@ You've just loaded a saved game. Each adventure mode save may only be restored o
 ok
 don't show again
 retry
+generate again?
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
 abcdefghijklmnopqrstuvwxyz- ()0123456789

@@ -573,8 +573,6 @@ enum class SystemString {
     no_dlc_prompt,
     dlc_erase_hint,
 
-    piston_setup,
-
     error_power_out,
     error_friendly,
     error_no_more_pauses,
@@ -620,6 +618,8 @@ enum class SystemString {
     do_not_show_again,
 
     retry,
+
+    repeat_query,
 
     __NOTICE__,
     patchfix_retain_alphabet,
