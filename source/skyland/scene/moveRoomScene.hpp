@@ -156,7 +156,7 @@ public:
                 unpersist_ui();
                 pfrm.speaker().play_sound("coin", 2);
                 app.set_coins(pfrm, app.coins() - 800);
-                state_ = State::move_block;
+                state_ = State::move_stuff;
                 yes_text_.reset();
                 no_text_.reset();
                 text_.reset();
@@ -172,10 +172,6 @@ public:
                     pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
             }
-            break;
-
-        case State::check_keys:
-            // Removed
             break;
 
         case State::move_stuff:
@@ -285,7 +281,7 @@ public:
                     pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
 
-                state_ = State::move_block;
+                state_ = State::move_stuff;
             }
             break;
 
@@ -408,7 +404,7 @@ public:
                 }
 
                 group_selection_.reset();
-                state_ = State::move_block;
+                state_ = State::move_stuff;
                 break;
             }
             break;
@@ -696,7 +692,6 @@ private:
     enum class State {
         setup_prompt,
         prompt,
-        check_keys,
         move_stuff,
         move_block,
         select_group,
