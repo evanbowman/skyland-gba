@@ -65,4 +65,5 @@
 
 
 (defn on-dialog-declined
-  (dialog "<c:engineer:1>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up..."))
+  (dialog "<c:engineer:1>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up...")
+  (exit))
