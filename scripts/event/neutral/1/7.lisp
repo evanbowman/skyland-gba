@@ -40,14 +40,14 @@
     (let ((cost (* (length r) 160)))
       (if (length r)
           (progn
-            (dialog "<c:engineer:1>Hello there! I've designed a special type of hull resistant to missiles. I'll replace all of your old hull blocks with stacked-hull, for a price of "
+            (dialog "<c:engineer:15>Hello there! I've designed a special type of hull resistant to missiles. I'll replace all of your old hull blocks with stacked-hull, for a price of "
                     (string cost)
                     "@, you interested?")
             (dialog-await-y/n)
             (defn on-dialog-accepted
               (if (< (coins) cost)
                   (progn
-                    (dialog "<c:engineer:1>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (coins) " " cost))
+                    (dialog "<c:engineer:15>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (coins) " " cost))
                     (exit))
                 (progn
                   (coins-add (* -1 cost))
@@ -56,14 +56,14 @@
                    (lambda
                      (room-mut (player) (get $0 1) (get $0 2) 'stacked-hull))
                    r)
-                  (dialog "<c:engineer:1> All finished! Your new hull blocks will take 75% less damage from missiles!")
+                  (dialog "<c:engineer:15> All finished! Your new hull blocks will take 75% less damage from missiles!")
                   (exit)))))
         (progn
-          (dialog "<c:engineer:1>Hello there! I've designed a special type of hull resistant to missiles. I could have upgraded your hull, but you don't have any! But I'm sure we'll meet again someday!")
+          (dialog "<c:engineer:15>Hello there! I've designed a special type of hull resistant to missiles. I could have upgraded your hull, but you don't have any! But I'm sure we'll meet again someday!")
           (exit))
         (setq on-converge nil)))))
 
 
 (defn on-dialog-declined
-  (dialog "<c:engineer:1>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up...")
+  (dialog "<c:engineer:15>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up...")
   (exit))
