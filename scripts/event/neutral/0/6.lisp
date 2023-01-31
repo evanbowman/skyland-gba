@@ -1,4 +1,7 @@
 
+(dialog "An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time...")
+
+
 (opponent-init 7 'neutral)
 
 (island-configure
