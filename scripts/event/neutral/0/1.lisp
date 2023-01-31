@@ -3,7 +3,7 @@
 ;;;
 
 
-(dialog "A heavily armed fortress approaches. Its captain demands to speak with you.")
+(dialog "A heavily armed pirate fortress approaches. Its captain demands to speak with you.")
 
 
 (opponent-init 5 'neutral)
@@ -26,26 +26,30 @@
 
 (setq on-converge
       (lambda
-        (dialog "The warship requests a tribute of 600@. Will you pay?")
-
+        (dialog "<c:redbeard:13>Aarrrgh!! You're tresspassing in my domain. Gimme 600@ or I'll blast your island to bits!")
         (dialog-await-y/n)
         (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
-        (if (< (coins) 600)
+(let ((scr
+       (lambda
+         (dialog $0)
+         (defn on-dialog-closed
+           (dialog "<c:goblin:2>Yesss captain!")
+           (defn on-dialog-closed
+             (dialog "(the transmission was cut)")
+             (setq on-dialog-closed nil)))
+         (opponent-mode 'hostile))))
+  (setq on-dialog-accepted
+        (lambda
+          (if (< (coins) 600)
+              (scr "<c:redbeard:13>That's not enough, load the cannons!!!")
             (progn
-              (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
-              (opponent-mode 'hostile))
-          (progn
-            (coins-add -600)
-            (dialog "The fortress' captain peers smugly from behind her spectacles. "
-                    "She's glad that you understand the nature of the situation.")
-            (exit)))))
+              (coins-add -600)
+              (dialog "<c:redbeard:13>Heh. I think you made the smart decision.")
+              (exit)))))
 
 
-(setq on-dialog-declined
-      (lambda
-        (opponent-mode 'hostile)
-        (dialog "The fortress begins charging its weapons...")))
+  (setq on-dialog-declined
+        (lambda
+          (scr "<c:redbeard:13>Whaatt!! Load the cannons!!!"))))
