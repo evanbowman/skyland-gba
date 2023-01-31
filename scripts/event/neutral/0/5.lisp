@@ -49,8 +49,7 @@
                     (infirmary . (2 . 2))
                     (transporter . (1 . 2))
                     (manufactory . (3 . 2))
-                    (backup-core . (2 . 2))
-                    (replicator . (2 . 4)))))
+                    (backup-core . (2 . 2)))))
         (let ((pick (sample opts)))
           (dialog
            (format

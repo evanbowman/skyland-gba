@@ -470,7 +470,7 @@ Beginner mode: auto-rewind:
 Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
-The Storm King's stronghold disintigrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.<b:ending_img_flattened>
+The Storm King's stronghold disintigrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
 session connecting...
 Failed to connect to multiplayer peer!
 The system will now enter a low-power mode. Press L+R+SELECT to wake!
