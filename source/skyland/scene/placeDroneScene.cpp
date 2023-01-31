@@ -258,7 +258,8 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     network::transmit(pfrm, spawn);
 
-
+                    globals().near_cursor_loc_ = origin_;
+                    globals().near_cursor_loc_.y--;
                     return scene_pool::alloc<ReadyScene>();
                 }
             }
