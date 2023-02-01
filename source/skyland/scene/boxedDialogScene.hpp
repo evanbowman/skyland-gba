@@ -73,6 +73,26 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    enum class DisplayMode {
+        animate_in,
+        busy,
+        key_released_check1,
+        key_released_check2,
+        wait,
+        done,
+        animate_out,
+        boolean_choice,
+        y_n_wait,
+        clear,
+    };
+
+
+    DisplayMode display_mode() const
+    {
+        return display_mode_;
+    }
+
+
 private:
     void process_command(Platform& pfrm, App& app);
 
@@ -90,18 +110,7 @@ private:
         u8 speed_ = 0;
     };
 
-    enum class DisplayMode {
-        animate_in,
-        busy,
-        key_released_check1,
-        key_released_check2,
-        wait,
-        done,
-        animate_out,
-        boolean_choice,
-        y_n_wait,
-        clear,
-    } display_mode_ = DisplayMode::animate_in;
+    DisplayMode display_mode_ = DisplayMode::animate_in;
 
     TextWriterState text_state_;
 
@@ -112,10 +121,6 @@ private:
     u8 allow_fastforward_ : 1;
     u8 wait_ = 0;
 
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
-    std::optional<UIMetric> coins_;
-    std::optional<Text> character_name_text_;
     bool choice_sel_ = true;
     bool img_view_ = false;
 
@@ -129,6 +134,11 @@ private:
             StringBuffer<32> name_;
             u16 image_ = 0;
         } character_;
+
+        std::optional<Text> yes_text_;
+        std::optional<Text> no_text_;
+        std::optional<UIMetric> coins_;
+        std::optional<Text> character_name_text_;
 
         DeferredScene next_scene_ = []() { return null_scene(); };
     };
@@ -188,7 +198,7 @@ public:
 
     void exit(Platform& pfrm, App& app, Scene& next) override final
     {
-        WorldScene::enter(pfrm, app, next);
+        WorldScene::enter(pfrm, app, next); // FIXME!
 
         dialog_scene_.exit(pfrm, app, next);
 
@@ -208,15 +218,151 @@ public:
             }
         }
 
+        if (dialog_scene_.display_mode() not_eq
+            BoxedDialogScene::DisplayMode::boolean_choice) {
+
+            // NOTE: the player class implements all of these key_held,
+            // test_key, etc. methods. But we can't use the player
+            // implementation here, because we could be in a tutorial, for
+            // example, where the game implements playback with keylogging, so
+            // we need to ask the platform implementation directly what the
+            // keystates are, rather than asking the player class, which may be
+            // pulling keystates from a data file.
+            auto key_held = [&](Key k,
+                                int timer_slot,
+                                Microseconds held_time)
+                            {
+                                if (pfrm.keyboard().pressed(k)) {
+                                    hold_timers_[timer_slot] += delta;
+                                } else {
+                                    hold_timers_[timer_slot] = 0;
+                                }
+                                return hold_timers_[timer_slot] >= held_time;
+                            };
+
+            auto key_held_reset = [&](int timer_slot, Microseconds decr)
+                                  {
+                                      if (hold_timers_[timer_slot] >= decr) {
+                                          hold_timers_[timer_slot] -= decr;
+                                      }
+                                  };
+
+            auto test_key =
+                [&](Key k, int timer_slot) {
+                    if (pfrm.keyboard().down_transition(k) or
+                        key_held(k,
+                                 timer_slot,
+                                 milliseconds(500))) {
+                        key_held_reset(timer_slot, milliseconds(100));
+                        return true;
+                    }
+                    return false;
+            };
+
+            if (is_far_camera()) {
+                if (not app.opponent_island()) {
+                    near_camera();
+                } else {
+                    auto& cursor_loc = globals().far_cursor_loc_;
+                    if (test_key(Key::right, 0)) {
+                        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+                            ++cursor_loc.x;
+                            camera_update_timer_ = milliseconds(500);
+                        }
+                    }
+                    if (test_key(Key::left, 1)) {
+                        if (cursor_loc.x > 0) {
+                            --cursor_loc.x;
+                            camera_update_timer_ = milliseconds(500);
+                        } else {
+                            near_camera();
+                            globals().near_cursor_loc_.y = cursor_loc.y;
+                            camera_update_timer_ = milliseconds(500);
+                        }
+                    }
+                    if (test_key(Key::up, 2) and cursor_loc.y > 5) {
+                        --cursor_loc.y;
+                        camera_update_timer_ = milliseconds(500);
+                    }
+                    if (test_key(Key::down, 3) and cursor_loc.y < 14) {
+                        ++cursor_loc.y;
+                        camera_update_timer_ = milliseconds(500);
+                    }
+                }
+            } else {
+                auto& cursor_loc = globals().near_cursor_loc_;
+                if (test_key(Key::right, 0)) {
+                    if (cursor_loc.x < app.player_island().terrain().size()) {
+                        ++cursor_loc.x;
+                        camera_update_timer_ = milliseconds(500);
+                    } else {
+                        far_camera();
+                        globals().far_cursor_loc_.y = cursor_loc.y;
+                        camera_update_timer_ = milliseconds(500);
+                    }
+                }
+                if (test_key(Key::left, 1)) {
+                    if (cursor_loc.x > 0) {
+                        --cursor_loc.x;
+                        camera_update_timer_ = milliseconds(500);
+                    }
+                }
+                if (test_key(Key::up, 2) and cursor_loc.y > 5) {
+                    --cursor_loc.y;
+                    camera_update_timer_ = milliseconds(500);
+                }
+                if (test_key(Key::down, 3) and cursor_loc.y < 14) {
+                    ++cursor_loc.y;
+                    camera_update_timer_ = milliseconds(500);
+                }
+            }
+        }
+
+        cursor_anim_timer_ += delta;
+        if (cursor_anim_timer_ > milliseconds(400)) {
+            cursor_anim_timer_ -= milliseconds(400);
+            cursor_anim_frame_ = not cursor_anim_frame_;
+        }
+
         app.environment().update(pfrm, app, delta);
 
         return dialog_scene_.update(pfrm, app, delta);
     }
 
 
+    void display(Platform& pfrm, App& app) override
+    {
+        Sprite cursor;
+        cursor.set_size(Sprite::Size::w16_h16);
+        cursor.set_alpha(Sprite::Alpha::translucent);
+        cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
+
+        auto origin = app.player_island().visual_origin();
+        auto cursor_loc = globals().near_cursor_loc_;
+
+        if (is_far_camera()) {
+            origin = app.opponent_island()->visual_origin();
+            cursor_loc = globals().far_cursor_loc_;
+        }
+
+        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
+        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
+
+        cursor.set_position(origin);
+
+        pfrm.screen().draw(cursor);
+
+        WorldScene::display(pfrm, app);
+    }
+
+
+    Microseconds hold_timers_[4] = {0};
+    Microseconds cursor_anim_timer_ = 0;
+
     bool pause_if_hostile_ = true;
     bool autorestore_music_volume_ = false;
 
+    u8 cursor_anim_frame_ = 0;
 
 private:
     BoxedDialogScene dialog_scene_;

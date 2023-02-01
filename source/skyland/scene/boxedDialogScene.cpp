@@ -116,9 +116,9 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         if (data_->character_.image_) {
             auto st = calc_screen_tiles(pfrm);
 
-            character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+            data_->character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
 
-            character_name_text_->assign(
+            data_->character_name_text_->assign(
                 data_->character_.name_.c_str(),
                 Text::OptColors{
                     {custom_color(0xf3ea55), custom_color(0x232390)}});
@@ -376,11 +376,11 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
         const auto img = 200 + (data_->character_.image_ - 1) * 16;
         draw_image(pfrm, img, 1, st.y - 6, 4, 4, Layer::overlay);
 
-        for (int i = 4; i < character_name_text_->len() + 1; ++i) {
+        for (int i = 4; i < data_->character_name_text_->len() + 1; ++i) {
             pfrm.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);
         }
 
-        for (int i = 1; i < character_name_text_->len() + 1; ++i) {
+        for (int i = 1; i < data_->character_name_text_->len() + 1; ++i) {
             pfrm.set_tile(Layer::overlay, i, st.y - 8, 114);
         }
 
@@ -395,13 +395,13 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
 
 
         pfrm.set_tile(
-            Layer::overlay, character_name_text_->len() + 1, st.y - 6, 115);
+            Layer::overlay, data_->character_name_text_->len() + 1, st.y - 6, 115);
 
         pfrm.set_tile(
-            Layer::overlay, character_name_text_->len() + 1, st.y - 8, 116);
+            Layer::overlay, data_->character_name_text_->len() + 1, st.y - 8, 116);
 
         pfrm.set_tile(
-            Layer::overlay, 1 + character_name_text_->len(), st.y - 7, 112);
+            Layer::overlay, 1 + data_->character_name_text_->len(), st.y - 7, 112);
     }
 }
 
@@ -416,9 +416,9 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (data_->character_.image_) {
         auto st = calc_screen_tiles(pfrm);
 
-        character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+        data_->character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
 
-        character_name_text_->assign(
+        data_->character_name_text_->assign(
             data_->character_.name_.c_str(),
             Text::OptColors{{custom_color(0xf3ea55), custom_color(0x232390)}});
     }
@@ -459,8 +459,8 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
-    coins_.reset();
-    character_name_text_.reset();
+    data_->coins_.reset();
+    data_->character_name_text_.reset();
 }
 
 
@@ -468,8 +468,8 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (coins_) {
-        coins_->update(pfrm, delta);
+    if (data_->coins_) {
+        data_->coins_->update(pfrm, delta);
     }
 
     auto animate_moretext_icon = [&] {
@@ -577,18 +577,18 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
 
-            coins_.emplace(pfrm,
-                           OverlayCoord{1, 2},
-                           146,
-                           (int)app.coins(),
-                           UIMetric::Align::left);
+            data_->coins_.emplace(pfrm,
+                                  OverlayCoord{1, 2},
+                                  146,
+                                  (int)app.coins(),
+                                  UIMetric::Align::left);
 
-            yes_text_.emplace(
+            data_->yes_text_.emplace(
                 pfrm,
                 "yes",
                 OverlayCoord{u8(st.x - 5), u8(st.y - (9 + y_start))});
 
-            no_text_.emplace(
+            data_->no_text_.emplace(
                 pfrm,
                 "no",
                 OverlayCoord{u8(st.x - 4), u8(st.y - (7 + y_start))});
