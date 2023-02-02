@@ -677,8 +677,8 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
         s->set_name(n);
         return s;
     } else {
-        Platform::fatal(format("failed to allocate sector! %",
-                               (int)shape).c_str());
+        Platform::fatal(
+            format("failed to allocate sector! %", (int)shape).c_str());
     }
     return nullptr;
 }

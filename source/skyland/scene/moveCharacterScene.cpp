@@ -39,7 +39,7 @@ namespace skyland
 
 
 
-MoveCharacterScene::MoveCharacterScene(CharacterId chr_id, bool near)
+ModifyCharacterScene::ModifyCharacterScene(CharacterId chr_id, bool near)
     : matrix_(allocate_dynamic<bool[16][16]>("chr-movement-slots")),
       chr_id_(chr_id), near_(near)
 {
@@ -54,7 +54,7 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
+void ModifyCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 
@@ -83,7 +83,7 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
@@ -163,7 +163,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 ScenePtr<Scene>
-MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
+ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::select)) {
         return null_scene();
@@ -295,10 +295,10 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             return scene_pool::alloc<InspectP2Scene>();
         }
-    } else if (pfrm.keyboard().pressed<Key::action_1>() and
+    } else if ((modify_name_ or pfrm.keyboard().pressed<Key::action_1>()) and
                not pfrm.network_peer().is_connected()) {
         chr_name_timer_ += delta;
-        if (chr_name_timer_ > milliseconds(800)) {
+        if (modify_name_ or chr_name_timer_ > milliseconds(800)) {
             auto id = chr_id_;
             if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
                 if (chr->owner() not_eq &app.player() or chr->is_replicant()) {
@@ -352,7 +352,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MoveCharacterScene::display(Platform& pfrm, App& app)
+void ModifyCharacterScene::display(Platform& pfrm, App& app)
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);

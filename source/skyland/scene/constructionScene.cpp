@@ -28,6 +28,7 @@
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "selectMenuScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
@@ -274,6 +275,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         fixup_cursor();
         return new_scene;
+    }
+
+    if (app.player().key_down(pfrm, Key::select)) {
+        return scene_pool::alloc<SelectMenuScene>();
     }
 
     if (not island(app)) {

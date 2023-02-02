@@ -34,6 +34,7 @@
 
 (autopilot
  '((1219 Select)
+   (20 A)
    (100 nil)
    (100 "<c:Milo:5> Hi again! Did you know that, in addition to building new blocks, you can move around existing blocks? I'll Show you!")
    (2070 Right)
@@ -123,7 +124,7 @@
    (250 A)
    (217 B)
    (1000 nil)
-   (100 "<c:Milo:5> In addition to moving single blocks, you can also press-and-hold A or START to pick and move whole regions of blocks!")
+   (100 "<c:Milo:5> In addition to moving single blocks, you can also press-and-hold A or START to pick and move whole regions of blocks! Let's make some terrain first to give us room to move stuff...")
    (2053 R)
    (768 Right)
    (200 Right)
@@ -175,4 +176,11 @@
    (183 Down)
    (1669 A)
    (2869 B)
+   (50 nil)
+   (100 "<c:Milo:5> Finally, in addition to holding the B button over an empty space, you can access the block movement system through the select menu.")
+   (500 Select)
+   (1000 Down)
+   (800 Select)
+   (600 B)
+   (500 nil)
    (100 "<c:Milo:5> And that's all there is to it! For the small fee of 800@, you can easily re-arrange your entire castle!")))

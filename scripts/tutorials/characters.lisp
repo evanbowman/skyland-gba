@@ -27,8 +27,9 @@
 
 (autopilot
  '((1000 nil)
-   (100 "<c:Milo:5>Now, I know we've had a great time chatting, but some of the crew have been slacking off and don't really know what to do! Let's give them some work! <d:2000> Oh! <d:400> Right... <d:400> You can't see them, can you!? Press the SELECT button to view the interior of your castle.")
+   (100 "<c:Milo:5>Now, I know we've had a great time chatting, but some of the crew have been slacking off and don't really know what to do! Let's give them some work! <d:2000> Oh! <d:400> Right... <d:400> You can't see them, can you!? Press the SELECT button to open the select menu and press select again to view the interior of your castle.")
    (3151 Select)
+   (800 A)
    (2733 Right)
    (100 nil)
    (100 "<c:Milo:5>That's better! To move your crew, select a character with your cursor, and press A. The game will display slots accessible to the character. Choose a slot, and press A again to confirm!")

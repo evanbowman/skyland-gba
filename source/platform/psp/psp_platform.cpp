@@ -131,15 +131,9 @@ void Platform::DynamicTexture::remap(u16 spritesheet_offset)
 }
 
 
-std::optional<DateTime> Platform::startup_time() const
+std::optional<DateTime> Platform::SystemClock::initial_time()
 {
     return {};
-}
-
-
-bool Platform::NetworkPeer::supported_by_device()
-{
-    return false;
 }
 
 
@@ -180,6 +174,7 @@ static g2dColor default_text_background_color;
 
 bool Platform::load_overlay_texture(const char* name)
 {
+    return false;
 }
 
 
@@ -199,77 +194,17 @@ static void set_overlay_tile(Platform& pfrm, int x, int y, u16 val)
 }
 
 
-void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
+void Platform::set_tile(Layer layer,
+                        u16 x,
+                        u16 y,
+                        u16 val,
+                        std::optional<u16> palette)
 {
-    switch (layer) {
-    case Layer::overlay:
-        if (x > 31 or y > 31) {
-            return;
-        }
-        if (val >= overlay_image_ram_capacity and not(val & (1 << 15))) {
-            return;
-        }
-        set_overlay_tile(*this, x, y, val);
-        break;
-
-    case Layer::map_1:
-        if (x > 15 or y > 19) {
-            return;
-        }
-        if (val >= map_image_ram_capacity) {
-            return;
-        }
-        // Only 37 possible tile indices, so this is fine.
-        map1_tiles[x][y] = val;
-        break;
-
-    case Layer::map_0:
-        if (x > 15 or y > 19) {
-            return;
-        }
-        if (val >= map_image_ram_capacity) {
-            return;
-        }
-        map0_tiles[x][y] = val;
-        break;
-
-    case Layer::background:
-        if (x > 31 or y > 32) {
-            return;
-        }
-        background_tiles[x][y] = val;
-        break;
-    }
 }
 
 
 u16 Platform::get_tile(Layer layer, u16 x, u16 y)
 {
-    switch (layer) {
-    case Layer::overlay:
-        if (x > 31 or y > 31) {
-            break;
-        }
-        return overlay_tiles[x][y];
-
-    case Layer::map_1:
-        if (x > 15 or y > 19) {
-            break;
-        }
-        return map1_tiles[x][y];
-
-    case Layer::map_0:
-        if (x > 15 or y > 19) {
-            break;
-        }
-        return map0_tiles[x][y];
-
-    case Layer::background:
-        if (x > 31 or y > 32) {
-            break;
-        }
-        return background_tiles[x][y];
-    }
     return 0;
 }
 
@@ -304,22 +239,17 @@ void Platform::fatal(const char* msg)
 }
 
 
-const char* Platform::get_opt(char opt)
+std::pair<const char*, u32> Platform::load_file(const char* folder,
+                                                const char* filename) const
 {
-    return nullptr;
-}
-
-
-const char* Platform::load_file_contents(const char* folder,
-                                         const char* filename) const
-{
-    return nullptr;
+    return {nullptr, 0};
 }
 
 
 TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
-                             TextureCpMapper mapper)
+                             const TextureMapping& mapping)
 {
+    return 0;
 }
 
 
@@ -502,23 +432,17 @@ Vec2<u32> Platform::Screen::size() const
 }
 
 
-void Platform::Screen::clear()
-{
-    g2dClear(::clear_color);
-
-    for (auto it = task_queue_.begin(); it not_eq task_queue_.end();) {
-        (*it)->run();
-        if ((*it)->complete()) {
-            (*it)->running_ = false;
-            task_queue_.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
 
 static Buffer<Sprite, 128> sprite_queue;
+
+
+
+void Platform::Screen::clear()
+{
+    sprite_queue.clear();
+    g2dClear(BLUE);
+}
+
 
 
 void Platform::Screen::draw(const Sprite& spr)
@@ -587,86 +511,86 @@ void Platform::Screen::pixelate(u8 amount,
 static void
 set_sprite_params(const Platform::Screen& screen, const Sprite& spr, int width)
 {
-    const auto view_center = screen.get_view().get_center();
+    // const auto view_center = screen.get_view().get_center();
 
-    const auto pos = spr.get_position() - spr.get_origin().cast<Float>();
+    // const auto pos = spr.get_position() - spr.get_origin().cast<Float>();
 
-    auto abs_position = pos - view_center;
+    // auto abs_position = pos - view_center;
 
-    if (spr.get_flip().x) {
-        abs_position.x += width / 2;
-    }
+    // if (spr.get_flip().x) {
+    //     abs_position.x += width / 2;
+    // }
 
-    if (spr.get_flip().y) {
-        abs_position.y += 32;
-    }
+    // if (spr.get_flip().y) {
+    //     abs_position.y += 32;
+    // }
 
-    if (auto rot = spr.get_rotation()) {
-        g2dSetCoordMode(G2D_CENTER);
-        abs_position.x += width / 4;
-        abs_position.y += 16;
-        g2dSetRotation(
-            360 * ((float)rot / std::numeric_limits<Sprite::Rotation>::max()));
-    } else {
-        g2dSetCoordMode(G2D_UP_LEFT);
-    }
+    // if (auto rot = spr.get_rotation()) {
+    //     g2dSetCoordMode(G2D_CENTER);
+    //     abs_position.x += width / 4;
+    //     abs_position.y += 16;
+    //     g2dSetRotation(
+    //         360 * ((float)rot / std::numeric_limits<Sprite::Rotation>::max()));
+    // } else {
+    //     g2dSetCoordMode(G2D_UP_LEFT);
+    // }
 
-    abs_position.x *= 2.f;
-    abs_position.y *= 2.f;
+    // abs_position.x *= 2.f;
+    // abs_position.y *= 2.f;
 
-    // Unless you want lots of graphical artifacts, better to constrain your
-    // graphics to pixel boundaries.
-    auto integer_pos = abs_position.cast<s32>();
+    // // Unless you want lots of graphical artifacts, better to constrain your
+    // // graphics to pixel boundaries.
+    // auto integer_pos = abs_position.cast<s32>();
 
-    g2dSetCoordXY(integer_pos.x, integer_pos.y);
-    if (spr.get_size() not_eq Sprite::Size::w32_h32) {
-        if (spr.get_texture_index() % 2) {
-            g2dSetCropXY(32, 0);
-            g2dSetCropWH(32, 64);
-        } else {
-            g2dSetCropXY(0, 0);
-            g2dSetCropWH(32, 64);
-        }
-    }
-    if (spr.get_alpha() == Sprite::Alpha::translucent) {
-        // Glib2d has a bug where you have to set the alpha twice.
-        g2dSetAlpha(128);
-        g2dSetAlpha(128);
-    }
-    if (spr.get_flip().x or spr.get_flip().y) {
-        Float x_scale = 1.f;
-        Float y_scale = 1.f;
+    // g2dSetCoordXY(integer_pos.x, integer_pos.y);
+    // if (spr.get_size() not_eq Sprite::Size::w32_h32) {
+    //     if (spr.get_texture_index() % 2) {
+    //         g2dSetCropXY(32, 0);
+    //         g2dSetCropWH(32, 64);
+    //     } else {
+    //         g2dSetCropXY(0, 0);
+    //         g2dSetCropWH(32, 64);
+    //     }
+    // }
+    // if (spr.get_alpha() == Sprite::Alpha::translucent) {
+    //     // Glib2d has a bug where you have to set the alpha twice.
+    //     g2dSetAlpha(128);
+    //     g2dSetAlpha(128);
+    // }
+    // if (spr.get_flip().x or spr.get_flip().y) {
+    //     Float x_scale = 1.f;
+    //     Float y_scale = 1.f;
 
-        if (spr.get_flip().x) {
-            x_scale = -1;
-        }
+    //     if (spr.get_flip().x) {
+    //         x_scale = -1;
+    //     }
 
-        if (spr.get_flip().y) {
-            y_scale = -1;
-        }
+    //     if (spr.get_flip().y) {
+    //         y_scale = -1;
+    //     }
 
-        g2dSetScale(x_scale, y_scale);
+    //     g2dSetScale(x_scale, y_scale);
 
-    } else if (spr.get_scale().x or spr.get_scale().y) {
+    // } else if (spr.get_scale().x or spr.get_scale().y) {
 
-        g2dSetCoordMode(G2D_CENTER);
-        integer_pos.x += width / 2;
-        integer_pos.y += 32;
-        g2dSetCoordXY(integer_pos.x, integer_pos.y);
+    //     g2dSetCoordMode(G2D_CENTER);
+    //     integer_pos.x += width / 2;
+    //     integer_pos.y += 32;
+    //     g2dSetCoordXY(integer_pos.x, integer_pos.y);
 
-        float x_scale = 1.f;
-        float y_scale = 1.f;
+    //     float x_scale = 1.f;
+    //     float y_scale = 1.f;
 
-        if (spr.get_scale().x < 0.f) {
-            x_scale = 1.f * (1.f - float(spr.get_scale().x * -1) / (500.f));
-        }
+    //     if (spr.get_scale().x < 0.f) {
+    //         x_scale = 1.f * (1.f - float(spr.get_scale().x * -1) / (500.f));
+    //     }
 
-        if (spr.get_scale().y < 0.f) {
-            y_scale = 1.f * (1.f - float(spr.get_scale().y * -1) / (500.f));
-        }
+    //     if (spr.get_scale().y < 0.f) {
+    //         y_scale = 1.f * (1.f - float(spr.get_scale().y * -1) / (500.f));
+    //     }
 
-        g2dSetScale(x_scale, y_scale);
-    }
+    //     g2dSetScale(x_scale, y_scale);
+    // }
 }
 
 
@@ -676,307 +600,307 @@ static void display_sprite(const Platform::Screen& screen, const Sprite& spr)
         return;
     }
 
-    g2dTexture temp;
-    temp.tw = 64;
-    temp.th = 64;
-    temp.h = 64;
-    temp.swizzled = false;
+    // g2dTexture temp;
+    // temp.tw = 64;
+    // temp.th = 64;
+    // temp.h = 64;
+    // temp.swizzled = false;
 
-    int width = 64;
+    // int width = 64;
 
-    if (spr.get_size() == Sprite::Size::w32_h32) {
-        temp.data = sprite_image_ram[spr.get_texture_index()].pixels_;
-    } else {
-        width = 32;
-        temp.data = sprite_image_ram[spr.get_texture_index() / 2].pixels_;
-    }
+    // if (spr.get_size() == Sprite::Size::w32_h32) {
+    //     temp.data = sprite_image_ram[spr.get_texture_index()].pixels_;
+    // } else {
+    //     width = 32;
+    //     temp.data = sprite_image_ram[spr.get_texture_index() / 2].pixels_;
+    // }
 
-    temp.w = width;
+    // temp.w = width;
 
-    if (not(spr.get_mix().color_ not_eq ColorConstant::null and
-            spr.get_mix().amount_ == 255)) {
+    // if (not(spr.get_mix().color_ not_eq ColorConstant::null and
+    //         spr.get_mix().amount_ == 255)) {
 
-        g2dBeginRects(&temp);
+    //     g2dBeginRects(&temp);
 
-        set_sprite_params(screen, spr, width);
+    //     set_sprite_params(screen, spr, width);
 
-        g2dAdd();
-        g2dEnd();
-    }
+    //     g2dAdd();
+    //     g2dEnd();
+    // }
 
-    if (spr.get_mix().color_ not_eq ColorConstant::null) {
+    // if (spr.get_mix().color_ not_eq ColorConstant::null) {
 
-        if (spr.get_size() == Sprite::Size::w32_h32) {
-            temp.data = sprite_image_mask[spr.get_texture_index()].pixels_;
-        } else {
-            width = 32;
-            temp.data = sprite_image_mask[spr.get_texture_index() / 2].pixels_;
-        }
+    //     if (spr.get_size() == Sprite::Size::w32_h32) {
+    //         temp.data = sprite_image_mask[spr.get_texture_index()].pixels_;
+    //     } else {
+    //         width = 32;
+    //         temp.data = sprite_image_mask[spr.get_texture_index() / 2].pixels_;
+    //     }
 
-        g2dBeginRects(&temp);
+    //     g2dBeginRects(&temp);
 
-        set_sprite_params(screen, spr, width);
+    //     set_sprite_params(screen, spr, width);
 
-        g2dSetColor(make_color((int)spr.get_mix().color_, 255));
+    //     g2dSetColor(make_color((int)spr.get_mix().color_, 255));
 
-        g2dSetAlpha(spr.get_mix().amount_);
-        g2dSetAlpha(spr.get_mix().amount_);
+    //     g2dSetAlpha(spr.get_mix().amount_);
+    //     g2dSetAlpha(spr.get_mix().amount_);
 
-        g2dAdd();
-        g2dEnd();
-    }
+    //     g2dAdd();
+    //     g2dEnd();
+    // }
 }
 
 
 static void display_map(const Vec2<Float>& view_offset)
 {
-    g2dTexture temp;
-    temp.tw = 64;
-    temp.th = 64;
-    temp.w = 64;
-    temp.h = 48;
-    temp.swizzled = false;
+    // g2dTexture temp;
+    // temp.tw = 64;
+    // temp.th = 64;
+    // temp.w = 64;
+    // temp.h = 48;
+    // temp.swizzled = false;
 
-    const auto fixed_offset = view_offset.cast<s32>();
+    // const auto fixed_offset = view_offset.cast<s32>();
 
-    auto disp_layer = [&](u8 map_tiles[16][20],
-                          TileMemory map_image_ram[map_image_ram_capacity]) {
-        // Because many tiles will be repeated, we are going to batch the draws
-        // for similar tiles.
+    // auto disp_layer = [&](u8 map_tiles[16][20],
+    //                       TileMemory map_image_ram[map_image_ram_capacity]) {
+    //     // Because many tiles will be repeated, we are going to batch the draws
+    //     // for similar tiles.
 
-        const int tiles_screen_capacity_heuristic = 48;
-        Buffer<Vec2<int>, tiles_screen_capacity_heuristic>
-            disp_buffers[map_image_ram_capacity];
+    //     const int tiles_screen_capacity_heuristic = 48;
+    //     Buffer<Vec2<int>, tiles_screen_capacity_heuristic>
+    //         disp_buffers[map_image_ram_capacity];
 
-        for (int x = 0; x < 16; ++x) {
-            const auto x_target = x * 64 - (fixed_offset.x);
-            if (x_target < -64 or x_target > 480) {
-                continue;
-            }
+    //     for (int x = 0; x < 16; ++x) {
+    //         const auto x_target = x * 64 - (fixed_offset.x);
+    //         if (x_target < -64 or x_target > 480) {
+    //             continue;
+    //         }
 
-            for (int y = 0; y < 20; ++y) {
-                const auto y_target = y * 48 - (fixed_offset.y);
-                if (y_target < -48 or y_target > 272) {
-                    continue;
-                }
+    //         for (int y = 0; y < 20; ++y) {
+    //             const auto y_target = y * 48 - (fixed_offset.y);
+    //             if (y_target < -48 or y_target > 272) {
+    //                 continue;
+    //             }
 
-                const auto tile = map_tiles[x][y];
-                if (tile not_eq 0) {
-                    disp_buffers[tile].push_back(Vec2<int>{x_target, y_target});
-                }
-            }
-        }
+    //             const auto tile = map_tiles[x][y];
+    //             if (tile not_eq 0) {
+    //                 disp_buffers[tile].push_back(Vec2<int>{x_target, y_target});
+    //             }
+    //         }
+    //     }
 
-        for (int i = 0; i < map_image_ram_capacity; ++i) {
-            auto& buffer = disp_buffers[i];
-            temp.data = map_image_ram[i].pixels_;
-            g2dBeginRects(&temp);
-            g2dSetCoordMode(G2D_UP_LEFT);
-            for (auto& pos : buffer) {
-                g2dSetCoordXY(pos.x, pos.y);
-                g2dAdd();
-            }
-            g2dEnd();
-        }
-    };
+    //     for (int i = 0; i < map_image_ram_capacity; ++i) {
+    //         auto& buffer = disp_buffers[i];
+    //         temp.data = map_image_ram[i].pixels_;
+    //         g2dBeginRects(&temp);
+    //         g2dSetCoordMode(G2D_UP_LEFT);
+    //         for (auto& pos : buffer) {
+    //             g2dSetCoordXY(pos.x, pos.y);
+    //             g2dAdd();
+    //         }
+    //         g2dEnd();
+    //     }
+    // };
 
-    disp_layer(map0_tiles, map0_image_ram);
-    disp_layer(map1_tiles, map1_image_ram);
+    // disp_layer(map0_tiles, map0_image_ram);
+    // disp_layer(map1_tiles, map1_image_ram);
 }
 
 
 static void display_overlay()
 {
-    g2dTexture temp;
-    temp.tw = 16;
-    temp.th = 16;
-    temp.w = 16;
-    temp.h = 16;
-    temp.swizzled = false;
+    // g2dTexture temp;
+    // temp.tw = 16;
+    // temp.th = 16;
+    // temp.w = 16;
+    // temp.h = 16;
+    // temp.swizzled = false;
 
-    const auto origin = (overlay_origin * 2.f).cast<s32>();
+    // const auto origin = (overlay_origin * 2.f).cast<s32>();
 
-    for (int x = 0; x < 32; ++x) {
-        for (int y = 0; y < 32; ++y) {
-            auto tile = overlay_tiles[x][y];
-            bool is_glyph = false;
-            std::optional<int> ext_palette;
+    // for (int x = 0; x < 32; ++x) {
+    //     for (int y = 0; y < 32; ++y) {
+    //         auto tile = overlay_tiles[x][y];
+    //         bool is_glyph = false;
+    //         std::optional<int> ext_palette;
 
-            if (tile & (1 << 15)) {
-                tile = tile & (~(1 << 15));
-                is_glyph = true;
+    //         if (tile & (1 << 15)) {
+    //             tile = tile & (~(1 << 15));
+    //             is_glyph = true;
 
-                if (tile & (1 << 10)) {
-                    ext_palette = (tile & (0xf << 11)) >> 11;
-                    tile = tile & (~(0xf << 11));
-                    tile = tile & (~(1 << 10));
-                }
-            }
+    //             if (tile & (1 << 10)) {
+    //                 ext_palette = (tile & (0xf << 11)) >> 11;
+    //                 tile = tile & (~(0xf << 11));
+    //                 tile = tile & (~(1 << 10));
+    //             }
+    //         }
 
-            if (tile) {
-                if (is_glyph) {
-                    temp.data = charset_image_ram[tile].pixels_;
-                } else {
-                    temp.data = overlay_image_ram[tile].pixels_;
-                }
-                g2dBeginRects(&temp);
-                g2dSetCoordMode(G2D_UP_LEFT);
-                g2dSetCoordXY(x * 16 - origin.x, y * 16 - origin.y);
-                if (is_glyph) {
-                    if (ext_palette) {
-                        auto& colors = font_extra_palettes[*ext_palette];
-                        g2dSetColor(make_color((int)colors.background_, 255));
-                    } else {
-                        g2dSetColor(default_text_background_color);
-                    }
-                }
-                g2dAdd();
-                g2dEnd();
+    //         if (tile) {
+    //             if (is_glyph) {
+    //                 temp.data = charset_image_ram[tile].pixels_;
+    //             } else {
+    //                 temp.data = overlay_image_ram[tile].pixels_;
+    //             }
+    //             g2dBeginRects(&temp);
+    //             g2dSetCoordMode(G2D_UP_LEFT);
+    //             g2dSetCoordXY(x * 16 - origin.x, y * 16 - origin.y);
+    //             if (is_glyph) {
+    //                 if (ext_palette) {
+    //                     auto& colors = font_extra_palettes[*ext_palette];
+    //                     g2dSetColor(make_color((int)colors.background_, 255));
+    //                 } else {
+    //                     g2dSetColor(default_text_background_color);
+    //                 }
+    //             }
+    //             g2dAdd();
+    //             g2dEnd();
 
-                if (is_glyph) {
-                    temp.data = charset_image_ram2[tile].pixels_;
-                    g2dBeginRects(&temp);
-                    g2dSetCoordMode(G2D_UP_LEFT);
-                    g2dSetCoordXY(x * 16 - origin.x, y * 16 - origin.y);
-                    if (ext_palette) {
-                        auto& colors = font_extra_palettes[*ext_palette];
-                        g2dSetColor(make_color((int)colors.foreground_, 255));
-                    } else {
-                        g2dSetColor(default_text_foreground_color);
-                    }
-                    g2dAdd();
-                    g2dEnd();
-                }
-            }
-        }
-    }
+    //             if (is_glyph) {
+    //                 temp.data = charset_image_ram2[tile].pixels_;
+    //                 g2dBeginRects(&temp);
+    //                 g2dSetCoordMode(G2D_UP_LEFT);
+    //                 g2dSetCoordXY(x * 16 - origin.x, y * 16 - origin.y);
+    //                 if (ext_palette) {
+    //                     auto& colors = font_extra_palettes[*ext_palette];
+    //                     g2dSetColor(make_color((int)colors.foreground_, 255));
+    //                 } else {
+    //                     g2dSetColor(default_text_foreground_color);
+    //                 }
+    //                 g2dAdd();
+    //                 g2dEnd();
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 
 static void display_background(const Vec2<Float>& view_offset)
 {
-    g2dTexture temp;
-    temp.tw = 64;
-    temp.th = 64;
-    temp.w = 16;
-    temp.h = 16;
-    temp.swizzled = false;
+    // g2dTexture temp;
+    // temp.tw = 64;
+    // temp.th = 64;
+    // temp.w = 16;
+    // temp.h = 16;
+    // temp.swizzled = false;
 
-    Buffer<Vec2<int>, 32 * 32> star_buffer_1;
-    Buffer<Vec2<int>, 32 * 32> star_buffer_2;
+    // Buffer<Vec2<int>, 32 * 32> star_buffer_1;
+    // Buffer<Vec2<int>, 32 * 32> star_buffer_2;
 
-    const auto fixed_offset = view_offset.cast<s32>();
+    // const auto fixed_offset = view_offset.cast<s32>();
 
-    for (int x = 0; x < 32; ++x) {
+    // for (int x = 0; x < 32; ++x) {
 
-        auto x_target = x * 16 - fixed_offset.x;
+    //     auto x_target = x * 16 - fixed_offset.x;
 
-        if (x_target > 480) {
-            x_target -= 32 * 16;
-            // we try to wrap the tile, and if it's still out of bounds, don't
-            // draw it.
-            if (x_target > 480) {
-                continue;
-            }
-        }
+    //     if (x_target > 480) {
+    //         x_target -= 32 * 16;
+    //         // we try to wrap the tile, and if it's still out of bounds, don't
+    //         // draw it.
+    //         if (x_target > 480) {
+    //             continue;
+    //         }
+    //     }
 
-        if (x_target < -16) {
-            x_target += 32 * 16;
-            // we try to wrap the tile, and if it's still out of bounds, don't
-            // draw it.
-            if (x_target < -16 or x_target > 480) {
-                continue;
-            }
-        }
+    //     if (x_target < -16) {
+    //         x_target += 32 * 16;
+    //         // we try to wrap the tile, and if it's still out of bounds, don't
+    //         // draw it.
+    //         if (x_target < -16 or x_target > 480) {
+    //             continue;
+    //         }
+    //     }
 
-        for (int y = 0; y < 32; ++y) {
+    //     for (int y = 0; y < 32; ++y) {
 
-            auto y_target = y * 16 - fixed_offset.y;
+    //         auto y_target = y * 16 - fixed_offset.y;
 
-            if (y_target > 272) {
-                y_target -= 32 * 16;
-                // we try to wrap the tile, and if it's still out of bounds, don't
-                // draw it.
-                if (y_target > 272) {
-                    continue;
-                }
-            }
+    //         if (y_target > 272) {
+    //             y_target -= 32 * 16;
+    //             // we try to wrap the tile, and if it's still out of bounds, don't
+    //             // draw it.
+    //             if (y_target > 272) {
+    //                 continue;
+    //             }
+    //         }
 
-            if (y_target < -16) {
-                y_target += 32 * 16;
-                // we try to wrap the tile, and if it's still out of bounds, don't
-                // draw it.
-                if (y_target < -16 or x_target > 272) {
-                    continue;
-                }
-            }
+    //         if (y_target < -16) {
+    //             y_target += 32 * 16;
+    //             // we try to wrap the tile, and if it's still out of bounds, don't
+    //             // draw it.
+    //             if (y_target < -16 or x_target > 272) {
+    //                 continue;
+    //             }
+    //         }
 
-            const auto tile = background_tiles[x][y];
+    //         const auto tile = background_tiles[x][y];
 
-            if (tile == 70) {
-                star_buffer_1.push_back(Vec2<int>{x_target, y_target});
-            } else if (tile == 71) {
-                star_buffer_2.push_back(Vec2<int>{x_target, y_target});
-            } else if (tile not_eq 60) {
-                const auto tile_block = tile / 12;
-                const auto block_offset = tile % 12;
-                const int sub_x = block_offset % 4;
-                const int sub_y = block_offset / 4;
-                temp.data = map0_image_ram[tile_block].pixels_;
-                g2dBeginRects(&temp);
-                g2dSetCoordMode(G2D_UP_LEFT);
-                g2dSetCoordXY(x_target, y_target);
-                g2dSetCropXY(sub_x * 16, sub_y * 16);
-                g2dSetCropWH(16, 16);
-                g2dAdd();
-                g2dEnd();
-            }
-        }
-    }
+    //         if (tile == 70) {
+    //             star_buffer_1.push_back(Vec2<int>{x_target, y_target});
+    //         } else if (tile == 71) {
+    //             star_buffer_2.push_back(Vec2<int>{x_target, y_target});
+    //         } else if (tile not_eq 60) {
+    //             const auto tile_block = tile / 12;
+    //             const auto block_offset = tile % 12;
+    //             const int sub_x = block_offset % 4;
+    //             const int sub_y = block_offset / 4;
+    //             temp.data = map0_image_ram[tile_block].pixels_;
+    //             g2dBeginRects(&temp);
+    //             g2dSetCoordMode(G2D_UP_LEFT);
+    //             g2dSetCoordXY(x_target, y_target);
+    //             g2dSetCropXY(sub_x * 16, sub_y * 16);
+    //             g2dSetCropWH(16, 16);
+    //             g2dAdd();
+    //             g2dEnd();
+    //         }
+    //     }
+    // }
 
-    if (not star_buffer_1.empty()) {
-        const auto tile_block = 70 / 12;
-        const auto block_offset = 70 % 12;
-        const int sub_x = block_offset % 4;
-        const int sub_y = block_offset / 4;
+    // if (not star_buffer_1.empty()) {
+    //     const auto tile_block = 70 / 12;
+    //     const auto block_offset = 70 % 12;
+    //     const int sub_x = block_offset % 4;
+    //     const int sub_y = block_offset / 4;
 
-        temp.data = map0_image_ram[tile_block].pixels_;
+    //     temp.data = map0_image_ram[tile_block].pixels_;
 
-        g2dBeginRects(&temp);
-        g2dSetCoordMode(G2D_UP_LEFT);
+    //     g2dBeginRects(&temp);
+    //     g2dSetCoordMode(G2D_UP_LEFT);
 
-        g2dSetCropXY(sub_x * 16, sub_y * 16);
-        g2dSetCropWH(16, 16);
+    //     g2dSetCropXY(sub_x * 16, sub_y * 16);
+    //     g2dSetCropWH(16, 16);
 
-        for (auto& pos : star_buffer_1) {
-            g2dSetCoordXY(pos.x, pos.y);
-            g2dAdd();
-        }
+    //     for (auto& pos : star_buffer_1) {
+    //         g2dSetCoordXY(pos.x, pos.y);
+    //         g2dAdd();
+    //     }
 
-        g2dEnd();
-    }
+    //     g2dEnd();
+    // }
 
-    if (not star_buffer_2.empty()) {
-        const auto tile_block = 71 / 12;
-        const auto block_offset = 71 % 12;
-        const int sub_x = block_offset % 4;
-        const int sub_y = block_offset / 4;
+    // if (not star_buffer_2.empty()) {
+    //     const auto tile_block = 71 / 12;
+    //     const auto block_offset = 71 % 12;
+    //     const int sub_x = block_offset % 4;
+    //     const int sub_y = block_offset / 4;
 
-        temp.data = map0_image_ram[tile_block].pixels_;
+    //     temp.data = map0_image_ram[tile_block].pixels_;
 
-        g2dBeginRects(&temp);
-        g2dSetCoordMode(G2D_UP_LEFT);
+    //     g2dBeginRects(&temp);
+    //     g2dSetCoordMode(G2D_UP_LEFT);
 
-        g2dSetCropXY(sub_x * 16, sub_y * 16);
-        g2dSetCropWH(16, 16);
+    //     g2dSetCropXY(sub_x * 16, sub_y * 16);
+    //     g2dSetCropWH(16, 16);
 
-        for (auto& pos : star_buffer_2) {
-            g2dSetCoordXY(pos.x, pos.y);
-            g2dAdd();
-        }
+    //     for (auto& pos : star_buffer_2) {
+    //         g2dSetCoordXY(pos.x, pos.y);
+    //         g2dAdd();
+    //     }
 
-        g2dEnd();
-    }
+    //     g2dEnd();
+    // }
 }
 
 
@@ -1030,24 +954,6 @@ void Platform::Screen::display()
 }
 
 
-void Platform::Screen::set_contrast(Contrast c)
-{
-    // TODO...
-}
-
-
-Contrast Platform::Screen::get_contrast() const
-{
-    return 0; // TODO...
-}
-
-
-void Platform::Screen::enable_night_mode(bool)
-{
-    // TODO...
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Speaker
 ////////////////////////////////////////////////////////////////////////////////
@@ -1070,12 +976,6 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 {
     // TODO
     return false;
-}
-
-
-void Platform::Speaker::set_position(const Vec2<Float>& position)
-{
-    // TODO
 }
 
 
@@ -1144,17 +1044,6 @@ void Platform::Logger::log(Severity severity, const char* msg)
 }
 
 
-void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
-{
-}
-
-
-void Platform::on_watchdog_timeout(WatchdogCallback callback)
-{
-    // TODO
-}
-
-
 Platform::Logger::Logger()
 {
 }
@@ -1163,13 +1052,6 @@ Platform::Logger::Logger()
 ////////////////////////////////////////////////////////////////////////////////
 // RemoteConsole
 ////////////////////////////////////////////////////////////////////////////////
-
-
-bool Platform::RemoteConsole::printline(const char* line)
-{
-    //    pspDebugScreenPrintf(line);
-    return false;
-}
 
 
 auto Platform::RemoteConsole::readline() -> std::optional<Line>
@@ -1190,12 +1072,6 @@ std::optional<Bitvector<int(Key::count)>> missed_keys;
 void Platform::Keyboard::rumble(bool)
 {
     // PSP hardware does not support rumble/vibrate.
-}
-
-
-void Platform::Keyboard::register_controller(const ControllerInfo& info)
-{
-    // ...
 }
 
 
@@ -1279,6 +1155,7 @@ void Platform::sleep(Frame frames)
 }
 
 
-void Platform::enable_feature(const char* feature_name, int value)
+void* Platform::system_call(const char* feature_name, void* arg)
 {
+    return nullptr;
 }

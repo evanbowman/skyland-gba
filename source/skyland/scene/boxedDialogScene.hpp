@@ -228,35 +228,38 @@ public:
             // we need to ask the platform implementation directly what the
             // keystates are, rather than asking the player class, which may be
             // pulling keystates from a data file.
-            auto key_held = [&](Key k,
-                                int timer_slot,
-                                Microseconds held_time)
-                            {
-                                if (pfrm.keyboard().pressed(k)) {
-                                    hold_timers_[timer_slot] += delta;
-                                } else {
-                                    hold_timers_[timer_slot] = 0;
-                                }
-                                return hold_timers_[timer_slot] >= held_time;
-                            };
+            auto key_held = [&](Key k, int timer_slot, Microseconds held_time) {
+                if (pfrm.keyboard().pressed(k)) {
+                    hold_timers_[timer_slot] += delta;
+                } else {
+                    hold_timers_[timer_slot] = 0;
+                }
+                return hold_timers_[timer_slot] >= held_time;
+            };
 
-            auto key_held_reset = [&](int timer_slot, Microseconds decr)
-                                  {
-                                      if (hold_timers_[timer_slot] >= decr) {
-                                          hold_timers_[timer_slot] -= decr;
-                                      }
-                                  };
+            auto key_held_reset = [&](int timer_slot, Microseconds decr) {
+                if (hold_timers_[timer_slot] >= decr) {
+                    hold_timers_[timer_slot] -= decr;
+                }
+            };
 
-            auto test_key =
-                [&](Key k, int timer_slot) {
-                    if (pfrm.keyboard().down_transition(k) or
-                        key_held(k,
-                                 timer_slot,
-                                 milliseconds(500))) {
-                        key_held_reset(timer_slot, milliseconds(100));
-                        return true;
-                    }
-                    return false;
+            int max = 0;
+            for (auto v : hold_timers_) {
+                if (v > max) {
+                    max = v;
+                }
+            }
+            for (auto& v : hold_timers_) {
+                v = max;
+            }
+
+            auto test_key = [&](Key k, int timer_slot) {
+                if (pfrm.keyboard().down_transition(k) or
+                    key_held(k, timer_slot, milliseconds(500))) {
+                    key_held_reset(timer_slot, milliseconds(100));
+                    return true;
+                }
+                return false;
             };
 
             if (is_far_camera()) {
@@ -265,7 +268,8 @@ public:
                 } else {
                     auto& cursor_loc = globals().far_cursor_loc_;
                     if (test_key(Key::right, 0)) {
-                        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+                        if (cursor_loc.x <
+                            app.opponent_island()->terrain().size()) {
                             ++cursor_loc.x;
                             camera_update_timer_ = milliseconds(500);
                         }
@@ -327,32 +331,6 @@ public:
         app.environment().update(pfrm, app, delta);
 
         return dialog_scene_.update(pfrm, app, delta);
-    }
-
-
-    void display(Platform& pfrm, App& app) override
-    {
-        Sprite cursor;
-        cursor.set_size(Sprite::Size::w16_h16);
-        cursor.set_alpha(Sprite::Alpha::translucent);
-        cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
-
-        auto origin = app.player_island().visual_origin();
-        auto cursor_loc = globals().near_cursor_loc_;
-
-        if (is_far_camera()) {
-            origin = app.opponent_island()->visual_origin();
-            cursor_loc = globals().far_cursor_loc_;
-        }
-
-        origin.x += Fixnum::from_integer(cursor_loc.x * 16);
-        origin.y += Fixnum::from_integer(cursor_loc.y * 16);
-
-        cursor.set_position(origin);
-
-        pfrm.screen().draw(cursor);
-
-        WorldScene::display(pfrm, app);
     }
 
 

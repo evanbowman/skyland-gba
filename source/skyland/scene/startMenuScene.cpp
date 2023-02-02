@@ -37,6 +37,7 @@
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
 #include "selectChallengeScene.hpp"
+#include "selectSampleScene.hpp"
 #include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/player/sandboxSpectatorPlayer.hpp"
@@ -45,7 +46,6 @@
 #include "skyland/skyland.hpp"
 #include "spectatorScene.hpp"
 #include "surrenderConfirmScene.hpp"
-#include "selectSampleScene.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
 
@@ -128,7 +128,6 @@ static const char* fb_save_file = "/save/fbld.dat";
 class GenerateAgainScene : public macro::MacrocosmScene
 {
 public:
-
     void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev) override
     {
         StringBuffer<30> text(SYSTR(repeat_query)->c_str());
@@ -483,27 +482,28 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     add_macro_share_opt();
 
-                    add_option(pfrm,
-                               SYSTR(start_menu_freebuild_samples)->c_str(),
-                               [&pfrm, &app]() {
-                                   return scene_pool::alloc<SelectSampleScene>();
-                               },
-                               cut);
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_freebuild_samples)->c_str(),
+                        [&pfrm, &app]() {
+                            return scene_pool::alloc<SelectSampleScene>();
+                        },
+                        cut);
 
-                    add_option(pfrm,
-                               SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
-                               [&pfrm, &app]() {
-                                   auto& current = macrocosm(app).sector();
-                                   current.generate_terrain(160, 1);
-                                   auto sz = current.size();
-                                   current.set_cursor({u8(sz.x / 2),
-                                                       u8(sz.y / 2),
-                                                       u8(sz.z / 2)});
-                                   pfrm.screen().schedule_fade(0.f);
-                                   pfrm.screen().pixelate(0);
-                                   return scene_pool::alloc<GenerateAgainScene>();
-                               },
-                               cut);
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
+                        [&pfrm, &app]() {
+                            auto& current = macrocosm(app).sector();
+                            current.generate_terrain(160, 1);
+                            auto sz = current.size();
+                            current.set_cursor(
+                                {u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
+                            pfrm.screen().schedule_fade(0.f);
+                            pfrm.screen().pixelate(0);
+                            return scene_pool::alloc<GenerateAgainScene>();
+                        },
+                        cut);
 
                     add_option(
                         pfrm,

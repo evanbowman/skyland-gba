@@ -39,6 +39,7 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "selectMenuScene.hpp"
 #include "selectTutorialScene.hpp"
 #include "selectWeaponGroupScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -569,6 +570,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (app.player().key_down(pfrm, Key::select)) {
+        return scene_pool::alloc<SelectMenuScene>();
+    }
 
     if (is_far_camera()) {
         return scene_pool::alloc<InspectP2Scene>();

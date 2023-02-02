@@ -14,7 +14,10 @@
 
 
 
-(let ((val (+ 500 (choice 500))))
+(let ((val (if (equal (diff) 0)
+               (+ 900 (choice 500))
+             (max (list (+ 500 (choice 500))
+                        (/ (coins) 3))))))
   (setq on-converge
         (lambda
           (dialog

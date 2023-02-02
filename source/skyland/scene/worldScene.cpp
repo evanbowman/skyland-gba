@@ -648,16 +648,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.system_call("swap-screens", nullptr);
     }
 
-
-    if (not app.player().key_pressed(pfrm, Key::start) and
-        app.player().key_down(pfrm, Key::select)) {
-        if (app.player_island().interior_visible()) {
-            show_island_exterior(pfrm, app, &app.player_island());
-        } else {
-            show_island_interior(pfrm, app, &app.player_island());
-        }
-    }
-
     if (not noreturn_ and app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
@@ -696,84 +686,90 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else {
         set_pause_icon(pfrm, gamespeed_icon(app.game_speed()));
 
-        if (pfrm.network_peer().is_connected()) {
+        if (pfrm.network_peer().is_connected() and not disable_ui_) {
             show_multiplayer_pauses_remaining(pfrm);
         }
     }
 
 
-    Island* disp_power = power_fraction_opponent_island_
-                             ? (app.opponent_island() ? app.opponent_island()
-                                                      : &app.player_island())
-                             : &app.player_island();
+    if (not disable_ui_) {
+        Island* disp_power =
+            power_fraction_opponent_island_
+                ? (app.opponent_island() ? app.opponent_island()
+                                         : &app.player_island())
+                : &app.player_island();
 
-    if (last_power_supplied_ not_eq disp_power->power_supply() or
-        last_power_used_ not_eq disp_power->power_drain()) {
+        if (last_power_supplied_ not_eq disp_power->power_supply() or
+            last_power_used_ not_eq disp_power->power_drain()) {
 
-        last_power_supplied_ = disp_power->power_supply();
-        last_power_used_ = disp_power->power_drain();
+            last_power_supplied_ = disp_power->power_supply();
+            last_power_used_ = disp_power->power_drain();
 
-        power_->set_value(
-            format_power_fraction(last_power_supplied_, last_power_used_));
-    }
+            power_->set_value(
+                format_power_fraction(last_power_supplied_, last_power_used_));
+        }
 
-    if (power_) {
-        power_->update(pfrm, delta);
+        if (power_) {
+            power_->update(pfrm, delta);
 
-        if (not persistent_ui_ and last_power_supplied_ >= last_power_used_) {
-            power_hide_timer_ += delta;
-            if (power_hide_timer_ > seconds(4)) {
-                power_.reset();
-                power_hide_timer_ = 0;
+            if (not persistent_ui_ and
+                last_power_supplied_ >= last_power_used_) {
+                power_hide_timer_ += delta;
+                if (power_hide_timer_ > seconds(4)) {
+                    power_.reset();
+                    power_hide_timer_ = 0;
+                }
+            }
+        } else {
+            if (persistent_ui_) {
+                power_.emplace(pfrm,
+                               OverlayCoord{1, 1},
+                               147,
+                               format_power_fraction(disp_power->power_supply(),
+                                                     disp_power->power_drain()),
+                               UIMetric::Align::left,
+                               UIMetric::Format::fraction);
             }
         }
-    } else {
-        if (persistent_ui_) {
-            power_.emplace(pfrm,
-                           OverlayCoord{1, 1},
-                           147,
-                           format_power_fraction(disp_power->power_supply(),
-                                                 disp_power->power_drain()),
-                           UIMetric::Align::left,
-                           UIMetric::Format::fraction);
-        }
-    }
 
-    if (disp_power->power_drain() > disp_power->power_supply()) {
-        // If the player's island power drain exceeds supply, make the UI
-        // sticky, so the player knows why his/her weapons aren't doing
-        // anything.
-        persist_ui();
-    }
-
-    if (last_coins_ not_eq app.coins()) {
-        coins_.emplace(pfrm,
-                       OverlayCoord{1, 2},
-                       146,
-                       (int)app.coins(),
-                       UIMetric::Align::left);
-
-        coins_->set_value(app.coins());
-        last_coins_ = app.coins();
-    }
-
-    if (coins_) {
-        coins_->update(pfrm, delta);
-
-        if (not persistent_ui_) {
-            coin_hide_timer_ += delta;
-            if (coin_hide_timer_ > seconds(4)) {
-                coins_.reset();
-                coin_hide_timer_ = 0;
+        if (disp_power->power_drain() > disp_power->power_supply()) {
+            // If the player's island power drain exceeds supply, make the UI
+            // sticky, so the player knows why his/her weapons aren't doing
+            // anything.
+            if (not disable_ui_) {
+                persist_ui();
             }
         }
-    } else {
-        if (persistent_ui_) {
+
+        if (last_coins_ not_eq app.coins()) {
             coins_.emplace(pfrm,
                            OverlayCoord{1, 2},
                            146,
                            (int)app.coins(),
                            UIMetric::Align::left);
+
+            coins_->set_value(app.coins());
+            last_coins_ = app.coins();
+        }
+
+        if (coins_) {
+            coins_->update(pfrm, delta);
+
+            if (not persistent_ui_) {
+                coin_hide_timer_ += delta;
+                if (coin_hide_timer_ > seconds(4)) {
+                    coins_.reset();
+                    coin_hide_timer_ = 0;
+                }
+            }
+        } else {
+            if (persistent_ui_) {
+                coins_.emplace(pfrm,
+                               OverlayCoord{1, 2},
+                               146,
+                               (int)app.coins(),
+                               UIMetric::Align::left);
+            }
         }
     }
 
@@ -841,39 +837,45 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     last_coins_ = app.coins();
 
-    // If we came from another world scene where the coins were visible...
     if (auto last = prev.cast_world_scene()) {
-        if (last->coins_) {
-            coins_.emplace(pfrm,
-                           OverlayCoord{1, 2},
-                           146,
-                           (int)app.coins(),
-                           UIMetric::Align::left);
-        }
 
-        Island* disp_power =
-            power_fraction_opponent_island_
-                ? (app.opponent_island() ? app.opponent_island()
-                                         : &app.player_island())
-                : &app.player_island();
-
-
-        if (last->power_) {
-            power_.emplace(pfrm,
-                           OverlayCoord{1, 1},
-                           147,
-                           format_power_fraction(disp_power->power_supply(),
-                                                 disp_power->power_drain()),
-                           UIMetric::Align::left,
-                           UIMetric::Format::fraction);
-        }
-
-        if (power_fraction_opponent_island_) {
-            last_power_supplied_ = disp_power->power_supply();
-            last_power_used_ = disp_power->power_drain();
+        if (disable_ui_) {
+            last->coins_.reset();
+            last->power_.reset();
         } else {
-            last_power_supplied_ = last->last_power_supplied_;
-            last_power_used_ = last->last_power_used_;
+            // If we came from another world scene where the coins were visible...
+            if (last->coins_) {
+                coins_.emplace(pfrm,
+                               OverlayCoord{1, 2},
+                               146,
+                               (int)app.coins(),
+                               UIMetric::Align::left);
+            }
+
+            Island* disp_power =
+                power_fraction_opponent_island_
+                    ? (app.opponent_island() ? app.opponent_island()
+                                             : &app.player_island())
+                    : &app.player_island();
+
+
+            if (last->power_) {
+                power_.emplace(pfrm,
+                               OverlayCoord{1, 1},
+                               147,
+                               format_power_fraction(disp_power->power_supply(),
+                                                     disp_power->power_drain()),
+                               UIMetric::Align::left,
+                               UIMetric::Format::fraction);
+            }
+
+            if (power_fraction_opponent_island_) {
+                last_power_supplied_ = disp_power->power_supply();
+                last_power_used_ = disp_power->power_drain();
+            } else {
+                last_power_supplied_ = last->last_power_supplied_;
+                last_power_used_ = last->last_power_used_;
+            }
         }
     }
 }

@@ -116,7 +116,8 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         if (data_->character_.image_) {
             auto st = calc_screen_tiles(pfrm);
 
-            data_->character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+            data_->character_name_text_.emplace(pfrm,
+                                                OverlayCoord{1, u8(st.y - 7)});
 
             data_->character_name_text_->assign(
                 data_->character_.name_.c_str(),
@@ -394,14 +395,20 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, 0, st.y - 8, 121);
 
 
-        pfrm.set_tile(
-            Layer::overlay, data_->character_name_text_->len() + 1, st.y - 6, 115);
+        pfrm.set_tile(Layer::overlay,
+                      data_->character_name_text_->len() + 1,
+                      st.y - 6,
+                      115);
 
-        pfrm.set_tile(
-            Layer::overlay, data_->character_name_text_->len() + 1, st.y - 8, 116);
+        pfrm.set_tile(Layer::overlay,
+                      data_->character_name_text_->len() + 1,
+                      st.y - 8,
+                      116);
 
-        pfrm.set_tile(
-            Layer::overlay, 1 + data_->character_name_text_->len(), st.y - 7, 112);
+        pfrm.set_tile(Layer::overlay,
+                      1 + data_->character_name_text_->len(),
+                      st.y - 7,
+                      112);
     }
 }
 
@@ -416,7 +423,8 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (data_->character_.image_) {
         auto st = calc_screen_tiles(pfrm);
 
-        data_->character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+        data_->character_name_text_.emplace(pfrm,
+                                            OverlayCoord{1, u8(st.y - 7)});
 
         data_->character_name_text_->assign(
             data_->character_.name_.c_str(),

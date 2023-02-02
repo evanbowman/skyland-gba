@@ -509,7 +509,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
 
                         const auto ch_id = character->id();
 
-                        using Next = MoveCharacterScene;
+                        using Next = ModifyCharacterScene;
                         using Await = MultiplayerCoOpAwaitChrLockScene;
                         auto n =
                             scene_pool::make_deferred_scene<Next>(ch_id, near);
@@ -732,7 +732,8 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
                                mt->size().y,
                                name(),
                                size().x,
-                               size().y).c_str());
+                               size().y)
+                            .c_str());
     }
     mt->construct(address, island, pos);
 

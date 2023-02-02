@@ -32,6 +32,7 @@
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "selectMenuScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
@@ -155,6 +156,11 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
     } else {
+
+        if (app.player().key_down(pfrm, Key::select)) {
+            return scene_pool::alloc<SelectMenuScene>();
+        }
+
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;

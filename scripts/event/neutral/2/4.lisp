@@ -91,7 +91,10 @@
 
 
 
-(let ((val (+ 900 (choice 500))))
+(let ((val (if (equal (diff) 0)
+               (+ 900 (choice 500))
+             (max (list (+ 900 (choice 500))
+                        (/ (coins) 2))))))
   (setq on-converge
         (lambda
           (dialog

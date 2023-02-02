@@ -621,6 +621,21 @@ enum class SystemString {
 
     repeat_query,
 
+    sel_menu_view_interior,
+    sel_menu_view_exterior,
+    sel_menu_move_blocks,
+    sel_menu_move_crewmember,
+    sel_menu_name_crewmember,
+    sel_menu_weapon_halt,
+    sel_menu_weapon_target,
+    sel_menu_salvage_block,
+    sel_menu_pause,
+    sel_menu_unpause,
+    sel_menu_build,
+    sel_menu_back,
+    sel_menu_spook_bird,
+    sel_menu_describe_block,
+
     __NOTICE__,
     patchfix_retain_alphabet,
     count,

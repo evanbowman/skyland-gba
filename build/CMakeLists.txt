@@ -157,6 +157,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/startMenuScene.cpp
+  ${SOURCE_DIR}/skyland/scene/selectMenuScene.cpp
   ${SOURCE_DIR}/skyland/scene/placeDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/createFileScene.cpp

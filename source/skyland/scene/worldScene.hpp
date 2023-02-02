@@ -39,7 +39,9 @@ namespace skyland
 class WorldScene : public Scene
 {
 public:
-    WorldScene() : far_camera_(false), birds_drawn_(false), noreturn_(false)
+    WorldScene()
+        : far_camera_(false), birds_drawn_(false), noreturn_(false),
+          disable_ui_(false)
     {
     }
 
@@ -72,7 +74,7 @@ public:
     }
 
 
-    bool is_far_camera()
+    bool is_far_camera() const
     {
         return far_camera_;
     }
@@ -98,6 +100,12 @@ public:
     }
 
 
+    void disable_ui()
+    {
+        disable_ui_ = true;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
@@ -106,9 +114,9 @@ protected:
 
     void reset_gamespeed(Platform& pfrm, App& app);
 
-private:
     void set_pause_icon(Platform& pfrm, u16 icon);
 
+private:
     bool persistent_ui_ = false;
     Microseconds coin_hide_timer_ = 0;
     Microseconds power_hide_timer_ = 0;
@@ -119,6 +127,7 @@ private:
     bool far_camera_ : 1;
     bool birds_drawn_ : 1;
     bool noreturn_ : 1;
+    bool disable_ui_ : 1;
 
 protected:
     bool power_fraction_opponent_island_ = false;

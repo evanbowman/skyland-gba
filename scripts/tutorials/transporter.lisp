@@ -34,6 +34,7 @@
    (100 "<c:Milo:5>I almost forgot! I promised to explain boarding and combat a while back! We can defend ourselves by building cannons, but we can also create transporters, allowing us to raid other castles!")
    (500 Right)
    (484 Select)
+   (20 A)
    (2568 Right)
    (333 Right)
    (2401 Up)

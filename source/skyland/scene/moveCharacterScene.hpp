@@ -35,10 +35,10 @@ namespace skyland
 
 
 
-class MoveCharacterScene : public ActiveWorldScene
+class ModifyCharacterScene : public ActiveWorldScene
 {
 public:
-    MoveCharacterScene(CharacterId chr_id, bool near);
+    ModifyCharacterScene(CharacterId chr_id, bool near);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -49,6 +49,9 @@ public:
 
 
     void display(Platform&, App&) override;
+
+
+    bool modify_name_ = false;
 
 
 private:

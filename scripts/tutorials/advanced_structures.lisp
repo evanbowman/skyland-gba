@@ -24,6 +24,7 @@
 
 (autopilot
  '((1351 Select)
+   (20 A)
    (967 Right)
    (416 Right)
    (400 Right)

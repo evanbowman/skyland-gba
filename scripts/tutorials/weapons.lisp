@@ -41,6 +41,7 @@
 (autopilot
  '((1334 nil)
    (433 Select)
+   (20 A)
    (683 Right)
    (400 Right)
    (282 Right)

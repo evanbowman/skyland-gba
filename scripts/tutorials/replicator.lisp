@@ -29,6 +29,7 @@
 
 (autopilot
  '((700 Select)
+   (20 A)
    (1333 Right)
    (333 A)
    (166 Right)
