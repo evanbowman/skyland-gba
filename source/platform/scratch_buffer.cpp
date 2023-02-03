@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (C) 2022  Evan Bowman
@@ -144,16 +145,16 @@ void scratch_buffer_dump_sector(Platform& pfrm, int sector)
         return;
     }
 
-    static_assert(SCRATCH_BUFFER_SIZE % 40 == 0);
+    static_assert(SCRATCH_BUFFER_SIZE % 32 == 0);
 
     auto page = scratch_buffer_pool.cells()[sector];
 
     const u8* p = page.mem_.data();
 
 
-    for (int row = 0; row < SCRATCH_BUFFER_SIZE / 40; ++row) {
+    for (int row = 0; row < SCRATCH_BUFFER_SIZE / 32; ++row) {
         StringBuffer<200> out;
-        for (int i = 0; i < 40; ++i) {
+        for (int i = 0; i < 32; ++i) {
             const char* hex = "0123456789ABCDEF";
 
             out.push_back(hex[(*p & 0xf0) >> 4]);

@@ -27,7 +27,7 @@
 
 
 #if defined(__GBA__) or defined(__NDS__)
-#define SCRATCH_BUFFER_SIZE 2000
+#define SCRATCH_BUFFER_SIZE 2048
 #else
 #define SCRATCH_BUFFER_SIZE 9000
 #endif
@@ -43,7 +43,7 @@ struct ScratchBuffer
     Tag tag_;
 };
 
-static constexpr const int scratch_buffer_count = 86;
+static constexpr const int scratch_buffer_count = 84;
 using ScratchBufferPtr =
     Rc<ScratchBuffer,
        PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>>;

@@ -253,16 +253,13 @@ SelectMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene;
     }
 
-    if (app.game_mode() == App::GameMode::tutorial) {
-        // Erase the tutorial controller graphics while in this scene
-        for (int x = 20; x < 29; ++x) {
-            for (int y = 8; y < 16; ++y) {
+    for (u32 x = 0; x < 30; ++x) {
+        for (u32 y = 0; y < 20; ++y) {
+            if (x > opts_->longest_line_ or y > opts_->lines_.size()) {
                 pfrm.set_tile(Layer::overlay, x, y, 0);
             }
         }
     }
-
-    set_pause_icon(pfrm, 0);
 
     if ((is_far_camera() and not app.opponent_island()) or
         player(app).key_down(pfrm, Key::action_2)) {
