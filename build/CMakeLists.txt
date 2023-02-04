@@ -349,6 +349,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_dialog_fullscreen.s
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/stack_overflow_flattened.s
+    ${DATA_DIR}/pub_logo_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
     ${DATA_DIR}/tilesheet_fishing.s
     ${DATA_DIR}/overlay_large_numeral.s
@@ -719,6 +720,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background_macro 0 0 NO NO)
     add_background(background_macro_night 0 0 NO NO)
     add_background(background_title_screen 0 0 NO NO)
+    add_overlay(pub_logo 0 0 YES NO)
     add_overlay(stack_overflow 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_qr 0 0 NO NO)

@@ -7143,6 +7143,56 @@ void mb_server_setup_vram(Platform&);
 
 
 
+static void publisher_logo_anim(Platform& pfrm)
+{
+    pfrm.screen().schedule_fade(1);
+    pfrm.load_overlay_texture("pub_logo_flattened");
+    pfrm.fill_overlay(1);
+    draw_image(pfrm, 1, 0, 5, 30, 10, Layer::overlay);
+    pfrm.screen().clear();
+    pfrm.screen().display();
+    for (int i = 0; i < 15; ++i) {
+        if (i > 0) {
+            pfrm.screen().schedule_fade(float(1) / i,
+                                        ColorConstant::rich_black,
+                                        true,
+                                        true);
+        }
+        pfrm.screen().clear();
+        pfrm.screen().display();
+    }
+    pfrm.screen().schedule_fade(0);
+    for (int i = 0; i < 60; ++i) {
+        pfrm.screen().clear();
+        pfrm.screen().display();
+    }
+    int fadout_frames = 20;
+    for (int i = 0; i < fadout_frames; ++i) {
+        pfrm.screen().schedule_fade((Float(i) / fadout_frames),
+                                    ColorConstant::rich_black,
+                                    true,
+                                    true);
+
+        pfrm.screen().clear();
+        pfrm.screen().display();
+    }
+
+    pfrm.screen().schedule_fade(1,
+                                ColorConstant::rich_black,
+                                true,
+                                true);
+    pfrm.screen().clear();
+    pfrm.screen().display();
+
+    pfrm.fill_overlay(0);
+    for (int i = 0; i < 10; ++i) {
+        VBlankIntrWait();
+    }
+    pfrm.screen().schedule_fade(0);
+}
+
+
+
 Platform::Platform()
 {
     const bool mb_sent = false; // mb_send_rom((u16*)gSkyland_MB_ROMData,
@@ -7351,6 +7401,11 @@ Platform::Platform()
     init_video(screen());
 
     fill_overlay(0);
+
+    CONF_BOOL(show_publisher_logo);
+    if (show_publisher_logo) {
+        publisher_logo_anim(*this);
+    }
 
     bool is_gameboy_micro = false;
 
