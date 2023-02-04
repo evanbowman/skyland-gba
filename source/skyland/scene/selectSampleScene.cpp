@@ -302,7 +302,9 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().schedule_fade(1.f);
         pfrm.screen().schedule_fade(0.f);
 
-        return scene_pool::alloc<macro::SelectorScene>();
+        auto next = scene_pool::alloc<macro::SelectorScene>();
+        next->show_island_size();
+        return next;
     }
     }
 
