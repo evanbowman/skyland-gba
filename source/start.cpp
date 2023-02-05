@@ -85,7 +85,6 @@ static inline void main_loop(Platform& pf)
         }
     }
 
-
     BootScene::init(pf);
 
 

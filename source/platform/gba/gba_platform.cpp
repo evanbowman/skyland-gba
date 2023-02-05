@@ -894,6 +894,8 @@ static bool unlock_gameboy_player(Platform& pfrm)
         // successfully unlocked the gameboy player.
         if (*keys == 0x030F) {
             gbp_detected = true;
+        } else if (~(*keys) & KEY_B) {
+            break;
         }
 
         VBlankIntrWait();
@@ -7145,26 +7147,46 @@ void mb_server_setup_vram(Platform&);
 
 static void publisher_logo_anim(Platform& pfrm)
 {
-    pfrm.screen().schedule_fade(1);
-    pfrm.load_overlay_texture("pub_logo_flattened");
-    pfrm.fill_overlay(1);
-    draw_image(pfrm, 1, 0, 5, 30, 10, Layer::overlay);
+    pfrm.screen().schedule_fade(1,
+                                ColorConstant::silver_white,
+                                true,
+                                true);
+
     pfrm.screen().clear();
+    pfrm.screen().fade(1,
+                       ColorConstant::silver_white,
+                       {},
+                       true,
+                       true);
+    pfrm.load_overlay_texture("pub_logo_flattened");
     pfrm.screen().display();
+    bool skip = false;
+    volatile u32* keys = (volatile u32*)0x04000130;
     for (int i = 0; i < 15; ++i) {
-        if (i > 0) {
-            pfrm.screen().schedule_fade(float(1) / i,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        true);
+        pfrm.screen().schedule_fade(1.f - (Float(i) / 15),
+                                    ColorConstant::silver_white,
+                                    true,
+                                    true);
+        if (~(*keys) & KEY_B) {
+            skip = true;
         }
         pfrm.screen().clear();
         pfrm.screen().display();
+
+        if (i == 0) {
+            pfrm.fill_overlay(1);
+            draw_image(pfrm, 1, 0, 5, 30, 10, Layer::overlay);
+        }
     }
     pfrm.screen().schedule_fade(0);
-    for (int i = 0; i < 60; ++i) {
-        pfrm.screen().clear();
-        pfrm.screen().display();
+    if (not skip) {
+        for (int i = 0; i < 55; ++i) {
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            if (~(*keys) & KEY_B) {
+                break;
+            }
+        }
     }
     int fadout_frames = 20;
     for (int i = 0; i < fadout_frames; ++i) {
@@ -7398,14 +7420,16 @@ Platform::Platform()
     REG_KEYCNT =
         KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 
+    VBlankIntrWait();
+    screen().fade(1, ColorConstant::silver_white);
     init_video(screen());
-
-    fill_overlay(0);
 
     CONF_BOOL(show_publisher_logo);
     if (show_publisher_logo) {
         publisher_logo_anim(*this);
     }
+
+    fill_overlay(0);
 
     bool is_gameboy_micro = false;
 
