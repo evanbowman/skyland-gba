@@ -145,6 +145,35 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+void GlossaryViewerModule::load_filters(Platform& pfrm)
+{
+    Text heading(pfrm, OverlayCoord{1, 1});
+    heading.assign("- ");
+    heading.append(SYSTR(module_glossary)->c_str());
+    heading.append(" (");
+    heading.append(SYSTR(glossary_filters)->c_str());
+    heading.append(")");
+    heading.append(" -");
+    heading.__detach();
+
+    static const int opt_count = 2;
+    SystemString opts[opt_count] = { SystemString::filter_req_workshop,
+                                     SystemString::filter_req_manufactory };
+
+    int row = 4;
+    for (int i = 0; i < opt_count; ++i) {
+        Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
+        auto str = opts[i];
+        t.append(loadstr(pfrm, str)->c_str());
+        t.__detach();
+    }
+
+    pfrm.set_tile(Layer::overlay, 1, 4, 396);
+    filter_cursor_ = 0;
+}
+
+
+
 void GlossaryViewerModule::load_categories(Platform& pfrm)
 {
     Text heading(pfrm, OverlayCoord{1, 1});
@@ -154,7 +183,8 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
     heading.__detach();
 
     int row = 4;
-    for (int i = 0; i < (int)Room::Category::count; ++i) {
+    int i;
+    for (i = 0; i < (int)Room::Category::count; ++i) {
         Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
         auto category_str =
             (SystemString)(((int)SystemString::category_begin) + i);
@@ -162,7 +192,19 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
         t.__detach();
     }
 
-    pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+    {
+        Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2 + 1)});
+        auto category_str = SYSTR(glossary_filters);
+        t.append(category_str->c_str());
+        t.__detach();
+    }
+
+    if (cg_cursor_ == (int)Room::Category::count) {
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 396);
+    } else {
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+    }
+
 }
 
 
@@ -181,6 +223,65 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     switch (state_) {
+    case State::filters:
+        if (test_key(Key::up) and filter_cursor_ > 0) {
+            --filter_cursor_;
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            for (int y = 2; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
+        }
+
+        if (test_key(Key::down) and
+            filter_cursor_ < (2) - 1) {
+            ++filter_cursor_;
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            for (int y = 2; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, y, 0);
+            }
+
+            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+
+            auto [mt, ms] = room_metatable();
+
+            filter_buf_ = allocate_dynamic<FilterBuf>("filter-buf");
+
+            for (int i = 0; i < ms; ++i) {
+                const auto cond = mt[i]->properties();
+                switch (filter_cursor_) {
+                case 0:
+                    if (cond & RoomProperties::workshop_required) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                case 1:
+                    if (cond & RoomProperties::manufactory_required) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+                }
+            }
+
+            if (not (*filter_buf_)->empty()) {
+                state_ = State::view_filtered;
+                page_ = 0;
+                load_page(pfrm, (**filter_buf_)[0]);
+            }
+        }
+
+        break;
+
     case State::show_categories:
         if (test_key(Key::up) and cg_cursor_ > 0) {
             --cg_cursor_;
@@ -192,49 +293,85 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::down) and
-            cg_cursor_ < (int)Room::Category::count - 1) {
+            cg_cursor_ < (int)Room::Category::count) {
             ++cg_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
                 pfrm.set_tile(Layer::overlay, 1, y, 0);
             }
-            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+            if (cg_cursor_ == (int)Room::Category::count) {
+                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 396);
+            } else {
+                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+            }
+
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
-            state_ = State::view;
-            for (int x = 0; x < 30; ++x) {
-                for (int y = 0; y < 20; ++y) {
-                    pfrm.set_tile(Layer::overlay, x, y, 0);
+            if (cg_cursor_ == (int)Room::Category::count) {
+                state_ = State::filters;
+                for (int x = 0; x < 30; ++x) {
+                    for (int y = 0; y < 20; ++y) {
+                        pfrm.set_tile(Layer::overlay, x, y, 0);
+                    }
                 }
-            }
-
-            auto [mt, ms] = room_metatable();
-
-            page_ = 0;
-            for (int i = 0; i < ms; ++i) {
-                if (mt[i]->category() == (Room::Category)cg_cursor_) {
-                    break;
+                load_filters(pfrm);
+            } else {
+                state_ = State::view;
+                for (int x = 0; x < 30; ++x) {
+                    for (int y = 0; y < 20; ++y) {
+                        pfrm.set_tile(Layer::overlay, x, y, 0);
+                    }
                 }
-                ++page_;
-            }
 
-            filter_begin_ = page_;
-            filter_end_ = page_;
-            while (filter_end_ < ms and
-                   mt[filter_end_]->category() == (Room::Category)cg_cursor_) {
-                ++filter_end_;
-            }
-            if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
-                filter_end_ = ms;
-            }
+                auto [mt, ms] = room_metatable();
 
-            load_page(pfrm, page_);
+                page_ = 0;
+                for (int i = 0; i < ms; ++i) {
+                    if (mt[i]->category() == (Room::Category)cg_cursor_) {
+                        break;
+                    }
+                    ++page_;
+                }
+
+                filter_begin_ = page_;
+                filter_end_ = page_;
+                while (filter_end_ < ms and
+                       mt[filter_end_]->category() == (Room::Category)cg_cursor_) {
+                    ++filter_end_;
+                }
+                if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
+                    filter_end_ = ms;
+                }
+
+                load_page(pfrm, page_);
+            }
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             if (next_scene_) {
                 return (*next_scene_)();
             }
             return scene_pool::alloc<TitleScreenScene>(3);
+        }
+        break;
+
+    case State::view_filtered:
+        if (test_key(Key::right) and page_ < (int)(*filter_buf_)->size() - 1) {
+            load_page(pfrm, (**filter_buf_)[++page_]);
+        }
+
+        if (test_key(Key::left) and page_ > 0) {
+            load_page(pfrm, (**filter_buf_)[--page_]);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::show_categories;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            Text::platform_retain_alphabet(pfrm);
+            load_categories(pfrm);
         }
         break;
 

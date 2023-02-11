@@ -461,6 +461,9 @@ Raid and plunder castles for extra coins!
 If you lose a power-core, systems may shut down til you rebalance power.
 For more help, scroll right on the title screen and open the tutorial viewer!
 Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
+filters
+requires workshop
+requires manufactory
 You don't have any DLC installed!
 hold A to erase!
 power outage!

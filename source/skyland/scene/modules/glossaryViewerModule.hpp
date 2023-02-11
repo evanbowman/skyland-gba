@@ -91,6 +91,8 @@ private:
 
     void load_categories(Platform& pfrm);
 
+    void load_filters(Platform& pfrm);
+
 
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
@@ -102,15 +104,21 @@ private:
 
     enum class State {
         show_categories,
+        filters,
+        view_filtered,
         view,
         quickview,
     } state_ = State::show_categories;
 
     int page_ = 0;
     int cg_cursor_ = 0;
+    int filter_cursor_ = 0;
 
     int filter_begin_ = 0;
     int filter_end_ = 0;
+
+    using FilterBuf = Buffer<MetaclassIndex, 100>;
+    std::optional<DynamicMemory<FilterBuf>> filter_buf_;
 
     static Factory factory_;
 };

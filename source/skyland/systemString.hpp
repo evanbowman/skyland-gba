@@ -570,6 +570,10 @@ enum class SystemString {
     hint_tutorials,
     hint_boss,
 
+    glossary_filters,
+    filter_req_workshop,
+    filter_req_manufactory,
+
     no_dlc_prompt,
     dlc_erase_hint,
 
