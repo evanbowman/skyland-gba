@@ -571,10 +571,17 @@ enum class SystemString {
     hint_boss,
 
     glossary_filters,
-    filter_req_workshop,
+    filter_begin,
+    filter_req_workshop = filter_begin,
     filter_req_manufactory,
+    filter_habitable,
+    filter_ion_damage,
+    filter_highly_flammable,
+    filter_end,
 
-    no_dlc_prompt,
+    // Place no new enumerations here. (filter_end)
+
+    no_dlc_prompt = filter_end,
     dlc_erase_hint,
 
     error_power_out,

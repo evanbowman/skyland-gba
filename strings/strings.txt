@@ -464,6 +464,9 @@ Objective: defeat the Storm King! Build up your castle until you're strong enoug
 filters
 requires workshop
 requires manufactory
+habitable
+takes ion damage
+highly flammable
 You don't have any DLC installed!
 hold A to erase!
 power outage!

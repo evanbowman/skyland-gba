@@ -145,6 +145,12 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+static const int filter_opt_count =
+    (int)SystemString::filter_end -
+    (int)SystemString::filter_begin;
+
+
+
 void GlossaryViewerModule::load_filters(Platform& pfrm)
 {
     Text heading(pfrm, OverlayCoord{1, 1});
@@ -156,20 +162,15 @@ void GlossaryViewerModule::load_filters(Platform& pfrm)
     heading.append(" -");
     heading.__detach();
 
-    static const int opt_count = 2;
-    SystemString opts[opt_count] = { SystemString::filter_req_workshop,
-                                     SystemString::filter_req_manufactory };
-
     int row = 4;
-    for (int i = 0; i < opt_count; ++i) {
+    for (int i = 0; i < filter_opt_count; ++i) {
         Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
-        auto str = opts[i];
+        auto str = (SystemString)(i + (int)SystemString::filter_begin);
         t.append(loadstr(pfrm, str)->c_str());
         t.__detach();
     }
 
-    pfrm.set_tile(Layer::overlay, 1, 4, 396);
-    filter_cursor_ = 0;
+    pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
 }
 
 
@@ -234,7 +235,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::down) and
-            filter_cursor_ < (2) - 1) {
+            filter_cursor_ < filter_opt_count - 1) {
             ++filter_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -256,19 +257,45 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             filter_buf_ = allocate_dynamic<FilterBuf>("filter-buf");
 
+
+            static const auto offset = (int)SystemString::filter_begin;
+
             for (int i = 0; i < ms; ++i) {
                 const auto cond = mt[i]->properties();
-                switch (filter_cursor_) {
-                case 0:
+
+                switch ((SystemString)(filter_cursor_ + offset)) {
+                case SystemString::filter_req_workshop:
                     if (cond & RoomProperties::workshop_required) {
                         (*filter_buf_)->push_back(i);
                     }
                     break;
 
-                case 1:
+                case SystemString::filter_req_manufactory:
                     if (cond & RoomProperties::manufactory_required) {
                         (*filter_buf_)->push_back(i);
                     }
+                    break;
+
+                case SystemString::filter_habitable:
+                    if (cond & RoomProperties::habitable) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                case SystemString::filter_ion_damage:
+                    if (cond & RoomProperties::accepts_ion_damage) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                case SystemString::filter_highly_flammable:
+                    if (cond & RoomProperties::highly_flammable) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                default:
+                    Platform::fatal("invalid filter option");
                     break;
                 }
             }
@@ -278,6 +305,15 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 page_ = 0;
                 load_page(pfrm, (**filter_buf_)[0]);
             }
+        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::show_categories;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            Text::platform_retain_alphabet(pfrm);
+            load_categories(pfrm);
         }
 
         break;
@@ -315,6 +351,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm.set_tile(Layer::overlay, x, y, 0);
                     }
                 }
+                filter_cursor_ = 0;
                 load_filters(pfrm);
             } else {
                 state_ = State::view;
@@ -364,14 +401,13 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::action_2)) {
-            state_ = State::show_categories;
+            state_ = State::filters;
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
                     pfrm.set_tile(Layer::overlay, x, y, 0);
                 }
             }
-            Text::platform_retain_alphabet(pfrm);
-            load_categories(pfrm);
+            load_filters(pfrm);
         }
         break;
 
