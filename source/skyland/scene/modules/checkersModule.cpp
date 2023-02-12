@@ -197,8 +197,4 @@ CheckersModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-CheckersModule::Factory CheckersModule::factory_;
-
-
-
 } // namespace skyland

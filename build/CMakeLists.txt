@@ -103,6 +103,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/console.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
+  ${SOURCE_DIR}/skyland/dataCart.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/bulkTimer.cpp
   ${SOURCE_DIR}/skyland/loginToken.cpp
@@ -212,6 +213,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/dataCartModule.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
@@ -346,6 +348,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_qr.s
     ${DATA_DIR}/overlay_dialog.s
+    ${DATA_DIR}/overlay_datacart.s
     ${DATA_DIR}/overlay_dialog_fullscreen.s
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/stack_overflow_flattened.s
@@ -426,6 +429,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_creak.s
     ${DATA_DIR}/sound_build0.s
     ${DATA_DIR}/sound_cannon.s
+    ${DATA_DIR}/sound_insert_cart.s
     ${DATA_DIR}/sound_missile.s
     ${DATA_DIR}/sound_thunder_1.s
     ${DATA_DIR}/sound_thunder_2.s
@@ -721,6 +725,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background_macro_night 0 0 NO NO)
     add_background(background_title_screen 0 0 NO NO)
     add_overlay(pub_logo 0 0 YES NO)
+    add_overlay(overlay_datacart 0 0 NO NO)
     add_overlay(stack_overflow 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_qr 0 0 NO NO)

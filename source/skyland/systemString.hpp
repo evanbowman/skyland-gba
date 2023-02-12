@@ -217,6 +217,7 @@ enum class SystemString {
     module_datetime,
     module_feedback,
     module_bug_report,
+    module_cart_viewer,
 
     months,
 

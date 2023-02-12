@@ -214,9 +214,9 @@ Conf::String get_conf(const char* data, const char* section, const char* key)
 }
 
 
-Conf::Value Conf::get(const char* section, const char* key)
+
+Conf::Value Conf::get(const char* f, const char* section, const char* key)
 {
-    auto f = pfrm_.load_file_contents("", "boot.ini");
     if (not f) {
         return {};
     }
@@ -241,4 +241,12 @@ Conf::Value Conf::get(const char* section, const char* key)
     } else {
         return buf;
     }
+}
+
+
+
+Conf::Value Conf::get(const char* section, const char* key)
+{
+    auto f = pfrm_.load_file_contents("", "boot.ini");
+    return get(f, section, key);
 }

@@ -23,6 +23,7 @@
 #include "alloc_entity.hpp"
 #include "allocator.hpp"
 #include "configure_island.hpp"
+#include "dataCart.hpp"
 #include "eternal/eternal.hpp"
 #include "macrocosmEngine.hpp"
 #include "platform/flash_filesystem.hpp"
@@ -604,6 +605,43 @@ static const lisp::Binding script_api[] = {
          }
 
          return lisp::make_integer(count);
+     }},
+    {"cart-add",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         DataCartLibrary lib(*lisp::interp_get_pfrm());
+         lib.store(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
+
+         return L_NIL;
+     }},
+    {"cart-found?",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         DataCartLibrary lib(*lisp::interp_get_pfrm());
+         if (lib.load(L_LOAD_INT(0))) {
+             return L_INT(1);
+         }
+
+         return L_NIL;
+     }},
+    {"cart-info",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         auto& pfrm = *lisp::interp_get_pfrm();
+
+         DataCart cart(L_LOAD_INT(0));
+         lisp::ListBuilder list;
+
+         list.push_back(lisp::make_string(cart.name(pfrm).c_str()));
+         list.push_back(lisp::make_string(cart.subheading(pfrm).c_str()));
+
+         return list.result();
      }},
     {"key-bind",
      [](int argc) {

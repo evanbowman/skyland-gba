@@ -1,70 +1,77 @@
-;;;
-;;; neutral/0/1.lisp
-;;;
 
+(dialog "A distress call sounds over your radio! The remnants of a town appear, wrecked by war...")
 
-(dialog "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources...")
-
-
-
-(opponent-init 9 'neutral)
-
+(opponent-init 8 'neutral)
 
 (island-configure
  (opponent)
- '((power-core 0 13)
-   (manufactory 0 11)
-   (masonry 2 14 0)
-   (masonry 2 13 0)
-   (water-source 3 14)
-   (bridge 3 12)
-   (masonry 4 14 0)
-   (masonry 4 13 0)
-   (bridge 5 12)
-   (water-source 5 14)
-   (power-core 6 9)
-   (bronze-hull 6 11)
-   (masonry 6 13 0)
-   (masonry 6 14 0)
-   (workshop 7 11)
-   (masonry 7 13 0)
-   (water-source 7 14)
-   (masonry 8 13 0)
-   (masonry 8 14 0)))
+ '((hull 0 14)
+   (hull 0 13)
+   (torch 0 10)
+   (masonry 1 14)
+   (masonry 1 13)
+   (masonry 2 14)
+   (plundered-room 2 12)
+   (torch 3 9)
+   (masonry 3 14)
+   (plundered-room 3 12)
+   (masonry 4 14)
+   (power-core 5 13)))
+
+(defn on-fadein
+  (fire-new (opponent) 3 9)
+  (fire-new (opponent) 0 10)
+  (setq on-fadein nil))
 
 
-(defn on-converge
-  (let ((c (choice 2)))
-    (cond
-     ((equal c 0)
-      (let ((amt (+ 200 (choice 400))))
-        (coins-add amt)
+(chr-new (opponent) 1 12 'neutral 0)
+
+(setq on-converge
+      (lambda
         (dialog
-         (format
-          "Looks like someone already got here first. You collect %@."
-          amt))
+         "<c:girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!")
+
+        (setq on-dialog-closed
+              (lambda
+                (dialog "She seems harmless, invite her aboard?")
+                (dialog-await-y/n)
+                (setq on-dialog-closed '())))
+
+        (setq on-converge nil)))
+
+
+(setq on-dialog-accepted
+      (lambda
+        (let ((temp (chr-slots (player))))
+          (if temp
+              (progn
+                (setq temp (get temp (choice (length temp))))
+                (chr-new (player) (car temp) (cdr temp) 'neutral 0)
+                (chr-del (opponent) 1 12)
+                (dialog "The villager girl joined your crew!"))
+            (progn
+              (dialog "Sadly, there's no room...")
+              (defn on-dialog-closed
+                (dialog "<c:girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")
+                (defn on-dialog-closed
+                  (while (< (length (construction-sites (player) '(1 . 2))) 1)
+                    (terrain (player) (+ (terrain (player)) 1)))
+                  (sel-input '(1 . 2)
+                             "Place cargo bay (1x2):"
+                             (lambda
+                               (syscall "sound" "build0")
+                               (room-new (player) `(cargo-bay ,$1 ,$2))
+                               (chr-del (opponent) 1 12)
+                               (chr-new (player) $1 (+ 1 $2) 'neutral 0)
+                               (dialog "<c:girl:14>Wait, you're serious! I guess I asked for it haha...")
+                               (defn on-dialog-closed
+                                 (dialog "The villager girl joined your crew!")
+                                 (setq on-dialog-closed nil)
+                                 (exit)))))))))
+
         (exit)))
-     ((equal c 1)
-      (let ((opts '((workshop . (2 . 2))
-                    (infirmary . (2 . 2))
-                    (transporter . (1 . 2))
-                    (manufactory . (3 . 2))
-                    (backup-core . (2 . 2)))))
-        (let ((pick (sample opts)))
-          (dialog
-           (format
-            "After boarding, you find a completely intact %. Your crew asks you where to install it..." (car pick)))
-          (defn on-dialog-closed
-            (setq on-dialog-closed nil)
-            (while (not (construction-sites (player) (cdr pick)))
-              (terrain (player) (+ (terrain (player)) 1)))
-            (sel-input
-             (cdr pick)
-             (format "Pick a slot (%x%)"
-                     (car (cdr pick))
-                     (cdr (cdr pick)))
-             (lambda
-               (room-new (player) `(,(car pick) ,$1 ,$2))
-               (syscall "sound" "build0")
-               (dialog "All done!")
-               (setq on-dialog-closed exit))))))))))
+
+
+(setq on-dialog-declined
+      (lambda
+        (exit)))

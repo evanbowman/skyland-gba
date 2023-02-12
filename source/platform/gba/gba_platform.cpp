@@ -3590,6 +3590,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
 #include "data/sound_weapon_target.hpp"
+#include "data/sound_insert_cart.hpp"
 
 
 static const AudioTrack sounds[] = {
@@ -3634,7 +3635,8 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(seagull_1, sound_seagull_1),
     DEF_SOUND(seagull_2, sound_seagull_2),
-    DEF_SOUND(msg, sound_msg)};
+    DEF_SOUND(msg, sound_msg),
+    DEF_SOUND(insert_cart, sound_insert_cart)};
 
 
 static const AudioTrack* get_sound(const char* name)
@@ -7125,6 +7127,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::watchdog_disabled, false);
     } else if (str_eq(feature_name, "watchdog-off")) {
         set_gflag(GlobalFlag::watchdog_disabled, true);
+    } else if (str_eq(feature_name, "restart")) {
+        restart();
     }
 
     return nullptr;

@@ -21,6 +21,7 @@ public:
     using String = StringBuffer<31>;
     using Value = std::variant<std::monostate, Integer, String>;
 
+    Value get(const char* file_data, const char* section, const char* key);
     Value get(const char* section, const char* key);
 
     template <typename T> T expect(const char* section, const char* key)

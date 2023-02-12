@@ -91,6 +91,8 @@
 //;
 #include "data/pub_logo_flattened.h"
 //;
+#include "data/overlay_datacart.h"
+//;
 #include "data/stack_overflow_flattened.h"
 //;
 #include "data/overlay.h"
@@ -227,6 +229,8 @@ static const TextureData tile_textures[] = {
 static const TextureData overlay_textures[] = {
 
     TEXTURE_INFO(pub_logo_flattened),
+//;
+    TEXTURE_INFO(overlay_datacart),
 //;
     TEXTURE_INFO(stack_overflow_flattened),
 //;

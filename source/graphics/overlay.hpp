@@ -71,6 +71,11 @@ public:
     Text(const Text&) = delete;
     Text(Text&&);
 
+    static void print(Platform& pfrm,
+                      const char* msg,
+                      const OverlayCoord& coord,
+                      const OptColors& colors = {});
+
     ~Text();
 
     using OptColors = ::OptColors;

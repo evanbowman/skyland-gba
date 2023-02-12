@@ -243,6 +243,19 @@ Text::~Text()
 }
 
 
+
+void Text::print(Platform& pfrm,
+                 const char* msg,
+                 const OverlayCoord& coord,
+                 const OptColors& colors)
+{
+    Text t(pfrm, coord);
+    t.append(msg, colors);
+    t.__detach();
+}
+
+
+
 void Text::assign(int val, const OptColors& colors)
 {
     std::array<char, 40> buffer = {0};

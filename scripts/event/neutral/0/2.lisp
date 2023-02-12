@@ -36,4 +36,17 @@
 
         (coins-add temp)
 
-        (exit)))
+        (if (not (cart-found? 1))
+            (setq on-dialog-closed
+                  (lambda
+                    (dialog "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")
+                    (setq on-dialog-closed
+                          (lambda
+                            (syscall "sound" "click_digital_1")
+                            (cart-add 1)
+                            (dialog "You pick up a cart labled "
+                                    (car (cart-info 1))
+                                    "! (To load data carts, go to the extras room of the title screen!)")
+                            (setq on-dialog-closed exit)))))
+
+          (exit))))
