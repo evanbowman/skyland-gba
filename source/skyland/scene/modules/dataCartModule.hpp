@@ -69,6 +69,12 @@ public:
     ScenePtr<Scene> boot_cart(Platform& pfrm, int cart_index);
 
 
+    void set_index(int index)
+    {
+        cart_index_ = index;
+    }
+
+
 private:
 
     enum class State {
@@ -79,6 +85,7 @@ private:
         done,
         wait,
         booting,
+        boot,
         exit,
     } state_ = State::init;
 
@@ -88,7 +95,7 @@ private:
 
     std::optional<DataCartLibrary> carts_;
 
-    int max_carts_ = 1;
+    Microseconds wait_time_ = 0;
 
     static Factory factory_;
 };

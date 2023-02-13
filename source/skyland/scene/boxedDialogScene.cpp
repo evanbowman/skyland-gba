@@ -703,4 +703,20 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+ScenePtr<Scene> dialog_prompt(Platform& pfrm,
+                              SystemString systr,
+                              DeferredScene next)
+{
+    lisp::set_var("on-dialog-closed", L_NIL);
+    pfrm.screen().fade(0.95f);
+    pfrm.screen().fade(1.f);
+    auto dialog = allocate_dynamic<DialogString>("dialog-buffer");
+    *dialog = loadstr(pfrm, systr)->c_str();
+    auto s = scene_pool::alloc<BoxedDialogScene>(std::move(dialog), false);
+    s->set_next_scene(next);
+    return s;
+}
+
+
+
 } // namespace skyland

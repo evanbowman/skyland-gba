@@ -47,10 +47,12 @@ struct GlobalPersistentData
         developer_mode,
         tutorial_prompt,
         configured_clock,
-        sandbox_prompt,
+        sandbox_prompt, // set by lisp script
         freebuild_unlocked,
         difficulty_prompt,
         save_prompt_dont_remind_me,
+        datacarts_prompt,
+        datacarts_help_prompt, // set by lisp script
     };
 
     enum class Difficulty : u8 {

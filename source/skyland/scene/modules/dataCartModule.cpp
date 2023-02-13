@@ -2,6 +2,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "checkersModule.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
 
 
 
@@ -22,6 +23,17 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
         }
     }
 
+    // left arrow icon
+    pfrm.set_tile(Layer::overlay, 1, 8,
+                  index == 0 ? 107 : 105);
+
+    // right arrow icon
+    pfrm.set_tile(Layer::overlay,
+                  calc_screen_tiles(pfrm).x - 2,
+                  8,
+                  index == carts_->max_carts() - 1 ? 106 : 104);
+
+
     static const Text::OptColors colors{{ColorConstant::silver_white,
                                          custom_color(0x294a6b)}};
 
@@ -39,6 +51,23 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
         tmp.append(" location: ", colors);
         tmp.append(missing.get_label_string(pfrm, "location").c_str(),
                    colors);
+
+        draw_image(pfrm, 332, 5, 4, 20, 2, Layer::overlay);
+        for (int i = 6; i < 14; ++i) {
+            pfrm.set_tile(Layer::overlay, 6, i, 384);
+            pfrm.set_tile(Layer::overlay, 23, i, 372);
+        }
+        for (int i = 7; i < 23; ++i) {
+            pfrm.set_tile(Layer::overlay, i, 14, 375);
+        }
+        pfrm.set_tile(Layer::overlay, 6, 14, 373);
+        pfrm.set_tile(Layer::overlay, 23, 14, 374);
+
+        draw_image(pfrm, 376, 14, 7, 2, 4, Layer::overlay);
+
+        Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 12},
+                    colors);
+
     } else {
         draw_image(pfrm, 112, 5, 4, 20, 11, Layer::overlay);
 
@@ -84,7 +113,6 @@ void DataCartModule::enter(Platform& pfrm, App&, Scene& prev)
 void DataCartModule::exit(Platform& pfrm, App&, Scene& next)
 {
     pfrm.fill_overlay(0);
-    pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, true, true);
 }
 
 
@@ -93,6 +121,15 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
                                        App& app,
                                        Microseconds delta)
 {
+    auto prompt_flag = GlobalPersistentData::datacarts_prompt;
+
+    if (not app.gp_.stateflags_.get(prompt_flag)) {
+        app.gp_.stateflags_.set(prompt_flag, true);
+        save::store_global_data(pfrm, app.gp_);
+        auto next = scene_pool::make_deferred_scene<DataCartModule>();
+        return dialog_prompt(pfrm, SystemString::dialog_datacarts_prompt, next);
+    }
+
     app.player().update(pfrm, app, delta);
 
     auto test_key = [&](Key k) {
@@ -106,7 +143,7 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
     switch (state_) {
     case State::init: {
         carts_.emplace(pfrm);
-        show_cart(pfrm, 0);
+        show_cart(pfrm, cart_index_);
         state_ = State::select;
         break;
     }
@@ -115,6 +152,7 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
         if (test_key(Key::right)) {
             if (cart_index_ < carts_->max_carts() - 1) {
                 ++cart_index_;
+                pfrm.speaker().play_sound("cursor_tick", 0);
                 show_cart(pfrm, cart_index_);
             }
 
@@ -122,6 +160,7 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
         if (test_key(Key::left)) {
             if (cart_index_ > 0) {
                 --cart_index_;
+                pfrm.speaker().play_sound("cursor_tick", 0);
                 show_cart(pfrm, cart_index_);
             }
         }
@@ -136,6 +175,12 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
                     pfrm.set_tile(Layer::overlay, x, 0, 0);
                     pfrm.set_tile(Layer::overlay, x, 20, 0);
                 }
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, 1, y, 0);
+                    pfrm.set_tile(Layer::overlay, 28, y, 0);
+                }
+            } else {
+                pfrm.speaker().play_sound("beep_error", 1);
             }
         }
         break;
@@ -171,14 +216,18 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
         pfrm.speaker().play_sound("insert_cart", 2);
         pfrm.set_overlay_origin(0, 0);
         state_ = State::wait;
+        wait_time_ = milliseconds(900);
         timer_ = 0;
         break;
 
     case State::wait:
         timer_ += delta;
-        if (timer_ > milliseconds(900)) {
+        if (timer_ > wait_time_) {
             if (auto cart = carts_->load(cart_index_)) {
                 auto str = format("booting %...", cart->name(pfrm).c_str());
+                if (cart->get_content_string(pfrm, "type") == "image") {
+                    str = "developing photos...";
+                }
                 auto margin = centered_text_margins(pfrm,
                                                     utf8::len(str.c_str()));
                 Text::print(pfrm, str.c_str(), {(u8)margin, 9});
@@ -191,13 +240,62 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
     case State::booting:
         timer_ += delta;
         if (timer_ > milliseconds(1500)) {
-            return boot_cart(pfrm, cart_index_);
+            pfrm.fill_overlay(0);
+            state_ = State::boot;
         }
         break;
+
+    case State::boot:
+        pfrm.load_overlay_texture("overlay");
+        return boot_cart(pfrm, cart_index_);
     }
 
     return null_scene();
 }
+
+
+
+class CartPhotoViewScene : public Scene
+{
+public:
+
+    CartPhotoViewScene(int cart_id) : cart_id_(cart_id)
+    {
+    }
+
+
+    void enter(Platform& pfrm, App&, Scene&) override
+    {
+        pfrm.enable_glyph_mode(false);
+        pfrm.fill_overlay(0);
+        pfrm.load_overlay_texture(DataCart(cart_id_).get_content_string(pfrm, "img").c_str());
+        draw_image(pfrm, 1, 4, 1, 22, 17, Layer::overlay);
+        pfrm.screen().schedule_fade(0);
+        pfrm.screen().schedule_fade(1);
+    }
+
+
+    void exit(Platform& pfrm, App&, Scene&) override
+    {
+        pfrm.enable_glyph_mode(true);
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds) override
+    {
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            pfrm.fill_overlay(0);
+            auto next = scene_pool::alloc<DataCartModule>();
+            next->set_index(cart_id_);
+            return next;
+        }
+
+        return null_scene();
+    }
+
+private:
+    int cart_id_;
+};
 
 
 
@@ -211,6 +309,9 @@ ScenePtr<Scene> DataCartModule::boot_cart(Platform& pfrm, int cart_index)
         pfrm.system_call("restart", nullptr);
     } else if (type == "checkers") {
         return scene_pool::alloc<CheckersModule>();
+    } else if (type == "image") {
+        pfrm.speaker().play_sound("tw_bell", 2);
+        return scene_pool::alloc<CartPhotoViewScene>(cart_index);
     }
 
     return scene_pool::alloc<TitleScreenScene>(3);

@@ -148,6 +148,11 @@ private:
 
 
 
+ScenePtr<Scene> dialog_prompt(Platform& pfrm,
+                              SystemString systr,
+                              DeferredScene next);
+
+
 class BoxedDialogSceneWS : public WorldScene
 {
 public:

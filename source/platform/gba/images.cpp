@@ -91,6 +91,12 @@
 //;
 #include "data/pub_logo_flattened.h"
 //;
+#include "data/traded_core_flattened.h"
+//;
+#include "data/photo_village_flattened.h"
+//;
+#include "data/photo_surface_flattened.h"
+//;
 #include "data/overlay_datacart.h"
 //;
 #include "data/stack_overflow_flattened.h"
@@ -229,6 +235,12 @@ static const TextureData tile_textures[] = {
 static const TextureData overlay_textures[] = {
 
     TEXTURE_INFO(pub_logo_flattened),
+//;
+    TEXTURE_INFO(traded_core_flattened),
+//;
+    TEXTURE_INFO(photo_village_flattened),
+//;
+    TEXTURE_INFO(photo_surface_flattened),
 //;
     TEXTURE_INFO(overlay_datacart),
 //;

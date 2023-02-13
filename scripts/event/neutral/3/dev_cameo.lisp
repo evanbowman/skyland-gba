@@ -37,6 +37,6 @@
                   (cart-add 0)
                   (dialog "You pick up a cart labled "
                           (get info 0)
-                          "! (To load data carts, go to the extras room of the title screen!)")
+                          "! (cartridge 1)")
                   (setq on-dialog-closed nil)
                   (exit))))))

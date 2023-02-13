@@ -34,7 +34,10 @@
 
 
 (defn on-converge
-  (let ((c (choice 2)))
+  (let ((c (choice 2))
+        (end (lambda
+               ((eval-file "/scripts/util/pickup_cart.lisp") 4
+         "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
     (cond
      ((equal c 0)
       (let ((amt (+ 200 (choice 400))))
@@ -43,7 +46,7 @@
          (format
           "Looks like someone already got here first. You collect %@."
           amt))
-        (exit)))
+        (end)))
      ((equal c 1)
       (let ((opts '((workshop . (2 . 2))
                     (infirmary . (2 . 2))
@@ -67,4 +70,4 @@
                (room-new (player) `(,(car pick) ,$1 ,$2))
                (syscall "sound" "build0")
                (dialog "All done!")
-               (setq on-dialog-closed exit))))))))))
+               (end))))))))))

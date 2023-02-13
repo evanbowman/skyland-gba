@@ -42,13 +42,17 @@
 
 (setq on-dialog-accepted
       (lambda
-        (let ((temp (chr-slots (player))))
+        (let ((temp (chr-slots (player)))
+              (end (lambda
+                     ((eval-file "/scripts/util/pickup_cart.lisp") 2
+                      "<c:girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"))))
           (if temp
               (progn
                 (setq temp (get temp (choice (length temp))))
                 (chr-new (player) (car temp) (cdr temp) 'neutral 0)
                 (chr-del (opponent) 1 12)
-                (dialog "The villager girl joined your crew!"))
+                (dialog "The villager girl joined your crew!")
+                (end))
             (progn
               (dialog "Sadly, there's no room...")
               (defn on-dialog-closed
@@ -66,8 +70,7 @@
                                (dialog "<c:girl:14>Wait, you're serious! I guess I asked for it haha...")
                                (defn on-dialog-closed
                                  (dialog "The villager girl joined your crew!")
-                                 (setq on-dialog-closed nil)
-                                 (exit)))))))))
+                                 (end)))))))))
 
         (exit)))
 

@@ -32,3 +32,4 @@ Release
 *.o
 build/*.png
 build/psp/*.c
+*.pdf

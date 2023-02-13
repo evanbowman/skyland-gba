@@ -98,4 +98,5 @@
                  (impl
                   (lambda
                     (dialog "<c:mayor:11>Thanks so much for the help!")
-                    (setq on-dialog-closed exit))))))))))))
+                    ((eval-file "/scripts/util/pickup_cart.lisp") 3
+                     "<c:mayor:11>Oh, I almost forgot! I took a picture while we were installing the new core! I saved the photo on a cartridge for you!"))))))))))))
