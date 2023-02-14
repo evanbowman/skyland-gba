@@ -30,7 +30,7 @@
                    "")
 
                   (dialog
-                   "<c:Customer:6>Thank you! I wasn't sure it would arrive! Here's "
+                   "<c:Customer:16>Thank you! I wasn't sure it would arrive! Now I can use these machine parts to fix my engines! Here's "
                    (string temp)
                    "@ for your trouble!")
 

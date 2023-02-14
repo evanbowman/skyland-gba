@@ -5,9 +5,17 @@ import os
 project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
 
 
+bytes_encoded = 0
+
 
 def encode_file(path, real_name, out):
     with open(path, 'rb') as test_file:
+
+        global bytes_encoded
+
+        if bytes_encoded % 4 != 0:
+            print('invalid padding!?', bytes_encoded % 4)
+
         encoded_path = real_name.encode('utf-8')
 
         if len(encoded_path) > 63:
@@ -19,14 +27,22 @@ def encode_file(path, real_name, out):
         for i in range(len(encoded_path), 64):
             out.write('\0'.encode('utf-8'))
 
+        bytes_encoded += 64
+
         data = test_file.read()
         file_contents = data
 
+        pad = 4 - (len(file_contents) + 1) % 4
+        bytes_encoded += len(file_contents) + 1 + pad
+
         # +1 for null terminator
-        out.write((len(file_contents) + 1).to_bytes(4, 'little'))
+        out.write((len(file_contents) + 1 + pad).to_bytes(4, 'little'))
 
         out.write(file_contents)
         out.write('\0'.encode('utf-8'))
+
+        for i in range(0, pad):
+            out.write('\0'.encode('utf-8'))
 
 
 
@@ -61,6 +77,7 @@ with open('fs.bin', 'wb') as filesystem:
     collect_paths(files_list, "misc")
     collect_paths(files_list, "licenses")
     collect_paths(files_list, "tools")
+    collect_paths(files_list, "data")
 
     files_list.append(["/readme.txt", os.path.join(project_root_path, "readme.txt")])
     files_list.append(["/boot.ini", os.path.join(project_root_path, "boot.ini")])
@@ -72,5 +89,7 @@ with open('fs.bin', 'wb') as filesystem:
 
     for info in files_list:
         encode_file(info[1], info[0], filesystem)
+
+    print("encoded {} bytes".format(bytes_encoded))
 
     print('done!')

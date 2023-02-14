@@ -345,7 +345,7 @@ static const AchievementInfo info[Achievement::count] = {
              for (auto& room : isle->rooms()) {
                  total_c += length(room->characters());
              }
-             return total_c - char_c > 5;
+             return total_c - char_c > 4;
          }
          return false;
      },
@@ -428,7 +428,7 @@ Achievement update(Platform& pfrm, App& app)
 
     static_assert(Achievement::count < (sizeof(flag) * 8),
                   "More than 64 achievements, i.e. achievement bit does not "
-                  "fit in a u64.o");
+                  "fit in a u64.");
 
     if (not(flags.get() & flag)) {
         if (raised_achievements.get(check_achievement) or

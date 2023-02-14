@@ -97,6 +97,8 @@
 //;
 #include "data/photo_surface_flattened.h"
 //;
+#include "data/photo_market_flattened.h"
+//;
 #include "data/overlay_datacart.h"
 //;
 #include "data/stack_overflow_flattened.h"
@@ -241,6 +243,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(photo_village_flattened),
 //;
     TEXTURE_INFO(photo_surface_flattened),
+//;
+    TEXTURE_INFO(photo_market_flattened),
 //;
     TEXTURE_INFO(overlay_datacart),
 //;

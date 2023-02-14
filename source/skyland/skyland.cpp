@@ -165,6 +165,8 @@ void App::restore_backup(Platform& pfrm)
         Platform::fatal("restore from invalid backup!");
     }
 
+    player_island().projectiles().clear();
+
     persistent_data_ = backup_->persistent_data_;
     rng::critical_state = backup_->rng_state_;
 

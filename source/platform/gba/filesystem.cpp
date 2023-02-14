@@ -31,6 +31,7 @@
 
 
 #include "filesystem.hpp"
+#include "platform/platform.hpp"
 #include "string.hpp"
 
 
@@ -133,6 +134,9 @@ std::pair<FileContents, FileSize> load(FilePath path)
         auto hdr = (FileHeader*)current;
 
         if (str_eq(hdr->path_, path)) {
+            if ((u32)(intptr_t)(current + sizeof(FileHeader)) % 4 not_eq 0) {
+                Platform::fatal("unaligned file");
+            }
             return {current + sizeof(FileHeader), hdr->size_.get()};
         }
 
