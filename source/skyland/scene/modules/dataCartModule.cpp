@@ -35,7 +35,7 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
 
 
     static const Text::OptColors colors{{ColorConstant::silver_white,
-                                         custom_color(0x294a6b)}};
+                                         custom_color(0x18395a)}};
 
     pfrm.system_call("vsync", nullptr);
     Text tmp(pfrm, {});
@@ -104,7 +104,7 @@ void DataCartModule::enter(Platform& pfrm, App&, Scene& prev)
     Text::platform_retain_alphabet(pfrm);
 
     pfrm.load_overlay_texture("overlay_datacart");
-    pfrm.screen().schedule_fade(0.55f);
+    pfrm.screen().schedule_fade(0.65f);
     pfrm.set_overlay_origin(0, -4);
 }
 
@@ -198,7 +198,7 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
             timer_ = 0;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(0.55f + (1 - 0.55f) * amount);
+            pfrm.screen().schedule_fade(0.65f + (1 - 0.65f) * amount);
         }
         break;
     }
