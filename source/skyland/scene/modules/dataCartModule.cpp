@@ -52,26 +52,26 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
         tmp.append(missing.get_label_string(pfrm, "location").c_str(),
                    colors);
 
-        draw_image(pfrm, 332, 5, 4, 20, 2, Layer::overlay);
-        for (int i = 6; i < 14; ++i) {
+        draw_image(pfrm, 332, 5, 3, 20, 2, Layer::overlay);
+        for (int i = 5; i < 13; ++i) {
             pfrm.set_tile(Layer::overlay, 6, i, 384);
             pfrm.set_tile(Layer::overlay, 23, i, 372);
         }
         for (int i = 7; i < 23; ++i) {
-            pfrm.set_tile(Layer::overlay, i, 14, 375);
+            pfrm.set_tile(Layer::overlay, i, 13, 375);
         }
-        pfrm.set_tile(Layer::overlay, 6, 14, 373);
-        pfrm.set_tile(Layer::overlay, 23, 14, 374);
+        pfrm.set_tile(Layer::overlay, 6, 13, 373);
+        pfrm.set_tile(Layer::overlay, 23, 13, 374);
 
-        draw_image(pfrm, 376, 14, 7, 2, 4, Layer::overlay);
+        draw_image(pfrm, 376, 14, 8, 2, 4, Layer::overlay);
 
-        Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 12},
+        Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 6},
                     colors);
 
     } else {
-        draw_image(pfrm, 112, 5, 4, 20, 11, Layer::overlay);
+        draw_image(pfrm, 112, 5, 3, 20, 11, Layer::overlay);
 
-        tmp.append(" found at: ", colors);
+        tmp.append(" found at ", colors);
         auto exact = cart->get_label_string(pfrm, "exact_location");
         for (char& c : exact) {
             // FIXME: ini conf library ignoring whitespace in strings. Fix conf.cpp.
@@ -90,8 +90,8 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
                              custom_color(0xd9dee6)
             }};
 
-        Text::print(pfrm, name.c_str(), {8, 7}, colors);
-        Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 9}, colors);
+        Text::print(pfrm, name.c_str(), {8, 6}, colors);
+        Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
     }
 
     tmp.__detach();
