@@ -357,6 +357,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/photo_village_flattened.s
     ${DATA_DIR}/photo_surface_flattened.s
     ${DATA_DIR}/photo_market_flattened.s
+    ${DATA_DIR}/photo_disaster_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
     ${DATA_DIR}/tilesheet_fishing.s
     ${DATA_DIR}/overlay_large_numeral.s
@@ -733,6 +734,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(photo_village 0 0 YES NO)
     add_overlay(photo_surface 0 0 YES NO)
     add_overlay(photo_market 0 0 YES NO)
+    add_overlay(photo_disaster 0 0 YES NO)
     add_overlay(overlay_datacart 0 0 NO NO)
     add_overlay(stack_overflow 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
