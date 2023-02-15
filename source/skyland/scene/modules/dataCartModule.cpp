@@ -45,6 +45,17 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
     tmp.append(carts_->max_carts(), colors);
     tmp.append(")", colors);
 
+    draw_image(pfrm, 332, 5, 3, 20, 2, Layer::overlay);
+    for (int i = 5; i < 13; ++i) {
+        pfrm.set_tile(Layer::overlay, 6, i, 384);
+        pfrm.set_tile(Layer::overlay, 23, i, 372);
+    }
+    for (int i = 7; i < 23; ++i) {
+        pfrm.set_tile(Layer::overlay, i, 13, 375);
+    }
+    pfrm.set_tile(Layer::overlay, 6, 13, 373);
+    pfrm.set_tile(Layer::overlay, 23, 13, 374);
+
     auto cart = carts_->load(index);
     if (not cart) {
         DataCart missing(index);
@@ -52,25 +63,12 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
         tmp.append(missing.get_label_string(pfrm, "location").c_str(),
                    colors);
 
-        draw_image(pfrm, 332, 5, 3, 20, 2, Layer::overlay);
-        for (int i = 5; i < 13; ++i) {
-            pfrm.set_tile(Layer::overlay, 6, i, 384);
-            pfrm.set_tile(Layer::overlay, 23, i, 372);
-        }
-        for (int i = 7; i < 23; ++i) {
-            pfrm.set_tile(Layer::overlay, i, 13, 375);
-        }
-        pfrm.set_tile(Layer::overlay, 6, 13, 373);
-        pfrm.set_tile(Layer::overlay, 23, 13, 374);
-
         draw_image(pfrm, 376, 14, 8, 2, 4, Layer::overlay);
 
         Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 6},
                     colors);
 
     } else {
-        draw_image(pfrm, 112, 5, 3, 20, 11, Layer::overlay);
-
         tmp.append(" found at ", colors);
         auto exact = cart->get_label_string(pfrm, "exact_location");
         for (char& c : exact) {
@@ -84,14 +82,9 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
 
         auto name = cart->name(pfrm);
 
-        const auto colors =
-            Text::OptColors{{
-                             ColorConstant::rich_black,
-                             custom_color(0xd9dee6)
-            }};
-
         Text::print(pfrm, name.c_str(), {8, 6}, colors);
         Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
+
     }
 
     tmp.__detach();
@@ -169,7 +162,7 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
             pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, true, true);
             state_ = State::exit;
         } else if (app.player().key_down(pfrm, Key::action_1)) {
-            if (carts_->load(cart_index_)) {
+            if (auto cart = carts_->load(cart_index_)) {
                 state_ = State::anim_out;
                 for (int x = 0; x < 30; ++x) {
                     pfrm.set_tile(Layer::overlay, x, 0, 0);
@@ -179,6 +172,21 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
                     pfrm.set_tile(Layer::overlay, 1, y, 0);
                     pfrm.set_tile(Layer::overlay, 28, y, 0);
                 }
+                draw_image(pfrm, 112, 5, 3, 20, 11, Layer::overlay);
+
+                auto name = cart->name(pfrm);
+
+                const auto colors =
+                    Text::OptColors{{
+                                     ColorConstant::rich_black,
+                                     custom_color(0xd9dee6)
+                    }};
+
+                Text::print(pfrm, name.c_str(), {8, 6}, colors);
+                Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
+
+                pfrm.speaker().play_sound("button_wooden", 3);
+
             } else {
                 pfrm.speaker().play_sound("beep_error", 1);
             }
