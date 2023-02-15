@@ -698,12 +698,15 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_beam_destroyed: {
             auto e = (time_stream::event::PlayerBeamDestroyed*)end;
-            respawn_basic_projectile<Beam>(pfrm,
-                                                      app,
-                                                      &app.player_island(),
-                                                      *e,
-                                                      medium_explosion_inv,
-                                                      e->index_);
+            auto t = respawn_basic_projectile<Beam>(pfrm,
+                                                    app,
+                                                    &app.player_island(),
+                                                    *e,
+                                                    medium_explosion_inv,
+                                                    e->index_);
+            if (t) {
+                t->restore_blocks_hit(*e);
+            }
             app.time_stream().pop(sizeof *e);
             app.camera()->shake(8);
             break;
@@ -712,12 +715,15 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_beam_destroyed: {
             auto e = (time_stream::event::OpponentBeamDestroyed*)end;
-            respawn_basic_projectile<Beam>(pfrm,
-                                                      app,
-                                                      app.opponent_island(),
-                                                      *e,
-                                                      medium_explosion_inv,
-                                                      e->index_);
+            auto t = respawn_basic_projectile<Beam>(pfrm,
+                                                    app,
+                                                    app.opponent_island(),
+                                                    *e,
+                                                    medium_explosion_inv,
+                                                    e->index_);
+            if (t) {
+                t->restore_blocks_hit(*e);
+            }
             app.time_stream().pop(sizeof *e);
             app.camera()->shake(8);
             break;

@@ -291,6 +291,13 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                     break;
 
+                case SystemString::filter_surface_weapons:
+                    if (cond & RoomProperties::only_constructible_in_sandbox or
+                        cond & RoomProperties::not_constructible) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
                 default:
                     Platform::fatal("invalid filter option");
                     break;

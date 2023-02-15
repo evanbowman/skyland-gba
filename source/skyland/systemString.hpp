@@ -582,6 +582,7 @@ enum class SystemString {
     filter_habitable,
     filter_ion_damage,
     filter_highly_flammable,
+    filter_surface_weapons,
     filter_end,
 
     // Place no new enumerations here. (filter_end)

@@ -293,7 +293,7 @@ Attaches to an opponent's island, giving you a base within the enemy's castle. C
 Automatically assigns positions to your crew.
 Take control of one of your opponent's crewmembers.
 An old weapon from the surface world below, no one knows how to build them anymore... starts raging fires...
-...
+Built long ago on the surface, this laser burns through everything in its path, dealing damage to each block that its beam touches.
 paused
 slow
 regular
@@ -472,6 +472,7 @@ requires manufactory
 habitable
 takes ion damage
 highly flammable
+not constructible
 You don't have any DLC installed!
 hold A to erase!
 power outage!

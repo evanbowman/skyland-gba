@@ -9,7 +9,6 @@
 (configure-rooms
                ; (1) (2)  (3)
  '((hull         240 300  0)
-   (big-hull     960 1200 0)
    (code         240 300  0)
    (bronze-hull  240 300  0)
    (mirror-hull  240 500  0)
