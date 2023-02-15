@@ -86,6 +86,8 @@ public:
     }
 
 
+    bool inspect_ = false;
+
 private:
     void load_page(Platform& pfrm, int page);
 

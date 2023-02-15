@@ -234,7 +234,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return (Explosive::properties() & ~RoomProperties::locked_by_default) |
-               RoomProperties::sandbox_mode_only;
+               RoomProperties::only_constructible_in_sandbox;
     }
 
 

@@ -47,6 +47,8 @@
    (escape-beacon 90 1600 40)
    (crane        30  1000 60)
    (annihilator  320 2600 65)
+   (incinerator  80  1000 80)
+   (beam-gun     80  1000 80)
    (coconut-palm 1   1    0)
    (lemon-tree   1   1    0)
    (sunflower    1   1    0)

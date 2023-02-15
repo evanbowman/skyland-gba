@@ -79,7 +79,7 @@ public:
                 ~(RoomProperties::disallow_chimney |
                   RoomProperties::locked_by_default)) |
                RoomProperties::highly_flammable |
-               RoomProperties::sandbox_mode_only;
+               RoomProperties::only_constructible_in_sandbox;
     }
 
 

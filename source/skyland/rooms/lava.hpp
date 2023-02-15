@@ -77,7 +77,7 @@ public:
                RoomProperties::multiplayer_unsupported |
                RoomProperties::destroy_quietly |
                RoomProperties::generates_heat |
-               RoomProperties::sandbox_mode_only |
+               RoomProperties::only_constructible_in_sandbox |
                RoomProperties::manufactory_required |
                // lol, fireproof property because the lava just looks strange if
                // it catches on fire.
@@ -191,7 +191,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return (Lava::properties() & ~RoomProperties::not_constructible) |
-               RoomProperties::sandbox_mode_only;
+               RoomProperties::only_constructible_in_sandbox;
     }
 };
 

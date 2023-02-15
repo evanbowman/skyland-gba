@@ -125,7 +125,7 @@ public:
 
 
     void display(Platform&);
-
+    void display_fires(Platform&);
 
     const Vec2<Fixnum>& get_position() const;
 

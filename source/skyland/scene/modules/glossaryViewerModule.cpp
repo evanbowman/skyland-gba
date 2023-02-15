@@ -97,7 +97,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
     StringBuffer<512> description;
 
-    if (is_enabled((MetaclassIndex)page)) {
+    if (inspect_ or is_enabled((MetaclassIndex)page)) {
         mt[page]->format_description(pfrm, description);
     } else {
         description = "Locked! See achievements!";
@@ -146,8 +146,7 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 static const int filter_opt_count =
-    (int)SystemString::filter_end -
-    (int)SystemString::filter_begin;
+    (int)SystemString::filter_end - (int)SystemString::filter_begin;
 
 
 
@@ -205,7 +204,6 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
     } else {
         pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
     }
-
 }
 
 
@@ -234,8 +232,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
         }
 
-        if (test_key(Key::down) and
-            filter_cursor_ < filter_opt_count - 1) {
+        if (test_key(Key::down) and filter_cursor_ < filter_opt_count - 1) {
             ++filter_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -300,7 +297,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            if (not (*filter_buf_)->empty()) {
+            if (not(*filter_buf_)->empty()) {
                 state_ = State::view_filtered;
                 page_ = 0;
                 load_page(pfrm, (**filter_buf_)[0]);
@@ -328,8 +325,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
         }
 
-        if (test_key(Key::down) and
-            cg_cursor_ < (int)Room::Category::count) {
+        if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
             ++cg_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -340,7 +336,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
             }
-
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
@@ -373,8 +368,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                 filter_begin_ = page_;
                 filter_end_ = page_;
-                while (filter_end_ < ms and
-                       mt[filter_end_]->category() == (Room::Category)cg_cursor_) {
+                while (filter_end_ < ms and mt[filter_end_]->category() ==
+                                                (Room::Category)cg_cursor_) {
                     ++filter_end_;
                 }
                 if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
@@ -413,15 +408,19 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::view:
     case State::quickview:
-        if (test_key(Key::right) and page_ < ms - 1 and
-            page_ < plugin_rooms_begin() - 1 and
-            (not filter_end_ or (filter_end_ and filter_end_ - 1 > page_))) {
-            load_page(pfrm, ++page_);
-        }
+        if (not inspect_) {
+            if (test_key(Key::right) and page_ < ms - 1 and
+                page_ < plugin_rooms_begin() - 1 and
+                (not filter_end_ or
+                 (filter_end_ and filter_end_ - 1 > page_))) {
+                load_page(pfrm, ++page_);
+            }
 
-        if (test_key(Key::left) and page_ > 0 and
-            (not filter_begin_ or (filter_begin_ and filter_begin_ < page_))) {
-            load_page(pfrm, --page_);
+            if (test_key(Key::left) and page_ > 0 and
+                (not filter_begin_ or
+                 (filter_begin_ and filter_begin_ < page_))) {
+                load_page(pfrm, --page_);
+            }
         }
 
         if (app.player().key_down(pfrm, Key::action_2)) {

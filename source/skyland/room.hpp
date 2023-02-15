@@ -107,8 +107,9 @@ struct RoomProperties
         // Only available in adventure mode.
         adventure_mode_only = (1 << 13),
 
-        // Only available in sandbox mode.
-        sandbox_mode_only = (1 << 14),
+        // Only constructible in sandbox mode. Some of these blocks may appear
+        // in advenutre mode, but not be constructible.
+        only_constructible_in_sandbox = (1 << 14),
 
         // Behaves as a fluid (water, lava, etc.)
         fluid = (1 << 15),
@@ -141,7 +142,10 @@ struct RoomProperties
         // Only available in easy-mode.
         easy_mode_only = (1 << 24),
 
-        // Available in multiboot games.
+        // Available in multiboot games. Unused...
+        // I had this idea to support single cartridge
+        // multiplayer. But... although it'd be possible to build, not worth the
+        // trouble IMO.
         multiboot_compatible = (1 << 25),
     };
 };

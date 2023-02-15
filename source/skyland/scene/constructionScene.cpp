@@ -1376,7 +1376,8 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (app.game_mode() not_eq App::GameMode::adventure and
              meta->properties() & RoomProperties::adventure_mode_only) or
             (app.game_mode() not_eq App::GameMode::sandbox and
-             meta->properties() & RoomProperties::sandbox_mode_only) or
+             meta->properties() &
+                 RoomProperties::only_constructible_in_sandbox) or
             (pfrm.network_peer().is_connected() and
              meta->properties() & RoomProperties::multiplayer_unsupported) or
             (app.game_mode() == App::GameMode::skyland_forever and

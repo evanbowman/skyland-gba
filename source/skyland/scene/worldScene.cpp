@@ -356,6 +356,13 @@ void WorldScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(effect->sprite());
     }
 
+    // NOTE: drawn separately because we want UI effects to appear above fire
+    // effects.
+    app.player_island().display_fires(pfrm);
+    if (app.opponent_island()) {
+        app.opponent_island()->display_fires(pfrm);
+    }
+
     if (not birds_drawn_) {
         // We try to queue bird entities before a display call, because unlike
         // other objects, birds sit directly on top of tiles, and if there's any

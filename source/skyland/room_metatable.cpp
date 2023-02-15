@@ -28,6 +28,7 @@
 #include "skyland/rooms/bananaPlant.hpp"
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
+#include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bighull.hpp"
 #include "skyland/rooms/boardingPod.hpp"
 #include "skyland/rooms/bridge.hpp"
@@ -49,6 +50,7 @@
 #include "skyland/rooms/gold.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/ice.hpp"
+#include "skyland/rooms/incinerator.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
@@ -304,6 +306,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         ArcGun,
                                         Nemesis,
                                         FireCharge,
+                                        Incinerator,
+                                        BeamGun,
                                         Decimator,
                                         Annihilator,
                                         SparkCannon,

@@ -180,15 +180,17 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                           room->parent() == &app.player_island())) {
                 add_line(
                     SystemString::sel_menu_describe_block,
-                    [this, cursor](Platform& pfrm, App& app) -> ScenePtr<Scene> {
+                    [this, cursor](Platform& pfrm,
+                                   App& app) -> ScenePtr<Scene> {
                         if (auto room = island(app)->get_room(cursor)) {
                             auto mt = room->metaclass_index();
                             auto next =
                                 scene_pool::alloc<GlossaryViewerModule>(mt);
+                            next->inspect_ = true;
                             next->skip_categories();
                             next->set_next_scene([&pfrm,
                                                   far = is_far_camera()]()
-                                                  -> ScenePtr<Scene> {
+                                                     -> ScenePtr<Scene> {
                                 pfrm.screen().schedule_fade(0);
                                 if (far) {
                                     return scene_pool::alloc<InspectP2Scene>();
@@ -206,9 +208,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
     }
 
     add_line(SystemString::sel_menu_back,
-             [this, cursor](Platform& pfrm, App& app) {
-                 return null_scene();
-             });
+             [this, cursor](Platform& pfrm, App& app) { return null_scene(); });
 
     for (int i = 0; i < opts_->longest_line_ + 1; ++i) {
         pfrm.set_tile(Layer::overlay, i, 0, 425);

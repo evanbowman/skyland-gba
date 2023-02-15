@@ -80,6 +80,12 @@ enum Type : u8 {
     player_firebolt_destroyed,
     opponent_firebolt_destroyed,
 
+    player_incineratorbolt_destroyed,
+    opponent_incineratorbolt_destroyed,
+
+    player_beam_destroyed,
+    opponent_beam_destroyed,
+
     player_flak_destroyed,
     opponent_flak_destroyed,
 
@@ -419,6 +425,48 @@ struct PlayerFireboltDestroyed : BasicProjectileDestroyed
 struct OpponentFireboltDestroyed : BasicProjectileDestroyed
 {
     static constexpr const auto t = Type::player_firebolt_destroyed;
+};
+
+
+
+struct PlayerIncineratorboltDestroyed : BasicProjectileDestroyed
+{
+    static constexpr const auto t = Type::player_incineratorbolt_destroyed;
+};
+
+
+
+struct OpponentIncineratorboltDestroyed : BasicProjectileDestroyed
+{
+    static constexpr const auto t = Type::player_incineratorbolt_destroyed;
+};
+
+
+
+struct BeamDestroyed
+{
+    Header header_;
+    u8 x_origin_ : 4;
+    u8 y_origin_ : 4;
+    HostInteger<Microseconds> timer_;
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+    host_s64 x_speed__data_;
+    host_s64 y_speed__data_;
+    u8 index_;
+};
+
+
+struct PlayerBeamDestroyed : BeamDestroyed
+{
+    static constexpr const auto t = Type::player_beam_destroyed;
+};
+
+
+
+struct OpponentBeamDestroyed : BeamDestroyed
+{
+    static constexpr const auto t = Type::player_beam_destroyed;
 };
 
 

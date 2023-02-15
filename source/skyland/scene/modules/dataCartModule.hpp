@@ -25,8 +25,8 @@
 
 #include "allocator.hpp"
 #include "graphics/overlay.hpp"
-#include "skyland/scene/module.hpp"
 #include "skyland/dataCart.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -76,7 +76,6 @@ public:
 
 
 private:
-
     enum class State {
         init,
         select,

@@ -3572,6 +3572,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_gravel.hpp"
 #include "data/sound_gust.hpp"
 #include "data/sound_gust2.hpp"
+#include "data/sound_insert_cart.hpp"
 #include "data/sound_ion_cannon.hpp"
 #include "data/sound_missile.hpp"
 #include "data/sound_missile_explosion.hpp"
@@ -3590,7 +3591,6 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
 #include "data/sound_weapon_target.hpp"
-#include "data/sound_insert_cart.hpp"
 
 
 static const AudioTrack sounds[] = {
@@ -7151,26 +7151,17 @@ void mb_server_setup_vram(Platform&);
 
 static void publisher_logo_anim(Platform& pfrm)
 {
-    pfrm.screen().schedule_fade(1,
-                                ColorConstant::silver_white,
-                                true,
-                                true);
+    pfrm.screen().schedule_fade(1, ColorConstant::silver_white, true, true);
 
     pfrm.screen().clear();
-    pfrm.screen().fade(1,
-                       ColorConstant::silver_white,
-                       {},
-                       true,
-                       true);
+    pfrm.screen().fade(1, ColorConstant::silver_white, {}, true, true);
     pfrm.load_overlay_texture("pub_logo_flattened");
     pfrm.screen().display();
     bool skip = false;
     volatile u32* keys = (volatile u32*)0x04000130;
     for (int i = 0; i < 15; ++i) {
-        pfrm.screen().schedule_fade(1.f - (Float(i) / 15),
-                                    ColorConstant::silver_white,
-                                    true,
-                                    true);
+        pfrm.screen().schedule_fade(
+            1.f - (Float(i) / 15), ColorConstant::silver_white, true, true);
         if (~(*keys) & KEY_B) {
             skip = true;
         }
@@ -7194,19 +7185,14 @@ static void publisher_logo_anim(Platform& pfrm)
     }
     int fadout_frames = 20;
     for (int i = 0; i < fadout_frames; ++i) {
-        pfrm.screen().schedule_fade((Float(i) / fadout_frames),
-                                    ColorConstant::rich_black,
-                                    true,
-                                    true);
+        pfrm.screen().schedule_fade(
+            (Float(i) / fadout_frames), ColorConstant::rich_black, true, true);
 
         pfrm.screen().clear();
         pfrm.screen().display();
     }
 
-    pfrm.screen().schedule_fade(1,
-                                ColorConstant::rich_black,
-                                true,
-                                true);
+    pfrm.screen().schedule_fade(1, ColorConstant::rich_black, true, true);
     pfrm.screen().clear();
     pfrm.screen().display();
 

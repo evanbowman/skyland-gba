@@ -23,7 +23,7 @@
                                  (lambda (equal cmp $0))
                                  friendlies-seen))))
                        (gen
-                        (get '(6 10 6 2) (zone)) ;; number of levels to select from
+                        (get '(6 10 7 2) (zone)) ;; number of levels to select from
                         ;; based on current zone
                         (lambda $0)))))
 

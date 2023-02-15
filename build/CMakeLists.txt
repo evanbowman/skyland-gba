@@ -81,7 +81,7 @@ set(SOURCES
   ${SOURCE_DIR}/graphics/view.cpp
   ${SOURCE_DIR}/localization.cpp
   ${SOURCE_DIR}/localization_extended.cpp
-#  ${SOURCE_DIR}/memory/malloc.cpp
+  ${SOURCE_DIR}/memory/malloc.cpp
   ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/globals.cpp
@@ -259,6 +259,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
+  ${SOURCE_DIR}/skyland/rooms/beamGun.cpp
   ${SOURCE_DIR}/skyland/rooms/mycelium.cpp
   ${SOURCE_DIR}/skyland/rooms/radiator.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
@@ -278,6 +279,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/mirrorHull.cpp
   ${SOURCE_DIR}/skyland/rooms/rocketSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/annihilator.cpp
+  ${SOURCE_DIR}/skyland/rooms/incinerator.cpp
   ${SOURCE_DIR}/skyland/rooms/boardingPod.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/stackedHull.cpp
@@ -296,9 +298,11 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/macrocosmPillarSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmPancakeSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmEngine.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/beam.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/incineratorBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/projectile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/antimatter.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/fireBolt.cpp

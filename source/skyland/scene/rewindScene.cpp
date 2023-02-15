@@ -30,10 +30,12 @@
 #include "skyland/entity/explosion/explosion2.hpp"
 #include "skyland/entity/projectile/antimatter.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
+#include "skyland/entity/projectile/beam.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/entity/projectile/fireBolt.hpp"
 #include "skyland/entity/projectile/flak.hpp"
+#include "skyland/entity/projectile/incineratorBolt.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
@@ -53,12 +55,13 @@ namespace skyland
 
 
 
-template <typename T, typename E, typename F>
+template <typename T, typename E, typename F, typename... Args>
 T* respawn_basic_projectile(Platform& pfrm,
                             App& app,
                             Island* parent,
                             const E& e,
-                            F&& explosion_function)
+                            F&& explosion_function,
+                            Args&&... args)
 {
     auto c =
         app.alloc_entity<T>(pfrm,
@@ -66,7 +69,8 @@ T* respawn_basic_projectile(Platform& pfrm,
                                          Fixnum::from_integer(e.y_pos_.get())},
                             Vec2<Fixnum>{},
                             parent,
-                            RoomCoord{e.x_origin_, e.y_origin_});
+                            RoomCoord{e.x_origin_, e.y_origin_},
+                            args...);
     if (c) {
         Vec2<Fixnum> step_vector{Fixnum::create(e.x_speed__data_.get()),
                                  Fixnum::create(e.y_speed__data_.get())};
@@ -666,6 +670,54 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
             respawn_basic_projectile<Cannonball>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_incineratorbolt_destroyed: {
+            auto e = (time_stream::event::PlayerIncineratorboltDestroyed*)end;
+            respawn_basic_projectile<IncineratorBolt>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(14);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_incineratorbolt_destroyed: {
+            auto e = (time_stream::event::OpponentIncineratorboltDestroyed*)end;
+            respawn_basic_projectile<IncineratorBolt>(
+                pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(14);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_beam_destroyed: {
+            auto e = (time_stream::event::PlayerBeamDestroyed*)end;
+            respawn_basic_projectile<Beam>(pfrm,
+                                                      app,
+                                                      &app.player_island(),
+                                                      *e,
+                                                      medium_explosion_inv,
+                                                      e->index_);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_beam_destroyed: {
+            auto e = (time_stream::event::OpponentBeamDestroyed*)end;
+            respawn_basic_projectile<Beam>(pfrm,
+                                                      app,
+                                                      app.opponent_island(),
+                                                      *e,
+                                                      medium_explosion_inv,
+                                                      e->index_);
             app.time_stream().pop(sizeof *e);
             app.camera()->shake(8);
             break;
@@ -1737,9 +1789,11 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 void RewindScene::display(Platform& pfrm, App& app)
 {
     app.player_island().display(pfrm);
+    app.player_island().display_fires(pfrm);
 
     if (app.opponent_island()) {
         app.opponent_island()->display(pfrm);
+        app.opponent_island()->display_fires(pfrm);
     }
 
     app.environment().display(pfrm, app);

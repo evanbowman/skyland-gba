@@ -1,8 +1,8 @@
 #include "dataCartModule.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
 #include "checkersModule.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -24,8 +24,7 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
     }
 
     // left arrow icon
-    pfrm.set_tile(Layer::overlay, 1, 8,
-                  index == 0 ? 107 : 105);
+    pfrm.set_tile(Layer::overlay, 1, 8, index == 0 ? 107 : 105);
 
     // right arrow icon
     pfrm.set_tile(Layer::overlay,
@@ -34,8 +33,8 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
                   index == carts_->max_carts() - 1 ? 106 : 104);
 
 
-    static const Text::OptColors colors{{ColorConstant::silver_white,
-                                         custom_color(0x18395a)}};
+    static const Text::OptColors colors{
+        {ColorConstant::silver_white, custom_color(0x18395a)}};
 
     pfrm.system_call("vsync", nullptr);
     Text tmp(pfrm, {});
@@ -60,13 +59,11 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
     if (not cart) {
         DataCart missing(index);
         tmp.append(" location: ", colors);
-        tmp.append(missing.get_label_string(pfrm, "location").c_str(),
-                   colors);
+        tmp.append(missing.get_label_string(pfrm, "location").c_str(), colors);
 
         draw_image(pfrm, 376, 14, 8, 2, 4, Layer::overlay);
 
-        Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 6},
-                    colors);
+        Text::print(pfrm, format("cart_%", index + 1).c_str(), {12, 6}, colors);
 
     } else {
         tmp.append(" found at ", colors);
@@ -77,14 +74,12 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
                 c = ' ';
             }
         }
-        tmp.append(exact.c_str(),
-                   colors);
+        tmp.append(exact.c_str(), colors);
 
         auto name = cart->name(pfrm);
 
         Text::print(pfrm, name.c_str(), {8, 6}, colors);
         Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
-
     }
 
     tmp.__detach();
@@ -110,9 +105,8 @@ void DataCartModule::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
-                                       App& app,
-                                       Microseconds delta)
+ScenePtr<Scene>
+DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto prompt_flag = GlobalPersistentData::datacarts_prompt;
 
@@ -148,7 +142,6 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 show_cart(pfrm, cart_index_);
             }
-
         }
         if (test_key(Key::left)) {
             if (cart_index_ > 0) {
@@ -159,7 +152,8 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
         }
         if (app.player().key_down(pfrm, Key::action_2)) {
             pfrm.fill_overlay(0);
-            pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                1.f, ColorConstant::rich_black, {}, true, true);
             state_ = State::exit;
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto cart = carts_->load(cart_index_)) {
@@ -176,14 +170,12 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
 
                 auto name = cart->name(pfrm);
 
-                const auto colors =
-                    Text::OptColors{{
-                                     ColorConstant::rich_black,
-                                     custom_color(0xd9dee6)
-                    }};
+                const auto colors = Text::OptColors{
+                    {ColorConstant::rich_black, custom_color(0xd9dee6)}};
 
                 Text::print(pfrm, name.c_str(), {8, 6}, colors);
-                Text::print(pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
+                Text::print(
+                    pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
 
                 pfrm.speaker().play_sound("button_wooden", 3);
 
@@ -236,8 +228,8 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
                 if (cart->get_content_string(pfrm, "type") == "image") {
                     str = "developing photos...";
                 }
-                auto margin = centered_text_margins(pfrm,
-                                                    utf8::len(str.c_str()));
+                auto margin =
+                    centered_text_margins(pfrm, utf8::len(str.c_str()));
                 Text::print(pfrm, str.c_str(), {(u8)margin, 9});
             }
             timer_ = 0;
@@ -266,7 +258,6 @@ ScenePtr<Scene> DataCartModule::update(Platform& pfrm,
 class CartPhotoViewScene : public Scene
 {
 public:
-
     CartPhotoViewScene(int cart_id) : cart_id_(cart_id)
     {
     }
@@ -276,7 +267,8 @@ public:
     {
         pfrm.enable_glyph_mode(false);
         pfrm.fill_overlay(0);
-        pfrm.load_overlay_texture(DataCart(cart_id_).get_content_string(pfrm, "img").c_str());
+        pfrm.load_overlay_texture(
+            DataCart(cart_id_).get_content_string(pfrm, "img").c_str());
         draw_image(pfrm, 1, 4, 1, 22, 17, Layer::overlay);
         pfrm.screen().schedule_fade(0);
         pfrm.screen().schedule_fade(1);
@@ -331,4 +323,4 @@ DataCartModule::Factory DataCartModule::factory_;
 
 
 
-}
+} // namespace skyland

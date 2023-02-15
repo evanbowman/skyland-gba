@@ -22,6 +22,7 @@ barrier
 basalt
 basalt-brick
 carved-basalt
+beam-gun
 big-hull
 boarding-capsule
 bridge
@@ -63,6 +64,7 @@ hematite-pillar
 honey
 hull
 ice
+incinerator
 indigo
 infirmary
 ion-cannon
@@ -290,6 +292,8 @@ Only constructible in sandbox mode.
 Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.
 Automatically assigns positions to your crew.
 Take control of one of your opponent's crewmembers.
+An old weapon from the surface world below, no one knows how to build them anymore... starts raging fires...
+...
 paused
 slow
 regular

@@ -27,6 +27,7 @@
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/arcGun.hpp"
+#include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
@@ -314,6 +315,8 @@ void EnemyAI::update_room(Platform& pfrm,
         set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
     } else if (auto silo = room.cast<MissileSilo>()) {
         set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
+    } else if (auto beam = room.cast<BeamGun>()) {
+        set_target(pfrm, app, matrix, *beam, owner, ai_island, target_island);
     } else if (auto flak_gun = room.cast<FlakGun>()) {
         set_target(
             pfrm, app, matrix, *flak_gun, owner, ai_island, target_island);
@@ -1856,6 +1859,48 @@ void EnemyAI::set_target(Platform& pfrm,
             assign_weapon_target(
                 pfrm, app, silo, target->position(), ai_island);
         }
+    }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const Bitmatrix<16, 16>& matrix,
+                         BeamGun& beam_gun,
+                         Player* owner,
+                         Island* ai_island,
+                         Island* target_island)
+{
+    struct Target
+    {
+        RoomCoord position_;
+        Float weight_;
+    };
+
+    using TargetBuffer = Buffer<Target, 200>;
+
+    auto buffer = allocate_dynamic<TargetBuffer>("beam-targets");
+
+    for (auto& room : target_island->rooms()) {
+        auto pos = room->position();
+        auto weight = room->get_atp();
+        if ((*room->metaclass())->properties() & RoomProperties::habitable) {
+            for (auto& chr : room->characters()) {
+                (void)chr;
+                weight -= 250.f;
+            }
+        }
+        buffer->push_back(Target{pos, weight});
+    }
+
+    std::sort(buffer->begin(), buffer->end(), [](auto& lhs, auto& rhs) {
+        return lhs.weight_ > rhs.weight_;
+    });
+
+    if (not buffer->empty()) {
+        assign_weapon_target(
+            pfrm, app, beam_gun, (*buffer)[0].position_, ai_island);
     }
 }
 

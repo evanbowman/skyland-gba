@@ -17,7 +17,6 @@ namespace skyland
 class DataCart
 {
 public:
-
     DataCart(int num) : id_(num)
     {
     }
@@ -45,7 +44,6 @@ public:
 
 
 private:
-
     const char* config(Platform&) const;
 
     int id_;
@@ -56,8 +54,6 @@ private:
 class DataCartLibrary
 {
 public:
-
-
     DataCartLibrary(Platform&);
 
 
@@ -80,4 +76,4 @@ private:
 
 
 
-}
+} // namespace skyland

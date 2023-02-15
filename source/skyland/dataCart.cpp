@@ -1,8 +1,8 @@
 #include "dataCart.hpp"
 #include "containers/vector.hpp"
 #include "platform/conf.hpp"
-#include "platform/platform.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -13,8 +13,8 @@ namespace skyland
 
 const char* DataCart::config(Platform& pfrm) const
 {
-    auto f = pfrm.load_file_contents("", format("scripts/misc/cart/cart%.ini",
-                                                id_).c_str());
+    auto f = pfrm.load_file_contents(
+        "", format("scripts/misc/cart/cart%.ini", id_).c_str());
 
     if (not f) {
         Platform::fatal(format("missing cart %", id_).c_str());
@@ -48,9 +48,9 @@ DataCart::LabelString DataCart::get_label_string(Platform& pfrm,
     if (auto val = std::get_if<Conf::String>(&result)) {
         return *val;
     } else {
-        Platform::fatal(format("key % missing from label in cart% ini",
-                               field,
-                               id_).c_str());
+        Platform::fatal(
+            format("key % missing from label in cart% ini", field, id_)
+                .c_str());
     }
 }
 
@@ -65,9 +65,9 @@ DataCart::ContentString DataCart::get_content_string(Platform& pfrm,
     if (auto val = std::get_if<Conf::String>(&result)) {
         return *val;
     } else {
-        Platform::fatal(format("key % missing from contents cart% ini",
-                               field,
-                               id_).c_str());
+        Platform::fatal(
+            format("key % missing from contents cart% ini", field, id_)
+                .c_str());
     }
 }
 
@@ -82,8 +82,7 @@ static u32 cart_lib_backup_data;
 
 
 
-DataCartLibrary::DataCartLibrary(Platform& pfrm) :
-    carts_(cart_lib_backup_data)
+DataCartLibrary::DataCartLibrary(Platform& pfrm) : carts_(cart_lib_backup_data)
 {
     Vector<char> output;
     host_u32 input;
@@ -113,7 +112,7 @@ DataCartLibrary::DataCartLibrary(Platform& pfrm) :
 
 void DataCartLibrary::store(Platform& pfrm, DataCart cart)
 {
-    if ((u32)cart.id() > sizeof(carts_) * 8 or (u32)cart.id() >= max_carts_) {
+    if ((u32)cart.id() > sizeof(carts_) * 8 or (u32) cart.id() >= max_carts_) {
         Platform::fatal("cart id too high!");
     }
 
@@ -149,4 +148,4 @@ std::optional<DataCart> DataCartLibrary::load(int id) const
 
 
 
-}
+} // namespace skyland

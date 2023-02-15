@@ -703,9 +703,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> dialog_prompt(Platform& pfrm,
-                              SystemString systr,
-                              DeferredScene next)
+ScenePtr<Scene>
+dialog_prompt(Platform& pfrm, SystemString systr, DeferredScene next)
 {
     lisp::set_var("on-dialog-closed", L_NIL);
     pfrm.screen().fade(0.95f);

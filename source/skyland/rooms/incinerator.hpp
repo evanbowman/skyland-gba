@@ -23,9 +23,10 @@
 #pragma once
 
 
-#include "decoration.hpp"
+#include "skyland/coins.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
-#include "skyland/tile.hpp"
+#include "weapon.hpp"
 
 
 
@@ -34,74 +35,87 @@ namespace skyland
 
 
 
-class Ice final : public Decoration
+class Incinerator final : public Weapon
 {
 public:
-    Ice(Island* parent, const RoomCoord& position)
-        : Decoration(parent, name(), position)
-    {
-    }
+    Incinerator(Island* parent, const RoomCoord& position);
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
-    {
-        buffer += SYSTR(description_ice)->c_str();
-    }
+    void fire(Platform& pfrm, App& app) override;
+    Microseconds reload() const override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
-
-
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
     static Category category()
     {
-        return Category::misc;
+        return Category::weapon;
     }
 
 
     static RoomProperties::Bitmask properties()
     {
-        return (Decoration::properties() & ~RoomProperties::locked_by_default) |
-               RoomProperties::only_constructible_in_sandbox |
-               RoomProperties::fireproof;
+        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
+               RoomProperties::multiplayer_unsupported |
+               RoomProperties::only_constructible_in_sandbox;
     }
 
 
-    static const char* name()
+    bool description_visible() override
     {
-        return "ice";
-    }
-
-
-    static SystemString ui_name()
-    {
-        return SystemString::block_ice;
+        return true;
     }
 
 
     static Vec2<u8> size()
     {
-        return {1, 1};
+        return {2, 2};
+    }
+
+
+    static const char* name()
+    {
+        return "incinerator";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_incinerator;
+    }
+
+
+    static Float atp_value()
+    {
+        return 1200.f;
+    }
+
+
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override
+    {
+        // one cannot walk through this tile, intentionally do nothing.
     }
 
 
     static Icon icon()
     {
-        return 2344;
+        return 4040;
     }
 
 
     static Icon unsel_icon()
     {
-        return 2360;
+        return 4024;
     }
-};
 
+
+    void finalize(Platform& pfrm, App& app) override;
+};
 
 
 } // namespace skyland

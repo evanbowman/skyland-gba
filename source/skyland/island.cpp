@@ -1202,7 +1202,12 @@ void Island::display(Platform& pfrm)
         room->display(pfrm.screen());
         room = room->dispatch_next();
     }
+}
 
+
+
+void Island::display_fires(Platform& pfrm)
+{
     fire_.display(pfrm, *this);
 }
 
@@ -1738,9 +1743,6 @@ void Island::repaint(Platform& pfrm, App& app)
                 if (buffer[x][y] == Tile::strut) {
                     block_chimney = true;
                     buffer[x][y] = Tile::roof_strut;
-                } else if (buffer[x][y] >= Tile::piston_closed_r and
-                           buffer[x][y] <= Tile::piston_opened_d_2) {
-                    block_chimney = true;
                 } else if (buffer[x][y] == Tile::strut_top) {
                     block_chimney = true;
                     buffer[x][y] = Tile::roof_strut_joined;
