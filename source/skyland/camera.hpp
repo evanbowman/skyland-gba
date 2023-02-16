@@ -63,6 +63,12 @@ public:
 
     bool is_shaking() const
     {
+        return shake_magnitude();
+    }
+
+
+    u8 shake_magnitude() const
+    {
         return shake_magnitude_;
     }
 

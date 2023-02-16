@@ -54,7 +54,7 @@
                     (manufactory . (3 . 2))
                     (backup-core . (2 . 2))
                     (incinerator . (2 . 2))
-                    (beam-gun . (2 . 2)))))
+                    (beam-gun . (3 . 1)))))
         (let ((pick (sample opts)))
           (dialog
            (format
