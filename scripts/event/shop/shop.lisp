@@ -46,11 +46,13 @@
                                (filter
                                 (lambda
                                   (> (get $0 2) 0))
-                                (map (lambda
-                                       (if (equal (car $0) (car info))
-                                           (list (car info) (get info 1) (- (get info 2) 1))
-                                         $0))
-                                     shop-items)))
+                                (replace
+                                 shop-items
+                                 info
+                                 (list (car info)
+                                       (get info 1)
+                                       (- (get info 2) 1)
+                                       (get info 2))))
 
                          (if shop-items
                              (item-shop)

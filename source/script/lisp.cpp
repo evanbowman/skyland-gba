@@ -3111,6 +3111,7 @@ static const Binding builtins[] = {
     {"map",
      [](int argc) {
          if (argc < 2) {
+             Platform::fatal("invalid args passed to map");
              return get_nil();
          }
          if (lisp::get_op(argc - 1)->type() not_eq Value::Type::function and

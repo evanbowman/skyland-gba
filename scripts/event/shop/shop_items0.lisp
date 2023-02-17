@@ -1,6 +1,6 @@
 
 
-(let ((result 'nul)
+(let ((result '())
       (rooms (eval-file "/scripts/config/room_tab.lisp"))) ;; load pricing info...
   ;; Ok, so we want to make shop items cheaper than if players built them
   ;; manually, but not so cheap that you could increase your coin count by
@@ -19,7 +19,7 @@
                     ;; [room-sym qty size]
                     (setq result
                           (cons
-                           (list $0 (+ (low $0) (choice 100)) $1)
+                           (list $0 (+ (low $0) (choice 100)) $1 $2)
                            result)))))
 
         (push 'hull 5 '(1 . 1))

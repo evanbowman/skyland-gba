@@ -139,3 +139,14 @@
 ;; While suboptimal, these functions have the benefit of being small.
 (defn/c min (car (sort $0 <)))
 (defn/c max (car (sort $0 >)))
+
+(defn/c replace
+  ;; (lat value new-value)
+  (let ((v $1)
+        (newv $2))
+    (map
+     (lambda
+       (if (equal $0 v)
+           newv
+         v))
+     $0)))
