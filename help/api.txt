@@ -466,6 +466,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (rname type-sym)
+
+ Returns the string name of
+ a room. Different than the
+ type sym due to localization.
+
+
+o----------------------------o
+
  (rsz type-sym)
 
  Returns the size of a room

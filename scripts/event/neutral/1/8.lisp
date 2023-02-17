@@ -48,17 +48,15 @@
           amt))
         (end)))
      ((equal c 1)
-      (let ((opts '(workshop
-                    infirmary
-                    transporter
-                    manufactory
+      (let ((opts '(manufactory
                     backup-core
                     incinerator
-                    beam-gun))))
+                    beam-gun)))
         (let ((pick (sample opts)))
           (dialog
-           (format
-            "After boarding, you find a completely intact %. Your crew asks you where to install it..." pick))
+           "After boarding, you find a completely intact "
+           (rname pick)
+           ". Your crew asks you where to install it...")
           (defn on-dialog-closed
             (setq on-dialog-closed nil)
             (while (not (construction-sites (player) (rsz pick)))

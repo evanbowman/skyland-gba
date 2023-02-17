@@ -26,26 +26,24 @@
                 ;; Give the player +1 terrain until a construction site exists.
                 (terrain (player) (+ (terrain (player)) 1)))))
 
-      (item (sample '((arc-gun . (1 . 1))
-                      (flak-gun . (2 . 1))
-                      (fire-charge . (2 . 1)))))
+      (item (sample '(arc-gun flak-gun fire-charge)))
       (skip 1))
 
-  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (cdr item)))))
-  (room-new (opponent) (list (car item) 5 14))
-  (room-new (opponent) (list (car item) 5 13))
-  (room-new (opponent) (list (car item) 5 12))
-  (room-new (opponent) (list (car item) 5 11))
+  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (rsz item)))))
+  (room-new (opponent) (list item 5 14))
+  (room-new (opponent) (list item 5 13))
+  (room-new (opponent) (list item 5 12))
+  (room-new (opponent) (list item 5 11))
 
-  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 14))
-  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 13))
-  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 12))
-  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 11))
+  (room-new (opponent) (list item (+ 5 (car (rsz item))) 14))
+  (room-new (opponent) (list item (+ 5 (car (rsz item))) 13))
+  (room-new (opponent) (list item (+ 5 (car (rsz item))) 12))
+  (room-new (opponent) (list item (+ 5 (car (rsz item))) 11))
 
   (setq on-converge
         (lambda
           (dialog "<c:merchant:7> We ordered too many "
-                  (string (car item))
+                  (rname item)
                   "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, "
                   (if (< (coins) 1300)
                       "...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
@@ -82,19 +80,22 @@
                     (setq on-dialog-declined (lambda (unbind 'fut) (exit))))))
             (progn
               (coins-add -1300)
-              (mktr (cdr item))
+              (mktr (rsz item))
               (sel-input
-               (cdr item)
-               (format "place first % (%x%):" (car item) (car (cdr item)) (cdr (cdr item)))
+               (rsz item)
+               (string
+                "place first "
+                (rname item)
+                (format " (%x%):" (car (rsz item)) (cdr (rsz item))))
                (lambda
-                 (room-new (player) (list (car item) $1 $2))
+                 (room-new (player) (list item $1 $2))
                  (syscall "sound" "build0")
-                 (mktr (cdr item))
+                 (mktr (rsz item))
                  (sel-input
-                  (cdr item)
-                  (string "place second " (car item) ":")
+                  (rsz item)
+                  (string "place second " (rname item) ":")
                   (lambda
-                    (room-new (player) (list (car item) $1 $2))
+                    (room-new (player) (list item $1 $2))
                     (syscall "sound" "build0")
                     (dialog "<c:merchant:7> Looks great! You made a fine choice!")
                     (setq on-dialog-closed exit))))))))))

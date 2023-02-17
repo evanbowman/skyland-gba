@@ -89,7 +89,7 @@
                      (let ((cb $0))
 
                        (sel-input '(2 . 1)
-                                  (format "Place % (2x1):" wpn)
+                                  (string "Place " (rname wpn) " (2x1):")
                                   (lambda
                                     (room-new (player) `(,wpn ,$1 ,$2))
                                     (cb)))))))
