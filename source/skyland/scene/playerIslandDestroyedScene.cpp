@@ -298,14 +298,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     const bool opponent_defeated = island_ not_eq &app.player_island();
 
 
-    if (app.player().key_down(pfrm, Key::action_1) or
-        app.player().key_down(pfrm, Key::action_2)) {
-        ++skip_count_;
-    }
-
-    const bool fast = skip_count_ > 0;
-
-
     const bool endgame =
         app.game_mode() == App::GameMode::adventure and
         ((not opponent_defeated and
@@ -550,10 +542,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::fade: {
         auto fade_duration = seconds(3) + milliseconds(500);
 
-        if (fast) {
-            fade_duration = seconds(1) + milliseconds(500);
-        }
-
         circ_effect_radius_ = 0;
 
         if (prev_timer < seconds(1) and timer_ >= seconds(1)) {
@@ -656,16 +644,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         force_show_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
-        skip_count_ = 0;
         break;
     }
 
     case AnimState::wait_2: {
 
         auto time = milliseconds(2000);
-        if (fast) {
-            time = milliseconds(500);
-        }
 
         if (timer_ > time) {
             timer_ = 0;
