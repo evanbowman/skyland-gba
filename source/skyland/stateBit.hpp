@@ -41,6 +41,7 @@ enum class StateBit {
     disable_autopause,
     successful_multiplayer_connect,
     multiboot,
+    open_item_shop,
     count,
 };
 

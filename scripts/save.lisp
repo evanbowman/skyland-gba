@@ -19,4 +19,5 @@
  (cons 'diff (diff))
  (cons 'qids qids)
  (cons 'qvar qvar)
- (cons 'chr-names chr-names))
+ (cons 'chr-names chr-names)
+ (cons 'shop-items shop-items))

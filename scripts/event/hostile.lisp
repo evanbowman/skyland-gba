@@ -6,15 +6,7 @@
 
 
 (eval-file "/scripts/reset_hooks.lisp")
-
-
-(if (not (equal (zone) last-zone))
-    (progn
-      (setq friendlies-seen '())
-      (setq enemies-seen '())))
-
-
-(setq last-zone (zone))
+(eval-file "/scripts/event/check_zone.lisp")
 
 
 (setq

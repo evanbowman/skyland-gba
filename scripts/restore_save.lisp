@@ -50,7 +50,8 @@
 
             (setq last-zone (load 'last-zone))
 
-            (setq qids (load 'qids))))
+            (setq qids (load 'qids))
+            (setq shop-items (load 'shop-items))))
 
       (if (> (load 'save-protocol) 1)
           (diff-set (load 'diff))))))

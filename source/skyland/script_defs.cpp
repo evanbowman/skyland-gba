@@ -500,6 +500,13 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"item-shop",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+         auto& app = *interp_get_app();
+         state_bit_store(app, StateBit::open_item_shop, true);
+         return L_NIL;
+     }},
     {"mcr-block",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);

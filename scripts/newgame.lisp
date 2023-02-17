@@ -34,6 +34,8 @@
  '((power-core 1 13)))
 
 
+(setq shop-items '())
+
 ;; Variables associated with quests
 (setq qvar '())
 

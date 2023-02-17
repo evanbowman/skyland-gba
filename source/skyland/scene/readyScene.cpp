@@ -29,6 +29,7 @@
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
+#include "itemShopScene.hpp"
 #include "keyComboScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "lispReplScene.hpp"
@@ -438,6 +439,10 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (state_bit_load(app, StateBit::open_item_shop)) {
+        state_bit_store(app, StateBit::open_item_shop, false);
+        return scene_pool::alloc<ItemShopScene>();
+    }
 
     if (app.game_mode() == App::GameMode::adventure or
         app.game_mode() == App::GameMode::skyland_forever) {
@@ -505,6 +510,12 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // the multiplayer waiting room.
                 app.opponent_island() and
                 (mt_prep_seconds == 0 or globals().unhide_multiplayer_prep_)) {
+
+                if (app.world_graph().nodes_[app.current_world_location()]
+                    .type_ == WorldGraph::Node::Type::shop) {
+                    return scene_pool::alloc<ItemShopScene>();
+                }
+
                 auto& cursor_loc = globals().far_cursor_loc_;
 
                 cursor_loc.x = 0;
@@ -939,6 +950,20 @@ void ReadyScene::display(Platform& pfrm, App& app)
         if ((*drone)->parent() == &app.player_island()) {
             (*drone)->display_on_hover(pfrm.screen(), app, cursor_loc);
         }
+    }
+
+    if (app.world_graph().nodes_[app.current_world_location()]
+        .type_ == WorldGraph::Node::Type::shop) {
+        Sprite spr;
+        spr.set_texture_index(57);
+        auto o = app.player_island().origin();
+        o.x += Fixnum::from_integer(app.player_island().terrain().size() * 16);
+        o.y += 16.0_fixed * 12.0_fixed;
+        spr.set_position(o);
+        if (cursor_loc.x < app.player_island().terrain().size()) {
+            spr.set_alpha(Sprite::Alpha::translucent);
+        }
+        pfrm.screen().draw(spr);
     }
 
     WorldScene::display(pfrm, app);

@@ -382,7 +382,7 @@ neutral
 hostile
 storm
 quest
-outpost
+shop
 uncharted
 quest marker
 progress saved...

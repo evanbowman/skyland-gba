@@ -1,0 +1,79 @@
+;;;
+;;; shop.lisp
+;;;
+
+
+(eval-file "/scripts/reset_hooks.lisp")
+(eval-file "/scripts/event/check_zone.lisp")
+
+
+(opponent-init 6 'neutral)
+
+
+(if (not shop-items)
+    (progn
+      (setq shop-items
+            (eval-file
+             (format "/scripts/event/shop/shop_items%.lisp"
+                     (zone))))))
+
+
+(defn on-shop-item-sel
+  (let ((name $0)
+        (item $1))
+    (let ((info (get shop-items item)))
+      (if (< (coins) (get info 1))
+          (progn
+            (dialog "Hah! You can't afford that!")
+            (defn on-dialog-closed
+              (item-shop)))
+        (progn
+          (dialog
+           "<c:shopkeeper:7>"
+           name
+           (format "? I'll sell you one for %@..." (get info 1)))
+          (dialog-await-y/n)
+
+          (defn on-dialog-accepted
+            (coins-add (* -1 (get info 1)))
+            (sel-input (get info 3)
+                       "pick a slot:"
+                       (lambda
+                         (room-new (player) (list (get info 0) $1 $2))
+                         (syscall "sound" "build0")
+
+                         (setq shop-items
+                               (filter
+                                (lambda
+                                  (> (get $0 2) 0))
+                                (map (lambda
+                                       (if (equal (car $0) (car info))
+                                           (list (car info) (get info 1) (- (get info 2) 1))
+                                         $0))
+                                     shop-items)))
+
+                         (if shop-items
+                             (item-shop)
+                           (progn
+                             (dialog
+                              "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? WE'RE CLOSED.")
+                             (exit))))))
+
+          (defn on-dialog-declined
+            (item-shop)))))))
+
+
+(defn on-fadein
+  (dialog
+   "<c:shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
+   "(when done, use the start menu to return to your sky chart)")
+
+  (defn on-dialog-closed
+    (item-shop)))
+
+
+(island-configure
+ (opponent)
+ '((power-core 3 13)
+   (coconut-palm 5 12)
+   (hull 5 14)))

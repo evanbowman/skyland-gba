@@ -32,6 +32,10 @@ namespace skyland
 
 
 
+class App;
+
+
+
 class WorldGraph
 {
 public:
@@ -47,7 +51,7 @@ public:
     }
 
 
-    void generate();
+    void generate(App&);
 
 
     struct Node
@@ -60,7 +64,7 @@ public:
             corrupted,
             exit,
             quest,
-            hub,
+            shop,
             hostile_hidden,
             neutral_hidden,
             quest_marker,

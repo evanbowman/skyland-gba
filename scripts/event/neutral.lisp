@@ -4,15 +4,8 @@
 
 
 (eval-file "/scripts/reset_hooks.lisp")
+(eval-file "/scripts/event/check_zone.lisp")
 
-
-(if (not (equal (zone) last-zone))
-    (progn
-      (setq friendlies-seen '())
-      (setq enemies-seen '())))
-
-
-(setq last-zone (zone))
 
 (if (and (> (zone) 2) (not (cart-found? 0)))
     (eval-file "scripts/event/neutral/3/dev_cameo.lisp")

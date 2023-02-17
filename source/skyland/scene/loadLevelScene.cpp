@@ -219,7 +219,11 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldGraph::Node::Type::hostile_hidden: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
         break;
+
     }
+    case WorldGraph::Node::Type::shop:
+        app.invoke_script(pfrm, "/scripts/event/shop/shop.lisp");
+        break;
     }
 
     if (node.type_ == WorldGraph::Node::Type::corrupted) {
@@ -232,6 +236,12 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     prep_level(pfrm, app);
+
+    if (node.type_ == WorldGraph::Node::Type::shop) {
+        app.opponent_island()->set_position(
+                {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
+                 Fixnum(app.opponent_island()->get_position().y)});
+    }
 
     for (auto& room : app.player_island().rooms()) {
         room->reset_state();

@@ -145,6 +145,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/rewindScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
+  ${SOURCE_DIR}/skyland/scene/itemShopScene.cpp
   ${SOURCE_DIR}/skyland/scene/qrViewerScene.cpp
   ${SOURCE_DIR}/skyland/scene/lispReplScene.cpp
   ${SOURCE_DIR}/skyland/scene/selInputScene.cpp

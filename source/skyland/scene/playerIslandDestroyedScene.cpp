@@ -738,7 +738,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // We're at the exit node. Let's adjust stuff, so that we're at
                     // the beginning of the next zone.
                     app.current_world_location() = 0;
-                    app.world_graph().generate();
+                    app.world_graph().generate(app);
                     app.zone() += 1;
 
                     if (app.zone() == 4) {

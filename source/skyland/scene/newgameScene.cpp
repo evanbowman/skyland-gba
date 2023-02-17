@@ -79,7 +79,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         BasicCharacter::__reset_ids();
 
         app.current_world_location() = 0;
-        app.world_graph().generate();
+        app.world_graph().generate(app);
         app.persistent_data().lives_ = 2;
 
         app.zone() = 1;

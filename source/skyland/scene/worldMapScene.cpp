@@ -50,7 +50,7 @@ static const auto node_death_sequence_time = milliseconds(1500);
 
 
 // TODO: create a worldGraph.cpp and move this function there.
-void WorldGraph::generate()
+void WorldGraph::generate(App& app)
 {
     storm_depth_ = 1;
 
@@ -170,14 +170,14 @@ void WorldGraph::generate()
             if (placement_map[x][y]) {
                 nodes_[i].coord_.x = x;
                 nodes_[i].coord_.y = y;
-                nodes_[i].type_ = WorldGraph::Node::Type::hub;
+                nodes_[i].type_ = WorldGraph::Node::Type::shop;
                 invalidate_zones();
                 break;
             }
         }
-        if (tries == 255
-            // FIXME: actually implement trading hubs
-            or true) {
+        if (tries == 255 or
+            i == 19 // only place one store actually
+            ) {
             nodes_[i].type_ = WorldGraph::Node::Type::null;
         }
     }
@@ -381,7 +381,7 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
         text_ = SYSTR(wg_quest)->c_str();
         break;
 
-    case WorldGraph::Node::Type::hub:
+    case WorldGraph::Node::Type::shop:
         text_ = SYSTR(wg_outpost)->c_str();
         break;
 
@@ -617,9 +617,13 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         if (app.player().key_down(pfrm, Key::action_1)) {
-            app.world_graph().nodes_[cursor_].type_ =
-                WorldGraph::Node::Type::visited;
-            for (int i = 0; i < 18; ++i) {
+            if (app.world_graph().nodes_[cursor_].type_ not_eq
+                WorldGraph::Node::Type::shop) {
+                app.world_graph().nodes_[cursor_].type_ =
+                    WorldGraph::Node::Type::visited;
+            }
+
+            for (int i = 0; i < 19; ++i) {
                 if (app.world_graph().nodes_[i].coord_ ==
                     movement_targets_[movement_cursor_]) {
                     cursor_ = i;
@@ -1346,7 +1350,9 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     app.time_stream().clear();
 
     auto& current = app.world_graph().nodes_[cursor_];
-    current.type_ = WorldGraph::Node::Type::visited;
+    if (current.type_ not_eq WorldGraph::Node::Type::shop) {
+        current.type_ = WorldGraph::Node::Type::visited;
+    }
 
     pfrm.load_overlay_texture("overlay_world_map");
     pfrm.load_tile1_texture("tilesheet_world_map_backdrop");
