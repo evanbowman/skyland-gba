@@ -5,11 +5,11 @@
 //
 //	background_macro, 1024x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 128 tiles not compressed
-//	Total size: 512 + 4096 = 4608
+//	+ palette 16 entries, not compressed
+//	+ 128 tiles lz77 compressed
+//	Total size: 32 + 592 = 624
 //
-//	Time-stamp: 2022-10-10, 14:16:38
+//	Time-stamp: 2023-02-17, 13:25:24
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_BACKGROUND_MACRO_H
 #define GRIT_BACKGROUND_MACRO_H
 
-#define background_macroTilesLen 4096
-extern const unsigned int background_macroTiles[1024];
+#define background_macroTilesLen 592
+extern const unsigned int background_macroTiles[148];
 
-#define background_macroPalLen 512
-extern const unsigned short background_macroPal[256];
+#define background_macroPalLen 32
+extern const unsigned short background_macroPal[16];
 
 #endif // GRIT_BACKGROUND_MACRO_H
 

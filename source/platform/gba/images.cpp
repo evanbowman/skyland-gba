@@ -57,18 +57,6 @@
 //;
 #include "data/developer_mode_flattened.h"
 //;
-#include "data/intro_crops_snow_flattened.h"
-//;
-#include "data/intro_crops_snow_far_flattened.h"
-//;
-#include "data/intro_island_launch_flattened.h"
-//;
-#include "data/intro_explosion_1_flattened.h"
-//;
-#include "data/intro_explosion_2_flattened.h"
-//;
-#include "data/intro_storm_king_flattened.h"
-//;
 #include "data/zone_image_0_flattened.h"
 //;
 #include "data/zone_image_1_flattened.h"
@@ -148,160 +136,149 @@ struct TextureData {
     const unsigned short* palette_data_;
     u32 tile_data_length_;
     u32 palette_data_length_;
+    bool compressed_;
 };
 
 
 #define STR(X) #X
-#define TEXTURE_INFO(NAME)                                                     \
+#define TEXTURE_INFO(NAME, COMPR)                                              \
     {                                                                          \
-        STR(NAME), NAME##Tiles, NAME##Pal, NAME##TilesLen, NAME##PalLen        \
+        STR(NAME), NAME##Tiles, NAME##Pal, NAME##TilesLen, NAME##PalLen, COMPR \
     }
 
 
 static const TextureData sprite_textures[] = {
 
-    TEXTURE_INFO(spritesheet),
+    TEXTURE_INFO(spritesheet, false),
 //;
-    TEXTURE_INFO(spritesheet_title_screen),
+    TEXTURE_INFO(spritesheet_title_screen, false),
 //;
-    TEXTURE_INFO(spritesheet_intro),
+    TEXTURE_INFO(spritesheet_intro, false),
 //;
-    TEXTURE_INFO(spritesheet_macro),
+    TEXTURE_INFO(spritesheet_macro, false),
 //;
-    TEXTURE_INFO(spritesheet_macroverse),
+    TEXTURE_INFO(spritesheet_macroverse, false),
 //;
-    TEXTURE_INFO(spritesheet_fishing),
+    TEXTURE_INFO(spritesheet_fishing, false),
 //
 };
 
 
 static const TextureData tile_textures[] = {
 
-    TEXTURE_INFO(tilesheet),
+    TEXTURE_INFO(tilesheet, false),
 //;
-    TEXTURE_INFO(tilesheet_fishing),
+    TEXTURE_INFO(tilesheet_fishing, false),
 //;
-    TEXTURE_INFO(tilesheet_enemy_0),
+    TEXTURE_INFO(tilesheet_enemy_0, false),
 //;
-    TEXTURE_INFO(tilesheet_enemy_0_interior),
+    TEXTURE_INFO(tilesheet_enemy_0_interior, false),
 //;
-    TEXTURE_INFO(tilesheet_interior),
+    TEXTURE_INFO(tilesheet_interior, false),
 //;
-    TEXTURE_INFO(tilesheet_world_map_backdrop),
+    TEXTURE_INFO(tilesheet_world_map_backdrop, true),
 //;
-    TEXTURE_INFO(skyland_title_4_flattened),
+    TEXTURE_INFO(skyland_title_4_flattened, true),
 //;
-    TEXTURE_INFO(skyland_title_3_flattened),
+    TEXTURE_INFO(skyland_title_3_flattened, true),
 //;
-    TEXTURE_INFO(skyland_title_2_flattened),
+    TEXTURE_INFO(skyland_title_2_flattened, true),
 //;
-    TEXTURE_INFO(skyland_title_1_flattened),
+    TEXTURE_INFO(skyland_title_1_flattened, true),
 //;
-    TEXTURE_INFO(skyland_title_0_flattened),
+    TEXTURE_INFO(skyland_title_0_flattened, true),
 //;
-    TEXTURE_INFO(boot_img_flattened),
+    TEXTURE_INFO(boot_img_flattened, true),
 //;
-    TEXTURE_INFO(savegame_flattened),
+    TEXTURE_INFO(savegame_flattened, true),
 //;
-    TEXTURE_INFO(ending_img_flattened),
+    TEXTURE_INFO(ending_img_flattened, true),
 //;
-    TEXTURE_INFO(macro_rendertexture),
+    TEXTURE_INFO(macro_rendertexture, false),
 //;
-    TEXTURE_INFO(developer_mode_flattened),
+    TEXTURE_INFO(developer_mode_flattened, true),
 //;
-    TEXTURE_INFO(intro_crops_snow_flattened),
+    TEXTURE_INFO(zone_image_0_flattened, true),
 //;
-    TEXTURE_INFO(intro_crops_snow_far_flattened),
+    TEXTURE_INFO(zone_image_1_flattened, true),
 //;
-    TEXTURE_INFO(intro_island_launch_flattened),
+    TEXTURE_INFO(zone_image_2_flattened, true),
 //;
-    TEXTURE_INFO(intro_explosion_1_flattened),
+    TEXTURE_INFO(zone_image_3_flattened, true),
 //;
-    TEXTURE_INFO(intro_explosion_2_flattened),
+    TEXTURE_INFO(zone_image_4_flattened, true),
 //;
-    TEXTURE_INFO(intro_storm_king_flattened),
-//;
-    TEXTURE_INFO(zone_image_0_flattened),
-//;
-    TEXTURE_INFO(zone_image_1_flattened),
-//;
-    TEXTURE_INFO(zone_image_2_flattened),
-//;
-    TEXTURE_INFO(zone_image_3_flattened),
-//;
-    TEXTURE_INFO(zone_image_4_flattened),
-//;
-    TEXTURE_INFO(gba_health_safety_logo_flattened),
+    TEXTURE_INFO(gba_health_safety_logo_flattened, true),
 //
 };
 
 
 static const TextureData overlay_textures[] = {
 
-    TEXTURE_INFO(pub_logo_flattened),
+    TEXTURE_INFO(pub_logo_flattened, true),
 //;
-    TEXTURE_INFO(traded_core_flattened),
+    TEXTURE_INFO(traded_core_flattened, true),
 //;
-    TEXTURE_INFO(photo_village_flattened),
+    TEXTURE_INFO(photo_village_flattened, true),
 //;
-    TEXTURE_INFO(photo_surface_flattened),
+    TEXTURE_INFO(photo_surface_flattened, true),
 //;
-    TEXTURE_INFO(photo_market_flattened),
+    TEXTURE_INFO(photo_market_flattened, true),
 //;
-    TEXTURE_INFO(photo_disaster_flattened),
+    TEXTURE_INFO(photo_disaster_flattened, true),
 //;
-    TEXTURE_INFO(overlay_datacart),
+    TEXTURE_INFO(overlay_datacart, true),
 //;
-    TEXTURE_INFO(stack_overflow_flattened),
+    TEXTURE_INFO(stack_overflow_flattened, true),
 //;
-    TEXTURE_INFO(overlay),
+    TEXTURE_INFO(overlay, false),
 //;
-    TEXTURE_INFO(overlay_qr),
+    TEXTURE_INFO(overlay_qr, true),
 //;
-    TEXTURE_INFO(overlay_gamespeed),
+    TEXTURE_INFO(overlay_gamespeed, true),
 //;
-    TEXTURE_INFO(overlay_editor),
+    TEXTURE_INFO(overlay_editor, true),
 //;
-    TEXTURE_INFO(overlay_dialog),
+    TEXTURE_INFO(overlay_dialog, true),
 //;
-    TEXTURE_INFO(overlay_dialog_fullscreen),
+    TEXTURE_INFO(overlay_dialog_fullscreen, true),
 //;
-    TEXTURE_INFO(overlay_skyland_title),
+    TEXTURE_INFO(overlay_skyland_title, true),
 //;
-    TEXTURE_INFO(charset),
+    TEXTURE_INFO(charset, false),
 //;
-    TEXTURE_INFO(charset_extended_0),
+    TEXTURE_INFO(charset_extended_0, false),
 //;
-    TEXTURE_INFO(charset_extended_1),
+    TEXTURE_INFO(charset_extended_1, false),
 //;
-    TEXTURE_INFO(overlay_world_map),
+    TEXTURE_INFO(overlay_world_map, true),
 //;
-    TEXTURE_INFO(overlay_island_destroyed),
+    TEXTURE_INFO(overlay_island_destroyed, true),
 //;
-    TEXTURE_INFO(overlay_challenges),
+    TEXTURE_INFO(overlay_challenges, true),
 //;
-    TEXTURE_INFO(overlay_large_numeral),
+    TEXTURE_INFO(overlay_large_numeral, true),
 //;
-    TEXTURE_INFO(hint_infirmary),
+    TEXTURE_INFO(hint_infirmary, true),
 //;
-    TEXTURE_INFO(hint_goblin),
+    TEXTURE_INFO(hint_goblin, true),
 //;
-    TEXTURE_INFO(hint_plunder),
+    TEXTURE_INFO(hint_plunder, true),
 //;
-    TEXTURE_INFO(hint_damaged_core),
+    TEXTURE_INFO(hint_damaged_core, true),
 //
 };
 
 
 static const TextureData background_textures[] = {
 
-    TEXTURE_INFO(background),
+    TEXTURE_INFO(background, true),
 //;
-    TEXTURE_INFO(background_macro),
+    TEXTURE_INFO(background_macro, true),
 //;
-    TEXTURE_INFO(background_macro_night),
+    TEXTURE_INFO(background_macro_night, true),
 //;
-    TEXTURE_INFO(background_title_screen),
+    TEXTURE_INFO(background_title_screen, true),
 //
 };
 

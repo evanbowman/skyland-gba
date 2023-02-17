@@ -5,11 +5,11 @@
 //
 //	overlay_qr, 664x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 83 tiles not compressed
-//	Total size: 512 + 2656 = 3168
+//	+ palette 16 entries, not compressed
+//	+ 83 tiles lz77 compressed
+//	Total size: 32 + 332 = 364
 //
-//	Time-stamp: 2022-09-23, 17:47:04
+//	Time-stamp: 2023-02-17, 13:19:08
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_OVERLAY_QR_H
 #define GRIT_OVERLAY_QR_H
 
-#define overlay_qrTilesLen 2656
-extern const unsigned int overlay_qrTiles[664];
+#define overlay_qrTilesLen 332
+extern const unsigned int overlay_qrTiles[83];
 
-#define overlay_qrPalLen 512
-extern const unsigned short overlay_qrPal[256];
+#define overlay_qrPalLen 32
+extern const unsigned short overlay_qrPal[16];
 
 #endif // GRIT_OVERLAY_QR_H
 

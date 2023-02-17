@@ -2968,11 +2968,15 @@ void Platform::load_tile0_texture(const char* name)
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
             }
 
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
-                     info.tile_data_,
-                     std::min((int)charblock_size / 2,
-                              (int)info.tile_data_length_ / 2));
-
+            if (info.compressed_) {
+                LZ77UnCompVram(info.tile_data_,
+                               (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]);
+            } else {
+                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
+                         info.tile_data_,
+                         std::min((int)charblock_size / 2,
+                                  (int)info.tile_data_length_ / 2));
+            }
 
             return;
         }
@@ -3006,10 +3010,15 @@ void Platform::load_tile1_texture(const char* name)
                 MEM_BG_PALETTE[32 + i] = blend(from, c, last_fade_amt);
             }
 
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
-                     info.tile_data_,
-                     std::min((int)charblock_size / 2,
-                              (int)info.tile_data_length_ / 2));
+            if (info.compressed_) {
+                LZ77UnCompVram(info.tile_data_,
+                               (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]);
+            } else {
+                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
+                         info.tile_data_,
+                         std::min((int)charblock_size / 2,
+                                  (int)info.tile_data_length_ / 2));
+            }
 
             return;
         }
@@ -3040,9 +3049,14 @@ void Platform::load_background_texture(const char* name)
 
             if (validate_background_texture_size(*this,
                                                  info.tile_data_length_)) {
-                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
-                         info.tile_data_,
-                         (sizeof(ScreenBlock) * 2) / 2);
+                if (info.compressed_) {
+                    LZ77UnCompVram(info.tile_data_,
+                                   (void*)&MEM_SCREENBLOCKS[sbb_background_texture][0]);
+                } else {
+                    memcpy16((void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
+                             info.tile_data_,
+                             (sizeof(ScreenBlock) * 2) / 2);
+                }
             } else {
                 StringBuffer<45> buf = "unable to load: ";
                 buf += name;
@@ -5148,12 +5162,17 @@ bool Platform::load_overlay_texture(const char* name)
 
             constexpr auto charblock_size = sizeof(ScreenBlock) * 8;
 
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
-                     info.tile_data_,
-                     std::min((size_t)info.tile_data_length_ / 2,
-                              charblock_size / 2));
 
+            if (info.compressed_) {
+                LZ77UnCompVram(info.tile_data_,
+                               (void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0]);
 
+            } else {
+                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
+                         info.tile_data_,
+                         std::min((size_t)info.tile_data_length_ / 2,
+                                  charblock_size / 2));
+            }
 
             // if (validate_overlay_texture_size(*this, info.tile_data_length_)) {
 

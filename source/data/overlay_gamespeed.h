@@ -5,11 +5,11 @@
 //
 //	overlay_gamespeed, 4032x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 504 tiles not compressed
-//	Total size: 512 + 16128 = 16640
+//	+ palette 16 entries, not compressed
+//	+ 504 tiles lz77 compressed
+//	Total size: 32 + 2884 = 2916
 //
-//	Time-stamp: 2022-07-13, 18:34:29
+//	Time-stamp: 2023-02-17, 13:19:08
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_OVERLAY_GAMESPEED_H
 #define GRIT_OVERLAY_GAMESPEED_H
 
-#define overlay_gamespeedTilesLen 16128
-extern const unsigned int overlay_gamespeedTiles[4032];
+#define overlay_gamespeedTilesLen 2884
+extern const unsigned int overlay_gamespeedTiles[721];
 
-#define overlay_gamespeedPalLen 512
-extern const unsigned short overlay_gamespeedPal[256];
+#define overlay_gamespeedPalLen 32
+extern const unsigned short overlay_gamespeedPal[16];
 
 #endif // GRIT_OVERLAY_GAMESPEED_H
 

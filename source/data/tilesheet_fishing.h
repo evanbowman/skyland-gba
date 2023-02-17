@@ -5,11 +5,11 @@
 //
 //	tilesheet_fishing, 1792x16@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
+//	+ palette 16 entries, not compressed
 //	+ 448 tiles Metatiled by 2x2 not compressed
-//	Total size: 512 + 14336 = 14848
+//	Total size: 32 + 14336 = 14368
 //
-//	Time-stamp: 2022-06-23, 07:53:19
+//	Time-stamp: 2023-02-17, 12:54:50
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -21,8 +21,8 @@
 #define tilesheet_fishingTilesLen 14336
 extern const unsigned int tilesheet_fishingTiles[3584];
 
-#define tilesheet_fishingPalLen 512
-extern const unsigned short tilesheet_fishingPal[256];
+#define tilesheet_fishingPalLen 32
+extern const unsigned short tilesheet_fishingPal[16];
 
 #endif // GRIT_TILESHEET_FISHING_H
 

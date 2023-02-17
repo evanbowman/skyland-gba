@@ -92,6 +92,7 @@ void DataCartModule::enter(Platform& pfrm, App&, Scene& prev)
     Text::platform_retain_alphabet(pfrm);
 
     pfrm.load_overlay_texture("overlay_datacart");
+    pfrm.load_background_texture("background");
     pfrm.screen().schedule_fade(0.65f);
     pfrm.set_overlay_origin(0, -4);
 }

@@ -5,11 +5,11 @@
 //
 //	overlay_dialog_fullscreen, 1200x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 150 tiles not compressed
-//	Total size: 512 + 4800 = 5312
+//	+ palette 16 entries, not compressed
+//	+ 150 tiles lz77 compressed
+//	Total size: 32 + 772 = 804
 //
-//	Time-stamp: 2022-04-20, 15:04:47
+//	Time-stamp: 2023-02-17, 13:17:00
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_OVERLAY_DIALOG_FULLSCREEN_H
 #define GRIT_OVERLAY_DIALOG_FULLSCREEN_H
 
-#define overlay_dialog_fullscreenTilesLen 4800
-extern const unsigned int overlay_dialog_fullscreenTiles[1200];
+#define overlay_dialog_fullscreenTilesLen 772
+extern const unsigned int overlay_dialog_fullscreenTiles[193];
 
-#define overlay_dialog_fullscreenPalLen 512
-extern const unsigned short overlay_dialog_fullscreenPal[256];
+#define overlay_dialog_fullscreenPalLen 32
+extern const unsigned short overlay_dialog_fullscreenPal[16];
 
 #endif // GRIT_OVERLAY_DIALOG_FULLSCREEN_H
 

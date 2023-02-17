@@ -5,11 +5,11 @@
 //
 //	overlay_skyland_title, 4032x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 504 tiles not compressed
-//	Total size: 512 + 16128 = 16640
+//	+ palette 16 entries, not compressed
+//	+ 504 tiles lz77 compressed
+//	Total size: 32 + 2212 = 2244
 //
-//	Time-stamp: 2022-04-20, 15:04:48
+//	Time-stamp: 2023-02-17, 13:17:00
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_OVERLAY_SKYLAND_TITLE_H
 #define GRIT_OVERLAY_SKYLAND_TITLE_H
 
-#define overlay_skyland_titleTilesLen 16128
-extern const unsigned int overlay_skyland_titleTiles[4032];
+#define overlay_skyland_titleTilesLen 2212
+extern const unsigned int overlay_skyland_titleTiles[553];
 
-#define overlay_skyland_titlePalLen 512
-extern const unsigned short overlay_skyland_titlePal[256];
+#define overlay_skyland_titlePalLen 32
+extern const unsigned short overlay_skyland_titlePal[16];
 
 #endif // GRIT_OVERLAY_SKYLAND_TITLE_H
 

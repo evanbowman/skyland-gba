@@ -5,11 +5,11 @@
 //
 //	hint_goblin, 1616x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 202 tiles not compressed
-//	Total size: 512 + 6464 = 6976
+//	+ palette 16 entries, not compressed
+//	+ 202 tiles lz77 compressed
+//	Total size: 32 + 1128 = 1160
 //
-//	Time-stamp: 2022-04-20, 15:04:48
+//	Time-stamp: 2023-02-17, 13:17:00
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_HINT_GOBLIN_H
 #define GRIT_HINT_GOBLIN_H
 
-#define hint_goblinTilesLen 6464
-extern const unsigned int hint_goblinTiles[1616];
+#define hint_goblinTilesLen 1128
+extern const unsigned int hint_goblinTiles[282];
 
-#define hint_goblinPalLen 512
-extern const unsigned short hint_goblinPal[256];
+#define hint_goblinPalLen 32
+extern const unsigned short hint_goblinPal[16];
 
 #endif // GRIT_HINT_GOBLIN_H
 

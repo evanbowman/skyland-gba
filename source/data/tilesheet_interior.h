@@ -5,11 +5,11 @@
 //
 //	tilesheet_interior, 6112x16@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
+//	+ palette 16 entries, not compressed
 //	+ 1528 tiles Metatiled by 2x2 not compressed
-//	Total size: 512 + 48896 = 49408
+//	Total size: 32 + 48896 = 48928
 //
-//	Time-stamp: 2023-02-15, 14:23:12
+//	Time-stamp: 2023-02-17, 12:54:49
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -21,8 +21,8 @@
 #define tilesheet_interiorTilesLen 48896
 extern const unsigned int tilesheet_interiorTiles[12224];
 
-#define tilesheet_interiorPalLen 512
-extern const unsigned short tilesheet_interiorPal[256];
+#define tilesheet_interiorPalLen 32
+extern const unsigned short tilesheet_interiorPal[16];
 
 #endif // GRIT_TILESHEET_INTERIOR_H
 

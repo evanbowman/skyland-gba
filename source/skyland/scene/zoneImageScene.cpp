@@ -157,7 +157,9 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::wait:
         timer_ += delta;
-        if (timer_ > seconds(3)) {
+        if (timer_ > seconds(3) or
+            app.player().key_down(pfrm, Key::action_1) or
+            app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::fade_out;
             timer_ = 0;
         }

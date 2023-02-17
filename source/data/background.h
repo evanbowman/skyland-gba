@@ -5,11 +5,11 @@
 //
 //	background, 1024x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 128 tiles not compressed
-//	Total size: 512 + 4096 = 4608
+//	+ palette 16 entries, not compressed
+//	+ 128 tiles lz77 compressed
+//	Total size: 32 + 628 = 660
 //
-//	Time-stamp: 2022-04-20, 15:04:47
+//	Time-stamp: 2023-02-17, 13:25:24
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_BACKGROUND_H
 #define GRIT_BACKGROUND_H
 
-#define backgroundTilesLen 4096
-extern const unsigned int backgroundTiles[1024];
+#define backgroundTilesLen 628
+extern const unsigned int backgroundTiles[157];
 
-#define backgroundPalLen 512
-extern const unsigned short backgroundPal[256];
+#define backgroundPalLen 32
+extern const unsigned short backgroundPal[16];
 
 #endif // GRIT_BACKGROUND_H
 

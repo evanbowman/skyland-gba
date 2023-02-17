@@ -5,11 +5,11 @@
 //
 //	overlay_editor, 1000x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 125 tiles not compressed
-//	Total size: 512 + 4000 = 4512
+//	+ palette 16 entries, not compressed
+//	+ 125 tiles lz77 compressed
+//	Total size: 32 + 564 = 596
 //
-//	Time-stamp: 2022-12-21, 21:11:48
+//	Time-stamp: 2023-02-17, 13:19:08
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_OVERLAY_EDITOR_H
 #define GRIT_OVERLAY_EDITOR_H
 
-#define overlay_editorTilesLen 4000
-extern const unsigned int overlay_editorTiles[1000];
+#define overlay_editorTilesLen 564
+extern const unsigned int overlay_editorTiles[141];
 
-#define overlay_editorPalLen 512
-extern const unsigned short overlay_editorPal[256];
+#define overlay_editorPalLen 32
+extern const unsigned short overlay_editorPal[16];
 
 #endif // GRIT_OVERLAY_EDITOR_H
 

@@ -698,6 +698,9 @@ static inline
 void VBlankIntrWait()	{ SystemCall(5); }
 
 
+void LZ77UnCompVram(const void *src, void *dst);
+
+
 #define REG_KEYCNT		*(volatile u16*)(REG_BASE + 0x132)  // Key Control
 /*! \enum KEYPAD_BITS
 

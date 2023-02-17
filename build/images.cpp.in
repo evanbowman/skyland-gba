@@ -20,13 +20,14 @@ struct TextureData {
     const unsigned short* palette_data_;
     u32 tile_data_length_;
     u32 palette_data_length_;
+    bool compressed_;
 };
 
 
 #define STR(X) #X
-#define TEXTURE_INFO(NAME)                                                     \
+#define TEXTURE_INFO(NAME, COMPR)                                              \
     {                                                                          \
-        STR(NAME), NAME##Tiles, NAME##Pal, NAME##TilesLen, NAME##PalLen        \
+        STR(NAME), NAME##Tiles, NAME##Pal, NAME##TilesLen, NAME##PalLen, COMPR \
     }
 
 

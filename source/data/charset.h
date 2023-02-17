@@ -5,11 +5,11 @@
 //
 //	charset, 18008x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
+//	+ palette 16 entries, not compressed
 //	+ 2251 tiles not compressed
-//	Total size: 512 + 72032 = 72544
+//	Total size: 32 + 72032 = 72064
 //
-//	Time-stamp: 2022-12-28, 15:58:54
+//	Time-stamp: 2023-02-17, 12:54:49
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -21,8 +21,8 @@
 #define charsetTilesLen 72032
 extern const unsigned int charsetTiles[18008];
 
-#define charsetPalLen 512
-extern const unsigned short charsetPal[256];
+#define charsetPalLen 32
+extern const unsigned short charsetPal[16];
 
 #endif // GRIT_CHARSET_H
 

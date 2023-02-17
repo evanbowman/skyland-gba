@@ -925,6 +925,13 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::deselected;
         } else {
             timer_ += delta;
+            if (app.player().key_down(pfrm, Key::action_1) or
+                app.player().key_down(pfrm, Key::action_2)) {
+                fast_ = true;
+            }
+            if (fast_) {
+                timer_ += delta
+            }
             if (timer_ > node_death_sequence_time) {
                 timer_ = 0;
                 state_ = State::deselected;
@@ -943,6 +950,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (storm_scroll_timer_ > fade_duration) {
             storm_scroll_timer_ = 0;
             state_ = State::show_node_death_icons;
+            fast_ = false;
             timer_ = 0;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             update_storm_frontier(pfrm, app.world_graph(), 0);

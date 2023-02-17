@@ -489,7 +489,7 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/gba_platform.cpp
     ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
     ${SOURCE_DIR}/platform/gba/memcpy.s
-    ${SOURCE_DIR}/platform/gba/MultiBoot.s
+    ${SOURCE_DIR}/platform/gba/bios.s
     ${SOURCE_DIR}/platform/gba/send_multiboot.c
     ${SOURCE_DIR}/platform/gba/filesystem.cpp
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
@@ -533,7 +533,7 @@ macro(add_spritesheet filename mw mh flatten)
     "\n#include \"data/${filename}.h\"\n//")
 
   set(IMAGE_SPR_STUBS ${IMAGE_SPR_STUBS}
-    "\n    TEXTURE_INFO(${filename}),\n//")
+    "\n    TEXTURE_INFO(${filename}, false),\n//")
 
   compile_image(${filename} ${mw} ${mh} ${flatten} 4 NO)
 endmacro()
@@ -549,58 +549,72 @@ macro(add_tilesheet filename mw mh flatten compr)
   set(IMAGE_INCLUDES ${IMAGE_INCLUDES}
     "\n#include \"data/${filename}${FLATTENED_SUFFIX}.h\"\n//")
 
+  set(SUB_COMPR "false")
+  if(${compr} STREQUAL "YES")
+    set(SUB_COMPR "true")
+  endif()
+
   set(IMAGE_TILE_STUBS ${IMAGE_TILE_STUBS}
-    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}),\n//")
+    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}, ${SUB_COMPR}),\n//")
 
   compile_image(${filename} ${mw} ${mh} ${flatten} 4 ${compr})
 endmacro()
 
 
-macro(add_overlay filename mw mh flatten)
+macro(add_overlay filename mw mh flatten compr)
   if(${flatten} STREQUAL "YES")
     set(FLATTENED_SUFFIX "_flattened")
   else()
     set(FLATTENED_SUFFIX "")
+  endif()
+
+  set(SUB_COMPR "false")
+  if(${compr} STREQUAL "YES")
+    set(SUB_COMPR "true")
   endif()
 
   set(IMAGE_INCLUDES ${IMAGE_INCLUDES}
     "\n#include \"data/${filename}${FLATTENED_SUFFIX}.h\"\n//")
 
   set(IMAGE_OVERLAY_STUBS ${IMAGE_OVERLAY_STUBS}
-    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}),\n//")
+    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}, ${SUB_COMPR}),\n//")
 
-  compile_image(${filename} ${mw} ${mh} ${flatten} 4 NO)
+  compile_image(${filename} ${mw} ${mh} ${flatten} 4 ${compr})
 endmacro()
 
 
-macro(add_background filename mw mh flatten)
+macro(add_background filename mw mh flatten compr)
   if(${flatten} STREQUAL "YES")
     set(FLATTENED_SUFFIX "_flattened")
   else()
     set(FLATTENED_SUFFIX "")
   endif()
 
+  set(SUB_COMPR "false")
+  if(${compr} STREQUAL "YES")
+    set(SUB_COMPR "true")
+  endif()
+
   set(IMAGE_INCLUDES ${IMAGE_INCLUDES}
     "\n#include \"data/${filename}${FLATTENED_SUFFIX}.h\"\n//")
 
   set(IMAGE_BACKGROUND_STUBS ${IMAGE_BACKGROUND_STUBS}
-    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}),\n//")
+    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}, ${SUB_COMPR}),\n//")
 
-  compile_image(${filename} ${mw} ${mh} ${flatten} 4 NO)
+  compile_image(${filename} ${mw} ${mh} ${flatten} 4 ${compr})
 endmacro()
 
 
 function(compile_image filename mw mh flatten bpp compr)
   if(${compr} STREQUAL "YES")
-    set(COMPRESSION "-Zlz77")
-    message("${COMPRESSION}")
+    set(COMPRESSION "-gzl")
   else()
     set(${COMPRESSION} "")
   endif()
   if(${flatten} STREQUAL "YES")
     add_custom_command(OUTPUT ${SOURCE_DIR}/data/${filename}_flattened.s
       COMMAND python3 prep_image.py ${ROOT_DIR} ${filename}.png yes
-      COMMAND ${DEVKITPRO}/tools/bin/grit tmp/${filename}_flattened.png -gB${bpp} -gTFF00FF ${COMPRESSION}
+      COMMAND ${DEVKITPRO}/tools/bin/grit tmp/${filename}_flattened.png -pn16 -gB${bpp} -gTFF00FF ${COMPRESSION}
       COMMAND mv ${filename}_flattened.s ${SOURCE_DIR}/data/${filename}_flattened.s
       COMMAND mv ${filename}_flattened.h ${SOURCE_DIR}/data/${filename}_flattened.h
       DEPENDS ${IMAGE_DIR}/${filename}.png)
@@ -610,7 +624,7 @@ function(compile_image filename mw mh flatten bpp compr)
   elseif(${mw} STREQUAL "0" AND ${mh} STREQUAL "0")
     add_custom_command(OUTPUT ${SOURCE_DIR}/data/${filename}.s
       COMMAND python3 prep_image.py ${ROOT_DIR} ${filename}.png no
-      COMMAND ${DEVKITPRO}/tools/bin/grit  tmp/${filename}.png -gB${bpp} -gTFF00FF ${COMPRESSION}
+      COMMAND ${DEVKITPRO}/tools/bin/grit  tmp/${filename}.png -pn16 -gB${bpp} -gTFF00FF ${COMPRESSION}
       COMMAND mv ${filename}.s ${SOURCE_DIR}/data/${filename}.s
       COMMAND mv ${filename}.h ${SOURCE_DIR}/data/${filename}.h
       DEPENDS ${IMAGE_DIR}/${filename}.png)
@@ -620,7 +634,7 @@ function(compile_image filename mw mh flatten bpp compr)
   else()
     add_custom_command(OUTPUT ${SOURCE_DIR}/data/${filename}.s
       COMMAND python3 prep_image.py ${ROOT_DIR} ${filename}.png no
-      COMMAND ${DEVKITPRO}/tools/bin/grit tmp/${filename}.png -gB${bpp} -Mw ${mw} -Mh ${mh} -gTFF00FF ${COMPRESSION}
+      COMMAND ${DEVKITPRO}/tools/bin/grit tmp/${filename}.png -pn16 -gB${bpp} -Mw ${mw} -Mh ${mh} -gTFF00FF ${COMPRESSION}
       COMMAND mv ${filename}.s ${SOURCE_DIR}/data/${filename}.s
       COMMAND mv ${filename}.h ${SOURCE_DIR}/data/${filename}.h
       DEPENDS ${IMAGE_DIR}/${filename}.png)
@@ -707,59 +721,53 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
-    add_tilesheet(tilesheet_world_map_backdrop 2 2 NO NO)
-    add_tilesheet(skyland_title_4 0 0 YES NO)
-    add_tilesheet(skyland_title_3 0 0 YES NO)
-    add_tilesheet(skyland_title_2 0 0 YES NO)
-    add_tilesheet(skyland_title_1 0 0 YES NO)
-    add_tilesheet(skyland_title_0 0 0 YES NO)
-    add_tilesheet(boot_img 0 0 YES NO)
-    add_tilesheet(savegame 0 0 YES NO)
-    add_tilesheet(ending_img 0 0 YES NO)
+    add_tilesheet(tilesheet_world_map_backdrop 2 2 NO YES)
+    add_tilesheet(skyland_title_4 0 0 YES YES)
+    add_tilesheet(skyland_title_3 0 0 YES YES)
+    add_tilesheet(skyland_title_2 0 0 YES YES)
+    add_tilesheet(skyland_title_1 0 0 YES YES)
+    add_tilesheet(skyland_title_0 0 0 YES YES)
+    add_tilesheet(boot_img 0 0 YES YES)
+    add_tilesheet(savegame 0 0 YES YES)
+    add_tilesheet(ending_img 0 0 YES YES)
     add_tilesheet(macro_rendertexture 0 0 NO NO)
-    add_tilesheet(developer_mode 0 0 YES NO)
-    add_tilesheet(intro_crops_snow 0 0 YES NO)
-    add_tilesheet(intro_crops_snow_far 0 0 YES NO)
-    add_tilesheet(intro_island_launch 0 0 YES NO)
-    add_tilesheet(intro_explosion_1 0 0 YES NO)
-    add_tilesheet(intro_explosion_2 0 0 YES NO)
-    add_tilesheet(intro_storm_king 0 0 YES NO)
-    add_tilesheet(zone_image_0 0 0 YES NO)
-    add_tilesheet(zone_image_1 0 0 YES NO)
-    add_tilesheet(zone_image_2 0 0 YES NO)
-    add_tilesheet(zone_image_3 0 0 YES NO)
-    add_tilesheet(zone_image_4 0 0 YES NO)
-    add_tilesheet(gba_health_safety_logo 2 2 YES NO)
-    add_background(background 0 0 NO NO)
-    add_background(background_macro 0 0 NO NO)
-    add_background(background_macro_night 0 0 NO NO)
-    add_background(background_title_screen 0 0 NO NO)
-    add_overlay(pub_logo 0 0 YES NO)
-    add_overlay(traded_core 0 0 YES NO)
-    add_overlay(photo_village 0 0 YES NO)
-    add_overlay(photo_surface 0 0 YES NO)
-    add_overlay(photo_market 0 0 YES NO)
-    add_overlay(photo_disaster 0 0 YES NO)
-    add_overlay(overlay_datacart 0 0 NO NO)
-    add_overlay(stack_overflow 0 0 YES NO)
+    add_tilesheet(developer_mode 0 0 YES YES)
+    add_tilesheet(zone_image_0 0 0 YES YES)
+    add_tilesheet(zone_image_1 0 0 YES YES)
+    add_tilesheet(zone_image_2 0 0 YES YES)
+    add_tilesheet(zone_image_3 0 0 YES YES)
+    add_tilesheet(zone_image_4 0 0 YES YES)
+    add_tilesheet(gba_health_safety_logo 2 2 YES YES)
+    add_background(background 0 0 NO YES)
+    add_background(background_macro 0 0 NO YES)
+    add_background(background_macro_night 0 0 NO YES)
+    add_background(background_title_screen 0 0 NO YES)
+    add_overlay(pub_logo 0 0 YES YES)
+    add_overlay(traded_core 0 0 YES YES)
+    add_overlay(photo_village 0 0 YES YES)
+    add_overlay(photo_surface 0 0 YES YES)
+    add_overlay(photo_market 0 0 YES YES)
+    add_overlay(photo_disaster 0 0 YES YES)
+    add_overlay(overlay_datacart 0 0 NO YES)
+    add_overlay(stack_overflow 0 0 YES YES)
     add_overlay(overlay 0 0 NO NO)
-    add_overlay(overlay_qr 0 0 NO NO)
-    add_overlay(overlay_gamespeed 0 0 NO NO)
-    add_overlay(overlay_editor 0 0 NO NO)
-    add_overlay(overlay_dialog 0 0 NO NO)
-    add_overlay(overlay_dialog_fullscreen 0 0 NO NO)
-    add_overlay(overlay_skyland_title 0 0 NO NO)
+    add_overlay(overlay_qr 0 0 NO YES)
+    add_overlay(overlay_gamespeed 0 0 NO YES)
+    add_overlay(overlay_editor 0 0 NO YES)
+    add_overlay(overlay_dialog 0 0 NO YES)
+    add_overlay(overlay_dialog_fullscreen 0 0 NO YES)
+    add_overlay(overlay_skyland_title 0 0 NO YES)
     add_overlay(charset 0 0 NO NO)
     add_overlay(charset_extended_0 0 0 NO NO)
     add_overlay(charset_extended_1 0 0 NO NO)
-    add_overlay(overlay_world_map 0 0 NO NO)
-    add_overlay(overlay_island_destroyed 0 0 NO NO)
-    add_overlay(overlay_challenges 0 0 NO NO)
-    add_overlay(overlay_large_numeral 0 0 NO NO)
-    add_overlay(hint_infirmary 0 0 NO NO)
-    add_overlay(hint_goblin 0 0 NO NO)
-    add_overlay(hint_plunder 0 0 NO NO)
-    add_overlay(hint_damaged_core 0 0 NO NO)
+    add_overlay(overlay_world_map 0 0 NO YES)
+    add_overlay(overlay_island_destroyed 0 0 NO YES)
+    add_overlay(overlay_challenges 0 0 NO YES)
+    add_overlay(overlay_large_numeral 0 0 NO YES)
+    add_overlay(hint_infirmary 0 0 NO YES)
+    add_overlay(hint_goblin 0 0 NO YES)
+    add_overlay(hint_plunder 0 0 NO YES)
+    add_overlay(hint_damaged_core 0 0 NO YES)
 
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/nds/images.cpp)

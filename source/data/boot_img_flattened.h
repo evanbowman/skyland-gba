@@ -5,11 +5,11 @@
 //
 //	boot_img_flattened, 2888x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 361 tiles not compressed
-//	Total size: 512 + 11552 = 12064
+//	+ palette 16 entries, not compressed
+//	+ 361 tiles lz77 compressed
+//	Total size: 32 + 2088 = 2120
 //
-//	Time-stamp: 2022-06-08, 15:13:32
+//	Time-stamp: 2023-02-17, 13:12:33
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_BOOT_IMG_FLATTENED_H
 #define GRIT_BOOT_IMG_FLATTENED_H
 
-#define boot_img_flattenedTilesLen 11552
-extern const unsigned int boot_img_flattenedTiles[2888];
+#define boot_img_flattenedTilesLen 2088
+extern const unsigned int boot_img_flattenedTiles[522];
 
-#define boot_img_flattenedPalLen 512
-extern const unsigned short boot_img_flattenedPal[256];
+#define boot_img_flattenedPalLen 32
+extern const unsigned short boot_img_flattenedPal[16];
 
 #endif // GRIT_BOOT_IMG_FLATTENED_H
 

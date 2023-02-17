@@ -5,11 +5,11 @@
 //
 //	ending_img_flattened, 2168x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 271 tiles not compressed
-//	Total size: 512 + 8672 = 9184
+//	+ palette 16 entries, not compressed
+//	+ 271 tiles lz77 compressed
+//	Total size: 32 + 1456 = 1488
 //
-//	Time-stamp: 2023-01-29, 16:38:58
+//	Time-stamp: 2023-02-17, 13:12:33
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_ENDING_IMG_FLATTENED_H
 #define GRIT_ENDING_IMG_FLATTENED_H
 
-#define ending_img_flattenedTilesLen 8672
-extern const unsigned int ending_img_flattenedTiles[2168];
+#define ending_img_flattenedTilesLen 1456
+extern const unsigned int ending_img_flattenedTiles[364];
 
-#define ending_img_flattenedPalLen 512
-extern const unsigned short ending_img_flattenedPal[256];
+#define ending_img_flattenedPalLen 32
+extern const unsigned short ending_img_flattenedPal[16];
 
 #endif // GRIT_ENDING_IMG_FLATTENED_H
 

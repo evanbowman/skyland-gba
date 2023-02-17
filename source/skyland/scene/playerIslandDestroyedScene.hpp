@@ -137,6 +137,8 @@ private:
     int level_seconds_ = 0;
     int rooms_built_ = 0;
     int rooms_lost_ = 0;
+
+    int skip_count_ = 0;
 };
 
 

@@ -5,11 +5,11 @@
 //
 //	photo_market_flattened, 3000x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
-//	+ 375 tiles not compressed
-//	Total size: 512 + 12000 = 12512
+//	+ palette 16 entries, not compressed
+//	+ 375 tiles lz77 compressed
+//	Total size: 32 + 2912 = 2944
 //
-//	Time-stamp: 2023-02-14, 16:58:30
+//	Time-stamp: 2023-02-17, 13:17:00
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,11 +18,11 @@
 #ifndef GRIT_PHOTO_MARKET_FLATTENED_H
 #define GRIT_PHOTO_MARKET_FLATTENED_H
 
-#define photo_market_flattenedTilesLen 12000
-extern const unsigned int photo_market_flattenedTiles[3000];
+#define photo_market_flattenedTilesLen 2912
+extern const unsigned int photo_market_flattenedTiles[728];
 
-#define photo_market_flattenedPalLen 512
-extern const unsigned short photo_market_flattenedPal[256];
+#define photo_market_flattenedPalLen 32
+extern const unsigned short photo_market_flattenedPal[16];
 
 #endif // GRIT_PHOTO_MARKET_FLATTENED_H
 

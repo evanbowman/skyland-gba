@@ -5,11 +5,11 @@
 //
 //	charset_extended_1, 10104x8@4, 
 //	Transparent color : FF,00,FF
-//	+ palette 256 entries, not compressed
+//	+ palette 16 entries, not compressed
 //	+ 1263 tiles not compressed
-//	Total size: 512 + 40416 = 40928
+//	Total size: 32 + 40416 = 40448
 //
-//	Time-stamp: 2022-04-20, 15:04:47
+//	Time-stamp: 2023-02-17, 12:54:49
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -21,8 +21,8 @@
 #define charset_extended_1TilesLen 40416
 extern const unsigned int charset_extended_1Tiles[10104];
 
-#define charset_extended_1PalLen 512
-extern const unsigned short charset_extended_1Pal[256];
+#define charset_extended_1PalLen 32
+extern const unsigned short charset_extended_1Pal[16];
 
 #endif // GRIT_CHARSET_EXTENDED_1_H
 
