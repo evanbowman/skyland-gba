@@ -930,7 +930,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 fast_ = true;
             }
             if (fast_) {
-                timer_ += delta
+                timer_ += delta;
             }
             if (timer_ > node_death_sequence_time) {
                 timer_ = 0;
