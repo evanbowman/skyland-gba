@@ -48,28 +48,28 @@
           amt))
         (end)))
      ((equal c 1)
-      (let ((opts '((workshop . (2 . 2))
-                    (infirmary . (2 . 2))
-                    (transporter . (1 . 2))
-                    (manufactory . (3 . 2))
-                    (backup-core . (2 . 2))
-                    (incinerator . (2 . 2))
-                    (beam-gun . (3 . 1)))))
+      (let ((opts '(workshop
+                    infirmary
+                    transporter
+                    manufactory
+                    backup-core
+                    incinerator
+                    beam-gun))))
         (let ((pick (sample opts)))
           (dialog
            (format
-            "After boarding, you find a completely intact %. Your crew asks you where to install it..." (car pick)))
+            "After boarding, you find a completely intact %. Your crew asks you where to install it..." pick))
           (defn on-dialog-closed
             (setq on-dialog-closed nil)
-            (while (not (construction-sites (player) (cdr pick)))
+            (while (not (construction-sites (player) (rsz pick)))
               (terrain (player) (+ (terrain (player)) 1)))
             (sel-input
-             (cdr pick)
+             (rsz pick)
              (format "Pick a slot (%x%)"
-                     (car (cdr pick))
-                     (cdr (cdr pick)))
+                     (car (rsz pick))
+                     (cdr (rsz pick)))
              (lambda
-               (room-new (player) `(,(car pick) ,$1 ,$2))
+               (room-new (player) `(,pick ,$1 ,$2))
                (syscall "sound" "build0")
                (dialog "All done!")
                (end))))))))))

@@ -148,5 +148,5 @@
      (lambda
        (if (equal $0 v)
            newv
-         v))
+         $0))
      $0)))

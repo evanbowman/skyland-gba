@@ -242,6 +242,16 @@ o----------------------------o
 
 o----------------------------o
 
+ (item-shop)
+
+ Open the item shop prompt.
+ You need to set the
+ shop-items variable first.
+ See shop.lisp for examples.
+
+
+o----------------------------o
+
  (key-bind str symbol)
 
  While the game does not
@@ -452,6 +462,14 @@ o----------------------------o
  the same dimensions as the
  source room, or the game will
  raise a fatal error.
+
+
+o----------------------------o
+
+ (rsz type-sym)
+
+ Returns the size of a room
+ in the form '(x . y).
 
 
 o----------------------------o

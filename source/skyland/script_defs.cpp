@@ -613,6 +613,16 @@ static const lisp::Binding script_api[] = {
 
          return lisp::make_integer(count);
      }},
+    {"rsz",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, symbol);
+
+         auto mt = load_metaclass(lisp::get_op(0)->symbol().name());
+         auto sz = (*mt)->size();
+
+         return L_CONS(L_INT(sz.x), L_INT(sz.y));
+     }},
     {"cart-add",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

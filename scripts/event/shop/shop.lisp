@@ -11,11 +11,7 @@
 
 
 (if (not shop-items)
-    (progn
-      (setq shop-items
-            (eval-file
-             (format "/scripts/event/shop/shop_items%.lisp"
-                     (zone))))))
+    (setq shop-items (eval-file "/scripts/event/shop/shop_items.lisp")))
 
 
 (defn on-shop-item-sel
@@ -52,7 +48,7 @@
                                  (list (car info)
                                        (get info 1)
                                        (- (get info 2) 1)
-                                       (get info 2))))
+                                       (get info 2)))))
 
                          (if shop-items
                              (item-shop)

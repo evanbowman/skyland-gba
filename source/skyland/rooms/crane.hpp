@@ -124,6 +124,7 @@ public:
                RoomProperties::disabled_in_tutorials |
                RoomProperties::skyland_forever_unsupported |
                RoomProperties::adventure_mode_only |
+               RoomProperties::not_constructible |
                RoomProperties::multiplayer_unsupported;
     }
 
