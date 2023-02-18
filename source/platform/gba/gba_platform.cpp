@@ -267,6 +267,9 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 // optimized.
 __attribute__((section(".iwram"), long_call)) void blit_tile(u16* out, u16* in);
 
+__attribute__((section(".iwram"), long_call))
+void win_circle(u16 winh[], int x0, int y0, int rr);
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6840,48 +6843,6 @@ void memset16(u16* data, u16 val, int count)
         data[i] = val;
     }
 }
-
-
-// Ripped from tonc demo. This code is decent already, no need to write my code
-// for drawing a circle.
-void win_circle(u16 winh[], int x0, int y0, int rr)
-{
-#define IN_RANGE(x, min, max) (((x) >= (min)) && ((x) < (max)))
-
-    int x = 0, y = rr, d = 1 - rr;
-    u32 tmp;
-
-    // u32 col = 0;
-    // CpuFastSet(&col, winh, 160 | (1 << 24));
-    // memset16(winh, 0, 160);
-
-    while (y >= x) {
-        // Side octs
-        tmp = clamp(x0 + y, 0, 240);
-        tmp += clamp(x0 - y, 0, 240) << 8;
-
-        if (IN_RANGE(y0 - x, 0, 160)) // o4, o7
-            winh[y0 - x] = tmp;
-        if (IN_RANGE(y0 + x, 0, 160)) // o0, o3
-            winh[y0 + x] = tmp;
-
-        // Change in y: top/bottom octs
-        if (d >= 0) {
-            tmp = clamp(x0 + x, 0, 240);
-            tmp += clamp(x0 - x, 0, 240) << 8;
-
-            if (IN_RANGE(y0 - y, 0, 160)) // o5, o6
-                winh[y0 - y] = tmp;
-            if (IN_RANGE(y0 + y, 0, 160)) // o1, o2
-                winh[y0 + y] = tmp;
-
-            d -= 2 * (--y);
-        }
-        d += 2 * (x++) + 3;
-    }
-    winh[160] = winh[0];
-}
-
 
 
 #include "incbin.h"
