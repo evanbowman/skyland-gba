@@ -106,6 +106,9 @@ public:
     }
 
 
+    ScenePtr<Scene> make_dialog(App&);
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

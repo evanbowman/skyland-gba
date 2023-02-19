@@ -291,13 +291,14 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
         reset_gamespeed(pfrm, app);
 
-        auto& cursor_loc = globals().near_cursor_loc_;
+        if (app.exit_condition() == App::ExitCondition::none) {
+            auto& cursor_loc = globals().near_cursor_loc_;
 
-        cursor_loc.x = 0;
+            cursor_loc.x = 0;
 
-        app.effects().clear();
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(
-            app.opponent_island());
+            app.effects().clear();
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island());
+        }
     }
 
     return null_scene();
@@ -392,6 +393,20 @@ bool WorldScene::camera_update_check_key(Platform& pfrm, App& app)
            app.player().key_pressed(pfrm, Key::up) or
            app.player().key_pressed(pfrm, Key::down) or
            app.player().key_pressed(pfrm, Key::select);
+}
+
+
+
+ScenePtr<Scene> WorldScene::make_dialog(App& app)
+{
+    if (app.dialog_buffer()) {
+        auto buffer = std::move(*app.dialog_buffer());
+        app.dialog_buffer().reset();
+        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
+        state_bit_store(app, StateBit::dialog_expects_answer, false);
+        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), answer);
+    }
+    return null_scene();
 }
 
 
@@ -656,11 +671,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not noreturn_ and app.dialog_buffer()) {
-        auto buffer = std::move(*app.dialog_buffer());
-        app.dialog_buffer().reset();
-        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
-        state_bit_store(app, StateBit::dialog_expects_answer, false);
-        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), answer);
+        return make_dialog(app);
     }
 
 

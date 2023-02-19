@@ -295,7 +295,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().update(pfrm, app, delta);
 
 
-    const bool opponent_defeated = island_ not_eq &app.player_island();
+    const bool opponent_defeated =
+        island_ not_eq &app.player_island() and
+        not forced_defeat_;
 
 
     const bool endgame =
@@ -474,6 +476,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (opponent_defeated) {
 
                 invoke_hook(pfrm, app, "on-victory");
+                if (app.exit_condition() not_eq App::ExitCondition::none) {
+                    if (app.exit_condition() == App::ExitCondition::defeat) {
+                        forced_defeat_ = true;
+                    }
+                }
 
                 for (auto& room : app.player_island().rooms()) {
                     for (auto it = room->characters().begin();
@@ -554,6 +561,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
             timer_ = 0;
+            if (forced_defeat_) {
+                if (app.dialog_buffer()) {
+                    return make_dialog(app);
+                }
+            }
             if (opponent_defeated) {
                 anim_state_ = AnimState::wait_1;
             } else {
@@ -982,6 +994,8 @@ extern SharedVariable zone4_coin_yield;
 void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
+
+    WorldScene::notransitions();
 
     rooms_built_ = app.player().rooms_built_;
     rooms_lost_ = app.player().rooms_lost_;
