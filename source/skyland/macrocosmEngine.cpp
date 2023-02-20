@@ -1910,7 +1910,7 @@ static void update_water_slanted(terrain::Sector& s,
     const auto tp = beneath.type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(beneath_coord, terrain::Type::basalt);
-    } else if (tp == terrain::Type::air) {
+    } else if (tp == terrain::Type::air or tp == terrain::Type::lumber) {
         s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
     } else if ((categories(tp) & terrain::Categories::fluid_water) and
                tp not_eq terrain::Type::water_source and

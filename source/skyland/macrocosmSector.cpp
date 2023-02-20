@@ -956,7 +956,7 @@ void terrain::Sector::unpack(Vector<char>& input)
 
 void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 {
-    switch (rng::choice<5>(rng::critical_state)) {
+    switch (rng::choice<6>(rng::critical_state)) {
     case 0:
     case 1:
         generate_terrain_regular(min_blocks, building_count);
@@ -969,6 +969,10 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
 
     case 4:
         generate_terrain_tundra(min_blocks, building_count);
+        break;
+
+    case 5:
+        generate_terrain_molten(min_blocks, building_count);
         break;
     }
 }
@@ -1145,6 +1149,13 @@ PLACE_BUILDING:
     }
 PLACED_BUILDING:
 
+    int water_count = 0;
+
+    Buffer<Vec3<u8>, 10> water_sources;
+
+    const bool water = rng::choice<5>(rng::critical_state) == 0;
+
+
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {
             for (int z = size().z - 2; z > -1; --z) {
@@ -1159,12 +1170,86 @@ PLACED_BUILDING:
                                   terrain::Type::lumber);
                         set_block({(u8)x, (u8)y, (u8)(z)},
                                   terrain::Type::volcanic_soil);
+                    } else if (water and
+                               water_count < 2 and
+                               rng::choice<10>(rng::critical_state)) {
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::water_source);
+                        water_sources.push_back({(u8)x, (u8)y, (u8)z});
+                        ++water_count;
+                    } else if (rng::choice<4>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::tulips);
                     }
-
                     break;
                 }
             }
         }
+    }
+
+    if (water_count) {
+        for (int i = 0; i < size().z * 2; ++i) {
+            update();
+        }
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                for (int z = 0; z < size().z; ++z) {
+                    // erosion
+                    auto& block = get_block({(u8)x, (u8)y, (u8)(z)});
+                    switch (block.type()) {
+                    case Type::water_slant_a:
+                    case Type::water_slant_b:
+                    case Type::water_slant_c:
+                    case Type::water_slant_d:
+                    case Type::water_source:
+                    case Type::water_spread_downwards:
+                    case Type::water_spread_laterally_a:
+                    case Type::water_spread_laterally_b:
+                    case Type::water_spread_laterally_c:
+                    case Type::water_spread_laterally_d:
+                        set_block({(u8)x, (u8)y, (u8)(z)}, Type::air);
+                        if (z > 0) {
+                            set_block({(u8)x, (u8)y, (u8)(z - 1)}, Type::air);
+                        }
+                        break;
+
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (auto& s : water_sources) {
+            set_block(s, Type::water_source);
+        }
+
+        for (int i = 0; i < size().z * 2; ++i) {
+            update();
+        }
+    }
+
+
+    if (water) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                if (get_block({x, y, 0}).type() == Type::air) {
+                    if (x == 0 or y == 0 or x == size().x - 1 or y == size().y - 1) {
+                        if (rng::choice<3>(rng::critical_state) == 0) {
+                            set_block({x, y, 0}, Type::sand);
+                        }
+                    } if (x == 1 or y == 1 or x == size().x - 2 or y == size().y - 2) {
+                        if (rng::choice<5>(rng::critical_state) == 0) {
+                            set_block({x, y, 1}, Type::basalt);
+                        }
+                        set_block({x, y, 0}, Type::sand);
+                    } else if (x > 0 and y > 0 and x < size().x - 1 and y < size().y - 1) {
+                        set_block({x, y, 0}, Type::water_source);
+                    }
+                }
+            }
+        }
+        update();
     }
 }
 
@@ -1544,7 +1629,6 @@ PLACED_BUILDING:
                         set_block({(u8)x, (u8)y, (u8)(z)},
                                   terrain::Type::volcanic_soil);
                     }
-
                     break;
                 }
             }
@@ -1660,7 +1744,7 @@ void terrain::Sector::generate_terrain_molten(int min_blocks,
                                       terrain::Type::crystal);
                         } else {
                             set_block({(u8)x, (u8)y, (u8)z},
-                                      terrain::Type::marble);
+                                      terrain::Type::lava_source);
                         }
                         break;
                     }
@@ -1722,12 +1806,12 @@ PLACED_BUILDING:
                     break;
                 }
                 if (t == terrain::Type::basalt and z < size().z - 2) {
-
-                    if (rng::choice<4>(rng::critical_state) == 0) {
-                        set_block({(u8)x, (u8)y, (u8)(z + 1)},
-                                  terrain::Type::lumber);
+                    if (rng::choice<7>(rng::critical_state) == 0) {
                         set_block({(u8)x, (u8)y, (u8)(z)},
-                                  terrain::Type::volcanic_soil);
+                                  terrain::Type::lava_source);
+                    } else if (rng::choice<4>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::basalt_brick);
                     }
 
                     break;
@@ -1736,23 +1820,8 @@ PLACED_BUILDING:
         }
     }
 
-    for (int x = 0; x < size().x; ++x) {
-        for (int y = 0; y < size().y; ++y) {
-            for (int z = size().z - 2; z > -1; --z) {
-                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
-                if (t == terrain::Type::building) {
-                    break;
-                }
-                if (t == terrain::Type::basalt and z < size().z - 2) {
-                    if (rng::choice<6>(rng::critical_state) == 0) {
-                        set_block({(u8)x, (u8)y, (u8)(z)},
-                                  terrain::Type::lava_source);
-                    }
-
-                    break;
-                }
-            }
-        }
+    for (int i = 0; i < 100; ++i) {
+        update();
     }
 }
 
