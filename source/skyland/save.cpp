@@ -90,8 +90,10 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     for (u32 i = 0; i < sizeof(out); ++i) {
         buffer.push_back(*(out_ptr++));
     }
+    flash_filesystem::StorageOptions opts;
+    opts.use_compression_ = true;
     flash_filesystem::store_file_data_binary(
-        pfrm, global_data_filename, buffer);
+        pfrm, global_data_filename, buffer, opts);
 }
 
 

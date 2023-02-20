@@ -98,6 +98,21 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
 
 
 
+void load_flag(Platform& pfrm, App& app, TileId t)
+{
+    pfrm.load_tile0_texture("tilesheet");
+
+    auto data = pfrm.extract_tile(Layer::map_0, t);
+    for (int x = 0; x < 13; ++x) {
+        for (int y = 0; y < 11; ++y) {
+            app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
+        }
+    }
+}
+
+
+
+
 void load_default_flag(Platform& pfrm, App& app)
 {
     pfrm.load_tile0_texture("tilesheet");
@@ -123,7 +138,9 @@ void FlagPixels::save(Platform& pfrm)
         img.push_back(((u8*)pixels)[i]);
     }
 
-    flash_filesystem::store_file_data_binary(pfrm, flag_save_file, img);
+    flash_filesystem::StorageOptions opts;
+    opts.use_compression_ = true;
+    flash_filesystem::store_file_data_binary(pfrm, flag_save_file, img, opts);
 }
 
 

@@ -260,7 +260,7 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             pfrm.speaker().play_sound("cursor_tick", 0);
 
-            using TranslationBuffer = Buffer<char, 1024>;
+            using TranslationBuffer = Buffer<char, 2000>;
             auto inp = allocate_dynamic<TranslationBuffer>("inp-buffer");
             auto outp = allocate_dynamic<TranslationBuffer>("outp-buffer");
 

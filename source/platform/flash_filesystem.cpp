@@ -22,6 +22,7 @@
 
 #include "flash_filesystem.hpp"
 #include "bloomFilter.hpp"
+#include "compression.hpp"
 #include "string.hpp"
 
 
@@ -287,6 +288,9 @@ struct Record
             // Pad the end of the record to bring it's byte count up to an even
             // size, thus aligning the next record at a halfword boundary.
             has_end_padding = (1 << 0),
+
+            // The file data is compressed. Needs to be decompressed when read.
+            compressed = (1 << 1),
         };
 
         u8 flags_[2];
@@ -763,17 +767,27 @@ static int batch_write(Platform& pfrm,
 
 
 
-bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
+bool store_file_data(Platform& pfrm,
+                     const char* path,
+                     Vector<char>& file_data,
+                     const StorageOptions& opts)
 {
     // Append a new file to the end of the filesystem log.
 
-    bool data_padding = false;
-    if (data.size() % 2 not_eq 0) {
+    Vector<char> comp_buffer;
+    if (opts.use_compression_) {
+        compress(file_data, comp_buffer);
+    }
+
+    auto& input = opts.use_compression_ ? comp_buffer : file_data;
+
+    bool input_padding = false;
+    if (input.size() % 2 not_eq 0) {
         // On the gameboy advance, commodity flash carts can be written only in
         // halfwords (two bytes), so we need to pad the data size to a multiple
         // of two, to ensure that all data has two-byte alignment.
-        data.push_back(0);
-        data_padding = true;
+        input.push_back(0);
+        input_padding = true;
     }
 
 
@@ -787,7 +801,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
     const auto path_total = path_len + path_padding;
 
-    const u32 required_space = data.size() + path_total + sizeof(Record);
+    const u32 required_space = input.size() + path_total + sizeof(Record);
     const auto avail_space = sector_avail(pfrm) - sizeof(Record);
 
     auto existing_size = file_size(pfrm, path);
@@ -813,8 +827,8 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     } else if (required_space >= avail_space) {
         // NOTE: don't unlink the existing file, we don't have enough space to
         // store the replacement.
-        if (data_padding) {
-            data.pop_back();
+        if (input_padding) {
+            input.pop_back();
         }
         return false;
     }
@@ -822,7 +836,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     unlink_file(pfrm, path);
 
     u8 crc8 = 0;
-    for (char c : data) {
+    for (char c : input) {
         crc8 = crc8_table[((u8)c) ^ crc8];
     }
 
@@ -837,13 +851,16 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     Record::FileInfo info;
     info.crc_ = crc8;
     info.name_length_ = path_total;
-    info.data_length_.set(data.size());
+    info.data_length_.set(input.size());
 
     info.flags_[0] = 0;
     info.flags_[1] = 0;
 
-    if (data_padding) {
+    if (input_padding) {
         info.flags_[0] |= Record::FileInfo::Flags0::has_end_padding;
+    }
+    if (opts.use_compression_) {
+        info.flags_[0] |= Record::FileInfo::Flags0::compressed;
     }
 
     int write_errors = 0;
@@ -863,14 +880,14 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     off += path_total;
 
 
-    write_errors += batch_write(pfrm, off, data.begin(), data.end());
+    write_errors += batch_write(pfrm, off, input.begin(), input.end());
 
     end_offset = off;
 
     __path_cache_insert(path);
 
-    if (data_padding) {
-        data.pop_back();
+    if (input_padding) {
+        input.pop_back();
     }
 
     if (write_errors) {
@@ -934,6 +951,15 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
     if (r.file_info_.flags_[0] & Record::FileInfo::Flags0::has_end_padding) {
         output.pop_back();
+    }
+
+    if (r.file_info_.flags_[0] & Record::FileInfo::Flags0::compressed) {
+        Vector<char> decomp;
+        decompress(output, decomp);
+        output.clear();
+        for (char c : decomp) {
+            output.push_back(c);
+        }
     }
 
     return output.size();

@@ -99,7 +99,28 @@ InitStatus initialize(Platform& pfrm, u32 offset);
 
 
 
-bool store_file_data(Platform&, const char* path, Vector<char>& data);
+struct StorageOptions
+{
+    // Maybe you're thinking that compression shouldn't really be included in
+    // the implementation of a filesystem library. But here's the thing. The
+    // game now has a following of people who enjoy playing it. And if I want to
+    // support compression for data stored in people's save files, I could
+    // either create new copies of files with different paths, and perform the
+    // conversions everwhere I save a file, moving old file data to new save
+    // files (for backwareds compatibility), or, I could simply support
+    // compression within the filesystem library, and no changes needed
+    // throughout the codebase. It bloats the library a bit, but makes my life
+    // way easier, because I don't need to keep track of different file paths
+    // for old versions.
+    bool use_compression_ = false;
+};
+
+
+
+bool store_file_data(Platform&,
+                     const char* path,
+                     Vector<char>& data,
+                     const StorageOptions& = {});
 
 
 
@@ -123,10 +144,13 @@ read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 inline bool
-store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
+store_file_data_text(Platform& pfrm,
+                     const char* path,
+                     Vector<char>& data,
+                     const StorageOptions& opts = {})
 {
     data.pop_back();
-    auto result = store_file_data(pfrm, path, data);
+    auto result = store_file_data(pfrm, path, data, opts);
     data.push_back('\0');
 
     return result;
@@ -143,15 +167,22 @@ read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 inline bool
-store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
+store_file_data_binary(Platform& pfrm,
+                       const char* path,
+                       Vector<char>& data,
+                       const StorageOptions& opts = {})
 {
-    return store_file_data(pfrm, path, data);
+    return store_file_data(pfrm, path, data, opts);
 }
 
 
 
 inline bool
-store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
+store_file_data(Platform& pfrm,
+                const char* path,
+                const char* ptr,
+                u32 length,
+                const StorageOptions& opts = {})
 {
     Vector<char> buffer;
     for (u32 i = 0; i < length; ++i) {
@@ -159,7 +190,7 @@ store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
     }
     buffer.push_back('\0');
 
-    return store_file_data_text(pfrm, path, buffer);
+    return store_file_data_text(pfrm, path, buffer, opts);
 }
 
 

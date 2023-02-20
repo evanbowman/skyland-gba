@@ -9,6 +9,10 @@ extern "C" {
 
 
 
+void compress(const Vector<char>& input, Vector<char>& output);
+void decompress(const Vector<char>& input, Vector<char>& output);
+
+
 template <u32 sz>
 void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
 {
