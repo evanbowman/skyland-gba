@@ -26,15 +26,38 @@
   (setq on-dialog-declined (lambda '())))
 
 
-(defn on-victory
-  (let ((cnt (+ (rcnt (opponent) 'power-core)
-                (rcnt (opponent) 'reactor))))
-    (if (> (length (rooms (opponent))) cnt)
-        (progn
-          (dialog "<c:goblin king:3>NO! WRONG!! "
-                  "The island is sssinking and some blockss remain!")
-          (exit 3))
-      (syscall "challenge-complete" 11))))
+(let ((skip nil))
+  (defn on-victory
+    (let ((cnt (+ (rcnt (opponent) 'power-core)
+                  (rcnt (opponent) 'reactor))))
+      (if (> (length (rooms (opponent))) cnt)
+          (progn
+            (let ((rem nil)
+                  (hint '(")")))
+              (map (lambda
+                     (if (not (assoc (car $0) rem))
+                         (setq rem (cons (cons (car $0) (rcnt (opponent) (car $0))) rem))))
+                   (rooms (opponent)))
+              (map (lambda
+                     (setq hint
+                           (cons (string
+                                  (string (cdr $0))
+                                  " "
+                                  (rname (car $0))
+                                  ",")
+                                 hint)))
+                   rem)
+              (setq hint (cons "(" hint))
+              (setq hint (apply string hint))
+
+              (dialog "<c:goblin king:3>NO! WRONG!! "
+                      "The island is sssinking and some blockss remain! "
+                      hint)
+              (setq skip 1)
+              (exit 3)))
+        (if (not skip)
+            (syscall "challenge-complete" 11))))))
+
 
 
 (terrain (player) 4)
