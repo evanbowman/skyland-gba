@@ -72,9 +72,9 @@ public:
 
     void show(Platform&, App&) override;
 
+    bool changed_ = false;
 
 private:
-    bool changed_ = false;
     static Factory factory_;
 };
 

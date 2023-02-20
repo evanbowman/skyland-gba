@@ -56,7 +56,7 @@ public:
         Text::print(pfrm, SYS_CSTR(flag_alt3), {3, 10});
         Text::print(pfrm, SYS_CSTR(flag_alt4), {3, 12});
         Text::print(pfrm, SYS_CSTR(flag_alt5), {3, 14});
-        Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
+        // Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
 
         pfrm.set_tile(Layer::overlay, 1, 4, 475);
     }
@@ -77,7 +77,7 @@ public:
         }
 
         if (player(app).key_down(pfrm, Key::down)) {
-            if (sel_ < 6) {
+            if (sel_ < 5) {
                 ++sel_;
             }
             for (int y = 0; y < 20; ++y) {
@@ -109,16 +109,25 @@ public:
                 load_flag(pfrm, app, 379);
                 break;
 
+            case 6:
+                load_flag(pfrm, app, 376);
+                break;
+
             case 3:
-                load_flag(pfrm, app, 380);
+                load_flag(pfrm, app, 378);
+                break;
+
+            case 5:
+                load_flag(pfrm, app, 377);
                 break;
 
             case 4:
-                load_flag(pfrm, app, 378);
+                load_flag(pfrm, app, 380);
                 break;
             }
-
-            return scene_pool::alloc<FlagDesignerModule>();
+            auto next = scene_pool::alloc<FlagDesignerModule>();
+            next->changed_ = true;
+            return next;
         }
 
 
