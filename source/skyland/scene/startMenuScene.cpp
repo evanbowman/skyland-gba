@@ -128,7 +128,7 @@ static const char* fb_save_file = "/save/fbld.dat";
 class GenerateAgainScene : public macro::MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev) override
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
     {
         StringBuffer<30> text(SYSTR(repeat_query)->c_str());
 
@@ -157,6 +157,8 @@ public:
         pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
         text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+
+        draw_compass(pfrm, state);
     }
 
 
@@ -179,6 +181,30 @@ public:
     virtual ScenePtr<Scene>
     update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     {
+        auto& sector = state.sector();
+
+        if (player.key_down(pfrm, Key::left)) {
+            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            sector.rotate();
+            sector.render(pfrm);
+            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(pfrm, state);
+            pfrm.speaker().play_sound("cursor_tick", 0);
+        } else if (player.key_down(pfrm, Key::right)) {
+            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            sector.rotate();
+            sector.rotate();
+            sector.rotate();
+            sector.render(pfrm);
+            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(pfrm, state);
+            pfrm.speaker().play_sound("cursor_tick", 0);
+        }
+
         if (player.key_down(pfrm, Key::action_1)) {
             pfrm.speaker().play_sound("button_wooden", 3);
             auto& current = state.sector();
