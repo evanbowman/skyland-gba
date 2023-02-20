@@ -654,6 +654,19 @@ enum class SystemString {
     sel_menu_spook_bird,
     sel_menu_describe_block,
 
+    choose_flag,
+    flag_default,
+    flag_alt1,
+    flag_alt2,
+    flag_alt3,
+    flag_alt4,
+    flag_alt5,
+    flag_alt6,
+
+    flag_designer_presets,
+    flag_designer_flood,
+
+
     __NOTICE__,
     patchfix_retain_alphabet,
     count,

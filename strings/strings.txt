@@ -522,5 +522,15 @@ build
 back
 spook bird
 describe block
+choose flag:
+colonial
+old empire
+second empire
+goblin horde
+marauder
+.
+.
+SEL: presets
+START: flood
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
 abcdefghijklmnopqrstuvwxyz- ()0123456789

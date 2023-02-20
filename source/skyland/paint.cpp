@@ -204,11 +204,6 @@ ScenePtr<Scene> Paint::update(Platform& pfrm, App& app, Microseconds delta)
         }
         show(pfrm, app);
     }
-    if (app.player().key_down(pfrm, Key::select)) {
-        load_default_flag(pfrm, app);
-        app.player_island().render_exterior(pfrm, app);
-        show(pfrm, app);
-    }
     if (app.player().key_pressed(pfrm, Key::action_1) and ready_) {
         set_pixel(app, cursor_.x, cursor_.y, color_);
         show(pfrm, app);

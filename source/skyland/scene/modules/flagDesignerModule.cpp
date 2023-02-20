@@ -36,6 +36,101 @@ namespace skyland
 
 
 
+void load_flag(Platform& pfrm, App& app, u16 tile);
+
+
+
+class FlagTemplateScene : public Scene
+{
+public:
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        pfrm.screen().schedule_fade(0);
+        pfrm.screen().schedule_fade(1);
+
+        Text::print(pfrm, SYS_CSTR(choose_flag), {1, 1});
+        Text::print(pfrm, SYS_CSTR(flag_default), {3, 4});
+        Text::print(pfrm, SYS_CSTR(flag_alt1), {3, 6});
+        Text::print(pfrm, SYS_CSTR(flag_alt2), {3, 8});
+        Text::print(pfrm, SYS_CSTR(flag_alt3), {3, 10});
+        Text::print(pfrm, SYS_CSTR(flag_alt4), {3, 12});
+        Text::print(pfrm, SYS_CSTR(flag_alt5), {3, 14});
+        Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
+
+        pfrm.set_tile(Layer::overlay, 1, 4, 475);
+    }
+
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        pfrm.fill_overlay(0);
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    {
+        if (player(app).key_down(pfrm, Key::action_2) or
+            player(app).key_down(pfrm, Key::select)) {
+            return scene_pool::alloc<FlagDesignerModule>();
+        }
+
+        if (player(app).key_down(pfrm, Key::down)) {
+            if (sel_ < 6) {
+                ++sel_;
+            }
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, 4 + y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 4 + sel_ * 2, 475);
+        }
+        if (player(app).key_down(pfrm, Key::up)) {
+            if (sel_ > 0) {
+                --sel_;
+            }
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, 4 + y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 4 + sel_ * 2, 475);
+        }
+
+        if (player(app).key_down(pfrm, Key::action_1)) {
+            switch (sel_) {
+            case 0:
+                load_default_flag(pfrm, app);
+                break;
+
+            case 1:
+                load_flag(pfrm, app, 381);
+                break;
+
+            case 2:
+                load_flag(pfrm, app, 379);
+                break;
+
+            case 3:
+                load_flag(pfrm, app, 380);
+                break;
+
+            case 4:
+                load_flag(pfrm, app, 378);
+                break;
+            }
+
+            return scene_pool::alloc<FlagDesignerModule>();
+        }
+
+
+        return null_scene();
+    }
+
+private:
+    int sel_ = 0;
+};
+
+
+
 void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
@@ -66,6 +161,11 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     show(pfrm, app);
 
     pfrm.screen().schedule_fade(0);
+
+    static const Text::OptColors colors{
+        {ColorConstant::silver_white, custom_color(0x5aadef)}};
+
+    Text::print(pfrm, SYS_CSTR(flag_designer_presets), {17, 1}, colors);
 }
 
 
@@ -73,6 +173,9 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 void FlagDesignerModule::exit(Platform& pfrm, App&, Scene& next)
 {
     pfrm.fill_overlay(0);
+    pfrm.system_call("vsync", nullptr); // FIXME
+    pfrm.screen().clear();
+    pfrm.screen().display();
     pfrm.screen().fade(1.f);
 }
 
@@ -90,6 +193,13 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
 ScenePtr<Scene>
 FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (app.player().key_down(pfrm, Key::select)) {
+        return scene_pool::alloc<FlagTemplateScene>();
+        // load_default_flag(pfrm, app);
+        // app.player_island().render_exterior(pfrm, app);
+        // show(pfrm, app);
+    }
+
     if (app.player().key_down(pfrm, Key::action_2)) {
         if (changed_) {
             app.custom_flag_image_.save(pfrm);

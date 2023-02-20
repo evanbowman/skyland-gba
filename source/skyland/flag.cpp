@@ -98,7 +98,7 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
 
 
 
-void load_flag(Platform& pfrm, App& app, TileId t)
+void load_flag(Platform& pfrm, App& app, u16 t)
 {
     pfrm.load_tile0_texture("tilesheet");
 
