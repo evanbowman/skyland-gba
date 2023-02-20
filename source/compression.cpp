@@ -15,6 +15,7 @@ void compress(const Vector<char>& input, Vector<char>& output)
 
     for (auto it = input.begin(); it not_eq input.end(); ++it) {
         if (win->input_.full()) {
+            Platform::fatal("fixme: cannot compress for some reason");
             compress(win->input_, win->output_);
             for (char c : win->output_) {
                 output.push_back(c);
