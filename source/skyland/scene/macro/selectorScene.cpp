@@ -52,12 +52,12 @@ public:
 
         pfrm.set_tile(Layer::overlay, 1, 2, 393);
         Text(pfrm, ":", OverlayCoord{2, 2}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 2, 387);
+        pfrm.set_tile(Layer::overlay, 3, 2, 388);
         pfrm.set_tile(Layer::overlay, 4, 2, 390);
 
         pfrm.set_tile(Layer::overlay, 1, 3, 395);
         Text(pfrm, ":", OverlayCoord{2, 3}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 3, 388);
+        pfrm.set_tile(Layer::overlay, 3, 3, 387);
         pfrm.set_tile(Layer::overlay, 4, 3, 390);
 
         pfrm.set_tile(Layer::overlay, 1, 4, 394);
@@ -86,10 +86,10 @@ public:
             return scene;
         }
 
-        if (player.key_pressed(pfrm, Key::up)) {
+        if (player.key_pressed(pfrm, Key::left)) {
             state.data_->keylock_ = Keylock::improvelock;
             draw_keylock(pfrm, state);
-        } else if (player.key_pressed(pfrm, Key::left)) {
+        } else if (player.key_pressed(pfrm, Key::up)) {
             state.data_->keylock_ = Keylock::buildlock;
             draw_keylock(pfrm, state);
         } else if (player.key_pressed(pfrm, Key::right)) {
@@ -328,9 +328,14 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                 auto c = state.sector().cursor();
                 if (c.z > 0) {
                     c.z--;
-                    pfrm.speaker().play_sound("button_wooden", 3);
-                    state.sector().set_block(c, terrain::Type::air);
-                    state.sector().set_cursor(c);
+                    auto tp = state.sector().get_block(c).type();
+                    if (tp == terrain::Type::dynamite) {
+                        state.sector().ref_block(c).data_ = 1;
+                    } else {
+                        pfrm.speaker().play_sound("button_wooden", 3);
+                        state.sector().set_block(c, terrain::Type::air);
+                        state.sector().set_cursor(c);
+                    }
                 }
                 break;
             }

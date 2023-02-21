@@ -455,7 +455,8 @@ struct BeamDestroyed
     host_s64 y_speed__data_;
     u8 index_;
 
-    struct Contact {
+    struct Contact
+    {
         u8 x_ : 4;
         u8 y_ : 4;
     };

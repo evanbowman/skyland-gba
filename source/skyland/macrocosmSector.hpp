@@ -321,6 +321,12 @@ public:
     }
 
 
+    virtual u16 project_block(int x, int y, int z) const
+    {
+        Platform::fatal("project block unimplemented");
+    }
+
+
     // Format:
     // 1: byte containing layout.
     // 2: rle-compressed data.

@@ -189,23 +189,22 @@ void Beam::restore_blocks_hit(const time_stream::event::BeamDestroyed& e)
 
 void Beam::record_destroyed(Platform& pfrm, App& app)
 {
-    auto timestream_record =
-        [&](time_stream::event::BeamDestroyed& c) {
-            c.x_origin_ = origin_tile_.x;
-            c.y_origin_ = origin_tile_.y;
-            c.timer_.set(timer_);
-            c.x_pos_.set(sprite_.get_position().x.as_integer());
-            c.y_pos_.set(sprite_.get_position().y.as_integer());
-            c.x_speed__data_.set(step_vector_.x.data());
-            c.y_speed__data_.set(step_vector_.y.data());
-            c.index_ = index_;
+    auto timestream_record = [&](time_stream::event::BeamDestroyed& c) {
+        c.x_origin_ = origin_tile_.x;
+        c.y_origin_ = origin_tile_.y;
+        c.timer_.set(timer_);
+        c.x_pos_.set(sprite_.get_position().x.as_integer());
+        c.y_pos_.set(sprite_.get_position().y.as_integer());
+        c.x_speed__data_.set(step_vector_.x.data());
+        c.y_speed__data_.set(step_vector_.y.data());
+        c.index_ = index_;
 
-            c.hit_count_ = damaged_.size();
-            for (u32 i = 0; i < damaged_.size(); ++i) {
-                c.blocks_hit_[i].x_ = damaged_[i].x;
-                c.blocks_hit_[i].y_ = damaged_[i].y;
-            }
-        };
+        c.hit_count_ = damaged_.size();
+        for (u32 i = 0; i < damaged_.size(); ++i) {
+            c.blocks_hit_[i].x_ = damaged_[i].x;
+            c.blocks_hit_[i].y_ = damaged_[i].y;
+        }
+    };
 
 
     if (source_ == &app.player_island()) {

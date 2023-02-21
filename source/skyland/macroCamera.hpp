@@ -79,11 +79,47 @@ public:
                 target_.cast<Float>(), current_, delta * 0.0000021f);
         }
 
-        pfrm.set_scroll(
-            Layer::map_0, current_.x, current_.y + ambient_movement_);
 
-        pfrm.set_scroll(
-            Layer::map_1, current_.x, current_.y + 8 + ambient_movement_);
+        int shake_offset = 0;
+
+        if (shake_magnitude_ not_eq 0) {
+            shake_timer_ += delta;
+
+            const auto shake_duration = milliseconds(250);
+
+            if (shake_timer_ > shake_duration) {
+                shake_timer_ = 0;
+                shake_magnitude_ = 0;
+            }
+
+            const auto damping =
+                ease_out(shake_timer_, 0, shake_magnitude_ / 2, shake_duration);
+
+            auto offset = shake_magnitude_ * (float(cosine(shake_timer_ / 4)) /
+                                              std::numeric_limits<s16>::max());
+
+            if (offset > 0) {
+                offset -= damping;
+                if (offset < 0) {
+                    offset = 0;
+                }
+            } else {
+                offset += damping;
+                if (offset > 0) {
+                    offset = 0;
+                }
+            }
+
+            shake_offset = offset;
+        }
+
+        pfrm.set_scroll(Layer::map_0,
+                        current_.x,
+                        current_.y + ambient_movement_ + shake_offset);
+
+        pfrm.set_scroll(Layer::map_1,
+                        current_.x,
+                        current_.y + 8 + ambient_movement_ + shake_offset);
     }
 };
 

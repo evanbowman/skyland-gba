@@ -175,8 +175,7 @@ void WorldGraph::generate(App& app)
                 break;
             }
         }
-        if (tries == 255 or
-            i == 19 or // only place one store actually
+        if (tries == 255 or i == 19 or // only place one store actually
             app.zone() < 2) {
             nodes_[i].type_ = WorldGraph::Node::Type::null;
         }

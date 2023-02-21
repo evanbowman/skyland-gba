@@ -31,6 +31,7 @@
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
 #include "rle.hpp"
+#include "skyland/entity/macro/macrocosmEffect.hpp"
 #include "skyland/skyland.hpp"
 extern "C" {
 // FIXME!!!
@@ -940,6 +941,9 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
         cost.productivity_ = 10;
         break;
 
+    case terrain::Type::dynamite:
+        break;
+
     case terrain::Type::masonry:
     case terrain::Type::arch:
         cost = terrain::cost(t);
@@ -1084,6 +1088,7 @@ terrain::Cost terrain::cost(Type t)
         cost.productivity_ = 6;
         break;
 
+    case terrain::Type::dynamite:
     case terrain::Type::hematite:
     case terrain::Type::masonry:
     case terrain::Type::ocher:
@@ -1280,6 +1285,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::ocher:
         return SystemString::block_ocher;
+
+    case terrain::Type::dynamite:
+        return SystemString::block_dynamite_1;
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
@@ -1589,6 +1597,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::dynamite:
+        return {1672, 1688};
 
     case terrain::Type::hull:
         return {1624, 1640};
@@ -2157,6 +2168,10 @@ void cropcycle(bool on)
 {
     cropcycle_ = on;
 }
+
+
+
+extern u8 screenshake;
 
 
 
@@ -2826,6 +2841,62 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::basalt);
     },
+    // dynamite
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (block.data_ > 0) {
+            ++block.data_;
+        } else {
+            if (position.z > 0) {
+                --position.z;
+                if (s.get_block(position).type() == terrain::Type::air) {
+                    s.set_block(position, terrain::Type::dynamite);
+                    ++position.z;
+                    s.set_block(position, terrain::Type::air);
+                } else {
+                    ++position.z;
+                }
+            }
+        }
+
+        if (block.data_ == 16) {
+            s.set_block(position, terrain::Type::air);
+            screenshake = 12;
+            Platform::instance().speaker().play_sound("explosion1", 2);
+
+            auto pos = screen_coord(Platform::instance(),
+                                    s.project_block(position.x,
+                                                    position.y,
+                                                    position.z));
+
+            _bound_state->add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));
+
+            for (int z = position.z - 1; z < position.z + 2; ++z) {
+                for (int x = position.x - 1; x < position.x + 2; ++x) {
+                    for (int y = position.y - 1; y < position.y + 2; ++y) {
+                        Vec3<u8> c{(u8)x, (u8)y, (u8)z};
+                        if (x > -1 and
+                            y > -1 and
+                            z > -1 and
+                            x < s.size().x and
+                            y < s.size().y and
+                            z < s.size().z) {
+
+                            if (s.get_block(c).type() == terrain::Type::selector) {
+
+                            } else if (s.get_block(c).type() == terrain::Type::dynamite) {
+                                if (s.ref_block(c).data_ == 0) {
+                                    s.ref_block(c).data_ = 1;
+                                }
+                            } else {
+                                s.set_block(c, terrain::Type::air);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
 };
 // clang-format on
 
@@ -3248,6 +3319,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

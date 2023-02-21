@@ -67,11 +67,20 @@ static const u8 sine8[256] = {
 
 
 
+u8 screenshake = 0;
+
+
+
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.macrocosm()) {
         Platform::fatal("macro state unbound!?");
+    }
+
+    if (screenshake) {
+        app.camera()->shake(screenshake);
+        screenshake = 0;
     }
 
     if (state_bit_load(app, StateBit::launch_repl)) {

@@ -511,8 +511,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.opponent_island() and
                 (mt_prep_seconds == 0 or globals().unhide_multiplayer_prep_)) {
 
-                if (app.world_graph().nodes_[app.current_world_location()]
-                    .type_ == WorldGraph::Node::Type::shop) {
+                if (app.world_graph()
+                        .nodes_[app.current_world_location()]
+                        .type_ == WorldGraph::Node::Type::shop) {
                     return scene_pool::alloc<ItemShopScene>();
                 }
 
@@ -952,8 +953,8 @@ void ReadyScene::display(Platform& pfrm, App& app)
         }
     }
 
-    if (app.world_graph().nodes_[app.current_world_location()]
-        .type_ == WorldGraph::Node::Type::shop) {
+    if (app.world_graph().nodes_[app.current_world_location()].type_ ==
+        WorldGraph::Node::Type::shop) {
         Sprite spr;
         spr.set_texture_index(57);
         auto o = app.player_island().origin();

@@ -297,7 +297,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.x = 0;
 
             app.effects().clear();
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island());
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(
+                app.opponent_island());
         }
     }
 

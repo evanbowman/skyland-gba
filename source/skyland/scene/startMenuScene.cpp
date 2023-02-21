@@ -644,9 +644,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::adventure:
             if (app.opponent_island() == nullptr or
-                app.world_graph()
-                .nodes_[app.current_world_location()]
-                .type_ == WorldGraph::Node::Type::shop) {
+                app.world_graph().nodes_[app.current_world_location()].type_ ==
+                    WorldGraph::Node::Type::shop) {
                 add_option(pfrm,
                            SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),

@@ -6,7 +6,8 @@
 
 void compress(const Vector<char>& input, Vector<char>& output)
 {
-    struct Window {
+    struct Window
+    {
         Buffer<char, 1000> input_;
         Buffer<char, 1000> output_;
     };
@@ -38,7 +39,8 @@ void compress(const Vector<char>& input, Vector<char>& output)
 
 void decompress(const Vector<char>& input, Vector<char>& output)
 {
-    struct Window {
+    struct Window
+    {
         Buffer<char, 1000> input_;
         Buffer<char, 1000> output_;
     };

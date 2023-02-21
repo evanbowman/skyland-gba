@@ -832,6 +832,16 @@ public:
     }
 
 
+    u16 project_block(int x, int y, int z) const override
+    {
+        int t_start = Derived::screen_mapping_lut[x][y];
+        static constexpr const auto shift = 30 * screen_y_offset;
+        t_start += shift;
+        t_start -= z * 30;
+
+        return t_start;
+    }
+
 
 protected:
     Block blocks_[sz][sx][sy];

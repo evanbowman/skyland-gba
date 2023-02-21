@@ -267,8 +267,8 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 // optimized.
 __attribute__((section(".iwram"), long_call)) void blit_tile(u16* out, u16* in);
 
-__attribute__((section(".iwram"), long_call))
-void win_circle(u16 winh[], int x0, int y0, int rr);
+__attribute__((section(".iwram"), long_call)) void
+win_circle(u16 winh[], int x0, int y0, int rr);
 
 
 
@@ -3053,12 +3053,14 @@ void Platform::load_background_texture(const char* name)
             if (validate_background_texture_size(*this,
                                                  info.tile_data_length_)) {
                 if (info.compressed_) {
-                    LZ77UnCompVram(info.tile_data_,
-                                   (void*)&MEM_SCREENBLOCKS[sbb_background_texture][0]);
+                    LZ77UnCompVram(
+                        info.tile_data_,
+                        (void*)&MEM_SCREENBLOCKS[sbb_background_texture][0]);
                 } else {
-                    memcpy16((void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
-                             info.tile_data_,
-                             (sizeof(ScreenBlock) * 2) / 2);
+                    memcpy16(
+                        (void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
+                        info.tile_data_,
+                        (sizeof(ScreenBlock) * 2) / 2);
                 }
             } else {
                 StringBuffer<45> buf = "unable to load: ";
@@ -5167,8 +5169,9 @@ bool Platform::load_overlay_texture(const char* name)
 
 
             if (info.compressed_) {
-                LZ77UnCompVram(info.tile_data_,
-                               (void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0]);
+                LZ77UnCompVram(
+                    info.tile_data_,
+                    (void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0]);
 
             } else {
                 memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],

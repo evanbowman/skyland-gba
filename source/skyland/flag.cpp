@@ -112,7 +112,6 @@ void load_flag(Platform& pfrm, App& app, u16 t)
 
 
 
-
 void load_default_flag(Platform& pfrm, App& app)
 {
     pfrm.load_tile0_texture("tilesheet");

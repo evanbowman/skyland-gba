@@ -214,8 +214,7 @@ public:
     // not return.
     [[noreturn]] static void fatal(const char* message);
 
-    template <u32 size>
-    static void fatal(const StringBuffer<size>& str)
+    template <u32 size> static void fatal(const StringBuffer<size>& str)
     {
         fatal(str.c_str());
     }

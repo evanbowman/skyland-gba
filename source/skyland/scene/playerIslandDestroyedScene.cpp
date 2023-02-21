@@ -296,8 +296,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     const bool opponent_defeated =
-        island_ not_eq &app.player_island() and
-        not forced_defeat_;
+        island_ not_eq &app.player_island() and not forced_defeat_;
 
 
     const bool endgame =

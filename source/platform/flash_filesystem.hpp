@@ -143,11 +143,10 @@ read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-inline bool
-store_file_data_text(Platform& pfrm,
-                     const char* path,
-                     Vector<char>& data,
-                     const StorageOptions& opts = {})
+inline bool store_file_data_text(Platform& pfrm,
+                                 const char* path,
+                                 Vector<char>& data,
+                                 const StorageOptions& opts = {})
 {
     data.pop_back();
     auto result = store_file_data(pfrm, path, data, opts);
@@ -166,23 +165,21 @@ read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-inline bool
-store_file_data_binary(Platform& pfrm,
-                       const char* path,
-                       Vector<char>& data,
-                       const StorageOptions& opts = {})
+inline bool store_file_data_binary(Platform& pfrm,
+                                   const char* path,
+                                   Vector<char>& data,
+                                   const StorageOptions& opts = {})
 {
     return store_file_data(pfrm, path, data, opts);
 }
 
 
 
-inline bool
-store_file_data(Platform& pfrm,
-                const char* path,
-                const char* ptr,
-                u32 length,
-                const StorageOptions& opts = {})
+inline bool store_file_data(Platform& pfrm,
+                            const char* path,
+                            const char* ptr,
+                            u32 length,
+                            const StorageOptions& opts = {})
 {
     Vector<char> buffer;
     for (u32 i = 0; i < length; ++i) {

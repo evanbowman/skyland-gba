@@ -12,8 +12,8 @@ namespace skyland
 
 
 
-ItemShopScene::ItemShopScene() :
-    items_(allocate_dynamic<ItemsBuffer>("shop-items-buffer"))
+ItemShopScene::ItemShopScene()
+    : items_(allocate_dynamic<ItemsBuffer>("shop-items-buffer"))
 {
 }
 
@@ -28,16 +28,15 @@ void ItemShopScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.speaker().play_sound("openbag", 3);
 
     auto items = lisp::get_var("shop-items");
-    lisp::foreach(items,
-                  [this](lisp::Value* item) {
-                      auto mt = metaclass_index(lisp::get_list(item, 0)->symbol().name());
-                      u16 price = lisp::get_list(item, 1)->integer().value_;
-                      u16 qty = lisp::get_list(item, 2)->integer().value_;
-                      if (items_->full()) {
-                          Platform::fatal("shop item list cannot exceed 4 elems");
-                      }
-                      items_->push_back(ShopItem{mt, price, qty});
-                  });
+    lisp::foreach (items, [this](lisp::Value* item) {
+        auto mt = metaclass_index(lisp::get_list(item, 0)->symbol().name());
+        u16 price = lisp::get_list(item, 1)->integer().value_;
+        u16 qty = lisp::get_list(item, 2)->integer().value_;
+        if (items_->full()) {
+            Platform::fatal("shop item list cannot exceed 4 elems");
+        }
+        items_->push_back(ShopItem{mt, price, qty});
+    });
 
     if (items_->empty()) {
         Platform::fatal("no shop items defined!?");
@@ -55,9 +54,8 @@ void ItemShopScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> ItemShopScene::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = WorldScene::update(pfrm, app, delta)) {
         return scene;
@@ -66,9 +64,7 @@ ScenePtr<Scene> ItemShopScene::update(Platform& pfrm,
     int tile_mem[4] = {258, 181, 197, 213};
     Vec2<u8> slots[] = {{4, 5}, {15, 5}, {4, 11}, {15, 11}};
 
-    auto item_slot = [&](int x, int y) -> u32 {
-                         return y * 2 + x;
-                     };
+    auto item_slot = [&](int x, int y) -> u32 { return y * 2 + x; };
 
     constexpr auto fade_duration = milliseconds(300);
 
@@ -105,7 +101,13 @@ ScenePtr<Scene> ItemShopScene::update(Platform& pfrm,
                 if (i == 0) {
                     icon = (*load_metaclass(item.mt_))->icon();
                 }
-                draw_image(pfrm, tile_mem[i], slots[i].x, slots[i].y, 4, 4, Layer::overlay);
+                draw_image(pfrm,
+                           tile_mem[i],
+                           slots[i].x,
+                           slots[i].y,
+                           4,
+                           4,
+                           Layer::overlay);
                 pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
                 u8 x = slots[i].x + 5;
                 u8 y = slots[i].y + 1;
@@ -153,18 +155,17 @@ ScenePtr<Scene> ItemShopScene::update(Platform& pfrm,
                 return null_scene();
             }
         }
-        auto move_cursor =
-            [&](int x2, int y2) {
-                int i = item_slot(cursor_.x, cursor_.y);
-                auto icon = (*load_metaclass((*items_)[i].mt_))->unsel_icon();
-                pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
-                cursor_.y = y2;
-                cursor_.x = x2;
-                pfrm.speaker().play_sound("cursor_tick", 0);
-                i = item_slot(cursor_.x, cursor_.y);
-                icon = (*load_metaclass((*items_)[i].mt_))->icon();
-                pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
-            };
+        auto move_cursor = [&](int x2, int y2) {
+            int i = item_slot(cursor_.x, cursor_.y);
+            auto icon = (*load_metaclass((*items_)[i].mt_))->unsel_icon();
+            pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
+            cursor_.y = y2;
+            cursor_.x = x2;
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            i = item_slot(cursor_.x, cursor_.y);
+            icon = (*load_metaclass((*items_)[i].mt_))->icon();
+            pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
+        };
         if (player(app).key_down(pfrm, Key::down) and cursor_.y == 0) {
             if (item_slot(cursor_.x, cursor_.y + 1) < items_->size()) {
                 move_cursor(cursor_.x, cursor_.y + 1);
@@ -187,4 +188,4 @@ ScenePtr<Scene> ItemShopScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

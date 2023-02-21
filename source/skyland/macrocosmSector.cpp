@@ -1170,8 +1170,7 @@ PLACED_BUILDING:
                                   terrain::Type::lumber);
                         set_block({(u8)x, (u8)y, (u8)(z)},
                                   terrain::Type::volcanic_soil);
-                    } else if (water and
-                               water_count < 2 and
+                    } else if (water and water_count < 2 and
                                rng::choice<10>(rng::critical_state)) {
                         set_block({(u8)x, (u8)y, (u8)(z)},
                                   terrain::Type::water_source);
@@ -1234,16 +1233,20 @@ PLACED_BUILDING:
         for (u8 x = 0; x < size().x; ++x) {
             for (u8 y = 0; y < size().y; ++y) {
                 if (get_block({x, y, 0}).type() == Type::air) {
-                    if (x == 0 or y == 0 or x == size().x - 1 or y == size().y - 1) {
+                    if (x == 0 or y == 0 or x == size().x - 1 or
+                        y == size().y - 1) {
                         if (rng::choice<3>(rng::critical_state) == 0) {
                             set_block({x, y, 0}, Type::sand);
                         }
-                    } if (x == 1 or y == 1 or x == size().x - 2 or y == size().y - 2) {
+                    }
+                    if (x == 1 or y == 1 or x == size().x - 2 or
+                        y == size().y - 2) {
                         if (rng::choice<5>(rng::critical_state) == 0) {
                             set_block({x, y, 1}, Type::basalt);
                         }
                         set_block({x, y, 0}, Type::sand);
-                    } else if (x > 0 and y > 0 and x < size().x - 1 and y < size().y - 1) {
+                    } else if (x > 0 and y > 0 and x < size().x - 1 and
+                               y < size().y - 1) {
                         set_block({x, y, 0}, Type::water_source);
                     }
                 }

@@ -138,6 +138,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     if (state.data_->freebuild_mode_) {
         options_.push_back(terrain::Type::hull);
     }
+    options_.push_back(terrain::Type::dynamite);
     options_.push_back(terrain::Type::arch);
     options_.push_back(terrain::Type::masonry);
     options_.push_back(terrain::Type::air);

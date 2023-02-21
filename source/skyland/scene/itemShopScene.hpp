@@ -1,7 +1,7 @@
 #pragma once
 
-#include "worldScene.hpp"
 #include "skyland/room_metatable.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -13,7 +13,6 @@ namespace skyland
 class ItemShopScene : public WorldScene
 {
 public:
-
     ItemShopScene();
 
 
@@ -25,7 +24,6 @@ public:
 
 
 private:
-
     struct ShopItem
     {
         MetaclassIndex mt_;
@@ -40,8 +38,7 @@ private:
 
     Vec2<u8> cursor_;
 
-    enum class State : u8
-    {
+    enum class State : u8 {
         fade_in,
         animate_box,
         ready,
@@ -50,4 +47,4 @@ private:
 
 
 
-}
+} // namespace skyland

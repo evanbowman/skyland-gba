@@ -171,6 +171,8 @@ enum class Type {
     rice_terrace,
     rice_ripe,
 
+    dynamite,
+
     count,
 };
 

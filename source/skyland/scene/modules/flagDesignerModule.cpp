@@ -43,7 +43,6 @@ void load_flag(Platform& pfrm, App& app, u16 tile);
 class FlagTemplateScene : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.screen().schedule_fade(0);

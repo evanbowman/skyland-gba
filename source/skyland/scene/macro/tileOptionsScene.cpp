@@ -106,7 +106,11 @@ static const TileOptionsScene::OptionInfo options[] = {
      [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
          auto c = state.sector().cursor();
          c.z--;
-         if (not harvest_block(state, state.sector(), c)) {
+         auto tp = state.sector().get_block(c).type();
+         if (tp == terrain::Type::dynamite) {
+             state.sector().ref_block(c).data_ = 1;
+             return scene_pool::alloc<SelectorScene>();
+         } else if (not harvest_block(state, state.sector(), c)) {
              Platform::instance().speaker().play_sound("beep_error", 2);
              return scene_pool::alloc<TileOptionsScene>();
          } else {
