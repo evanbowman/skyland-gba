@@ -170,6 +170,9 @@ public:
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
+    void display(Platform& pfrm, App& app) override;
+
+
 private:
     Microseconds timer_;
 };

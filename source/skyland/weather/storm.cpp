@@ -304,34 +304,4 @@ Platform::Screen::Shader Storm::shader(App& app) const
 
 
 
-// FIXME: move to a different file!
-void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
-{
-    timer_ -= delta;
-    if (timer_ <= 0) {
-
-        timer_ += timer_ =
-            seconds(3) + seconds(rng::choice<6>(rng::utility_state));
-
-        switch (rng::choice<3>(rng::utility_state)) {
-        case 0:
-            if (not app.birds().empty()) {
-                pfrm.speaker().play_sound("seagull_1", 0);
-            }
-            break;
-
-        case 1:
-            if (not app.birds().empty()) {
-                pfrm.speaker().play_sound("seagull_2", 0);
-            }
-            break;
-
-        case 2:
-            break;
-        }
-    }
-}
-
-
-
 } // namespace skyland::weather

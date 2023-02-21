@@ -2556,7 +2556,17 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // arch
     nullptr,
     // sand
-    nullptr,
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.z > 0) {
+            --position.z;
+            if (s.get_block(position).type() == terrain::Type::air) {
+                s.set_block(position, terrain::Type::sand);
+                ++position.z;
+                s.set_block(position, terrain::Type::air);
+            }
+        }
+    },
     // crystal
     nullptr,
     // marble
