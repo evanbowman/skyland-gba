@@ -39,6 +39,8 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ClearSkies::display(Platform& pfrm, App& app)
 {
+    // return; // eh, I'm undecided about the sun effect
+
     const auto& view_pos = pfrm.screen().get_view().get_center();
 
     Sprite spr;
@@ -47,7 +49,7 @@ void ClearSkies::display(Platform& pfrm, App& app)
     spr.set_tidx_16x16(116, 0);
     Fixnum x = 60.0_fixed;
     x += Fixnum::from_integer(view_pos.x) * 0.75_fixed;
-    Fixnum y = 488.0_fixed;
+    Fixnum y = 487.0_fixed;
     y += Fixnum::from_integer(view_pos.y) * 0.65_fixed;
 
     if (y > 474.0_fixed) {
@@ -78,8 +80,7 @@ void ClearSkies::display(Platform& pfrm, App& app)
     const auto dx = scrn_center.x - x;
     const auto dy = scrn_center.y - y;
 
-    auto dist = distance({x.as_float(), y.as_float()},
-                         {x.as_float(), scrn_center.y.as_float()});
+    Fixnum dist = y - scrn_center.y;
 
     struct Flare
     {
@@ -91,7 +92,10 @@ void ClearSkies::display(Platform& pfrm, App& app)
                       {2, 0.2_fixed},
                       {3, 0.25_fixed},};
 
-    auto amt = clamp((int)(255 * ((165 - dist) / 19)), 0, 255);
+    auto amt = clamp((int)(255.0_fixed
+                       * ((165.0_fixed - dist)
+                       * Fixnum(1.f / 19.f))).as_integer(),
+                     0, 255);
 
     if (amt > 210) {
         return;
