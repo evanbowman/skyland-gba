@@ -73,10 +73,6 @@ void ClearSkies::display(Platform& pfrm, App& app)
     scrn_center.y = Fixnum::from_integer(280 + pfrm.screen().size().y / 2) +
         Fixnum::from_integer(view_pos.y);
 
-
-    // spr.set_position(scrn_center);
-    // pfrm.screen().draw(spr);
-
     const auto dx = scrn_center.x - x;
     const auto dy = scrn_center.y - y;
 
