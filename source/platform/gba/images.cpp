@@ -65,7 +65,17 @@
 //;
 #include "data/zone_image_3_flattened.h"
 //;
-#include "data/zone_image_4_flattened.h"
+#include "data/glossary_wall_cg_flattened.h"
+//;
+#include "data/glossary_weapon_cg_flattened.h"
+//;
+#include "data/glossary_factory_cg_flattened.h"
+//;
+#include "data/glossary_power_cg_flattened.h"
+//;
+#include "data/glossary_misc_cg_flattened.h"
+//;
+#include "data/glossary_decoration_cg_flattened.h"
 //;
 #include "data/gba_health_safety_logo_flattened.h"
 //;
@@ -206,7 +216,17 @@ static const TextureData tile_textures[] = {
 //;
     TEXTURE_INFO(zone_image_3_flattened, true),
 //;
-    TEXTURE_INFO(zone_image_4_flattened, true),
+    TEXTURE_INFO(glossary_wall_cg_flattened, false),
+//;
+    TEXTURE_INFO(glossary_weapon_cg_flattened, false),
+//;
+    TEXTURE_INFO(glossary_factory_cg_flattened, false),
+//;
+    TEXTURE_INFO(glossary_power_cg_flattened, false),
+//;
+    TEXTURE_INFO(glossary_misc_cg_flattened, false),
+//;
+    TEXTURE_INFO(glossary_decoration_cg_flattened, false),
 //;
     TEXTURE_INFO(gba_health_safety_logo_flattened, true),
 //

@@ -101,8 +101,12 @@ private:
     std::optional<TextView> item_description_;
     std::optional<Text> dependency_text_;
 
+    void show_category_image(Platform& pfrm, int img);
 
     std::optional<DeferredScene> next_scene_;
+
+    void draw_category_line(Platform&, int line,
+                            Text::OptColors = {});
 
     enum class State {
         show_categories,
@@ -110,6 +114,8 @@ private:
         view_filtered,
         view,
         quickview,
+        exit,
+        swap_category_image,
     } state_ = State::show_categories;
 
     int page_ = 0;
@@ -118,6 +124,10 @@ private:
 
     int filter_begin_ = 0;
     int filter_end_ = 0;
+
+    Microseconds img_swap_timer_ = 0;
+
+    Microseconds unfade_timer_ = 0;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
     std::optional<DynamicMemory<FilterBuf>> filter_buf_;

@@ -372,9 +372,31 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             add_option(
                 pfrm,
                 SYSTR(start_menu_glossary)->c_str(),
-                [&pfrm] {
+                [&pfrm, &app] {
                     auto next = scene_pool::alloc<GlossaryViewerModule>();
-                    next->set_next_scene([&pfrm]() {
+                    next->set_next_scene([&pfrm, &app]() {
+                        auto& isle = app.player_island();
+                        if (isle.interior_visible()) {
+                            auto t = app.environment().player_island_interior_texture();
+                            pfrm.load_tile0_texture(t);
+                        } else {
+                            pfrm.load_tile0_texture(app.environment().player_island_texture());
+                        }
+                        if (isle.interior_visible()) {
+                            show_island_interior(
+                                 pfrm, app, &app.player_island());
+                        } else {
+                            show_island_exterior(
+                                 pfrm, app, &app.player_island());
+                        }
+                        pfrm.set_scroll(isle.layer(),
+                                        -isle.get_position().x.as_integer(),
+                                        -isle.get_position().y.as_integer());
+
+                        auto view = pfrm.screen().get_view();
+                        view.set_center(app.camera()->center());
+                        pfrm.screen().set_view(view);
+
                         return scene_pool::alloc<StartMenuScene>(1);
                     });
                     return next;

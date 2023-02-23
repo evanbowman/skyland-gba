@@ -407,6 +407,12 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_2_flattened.s
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/zone_image_4_flattened.s
+    ${DATA_DIR}/glossary_wall_cg_flattened.s
+    ${DATA_DIR}/glossary_weapon_cg_flattened.s
+    ${DATA_DIR}/glossary_factory_cg_flattened.s
+    ${DATA_DIR}/glossary_power_cg_flattened.s
+    ${DATA_DIR}/glossary_misc_cg_flattened.s
+    ${DATA_DIR}/glossary_decoration_cg_flattened.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_fishing.s
     ${DATA_DIR}/background.s
@@ -738,7 +744,12 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(zone_image_1 0 0 YES YES)
     add_tilesheet(zone_image_2 0 0 YES YES)
     add_tilesheet(zone_image_3 0 0 YES YES)
-    add_tilesheet(zone_image_4 0 0 YES YES)
+    add_tilesheet(glossary_wall_cg 0 0 YES NO)
+    add_tilesheet(glossary_weapon_cg 0 0 YES NO)
+    add_tilesheet(glossary_factory_cg 0 0 YES NO)
+    add_tilesheet(glossary_power_cg 0 0 YES NO)
+    add_tilesheet(glossary_misc_cg 0 0 YES NO)
+    add_tilesheet(glossary_decoration_cg 0 0 YES NO)
     add_tilesheet(gba_health_safety_logo 2 2 YES YES)
     add_background(background 0 0 NO YES)
     add_background(background_macro 0 0 NO YES)

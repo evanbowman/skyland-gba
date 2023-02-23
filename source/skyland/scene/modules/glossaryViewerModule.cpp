@@ -24,6 +24,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 
 
 
@@ -121,6 +122,9 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
         load_categories(pfrm);
     }
 
+    pfrm.screen().set_view(View{});
+    pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+
     pfrm.screen().fade(0.95f);
     pfrm.screen().fade(1.f);
 
@@ -174,36 +178,187 @@ void GlossaryViewerModule::load_filters(Platform& pfrm)
 
 
 
+void GlossaryViewerModule::draw_category_line(Platform& pfrm,
+                                              int line,
+                                              Text::OptColors colors)
+{
+    int offset = 0;
+    if (line == (int)Room::Category::count) {
+        ++offset;
+    }
+    Text t(pfrm, OverlayCoord{3, (u8)(offset + 4 + line * 2)});
+    if (line == (int)Room::Category::count) {
+        ++offset;
+        auto category_str = SYSTR(glossary_filters);
+        t.append(category_str->c_str(), colors);
+        t.append(" >", colors);
+    } else {
+        auto category_str =
+            (SystemString)(((int)SystemString::category_begin) + line);
+        t.append(loadstr(pfrm, category_str)->c_str(), colors);
+    }
+
+    for (int i = t.len(); i < 11; ++i) {
+        t.append(" ", colors);
+    }
+    t.__detach();
+
+}
+
+
+
+
 void GlossaryViewerModule::load_categories(Platform& pfrm)
 {
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            pfrm.set_tile(Layer::overlay, x, y, 112);
+        }
+    }
+    pfrm.screen().clear();
+    pfrm.screen().display();
+
     Text heading(pfrm, OverlayCoord{1, 1});
     heading.assign("- ");
     heading.append(SYSTR(module_glossary)->c_str());
     heading.append(" -");
     heading.__detach();
 
-    int row = 4;
     int i;
     for (i = 0; i < (int)Room::Category::count; ++i) {
-        Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2)});
-        auto category_str =
-            (SystemString)(((int)SystemString::category_begin) + i);
-        t.append(loadstr(pfrm, category_str)->c_str());
-        t.__detach();
+        draw_category_line(pfrm, i);
     }
 
-    {
-        Text t(pfrm, OverlayCoord{3, (u8)(row + i * 2 + 1)});
-        auto category_str = SYSTR(glossary_filters);
-        t.append(category_str->c_str());
-        t.__detach();
-    }
+    draw_category_line(pfrm, i);
 
     if (cg_cursor_ == (int)Room::Category::count) {
-        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 396);
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
     } else {
-        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
+
+    show_category_image(pfrm, cg_cursor_);
+}
+
+
+
+void __draw_image(Platform& pfrm,
+                  TileDesc start_tile,
+                  u16 start_x,
+                  u16 start_y,
+                  u16 width,
+                  u16 height,
+                  Layer layer);
+
+
+
+// struct DroneDescription
+// {
+//     const char* name_;
+//     const char* description_;
+// };
+
+
+
+// static const DroneDescription drone_descs[] = {
+//     {
+//      "repair-drone",
+//      "Heals blocks within distance 2 at a rate of 6 hp per second."
+//     }
+// };
+
+
+
+// void GlossaryViewerModule::load_drone_page(Platform& pfrm, int page)
+// {
+//     auto& desc = drone_descs[page];
+
+//     pfrm.load_tile0_texture("repair_drone_flattened");
+//     __draw_image(pfrm, 1, 0, 0, 19, 20, Layer::map_0);
+//     for (int x = 16; x < 30; ++x) {
+//         for (int y = 0; y < 20; ++y) {
+//             pfrm.set_tile(Layer::overlay, x, y, 112);
+//         }
+//     }
+//     Text::print(pfrm, desc.name_, {17, 1});
+
+//     alignas(TextView) char mem[sizeof(TextView)];
+//     new (mem) TextView(pfrm);
+//     ((TextView*)mem)->assign(desc.description_,
+//                              {17, 4},
+//                              {12, 16});
+// }
+
+
+
+void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
+{
+    pfrm.system_call("vsync", 0); // fixme
+
+    switch (img) {
+    default:
+    case 0:
+        pfrm.load_tile0_texture("glossary_wall_cg_flattened");
+        break;
+
+    case 1:
+        pfrm.load_tile0_texture("glossary_weapon_cg_flattened");
+        break;
+
+    case 2:
+        pfrm.load_tile0_texture("glossary_factory_cg_flattened");
+        break;
+
+    case 3:
+        pfrm.load_tile0_texture("glossary_power_cg_flattened");
+        break;
+
+    case 4: // TODO..
+        pfrm.load_tile0_texture("glossary_misc_cg_flattened");
+        break;
+
+    case 5:
+    case 6:
+        pfrm.load_tile0_texture("glossary_decoration_cg_flattened");
+        break;
+    }
+    __draw_image(pfrm, 1, 15, 0, 16, 20, Layer::map_0);
+    pfrm.screen().schedule_fade(0);
+
+    if (img == 6) {
+        for (int x = 16; x < 30; ++x) {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, x, y, 112);
+            }
+        }
+
+        int row = 4;
+        for (int i = 0; i < filter_opt_count; ++i) {
+            Text t(pfrm, OverlayCoord{16, (u8)(row + i * 2)});
+            auto str = (SystemString)(i + (int)SystemString::filter_begin);
+            auto sstr = loadstr(pfrm, str);
+            int j = 16;
+            utf8::scan(
+            [&](const utf8::Codepoint&, const char* raw, int) {
+                if (j++ < 30) { // crop to screen width
+                    t.append(raw, FontColors{ColorConstant::med_blue_gray,
+                                                 ColorConstant::rich_black});
+                }
+            },
+            sstr->c_str(),
+            str_len(sstr->c_str()));
+
+            t.__detach();
+        }
+
+    } else {
+        for (int x = 16; x < 30; ++x) {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, x, y, 0);
+            }
+        }
+    }
+
 }
 
 
@@ -229,7 +384,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             for (int y = 2; y < 20; ++y) {
                 pfrm.set_tile(Layer::overlay, 1, y, 0);
             }
-            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
+            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
         if (test_key(Key::down) and filter_cursor_ < filter_opt_count - 1) {
@@ -239,7 +394,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.set_tile(Layer::overlay, 1, y, 0);
             }
 
-            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 396);
+            pfrm.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
@@ -309,7 +464,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 page_ = 0;
                 load_page(pfrm, (**filter_buf_)[0]);
             }
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+        } else if (app.player().key_down(pfrm, Key::action_2) or
+                   app.player().key_down(pfrm, Key::left)) {
             state_ = State::show_categories;
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
@@ -322,30 +478,53 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
         break;
 
+    case State::swap_category_image:
+        break;
+
     case State::show_categories:
+
+        if (img_swap_timer_) {
+            if (img_swap_timer_ < milliseconds(500) and
+                not (app.player().key_pressed(pfrm, Key::down) or
+                     app.player().key_pressed(pfrm, Key::up))) {
+                img_swap_timer_ = 0;
+                show_category_image(pfrm, cg_cursor_);
+            } else {
+                img_swap_timer_ -= delta;
+                if (img_swap_timer_ < 0) {
+                    img_swap_timer_ = 0;
+                    show_category_image(pfrm, cg_cursor_);
+                }
+            }
+        }
+
         if (test_key(Key::up) and cg_cursor_ > 0) {
             --cg_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, y, 0);
+                pfrm.set_tile(Layer::overlay, 1, y, 112);
             }
-            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
+            img_swap_timer_ = milliseconds(1000);
         }
 
         if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
             ++cg_cursor_;
             pfrm.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, y, 0);
+                pfrm.set_tile(Layer::overlay, 1, y, 112);
             }
             if (cg_cursor_ == (int)Room::Category::count) {
-                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 396);
+                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
             } else {
-                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 396);
+                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
             }
+            img_swap_timer_ = milliseconds(1000);
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(pfrm, Key::action_1) or
+            (cg_cursor_ == (int)Room::Category::count and
+             app.player().key_down(pfrm, Key::right))) {
             if (cg_cursor_ == (int)Room::Category::count) {
                 state_ = State::filters;
                 for (int x = 0; x < 30; ++x) {
@@ -385,12 +564,20 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                 load_page(pfrm, page_);
             }
+            pfrm.screen().schedule_fade(0.5); // wtf? fixme
+            pfrm.screen().schedule_fade(1);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
-            if (next_scene_) {
-                return (*next_scene_)();
-            }
-            return scene_pool::alloc<TitleScreenScene>(3);
+            pfrm.screen().schedule_fade(0.5); // wtf? fixme
+            pfrm.screen().schedule_fade(1);
+            state_ = State::exit;
         }
+        break;
+
+    case State::exit:
+        if (next_scene_) {
+            return (*next_scene_)();
+        }
+        return scene_pool::alloc<TitleScreenScene>(3);
         break;
 
     case State::view_filtered:
