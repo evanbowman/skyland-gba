@@ -32,6 +32,14 @@
 // Desktop Platform
 //
 //
+// FIXME: I really do intend to clean this file up. These platform
+// implementations contain some of the most garbage code in the codebase. I just
+// can't be bothered to update the console platform implementations, because
+// consoles are frozen hardware that never changes, and I can't be bothered to
+// clean up the sfml desktop implementation here, because SFML is dying and I
+// really just need to replace this code with SDL.
+//
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -195,6 +203,8 @@ public:
     sf::Texture background_texture_;
     sf::Shader color_shader_;
 
+    sf::Image current_overlay_image_;
+
     using GlyphOffset = int;
 
     std::map<GlyphOffset, TileDesc> glyph_table_;
@@ -234,9 +244,6 @@ public:
     int window_scale_ = 2;
     sf::RenderWindow window_;
     sf::RenderTexture rt_;
-
-    sf::Texture vignette_texture_;
-    bool show_vignette_ = false;
 
     Vec2<u32> window_size_;
 
@@ -301,12 +308,6 @@ public:
                         (u32)resolution.y * window_scale_};
 
         rt_.create(resolution.x, resolution.y);
-
-        const auto vignette_path =
-            resource_path() + ("images" PATH_DELIMITER) + "vignette.png";
-        if (not vignette_texture_.loadFromFile(vignette_path)) {
-            error(pfrm, "failed to load vignette texture");
-        }
 
         auto sound_folder = resource_path() + ("sounds" PATH_DELIMITER);
         // lisp::loadv<lisp::Symbol>("sound-dir").name_;
@@ -597,15 +598,8 @@ Vec2<u32> Platform::Screen::size() const
 enum class TextureSwap { spritesheet, tile0, tile1, overlay };
 
 
-// The logic thread requests a texture swap, but the swap itself needs to be
-// performed on the graphics thread.
 static std::queue<std::pair<TextureSwap, std::string>> texture_swap_requests;
-// static std::mutex texture_swap_mutex;
-
-
-
 static std::queue<std::pair<TileDesc, Platform::TextureMapping>> glyph_requests;
-// static std::mutex glyph_requests_mutex;
 
 
 
@@ -670,7 +664,6 @@ void Platform::Screen::clear()
         ::platform->data()->fade_color_);
 
     {
-        // std::lock_guard<std::mutex> guard(::platform->data()->audio_lock_);
         auto& sounds = ::platform->data()->sounds_;
         for (auto it = sounds.begin(); it not_eq sounds.end();) {
             if (it->getStatus() == sf::Sound::Status::Stopped) {
@@ -682,7 +675,6 @@ void Platform::Screen::clear()
     }
 
     {
-        // std::lock_guard<std::mutex> guard(texture_swap_mutex);
         while (not texture_swap_requests.empty()) {
             const auto request = texture_swap_requests.front();
             texture_swap_requests.pop();
@@ -702,8 +694,24 @@ void Platform::Screen::clear()
                      (std::string("loaded image ") + request.second).c_str());
             }
             image.createMaskFromColor({255, 0, 255, 255});
-            image.saveToFile("/home/evan/blind-jump-portable/build/test." +
-                             request.second + ".png");
+
+            if (request.first == TextureSwap::overlay) {
+                ::platform->data()->
+                    current_overlay_image_.copy(image,
+                                                0,
+                                                0,
+                                                {0,
+                                                 0,
+                                                 (int)image.getSize().x,
+                                                 (int)image.getSize().y});
+            }
+
+            if (image.getSize().x > 4032) {
+                sf::Image replacement;
+                replacement.create(4032, image.getSize().y);
+                replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
+                std::swap(image, replacement);
+            }
 
             if (not [&] {
                     switch (request.first) {
@@ -731,12 +739,9 @@ void Platform::Screen::clear()
 
 
     {
-        // std::lock_guard<std::mutex> guard(glyph_requests_mutex);
         while (not glyph_requests.empty()) {
             const auto rq = glyph_requests.front();
             glyph_requests.pop();
-
-            continue;
 
             auto image_folder = resource_path() + ("images" PATH_DELIMITER);
 
@@ -1082,12 +1087,6 @@ void Platform::Screen::display()
 
     // rt.setView(view);
 
-    // if (::platform->data()->show_vignette_) {
-    //     sf::Sprite vignette(::platform->data()->vignette_texture_);
-    //     vignette.setScale(resolution.x / 450.f, resolution.y / 450.f);
-    //     vignette.setColor(sf::Color(255, 255, 255, 255));
-    //     rt.draw(vignette, sf::BlendMultiply);
-    // }
 
     window.draw(::platform->data()->overlay_);
 
@@ -1727,8 +1726,9 @@ bool Platform::load_overlay_texture(const char* name)
 {
     auto image_folder = resource_path() + ("images" PATH_DELIMITER);
 
-    std::ifstream f(image_folder + name + ".txt");
+    std::ifstream f(image_folder + name + ".png");
     if (not f.good()) {
+        error(*this, format("image % not found!", name));
         return false;
     }
 
@@ -1878,21 +1878,22 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
 static std::map<std::string, std::string> files;
 
 
-const char* Platform::load_file_contents(const char* folder,
-                                         const char* filename) const
+std::pair<const char*, u32> Platform::load_file(const char* folder,
+                                                const char* filename) const
 {
     const auto name = std::string(folder) + PATH_DELIMITER + filename;
-    const auto found = files.find(name);
+    auto found = files.find(name);
     if (found == files.end()) {
         std::fstream file(resource_path() + name);
         std::stringstream buffer;
         buffer << file.rdbuf();
         files[name] = buffer.str();
     } else {
-        return found->second.c_str();
+        return {found->second.c_str(), found->second.length()};
     }
 
-    return files[name].c_str();
+    found = files.find(name);
+    return {found->second.c_str(), found->second.length()};
 }
 
 
