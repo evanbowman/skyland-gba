@@ -556,7 +556,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (await_start_key_ and app.player().key_up(pfrm, Key::start) and
             app.game_mode() not_eq App::GameMode::multiplayer and
             app.game_mode() not_eq App::GameMode::co_op) {
-            return scene_pool::alloc<StartMenuScene>(0);
+            auto next = scene_pool::alloc<StartMenuScene>(0);
+            next->cascade_anim_in_ = true;
+            return next;
         }
 
         if (key_down<Key::start>(pfrm) and

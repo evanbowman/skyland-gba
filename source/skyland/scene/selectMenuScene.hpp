@@ -44,6 +44,8 @@ private:
         Buffer<SystemString, 10> strings_;
         Buffer<Function<16, ScenePtr<Scene>(Platform&, App&)>, 10> callbacks_;
         u8 longest_line_;
+
+        Buffer<SystemString, 10> pushed_strings_;
     };
 
     void redraw_line(Platform& pfrm, int line, bool highlight);

@@ -51,6 +51,9 @@ public:
     void display(Platform&, App&) override;
 
 
+    bool cascade_anim_in_ = false;
+
+
 private:
     enum class State {
         init,
@@ -80,6 +83,10 @@ private:
     struct Data
     {
         Buffer<Text, option_count> text_;
+
+        Buffer<StringBuffer<32>, option_count> disp_queue_;
+        u8 disp_count_;
+        Microseconds disp_timer_ = 0;
 
         struct TransitionInfo
         {

@@ -116,10 +116,20 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().set_shader(passthrough_shader);
+
     if (state_ == State::quickview) {
         load_page(pfrm, page_);
     } else {
         load_categories(pfrm);
+    }
+
+    if (state_ not_eq State::quickview) {
+        for (int x = 15; x < 32; ++x) {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, x, y, 112);
+            }
+        }
     }
 
     pfrm.screen().set_view(View{});
@@ -131,12 +141,19 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.speaker().set_music_volume(10);
 
     Text::platform_retain_alphabet(pfrm);
+
+    pfrm.screen().clear();
+    pfrm.screen().display();
+    pfrm.delta_clock().reset();
 }
 
 
 
 void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 {
+    pfrm.screen().set_shader(app.environment().shader(app));
+    pfrm.screen().set_shader_argument(0);
+
     item_name_.reset();
     item_details_.reset();
     item_description_.reset();
@@ -215,6 +232,14 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
             pfrm.set_tile(Layer::overlay, x, y, 112);
         }
     }
+
+    for (int x = 20; x < 32; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
+
+
     pfrm.screen().clear();
     pfrm.screen().display();
 
@@ -352,13 +377,101 @@ void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
         }
 
     } else {
-        for (int x = 16; x < 30; ++x) {
-            for (int y = 0; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, x, y, 0);
+        if (state_ not_eq State::category_transition_enter) {
+            for (int x = 16; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
             }
         }
     }
 
+}
+
+
+
+ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
+                                                           App& app,
+                                                           Microseconds delta)
+{
+    auto test_key = [&](Key k) {
+        return app.player().test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+    if (img_swap_timer_) {
+        if (img_swap_timer_ < milliseconds(600) and
+            not (app.player().key_pressed(pfrm, Key::down) or
+                 app.player().key_pressed(pfrm, Key::up))) {
+            img_swap_timer_ = 0;
+            show_category_image(pfrm, cg_cursor_);
+        } else {
+            img_swap_timer_ -= delta;
+            if (img_swap_timer_ < 0) {
+                img_swap_timer_ = 0;
+                show_category_image(pfrm, cg_cursor_);
+            }
+        }
+    }
+
+    if (test_key(Key::up) and cg_cursor_ > 0) {
+        --cg_cursor_;
+        pfrm.speaker().play_sound("cursor_tick", 0);
+        for (int y = 2; y < 20; ++y) {
+            pfrm.set_tile(Layer::overlay, 1, y, 112);
+        }
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
+        // img_swap_timer_ = milliseconds(1000);
+        show_category_image(pfrm, cg_cursor_);
+
+    }
+
+    if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
+        ++cg_cursor_;
+        pfrm.speaker().play_sound("cursor_tick", 0);
+        for (int y = 2; y < 20; ++y) {
+            pfrm.set_tile(Layer::overlay, 1, y, 112);
+        }
+        if (cg_cursor_ == (int)Room::Category::count) {
+            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
+        } else {
+            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
+        }
+        // img_swap_timer_ = milliseconds(1000);
+        show_category_image(pfrm, cg_cursor_);
+
+    }
+
+    if (app.player().key_down(pfrm, Key::action_1) or
+        (cg_cursor_ == (int)Room::Category::count and
+         app.player().key_down(pfrm, Key::right))) {
+        if (cg_cursor_ == (int)Room::Category::count) {
+            state_ = State::filters;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            filter_cursor_ = 0;
+            load_filters(pfrm);
+            pfrm.screen().schedule_fade(0.5); // wtf? fixme
+            pfrm.screen().schedule_fade(1);
+        } else {
+            state_ = State::category_transition_out;
+            pfrm.speaker().play_sound("button_wooden", 3);
+            if (img_swap_timer_ > 0) {
+                img_swap_timer_ = 0;
+                show_category_image(pfrm, cg_cursor_);
+            }
+            timer_ = 0;
+        }
+    } else if (app.player().key_down(pfrm, Key::action_2)) {
+        pfrm.screen().schedule_fade(0.5); // wtf? fixme
+        pfrm.screen().schedule_fade(1);
+        state_ = State::exit;
+    }
+
+    return null_scene();
 }
 
 
@@ -481,95 +594,76 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::swap_category_image:
         break;
 
+    case State::category_transition_out: {
+        timer_ += delta;
+        auto fade_duration = milliseconds(200);
+        const auto amt = smoothstep(0.f, fade_duration, timer_);
+
+        auto progress = 8 * 14 * amt;
+        auto low = (int)progress / 8;
+        auto rem = (int)progress % 8;
+        for (int i = 0; i < low; ++i) {
+            for (int y = 0; y < 20; ++y) {
+                if (pfrm.get_tile(Layer::overlay, 16 + i, y) not_eq 112) {
+                    pfrm.set_tile(Layer::overlay, 16 + i, y, 112);
+                } else {
+                    break;
+                }
+
+            }
+        }
+        for (int y = 0; y < 20; ++y) {
+            auto t = 433 - rem;
+            if (pfrm.get_tile(Layer::overlay, 16 + low, y) == t) {
+                break;
+            } else {
+                pfrm.set_tile(Layer::overlay, 16 + low, y, t);
+            }
+
+        }
+
+
+        if (timer_ >= fade_duration) {
+            timer_ = 0;
+            state_ = State::view;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+
+            auto [mt, ms] = room_metatable();
+
+            page_ = 0;
+            for (int i = 0; i < ms; ++i) {
+                if (mt[i]->category() == (Room::Category)cg_cursor_) {
+                    break;
+                }
+                ++page_;
+            }
+
+            filter_begin_ = page_;
+            filter_end_ = page_;
+            while (filter_end_ < ms and mt[filter_end_]->category() ==
+                   (Room::Category)cg_cursor_) {
+                ++filter_end_;
+            }
+            if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
+                filter_end_ = ms;
+            }
+
+            load_page(pfrm, page_);
+
+
+            pfrm.screen().schedule_fade(0.5); // wtf? fixme
+            pfrm.screen().schedule_fade(1);
+        }
+        break;
+    }
+
     case State::show_categories:
-
-        if (img_swap_timer_) {
-            if (img_swap_timer_ < milliseconds(500) and
-                not (app.player().key_pressed(pfrm, Key::down) or
-                     app.player().key_pressed(pfrm, Key::up))) {
-                img_swap_timer_ = 0;
-                show_category_image(pfrm, cg_cursor_);
-            } else {
-                img_swap_timer_ -= delta;
-                if (img_swap_timer_ < 0) {
-                    img_swap_timer_ = 0;
-                    show_category_image(pfrm, cg_cursor_);
-                }
-            }
-        }
-
-        if (test_key(Key::up) and cg_cursor_ > 0) {
-            --cg_cursor_;
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            for (int y = 2; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, y, 112);
-            }
-            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-            img_swap_timer_ = milliseconds(1000);
-        }
-
-        if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
-            ++cg_cursor_;
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            for (int y = 2; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, y, 112);
-            }
-            if (cg_cursor_ == (int)Room::Category::count) {
-                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
-            } else {
-                pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-            }
-            img_swap_timer_ = milliseconds(1000);
-        }
-
-        if (app.player().key_down(pfrm, Key::action_1) or
-            (cg_cursor_ == (int)Room::Category::count and
-             app.player().key_down(pfrm, Key::right))) {
-            if (cg_cursor_ == (int)Room::Category::count) {
-                state_ = State::filters;
-                for (int x = 0; x < 30; ++x) {
-                    for (int y = 0; y < 20; ++y) {
-                        pfrm.set_tile(Layer::overlay, x, y, 0);
-                    }
-                }
-                filter_cursor_ = 0;
-                load_filters(pfrm);
-            } else {
-                state_ = State::view;
-                for (int x = 0; x < 30; ++x) {
-                    for (int y = 0; y < 20; ++y) {
-                        pfrm.set_tile(Layer::overlay, x, y, 0);
-                    }
-                }
-
-                auto [mt, ms] = room_metatable();
-
-                page_ = 0;
-                for (int i = 0; i < ms; ++i) {
-                    if (mt[i]->category() == (Room::Category)cg_cursor_) {
-                        break;
-                    }
-                    ++page_;
-                }
-
-                filter_begin_ = page_;
-                filter_end_ = page_;
-                while (filter_end_ < ms and mt[filter_end_]->category() ==
-                                                (Room::Category)cg_cursor_) {
-                    ++filter_end_;
-                }
-                if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
-                    filter_end_ = ms;
-                }
-
-                load_page(pfrm, page_);
-            }
-            pfrm.screen().schedule_fade(0.5); // wtf? fixme
-            pfrm.screen().schedule_fade(1);
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
-            pfrm.screen().schedule_fade(0.5); // wtf? fixme
-            pfrm.screen().schedule_fade(1);
-            state_ = State::exit;
+        if (auto scn = show_categories_impl(pfrm, app, delta)) {
+            return scn;
         }
         break;
 
@@ -581,12 +675,16 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::view_filtered:
-        if (test_key(Key::right) and page_ < (int)(*filter_buf_)->size() - 1) {
+        if ((test_key(Key::right) or
+             test_key(Key::down)) and page_ < (int)(*filter_buf_)->size() - 1) {
             load_page(pfrm, (**filter_buf_)[++page_]);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (test_key(Key::left) and page_ > 0) {
+        if ((test_key(Key::up) or
+             test_key(Key::left)) and page_ > 0) {
             load_page(pfrm, (**filter_buf_)[--page_]);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
         if (app.player().key_down(pfrm, Key::action_2)) {
@@ -603,17 +701,21 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::view:
     case State::quickview:
         if (not inspect_) {
-            if (test_key(Key::right) and page_ < ms - 1 and
+            if ((test_key(Key::down) or
+                 test_key(Key::right)) and page_ < ms - 1 and
                 page_ < plugin_rooms_begin() - 1 and
                 (not filter_end_ or
                  (filter_end_ and filter_end_ - 1 > page_))) {
                 load_page(pfrm, ++page_);
+                pfrm.speaker().play_sound("cursor_tick", 0);
             }
 
-            if (test_key(Key::left) and page_ > 0 and
+            if ((test_key(Key::up) or
+                 test_key(Key::left)) and page_ > 0 and
                 (not filter_begin_ or
                  (filter_begin_ and filter_begin_ < page_))) {
                 load_page(pfrm, --page_);
+                pfrm.speaker().play_sound("cursor_tick", 0);
             }
         }
 
@@ -624,17 +726,87 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 return scene_pool::alloc<TitleScreenScene>(3);
             } else {
-                state_ = State::show_categories;
-                for (int x = 0; x < 30; ++x) {
-                    for (int y = 0; y < 20; ++y) {
-                        pfrm.set_tile(Layer::overlay, x, y, 0);
-                    }
-                }
-                Text::platform_retain_alphabet(pfrm);
-                load_categories(pfrm);
+                state_ = State::category_transition_in;
+                pfrm.fill_overlay(112);
+                pfrm.screen().clear();
+                pfrm.screen().display();
+                show_category_image(pfrm, cg_cursor_);
+                pfrm.fill_overlay(112);
+                timer_ = 0;
             }
         }
         break;
+
+    case State::category_transition_enter: {
+        if (auto scn = show_categories_impl(pfrm, app, delta)) {
+            return scn;
+        }
+
+        timer_ += delta;
+        auto fade_duration = milliseconds(400);
+        const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
+
+        auto progress = 8 * 14 * amt;
+        auto low = (int)progress / 8;
+        auto rem = (int)progress % 8;
+        for (int i = 16 + low + 1; i < 30; ++i) {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, i, y, 0);
+            }
+        }
+        for (int y = 0; y < 20; ++y) {
+            auto t = 433 - rem;
+            if (pfrm.get_tile(Layer::overlay, 16 + low, y) == t) {
+                break;
+            } else {
+                pfrm.set_tile(Layer::overlay, 16 + low, y, t);
+            }
+
+        }
+
+        if (timer_ >= fade_duration) {
+            state_ = State::show_categories;
+        }
+        break;
+    }
+
+    case State::category_transition_in: {
+        timer_ += delta;
+        auto fade_duration = milliseconds(150);
+        const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
+
+        auto progress = 8 * 14 * amt;
+        auto low = (int)progress / 8;
+        auto rem = (int)progress % 8;
+        for (int i = 16 + low + 1; i < 30; ++i) {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, i, y, 0);
+            }
+        }
+        for (int y = 0; y < 20; ++y) {
+            auto t = 433 - rem;
+            if (pfrm.get_tile(Layer::overlay, 16 + low, y) == t) {
+                break;
+            } else {
+                pfrm.set_tile(Layer::overlay, 16 + low, y, t);
+            }
+
+        }
+
+        if (timer_ >= fade_duration) {
+            show_category_image(pfrm, cg_cursor_);
+            state_ = State::show_categories;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            Text::platform_retain_alphabet(pfrm);
+            load_categories(pfrm);
+        }
+
+        break;
+    }
     }
 
 

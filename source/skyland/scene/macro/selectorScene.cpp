@@ -181,7 +181,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         }
     } else {
         if (await_start_key_ and player.key_up(pfrm, Key::start)) {
-            return scene_pool::alloc<StartMenuScene>(0);
+            auto next = scene_pool::alloc<StartMenuScene>(0);
+            next->cascade_anim_in_ = true;
+            return next;
         }
     }
 

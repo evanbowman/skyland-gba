@@ -81,15 +81,9 @@ void StartMenuScene::add_option(Platform& pfrm,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
-    u8 margin = centered_text_margins(pfrm, utf8::len(str));
-
-    data_->text_.emplace_back(
-        pfrm,
-        str,
-        OverlayCoord{margin, (u8)(start_y_ + data_->text_.size() * 2)});
-
     data_->on_click_.push_back({on_click, transition_mode});
     data_->option_names_.push_back(str);
+    data_->disp_queue_.push_back(str);
 }
 
 
@@ -238,6 +232,30 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         return player(app).test_key(
             pfrm, k, milliseconds(500), milliseconds(100));
     };
+
+ AGAIN:
+    if (not data_->disp_queue_.empty()) {
+        data_->disp_timer_ -= delta;
+        if (not cascade_anim_in_ or data_->disp_timer_ <= 0) {
+            data_->disp_timer_ = milliseconds(20 + 2 * data_->disp_queue_.size());
+
+            auto front = *data_->disp_queue_.begin();
+            data_->disp_queue_.erase(data_->disp_queue_.begin());
+
+            u8 margin = centered_text_margins(pfrm, utf8::len(front.c_str()));
+
+            data_->text_.emplace_back(
+                pfrm,
+                front.c_str(),
+                OverlayCoord{margin, (u8)(start_y_ + data_->text_.size() * 2)});
+
+            if (cascade_anim_in_) {
+                pfrm.speaker().play_sound("cursor_tick", 4);
+            } else {
+                goto AGAIN;
+            }
+        }
+    }
 
     auto check_button = [&] {
         if (player(app).key_down(pfrm, Key::action_1)) {

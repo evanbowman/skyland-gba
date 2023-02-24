@@ -96,6 +96,9 @@ private:
     void load_filters(Platform& pfrm);
 
 
+    ScenePtr<Scene> show_categories_impl(Platform&, App&, Microseconds);
+
+
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
     std::optional<TextView> item_description_;
@@ -116,7 +119,10 @@ private:
         quickview,
         exit,
         swap_category_image,
-    } state_ = State::show_categories;
+        category_transition_out,
+        category_transition_in,
+        category_transition_enter,
+    } state_ = State::category_transition_enter;
 
     int page_ = 0;
     int cg_cursor_ = 0;
@@ -128,6 +134,7 @@ private:
     Microseconds img_swap_timer_ = 0;
 
     Microseconds unfade_timer_ = 0;
+    Microseconds timer_ = 0;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
     std::optional<DynamicMemory<FilterBuf>> filter_buf_;
