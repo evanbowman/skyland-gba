@@ -137,6 +137,7 @@ extern "C" {
 
 
 
+#ifdef __GBA__
 void* malloc(size_t sz)
 {
     using namespace malloc_compat;
@@ -177,4 +178,9 @@ void free(void* ptr)
 
     Platform::fatal("invalid address passed to free!");
 }
+
+
+#endif // __GBA__
+
+
 }

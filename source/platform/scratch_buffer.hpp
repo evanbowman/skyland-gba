@@ -29,7 +29,7 @@
 #if defined(__GBA__) or defined(__NDS__)
 #define SCRATCH_BUFFER_SIZE 2048
 #else
-#define SCRATCH_BUFFER_SIZE 9000
+#define SCRATCH_BUFFER_SIZE 8192
 #endif
 
 
