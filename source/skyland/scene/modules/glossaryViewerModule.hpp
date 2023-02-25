@@ -132,8 +132,7 @@ private:
     int filter_begin_ = 0;
     int filter_end_ = 0;
 
-    Microseconds img_swap_timer_ = 0;
-
+    int cover_img_ = 0;
     Microseconds unfade_timer_ = 0;
     Microseconds timer_ = 0;
 

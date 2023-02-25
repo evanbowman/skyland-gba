@@ -118,6 +118,8 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().set_shader(passthrough_shader);
 
+    cover_img_ = rng::choice<3>(rng::utility_state);
+
     if (state_ == State::quickview) {
         load_page(pfrm, page_);
     } else {
@@ -280,12 +282,20 @@ void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
 {
     pfrm.system_call("vsync", 0); // fixme
 
-    switch (img) {
+    switch (cover_img_) {
         // FIXME: I was using distinct images for each page of the glossary. But
         // then, I thought that the effect was distracting, so I settled on a
         // single image.
-    default:
+    case 0:
         pfrm.load_tile0_texture("glossary_decoration_cg_flattened");
+        break;
+
+    case 1:
+        pfrm.load_tile0_texture("glossary_factory_cg_flattened");
+        break;
+
+    case 2:
+        pfrm.load_tile0_texture("glossary_misc_cg_flattened");
         break;
     }
     __draw_image(pfrm, 1, 15, 0, 16, 20, Layer::map_0);
@@ -336,10 +346,6 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
     if (app.player().key_down(pfrm, Key::action_1)) {
         state_ = State::category_transition_out;
         pfrm.speaker().play_sound("button_wooden", 3);
-        if (img_swap_timer_ > 0) {
-            img_swap_timer_ = 0;
-            show_category_image(pfrm, cg_cursor_);
-        }
         timer_ = 0;
     } else if (app.player().key_down(pfrm, Key::action_2)) {
         pfrm.screen().schedule_fade(0.5); // wtf? fixme
