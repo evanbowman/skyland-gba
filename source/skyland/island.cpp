@@ -387,6 +387,20 @@ bool Island::fire_present(const RoomCoord& coord) const
 
 
 
+void Island::fires_extinguish(Platform& pfrm, App& app)
+{
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            pfrm.set_tile(layer_, x, y, 0);
+            if (fire_present({(u8)x, (u8)y})) {
+                fire_extinguish(pfrm, app, {(u8)x, (u8)y});
+            }
+        }
+    }
+}
+
+
+
 void Island::fire_extinguish(Platform& pfrm, App& app, const RoomCoord& coord)
 {
     if (not fire_present(coord)) {

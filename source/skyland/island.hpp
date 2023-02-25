@@ -370,6 +370,8 @@ public:
     void fire_extinguish(Platform& pfrm, App& app, const RoomCoord& coord);
     void fire_create(Platform& pfrm, App& app, const RoomCoord& coord);
 
+    void fires_extinguish(Platform& pfrm, App& app);
+
 
     const EntityList<BasicCharacter>& outdoor_characters()
     {

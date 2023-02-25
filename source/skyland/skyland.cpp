@@ -190,6 +190,8 @@ void App::restore_backup(Platform& pfrm)
     lisp::pop_op(); // result of eval() (1)
     lisp::pop_op(); // result of read() (0)
 
+    player_island().fires_extinguish(pfrm, *this);
+
     current_world_location() = backup_->next_world_location_;
     ++world_graph().storm_depth_;
 }
