@@ -114,11 +114,19 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 
 
+u8 last_cover_img_;
+
+
+
 void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().set_shader(passthrough_shader);
 
-    cover_img_ = rng::choice<3>(rng::utility_state);
+    do {
+        cover_img_ = rng::choice<3>(rng::utility_state);
+    } while (cover_img_ == last_cover_img_);
+    last_cover_img_ = cover_img_;
+
 
     if (state_ == State::quickview) {
         load_page(pfrm, page_);
