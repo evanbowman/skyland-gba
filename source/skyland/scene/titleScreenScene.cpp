@@ -1468,6 +1468,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // }
                     pfrm.speaker().play_sound("button_wooden", 3);
                     pfrm.fill_overlay(0);
+                    pfrm.system_call("vsync", 0); // FIXME
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
                     app.game_mode() = App::GameMode::challenge;

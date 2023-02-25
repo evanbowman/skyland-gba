@@ -2060,7 +2060,7 @@ void Platform::Screen::display()
         if (overlay_y == 0) {
             memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
                      overlay_back_buffer,
-                     (sizeof(u16) * (21 * 32)) / 4);
+                     (sizeof(u16) * (20 * 32)) / 4);
         } else {
             memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
                      overlay_back_buffer,

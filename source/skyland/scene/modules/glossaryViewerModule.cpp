@@ -213,18 +213,29 @@ void GlossaryViewerModule::draw_category_line(Platform& pfrm,
     if (line == (int)Room::Category::count) {
         ++offset;
     }
-    Text t(pfrm, OverlayCoord{3, (u8)(offset + 4 + line * 2)});
+    const u8 y = offset + 4 + line * 2;
+    const u8 x = 5;
+    Text t(pfrm, OverlayCoord{x, y});
     if (line == (int)Room::Category::count) {
         ++offset;
         auto category_str = SYSTR(glossary_filters);
         t.append(category_str->c_str(), colors);
+
+        pfrm.set_tile(Layer::overlay, 3, y, 385);
+
     } else {
         auto category_str =
             (SystemString)(((int)SystemString::category_begin) + line);
         t.append(loadstr(pfrm, category_str)->c_str(), colors);
+
+        pfrm.set_tile(Layer::overlay,
+                      3,
+                      y,
+                      room_category_icon((Room::Category)line));
+
     }
 
-    for (int i = t.len(); i < 11; ++i) {
+    for (int i = t.len(); i < 10; ++i) {
         t.append(" ", colors);
     }
     t.__detach();
@@ -486,6 +497,14 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         auto fade_duration = milliseconds(200);
         const auto amt = smoothstep(0.f, fade_duration, timer_);
+        pfrm.screen().schedule_fade(0.25f * amt,
+                                    ColorConstant::rich_black,
+                                    false,
+                                    false,
+                                    false);
+
+        s16 scrl = -1 * (amt * 16);
+        pfrm.set_scroll(Layer::map_0_ext, scrl, 0);
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
@@ -512,6 +531,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (timer_ >= fade_duration) {
+            pfrm.set_scroll(Layer::map_0_ext, 0, 0);
             timer_ = 0;
             state_ = State::view;
             if (cg_cursor_ == (int)Room::Category::count) {
@@ -647,6 +667,12 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         auto fade_duration = milliseconds(400);
         const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
 
+        pfrm.screen().schedule_fade(0.45f * amt,
+                                    ColorConstant::rich_black,
+                                    false,
+                                    false,
+                                    false);
+
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
         auto rem = (int)progress % 8;
@@ -675,6 +701,16 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         auto fade_duration = milliseconds(150);
         const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
+
+        s16 scrl = -1 * (amt * 4);
+        pfrm.set_scroll(Layer::map_0_ext, scrl, 0);
+
+
+        pfrm.screen().schedule_fade(0.45f * amt,
+                                    ColorConstant::rich_black,
+                                    false,
+                                    false,
+                                    false);
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
