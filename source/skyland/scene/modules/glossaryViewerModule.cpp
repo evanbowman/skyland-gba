@@ -132,8 +132,10 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    pfrm.screen().set_view(View{});
-    pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+    if (not disable_backdrop_) {
+        pfrm.screen().set_view(View{});
+        pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+    }
 
     pfrm.screen().fade(0.95f);
     pfrm.screen().fade(1.f);
@@ -208,7 +210,6 @@ void GlossaryViewerModule::draw_category_line(Platform& pfrm,
         ++offset;
         auto category_str = SYSTR(glossary_filters);
         t.append(category_str->c_str(), colors);
-        t.append(" >", colors);
     } else {
         auto category_str =
             (SystemString)(((int)SystemString::category_begin) + line);
@@ -262,7 +263,9 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
-    show_category_image(pfrm, cg_cursor_);
+    if (not disable_backdrop_) {
+        show_category_image(pfrm, cg_cursor_);
+    }
 }
 
 
@@ -277,47 +280,12 @@ void __draw_image(Platform& pfrm,
 
 
 
-// struct DroneDescription
-// {
-//     const char* name_;
-//     const char* description_;
-// };
-
-
-
-// static const DroneDescription drone_descs[] = {
-//     {
-//      "repair-drone",
-//      "Heals blocks within distance 2 at a rate of 6 hp per second."
-//     }
-// };
-
-
-
-// void GlossaryViewerModule::load_drone_page(Platform& pfrm, int page)
-// {
-//     auto& desc = drone_descs[page];
-
-//     pfrm.load_tile0_texture("repair_drone_flattened");
-//     __draw_image(pfrm, 1, 0, 0, 19, 20, Layer::map_0);
-//     for (int x = 16; x < 30; ++x) {
-//         for (int y = 0; y < 20; ++y) {
-//             pfrm.set_tile(Layer::overlay, x, y, 112);
-//         }
-//     }
-//     Text::print(pfrm, desc.name_, {17, 1});
-
-//     alignas(TextView) char mem[sizeof(TextView)];
-//     new (mem) TextView(pfrm);
-//     ((TextView*)mem)->assign(desc.description_,
-//                              {17, 4},
-//                              {12, 16});
-// }
-
-
-
 void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
 {
+    if (disable_backdrop_) {
+        return;
+    }
+
     pfrm.system_call("vsync", 0); // fixme
 
     switch (img) {
@@ -355,25 +323,6 @@ void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
             for (int y = 0; y < 20; ++y) {
                 pfrm.set_tile(Layer::overlay, x, y, 112);
             }
-        }
-
-        int row = 4;
-        for (int i = 0; i < filter_opt_count; ++i) {
-            Text t(pfrm, OverlayCoord{16, (u8)(row + i * 2)});
-            auto str = (SystemString)(i + (int)SystemString::filter_begin);
-            auto sstr = loadstr(pfrm, str);
-            int j = 16;
-            utf8::scan(
-            [&](const utf8::Codepoint&, const char* raw, int) {
-                if (j++ < 30) { // crop to screen width
-                    t.append(raw, FontColors{ColorConstant::med_blue_gray,
-                                                 ColorConstant::rich_black});
-                }
-            },
-            sstr->c_str(),
-            str_len(sstr->c_str()));
-
-            t.__detach();
         }
 
     } else {
@@ -524,7 +473,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
             static const auto offset = (int)SystemString::filter_begin;
-
             for (int i = 0; i < ms; ++i) {
                 const auto cond = mt[i]->properties();
 
@@ -597,6 +545,9 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::category_transition_out: {
         timer_ += delta;
         auto fade_duration = milliseconds(200);
+        if (disable_backdrop_) {
+            timer_ = fade_duration;
+        }
         const auto amt = smoothstep(0.f, fade_duration, timer_);
 
         auto progress = 8 * 14 * amt;
@@ -773,6 +724,9 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::category_transition_in: {
         timer_ += delta;
         auto fade_duration = milliseconds(150);
+        if (disable_backdrop_) {
+            timer_ = fade_duration;
+        }
         const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
 
         auto progress = 8 * 14 * amt;

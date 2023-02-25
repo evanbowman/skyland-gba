@@ -13,14 +13,12 @@ void compress(const Vector<char>& input, Vector<char>& output);
 void decompress(const Vector<char>& input, Vector<char>& output);
 
 
-template <u32 sz>
-void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
+
+template <u32 size>
+void compress_sink(heatshrink_encoder& enc,
+                   const Buffer<char, size>& input,
+                   Buffer<char, size>& result)
 {
-#ifndef HS_COMPRESSOR_OFF
-    heatshrink_encoder enc;
-    heatshrink_encoder_reset(&enc);
-
-
     int write_index = 0;
     while ((u32)write_index < input.size()) {
         size_t remaining = input.size() - write_index;
@@ -49,7 +47,13 @@ void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
             }
         }
     }
+}
 
+
+template <u32 size>
+void compress_finish(heatshrink_encoder& enc,
+                     Buffer<char, size>& result)
+{
     auto fin = HSER_FINISH_DONE;
     do {
         fin = heatshrink_encoder_finish(&enc);
@@ -63,6 +67,19 @@ void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
             }
         }
     } while (fin not_eq HSER_FINISH_DONE);
+}
+
+
+
+template <u32 sz>
+void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
+{
+#ifndef HS_COMPRESSOR_OFF
+    heatshrink_encoder enc;
+    heatshrink_encoder_reset(&enc);
+
+    compress_sink(enc, input, result);
+    compress_finish(enc, result);
 
 #else
     Platform::fatal("hs encoder disabled!");
@@ -71,12 +88,11 @@ void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
 
 
 
-template <u32 sz>
-void decompress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
+template <u32 size>
+void decompress_sink(heatshrink_decoder& enc,
+                     const Buffer<char, size>& input,
+                     Buffer<char, size>& result)
 {
-    heatshrink_decoder enc;
-    heatshrink_decoder_reset(&enc);
-
     int write_index = 0;
     while ((u32)write_index < input.size()) {
         size_t remaining = input.size() - write_index;
@@ -105,7 +121,14 @@ void decompress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
             }
         }
     }
+}
 
+
+
+template <u32 size>
+void decompress_finish(heatshrink_decoder& enc,
+                       Buffer<char, size>& result)
+{
     auto fin = HSDR_FINISH_DONE;
     do {
         fin = heatshrink_decoder_finish(&enc);
@@ -119,4 +142,16 @@ void decompress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
             }
         }
     } while (fin not_eq HSDR_FINISH_DONE);
+}
+
+
+
+template <u32 sz>
+void decompress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
+{
+    heatshrink_decoder enc;
+    heatshrink_decoder_reset(&enc);
+
+    decompress_sink(enc, input, result);
+    decompress_finish(enc, result);
 }

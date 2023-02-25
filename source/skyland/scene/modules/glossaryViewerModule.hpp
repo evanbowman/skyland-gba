@@ -86,6 +86,7 @@ public:
     }
 
 
+    bool disable_backdrop_ = false;
     bool inspect_ = false;
 
 private:
