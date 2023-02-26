@@ -72,7 +72,6 @@
   (dynamite-ii  35  500  0)
   (spark-cannon 200 2500 30)
   (cloak        20  1500 50)
-  ;; (mind-control 40  2000 70)
   (weather-engine 60 500 0)
   (energized-hull 380 450 20)
   (plundered-room 20  30  0)

@@ -92,8 +92,20 @@
     (eval-file "/scripts/event/storm_king_hard.lisp"))
 
 
-(chr-new (opponent) 3 14 'hostile 0)
-(chr-new (opponent) 7 12 'hostile 0)
-(chr-new (opponent) 8 12 'hostile 0)
-(chr-new (opponent) 6 14 'hostile 0)
-(chr-new (opponent) 7 14 'hostile 0)
+(if (> (diff) 1)
+    (let ((s (filter
+              (lambda
+                (> (cdr $0) 10))
+              (chr-slots (opponent)))))
+      (map
+       (lambda
+         (let ((sl (get s $0)))
+           (chr-new (opponent) (car sl) (cdr sl) 'hostile 0)))
+       (range 2 9))
+      (chr-new (opponent) 4 14 'hostile 0))
+  (progn
+    (chr-new (opponent) 3 14 'hostile 0)
+    (chr-new (opponent) 7 12 'hostile 0)
+    (chr-new (opponent) 8 12 'hostile 0)
+    (chr-new (opponent) 6 14 'hostile 0)
+    (chr-new (opponent) 7 14 'hostile 0)))
