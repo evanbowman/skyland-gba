@@ -26,6 +26,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/weather/blizzard.hpp"
 
 
 
@@ -84,6 +85,13 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
     Room::update(pfrm, app, delta);
 
     if (parent()->is_destroyed()) {
+        return;
+    }
+
+    if (app.environment().is_cold()) {
+        __unsafe__transmute(pfrm,
+                            app,
+                            ::skyland::metaclass_index("ice"));
         return;
     }
 

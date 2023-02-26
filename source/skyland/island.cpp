@@ -865,7 +865,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
             if (str_eq(room->name(), "power-core") or
-                str_eq(room->name(), "reactor")) {
+                str_eq(room->name(), "reactor") or
+                str_eq(room->name(), "war-engine")) {
                 core_destroyed = true;
             }
 

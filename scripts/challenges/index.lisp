@@ -10,4 +10,5 @@
   ("9: Arc Defense" . "challenges/arcgun_defense.lisp")
   ("10: Pursuit" . "challenges/beacon.lisp")
   ("11: Exchange" . "challenges/exchange.lisp")
-  ("12: Demolition" . "challenges/demolition.lisp"))
+  ("12: Demolition" . "challenges/demolition.lisp")
+  ("13: Fire Brigade" . "challenges/fire_brigade.lisp"))

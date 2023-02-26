@@ -43,6 +43,9 @@ void Ice::update(Platform& pfrm, App& app, Microseconds delta)
     u8 y = position().y;
 
     auto melt = [&] {
+        if (app.environment().is_cold()) {
+            return;
+        }
         __unsafe__transmute(
             pfrm, app, skyland::metaclass_index("water-source"));
     };

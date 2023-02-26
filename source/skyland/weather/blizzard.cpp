@@ -31,8 +31,7 @@ namespace skyland::weather
 {
 
 
-
-Platform::Screen::Shader Blizzard::shader(App& app) const
+Platform::Screen::Shader Blizzard::get_shader(App& app)
 {
     return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
         switch (palette) {
@@ -150,6 +149,12 @@ Platform::Screen::Shader Blizzard::shader(App& app) const
 
         return k;
     };
+}
+
+
+Platform::Screen::Shader Blizzard::shader(App& app) const
+{
+    return get_shader(app);
 }
 
 
