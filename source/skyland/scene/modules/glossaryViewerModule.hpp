@@ -123,6 +123,7 @@ private:
         category_transition_out,
         category_transition_in,
         category_transition_enter,
+        fadeout,
     } state_ = State::category_transition_enter;
 
     int page_ = 0;

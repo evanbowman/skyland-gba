@@ -53,7 +53,6 @@ public:
 
     bool cascade_anim_in_ = false;
 
-
 private:
     enum class State {
         init,
@@ -102,6 +101,7 @@ private:
     Float y_offset_ = 0.f;
 
     Float diff_percent_ = 0.3f;
+    int add_offset_ = 0;
 
     void add_option(Platform&,
                     const char* str,

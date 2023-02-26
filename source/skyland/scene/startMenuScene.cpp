@@ -72,6 +72,11 @@ void StartMenuScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (app.game_mode() == App::GameMode::macro) {
         start_y_ = 0;
     }
+
+    if (not cascade_anim_in_) {
+        diff_percent_ *= -1.f;
+        add_offset_ = -30;
+    }
 }
 
 
@@ -366,6 +371,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // These options don't apply to freebuild_mode_.
 
                 diff_percent_ = 0.3f;
+                if (not cascade_anim_in_) {
+                    diff_percent_ *= -1.f;
+                    add_offset_ = -30;
+                }
 
                 add_option(
                     pfrm,
@@ -454,6 +463,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
             diff_percent_ = -0.1f;
+            add_offset_ = 0;
 
             add_option(
                 pfrm,
@@ -528,6 +538,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (macrocosm(app).data_->freebuild_mode_) {
 
                 diff_percent_ = 0.18f;
+                if (not cascade_anim_in_) {
+                    diff_percent_ *= -1.f;
+                    add_offset_ = -30;
+                }
+
 
                 if (not pfrm.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're
@@ -794,7 +809,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         y_offset_ = interpolate(Float(y_diff), y_offset_, delta * 0.00001f);
 
-        pfrm.set_overlay_origin(0, y_offset_);
+        pfrm.set_overlay_origin(0, y_offset_ + add_offset_);
 
         timer_ += delta;
 
@@ -978,7 +993,7 @@ void StartMenuScene::display(Platform& pfrm, App& app)
 
     origin.x = ((int)(data_->text_[data_->cursor_].coord().x - 2) * 8) + view.x;
     origin.y =
-        (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) + view.y;
+        (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) + view.y - add_offset_;
 
     cursor.set_position(origin);
 

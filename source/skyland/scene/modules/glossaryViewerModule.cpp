@@ -131,6 +131,11 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     if (state_ == State::quickview) {
         load_page(pfrm, page_);
     } else {
+        for (int x = 0; x < 32; ++x) {
+            for (int y = 0; y < 32; ++y) {
+                pfrm.set_raw_tile(Layer::map_0, x, y, 1);
+            }
+        }
         load_categories(pfrm);
     }
 
@@ -367,9 +372,22 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
         pfrm.speaker().play_sound("button_wooden", 3);
         timer_ = 0;
     } else if (app.player().key_down(pfrm, Key::action_2)) {
-        pfrm.screen().schedule_fade(0.5); // wtf? fixme
-        pfrm.screen().schedule_fade(1);
-        state_ = State::exit;
+        state_ = State::fadeout;
+        timer_ = 0;
+
+        for (int y = 20; y < 32; ++y) {
+            for (int x = 0; x < 16; ++x) {
+                pfrm.set_tile(Layer::overlay, x, y, 112);
+            }
+            for (int x = 16; x < 30; ++x) {
+                pfrm.set_tile(Layer::overlay, x, y, 0);
+            }
+        }
+        pfrm.screen().clear();
+        pfrm.set_overlay_origin(0, 1); // FIXME: hack due to offscreen copying
+                                       // optimization in gba_platform.cpp
+        pfrm.screen().display();
+        pfrm.set_overlay_origin(0, 0);
     }
 
     return null_scene();
@@ -588,6 +606,27 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
+    case State::fadeout: {
+        timer_ += delta;
+        auto fade_duration = milliseconds(250);
+        const auto amt = smoothstep(0.f, fade_duration, timer_);
+
+        pfrm.screen().schedule_fade(amt,
+                                    ColorConstant::rich_black,
+                                    true,
+                                    true,
+                                    true);
+
+        s16 scrl = amt * 10;
+        pfrm.set_scroll(Layer::map_0_ext, 0, -scrl);
+        pfrm.set_overlay_origin(0, -scrl);
+
+        if (timer_ >= fade_duration) {
+            state_ = State::exit;
+        }
+        break;
+    }
+
     case State::exit:
         if (next_scene_) {
             return (*next_scene_)();
@@ -693,6 +732,11 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ >= fade_duration) {
             state_ = State::show_categories;
+            for (int i = 16; i < 30; ++i) {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, i, y, 0);
+                }
+            }
         }
         break;
     }
