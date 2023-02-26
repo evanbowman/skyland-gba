@@ -89,6 +89,7 @@
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/torch.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/warEngine.hpp"
 #include "skyland/rooms/water.hpp"
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/workshop.hpp"
@@ -321,6 +322,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Reactor,
                                         SolarCell,
                                         BackupCore,
+                                        WarEngine,
                                         // misc
                                         Stairwell,
                                         Ladder,

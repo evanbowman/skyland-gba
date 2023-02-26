@@ -88,6 +88,10 @@
    (hull 12 7)))
 
 
+(if (> (diff) 1)
+    (eval-file "/scripts/event/storm_king_hard.lisp"))
+
+
 (chr-new (opponent) 3 14 'hostile 0)
 (chr-new (opponent) 7 12 'hostile 0)
 (chr-new (opponent) 8 12 'hostile 0)

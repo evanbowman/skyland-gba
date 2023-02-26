@@ -268,6 +268,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
   ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
+  ${SOURCE_DIR}/skyland/rooms/warEngine.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/decimator.cpp
   ${SOURCE_DIR}/skyland/rooms/solarCell.cpp
@@ -288,7 +289,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/stackedHull.cpp
   ${SOURCE_DIR}/skyland/rooms/sparkCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/manufactory.cpp
-  ${SOURCE_DIR}/skyland/rooms/mindControl.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/escapeBeacon.cpp

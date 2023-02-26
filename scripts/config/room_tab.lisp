@@ -33,6 +33,7 @@
   (backup-core  30  900  -150)
   (power-core   60  3000 -150)
   (reactor      140 4200 -400)
+  (war-engine   400 9000 -1000)
   (solar-cell   40  1000  -75)
   (manufactory  80  2500 30)
   (radar        30  300  80)

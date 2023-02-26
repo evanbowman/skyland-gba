@@ -443,6 +443,7 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"れ"): return 298;
         case UTF8_GETCHR(u8"を"): return 299;
         case UTF8_GETCHR(u8"ん"): return 300;
+        case UTF8_GETCHR(u8"β"): return 301;
 
             // clang-format on
 

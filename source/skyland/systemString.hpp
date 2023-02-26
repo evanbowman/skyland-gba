@@ -76,6 +76,7 @@ enum class SystemString {
     block_beam_gun,
     block_big_hull,
     block_boarding_pod,
+    block_war_engine,
     block_bridge,
     block_bronze_hull,
     block_building,
@@ -370,6 +371,7 @@ enum class SystemString {
     description_mind_control,
     description_incinerator,
     description_beam_gun,
+    description_war_engine,
 
     gs_paused,
     gs_slow,

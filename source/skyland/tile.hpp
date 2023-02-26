@@ -260,8 +260,6 @@ struct Tile
         void1,
         void2,
         tile,
-        mind_control1,
-        mind_control2,
     };
 };
 
@@ -493,8 +491,15 @@ struct InteriorTile
         command_module_1,
         command_module_2,
         tile,
-        mind_control1,
-        mind_control2,
+        war_engine_1,
+        war_engine_2,
+        war_engine_3,
+        war_engine_4,
+        war_engine_5,
+        war_engine_6,
+        war_engine_7,
+        war_engine_8,
+        war_engine_9,
     };
 };
 
