@@ -120,7 +120,9 @@ u8 last_cover_img_;
 
 void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.screen().set_shader(passthrough_shader);
+    if (state_ not_eq State::quickview) {
+        pfrm.screen().set_shader(passthrough_shader);
+    }
 
     do {
         cover_img_ = rng::choice<3>(rng::utility_state);
@@ -166,8 +168,10 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 {
-    pfrm.screen().set_shader(app.environment().shader(app));
-    pfrm.screen().set_shader_argument(0);
+    if (state_ not_eq State::quickview) {
+        pfrm.screen().set_shader(app.environment().shader(app));
+        pfrm.screen().set_shader_argument(0);
+    }
 
     item_name_.reset();
     item_details_.reset();
