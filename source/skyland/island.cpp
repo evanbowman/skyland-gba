@@ -1463,6 +1463,7 @@ void Island::move_room(Platform& pfrm,
             it = rooms_.erase(it);
 
             room->__set_position(to);
+            const auto sz = room->size();
 
             const int x_off = to.x - from.x;
             const int y_off = to.y - from.y;
@@ -1507,12 +1508,22 @@ void Island::move_room(Platform& pfrm,
                 app.time_stream().push(app.level_timer(), e);
             }
 
-            if (fire_present(from)) {
-                fire_extinguish(pfrm, app, from);
-                fire_create(pfrm, app, to);
+            Buffer<Vec2<u8>, 16> fire_respawn_locs;
+            for (u8 x = 0; x < sz.x; ++x) {
+                for (u8 y = 0; y < sz.y; ++y) {
+                    u8 ox = x + from.x;
+                    u8 oy = y + from.y;
+                    u8 tx = x + to.x;
+                    u8 ty = y + to.y;
+                    if (fire_present({ox, oy})) {
+                        fire_extinguish(pfrm, app, {ox, oy});
+                        fire_respawn_locs.push_back({tx, ty});
+                    }
+                }
             }
-
-            return;
+            for (auto& l : fire_respawn_locs) {
+                fire_create(pfrm, app, {l.x, l.y});
+            }
         }
     }
 }
