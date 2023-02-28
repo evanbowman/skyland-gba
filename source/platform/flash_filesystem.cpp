@@ -779,7 +779,13 @@ bool store_file_data(Platform& pfrm,
         compress(file_data, comp_buffer);
     }
 
-    auto& input = opts.use_compression_ ? comp_buffer : file_data;
+    const bool compress_file =
+        opts.use_compression_ and
+        // FIXME: decompression code mysteriously doesn't work if the input
+        // buffer is larger than 2k...
+        file_data.chunks_used() < 2;
+
+    auto& input = compress_file ? comp_buffer : file_data;
 
     bool input_padding = false;
     if (input.size() % 2 not_eq 0) {
@@ -859,7 +865,7 @@ bool store_file_data(Platform& pfrm,
     if (input_padding) {
         info.flags_[0] |= Record::FileInfo::Flags0::has_end_padding;
     }
-    if (opts.use_compression_) {
+    if (compress_file) {
         info.flags_[0] |= Record::FileInfo::Flags0::compressed;
     }
 

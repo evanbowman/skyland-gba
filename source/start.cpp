@@ -108,7 +108,8 @@ static inline void main_loop(Platform& pf)
                                      "(port 1)\n";
 
         flash_filesystem::store_file_data(
-            pf, "/mods/init.lisp", user_init_file, str_len(user_init_file));
+            pf, "/mods/init.lisp", user_init_file, str_len(user_init_file),
+            {.use_compression_ = true});
 
         clean_boot = true;
     }
