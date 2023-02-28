@@ -75,6 +75,14 @@ static const char* keyboard[7][6] = {{"z", "y", "g", "f", "v", "q"},
                                      {"$", "'", "0", "1", "2", "3"},
                                      {"4", "5", "6", "7", "8", "9"}};
 
+static const char* alt_keyboard[7][6] = {{"Z", "Y", "G", "F", "V", "Q"},
+                                         {"M", "B", "I", "D", "L", "J"},
+                                         {"W", "A", "O", "E", "U", "K"},
+                                         {"P", "H", "T", "N", "S", "R"},
+                                         {"X", "C", "*", "/", "_", "+"},
+                                         {"$", "\"", "<", ">", ".", ","},
+                                         {"@", "*", ";", ":", "%", "#"}};
+
 
 void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
 {
@@ -123,14 +131,16 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
     keyboard_top_.emplace(pfrm, OverlayCoord{2, 2});
     keyboard_bottom_.emplace(pfrm, OverlayCoord{2, 10});
 
+    auto& kb = alt_ ? alt_keyboard : keyboard;
+
     for (int x = 0; x < 6; ++x) {
-        keyboard_top_->append(keyboard[6][x], darker_clr);
-        keyboard_bottom_->append(keyboard[0][x], darker_clr);
+        keyboard_top_->append(kb[6][x], darker_clr);
+        keyboard_bottom_->append(kb[0][x], darker_clr);
     }
 
     for (int i = 0; i < 7; ++i) {
         keyboard_.emplace_back(pfrm, OverlayCoord{1, u8(3 + i)});
-        keyboard_.back().append(keyboard[i][5], darker_clr);
+        keyboard_.back().append(kb[i][5], darker_clr);
 
         for (int j = 0; j < 6; ++j) {
             if (show_cursor and j == keyboard_cursor_.x and
@@ -138,18 +148,20 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
                 const auto colors =
                     Text::OptColors{{ColorConstant::rich_black,
                                      ColorConstant::aerospace_orange}};
-                keyboard_.back().append(keyboard[i][j], colors);
+                keyboard_.back().append(kb[i][j], colors);
             } else {
-                keyboard_.back().append(keyboard[i][j]);
+                keyboard_.back().append(kb[i][j]);
             }
         }
-        keyboard_.back().append(keyboard[i][0], darker_clr);
+        keyboard_.back().append(kb[i][0], darker_clr);
     }
 }
 
 
 void LispReplScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    enable_text_icon_glyphs(false);
+
     pfrm.fill_overlay(0);
 
     keyboard_cursor_ = {2, 4}; // For convenience, place cursor at left paren
@@ -185,6 +197,8 @@ void LispReplScene::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.fill_overlay(0);
     pfrm.screen().fade(0.f);
+
+    enable_text_icon_glyphs(true);
 }
 
 
@@ -296,6 +310,19 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::entry:
+        if (pfrm.keyboard().pressed<Key::alt_2>()) {
+            auto prev_alt = alt_;
+            alt_ = true;
+            if (not prev_alt) {
+                repaint_entry(pfrm);
+            }
+        } else {
+            auto prev_alt = alt_;
+            alt_ = false;
+            if (prev_alt) {
+                repaint_entry(pfrm);
+            }
+        }
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
             if (command_->empty()) {
                 if (app.macrocosm()) {
@@ -307,8 +334,9 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
             command_->pop_back();
             repaint_entry(pfrm);
         } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            auto& kb = alt_ ? alt_keyboard : keyboard;
             command_->push_back(
-                keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0]);
+                kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
             repaint_entry(pfrm);
             pfrm.speaker().play_sound("typewriter", 2);
         } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {

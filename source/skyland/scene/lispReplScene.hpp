@@ -82,6 +82,7 @@ private:
     Microseconds timer_ = 0;
 
     std::optional<Text> entry_;
+    bool alt_ = false;
 };
 
 

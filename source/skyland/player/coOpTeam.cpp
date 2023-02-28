@@ -398,7 +398,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void shift_rooms_left(Platform& pfrm, App& app, Island& island);
+void shift_rooms_right(Platform& pfrm, App& app, Island& island);
 
 
 
@@ -407,7 +407,7 @@ void CoOpTeam::receive(Platform& pfrm,
                        const network::packet::TerrainConstructedLeft& packet)
 {
     player_island(app).init_terrain(pfrm, packet.new_terrain_size_);
-    shift_rooms_left(pfrm, app, player_island(app));
+    shift_rooms_right(pfrm, app, player_island(app));
 }
 
 

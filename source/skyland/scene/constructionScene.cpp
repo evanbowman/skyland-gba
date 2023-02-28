@@ -211,7 +211,7 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 
 
 
-void shift_rooms_left(Platform& pfrm, App& app, Island& island)
+void shift_rooms_right(Platform& pfrm, App& app, Island& island)
 {
     auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
     for (auto& room : island.rooms()) {
@@ -798,7 +798,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
             if (data_->construction_sites_[selector_].x == -1) {
-                shift_rooms_left(pfrm, app, *island(app));
+                shift_rooms_right(pfrm, app, *island(app));
                 network::packet::TerrainConstructedLeft packet;
                 packet.new_terrain_size_ = island(app)->terrain().size();
                 network::transmit(pfrm, packet);

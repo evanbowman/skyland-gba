@@ -360,6 +360,8 @@ Power ProcgenEnemyAI::power_remaining(App& app) const
 
 void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 {
+    const bool co_op = app.game_mode() == App::GameMode::co_op;
+
     int missile_count = 0;
     int drone_count = 0;
     int cannon_count = 0;
@@ -522,8 +524,9 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         }
 
         enq_prob("missile-silo",
-                 300.f + 10.f * missile_count + 10 * generic_cannon_count +
+                 240.f + 10.f * missile_count + 10 * generic_cannon_count +
                      50.f * drone_count);
+        enq_prob(co_op ? "missile-silo" : "rocket-bomb", 60.f);
     } else {
         enq_prob("cannon", 100.f);
 
@@ -551,10 +554,11 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
     auto place_missile_silo = [&](RoomMeta* mt) {
         Buffer<RoomCoord, 16> slots;
+        const u8 ht = (*mt)->size().y;
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = construction_zone_min_y; y < 14; ++y) {
-                auto room = app.opponent_island()->get_room({x, u8(y + 2)});
-                if ((y == 13 or room) and has_space(app, {x, y}, {1, 2}) and
+                auto room = app.opponent_island()->get_room({x, u8(y + ht)});
+                if ((y == 13 or room) and has_space(app, {x, y}, {1, ht}) and
                     not c->invalidated_missile_cells_[x][y] and
                     not c->invalidated_missile_cells_[x][y + 1]) {
 
@@ -684,10 +688,12 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int placed_ion_cannons = 0;
     int fails = 0;
 
+    Buffer<u16, 20> missile_silo_mts;
+
     for (int i = 0; i < max; ++i) {
     RETRY:
-        auto sel =
-            c->distribution_[rng::choice(c->distribution_.size(), rng_source_)];
+        auto ind = rng::choice(c->distribution_.size(), rng_source_);
+        auto sel = c->distribution_[ind];
 
         if (fails > 40) {
             sel = load_metaclass("cannon");
@@ -709,6 +715,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             if (str_eq((*sel)->name(), "missile-silo") or
                 str_eq((*sel)->name(), "rocket-bomb")) {
                 ++place_missile_count;
+                missile_silo_mts.push_back(ind);
             } else if (str_eq((*sel)->name(), "drone-bay")) {
                 place_drone_bay(sel);
             } else {
@@ -720,8 +727,9 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         }
     }
 
-    for (int i = 0; i < place_missile_count; ++i) {
-        place_missile_silo(&require_metaclass("missile-silo"));
+    for (auto ind : missile_silo_mts) {
+        auto sel = c->distribution_[ind];
+        place_missile_silo(sel);
     }
 }
 
@@ -787,6 +795,10 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
 
 
 
+void shift_rooms_right(Platform& pfrm, App& app, Island& island);
+
+
+
 void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 {
     struct Context
@@ -801,6 +813,19 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
     };
 
     auto c = allocate_dynamic<Context>("procgen-buffer");
+
+    int free_count = 15 - construction_zone_min_y;
+    for (int i = 0; i < 15; ++i) {
+        if (app.opponent_island()->get_room({0, (u8)i})) {
+            --free_count;
+        }
+    }
+    auto t_size = app.opponent_island()->terrain().size();
+    if (free_count < 5 and t_size < 13) {
+        app.opponent_island()->init_terrain(pfrm, ++t_size, false);
+        shift_rooms_right(pfrm, app, *app.opponent_island());
+        app.opponent_island()->repaint(pfrm, app);
+    }
 
 
     auto find_ideal_forcefield_locs = [&] {
