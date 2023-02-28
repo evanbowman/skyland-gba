@@ -177,8 +177,13 @@ public:
 
         p.data_.push_back('\0');
 
+        // For debugging purposes: don't compress sandbox data if select key
+        // pressed.
+        const bool compress_output = not pfrm.keyboard().pressed<Key::select>();
+
         flash_filesystem::store_file_data_text(
-            pfrm, format("/save/sb%.lisp", cursor_).c_str(), p.data_);
+            pfrm, format("/save/sb%.lisp", cursor_).c_str(), p.data_,
+            {.use_compression_ = compress_output});
 
         synth_notes_store(pfrm,
                           app.player_island(),
