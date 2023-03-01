@@ -225,6 +225,9 @@ void CreditsModule::load_page(Platform& pfrm, u32 page)
         if (str_len(*data) == 0) {
             y += 1;
             ++data;
+            if (*data == nullptr) {
+                break;
+            }
         }
         lines_.emplace_back(
             pfrm,

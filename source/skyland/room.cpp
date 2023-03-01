@@ -842,24 +842,12 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 
         app.player().on_room_plundered(pfrm, app, *this);
 
-        std::optional<RoomPtr<Room>> self;
-
-        // Detach ourself from the parent island's room list:
-        for (auto it = parent_->rooms().begin();
-             it not_eq parent_->rooms().end();) {
-            if ((*it).get() == this) {
-                self = std::move(*it);
-                it = parent_->rooms().erase(it);
-                break;
-            } else {
-                ++it;
-            }
-        }
-
-        if (not self) {
-            // hmm... not sure why we would ever get here...
-            pfrm.fatal("plunder: reassign failure");
-        }
+        // We need to splice our character list into the plundered room
+        // structures created in the same slot. Set our hidden flag, so that any
+        // calls to Island::get_room() do not return this room structure,
+        // allowing us to deal with other rooms whose coordinates overlap with
+        // our own.
+        set_hidden(true);
 
         auto plunder_metac = load_metaclass("plundered-room");
 
@@ -890,7 +878,8 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             parent_->add_character(std::move(chr));
         }
 
-        parent_->add_room(pfrm, app, std::move(*self));
+        set_hidden(false);
+        ready();
     }
 }
 

@@ -1385,7 +1385,8 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
     }
 
     const int chr_count = 1 + rng::choice(core_count_, rng_source_) +
-                          rng::choice(transporter_count, rng_source_);
+        (transporter_count > 0 ?
+         rng::choice(transporter_count, rng_source_) : 0);
 
     struct Context
     {

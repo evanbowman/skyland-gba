@@ -122,6 +122,21 @@ public:
         vertices_.resize(width * height * 4);
     }
 
+    void set_tilesize(unsigned size)
+    {
+        for (int x = 0; x < width_; ++x) {
+            for (int y = 0; y < height_; ++y) {
+                set_tile(x, y, 0);
+            }
+        }
+        tile_size_ = {size, size};
+        for (int x = 0; x < width_; ++x) {
+            for (int y = 0; y < height_; ++y) {
+                set_tile(x, y, 0);
+            }
+        }
+    }
+
     void set_tile(int x, int y, int index)
     {
         if (x >= width_ or y >= height_) {
@@ -204,6 +219,8 @@ public:
     sf::Shader color_shader_;
 
     sf::Image current_overlay_image_;
+    sf::Image current_tile0_image_;
+    sf::Image current_tile1_image_;
 
     sf::Image character_source_image_;
 
@@ -843,6 +860,21 @@ sf::View get_letterbox_view(sf::View view, int window_width, int window_height)
 }
 
 
+
+static float wrap_y(float y)
+{
+    if (y > 160) {
+        // FIXME: gba automatically wraps tile layers, and I happened to be
+        // displaying a wrapped region of a tile layer on the gba. I could fix
+        // it, but it's easier just to do this:
+        y -= 508;
+    }
+
+    return y;
+}
+
+
+
 void Platform::Screen::display()
 {
     view_.set_size(size().cast<Float>());
@@ -879,10 +911,10 @@ void Platform::Screen::display()
     }
 
     sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
-    map1.setPosition(-::platform->data()->map_1_xscroll_ +
-                     view_.get_center().x,
-                     -(::platform->data()->map_1_yscroll_ +
-                       view_.get_center().y));
+    map1.setPosition(-(::platform->data()->map_1_xscroll_ +
+                       view_.get_center().x),
+                     wrap_y(-(::platform->data()->map_1_yscroll_ +
+                              view_.get_center().y)));
     window.draw(map1);
 
 
@@ -902,16 +934,67 @@ void Platform::Screen::display()
     }
 
     sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
-    map0.setPosition(-::platform->data()->map_0_xscroll_ +
-                     view_.get_center().x,
-                     -(::platform->data()->map_0_yscroll_ +
-                       view_.get_center().y));
+    int m0_xscroll = -(::platform->data()->map_0_xscroll_ +
+                       view_.get_center().x);
+    int m0_yscroll = -(::platform->data()->map_0_yscroll_ +
+                       view_.get_center().y);
+    m0_yscroll = wrap_y(m0_yscroll);
+    // std::cout << m0_yscroll << std::endl;
+    map0.setPosition(m0_xscroll, m0_yscroll);
     window.draw(map0);
 
 
     if (not fade_overlay) {
         window.draw(::platform->data()->fade_overlay_);
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Draw sprites
+    //
+
+    for (auto& spr : reversed(draw_queue)) {
+        if (spr.get_alpha() == Sprite::Alpha::transparent) {
+            continue;
+        }
+
+        const auto& pos = spr.get_position();
+        const auto& flip = spr.get_flip();
+
+        sf::Sprite sf_spr;
+        if (auto rot = spr.get_rotation()) {
+            sf_spr.setRotation((float(rot) / std::numeric_limits<s16>::max()) *
+                               360);
+        }
+
+        sf_spr.setPosition({pos.x.as_float() - view_.get_center().x,
+                            wrap_y(pos.y.as_float() - view_.get_center().y)});
+
+        sf_spr.setScale({flip.x ? -1.f : 1.f, flip.y ? -1.f : 1.f});
+        sf_spr.setTexture(::platform->data()->spritesheet_texture_);
+
+        switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
+        default: // FIXME...
+        case Sprite::Size::w16_h32:
+            sf_spr.setTextureRect({static_cast<s32>(ind) * 16, 0, 16, 32});
+            break;
+
+        case Sprite::Size::w32_h32:
+            sf_spr.setTextureRect({static_cast<s32>(ind) * 32, 0, 32, 32});
+            break;
+        }
+
+        if (const auto& mix = spr.get_mix();
+            mix.color_ not_eq ColorConstant::null) {
+            sf::Shader& shader = ::platform->data()->color_shader_;
+            shader.setUniform("amount", mix.amount_ / 255.f);
+            shader.setUniform("targetColor", real_color(mix.color_));
+            window.draw(sf_spr, &shader);
+        } else {
+            window.draw(sf_spr);
+        }
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -934,156 +1017,6 @@ void Platform::Screen::display()
     if (fade_overlay) {
         window.draw(::platform->data()->fade_overlay_);
     }
-
-
-
-
-
-    // if (::platform->data()->map_1_changed_) {
-    //     ::platform->data()->map_1_changed_ = false;
-    //     ::platform->data()->map_1_rt_.clear(sf::Color::Transparent);
-    //     ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[0]);
-    //     // for (int i = 0; i < 6; ++i) {
-    //     //     ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[i]);
-    //     // }
-    //     auto img = ::platform->data()->map_1_rt_.getTexture().copyToImage();
-    //     img.saveToFile("test.png");
-    //     ::platform->data()->map_1_rt_.display();
-    // }
-
-    // auto cached_view = window.getView();
-    // window.setView(fixed_view);
-
-    // {
-    //     sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
-    //     map1.setPosition(-::platform->data()->map_1_xscroll_ +
-    //                      view_.get_center().x,
-    //                      ::platform->data()->map_1_yscroll_ +
-    //                      view_.get_center().y);
-    //     window.draw(map1);
-    // }
-
-    // {
-    //     sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
-    //     map0.setPosition(-::platform->data()->map_0_xscroll_ +
-    //                      view_.get_center().x,
-    //                      -::platform->data()->map_0_yscroll_ +
-    //                      view_.get_center().y);
-    //     window.draw(map0);
-    // }
-
-    // window.setView(cached_view);
-
-    // ::platform->data()->fade_overlay_.setPosition(
-    //     {view_.get_center().x, view_.get_center().y});
-
-    // const bool fade_sprites = ::platform->data()->fade_include_sprites_;
-    // const bool fade_overlay = ::platform->data()->fade_include_overlay_;
-
-    // // If we don't want the sprites to be included in the color fade, we'll want
-    // // to draw the fade overlay prior to drawing the sprites... or we could quit
-    // // being lazy and use a shader instead of a dumb rectangleshape :)
-    // if (not fade_sprites) {
-    //     window.draw(::platform->data()->fade_overlay_);
-    // }
-
-    // // for (auto& spr : reversed(::draw_queue)) {
-    // //     if (spr.get_alpha() == Sprite::Alpha::transparent) {
-    // //         continue;
-    // //     }
-    // //     const Vec2<Float>& pos = fvec(spr.get_position());
-    // //     const Vec2<bool>& flip = spr.get_flip();
-
-    // //     sf::Sprite sf_spr;
-
-    // //     if (auto rot = spr.get_rotation()) {
-    // //         sf_spr.setRotation((float(rot) / std::numeric_limits<s16>::max()) *
-    // //                            360);
-    // //     }
-
-    // //     if (spr.get_scale().x or spr.get_scale().y) {
-    // //         Float x_scale = 1;
-    // //         Float y_scale = 1;
-    // //         if (spr.get_scale().x < 0) {
-    // //         }
-    // //         if (spr.get_scale().y < 0) {
-    // //         }
-
-    // //         sf_spr.setScale(x_scale, y_scale);
-    // //     }
-
-    // //     sf_spr.setPosition({pos.x, pos.y});
-    // //     sf_spr.setOrigin(
-    // //         {float(spr.get_origin().x), float(spr.get_origin().y)});
-    // //     if (spr.get_alpha() == Sprite::Alpha::translucent) {
-    // //         sf_spr.setColor({255, 255, 255, 128});
-    // //     }
-
-    // //     sf_spr.setScale({flip.x ? -1.f : 1.f, flip.y ? -1.f : 1.f});
-
-    // //     sf_spr.setTexture(::platform->data()->spritesheet_texture_);
-
-    // //     switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
-    // //     case Sprite::Size::w16_h32:
-    // //         sf_spr.setTextureRect({static_cast<s32>(ind) * 16, 0, 16, 32});
-    // //         break;
-
-    // //     case Sprite::Size::w32_h32:
-    // //         sf_spr.setTextureRect({static_cast<s32>(ind) * 32, 0, 32, 32});
-    // //         break;
-    // //     }
-
-    // //     if (const auto& mix = spr.get_mix();
-    // //         mix.color_ not_eq ColorConstant::null) {
-    // //         sf::Shader& shader = ::platform->data()->color_shader_;
-    // //         shader.setUniform("amount", mix.amount_ / 255.f);
-    // //         shader.setUniform("targetColor", real_color(mix.color_));
-    // //         rt.draw(sf_spr, &shader);
-    // //     } else {
-    // //         rt.draw(sf_spr);
-    // //     }
-    // // }
-
-    // if (fade_sprites and not fade_overlay) {
-    //     window.draw(::platform->data()->fade_overlay_);
-    // }
-
-    // auto& origin = ::platform->data()->overlay_origin_;
-
-    // view.setCenter(
-    //     {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
-
-    // // rt.setView(view);
-
-
-    // window.draw(::platform->data()->overlay_);
-
-    // view.setCenter(
-    //     {view_.get_size().x / 2, view_.get_size().y / 2});
-    // window.setView(view);
-
-
-    // if (fade_overlay) {
-    //     window.draw(::platform->data()->fade_overlay_);
-    // }
-
-
-    // view.setCenter(
-    //     {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
-
-    // // rt.display();
-
-    // view.setSize(view_.get_size().x, view_.get_size().y);
-
-    // view = get_letterbox_view(view,
-    //                           ::platform->data()->window_.getSize().x,
-    //                           ::platform->data()->window_.getSize().y);
-    // window.setView(view);
-
-    // // window.draw(::platform->data()->map_0_);
-    // // window.draw(::platform->data()->map_1_);
-
-    // // window.draw(sf::Sprite(rt.getTexture()));
 
     window.display();
 
@@ -1512,7 +1445,9 @@ static const std::unordered_map<std::string, sf::Keyboard::Key> key_lookup{
     {"S", sf::Keyboard::S},         {"T", sf::Keyboard::T},
     {"U", sf::Keyboard::U},         {"V", sf::Keyboard::V},
     {"W", sf::Keyboard::W},         {"X", sf::Keyboard::X},
-    {"Y", sf::Keyboard::Y},         {"Z", sf::Keyboard::Z}};
+                                    {"Y", sf::Keyboard::Y},
+                                    {"Z", sf::Keyboard::Z},
+                                    {"Backspace", sf::Keyboard::Backspace}};
 
 
 Platform::~Platform()
@@ -1588,7 +1523,7 @@ Platform::Platform()
     keymap[(int)Key::alt_1] = sf::Keyboard::A;
     keymap[(int)Key::alt_2] = sf::Keyboard::S;
     keymap[(int)Key::start] = sf::Keyboard::Return;
-    keymap[(int)Key::select] = sf::Keyboard::Q;
+    keymap[(int)Key::select] = sf::Keyboard::Backspace;
 }
 
 
@@ -1696,6 +1631,18 @@ void Platform::load_tile0_texture(const char* name)
              (std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
+
+    platform->data()->current_tile0_image_.create(image.getSize().x,
+                                                  image.getSize().y);
+    ::platform->data()->
+          current_tile0_image_.copy(image,
+                                    0,
+                                    0,
+                                    {0,
+                                     0,
+                                     (int)image.getSize().x,
+                                     (int)image.getSize().y});
+
     if (image.getSize().x > 4032) {
         sf::Image replacement;
         replacement.create(4032, image.getSize().y);
@@ -1706,6 +1653,9 @@ void Platform::load_tile0_texture(const char* name)
         error(*::platform, "Failed to create texture");
         exit(EXIT_FAILURE);
     }
+
+    platform->data()->map_0_[0].set_tilesize(image.getSize().y);
+
     ::platform->data()->map_0_changed_ = true;
 }
 
@@ -1727,6 +1677,20 @@ void Platform::load_tile1_texture(const char* name)
              (std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
+
+    platform->data()->current_tile1_image_.create(image.getSize().x,
+                                                  image.getSize().y);
+    ::platform->data()->
+          current_tile1_image_.copy(image,
+                                    0,
+                                    0,
+                                    {0,
+                                     0,
+                                     (int)image.getSize().x,
+                                     (int)image.getSize().y});
+
+    platform->data()->map_1_[0].set_tilesize(image.getSize().y);
+
     if (image.getSize().x > 4032) {
         sf::Image replacement;
         replacement.create(4032, image.getSize().y);
@@ -1787,23 +1751,15 @@ void Platform::set_tile(Layer layer,
         break;
 
     case Layer::map_0_ext:
-    case Layer::map_1_ext:
-        break;
-
     case Layer::map_0:
         ::platform->data()->map_0_changed_ = true;
         ::platform->data()->map_0_[0].set_tile(x, y, val);
-        ::platform->data()->map_0_[0].set_tile(x + 1, y, val);
-        ::platform->data()->map_0_[0].set_tile(x, y + 1, val);
-        ::platform->data()->map_0_[0].set_tile(x + 1, y + 1, val);
         break;
 
+    case Layer::map_1_ext:
     case Layer::map_1:
         ::platform->data()->map_1_changed_ = true;
         ::platform->data()->map_1_[0].set_tile(x, y, val);
-        ::platform->data()->map_1_[0].set_tile(x + 1, y, val);
-        ::platform->data()->map_1_[0].set_tile(x, y + 1, val);
-        ::platform->data()->map_1_[0].set_tile(x + 1, y + 1, val);
         break;
 
     case Layer::background:
@@ -2286,28 +2242,107 @@ void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 
 
 
+
+static const int tile_reserved_count = 8;
+static const int tile_mapping_slots = 111 - tile_reserved_count;
+
+using TileMappings = s16[tile_mapping_slots];
+
+static TileMappings tile0_mappings = {0};
+static TileMappings tile1_mappings = {0};
+
+
+
 void Platform::clear_tile0_mappings()
 {
+    for (auto& mapping : tile0_mappings) {
+        mapping = 0;
+    }
 }
 
 
 
 void Platform::clear_tile1_mappings()
 {
+    for (auto& mapping : tile1_mappings) {
+        mapping = 0;
+    }
+}
+
+
+
+static TileDesc map_tile_chunk(TileMappings mappings,
+                               TileDesc src,
+                               sf::Image& src_img,
+                               sf::Texture& dest)
+{
+    if (src == 0) {
+        return 0;
+    }
+
+    if (src < tile_reserved_count) {
+        return src;
+    }
+
+    int tile_data_start = 128;
+
+    for (int i = 0; i < tile_mapping_slots; ++i) {
+        if (mappings[i] == src) {
+            return i + tile_reserved_count;
+        }
+    }
+
+    int i = 0;
+    // FIXME: remove this code?! Unreachable?
+    for (; i < tile_mapping_slots; ++i) {
+        if (mappings[i] == 0) {
+            mappings[i] = src;
+            break;
+        }
+    }
+
+    if (i == tile_mapping_slots) {
+        // Out of tile mappings!
+        return 112;
+    }
+
+    src -= 1;
+    i += tile_reserved_count;
+
+    auto texture_img = dest.copyToImage();
+    texture_img.copy(src_img,
+                     i * 16,
+                     0,
+                     {(tile_data_start + src) * 16,
+                      0,
+                      16,
+                      16});
+
+    dest.loadFromImage(texture_img);
+
+    return i;
 }
 
 
 
 TileDesc Platform::map_tile0_chunk(TileDesc src)
 {
-    return 112;
+    data()->map_0_changed_ = true;
+    return map_tile_chunk(tile0_mappings,
+                          src,
+                          data()->current_tile0_image_,
+                          data()->tile0_texture_);
 }
 
 
 
 TileDesc Platform::map_tile1_chunk(TileDesc src)
 {
-    return 112;
+    data()->map_1_changed_ = true;
+    return map_tile_chunk(tile1_mappings,
+                          src,
+                          data()->current_tile1_image_,
+                          data()->tile1_texture_);
 }
 
 
