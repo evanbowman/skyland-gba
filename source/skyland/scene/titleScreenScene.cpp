@@ -406,6 +406,9 @@ static const int modules_per_page = modules_per_row * 2;
 
 int text_offset(Platform& pfrm)
 {
+    // FIXME...
+    return 2;
+
     // FIXME! Use aspect ratio instead!
     if (pfrm.device_name() == "GameboyAdvance") {
         return 2;

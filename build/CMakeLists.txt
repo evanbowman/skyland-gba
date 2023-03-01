@@ -519,11 +519,16 @@ endif()
 
 
 if(APPLE)
-  add_executable(SkylandEngine MACOSX_BUNDLE ${SOURCES})
+  set(EXECUTABLE_NAME SkylandEngine)
+  add_executable(${EXECUTABLE_NAME} MACOSX_BUNDLE ${SOURCES})
 
-
+elseif(GAMEBOY_ADVANCE)
+  set(EXECUTABLE_NAME SkylandEngine)
+  add_executable(${EXECUTABLE_NAME}
+    ${SOURCES})
 else()
-  add_executable(SkylandEngine
+  set(EXECUTABLE_NAME Skyland)
+  add_executable(${EXECUTABLE_NAME}
     ${SOURCES})
 endif()
 
@@ -651,7 +656,7 @@ function(compile_image filename mw mh flatten bpp compr)
 
   endif()
 
-  add_dependencies(SkylandEngine compile_image_${filename})
+  add_dependencies(${EXECUTABLE_NAME} compile_image_${filename})
 endfunction()
 
 
@@ -677,42 +682,42 @@ elseif(WIN32)
 
   set(SFML_LIB_DIR ${ROOT_DIR}/external/SFML-2.5.1/lib/Release)
 
-  target_link_libraries(SkylandEngine
+  target_link_libraries(${EXECUTABLE_NAME}
     ${SFML_LIB_DIR}/sfml-graphics.lib
     ${SFML_LIB_DIR}/sfml-window.lib
     ${SFML_LIB_DIR}/sfml-system.lib
     ${SFML_LIB_DIR}/sfml-audio.lib
     ${SFML_LIB_DIR}/sfml-network.lib)
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-graphics-2.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-audio-2.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-window-2.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-network-2.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-system-2.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 
-   add_custom_command(TARGET SkylandEngine POST_BUILD
+   add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${ROOT_DIR}/external/SFML-2.5.1/extlibs/bin/x64/openal32.dll"
-        $<TARGET_FILE_DIR:SkylandEngine>)
+        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 endif()
 
 
@@ -805,7 +810,7 @@ if(NINTENDO_DS)
     DEPENDS ${SCRIPTS})
   add_custom_target(make_fs DEPENDS ${NDS_SOURCE_DIR}/fs.bin)
 
-  add_dependencies(SkylandEngine make_fs)
+  add_dependencies(${EXECUTABLE_NAME} make_fs)
 
 
   set(CMAKE_AR $ENV{DEVKITARM}/bin/arm-none-eabi-ar)
@@ -837,7 +842,7 @@ if(NINTENDO_DS)
   target_link_libraries(PLATFORM PRIVATE
     "${DEVKITPRO}/libnds/lib/libnds9.a")
 
-  target_link_libraries(SkylandEngine PRIVATE
+  target_link_libraries(${EXECUTABLE_NAME} PRIVATE
     PLATFORM)
 
   target_compile_options(LISP PRIVATE
@@ -846,7 +851,7 @@ if(NINTENDO_DS)
   target_compile_options(FASTPATH PRIVATE
     ${ARM9_FLAGS})
 
-  target_compile_options(SkylandEngine PRIVATE
+  target_compile_options(${EXECUTABLE_NAME} PRIVATE
     ${ARM9_FLAGS})
 
 
@@ -855,9 +860,9 @@ if(NINTENDO_DS)
     CACHE INTERNAL "" FORCE)
 
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMENT "building cartridge"
-    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.arm9
+    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary ${EXECUTABLE_NAME} SkylandEngine.arm9
     COMMAND ${DEVKITPRO}/tools/bin/ndstool -c Skyland.nds -9 SkylandEngine.arm9 -g YKWE 01 SKYLAND 0)
 
 
@@ -948,50 +953,52 @@ elseif(GAMEBOY_ADVANCE)
     ${ARM7_THUMB_FLAGS}
     ${G_COMPILE_FLAGS})
 
-  target_link_libraries(SkylandEngine PUBLIC
+  target_link_libraries(${EXECUTABLE_NAME} PUBLIC
     LIBGBA
     QR
     ARM_ROUTINES)
 
-  target_compile_options(SkylandEngine PRIVATE
+  target_compile_options(${EXECUTABLE_NAME} PRIVATE
     ${ARM7_THUMB_FLAGS}
     -fno-rtti
     ${G_COMPILE_FLAGS})
 
-  add_custom_command(TARGET SkylandEngine POST_BUILD
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
     COMMENT "building cartridge"
-    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.gba
-    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSKYLAND -cSKLD -r0 -mEB SkylandEngine.gba)
+    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary ${EXECUTABLE_NAME} ${EXECUTABLE_NAME}.gba
+    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSKYLAND -cSKLD -r0 -mEB ${EXECUTABLE_NAME}.gba)
 
 elseif(APPLE)
-  target_link_libraries(SkylandEngine
+  target_link_libraries(${EXECUTABLE_NAME}
     "-framework sfml-window -framework sfml-graphics -framework sfml-system -framework sfml-audio -framework sfml-network -framework Cocoa")
-  set_target_properties(SkylandEngine
+  set_target_properties(${EXECUTABLE_NAME}
     PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
   include_directories("/usr/local/include/")
 
-  add_custom_target(pkg ALL mkdir -p SkylandEngine.app/Contents/Resources
-    COMMAND mkdir -p SkylandEngine.app/Contents/Frameworks
-    COMMAND cp -r ${ROOT_DIR}/images/ SkylandEngine.app/Contents/images/
-    COMMAND cp -r ${ROOT_DIR}/shaders/ SkylandEngine.app/Contents/shaders/
-    COMMAND cp -r ${ROOT_DIR}/sounds/ SkylandEngine.app/Contents/sounds/
-    COMMAND cp -r ${ROOT_DIR}/scripts/ SkylandEngine.app/Contents/scripts/
-    COMMAND cp -r ${ROOT_DIR}/strings/ SkylandEngine.app/Contents/strings/
-    # COMMAND cp macOS/icon.icns SkylandEngine.app/Contents/Resources
-    # COMMAND cp -r ${SFML_DIR}/lib/* SkylandEngine.app/Contents/Frameworks
-    # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* SkylandEngine.app/Contents/Frameworks
+  add_custom_target(pkg ALL mkdir -p ${EXECUTABLE_NAME}.app/Contents/Resources
+    COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Frameworks
+    COMMAND cp -r ${ROOT_DIR}/images/ ${EXECUTABLE_NAME}.app/Contents/images/
+    COMMAND cp -r ${ROOT_DIR}/shaders/ ${EXECUTABLE_NAME}.app/Contents/shaders/
+    COMMAND cp -r ${ROOT_DIR}/sounds/ ${EXECUTABLE_NAME}.app/Contents/sounds/
+    COMMAND cp -r ${ROOT_DIR}/scripts/ ${EXECUTABLE_NAME}.app/Contents/scripts/
+    COMMAND cp -r ${ROOT_DIR}/strings/ ${EXECUTABLE_NAME}.app/Contents/strings/
+    # COMMAND cp macOS/icon.icns ${EXECUTABLE_NAME}.app/Contents/Resources
+    # COMMAND cp -r ${SFML_DIR}/lib/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
+    # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
     )
 
 elseif(PSP)
 
   set(PSP_FLAGS
     -I/usr/local/pspdev/psp/sdk/include
+    -D_PSP_FW_VERSION=500
     -G0
     -g3
     -mpreferred-stack-boundary=4
     -ffast-math
     -gdwarf-2
+    -D__PSP__
     -I.
     -I/usr/local/pspdev/psp/sdk/ninclude)
 
@@ -1003,7 +1010,7 @@ elseif(PSP)
     ${PSP_FLAGS}
     ${G_COMPILE_FLAGS})
 
-  target_compile_options(SkylandEngine PRIVATE
+  target_compile_options(${EXECUTABLE_NAME} PRIVATE
     ${PSP_FLAGS}
     -fno-rtti
     ${G_COMPILE_FLAGS})
@@ -1015,8 +1022,12 @@ elseif(PSP)
     -O2
     ${PSP_FLAGS})
 
-  target_link_libraries(SkylandEngine PRIVATE
+  target_link_libraries(${EXECUTABLE_NAME} PRIVATE
     QR)
+
+  set(CMAKE_EXE_LINKER_FLAGS
+    "-I. -I/usr/local/pspdev/psp/sdk/include -Os -G0 -g3 -mpreferred-stack-boundary=4 -ffast-math -gdwarf-2 -D_PSP_FW_VERSION=500  -L. -L/usr/local/pspdev/psp/sdk/lib -specs=/usr/local/pspdev/psp/sdk/lib/prxspecs -Wl,-q,-T/usr/local/pspdev/psp/sdk/lib/linkfile.prx -lstdc++ -lpspgum -lpspgu -lpng -ljpeg -lz -lm  -lpspvram -lpsprtc -lpspusb -lpsputility -lpspusbcam -lpspjpeg -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lc -lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility -lpspuser -lpspkernel"
+    CACHE INTERNAL "" FORCE)
 
 
 elseif(UNIX)
@@ -1024,7 +1035,7 @@ elseif(UNIX)
   add_library(QR
     ${ROOT_DIR}/external/qr/qrcodegen.c)
 
-  target_link_libraries(SkylandEngine PRIVATE
+  target_link_libraries(Skyland PRIVATE
     -lpthread
     -lsfml-window
     -lsfml-graphics
@@ -1037,12 +1048,12 @@ endif()
 
 
 
-target_compile_options(SkylandEngine PRIVATE
+target_compile_options(${EXECUTABLE_NAME} PRIVATE
   ${SHARED_COMPILE_OPTIONS})
 
 
 
-target_link_libraries(SkylandEngine PRIVATE
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE
   LISP
   FASTPATH)
 

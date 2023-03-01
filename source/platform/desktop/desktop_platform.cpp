@@ -205,6 +205,8 @@ public:
 
     sf::Image current_overlay_image_;
 
+    sf::Image character_source_image_;
+
     using GlyphOffset = int;
 
     std::map<GlyphOffset, TileDesc> glyph_table_;
@@ -336,6 +338,14 @@ public:
 
                 sound_data_[filename.substr(prefix.size())] = sound_buffer;
             }
+        }
+
+        auto image_folder = resource_path() + ("images" PATH_DELIMITER);
+
+        const auto charset_path =
+            std::string(image_folder) + "charset.png";
+        if (not character_source_image_.loadFromFile(charset_path)) {
+            exit(EXIT_FAILURE);
         }
     }
 };
@@ -657,7 +667,7 @@ void Platform::Screen::clear()
 {
     auto& window = ::platform->data()->window_;
     auto& rt = ::platform->data()->rt_;
-    window.clear();
+    window.clear(sf::Color(95, 168, 234));
     rt.clear(sf::Color(95, 168, 234));
 
     ::platform->data()->fade_overlay_.setFillColor(
@@ -696,6 +706,8 @@ void Platform::Screen::clear()
             image.createMaskFromColor({255, 0, 255, 255});
 
             if (request.first == TextureSwap::overlay) {
+                platform->data()->current_overlay_image_.create(image.getSize().x,
+                                                                image.getSize().y);
                 ::platform->data()->
                     current_overlay_image_.copy(image,
                                                 0,
@@ -737,74 +749,6 @@ void Platform::Screen::clear()
         }
     }
 
-
-    {
-        while (not glyph_requests.empty()) {
-            const auto rq = glyph_requests.front();
-            glyph_requests.pop();
-
-            auto image_folder = resource_path() + ("images" PATH_DELIMITER);
-
-            sf::Image character_source_image_;
-            const auto charset_path =
-                std::string(image_folder) + rq.second.texture_name_ + ".png";
-            if (not character_source_image_.loadFromFile(charset_path)) {
-                error(
-                    *::platform,
-                    (std::string("failed to open charset image " + charset_path)
-                         .c_str()));
-                exit(EXIT_FAILURE);
-            }
-
-            // This code is so wasteful... so many intermediary images... FIXME.
-
-            auto& texture = ::platform->data()->overlay_texture_;
-            auto old_texture_img = texture.copyToImage();
-
-            sf::Image new_texture_image;
-            new_texture_image.create((rq.first + 1) * 8,
-                                     old_texture_img.getSize().y);
-
-            new_texture_image.copy(old_texture_img,
-                                   0,
-                                   0,
-                                   {0,
-                                    0,
-                                    (int)old_texture_img.getSize().x,
-                                    (int)old_texture_img.getSize().y});
-
-            new_texture_image.copy(character_source_image_,
-                                   rq.first * 8,
-                                   0,
-                                   {rq.second.offset_ * 8, 0, 8, 8},
-                                   true);
-
-            const auto glyph_background_color =
-                character_source_image_.getPixel(0, 0);
-
-            const auto font_fg_color = new_texture_image.getPixel(648, 0);
-            const auto font_bg_color = new_texture_image.getPixel(649, 0);
-
-            for (int x = 0; x < 8; ++x) {
-                for (int y = 0; y < 8; ++y) {
-                    const auto px =
-                        new_texture_image.getPixel(rq.first * 8 + x, y);
-                    if (px == glyph_background_color) {
-                        new_texture_image.setPixel(
-                            rq.first * 8 + x, y, font_bg_color);
-                    } else {
-                        new_texture_image.setPixel(
-                            rq.first * 8 + x, y, font_fg_color);
-                    }
-                }
-            }
-
-            // character_source_image_.saveToFile("debug.png");
-            // new_texture_image.saveToFile("test.png");
-
-            texture.loadFromImage(new_texture_image);
-        }
-    }
 
     {
         // std::lock_guard<std::mutex> guard(::event_queue_lock);
@@ -905,209 +849,241 @@ void Platform::Screen::display()
     sf::View view;
     view.setSize(view_.get_size().x, view_.get_size().y);
 
+    const bool fade_overlay = ::platform->data()->fade_include_overlay_;
+
+
+    sf::View fixed_view;
+    fixed_view = get_letterbox_view(view,
+                                    ::platform->data()->window_.getSize().x,
+                                    ::platform->data()->window_.getSize().y);
+
+    fixed_view.setCenter(
+        {view_.get_size().x / 2, view_.get_size().y / 2});
+
     auto& window = ::platform->data()->window_;
-    auto& rt = ::platform->data()->rt_;
+    window.setView(fixed_view);
 
-    if (::platform->data()->background_changed_) {
-        ::platform->data()->background_changed_ = false;
-        ::platform->data()->background_rt_.clear(sf::Color::Transparent);
-        ::platform->data()->background_rt_.draw(
-            ::platform->data()->background_);
-        ::platform->data()->background_rt_.display();
-    }
-
-    {
-        view.setCenter(view_.get_center().x * 0.3f + view_.get_size().x / 2,
-                       view_.get_center().y * 0.3f + view_.get_size().y / 2);
-        rt.setView(view);
-
-        sf::Sprite bkg_spr(::platform->data()->background_rt_.getTexture());
-
-        rt.draw(bkg_spr);
-
-        const auto right_x_wrap_threshold = 51.f;
-        const auto bottom_y_wrap_threshold = 320.f;
-
-        // Manually wrap the background sprite
-        if (view_.get_center().x > right_x_wrap_threshold) {
-            bkg_spr.setPosition(256, 0);
-            rt.draw(bkg_spr);
-        }
-
-        if (view_.get_center().x < 0.f) {
-            bkg_spr.setPosition(-256, 0);
-            rt.draw(bkg_spr);
-        }
-
-        if (view_.get_center().y < 0.f) {
-            bkg_spr.setPosition(0, -256);
-            rt.draw(bkg_spr);
-
-            if (view_.get_center().x < 0.f) {
-                bkg_spr.setPosition(-256, -256);
-                rt.draw(bkg_spr);
-            } else if (view_.get_center().x > right_x_wrap_threshold) {
-                bkg_spr.setPosition(256, -256);
-                rt.draw(bkg_spr);
-            }
-        }
-
-        if (view_.get_center().y > bottom_y_wrap_threshold) {
-            bkg_spr.setPosition(0, 256);
-            rt.draw(bkg_spr);
-
-            if (view_.get_center().x < 0.f) {
-                bkg_spr.setPosition(-256, 256);
-                rt.draw(bkg_spr);
-            } else if (view_.get_center().x > right_x_wrap_threshold) {
-                bkg_spr.setPosition(256, 256);
-                rt.draw(bkg_spr);
-            }
-        }
-    }
-
-    view.setCenter(view_.get_center().x + view_.get_size().x / 2,
-                   view_.get_center().y + view_.get_size().y / 2);
-    rt.setView(view);
-
-    if (::platform->data()->map_0_changed_) {
-        ::platform->data()->map_0_changed_ = false;
-        ::platform->data()->map_0_rt_.clear(sf::Color(95, 168, 234));
-        for (int i = 0; i < 6; ++i) {
-            ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[i]);
-        }
-        ::platform->data()->map_0_rt_.display();
-    }
-
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Draw map layer 1
+    //
 
     if (::platform->data()->map_1_changed_) {
         ::platform->data()->map_1_changed_ = false;
-        ::platform->data()->map_1_rt_.clear(sf::Color(95, 168, 234));
-        for (int i = 0; i < 6; ++i) {
-            ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[i]);
-        }
+        ::platform->data()->map_1_rt_.clear(sf::Color::Transparent);
+        ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[0]);
+        // for (int i = 0; i < 6; ++i) {
+        //     ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[i]);
+        // }
         ::platform->data()->map_1_rt_.display();
     }
 
-    {
-        sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
-        map0.setPosition(-::platform->data()->map_0_xscroll_,
-                         -::platform->data()->map_0_yscroll_);
-        window.draw(map0);
+    sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
+    map1.setPosition(-::platform->data()->map_1_xscroll_ +
+                     view_.get_center().x,
+                     -(::platform->data()->map_1_yscroll_ +
+                       view_.get_center().y));
+    window.draw(map1);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Draw map layer 0
+    //
+
+    if (::platform->data()->map_0_changed_) {
+        ::platform->data()->map_0_changed_ = false;
+        ::platform->data()->map_0_rt_.clear(sf::Color::Transparent);
+        ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[0]);
+        // for (int i = 0; i < 6; ++i) {
+        //     ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[i]);
+        // }
+        ::platform->data()->map_0_rt_.display();
     }
 
-    {
-        sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
-        map1.setPosition(-::platform->data()->map_1_xscroll_,
-                         -::platform->data()->map_1_yscroll_ + 136 // + 200
-        );
-        window.draw(map1);
-    }
+    sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
+    map0.setPosition(-::platform->data()->map_0_xscroll_ +
+                     view_.get_center().x,
+                     -(::platform->data()->map_0_yscroll_ +
+                       view_.get_center().y));
+    window.draw(map0);
 
 
-    ::platform->data()->fade_overlay_.setPosition(
-        {view_.get_center().x, view_.get_center().y});
-
-    const bool fade_sprites = ::platform->data()->fade_include_sprites_;
-    const bool fade_overlay = ::platform->data()->fade_include_overlay_;
-
-    // If we don't want the sprites to be included in the color fade, we'll want
-    // to draw the fade overlay prior to drawing the sprites... or we could quit
-    // being lazy and use a shader instead of a dumb rectangleshape :)
-    if (not fade_sprites) {
+    if (not fade_overlay) {
         window.draw(::platform->data()->fade_overlay_);
     }
 
-    // for (auto& spr : reversed(::draw_queue)) {
-    //     if (spr.get_alpha() == Sprite::Alpha::transparent) {
-    //         continue;
-    //     }
-    //     const Vec2<Float>& pos = fvec(spr.get_position());
-    //     const Vec2<bool>& flip = spr.get_flip();
-
-    //     sf::Sprite sf_spr;
-
-    //     if (auto rot = spr.get_rotation()) {
-    //         sf_spr.setRotation((float(rot) / std::numeric_limits<s16>::max()) *
-    //                            360);
-    //     }
-
-    //     if (spr.get_scale().x or spr.get_scale().y) {
-    //         Float x_scale = 1;
-    //         Float y_scale = 1;
-    //         if (spr.get_scale().x < 0) {
-    //         }
-    //         if (spr.get_scale().y < 0) {
-    //         }
-
-    //         sf_spr.setScale(x_scale, y_scale);
-    //     }
-
-    //     sf_spr.setPosition({pos.x, pos.y});
-    //     sf_spr.setOrigin(
-    //         {float(spr.get_origin().x), float(spr.get_origin().y)});
-    //     if (spr.get_alpha() == Sprite::Alpha::translucent) {
-    //         sf_spr.setColor({255, 255, 255, 128});
-    //     }
-
-    //     sf_spr.setScale({flip.x ? -1.f : 1.f, flip.y ? -1.f : 1.f});
-
-    //     sf_spr.setTexture(::platform->data()->spritesheet_texture_);
-
-    //     switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
-    //     case Sprite::Size::w16_h32:
-    //         sf_spr.setTextureRect({static_cast<s32>(ind) * 16, 0, 16, 32});
-    //         break;
-
-    //     case Sprite::Size::w32_h32:
-    //         sf_spr.setTextureRect({static_cast<s32>(ind) * 32, 0, 32, 32});
-    //         break;
-    //     }
-
-    //     if (const auto& mix = spr.get_mix();
-    //         mix.color_ not_eq ColorConstant::null) {
-    //         sf::Shader& shader = ::platform->data()->color_shader_;
-    //         shader.setUniform("amount", mix.amount_ / 255.f);
-    //         shader.setUniform("targetColor", real_color(mix.color_));
-    //         rt.draw(sf_spr, &shader);
-    //     } else {
-    //         rt.draw(sf_spr);
-    //     }
-    // }
-
-    const auto cached_view = view;
-    if (fade_sprites and not fade_overlay) {
-        window.draw(::platform->data()->fade_overlay_);
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Draw overlay
+    //
 
     auto& origin = ::platform->data()->overlay_origin_;
-
-    view.setCenter(
+    fixed_view.setCenter(
         {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
 
-    // rt.setView(view);
-
-
+    window.setView(fixed_view);
     window.draw(::platform->data()->overlay_);
 
-    // if (fade_overlay) {
-    //     rt.setView(cached_view);
-    //     rt.draw(::platform->data()->fade_overlay_);
+
+    fixed_view.setCenter(
+        {view_.get_size().x / 2, view_.get_size().y / 2});
+
+    window.setView(fixed_view);
+
+    if (fade_overlay) {
+        window.draw(::platform->data()->fade_overlay_);
+    }
+
+
+
+
+
+    // if (::platform->data()->map_1_changed_) {
+    //     ::platform->data()->map_1_changed_ = false;
+    //     ::platform->data()->map_1_rt_.clear(sf::Color::Transparent);
+    //     ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[0]);
+    //     // for (int i = 0; i < 6; ++i) {
+    //     //     ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[i]);
+    //     // }
+    //     auto img = ::platform->data()->map_1_rt_.getTexture().copyToImage();
+    //     img.saveToFile("test.png");
+    //     ::platform->data()->map_1_rt_.display();
     // }
 
-    // rt.display();
+    // auto cached_view = window.getView();
+    // window.setView(fixed_view);
 
-    view.setSize(view_.get_size().x, view_.get_size().y);
+    // {
+    //     sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
+    //     map1.setPosition(-::platform->data()->map_1_xscroll_ +
+    //                      view_.get_center().x,
+    //                      ::platform->data()->map_1_yscroll_ +
+    //                      view_.get_center().y);
+    //     window.draw(map1);
+    // }
 
-    view = get_letterbox_view(view,
-                              ::platform->data()->window_.getSize().x,
-                              ::platform->data()->window_.getSize().y);
-    window.setView(view);
+    // {
+    //     sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
+    //     map0.setPosition(-::platform->data()->map_0_xscroll_ +
+    //                      view_.get_center().x,
+    //                      -::platform->data()->map_0_yscroll_ +
+    //                      view_.get_center().y);
+    //     window.draw(map0);
+    // }
 
-    // window.draw(::platform->data()->map_0_);
-    // window.draw(::platform->data()->map_1_);
+    // window.setView(cached_view);
 
-    // window.draw(sf::Sprite(rt.getTexture()));
+    // ::platform->data()->fade_overlay_.setPosition(
+    //     {view_.get_center().x, view_.get_center().y});
+
+    // const bool fade_sprites = ::platform->data()->fade_include_sprites_;
+    // const bool fade_overlay = ::platform->data()->fade_include_overlay_;
+
+    // // If we don't want the sprites to be included in the color fade, we'll want
+    // // to draw the fade overlay prior to drawing the sprites... or we could quit
+    // // being lazy and use a shader instead of a dumb rectangleshape :)
+    // if (not fade_sprites) {
+    //     window.draw(::platform->data()->fade_overlay_);
+    // }
+
+    // // for (auto& spr : reversed(::draw_queue)) {
+    // //     if (spr.get_alpha() == Sprite::Alpha::transparent) {
+    // //         continue;
+    // //     }
+    // //     const Vec2<Float>& pos = fvec(spr.get_position());
+    // //     const Vec2<bool>& flip = spr.get_flip();
+
+    // //     sf::Sprite sf_spr;
+
+    // //     if (auto rot = spr.get_rotation()) {
+    // //         sf_spr.setRotation((float(rot) / std::numeric_limits<s16>::max()) *
+    // //                            360);
+    // //     }
+
+    // //     if (spr.get_scale().x or spr.get_scale().y) {
+    // //         Float x_scale = 1;
+    // //         Float y_scale = 1;
+    // //         if (spr.get_scale().x < 0) {
+    // //         }
+    // //         if (spr.get_scale().y < 0) {
+    // //         }
+
+    // //         sf_spr.setScale(x_scale, y_scale);
+    // //     }
+
+    // //     sf_spr.setPosition({pos.x, pos.y});
+    // //     sf_spr.setOrigin(
+    // //         {float(spr.get_origin().x), float(spr.get_origin().y)});
+    // //     if (spr.get_alpha() == Sprite::Alpha::translucent) {
+    // //         sf_spr.setColor({255, 255, 255, 128});
+    // //     }
+
+    // //     sf_spr.setScale({flip.x ? -1.f : 1.f, flip.y ? -1.f : 1.f});
+
+    // //     sf_spr.setTexture(::platform->data()->spritesheet_texture_);
+
+    // //     switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
+    // //     case Sprite::Size::w16_h32:
+    // //         sf_spr.setTextureRect({static_cast<s32>(ind) * 16, 0, 16, 32});
+    // //         break;
+
+    // //     case Sprite::Size::w32_h32:
+    // //         sf_spr.setTextureRect({static_cast<s32>(ind) * 32, 0, 32, 32});
+    // //         break;
+    // //     }
+
+    // //     if (const auto& mix = spr.get_mix();
+    // //         mix.color_ not_eq ColorConstant::null) {
+    // //         sf::Shader& shader = ::platform->data()->color_shader_;
+    // //         shader.setUniform("amount", mix.amount_ / 255.f);
+    // //         shader.setUniform("targetColor", real_color(mix.color_));
+    // //         rt.draw(sf_spr, &shader);
+    // //     } else {
+    // //         rt.draw(sf_spr);
+    // //     }
+    // // }
+
+    // if (fade_sprites and not fade_overlay) {
+    //     window.draw(::platform->data()->fade_overlay_);
+    // }
+
+    // auto& origin = ::platform->data()->overlay_origin_;
+
+    // view.setCenter(
+    //     {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
+
+    // // rt.setView(view);
+
+
+    // window.draw(::platform->data()->overlay_);
+
+    // view.setCenter(
+    //     {view_.get_size().x / 2, view_.get_size().y / 2});
+    // window.setView(view);
+
+
+    // if (fade_overlay) {
+    //     window.draw(::platform->data()->fade_overlay_);
+    // }
+
+
+    // view.setCenter(
+    //     {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
+
+    // // rt.display();
+
+    // view.setSize(view_.get_size().x, view_.get_size().y);
+
+    // view = get_letterbox_view(view,
+    //                           ::platform->data()->window_.getSize().x,
+    //                           ::platform->data()->window_.getSize().y);
+    // window.setView(view);
+
+    // // window.draw(::platform->data()->map_0_);
+    // // window.draw(::platform->data()->map_1_);
+
+    // // window.draw(sf::Sprite(rt.getTexture()));
 
     window.display();
 
@@ -1706,8 +1682,30 @@ void Platform::load_background_texture(const char* name)
 
 void Platform::load_tile0_texture(const char* name)
 {
-    // std::lock_guard<std::mutex> guard(texture_swap_mutex);
-    texture_swap_requests.push({TextureSwap::tile0, name});
+    sf::Image image;
+
+    auto image_folder = resource_path() + ("images" PATH_DELIMITER);
+
+    if (not image.loadFromFile(image_folder + name + ".png")) {
+        error(*::platform,
+              (std::string("failed to load texture ") + name)
+              .c_str());
+        exit(EXIT_FAILURE);
+    } else {
+        info(*::platform,
+             (std::string("loaded image ") + name).c_str());
+    }
+    image.createMaskFromColor({255, 0, 255, 255});
+    if (image.getSize().x > 4032) {
+        sf::Image replacement;
+        replacement.create(4032, image.getSize().y);
+        replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
+        std::swap(image, replacement);
+    }
+    if (not ::platform->data()->tile0_texture_.loadFromImage(image)) {
+        error(*::platform, "Failed to create texture");
+        exit(EXIT_FAILURE);
+    }
     ::platform->data()->map_0_changed_ = true;
 }
 
@@ -1715,8 +1713,30 @@ void Platform::load_tile0_texture(const char* name)
 
 void Platform::load_tile1_texture(const char* name)
 {
-    // std::lock_guard<std::mutex> guard(texture_swap_mutex);
-    texture_swap_requests.push({TextureSwap::tile1, name});
+    sf::Image image;
+
+    auto image_folder = resource_path() + ("images" PATH_DELIMITER);
+
+    if (not image.loadFromFile(image_folder + name + ".png")) {
+        error(*::platform,
+              (std::string("failed to load texture ") + name)
+              .c_str());
+        exit(EXIT_FAILURE);
+    } else {
+        info(*::platform,
+             (std::string("loaded image ") + name).c_str());
+    }
+    image.createMaskFromColor({255, 0, 255, 255});
+    if (image.getSize().x > 4032) {
+        sf::Image replacement;
+        replacement.create(4032, image.getSize().y);
+        replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
+        std::swap(image, replacement);
+    }
+    if (not ::platform->data()->tile1_texture_.loadFromImage(image)) {
+        error(*::platform, "Failed to create texture");
+        exit(EXIT_FAILURE);
+    }
     ::platform->data()->map_1_changed_ = true;
 }
 
@@ -1830,15 +1850,21 @@ void Platform::set_overlay_origin(Float x, Float y)
 }
 
 
+static bool glyph_mode;
+
+
 void Platform::enable_glyph_mode(bool enabled)
 {
-    // TODO
+    glyph_mode = true;
 }
 
 
 TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                              const TextureMapping& mapping)
 {
+    if (not glyph_mode) {
+        return 495;
+    }
     auto& glyphs = ::platform->data()->glyph_table_;
 
     auto found = glyphs.find(mapping.offset_);
@@ -1848,8 +1874,52 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
         const auto loc = ::platform->data()->next_glyph_++;
         glyphs[mapping.offset_] = loc;
 
-        // std::lock_guard<std::mutex> guard(glyph_requests_mutex);
-        glyph_requests.push({loc, mapping});
+        {
+            // This code is so wasteful... so many intermediary images... FIXME.
+
+            auto& texture = ::platform->data()->overlay_texture_;
+            auto old_texture_img = texture.copyToImage();
+
+            sf::Image new_texture_image;
+            new_texture_image.create((loc + 1) * 8,
+                                     old_texture_img.getSize().y);
+
+            new_texture_image.copy(old_texture_img,
+                                   0,
+                                   0,
+                                   {0,
+                                    0,
+                                    (int)old_texture_img.getSize().x,
+                                    (int)old_texture_img.getSize().y});
+
+            new_texture_image.copy(data_->character_source_image_,
+                                   loc * 8,
+                                   0,
+                                   {mapping.offset_ * 8, 0, 8, 8},
+                                   true);
+
+            const auto glyph_background_color =
+                data_->character_source_image_.getPixel(0, 0);
+
+            const auto font_fg_color = new_texture_image.getPixel(648, 0);
+            const auto font_bg_color = new_texture_image.getPixel(649, 0);
+
+            for (int x = 0; x < 8; ++x) {
+                for (int y = 0; y < 8; ++y) {
+                    const auto px =
+                        new_texture_image.getPixel(loc * 8 + x, y);
+                    if (px == glyph_background_color) {
+                        new_texture_image.setPixel(
+                            loc * 8 + x, y, font_bg_color);
+                    } else {
+                        new_texture_image.setPixel(
+                            loc * 8 + x, y, font_fg_color);
+                    }
+                }
+            }
+
+            texture.loadFromImage(new_texture_image);
+        }
 
         return loc;
     }
@@ -2155,6 +2225,7 @@ void Platform::blit_t1_erase(u16 index)
 
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
+    return; // FIXME
     ::platform->data()->map_0_changed_ = true;
     int y = to_index / 30;
     int x = to_index % 30;
@@ -2172,6 +2243,7 @@ void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
+    return; // FIXME
     ::platform->data()->map_1_changed_ = true;
     int y = to_index / 30;
     int x = to_index % 30;
@@ -2283,6 +2355,8 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
     s16 sx = x;
     s16 sy = y;
 
+    sx %= 512;
+
     switch (layer) {
     case Layer::overlay:
         // TODO...
@@ -2318,7 +2392,13 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 
 void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
 {
-    // TODO...
+    auto& texture = data()->overlay_texture_;
+    auto texture_img = texture.copyToImage();
+
+    texture_img.copy(data()->current_overlay_image_,
+                     dst * 8, 0, {src * 8, 0, count * 8, 8});
+
+    texture.loadFromImage(texture_img);
 }
 
 
