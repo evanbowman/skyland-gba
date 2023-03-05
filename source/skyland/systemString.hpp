@@ -186,6 +186,7 @@ enum class SystemString {
     block_workshop,
 
     tiled_suffix,
+    vines_suffix,
 
     red,
     black,

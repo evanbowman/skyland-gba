@@ -27,6 +27,7 @@
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/masonry.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
@@ -1664,6 +1665,13 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                         } else {
                             mt->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
+                            if (auto r = app.opponent_island()->get_room({x, yy})) {
+                                if (auto m = r->cast<Masonry>()) {
+                                    if (rng::choice<4>(rng::critical_state) == 0) {
+                                        m->set_gfx(2);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

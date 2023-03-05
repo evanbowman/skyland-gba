@@ -133,7 +133,8 @@ wheat
 windmill
 wool
 workshop
--tiled
+/tiled
+/vines
 red
 black
 (bird)

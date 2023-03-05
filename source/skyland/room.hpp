@@ -244,7 +244,7 @@ public:
     virtual void update(Platform& pfrm, App&, Microseconds delta);
     virtual void rewind(Platform& pfrm, App&, Microseconds delta);
 
-    virtual void display(Platform::Screen& screen);
+    virtual void display(Platform::Screen& screen, App& app);
 
 
     virtual void display_on_hover(Platform::Screen& screen,

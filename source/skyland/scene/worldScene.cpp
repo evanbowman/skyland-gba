@@ -348,10 +348,10 @@ void WorldScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(cursor);
     }
 
-    app.player_island().display(pfrm);
+    app.player_island().display(pfrm, app);
 
     if (app.opponent_island()) {
-        app.opponent_island()->display(pfrm);
+        app.opponent_island()->display(pfrm, app);
     }
 
     for (auto& effect : app.effects()) {

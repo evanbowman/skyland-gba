@@ -84,7 +84,7 @@ void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void CargoBay::display(Platform::Screen& screen)
+void CargoBay::display(Platform::Screen& screen, App&)
 {
     if (parent()->interior_visible()) {
         for (auto& c : characters()) {

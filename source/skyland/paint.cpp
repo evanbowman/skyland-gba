@@ -218,7 +218,7 @@ ScenePtr<Scene> Paint::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Paint::display(Platform& pfrm, App& app)
 {
-    app.player_island().display(pfrm);
+    app.player_island().display(pfrm, app);
 
     for (auto& effect : app.effects()) {
         pfrm.screen().draw(effect->sprite());

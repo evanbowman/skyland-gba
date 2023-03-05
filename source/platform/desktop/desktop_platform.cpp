@@ -975,6 +975,15 @@ void Platform::Screen::display()
 
         switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
         default: // FIXME...
+        case Sprite::Size::w16_h16: {
+            int y = 0;
+            if (ind % 2 == 1) {
+                y = 16;
+            }
+            sf_spr.setTextureRect({static_cast<s32>(ind / 2) * 16, y, 16, 16});
+            break;
+        }
+
         case Sprite::Size::w16_h32:
             sf_spr.setTextureRect({static_cast<s32>(ind) * 16, 0, 16, 32});
             break;
@@ -982,6 +991,10 @@ void Platform::Screen::display()
         case Sprite::Size::w32_h32:
             sf_spr.setTextureRect({static_cast<s32>(ind) * 32, 0, 32, 32});
             break;
+        }
+
+        if (spr.get_alpha() == Sprite::Alpha::translucent) {
+            sf_spr.setColor({255, 255, 255, 127});
         }
 
         if (const auto& mix = spr.get_mix();

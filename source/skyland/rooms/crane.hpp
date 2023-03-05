@@ -89,7 +89,7 @@ public:
 
 
     void update(Platform&, App&, Microseconds delta) override;
-    void display(Platform::Screen& screen) override;
+    void display(Platform::Screen& screen, App& app) override;
 
 
     void display_on_hover(Platform::Screen& screen,

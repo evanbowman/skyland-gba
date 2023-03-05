@@ -136,7 +136,7 @@ void Crane::display_on_hover(Platform::Screen& screen,
 
 
 
-void Crane::display(Platform::Screen& screen)
+void Crane::display(Platform::Screen& screen, App& app)
 {
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);

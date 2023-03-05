@@ -56,7 +56,7 @@ public:
 
 
 
-    void display(Platform::Screen& screen) override;
+    void display(Platform::Screen& screen, App& app) override;
 
 
     void finalize(Platform&, App&) override;

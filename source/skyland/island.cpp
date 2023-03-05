@@ -317,7 +317,7 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+    s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
     ambient_movement_ = ambient_offset;
@@ -698,7 +698,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     TIMEPOINT(t2);
 
-    u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+    s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
     ambient_movement_ = ambient_offset;
@@ -1172,7 +1172,7 @@ static constexpr const int screen_limit_y = 700;
 
 
 
-void Island::display(Platform& pfrm)
+void Island::display(Platform& pfrm, App& app)
 {
     if (hidden_) {
         return;
@@ -1214,7 +1214,7 @@ void Island::display(Platform& pfrm)
 
     Room* room = dispatch_list_;
     while (room) {
-        room->display(pfrm.screen());
+        room->display(pfrm.screen(), app);
         room = room->dispatch_next();
     }
 }

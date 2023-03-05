@@ -81,7 +81,7 @@ public:
     }
 
 
-    void display(Platform::Screen& screen) override
+    void display(Platform::Screen& screen, App& app) override
     {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();

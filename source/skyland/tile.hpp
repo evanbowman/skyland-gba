@@ -260,6 +260,16 @@ struct Tile
         void1,
         void2,
         tile,
+        null_1,
+        null_2,
+        null_3,
+        null_4,
+        null_5,
+        null_6,
+        null_7,
+        null_8,
+        null_9,
+        masonry_vines,
     };
 };
 
@@ -500,6 +510,7 @@ struct InteriorTile
         war_engine_7,
         war_engine_8,
         war_engine_9,
+        masonry_vines,
     };
 };
 

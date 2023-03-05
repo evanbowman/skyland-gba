@@ -1911,10 +1911,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-static int scratch_buffer_highwater = 0;
-
-
-
 const Platform::Screen::Touch* Platform::Screen::touch() const
 {
     // No touchscreen on the gba!
@@ -1925,23 +1921,6 @@ const Platform::Screen::Touch* Platform::Screen::touch() const
 
 void Platform::Screen::clear()
 {
-    // NOTE: because our logging vector is backed by scratch buffers,
-    // alloc_scratch_buffer cannot itself log anything, or else you have
-    // infinite mutual recursion in expanding the vector basically.
-    if (scratch_buffers_in_use() > scratch_buffer_highwater) {
-        scratch_buffer_highwater = scratch_buffers_in_use();
-
-        StringBuffer<60> str = "sbr highwater: ";
-
-        str += stringify(scratch_buffer_highwater).c_str();
-        str += " (";
-        str += stringify(scratch_buffers_remaining());
-        str += " left)";
-
-        info(*::platform, str.c_str());
-    }
-
-
     if (not canary_check()) {
         longjmp(stack_overflow_resume_context, 1);
     }

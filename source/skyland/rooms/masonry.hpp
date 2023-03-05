@@ -69,6 +69,10 @@ public:
         case 1:
             result += SYSTR(tiled_suffix)->c_str();
             break;
+
+        case 2:
+            result += SYSTR(vines_suffix)->c_str();
+            break;
         }
         return;
     }
@@ -83,6 +87,9 @@ public:
         default:
         case 1:
             return Tile::tile;
+
+        case 2:
+            return Tile::masonry_vines;
         }
     }
 
@@ -170,12 +177,18 @@ public:
     }
 
 
+    void set_gfx(int gfx)
+    {
+        gfx_ = gfx;
+    }
+
+
     virtual ScenePtr<Scene>
     select(Platform& pfrm, App& app, const RoomCoord& cursor) override
     {
         schedule_repaint();
         gfx_ += 1;
-        gfx_ %= 2;
+        gfx_ %= 3;
         return null_scene();
     }
 

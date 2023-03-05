@@ -124,7 +124,7 @@ public:
     void rewind(Platform&, App&, Microseconds delta);
 
 
-    void display(Platform&);
+    void display(Platform&, App&);
     void display_fires(Platform&);
 
     const Vec2<Fixnum>& get_position() const;
@@ -142,7 +142,7 @@ public:
     void destroy_room(Platform& pfrm, App& app, const RoomCoord& coord);
 
 
-    u8 get_ambient_movement()
+    s8 get_ambient_movement()
     {
         return ambient_movement_;
     }
@@ -469,7 +469,7 @@ private:
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
     u8 min_y_ = 0;
-    u8 ambient_movement_;
+    s8 ambient_movement_;
 
     // These parameters represent the location where a power core might possibly
     // be. Used during the death animation when placing the center of the

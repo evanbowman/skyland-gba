@@ -1794,11 +1794,11 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 
 void RewindScene::display(Platform& pfrm, App& app)
 {
-    app.player_island().display(pfrm);
+    app.player_island().display(pfrm, app);
     app.player_island().display_fires(pfrm);
 
     if (app.opponent_island()) {
-        app.opponent_island()->display(pfrm);
+        app.opponent_island()->display(pfrm, app);
         app.opponent_island()->display_fires(pfrm);
     }
 

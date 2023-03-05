@@ -158,7 +158,7 @@ Power Room::power_usage(App& app) const
 
 
 
-void Room::display(Platform::Screen& screen)
+void Room::display(Platform::Screen& screen, App& app)
 {
     for (auto& c : characters()) {
         const auto& pos = c->sprite().get_position();

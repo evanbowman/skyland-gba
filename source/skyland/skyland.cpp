@@ -267,6 +267,10 @@ static bool is_gui_sound(const char* sound_name)
 
 
 
+static int scratch_buffer_highwater = 0;
+
+
+
 void App::update(Platform& pfrm, Microseconds delta)
 {
     TIMEPOINT(t1);
@@ -369,6 +373,19 @@ void App::update(Platform& pfrm, Microseconds delta)
     //                            t7 - t6)
     //                         .c_str());
     // }
+
+    if (scratch_buffers_in_use() > scratch_buffer_highwater) {
+        scratch_buffer_highwater = scratch_buffers_in_use();
+
+        StringBuffer<60> str = "sbr highwater: ";
+
+        str += stringify(scratch_buffer_highwater).c_str();
+        str += " (";
+        str += stringify(scratch_buffers_remaining());
+        str += " left)";
+
+        info(pfrm, str.c_str());
+    }
 }
 
 

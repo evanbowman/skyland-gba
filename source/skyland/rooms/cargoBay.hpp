@@ -41,7 +41,7 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void display(Platform::Screen&) override;
+    void display(Platform::Screen&, App& app) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

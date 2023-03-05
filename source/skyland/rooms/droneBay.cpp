@@ -123,7 +123,7 @@ void DroneBay::___rewind___ability_used(Platform&, App&)
 
 
 
-void DroneBay::display(Platform::Screen& screen)
+void DroneBay::display(Platform::Screen& screen, App& app)
 {
     if (drone_) {
         screen.draw((*drone_)->sprite());
