@@ -192,7 +192,6 @@ enum class GlobalFlag {
     palette_sync,
     sound_startup_monkeypatch,
     key_poll_called,
-    music_halfspeed_update,
     watchdog_disabled,
     effect_window_mode,
     count
@@ -269,6 +268,20 @@ __attribute__((section(".iwram"), long_call)) void blit_tile(u16* out, u16* in);
 
 __attribute__((section(".iwram"), long_call)) void
 win_circle(u16 winh[], int x0, int y0, int rr);
+
+
+static void audio_update_fast_isr();
+
+
+static int audio_timer_frequency(int words_per_call)
+{
+    // NOTE: 0xffff represents the max timer value. The subtracted value
+    // represents the number of timer tics to wait before running the irq
+    // again. Upon each tic of the timer, the direct sound chip loads one sample
+    // from audio FIFO A. The fifo is a 32bit register, so we write four samples
+    // to the fifo at a time.
+    return 0xffff - ((4 * words_per_call) - 1);
+}
 
 
 
@@ -2390,16 +2403,10 @@ static void vblank_circle_effect_isr()
     DMA_TRANSFER(
         (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
 
-    // NOTE: fixes an audio bug that occurs when an audio timer irq occurs while
-    // drawing the circle effect.
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
     win_circle((*opt_dma_buffer_)->data(),
                dma_effect_params[1],
                dma_effect_params[2],
                dma_effect_params[0]);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
 
     DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
 }
@@ -4582,13 +4589,6 @@ static void audio_update_halfspeed_isr()
     // NOTE: rather than change the logic for indices into the music track, I
     // just exploit the unused depth of the sound fifo and run the isr half the
     // time.
-    if (not get_gflag(GlobalFlag::music_halfspeed_update)) {
-        set_gflag(GlobalFlag::music_halfspeed_update, true);
-        return;
-    } else {
-        set_gflag(GlobalFlag::music_halfspeed_update, false);
-    }
-
     alignas(4) AudioSample mixing_buffer[4];
 
     // NOTE: audio tracks in ROM should therefore have four byte alignment!
@@ -4637,11 +4637,13 @@ static void audio_update_halfspeed_isr()
 
 
 
-static void audio_update_fast_isr()
+// While audio_update_fast_isr attempts to maximize throughput by reducing the
+// number of audio interrupts, audio_update_multiplayer_isr attempts to minimize
+// the time spent within the interrupt handler.
+static void audio_update_multiplayer_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
 
-    // NOTE: audio tracks in ROM should therefore have four byte alignment!
     *((u32*)mixing_buffer) =
         ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
 
@@ -4671,37 +4673,125 @@ static void audio_update_fast_isr()
 
 
 
+static void audio_update_fast_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // Fill the entire fifo...
+    for (int i = 0; i < 2; ++i) {
+
+        // NOTE: audio tracks in ROM should therefore have four byte alignment!
+        *((u32*)mixing_buffer) =
+            ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+        if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+            snd_ctx.music_track_pos = 0;
+            completed_music = snd_ctx.music_track_name;
+        }
+
+        for (auto it = snd_ctx.active_sounds.begin();
+             it not_eq snd_ctx.active_sounds.end();) {
+            if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+                if (not completed_sounds_lock) {
+                    completed_sounds_buffer.push_back(it->name_);
+                }
+                it = snd_ctx.active_sounds.erase(it);
+            } else {
+                for (int i = 0; i < 4; ++i) {
+                    mixing_buffer[i] += (u8)it->data_[it->position_];
+                    ++it->position_;
+                }
+                ++it;
+            }
+        }
+
+        REG_SGFIFOA = *((u32*)mixing_buffer);
+
+    }
+}
+
+
+EWRAM_DATA static volatile bool audio_update_swapflag;
+EWRAM_DATA static void (*audio_update_current_isr)() = audio_update_fast_isr;
+EWRAM_DATA static u8 audio_update_current_freq = 2;
+EWRAM_DATA static u8 audio_update_new_freq;
+
+
+
+static void audio_update_swap_isr()
+{
+    audio_update_current_isr();
+
+    // If the new isr fires less often than the replacement, fill the audio fifo
+    // accordingly.
+    const s8 gap_fill = (audio_update_new_freq - audio_update_current_freq) - 1;
+    for (s8 i = 0; i < gap_fill; ++i) {
+        audio_update_current_isr();
+    }
+
+    audio_update_swapflag = true;
+}
+
+
+
+static void audio_update_swap(void (*new_isr)(), int frequency)
+{
+    audio_update_swapflag = false;
+
+    audio_update_new_freq = frequency;
+
+    irqSet(IRQ_TIMER1, audio_update_swap_isr);
+
+    // We have to poll on a flag, because we want to change the timer frequency
+    // in some cases. We can't write a new value to the timer configuration
+    // register until just after it's fired, or sound stuff could get out of
+    // sync.
+    while (not audio_update_swapflag) ;
+
+    audio_update_current_freq = audio_update_new_freq;
+
+    REG_TM1CNT_L = audio_timer_frequency(frequency);
+    irqSet(IRQ_TIMER1, new_isr);
+    audio_update_current_isr = new_isr;
+}
+
+
+
 void Platform::Speaker::set_music_speed(MusicSpeed speed)
 {
+    if (platform->network_peer().is_connected()) {
+        audio_update_swap(audio_update_multiplayer_isr, 1);
+        return;
+    }
+
     switch (speed) {
     default:
     case MusicSpeed::regular:
-        irqSet(IRQ_TIMER1, audio_update_fast_isr);
+        audio_update_swap(audio_update_fast_isr, 2);
         break;
 
     case MusicSpeed::doubled:
-        irqSet(IRQ_TIMER1, audio_update_doublespeed_isr);
+        audio_update_swap(audio_update_doublespeed_isr, 1);
         break;
 
     case MusicSpeed::reversed:
-        irqSet(IRQ_TIMER1, audio_update_rewind_music_isr);
+        audio_update_swap(audio_update_rewind_music_isr, 1);
         break;
 
     case MusicSpeed::reversed4x:
-        irqSet(IRQ_TIMER1, audio_update_rewind4x_music_isr);
+        audio_update_swap(audio_update_rewind4x_music_isr, 1);
         break;
 
     case MusicSpeed::reversed8x:
-        irqSet(IRQ_TIMER1, audio_update_rewind8x_music_isr);
+        audio_update_swap(audio_update_rewind8x_music_isr, 1);
         break;
 
     case MusicSpeed::reversed_slow:
-        irqSet(IRQ_TIMER1, audio_update_slow_rewind_music_isr);
+        audio_update_swap(audio_update_slow_rewind_music_isr, 1);
         break;
 
     case MusicSpeed::halved:
-        set_gflag(GlobalFlag::music_halfspeed_update, true);
-        irqSet(IRQ_TIMER1, audio_update_halfspeed_isr);
+        audio_update_swap(audio_update_halfspeed_isr, 2);
         break;
     }
 }
@@ -4729,10 +4819,10 @@ void Platform::Speaker::set_music_volume(u8 volume)
         // Modifying sound/music volume in a timer irq is a heavy operation, so
         // I have no real incentive to make the sound volume behave as expected
         // unless I actually need the behavior for implementing features.
-        irqSet(IRQ_TIMER1, audio_update_fast_isr);
+        audio_update_swap(audio_update_fast_isr, 2);
     } else {
         music_volume_lut = &volume_scale_LUTs[volume];
-        irqSet(IRQ_TIMER1, audio_update_music_volume_isr);
+        audio_update_swap(audio_update_music_volume_isr, 1);
     }
 }
 
@@ -4788,12 +4878,14 @@ static void audio_start()
     // REG_SOUNDCNT_H = 0b1010100100001111;
     // REG_SOUNDCNT_X = 0x0080; //turn sound chip on
 
+    audio_update_fast_isr();
+
 
     irqEnable(IRQ_TIMER1);
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 3;
+    REG_TM1CNT_L = audio_timer_frequency(2);
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.
@@ -6184,6 +6276,8 @@ void Platform::NetworkPeer::connect(const char* peer)
         return;
     }
 
+    audio_update_swap(audio_update_multiplayer_isr, 1);
+
     multiplayer_init();
 }
 
@@ -7430,7 +7524,7 @@ Platform::Platform()
         // the feel of the controls before I knew about waitstates, and
         // something just feels off to me when turning this feature on. The game
         // is almost too smooth.
-        REG_WAITCNT = 0b0000000000010111;
+        REG_WAITCNT = 0b0000000000011011;
         info(*this, "enabled optimized waitstates...");
     }
 

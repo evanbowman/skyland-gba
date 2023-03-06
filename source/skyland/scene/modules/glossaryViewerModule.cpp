@@ -528,7 +528,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         s16 scrl = -1 * (amt * 16);
         pfrm.set_scroll(Layer::map_0_ext, scrl, 0);
 
-        auto progress = 8 * 14 * amt;
+        int progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
         auto rem = (int)progress % 8;
         for (int i = 0; i < low; ++i) {

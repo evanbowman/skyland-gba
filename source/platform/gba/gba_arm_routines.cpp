@@ -49,10 +49,6 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
     int x = 0, y = rr, d = 1 - rr;
     u32 tmp;
 
-    if (rr > 240) {
-        return;
-    }
-
     // u32 col = 0;
     // CpuFastSet(&col, winh, 160 | (1 << 24));
     // memset16(winh, 0, 160);

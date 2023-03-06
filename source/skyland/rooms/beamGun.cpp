@@ -72,6 +72,19 @@ public:
         sprite_.set_alpha(Sprite::Alpha::transparent);
     }
 
+
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        timer_ -= delta;
+        if (timer_ < 0) {
+            timer_ += milliseconds(32);
+            if (--beam_count_ == -1) {
+                kill();
+            }
+        }
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;

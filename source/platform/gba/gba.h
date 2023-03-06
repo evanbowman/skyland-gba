@@ -684,18 +684,22 @@ void CpuSet( const void *source, void *dest, u32 mode);
 */
 void CpuFastSet( const void *source, void *dest, u32 mode);
 
-/*! \fn void IntrWait(u32 ReturnFlag, u32 IntFlag)
-    \brief waits for an interrupt to occur.
-	\param ReturnFlag
-	\param IntFlag
-*/
-void IntrWait(u32 ReturnFlag, u32 IntFlag);
-
 /*! \fn void VBlankIntrWait()
     \brief waits for a vertical blank interrupt to occur.
 */
 static inline
 void VBlankIntrWait()	{ SystemCall(5); }
+
+
+/*! \fn void IntrWait(u32 ReturnFlag, u32 IntFlag)
+    \brief waits for an interrupt to occur.
+	\param ReturnFlag
+	\param IntFlag
+*/
+static inline void IntrWait(u32 ReturnFlag, u32 IntFlag)
+{
+    SystemCall(4);
+}
 
 
 void LZ77UnCompVram(const void *src, void *dst);

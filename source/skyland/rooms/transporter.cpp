@@ -145,6 +145,8 @@ void Transporter::recover_character(Platform& pfrm,
 
     Room::ready();
 
+    update_description();
+
     if (auto room = island->get_room(position)) {
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
@@ -162,7 +164,7 @@ void Transporter::recover_character(Platform& pfrm,
                   (*it)->owner() not_eq &island->owner())) and
                 (*it)->grid_position() == position) {
                 auto unlinked = std::move(*it);
-                room->characters().erase(it);
+                room->edit_characters().erase(it);
 
                 // If the character was in the process of moving, we need to
                 // detach its path, as we are transporting the character back to
@@ -209,7 +211,7 @@ void Transporter::recover_character(Platform& pfrm,
                 unlinked->set_parent(parent());
                 unlinked->transported();
 
-                characters().push(std::move(unlinked));
+                edit_characters().push(std::move(unlinked));
                 ready();
                 return;
             } else {
@@ -228,6 +230,8 @@ void Transporter::transport_occupant(Platform& pfrm,
     begin_recharge();
 
     ready();
+
+    update_description();
 
     if (parent()->interior_visible()) {
         schedule_repaint();
@@ -309,13 +313,13 @@ void Transporter::transport_occupant(Platform& pfrm,
         // path assigned.
         (*chr)->drop_movement_path();
 
-        room->characters().push(std::move(*chr));
+        room->edit_characters().push(std::move(*chr));
         room->ready();
     } else {
         return;
     }
 
-    characters().erase(characters().begin());
+    edit_characters().erase(characters().begin());
 
     if (not pfrm.speaker().is_sound_playing("transporter")) {
         pfrm.speaker().play_sound("transporter", 2);
@@ -404,13 +408,14 @@ void transport_character_impl(App& app,
 {
     auto found = src_island->find_character_by_id(chr_id);
 
+
     if (not found.first) {
         return;
     }
 
     if (auto room = found.second) {
 
-
+        room->update_description();
 
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
@@ -418,7 +423,7 @@ void transport_character_impl(App& app,
             if ((*it)->id() == chr_id) {
 
                 auto unlinked = std::move(*it);
-                room->characters().erase(it);
+                room->edit_characters().erase(it);
 
                 unlinked->set_grid_position(dst);
                 unlinked->set_idle(app);
@@ -427,7 +432,7 @@ void transport_character_impl(App& app,
                 unlinked->transported();
 
                 if (auto dst_room = dst_island->get_room(dst)) {
-                    dst_room->characters().push(std::move(unlinked));
+                    dst_room->edit_characters().push(std::move(unlinked));
                     dst_room->ready();
                 }
 

@@ -50,6 +50,7 @@ void SelectMenuScene::redraw_line(Platform& pfrm, int line, bool highlight)
 void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
 {
     disable_ui();
+    disable_gamespeed_icon();
 
 
     ActiveWorldScene::enter(pfrm, app, scene);
@@ -253,9 +254,10 @@ SelectMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene;
     }
 
-    for (u32 x = 0; x < 30; ++x) {
+    for (u32 x = opts_->longest_line_ + 1; x < 30; ++x) {
         for (u32 y = 0; y < 20; ++y) {
-            if (x > opts_->longest_line_ or y > opts_->lines_.size()) {
+            auto t = pfrm.get_tile(Layer::overlay, x, y);
+            if (t) {
                 pfrm.set_tile(Layer::overlay, x, y, 0);
             }
         }

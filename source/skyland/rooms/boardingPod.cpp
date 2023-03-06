@@ -337,7 +337,8 @@ public:
                 c->set_grid_position(gp);
                 c->set_idle(app);
                 c->set_parent(target_island_);
-                room->characters().push(std::move(c));
+                room->edit_characters().push(std::move(c));
+                room->update_description();
             }
         }
 
@@ -563,7 +564,8 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                     e.is_replicant_ = c.is_replicant();
                     app.time_stream().push(app.level_timer(), e);
                 }
-                characters().move_contents(bp->characters_);
+                edit_characters().move_contents(bp->characters_);
+                update_description();
                 bp->source_ = position();
                 bp->target_ = *target_;
                 bp->source_island_ = parent();

@@ -744,7 +744,11 @@ void describe_room(Platform& pfrm,
         if (not room_description) {
             room_description.emplace(
                 pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+        } else if (not room->description_changed() and
+                   room->reload_time_remaining() == 0) {
+            return;
         }
+        room->reset_description_changed();
         if (room->parent() == &app.player_island() or
             (room->description_visible() and not room->visually_cloaked())) {
 

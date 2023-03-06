@@ -393,6 +393,7 @@ public:
     void __set_health(Health amount)
     {
         health_ = amount;
+        update_description();
     }
 
 
@@ -452,13 +453,13 @@ public:
     }
 
 
-    EntityList<BasicCharacter>& characters()
+    const EntityList<BasicCharacter>& characters() const
     {
         return characters_;
     }
 
 
-    const EntityList<BasicCharacter>& characters() const
+    EntityList<BasicCharacter>& edit_characters()
     {
         return characters_;
     }
@@ -557,6 +558,7 @@ public:
     {
         x_position_ = pos.x;
         y_position_ = pos.y;
+        update_description();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -670,6 +672,7 @@ public:
     void set_visually_cloaked(bool cloaked)
     {
         cloaked_ = cloaked;
+        update_description();
     }
 
 
@@ -714,6 +717,24 @@ public:
     bool hidden() const
     {
         return hidden_;
+    }
+
+
+    bool description_changed() const
+    {
+        return description_changed_;
+    }
+
+
+    void reset_description_changed()
+    {
+        description_changed_ = false;
+    }
+
+
+    void update_description()
+    {
+        description_changed_ = true;
     }
 
 
@@ -803,7 +824,7 @@ private:
     u8 init_awareness_upon_unpause_ : 1;
 
     u8 hidden_ : 1;
-    u8 unused_ : 1;
+    u8 description_changed_ : 1;
 
     u8 accumulated_damage_ = 0;
     u8 show_damage_delay_frames_ = 0;

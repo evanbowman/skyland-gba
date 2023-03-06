@@ -485,7 +485,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     for (auto it = room->characters().begin();
                          it not_eq room->characters().end();) {
                         if ((*it)->owner() not_eq &app.player()) {
-                            it = room->characters().erase(it);
+                            it = room->edit_characters().erase(it);
                         } else {
                             ++it;
                         }
@@ -637,7 +637,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 for (auto it = room->characters().begin();
                      it not_eq room->characters().end();) {
                     if ((*it)->owner() not_eq &app.player()) {
-                        it = room->characters().erase(it);
+                        it = room->edit_characters().erase(it);
                     } else {
                         ++it;
                     }

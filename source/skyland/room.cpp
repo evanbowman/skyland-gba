@@ -61,6 +61,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
     auto metatable = room_metatable();
 
     hidden_ = false;
+    description_changed_ = true;
 
     if (metatable.second > 255) {
         Platform::fatal("metaclass index exceeds 255! More bytes required to "
@@ -632,6 +633,8 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage, Island* src)
 
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
+    update_description();
+
     if (health_ not_eq 0) {
         // NOTE: damage < health() because when we're rewinding the destruction
         // of a block, we recreate the block with full health, and then rely on
@@ -777,6 +780,8 @@ void Room::burn_damage(Platform& pfrm, App& app, Health amount)
 
 void Room::heal(Platform& pfrm, App& app, Health amount)
 {
+    update_description();
+
     if (parent_ == &app.player_island()) {
         time_stream::event::PlayerRoomRepaired e;
         e.x_ = position().x;
@@ -834,11 +839,11 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
         // four slots, so we should have eight character entities at most...
         Buffer<EntityRef<BasicCharacter>, 16> chrs;
 
-        for (auto& chr : characters()) {
+        for (auto& chr : edit_characters()) {
             chrs.push_back(std::move(chr));
         }
 
-        characters().clear();
+        edit_characters().clear();
 
         app.player().on_room_plundered(pfrm, app, *this);
 
@@ -942,6 +947,8 @@ void Room::set_ai_aware(Platform& pfrm, App& app, bool ai_aware)
         ai_aware_ = true;
         return;
     }
+
+    update_description();
 
     if (ai_aware_ not_eq ai_aware) {
         if (parent() == &app.player_island()) {
@@ -1243,6 +1250,7 @@ std::optional<SharedEntityRef<Drone>> Room::drone() const
 void Room::set_group(Group group)
 {
     group_ = (u8)group;
+    update_description();
 }
 
 

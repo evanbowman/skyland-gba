@@ -91,10 +91,11 @@ Island::Rooms& Island::rooms()
 void Island::remove_character(const RoomCoord& location)
 {
     if (auto room = get_room(location)) {
-        for (auto it = room->characters().begin();
-             it not_eq room->characters().end();) {
+        for (auto it = room->edit_characters().begin();
+             it not_eq room->edit_characters().end();) {
             if ((*it)->grid_position() == location) {
-                room->characters().erase(it);
+                room->edit_characters().erase(it);
+                room->update_description();
                 return;
             } else {
                 ++it;
@@ -752,6 +753,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     app.effects().push(std::move(e));
                 }
 
+                if (room) {
+                    room->update_description();
+                }
+
                 it = chr_list.erase(it);
             } else {
 
@@ -1043,7 +1048,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 dispatch_room(room);
             }
 
-            update_characters(room, room->characters(), false);
+            update_characters(room, room->edit_characters(), false);
         }
 
         TIMEPOINT(after);

@@ -187,10 +187,12 @@ void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
     }
 
     app.game_speed() = speed;
-    if (speed == GameSpeed::normal) {
-        set_pause_icon(pfrm, 0);
-    } else {
-        set_pause_icon(pfrm, gamespeed_icon(speed));
+    if (not disable_gamespeed_icon_) {
+        if (speed == GameSpeed::normal) {
+            set_pause_icon(pfrm, 0);
+        } else {
+            set_pause_icon(pfrm, gamespeed_icon(speed));
+        }
     }
 }
 

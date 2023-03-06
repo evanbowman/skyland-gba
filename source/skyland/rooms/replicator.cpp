@@ -109,7 +109,8 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
 
             chr->apply_damage(pfrm, app, 255 - replicant_health);
             chr->transported();
-            characters().push(std::move(chr));
+            edit_characters().push(std::move(chr));
+            update_description();
         }
 
     } else {

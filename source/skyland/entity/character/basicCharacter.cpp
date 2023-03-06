@@ -617,6 +617,10 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
         awaiting_movement_ = true;
         can_move_ = false;
 
+        if (auto room = parent_->get_room(grid_position())) {
+            room->update_description();
+        }
+
         if (not(*movement_path_)->empty()) {
             const auto current_position = (*movement_path_)->back();
 
@@ -628,6 +632,10 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 
             if (reassign_room(grid_position_, current_position)) {
                 app.time_stream().push(app.level_timer(), e);
+            }
+
+            if (auto room = parent_->get_room(grid_position())) {
+                room->update_description();
             }
 
             (*movement_path_)->pop_back();
@@ -697,6 +705,10 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
     } else {
         health_ += amount;
     }
+
+    if (auto room = parent_->get_room(grid_position())) {
+        room->update_description();
+    }
 }
 
 
@@ -709,6 +721,10 @@ void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
     e.near_ = parent_ == &app.player_island();
     e.previous_health_ = health_;
     app.time_stream().push(app.level_timer(), e);
+
+    if (auto room = parent_->get_room(grid_position())) {
+        room->update_description();
+    }
 
     int current = health_;
     current -= damage;
@@ -739,19 +755,23 @@ bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
 
             if (it->get() == this) {
                 self = std::move(*it);
-                it = room->characters().erase(it);
+                it = room->edit_characters().erase(it);
             } else {
                 ++it;
             }
         }
 
         if (self) {
-            target_room->characters().push(std::move(*self));
+            target_room->edit_characters().push(std::move(*self));
             target_room->ready();
         }
     }
 
     grid_position_ = new_coord;
+
+    if (auto room = parent_->get_room(grid_position())) {
+        room->update_description();
+    }
 
     return true;
 }

@@ -425,7 +425,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         view.set_center(app.camera()->center());
                         pfrm.screen().set_view(view);
 
-                        return scene_pool::alloc<StartMenuScene>(1);
+                        auto next = scene_pool::alloc<StartMenuScene>(1);
+                        return next;
                     });
                     return next;
                 },

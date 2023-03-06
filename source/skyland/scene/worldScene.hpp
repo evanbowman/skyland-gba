@@ -41,7 +41,7 @@ class WorldScene : public Scene
 public:
     WorldScene()
         : far_camera_(false), birds_drawn_(false), noreturn_(false),
-          disable_ui_(false)
+          disable_ui_(false), disable_gamespeed_icon_(false)
     {
     }
 
@@ -106,6 +106,12 @@ public:
     }
 
 
+    void disable_gamespeed_icon()
+    {
+        disable_gamespeed_icon_ = true;
+    }
+
+
     ScenePtr<Scene> make_dialog(App&);
 
 
@@ -131,6 +137,7 @@ private:
     bool birds_drawn_ : 1;
     bool noreturn_ : 1;
     bool disable_ui_ : 1;
+    bool disable_gamespeed_icon_ : 1;
 
 protected:
     bool power_fraction_opponent_island_ = false;

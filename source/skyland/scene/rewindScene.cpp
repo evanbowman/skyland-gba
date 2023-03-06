@@ -570,7 +570,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                             room->position().y == y) {
                             for (auto& chr : room->characters()) {
                                 chrs.push_back(std::move(chr));
-                                room->characters().clear();
+                                room->edit_characters().clear();
                             }
                         }
                     }
@@ -593,7 +593,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             // Add characters back.
             if (auto room = island->get_room({e->x_, e->y_})) {
                 for (auto& chr : chrs) {
-                    room->characters().push(std::move(chr));
+                    room->edit_characters().push(std::move(chr));
                 }
             } else {
                 Platform::fatal("rewind salvage: attempt to re-attach character"
@@ -1028,7 +1028,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     if (player_chr == e->owned_by_player_ and
                         (*it)->grid_position() == RoomCoord{e->x_, e->y_}) {
                         if ((*it)->is_replicant()) {
-                            room->characters().erase(it);
+                            room->edit_characters().erase(it);
                         } else {
                             Platform::fatal("rewind error: rewind replicant"
                                             "is not replicant?!");
@@ -1087,14 +1087,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
                     if ((*it).get() == chr_info.first) {
                         auto detached = std::move(*it);
-                        dest_room->characters().erase(it);
+                        dest_room->edit_characters().erase(it);
                         detached->set_grid_position(
                             {e->previous_x_, e->previous_y_});
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
                         if (auto source_room = source_island->get_room(
                                 {e->previous_x_, e->previous_y_})) {
-                            source_room->characters().push(std::move(detached));
+                            source_room->edit_characters().push(std::move(detached));
 
                             // Give the transport back to the transporter, as
                             // we've reverted it.
@@ -1146,14 +1146,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         dest_room->___rewind___ability_used(pfrm, app);
 
                         auto detached = std::move(*it);
-                        dest_room->characters().erase(it);
+                        dest_room->edit_characters().erase(it);
                         const RoomCoord pos{e->previous_x_, e->previous_y_};
                         detached->set_grid_position(pos);
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
                         detached->set_idle(app);
                         if (auto source_room = source_island->get_room(pos)) {
-                            source_room->characters().push(std::move(detached));
+                            source_room->edit_characters().push(std::move(detached));
                         } else {
                             Platform::fatal("fata error when rewinding "
                                             "disembark: source room missing");
@@ -1788,6 +1788,17 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     if (app.opponent_island()) {
         app.opponent_island()->cancel_dispatch();
     }
+
+    for (auto& room : app.player_island().rooms()) {
+        room->update_description();
+    }
+
+    if (app.opponent_island()) {
+        for (auto& room : app.opponent_island()->rooms()) {
+            room->update_description();
+        }
+    }
+
 }
 
 
