@@ -139,6 +139,8 @@ private:
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;
 
+    void multiplayer_vs_timeout_step(Platform&, App&, Microseconds delta);
+
 protected:
     bool power_fraction_opponent_island_ = false;
 };

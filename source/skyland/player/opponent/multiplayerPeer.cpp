@@ -493,15 +493,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
                               const network::packet::PlayMusic& packet)
 {
-    switch (packet.music_id_.get()) {
-    case 0:
-        pfrm.speaker().play_music("life_in_silco", 0);
-        break;
-
-    case 1:
-        pfrm.speaker().play_music("solecism", 0);
-        break;
-    }
+    pfrm.speaker().play_music("life_in_silco", 0);
 }
 
 

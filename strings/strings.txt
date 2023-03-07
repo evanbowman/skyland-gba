@@ -12,6 +12,8 @@ unhide prep
 coins
 terrain size
 Waiting for other player...
+timeout freq (sec)
+timeout length (sec)
 air
 annihilator
 arc-gun

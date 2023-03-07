@@ -62,6 +62,8 @@ enum class SystemString {
     mt_coins,
     mt_terrain_size,
     mt_waiting,
+    mt_timeout_freq,
+    mt_timeout_duration,
 
     block_air,
     block_annihilator,

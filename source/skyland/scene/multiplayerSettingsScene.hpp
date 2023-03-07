@@ -43,6 +43,10 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next) override;
 
 
+    static Microseconds timeout_frequency();
+    static Microseconds timeout_duration();
+
+
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override;
 
@@ -101,7 +105,7 @@ private:
     u8 player_cursor_ = 0;
     u8 opponent_cursor_ = 0;
 
-    Buffer<Text, 5> settings_text_;
+    Buffer<Text, 7> settings_text_;
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer vs_parameters_;
 

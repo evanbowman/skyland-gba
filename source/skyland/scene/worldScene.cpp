@@ -25,6 +25,7 @@
 #include "easyModeRewindScene.hpp"
 #include "globals.hpp"
 #include "multiplayerReadyScene.hpp"
+#include "multiplayerSettingsScene.hpp"
 #include "notificationScene.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
@@ -414,6 +415,74 @@ ScenePtr<Scene> WorldScene::make_dialog(App& app)
 
 
 
+void WorldScene::multiplayer_vs_timeout_step(Platform& pfrm,
+                                             App& app,
+                                             Microseconds delta)
+{
+    if (MultiplayerSettingsScene::timeout_frequency() == 0) {
+        return;
+    }
+
+    if (app.game_speed() == GameSpeed::stopped) {
+        auto& tm = globals().multiplayer_timeout_remaining_;
+        tm -= delta;
+        if (tm <= 0) {
+            tm += MultiplayerSettingsScene::timeout_duration();
+            set_gamespeed(pfrm, app, GameSpeed::normal);
+        }
+
+        if (not disable_ui_) {
+            if (tm / (1 << 20) < globals().multiplayer_timeout_repaint_) {
+                StringBuffer<30> msg = "timeout! ";
+                const auto rem = tm / seconds(1);
+                msg += stringify(rem);
+
+                const u8 margin = centered_text_margins(pfrm, msg.length());
+
+                for (u32 x = margin - 2; x < msg.length() + 2; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, 4, 0);
+                }
+
+                globals().multiplayer_timeout_text_.emplace(
+                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
+            }
+        }
+        globals().multiplayer_timeout_repaint_ = tm / (1 << 20);
+    } else {
+        auto& tm = globals().multiplayer_timeout_countdown_;
+        tm -= delta;
+        if (tm <= 0) {
+            tm += MultiplayerSettingsScene::timeout_frequency();
+            set_gamespeed(pfrm, app, GameSpeed::stopped);
+        }
+
+        if (tm < seconds(10)) {
+            if (tm / (1 << 20) < globals().multiplayer_timeout_repaint_) {
+                StringBuffer<30> msg = "timeout in ";
+                const auto rem = tm / seconds(1);
+                msg += stringify(rem);
+                msg += "...";
+
+                const u8 margin = centered_text_margins(pfrm, msg.length());
+
+                for (u32 x = margin - 2; x < msg.length() + 2; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, 4, 0);
+                }
+
+                globals().multiplayer_timeout_text_.emplace(
+                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
+
+            }
+        } else {
+            globals().multiplayer_timeout_text_.reset();
+        }
+        globals().multiplayer_timeout_repaint_ = tm / (1 << 20);
+    }
+}
+
+
+
+
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto& g = globals();
@@ -464,7 +533,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.network_peer().is_connected()) {
         if (mt_prep_seconds) {
-            if (app.game_speed() not_eq GameSpeed::stopped) {
+            if (app.game_speed() not_eq GameSpeed::stopped
+                and not disable_ui_) {
+
                 mt_prep_timer += delta;
                 if (mt_prep_timer > seconds(1)) {
                     mt_prep_timer -= seconds(1);
@@ -493,6 +564,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         } else {
             g.multiplayer_prep_text_.reset();
+            if (app.game_mode() == App::GameMode::multiplayer) {
+                multiplayer_vs_timeout_step(pfrm, app, delta);
+            }
         }
     } else {
         g.multiplayer_prep_text_.reset();
@@ -513,8 +587,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.game_mode() == App::GameMode::multiplayer) {
-        // TODO... currently unsupported
-        set_gamespeed(pfrm, app, GameSpeed::normal);
+        // Pauses unsupported in vs mode...
     } else if (not noreturn_ and (app.player().key_up(pfrm, Key::alt_1) or
                                   tapped_topright_corner())) {
         if (app.game_speed() not_eq GameSpeed::stopped) {
@@ -702,13 +775,15 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     birds_drawn_ = true;
 
 
-    if (app.game_speed() not_eq GameSpeed::stopped) {
-        hide_multiplayer_pauses_remaining(pfrm);
-    } else {
-        set_pause_icon(pfrm, gamespeed_icon(app.game_speed()));
+    if (app.game_mode() == App::GameMode::co_op) {
+        if (app.game_speed() not_eq GameSpeed::stopped) {
+            hide_multiplayer_pauses_remaining(pfrm);
+        } else {
+            set_pause_icon(pfrm, gamespeed_icon(app.game_speed()));
 
-        if (pfrm.network_peer().is_connected() and not disable_ui_) {
-            show_multiplayer_pauses_remaining(pfrm);
+            if (pfrm.network_peer().is_connected() and not disable_ui_) {
+                show_multiplayer_pauses_remaining(pfrm);
+            }
         }
     }
 
