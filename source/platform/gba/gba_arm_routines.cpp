@@ -40,7 +40,7 @@ s16 vertical_parallax_table[280];
 
 
 
-// Ripped from tonc demo. This code is decent already, no need to write my code
+// Ripped from tonc demo. This code is decent already, no need to write code
 // for drawing a circle.
 IWRAM_CODE
 void win_circle(u16 winh[], int x0, int y0, int rr)
