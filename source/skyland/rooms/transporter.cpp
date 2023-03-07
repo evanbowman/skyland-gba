@@ -365,7 +365,12 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
         return null_scene();
     } else {
-        return scene_pool::alloc<RecoverCharacterScene>(position());
+        if (parent() == &app.player_island()) {
+            pfrm.speaker().play_sound("beep_error", 3);
+            return null_scene();
+        } else {
+            return scene_pool::alloc<RecoverCharacterScene>(position());
+        }
     }
 }
 
