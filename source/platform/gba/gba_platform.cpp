@@ -270,7 +270,8 @@ __attribute__((section(".iwram"), long_call)) void
 win_circle(u16 winh[], int x0, int y0, int rr);
 
 
-static void audio_update_fast_isr();
+__attribute__((section(".iwram"), long_call))
+void audio_update_fast_isr();
 
 
 static int audio_timer_frequency(int words_per_call)
@@ -3783,8 +3784,8 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 
 
-static Buffer<const char*, 4> completed_sounds_buffer;
-static volatile bool completed_sounds_lock = false;
+Buffer<const char*, 4> completed_sounds_buffer;
+volatile bool completed_sounds_lock = false;
 const char* completed_music;
 
 
@@ -4671,44 +4672,6 @@ static void audio_update_multiplayer_isr()
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
 
-
-
-static void audio_update_fast_isr()
-{
-    alignas(4) AudioSample mixing_buffer[4];
-
-    // Fill the entire fifo...
-    for (int i = 0; i < 2; ++i) {
-
-        // NOTE: audio tracks in ROM should therefore have four byte alignment!
-        *((u32*)mixing_buffer) =
-            ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-        if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-            snd_ctx.music_track_pos = 0;
-            completed_music = snd_ctx.music_track_name;
-        }
-
-        for (auto it = snd_ctx.active_sounds.begin();
-             it not_eq snd_ctx.active_sounds.end();) {
-            if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-                if (not completed_sounds_lock) {
-                    completed_sounds_buffer.push_back(it->name_);
-                }
-                it = snd_ctx.active_sounds.erase(it);
-            } else {
-                for (int i = 0; i < 4; ++i) {
-                    mixing_buffer[i] += (u8)it->data_[it->position_];
-                    ++it->position_;
-                }
-                ++it;
-            }
-        }
-
-        REG_SGFIFOA = *((u32*)mixing_buffer);
-
-    }
-}
 
 
 EWRAM_DATA static volatile bool audio_update_swapflag;

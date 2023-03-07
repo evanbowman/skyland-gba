@@ -151,6 +151,10 @@ class ActiveWorldScene : public WorldScene
 {
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+private:
+    ScenePtr<Scene> on_player_island_destroyed(Platform&, App&);
+    ScenePtr<Scene> try_surrender(Platform&, App&);
 };
 
 

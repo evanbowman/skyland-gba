@@ -199,6 +199,65 @@ void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 
 
 
+ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(Platform& pfrm, App& app)
+{
+    if ((app.game_mode() == App::GameMode::adventure or
+         app.game_mode() == App::GameMode::skyland_forever) and
+        app.gp_.difficulty_ ==
+            GlobalPersistentData::Difficulty::beginner and
+        not state_bit_load(app, StateBit::easy_mode_rewind_declined) and
+        app.persistent_data().lives_ > 0) {
+        --app.persistent_data().lives_;
+
+        return scene_pool::alloc<EasyModeRewindScene>();
+    }
+
+    state_bit_store(app, StateBit::easy_mode_rewind_declined, false);
+
+    reset_gamespeed(pfrm, app);
+
+    app.time_stream().clear();
+
+    auto& cursor_loc = globals().near_cursor_loc_;
+
+    cursor_loc.x = 0;
+
+    if (app.game_mode() not_eq App::GameMode::multiplayer and
+        app.game_mode() not_eq App::GameMode::co_op) {
+        pfrm.sleep(4);
+    }
+
+    app.effects().clear();
+    return scene_pool::alloc<PlayerIslandDestroyedScene>(
+        &app.player_island());
+}
+
+
+
+ScenePtr<Scene> ActiveWorldScene::try_surrender(Platform& pfrm, App& app)
+{
+    auto o = app.opponent_island();
+
+    if (not app.player_island().is_boarded() and
+        o->offensive_capabilities() == 0 and o->character_count() and
+        o->projectiles().empty()) {
+
+        state_bit_store(app, StateBit::surrender_offered, true);
+
+        // The final boss will never surrender.
+        if (app.world_graph()
+            .nodes_[app.current_world_location()]
+            .type_ not_eq WorldGraph::Node::Type::corrupted) {
+
+            return scene_pool::alloc<SurrenderWaitScene>();
+        }
+    }
+
+    return null_scene();
+}
+
+
+
 void WorldScene::reset_gamespeed(Platform& pfrm, App& app)
 {
     set_gamespeed(pfrm, app, GameSpeed::normal);
@@ -239,54 +298,15 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player_island().is_destroyed()) {
-
-        if ((app.game_mode() == App::GameMode::adventure or
-             app.game_mode() == App::GameMode::skyland_forever) and
-            app.gp_.difficulty_ ==
-                GlobalPersistentData::Difficulty::beginner and
-            not state_bit_load(app, StateBit::easy_mode_rewind_declined) and
-            app.persistent_data().lives_ > 0) {
-            --app.persistent_data().lives_;
-
-            return scene_pool::alloc<EasyModeRewindScene>();
-        }
-
-        state_bit_store(app, StateBit::easy_mode_rewind_declined, false);
-
-        reset_gamespeed(pfrm, app);
-
-        app.time_stream().clear();
-
-        auto& cursor_loc = globals().near_cursor_loc_;
-
-        cursor_loc.x = 0;
-
-        if (app.game_mode() not_eq App::GameMode::multiplayer and
-            app.game_mode() not_eq App::GameMode::co_op) {
-            pfrm.sleep(4);
-        }
-
-        app.effects().clear();
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(
-            &app.player_island());
+        return on_player_island_destroyed(pfrm, app);
     }
 
-    if (auto o = app.opponent_island()) {
+    if (app.opponent_island()) {
         if (not state_bit_load(app, StateBit::surrender_offered) and
             app.game_mode() == App::GameMode::adventure) {
-            if (not app.player_island().is_boarded() and
-                o->offensive_capabilities() == 0 and o->character_count() and
-                o->projectiles().empty()) {
 
-                state_bit_store(app, StateBit::surrender_offered, true);
-
-                // The final boss will never surrender.
-                if (app.world_graph()
-                        .nodes_[app.current_world_location()]
-                        .type_ not_eq WorldGraph::Node::Type::corrupted) {
-
-                    return scene_pool::alloc<SurrenderWaitScene>();
-                }
+            if (auto next = try_surrender(pfrm, app)) {
+                return next;
             }
         }
     }

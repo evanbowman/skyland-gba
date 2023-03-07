@@ -3,6 +3,8 @@
 ;;;
 
 
+(eval-file "/scripts/reset_hooks.lisp")
+
 (gc)
 
 (setq lv 0)

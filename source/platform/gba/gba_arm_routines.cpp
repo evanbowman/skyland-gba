@@ -42,6 +42,7 @@ s16 vertical_parallax_table[280];
 
 // Ripped from tonc demo. This code is decent already, no need to write my code
 // for drawing a circle.
+IWRAM_CODE
 void win_circle(u16 winh[], int x0, int y0, int rr)
 {
 #define IN_RANGE(x, min, max) (((x) >= (min)) && ((x) < (max)))
@@ -78,6 +79,54 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
         d += 2 * (x++) + 3;
     }
     winh[160] = winh[0];
+}
+
+
+
+extern Buffer<const char*, 4> completed_sounds_buffer;
+extern volatile bool completed_sounds_lock;
+extern const char* completed_music;
+
+
+
+#define REG_SGFIFOA *(volatile u32*)0x40000A0
+
+
+IWRAM_CODE
+void audio_update_fast_isr()
+{
+    alignas(4) AudioSample mixing_buffer[8];
+
+    // Load eight music samples upfront (in chunks of four), to try to take
+    // advantage of sequential cartridge reads.
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+    *((u32*)mixing_buffer + 1) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+        completed_music = snd_ctx.music_track_name;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 8 >= it->length_)) {
+            if (not completed_sounds_lock) {
+                completed_sounds_buffer.push_back(it->name_);
+            }
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 8; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+    REG_SGFIFOA = *((u32*)mixing_buffer + 1);
 }
 
 

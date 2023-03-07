@@ -236,7 +236,12 @@ void WorldGraph::generate(App& app)
 
 
     int place_quest_levels = 1;
+    int iters = 0;
     while (place_quest_levels) {
+        if (iters++ > 1024) {
+            info(Platform::instance(), "failed to place quest level...");
+            break;
+        }
         for (int i = exit_node + 2; i < 18; ++i) {
             if (place_quest_levels == 0) {
                 break;
