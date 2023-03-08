@@ -925,11 +925,11 @@ elseif(GAMEBOY_ADVANCE)
     ${ARM7_THUMB_FLAGS})
 
 
-  add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
+  add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_hotpath.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -g
-    -O3
+    -Ofast
     -fno-rtti
     ${G_COMPILE_FLAGS})
 
