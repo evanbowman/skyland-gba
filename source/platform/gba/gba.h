@@ -124,6 +124,8 @@ typedef u16 ScreenBlock[1024];
 #define BG_REG_32x64 0x8000 //!< reg bg, 32x64 (256x512 px)
 #define BG_REG_64x64 0xC000 //!< reg bg, 64x64 (512x512 px)
 
+#define REG_SGFIFOA *(volatile u32*)0x40000A0
+
 //! \name Channel 1: Square wave with sweep
 //\{
 #define REG_SND1SWEEP *(volatile u16*)(0x04000000 + 0x0060) //!< Channel 1 Sweep

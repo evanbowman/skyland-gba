@@ -92,18 +92,22 @@ extern const char* completed_music;
 #define REG_SGFIFOA *(volatile u32*)0x40000A0
 
 
+// NOTE: The primary audio mixing routine.
 IWRAM_CODE
 void audio_update_fast_isr()
 {
-    alignas(4) AudioSample mixing_buffer[8];
+    alignas(4) AudioSample mixing_buffer[16];
 
     auto& music_pos = snd_ctx.music_track_pos;
     const auto music_len = snd_ctx.music_track_length;
 
-    // Load eight music samples upfront (in chunks of four), to try to take
+    // Load 16 music samples upfront (in chunks of four), to try to take
     // advantage of sequential cartridge reads.
-    *((u32*)mixing_buffer) = ((u32*)(snd_ctx.music_track))[music_pos++];
-    *((u32*)mixing_buffer + 1) = ((u32*)(snd_ctx.music_track))[music_pos++];
+    auto music_in = (u32*)mixing_buffer;
+    *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
+    *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
+    *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
+    *(music_in) = ((u32*)(snd_ctx.music_track))[music_pos++];
 
     if (music_pos > music_len) {
         music_pos = 0;
@@ -118,7 +122,7 @@ void audio_update_fast_isr()
         // + 8 is greater than sound length and then performing index += 8 after
         // doing the mixing, saves an addition.
         int pos = it->position_;
-        it->position_ += 8;
+        it->position_ += 16;
 
         // Aha! __builtin_expect actually results in measurably better latency
         // for once!
@@ -136,21 +140,33 @@ void audio_update_fast_isr()
             // subscript indexing into mixing_buffer with literal indices
             // (mixing_buffer[0], mixing_buffer[1], etc.).
             AudioSample* out = mixing_buffer;
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out++) += it->data_[pos++];
-            *(out) += it->data_[pos++];
+            *(out++) += it->data_[pos++]; // 0
+            *(out++) += it->data_[pos++]; // 1
+            *(out++) += it->data_[pos++]; // 2
+            *(out++) += it->data_[pos++]; // 3
+            *(out++) += it->data_[pos++]; // 4
+            *(out++) += it->data_[pos++]; // 5
+            *(out++) += it->data_[pos++]; // 6
+            *(out++) += it->data_[pos++]; // 7
+            *(out++) += it->data_[pos++]; // 8
+            *(out++) += it->data_[pos++]; // 9
+            *(out++) += it->data_[pos++]; // 10
+            *(out++) += it->data_[pos++]; // 11
+            *(out++) += it->data_[pos++]; // 12
+            *(out++) += it->data_[pos++]; // 13
+            *(out++) += it->data_[pos++]; // 14
+            *(out) += it->data_[pos++];   // 15
             ++it;
         }
     }
 
+    auto sound_out = (u32*)mixing_buffer;
+
     // NOTE: yeah the register is a FIFO
-    REG_SGFIFOA = *((u32*)mixing_buffer);
-    REG_SGFIFOA = *((u32*)mixing_buffer + 1);
+    REG_SGFIFOA = *(sound_out++);
+    REG_SGFIFOA = *(sound_out++);
+    REG_SGFIFOA = *(sound_out++);
+    REG_SGFIFOA = *(sound_out);
 }
 
 
