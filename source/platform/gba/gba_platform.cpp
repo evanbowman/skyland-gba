@@ -4242,7 +4242,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     // auto before = platform->delta_clock().sample();
     // audio_update_fast_isr();
     // auto after = platform->delta_clock().sample();
-    // Platform::fatal(format("dt %", after - before)); // benchmark ~581 cycles
+    // Platform::fatal(format("dt %", after - before));
 }
 
 
@@ -4678,7 +4678,7 @@ static void audio_update_multiplayer_isr()
 
 EWRAM_DATA static volatile bool audio_update_swapflag;
 EWRAM_DATA static void (*audio_update_current_isr)() = audio_update_fast_isr;
-EWRAM_DATA static u8 audio_update_current_freq = 4;
+EWRAM_DATA static u8 audio_update_current_freq = 2;
 EWRAM_DATA static u8 audio_update_new_freq;
 
 
@@ -4732,7 +4732,7 @@ void Platform::Speaker::set_music_speed(MusicSpeed speed)
     switch (speed) {
     default:
     case MusicSpeed::regular:
-        audio_update_swap(audio_update_fast_isr, 4);
+        audio_update_swap(audio_update_fast_isr, 2);
         break;
 
     case MusicSpeed::doubled:
@@ -4784,7 +4784,7 @@ void Platform::Speaker::set_music_volume(u8 volume)
         // Modifying sound/music volume in a timer irq is a heavy operation, so
         // I have no real incentive to make the sound volume behave as expected
         // unless I actually need the behavior for implementing features.
-        audio_update_swap(audio_update_fast_isr, 4);
+        audio_update_swap(audio_update_fast_isr, 2);
     } else {
         music_volume_lut = &volume_scale_LUTs[volume];
         audio_update_swap(audio_update_music_volume_isr, 1);
@@ -4850,7 +4850,7 @@ static void audio_start()
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = audio_timer_frequency(4);
+    REG_TM1CNT_L = audio_timer_frequency(2);
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.

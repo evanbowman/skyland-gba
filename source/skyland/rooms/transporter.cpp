@@ -72,6 +72,8 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         if (recharge_ < 0) {
             recharge_ = 0;
 
+            update_description();
+
             if (parent() == &app.player_island()) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;

@@ -96,16 +96,14 @@ extern const char* completed_music;
 IWRAM_CODE
 void audio_update_fast_isr()
 {
-    alignas(4) AudioSample mixing_buffer[16];
+    alignas(4) AudioSample mixing_buffer[8];
 
     auto& music_pos = snd_ctx.music_track_pos;
     const auto music_len = snd_ctx.music_track_length;
 
-    // Load 16 music samples upfront (in chunks of four), to try to take
+    // Load 8 music samples upfront (in chunks of four), to try to take
     // advantage of sequential cartridge reads.
     auto music_in = (u32*)mixing_buffer;
-    *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
-    *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
     *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
     *(music_in) = ((u32*)(snd_ctx.music_track))[music_pos++];
 
@@ -122,7 +120,7 @@ void audio_update_fast_isr()
         // + 8 is greater than sound length and then performing index += 8 after
         // doing the mixing, saves an addition.
         int pos = it->position_;
-        it->position_ += 16;
+        it->position_ += 8;
 
         // Aha! __builtin_expect actually results in measurably better latency
         // for once!
@@ -147,15 +145,7 @@ void audio_update_fast_isr()
             *(out++) += it->data_[pos++]; // 4
             *(out++) += it->data_[pos++]; // 5
             *(out++) += it->data_[pos++]; // 6
-            *(out++) += it->data_[pos++]; // 7
-            *(out++) += it->data_[pos++]; // 8
-            *(out++) += it->data_[pos++]; // 9
-            *(out++) += it->data_[pos++]; // 10
-            *(out++) += it->data_[pos++]; // 11
-            *(out++) += it->data_[pos++]; // 12
-            *(out++) += it->data_[pos++]; // 13
-            *(out++) += it->data_[pos++]; // 14
-            *(out) += it->data_[pos++];   // 15
+            *(out) += it->data_[pos++];   // 7
             ++it;
         }
     }
@@ -163,8 +153,6 @@ void audio_update_fast_isr()
     auto sound_out = (u32*)mixing_buffer;
 
     // NOTE: yeah the register is a FIFO
-    REG_SGFIFOA = *(sound_out++);
-    REG_SGFIFOA = *(sound_out++);
     REG_SGFIFOA = *(sound_out++);
     REG_SGFIFOA = *(sound_out);
 }
