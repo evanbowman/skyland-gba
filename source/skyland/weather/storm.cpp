@@ -304,4 +304,11 @@ Platform::Screen::Shader Storm::shader(App& app) const
 
 
 
+ColorConstant Storm::fadein_colorize_tone() const
+{
+    return custom_color(0x0a2742);
+}
+
+
+
 } // namespace skyland::weather

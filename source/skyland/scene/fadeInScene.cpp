@@ -26,6 +26,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "platform/color.hpp"
 
 
 
@@ -120,7 +121,16 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);
     } else {
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(amount);
+        const Color input(ColorConstant::rich_black);
+
+        u8 amt = 255 - amount * 255;
+
+        const Color ao(app.environment().fadein_colorize_tone());
+
+        Color color(fast_interpolate(ao.r_, input.r_, amt),
+                    fast_interpolate(ao.g_, input.g_, amt),
+                    fast_interpolate(ao.b_, input.b_, amt));
+        pfrm.screen().schedule_fade(amount, color.hex());
     }
 
     return null_scene();

@@ -53,6 +53,9 @@ public:
     }
 
 
+    ColorConstant fadein_colorize_tone() const override;
+
+
 private:
     enum class LightningState : u8 {
         none,

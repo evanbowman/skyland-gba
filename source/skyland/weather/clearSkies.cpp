@@ -8,6 +8,14 @@ namespace skyland::weather
 
 
 
+ColorConstant ClearSkies::fadein_colorize_tone() const
+{
+    return custom_color(0x071b2d);
+}
+
+
+
+
 void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 {
     timer_ -= delta;

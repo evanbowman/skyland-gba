@@ -32,6 +32,13 @@ namespace skyland::weather
 
 
 
+ColorConstant Typhoon::fadein_colorize_tone() const
+{
+    return ColorConstant::rich_black;
+}
+
+
+
 void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     Storm::rewind(pfrm, app, delta);

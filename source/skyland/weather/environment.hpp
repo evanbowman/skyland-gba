@@ -78,6 +78,12 @@ public:
     virtual const char* background_texture() const = 0;
 
 
+    virtual ColorConstant fadein_colorize_tone() const
+    {
+        return ColorConstant::rich_black;
+    }
+
+
     virtual void on_pause();
 
 
@@ -176,6 +182,9 @@ public:
 
 
     void display(Platform& pfrm, App& app) override;
+
+
+    ColorConstant fadein_colorize_tone() const override;
 
 
 private:

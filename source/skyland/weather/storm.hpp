@@ -90,6 +90,10 @@ public:
 
 
     Platform::Screen::Shader shader(App& app) const override;
+
+
+    ColorConstant fadein_colorize_tone() const override;
+
 };
 
 
