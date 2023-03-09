@@ -101,19 +101,19 @@ void audio_update_fast_isr()
     auto& music_pos = snd_ctx.music_track_pos;
     const auto music_len = snd_ctx.music_track_length;
 
+
+    if (music_pos > music_len) {
+        music_pos = 0;
+        completed_music = snd_ctx.music_track_name;
+    }
     // Load 8 music samples upfront (in chunks of four), to try to take
     // advantage of sequential cartridge reads.
     auto music_in = (u32*)mixing_buffer;
     *(music_in++) = ((u32*)(snd_ctx.music_track))[music_pos++];
     *(music_in) = ((u32*)(snd_ctx.music_track))[music_pos++];
 
-    if (music_pos > music_len) {
-        music_pos = 0;
-        completed_music = snd_ctx.music_track_name;
-    }
-
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
+    auto it = snd_ctx.active_sounds.begin();
+    while (it not_eq snd_ctx.active_sounds.end()) {
 
         // Cache the position index into the sound data, then pre-increment by
         // eight. Incrementing by eight upfront is better than checking if index

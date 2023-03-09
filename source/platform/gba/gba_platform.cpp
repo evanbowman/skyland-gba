@@ -61,21 +61,10 @@
 
 
 extern "C" {
-void abort()
-{
-    while (1)
-        ;
-}
 
 int strcmp(const char* p1, const char* p2)
 {
     return str_cmp(p1, p2);
-}
-
-
-int __aeabi_atexit(void*, void (*)(void*), void*)
-{
-    return 0;
 }
 
 
@@ -2399,6 +2388,9 @@ void win_circle(u16 winh[], int x0, int y0, int rr);
 
 static void vblank_circle_effect_isr()
 {
+    // TODO: re-organize parallax_table and vertical_parallax_table,
+    // interleaving the data, so that we only need one DMA
+    // controller. Fix this someday, when running out of dma channels.
     DMA_TRANSFER(
         (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
     DMA_TRANSFER(
@@ -4193,6 +4185,7 @@ void Platform::Speaker::stop_music()
 }
 
 
+
 static void play_music(const char* name, Microseconds offset)
 {
     const auto track = find_music(name);
@@ -4212,6 +4205,7 @@ static void play_music(const char* name, Microseconds offset)
 
 
 
+static void audio_update_halfspeed_isr();
 void Platform::Speaker::play_music(const char* name, Microseconds offset)
 {
     // NOTE: The sound sample needs to be mono, and 8-bit signed. To export this
@@ -4342,6 +4336,19 @@ static const VolumeScaleLUT* music_volume_lut = &volume_scale_LUTs[19];
 static const VolumeScaleLUT* sound_volume_lut = &volume_scale_LUTs[19];
 
 
+struct SoundMixerCallback
+{
+    void (*isr_)();
+    int output_words_per_callback_;
+};
+
+
+#define SOUND_MIXER_CALLBACK(NAME, RATE)                        \
+    static const SoundMixerCallback NAME##_cb { NAME##_isr, RATE }
+
+
+SOUND_MIXER_CALLBACK(audio_update_fast, 2);
+
 
 static void audio_update_music_volume_isr()
 {
@@ -4362,20 +4369,25 @@ static void audio_update_music_volume_isr()
 
     for (auto it = snd_ctx.active_sounds.begin();
          it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+
+        auto pos = it->position_;
+        it->position_ += 4;
+
+        if (UNLIKELY(it->position_ >= it->length_)) {
             it = snd_ctx.active_sounds.erase(it);
         } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] +=
-                    (*sound_volume_lut)[(u8)it->data_[it->position_]];
-                ++it->position_;
-            }
+            auto buf = mixing_buffer;
+            *(buf++) += (*sound_volume_lut)[(u8)it->data_[pos++]];
+            *(buf++) += (*sound_volume_lut)[(u8)it->data_[pos++]];
+            *(buf++) += (*sound_volume_lut)[(u8)it->data_[pos++]];
+            *(buf++) += (*sound_volume_lut)[(u8)it->data_[pos]];
             ++it;
         }
     }
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_music_volume, 1);
 
 
 
@@ -4412,6 +4424,7 @@ static void audio_update_slow_rewind_music_isr()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_slow_rewind_music, 1);
 
 
 
@@ -4458,6 +4471,7 @@ static void audio_update_rewind_music_isr()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_rewind_music, 1);
 
 
 
@@ -4497,6 +4511,7 @@ static void audio_update_rewind4x_music_isr()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_rewind4x_music, 1);
 
 
 
@@ -4540,6 +4555,7 @@ static void audio_update_rewind8x_music_isr()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_rewind8x_music, 1);
 
 
 
@@ -4584,6 +4600,7 @@ static void audio_update_doublespeed_isr()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
+SOUND_MIXER_CALLBACK(audio_update_doublespeed, 1);
 
 
 
@@ -4637,48 +4654,13 @@ static void audio_update_halfspeed_isr()
     REG_SGFIFOA = *((u32*)mixing_buffer_out_1);
     REG_SGFIFOA = *((u32*)mixing_buffer_out_2);
 }
-
-
-
-// While audio_update_fast_isr attempts to maximize throughput by reducing the
-// number of audio interrupts, audio_update_multiplayer_isr attempts to minimize
-// the time spent within the interrupt handler.
-static void audio_update_multiplayer_isr()
-{
-    alignas(4) AudioSample mixing_buffer[4];
-
-    *((u32*)mixing_buffer) =
-        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
-        completed_music = snd_ctx.music_track_name;
-    }
-
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            if (not completed_sounds_lock) {
-                completed_sounds_buffer.push_back(it->name_);
-            }
-            it = snd_ctx.active_sounds.erase(it);
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (u8)it->data_[it->position_];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
-
-    REG_SGFIFOA = *((u32*)mixing_buffer);
-}
+SOUND_MIXER_CALLBACK(audio_update_halfspeed, 2);
 
 
 
 EWRAM_DATA static volatile bool audio_update_swapflag;
 EWRAM_DATA static void (*audio_update_current_isr)() = audio_update_fast_isr;
-EWRAM_DATA static u8 audio_update_current_freq = 2;
+EWRAM_DATA static u8 audio_update_current_freq;
 EWRAM_DATA static u8 audio_update_new_freq;
 
 
@@ -4699,11 +4681,11 @@ static void audio_update_swap_isr()
 
 
 
-static void audio_update_swap(void (*new_isr)(), int frequency)
+static void audio_update_swap(const SoundMixerCallback& cb)
 {
     audio_update_swapflag = false;
 
-    audio_update_new_freq = frequency;
+    audio_update_new_freq = cb.output_words_per_callback_;
 
     irqSet(IRQ_TIMER1, audio_update_swap_isr);
 
@@ -4715,9 +4697,9 @@ static void audio_update_swap(void (*new_isr)(), int frequency)
 
     audio_update_current_freq = audio_update_new_freq;
 
-    REG_TM1CNT_L = audio_timer_frequency(frequency);
-    irqSet(IRQ_TIMER1, new_isr);
-    audio_update_current_isr = new_isr;
+    REG_TM1CNT_L = audio_timer_frequency(cb.output_words_per_callback_);
+    irqSet(IRQ_TIMER1, cb.isr_);
+    audio_update_current_isr = cb.isr_;
 }
 
 
@@ -4725,38 +4707,38 @@ static void audio_update_swap(void (*new_isr)(), int frequency)
 void Platform::Speaker::set_music_speed(MusicSpeed speed)
 {
     if (platform->network_peer().is_connected()) {
-        audio_update_swap(audio_update_multiplayer_isr, 1);
+        audio_update_swap(audio_update_fast_cb);
         return;
     }
 
     switch (speed) {
     default:
     case MusicSpeed::regular:
-        audio_update_swap(audio_update_fast_isr, 2);
+        audio_update_swap(audio_update_fast_cb);
         break;
 
     case MusicSpeed::doubled:
-        audio_update_swap(audio_update_doublespeed_isr, 1);
+        audio_update_swap(audio_update_doublespeed_cb);
         break;
 
     case MusicSpeed::reversed:
-        audio_update_swap(audio_update_rewind_music_isr, 1);
+        audio_update_swap(audio_update_rewind_music_cb);
         break;
 
     case MusicSpeed::reversed4x:
-        audio_update_swap(audio_update_rewind4x_music_isr, 1);
+        audio_update_swap(audio_update_rewind4x_music_cb);
         break;
 
     case MusicSpeed::reversed8x:
-        audio_update_swap(audio_update_rewind8x_music_isr, 1);
+        audio_update_swap(audio_update_rewind8x_music_cb);
         break;
 
     case MusicSpeed::reversed_slow:
-        audio_update_swap(audio_update_slow_rewind_music_isr, 1);
+        audio_update_swap(audio_update_slow_rewind_music_cb);
         break;
 
     case MusicSpeed::halved:
-        audio_update_swap(audio_update_halfspeed_isr, 2);
+        audio_update_swap(audio_update_halfspeed_cb);
         break;
     }
 }
@@ -4784,10 +4766,10 @@ void Platform::Speaker::set_music_volume(u8 volume)
         // Modifying sound/music volume in a timer irq is a heavy operation, so
         // I have no real incentive to make the sound volume behave as expected
         // unless I actually need the behavior for implementing features.
-        audio_update_swap(audio_update_fast_isr, 2);
+        audio_update_swap(audio_update_fast_cb);
     } else {
         music_volume_lut = &volume_scale_LUTs[volume];
-        audio_update_swap(audio_update_music_volume_isr, 1);
+        audio_update_swap(audio_update_music_volume_cb);
     }
 }
 
@@ -4848,9 +4830,10 @@ static void audio_start()
 
     irqEnable(IRQ_TIMER1);
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
+    audio_update_current_freq = audio_update_fast_cb.output_words_per_callback_;
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = audio_timer_frequency(2);
+    REG_TM1CNT_L = audio_timer_frequency(audio_update_current_freq);
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.
@@ -6241,7 +6224,7 @@ void Platform::NetworkPeer::connect(const char* peer)
         return;
     }
 
-    audio_update_swap(audio_update_multiplayer_isr, 1);
+    audio_update_swap(audio_update_fast_cb);
 
     multiplayer_init();
 }
