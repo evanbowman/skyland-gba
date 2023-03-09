@@ -37,6 +37,13 @@ u16 room_category_icon(Room::Category category);
 
 
 
+static const auto cg_highlight_colors = Text::OptColors{{custom_color(0xffffff),
+                                                         custom_color(0x406e98)}};
+
+
+
+
+
 void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 {
     auto [mt, ms] = room_metatable();
@@ -125,7 +132,7 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     do {
-        cover_img_ = rng::choice<3>(rng::utility_state);
+        cover_img_ = rng::choice<4>(rng::utility_state);
     } while (cover_img_ == last_cover_img_);
     last_cover_img_ = cover_img_;
 
@@ -325,6 +332,10 @@ void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
     case 2:
         pfrm.load_tile0_texture("glossary_misc_cg_flattened");
         break;
+
+    case 3:
+        pfrm.load_tile0_texture("glossary_power_cg_flattened");
+        break;
     }
     __draw_image(pfrm, 1, 15, 0, 16, 20, Layer::map_0);
     pfrm.screen().schedule_fade(0);
@@ -350,8 +361,10 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
     };
 
     if (test_key(Key::up) and cg_cursor_ > 0) {
+        draw_category_line(pfrm, cg_cursor_);
         --cg_cursor_;
         pfrm.speaker().play_sound("cursor_tick", 0);
+        draw_category_line(pfrm, cg_cursor_, cg_highlight_colors);
         for (int y = 2; y < 20; ++y) {
             pfrm.set_tile(Layer::overlay, 1, y, 112);
         }
@@ -359,8 +372,10 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
     }
 
     if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
+        draw_category_line(pfrm, cg_cursor_);
         ++cg_cursor_;
         pfrm.speaker().play_sound("cursor_tick", 0);
+        draw_category_line(pfrm, cg_cursor_, cg_highlight_colors);
         for (int y = 2; y < 20; ++y) {
             pfrm.set_tile(Layer::overlay, 1, y, 112);
         }
@@ -378,6 +393,7 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
     } else if (app.player().key_down(pfrm, Key::action_2)) {
         state_ = State::fadeout;
         timer_ = 0;
+        draw_category_line(pfrm, cg_cursor_);
 
         for (int y = 20; y < 32; ++y) {
             for (int x = 0; x < 16; ++x) {
@@ -741,6 +757,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.set_tile(Layer::overlay, i, y, 0);
                 }
             }
+            draw_category_line(pfrm, cg_cursor_, cg_highlight_colors);
         }
         break;
     }
@@ -788,6 +805,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             }
             Text::platform_retain_alphabet(pfrm);
             load_categories(pfrm);
+            draw_category_line(pfrm, cg_cursor_, cg_highlight_colors);
         }
 
         break;

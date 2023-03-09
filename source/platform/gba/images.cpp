@@ -73,6 +73,8 @@
 //;
 #include "data/glossary_decoration_cg_flattened.h"
 //;
+#include "data/glossary_power_cg_flattened.h"
+//;
 #include "data/gba_health_safety_logo_flattened.h"
 //;
 #include "data/background.h"
@@ -219,6 +221,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(glossary_misc_cg_flattened, true),
 //;
     TEXTURE_INFO(glossary_decoration_cg_flattened, true),
+//;
+    TEXTURE_INFO(glossary_power_cg_flattened, true),
 //;
     TEXTURE_INFO(gba_health_safety_logo_flattened, true),
 //
