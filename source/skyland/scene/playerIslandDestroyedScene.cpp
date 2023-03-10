@@ -1040,6 +1040,9 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
         0.5f * (lv_score - (lv_score / (std::max(1, level_seconds_ / 15))));
     app.score().set(app.score().get() - score_time_penalty);
 
+    if (lv_score < 0) {
+        app.score().set(app.level_begin_score());
+    }
 
     app.persistent_data().total_pauses_.set(
         app.persistent_data().total_pauses_.get() + app.pause_count());

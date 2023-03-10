@@ -1922,6 +1922,59 @@ const Platform::Screen::Touch* Platform::Screen::touch() const
 
 
 
+using OptDmaBufferData = std::array<u16, 161>;
+EWRAM_DATA std::optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
+EWRAM_DATA int dma_effect_params[3];
+
+
+
+static void vblank_circle_effect_isr()
+{
+    // TODO: re-organize parallax_table and vertical_parallax_table,
+    // interleaving the data, so that we only need one DMA
+    // controller. Fix this someday, when running out of dma channels.
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER(
+        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+
+    DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+}
+
+
+
+static void vblank_full_transfer_scroll_isr()
+{
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER((volatile short*)0x4000016,
+                 &vertical_parallax_table[1],
+                 1,
+                 3,
+                 DMA_HDMA);
+
+    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+}
+
+
+
+static void vblank_horizontal_transfer_scroll_isr()
+{
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+
+    // Disable prior transfers.
+    DMA_TRANSFER(
+        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+}
+
+
+
+void (*vblank_dma_callback)() = vblank_full_transfer_scroll_isr;
+
+
+
 void Platform::Screen::clear()
 {
     if (not canary_check()) {
@@ -1930,6 +1983,16 @@ void Platform::Screen::clear()
 
     // VSync
     VBlankIntrWait();
+
+    if (opt_dma_buffer_ and vblank_dma_callback == vblank_circle_effect_isr) {
+        // NOTE: this circle sidelength calculation is too expensive to fit in
+        // the vblank interrupt handler, because it causes missed audio timer
+        // interrupts and an unpleasant screeching sound.
+        win_circle((*opt_dma_buffer_)->data(),
+                   dma_effect_params[1],
+                   dma_effect_params[2],
+                   dma_effect_params[0]);
+    }
 
 
     if (get_gflag(GlobalFlag::palette_sync)) {
@@ -2373,68 +2436,6 @@ void Platform::restart()
 {
     ::restart();
 }
-
-
-
-using OptDmaBufferData = std::array<u16, 161>;
-EWRAM_DATA std::optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
-EWRAM_DATA int dma_effect_params[3];
-
-
-
-void win_circle(u16 winh[], int x0, int y0, int rr);
-
-
-
-static void vblank_circle_effect_isr()
-{
-    // TODO: re-organize parallax_table and vertical_parallax_table,
-    // interleaving the data, so that we only need one DMA
-    // controller. Fix this someday, when running out of dma channels.
-    DMA_TRANSFER(
-        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    DMA_TRANSFER(
-        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
-
-    win_circle((*opt_dma_buffer_)->data(),
-               dma_effect_params[1],
-               dma_effect_params[2],
-               dma_effect_params[0]);
-
-    DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
-}
-
-
-
-static void vblank_full_transfer_scroll_isr()
-{
-    DMA_TRANSFER(
-        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    DMA_TRANSFER((volatile short*)0x4000016,
-                 &vertical_parallax_table[1],
-                 1,
-                 3,
-                 DMA_HDMA);
-
-    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
-}
-
-
-
-static void vblank_horizontal_transfer_scroll_isr()
-{
-    DMA_TRANSFER(
-        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-
-    // Disable prior transfers.
-    DMA_TRANSFER(
-        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
-    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
-}
-
-
-
-void (*vblank_dma_callback)() = vblank_full_transfer_scroll_isr;
 
 
 
@@ -4233,8 +4234,17 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     play_sound("footstep2", 0);
     play_sound("footstep3", 0);
 
+    // auto tmp = allocate_dynamic<OptDmaBufferData>("test");
     // auto before = platform->delta_clock().sample();
-    // audio_update_fast_isr();
+    // // audio_update_fast_isr();
+
+    // alignas(4) u16 tmp2[162];
+
+    // win_circle(tmp->data(),
+    //            0,
+    //            0,
+    //            156);
+
     // auto after = platform->delta_clock().sample();
     // Platform::fatal(format("dt %", after - before));
 }
