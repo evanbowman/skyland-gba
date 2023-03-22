@@ -6879,8 +6879,8 @@ void memset16(u16* data, u16 val, int count)
 }
 
 
-#include "incbin.h"
-INCBIN(Skyland_MB_ROM, "SkylandClient_mb.gba");
+// #include "incbin.h"
+// INCBIN(Skyland_MB_ROM, "SkylandClient_mb.gba");
 
 
 

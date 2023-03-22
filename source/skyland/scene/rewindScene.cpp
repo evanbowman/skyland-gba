@@ -21,6 +21,7 @@
 
 
 #include "rewindScene.hpp"
+#include "fatalErrorScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
@@ -47,7 +48,6 @@
 #include "skyland/rooms/mindControl.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-
 
 
 namespace skyland
@@ -596,8 +596,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     room->edit_characters().push(std::move(chr));
                 }
             } else {
-                Platform::fatal("rewind salvage: attempt to re-attach character"
-                                " to non-existent room.");
+                auto err =
+                    "rewind salvage: attempt to re-attach character"
+                    " to non-existent room.";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -962,7 +964,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->drop_movement_path();
             } else {
-                Platform::fatal("rewind chr mv path asgn: invalid chr id!");
+                auto err = "rewind chr mv path asgn: invalid chr id!";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -979,7 +982,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 chr->rewind_movement_step(pfrm,
                                           {e->previous_x_, e->previous_y_});
             } else {
-                Platform::fatal("rewind chr moved: invalid chr id!");
+                auto err = "rewind chr mv path asgn: invalid chr id! (2)";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -1030,8 +1034,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         if ((*it)->is_replicant()) {
                             room->edit_characters().erase(it);
                         } else {
-                            Platform::fatal("rewind error: rewind replicant"
-                                            "is not replicant?!");
+                            auto err =
+                                "rewind error: rewind replicant"
+                                "is not replicant?!";
+                            return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
                     } else {
@@ -1053,7 +1059,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->__set_health(e->previous_health_);
             } else {
-                Platform::fatal("rewind chr health changed: invalid chr id!");
+                auto err = "rewind chr health changed: invalid chr id!";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -1076,8 +1083,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
-                Platform::fatal(
-                    "rewind chr_transported: Invalid character id!");
+                auto err = "rewind chr_transported: Invalid character id!";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             auto dest_room = chr_info.second;
@@ -1101,8 +1108,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                             source_room->___rewind___ability_used(pfrm, app);
 
                         } else {
-                            Platform::fatal("fatal error when rewinding "
-                                            "transport: source room missing.");
+                            auto err =
+                                "fatal error when rewinding "
+                                "transport: source room missing.";
+                            return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
                     } else {
@@ -1110,8 +1119,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     }
                 }
             } else {
-                Platform::fatal(
-                    "error rewinding transport: dest room missing.");
+                auto err = "error rewinding transport: dest room missing.";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -1130,7 +1139,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
-                Platform::fatal("rewind chr_disembark: Invalid character id!");
+                auto err = "rewind chr_disembark: Invalid character id!";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             auto dest_room = chr_info.second;
@@ -1155,8 +1165,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         if (auto source_room = source_island->get_room(pos)) {
                             source_room->edit_characters().push(std::move(detached));
                         } else {
-                            Platform::fatal("fata error when rewinding "
-                                            "disembark: source room missing");
+                            auto err =
+                                "fatal error when rewinding "
+                                "disembark: source room missing";
+                            return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
                     } else {
@@ -1164,7 +1176,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     }
                 }
             } else {
-                Platform::fatal("error rewinding disembark: dest room missing");
+                auto err = "error rewinding disembark: dest room missing";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -1368,8 +1381,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     if (room->attach_drone(pfrm, app, *drone)) {
                         dest_island->drones().push(*drone);
                     } else {
-                        Platform::fatal("rewind: attempt to attach drone to non"
-                                        " drone-bay");
+                        auto err = "rewind: attempt to attach drone to non"
+                            " drone-bay";
+                        return scene_pool::alloc<FatalErrorScene>(err);
                     }
                 } else {
                     StringBuffer<64> fmt =
@@ -1380,7 +1394,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     Platform::fatal(fmt.c_str());
                 }
             } else {
-                Platform::fatal("rewind: failed to alloc drone");
+                auto err = "rewind: failed to alloc drone";
+                return scene_pool::alloc<FatalErrorScene>(err);
             }
 
             app.time_stream().pop(sizeof *e);
@@ -1705,7 +1720,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
         default:
-            Platform::fatal("invalid event from time stream");
+            auto err = "invalid event from time stream";
+            return scene_pool::alloc<FatalErrorScene>(err);
         }
 
         if (app.time_stream().end()) {
