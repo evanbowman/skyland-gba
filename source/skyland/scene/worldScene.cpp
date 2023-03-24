@@ -202,6 +202,7 @@ void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(Platform& pfrm, App& app)
 {
     if ((app.game_mode() == App::GameMode::adventure or
+         app.game_mode() == App::GameMode::sandbox or
          app.game_mode() == App::GameMode::skyland_forever) and
         app.gp_.difficulty_ ==
             GlobalPersistentData::Difficulty::beginner and

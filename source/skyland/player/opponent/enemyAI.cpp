@@ -344,59 +344,6 @@ void EnemyAI::update_room(Platform& pfrm,
                     pfrm, app, matrix, *db, ai_island, target_island);
             }
         }
-    } else if (auto mc = room.cast<MindControl>()) {
-        BasicCharacter* chr = nullptr;
-        if (mc->bound_character()) {
-            auto found = BasicCharacter::find_by_id(app, mc->bound_character());
-            chr = found.first;
-        }
-
-        if (not chr) {
-            Buffer<std::pair<BasicCharacter*, Room*>, 8> invaders;
-            for (auto& room : ai_island->rooms()) {
-                for (auto& chr : room->characters()) {
-                    if (chr->owner() not_eq owner) {
-                        invaders.emplace_back(
-                            std::make_pair(chr.get(), room.get()));
-                    }
-                }
-            }
-            if (not invaders.empty()) {
-                std::sort(
-                    invaders.begin(), invaders.end(), [](auto& lhs, auto& rhs) {
-                        return (*lhs.second->metaclass())->atp_value() >
-                               (*rhs.second->metaclass())->atp_value();
-                    });
-                for (auto& chr : invaders) {
-                    if (not chr.first->mind_controlled()) {
-                        chr.first->start_mind_control(app, owner, mc);
-                    }
-                }
-            } else {
-                Buffer<std::pair<BasicCharacter*, Room*>, 8> chrs;
-                for (auto& room : target_island->rooms()) {
-                    for (auto& chr : room->characters()) {
-                        if (chr->owner() not_eq owner) {
-                            chrs.emplace_back(
-                                std::make_pair(chr.get(), room.get()));
-                        }
-                    }
-                }
-                if (not chrs.empty()) {
-                    std::sort(
-                        chrs.begin(), chrs.end(), [](auto& lhs, auto& rhs) {
-                            return (*lhs.second->metaclass())->atp_value() >
-                                   (*rhs.second->metaclass())->atp_value();
-                        });
-                    for (auto& chr : chrs) {
-                        if (not chr.first->mind_controlled()) {
-                            chr.first->start_mind_control(app, owner, mc);
-                        }
-                    }
-                }
-            }
-        }
-
     } else if (auto transporter = room.cast<Transporter>()) {
         if (length(transporter->characters()) and transporter->ready()) {
             auto transport_chr = transporter->characters().begin();

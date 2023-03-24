@@ -1001,14 +1001,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 e->owned_by_player_ ? &app.player() : &app.opponent();
 
             const bool is_replicant = e->is_replicant_;
-            const bool is_mind_controlled = e->mind_controlled_;
 
             auto chr = app.alloc_entity<BasicCharacter>(pfrm,
                                                         island,
                                                         owner,
                                                         RoomCoord{e->x_, e->y_},
-                                                        is_replicant,
-                                                        is_mind_controlled);
+                                                        is_replicant);
 
             chr->__assign_id(e->id_.get());
 

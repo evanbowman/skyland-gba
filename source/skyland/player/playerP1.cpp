@@ -22,6 +22,7 @@
 
 #include "playerP1.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/mycelium.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
@@ -191,6 +192,21 @@ SharedVariable score_multiplier("score_multiplier", 1);
 void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
+        if (room.cast<Mycelium>()) {
+            int mcount = 0;
+            for (auto& oroom : app.opponent_island()->rooms()) {
+                if (oroom->metaclass_index() == room.metaclass_index()) {
+                    ++mcount;
+                }
+            }
+            if (mcount > 1) {
+                // Only give player score for destroying the last remaining
+                // mycelium block. Otherwise you could cheat by running up a
+                // huge score.
+                return;
+            }
+        }
+
         app.score().set((app.score().get() +
                          (score_multiplier * (*room.metaclass())->cost())));
     }
