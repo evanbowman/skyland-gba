@@ -37,9 +37,9 @@ namespace skyland
 
 
 
-static Coins salvage_value(Room& room)
+static Coins salvage_value(App& app, Room& room)
 {
-    if (str_eq(room.name(), "gold")) {
+    if (not app.opponent_island() or str_eq(room.name(), "gold")) {
         return (*room.metaclass())->cost();
     }
 
@@ -88,7 +88,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
                 // only power core.
                 exit_countdown_ = 1;
             }
-            text += stringify(salvage_value(*room));
+            text += stringify(salvage_value(app, *room));
         } else {
             text += "0";
         }
@@ -214,7 +214,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (length(room->characters()) == 0) {
 
                     pfrm.speaker().play_sound("coin", 2);
-                    app.set_coins(pfrm, app.coins() + salvage_value(*room));
+                    app.set_coins(pfrm,
+                                  app.coins() + salvage_value(app, *room));
 
                     u16 mt_index = 0;
                     if (auto room = island(app)->get_room(cursor_loc)) {

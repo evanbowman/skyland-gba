@@ -137,15 +137,18 @@ public:
             break;
         }
 
-        case State::prompt:
+        case State::prompt: {
             if (player(app).key_down(pfrm, Key::action_2)) {
                 if (is_far_camera()) {
                     return scene_pool::alloc<InspectP2Scene>();
                 }
                 return scene_pool::alloc<ReadyScene>();
             }
-            if (player(app).key_down(pfrm, Key::action_1)) {
-                if (app.coins() < 800) {
+
+            const bool skip = not app.opponent_island();
+
+            if (skip or player(app).key_down(pfrm, Key::action_1)) {
+                if (not skip and app.coins() < 800) {
                     auto future_scene =
                         scene_pool::make_deferred_scene<ReadyScene>();
                     auto str = SYSTR(construction_insufficient_funds);
@@ -154,8 +157,10 @@ public:
                                                                 future_scene);
                 }
                 unpersist_ui();
-                pfrm.speaker().play_sound("coin", 2);
-                app.set_coins(pfrm, app.coins() - 800);
+                if (not skip) {
+                    pfrm.speaker().play_sound("coin", 2);
+                    app.set_coins(pfrm, app.coins() - 800);
+                }
                 state_ = State::move_stuff;
                 yes_text_.reset();
                 no_text_.reset();
@@ -173,6 +178,7 @@ public:
                 }
             }
             break;
+        }
 
         case State::move_stuff:
             if ((player(app).key_pressed(pfrm, Key::start) or
