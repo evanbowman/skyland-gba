@@ -39,11 +39,12 @@ namespace skyland
 
 static Coins salvage_value(App& app, Room& room)
 {
-    if (not app.opponent_island() or str_eq(room.name(), "gold")) {
+    if (str_eq(room.name(), "gold")) {
         return (*room.metaclass())->cost();
     }
 
-    return ((*room.metaclass())->cost() * salvage_factor) *
+    return ((*room.metaclass())->cost() *
+            (not app.opponent_island() ? 1.f : salvage_factor)) *
            (Float(room.health()) / (*room.metaclass())->full_health());
 }
 
