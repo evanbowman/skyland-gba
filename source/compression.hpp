@@ -51,8 +51,7 @@ void compress_sink(heatshrink_encoder& enc,
 
 
 template <u32 size>
-void compress_finish(heatshrink_encoder& enc,
-                     Buffer<char, size>& result)
+void compress_finish(heatshrink_encoder& enc, Buffer<char, size>& result)
 {
     auto fin = HSER_FINISH_DONE;
     do {
@@ -126,8 +125,7 @@ void decompress_sink(heatshrink_decoder& enc,
 
 
 template <u32 size>
-void decompress_finish(heatshrink_decoder& enc,
-                       Buffer<char, size>& result)
+void decompress_finish(heatshrink_decoder& enc, Buffer<char, size>& result)
 {
     auto fin = HSDR_FINISH_DONE;
     do {

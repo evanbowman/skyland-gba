@@ -259,8 +259,7 @@ __attribute__((section(".iwram"), long_call)) void
 win_circle(u16 winh[], int x0, int y0, int rr);
 
 
-__attribute__((section(".iwram"), long_call))
-void audio_update_fast_isr();
+__attribute__((section(".iwram"), long_call)) void audio_update_fast_isr();
 
 
 static int audio_timer_frequency(int words_per_call)
@@ -4353,8 +4352,11 @@ struct SoundMixerCallback
 };
 
 
-#define SOUND_MIXER_CALLBACK(NAME, RATE)                        \
-    static const SoundMixerCallback NAME##_cb { NAME##_isr, RATE }
+#define SOUND_MIXER_CALLBACK(NAME, RATE)                                       \
+    static const SoundMixerCallback NAME##_cb                                  \
+    {                                                                          \
+        NAME##_isr, RATE                                                       \
+    }
 
 
 SOUND_MIXER_CALLBACK(audio_update_fast, 2);
@@ -4703,7 +4705,8 @@ static void audio_update_swap(const SoundMixerCallback& cb)
     // in some cases. We can't write a new value to the timer configuration
     // register until just after it's fired, or sound stuff could get out of
     // sync.
-    while (not audio_update_swapflag) ;
+    while (not audio_update_swapflag)
+        ;
 
     audio_update_current_freq = audio_update_new_freq;
 

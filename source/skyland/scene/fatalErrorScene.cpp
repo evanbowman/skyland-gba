@@ -44,24 +44,16 @@ void FatalErrorScene::enter(Platform& pfrm, App& app, Scene& prev)
         {custom_color(0xffffff), bkg_color}};
 
     static constexpr const Text::OptColors text_colors_inv{
-    {text_colors->background_, text_colors->foreground_}};
+        {text_colors->background_, text_colors->foreground_}};
 
     Text::print(pfrm, "fatal error", {1, 1}, text_colors_inv);
 
     verbose_error_.emplace(pfrm);
-    verbose_error_->assign(message_.c_str(),
-                           {1, 3},
-                           {28, 15},
-                           0,
-                           text_colors);
+    verbose_error_->assign(message_.c_str(), {1, 3}, {28, 15}, 0, text_colors);
 
-    Text::print(pfrm, "please contact developers!",
-                {1, 16},
-                text_colors_inv);
+    Text::print(pfrm, "please contact developers!", {1, 16}, text_colors_inv);
 
-    Text::print(pfrm, "press B to retry level",
-                {1, 18},
-                text_colors_inv);
+    Text::print(pfrm, "press B to retry level", {1, 18}, text_colors_inv);
 }
 
 
@@ -73,7 +65,8 @@ void FatalErrorScene::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> FatalErrorScene::update(Platform& pfrm, App& app, Microseconds dt)
+ScenePtr<Scene>
+FatalErrorScene::update(Platform& pfrm, App& app, Microseconds dt)
 {
     app.player().update(pfrm, app, dt);
 
@@ -88,4 +81,4 @@ ScenePtr<Scene> FatalErrorScene::update(Platform& pfrm, App& app, Microseconds d
 
 
 
-}
+} // namespace skyland

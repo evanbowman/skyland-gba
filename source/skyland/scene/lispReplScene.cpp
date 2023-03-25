@@ -335,8 +335,7 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
             repaint_entry(pfrm);
         } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
             auto& kb = alt_ ? alt_keyboard : keyboard;
-            command_->push_back(
-                kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
+            command_->push_back(kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
             repaint_entry(pfrm);
             pfrm.speaker().play_sound("typewriter", 2);
         } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {

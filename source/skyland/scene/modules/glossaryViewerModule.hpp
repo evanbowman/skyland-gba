@@ -109,8 +109,7 @@ private:
 
     std::optional<DeferredScene> next_scene_;
 
-    void draw_category_line(Platform&, int line,
-                            Text::OptColors = {});
+    void draw_category_line(Platform&, int line, Text::OptColors = {});
 
     enum class State {
         show_categories,

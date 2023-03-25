@@ -93,7 +93,6 @@ public:
 
 
     ColorConstant fadein_colorize_tone() const override;
-
 };
 
 

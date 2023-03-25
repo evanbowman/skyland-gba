@@ -90,9 +90,7 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     for (u32 i = 0; i < sizeof(out); ++i) {
         buffer.push_back(*(out_ptr++));
     }
-    flash_filesystem::StorageOptions opts {
-        .use_compression_ = true
-    };
+    flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_binary(
         pfrm, global_data_filename, buffer, opts);
 }
@@ -145,9 +143,7 @@ static void store(Platform& pfrm, const SaveData& sd)
     for (u32 i = 0; i < sizeof sd; ++i) {
         out_buffer.push_back(*(out_ptr++));
     }
-    flash_filesystem::StorageOptions opts {
-        .use_compression_ = true
-    };
+    flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_binary(
         pfrm, save_data_filename, out_buffer, opts);
 }
@@ -170,9 +166,7 @@ void EmergencyBackup::store(Platform& pfrm)
 
     save::store(pfrm, save_data);
 
-    flash_filesystem::StorageOptions opts {
-        .use_compression_ = true
-    };
+    flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_text(
         pfrm, save_data_lisp_filename, *lisp_data_, opts);
 }
@@ -200,9 +194,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     store(pfrm, save_data);
 
-    flash_filesystem::StorageOptions opts {
-        .use_compression_ = true
-    };
+    flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_text(
         pfrm, save_data_lisp_filename, p.data_, opts);
 

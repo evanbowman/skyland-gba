@@ -137,9 +137,7 @@ void FlagPixels::save(Platform& pfrm)
         img.push_back(((u8*)pixels)[i]);
     }
 
-    flash_filesystem::StorageOptions opts {
-        .use_compression_ = true
-    };
+    flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_binary(pfrm, flag_save_file, img, opts);
 }
 

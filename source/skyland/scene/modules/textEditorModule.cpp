@@ -1235,11 +1235,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     if (file_mode_ == FileMode::readonly) {
                         // Do not save the file
                     } else if (filesystem_ == FileSystem::sram) {
-                        flash_filesystem::StorageOptions opts {
-                            .use_compression_ = true
-                        };
+                        flash_filesystem::StorageOptions opts{
+                            .use_compression_ = true};
                         flash_filesystem::store_file_data_text(
-                            pfrm, state_->file_path_.c_str(), text_buffer_,
+                            pfrm,
+                            state_->file_path_.c_str(),
+                            text_buffer_,
                             opts);
                     } else {
                         return scene_pool::alloc<SramFileWritebackScene>(

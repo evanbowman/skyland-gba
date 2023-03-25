@@ -34,8 +34,6 @@ namespace skyland
 class FatalErrorScene : public Scene
 {
 public:
-
-
     FatalErrorScene(const char* message) : message_(message)
     {
     }
@@ -57,4 +55,4 @@ private:
 
 
 
-}
+} // namespace skyland

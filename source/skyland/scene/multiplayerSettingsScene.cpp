@@ -46,15 +46,13 @@ MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::vs_parameters_;
 
 const MultiplayerSettingsScene::ParameterInfo
     MultiplayerSettingsScene::param_info[decltype(vs_parameters_)::capacity()] =
-        {
-            {SystemString::mt_game_mode, 1, 0, 1},
-            {SystemString::mt_prep_seconds, 5, 20, 10000},
-            {SystemString::mt_unhide_prep, 1, 0, 1},
-            {SystemString::mt_coins, 100, 1000, 10000000},
-            {SystemString::mt_terrain_size, 1, 3, 13},
-            {SystemString::mt_timeout_freq, 30, 0, 1000},
-            {SystemString::mt_timeout_duration, 5, 10, 120}
-        };
+        {{SystemString::mt_game_mode, 1, 0, 1},
+         {SystemString::mt_prep_seconds, 5, 20, 10000},
+         {SystemString::mt_unhide_prep, 1, 0, 1},
+         {SystemString::mt_coins, 100, 1000, 10000000},
+         {SystemString::mt_terrain_size, 1, 3, 13},
+         {SystemString::mt_timeout_freq, 30, 0, 1000},
+         {SystemString::mt_timeout_duration, 5, 10, 120}};
 
 
 

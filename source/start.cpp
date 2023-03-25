@@ -107,9 +107,11 @@ static inline void main_loop(Platform& pf)
                                      "\n(key-bind \"du\" 'repl)\n"
                                      "(port 1)\n";
 
-        flash_filesystem::store_file_data(
-            pf, "/mods/init.lisp", user_init_file, str_len(user_init_file),
-            {.use_compression_ = true});
+        flash_filesystem::store_file_data(pf,
+                                          "/mods/init.lisp",
+                                          user_init_file,
+                                          str_len(user_init_file),
+                                          {.use_compression_ = true});
 
         clean_boot = true;
     }

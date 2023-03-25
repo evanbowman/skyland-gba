@@ -85,7 +85,6 @@ void WarEngine::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-
 void WarEngine::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::war_engine_1;
@@ -127,4 +126,4 @@ void WarEngine::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-}
+} // namespace skyland

@@ -21,12 +21,12 @@
 
 
 #include "fadeInScene.hpp"
+#include "platform/color.hpp"
 #include "readyScene.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "platform/color.hpp"
 
 
 

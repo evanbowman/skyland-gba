@@ -21,10 +21,10 @@
 
 
 #include "glossaryViewerModule.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/entity/drones/droneMeta.hpp"
 
 
 
@@ -37,10 +37,8 @@ u16 room_category_icon(Room::Category category);
 
 
 
-static const auto cg_highlight_colors = Text::OptColors{{custom_color(0xffffff),
-                                                         custom_color(0x406e98)}};
-
-
+static const auto cg_highlight_colors =
+    Text::OptColors{{custom_color(0xffffff), custom_color(0x406e98)}};
 
 
 
@@ -244,20 +242,15 @@ void GlossaryViewerModule::draw_category_line(Platform& pfrm,
             (SystemString)(((int)SystemString::category_begin) + line);
         t.append(loadstr(pfrm, category_str)->c_str(), colors);
 
-        pfrm.set_tile(Layer::overlay,
-                      3,
-                      y,
-                      room_category_icon((Room::Category)line));
-
+        pfrm.set_tile(
+            Layer::overlay, 3, y, room_category_icon((Room::Category)line));
     }
 
     for (int i = t.len(); i < 10; ++i) {
         t.append(" ", colors);
     }
     t.__detach();
-
 }
-
 
 
 
@@ -535,11 +528,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         auto fade_duration = milliseconds(200);
         const auto amt = smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(0.25f * amt,
-                                    ColorConstant::rich_black,
-                                    false,
-                                    false,
-                                    false);
+        pfrm.screen().schedule_fade(
+            0.25f * amt, ColorConstant::rich_black, false, false, false);
 
         s16 scrl = -1 * (amt * 16);
         pfrm.set_scroll(Layer::map_0_ext, scrl, 0);
@@ -554,7 +544,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 } else {
                     break;
                 }
-
             }
         }
         for (int y = 0; y < 20; ++y) {
@@ -564,7 +553,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 pfrm.set_tile(Layer::overlay, 16 + low, y, t);
             }
-
         }
 
 
@@ -603,7 +591,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 filter_begin_ = page_;
                 filter_end_ = page_;
                 while (filter_end_ < ms and mt[filter_end_]->category() ==
-                       (Room::Category)cg_cursor_) {
+                                                (Room::Category)cg_cursor_) {
                     ++filter_end_;
                 }
                 if ((Room::Category)cg_cursor_ == Room::Category::decoration) {
@@ -631,11 +619,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         auto fade_duration = milliseconds(250);
         const auto amt = smoothstep(0.f, fade_duration, timer_);
 
-        pfrm.screen().schedule_fade(amt,
-                                    ColorConstant::rich_black,
-                                    true,
-                                    true,
-                                    true);
+        pfrm.screen().schedule_fade(
+            amt, ColorConstant::rich_black, true, true, true);
 
         s16 scrl = amt * 10;
         pfrm.set_scroll(Layer::map_0_ext, 0, -scrl);
@@ -655,14 +640,13 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::view_filtered:
-        if ((test_key(Key::right) or
-             test_key(Key::down)) and page_ < (int)(*filter_buf_)->size() - 1) {
+        if ((test_key(Key::right) or test_key(Key::down)) and
+            page_ < (int)(*filter_buf_)->size() - 1) {
             load_page(pfrm, (**filter_buf_)[++page_]);
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
-        if ((test_key(Key::up) or
-             test_key(Key::left)) and page_ > 0) {
+        if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
             load_page(pfrm, (**filter_buf_)[--page_]);
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
@@ -681,17 +665,15 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::view:
     case State::quickview:
         if (not inspect_) {
-            if ((test_key(Key::down) or
-                 test_key(Key::right)) and page_ < ms - 1 and
-                page_ < plugin_rooms_begin() - 1 and
+            if ((test_key(Key::down) or test_key(Key::right)) and
+                page_ < ms - 1 and page_ < plugin_rooms_begin() - 1 and
                 (not filter_end_ or
                  (filter_end_ and filter_end_ - 1 > page_))) {
                 load_page(pfrm, ++page_);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
 
-            if ((test_key(Key::up) or
-                 test_key(Key::left)) and page_ > 0 and
+            if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0 and
                 (not filter_begin_ or
                  (filter_begin_ and filter_begin_ < page_))) {
                 load_page(pfrm, --page_);
@@ -726,11 +708,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         auto fade_duration = milliseconds(400);
         const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
 
-        pfrm.screen().schedule_fade(0.45f * amt,
-                                    ColorConstant::rich_black,
-                                    false,
-                                    false,
-                                    false);
+        pfrm.screen().schedule_fade(
+            0.45f * amt, ColorConstant::rich_black, false, false, false);
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
@@ -747,7 +726,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 pfrm.set_tile(Layer::overlay, 16 + low, y, t);
             }
-
         }
 
         if (timer_ >= fade_duration) {
@@ -771,11 +749,8 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.set_scroll(Layer::map_0_ext, scrl, 0);
 
 
-        pfrm.screen().schedule_fade(0.45f * amt,
-                                    ColorConstant::rich_black,
-                                    false,
-                                    false,
-                                    false);
+        pfrm.screen().schedule_fade(
+            0.45f * amt, ColorConstant::rich_black, false, false, false);
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
@@ -792,7 +767,6 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 pfrm.set_tile(Layer::overlay, 16 + low, y, t);
             }
-
         }
 
         if (timer_ >= fade_duration) {

@@ -359,8 +359,7 @@ public:
 
         auto image_folder = resource_path() + ("images" PATH_DELIMITER);
 
-        const auto charset_path =
-            std::string(image_folder) + "charset.png";
+        const auto charset_path = std::string(image_folder) + "charset.png";
         if (not character_source_image_.loadFromFile(charset_path)) {
             exit(EXIT_FAILURE);
         }
@@ -723,22 +722,20 @@ void Platform::Screen::clear()
             image.createMaskFromColor({255, 0, 255, 255});
 
             if (request.first == TextureSwap::overlay) {
-                platform->data()->current_overlay_image_.create(image.getSize().x,
-                                                                image.getSize().y);
-                ::platform->data()->
-                    current_overlay_image_.copy(image,
-                                                0,
-                                                0,
-                                                {0,
-                                                 0,
-                                                 (int)image.getSize().x,
-                                                 (int)image.getSize().y});
+                platform->data()->current_overlay_image_.create(
+                    image.getSize().x, image.getSize().y);
+                ::platform->data()->current_overlay_image_.copy(
+                    image,
+                    0,
+                    0,
+                    {0, 0, (int)image.getSize().x, (int)image.getSize().y});
             }
 
             if (image.getSize().x > 4032) {
                 sf::Image replacement;
                 replacement.create(4032, image.getSize().y);
-                replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
+                replacement.copy(
+                    image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
                 std::swap(image, replacement);
             }
 
@@ -889,8 +886,7 @@ void Platform::Screen::display()
                                     ::platform->data()->window_.getSize().x,
                                     ::platform->data()->window_.getSize().y);
 
-    fixed_view.setCenter(
-        {view_.get_size().x / 2, view_.get_size().y / 2});
+    fixed_view.setCenter({view_.get_size().x / 2, view_.get_size().y / 2});
 
     auto& window = ::platform->data()->window_;
     window.setView(fixed_view);
@@ -911,10 +907,9 @@ void Platform::Screen::display()
     }
 
     sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
-    map1.setPosition(-(::platform->data()->map_1_xscroll_ +
-                       view_.get_center().x),
-                     wrap_y(-(::platform->data()->map_1_yscroll_ +
-                              view_.get_center().y)));
+    map1.setPosition(
+        -(::platform->data()->map_1_xscroll_ + view_.get_center().x),
+        wrap_y(-(::platform->data()->map_1_yscroll_ + view_.get_center().y)));
     window.draw(map1);
 
 
@@ -934,10 +929,10 @@ void Platform::Screen::display()
     }
 
     sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
-    int m0_xscroll = -(::platform->data()->map_0_xscroll_ +
-                       view_.get_center().x);
-    int m0_yscroll = -(::platform->data()->map_0_yscroll_ +
-                       view_.get_center().y);
+    int m0_xscroll =
+        -(::platform->data()->map_0_xscroll_ + view_.get_center().x);
+    int m0_yscroll =
+        -(::platform->data()->map_0_yscroll_ + view_.get_center().y);
     m0_yscroll = wrap_y(m0_yscroll);
     // std::cout << m0_yscroll << std::endl;
     map0.setPosition(m0_xscroll, m0_yscroll);
@@ -1022,8 +1017,7 @@ void Platform::Screen::display()
     window.draw(::platform->data()->overlay_);
 
 
-    fixed_view.setCenter(
-        {view_.get_size().x / 2, view_.get_size().y / 2});
+    fixed_view.setCenter({view_.get_size().x / 2, view_.get_size().y / 2});
 
     window.setView(fixed_view);
 
@@ -1443,24 +1437,39 @@ Vector<char>* Platform::Logger::data()
 
 
 static const std::unordered_map<std::string, sf::Keyboard::Key> key_lookup{
-    {"Esc", sf::Keyboard::Escape},  {"Up", sf::Keyboard::Up},
-    {"Down", sf::Keyboard::Down},   {"Left", sf::Keyboard::Left},
-    {"Right", sf::Keyboard::Right}, {"Return", sf::Keyboard::Return},
-    {"A", sf::Keyboard::A},         {"B", sf::Keyboard::B},
-    {"C", sf::Keyboard::C},         {"D", sf::Keyboard::D},
-    {"E", sf::Keyboard::E},         {"F", sf::Keyboard::F},
-    {"G", sf::Keyboard::G},         {"H", sf::Keyboard::H},
-    {"I", sf::Keyboard::I},         {"J", sf::Keyboard::J},
-    {"K", sf::Keyboard::K},         {"L", sf::Keyboard::L},
-    {"M", sf::Keyboard::M},         {"N", sf::Keyboard::N},
-    {"O", sf::Keyboard::O},         {"P", sf::Keyboard::P},
-    {"Q", sf::Keyboard::Q},         {"R", sf::Keyboard::R},
-    {"S", sf::Keyboard::S},         {"T", sf::Keyboard::T},
-    {"U", sf::Keyboard::U},         {"V", sf::Keyboard::V},
-    {"W", sf::Keyboard::W},         {"X", sf::Keyboard::X},
-                                    {"Y", sf::Keyboard::Y},
-                                    {"Z", sf::Keyboard::Z},
-                                    {"Backspace", sf::Keyboard::Backspace}};
+    {"Esc", sf::Keyboard::Escape},
+    {"Up", sf::Keyboard::Up},
+    {"Down", sf::Keyboard::Down},
+    {"Left", sf::Keyboard::Left},
+    {"Right", sf::Keyboard::Right},
+    {"Return", sf::Keyboard::Return},
+    {"A", sf::Keyboard::A},
+    {"B", sf::Keyboard::B},
+    {"C", sf::Keyboard::C},
+    {"D", sf::Keyboard::D},
+    {"E", sf::Keyboard::E},
+    {"F", sf::Keyboard::F},
+    {"G", sf::Keyboard::G},
+    {"H", sf::Keyboard::H},
+    {"I", sf::Keyboard::I},
+    {"J", sf::Keyboard::J},
+    {"K", sf::Keyboard::K},
+    {"L", sf::Keyboard::L},
+    {"M", sf::Keyboard::M},
+    {"N", sf::Keyboard::N},
+    {"O", sf::Keyboard::O},
+    {"P", sf::Keyboard::P},
+    {"Q", sf::Keyboard::Q},
+    {"R", sf::Keyboard::R},
+    {"S", sf::Keyboard::S},
+    {"T", sf::Keyboard::T},
+    {"U", sf::Keyboard::U},
+    {"V", sf::Keyboard::V},
+    {"W", sf::Keyboard::W},
+    {"X", sf::Keyboard::X},
+    {"Y", sf::Keyboard::Y},
+    {"Z", sf::Keyboard::Z},
+    {"Backspace", sf::Keyboard::Backspace}};
 
 
 Platform::~Platform()
@@ -1636,25 +1645,17 @@ void Platform::load_tile0_texture(const char* name)
 
     if (not image.loadFromFile(image_folder + name + ".png")) {
         error(*::platform,
-              (std::string("failed to load texture ") + name)
-              .c_str());
+              (std::string("failed to load texture ") + name).c_str());
         exit(EXIT_FAILURE);
     } else {
-        info(*::platform,
-             (std::string("loaded image ") + name).c_str());
+        info(*::platform, (std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
 
     platform->data()->current_tile0_image_.create(image.getSize().x,
                                                   image.getSize().y);
-    ::platform->data()->
-          current_tile0_image_.copy(image,
-                                    0,
-                                    0,
-                                    {0,
-                                     0,
-                                     (int)image.getSize().x,
-                                     (int)image.getSize().y});
+    ::platform->data()->current_tile0_image_.copy(
+        image, 0, 0, {0, 0, (int)image.getSize().x, (int)image.getSize().y});
 
     if (image.getSize().x > 4032) {
         sf::Image replacement;
@@ -1682,25 +1683,17 @@ void Platform::load_tile1_texture(const char* name)
 
     if (not image.loadFromFile(image_folder + name + ".png")) {
         error(*::platform,
-              (std::string("failed to load texture ") + name)
-              .c_str());
+              (std::string("failed to load texture ") + name).c_str());
         exit(EXIT_FAILURE);
     } else {
-        info(*::platform,
-             (std::string("loaded image ") + name).c_str());
+        info(*::platform, (std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
 
     platform->data()->current_tile1_image_.create(image.getSize().x,
                                                   image.getSize().y);
-    ::platform->data()->
-          current_tile1_image_.copy(image,
-                                    0,
-                                    0,
-                                    {0,
-                                     0,
-                                     (int)image.getSize().x,
-                                     (int)image.getSize().y});
+    ::platform->data()->current_tile1_image_.copy(
+        image, 0, 0, {0, 0, (int)image.getSize().x, (int)image.getSize().y});
 
     platform->data()->map_1_[0].set_tilesize(image.getSize().y);
 
@@ -1875,8 +1868,7 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
 
             for (int x = 0; x < 8; ++x) {
                 for (int y = 0; y < 8; ++y) {
-                    const auto px =
-                        new_texture_image.getPixel(loc * 8 + x, y);
+                    const auto px = new_texture_image.getPixel(loc * 8 + x, y);
                     if (px == glyph_background_color) {
                         new_texture_image.setPixel(
                             loc * 8 + x, y, font_bg_color);
@@ -2255,7 +2247,6 @@ void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 
 
 
-
 static const int tile_reserved_count = 8;
 static const int tile_mapping_slots = 111 - tile_reserved_count;
 
@@ -2323,13 +2314,8 @@ static TileDesc map_tile_chunk(TileMappings mappings,
     i += tile_reserved_count;
 
     auto texture_img = dest.copyToImage();
-    texture_img.copy(src_img,
-                     i * 16,
-                     0,
-                     {(tile_data_start + src) * 16,
-                      0,
-                      16,
-                      16});
+    texture_img.copy(
+        src_img, i * 16, 0, {(tile_data_start + src) * 16, 0, 16, 16});
 
     dest.loadFromImage(texture_img);
 
@@ -2443,8 +2429,8 @@ void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
     auto& texture = data()->overlay_texture_;
     auto texture_img = texture.copyToImage();
 
-    texture_img.copy(data()->current_overlay_image_,
-                     dst * 8, 0, {src * 8, 0, count * 8, 8});
+    texture_img.copy(
+        data()->current_overlay_image_, dst * 8, 0, {src * 8, 0, count * 8, 8});
 
     texture.loadFromImage(texture_img);
 }

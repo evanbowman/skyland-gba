@@ -15,7 +15,6 @@ ColorConstant ClearSkies::fadein_colorize_tone() const
 
 
 
-
 void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 {
     timer_ -= delta;
@@ -66,7 +65,8 @@ void ClearSkies::display(Platform& pfrm, App& app)
 
     spr.set_position({x, y});
     pfrm.screen().draw(spr);
-    struct LensFlare {
+    struct LensFlare
+    {
         Fixnum frac_;
         u16 tidx_;
     };
@@ -77,9 +77,9 @@ void ClearSkies::display(Platform& pfrm, App& app)
 
     Vec2<Fixnum> scrn_center;
     scrn_center.x = Fixnum::from_integer(pfrm.screen().size().x / 2) +
-        Fixnum::from_integer(view_pos.x);
+                    Fixnum::from_integer(view_pos.x);
     scrn_center.y = Fixnum::from_integer(280 + pfrm.screen().size().y / 2) +
-        Fixnum::from_integer(view_pos.y);
+                    Fixnum::from_integer(view_pos.y);
 
     const auto dx = scrn_center.x - x;
     const auto dy = scrn_center.y - y;
@@ -92,14 +92,17 @@ void ClearSkies::display(Platform& pfrm, App& app)
         Fixnum offset_;
     };
 
-    Flare flares[] = {{1, 0.1_fixed},
-                      {2, 0.2_fixed},
-                      {3, 0.25_fixed},};
+    Flare flares[] = {
+        {1, 0.1_fixed},
+        {2, 0.2_fixed},
+        {3, 0.25_fixed},
+    };
 
-    auto amt = clamp((int)(255.0_fixed
-                       * ((165.0_fixed - dist)
-                       * Fixnum(1.f / 19.f))).as_integer(),
-                     0, 255);
+    auto amt =
+        clamp((int)(255.0_fixed * ((165.0_fixed - dist) * Fixnum(1.f / 19.f)))
+                  .as_integer(),
+              0,
+              255);
 
     if (amt > 210) {
         return;
@@ -114,12 +117,14 @@ void ClearSkies::display(Platform& pfrm, App& app)
         pfrm.screen().draw(spr);
     }
 
-    Flare flares2[] = {{59, 0.32_fixed},};
+    Flare flares2[] = {
+        {59, 0.32_fixed},
+    };
 
     spr.set_size(Sprite::Size::w32_h32);
     for (auto& f : flares2) {
-        spr.set_position({x + dx * f.offset_ - 8.0_fixed,
-                          y - dy * f.offset_ - 8.0_fixed});
+        spr.set_position(
+            {x + dx * f.offset_ - 8.0_fixed, y - dy * f.offset_ - 8.0_fixed});
         spr.set_texture_index(f.spr_);
         pfrm.screen().draw(spr);
     }
@@ -130,4 +135,4 @@ void ClearSkies::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland::weather

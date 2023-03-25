@@ -36,7 +36,9 @@ namespace skyland
 class WarEngine : public Room
 {
 public:
-    WarEngine(Island* parent, const RoomCoord& position, const char* n = name());
+    WarEngine(Island* parent,
+              const RoomCoord& position,
+              const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -100,8 +102,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::has_chimney |
-            RoomProperties::only_constructible_in_sandbox |
-            RoomProperties::habitable | RoomProperties::destroy_quietly;
+               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::habitable | RoomProperties::destroy_quietly;
     }
 };
 

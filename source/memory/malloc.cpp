@@ -181,6 +181,4 @@ void free(void* ptr)
 
 
 #endif // __GBA__
-
-
 }

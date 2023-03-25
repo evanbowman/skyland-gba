@@ -199,13 +199,13 @@ void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 
 
 
-ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(Platform& pfrm, App& app)
+ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(Platform& pfrm,
+                                                             App& app)
 {
     if ((app.game_mode() == App::GameMode::adventure or
          app.game_mode() == App::GameMode::sandbox or
          app.game_mode() == App::GameMode::skyland_forever) and
-        app.gp_.difficulty_ ==
-            GlobalPersistentData::Difficulty::beginner and
+        app.gp_.difficulty_ == GlobalPersistentData::Difficulty::beginner and
         not state_bit_load(app, StateBit::easy_mode_rewind_declined) and
         app.persistent_data().lives_ > 0) {
         --app.persistent_data().lives_;
@@ -229,8 +229,7 @@ ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(Platform& pfrm, App
     }
 
     app.effects().clear();
-    return scene_pool::alloc<PlayerIslandDestroyedScene>(
-        &app.player_island());
+    return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island());
 }
 
 
@@ -246,9 +245,8 @@ ScenePtr<Scene> ActiveWorldScene::try_surrender(Platform& pfrm, App& app)
         state_bit_store(app, StateBit::surrender_offered, true);
 
         // The final boss will never surrender.
-        if (app.world_graph()
-            .nodes_[app.current_world_location()]
-            .type_ not_eq WorldGraph::Node::Type::corrupted) {
+        if (app.world_graph().nodes_[app.current_world_location()].type_ not_eq
+            WorldGraph::Node::Type::corrupted) {
 
             return scene_pool::alloc<SurrenderWaitScene>();
         }
@@ -465,7 +463,7 @@ void WorldScene::multiplayer_vs_timeout_step(Platform& pfrm,
                 }
 
                 globals().multiplayer_timeout_text_.emplace(
-                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
+                    pfrm, msg.c_str(), OverlayCoord{margin, 4});
             }
         }
         globals().multiplayer_timeout_repaint_ = tm / (1 << 20);
@@ -491,8 +489,7 @@ void WorldScene::multiplayer_vs_timeout_step(Platform& pfrm,
                 }
 
                 globals().multiplayer_timeout_text_.emplace(
-                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
-
+                    pfrm, msg.c_str(), OverlayCoord{margin, 4});
             }
         } else {
             globals().multiplayer_timeout_text_.reset();
@@ -500,7 +497,6 @@ void WorldScene::multiplayer_vs_timeout_step(Platform& pfrm,
         globals().multiplayer_timeout_repaint_ = tm / (1 << 20);
     }
 }
-
 
 
 
@@ -554,8 +550,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.network_peer().is_connected()) {
         if (mt_prep_seconds) {
-            if (app.game_speed() not_eq GameSpeed::stopped
-                and not disable_ui_) {
+            if (app.game_speed() not_eq GameSpeed::stopped and
+                not disable_ui_) {
 
                 mt_prep_timer += delta;
                 if (mt_prep_timer > seconds(1)) {

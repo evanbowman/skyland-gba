@@ -182,7 +182,9 @@ public:
         const bool compress_output = not pfrm.keyboard().pressed<Key::select>();
 
         flash_filesystem::store_file_data_text(
-            pfrm, format("/save/sb%.lisp", cursor_).c_str(), p.data_,
+            pfrm,
+            format("/save/sb%.lisp", cursor_).c_str(),
+            p.data_,
             {.use_compression_ = compress_output});
 
         synth_notes_store(pfrm,

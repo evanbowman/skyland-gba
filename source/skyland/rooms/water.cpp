@@ -89,9 +89,7 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.environment().is_cold()) {
-        __unsafe__transmute(pfrm,
-                            app,
-                            ::skyland::metaclass_index("ice"));
+        __unsafe__transmute(pfrm, app, ::skyland::metaclass_index("ice"));
         return;
     }
 

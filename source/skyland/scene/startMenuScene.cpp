@@ -238,11 +238,12 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
- AGAIN:
+AGAIN:
     if (not data_->disp_queue_.empty()) {
         data_->disp_timer_ -= delta;
         if (not cascade_anim_in_ or data_->disp_timer_ <= 0) {
-            data_->disp_timer_ = milliseconds(20 + 2 * data_->disp_queue_.size());
+            data_->disp_timer_ =
+                milliseconds(20 + 2 * data_->disp_queue_.size());
 
             auto front = *data_->disp_queue_.begin();
             data_->disp_queue_.erase(data_->disp_queue_.begin());
@@ -405,17 +406,19 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     next->set_next_scene([&pfrm, &app]() {
                         auto& isle = app.player_island();
                         if (isle.interior_visible()) {
-                            auto t = app.environment().player_island_interior_texture();
+                            auto t = app.environment()
+                                         .player_island_interior_texture();
                             pfrm.load_tile0_texture(t);
                         } else {
-                            pfrm.load_tile0_texture(app.environment().player_island_texture());
+                            pfrm.load_tile0_texture(
+                                app.environment().player_island_texture());
                         }
                         if (isle.interior_visible()) {
                             show_island_interior(
-                                 pfrm, app, &app.player_island());
+                                pfrm, app, &app.player_island());
                         } else {
                             show_island_exterior(
-                                 pfrm, app, &app.player_island());
+                                pfrm, app, &app.player_island());
                         }
                         pfrm.set_scroll(isle.layer(),
                                         -isle.get_position().x.as_integer(),
@@ -993,8 +996,8 @@ void StartMenuScene::display(Platform& pfrm, App& app)
     //                         std::numeric_limits<s16>::max();
 
     origin.x = ((int)(data_->text_[data_->cursor_].coord().x - 2) * 8) + view.x;
-    origin.y =
-        (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) + view.y - add_offset_;
+    origin.y = (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) +
+               view.y - add_offset_;
 
     cursor.set_position(origin);
 

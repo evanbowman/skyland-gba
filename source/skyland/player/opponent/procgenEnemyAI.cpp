@@ -1385,9 +1385,10 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
         }
     }
 
-    const int chr_count = 1 + rng::choice(core_count_, rng_source_) +
-        (transporter_count > 0 ?
-         rng::choice(transporter_count, rng_source_) : 0);
+    const int chr_count =
+        1 + rng::choice(core_count_, rng_source_) +
+        (transporter_count > 0 ? rng::choice(transporter_count, rng_source_)
+                               : 0);
 
     struct Context
     {
@@ -1665,9 +1666,11 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                         } else {
                             mt->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
-                            if (auto r = app.opponent_island()->get_room({x, yy})) {
+                            if (auto r =
+                                    app.opponent_island()->get_room({x, yy})) {
                                 if (auto m = r->cast<Masonry>()) {
-                                    if (rng::choice<4>(rng::critical_state) == 0) {
+                                    if (rng::choice<4>(rng::critical_state) ==
+                                        0) {
                                         m->set_gfx(2);
                                     }
                                 }

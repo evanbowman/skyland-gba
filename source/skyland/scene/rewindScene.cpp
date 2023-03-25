@@ -596,9 +596,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     room->edit_characters().push(std::move(chr));
                 }
             } else {
-                auto err =
-                    "rewind salvage: attempt to re-attach character"
-                    " to non-existent room.";
+                auto err = "rewind salvage: attempt to re-attach character"
+                           " to non-existent room.";
                 return scene_pool::alloc<FatalErrorScene>(err);
             }
 
@@ -1002,11 +1001,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             const bool is_replicant = e->is_replicant_;
 
-            auto chr = app.alloc_entity<BasicCharacter>(pfrm,
-                                                        island,
-                                                        owner,
-                                                        RoomCoord{e->x_, e->y_},
-                                                        is_replicant);
+            auto chr = app.alloc_entity<BasicCharacter>(
+                pfrm, island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
 
             chr->__assign_id(e->id_.get());
 
@@ -1032,9 +1028,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         if ((*it)->is_replicant()) {
                             room->edit_characters().erase(it);
                         } else {
-                            auto err =
-                                "rewind error: rewind replicant"
-                                "is not replicant?!";
+                            auto err = "rewind error: rewind replicant"
+                                       "is not replicant?!";
                             return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
@@ -1099,16 +1094,16 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         detached->drop_movement_path();
                         if (auto source_room = source_island->get_room(
                                 {e->previous_x_, e->previous_y_})) {
-                            source_room->edit_characters().push(std::move(detached));
+                            source_room->edit_characters().push(
+                                std::move(detached));
 
                             // Give the transport back to the transporter, as
                             // we've reverted it.
                             source_room->___rewind___ability_used(pfrm, app);
 
                         } else {
-                            auto err =
-                                "fatal error when rewinding "
-                                "transport: source room missing.";
+                            auto err = "fatal error when rewinding "
+                                       "transport: source room missing.";
                             return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
@@ -1161,11 +1156,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         detached->drop_movement_path();
                         detached->set_idle(app);
                         if (auto source_room = source_island->get_room(pos)) {
-                            source_room->edit_characters().push(std::move(detached));
+                            source_room->edit_characters().push(
+                                std::move(detached));
                         } else {
-                            auto err =
-                                "fatal error when rewinding "
-                                "disembark: source room missing";
+                            auto err = "fatal error when rewinding "
+                                       "disembark: source room missing";
                             return scene_pool::alloc<FatalErrorScene>(err);
                         }
                         break;
@@ -1380,7 +1375,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         dest_island->drones().push(*drone);
                     } else {
                         auto err = "rewind: attempt to attach drone to non"
-                            " drone-bay";
+                                   " drone-bay";
                         return scene_pool::alloc<FatalErrorScene>(err);
                     }
                 } else {
@@ -1812,7 +1807,6 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
             room->update_description();
         }
     }
-
 }
 
 
