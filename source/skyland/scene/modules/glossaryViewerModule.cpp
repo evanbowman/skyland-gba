@@ -163,6 +163,7 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.speaker().set_music_volume(10);
 
     Text::platform_retain_alphabet(pfrm);
+    Text::print(pfrm, "0123456789()[].", OverlayCoord{0, 21});
 
     pfrm.screen().clear();
     pfrm.screen().display();
@@ -778,6 +779,7 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             Text::platform_retain_alphabet(pfrm);
+            Text::print(pfrm, "0123456789()[].", OverlayCoord{0, 21});
             load_categories(pfrm);
             draw_category_line(pfrm, cg_cursor_, cg_highlight_colors);
         }
