@@ -194,6 +194,20 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return T::category(); // TODO...
     }
 
+
+    Room::WeaponOrientation weapon_orientation() const override
+    {
+        auto o = T::weapon_orientation();
+        if (category() == Room::Category::weapon and
+            o == Room::WeaponOrientation::none) {
+            Platform::fatal(format("weapon orientation config missing "
+                                   "for $",
+                                   T::name()));
+        }
+        return o;
+    }
+
+
     void format_description(Platform& pfrm,
                             StringBuffer<512>& buffer) const override
     {

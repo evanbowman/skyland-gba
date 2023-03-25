@@ -52,6 +52,12 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::horizontal;
+    }
+
+
     static Category category()
     {
         return Category::weapon;

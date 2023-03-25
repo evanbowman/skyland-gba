@@ -96,6 +96,12 @@ struct RoomPluginInfo : public RoomMeta::Info
     };
 
 
+    Room::WeaponOrientation weapon_orientation() const override
+    {
+        return Room::WeaponOrientation::none;
+    }
+
+
     template <FieldTag::Tag info, typename T> T& fetch_info() const
     {
         if (info_) {

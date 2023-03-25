@@ -53,6 +53,12 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::vertical;
+    }
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 

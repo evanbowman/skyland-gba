@@ -59,6 +59,12 @@ public:
     }
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::horizontal;
+    }
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 

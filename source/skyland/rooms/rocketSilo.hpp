@@ -49,6 +49,12 @@ public:
     Microseconds reload() const override;
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::vertical;
+    }
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 

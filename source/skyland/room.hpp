@@ -465,6 +465,15 @@ public:
     }
 
 
+    enum class WeaponOrientation { none, horizontal, vertical };
+
+
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::none;
+    }
+
+
     virtual Power power_usage(App& app) const;
 
 

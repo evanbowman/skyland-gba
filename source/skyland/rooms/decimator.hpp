@@ -54,6 +54,12 @@ public:
     void rewind(Platform&, App&, Microseconds delta);
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::horizontal;
+    }
+
+
     void unset_target(Platform& pfrm, App& app) override;
 
 

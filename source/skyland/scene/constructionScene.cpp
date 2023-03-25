@@ -1147,6 +1147,42 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 (data_->construction_sites_[selector_].y - (sz.y - 1)) * 16);
 
             draw_required_space(pfrm, origin, sz);
+
+            Sprite spr;
+            spr.set_size(Sprite::Size::w16_h16);
+            auto o = meta->weapon_orientation();
+            switch (o) {
+            case Room::WeaponOrientation::none:
+                break;
+
+            case Room::WeaponOrientation::horizontal: {
+                spr.set_tidx_16x16(97, 1);
+                const bool flip = island(app) == app.opponent_island();
+                spr.set_flip({flip, false});
+                if (flip) {
+                    origin.x -= 16.0_fixed;
+                } else {
+                    origin.x += 16.0_fixed;
+                    origin.x += Fixnum::from_integer((meta->size().x - 1) * 16);
+                }
+                const auto ys = meta->size().y;
+                if (ys > 1) {
+                    auto offset = Fixnum::from_integer(((ys - 1)) * 16);
+                    offset *= 0.5_fixed;
+                    origin.y += offset;
+                }
+                spr.set_position(origin);
+                pfrm.screen().draw(spr);
+                break;
+            }
+
+            case Room::WeaponOrientation::vertical:
+                spr.set_tidx_16x16(98, 0);
+                origin.y -= 16.0_fixed;
+                spr.set_position(origin);
+                pfrm.screen().draw(spr);
+                break;
+            }
         }
         break;
 
