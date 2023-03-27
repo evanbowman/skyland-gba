@@ -37,15 +37,21 @@ namespace skyland
 
 
 
+Coins get_room_cost(Island* island, const RoomMeta& meta);
+
+
+
 static Coins salvage_value(App& app, Room& room)
 {
     if (str_eq(room.name(), "gold")) {
         return (*room.metaclass())->cost();
     }
 
-    return ((*room.metaclass())->cost() *
-            (not app.opponent_island() ? 1.f : salvage_factor)) *
-           (Float(room.health()) / (*room.metaclass())->full_health());
+    Coins sv = ((*room.metaclass())->cost() *
+                (not app.opponent_island() ? 1.f : salvage_factor)) *
+               (Float(room.health()) / (*room.metaclass())->full_health());
+
+    return std::min(sv, get_room_cost(room.parent(), *room.metaclass()));
 }
 
 

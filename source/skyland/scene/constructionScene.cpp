@@ -159,7 +159,7 @@ bool ConstructionScene::camera_update_check_key(Platform& pfrm, App& app)
 
 
 
-static Coins get_cost(Island* island, const RoomMeta& meta)
+Coins get_room_cost(Island* island, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
     for (int i = 0; i < island->workshop_count() + island->manufactory_count();
@@ -639,7 +639,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             const auto& target = *load_metaclass(mti);
 
-            if (app.coins() < get_cost(island(app), target)) {
+            if (app.coins() < get_room_cost(island(app), target)) {
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
                 pfrm.speaker().play_sound("beep_error", 2);
@@ -674,7 +674,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            const auto diff = get_cost(island(app), target);
+            const auto diff = get_room_cost(island(app), target);
             app.set_coins(pfrm, app.coins() - diff);
             app.level_coins_spent() += diff;
 
@@ -851,7 +851,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
                ->c_str();
 
     str += " ";
-    str += stringify(get_cost(
+    str += stringify(get_room_cost(
         island(app),
         (*load_metaclass(data_->available_buildings_[building_selector_]))));
     str += "@";
