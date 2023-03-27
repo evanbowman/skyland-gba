@@ -39,6 +39,8 @@ void FadeInScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    WorldScene::notransitions();
+
     pfrm.screen().set_shader(app.environment().shader(app));
 }
 
