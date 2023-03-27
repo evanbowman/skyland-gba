@@ -49,7 +49,7 @@
   (while (not (construction-sites (player) '(1 . 3)))
     (terrain (player) (+ (terrain (player)) 1)))
   (room-del (opponent) 7 12)
-  (sel-input '(1 . 3)
+  (sel-input 'rocket-bomb
              "Pick a slot (1x3)"
              (lambda
                (room-new (player) (list 'rocket-bomb $1 $2))

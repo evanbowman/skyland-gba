@@ -492,7 +492,7 @@ o----------------------------o
 o----------------------------o
 
  (sel-input
-  space
+  room-sym
   msg
   callback)
 
@@ -503,18 +503,18 @@ o----------------------------o
  function callback with
  parameters island, x, y.
 
- If you pass a pair of ints
+ If you pass a room name
  in argument zero, the engine
  will reject selections if
  there is there is less free
  space at the cursor
  coordinate than specified by
  the pair of x,y constraints.
- Pass nil if you don' care.
+ Pass nil if you don't care.
 
  For example:
 
-(sel-input '(1 . 1) "pick a coord:"
+(sel-input 'hull "pick a coord:"
  (lambda
   (syscall "log"
            (string

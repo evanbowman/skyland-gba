@@ -62,7 +62,7 @@
             (while (not (construction-sites (player) (rsz pick)))
               (terrain (player) (+ (terrain (player)) 1)))
             (sel-input
-             (rsz pick)
+             pick
              (format "Pick a slot (%x%)"
                      (car (rsz pick))
                      (cdr (rsz pick)))

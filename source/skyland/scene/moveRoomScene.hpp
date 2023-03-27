@@ -43,8 +43,11 @@ namespace skyland
 
 
 void draw_required_space(Platform& pfrm,
+                         App& app,
+                         Island& island,
                          const Vec2<Fixnum> origin,
-                         const Vec2<u8>& sz);
+                         const Vec2<u8>& sz,
+                         Room::WeaponOrientation o);
 
 
 
@@ -220,6 +223,7 @@ public:
 
                     mv_size_.x = r->size().x;
                     mv_size_.y = r->size().y;
+                    mv_ot_ = (*r->metaclass())->weapon_orientation();
 
                     auto st = calc_screen_tiles(pfrm);
 
@@ -648,7 +652,13 @@ public:
                             auto origin = island_->visual_origin();
                             origin.x += Fixnum::from_integer(x * 16);
                             origin.y += Fixnum::from_integer(y * 16);
-                            draw_required_space(pfrm, origin, sz);
+                            auto o = (*room->metaclass())->weapon_orientation();
+                            draw_required_space(pfrm,
+                                                app,
+                                                *island_,
+                                                origin,
+                                                sz,
+                                                o);
                         }
                     }
                 }
@@ -680,7 +690,7 @@ public:
             origin.x += Fixnum::from_integer(cursor_loc.x * 16);
             origin.y += Fixnum::from_integer(cursor_loc.y * 16);
             auto sz = mv_size_;
-            draw_required_space(pfrm, origin, sz);
+            draw_required_space(pfrm, app, *island_, origin, sz, mv_ot_);
         }
 
         if ((int)state_ > (int)State::prompt) {
@@ -714,6 +724,7 @@ private:
 
     RoomCoord move_src_;
     Vec2<u8> mv_size_;
+    Room::WeaponOrientation mv_ot_;
 
     struct GroupSelection
     {

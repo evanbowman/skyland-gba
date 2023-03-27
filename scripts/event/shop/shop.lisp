@@ -32,7 +32,7 @@
 
           (defn on-dialog-accepted
             (coins-add (* -1 (get info 1)))
-            (sel-input (get info 3)
+            (sel-input (get info 0)
                        "pick a slot:"
                        (lambda
                          (room-new (player) (list (get info 0) $1 $2))

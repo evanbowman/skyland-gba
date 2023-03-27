@@ -25,6 +25,7 @@
 
 #include "script/lisp.hpp"
 #include "skyland/coord.hpp"
+#include "skyland/room.hpp"
 #include "worldScene.hpp"
 
 
@@ -74,6 +75,8 @@ private:
     Microseconds cursor_anim_timer_ = 0;
 
     bool cursor_anim_frame_ = false;
+
+    Room::WeaponOrientation w_ot_ = Room::WeaponOrientation::none;
 };
 
 

@@ -33,7 +33,7 @@
   (setq on-converge nil)
   (while (not (construction-sites (player) '(2 . 2)))
     (terrain (player) (+ terrain (player) 1)))
-  (sel-input '(2 . 2)
+  (sel-input 'incinerator
              "Place weapon (2x2)"
              (lambda
                (room-new (player) (list 'incinerator $1 $2))

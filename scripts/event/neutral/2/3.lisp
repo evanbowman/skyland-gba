@@ -61,7 +61,7 @@
                   (terrain (player) (+ (terrain (player)) 1))))
 
       (sel-input
-       '(2 . 2)
+       'decimator
        "Place weapon where? (2x2)"
        (lambda
          (room-new (player) (list 'decimator $1 $2))

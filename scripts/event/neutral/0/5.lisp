@@ -60,7 +60,7 @@
                 (defn on-dialog-closed
                   (while (< (length (construction-sites (player) '(1 . 2))) 1)
                     (terrain (player) (+ (terrain (player)) 1)))
-                  (sel-input '(1 . 2)
+                  (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
                              (lambda
                                (syscall "sound" "build0")

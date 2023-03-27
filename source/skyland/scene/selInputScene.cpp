@@ -27,6 +27,7 @@
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/salvageRoomScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -51,15 +52,17 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     auto cdr = parameters_->cons().cdr();
-    if (cdr->type() == lisp::Value::Type::cons) {
-        auto xrange = cdr->cons().car();
-        auto yrange = cdr->cons().cdr();
+    if (cdr->type() == lisp::Value::Type::symbol) {
 
-        if (xrange->type() == lisp::Value::Type::integer and
-            yrange->type() == lisp::Value::Type::integer) {
-            required_space_ = {(u8)xrange->integer().value_,
-                               (u8)yrange->integer().value_};
+        auto mt = load_metaclass(cdr->symbol().name());
+        if (mt) {
+            auto xrange = (*mt)->size().x;
+            auto yrange = (*mt)->size().y;
+
+            required_space_ = {(u8)xrange, (u8)yrange};
+            w_ot_ = (*mt)->weapon_orientation();
         }
+
     }
 
 
@@ -239,8 +242,12 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 void draw_required_space(Platform& pfrm,
+                         App& app,
+                         Island& island,
                          const Vec2<Fixnum> origin,
-                         const Vec2<u8>& sz);
+                         const Vec2<u8>& sz,
+                         Room::WeaponOrientation o);
+
 
 
 
@@ -284,7 +291,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);
         origin.y -= Fixnum::from_integer((required_space_->y - 1) * 16);
 
-        draw_required_space(pfrm, origin, sz);
+        draw_required_space(pfrm, app, player_island(app), origin, sz, w_ot_);
     }
 }
 

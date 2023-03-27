@@ -88,7 +88,7 @@
                    (lambda
                      (let ((cb $0))
 
-                       (sel-input '(2 . 1)
+                       (sel-input wpn
                                   (string "Place " (rname wpn) " (2x1):")
                                   (lambda
                                     (room-new (player) `(,wpn ,$1 ,$2))

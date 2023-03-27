@@ -70,7 +70,7 @@
            (let ((t (this))
                  (del 0))
              (sel-input
-              '(1 . 1)
+              'mirror-hull
               (string "place block " (+ cnt 1) "/8:")
               (lambda
                 (room-new (player) (list 'mirror-hull $1 $2))

@@ -82,7 +82,7 @@
               (coins-add -1300)
               (mktr (rsz item))
               (sel-input
-               (rsz item)
+               item
                (string
                 "place first "
                 (rname item)
@@ -92,7 +92,7 @@
                  (syscall "sound" "build0")
                  (mktr (rsz item))
                  (sel-input
-                  (rsz item)
+                  item
                   (string "place second " (rname item) ":")
                   (lambda
                     (room-new (player) (list item $1 $2))

@@ -51,7 +51,7 @@
       (while (not (construction-sites (player) '(2 . 1)))
         (terrain (player) (+ terrain (player)) 1))
 
-      (sel-input '(2 . 1)
+      (sel-input 'drone-bay
                  "Pick a slot (2x1)"
                  (lambda
                    (syscall "sound" "build0")
@@ -64,13 +64,13 @@
       (while (not (construction-sites (player) '(2 . 1)))
         (terrain (player) (+ terrain (player)) 1))
 
-      (sel-input '(2 . 1)
+      (sel-input 'drone-bay
                  "Pick a slot (2x1) (1 of 2)"
                  (lambda
                    (syscall "sound" "build0")
                    (room-new (player) `(drone-bay ,$1 ,$2))
 
-                   (sel-input '(2 . 1)
+                   (sel-input 'drone-bay
                               "Pick a slot (2x1) (2 of 2)"
                               (lambda
                                 (syscall "sound" "build0")
