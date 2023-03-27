@@ -243,15 +243,8 @@ Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
-    if (app.opponent_island() and
-        // NOTE: cast should be safe, as a derived instance of Opponent should
-        // always be bound to the opponent island.
-        (static_cast<Opponent&>(app.opponent_island()->owner()))
-            .is_friendly()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
-        pfrm.speaker().play_sound("beep_error", 3);
-        auto str = SYSTR(error_friendly);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+    if (auto scn = reject_if_friendly(pfrm, app)) {
+        return scn;
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {

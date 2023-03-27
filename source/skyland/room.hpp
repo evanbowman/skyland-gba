@@ -294,6 +294,9 @@ public:
     select(Platform& pfrm, App& app, const RoomCoord& cursor);
 
 
+    ScenePtr<Scene> reject_if_friendly(Platform& pfrm, App& app);
+
+
     virtual std::optional<RoomCoord> get_target() const
     {
         return {};

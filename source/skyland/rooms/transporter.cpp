@@ -351,15 +351,9 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
 
 
-    if (app.opponent_island() and
-        (static_cast<Opponent&>(app.opponent_island()->owner()))
-            .is_friendly()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
-        pfrm.speaker().play_sound("beep_error", 3);
-        auto str = SYSTR(error_friendly);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+    if (auto scn = reject_if_friendly(pfrm, app)) {
+        return scn;
     }
-
 
     if (recharge_) {
         return null_scene();

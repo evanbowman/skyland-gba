@@ -26,6 +26,7 @@
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
 #include "scene/moveCharacterScene.hpp"
+#include "skyland/scene/notificationScene.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
@@ -467,6 +468,24 @@ Vec2<Fixnum> Room::visual_center() const
 bool Room::description_visible()
 {
     return parent_->interior_visible();
+}
+
+
+
+ScenePtr<Scene> Room::reject_if_friendly(Platform& pfrm, App& app)
+{
+    if (app.opponent_island() and
+        // NOTE: cast should be safe, as a derived instance of Opponent should
+        // always be bound to the opponent island.
+        (static_cast<Opponent&>(app.opponent_island()->owner()))
+            .is_friendly()) {
+        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        pfrm.speaker().play_sound("beep_error", 3);
+        auto str = SYSTR(error_friendly);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+    }
+
+    return null_scene();
 }
 
 
