@@ -33,6 +33,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/scene/readyScene.hpp"
 
 
 
@@ -347,6 +348,16 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     if (not other_island(app)) {
         return null_scene();
+    }
+
+
+    if (app.opponent_island() and
+        (static_cast<Opponent&>(app.opponent_island()->owner()))
+            .is_friendly()) {
+        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        pfrm.speaker().play_sound("beep_error", 3);
+        auto str = SYSTR(error_friendly);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
 
 
