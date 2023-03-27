@@ -1,5 +1,11 @@
 # prevent github from displaying the repository as ASM or HTML due to documentation and data files
-source/data/* linguist-vendored
-useful_documents/* linguist-documentation
-external/* linguist-vendored
+useful_documents/** linguist-documentation
+help/** linguist-documentation
+licenses/* linguist-documentation
+
+external/** linguist-vendored
+
+source/data/* linguist-generated
+
 *.lisp linguist-language=lisp
+*.s linguist-language=Assembly
