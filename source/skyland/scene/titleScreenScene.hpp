@@ -124,6 +124,7 @@ private:
         macro_island_enter,
         macro_island,
         macro_island_exit,
+        scroll_archives,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;
@@ -136,6 +137,8 @@ private:
     int menu_selection_stop_ = 0;
 
     int x_scroll_ = 0;
+    s16 v_scroll_1_ = 0;
+    s16 v_scroll_2_ = 0;
 
     bool dev_;
 

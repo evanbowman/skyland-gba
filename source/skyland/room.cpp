@@ -26,12 +26,12 @@
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
 #include "scene/moveCharacterScene.hpp"
-#include "skyland/scene/notificationScene.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
+#include "skyland/scene/notificationScene.hpp"
 #include "skyland/tile.hpp"
 #include "timeStreamEvent.hpp"
 

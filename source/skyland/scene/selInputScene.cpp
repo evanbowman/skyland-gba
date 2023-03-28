@@ -24,10 +24,10 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/salvageRoomScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -62,7 +62,6 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
             required_space_ = {(u8)xrange, (u8)yrange};
             w_ot_ = (*mt)->weapon_orientation();
         }
-
     }
 
 
@@ -247,7 +246,6 @@ void draw_required_space(Platform& pfrm,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
                          Room::WeaponOrientation o);
-
 
 
 

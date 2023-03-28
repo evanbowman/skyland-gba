@@ -38,13 +38,11 @@ namespace skyland
 class DataCartModule : public Module<DataCartModule>
 {
 public:
-
     bool skip_intro_;
     bool skip_dialog_ = false;
 
     DataCartModule(bool skip_intro = false) : skip_intro_(skip_intro)
     {
-
     }
 
     void enter(Platform&, App&, Scene& prev) override;

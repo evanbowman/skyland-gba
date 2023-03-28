@@ -173,6 +173,11 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
             pfrm.keyboard().poll();
             pfrm.screen().clear();
             pfrm.screen().display();
+            if (ambience_) {
+                if (not pfrm.speaker().is_sound_playing(ambience_)) {
+                    pfrm.speaker().play_sound(ambience_, 9);
+                }
+            }
         }
 
         break;
@@ -481,6 +486,12 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         data_->coins_->update(pfrm, delta);
     }
 
+    if (ambience_) {
+        if (not pfrm.speaker().is_sound_playing(ambience_)) {
+            pfrm.speaker().play_sound(ambience_, 9);
+        }
+    }
+
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);
         text_state_.timer_ += delta;
@@ -684,6 +695,11 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                     Float(i) / frames, ColorConstant::rich_black, true, true);
                 pfrm.screen().clear();
                 pfrm.screen().display();
+                if (ambience_) {
+                    if (not pfrm.speaker().is_sound_playing(ambience_)) {
+                        pfrm.speaker().play_sound(ambience_, 9);
+                    }
+                }
             }
             pfrm.sleep(20);
         }
@@ -704,8 +720,10 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene>
-dialog_prompt(Platform& pfrm, SystemString systr, DeferredScene next)
+ScenePtr<Scene> dialog_prompt(Platform& pfrm,
+                              SystemString systr,
+                              DeferredScene next,
+                              const char* ambience)
 {
     lisp::set_var("on-dialog-closed", L_NIL);
     pfrm.screen().fade(0.95f);
@@ -714,6 +732,7 @@ dialog_prompt(Platform& pfrm, SystemString systr, DeferredScene next)
     *dialog = loadstr(pfrm, systr)->c_str();
     auto s = scene_pool::alloc<BoxedDialogScene>(std::move(dialog), false);
     s->set_next_scene(next);
+    s->ambience_ = ambience;
     return s;
 }
 

@@ -102,14 +102,6 @@ void DataCartModule::enter(Platform& pfrm, App& app, Scene& prev)
     Text::platform_retain_alphabet(pfrm);
     pfrm.screen().set_view(View{});
 
-    if (not pfrm.speaker().is_sound_playing("creaking")) {
-        app.on_timeout(
-        pfrm, milliseconds(500), [](Platform& pfrm, App&) {
-                                     pfrm.speaker().play_sound("creaking", 9);
-                                 });
-
-    }
-
     pfrm.load_overlay_texture("overlay_datacart");
     // pfrm.load_background_texture("background");
     // pfrm.screen().schedule_fade(0.65f);
@@ -132,6 +124,7 @@ void DataCartModule::enter(Platform& pfrm, App& app, Scene& prev)
 void DataCartModule::exit(Platform& pfrm, App&, Scene& next)
 {
     pfrm.fill_overlay(0);
+    pfrm.speaker().stop_sound("archivist");
 }
 
 
@@ -144,19 +137,21 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.gp_.stateflags_.get(prompt_flag)) {
         app.gp_.stateflags_.set(prompt_flag, true);
         save::store_global_data(pfrm, app.gp_);
-        auto next = []()-> ScenePtr<Scene> {
-                        auto ret = scene_pool::alloc<DataCartModule>(true);
-                        ret->skip_dialog_ = true;
-                        return ret;
-                    };
-        return dialog_prompt(pfrm, SystemString::dialog_datacarts_prompt, next);
+        auto next = []() -> ScenePtr<Scene> {
+            auto ret = scene_pool::alloc<DataCartModule>(true);
+            ret->skip_dialog_ = true;
+            return ret;
+        };
+        return dialog_prompt(
+            pfrm, SystemString::dialog_datacarts_prompt, next, "archivist");
     } else if (not skip_dialog_) {
-        auto next = []()-> ScenePtr<Scene> {
-                        auto ret = scene_pool::alloc<DataCartModule>(true);
-                        ret->skip_dialog_ = true;
-                        return ret;
-                    };
-        return dialog_prompt(pfrm, SystemString::dialog_datacarts_return, next);
+        auto next = []() -> ScenePtr<Scene> {
+            auto ret = scene_pool::alloc<DataCartModule>(true);
+            ret->skip_dialog_ = true;
+            return ret;
+        };
+        return dialog_prompt(
+            pfrm, SystemString::dialog_datacarts_return, next, "archivist");
     }
 
     app.player().update(pfrm, app, delta);
@@ -166,8 +161,8 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
-    if (not pfrm.speaker().is_sound_playing("creaking")) {
-        pfrm.speaker().play_sound("creaking", 9);
+    if (not pfrm.speaker().is_sound_playing("archivist")) {
+        pfrm.speaker().play_sound("archivist", 9);
     }
 
 
@@ -196,8 +191,8 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
             auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
 
             if (skip_intro_) {
-                amount = 1.f -
-                    ((1.f - 0.65f) * smoothstep(0.f, fade_duration, timer_));
+                amount = 1.f - ((1.f - 0.65f) *
+                                smoothstep(0.f, fade_duration, timer_));
             }
             pfrm.screen().schedule_fade(amount);
 
@@ -390,12 +385,17 @@ public:
         draw_image(pfrm, 1, 4, 1, 22, 17, Layer::overlay);
         pfrm.screen().schedule_fade(0);
         pfrm.screen().schedule_fade(1);
+
+        pfrm.speaker().set_music_volume(15);
+        pfrm.speaker().set_sounds_volume(13);
     }
 
 
     void exit(Platform& pfrm, App&, Scene&) override
     {
         pfrm.enable_glyph_mode(true);
+        pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+        pfrm.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
     }
 
 
@@ -407,6 +407,10 @@ public:
             next->skip_dialog_ = true;
             next->set_index(cart_id_);
             return next;
+        }
+
+        if (not pfrm.speaker().is_sound_playing("archivist")) {
+            pfrm.speaker().play_sound("archivist", 9);
         }
 
         return null_scene();

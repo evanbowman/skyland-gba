@@ -92,6 +92,7 @@ public:
         return display_mode_;
     }
 
+    const char* ambience_ = nullptr;
 
 private:
     void process_command(Platform& pfrm, App& app);
@@ -124,7 +125,6 @@ private:
     bool choice_sel_ = true;
     bool img_view_ = false;
 
-
     struct Data
     {
         struct CharacterDescription
@@ -148,8 +148,10 @@ private:
 
 
 
-ScenePtr<Scene>
-dialog_prompt(Platform& pfrm, SystemString systr, DeferredScene next);
+ScenePtr<Scene> dialog_prompt(Platform& pfrm,
+                              SystemString systr,
+                              DeferredScene next,
+                              const char* ambience = nullptr);
 
 
 class BoxedDialogSceneWS : public WorldScene

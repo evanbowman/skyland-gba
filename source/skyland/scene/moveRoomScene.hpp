@@ -653,12 +653,8 @@ public:
                             origin.x += Fixnum::from_integer(x * 16);
                             origin.y += Fixnum::from_integer(y * 16);
                             auto o = (*room->metaclass())->weapon_orientation();
-                            draw_required_space(pfrm,
-                                                app,
-                                                *island_,
-                                                origin,
-                                                sz,
-                                                o);
+                            draw_required_space(
+                                pfrm, app, *island_, origin, sz, o);
                         }
                     }
                 }

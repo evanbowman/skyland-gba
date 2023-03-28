@@ -385,6 +385,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/tilesheet_enemy_0_interior.s
     ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
+    ${DATA_DIR}/skyland_title_5_flattened.s
     ${DATA_DIR}/skyland_title_4_flattened.s
     ${DATA_DIR}/skyland_title_3_flattened.s
     ${DATA_DIR}/skyland_title_2_flattened.s
@@ -430,6 +431,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_struttin.s
     ${DATA_DIR}/music_box.s
     ${DATA_DIR}/shadows.s
+    ${DATA_DIR}/sound_archivist.s
     ${DATA_DIR}/sound_seagull_1.s
     ${DATA_DIR}/sound_seagull_2.s
     ${DATA_DIR}/sound_creaking.s
@@ -737,6 +739,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_world_map_backdrop 2 2 NO YES)
+    add_tilesheet(skyland_title_5 0 0 YES YES)
     add_tilesheet(skyland_title_4 0 0 YES YES)
     add_tilesheet(skyland_title_3 0 0 YES YES)
     add_tilesheet(skyland_title_2 0 0 YES YES)

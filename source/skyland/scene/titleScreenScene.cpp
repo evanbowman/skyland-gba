@@ -609,7 +609,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     pong_.update(pfrm, pong_sounds_on);
 
     if (menu_selection_ == 3) {
-        if (not pfrm.speaker().is_sound_playing("struttin")) {
+        if (state_ not_eq State::scroll_archives and
+            not pfrm.speaker().is_sound_playing("struttin")) {
             pfrm.speaker().stop_sound("creaking");
             pfrm.speaker().play_sound("struttin", 7);
         }
@@ -643,24 +644,48 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (x_scroll_ < -240) {
             if (not macro_island_view) {
-                set_scroll(pfrm, Layer::map_0_ext, x_scroll_ - 32, -offset + 8);
+                set_scroll(pfrm,
+                           Layer::map_0_ext,
+                           x_scroll_ - 32,
+                           -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+            set_scroll(pfrm,
+                       Layer::map_1_ext,
+                       x_scroll_ - 272,
+                       -offset + 8 + v_scroll_2_);
         } else if (x_scroll_ < 0) {
             if (not macro_island_view) {
-                set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
+                set_scroll(pfrm,
+                           Layer::map_0_ext,
+                           x_scroll_,
+                           -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+            set_scroll(pfrm,
+                       Layer::map_1_ext,
+                       x_scroll_ - 272,
+                       -offset + 8 + v_scroll_2_);
         } else if (x_scroll_ > 240) {
             if (not macro_island_view) {
-                set_scroll(pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
+                set_scroll(pfrm,
+                           Layer::map_0_ext,
+                           x_scroll_ + 32,
+                           -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            set_scroll(pfrm,
+                       Layer::map_1_ext,
+                       x_scroll_ - 240,
+                       -offset + 8 + v_scroll_2_);
         } else {
             if (not macro_island_view) {
-                set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
+                set_scroll(pfrm,
+                           Layer::map_0_ext,
+                           x_scroll_,
+                           -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            set_scroll(pfrm,
+                       Layer::map_1_ext,
+                       x_scroll_ - 240,
+                       -offset + 8 + v_scroll_2_);
         }
     }
 
@@ -721,7 +746,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     } else if (menu_selection_ == 3) {
-        if (state_ not_eq State::show_modules) {
+        if (state_ not_eq State::show_modules and
+            state_ not_eq State::scroll_archives) {
             note_timer_ -= delta;
             if (note_timer_ < 0) {
                 note_timer_ =
@@ -1465,11 +1491,22 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
-                    // if (f->stop_sound()) {
                     pfrm.speaker().clear_sounds();
                     pfrm.speaker().play_music("unaccompanied_wind", 0);
-                    // }
                     pfrm.speaker().play_sound("button_wooden", 3);
+
+                    if (f->name() == SystemString::module_cart_viewer) {
+                        state_ = State::scroll_archives;
+                        pfrm.screen().schedule_fade(0);
+                        pfrm.fill_overlay(0);
+                        redraw_margins(pfrm);
+                        pfrm.screen().schedule_fade(0.f);
+                        timer_ = 0;
+                        pfrm.load_tile1_texture("skyland_title_5_flattened");
+                        pfrm.speaker().play_sound("gust2", 3);
+                        break;
+                    }
+
                     pfrm.fill_overlay(0);
                     pfrm.system_call("vsync", 0); // FIXME
                     pfrm.screen().fade(
@@ -1485,6 +1522,37 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         break;
+
+    case State::scroll_archives: {
+        timer_ += delta;
+
+        constexpr auto fade_duration = milliseconds(1500);
+        const auto amount = smoothstep(0.f, fade_duration, timer_);
+        pfrm.screen().schedule_fade(amount);
+
+        v_scroll_1_ = 120 * amount;
+        v_scroll_2_ = 120 * amount - 113;
+
+        ambient_movement_ =
+            4 * float(sine(1 * 3.14f * 0.0005f * hover_timer_ + 180)) /
+            std::numeric_limits<s16>::max();
+
+        const int offset = 60 + ambient_movement_;
+
+        set_scroll(
+            pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8 + v_scroll_1_);
+        set_scroll(
+            pfrm, Layer::map_1_ext, x_scroll_ + 32, -offset + 8 + v_scroll_2_);
+
+        if (timer_ > fade_duration) {
+            auto index = module_page_ * modules_per_page + module_cursor_->x +
+                         module_cursor_->y * modules_per_row;
+            if (auto f = detail::_Module::Factory::get(index, dev_)) {
+                return f->create(pfrm);
+            }
+        }
+        break;
+    }
 
     case State::wait_2:
         break;
