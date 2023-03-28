@@ -407,6 +407,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_2_flattened.s
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/zone_image_4_flattened.s
+    ${DATA_DIR}/datacarts_flattened.s
     ${DATA_DIR}/glossary_wall_cg_flattened.s
     ${DATA_DIR}/glossary_weapon_cg_flattened.s
     ${DATA_DIR}/glossary_factory_cg_flattened.s
@@ -751,6 +752,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(zone_image_2 0 0 YES YES)
     add_tilesheet(zone_image_3 0 0 YES YES)
     add_tilesheet(zone_image_4 0 0 YES YES)
+    add_tilesheet(datacarts 0 0 YES YES)
     add_tilesheet(glossary_factory_cg 0 0 YES YES)
     add_tilesheet(glossary_misc_cg 0 0 YES YES)
     add_tilesheet(glossary_decoration_cg 0 0 YES YES)
@@ -772,7 +774,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_qr 0 0 NO YES)
     add_overlay(overlay_gamespeed 0 0 NO YES)
     add_overlay(overlay_editor 0 0 NO YES)
-    add_overlay(overlay_dialog 0 0 NO YES)
+    add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(overlay_dialog_fullscreen 0 0 NO YES)
     add_overlay(overlay_skyland_title 0 0 NO YES)
     add_overlay(charset 0 0 NO NO)

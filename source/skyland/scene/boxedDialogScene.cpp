@@ -150,8 +150,8 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
                 pfrm.set_tile(Layer::map_1_ext, i, j, 0);
             }
         }
-        for (int x = 0; x < 32; ++x) {
-            for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 30; ++x) {
+            for (int y = 0; y < 2; ++y) {
                 pfrm.set_tile(Layer::overlay, x, y, 123);
             }
             pfrm.set_tile(Layer::overlay, x, 13, 123);
@@ -159,7 +159,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         }
         pfrm.load_tile1_texture(bkg_name.c_str());
         pfrm.set_scroll(Layer::map_1_ext, 0, 0);
-        __draw_image(pfrm, 1, 0, 4, 30, 9, Layer::map_1);
+        __draw_image(pfrm, 1, 0, 2, 30, 14, Layer::map_1);
 
         // Replace the textbox border with a tileset with an opaque dark
         // background.
@@ -170,6 +170,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         for (int i = 0; i < frames; ++i) {
             pfrm.screen().schedule_fade(1 - Float(i) / frames,
                                         ColorConstant::rich_black);
+            pfrm.keyboard().poll();
             pfrm.screen().clear();
             pfrm.screen().display();
         }
@@ -677,7 +678,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::animate_out:
         display_mode_ = DisplayMode::clear;
         if (img_view_) {
-            int frames = 60;
+            int frames = 30;
             for (int i = 0; i < frames; ++i) {
                 pfrm.screen().schedule_fade(
                     Float(i) / frames, ColorConstant::rich_black, true, true);

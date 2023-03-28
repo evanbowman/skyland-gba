@@ -38,6 +38,15 @@ namespace skyland
 class DataCartModule : public Module<DataCartModule>
 {
 public:
+
+    bool skip_intro_;
+    bool skip_dialog_ = false;
+
+    DataCartModule(bool skip_intro = false) : skip_intro_(skip_intro)
+    {
+
+    }
+
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
 
@@ -78,6 +87,9 @@ public:
 private:
     enum class State {
         init,
+        fade_in,
+        wait_0,
+        fade_partial,
         select,
         anim_out,
         drop,
@@ -90,7 +102,7 @@ private:
 
     int cart_index_ = 0;
     int timer_ = 0;
-    Float cart_scroll_down_;
+    Float cart_scroll_down_ = 0;
 
     std::optional<DataCartLibrary> carts_;
 

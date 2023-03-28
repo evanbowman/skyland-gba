@@ -605,6 +605,7 @@ enum class SystemString {
     factory_reset,
 
     dialog_datacarts_prompt,
+    dialog_datacarts_return,
     dialog_tutorial_prompt,
     adventure_completed_message,
 

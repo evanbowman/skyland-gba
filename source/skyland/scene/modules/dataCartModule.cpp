@@ -34,7 +34,7 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
 
 
     static const Text::OptColors colors{
-        {ColorConstant::silver_white, custom_color(0x18395a)}};
+        {ColorConstant::silver_white, custom_color(0x000818)}};
 
     pfrm.system_call("vsync", nullptr);
     Text tmp(pfrm, {});
@@ -87,14 +87,44 @@ void DataCartModule::show_cart(Platform& pfrm, int index)
 
 
 
-void DataCartModule::enter(Platform& pfrm, App&, Scene& prev)
+void __draw_image(Platform& pfrm,
+                  TileDesc start_tile,
+                  u16 start_x,
+                  u16 start_y,
+                  u16 width,
+                  u16 height,
+                  Layer layer);
+
+
+
+void DataCartModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     Text::platform_retain_alphabet(pfrm);
+    pfrm.screen().set_view(View{});
+
+    if (not pfrm.speaker().is_sound_playing("creaking")) {
+        app.on_timeout(
+        pfrm, milliseconds(500), [](Platform& pfrm, App&) {
+                                     pfrm.speaker().play_sound("creaking", 9);
+                                 });
+
+    }
 
     pfrm.load_overlay_texture("overlay_datacart");
-    pfrm.load_background_texture("background");
-    pfrm.screen().schedule_fade(0.65f);
-    pfrm.set_overlay_origin(0, -4);
+    // pfrm.load_background_texture("background");
+    // pfrm.screen().schedule_fade(0.65f);
+    // pfrm.set_overlay_origin(0, -4);
+
+
+    pfrm.load_tile1_texture("datacarts_flattened");
+    for (int x = 0; x < 30; ++x) {
+        for (int y = 0; y < 21; ++y) {
+            pfrm.set_raw_tile(Layer::map_1, x, y, 1);
+        }
+    }
+
+    __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
+    Text::print(pfrm, "0123456789()[].", OverlayCoord{0, 21});
 }
 
 
@@ -114,8 +144,19 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.gp_.stateflags_.get(prompt_flag)) {
         app.gp_.stateflags_.set(prompt_flag, true);
         save::store_global_data(pfrm, app.gp_);
-        auto next = scene_pool::make_deferred_scene<DataCartModule>();
+        auto next = []()-> ScenePtr<Scene> {
+                        auto ret = scene_pool::alloc<DataCartModule>(true);
+                        ret->skip_dialog_ = true;
+                        return ret;
+                    };
         return dialog_prompt(pfrm, SystemString::dialog_datacarts_prompt, next);
+    } else if (not skip_dialog_) {
+        auto next = []()-> ScenePtr<Scene> {
+                        auto ret = scene_pool::alloc<DataCartModule>(true);
+                        ret->skip_dialog_ = true;
+                        return ret;
+                    };
+        return dialog_prompt(pfrm, SystemString::dialog_datacarts_return, next);
     }
 
     app.player().update(pfrm, app, delta);
@@ -125,14 +166,83 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    if (not pfrm.speaker().is_sound_playing("creaking")) {
+        pfrm.speaker().play_sound("creaking", 9);
+    }
+
 
     app.update_parallax(delta);
 
     switch (state_) {
     case State::init: {
-        carts_.emplace(pfrm);
-        show_cart(pfrm, cart_index_);
-        state_ = State::select;
+        // carts_.emplace(pfrm);
+        // show_cart(pfrm, cart_index_);
+        // state_ = State::select;
+        state_ = State::fade_in;
+        if (cart_index_ not_eq 0) {
+            state_ = State::select;
+            pfrm.screen().schedule_fade(0.65f);
+            pfrm.set_overlay_origin(0, -4);
+            carts_.emplace(pfrm);
+            show_cart(pfrm, cart_index_);
+        }
+        break;
+    }
+
+    case State::fade_in:
+        timer_ += delta;
+        {
+            constexpr auto fade_duration = milliseconds(500);
+            auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
+
+            if (skip_intro_) {
+                amount = 1.f -
+                    ((1.f - 0.65f) * smoothstep(0.f, fade_duration, timer_));
+            }
+            pfrm.screen().schedule_fade(amount);
+
+            if (app.player().key_down(pfrm, Key::action_1) or
+                app.player().key_down(pfrm, Key::action_2) or
+                timer_ > fade_duration) {
+                timer_ = 0;
+                state_ = State::wait_0;
+                pfrm.screen().schedule_fade(0);
+                if (skip_intro_) {
+                    state_ = State::select;
+                    pfrm.screen().schedule_fade(0.65f);
+                    pfrm.set_overlay_origin(0, -4);
+                    carts_.emplace(pfrm);
+                    show_cart(pfrm, cart_index_);
+                }
+            }
+        }
+        break;
+
+    case State::wait_0:
+        timer_ += delta;
+        if (app.player().key_down(pfrm, Key::action_1) or
+            app.player().key_down(pfrm, Key::action_2) or
+            timer_ > milliseconds(1000)) {
+            timer_ = 0;
+            state_ = State::fade_partial;
+        }
+        break;
+
+    case State::fade_partial: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(1100);
+        const auto amount = 0.65f * smoothstep(0.f, fade_duration, timer_);
+
+        pfrm.screen().schedule_fade(amount);
+
+        if (timer_ > fade_duration) {
+            timer_ = 0;
+            state_ = State::select;
+            pfrm.screen().schedule_fade(0.65f);
+            pfrm.set_overlay_origin(0, -4);
+            carts_.emplace(pfrm);
+            show_cart(pfrm, cart_index_);
+        }
         break;
     }
 
@@ -159,6 +269,7 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto cart = carts_->load(cart_index_)) {
                 state_ = State::anim_out;
+                timer_ = 0;
                 for (int x = 0; x < 30; ++x) {
                     pfrm.set_tile(Layer::overlay, x, 0, 0);
                     pfrm.set_tile(Layer::overlay, x, 20, 0);
@@ -179,6 +290,12 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm, cart->subheading(pfrm).c_str(), {8, 8}, colors);
 
                 pfrm.speaker().play_sound("button_wooden", 3);
+
+                for (int y = 21; y < 30; ++y) {
+                    for (int x = 0; x < 30; ++x) {
+                        pfrm.set_tile(Layer::overlay, x, y, 0);
+                    }
+                }
 
             } else {
                 pfrm.speaker().play_sound("beep_error", 1);
@@ -217,7 +334,7 @@ DataCartModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().play_sound("insert_cart", 2);
         pfrm.set_overlay_origin(0, 0);
         state_ = State::wait;
-        wait_time_ = milliseconds(900);
+        wait_time_ = milliseconds(400);
         timer_ = 0;
         break;
 
@@ -287,6 +404,7 @@ public:
         if (app.player().key_down(pfrm, Key::action_2)) {
             pfrm.fill_overlay(0);
             auto next = scene_pool::alloc<DataCartModule>();
+            next->skip_dialog_ = true;
             next->set_index(cart_id_);
             return next;
         }
