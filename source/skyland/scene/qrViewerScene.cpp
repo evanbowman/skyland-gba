@@ -37,11 +37,10 @@ QRViewerScene::QRViewerScene(const char* text,
                              const char* message,
                              DeferredScene next,
                              ColorConstant exit_color)
-    : message_(message), next_(next), exit_color_(exit_color)
+    : message_(message), next_(next), exit_color_(exit_color),
+      text_(allocate_dynamic<TextBuffer>("qr-text-buffer"))
 {
-    if (str_len(text) < text_.remaining()) {
-        text_ = text;
-    }
+    **text_ = text;
 }
 
 
@@ -62,7 +61,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     tv_.emplace(pfrm);
 
-    if (qr_ or not text_.empty()) {
+    if (qr_ or (text_ and not (*text_)->empty())) {
 
         if (not overworld_) {
             auto str = SYSTR(qr_prep);
@@ -78,8 +77,8 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.screen().display();
         }
 
-        if (not qr_ and not text_.empty()) {
-            qr_ = QRCode::create(text_.c_str());
+        if (not qr_ and text_ and not (*text_)->empty()) {
+            qr_ = QRCode::create((*text_)->c_str());
         }
 
         if (qr_) {
@@ -223,10 +222,10 @@ void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     // Prepend the url from config.
-    auto temp = text_;
-    text_.clear();
-    text_ = v->string().value();
-    text_ += temp;
+    StringBuffer<200> temp = (*text_)->c_str();
+    (*text_)->clear();
+    **text_ = v->string().value();
+    **text_ += temp;
 
     QRViewerScene::enter(pfrm, app, prev);
 }

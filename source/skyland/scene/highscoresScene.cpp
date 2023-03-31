@@ -221,6 +221,8 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
         u8 score_multiplier_;
         u8 fs_checksum_2_;
         host_u32 time_seconds_;
+        u8 flag_data_[72];
+        u8 pad_[8];
     } payload;
 
     payload.score_.set(app.gp_.highscores_.values_[0].get());
@@ -230,6 +232,26 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
         app.gp_.highscores_.highest_score_play_seconds_.get());
     payload.score_multiplier_ =
         app.gp_.highscores_.highest_score_multiplier_used_;
+
+    // Encode the flag data, one 4 bit pixel at a time.
+    auto& flag = app.custom_flag_image_;
+    // Sanity check.
+    static_assert((FlagPixels::width * FlagPixels::height) / 2 <=
+                  sizeof payload.flag_data_);
+    u8* flag_data_out = payload.flag_data_;
+    int parity = 0; // even/odd nibble
+    for (int x = 0; x < FlagPixels::width; ++x) {
+        for (int y = 0; y < FlagPixels::height; ++y) {
+            if (parity == 0) {
+                *flag_data_out = flag.pixels[x][y] & 0x0f;
+                parity = 1;
+            } else {
+                *flag_data_out |= (flag.pixels[x][y] & 0x0f) << 4;
+                ++flag_data_out;
+                parity = 0;
+            }
+        }
+    }
 
     // Just to confuse people who try to decode the format. We padded
     // the structure with three bytes to make it a multiple of five, to
@@ -259,7 +281,7 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
                   "Base32 string not multiple of five, i.e. will contain "
                   "invalid '=' delimiters when url-encoded.");
 
-    static_assert(sizeof(Payload) == 20);
+    // static_assert(sizeof(Payload) == 20);
 
     Vector<char> data;
 
@@ -300,14 +322,14 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         auto next = [p, &app, &pfrm]() {
             auto encoded = encode_highscore_data(pfrm, app);
 
-            StringBuffer<64> temp;
+            StringBuffer<200> temp;
             for (auto& c : encoded) {
                 temp.push_back(c);
             }
 
             return scene_pool::alloc<ConfiguredURLQRViewerScene>(
                 "/scripts/config/uploadscore.lisp",
-                format("?d=%", temp.c_str()).c_str(),
+                format<300>("?d=%", temp.c_str()).c_str(),
                 SYSTR(score_upload_prompt_3)->c_str(),
                 scene_pool::make_deferred_scene<HighscoresScene>(),
                 ColorConstant::rich_black);

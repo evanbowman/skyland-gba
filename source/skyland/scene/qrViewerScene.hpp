@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "allocator.hpp"
 #include "graphics/overlay.hpp"
 #include "qr.hpp"
 #include "skyland/scene.hpp"
@@ -62,7 +63,7 @@ public:
 protected:
     std::optional<QRCode> qr_;
     u32 binary_data_size_ = 0;
-    StringBuffer<80> text_;
+    using TextBuffer = StringBuffer<500>;
     StringBuffer<70> message_;
     DeferredScene next_;
     std::optional<TextView> tv_;
@@ -71,6 +72,7 @@ protected:
     Microseconds timer_ = 0;
     bool exit_ = false;
     bool overworld_ = false;
+    std::optional<DynamicMemory<TextBuffer>> text_;
 
 public:
     u8 format_ = 0;
