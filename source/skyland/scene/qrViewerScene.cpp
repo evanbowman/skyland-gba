@@ -220,12 +220,12 @@ void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.set_developer_mode(was_developer_mode);
 
-
+    auto temp = allocate_dynamic<StringBuffer<500>>("temp-buf-qr");
     // Prepend the url from config.
-    StringBuffer<200> temp = (*text_)->c_str();
+    *temp = (*text_)->c_str();
     (*text_)->clear();
     **text_ = v->string().value();
-    **text_ += temp;
+    **text_ += *temp;
 
     QRViewerScene::enter(pfrm, app, prev);
 }

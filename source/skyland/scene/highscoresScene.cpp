@@ -90,8 +90,8 @@ struct HighscoreIslandInfo
     using CharacterInfo = u8;
     CharacterInfo chrs_[16];
 
-    static_assert(Island::Rooms::Rooms::capacity() == 92);
-    BlockData blocks_[92];
+    static constexpr int max_blocks = 62;
+    BlockData blocks_[max_blocks];
 
 }; static_assert(alignof(HighscoreIslandInfo) == 1);
 
@@ -157,7 +157,8 @@ void highscore_island_info_store(Platform& pfrm, App& app)
                         auto lat = val->cons().cdr();
                         foreach(lat,
                                 [&](Value* val) {
-                                    if (blockdata_iter == 92) {
+                                    if (blockdata_iter ==
+                                        HighscoreIslandInfo::max_blocks) {
                                         return;
                                     }
                                     auto& rname = get_list(val, 0)->symbol();
@@ -166,7 +167,7 @@ void highscore_island_info_store(Platform& pfrm, App& app)
 
                                     auto mt = metaclass_index(rname.name());
                                     HighscoreIslandInfo::BlockData bd;
-                                    bd.type_ = mt;
+                                    bd.type_ = mt + 1; // 0 used as null room
                                     bd.set_xpos(rx.value_);
                                     bd.set_ypos(ry.value_);
                                     info.blocks_[blockdata_iter++] = bd;
@@ -494,14 +495,17 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         auto next = [p, &app, &pfrm]() {
             auto encoded = encode_highscore_data(pfrm, app);
 
-            StringBuffer<200> temp;
+            auto temp = allocate_dynamic<StringBuffer<700>>("temp-buf");
+            auto fmt_buf = allocate_dynamic<StringBuffer<700>>("fmt-buf");
             for (auto& c : encoded) {
-                temp.push_back(c);
+                temp->push_back(c);
             }
+
+            make_format(*fmt_buf, "?d=%", temp->c_str());
 
             return scene_pool::alloc<ConfiguredURLQRViewerScene>(
                 "/scripts/config/uploadscore.lisp",
-                format<300>("?d=%", temp.c_str()).c_str(),
+                fmt_buf->c_str(),
                 SYSTR(score_upload_prompt_3)->c_str(),
                 scene_pool::make_deferred_scene<HighscoresScene>(),
                 ColorConstant::rich_black);

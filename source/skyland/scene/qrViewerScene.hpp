@@ -63,7 +63,7 @@ public:
 protected:
     std::optional<QRCode> qr_;
     u32 binary_data_size_ = 0;
-    using TextBuffer = StringBuffer<500>;
+    using TextBuffer = StringBuffer<600>;
     StringBuffer<70> message_;
     DeferredScene next_;
     std::optional<TextView> tv_;
