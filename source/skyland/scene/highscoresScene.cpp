@@ -140,6 +140,10 @@ void highscore_island_info_store(Platform& pfrm, App& app)
         return;
     }
 
+    if (app.game_mode() not_eq App::GameMode::adventure) {
+        return;
+    }
+
     // Use the last backup created before the end of the level where the player
     // finished the game (win or loss).
     auto backup = app.get_backup();
