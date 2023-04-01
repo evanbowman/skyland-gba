@@ -23,14 +23,17 @@
 #include "highscoresScene.hpp"
 #include "achievementNotificationScene.hpp"
 #include "base32.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "qrViewerScene.hpp"
 #include "skyland/loginToken.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "textEntryScene.hpp"
 #include "titleScreenScene.hpp"
+#include "version.hpp"
 
 
 
@@ -57,6 +60,150 @@ HighscoresScene::HighscoresScene(bool show_current_score, int title_screen_page)
 
 
 extern SharedVariable score_multiplier;
+
+
+
+// People wanted to see island images uploaded to the game's highscore site. So
+// I started needing to save island data when a player beats his/her previous
+// highscore, in order to upload the data to the webserver along with highscore
+// info.
+struct HighscoreIslandInfo
+{
+    struct BlockData
+    {
+        u8 type_;
+        u8 pos_;
+
+        void set_xpos(u8 xpos)
+        {
+            pos_ &= 0xf0;
+            pos_ |= 0x0f & xpos;
+        }
+
+        void set_ypos(u8 ypos)
+        {
+            pos_ &= 0x0f;
+            pos_ |= (0x0f & ypos) << 4;
+        }
+    };
+
+    using CharacterInfo = u8;
+    CharacterInfo chrs_[16];
+
+    static_assert(Island::Rooms::Rooms::capacity() == 92);
+    BlockData blocks_[92];
+
+}; static_assert(alignof(HighscoreIslandInfo) == 1);
+
+
+
+const char* highscore_island_file = "/save/hs_isle.dat";
+
+
+
+std::optional<HighscoreIslandInfo> highscore_island_info_load(Platform& pfrm)
+{
+    HighscoreIslandInfo result;
+
+    if (not flash_filesystem::file_exists(pfrm, highscore_island_file)) {
+        return std::nullopt;
+    }
+
+    Vector<char> data;
+    flash_filesystem::read_file_data_binary(pfrm, highscore_island_file, data);
+
+    if (data.size() not_eq sizeof result) {
+        return std::nullopt;
+    }
+
+    auto it = (u8*)&result;
+    for (char c : data) {
+        *(it++) = c;
+    }
+
+    return result;
+}
+
+
+
+void highscore_island_info_store(Platform& pfrm, App& app)
+{
+    HighscoreIslandInfo info;
+    int blockdata_iter = 0;
+    int chr_iter = 0;
+
+    memset(&info, 0, sizeof info);
+
+    flash_filesystem::unlink_file(pfrm, highscore_island_file);
+
+    if (not app.has_backup()) {
+        return;
+    }
+
+    // Use the last backup created before the end of the level where the player
+    // finished the game (win or loss).
+    auto backup = app.get_backup();
+    if (backup->lisp_data_) {
+
+        using namespace lisp;
+
+        VectorCharSequence seq(*backup->lisp_data_);
+        read(seq); // result at stack top
+
+        // NOTE: see scripts/save.lisp for format. It's an association list.
+        foreach(get_op0(),
+                [&](Value* val) {
+                    if (str_eq(val->cons().car()->symbol().name(), "rooms")) {
+                        auto lat = val->cons().cdr();
+                        foreach(lat,
+                                [&](Value* val) {
+                                    if (blockdata_iter == 92) {
+                                        return;
+                                    }
+                                    auto& rname = get_list(val, 0)->symbol();
+                                    auto& rx = get_list(val, 1)->integer();
+                                    auto& ry = get_list(val, 2)->integer();
+
+                                    auto mt = metaclass_index(rname.name());
+                                    HighscoreIslandInfo::BlockData bd;
+                                    bd.type_ = mt;
+                                    bd.set_xpos(rx.value_);
+                                    bd.set_ypos(ry.value_);
+                                    info.blocks_[blockdata_iter++] = bd;
+                                });
+                    }
+                    if (str_eq(val->cons().car()->symbol().name(), "chrs")) {
+                        auto lat = val->cons().cdr();
+                        foreach(lat,
+                                [&](Value* val) {
+                                    if (chr_iter == 16) {
+                                        return;
+                                    }
+
+                                    auto& rx = get_list(val, 0)->integer();
+                                    auto& ry = get_list(val, 1)->integer();
+
+                                    u8 chr_pos = 0;
+                                    chr_pos |= rx.value_ & 0x0f;
+                                    chr_pos |= (ry.value_ & 0x0f) << 4;
+
+                                    info.chrs_[chr_iter++] = chr_pos;
+                                });
+                    }
+                });
+
+        pop_op(); // result of read(seq)
+
+        Vector<char> result;
+        for (u32 i = 0; i < sizeof info; ++i) {
+            result.push_back(((u8*)(&info))[i]);
+        }
+
+        flash_filesystem::store_file_data_binary(pfrm,
+                                                 highscore_island_file,
+                                                 result);
+    }
+}
 
 
 
@@ -132,6 +279,11 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (not app.is_developer_mode() and
         not(app.persistent_data().state_flags_.get() &
             PersistentData::StateFlag::dev_mode_active)) {
+
+        if (score > (int)highscores.values_[0].get()) {
+            highscore_island_info_store(pfrm, app);
+        }
+
         for (auto& highscore : reversed(highscores.values_)) {
             if (highscore.get() < (u32)score) {
                 highscore.set(score);
@@ -222,8 +374,28 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
         u8 fs_checksum_2_;
         host_u32 time_seconds_;
         u8 flag_data_[72];
-        u8 pad_[8];
+
+        HighscoreIslandInfo island_;
+
+        u8 version_major_;
+        u8 version_minor_;
+        u8 version_subminor_;
+        u8 version_revision_;
+
+        u8 pad_[4]; // Adjust this until the static asserts (below) pass.
     } payload;
+    static_assert(alignof(decltype(payload)) == 1);
+
+    payload.version_major_ = PROGRAM_MAJOR_VERSION - 2000;
+    payload.version_minor_ = PROGRAM_MINOR_VERSION;
+    payload.version_subminor_ = PROGRAM_SUBMINOR_VERSION;
+    payload.version_revision_ = PROGRAM_VERSION_REVISION;
+
+    if (auto info = highscore_island_info_load(pfrm)) {
+        payload.island_ = *info;
+    } else {
+        memset(&payload.island_, 0, sizeof payload.island_);
+    }
 
     payload.score_.set(app.gp_.highscores_.values_[0].get());
     memcpy(payload.login_token_, __login_token.text_, LoginToken::size);

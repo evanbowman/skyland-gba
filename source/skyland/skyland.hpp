@@ -390,6 +390,8 @@ public:
     bool has_backup();
     void restore_backup(Platform& pfrm);
 
+    save::EmergencyBackup* get_backup();
+
 
     Scene& scene()
     {

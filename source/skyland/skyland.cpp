@@ -206,6 +206,17 @@ void App::create_backup(Platform& pfrm, const BackupContext& ctx)
 
 
 
+save::EmergencyBackup* App::get_backup()
+{
+    if (not has_backup()) {
+        return nullptr;
+    }
+
+    return &*backup_;
+}
+
+
+
 void App::delete_backup()
 {
     backup_->valid_ = false;
