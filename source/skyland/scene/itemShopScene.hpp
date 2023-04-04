@@ -38,6 +38,10 @@ private:
 
     Vec2<u8> cursor_;
 
+    void describe_selection(Platform&);
+
+    u32 item_slot(int x, int y);
+
     enum class State : u8 {
         fade_in,
         animate_box,

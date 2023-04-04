@@ -241,6 +241,8 @@ enum class SystemString {
     construction_too_many_rooms,
     construction_not_enough_space,
 
+    size,
+
     category_begin,
     category_wall = category_begin,
     category_weapon,

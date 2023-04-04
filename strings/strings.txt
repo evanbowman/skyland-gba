@@ -178,6 +178,7 @@ insufficient funds!
 insufficient power supply!
 too many blocks
 not enough space!
+size
 walls
 weapons
 factories

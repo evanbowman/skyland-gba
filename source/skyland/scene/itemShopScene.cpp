@@ -41,6 +41,7 @@ void ItemShopScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (items_->empty()) {
         Platform::fatal("no shop items defined!?");
     }
+    Text::platform_retain_alphabet(pfrm);
 }
 
 
@@ -54,6 +55,40 @@ void ItemShopScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+u32 ItemShopScene::item_slot(int x, int y)
+{
+    return y * 2 + x;
+}
+
+
+
+void ItemShopScene::describe_selection(Platform& pfrm)
+{
+    int i = item_slot(cursor_.x, cursor_.y);
+    auto mt = load_metaclass((*items_)[i].mt_);
+    auto info = (*mt)->ui_name(pfrm);
+    *info += ", ";
+    *info += SYSTR(size)->c_str();
+    *info += " ";
+    *info += stringify((*mt)->size().x);
+    *info += "x";
+    *info += stringify((*mt)->size().y);
+    *info += ", ";
+    *info += stringify((*mt)->consumes_power());
+    *info += "`";
+    const auto st = calc_screen_tiles(pfrm);
+    for (int x = 0; x < st.x; ++x) {
+        pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
+        pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
+    }
+    for (u32 x = 0; x < info->length(); ++x) {
+        pfrm.set_tile(Layer::overlay, x, st.y - 2, 425);
+    }
+    Text::print(pfrm, info->c_str(), {0, (u8)(st.y - 1)});
+}
+
+
+
 ScenePtr<Scene>
 ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -63,8 +98,6 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     int tile_mem[4] = {258, 181, 197, 213};
     Vec2<u8> slots[] = {{4, 5}, {15, 5}, {4, 11}, {15, 11}};
-
-    auto item_slot = [&](int x, int y) -> u32 { return y * 2 + x; };
 
     constexpr auto fade_duration = milliseconds(300);
 
@@ -117,6 +150,8 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++i;
             }
 
+            describe_selection(pfrm);
+
         } else {
             const int total = st.y - 7;
             const int progress =
@@ -165,6 +200,7 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
             i = item_slot(cursor_.x, cursor_.y);
             icon = (*load_metaclass((*items_)[i].mt_))->icon();
             pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
+            describe_selection(pfrm);
         };
         if (player(app).key_down(pfrm, Key::down) and cursor_.y == 0) {
             if (item_slot(cursor_.x, cursor_.y + 1) < items_->size()) {
