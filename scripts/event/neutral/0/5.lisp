@@ -23,6 +23,8 @@
   (fire-new (opponent) 0 10)
   (setq on-fadein nil))
 
+(flag-show (opponent) 7)
+
 
 (chr-new (opponent) 1 12 'neutral 0)
 

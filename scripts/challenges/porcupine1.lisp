@@ -24,7 +24,7 @@
 
   (setq on-dialog-declined (lambda '())))
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 (opponent-init 7 'hostile)
@@ -89,7 +89,7 @@
    (stacked-hull 6 5)))
 
 (chr-new (opponent) 5 14 'hostile 0)
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (defn on-victory

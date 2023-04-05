@@ -32,6 +32,8 @@
    (masonry 7 14)))
 
 
+(flag-show (opponent) 5)
+
 
 (secret
  4 13

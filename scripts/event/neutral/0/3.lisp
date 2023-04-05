@@ -18,6 +18,9 @@
 (chr-new (opponent) 2 14 'neutral 0)
 
 
+(flag-show (opponent) 6)
+
+
 (let ((mktr (lambda
               ;; Generate some terrain! Just to avoid the situation where
               ;; there's not enough space on the island to actually place the

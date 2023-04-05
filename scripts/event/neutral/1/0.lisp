@@ -16,6 +16,8 @@
    (missile-silo 6 13)
    (missile-silo 7 13)))
 
+(flag-show (opponent) 1)
+
 
 (chr-new (opponent) 1 14 'neutral 0)
 (chr-new (opponent) 2 14 'neutral 0)

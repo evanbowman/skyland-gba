@@ -29,6 +29,9 @@
    (hull 7 12)))
 
 
+(flag-show (opponent) 6)
+
+
 (chr-new (opponent) 6 11 'neutral 0)
 
 

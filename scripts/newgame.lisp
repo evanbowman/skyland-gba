@@ -20,7 +20,7 @@
 (setq enemy-count 0)
 
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 (coins-add 2500)

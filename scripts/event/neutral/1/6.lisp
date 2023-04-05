@@ -35,6 +35,9 @@
    (banana-plant 10 13)))
 
 
+(flag-show (opponent) 7)
+
+
 (let ((pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
       (sc (filter (lambda (equal (car $0) 'backup-core)) (rooms (player))))
       (wpn (get '(flak-gun

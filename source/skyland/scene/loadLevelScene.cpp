@@ -172,7 +172,6 @@ void prep_level(Platform& pfrm, App& app)
 
 
         write_custom_graphics(pfrm, app);
-        app.opponent_island()->render_exterior(pfrm, app);
     }
 }
 

@@ -35,7 +35,7 @@
 (coins-add 3000)
 
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 

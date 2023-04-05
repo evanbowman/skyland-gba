@@ -24,6 +24,7 @@
 
 
 #include "number/int.h"
+#include "platform/layer.hpp"
 
 
 
@@ -49,11 +50,12 @@ struct FlagPixels
 
     void save(Platform&);
     void load(Platform&, App&);
+    void load_custom(Platform&, Layer layer, u16 offset);
 };
 
 
 
-void vram_write_flag(Platform& pfrm, const FlagPixels& px);
+void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer);
 
 
 

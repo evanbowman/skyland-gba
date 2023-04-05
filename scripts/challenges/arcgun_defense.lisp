@@ -37,7 +37,7 @@
 (coins-set 800)
 
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 

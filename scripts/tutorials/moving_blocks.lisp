@@ -30,7 +30,7 @@
  (opponent)
  '((power-core 1 13)))
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 (autopilot
  '((1219 Select)

@@ -193,7 +193,7 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
 {
     Paint::show(pfrm, app);
 
-    vram_write_flag(pfrm, app.custom_flag_image_);
+    vram_write_flag(pfrm, app.custom_flag_image_, Layer::map_0_ext);
 }
 
 

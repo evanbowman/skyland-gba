@@ -51,6 +51,8 @@
    (bronze-hull 12 10)))
 
 
+(flag-show (opponent) 6)
+
 
 (let ((fee (cond
             ((< (coins) 1000) (coins))

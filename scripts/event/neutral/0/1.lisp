@@ -23,6 +23,8 @@
    (hull 2 12)
    (hull 1 13)))
 
+(flag-show (opponent) 1)
+
 
 (setq on-converge
       (lambda

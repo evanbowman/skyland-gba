@@ -42,6 +42,8 @@
    (stairwell 8 11)
    (shrubbery 8 9)))
 
+(flag-show (opponent) 6)
+
 
 (setq on-converge
       (lambda

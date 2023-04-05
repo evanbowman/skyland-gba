@@ -36,7 +36,7 @@
    (workshop 1 11)
    (radar 5 13)))
 
-(flag-show (player))
+(flag-show (player) 0)
 
 (chr-new (player) 2 14 'neutral 0)
 
@@ -99,7 +99,7 @@
    (hull 7 9)))
 
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (map

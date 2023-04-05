@@ -39,7 +39,7 @@
    (hull 7 11)))
 
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (secret

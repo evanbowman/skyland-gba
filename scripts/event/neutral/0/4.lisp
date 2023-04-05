@@ -25,6 +25,8 @@
    (power-core 5 13)
    (rocket-bomb 7 12)))
 
+(flag-show (opponent) 7)
+
 
 (secret
  0 14

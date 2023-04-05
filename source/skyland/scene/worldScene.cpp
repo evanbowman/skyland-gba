@@ -694,8 +694,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                    not show_opponent_interior) {
 
             show_island_exterior(pfrm, app, app.opponent_island());
-
-            app.opponent_island()->render_exterior(pfrm, app);
         }
 
         // Hey, I threw this code together in a panic for a game jam, I know

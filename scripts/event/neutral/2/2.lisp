@@ -13,6 +13,8 @@
 
 (opponent-mode 'neutral)
 
+(flag-show (opponent) 2)
+
 
 (let ((val (+ 1000 (choice 800))))
   (setq on-converge

@@ -403,6 +403,18 @@ public:
     }
 
 
+    void set_custom_flag_graphics(u8 val)
+    {
+        custom_flag_graphics_ = val;
+    }
+
+
+    u8 custom_flag_graphics() const
+    {
+        return custom_flag_graphics_;
+    }
+
+
 private:
     void repaint_partial(Platform& pfrm, App& app);
 
@@ -479,6 +491,7 @@ private:
 
     u8 character_count_ = 0;
     u8 offensive_capabilities_ = 0;
+    u8 custom_flag_graphics_ = 0;
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;

@@ -75,3 +75,5 @@
  '((power-core 3 13)
    (coconut-palm 5 12)
    (hull 5 14)))
+
+(flag-show (opponent) 6)

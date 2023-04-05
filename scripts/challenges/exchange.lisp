@@ -40,7 +40,7 @@
 (coins-add 300)
 
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 (opponent-init 10 'hostile)

@@ -25,7 +25,7 @@
   (setq on-dialog-declined (lambda '())))
 
 
-(flag-show (player))
+(flag-show (player) 0)
 
 
 (opponent-init 12 'hostile)

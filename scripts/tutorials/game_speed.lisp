@@ -40,7 +40,7 @@
    (missile-silo 4 13)
    (missile-silo 5 13)))
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (autopilot

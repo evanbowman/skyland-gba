@@ -66,7 +66,7 @@
  '((power-core 1 13)
    (manufactory 1 11)))
 
-(flag-show (player))
+(flag-show (player) 0)
 
 (coins-add 99999)
 

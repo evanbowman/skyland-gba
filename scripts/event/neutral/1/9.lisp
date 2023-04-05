@@ -35,6 +35,8 @@
 
 (secret 6 14 "yes no")
 
+(flag-show (opponent) 4)
+
 
 (defn on-converge
   ;; want drones?

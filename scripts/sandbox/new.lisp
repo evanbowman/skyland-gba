@@ -62,14 +62,14 @@
 
 
 (mkch (player) 'neutral)
-(flag-show (player))
+(flag-show (player) 0)
 
 
 
 (opponent-init (get conf 1) 'hostile)
 
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (island-configure

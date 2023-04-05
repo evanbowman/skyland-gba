@@ -2087,6 +2087,12 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
 {
     if (island) {
         island->render_interior(pfrm, app);
+
+        if (auto gfx = island->custom_flag_graphics()) {
+            FlagPixels px;
+            px.load_custom(pfrm, island->layer(), gfx);
+            vram_write_flag(pfrm, px, island->layer());
+        }
     }
 
     write_custom_graphics(pfrm, app);
@@ -2098,6 +2104,12 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
 {
     if (island) {
         island->render_exterior(pfrm, app);
+
+        if (auto gfx = island->custom_flag_graphics()) {
+            FlagPixels px;
+            px.load_custom(pfrm, island->layer(), gfx);
+            vram_write_flag(pfrm, px, island->layer());
+        }
     }
 
     write_custom_graphics(pfrm, app);

@@ -41,6 +41,8 @@
    (mycelium 6 10)
    (mycelium 6 9)))
 
+(flag-show (opponent) 4)
+
 
 (defn on-converge
   (dialog "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?")

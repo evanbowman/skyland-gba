@@ -128,6 +128,14 @@ static const char* const page_4_lines[] = {"-- Sounds (Contd.) --",
                                            nullptr};
 
 
+static const char* const page_5_lines[] = {"-- Beta Testing --",
+                                           "",
+                                           "junnunkarim",
+                                           "tolik518",
+                                           "Ben Casler",
+                                           nullptr};
+
+
 static const char* const page_end_lines0[] = {"-- Postscript --",
                                               "",
                                               "Making games is so hard...",
@@ -194,13 +202,14 @@ static const std::array<Microseconds, 11> page_times_ = {
 };
 
 
-static const std::array<Page, 11> pages_ = {{{page_0_lines},
+static const std::array<Page, 12> pages_ = {{{page_0_lines},
                                              {page_01_lines},
                                              {page_02_lines},
                                              {page_1_lines},
                                              {page_2_lines},
                                              {page_3_lines},
                                              {page_4_lines},
+                                             {page_5_lines},
                                              {page_end_lines0},
                                              {page_end_lines1},
                                              {page_end_lines2},

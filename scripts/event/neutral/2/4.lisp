@@ -72,7 +72,7 @@
    (mycelium 8 9)))
 
 
-(flag-show (opponent))
+(flag-show (opponent) 0)
 
 
 (map

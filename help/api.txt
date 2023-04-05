@@ -526,9 +526,14 @@ o----------------------------o
 
 o----------------------------o
 
- (flag-show island)
+ (flag-show island variant)
 
- Display a flag.
+ Display a flag. For opponent
+ islands only, you may pass
+ an integer variant for
+ alternate flag graphics to
+ display. Otherwise, pass
+ zero in the variant argument.
 
 
 o----------------------------o

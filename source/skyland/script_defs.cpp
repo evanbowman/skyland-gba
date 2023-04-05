@@ -1286,11 +1286,27 @@ static const lisp::Binding script_api[] = {
      }},
     {"flag-show",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-         L_EXPECT_OP(0, user_data);
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, user_data);
 
-         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+         auto island = (Island*)lisp::get_op(1)->user_data().obj_;
          island->show_flag(true);
+
+         auto gfx = L_LOAD_INT(0);
+         auto [app, pfrm] = interp_get_context();
+         if (gfx > 0 and island == &app->player_island()) {
+             Platform::fatal("Alternate flag graphics may not be assigned to "
+                             "the player's island, as it already supports "
+                             "user-supplied gfx.");
+         }
+         island->set_custom_flag_graphics(gfx);
+
+         if (island->interior_visible()) {
+             show_island_interior(*pfrm, *app, island);
+         } else {
+             show_island_exterior(*pfrm, *app, island);
+         }
 
          return L_NIL;
      }},

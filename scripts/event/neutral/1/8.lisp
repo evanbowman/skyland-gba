@@ -32,6 +32,8 @@
    (masonry 8 13 0)
    (masonry 8 14 0)))
 
+(flag-show (opponent) 7)
+
 
 (defn on-converge
   (let ((c (choice 2))

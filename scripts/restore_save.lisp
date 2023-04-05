@@ -7,7 +7,7 @@
 (lambda
   (eval-file "/scripts/reset_hooks.lisp")
 
-  (flag-show (player))
+  (flag-show (player) 0)
 
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))

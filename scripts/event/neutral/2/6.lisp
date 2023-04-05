@@ -26,6 +26,8 @@
        (rooms (opponent)))
   (setq on-fadein nil))
 
+;; (flag-show (opponent) 1)
+
 
 (defn on-converge
   (dialog

@@ -227,7 +227,7 @@ void App::delete_backup()
 
 void write_custom_graphics(Platform& pfrm, App& app)
 {
-    vram_write_flag(pfrm, app.custom_flag_image_);
+    vram_write_flag(pfrm, app.custom_flag_image_, Layer::map_0_ext);
 }
 
 
