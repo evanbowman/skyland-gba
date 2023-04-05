@@ -55,7 +55,7 @@ public:
         Text::print(pfrm, SYS_CSTR(flag_alt3), {3, 10});
         Text::print(pfrm, SYS_CSTR(flag_alt4), {3, 12});
         Text::print(pfrm, SYS_CSTR(flag_alt5), {3, 14});
-        // Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
+        Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
 
         pfrm.set_tile(Layer::overlay, 1, 4, 475);
     }
@@ -76,7 +76,7 @@ public:
         }
 
         if (player(app).key_down(pfrm, Key::down)) {
-            if (sel_ < 5) {
+            if (sel_ < 6) {
                 ++sel_;
             }
             for (int y = 0; y < 20; ++y) {

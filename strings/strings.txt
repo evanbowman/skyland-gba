@@ -536,7 +536,7 @@ second empire
 marauder
 goblin horde
 sunflower
-bananas
+merchant
 SEL: presets
 START: flood
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
