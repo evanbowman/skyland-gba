@@ -7,6 +7,7 @@
  (opponent)
  '((hull 0 14)
    (hull 0 13)
+   (masonry 0 12)
    (torch 0 10)
    (masonry 1 14)
    (masonry 1 13)
