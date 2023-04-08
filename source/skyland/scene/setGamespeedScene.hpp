@@ -41,6 +41,9 @@ public:
     void exit(Platform&, App&, Scene&) override;
 
 
+    int button_mode_ = 0;
+
+
 private:
     void repaint_selector(Platform& pfrm);
 

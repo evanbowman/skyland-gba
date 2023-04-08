@@ -523,7 +523,7 @@ name crewmember
 stop firing
 set target
 salvage
-pause
+set gamespeed
 unpause
 build
 back

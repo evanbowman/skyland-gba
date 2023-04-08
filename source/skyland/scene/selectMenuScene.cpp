@@ -28,6 +28,7 @@
 #include "moveRoomScene.hpp"
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "setGamespeedScene.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -228,6 +229,16 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                     });
             }
         }
+    }
+
+    if (not pfrm.network_peer().is_connected()) {
+        add_line(SystemString::sel_menu_pause,
+                 [this, cursor](Platform& pfrm, App& app) {
+                     auto ret = scene_pool::alloc<SetGamespeedScene>();
+                     ret->button_mode_ = 1;
+                     return ret;
+                 });
+
     }
 
     add_line(SystemString::sel_menu_back,

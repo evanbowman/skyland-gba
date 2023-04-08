@@ -74,7 +74,8 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
         repaint_selector(pfrm);
     }
 
-    if (app.player().key_up(pfrm, Key::alt_1)) {
+    if ((button_mode_ == 0 and app.player().key_up(pfrm, Key::alt_1)) or
+        (button_mode_ == 1 and app.player().key_down(pfrm, Key::action_1))) {
         if ((GameSpeed)selection_ == GameSpeed::rewind) {
             if (app.time_stream().pushes_enabled()) {
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
@@ -104,6 +105,11 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<SwapOverlayTextureScene>(
                 "overlay", scene_pool::make_deferred_scene<ReadyScene>());
         }
+    }
+
+    if (button_mode_ == 1 and app.player().key_down(pfrm, Key::action_2)) {
+        return scene_pool::alloc<SwapOverlayTextureScene>(
+                "overlay", scene_pool::make_deferred_scene<ReadyScene>());
     }
 
     return null_scene();
