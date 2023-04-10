@@ -83,18 +83,24 @@ void Heap::Sector::free(Word* addr)
 
 
 
-void* Heap::Sector::try_alloc(u32 size)
+void* Heap::Sector::try_alloc(u32 size, u32 flags)
 {
     if (size > (word_count + 1) * sizeof(Word)) {
         Platform::fatal(
             format("allocation of % exceeds max size!", size).c_str());
     }
 
+    const bool permanent = flags & smf_permanent;
+
     int required_words = size / sizeof(Word);
     if (size % sizeof(Word)) {
         ++required_words;
     }
-    ++required_words; // +1 for allocation size.
+    if (not permanent) {
+        // In permanent alloc mode, allocation size isn't stored, saving a few
+        // bytes.
+        ++required_words; // +1 for allocation size.
+    }
 
     for (int i = 0; i < word_count; ++i) {
         if (not taken_.get(i)) {
@@ -113,7 +119,10 @@ void* Heap::Sector::try_alloc(u32 size)
                 Word* start = &words_[i];
                 // Store allocation size in the first slot.
                 *(int*)(start) = required_words;
-                ++start;
+
+                if (not smf_permanent) {
+                    ++start; // inc result pointer, to skip over the size param.
+                }
 
                 for (int ii = i; ii - i < required_words; ++ii) {
                     taken_.set(ii, true);
@@ -138,7 +147,7 @@ extern "C" {
 
 
 #ifdef __GBA__
-void* skyland_malloc(size_t sz)
+void* skyland_malloc(u32 sz, u32 flags)
 {
     using namespace malloc_compat;
 
@@ -147,7 +156,7 @@ void* skyland_malloc(size_t sz)
     }
 
     for (auto& s : bound_heap_->sectors_) {
-        if (auto p = s.try_alloc(sz)) {
+        if (auto p = s.try_alloc(sz, flags)) {
             return p;
         }
     }
@@ -155,7 +164,7 @@ void* skyland_malloc(size_t sz)
     bound_heap_->sectors_.emplace_back();
 
     for (auto& s : bound_heap_->sectors_) {
-        if (auto p = s.try_alloc(sz)) {
+        if (auto p = s.try_alloc(sz, flags)) {
             return p;
         }
     }

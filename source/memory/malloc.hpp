@@ -24,37 +24,13 @@
 
 #include "bitvector.hpp"
 #include "containers/vector.hpp"
+#include "malloc.h"
 
 
 
-// I didn't add a malloc implementation until nearly the end of this
-// project. Only exists in case I want to leverage external
-// dependencies. Skyland does not use malloc anywhere. NOTE: max allocation size
-// is slightly less than SCRATCH_BUFFER_SIZE.
-//
-// If you need a malloc implementation, create a Heap object on the stack, then
-// you may call malloc and free until Heap goes out of scope. Two Heap instances
-// may not be created at once. This isn't a fast malloc or even a halfway decent
-// malloc. It's the best malloc that I could write in half an hour. I'm not
-// using any open-source malloc, as my pooled allocation architecture does not
-// support contiguous allocations larger than 2kb.
-//
-// P.S. I'm not using the weakly linked malloc symbol for my malloc fuction
-// name. I've seen cases where the compiler messes up and calls the malloc
-// version from newlib, along with my replacement version of free, and vice
-// versa.
-
-
-
-extern "C" {
-
-
-// Allocate chunks of memory up to the engine's page size. Generally, may not
-// exceed 2kb. Slow. Intended for the rare instances when we actually need to
-// malloc something.
-void* skyland_malloc(size_t sz);
-void skyland_free(void* ptr);
-}
+// Generally, skyland uses pooling extensively throughout the project. I only
+// use malloc in obscure cases where I need to perform long-lived allocations,
+// or integrate open source libraries dependent on a malloc implementation.
 
 
 
@@ -95,7 +71,7 @@ struct Heap
         void free(Word* addr);
 
 
-        void* try_alloc(u32 size);
+        void* try_alloc(u32 size, u32 flags);
     };
 
     using Sectors = Vector<Sector>;
