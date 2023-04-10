@@ -1799,11 +1799,11 @@ Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
     case Layer::map_0_ext:
     case Layer::map_1:
     case Layer::map_0: {
-        auto mem = (const u8*)((layer == Layer::map_0 or
-                                layer == Layer::map_0_ext)
-                                   ? current_tilesheet0->tile_data_
-                                   : current_tilesheet1->tile_data_) +
-                   vram_tile_size() * 4 * tile; // 2x2 meta tiles
+        auto mem =
+            (const u8*)((layer == Layer::map_0 or layer == Layer::map_0_ext)
+                            ? current_tilesheet0->tile_data_
+                            : current_tilesheet1->tile_data_) +
+            vram_tile_size() * 4 * tile; // 2x2 meta tiles
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
                 auto index = x + y * 8;
@@ -3467,7 +3467,7 @@ void Platform::Logger::flush()
     flash_filesystem::store_file_data_binary(
         *::platform, "/log.txt", *log_data_);
 
-    log_data_.reset();
+    // log_data_.reset();
 }
 
 

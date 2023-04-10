@@ -113,13 +113,18 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (loaded and not skip_save_prompt) {
         auto next = scene_pool::make_deferred_scene<ZoneImageScene>();
-        return scene_pool::alloc<MenuPromptScene>(
+        auto ret = scene_pool::alloc<MenuPromptScene>(
             SystemString::save_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
             [](Platform&, App&) {},
             dont_remind);
+
+        ret->play_alert_sfx_ = false;
+        ret->skip_unfade_ = true;
+        return ret;
+
     } else {
         return scene_pool::alloc<ZoneImageScene>();
     }

@@ -640,6 +640,8 @@ enum class SystemString {
     submit_hint,
 
     save_prompt,
+    move_blocks_prompt,
+    gamespeed_prompt,
     ok,
     do_not_show_again,
 

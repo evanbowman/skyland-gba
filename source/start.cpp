@@ -22,6 +22,7 @@
 
 #include "globals.hpp"
 #include "localization.hpp"
+#include "memory/malloc.hpp"
 #include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qr.hpp"
@@ -45,7 +46,7 @@ namespace skyland
 
 
 
-static inline void main_loop(Platform& pf)
+static inline int boot_init(Platform& pf)
 {
     systemstring_bind_file("strings.txt");
 
@@ -120,6 +121,17 @@ static inline void main_loop(Platform& pf)
     BootScene::message(pf, "init memory pools...");
 
     scene_pool::pool_ = &globals().scene_pool_;
+
+    return clean_boot;
+}
+
+
+
+static inline void main_loop(Platform& pf)
+{
+    malloc_compat::Heap heap;
+
+    const bool clean_boot = boot_init(pf);
 
     BootScene::message(pf, "start application...");
 

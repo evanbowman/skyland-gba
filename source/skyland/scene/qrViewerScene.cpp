@@ -61,7 +61,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     tv_.emplace(pfrm);
 
-    if (qr_ or (text_ and not (*text_)->empty())) {
+    if (qr_ or (text_ and not(*text_)->empty())) {
 
         if (not overworld_) {
             auto str = SYSTR(qr_prep);
@@ -77,7 +77,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.screen().display();
         }
 
-        if (not qr_ and text_ and not (*text_)->empty()) {
+        if (not qr_ and text_ and not(*text_)->empty()) {
             qr_ = QRCode::create((*text_)->c_str());
         }
 

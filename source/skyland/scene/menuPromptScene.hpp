@@ -71,14 +71,24 @@ public:
 
         pfrm.set_tile(Layer::overlay, 1, 16, 475);
         pfrm.set_tile(Layer::overlay, 1, 18, 0);
+
+        if (play_alert_sfx_) {
+            pfrm.speaker().play_sound("click_digital_1", 1);
+        }
     }
 
 
-    void exit(Platform&, App&, Scene& next) override
+    void exit(Platform& pfrm, App&, Scene& next) override
     {
         text_.reset();
         t1_.reset();
         t2_.reset();
+
+        pfrm.fill_overlay(0);
+
+        if (not skip_unfade_) {
+            pfrm.screen().schedule_fade(0.f);
+        }
     }
 
 
@@ -90,6 +100,7 @@ public:
             } else {
                 opt_2_callback_(pfrm, app);
             }
+            pfrm.speaker().play_sound("button_wooden", 3);
             return next_();
         }
 
@@ -99,6 +110,7 @@ public:
             t2_->assign(loadstr(pfrm, opt_2_)->c_str());
             pfrm.set_tile(Layer::overlay, 1, 16, 475);
             pfrm.set_tile(Layer::overlay, 1, 18, 0);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
         if (player(app).key_down(pfrm, Key::down)) {
@@ -107,6 +119,7 @@ public:
             t2_->assign(loadstr(pfrm, opt_2_)->c_str(), sel_colors);
             pfrm.set_tile(Layer::overlay, 1, 18, 475);
             pfrm.set_tile(Layer::overlay, 1, 16, 0);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
         return null_scene();
@@ -127,6 +140,10 @@ private:
 
     OptCallback opt_1_callback_;
     OptCallback opt_2_callback_;
+
+public:
+    bool play_alert_sfx_ = true;
+    bool skip_unfade_ = false;
 };
 
 

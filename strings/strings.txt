@@ -511,6 +511,8 @@ jump again!
 Name crewmember:
 ENTER: submit
 You've just loaded a saved game. Each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
+Tip: you can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
+Tip: you may also change gamespeed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
 ok
 don't show again
 retry

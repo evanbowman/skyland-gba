@@ -53,6 +53,8 @@ struct GlobalPersistentData
         save_prompt_dont_remind_me,
         datacarts_prompt,
         datacarts_help_prompt, // set by lisp script
+        gamespeed_help_prompt_dont_remind_me,
+        move_blocks_help_promt_dont_remind_me,
     };
 
     enum class Difficulty : u8 {

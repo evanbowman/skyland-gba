@@ -42,6 +42,8 @@ enum class StateBit {
     successful_multiplayer_connect,
     multiboot,
     open_item_shop,
+    gamespeed_help_prompt,
+    move_blocks_help_prompt,
     count,
 };
 

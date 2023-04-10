@@ -109,7 +109,7 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (button_mode_ == 1 and app.player().key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<SwapOverlayTextureScene>(
-                "overlay", scene_pool::make_deferred_scene<ReadyScene>());
+            "overlay", scene_pool::make_deferred_scene<ReadyScene>());
     }
 
     return null_scene();

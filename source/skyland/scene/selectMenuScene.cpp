@@ -23,6 +23,7 @@
 #include "selectMenuScene.hpp"
 #include "constructionScene.hpp"
 #include "inspectP2Scene.hpp"
+#include "menuPromptScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "moveCharacterScene.hpp"
 #include "moveRoomScene.hpp"
@@ -65,6 +66,76 @@ void SelectMenuScene::redraw_line(Platform& pfrm, int line, bool highlight)
     for (int i = opts_->lines_[line].len(); i < opts_->longest_line_; ++i) {
         opts_->lines_[line].append(
             " ", highlight ? highlight_colors : Text::OptColors{});
+    }
+}
+
+
+
+static ScenePtr<Scene> move_blocks_setup(Platform& pfrm, App& app, bool far)
+{
+    const auto flag =
+        GlobalPersistentData::move_blocks_help_promt_dont_remind_me;
+
+    const bool skip_prompt =
+        app.gp_.stateflags_.get(flag) or
+        state_bit_load(app, StateBit::move_blocks_help_prompt);
+
+    auto dont_remind = [](Platform& pfrm, App& app) {
+        app.gp_.stateflags_.set(flag, true);
+        save::store_global_data(pfrm, app.gp_);
+    };
+
+    auto next = [far, &app] {
+        return scene_pool::alloc<MoveRoomScene>(app, not far);
+    };
+
+    if (not skip_prompt) {
+        state_bit_store(app, StateBit::move_blocks_help_prompt, true);
+        return scene_pool::alloc<MenuPromptScene>(
+            SystemString::move_blocks_prompt,
+            SystemString::ok,
+            SystemString::do_not_show_again,
+            next,
+            [](Platform&, App&) {},
+            dont_remind);
+    } else {
+        return next();
+    }
+}
+
+
+
+static ScenePtr<Scene> set_gamespeed_setup(Platform& pfrm, App& app)
+{
+    const auto flag =
+        GlobalPersistentData::gamespeed_help_prompt_dont_remind_me;
+
+    const bool skip_prompt =
+        app.gp_.stateflags_.get(flag) or
+        state_bit_load(app, StateBit::gamespeed_help_prompt);
+
+    auto dont_remind = [](Platform& pfrm, App& app) {
+        app.gp_.stateflags_.set(flag, true);
+        save::store_global_data(pfrm, app.gp_);
+    };
+
+    auto next = [] {
+        auto ret = scene_pool::alloc<SetGamespeedScene>();
+        ret->button_mode_ = 1;
+        return ret;
+    };
+
+    if (not skip_prompt) {
+        state_bit_store(app, StateBit::gamespeed_help_prompt, true);
+        return scene_pool::alloc<MenuPromptScene>(
+            SystemString::gamespeed_prompt,
+            SystemString::ok,
+            SystemString::do_not_show_again,
+            next,
+            [](Platform&, App&) {},
+            dont_remind);
+    } else {
+        return next();
     }
 }
 
@@ -133,8 +204,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                 app.game_mode() == App::GameMode::sandbox) {
                 add_line(SystemString::sel_menu_move_blocks,
                          [far = is_far_camera()](Platform& pfrm, App& app) {
-                             return scene_pool::alloc<MoveRoomScene>(app,
-                                                                     not far);
+                             return move_blocks_setup(pfrm, app, far);
                          });
             }
         }
@@ -234,11 +304,8 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
     if (not pfrm.network_peer().is_connected()) {
         add_line(SystemString::sel_menu_pause,
                  [this, cursor](Platform& pfrm, App& app) {
-                     auto ret = scene_pool::alloc<SetGamespeedScene>();
-                     ret->button_mode_ = 1;
-                     return ret;
+                     return set_gamespeed_setup(pfrm, app);
                  });
-
     }
 
     add_line(SystemString::sel_menu_back,

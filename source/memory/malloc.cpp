@@ -138,7 +138,7 @@ extern "C" {
 
 
 #ifdef __GBA__
-void* malloc(size_t sz)
+void* skyland_malloc(size_t sz)
 {
     using namespace malloc_compat;
 
@@ -165,7 +165,7 @@ void* malloc(size_t sz)
 
 
 
-void free(void* ptr)
+void skyland_free(void* ptr)
 {
     using namespace malloc_compat;
 
@@ -176,8 +176,26 @@ void free(void* ptr)
         }
     }
 
-    Platform::fatal("invalid address passed to free!");
+    Platform::fatal(format("invalid address passed to free! %", (intptr_t)ptr));
 }
+
+
+
+// NOTE: libstdc++ calls malloc during initialization of some global objects. I
+// consider this to be excessively stupid, but what can I do. Better to define a
+// null version of malloc than fallback to the version from newlib.
+void* malloc(size_t sz)
+{
+    return nullptr;
+}
+
+
+
+void free(void* ptr)
+{
+    Platform::fatal("libc free callled?!");
+}
+
 
 
 #endif // __GBA__

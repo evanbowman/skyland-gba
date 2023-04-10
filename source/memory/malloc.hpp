@@ -38,6 +38,23 @@
 // malloc. It's the best malloc that I could write in half an hour. I'm not
 // using any open-source malloc, as my pooled allocation architecture does not
 // support contiguous allocations larger than 2kb.
+//
+// P.S. I'm not using the weakly linked malloc symbol for my malloc fuction
+// name. I've seen cases where the compiler messes up and calls the malloc
+// version from newlib, along with my replacement version of free, and vice
+// versa.
+
+
+
+extern "C" {
+
+
+// Allocate chunks of memory up to the engine's page size. Generally, may not
+// exceed 2kb. Slow. Intended for the rare instances when we actually need to
+// malloc something.
+void* skyland_malloc(size_t sz);
+void skyland_free(void* ptr);
+}
 
 
 
@@ -55,7 +72,7 @@ struct Heap
 
     struct Sector
     {
-        static const int word_count = 460;
+        static const int word_count = 480;
 
         struct Word
         {
@@ -90,13 +107,3 @@ struct Heap
 
 
 } // namespace malloc_compat
-
-
-
-extern "C" {
-
-
-
-void* malloc(size_t sz);
-void free(void* ptr);
-}
