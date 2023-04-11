@@ -44,6 +44,7 @@ enum class StateBit {
     open_item_shop,
     gamespeed_help_prompt,
     move_blocks_help_prompt,
+    sel_menu_help_prompt,
     count,
 };
 
