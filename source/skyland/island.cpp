@@ -661,11 +661,9 @@ void Island::FireState::display(Platform& pfrm, Island& island)
 
 
 
-void Island::update(Platform& pfrm, App& app, Microseconds dt)
+void Island::update_simple(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
-
-    TIMEPOINT(t1);
 
     if (not hidden_ and show_flag_ and flag_pos_) {
         flag_anim_timer_ += dt;
@@ -697,12 +695,26 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    TIMEPOINT(t2);
-
     s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
     ambient_movement_ = ambient_offset;
+
+    pfrm.set_scroll(layer(),
+                    -get_position().x.as_integer(),
+                    -get_position().y.as_integer() - ambient_offset);
+}
+
+
+
+void Island::update(Platform& pfrm, App& app, Microseconds dt)
+{
+    TIMEPOINT(t1);
+
+    update_simple(pfrm, app, dt);
+
+    TIMEPOINT(t2);
+
 
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
@@ -1095,10 +1107,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
     TIMEPOINT(t8);
-
-    pfrm.set_scroll(layer(),
-                    -get_position().x.as_integer(),
-                    -get_position().y.as_integer() - ambient_offset);
 
     fire_.update(pfrm, app, *this, dt);
 

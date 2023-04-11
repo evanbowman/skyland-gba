@@ -285,7 +285,12 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().set_view(v);
     }
 
-    app.player_island().update(pfrm, app, delta);
+    app.player_island().update_simple(pfrm, app, delta);
+    for (auto& r : app.player_island().rooms()) {
+        for (auto& c : r->characters()) {
+            c->update(pfrm, app, 0, r.get());
+        }
+    }
 
     update_entities(pfrm, app, delta, app.effects());
 

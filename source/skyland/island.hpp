@@ -119,6 +119,7 @@ public:
 
 
     void update(Platform&, App&, Microseconds delta);
+    void update_simple(Platform&, App&, Microseconds delta);
 
 
     void rewind(Platform&, App&, Microseconds delta);
