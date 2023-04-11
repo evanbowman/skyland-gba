@@ -83,7 +83,7 @@ public:
     }
 
 
-private:
+protected:
     Microseconds cursor_move_tic_ = 0;
 
     bool ready_ = false;

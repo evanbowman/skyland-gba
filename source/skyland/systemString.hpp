@@ -663,6 +663,7 @@ enum class SystemString {
     sel_menu_back,
     sel_menu_spook_bird,
     sel_menu_describe_block,
+    sel_menu_edit_flag,
 
     choose_flag,
     flag_default,

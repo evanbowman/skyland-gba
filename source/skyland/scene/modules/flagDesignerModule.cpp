@@ -25,6 +25,7 @@
 #include "skyland/configure_island.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/save.hpp"
+#include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -72,7 +73,9 @@ public:
     {
         if (player(app).key_down(pfrm, Key::action_2) or
             player(app).key_down(pfrm, Key::select)) {
-            return scene_pool::alloc<FlagDesignerModule>();
+            auto next = scene_pool::alloc<FlagDesignerModule>();
+            next->editing_ingame_ = editing_ingame_;
+            return next;
         }
 
         if (player(app).key_down(pfrm, Key::down)) {
@@ -125,6 +128,7 @@ public:
                 break;
             }
             auto next = scene_pool::alloc<FlagDesignerModule>();
+            next->editing_ingame_ = editing_ingame_;
             next->changed_ = true;
             return next;
         }
@@ -132,6 +136,8 @@ public:
 
         return null_scene();
     }
+
+    bool editing_ingame_ = false;
 
 private:
     int sel_ = 0;
@@ -147,44 +153,83 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().show_flag(true);
 
 
-    pfrm.load_tile0_texture("tilesheet");
-
+    if (editing_ingame_) {
+        if (app.player_island().interior_visible()) {
+            pfrm.load_tile0_texture("tilesheet");
+        }
+        if (app.player_island().flag_pos()) {
+            auto flag_y = app.player_island().flag_pos()->y;
+            target_y_ = clamp(48 - (16 - flag_y) * 16, -80, 60);
+        }
+    } else {
+        pfrm.load_tile0_texture("tilesheet");
+    }
 
     Paint::init(pfrm, app);
 
+    if (editing_ingame_) {
+        if (not prev.cast_world_scene() and
+            app.player_island().interior_visible()) {
+            show_island_exterior(pfrm, app, &app.player_island());
+        }
 
-    app.player_island().init_terrain(pfrm, 4);
-    configure_island_from_codestring(
-        pfrm, app, app.player_island(), "'((power-core 1 13))");
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+            }
+        }
 
-    app.player_island().render_exterior(pfrm, app);
-    app.player_island().set_position(
-        {Fixnum::from_integer(152), Fixnum::from_integer(370)});
+        View v;
+        Float vx = -140 + -32;
+        vx += app.player_island().flag_pos()->x * 16;
+        v.set_center({vx, Float(view_shift_)});
+        pfrm.screen().set_view(v);
 
+    } else {
+        app.player_island().init_terrain(pfrm, 4);
+        configure_island_from_codestring(
+            pfrm, app, app.player_island(), "'((power-core 1 13))");
 
-    GenericBird::spawn(
-        pfrm, app, app.player_island(), rng::choice<3>(rng::utility_state));
+        app.player_island().render_exterior(pfrm, app);
+        app.player_island().set_position(
+            {Fixnum::from_integer(152), Fixnum::from_integer(370)});
 
+        GenericBird::spawn(
+            pfrm, app, app.player_island(), rng::choice<3>(rng::utility_state));
+    }
 
     show(pfrm, app);
 
     pfrm.screen().schedule_fade(0);
 
-    static const Text::OptColors colors{
-        {ColorConstant::silver_white, custom_color(0x5aadef)}};
+    auto bg_color = app.environment().shader(app)(ShaderPalette::background,
+                                                  custom_color(0x5aadef),
+                                                  0,
+                                                  4);
+
+    const Text::OptColors colors{
+        {ColorConstant::silver_white, bg_color}};
 
     Text::print(pfrm, SYS_CSTR(flag_designer_presets), {17, 1}, colors);
 }
 
 
 
-void FlagDesignerModule::exit(Platform& pfrm, App&, Scene& next)
+void FlagDesignerModule::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.fill_overlay(0);
-    pfrm.system_call("vsync", nullptr); // FIXME
-    pfrm.screen().clear();
-    pfrm.screen().display();
-    pfrm.screen().fade(1.f);
+
+    if (editing_ingame_) {
+        if (app.opponent_island()) {
+            show_island_exterior(pfrm, app, app.opponent_island());
+        }
+    } else {
+        pfrm.system_call("vsync", nullptr); // FIXME
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        pfrm.screen().fade(1.f);
+    }
+
 }
 
 
@@ -202,17 +247,42 @@ ScenePtr<Scene>
 FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::select)) {
-        return scene_pool::alloc<FlagTemplateScene>();
-        // load_default_flag(pfrm, app);
-        // app.player_island().render_exterior(pfrm, app);
-        // show(pfrm, app);
+        auto next = scene_pool::alloc<FlagTemplateScene>();
+        next->editing_ingame_ = editing_ingame_;
+        return next;
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
         if (changed_) {
             app.custom_flag_image_.save(pfrm);
         }
-        return scene_pool::alloc<TitleScreenScene>(3);
+        if (editing_ingame_) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<TitleScreenScene>(3);
+        }
+
+    }
+
+    if (editing_ingame_ and view_shift_ not_eq target_y_) {
+        int amount = 2;
+        if (abs(view_shift_ - target_y_) > 40) {
+            amount = 4;
+        }
+        if (abs(view_shift_ - target_y_) < 10) {
+            amount = 1;
+        }
+        if (view_shift_ < target_y_) {
+           view_shift_ += amount;
+        } else {
+            view_shift_ -= amount;
+        }
+
+        View v;
+        Float vx = -140 + -32;
+        vx += app.player_island().flag_pos()->x * 16;
+        v.set_center({vx, Float(view_shift_)});
+        pfrm.screen().set_view(v);
     }
 
     app.player_island().update(pfrm, app, delta);

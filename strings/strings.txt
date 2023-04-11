@@ -531,6 +531,7 @@ build
 back
 spook bird
 describe block
+edit flag
 choose flag:
 colonial
 old empire

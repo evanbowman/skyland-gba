@@ -74,7 +74,12 @@ public:
 
     bool changed_ = false;
 
+    bool editing_ingame_ = false;
+
 private:
+
+    int target_y_ = 0;
+
     static Factory factory_;
 };
 

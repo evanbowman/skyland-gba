@@ -24,6 +24,7 @@
 #include "constructionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "menuPromptScene.hpp"
+#include "modules/flagDesignerModule.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "moveCharacterScene.hpp"
 #include "moveRoomScene.hpp"
@@ -302,6 +303,16 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
     }
 
     if (not pfrm.network_peer().is_connected()) {
+
+        if (not is_far_camera() and cursor == *app.player_island().flag_pos()) {
+            add_line(SystemString::sel_menu_edit_flag,
+                     [this, cursor](Platform& pfrm, App& app) {
+                         auto ret = scene_pool::alloc<FlagDesignerModule>();
+                         ret->editing_ingame_ = true;
+                         return ret;
+                     });
+        }
+
         add_line(SystemString::sel_menu_pause,
                  [this, cursor](Platform& pfrm, App& app) {
                      return set_gamespeed_setup(pfrm, app);
