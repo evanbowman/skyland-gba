@@ -168,8 +168,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     Paint::init(pfrm, app);
 
     if (editing_ingame_) {
-        if (not prev.cast_world_scene() and
-            app.player_island().interior_visible()) {
+        if (not prev.cast_world_scene()) {
             show_island_exterior(pfrm, app, &app.player_island());
         }
 
