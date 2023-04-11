@@ -673,10 +673,13 @@ enum class SystemString {
     flag_alt4,
     flag_alt5,
     flag_alt6,
+    flag_banana,
 
     flag_designer_presets,
     flag_designer_flood,
 
+    flag,
+    flag_fmt,
 
     __NOTICE__,
     patchfix_retain_alphabet,

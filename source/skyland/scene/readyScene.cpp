@@ -911,6 +911,48 @@ void describe_room(Platform& pfrm,
                 }
             }
         }
+        if (island->flag_pos() == cursor_loc) {
+
+            if (not room_description) {
+                room_description.emplace(
+                    pfrm,
+                    OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+            }
+
+            auto flag_name = [&]() -> StringBuffer<48> {
+                if (island->custom_flag_graphics()) {
+                switch (island->custom_flag_graphics()) {
+                case 1: // marauder
+                    return SYS_CSTR(flag_alt3);
+                case 2: // old empire
+                    return SYS_CSTR(flag_alt1);
+                case 3: // goblin horde
+                    return SYS_CSTR(flag_alt4);
+                case 4: // second empire
+                    return SYS_CSTR(flag_alt2);
+                case 5: // banana
+                    return SYS_CSTR(flag_banana);
+                case 6: // merchant
+                    return SYS_CSTR(flag_alt6);
+                case 7: // colonial
+                    return SYS_CSTR(flag_default);
+                }
+                return "";
+                } else if (island == app.opponent_island()) {
+                    return SYS_CSTR(flag_alt4);
+                } else {
+                    return "";
+                }
+            }();
+
+            if (flag_name.length()) {
+                room_description->assign(format(SYS_CSTR(flag_fmt),
+                                                flag_name.c_str()).c_str());
+            } else {
+                room_description->assign(SYS_CSTR(flag));
+            }
+
+        }
     }
 
     if (room_description) {
