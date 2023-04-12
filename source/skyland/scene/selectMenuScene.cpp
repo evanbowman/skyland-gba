@@ -118,7 +118,8 @@ static ScenePtr<Scene> move_blocks_setup(Platform& pfrm, App& app, bool far)
 
     const bool skip_prompt =
         app.gp_.stateflags_.get(flag) or
-        state_bit_load(app, StateBit::move_blocks_help_prompt);
+        state_bit_load(app, StateBit::move_blocks_help_prompt) or
+        app.game_mode() == App::GameMode::tutorial;
 
     auto dont_remind = [](Platform& pfrm, App& app) {
         app.gp_.stateflags_.set(flag, true);
@@ -152,7 +153,8 @@ static ScenePtr<Scene> set_gamespeed_setup(Platform& pfrm, App& app)
 
     const bool skip_prompt =
         app.gp_.stateflags_.get(flag) or
-        state_bit_load(app, StateBit::gamespeed_help_prompt);
+        state_bit_load(app, StateBit::gamespeed_help_prompt) or
+        app.game_mode() == App::GameMode::tutorial;
 
     auto dont_remind = [](Platform& pfrm, App& app) {
         app.gp_.stateflags_.set(flag, true);
@@ -404,9 +406,12 @@ SelectMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene;
     }
 
-    if (auto scene = select_menu_help(pfrm, app, is_far_camera())) {
-        return scene;
+    if (app.game_mode() not_eq App::GameMode::tutorial) {
+        if (auto scene = select_menu_help(pfrm, app, is_far_camera())) {
+            return scene;
+        }
     }
+
 
     for (u32 x = opts_->longest_line_ + 1; x < 30; ++x) {
         for (u32 y = 0; y < 20; ++y) {
