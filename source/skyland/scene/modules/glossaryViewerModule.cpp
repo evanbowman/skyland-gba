@@ -130,7 +130,7 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     do {
-        cover_img_ = rng::choice<4>(rng::utility_state);
+        cover_img_ = rng::choice<5>(rng::utility_state);
     } while (cover_img_ == last_cover_img_);
     last_cover_img_ = cover_img_;
 
@@ -329,6 +329,10 @@ void GlossaryViewerModule::show_category_image(Platform& pfrm, int img)
 
     case 3:
         pfrm.load_tile0_texture("glossary_power_cg_flattened");
+        break;
+
+    case 4:
+        pfrm.load_tile0_texture("glossary_wall_cg_flattened");
         break;
     }
     __draw_image(pfrm, 1, 15, 0, 16, 20, Layer::map_0);
