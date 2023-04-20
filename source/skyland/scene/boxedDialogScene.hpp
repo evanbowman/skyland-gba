@@ -82,6 +82,8 @@ public:
         done,
         animate_out,
         boolean_choice,
+        choice_select_hold,
+        choice_show,
         y_n_wait,
         clear,
     };
@@ -93,6 +95,10 @@ public:
     }
 
     const char* ambience_ = nullptr;
+
+
+    void display(Platform& pfrm, App& app) override;
+
 
 private:
     void process_command(Platform& pfrm, App& app);
@@ -121,6 +127,7 @@ private:
     u8 goto_tutorial_ : 5;
     u8 allow_fastforward_ : 1;
     u8 wait_ = 0;
+    u8 choice_tries_ = 0;
 
     bool choice_sel_ = true;
     bool img_view_ = false;
@@ -169,6 +176,12 @@ public:
         return this;
     }
 
+
+    void display(Platform& pfrm, App& app) override
+    {
+        dialog_scene_.display(pfrm, app);
+        WorldScene::display(pfrm, app);
+    }
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override final
