@@ -479,7 +479,7 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-static const auto hold_time = milliseconds(500);
+static const auto hold_time = milliseconds(300);
 
 
 
@@ -711,7 +711,9 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (text_state_.timer_ > hold_time) {
             text_state_.timer_ = 0;
 
-            pfrm.speaker().play_sound("button_wooden", 3);
+            if (app.game_speed() not_eq GameSpeed::stopped) {
+                pfrm.speaker().play_sound("button_wooden", 3);
+            }
 
             if (choice_sel_) {
                 invoke_hook(pfrm, app, "on-dialog-accepted");
@@ -804,6 +806,7 @@ void BoxedDialogScene::display(Platform& pfrm, App& app)
         spr.set_tidx_16x16(120, 0);
         spr.set_position({xp, yp});
         spr.set_priority(0);
+        spr.set_mix({custom_color(0xf2866b), u8(amount * 255)});
 
         pfrm.screen().draw(spr);
 
