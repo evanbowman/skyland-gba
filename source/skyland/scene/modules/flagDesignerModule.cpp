@@ -41,24 +41,131 @@ void load_flag(Platform& pfrm, App& app, u16 tile);
 
 
 
+class SurfaceFlagsScene : public Scene
+{
+private:
+    int page_ = 0;
+    Vec2<int> cursor_;
+    Microseconds cursor_timer_ = seconds(1);
+    bool cursor_flip_ = false;
+
+public:
+
+
+    void print_icon(Platform& pfrm, const OverlayCoord& coord, u16 tile)
+    {
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y, tile);
+        pfrm.set_tile(Layer::overlay, coord.x + 1, coord.y, tile + 1);
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y + 1, tile + 2);
+        pfrm.set_tile(Layer::overlay, coord.x + 1, coord.y + 1, tile + 3);
+    }
+
+
+    void enter(Platform& pfrm, App&, Scene&) override
+    {
+        pfrm.load_overlay_texture("flags");
+        Text::print(pfrm, "historical flags:", OverlayCoord{1, 1},
+                    {{custom_color(0xcdc3eb),
+                      ColorConstant::rich_black}});
+
+        int tile = 88 + 8;
+
+        for (int y = 0; y < 5; ++y) {
+            for (int x = 0; x < 9; ++x) {
+                print_icon(pfrm, {(u8)(2 + x * 3),
+                                  (u8)(4 + y * 3)},
+                    tile);
+                tile += 4;
+            }
+        }
+
+        load_page(pfrm);
+    }
+
+
+
+    void exit(Platform& pfrm, App&, Scene&) override
+    {
+        pfrm.load_overlay_texture("overlay");
+    }
+
+
+
+    void load_page(Platform& pfrm)
+    {
+        static const int page_count = 6;
+        int margin = (calc_screen_tiles(pfrm).x - page_count * 2) / 2;
+        for (int i = 0; i < page_count; ++i) {
+            if (i == page_ + 1) {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 19, 85);
+            } else {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 19, 84);
+            }
+        }
+
+        pfrm.load_overlay_chunk(88 + 8, 268 + 180 * page_, 180);
+    }
+
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta);
+
+
+
+    bool editing_ingame_;
+};
+
+
+
 class FlagTemplateScene : public Scene
 {
 public:
+
+
+    void print_icon(Platform& pfrm, const OverlayCoord& coord, u16 tile)
+    {
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y, tile);
+        pfrm.set_tile(Layer::overlay, coord.x + 1, coord.y, tile + 1);
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y + 1, tile + 2);
+        pfrm.set_tile(Layer::overlay, coord.x + 1, coord.y + 1, tile + 3);
+    }
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
+        pfrm.load_overlay_texture("flags");
+
         pfrm.screen().schedule_fade(0);
         pfrm.screen().schedule_fade(1);
 
-        Text::print(pfrm, SYS_CSTR(choose_flag), {1, 1});
-        Text::print(pfrm, SYS_CSTR(flag_default), {3, 4});
-        Text::print(pfrm, SYS_CSTR(flag_alt1), {3, 6});
-        Text::print(pfrm, SYS_CSTR(flag_alt2), {3, 8});
-        Text::print(pfrm, SYS_CSTR(flag_alt3), {3, 10});
-        Text::print(pfrm, SYS_CSTR(flag_alt4), {3, 12});
-        Text::print(pfrm, SYS_CSTR(flag_alt5), {3, 14});
-        Text::print(pfrm, SYS_CSTR(flag_alt6), {3, 16});
+        Text::OptColors colors = {{custom_color(0xcdc3eb),
+                                   ColorConstant::rich_black}};
 
-        pfrm.set_tile(Layer::overlay, 1, 4, 475);
+        Text::print(pfrm, SYS_CSTR(choose_flag), {1, 1}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_default), {4, 4}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt1), {4, 6}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt2), {4, 8}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt3), {4, 10}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt4), {4, 12}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt5), {4, 14}, colors);
+        Text::print(pfrm, SYS_CSTR(flag_alt6), {4, 16}, colors);
+
+        for (int y = 0; y < 7; ++y) {
+            print_icon(pfrm, {1, u8(4 + y * 2)}, 88 + 8 + 4 * y);
+        }
+
+        pfrm.set_tile(Layer::overlay, 3, 4, 86);
+
+        static const int page_count = 6;
+        int margin = (calc_screen_tiles(pfrm).x - page_count * 2) / 2;
+        for (int i = 0; i < page_count; ++i) {
+            if (i == 0) {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 19, 85);
+            } else {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 19, 84);
+            }
+        }
+
     }
 
 
@@ -66,11 +173,22 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next) override
     {
         pfrm.fill_overlay(0);
+
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        pfrm.load_overlay_texture("overlay");
     }
 
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
     {
+        player(app).update(pfrm, app, delta);
+
+        auto test_key = [&](Key k) {
+            return player(app).test_key(
+                pfrm, k, milliseconds(500), milliseconds(100));
+        };
+
         if (player(app).key_down(pfrm, Key::action_2) or
             player(app).key_down(pfrm, Key::select)) {
             auto next = scene_pool::alloc<FlagDesignerModule>();
@@ -78,23 +196,33 @@ public:
             return next;
         }
 
-        if (player(app).key_down(pfrm, Key::down)) {
+        if (player(app).key_down(pfrm, Key::right)) {
+            pfrm.speaker().play_sound("click_wooden", 2);
+            auto next = scene_pool::alloc<SurfaceFlagsScene>();
+            next->editing_ingame_ = editing_ingame_;
+            return next;
+        }
+
+
+        if (test_key(Key::down)) {
             if (sel_ < 6) {
                 ++sel_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
             for (int y = 0; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, 4 + y, 0);
+                pfrm.set_tile(Layer::overlay, 3, 4 + y, 0);
             }
-            pfrm.set_tile(Layer::overlay, 1, 4 + sel_ * 2, 475);
+            pfrm.set_tile(Layer::overlay, 3, 4 + sel_ * 2, 86);
         }
-        if (player(app).key_down(pfrm, Key::up)) {
+        if (test_key(Key::up)) {
             if (sel_ > 0) {
                 --sel_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
             for (int y = 0; y < 20; ++y) {
-                pfrm.set_tile(Layer::overlay, 1, 4 + y, 0);
+                pfrm.set_tile(Layer::overlay, 3, 4 + y, 0);
             }
-            pfrm.set_tile(Layer::overlay, 1, 4 + sel_ * 2, 475);
+            pfrm.set_tile(Layer::overlay, 3, 4 + sel_ * 2, 86);
         }
 
         if (player(app).key_down(pfrm, Key::action_1)) {
@@ -142,6 +270,184 @@ public:
 private:
     int sel_ = 0;
 };
+
+
+
+
+ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    player(app).update(pfrm, app, delta);
+
+    auto test_key = [&](Key k) {
+        return player(app).test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+    auto clear_cursor = [&] {
+        pfrm.set_tile(Layer::overlay,
+                      2 + cursor_.x * 3 - 1,
+                      4 + cursor_.y * 3 - 1,
+                      0);
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 3,
+                      (4 + cursor_.y * 3 - 1) + 0,
+                      0);
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 0,
+                      (4 + cursor_.y * 3 - 1) + 3,
+                      0);
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 3,
+                      (4 + cursor_.y * 3 - 1) + 3,
+                      0);
+        cursor_timer_ = milliseconds(200);
+                        };
+
+    if (player(app).key_down(pfrm, Key::action_1)) {
+        u16 tile = 268 + 180 * page_ + cursor_.x * 4 + cursor_.y * 4 * 9;
+
+        auto data = pfrm.extract_tile(Layer::overlay, tile);
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1] & 0x0f;
+            }
+        }
+
+        ++tile;
+        data = pfrm.extract_tile(Layer::overlay, tile);
+        for (int x = 0; x < 5; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                app.custom_flag_image_.pixels[8 + x][y] = data.data_[x][y + 1] & 0x0f;
+            }
+        }
+
+        ++tile;
+        data = pfrm.extract_tile(Layer::overlay, tile);
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 4; ++y) {
+                app.custom_flag_image_.pixels[x][7 + y] = data.data_[x][y] & 0x0f;
+            }
+        }
+
+        ++tile;
+        data = pfrm.extract_tile(Layer::overlay, tile);
+        for (int x = 0; x < 5; ++x) {
+            for (int y = 0; y < 4; ++y) {
+                app.custom_flag_image_.pixels[8 + x][7 + y] = data.data_[x][y] & 0x0f;
+            }
+        }
+
+
+        auto next = scene_pool::alloc<FlagDesignerModule>();
+        next->editing_ingame_ = editing_ingame_;
+        pfrm.fill_overlay(0);
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        return next;
+    }
+
+    if (player(app).key_down(pfrm, Key::action_2) or
+        player(app).key_down(pfrm, Key::select)) {
+        auto next = scene_pool::alloc<FlagDesignerModule>();
+        next->editing_ingame_ = editing_ingame_;
+        pfrm.fill_overlay(0);
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        return next;
+    }
+
+    if (test_key(Key::down)) {
+        if (cursor_.y < 4) {
+            clear_cursor();
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            ++cursor_.y;
+        }
+    }
+
+    if (test_key(Key::up)) {
+        if (cursor_.y > 0) {
+            clear_cursor();
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            --cursor_.y;
+        }
+    }
+
+
+    if (test_key(Key::right)) {
+        if (cursor_.x < 8) {
+            clear_cursor();
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            ++cursor_.x;
+        } else {
+            if (page_ < 4) {
+                ++page_;
+                clear_cursor();
+                cursor_.x = 0;
+                load_page(pfrm);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            }
+        }
+    }
+
+
+    if (test_key(Key::left)) {
+        if (cursor_.x > 0) {
+            clear_cursor();
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            --cursor_.x;
+        } else {
+            if (page_ == 0 and player(app).key_down(pfrm, Key::left)) {
+                pfrm.fill_overlay(0);
+                pfrm.screen().clear();
+                pfrm.screen().display();
+                auto next = scene_pool::alloc<FlagTemplateScene>();
+                next->editing_ingame_ = editing_ingame_;
+                pfrm.speaker().play_sound("click_wooden", 2);
+                return next;
+            } else if (page_ > 0) {
+                --page_;
+                clear_cursor();
+                cursor_.x = 8;
+                load_page(pfrm);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            }
+        }
+    }
+
+    cursor_timer_ += delta;
+
+    if (cursor_timer_ > milliseconds(200)) {
+        pfrm.set_tile(Layer::overlay,
+                      2 + cursor_.x * 3 - 1,
+                      4 + cursor_.y * 3 - 1,
+                      88 + (cursor_flip_ ? 0 : 4));
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 3,
+                      (4 + cursor_.y * 3 - 1) + 0,
+                      89 + (cursor_flip_ ? 0 : 4));
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 0,
+                      (4 + cursor_.y * 3 - 1) + 3,
+                      90 + (cursor_flip_ ? 0 : 4));
+
+        pfrm.set_tile(Layer::overlay,
+                      (2 + cursor_.x * 3 - 1) + 3,
+                      (4 + cursor_.y * 3 - 1) + 3,
+                      91 + (cursor_flip_ ? 0 : 4));
+
+        cursor_timer_ = 0;
+        cursor_flip_ = not cursor_flip_;
+    }
+
+
+    return null_scene();
+}
+
 
 
 

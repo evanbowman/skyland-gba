@@ -391,6 +391,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_2_flattened.s
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
+    ${DATA_DIR}/flags.s
     ${DATA_DIR}/boot_img_flattened.s
     ${DATA_DIR}/savegame_flattened.s
     ${DATA_DIR}/ending_img_flattened.s
@@ -767,6 +768,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background_macro_night 0 0 NO YES)
     add_background(background_title_screen 0 0 NO YES)
     add_overlay(pub_logo 0 0 YES YES)
+    add_overlay(flags 2 2 NO NO)
     add_overlay(traded_core 0 0 YES YES)
     add_overlay(photo_village 0 0 YES YES)
     add_overlay(photo_surface 0 0 YES YES)
