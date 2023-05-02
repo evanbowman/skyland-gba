@@ -343,6 +343,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
 
         auto next = scene_pool::alloc<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
+        next->changed_ = true;
         pfrm.fill_overlay(0);
         pfrm.screen().clear();
         pfrm.screen().display();
