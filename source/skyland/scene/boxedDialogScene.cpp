@@ -625,9 +625,9 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::y_n_wait:
-        // if (++wait_ == 18) {
+        if (++wait_ == 18) {
             display_mode_ = DisplayMode::done;
-        // }
+        }
         break;
 
     case DisplayMode::done:
@@ -680,8 +680,20 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (key_down<Key::action_1>(pfrm)) {
-            display_mode_ = DisplayMode::choice_select_hold;
+            // display_mode_ = DisplayMode::choice_select_hold;
             text_state_.timer_ = 0;
+
+            if (app.game_speed() not_eq GameSpeed::stopped) {
+                pfrm.speaker().play_sound("button_wooden", 3);
+            }
+
+            if (choice_sel_) {
+                invoke_hook(pfrm, app, "on-dialog-accepted");
+            } else {
+                invoke_hook(pfrm, app, "on-dialog-declined");
+            }
+
+            display_mode_ = DisplayMode::animate_out;
         }
         break;
 
