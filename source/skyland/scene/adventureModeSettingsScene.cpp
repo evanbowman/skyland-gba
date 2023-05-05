@@ -144,12 +144,7 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (newgame_) {
-            // Hack to add easy-mode coin bonus to player inventory when
-            // selecting initial difficulty.
-            if (app.gp_.difficulty_ ==
-                GlobalPersistentData::Difficulty::beginner) {
-                app.set_coins(pfrm, app.coins() + 1500);
-            }
+            app.invoke_script(pfrm, "/scripts/newgame.lisp");
         }
 
         return scene_pool::alloc<WorldMapScene>();

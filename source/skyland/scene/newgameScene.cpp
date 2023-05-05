@@ -74,8 +74,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else {
         app.set_coins(pfrm, 0);
 
-        app.invoke_script(pfrm, "/scripts/newgame.lisp");
-
         BasicCharacter::__reset_ids();
 
         app.current_world_location() = 0;

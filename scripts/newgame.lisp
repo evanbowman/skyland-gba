@@ -23,7 +23,7 @@
 (flag-show (player) 0)
 
 
-(coins-add 2500)
+(coins-set (if (equal (diff) 0) 4000 2500))
 
 
 (terrain (player) 4)
@@ -32,6 +32,18 @@
 (island-configure
  (player)
  '((power-core 1 13)))
+
+
+(if (equal (diff) 0)
+    (progn
+      (terrain (player) 5)
+      (island-configure
+       (player)
+       '((power-core 1 13)
+         (hull 1 12)
+         (hull 2 12)
+         (hull 3 14)
+         (hull 3 13)))))
 
 
 (setq shop-items '())
