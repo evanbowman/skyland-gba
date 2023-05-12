@@ -46,18 +46,18 @@ public:
 
     void render_interior(App* app, TileId buffer[16][16]) override
     {
-        buffer[position().x][position().y] = InteriorTile::bighull_1;
-        buffer[position().x + 1][position().y] = InteriorTile::bighull_2;
-        buffer[position().x][position().y + 1] = InteriorTile::bighull_3;
-        buffer[position().x + 1][position().y + 1] = InteriorTile::bighull_4;
+        buffer[position().x][position().y] = InteriorTile::hull;
+        buffer[position().x + 1][position().y] = InteriorTile::hull;
+        buffer[position().x][position().y + 1] = InteriorTile::hull;
+        buffer[position().x + 1][position().y + 1] = InteriorTile::hull;
     }
 
     void render_exterior(App* app, TileId buffer[16][16]) override
     {
-        buffer[position().x][position().y] = Tile::bighull_1;
-        buffer[position().x + 1][position().y] = Tile::bighull_2;
-        buffer[position().x][position().y + 1] = Tile::bighull_3;
-        buffer[position().x + 1][position().y + 1] = Tile::bighull_4;
+        buffer[position().x][position().y] = Tile::hull;
+        buffer[position().x + 1][position().y] = Tile::hull;
+        buffer[position().x][position().y + 1] = Tile::hull;
+        buffer[position().x + 1][position().y + 1] = Tile::hull;
     }
 
 

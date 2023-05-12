@@ -190,6 +190,10 @@ enum class SystemString {
     tiled_suffix,
     vines_suffix,
 
+    goodboy_suffix,
+    pkmn_suffix,
+    troll_suffix,
+
     red,
     black,
 
@@ -342,6 +346,7 @@ enum class SystemString {
     description_flak_gun,
     description_manufactory,
     description_masonry,
+    description_statue,
     description_decimator,
     description_stairwell,
     description_plundered_room,

@@ -247,10 +247,10 @@ struct Tile
         qr_block,
         cloak,
         cloaked,
-        bighull_1,
-        bighull_2,
-        bighull_3,
-        bighull_4,
+        statue_3,
+        statue_4,
+        statue_5,
+        statue_6,
         boarding_pod1,
         boarding_pod2,
         boarding_pod3,
@@ -270,6 +270,8 @@ struct Tile
         null_8,
         null_9,
         masonry_vines,
+        statue_7,
+        statue_8,
     };
 };
 
@@ -488,10 +490,10 @@ struct InteriorTile
         qr_block,
         cloak,
         cloaked,
-        bighull_1,
-        bighull_2,
-        bighull_3,
-        bighull_4,
+        statue_3,
+        statue_4,
+        statue_5,
+        statue_6,
         boarding_pod1,
         boarding_pod2,
         boarding_pod3,
@@ -511,6 +513,8 @@ struct InteriorTile
         war_engine_8,
         war_engine_9,
         masonry_vines,
+        statue_7,
+        statue_8,
     };
 };
 
