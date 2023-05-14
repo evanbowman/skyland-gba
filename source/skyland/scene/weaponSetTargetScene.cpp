@@ -578,8 +578,8 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 
     Buffer<Room*, 32> weapons;
 
-    for (u8 y = 3; y < 15; ++y) {
-        for (u8 x = 0; x < 16; ++x) {
+    for (u8 y = 4; y < 15; ++y) {
+        for (u8 x = 0; x < 13; ++x) {
             if (auto room = app.player_island().get_room({x, y})) {
                 if ((*room->metaclass())->category() ==
                         Room::Category::weapon and
@@ -637,8 +637,8 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     auto cursor_loc = globals().far_cursor_loc_;
 
     if (app.opponent_island()) {
-        for (u8 y = 3; y < 15; ++y) {
-            for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 4; y < 15; ++y) {
+            for (u8 x = 0; x < 13; ++x) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
                     for (int xx = 0; xx < 3; ++xx) {
                         for (int yy = 0; yy < 3; ++yy) {
@@ -702,23 +702,26 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         };
 
         auto plot_line = [&](int x0, int y0, int x1, int y1) {
-            int dx = x1 - x0;
-            int dy = y1 - y0;
-            int yi = 1;
-            if (dy < 0) {
-                yi = -1;
-                dy = -dy;
-            }
-            int D = (2 * dy) - dx;
-            int y = y0;
+            int dx = abs(x1 - x0);
+            int sx = x0 < x1 ? 1 : -1;
+            int dy = -abs(y1 - y0);
+            int sy = y0 < y1 ? 1 : -1;
+            int error = dx + dy;
 
-            for (int x = x0; x < x1; ++x) {
-                plot(x, y);
-                if (D > 0) {
-                    y = y + yi;
-                    D = D + (2 * (dy - dx));
-                } else {
-                    D = D + 2 * dy;
+            while (true) {
+                plot(x0, y0);
+                if (x0 == x1 && y0 == y1)
+                    break;
+                int e2 = 2 * error;
+                if (e2 >= dy) {
+                    if (x0 == x1) break;
+                    error = error + dy;
+                    x0 = x0 + sx;
+                }
+                if (e2 <= dx) {
+                    if (y0 == y1) break;
+                    error = error + dx;
+                    y0 = y0 + sy;
                 }
             }
         };
@@ -745,6 +748,8 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         }
     }
 
+    [[maybe_unused]]
+    auto before = pfrm.delta_clock().sample();
 
     u16 tile = minimap_start_tile;
     for (int y = 0; y < 5; ++y) {
@@ -761,6 +766,16 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     }
 
     minimap_show(pfrm, app, 29 - minimap_width(app));
+
+    [[maybe_unused]]
+    auto after = pfrm.delta_clock().sample();
+    // Platform::fatal(format("%", after - before));
+
+    if (not pfrm.network_peer().is_connected()) {
+        // FIXME: repaint function has large overhead. Optimize and remove clock
+        // reset.
+        pfrm.delta_clock().reset();
+    }
 }
 
 
