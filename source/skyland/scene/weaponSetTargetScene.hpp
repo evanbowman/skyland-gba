@@ -73,8 +73,8 @@ private:
     Microseconds describe_room_timer_ = milliseconds(400);
     std::optional<Text> room_description_;
 
-    u8 last_player_checksum_ = 0;
-    u8 last_opponent_checksum_ = 0;
+    u16 last_player_checksum_ = 0;
+    u16 last_opponent_checksum_ = 0;
 
     Microseconds minimap_repaint_timer_ = 0;
 

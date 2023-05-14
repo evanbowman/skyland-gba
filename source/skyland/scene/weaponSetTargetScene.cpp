@@ -112,12 +112,12 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return player_weapon_exit_scene();
     }
 
-    // if (app.player_island().checksum() not_eq last_player_checksum_ or
-    //     app.opponent_island()->checksum() not_eq last_opponent_checksum_) {
-    //     last_player_checksum_ = app.player_island().checksum();
-    //     last_opponent_checksum_ = app.opponent_island()->checksum();
-    //     minimap_repaint(pfrm, app);
-    // }
+    if (app.player_island().checksum() not_eq last_player_checksum_ or
+        app.opponent_island()->checksum() not_eq last_opponent_checksum_) {
+        last_player_checksum_ = app.player_island().checksum();
+        last_opponent_checksum_ = app.opponent_island()->checksum();
+        minimap_repaint(pfrm, app);
+    }
 
     auto& cursor_loc = globals().far_cursor_loc_;
 
@@ -158,7 +158,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            minimap_repaint_timer_ = milliseconds(200);
+            minimap_repaint_timer_ = milliseconds(110);
 
             pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
@@ -171,7 +171,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            minimap_repaint_timer_ = milliseconds(200);
+            minimap_repaint_timer_ = milliseconds(110);
 
             pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
@@ -184,7 +184,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            minimap_repaint_timer_ = milliseconds(200);
+            minimap_repaint_timer_ = milliseconds(110);
 
             pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
@@ -197,7 +197,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            minimap_repaint_timer_ = milliseconds(200);
+            minimap_repaint_timer_ = milliseconds(110);
 
             pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
@@ -343,6 +343,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (test_key(Key::start)) {
         snap(pfrm, app);
         camera_update_timer_ = milliseconds(500);
+        minimap_repaint_timer_ = milliseconds(100);
     }
     if (test_key(Key::action_1)) {
         if (auto scene = onclick(cursor_loc)) {
