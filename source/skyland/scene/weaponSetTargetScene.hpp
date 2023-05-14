@@ -59,6 +59,12 @@ private:
     const RoomCoord weapon_loc_;
 
 
+    void minimap_show(Platform&, App&, u8 anchor);
+    void minimap_hide(Platform&, App&);
+    void minimap_init(Platform&, App&);
+    void minimap_repaint(Platform&, App&);
+
+
     void snap(Platform&, App&);
 
 
@@ -67,11 +73,22 @@ private:
     Microseconds describe_room_timer_ = milliseconds(400);
     std::optional<Text> room_description_;
 
+    u8 last_player_checksum_ = 0;
+    u8 last_opponent_checksum_ = 0;
+
+    Microseconds minimap_repaint_timer_ = 0;
+
+    int cursor_tics_ = 0;
+    Microseconds tic_timer_ = milliseconds(100);
+
     bool near_;
     bool resume_far_ = false;
 
     Room::Group group_ = Room::Group::none;
     u8 firing_mode_ = false;
+
+    bool minimap_visible_ = false;
+    u8 minimap_x_anchor_ = 1;
 
     std::optional<RoomCoord> initial_pos_;
 };

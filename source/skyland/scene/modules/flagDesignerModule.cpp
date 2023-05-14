@@ -50,8 +50,6 @@ private:
     bool cursor_flip_ = false;
 
 public:
-
-
     void print_icon(Platform& pfrm, const OverlayCoord& coord, u16 tile)
     {
         pfrm.set_tile(Layer::overlay, coord.x, coord.y, tile);
@@ -64,17 +62,16 @@ public:
     void enter(Platform& pfrm, App&, Scene&) override
     {
         pfrm.load_overlay_texture("flags");
-        Text::print(pfrm, "historical flags:", OverlayCoord{1, 1},
-                    {{custom_color(0xcdc3eb),
-                      ColorConstant::rich_black}});
+        Text::print(pfrm,
+                    "historical flags:",
+                    OverlayCoord{1, 1},
+                    {{custom_color(0xcdc3eb), ColorConstant::rich_black}});
 
         int tile = 88 + 8;
 
         for (int y = 0; y < 5; ++y) {
             for (int x = 0; x < 9; ++x) {
-                print_icon(pfrm, {(u8)(2 + x * 3),
-                                  (u8)(4 + y * 3)},
-                    tile);
+                print_icon(pfrm, {(u8)(2 + x * 3), (u8)(4 + y * 3)}, tile);
                 tile += 4;
             }
         }
@@ -120,8 +117,6 @@ public:
 class FlagTemplateScene : public Scene
 {
 public:
-
-
     void print_icon(Platform& pfrm, const OverlayCoord& coord, u16 tile)
     {
         pfrm.set_tile(Layer::overlay, coord.x, coord.y, tile);
@@ -138,8 +133,8 @@ public:
         pfrm.screen().schedule_fade(0);
         pfrm.screen().schedule_fade(1);
 
-        Text::OptColors colors = {{custom_color(0xcdc3eb),
-                                   ColorConstant::rich_black}};
+        Text::OptColors colors = {
+            {custom_color(0xcdc3eb), ColorConstant::rich_black}};
 
         Text::print(pfrm, SYS_CSTR(choose_flag), {1, 1}, colors);
         Text::print(pfrm, SYS_CSTR(flag_default), {4, 4}, colors);
@@ -165,7 +160,6 @@ public:
                 pfrm.set_tile(Layer::overlay, margin + i * 2, 19, 84);
             }
         }
-
     }
 
 
@@ -273,8 +267,8 @@ private:
 
 
 
-
-ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     player(app).update(pfrm, app, delta);
 
@@ -284,10 +278,8 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
     };
 
     auto clear_cursor = [&] {
-        pfrm.set_tile(Layer::overlay,
-                      2 + cursor_.x * 3 - 1,
-                      4 + cursor_.y * 3 - 1,
-                      0);
+        pfrm.set_tile(
+            Layer::overlay, 2 + cursor_.x * 3 - 1, 4 + cursor_.y * 3 - 1, 0);
 
         pfrm.set_tile(Layer::overlay,
                       (2 + cursor_.x * 3 - 1) + 3,
@@ -304,7 +296,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
                       (4 + cursor_.y * 3 - 1) + 3,
                       0);
         cursor_timer_ = milliseconds(200);
-                        };
+    };
 
     if (player(app).key_down(pfrm, Key::action_1)) {
         u16 tile = 268 + 180 * page_ + cursor_.x * 4 + cursor_.y * 4 * 9;
@@ -312,7 +304,8 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
         auto data = pfrm.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
-                app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1] & 0x0f;
+                app.custom_flag_image_.pixels[x][y] =
+                    data.data_[x][y + 1] & 0x0f;
             }
         }
 
@@ -320,7 +313,8 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
         data = pfrm.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 5; ++x) {
             for (int y = 0; y < 8; ++y) {
-                app.custom_flag_image_.pixels[8 + x][y] = data.data_[x][y + 1] & 0x0f;
+                app.custom_flag_image_.pixels[8 + x][y] =
+                    data.data_[x][y + 1] & 0x0f;
             }
         }
 
@@ -328,7 +322,8 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
         data = pfrm.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 4; ++y) {
-                app.custom_flag_image_.pixels[x][7 + y] = data.data_[x][y] & 0x0f;
+                app.custom_flag_image_.pixels[x][7 + y] =
+                    data.data_[x][y] & 0x0f;
             }
         }
 
@@ -336,7 +331,8 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
         data = pfrm.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 5; ++x) {
             for (int y = 0; y < 4; ++y) {
-                app.custom_flag_image_.pixels[8 + x][7 + y] = data.data_[x][y] & 0x0f;
+                app.custom_flag_image_.pixels[8 + x][7 + y] =
+                    data.data_[x][y] & 0x0f;
             }
         }
 
@@ -451,7 +447,6 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Platform& pfrm, App& app, Microseconds
 
 
 
-
 void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
@@ -509,13 +504,10 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().schedule_fade(0);
 
-    auto bg_color = app.environment().shader(app)(ShaderPalette::background,
-                                                  custom_color(0x5aadef),
-                                                  0,
-                                                  4);
+    auto bg_color = app.environment().shader(app)(
+        ShaderPalette::background, custom_color(0x5aadef), 0, 4);
 
-    const Text::OptColors colors{
-        {ColorConstant::silver_white, bg_color}};
+    const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
 
     Text::print(pfrm, SYS_CSTR(flag_designer_presets), {17, 1}, colors);
 }
@@ -536,7 +528,6 @@ void FlagDesignerModule::exit(Platform& pfrm, App& app, Scene& next)
         pfrm.screen().display();
         pfrm.screen().fade(1.f);
     }
-
 }
 
 
@@ -568,7 +559,6 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             return scene_pool::alloc<TitleScreenScene>(3);
         }
-
     }
 
     if (editing_ingame_ and view_shift_ not_eq target_y_) {
@@ -580,7 +570,7 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
             amount = 1;
         }
         if (view_shift_ < target_y_) {
-           view_shift_ += amount;
+            view_shift_ += amount;
         } else {
             view_shift_ -= amount;
         }

@@ -74,8 +74,7 @@ void SelectMenuScene::redraw_line(Platform& pfrm, int line, bool highlight)
 
 static ScenePtr<Scene> select_menu_help(Platform& pfrm, App& app, bool far)
 {
-    const auto flag =
-        GlobalPersistentData::sel_menu_help_prompt_dont_remind_me;
+    const auto flag = GlobalPersistentData::sel_menu_help_prompt_dont_remind_me;
 
     const bool skip_prompt =
         app.gp_.stateflags_.get(flag) or
@@ -107,7 +106,6 @@ static ScenePtr<Scene> select_menu_help(Platform& pfrm, App& app, bool far)
         return null_scene();
     }
 }
-
 
 
 

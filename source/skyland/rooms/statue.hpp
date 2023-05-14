@@ -23,10 +23,9 @@
 #pragma once
 
 #include "decoration.hpp"
+#include "script/listBuilder.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
-#include "script/listBuilder.hpp"
-
 
 
 
@@ -66,7 +65,6 @@ public:
             buffer[position().x][position().y] = InteriorTile::statue_7;
             buffer[position().x][position().y + 1] = InteriorTile::statue_8;
             break;
-
         }
     }
 

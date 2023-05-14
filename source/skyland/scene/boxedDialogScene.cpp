@@ -710,11 +710,11 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                           110);
 
             if (++choice_tries_ == 5) {
-                Text::print(pfrm,
-                            "(press and hold A)",
-                            {12, 8},
-                            {{ColorConstant::rich_black,
-                              custom_color(0xceef39)}});
+                Text::print(
+                    pfrm,
+                    "(press and hold A)",
+                    {12, 8},
+                    {{ColorConstant::rich_black, custom_color(0xceef39)}});
             }
 
             break;
@@ -791,9 +791,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 void BoxedDialogScene::display(Platform& pfrm, App& app)
 {
     if (display_mode_ == DisplayMode::choice_select_hold) {
-        const auto amount = smoothstep(0.f,
-                                       hold_time - milliseconds(100),
-                                       text_state_.timer_);
+        const auto amount =
+            smoothstep(0.f, hold_time - milliseconds(100), text_state_.timer_);
 
         const auto st = calc_screen_tiles(pfrm);
         auto x = (st.x - 7) * 8;
