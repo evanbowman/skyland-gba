@@ -114,9 +114,11 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player_island().checksum() not_eq last_player_checksum_ or
         app.opponent_island()->checksum() not_eq last_opponent_checksum_) {
+
+        minimap_repaint_timer_ = milliseconds(100);
+
         last_player_checksum_ = app.player_island().checksum();
         last_opponent_checksum_ = app.opponent_island()->checksum();
-        minimap_repaint(pfrm, app);
     }
 
     auto& cursor_loc = globals().far_cursor_loc_;
@@ -533,14 +535,54 @@ static Platform::EncodedTile encode_small_tile(u8 tile_data[16][16])
 
 void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 {
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    [[maybe_unused]] auto before = pfrm.delta_clock().sample();
+
+
     const u8 width = minimap_width(app);
 
-    static const int minimap_px_width = 96 + 8;
+    static const int minimap_px_width = 104;
     static const int minimap_px_height = 40;
     using MinimapPixels = u8[minimap_px_width][minimap_px_height];
 
     // auto pixel_buffer = allocate_dynamic<MinimapPixels>("m-px-buffer");
     MinimapPixels pixel_buffer;
+
+    auto cursor_loc = globals().far_cursor_loc_;
+
+    auto save_pixels = [&]() {
+        if (fb_cache_.pixels_.size() == minimap_px_width * minimap_px_height) {
+            auto it = fb_cache_.pixels_.begin();
+            for (int x = 0; x < minimap_px_width; ++x) {
+                for (int y = 0; y < minimap_px_height; ++y) {
+                    *(it++) = pixel_buffer[x][y];
+                }
+            }
+        } else {
+            for (int x = 0; x < minimap_px_width; ++x) {
+                for (int y = 0; y < minimap_px_height; ++y) {
+                    fb_cache_.pixels_.push_back(pixel_buffer[x][y]);
+                }
+            }
+        }
+        fb_cache_.player_island_checksum_ = app.player_island().checksum();
+        fb_cache_.opponent_island_checksum_ = app.opponent_island()->checksum();
+    };
+
+    auto restore_pixels = [&]() {
+        if (fb_cache_.pixels_.size() < minimap_px_width * minimap_px_height) {
+            Platform::fatal("logic err");
+        }
+        auto it = fb_cache_.pixels_.begin();
+        for (int x = 0; x < minimap_px_width; ++x) {
+            for (int y = 0; y < minimap_px_height; ++y) {
+                pixel_buffer[x][y] = *(it++);
+            }
+        }
+    };
 
     static const u8 color_black_index = 3;
     static const u8 color_tan_index = 8;
@@ -551,21 +593,52 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     static const u8 color_burnt_orange_index = 14;
     static const u8 color_green_index = 11;
 
-    memset(pixel_buffer, color_black_index, sizeof pixel_buffer);
-
-    for (u32 x = 0; x < app.player_island().terrain().size(); ++x) {
-        for (int xx = 0; xx < 3; ++xx) {
-            for (int yy = 0; yy < 3; ++yy) {
-                pixel_buffer[(x + 1) * 3 + xx][((15 - 3) * 3 + yy) - 2] =
-                    (yy == 0) ? color_green_index : color_darkgray_index;
-            }
-        }
-    }
-
     int opp_offset =
         1 + app.player_island().terrain().size() + minimap_isle_spacing;
 
-    if (app.opponent_island()) {
+    Buffer<Room*, 32> weapons;
+
+    if (fb_cache_.player_island_checksum_ == app.player_island().checksum() and
+        fb_cache_.opponent_island_checksum_ ==
+            app.opponent_island()->checksum()) {
+
+        for (u8 y = 4; y < 15; ++y) {
+            for (u8 x = 0; x < 13; ++x) {
+                if (auto room = app.player_island().get_room({x, y})) {
+                    if ((*room->metaclass())->category() ==
+                            Room::Category::weapon and
+                        (weapon_loc_ == Vec2<u8>{x, y} or
+                         (room->group() not_eq Room::Group::none and
+                          room->group() == group_))) {
+                        bool found = false;
+                        for (auto& wpn : weapons) {
+                            if (wpn == room) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (not found) {
+                            weapons.push_back(room);
+                        }
+                    }
+                }
+            }
+        }
+
+        restore_pixels();
+
+    } else {
+        memset(pixel_buffer, color_black_index, sizeof pixel_buffer);
+
+        for (u32 x = 0; x < app.player_island().terrain().size(); ++x) {
+            for (int xx = 0; xx < 3; ++xx) {
+                for (int yy = 0; yy < 3; ++yy) {
+                    pixel_buffer[(x + 1) * 3 + xx][((15 - 3) * 3 + yy) - 2] =
+                        (yy == 0) ? color_green_index : color_darkgray_index;
+                }
+            }
+        }
+
         for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
             for (int xx = 0; xx < 3; ++xx) {
                 for (int yy = 0; yy < 3; ++yy) {
@@ -575,69 +648,63 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                 }
             }
         }
-    }
 
-    Buffer<Room*, 32> weapons;
-
-    for (u8 y = 4; y < 15; ++y) {
-        for (u8 x = 0; x < 13; ++x) {
-            if (auto room = app.player_island().get_room({x, y})) {
-                if ((*room->metaclass())->category() ==
-                        Room::Category::weapon and
-                    (weapon_loc_ == Vec2<u8>{x, y} or
-                     (room->group() not_eq Room::Group::none and
-                      room->group() == group_))) {
-                    bool found = false;
-                    for (auto& wpn : weapons) {
-                        if (wpn == room) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (not found) {
-                        weapons.push_back(room);
-                    }
-                }
-                for (int xx = 0; xx < 3; ++xx) {
-                    for (int yy = 0; yy < 3; ++yy) {
-                        u8 clr;
-                        switch ((*room->metaclass())->category()) {
-                        case Room::Category::wall:
-                            if ((*room->metaclass())->properties() &
-                                RoomProperties::accepts_ion_damage) {
-                                clr = color_el_blue_index;
-                            } else {
-                                clr = color_gray_index;
+        for (u8 y = 4; y < 15; ++y) {
+            for (u8 x = 0; x < 13; ++x) {
+                if (auto room = app.player_island().get_room({x, y})) {
+                    if ((*room->metaclass())->category() ==
+                            Room::Category::weapon and
+                        (weapon_loc_ == Vec2<u8>{x, y} or
+                         (room->group() not_eq Room::Group::none and
+                          room->group() == group_))) {
+                        bool found = false;
+                        for (auto& wpn : weapons) {
+                            if (wpn == room) {
+                                found = true;
+                                break;
                             }
-                            break;
-
-                        case Room::Category::weapon:
-                            clr = color_burnt_orange_index;
-                            break;
-
-                        default:
-                            clr = color_tan_index;
-                            break;
                         }
-
-                        if ((weapon_loc_ == Vec2<u8>{x, y} or
-                             (room->group() not_eq Room::Group::none and
-                              room->group() == group_)) and
-                            not(xx == 1 and yy == 1)) {
-                            clr = color_white_index;
+                        if (not found) {
+                            weapons.push_back(room);
                         }
+                    }
+                    for (int xx = 0; xx < 3; ++xx) {
+                        for (int yy = 0; yy < 3; ++yy) {
+                            u8 clr;
+                            switch ((*room->metaclass())->category()) {
+                            case Room::Category::wall:
+                                if ((*room->metaclass())->properties() &
+                                    RoomProperties::accepts_ion_damage) {
+                                    clr = color_el_blue_index;
+                                } else {
+                                    clr = color_gray_index;
+                                }
+                                break;
 
-                        pixel_buffer[(x + 1) * 3 + xx][((y - 3) * 3 + yy) - 2] =
-                            clr;
+                            case Room::Category::weapon:
+                                clr = color_burnt_orange_index;
+                                break;
+
+                            default:
+                                clr = color_tan_index;
+                                break;
+                            }
+
+                            if ((weapon_loc_ == Vec2<u8>{x, y} or
+                                 (room->group() not_eq Room::Group::none and
+                                  room->group() == group_)) and
+                                not(xx == 1 and yy == 1)) {
+                                clr = color_white_index;
+                            }
+
+                            pixel_buffer[(x + 1) * 3 + xx]
+                                        [((y - 3) * 3 + yy) - 2] = clr;
+                        }
                     }
                 }
             }
         }
-    }
 
-    auto cursor_loc = globals().far_cursor_loc_;
-
-    if (app.opponent_island()) {
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
@@ -671,18 +738,20 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
             }
         }
 
-        pixel_buffer[(cursor_loc.x + opp_offset) * 3]
-                    [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-        pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1]
-                    [((cursor_loc.y - 3) * 3) - 2 + 1] = color_white_index;
-        pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
-                    [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
-        pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
-                    [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-        pixel_buffer[(cursor_loc.x + opp_offset) * 3]
-                    [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
+        save_pixels();
     }
 
+
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3]
+                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1]
+                [((cursor_loc.y - 3) * 3) - 2 + 1] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
+                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
+                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3]
+                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
 
     const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
@@ -715,12 +784,14 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                     break;
                 int e2 = 2 * error;
                 if (e2 >= dy) {
-                    if (x0 == x1) break;
+                    if (x0 == x1)
+                        break;
                     error = error + dy;
                     x0 = x0 + sx;
                 }
                 if (e2 <= dx) {
-                    if (y0 == y1) break;
+                    if (y0 == y1)
+                        break;
                     error = error + dx;
                     y0 = y0 + sy;
                 }
@@ -749,9 +820,6 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         }
     }
 
-    [[maybe_unused]]
-    auto before = pfrm.delta_clock().sample();
-
     u16 tile = minimap_start_tile;
     for (int y = 0; y < 5; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -768,8 +836,7 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 
     minimap_show(pfrm, app, 29 - minimap_width(app));
 
-    [[maybe_unused]]
-    auto after = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto after = pfrm.delta_clock().sample();
     // Platform::fatal(format("%", after - before));
 
     if (not pfrm.network_peer().is_connected()) {
