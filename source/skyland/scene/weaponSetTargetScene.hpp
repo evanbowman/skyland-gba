@@ -60,7 +60,7 @@ private:
     const RoomCoord weapon_loc_;
 
 
-    void minimap_show(Platform&, App&, u8 anchor);
+    void minimap_show(Platform&, App&);
     void minimap_hide(Platform&, App&);
     void minimap_init(Platform&, App&);
     void minimap_repaint(Platform&, App&);

@@ -66,7 +66,7 @@ WeaponSetTargetScene::WeaponSetTargetScene(const RoomCoord& weapon_loc,
 
 static const int minimap_start_tile = 181;
 static const int minimap_isle_spacing = 3;
-
+static bool minimap_disabled = false;
 
 
 u8 minimap_width(App& app)
@@ -150,6 +150,17 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (cursor_tics_ > 4) {
         minimap_hide(pfrm, app);
+    }
+
+
+    if (app.player().key_down(pfrm, Key::select)) {
+        minimap_disabled = not minimap_disabled;
+        pfrm.speaker().play_sound("click_wooden", 2);
+        if (minimap_disabled) {
+            minimap_hide(pfrm, app);
+        } else {
+            minimap_show(pfrm, app);
+        }
     }
 
 
@@ -462,13 +473,19 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app, u8 anchor)
+void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
 {
+    static const u8 anchor = 29 - minimap_width(app);
+
     if (minimap_x_anchor_ == anchor and minimap_visible_) {
         return;
     }
 
     minimap_hide(pfrm, app);
+
+    if (minimap_disabled) {
+        return;
+    }
 
     const u8 width = minimap_width(app);
 
@@ -642,8 +659,8 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
             for (int xx = 0; xx < 3; ++xx) {
                 for (int yy = 0; yy < 3; ++yy) {
-                    pixel_buffer[(x + opp_offset) * 3 +
-                                 xx][((15 - 3) * 3 + yy) - 2] =
+                    pixel_buffer[(x + opp_offset) * 3 + xx -
+                                 2][((15 - 3) * 3 + yy) - 2] =
                         (yy == 0) ? color_green_index : color_darkgray_index;
                 }
             }
@@ -730,7 +747,7 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                                 break;
                             }
 
-                            pixel_buffer[(x + opp_offset) * 3 + xx]
+                            pixel_buffer[(x + opp_offset) * 3 + xx - 2]
                                         [((y - 3) * 3 + yy) - 2] = clr;
                         }
                     }
@@ -742,18 +759,18 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     }
 
 
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3]
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
                 [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1]
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1 - 2]
                 [((cursor_loc.y - 3) * 3) - 2 + 1] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
                 [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2]
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
                 [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3]
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
                 [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
 
-    const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1;
+    const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1 - 2;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
 
     for (auto wpn : weapons) {
@@ -766,7 +783,12 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                 pixel_buffer[x][y] = color_white_index;
                 return true;
             } else {
-                pixel_buffer[x][y] = 1;
+                if (pixel_buffer[x][y] == color_gray_index) {
+                    pixel_buffer[x][y] = 13;
+                } else {
+                    pixel_buffer[x][y] = 1;
+                }
+
                 return false;
             }
         };
@@ -834,7 +856,7 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         }
     }
 
-    minimap_show(pfrm, app, 29 - minimap_width(app));
+    minimap_show(pfrm, app);
 
     [[maybe_unused]] auto after = pfrm.delta_clock().sample();
     // Platform::fatal(format("%", after - before));
