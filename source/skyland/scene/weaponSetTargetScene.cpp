@@ -475,7 +475,7 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 
 void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
 {
-    static const u8 anchor = 29 - minimap_width(app);
+    const u8 anchor = 29 - minimap_width(app);
 
     if (minimap_x_anchor_ == anchor and minimap_visible_) {
         return;
