@@ -29,6 +29,9 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/rooms/flakGun.hpp"
+#include "skyland/rooms/incinerator.hpp"
+#include "skyland/rooms/rocketSilo.hpp"
 
 
 
@@ -610,14 +613,18 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     static const u8 color_burnt_orange_index = 14;
     static const u8 color_green_index = 11;
 
-    int opp_offset =
+    const int opp_offset =
         1 + app.player_island().terrain().size() + minimap_isle_spacing;
 
     Buffer<Room*, 32> weapons;
 
+    bool from_cache = false;
+
     if (fb_cache_.player_island_checksum_ == app.player_island().checksum() and
         fb_cache_.opponent_island_checksum_ ==
             app.opponent_island()->checksum()) {
+
+        from_cache = true;
 
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
@@ -758,18 +765,6 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         save_pixels();
     }
 
-
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
-                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1 - 2]
-                [((cursor_loc.y - 3) * 3) - 2 + 1] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
-                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
-                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
-    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
-                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
-
     const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1 - 2;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
 
@@ -777,11 +772,11 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         auto emit_pos = wpn->position();
         emit_pos.x += wpn->size().x;
 
-        auto plot = [&](int x, int y) {
+        auto plot = [&](int x, int y, auto intersection) {
             if (pixel_buffer[x][y] == color_black_index or
-                pixel_buffer[x][y] == color_white_index) {
+                pixel_buffer[x][y] == color_white_index or
+                pixel_buffer[x][y] == 12) {
                 pixel_buffer[x][y] = color_white_index;
-                return true;
             } else {
                 if (pixel_buffer[x][y] == color_gray_index) {
                     pixel_buffer[x][y] = 13;
@@ -789,9 +784,38 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                     pixel_buffer[x][y] = 1;
                 }
 
-                return false;
+                intersection(x, y);
             }
         };
+
+        auto highlight_block =
+            [&](int x, int y, bool center) {
+                if (x > 13 or y > 14) {
+                    return;
+                }
+                const int x_offset = 3 * opp_offset - 2;
+                const int y_offset = 4 * -3 + 1;
+                for (int xx = 0; xx < 3; ++xx) {
+                    for (int yy = 0; yy < 3; ++yy) {
+                        const int xt = x_offset + x * 3 + xx;
+                        const int yt = y_offset + y * 3 + yy;
+                        if (not center and xx == 1 and yy == 1) {
+                            pixel_buffer[xt][yt] = color_black_index;
+                            continue;
+                        }
+                        if (center and xx == 1 and yy == 1) {
+                            pixel_buffer[xt][yt] = 12;
+                            continue;
+                        }
+                        if (pixel_buffer[xt][yt] not_eq color_black_index and
+                            pixel_buffer[xt][yt] not_eq color_white_index) {
+                            pixel_buffer[xt][yt] = 1;
+                        }
+                    }
+                }
+            };
+
+
 
         auto plot_line = [&](int x0, int y0, int x1, int y1) {
             int dx = abs(x1 - x0);
@@ -800,8 +824,31 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
             int sy = y0 < y1 ? 1 : -1;
             int error = dx + dy;
 
+            bool intersection = false;
+            auto intersection_fn =
+                [&](int x, int y) {
+                    if (not intersection and x >= opp_offset * 3) {
+                        intersection = true;
+                        u8 ib_x = (x / 3 - opp_offset) + (x % 3 > 0);
+                        u8 ib_y = ((y - 3) / 3 + 4) + (y % 3 > 0);
+
+                        highlight_block(ib_x, ib_y, true);
+
+                        if (wpn->cast<FlakGun>()) {
+                            highlight_block(ib_x, ib_y - 2, false);
+                            highlight_block(ib_x, ib_y - 1, false);
+                            highlight_block(ib_x, ib_y + 1, false);
+                            highlight_block(ib_x, ib_y + 2, false);
+                            highlight_block(ib_x + 1, ib_y, false);
+                            highlight_block(ib_x + 2, ib_y, false);
+                            highlight_block(ib_x + 1, ib_y + 1, false);
+                            highlight_block(ib_x + 1, ib_y - 1, false);
+                        }
+                    }
+                };
+
             while (true) {
-                plot(x0, y0);
+                plot(x0, y0, intersection_fn);
                 if (x0 == x1 && y0 == y1)
                     break;
                 int e2 = 2 * error;
@@ -825,22 +872,78 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 
         if ((*wpn->metaclass())->weapon_orientation() ==
             Room::WeaponOrientation::horizontal) {
-            plot_line(wpn_emit_px_x,
+            plot_line(wpn_emit_px_x - 2,
                       wpn_emit_px_y,
-                      cursor_center_px_x - 1,
+                      cursor_center_px_x,
                       cursor_center_px_y);
+            plot_line(wpn_emit_px_x - 2,
+                      wpn_emit_px_y,
+                      cursor_center_px_x,
+                      cursor_center_px_y - 1);
+            plot_line(wpn_emit_px_x - 2,
+                      wpn_emit_px_y,
+                      cursor_center_px_x,
+                      cursor_center_px_y + 1);
         } else if ((*wpn->metaclass())->weapon_orientation() ==
                    Room::WeaponOrientation::vertical) {
+
+            bool intersection = false;
+            auto intersection_fn =
+                [&](int x, int y) {
+                    if (not intersection and x >= opp_offset * 3) {
+                        intersection = true;
+                        u8 ib_x = (x / 3 - opp_offset) + (x % 3 > 0);
+                        u8 ib_y = ((y - 3) / 3 + 4) + (y % 3 > 0);
+
+                        highlight_block(ib_x, ib_y, true);
+
+                        if (wpn->cast<RocketSilo>()) {
+                            highlight_block(ib_x + 1, ib_y, false);
+                            highlight_block(ib_x, ib_y + 1, false);
+                            highlight_block(ib_x - 1, ib_y, false);
+                        }
+                    }
+                };
+
             wpn_emit_px_y -= 2;
             wpn_emit_px_x -= 2;
             for (int y = wpn_emit_px_y; y > 0; --y) {
-                plot(wpn_emit_px_x, y);
+                plot(wpn_emit_px_x, y, [](int, int) {});
             }
-            for (int y = 1; y < cursor_center_px_y; ++y) {
-                plot(cursor_center_px_x, y);
+            for (int x = cursor_center_px_x - 2; x < cursor_center_px_x + 3; ++x) {
+                int y;
+                for (y = 1; y < minimap_px_height - 6; ++y) {
+                    plot(x, y, intersection_fn);
+                }
+
+                intersection = false;
             }
+
         }
     }
+
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
+                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1 - 2]
+                [((cursor_loc.y - 3) * 3) - 2 + 1] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
+                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 2 - 2]
+                [((cursor_loc.y - 3) * 3) - 2] = color_white_index;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2]
+                [((cursor_loc.y - 3) * 3) - 2 + 2] = color_white_index;
+
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2 + 1 - 1]
+                [((cursor_loc.y - 3) * 3) + 1 - 2] = 13;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 - 2 + 2]
+                [((cursor_loc.y - 3) * 3) + 1 - 2] = 13;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1 - 2]
+                [((cursor_loc.y - 3) * 3) + 1 - 2 - 1] = 13;
+    pixel_buffer[(cursor_loc.x + opp_offset) * 3 + 1 - 2 ]
+                [((cursor_loc.y - 3) * 3) - 2 + 2] = 13;
+
+
+
 
     u16 tile = minimap_start_tile;
     for (int y = 0; y < 5; ++y) {
@@ -859,7 +962,9 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     minimap_show(pfrm, app);
 
     [[maybe_unused]] auto after = pfrm.delta_clock().sample();
-    // Platform::fatal(format("%", after - before));
+    // if (from_cache) {
+    //     Platform::fatal(format("%", after - before));
+    // }
 
     if (not pfrm.network_peer().is_connected()) {
         // FIXME: repaint function has large overhead. Optimize and remove clock
