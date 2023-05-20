@@ -162,6 +162,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (minimap_disabled) {
             minimap_hide(pfrm, app);
         } else {
+            minimap_repaint(pfrm, app);
             minimap_show(pfrm, app);
         }
     }
@@ -555,6 +556,11 @@ static Platform::EncodedTile encode_small_tile(u8 tile_data[16][16])
 
 void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 {
+    if (minimap_disabled) {
+        return;
+    }
+
+
     if (not app.opponent_island()) {
         return;
     }
