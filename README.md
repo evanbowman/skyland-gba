@@ -15,9 +15,10 @@ The production version of SKYLAND for gameboy advance.
 ## Building
 
 1) Install all of the standard devkitpro libgba stuff.
-2) Install cmake
-3) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
-4) run ./build.sh
+2) Make sure you have python3 and the PIP image library
+3) Install cmake
+4) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
+5) run ./build.sh
 
 ## License
 
