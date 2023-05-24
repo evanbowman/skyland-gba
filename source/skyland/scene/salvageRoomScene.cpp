@@ -236,6 +236,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                             e.x_ = room_x;
                             e.y_ = room_y;
                             e.type_ = mt_index;
+                            e.group_ = (u8)room->group();
+                            e.health_.set(room->health());
                         };
 
                         island(app)->destroy_room(pfrm, app, cursor_loc);

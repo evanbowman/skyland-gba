@@ -355,6 +355,8 @@ struct RoomSalvaged
     u8 x_ : 4;
     u8 y_ : 4;
     u8 type_;
+    u8 group_;
+    host_u16 health_;
 };
 
 

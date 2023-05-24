@@ -443,6 +443,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerRoomSalvaged*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                if (room->metaclass_index() == e->type_) { // sanity check
+                    room->__set_health(e->health_.get());
+                    room->set_group((Room::Group)e->group_);
+                }
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -452,6 +458,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentRoomSalvaged*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, app.opponent_island(), {e->x_, e->y_});
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                if (room->metaclass_index() == e->type_) {
+                    room->__set_health(e->health_.get());
+                    room->set_group((Room::Group)e->group_);
+                }
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }
