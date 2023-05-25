@@ -30,6 +30,7 @@
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -1874,6 +1875,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = target_island->terrain().size(); x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back({room, x, y});
                     }
                     break;
@@ -1883,6 +1889,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back({room, (int)x, y});
                     }
                     break;
@@ -1960,6 +1971,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = 15; x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back(room);
                     }
                     break;
@@ -1969,6 +1985,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back(room);
                     }
                     break;
@@ -2052,6 +2073,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = target_island->terrain().size(); x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back(room);
 
                         if (x > 0 and matrix.get(x - 1, y)) {
@@ -2068,6 +2094,11 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and not
+                            room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
                         visible_rooms.push_back(room);
 
                         if (x < 15 and matrix.get(x + 1, y)) {

@@ -159,6 +159,11 @@ Power Room::power_usage(App& app) const
 }
 
 
+bool Room::is_decoration() const
+{
+    return (*metaclass())->category() == Room::Category::decoration;
+}
+
 
 void Room::display(Platform::Screen& screen, App& app)
 {

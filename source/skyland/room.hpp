@@ -337,6 +337,9 @@ public:
     }
 
 
+    bool is_decoration() const;
+
+
     virtual void finalize(Platform& pfrm, App& app);
 
 
