@@ -139,6 +139,12 @@ void IncineratorBolt::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
+        room.max_health() < 8) {
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        return;
+    }
+
     auto coord = room.position();
 
     room.apply_damage(pfrm, app, 8, source_);
