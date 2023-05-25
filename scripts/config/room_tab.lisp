@@ -42,7 +42,7 @@
   (drone-bay    200 2100 36)
   (cargo-bay    60  300  5)
   (arc-gun      240 1700 40)
-  (nemesis      200 1800 23)
+  (nemesis      200 1400 18)
   (escape-beacon 90 1600 40)
   (crane        30  1000 60)
   (annihilator  320 2600 65)
