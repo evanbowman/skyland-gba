@@ -60,6 +60,7 @@
             (true 8000)))
       (qid 4))
   (defn on-converge
+    (setq on-converge nil)
     (dialog
      (format
       "<c:merchant:7>So, whaddya you say? Purchase a batch of ceramics for %@?"
@@ -81,6 +82,7 @@
               (dialog "<c:merchant:7>Great, here are your tiles!")
               (defn on-dialog-closed
                 (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
+                (exit)
                 (setq on-dialog-closed exit)))
           (progn
             (dialog
