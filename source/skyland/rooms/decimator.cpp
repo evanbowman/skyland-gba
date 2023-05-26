@@ -85,6 +85,10 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (not app.opponent_island()) {
+        return;
+    }
+
     const bool opponent_friendly =
         parent() == &app.player_island() and
         static_cast<Opponent&>(app.opponent_island()->owner()).is_friendly();
