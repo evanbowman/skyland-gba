@@ -22,6 +22,7 @@
 
 #include "playerIslandDestroyedScene.hpp"
 #include "achievementNotificationScene.hpp"
+#include "adventureLogScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "coOpSyncScene.hpp"
 #include "highscoresScene.hpp"
@@ -798,9 +799,14 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             pfrm.speaker().set_music_volume(13);
                         }
 
-                        next->set_next_scene(
-                            scene_pool::make_deferred_scene<HighscoresScene>(
-                                true, 1));
+                        next->set_next_scene([] {
+                            auto next = scene_pool::alloc<AdventureLogScene>();
+                            next->set_next_scene([] {
+                                return scene_pool::alloc<HighscoresScene>(true,
+                                                                          1);
+                            });
+                            return next;
+                        });
 
                         return next;
                     } else {
@@ -840,8 +846,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::challenge:
                     return scene_pool::alloc<SelectChallengeScene>();
 
-                case App::GameMode::adventure:
-                    return scene_pool::alloc<HighscoresScene>(true, 1);
+                case App::GameMode::adventure: {
+                    auto next = scene_pool::alloc<AdventureLogScene>();
+                    next->set_next_scene([] {
+                        return scene_pool::alloc<HighscoresScene>(true, 1);
+                    });
+                    return next;
+                }
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();

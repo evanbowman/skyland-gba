@@ -8,7 +8,7 @@
 
 
 (list
- (cons 'save-protocol 3)
+ (cons 'save-protocol 4)
  (cons 'rooms (rooms (player)))
  (cons 'chrs (chrs (player)))
  (cons 'enemies-seen enemies-seen)
@@ -20,4 +20,5 @@
  (cons 'qids qids)
  (cons 'qvar qvar)
  (cons 'chr-names chr-names)
+ (cons 'adventure-log adventure-log)
  (cons 'shop-items shop-items))

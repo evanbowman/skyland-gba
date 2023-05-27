@@ -30,4 +30,17 @@
 
 (unbind 'next)
 
+(adventure-log-add 3 '())
+
+(defn on-crew-died
+  (adventure-log-add 4 (list $0)))
+
+(let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
+      (c (coins)))
+  (defn on-victory
+    (adventure-log-add 2 (list (- (coins) c) (coins-victory)))
+    (when vfn
+      (vfn))))
+
+
 (gc)

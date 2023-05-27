@@ -11,8 +11,7 @@
 (setq on-dialog-closed '())    ; Dialog box closed.
 (setq on-victory '())          ; Defeated opponent island.
 (setq on-room-destroyed '())   ; A block was destroyed. [island, type, x, y]
-(setq on-crew-added '())       ; Crewmember added to island. [island, chr-id]
-(setq on-crew-died '())        ; Crewmember died. Parameters: [island, chr-id]
+(setq on-crew-died '())        ; Crewmember died. Parameters: [chr-id]
 (setq on-shop-item-sel '())    ; Shop item selected
 
 

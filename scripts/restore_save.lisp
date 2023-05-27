@@ -12,46 +12,48 @@
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))
 
-      (if (> (load 'save-protocol) 2)
-          (progn
-            (terrain (player) (load 'terrain))
+      (when (> (load 'save-protocol) 3)
+        (setq adventure-log (load 'adventure-log)))
 
-            (island-configure (player) (load 'rooms))
+      (when (> (load 'save-protocol) 2)
+        (terrain (player) (load 'terrain))
 
-            (setq qvar (if (assoc 'qvar data)
-                           (load 'qvar)
-                         '()))
+        (island-configure (player) (load 'rooms))
 
-            (map
-             (lambda
-               (let ((plst (cdr (cdr $0))))
-                 (let ((chr -1))
-                   (setq chr (chr-new (player)
-                                      (get $0 0) ;; x
-                                      (get $0 1) ;; y
-                                      'neutral
-                                      ;; Check if replicate
-                                      (if (assoc 'rplc plst) 1 0)))
+        (setq qvar (if (assoc 'qvar data)
+                       (load 'qvar)
+                     '()))
 
-                   (let ((hp (assoc 'hp plst)))
-                     (if hp
-                         (chr-hp chr (cdr hp))))
+        (map
+         (lambda
+           (let ((plst (cdr (cdr $0))))
+             (let ((chr -1))
+               (setq chr (chr-new (player)
+                                  (get $0 0) ;; x
+                                  (get $0 1) ;; y
+                                  'neutral
+                                  ;; Check if replicate
+                                  (if (assoc 'rplc plst) 1 0)))
 
-                   (chr-id chr (cdr (assoc 'id plst))))))
+               (let ((hp (assoc 'hp plst)))
+                 (if hp
+                     (chr-hp chr (cdr hp))))
 
-             (load 'chrs))
+               (chr-id chr (cdr (assoc 'id plst))))))
 
-            (setq enemies-seen (load 'enemies-seen))
-            (setq friendlies-seen (load 'friendlies-seen))
+         (load 'chrs))
 
-            (setq quests (load 'quests))
+        (setq enemies-seen (load 'enemies-seen))
+        (setq friendlies-seen (load 'friendlies-seen))
 
-            (setq chr-names (load 'chr-names))
+        (setq quests (load 'quests))
 
-            (setq last-zone (load 'last-zone))
+        (setq chr-names (load 'chr-names))
 
-            (setq qids (load 'qids))
-            (setq shop-items (load 'shop-items))))
+        (setq last-zone (load 'last-zone))
 
-      (if (> (load 'save-protocol) 1)
-          (diff-set (load 'diff))))))
+        (setq qids (load 'qids))
+        (setq shop-items (load 'shop-items)))
+
+      (when (> (load 'save-protocol) 1)
+        (diff-set (load 'diff))))))

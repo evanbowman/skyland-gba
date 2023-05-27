@@ -46,6 +46,8 @@
 (macro setq (NAME EXPR)
  `(set ,(cons $q NAME) ,@EXPR))
 
+(macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
+
 
 ;; For our onscreen keyboard, which has no + key
 (setq add +)

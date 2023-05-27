@@ -721,15 +721,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
     auto on_character_died = [&](BasicCharacter& c) {
-        if (not pfrm.network_peer().is_connected()) {
+        if (not pfrm.network_peer().is_connected() and
+            c.owner() == &app.player()) {
+
             auto fn = lisp::get_var("on-crew-died");
             if (fn->type() == lisp::Value::Type::function) {
-                // NOTE: fn is in a global var, as we accessed it through
-                // get_var. So there's no need to protect fn from the gc, as
-                // it's already attached to a gc root.
-                lisp::push_op(lisp::make_userdata(this));
                 lisp::push_op(lisp::make_integer(c.id()));
-                lisp::safecall(fn, 2);
+                lisp::safecall(fn, 1);
                 lisp::pop_op(); // result
             }
         }

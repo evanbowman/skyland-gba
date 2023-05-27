@@ -30,7 +30,6 @@
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
-#include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -38,6 +37,7 @@
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/ionCannon.hpp"
+#include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/mindControl.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
@@ -1875,8 +1875,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = target_island->terrain().size(); x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }
@@ -1889,8 +1889,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }
@@ -1971,8 +1971,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = 15; x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }
@@ -1985,8 +1985,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }
@@ -2073,8 +2073,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = target_island->terrain().size(); x > -1; --x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }
@@ -2094,8 +2094,8 @@ void EnemyAI::set_target(Platform& pfrm,
             for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
                 if (matrix.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
-                        if (room->is_decoration() and not
-                            room->cast<Masonry>()) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
                             // Ignore decoration blocks
                             continue;
                         }

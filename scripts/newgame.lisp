@@ -19,9 +19,10 @@
 (setq quests '())
 (setq enemy-count 0)
 
+(setq adventure-log '())
+
 
 (flag-show (player) 0)
-
 
 (coins-set (if (equal (diff) 0) 4000 2500))
 
