@@ -74,6 +74,7 @@
             (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
         (if (and m c)
             (progn
+              (adventure-log-add 20 (list fee))
               (push 'qids qid)
               (push 'quests (cons "/scripts/event/quest_marker/ceramics.lisp" m))
               (push 'qvar (cons qid fee))

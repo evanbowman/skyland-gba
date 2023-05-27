@@ -7532,7 +7532,7 @@ Platform::Platform()
                             .c_str());
     }
 
-    if (&__eheap_start - &__ewram_start > 256000) {
+    if (&__eheap_start - &__ewram_start > 262143) {
         Platform::fatal("EWRAM Usage exceeds hardware maximum!");
     }
 

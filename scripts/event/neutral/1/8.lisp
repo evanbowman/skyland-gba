@@ -36,7 +36,7 @@
 
 
 (defn on-converge
-  (let ((c (choice 2))
+  (let ((c (choice 3))
         (end (lambda
                ((eval-file "/scripts/util/pickup_cart.lisp") 4
          "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
@@ -48,8 +48,9 @@
          (format
           "Looks like someone already got here first. You collect %@."
           amt))
+        (adventure-log-add 38 (list amt))
         (end)))
-     ((equal c 1)
+     (true
       (let ((opts '(manufactory
                     backup-core
                     incinerator
@@ -59,6 +60,7 @@
            "After boarding, you find a completely intact "
            (rname pick)
            ". Your crew asks you where to install it...")
+          (adventure-log-add 38 (rname pick))
           (defn on-dialog-closed
             (setq on-dialog-closed nil)
             (while (not (construction-sites (player) (rsz pick)))

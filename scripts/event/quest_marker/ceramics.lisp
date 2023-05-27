@@ -47,6 +47,8 @@
 
                   (coins-add sale)
 
+                  (adventure-log-add 21 (list sale))
+
                   (setq on-dialog-closed exit))
               (progn
                 (setq on-dialog-closed exit)

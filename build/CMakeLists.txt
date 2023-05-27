@@ -359,6 +359,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_datacart.s
     ${DATA_DIR}/overlay_dialog_fullscreen.s
     ${DATA_DIR}/overlay_world_map.s
+    ${DATA_DIR}/overlay_adventurelog.s
     ${DATA_DIR}/stack_overflow_flattened.s
     ${DATA_DIR}/pub_logo_flattened.s
     ${DATA_DIR}/traded_core_flattened.s
@@ -776,6 +777,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(photo_market 0 0 YES YES)
     add_overlay(photo_disaster 0 0 YES YES)
     add_overlay(overlay_datacart 0 0 NO YES)
+    add_overlay(overlay_adventurelog 0 0 NO YES)
     add_overlay(stack_overflow 0 0 YES YES)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_qr 0 0 NO YES)

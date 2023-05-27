@@ -36,7 +36,6 @@ namespace skyland
 class AdventureLogScene : public Scene
 {
 public:
-
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
 
@@ -46,7 +45,7 @@ public:
     lisp::Value* load_logentry(int entry);
     int logentry_count();
 
-    StringBuffer<128> format_logentry(int entry);
+    StringBuffer<128> format_logentry(Platform& pfrm, int entry);
 
 
 
@@ -56,8 +55,28 @@ public:
     }
 
 
+    void show_page(Platform&, App&, int page_num);
+
+
 private:
     std::optional<DeferredScene> next_;
+
+    enum class State {
+        ready,
+        page_turn_right_anim,
+        page_turn_left_anim,
+        page_fade_in_anim,
+        fade_out,
+    } state_ = State::ready;
+
+    int page_ = 0;
+    Microseconds timer_ = 0;
+
+    bool logbook_missing_ = false;
+
+    int max_pages_ = 0;
+
+    Buffer<TextView, 3> entries_;
 };
 
 

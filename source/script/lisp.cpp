@@ -52,7 +52,7 @@ static const u32 string_intern_table_size = 2900;
 #if defined(__NDS__)
 #define VALUE_POOL_SIZE 20000
 #elif defined(__GBA__)
-#define VALUE_POOL_SIZE 9200
+#define VALUE_POOL_SIZE 9600
 #else
 #define VALUE_POOL_SIZE 200000
 #endif

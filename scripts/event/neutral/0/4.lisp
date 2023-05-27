@@ -57,8 +57,10 @@
                (room-new (player) (list 'rocket-bomb $1 $2))
                (syscall "sound" "build0")
                (dialog "Like a missile-silo, but starts fires! A useful addition!")
-               (setq on-dialog-closed exit))))
+               (setq on-dialog-closed exit)))
+  (adventure-log-add 9 '()))
 
 (defn on-dialog-declined
   (dialog "Huh!? Who doesn't want free stuff? Suit yourself...")
+  (adventure-log-add 8 '())
   (setq on-dialog-closed exit))

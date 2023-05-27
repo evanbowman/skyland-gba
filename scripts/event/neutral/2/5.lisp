@@ -66,6 +66,8 @@
 
       (coins-add -2000)
 
+      (adventure-log-add 45 '())
+
       (let ((cnt 0)) ; closure
         ;; lambda invoked 8 times, ask user for input and create a block at
         ;; position.

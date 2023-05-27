@@ -51,6 +51,8 @@
                (string c)
                "@ for your trouble!")
 
+              (adventure-log-add 23 (list c (rcnt (player) 'lemon-tree)))
+
               (coins-add c)
 
               (unbind 'lemon-quest-max-reward)

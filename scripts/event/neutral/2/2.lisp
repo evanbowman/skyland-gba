@@ -33,14 +33,17 @@
           (if (> 500 (coins))
               (progn
                 (opponent-mode 'hostile)
+                (adventure-log-add 42 '())
                 (dialog "You cannot afford to pay. Prepare for heavy damage..."))
             (progn
               (coins-add (- val))
               (dialog "The pirates accept your bribe and move on.")
+              (adventure-log-add 43 '())
               (exit))))))
 
 
 (setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
+        (adventure-log-add 42 '())
         (dialog "Prepare for attack!")))

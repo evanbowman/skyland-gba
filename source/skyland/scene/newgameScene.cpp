@@ -21,6 +21,7 @@
 
 
 #include "newgameScene.hpp"
+#include "adventureLogScene.hpp"
 #include "globals.hpp"
 #include "menuPromptScene.hpp"
 #include "readyScene.hpp"
@@ -109,8 +110,15 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         save::store_global_data(pfrm, app.gp_);
     };
 
+    DeferredScene next([] {
+        auto ret = scene_pool::alloc<AdventureLogScene>();
+        ret->set_next_scene([] { return scene_pool::alloc<ZoneImageScene>(); });
+        return ret;
+    });
+
+
     if (loaded and not skip_save_prompt) {
-        auto next = scene_pool::make_deferred_scene<ZoneImageScene>();
+
         auto ret = scene_pool::alloc<MenuPromptScene>(
             SystemString::save_prompt,
             SystemString::ok,
@@ -124,7 +132,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         return ret;
 
     } else {
-        return scene_pool::alloc<ZoneImageScene>();
+        return next();
     }
 }
 

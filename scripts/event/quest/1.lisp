@@ -56,6 +56,7 @@
                   (setq on-dialog-closed exit)
                   (if m
                       (progn
+                        (adventure-log-add 17 '())
                         (push 'qids 1)
                         (push 'quests (cons "/scripts/event/quest_marker/nanas.lisp"
                                             m))

@@ -34,6 +34,8 @@
         (dialog
          "You explore, and discover " (string temp) "@ amongst the ruins!")
 
+        (adventure-log-add 11 (list temp))
+
         (coins-add temp)
 
         ((eval-file "/scripts/util/pickup_cart.lisp") 1

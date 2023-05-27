@@ -56,6 +56,7 @@
                    (lambda
                      (room-mut (player) (get $0 1) (get $0 2) 'stacked-hull))
                    r)
+                  (adventure-log-add 37 '())
                   (dialog "<c:engineer:15> All finished! Your new hull blocks will take 75% less damage from missiles!")
                   (exit)))))
         (progn

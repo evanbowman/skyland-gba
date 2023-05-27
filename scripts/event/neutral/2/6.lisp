@@ -35,6 +35,7 @@
   (setq on-converge nil)
   (while (not (construction-sites (player) '(2 . 2)))
     (terrain (player) (+ terrain (player) 1)))
+  (adventure-log-add 46 '())
   (sel-input 'incinerator
              "Place weapon (2x2)"
              (lambda

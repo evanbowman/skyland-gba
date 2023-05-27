@@ -107,6 +107,8 @@
 //;
 #include "data/overlay_datacart.h"
 //;
+#include "data/overlay_adventurelog.h"
+//;
 #include "data/stack_overflow_flattened.h"
 //;
 #include "data/overlay.h"
@@ -260,6 +262,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(photo_disaster_flattened, true),
 //;
     TEXTURE_INFO(overlay_datacart, true),
+//;
+    TEXTURE_INFO(overlay_adventurelog, true),
 //;
     TEXTURE_INFO(stack_overflow_flattened, true),
 //;

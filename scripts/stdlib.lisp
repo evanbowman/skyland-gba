@@ -47,6 +47,7 @@
  `(set ,(cons $q NAME) ,@EXPR))
 
 (macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
+(macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))
 
 
 ;; For our onscreen keyboard, which has no + key

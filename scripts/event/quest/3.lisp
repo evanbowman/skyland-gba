@@ -25,6 +25,7 @@
         (progn
           (push 'qids 3)
           (push 'quests (cons "/scripts/event/quest_marker/pickup.lisp" m))
+          (adventure-log-add 19 '())
           (dialog "<c:chauffeur:10>Thanks a lot! I just marked the location your sky chart with an *!"))
       (progn
         (dialog "<c:chauffeur:10>Ya know, now that I look at this map, I don't think you can make it there in time either, I hope they won't get too mad at me...")))))

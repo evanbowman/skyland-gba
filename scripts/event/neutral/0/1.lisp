@@ -45,8 +45,11 @@
   (setq on-dialog-accepted
         (lambda
           (if (< (coins) 600)
-              (scr "<c:redbeard:13>That's not enough, load the cannons!!!")
+              (progn
+                (adventure-log-add 12 '())
+                (scr "<c:redbeard:13>That's not enough, load the cannons!!!"))
             (progn
+              (adventure-log-add 13 (list 600))
               (coins-add -600)
               (dialog "<c:redbeard:13>Heh. I think you made the smart decision.")
               (exit)))))
@@ -54,4 +57,5 @@
 
   (setq on-dialog-declined
         (lambda
+          (adventure-log-add 14 '())
           (scr "<c:redbeard:13>Whaatt!! Load the cannons!!!"))))

@@ -62,6 +62,8 @@
                             (list 'banana-plant (car $0) (cdr $0))))
                          (construction-sites (player) '(1 . 1)))
 
+                        (adventure-log-add 24 '())
+
                         (dialog
                          "<c:banana man:8>Hooray! My bananas! Time for Banana Breakfast!")
                         (setq on-dialog-closed

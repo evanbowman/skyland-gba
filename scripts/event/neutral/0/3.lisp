@@ -82,6 +82,7 @@
                     (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
                     (setq on-dialog-declined (lambda (unbind 'fut) (exit))))))
             (progn
+              (adventure-log-add 10 (list (rname item) 1300))
               (coins-add -1300)
               (mktr (rsz item))
               (sel-input

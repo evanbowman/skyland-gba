@@ -60,6 +60,7 @@
   (room-mut (opponent) $0 $1 'code)
   (qr-set (opponent) $0 $1 $2))
 
+;; NOTE: see adventure_log.txt for message text...
 (defn/c adventure-log-add
   ;; args: event-code parameters
   (setq adventure-log (cons (cons $0 $1) adventure-log)))

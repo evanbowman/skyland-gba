@@ -87,6 +87,8 @@
             (while (< (length (construction-sites (player) '(2 . 1))) 2)
               (terrain (player) (+ (terrain (player)) 1)))
 
+            (adventure-log-add 36 (list (rname wpn) 3))
+
             (let ((impl
                    (lambda
                      (let ((cb $0))

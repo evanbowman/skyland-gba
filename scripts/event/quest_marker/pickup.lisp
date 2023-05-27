@@ -32,6 +32,8 @@
              (chr-del (opponent) (car $0) (cdr $0))))))
    '((1 . 14) (2 . 14) (3 . 14)))
 
+  (adventure-log-add 25 '())
+
   (if (equal 0 (length (chrs (opponent))))
       (dialog "The passengers joined your crew!")
     (if (< 3 (length (chrs (opponent))))

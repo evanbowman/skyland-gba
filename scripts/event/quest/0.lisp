@@ -62,6 +62,7 @@
                       (progn
                         (coins-add 500)
                         (push 'qids 0)
+                        (adventure-log-add 16 '())
                         (push 'quests (cons "/scripts/event/quest_marker/delivery.lisp"
                                             m))
                         (cargo-set (player) (car c) (cdr c) "parcel")

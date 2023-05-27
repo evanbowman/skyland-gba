@@ -786,6 +786,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         achievements::raise(
                             pfrm, app, achievements::Achievement::hero);
 
+                        lisp::dostring("(adventure-log-add 6 '())");
+
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(adventure_completed_message);
@@ -801,6 +803,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                         next->set_next_scene([] {
                             auto next = scene_pool::alloc<AdventureLogScene>();
+
                             next->set_next_scene([] {
                                 return scene_pool::alloc<HighscoresScene>(true,
                                                                           1);
@@ -847,11 +850,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure: {
-                    auto next = scene_pool::alloc<AdventureLogScene>();
-                    next->set_next_scene([] {
-                        return scene_pool::alloc<HighscoresScene>(true, 1);
-                    });
-                    return next;
+                    lisp::dostring("(adventure-log-add 5 '())");
+                    return scene_pool::alloc<HighscoresScene>(true, 1);
                 }
 
                 case App::GameMode::sandbox:

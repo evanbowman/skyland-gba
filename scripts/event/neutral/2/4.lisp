@@ -111,9 +111,11 @@
           (if (> val (coins))
               (progn
                 (opponent-mode 'hostile)
+                (adventure-log-add 32 '())
                 (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
             (progn
               (coins-add (- val))
+              (adventure-log-add 31 (list val))
               (dialog "The goblin king rejoices, having successfully extorted "
                       (string val)
                       "@.")
@@ -125,4 +127,5 @@
 (setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
+        (adventure-log-add 33 '())
         (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))

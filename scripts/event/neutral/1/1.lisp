@@ -26,6 +26,7 @@
             (let ((val (+ 600 (choice 300))))
               (dialog "You explore, and salvage " (string val) "@ from the ruins.")
               (coins-add val)
+              (adventure-log-add 29 (list val))
               (exit))
           (progn
             (island-configure
@@ -38,6 +39,7 @@
                (missile-silo 3 13)
                (missile-silo 4 13)))
             (flag-show (opponent) 0)
+            (adventure-log-add 30 '())
             (dialog "It's a trap!"))))))
 
 

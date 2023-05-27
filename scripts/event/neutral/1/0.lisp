@@ -47,7 +47,8 @@
                 (chr-new (player) (car temp) (cdr temp) 'neutral 0)
                 (chr-del (opponent) 1 14)
                 (setq temp (nil))
-                (dialog "The mercenary joined your crew!"))
+                (dialog "The mercenary joined your crew!")
+                (adventure-log-add 27 (list (* 400 (zone)))))
             (dialog "Sadly, there's no room...")))
 
         (exit)))
@@ -56,4 +57,5 @@
 (setq on-dialog-declined
       (lambda
         (dialog "The mercenaries became angry, and cut the transmission.")
+        (adventure-log-add 28 '())
         (exit)))

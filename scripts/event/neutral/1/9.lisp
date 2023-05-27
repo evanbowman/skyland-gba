@@ -48,6 +48,8 @@
     (dialog "<c:robot:12> 00111100 00100000 00110010?")
     (dialog-await-y/n)
 
+    (adventure-log-add 39 '())
+
     (defn on-dialog-accepted
       ;; place one drone bay
       (while (not (construction-sites (player) '(2 . 1)))
