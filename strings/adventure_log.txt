@@ -45,3 +45,6 @@ bought stolen decimator from runaway vessel!
 bought some mirror-hull!
 recovered incinerator from burning island!!
 collected %@ from abandoned isle
+a massive warship attacks...
+discovered a shop!
+purchased % for %@

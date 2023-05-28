@@ -19,6 +19,8 @@
         (dialog "<c:storm king:4> . . .")))
 
 
+(adventure-log-add 48 '())
+
 
 (opponent-init 13 'hostile)
 
@@ -88,8 +90,8 @@
    (hull 12 7)))
 
 
-(if (> (diff) 1)
-    (eval-file "/scripts/event/storm_king_hard.lisp"))
+(when (> (diff) 1)
+  (eval-file "/scripts/event/storm_king_hard.lisp"))
 
 
 (if (> (diff) 1)

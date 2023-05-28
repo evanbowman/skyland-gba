@@ -73,29 +73,23 @@ void AdventureLogScene::show_page(Platform& pfrm, App&, int page_num)
     for (int i = begin; i < end; ++i) {
         auto text = format_logentry(pfrm, i);
         entries_.emplace_back(pfrm);
-        int lines = entries_.back().assign(text.c_str(), {2, y}, {27, 3});
+        entries_.back().assign(text.c_str(), {2, y}, {27, 3});
 
         pfrm.set_tile(Layer::overlay, 1, y, 82);
+        auto space_tile = pfrm.get_tile(Layer::overlay, 2, y + 1);
 
         y += 2;
 
-        for (int x = 0; x < 30; ++x) {
-            auto t = pfrm.get_tile(Layer::overlay, x, y + 2);
-            if (t == 90) {
+
+        for (int x = 2; x < 28; ++x) {
+            auto t = pfrm.get_tile(Layer::overlay, x, y);
+            if (t not_eq space_tile) {
                 y += 2;
                 break;
             }
         }
 
         y += 1;
-
-        // if (lines == 3) {
-        //     y += 7;
-        // } else if (lines == 2) {
-        //     y += 5;
-        // } else {
-        //     y += 3;
-        // }
     }
 
     if (cnt > end) {

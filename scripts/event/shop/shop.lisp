@@ -10,6 +10,9 @@
 (opponent-init 6 'neutral)
 
 
+(adventure-log-add 49 '())
+
+
 (if (not shop-items)
     (setq shop-items (eval-file "/scripts/event/shop/shop_items.lisp")))
 
@@ -32,6 +35,8 @@
 
           (defn on-dialog-accepted
             (coins-add (* -1 (get info 1)))
+            (adventure-log-add 50 (list name (get info 1)))
+
             (sel-input (get info 0)
                        "pick a slot:"
                        (lambda

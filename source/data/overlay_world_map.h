@@ -7,9 +7,9 @@
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
 //	+ 504 tiles lz77 compressed
-//	Total size: 32 + 2364 = 2396
+//	Total size: 32 + 2432 = 2464
 //
-//	Time-stamp: 2023-03-25, 09:25:52
+//	Time-stamp: 2023-05-28, 09:09:37
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_OVERLAY_WORLD_MAP_H
 #define GRIT_OVERLAY_WORLD_MAP_H
 
-#define overlay_world_mapTilesLen 2364
-extern const unsigned int overlay_world_mapTiles[591];
+#define overlay_world_mapTilesLen 2432
+extern const unsigned int overlay_world_mapTiles[608];
 
 #define overlay_world_mapPalLen 32
 extern const unsigned short overlay_world_mapPal[16];
