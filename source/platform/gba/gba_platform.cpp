@@ -3579,6 +3579,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_msg.hpp"
 #include "data/sound_open_book.hpp"
 #include "data/sound_openbag.hpp"
+#include "data/sound_page_flip.hpp"
 #include "data/sound_pong_blip1.hpp"
 #include "data/sound_pong_blip2.hpp"
 #include "data/sound_scroll.hpp"
@@ -3637,7 +3638,8 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(seagull_1, sound_seagull_1),
     DEF_SOUND(seagull_2, sound_seagull_2),
     DEF_SOUND(msg, sound_msg),
-    DEF_SOUND(insert_cart, sound_insert_cart)};
+    DEF_SOUND(insert_cart, sound_insert_cart),
+    DEF_SOUND(page_flip, sound_page_flip)};
 
 
 static const AudioTrack* get_sound(const char* name)

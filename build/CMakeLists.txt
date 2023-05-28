@@ -435,6 +435,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_box.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_archivist.s
+    ${DATA_DIR}/sound_page_flip.s
     ${DATA_DIR}/sound_seagull_1.s
     ${DATA_DIR}/sound_seagull_2.s
     ${DATA_DIR}/sound_creaking.s

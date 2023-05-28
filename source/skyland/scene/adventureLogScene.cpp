@@ -120,6 +120,7 @@ void AdventureLogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.load_overlay_texture("overlay_adventurelog");
     show_page(pfrm, app, 0);
+    pfrm.speaker().play_sound("page_flip", 0);
     pfrm.screen().schedule_fade(1, custom_color(0xcdd6a1));
     Text::platform_retain_alphabet(pfrm);
     Text::print(pfrm,
@@ -268,6 +269,7 @@ AdventureLogScene::update(Platform& pfrm, App& app, Microseconds delta)
         state_ = State::ready;
         ++page_;
         show_page(pfrm, app, page_);
+        pfrm.speaker().play_sound("cursor_tick", 0);
         break;
         for (int i = 0; i < 4; ++i) {
             for (int y = 0; y < 20; ++y) {
@@ -338,6 +340,7 @@ AdventureLogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::page_turn_left_anim:
         --page_;
         show_page(pfrm, app, page_);
+        pfrm.speaker().play_sound("cursor_tick", 0);
         state_ = State::ready;
         break;
 
