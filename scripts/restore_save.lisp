@@ -12,9 +12,10 @@
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))
 
-      (if (> (load 'save-protocol) 3)
-          (setq adventure-log (load 'adventure-log))
-        (setq adventure-log '()))
+
+      (setq adventure-log (if (> (load 'save-protocol) 3)
+                              (load 'adventure-log)
+                            '()))
 
       (when (> (load 'save-protocol) 2)
         (terrain (player) (load 'terrain))
