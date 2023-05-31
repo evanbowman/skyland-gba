@@ -20,10 +20,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-// NOTE: to compile the unit tests:
-// g++ -std=c++17 flash_filesystem.cpp -I /home/evan/skyland/source/ -g3 -D__FAKE_VECTOR__
-
-
 
 #pragma once
 
@@ -45,12 +41,6 @@ inline void info(Platform& pfrm, const StringBuffer<200>& msg)
 {
     std::cout << msg.c_str() << std::endl;
 }
-#ifdef __FAKE_VECTOR__
-template <typename T> using Vector = Buffer<T, 32000>;
-#else
-#include "containers/vector.hpp"
-#endif
-#else
 #include "containers/vector.hpp"
 #endif // __GBA__
 

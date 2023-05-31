@@ -23,7 +23,9 @@
 
 #include "scratch_buffer.hpp"
 #include "allocator.hpp"
+#ifndef __TEST__
 #include "platform.hpp"
+#endif
 
 #if defined(__NDS__)
 #define HEAP_DATA
@@ -79,7 +81,9 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
             (*scratch_buffer_oom_handler)();
 
             if (not scratch_buffers_remaining()) {
+#ifndef __TEST__
                 Platform::instance().logger().clear();
+#endif
             }
         }
     }
@@ -105,6 +109,7 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 
+#ifndef __TEST__
 void scratch_buffer_memory_diagnostics(Platform& pfrm)
 {
     auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
@@ -136,9 +141,10 @@ void scratch_buffer_memory_diagnostics(Platform& pfrm)
 
     pfrm.remote_console().printline(output->c_str(), "sc> ");
 }
+#endif
 
 
-
+#ifndef __TEST__
 void scratch_buffer_dump_sector(Platform& pfrm, int sector)
 {
     if (sector >= (int)scratch_buffer_pool.cells().size()) {
@@ -174,3 +180,4 @@ void scratch_buffer_dump_sector(Platform& pfrm, int sector)
 
     pfrm.remote_console().printline(complete.c_str(), "sc> ");
 }
+#endif

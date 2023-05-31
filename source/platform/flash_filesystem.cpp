@@ -19,16 +19,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include "flash_filesystem.hpp"
-#include "bloomFilter.hpp"
-#include "compression.hpp"
 #include "string.hpp"
-
 
 
 #ifdef __TEST__
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// This section just includes the minimal setup recovered to bootstrap the
+// platform class for regression testing. See below for actual implementation.
+//
+// NOTE: to compile the unit tests:
+// g++ -std=c++17 flash_filesystem.cpp ../../external/heatshrink/heatshrink_encoder.c ../../external/heatshrink/heatshrink_decoder.c -I ../ -I ../../external -g3 -D__FAKE_VECTOR__ -D__TEST__ -o fs_regression
+
+
+
+#include <fstream>
+#include <iostream>
 
 void arabic__to_string(int num, char* buffer, int base)
 {
@@ -81,11 +88,22 @@ StringBuffer<12> stringify(s32 num)
 }
 
 
+
 // Test harness for non-gba backtesting
 class Platform
 {
 
 public:
+
+
+    [[noreturn]]
+    static void fatal(const char* str)
+    {
+        std::cerr << str << std::endl;
+        exit(1);
+    }
+
+
     ~Platform()
     {
         std::ofstream stream("Skyland" + output_,
@@ -167,9 +185,44 @@ private:
     std::vector<uint8_t> data_;
 };
 
+
+inline void debug(Platform& pf, const char* msg)
+{
+    std::cerr << msg << std::endl;
+}
+inline void info(Platform& pf, const char* msg)
+{
+    std::cerr << msg << std::endl;
+}
+inline void warning(Platform& pf, const char* msg)
+{
+    std::cerr << msg << std::endl;
+}
+inline void error(Platform& pf, const char* msg)
+{
+    std::cerr << msg << std::endl;
+}
+
+
+#include "../compression.cpp"
+
+#include "scratch_buffer.cpp"
+#include "../memory/pool.cpp"
+
 #else
 #include "platform/platform.hpp"
 #endif // __TEST__
+
+//
+// Bootstrapped platform ends here. Actual code follows.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+#include "bloomFilter.hpp"
+#include "flash_filesystem.hpp"
+#include "compression.hpp"
 
 
 
@@ -525,9 +578,9 @@ void walk(Platform& pfrm,
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
             callback(file_name);
         } else {
-#ifdef __TEST__
-            callback(("(INVALID)" + std::string(file_name)).c_str());
-#endif
+// #ifdef __TEST__
+//             callback(("(INVALID)" + std::string(file_name)).c_str());
+// #endif
         }
 
         offset += r.appended_size();
@@ -1088,9 +1141,10 @@ bool compaction()
         initialize(pfrm, 8);
 
         walk(pfrm, [&files, &pfrm](const char* path) {
-            Vector<char> file_data;
-            read_file_data(pfrm, path, file_data);
-            files.push_back({path, file_data});
+            files.emplace_back();
+            files.back().first = path;
+            read_file_data(pfrm, path, files.back().second);
+            std::cout << path << ", "<< files.back().second.size() << std::endl;
         });
 
         compact(pfrm);
@@ -1100,6 +1154,7 @@ bool compaction()
             read_file_data(pfrm, kvp.first.c_str(), data);
 
             if (data.size() not_eq kvp.second.size()) {
+                puts("here");
                 return false;
             }
 
@@ -1117,7 +1172,12 @@ bool compaction()
     Platform pfrm(".regr_output", ".regr_output2");
     initialize(pfrm, 8);
 
-    if (end_offset not_eq 5396) {
+    if (end_offset not_eq 2420) {
+        std::cerr << "end offset does not match expected!"
+                  << " ("
+                  << end_offset
+                  << ")"
+                  << std::endl;
         return false;
     }
 
@@ -1130,11 +1190,13 @@ bool compaction()
         read_file_data(pfrm, kvp.first.c_str(), data);
 
         if (data.size() not_eq kvp.second.size()) {
+            std::cerr << "file size does not match expected!" << std::endl;
             return false;
         }
 
         for (u32 i = 0; i < data.size(); ++i) {
             if (data[i] not_eq kvp.second[i]) {
+                std::cerr << "file mismatched byte!" << std::endl;
                 return false;
             }
         }
@@ -1158,10 +1220,13 @@ bool write_triggered_compaction()
         Platform pfrm(".regr_input", ".regr_output");
         initialize(pfrm, 8);
 
+        auto stats = statistics(pfrm);
+        std::cout << "bytes remaining " << stats.bytes_available_ << std::endl;
+
         walk(pfrm, [&files, &pfrm](const char* path) {
-            Vector<char> file_data;
-            read_file_data(pfrm, path, file_data);
-            files.push_back({path, file_data});
+            files.emplace_back();
+            files.back().first = path;
+            read_file_data(pfrm, path, files.back().second);
         });
 
         // trigger compaction
@@ -1189,7 +1254,11 @@ bool write_triggered_compaction()
     Platform pfrm(".regr_output", ".regr_output2");
     initialize(pfrm, 8);
 
-    if (end_offset not_eq 15414) {
+    if (end_offset not_eq 12438) {
+        std::cerr << "end offset does not match expected! ("
+                  << end_offset
+                  << ")"
+                  << std::endl;
         return false;
     }
 

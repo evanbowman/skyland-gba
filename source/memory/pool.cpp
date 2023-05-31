@@ -22,12 +22,13 @@
 
 #include "pool.hpp"
 #include "allocator.hpp"
-#include "platform/platform.hpp"
-
 
 
 GenericPool* GenericPool::instances_;
 
+
+#ifndef __TEST__
+#include "platform/platform.hpp"
 
 
 void GenericPool::print_diagnostics(Platform& pfrm)
@@ -77,3 +78,4 @@ void GenericPool::print_diagnostics(Platform& pfrm)
     pfrm.logger().log(Severity::info, output->c_str());
     pfrm.remote_console().printline(output->c_str(), "sc> ");
 }
+#endif

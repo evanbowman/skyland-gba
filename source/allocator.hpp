@@ -23,7 +23,10 @@
 #pragma once
 
 #include "memory/uniquePtr.hpp"
+#ifndef __TEST__
 #include "platform/platform.hpp"
+#endif
+#include "platform/scratch_buffer.hpp"
 #include <new>
 
 

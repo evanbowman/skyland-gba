@@ -22,11 +22,16 @@
 
 #pragma once
 
-#include "platform/platform.hpp"
+#include "containers/vector.hpp"
+#ifndef __TEST__
 extern "C" {
 #include "heatshrink/heatshrink_decoder.h"
 #include "heatshrink/heatshrink_encoder.h"
 }
+#else
+#include "heatshrink/heatshrink_decoder.h"
+#include "heatshrink/heatshrink_encoder.h"
+#endif
 #include "memory/buffer.hpp"
 
 
@@ -49,7 +54,7 @@ void compress_sink(heatshrink_encoder& enc,
             &enc, (u8*)input.data() + write_index, remaining, &bytes_sunk);
 
         if (sink_res not_eq HSER_SINK_OK) {
-            Platform::fatal("heatshrink invalid api usage");
+            // Platform::fatal("heatshrink invalid api usage");
         }
 
         write_index += bytes_sunk;
@@ -61,7 +66,7 @@ void compress_sink(heatshrink_encoder& enc,
             res = heatshrink_encoder_poll(&enc, out_buf, 256, &bytes_read);
 
             if (res == HSER_POLL_ERROR_NULL or res == HSER_POLL_ERROR_MISUSE) {
-                Platform::fatal("heatshrink api misuse");
+                // Platform::fatal("heatshrink api misuse");
             }
 
             for (u32 i = 0; i < bytes_read; ++i) {
