@@ -92,6 +92,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.persistent_data().set_flag(
                 PersistentData::StateFlag::dev_mode_active);
         }
+
+        lisp::set_var("adventure-log", L_NIL);
     }
 
     auto& cursor_loc = globals().near_cursor_loc_;
