@@ -1,5 +1,6 @@
 #include "environment.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/scene/worldScene.hpp"
 
 
 
@@ -46,7 +47,7 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ClearSkies::display(Platform& pfrm, App& app)
 {
-    // return; // eh, I'm undecided about the sun effect
+    bool disable_lensflare = false;
 
     const auto& view_pos = pfrm.screen().get_view().get_center();
 
@@ -65,6 +66,48 @@ void ClearSkies::display(Platform& pfrm, App& app)
 
     spr.set_position({x, y});
     pfrm.screen().draw(spr);
+
+
+    if (auto ws = app.scene().cast_world_scene()) {
+        // auto cursor = ws->is_far_camera() ? globals().far_cursor_loc_
+        //     : globals().near_cursor_loc_;
+
+        auto isle = not ws->is_far_camera() ? &app.player_island()
+            : app.opponent_island();
+
+        HitBox sun_hb;
+        Vec2<Fixnum> sun_pos = {x, y};
+        sun_hb.position_ = &sun_pos;
+        sun_hb.dimension_.size_ = {16, 16};
+
+        if (isle) {
+            for (u32 x = 0; x < isle->terrain().size(); ++x) {
+                for (int y = 4; y < 6; ++y) {
+                    if (isle->rooms_plot().get(x, y)) {
+                        HitBox room_hitbox;
+                        if (pfrm.get_tile(isle->layer(), x, y)) {
+                            auto hitbox_pos = isle->visual_origin();
+                            hitbox_pos.x += Fixnum::from_integer(x * 16);
+                            hitbox_pos.y += Fixnum::from_integer(y * 16);
+
+                            HitBox room_hitbox;
+                            room_hitbox.position_ = &hitbox_pos;
+                            room_hitbox.dimension_.size_.x = 16;
+                            room_hitbox.dimension_.size_.y = 16;
+                            if (room_hitbox.overlapping(sun_hb)) {
+                                disable_lensflare = true;
+                                goto LENSFLARE_CHECK_DONE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+ LENSFLARE_CHECK_DONE:
+
+
+
     struct LensFlare
     {
         Fixnum frac_;
@@ -110,6 +153,10 @@ void ClearSkies::display(Platform& pfrm, App& app)
     spr.set_priority(1);
 
     spr.set_mix({custom_color(0x63b5e7), (u8)amt});
+
+    if (disable_lensflare) {
+        return;
+    }
 
     for (auto& f : flares) {
         spr.set_position({x + dx * f.offset_, y - dy * f.offset_});
