@@ -1533,7 +1533,6 @@ terrain::Improvements terrain::improvements(Type t)
         break;
 
     case Type::masonry:
-        result.push_back(Type::windmill_stone_base);
         result.push_back(Type::carved_stone);
         result.push_back(Type::stone_pillar);
         result.push_back(Type::road_ns);
