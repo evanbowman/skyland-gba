@@ -29,8 +29,7 @@
                                                  (get $0 0) ;; x
                                                  (get $0 1) ;; y
                                                  type
-                                                 ;; Check if replicate
-                                                 (if (assoc 'rplc plst) 1 0)))
+                                                 plst))
 
                               (let ((hp (assoc 'hp plst)))
                                 (if hp

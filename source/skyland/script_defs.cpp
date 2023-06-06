@@ -820,6 +820,10 @@ static const lisp::Binding script_api[] = {
                          chr_info.push_back(
                              make_cons(make_symbol("rplc"), make_integer(1)));
                      }
+                     if (auto race = chr->get_race()) {
+                         chr_info.push_back(make_cons_safe(make_symbol("race"),
+                                                           make_integer(race)));
+                     }
                      chr_info.push_back(
                          make_cons(make_symbol("id"), make_integer(chr->id())));
                      list.push_front(chr_info.result());
@@ -1168,7 +1172,6 @@ static const lisp::Binding script_api[] = {
     {"chr-new",
      [](int argc) {
          L_EXPECT_ARGC(argc, 5);
-         L_EXPECT_OP(0, integer);
          L_EXPECT_OP(1, symbol);
          L_EXPECT_OP(2, integer); // y
          L_EXPECT_OP(3, integer); // x
@@ -1184,7 +1187,44 @@ static const lisp::Binding script_api[] = {
              (u8)lisp::get_op(2)->integer().value_,
          };
 
-         const bool is_replicant = lisp::get_op(0)->integer().value_;
+         bool is_replicant = false;
+         int race = 0;
+
+         // For backwards compatibility with old versions. We used to accept a
+         // integer parameter indicating whether the character was a
+         // replicant. Now we accept an association list of properties. But we
+         // still want to load player's save files.
+         if (lisp::get_op(0)->type() == lisp::Value::Type::integer) {
+             is_replicant = lisp::get_op0()->integer().value_;
+         } else {
+             // const bool is_replicant = lisp::get_op(0)->integer().value_;
+             if (not lisp::is_list(lisp::get_op(0))) {
+                 Platform::fatal("chr-new final arg is not list...");
+             }
+
+             lisp::foreach (lisp::get_op(0), [&](lisp::Value* val) {
+                 if (val->type() == lisp::Value::Type::cons) {
+                     auto car = val->cons().car();
+                     if (car->type() == lisp::Value::Type::symbol) {
+                         const char* text = car->symbol().name();
+                         auto find_param = [&](const char* p) -> int {
+                             if (str_eq(p, text)) {
+                                 return val->cons().cdr()->integer().value_;
+                             }
+                             return 0;
+                         };
+
+                         if (find_param("rplc")) {
+                             is_replicant = true;
+                         }
+                         if (auto r = find_param("race")) {
+                             race = r;
+                         }
+                     }
+                 }
+             });
+         }
+
 
          s32 id = -1;
 
@@ -1203,6 +1243,8 @@ static const lisp::Binding script_api[] = {
                  island, &app->player(), coord, is_replicant);
 
              if (chr) {
+                 chr->set_race(race);
+
                  id = chr->id();
                  island->add_character(std::move(chr));
              }

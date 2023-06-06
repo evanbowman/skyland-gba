@@ -48,3 +48,4 @@ collected %@ from abandoned isle
 a massive warship attacks...
 discovered a shop!
 purchased % for %@
+accepting defeat, a goblin joined your crew!

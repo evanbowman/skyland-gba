@@ -644,6 +644,8 @@ void set_list(Value* list, u32 position, Value* value);
 Value* get_list(Value* list, u32 position);
 int length(Value* lat);
 
+bool is_list(Value* maybe_lat); // slow
+
 
 // For passing parameter to functions. Operands should be pushed in forward
 // order, and read in REVERSE ORDER.

@@ -1205,7 +1205,7 @@ void Island::display(Platform& pfrm, App& app)
         // The interior floor is two pixels thick. But our character is now
         // standing outside, where there's no floor, so we need to shift the
         // character down by two pixels.
-        Sprite cpy = c->sprite();
+        Sprite cpy = c->prepare_sprite();
         auto pos = cpy.get_position();
         if (pos.y.as_integer() < screen_limit_y) {
             pos.y += 2.0_fixed;

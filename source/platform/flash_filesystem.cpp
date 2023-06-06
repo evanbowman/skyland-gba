@@ -94,10 +94,7 @@ class Platform
 {
 
 public:
-
-
-    [[noreturn]]
-    static void fatal(const char* str)
+    [[noreturn]] static void fatal(const char* str)
     {
         std::cerr << str << std::endl;
         exit(1);
@@ -206,8 +203,8 @@ inline void error(Platform& pf, const char* msg)
 
 #include "../compression.cpp"
 
-#include "scratch_buffer.cpp"
 #include "../memory/pool.cpp"
+#include "scratch_buffer.cpp"
 
 #else
 #include "platform/platform.hpp"
@@ -221,8 +218,8 @@ inline void error(Platform& pf, const char* msg)
 
 
 #include "bloomFilter.hpp"
-#include "flash_filesystem.hpp"
 #include "compression.hpp"
+#include "flash_filesystem.hpp"
 
 
 
@@ -578,9 +575,9 @@ void walk(Platform& pfrm,
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
             callback(file_name);
         } else {
-// #ifdef __TEST__
-//             callback(("(INVALID)" + std::string(file_name)).c_str());
-// #endif
+            // #ifdef __TEST__
+            //             callback(("(INVALID)" + std::string(file_name)).c_str());
+            // #endif
         }
 
         offset += r.appended_size();
@@ -1144,7 +1141,8 @@ bool compaction()
             files.emplace_back();
             files.back().first = path;
             read_file_data(pfrm, path, files.back().second);
-            std::cout << path << ", "<< files.back().second.size() << std::endl;
+            std::cout << path << ", " << files.back().second.size()
+                      << std::endl;
         });
 
         compact(pfrm);
@@ -1174,10 +1172,7 @@ bool compaction()
 
     if (end_offset not_eq 2420) {
         std::cerr << "end offset does not match expected!"
-                  << " ("
-                  << end_offset
-                  << ")"
-                  << std::endl;
+                  << " (" << end_offset << ")" << std::endl;
         return false;
     }
 
@@ -1255,10 +1250,8 @@ bool write_triggered_compaction()
     initialize(pfrm, 8);
 
     if (end_offset not_eq 12438) {
-        std::cerr << "end offset does not match expected! ("
-                  << end_offset
-                  << ")"
-                  << std::endl;
+        std::cerr << "end offset does not match expected! (" << end_offset
+                  << ")" << std::endl;
         return false;
     }
 

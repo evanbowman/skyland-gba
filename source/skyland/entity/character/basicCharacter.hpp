@@ -204,6 +204,12 @@ public:
     }
 
 
+    void set_race(int race);
+
+
+    int get_race() const;
+
+
     static constexpr const int multiplayer_vs_client_chr_start_id = 4000;
 
 
@@ -262,6 +268,14 @@ public:
     const char* name() const;
 
 
+    bool has_alternate_sprite() const
+    {
+        return get_race() or is_replicant();
+    }
+
+    Sprite prepare_sprite() const;
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -277,7 +291,8 @@ private:
 
     u8 mark_ : 1;
     u8 ai_mark_ : 1;
-    u8 unused_ : 2;
+
+    u8 race_ : 2;
 
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;

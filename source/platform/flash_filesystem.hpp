@@ -42,6 +42,8 @@ inline void info(Platform& pfrm, const StringBuffer<200>& msg)
     std::cout << msg.c_str() << std::endl;
 }
 #include "containers/vector.hpp"
+#else
+#include "containers/vector.hpp"
 #endif // __GBA__
 
 

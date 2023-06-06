@@ -18,12 +18,26 @@
                   (coins-add c)
                   (let ((g (chrs (opponent)))
                         (ss (chr-slots (player))))
+
+                    (unless ss
+                      (while (not (construction-sites (player) '(1 . 2)))
+                        (terrain (player) (+ (terrain (player)) 1)))
+
+                      (let ((s (construction-sites (player) '(1 . 2))))
+                        (room-new (player) (list 'ladder (car (car s)) (cdr (car s))))
+                        (setq ss (chr-slots (player)))))
+
                     (if g
                         (let ((s (get ss (choice (length ss)))))
                           (chr-del (opponent)
                                    (car (car g))
                                    (cdr (car g)))
-                          (chr-new (player) (car s) (cdr s) 'neutral 0))))
+                          (chr-new (player)
+                                   (car s)
+                                   (cdr s)
+                                   'neutral
+                                   '((race . 1)))
+                          (adventure-log-add 51 '()))))
                   (exit 2)))
 
           (setq on-dialog-declined '()))))

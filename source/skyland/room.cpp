@@ -171,10 +171,14 @@ void Room::display(Platform::Screen& screen, App& app)
         const auto& pos = c->sprite().get_position();
         if (pos.y.as_integer() < 700) {
             if (parent_->interior_visible()) {
-                screen.draw(c->sprite());
+                if (c->has_alternate_sprite()) {
+                    screen.draw(c->prepare_sprite());
+                } else {
+                    screen.draw(c->sprite());
+                }
             } else if (c->state() == BasicCharacter::State::repair_room or
                        c->state() == BasicCharacter::State::extinguish_fire) {
-                auto spr = c->sprite();
+                auto spr = c->prepare_sprite();
                 if (parent()->layer() == Layer::map_1_ext) {
                     spr.set_mix({custom_color(0x28457b), 50});
                 } else {

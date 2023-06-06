@@ -775,7 +775,29 @@ void describe_room(Platform& pfrm,
                                     room_description->append(n, opts);
                                     room_description->append(") ", opts);
                                 } else {
-                                    auto str = SYSTR(character_label_human);
+                                    auto str = [&] {
+                                        switch (chr->get_race()) {
+                                        default:
+                                        case 0:
+                                            return SYSTR(character_label_human);
+
+                                        case 1:
+                                            auto ret = SYSTR(
+                                                character_label_goblin);
+                                            ret->pop_back();
+                                            ret->pop_back();
+                                            // Good goblins are already a
+                                            // different color, but for
+                                            // colorblind people, make their
+                                            // name identifier a bit
+                                            // different...
+                                            ret->push_back('*');
+                                            ret->push_back(')');
+                                            ret->push_back(' ');
+                                            return ret;
+                                        }
+                                    }();
+
                                     room_description->append(str->c_str(),
                                                              opts);
                                 }

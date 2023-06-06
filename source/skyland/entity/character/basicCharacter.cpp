@@ -49,6 +49,19 @@ static u16 base_frame(BasicCharacter* character, App& app)
 
 
 
+void BasicCharacter::set_race(int gfx)
+{
+    race_ = gfx;
+}
+
+
+int BasicCharacter::get_race() const
+{
+    return race_;
+}
+
+
+
 static CharacterId character_id_generator = 1;
 
 
@@ -81,7 +94,7 @@ BasicCharacter::BasicCharacter(Island* parent,
                                const RoomCoord& position,
                                bool is_replicant)
     : Entity({{}, {}}), parent_(parent), owner_(owner),
-      grid_position_(position), id_(alloc_character_id())
+      grid_position_(position), race_(0), id_(alloc_character_id())
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -527,6 +540,41 @@ void BasicCharacter::update(Platform& pfrm,
     //                            t2 - t1).c_str());
     // }
 }
+
+
+
+Sprite BasicCharacter::prepare_sprite() const
+{
+    Sprite ret = sprite_;
+    if (is_replicant_) {
+        switch (ret.get_texture_index()) {
+        case 39:
+            ret.set_texture_index(123);
+            break;
+
+        case 40:
+            ret.set_texture_index(124);
+            break;
+        }
+    } else if (race_) {
+        switch (race_) {
+        case 1:
+            switch (ret.get_texture_index()) {
+            case 39:
+                ret.set_texture_index(38);
+                break;
+
+            case 40:
+                ret.set_texture_index(41);
+                break;
+            }
+            break;
+        }
+    }
+
+    return ret;
+}
+
 
 
 void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)

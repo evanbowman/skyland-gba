@@ -437,7 +437,7 @@ static Value* globals_tree_find(Value* key)
 }
 
 
-static bool is_list(Value* val)
+bool is_list(Value* val)
 {
     while (val not_eq get_nil()) {
         if (val->type() not_eq Value::Type::cons) {

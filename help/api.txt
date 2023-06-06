@@ -54,11 +54,35 @@ o----------------------------o
    x
    y
    mode-sym
-   is-replicant)
+   plist)
 
  Add character to island at
  (x, y). Returns a unique
  integer id.
+
+ Note: plist should contain
+ nil, or an association list
+ of properties.
+
+ Note: for historical
+ reasons (need to support
+ old save files), this
+ function accepts zero in
+ place of a property list.
+
+ Example:
+ '((rplc . 1))
+
+ Available properties:
+ 'rplc: the character is a
+ replicant.
+
+ 'race: the race of the
+ character:
+   0 - human
+   1 - goblin
+   2 - unused
+   3 - unused
 
 
 o----------------------------o
