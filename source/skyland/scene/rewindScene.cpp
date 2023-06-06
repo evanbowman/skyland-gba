@@ -1017,6 +1017,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 pfrm, island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
 
             chr->__assign_id(e->id_.get());
+            chr->set_race(e->race_);
 
             island->add_character(std::move(chr));
 

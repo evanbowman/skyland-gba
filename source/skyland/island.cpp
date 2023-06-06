@@ -738,6 +738,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         e.id_.set(c.id());
         e.owned_by_player_ = c.owner() == &app.player();
         e.near_ = this == &app.player_island();
+        e.race_ = c.get_race();
         e.is_replicant_ = c.is_replicant();
         app.time_stream().push(app.level_timer(), e);
     };
