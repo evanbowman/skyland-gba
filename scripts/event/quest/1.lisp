@@ -1,5 +1,6 @@
 
 (dialog
+ "<b:/scripts/misc/img/banana_cover.skg>"
  "You can't quite believe what you're seeing! A castle appears as if out of nowhere. Through the window, you see a man rushing about frantically, dressed in a banana suit!?")
 
 

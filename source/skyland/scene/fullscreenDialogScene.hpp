@@ -53,6 +53,10 @@ private:
 
     void clear_textbox(Platform& pfrm);
 
+    void process_command(Platform& pfrm, App& app);
+
+    u8 y_start() const;
+
     struct TextWriterState
     {
         const char* current_word_;
@@ -74,6 +78,8 @@ private:
     } display_mode_ = DisplayMode::animate_in;
 
     TextWriterState text_state_;
+    bool img_view_ = false;
+
 
     DialogBuffer buffer_;
 

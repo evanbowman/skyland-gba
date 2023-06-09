@@ -3,7 +3,7 @@
 ;;;
 
 
-(dialog "You discover the wreckage of a goblin raid...")
+(dialog "<b:/scripts/misc/img/wreckage.skg>You discover the wreckage of a goblin raid...")
 
 
 (opponent-init 8 'neutral)
