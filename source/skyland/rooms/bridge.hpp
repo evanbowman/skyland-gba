@@ -86,7 +86,7 @@ public:
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
             if (pos.y < 700.0_fixed) {
-                auto spr = c->sprite();
+                auto spr = c->prepare_sprite();
                 spr.set_priority(3);
                 screen.draw(spr);
             }

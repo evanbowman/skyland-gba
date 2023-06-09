@@ -111,7 +111,12 @@ void AdventureLogScene::show_page(Platform& pfrm, App&, int page_num)
 
 void AdventureLogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.speaker().set_music_volume(8);
+    if (not pfrm.speaker().is_music_playing("unaccompanied_wind") and
+        not pfrm.speaker().is_music_playing("box")) {
+        pfrm.speaker().set_music_volume(8);
+    } else {
+        pfrm.speaker().set_music_volume(16);
+    }
 
     if (logentry_count() == 0) {
         logbook_missing_ = true;
