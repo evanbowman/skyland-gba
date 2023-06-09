@@ -9,6 +9,10 @@
 -- Note: by convention, I've been giving output binary data files a .skg
 -- extension. The game doesn't really care about extension. The files just need
 -- to contain palette data in the first 32 bytes, followed by image data.
+--
+-- Remove later:
+-- lua ../tools/img_enc.lua /home/evan/skyland/images/wreckage.bmp /home/evan/skyland/scripts/misc/img/wreckage.skg
+
 
 
 if _VERSION ~= "Lua 5.3" then
