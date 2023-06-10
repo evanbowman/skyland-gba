@@ -3,7 +3,9 @@
 ;;;
 
 
-(dialog "In the distance, you see an island inhabited by a lone castaway...")
+(dialog
+ "<b:/scripts/misc/img/castaway.skg>"
+ "In the distance, you see an island inhabited by a lone castaway...")
 
 
 (opponent-init 6 'neutral)

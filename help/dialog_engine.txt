@@ -65,4 +65,14 @@ o----------------------------o
  string. Mainly intended for
  the ending dialog.
 
+
+o----------------------------o
+
+ <B:INTEGER>
+
+ Stop printing text and
+ display the advance text
+ prompt.
+
+
 o----------------------------o

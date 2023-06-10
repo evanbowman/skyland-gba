@@ -70,10 +70,6 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
     if (text_state_.timer_ > delay) {
         text_state_.timer_ = 0;
 
-        if (sfx) {
-            pfrm.speaker().play_sound("msg", 5);
-        }
-
         if (text_state_.current_word_remaining_ == 0) {
             while (*text_state_.current_word_ == ' ') {
                 text_state_.current_word_++;
@@ -83,6 +79,10 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
             }
             if (*text_state_.current_word_ == '<') {
                 process_command(pfrm, app);
+            }
+            if (halt_text_) {
+                halt_text_ = false;
+                return false;
             }
             if (text_state_.timer_ < 0) {
                 return true;
@@ -101,6 +101,10 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
                 },
                 text_state_.current_word_,
                 str_len(text_state_.current_word_));
+        }
+
+        if (sfx) {
+            pfrm.speaker().play_sound("msg", 5);
         }
 
         // At this point, we know the length of the next space-delimited word in
@@ -409,6 +413,12 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
     case 'c': {
         parse_command_str();
         parse_command_int();
+        break;
+    }
+
+    case 'B': {
+        parse_command_int();
+        halt_text_ = true;
         break;
     }
 

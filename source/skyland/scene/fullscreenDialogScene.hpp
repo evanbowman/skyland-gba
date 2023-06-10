@@ -79,7 +79,7 @@ private:
 
     TextWriterState text_state_;
     bool img_view_ = false;
-
+    bool halt_text_ = false;
 
     DialogBuffer buffer_;
 
