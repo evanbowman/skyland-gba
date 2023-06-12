@@ -1,6 +1,7 @@
 
 
 (dialog
+ "<b:/scripts/misc/img/market_quest.skg>"
  "You arrive at a busy trading outpost. "
  "Some merchants broadcast a message asking for assistance...")
 

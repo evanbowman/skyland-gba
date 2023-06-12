@@ -1,5 +1,7 @@
 
-(dialog "You arrive at the delivery address...")
+(dialog
+ "<b:/scripts/misc/img/castaway.skg>"
+ "You arrive at the delivery address...")
 
 
 
@@ -21,7 +23,7 @@
                        (cargo (player) (car $0) (cdr $0))))
                     c)))
             (if p
-                (let ((temp (+ 1500 (choice 2000))))
+                (let ((temp (+ 2500 (choice 2000))))
                   ;; Clear out cargo
                   (cargo-set
                    (player)
