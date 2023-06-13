@@ -550,6 +550,13 @@ o----------------------------o
 
 o----------------------------o
 
+ (sound "name")
+
+ Play a sound effect.
+
+
+o----------------------------o
+
  (flag-show island variant)
 
  Display a flag. For opponent

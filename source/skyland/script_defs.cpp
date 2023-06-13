@@ -458,6 +458,14 @@ static const lisp::Binding script_api[] = {
          state_bit_store(*app, StateBit::dialog_expects_answer, true);
          return L_NIL;
      }},
+    {"sound",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+         lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0),
+                                                       1);
+         return L_NIL;
+     }},
     {"repl",
      [](int argc) {
          auto app = interp_get_app();

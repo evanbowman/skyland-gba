@@ -51,7 +51,7 @@
                     (exit))
                 (progn
                   (coins-add (* -1 cost))
-                  (syscall "sound" "build0")
+                  (sound "build0")
                   (map
                    (lambda
                      (room-mut (player) (get $0 1) (get $0 2) 'stacked-hull))

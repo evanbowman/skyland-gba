@@ -58,7 +58,7 @@
       (sel-input 'drone-bay
                  "Pick a slot (2x1)"
                  (lambda
-                   (syscall "sound" "build0")
+                   (sound "build0")
                    (room-new (player) `(drone-bay ,$1 ,$2))
                    (dialog "<c:robot:12> 01000010 01111001 01100101!")
                    (exit))))
@@ -71,13 +71,13 @@
       (sel-input 'drone-bay
                  "Pick a slot (2x1) (1 of 2)"
                  (lambda
-                   (syscall "sound" "build0")
+                   (sound "build0")
                    (room-new (player) `(drone-bay ,$1 ,$2))
 
                    (sel-input 'drone-bay
                               "Pick a slot (2x1) (2 of 2)"
                               (lambda
-                                (syscall "sound" "build0")
+                                (sound "build0")
                                 (room-new (player) `(drone-bay ,$1 ,$2))
                                 (dialog "<c:robot:12> 01000010 01111001 01100101!")
                                 (exit)))))))

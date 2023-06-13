@@ -79,7 +79,7 @@
               (string "place block " (+ cnt 1) "/8:")
               (lambda
                 (room-new (player) (list 'mirror-hull $1 $2))
-                (syscall "sound" "build0")
+                (sound "build0")
                 (+= cnt 1)
 
                 ;; delete a block from the shop's inventory

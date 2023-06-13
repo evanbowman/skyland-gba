@@ -68,7 +68,7 @@
                   (sel-input 'ladder
                              "Place ladder (1x2):"
                              (lambda
-                               (syscall "sound" "build0")
+                               (sound "build0")
                                (room-new (player) `(ladder ,$1 ,$2))
                                (chr-del (opponent) 1 14)
                                (chr-new (player) $1 (+ 1 $2) 'neutral 0)

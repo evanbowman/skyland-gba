@@ -70,7 +70,7 @@
                   (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
                              (lambda
-                               (syscall "sound" "build0")
+                               (sound "build0")
                                (room-new (player) `(cargo-bay ,$1 ,$2))
                                (chr-del (opponent) 1 12)
                                (chr-new (player) $1 (+ 1 $2) 'neutral 0)

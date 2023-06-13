@@ -41,6 +41,6 @@
              (lambda
                (room-new (player) (list 'incinerator $1 $2))
                  (room-del (opponent) 0 13)
-               (syscall "sound" "build0")
+               (sound "build0")
                (dialog "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")
                (setq on-dialog-closed exit))))

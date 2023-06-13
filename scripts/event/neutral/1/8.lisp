@@ -72,6 +72,6 @@
                      (cdr (rsz pick)))
              (lambda
                (room-new (player) `(,pick ,$1 ,$2))
-               (syscall "sound" "build0")
+               (sound "build0")
                (dialog "All done!")
                (end))))))))))

@@ -33,7 +33,7 @@
           (dialog "Looks like no one's home! The sign on the door reads: 'Evan's hut'. Amongst the clutter, you find a data cartridge!")
           (setq on-dialog-closed
                 (lambda
-                  (syscall "sound" "click_digital_1")
+                  (sound "click_digital_1")
                   (cart-add 0)
                   (dialog "You pick up a cart labled "
                           (get info 0)

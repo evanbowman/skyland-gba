@@ -12,7 +12,7 @@
       (if c
           (progn
             (setq c (car (sort c (lambda (< (car $0) (car $1))))))
-            (syscall "sound" "build0")
+            (sound "build0")
             (room-new
              (player)
              (list 'cargo-bay (car c) (cdr c)))

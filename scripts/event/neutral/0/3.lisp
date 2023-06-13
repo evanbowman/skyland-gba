@@ -93,14 +93,14 @@
                 (format " (%x%):" (car (rsz item)) (cdr (rsz item))))
                (lambda
                  (room-new (player) (list item $1 $2))
-                 (syscall "sound" "build0")
+                 (sound "build0")
                  (mktr (rsz item))
                  (sel-input
                   item
                   (string "place second " (rname item) ":")
                   (lambda
                     (room-new (player) (list item $1 $2))
-                    (syscall "sound" "build0")
+                    (sound "build0")
                     (dialog "<c:merchant:7> Looks great! You made a fine choice!")
                     (setq on-dialog-closed exit))))))))))
 

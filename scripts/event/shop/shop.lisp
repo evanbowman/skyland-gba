@@ -41,7 +41,7 @@
                        "pick a slot:"
                        (lambda
                          (room-new (player) (list (get info 0) $1 $2))
-                         (syscall "sound" "build0")
+                         (sound "build0")
 
                          (setq shop-items
                                (filter

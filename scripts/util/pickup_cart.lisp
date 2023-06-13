@@ -11,7 +11,7 @@
               (dialog str)
               (setq on-dialog-closed
                     (lambda
-                      (syscall "sound" "click_digital_1")
+                      (sound "click_digital_1")
                       (cart-add n)
                       (dialog "You picked up a cart labeled "
                               (car (cart-info n))
