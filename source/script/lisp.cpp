@@ -1886,8 +1886,32 @@ static u32 read_symbol(CharSequence& code, int offset)
 
         auto mode = Symbol::ModeBits::requires_intern;
         if (symbol.length() <= Symbol::buffer_size) {
-            mode = Symbol::ModeBits::small;
+
+#ifndef __GBA__
+            char* id = 0;
+            for (u32 i = 0; i < symbol.length(); ++i) {
+                ((u8*)&id)[i] = symbol[i];
+            }
+
+            if (id >= symbol_intern_table and
+                id < symbol_intern_table + string_intern_table_size) {
+                // Do not perform small symbol optimization, because the name,
+                // when interpreted as a pointer, falls in the range of the
+                // symbol intern table.
+
+            } else {
+                mode = Symbol::ModeBits::small;
+            }
         }
+#else // __GBA__
+        // NOTE: the above code prevents small symbol optimizations from
+        // colliding with the address space of the symbol intern table. But on
+        // the GBA specifically, EWRAM is known to be mapped to a block of
+        // memory starting at 0x03000000. Given that the gba is little endian,
+        // and 0x03 is a nonprintable ETX control code.
+        mode = Symbol::ModeBits::small;
+#endif
+
 
         push_op(make_symbol(symbol.c_str(), mode));
         return 1;
