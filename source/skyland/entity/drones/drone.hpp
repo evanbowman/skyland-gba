@@ -167,6 +167,9 @@ public:
     }
 
 
+    void display(Platform::Screen& screen, App& app);
+
+
 protected:
     u8 state_ = State::launch;
 

@@ -255,4 +255,23 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Drone::display(Platform::Screen& screen, App& app)
+{
+    screen.draw(sprite());
+
+    if (state_ == State::launch) {
+        const auto cached_pos = sprite_.get_position();
+
+        auto pos = calc_pos(destination_, grid_pos_);
+        sprite_.set_position(pos);
+        sprite_.set_alpha(Sprite::Alpha::translucent);
+        screen.draw(sprite_);
+
+        sprite_.set_position(cached_pos);
+        sprite_.set_alpha(Sprite::Alpha::opaque);
+    }
+}
+
+
+
 } // namespace skyland
