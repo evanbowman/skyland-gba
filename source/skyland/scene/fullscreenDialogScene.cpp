@@ -225,6 +225,7 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
         if (app.opponent_island()) {
             show_island_exterior(pfrm, app, app.opponent_island());
         }
+        app.player_island().repaint(pfrm, app);
         pfrm.screen().clear();
         pfrm.screen().display();
         pfrm.delta_clock().reset();
@@ -441,6 +442,12 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
         pfrm.set_scroll(Layer::map_1_ext, 0, 0);
         __draw_image(pfrm, 0, 3, 3, 24, 10, Layer::map_1);
         pfrm.screen().schedule_fade(0);
+
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                pfrm.set_tile(Layer::map_0_ext, x, y, 0);
+            }
+        }
 
         // // Replace the textbox border with a tileset with an opaque dark
         // // background.
