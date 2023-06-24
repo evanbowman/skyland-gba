@@ -167,6 +167,38 @@ inline bool store_file_data_binary(Platform& pfrm,
 
 
 
+template <typename T>
+std::optional<T> read_file_blob(Platform& pfrm, const char* path)
+{
+    Vector<char> data;
+    if (flash_filesystem::read_file_data_binary(pfrm, path, data)) {
+        if (data.size() == sizeof(T)) {
+            T result;
+            for (u32 i = 0; i < data.size(); ++i) {
+                ((u8*)&result)[i] = data[i];
+            }
+            return result;
+        }
+    }
+    return std::nullopt;
+}
+
+
+
+template <typename T>
+bool write_file_blob(Platform& pfrm, const char* path, const T& blob)
+{
+    Vector<char> data;
+
+    for (u32 i = 0; i < sizeof blob; ++i) {
+        data.push_back(((u8*)&blob)[i]);
+    }
+
+    return flash_filesystem::store_file_data_binary(pfrm, path, data);
+}
+
+
+
 inline bool store_file_data(Platform& pfrm,
                             const char* path,
                             const char* ptr,

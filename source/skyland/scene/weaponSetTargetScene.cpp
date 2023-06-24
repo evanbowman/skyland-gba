@@ -774,117 +774,143 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1 - 2;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
 
+    auto plot = [&](int x, int y, auto intersection) {
+        if (pixel_buffer[x][y] == color_black_index or
+            pixel_buffer[x][y] == color_white_index or
+            pixel_buffer[x][y] == 12) {
+            pixel_buffer[x][y] = color_white_index;
+        } else {
+            if (pixel_buffer[x][y] == color_gray_index) {
+                pixel_buffer[x][y] = 13;
+            } else {
+                pixel_buffer[x][y] = 1;
+            }
+
+            intersection(x, y);
+        }
+    };
+
+    auto highlight_block = [&](int x, int y, bool center) {
+        if (x > 13 or y > 14) {
+            return;
+        }
+        const int x_offset = 3 * opp_offset - 2;
+        const int y_offset = 4 * -3 + 1;
+        for (int xx = 0; xx < 3; ++xx) {
+            for (int yy = 0; yy < 3; ++yy) {
+                const int xt = x_offset + x * 3 + xx;
+                const int yt = y_offset + y * 3 + yy;
+                if (not center and xx == 1 and yy == 1) {
+                    pixel_buffer[xt][yt] = color_black_index;
+                    continue;
+                }
+                if (center and xx == 1 and yy == 1) {
+                    pixel_buffer[xt][yt] = 12;
+                    continue;
+                }
+                if (pixel_buffer[xt][yt] not_eq color_black_index and
+                    pixel_buffer[xt][yt] not_eq color_white_index) {
+                    pixel_buffer[xt][yt] = 1;
+                }
+            }
+        }
+    };
+
+    auto plot_line = [&](Room* wpn, int x0, int y0, int x1, int y1) {
+        int dx = abs(x1 - x0);
+        int sx = x0 < x1 ? 1 : -1;
+        int dy = -abs(y1 - y0);
+        int sy = y0 < y1 ? 1 : -1;
+        int error = dx + dy;
+
+        bool intersection = false;
+        auto intersection_fn = [&](int x, int y) {
+            if (not intersection and x >= opp_offset * 3) {
+                intersection = true;
+                u8 ib_x = (x / 3 - opp_offset) + (x % 3 > 0);
+                u8 ib_y = ((y - 3) / 3 + 4) + (y % 3 > 0);
+
+                highlight_block(ib_x, ib_y, true);
+
+                if (wpn and wpn->cast<FlakGun>()) {
+                    highlight_block(ib_x, ib_y - 2, false);
+                    highlight_block(ib_x, ib_y - 1, false);
+                    highlight_block(ib_x, ib_y + 1, false);
+                    highlight_block(ib_x, ib_y + 2, false);
+                    highlight_block(ib_x + 1, ib_y, false);
+                    highlight_block(ib_x + 2, ib_y, false);
+                    highlight_block(ib_x + 1, ib_y + 1, false);
+                    highlight_block(ib_x + 1, ib_y - 1, false);
+                }
+            }
+        };
+
+        while (true) {
+            plot(x0, y0, intersection_fn);
+            if (x0 == x1 && y0 == y1)
+                break;
+            int e2 = 2 * error;
+            if (e2 >= dy) {
+                if (x0 == x1)
+                    break;
+                error = error + dy;
+                x0 = x0 + sx;
+            }
+            if (e2 <= dx) {
+                if (y0 == y1)
+                    break;
+                error = error + dx;
+                y0 = y0 + sy;
+            }
+        }
+    };
+
+    if (near_) {
+        if (auto drone = app.player_island().get_drone(weapon_loc_)) {
+            int drone_emit_px_x = ((*drone)->position().x + 1) * 3;
+            int drone_emit_px_y = (((*drone)->position().y - 3) * 3 + 1) - 2;
+
+            plot_line(nullptr,
+                      drone_emit_px_x,
+                      drone_emit_px_y,
+                      cursor_center_px_x,
+                      cursor_center_px_y);
+        }
+    } else {
+        if (auto drone = app.opponent_island()->get_drone(weapon_loc_)) {
+            int drone_emit_px_x = ((*drone)->position().x) * 3;
+            int drone_emit_px_y = (((*drone)->position().y - 3) * 3 + 1) - 2;
+
+            plot_line(nullptr,
+                      drone_emit_px_x + opp_offset * 3 - 1,
+                      drone_emit_px_y,
+                      cursor_center_px_x,
+                      cursor_center_px_y);
+        }
+    }
+
+
     for (auto wpn : weapons) {
         auto emit_pos = wpn->position();
         emit_pos.x += wpn->size().x;
-
-        auto plot = [&](int x, int y, auto intersection) {
-            if (pixel_buffer[x][y] == color_black_index or
-                pixel_buffer[x][y] == color_white_index or
-                pixel_buffer[x][y] == 12) {
-                pixel_buffer[x][y] = color_white_index;
-            } else {
-                if (pixel_buffer[x][y] == color_gray_index) {
-                    pixel_buffer[x][y] = 13;
-                } else {
-                    pixel_buffer[x][y] = 1;
-                }
-
-                intersection(x, y);
-            }
-        };
-
-        auto highlight_block = [&](int x, int y, bool center) {
-            if (x > 13 or y > 14) {
-                return;
-            }
-            const int x_offset = 3 * opp_offset - 2;
-            const int y_offset = 4 * -3 + 1;
-            for (int xx = 0; xx < 3; ++xx) {
-                for (int yy = 0; yy < 3; ++yy) {
-                    const int xt = x_offset + x * 3 + xx;
-                    const int yt = y_offset + y * 3 + yy;
-                    if (not center and xx == 1 and yy == 1) {
-                        pixel_buffer[xt][yt] = color_black_index;
-                        continue;
-                    }
-                    if (center and xx == 1 and yy == 1) {
-                        pixel_buffer[xt][yt] = 12;
-                        continue;
-                    }
-                    if (pixel_buffer[xt][yt] not_eq color_black_index and
-                        pixel_buffer[xt][yt] not_eq color_white_index) {
-                        pixel_buffer[xt][yt] = 1;
-                    }
-                }
-            }
-        };
-
-
-
-        auto plot_line = [&](int x0, int y0, int x1, int y1) {
-            int dx = abs(x1 - x0);
-            int sx = x0 < x1 ? 1 : -1;
-            int dy = -abs(y1 - y0);
-            int sy = y0 < y1 ? 1 : -1;
-            int error = dx + dy;
-
-            bool intersection = false;
-            auto intersection_fn = [&](int x, int y) {
-                if (not intersection and x >= opp_offset * 3) {
-                    intersection = true;
-                    u8 ib_x = (x / 3 - opp_offset) + (x % 3 > 0);
-                    u8 ib_y = ((y - 3) / 3 + 4) + (y % 3 > 0);
-
-                    highlight_block(ib_x, ib_y, true);
-
-                    if (wpn->cast<FlakGun>()) {
-                        highlight_block(ib_x, ib_y - 2, false);
-                        highlight_block(ib_x, ib_y - 1, false);
-                        highlight_block(ib_x, ib_y + 1, false);
-                        highlight_block(ib_x, ib_y + 2, false);
-                        highlight_block(ib_x + 1, ib_y, false);
-                        highlight_block(ib_x + 2, ib_y, false);
-                        highlight_block(ib_x + 1, ib_y + 1, false);
-                        highlight_block(ib_x + 1, ib_y - 1, false);
-                    }
-                }
-            };
-
-            while (true) {
-                plot(x0, y0, intersection_fn);
-                if (x0 == x1 && y0 == y1)
-                    break;
-                int e2 = 2 * error;
-                if (e2 >= dy) {
-                    if (x0 == x1)
-                        break;
-                    error = error + dy;
-                    x0 = x0 + sx;
-                }
-                if (e2 <= dx) {
-                    if (y0 == y1)
-                        break;
-                    error = error + dx;
-                    y0 = y0 + sy;
-                }
-            }
-        };
 
         int wpn_emit_px_x = (emit_pos.x + 1) * 3;
         int wpn_emit_px_y = ((emit_pos.y - 3) * 3 + 1) - 2;
 
         if ((*wpn->metaclass())->weapon_orientation() ==
             Room::WeaponOrientation::horizontal) {
-            plot_line(wpn_emit_px_x - 2,
+            plot_line(wpn,
+                      wpn_emit_px_x - 2,
                       wpn_emit_px_y,
                       cursor_center_px_x,
                       cursor_center_px_y);
-            plot_line(wpn_emit_px_x - 2,
+            plot_line(wpn,
+                      wpn_emit_px_x - 2,
                       wpn_emit_px_y,
                       cursor_center_px_x,
                       cursor_center_px_y - 1);
-            plot_line(wpn_emit_px_x - 2,
+            plot_line(wpn,
+                      wpn_emit_px_x - 2,
                       wpn_emit_px_y,
                       cursor_center_px_x,
                       cursor_center_px_y + 1);
