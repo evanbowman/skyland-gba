@@ -33,6 +33,8 @@
 
 #define BG_MOSAIC (1 << 6)
 
+static const int wordsize = sizeof(u32);
+
 #define MOS_BH_MASK 0x000F
 #define MOS_BH_SHIFT 0
 #define MOS_BH(n) ((n) << MOS_BH_SHIFT)

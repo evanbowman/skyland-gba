@@ -197,8 +197,6 @@ int QRCode::drawsize(int format) const
 
 void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord, int format)
 {
-    const auto sz = size();
-
     copy_to_vram(pfrm, 181, format);
 
     draw_image(pfrm,

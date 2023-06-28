@@ -624,13 +624,9 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
 
     Buffer<Room*, 32> weapons;
 
-    bool from_cache = false;
-
     if (fb_cache_.player_island_checksum_ == app.player_island().checksum() and
         fb_cache_.opponent_island_checksum_ ==
             app.opponent_island()->checksum()) {
-
-        from_cache = true;
 
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
@@ -990,9 +986,6 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
     minimap_show(pfrm, app);
 
     [[maybe_unused]] auto after = pfrm.delta_clock().sample();
-    // if (from_cache) {
-    //     Platform::fatal(format("%", after - before));
-    // }
 
     if (not pfrm.network_peer().is_connected()) {
         // FIXME: repaint function has large overhead. Optimize and remove clock

@@ -581,12 +581,27 @@ static inline void _fnlGradCoordDual3D(int seed, int xPrimed, int yPrimed, int z
 
 // Generic Noise Gen
 
+#if defined(__GNUC__) and not defined(__clang__)
+// NOTE: O2 optimization raises warnings due to undefined behavior resulting
+// from aggressive loop optimizations. When I try to move this code to a .c file
+// and link as a static library, a linker bug prevents me from linking to the
+// generated code. So I've been forced to selectively disable optimization. I'm
+// not happy. I'm not happy that someone wrote a library that depends on signed
+// integer overflow, and I didn't find out until now. I'm not happy that the
+// linker program is buggy. But I'm not unhappy enough to do anything about it
+// now that C++23 is moving to guaranteed 2s compliment for signed ints.
+#define OPT1 __attribute__ ((optimize(1)))
+#else
+#define OPT1
+#endif
+
+
 static float _fnlSingleSimplex2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSingleOpenSimplex2S2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSingleOpenSimplex2S3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLfloat y);
-static float _fnlSingleCellular3D(fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z);
+static float _fnlSingleCellular3D(fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z) OPT1;
 static float _fnlSinglePerlin2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSinglePerlin3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSingleValueCubic2D(int seed, FNLfloat x, FNLfloat y);

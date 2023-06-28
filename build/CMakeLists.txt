@@ -60,6 +60,7 @@ configure_file(dirlocals.in ${SOURCE_DIR}/.dir-locals.el)
 set(G_COMPILE_FLAGS
   -g3
   -Wall
+  -Werror
   -pedantic
   -ffast-math
   -fno-math-errno
@@ -502,11 +503,9 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCES}
     ${SOURCE_DIR}/platform/gba/mixer.cpp
     ${SOURCE_DIR}/platform/gba/gba_platform.cpp
-    ${SOURCE_DIR}/platform/gba/libc.c
     ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
     ${SOURCE_DIR}/platform/gba/memcpy.s
     ${SOURCE_DIR}/platform/gba/bios.s
-    ${SOURCE_DIR}/platform/gba/send_multiboot.c
     ${SOURCE_DIR}/platform/gba/filesystem.cpp
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
 
@@ -921,6 +920,8 @@ elseif(GAMEBOY_ADVANCE)
     ${ROOT_DIR}/external/libgba/interrupt.c
     ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
     ${ROOT_DIR}/external/libgba/reset.s
+    ${SOURCE_DIR}/platform/gba/libc.c
+    ${SOURCE_DIR}/platform/gba/send_multiboot.c
     ${SOURCE_DIR}/platform/gba/rumble.c)
 
 

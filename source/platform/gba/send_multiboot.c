@@ -108,23 +108,17 @@ enum MbResult mb_send_rom(u16* begin, u16* end, int tries)
         }
     } while (resp != 0);
 
-    int client_connected[3] = {0}; // FIXME: detect client id rather than
-                                   // hardcoding bit 2.
-
     for (int i = 0; i < 15; ++i) {
         resp = mb_exchange(0x6200);
         if ((resp & 0xfff0) == 0x7200) {
             switch (resp & 0xf) {
             case 1:
-                client_connected[0] = 1;
                 break;
 
             case 2:
-                client_connected[1] = 1;
                 break;
 
             case 4:
-                client_connected[2] = 1;
                 break;
             }
             break;
