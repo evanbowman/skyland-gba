@@ -1,6 +1,6 @@
 #include "environment.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene/worldScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -73,7 +73,7 @@ void ClearSkies::display(Platform& pfrm, App& app)
         //     : globals().near_cursor_loc_;
 
         auto isle = not ws->is_far_camera() ? &app.player_island()
-            : app.opponent_island();
+                                            : app.opponent_island();
 
         HitBox sun_hb;
         Vec2<Fixnum> sun_pos = {x, y};
@@ -104,7 +104,7 @@ void ClearSkies::display(Platform& pfrm, App& app)
             }
         }
     }
- LENSFLARE_CHECK_DONE:
+LENSFLARE_CHECK_DONE:
 
 
 

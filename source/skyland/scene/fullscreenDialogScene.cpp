@@ -139,7 +139,8 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
             t = pfrm.map_glyph(cp, *mapping_info);
         }
 
-        const int y_offset = text_state_.line_ == 0 ? 4 + y_start() : 2 + y_start();
+        const int y_offset =
+            text_state_.line_ == 0 ? 4 + y_start() : 2 + y_start();
         int x_offset = text_state_.pos_ + 2;
 
         if (text_scroll_direction == 1) {
@@ -203,10 +204,8 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
     if (img_view_) {
         int frames = 25;
         for (int i = 0; i < frames; ++i) {
-            pfrm.screen().schedule_fade(Float(i) / frames,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        true);
+            pfrm.screen().schedule_fade(
+                Float(i) / frames, ColorConstant::rich_black, true, true);
             pfrm.keyboard().poll();
             pfrm.screen().clear();
             pfrm.screen().display();
@@ -235,7 +234,6 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
     pfrm.fill_overlay(0);
-
 }
 
 
@@ -253,7 +251,8 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (text_scroll_direction == 1) {
                 x = 3;
             }
-            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start())) == 91) {
+            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start())) ==
+                91) {
                 pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 92);
             } else {
                 pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 91);
@@ -458,8 +457,7 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
 
         for (int x = 0; x < 30; ++x) {
             for (int y = 0; y < 20; ++y) {
-                if (y < 3 or y > 12 or
-                    x < 3 or x > 26) {
+                if (y < 3 or y > 12 or x < 3 or x > 26) {
                     pfrm.set_tile(Layer::overlay, x, y, 82);
                 }
             }

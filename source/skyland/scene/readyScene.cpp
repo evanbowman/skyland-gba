@@ -782,8 +782,8 @@ void describe_room(Platform& pfrm,
                                             return SYSTR(character_label_human);
 
                                         case 1:
-                                            auto ret = SYSTR(
-                                                character_label_goblin);
+                                            auto ret =
+                                                SYSTR(character_label_goblin);
                                             ret->pop_back();
                                             ret->pop_back();
                                             // Good goblins are already a

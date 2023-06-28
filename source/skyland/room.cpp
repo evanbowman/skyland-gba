@@ -1170,7 +1170,8 @@ void Room::finalize(Platform& pfrm, App& app)
              pfrm.screen().get_view().int_center().x + 8 -
                  (size().x * 16) / 2) or
             (visual_center().x.as_integer() - (size().x * 16) / 2 >
-             (int)(pfrm.screen().get_view().int_center().x + pfrm.screen().size().x));
+             (int)(pfrm.screen().get_view().int_center().x +
+                   pfrm.screen().size().x));
 
         const int t = debris_tile();
 

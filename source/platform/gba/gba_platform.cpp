@@ -1062,7 +1062,8 @@ EWRAM_DATA u16 background_palette[16];
 
 
 
-static void init_palette(const u16* palette_input, u16* palette, ShaderPalette p)
+static void
+init_palette(const u16* palette_input, u16* palette, ShaderPalette p)
 {
     for (int i = 0; i < 16; ++i) {
         palette[i] =
@@ -1077,15 +1078,21 @@ void Platform::Screen::set_shader_argument(int arg)
 {
     shader_argument = arg;
 
-    init_palette(
-        current_spritesheet->palette_data_, sprite_palette, ShaderPalette::spritesheet);
+    init_palette(current_spritesheet->palette_data_,
+                 sprite_palette,
+                 ShaderPalette::spritesheet);
 
-    init_palette(current_tilesheet0->palette_data_, tilesheet_0_palette, ShaderPalette::tile0);
+    init_palette(current_tilesheet0->palette_data_,
+                 tilesheet_0_palette,
+                 ShaderPalette::tile0);
 
-    init_palette(current_tilesheet1->palette_data_, tilesheet_1_palette, ShaderPalette::tile1);
+    init_palette(current_tilesheet1->palette_data_,
+                 tilesheet_1_palette,
+                 ShaderPalette::tile1);
 
-    init_palette(
-        current_background->palette_data_, background_palette, ShaderPalette::background);
+    init_palette(current_background->palette_data_,
+                 background_palette,
+                 ShaderPalette::background);
 }
 
 
@@ -2934,8 +2941,9 @@ void Platform::load_tile0_texture(const char* name)
 
             current_tilesheet0 = &info;
 
-            init_palette(
-                current_tilesheet0->palette_data_, tilesheet_0_palette, ShaderPalette::tile0);
+            init_palette(current_tilesheet0->palette_data_,
+                         tilesheet_0_palette,
+                         ShaderPalette::tile0);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -2979,9 +2987,8 @@ void Platform::load_tile0_texture(const char* name)
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
-                     data,
-                     data_len);
+            memcpy16(
+                (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0], data, data_len);
         }
         return;
     }
@@ -2998,8 +3005,9 @@ void Platform::load_tile1_texture(const char* name)
 
             current_tilesheet1 = &info;
 
-            init_palette(
-                current_tilesheet1->palette_data_, tilesheet_1_palette, ShaderPalette::tile1);
+            init_palette(current_tilesheet1->palette_data_,
+                         tilesheet_1_palette,
+                         ShaderPalette::tile1);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -3042,9 +3050,8 @@ void Platform::load_tile1_texture(const char* name)
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
-                     data,
-                     data_len);
+            memcpy16(
+                (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0], data, data_len);
         }
         return;
     }

@@ -1902,7 +1902,8 @@ static u32 read_symbol(CharSequence& code, int offset)
             } else {
                 mode = Symbol::ModeBits::small;
             }
-#else // __GBA__
+#else
+            // __GBA__
             // NOTE: the above code prevents small symbol optimizations from
             // colliding with the address space of the symbol intern table. But
             // on the GBA specifically, EWRAM is known to be mapped to a block
