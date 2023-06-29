@@ -48,6 +48,7 @@
   (annihilator  320 2600 65)
   (incinerator  80  4000 55)
   (beam-gun     80  4000 55)
+  (windmill     30  400  -20)
   (coconut-palm 1   1    0)
   (lemon-tree   1   1    0)
   (sunflower    1   1    0)

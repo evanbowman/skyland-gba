@@ -92,6 +92,7 @@
 #include "skyland/rooms/warEngine.hpp"
 #include "skyland/rooms/water.hpp"
 #include "skyland/rooms/weatherEngine.hpp"
+#include "skyland/rooms/windmill.hpp"
 #include "skyland/rooms/workshop.hpp"
 
 
@@ -337,6 +338,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         SolarCell,
                                         BackupCore,
                                         WarEngine,
+                                        Windmill,
                                         // misc
                                         Stairwell,
                                         Ladder,

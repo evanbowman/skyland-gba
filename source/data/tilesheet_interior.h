@@ -9,8 +9,8 @@
 //	+ 1528 tiles Metatiled by 2x2 not compressed
 //	Total size: 32 + 48896 = 48928
 //
-//	Time-stamp: 2023-05-12, 12:53:21
-//	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
+//	Time-stamp: 2023-06-29, 12:30:24
+//	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
 //======================================================================

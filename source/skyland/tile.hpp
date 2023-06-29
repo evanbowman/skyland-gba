@@ -272,6 +272,7 @@ struct Tile
         masonry_vines,
         statue_7,
         statue_8,
+        windmill,
     };
 };
 
@@ -515,6 +516,7 @@ struct InteriorTile
         masonry_vines,
         statue_7,
         statue_8,
+        windmill,
     };
 };
 

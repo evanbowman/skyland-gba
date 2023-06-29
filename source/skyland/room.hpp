@@ -147,6 +147,8 @@ struct RoomProperties
         // multiplayer. But... although it'd be possible to build, not worth the
         // trouble IMO.
         multiboot_compatible = (1 << 25),
+
+        singleton = (1 << 26),
     };
 };
 

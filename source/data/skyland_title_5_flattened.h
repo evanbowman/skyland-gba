@@ -9,8 +9,8 @@
 //	+ 481 tiles lz77 compressed
 //	Total size: 32 + 2144 = 2176
 //
-//	Time-stamp: 2023-03-28, 18:11:32
-//	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
+//	Time-stamp: 2023-06-29, 09:31:14
+//	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
 //======================================================================

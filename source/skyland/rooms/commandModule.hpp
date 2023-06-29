@@ -60,7 +60,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable |
-               RoomProperties::disabled_in_tutorials;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::singleton;;
     }
 
 

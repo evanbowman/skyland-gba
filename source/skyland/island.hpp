@@ -335,6 +335,7 @@ public:
 
 
     void dispatch_room(Room* room);
+    void drawfirst(Room* room);
 
 
     void cancel_dispatch();
@@ -445,6 +446,7 @@ private:
 
     Rooms rooms_;
     Room* dispatch_list_ = nullptr;
+    Room* drawfirst_ = nullptr;
     const Layer layer_;
     Terrain terrain_;
     Microseconds chimney_spawn_timer_ = 0;

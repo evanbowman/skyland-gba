@@ -639,6 +639,24 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             const auto& target = *load_metaclass(mti);
 
+            if (target->properties() & RoomProperties::singleton) {
+                bool dup = false;
+                for (auto& room : island(app)->rooms()) {
+                    if (room->metaclass_index() == mti) {
+                        dup = true;
+                        break;
+                    }
+                }
+
+                if (dup) {
+                    category_label_.reset();
+                    msg(pfrm, SYSTR(construciton_one_allowed)->c_str());
+                    pfrm.speaker().play_sound("beep_error", 2);
+                    state_ = State::insufficient_funds;
+                    break;
+                }
+            }
+
             if (app.coins() < get_room_cost(island(app), target)) {
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());

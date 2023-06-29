@@ -262,6 +262,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
   ${SOURCE_DIR}/skyland/rooms/qrBlock.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
+  ${SOURCE_DIR}/skyland/rooms/windmill.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
   ${SOURCE_DIR}/skyland/rooms/beamGun.cpp
@@ -626,6 +627,7 @@ endmacro()
 
 
 function(compile_image filename mw mh flatten bpp compr)
+  message("rebuilding image...")
   if(${compr} STREQUAL "YES")
     set(COMPRESSION "-gzl")
   else()

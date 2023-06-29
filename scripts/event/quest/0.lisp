@@ -31,7 +31,7 @@
    (masonry 5 13)
    (masonry 5 12)
    (masonry 5 11)
-   (masonry 5 14)
+   (windmill 5 14)
    (bronze-hull 5 9)
    (banana-plant 5 8)
    (power-core 6 13)

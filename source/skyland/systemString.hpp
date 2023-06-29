@@ -244,6 +244,7 @@ enum class SystemString {
     construction_insufficient_power_supply,
     construction_too_many_rooms,
     construction_not_enough_space,
+    construciton_one_allowed,
 
     size,
 
@@ -382,6 +383,7 @@ enum class SystemString {
     description_incinerator,
     description_beam_gun,
     description_war_engine,
+    description_windmill,
 
     gs_paused,
     gs_slow,

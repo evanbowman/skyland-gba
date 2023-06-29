@@ -181,6 +181,7 @@ insufficient funds!
 insufficient power supply!
 too many blocks
 not enough space!
+only one allowed!
 size
 walls
 weapons
@@ -304,6 +305,7 @@ Take control of one of your opponent's crewmembers.
 An old weapon from the surface world below, no one knows how to build them anymore... starts raging fires... if you're lucky, maybe you'll find one...
 Built long ago on the surface, this laser burns through everything in its path, dealing damage to each block that its beam touches.
 Built thousands of years ago during the surface wars. Extremely durable and repairable, with huge power output. No one makes engines like this anymore.
+Mostly decorative, but generates some power. Power output doubled in stormy weather. One allowed per island.
 paused
 slow
 regular

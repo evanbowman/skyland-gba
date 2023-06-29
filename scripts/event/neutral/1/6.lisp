@@ -11,6 +11,7 @@
    (bronze-hull 0 14)
    (bronze-hull 0 13)
    (bronze-hull 0 12)
+   (windmill 0 9)
    (hull 1 14)
    (stairwell 1 9)
    (workshop 1 7)

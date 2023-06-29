@@ -847,8 +847,12 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     resolve_cancelled_dispatch();
 
 
+    Room* last_drawfirst_ = drawfirst_;
+
+
     Room* room = dispatch_list_;
     dispatch_list_ = nullptr;
+    drawfirst_ = nullptr;
 
 
     TIMEPOINT(t3);
@@ -1055,10 +1059,15 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 // If a room was ready, and we didn't update it, then it's still
                 // ready.
                 dispatch_room(room);
+
+                if (room == last_drawfirst_) {
+                    drawfirst_ = room;
+                }
             }
 
             update_characters(room, room->edit_characters(), false);
         }
+
 
         TIMEPOINT(after);
         const auto lat = after - before;
@@ -1222,9 +1231,15 @@ void Island::display(Platform& pfrm, App& app)
 
     resolve_cancelled_dispatch();
 
+    if (drawfirst_) {
+        drawfirst_->display(pfrm.screen(), app);
+    }
+
     Room* room = dispatch_list_;
     while (room) {
-        room->display(pfrm.screen(), app);
+        if (room not_eq drawfirst_) {
+            room->display(pfrm.screen(), app);
+        }
         room = room->dispatch_next();
     }
 }
@@ -2020,6 +2035,13 @@ void Island::dispatch_room(Room* room)
 
 
 
+void Island::drawfirst(Room* room)
+{
+    drawfirst_ = room;
+}
+
+
+
 void Island::cancel_dispatch()
 {
     dispatch_cancelled_ = true;
@@ -2034,6 +2056,7 @@ void Island::resolve_cancelled_dispatch()
     // recreate it.
     if (UNLIKELY(dispatch_cancelled_)) {
         dispatch_list_ = nullptr;
+        drawfirst_ = nullptr;
         for (auto& room : rooms_) {
             dispatch_room(room.get());
         }

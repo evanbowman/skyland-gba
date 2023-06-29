@@ -1,6 +1,6 @@
 
 (dialog
- "<b:/scripts/misc/img/ceramics.skg>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
+ "A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
 
 
 (opponent-init 13 'neutral)
@@ -34,6 +34,7 @@
    (masonry 5 13 0)
    (masonry 5 10 1)
    (water-source 6 14)
+   (windmill 6 13)
    (workshop 6 9)
    (stairwell 7 11)
    (shrubbery 8 13)
@@ -48,7 +49,7 @@
    (bronze-hull 12 13)
    (bronze-hull 12 12)
    (bronze-hull 12 11)
-   (bronze-hull 12 10)))
+   (windmill 12 10)))
 
 
 (flag-show (opponent) 6)
