@@ -1,13 +1,54 @@
 
          SKYLAND
 
+
  Welcome to the SKYLAND
  source code!
+
+ NOTE: this readme is
+ intended to be displayed on
+ a gba screen when running
+ Skyland in developer mode,
+ hence the narrow formatting.
+
+ If you simply want to edit
+ scripts and rebuild the rom
+ using the modding toolchain,
+ run the following commands
+ after editing script files:
+ `python3 encode_files.py`
+ `cat SkylandEngine.gba fs.bin > Skyland.gba`
+
+ If you have the Skyland rom
+ but not the engine rom or the
+ scripts, download the
+ unpack_rom.py script, place
+ it in the same directory as
+ Skyland.gba, and run
+ unpack_rom.py.
+
+ If you only have the Skyland
+ rom and not the unpack_rom.py
+ script, then you may extract
+ the unpack_rom.py file from
+ the Skyland.gba rom by
+ opening the rom in a text
+ editor, searching for the
+ filename, and copy-pasting
+ it to another file (all tools
+ appended to the skyland
+ engine are encoded in plain-
+ text).
+
+ The below info is intended
+ for those who want to edit
+ scripts on the gba itself,
+ using the developer mode
+ setting:
 
  The rom/ filesystem
  contains all of the game's
  level scripts.
-
 
  You may either:
 
