@@ -127,7 +127,7 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return (Decoration::properties() & ~RoomProperties::locked_by_default) |
+        return Decoration::properties() |
             RoomProperties::disabled_in_tutorials |
             RoomProperties::singleton;
     }
