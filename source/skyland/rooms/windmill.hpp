@@ -128,8 +128,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return Decoration::properties() |
-            RoomProperties::disabled_in_tutorials |
-            RoomProperties::singleton;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::singleton;
     }
 
 
@@ -163,6 +163,7 @@ private:
     Fixnum rot_;
 
     int dup_check_ = 0;
+    bool parity_ = false;
 };
 
 

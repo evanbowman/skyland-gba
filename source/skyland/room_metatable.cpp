@@ -518,9 +518,7 @@ RoomMeta* load_metaclass(const char* name)
         }
     }
 
-    const char* removed_blocks_from_old_versions[] = {
-        "gold"
-    };
+    const char* removed_blocks_from_old_versions[] = {"gold"};
 
     for (auto type : removed_blocks_from_old_versions) {
         if (str_eq(type, name)) {

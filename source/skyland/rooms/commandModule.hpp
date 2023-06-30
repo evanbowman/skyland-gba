@@ -61,7 +61,8 @@ public:
     {
         return RoomProperties::habitable |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::singleton;;
+               RoomProperties::singleton;
+        ;
     }
 
 
