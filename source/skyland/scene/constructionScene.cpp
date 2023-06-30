@@ -1093,8 +1093,6 @@ void draw_required_space(Platform& pfrm,
 
 void ConstructionScene::display(Platform& pfrm, App& app)
 {
-    WorldScene::display(pfrm, app);
-
     if (not island(app)) {
         return;
     }
@@ -1254,6 +1252,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         break;
     }
     }
+
+    WorldScene::display(pfrm, app);
 }
 
 
