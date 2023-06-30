@@ -175,6 +175,24 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
     sail.set_size(Sprite::Size::w16_h32);
     sail.set_texture_index(120);
 
+    const auto& cursor =
+        parent()->layer() == Layer::map_0_ext ?
+        globals().near_cursor_loc_ : globals().far_cursor_loc_;
+
+    if (cursor == position()) {
+
+    } else if (parent()->rooms_plot().get(cursor.x, cursor.y) and
+        parent()->interior_visible() and
+        abs(cursor.x - position().x) < 3 and
+        abs(cursor.y - position().y) < 3) {
+
+        sail.set_alpha(Sprite::Alpha::translucent);
+        sail.set_mix({custom_color(0x103163), 128});
+        sail.set_priority(2);
+    }
+
+
+
     const auto rot1 = rot_.as_integer();
     auto rot2 = rot1 + 90;
     auto rot3 = rot2 + 90;
@@ -319,7 +337,6 @@ void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
     // sprites, the sprites flicker due to differing priority on each frame. I
     // need a more robust solution...
     parent()->drawfirst(this);
-
 
     auto rate = 0.00005_fixed;
     if (app.environment().is_overcast()) {
