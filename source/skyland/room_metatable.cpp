@@ -372,7 +372,6 @@ using RoomMetatableType = RoomMetatable<15,
                                         Bridge,
                                         Fountain,
                                         Torch,
-                                        Gold,
                                         Palm,
                                         LemonTree,
                                         Sunflower,
@@ -503,6 +502,7 @@ RoomMeta& require_metaclass(const char* name)
     if (auto mt = load_metaclass(name)) {
         return *mt;
     }
+
     Platform::fatal(format("missing class %", name).c_str());
 }
 
@@ -515,6 +515,18 @@ RoomMeta* load_metaclass(const char* name)
     for (int i = 0; i < ms; ++i) {
         if (str_cmp(mt[i]->name(), name) == 0) {
             return &mt[i];
+        }
+    }
+
+    const char* removed_blocks_from_old_versions[] = {
+        "gold"
+    };
+
+    for (auto type : removed_blocks_from_old_versions) {
+        if (str_eq(type, name)) {
+            // If a block was deprecated and later removed from the game, load
+            // it as a hull block (better than raising a fatal error...)
+            return load_metaclass("hull");
         }
     }
 
