@@ -68,6 +68,8 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
     }
     *dest = '\0';
 
+    Room::ready();
+
     return true;
 }
 
