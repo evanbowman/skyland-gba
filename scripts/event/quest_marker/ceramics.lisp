@@ -1,5 +1,5 @@
 
-(dialog "Still got those ceramic tiles? The locals might be interested...")
+(dialog "Still got those ceramics? The locals might be interested...")
 
 
 
@@ -42,7 +42,7 @@
 
                   (dialog
                    (format
-                    "<c:Customer:6>Wow, such beautiful tiles! How much would you sell them for? Here, I'll give you %@!"
+                    "<c:the collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!"
                     sale))
 
                   (coins-add sale)
