@@ -665,6 +665,21 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
+        if (key_down<Key::action_2>(pfrm)) {
+            choice_sel_ = true;
+            const auto st = calc_screen_tiles(pfrm);
+            pfrm.set_tile(Layer::overlay,
+                          st.x - 7,
+                          st.y - (7 + y_start + 2 * (choice_sel_)),
+                          82);
+            pfrm.set_tile(Layer::overlay,
+                          st.x - 7,
+                          st.y - (7 + y_start + 2 * (not choice_sel_)),
+                          110);
+            choice_sel_ = false;
+            pfrm.speaker().play_sound("click", 1);
+        }
+
         if (key_down<Key::up>(pfrm) or key_down<Key::down>(pfrm)) {
             const auto st = calc_screen_tiles(pfrm);
             pfrm.set_tile(Layer::overlay,
