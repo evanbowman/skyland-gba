@@ -273,6 +273,7 @@ struct Tile
         statue_7,
         statue_8,
         windmill,
+        masonry_brick,
     };
 };
 
@@ -517,6 +518,7 @@ struct InteriorTile
         statue_7,
         statue_8,
         windmill,
+        masonry_brick,
     };
 };
 

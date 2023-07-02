@@ -73,6 +73,10 @@ public:
         case 2:
             result += SYSTR(vines_suffix)->c_str();
             break;
+
+        case 3:
+            result += SYSTR(brick_suffix)->c_str();
+            break;
         }
         return;
     }
@@ -90,6 +94,9 @@ public:
 
         case 2:
             return Tile::masonry_vines;
+
+        case 3:
+            return Tile::masonry_brick;
         }
     }
 
@@ -187,8 +194,9 @@ public:
     select(Platform& pfrm, App& app, const RoomCoord& cursor) override
     {
         schedule_repaint();
+        update_description();
         gfx_ += 1;
-        gfx_ %= 3;
+        gfx_ %= 4;
         return null_scene();
     }
 

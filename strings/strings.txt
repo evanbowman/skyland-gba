@@ -137,6 +137,7 @@ wool
 workshop
 /tiled
 /vines
+/brick
 /a-good-boy
 /pocket-monster
 /friendly-troll

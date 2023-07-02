@@ -21,8 +21,8 @@
 
 
 #include "windmill.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -175,16 +175,16 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
     sail.set_size(Sprite::Size::w16_h32);
     sail.set_texture_index(120);
 
-    const auto& cursor =
-        parent()->layer() == Layer::map_0_ext ?
-        globals().near_cursor_loc_ : globals().far_cursor_loc_;
+    const auto& cursor = parent()->layer() == Layer::map_0_ext
+                             ? globals().near_cursor_loc_
+                             : globals().far_cursor_loc_;
 
     if (cursor == position()) {
 
     } else if (parent()->rooms_plot().get(cursor.x, cursor.y) and
-        parent()->interior_visible() and
-        abs(cursor.x - position().x) < 3 and
-        abs(cursor.y - position().y) < 3) {
+               parent()->interior_visible() and
+               abs(cursor.x - position().x) < 3 and
+               abs(cursor.y - position().y) < 3) {
 
         sail.set_alpha(Sprite::Alpha::translucent);
         sail.set_mix({custom_color(0x103163), 128});
@@ -199,20 +199,20 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
     auto rot4 = rot3 + 90;
 
     auto show = [&](int rot) {
-                    if (rot > 359) {
-                        rot -= 359;
-                    }
-                    auto spos = pos;
-                    spos.x += lut[rot].x * 16.0_fixed;
-                    spos.y += lut[rot].y * 16.0_fixed;
-                    sail.set_position(spos);
-                    int sail_rot = rot + 90;
-                    if (sail_rot > 359) {
-                        sail_rot -= 359;
-                    }
-                    sail.set_rotation(-(INT16_MAX / 360) * sail_rot);
-                    out.push_back(sail);
-                };
+        if (rot > 359) {
+            rot -= 359;
+        }
+        auto spos = pos;
+        spos.x += lut[rot].x * 16.0_fixed;
+        spos.y += lut[rot].y * 16.0_fixed;
+        sail.set_position(spos);
+        int sail_rot = rot + 90;
+        if (sail_rot > 359) {
+            sail_rot -= 359;
+        }
+        sail.set_rotation(-(INT16_MAX / 360) * sail_rot);
+        out.push_back(sail);
+    };
 
     show(rot1);
     show(rot2);
@@ -237,8 +237,7 @@ void Windmill::display(Platform::Screen& screen, App& app)
 class SailDebris : public Entity
 {
 public:
-    SailDebris(const Sprite& spr, int max_y)
-        : Entity({}), max_y_(max_y)
+    SailDebris(const Sprite& spr, int max_y) : Entity({}), max_y_(max_y)
     {
         sprite_ = spr;
     }
@@ -315,15 +314,15 @@ void Windmill::finalize(Platform& pfrm, App& app)
                 e->speed_.y = Fixnum(-1 * dir.y);
                 e->speed_.y -= 0.3_fixed;
                 e->speed_ = e->speed_ * 0.5_fixed;
-                e->gravity_ = Fixnum(0.04f * 0.15f) +
+                e->gravity_ =
+                    Fixnum(0.04f * 0.15f) +
                     Fixnum::from_integer(rng::choice<3>(rng::utility_state)) *
-                    0.003_fixed;
+                        0.003_fixed;
                 app.effects().push(std::move(e));
             }
         }
     }
 }
-
 
 
 

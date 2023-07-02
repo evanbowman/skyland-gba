@@ -189,6 +189,7 @@ enum class SystemString {
 
     tiled_suffix,
     vines_suffix,
+    brick_suffix,
 
     goodboy_suffix,
     pkmn_suffix,

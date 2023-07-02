@@ -19,7 +19,7 @@
    (bronze-hull 0 13)
    (workshop 1 11)
    (bridge 1 10)
-   (masonry 1 14)
+   (masonry 1 14 3)
    (masonry 1 13)
    (masonry 2 13)
    (masonry 2 14)
