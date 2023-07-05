@@ -26,7 +26,7 @@
 (setq on-converge
       (lambda
         (dialog "One of the mercenaries offers to join you crew, for a cost of "
-                (string (* 600 (zone)))
+                (string (* 400 (zone)))
                 "@. Accept offer?")
 
         (dialog-await-y/n)
@@ -39,7 +39,9 @@
         (setq temp (chr-slots (player)))
 
         (if (> (* 400 (zone)) (coins))
-            (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
+            (progn
+              (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
+              (exit))
           (if temp
               (progn
                 (coins-add (* -400 (zone)))
@@ -47,11 +49,15 @@
                 (chr-new (player) (car temp) (cdr temp) 'neutral 0)
                 (chr-del (opponent) 1 14)
                 (setq temp (nil))
-                (dialog "The mercenary joined your crew!")
+                (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!")
+                (defn on-dialog-closed
+                  (setq on-dialog-closed nil)
+                  (dialog "The mercenary joined your crew!")
+                  (exit))
                 (adventure-log-add 27 (list (* 400 (zone)))))
-            (dialog "Sadly, there's no room...")))
-
-        (exit)))
+            (progn
+              (dialog "Sadly, there's no room...")
+              (exit))))))
 
 
 (setq on-dialog-declined
