@@ -498,6 +498,7 @@ public:
 
             bool position_absolute_;
             Sprite::Alpha alpha_;
+            Sprite::Size sz_ = Sprite::Size::w16_h32;
         };
 
         // Optimized drawing routine for multiple copies of the same sprite.

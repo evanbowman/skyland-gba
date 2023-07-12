@@ -131,6 +131,69 @@ void Transporter::___rewind___ability_used(Platform& pfrm, App& app)
 
 
 
+class CharacterOutline : public Entity
+{
+public:
+
+    CharacterOutline(const BasicCharacter& chr) : Entity({})
+    {
+        if (chr.sprite().get_flip().x) {
+            sprite_.set_texture_index(122);
+        } else {
+            sprite_.set_texture_index(121);
+        }
+
+        // sprite_.set_position(chr.sprite().get_position());
+        sprite_.set_origin(chr.sprite().get_origin());
+        sprite_.set_size(Sprite::Size::w16_h32);
+
+        auto o = chr.parent()->visual_origin();
+        o.x += Fixnum::from_integer(chr.grid_position().x * 16);
+        o.y += Fixnum::from_integer(chr.grid_position().y * 16 - 3);
+
+        sprite_.set_position(o);
+        position_ = o;
+    }
+
+
+    void update(Platform&, App&, Microseconds delta) override
+    {
+        timer_ += delta;
+
+        static const auto duration = milliseconds(200);
+
+        if (timer_ > duration - duration / 4) {
+            sprite_.set_alpha(Sprite::Alpha::translucent);
+        }
+
+        if (timer_ > duration) {
+            kill();
+            return;
+        }
+
+        const s16 shrink_amount =
+            interpolate(128, 0, Float(timer_) / duration);
+
+        sprite_.set_scale({shrink_amount, shrink_amount});
+
+        auto pos = position_;
+        pos.y += Fixnum::from_integer(shrink_amount >> 4);
+
+        sprite_.set_position(pos);
+    }
+
+    void rewind(Platform&, App&, Microseconds delta) override
+    {
+        kill();
+    }
+
+private:
+    Microseconds timer_ = milliseconds(16);
+    Vec2<Fixnum> position_;
+};
+
+
+
 void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const RoomCoord& position)
@@ -213,6 +276,13 @@ void Transporter::recover_character(Platform& pfrm,
 
                 unlinked->set_parent(parent());
                 unlinked->transported();
+
+                if (parent() == app.opponent_island() and not
+                    parent()->interior_visible()) {
+                    // Don't waste cpu on an effect that can't be seen.
+                } else if (auto e = alloc_entity<CharacterOutline>(*unlinked)) {
+                    app.effects().push(std::move(e));
+                }
 
                 edit_characters().push(std::move(unlinked));
                 ready();
@@ -315,6 +385,10 @@ void Transporter::transport_occupant(Platform& pfrm,
         // throw out a character's movement path, as it technically could have a
         // path assigned.
         (*chr)->drop_movement_path();
+
+        if (auto ent = alloc_entity<CharacterOutline>(**chr)) {
+            app.effects().push(std::move(ent));
+        }
 
         room->edit_characters().push(std::move(*chr));
         room->ready();

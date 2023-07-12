@@ -1273,6 +1273,38 @@ void Platform::Screen::draw_batch(TextureIndex t,
         view_br.y = 160;
     }
 
+    int tx_scale = 8;
+
+    auto shape = ATTR0_TALL;
+    auto size = ATTR1_SIZE_16;
+    switch (opts.sz_) {
+    case Sprite::Size::w16_h32:
+        shape = ATTR0_TALL;
+        size = ATTR1_SIZE_32;
+        tx_scale = 8;
+        break;
+
+    case Sprite::Size::w32_h32:
+        shape = ATTR0_SQUARE;
+        size = ATTR1_SIZE_32;
+        tx_scale = 16;
+        break;
+
+    case Sprite::Size::w16_h16:
+        shape = ATTR0_SQUARE;
+        size = ATTR1_SIZE_16;
+        tx_scale = 4;
+        break;
+
+    case Sprite::Size::w8_h8:
+        shape = ATTR0_SQUARE;
+        size = ATTR1_SIZE_8;
+        tx_scale = 1;
+        break;
+    }
+
+    const auto target_index = 2 + t * tx_scale;
+
     for (auto& c : coords) {
         if (UNLIKELY(oam_write_index == oam_count)) {
             return;
@@ -1285,12 +1317,12 @@ void Platform::Screen::draw_batch(TextureIndex t,
 
         auto oa = object_attribute_back_buffer + oam_write_index;
         if (opts.alpha_ not_eq Sprite::Alpha::translucent) {
-            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
+            oa->attribute_0 = ATTR0_COLOR_16 | shape;
         } else {
-            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL | ATTR0_BLEND;
+            oa->attribute_0 = ATTR0_COLOR_16 | shape | ATTR0_BLEND;
         }
 
-        oa->attribute_1 = ATTR1_SIZE_32;
+        oa->attribute_1 = size;
         auto abs_position = c - view_center;
 
         oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9)));
@@ -1298,7 +1330,6 @@ void Platform::Screen::draw_batch(TextureIndex t,
 
         oa->attribute_1 |= abs_position.x & 0x01ff;
 
-        const auto target_index = 2 + t * 8;
         oa->attribute_2 = target_index;
         oa->attribute_2 |= 0; // palette bank
         oa->attribute_2 |= ATTR2_PRIORITY(1);

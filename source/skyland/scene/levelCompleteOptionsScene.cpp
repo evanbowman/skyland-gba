@@ -169,7 +169,7 @@ void LevelCompleteOptionsScene::display(Platform& pfrm, App& app)
             Sprite spr_;
             spr_.set_priority(0);
             spr_.set_position({Fixnum(c.x_), Fixnum(c.y_)});
-            spr_.set_size(Sprite::Size::w16_h32);
+            spr_.set_size(Sprite::Size::w8_h8);
             spr_.set_mix({[&] {
                               switch (c.clr_) {
                               default:
@@ -182,7 +182,8 @@ void LevelCompleteOptionsScene::display(Platform& pfrm, App& app)
                               }
                           }(),
                           255});
-            spr_.set_texture_index(c.img_ + c.anim_ * 4);
+            const auto off = c.img_ - 102;
+            spr_.set_texture_index(102 * 8 + off + c.anim_ * 4);
             pfrm.screen().draw(spr_);
         }
     }

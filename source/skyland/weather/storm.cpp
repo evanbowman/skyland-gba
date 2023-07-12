@@ -181,8 +181,9 @@ void Storm::display(Platform& pfrm, App& app)
 
     Platform::Screen::SpriteBatchOptions opts;
     opts.position_absolute_ = true;
+    opts.sz_ = Sprite::Size::w8_h8;
 
-    pfrm.screen().draw_batch(89, *batch, opts);
+    pfrm.screen().draw_batch(89 * 8, *batch, opts);
 }
 
 
