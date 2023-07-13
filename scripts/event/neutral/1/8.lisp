@@ -36,7 +36,7 @@
 
 
 (defn on-converge
-  (let ((c (choice 3))
+  (let ((c (choice 5))
         (end (lambda
                ((eval-file "/scripts/util/pickup_cart.lisp") 4
          "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
@@ -51,10 +51,12 @@
         (adventure-log-add 38 (list amt))
         (end)))
      (true
-      (let ((opts '(manufactory
-                    backup-core
+      (let ((opts '(power-core
+                    infirmary
+                    manufactory
                     incinerator
-                    beam-gun)))
+                    beam-gun
+                    clump-missile)))
         (let ((pick (sample opts)))
           (dialog
            "After boarding, you find a completely intact "
