@@ -55,7 +55,7 @@ void ClumpBomb::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 static auto reload_time()
 {
-    return seconds(7);
+    return seconds(8);
 }
 
 

@@ -754,7 +754,7 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
     for (auto& room : app.player_island().rooms()) {
         if (str_eq(room->name(), "clump-missile")) {
             clump_count += 1;
-            missile_count += 2;
+            missile_count += 3;
         } else if (str_eq(room->name(), "missile-silo") or
                    str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
