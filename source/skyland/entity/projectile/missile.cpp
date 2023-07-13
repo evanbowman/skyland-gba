@@ -290,6 +290,87 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 
+class Bomblet : public Projectile
+{
+public:
+    Bomblet(Island* parent, const Vec2<Fixnum>& position)
+        : Projectile({{6, 6}, {3, 3}}), parent_(parent)
+    {
+        sprite_.set_position(position);
+        sprite_.set_size(Sprite::Size::w8_h8);
+        sprite_.set_texture_index(89 * 8 + 2);
+        sprite_.set_origin({4, 4});
+    }
+
+
+    void set_vector(Fixnum hspeed, Fixnum vspeed)
+    {
+        speed_ = {hspeed, vspeed};
+    }
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta)
+    {
+        if (delta == 0) {
+            return;
+        }
+
+        auto pos = sprite_.get_position();
+        pos = pos + speed_ * app.delta_fp();
+        sprite_.set_position(pos);
+
+        speed_.y = speed_.y + 0.00001_fixed;
+
+        auto max_y = parent_->origin().y;
+        max_y += Fixnum::from_integer(16 * 16 + 32);
+        if (pos.y > max_y) {
+            kill();
+        }
+    }
+
+
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        kill();
+    }
+
+
+    void on_collision(Platform& pfrm, App& app, Room& room) override
+    {
+        int damage = 25;
+        switch (bounce_) {
+        case 1:
+            damage = 10;
+            break;
+
+        case 0:
+            damage = 5;
+            break;
+        }
+
+        room.apply_damage(pfrm, app, damage, parent_);
+        app.camera()->shake(4);
+
+        sound_impact.play(pfrm, 1);
+        medium_explosion(pfrm, app, sprite_.get_position());
+
+        if (bounce_) {
+            --bounce_;
+            speed_.y *= Fixnum(-0.5f);
+        } else {
+            kill();
+        }
+    }
+
+
+private:
+    Vec2<Fixnum> speed_;
+    Island* parent_;
+    int bounce_ = 2;
+};
+
+
+
 void RocketBomb::burst(Platform& pfrm,
                        App& app,
                        const Vec2<Fixnum>& position,
@@ -372,6 +453,127 @@ void RocketBomb::destroy(Platform& pfrm, App& app)
         app.time_stream().push(app.level_timer(), e);
     } else {
         time_stream::event::OpponentRocketBombDestroyed e;
+        setup_event(e);
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
+        auto e = app.alloc_entity<SmokePuff>(
+            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+
+        if (e) {
+            app.effects().push(std::move(e));
+        }
+    };
+
+    flak_smoke(pfrm, app, sprite_.get_position());
+    flak_smoke(pfrm, app, sprite_.get_position());
+
+    kill();
+    app.camera()->shake(18);
+    big_explosion(pfrm, app, sprite_.get_position());
+}
+
+
+
+void ClumpMissile::burst(Platform& pfrm,
+                         App& app,
+                         const Vec2<Fixnum>& position,
+                         Room& origin_room)
+{
+    int grid_x_start = origin_room.position().x;
+    int grid_y_start = origin_room.position().y;
+
+    auto apply_damage = [&](int x_off, int y_off, Health damage) {
+        auto island = origin_room.parent();
+        const int x = grid_x_start + x_off;
+        const int y = grid_y_start + y_off;
+        if (x >= 0 and x < 16 and y >= 0 and y < 16) {
+            if (auto room = island->get_room({u8(x), u8(y)})) {
+                if (str_cmp(room->name(), "stacked-hull") == 0) {
+                    room->apply_damage(pfrm, app, damage / 4);
+                } else {
+                    room->apply_damage(pfrm, app, damage);
+                }
+            }
+        }
+    };
+
+    apply_damage(0, 0, 40);
+
+    apply_damage(1, 0, 16);
+    apply_damage(-1, 0, 16);
+    apply_damage(0, 1, 16);
+    apply_damage(0, -1, 16);
+
+    for (int i = 0; i < 10; ++i) {
+        if (auto b = alloc_entity<Bomblet>(origin_room.parent(),
+                                           sprite_.get_position())) {
+            Vec2<Float> dirv = {0, -1};
+            if (rng::choice<2>(rng::critical_state)) {
+                dirv = rotate(dirv, rng::choice<35>(rng::critical_state));
+            } else {
+                dirv = rotate(dirv, rng::choice<360 - 35>(rng::critical_state));
+            }
+
+            Fixnum add_speed = 1.0_fixed + 0.05_fixed * Fixnum(i);
+
+            b->set_vector(Fixnum(dirv.x) * 0.0001_fixed * add_speed,
+                          Fixnum(dirv.y) * 0.0002_fixed * add_speed);
+            origin_room.parent()->projectiles().push(std::move(b));
+        }
+    }
+}
+
+
+
+void ClumpMissile::on_collision(Platform& pfrm, App& app, Room& room)
+{
+    if (source_ == room.parent() and str_eq(room.name(), RocketSilo::name())) {
+        return;
+    }
+
+    if (source_ == room.parent() and is_forcefield(room.metaclass())) {
+        return;
+    }
+
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
+        room.max_health() < missile_damage) {
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        return;
+    }
+
+
+    burst(pfrm, app, sprite_.get_position(), room);
+
+    destroy(pfrm, app);
+
+
+    if (room.health()) {
+        sound_impact.play(pfrm, 1);
+    }
+}
+
+
+
+void ClumpMissile::destroy(Platform& pfrm, App& app)
+{
+    auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
+        e.timer_.set(timer_);
+        e.x_pos_.set(sprite_.get_position().x.as_integer());
+        e.y_pos_.set(sprite_.get_position().y.as_integer());
+        e.target_x_.set(target_x_.as_integer());
+        e.source_x_ = source_x_;
+        e.source_y_ = source_y_;
+        e.state_ = (u8)state_;
+    };
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerClumpMissileDestroyed e;
+        setup_event(e);
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentClumpMissileDestroyed e;
         setup_event(e);
         app.time_stream().push(app.level_timer(), e);
     }

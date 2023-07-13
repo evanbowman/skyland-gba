@@ -132,4 +132,36 @@ protected:
 
 
 
+class ClumpMissile : public Missile
+{
+public:
+    ClumpMissile(const Vec2<Fixnum>& position,
+                 const Vec2<Fixnum>& target,
+                 u8 source_x,
+                 u8 source_y,
+                 Island* source)
+        : Missile(position, target, source_x, source_y, source)
+    {
+        sprite_.set_texture_index(90);
+    }
+
+
+
+    void on_collision(Platform& pfrm, App& app, Room&) override;
+
+
+
+    void burst(Platform& pfrm,
+               App& app,
+               const Vec2<Fixnum>& position,
+               Room& origin_room);
+
+
+
+protected:
+    void destroy(Platform& pfrm, App& app) override;
+};
+
+
+
 } // namespace skyland

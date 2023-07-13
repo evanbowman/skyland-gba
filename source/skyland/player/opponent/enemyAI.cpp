@@ -30,6 +30,7 @@
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/clumpBomb.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -312,6 +313,8 @@ void EnemyAI::update_room(Platform& pfrm,
 
     if (room.cast<Decimator>()) {
         // Do nothing.
+    } else if (auto silo = room.cast<ClumpBomb>()) {
+        set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
     } else if (auto silo = room.cast<RocketSilo>()) {
         set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
     } else if (auto silo = room.cast<MissileSilo>()) {
@@ -1577,6 +1580,96 @@ void EnemyAI::offensive_drone_set_target(Platform& pfrm,
     if (ideal_pos) {
         drone.set_target(pfrm, app, *ideal_pos);
     }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const Bitmatrix<16, 16>& matrix,
+                         ClumpBomb& silo,
+                         Player* owner,
+                         Island* ai_island,
+                         Island* target_island)
+{
+    if (silo.parent()->get_drift() not_eq 0.0_fixed) {
+        // Wait until we've stopped moving
+        return;
+    }
+
+    Buffer<std::pair<Room*, Float>, 64> visible_rooms;
+
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 15; ++y) {
+            if (matrix.get(x, y)) {
+                if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
+                    visible_rooms.push_back({room, room->get_atp()});
+                    if (room->ai_aware() and
+                        room->category() not_eq Room::Category::decoration) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    for (auto& info : visible_rooms) {
+        auto pos = info.first->position();
+
+        if (auto room = (*target_island).get_room({pos.x, u8(pos.y - 1)})) {
+            Float mult = 0.5f;
+            if (not(*target_island).fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * room->get_atp();
+        }
+
+        if (auto room = (*target_island).get_room({pos.x, u8(pos.y + 1)})) {
+            Float mult = 0.5f;
+            if (not(*target_island).fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * room->get_atp();
+        }
+
+        if (auto room = (*target_island).get_room({u8(pos.x + 1), pos.y})) {
+            Float mult = 0.5f;
+            if (not(*target_island).fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * room->get_atp();
+        }
+
+        if (auto room = (*target_island).get_room({u8(pos.x - 1), pos.y})) {
+            Float mult = 0.5f;
+            if (not(*target_island).fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * room->get_atp();
+        }
+    }
+
+    if (visible_rooms.empty()) {
+        return;
+    }
+
+    Float highest_weight = -1.f;
+    Room* best_room = nullptr;
+
+    for (auto& info : visible_rooms) {
+        if (info.second > highest_weight) {
+            highest_weight = info.second;
+            best_room = info.first;
+        }
+    }
+
+    if (not best_room) {
+        // Should never happen.
+        return;
+    }
+
+    assign_weapon_target(pfrm, app, silo, best_room->position(), ai_island);
 }
 
 

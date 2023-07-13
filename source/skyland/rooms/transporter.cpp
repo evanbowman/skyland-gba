@@ -134,7 +134,6 @@ void Transporter::___rewind___ability_used(Platform& pfrm, App& app)
 class CharacterOutline : public Entity
 {
 public:
-
     CharacterOutline(const BasicCharacter& chr) : Entity({})
     {
         if (chr.sprite().get_flip().x) {
@@ -171,8 +170,7 @@ public:
             return;
         }
 
-        const s16 shrink_amount =
-            interpolate(128, 0, Float(timer_) / duration);
+        const s16 shrink_amount = interpolate(128, 0, Float(timer_) / duration);
 
         sprite_.set_scale({shrink_amount, shrink_amount});
 
@@ -277,8 +275,8 @@ void Transporter::recover_character(Platform& pfrm,
                 unlinked->set_parent(parent());
                 unlinked->transported();
 
-                if (parent() == app.opponent_island() and not
-                    parent()->interior_visible()) {
+                if (parent() == app.opponent_island() and
+                    not parent()->interior_visible()) {
                     // Don't waste cpu on an effect that can't be seen.
                 } else if (auto e = alloc_entity<CharacterOutline>(*unlinked)) {
                     app.effects().push(std::move(e));

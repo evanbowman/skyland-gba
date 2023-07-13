@@ -377,8 +377,10 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     for (auto& room : app.player_island().rooms()) {
         const auto category = (*room->metaclass())->category();
 
-        if (str_eq(room->name(), "missile-silo") or
-            str_eq(room->name(), "rocket-bomb")) {
+        if (str_eq(room->name(), "clump-missile")) {
+            missile_count += 2;
+        } else if (str_eq(room->name(), "missile-silo") or
+                   str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
         } else if (str_eq(room->name(), "drone-bay")) {
             ++drone_count;
@@ -745,12 +747,16 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
 
     int missile_count = 0;
     int lateral_count = 0;
+    int clump_count = 0;
 
     auto& shull = require_metaclass("stacked-hull");
 
     for (auto& room : app.player_island().rooms()) {
-        if (str_eq(room->name(), "missile-silo") or
-            str_eq(room->name(), "rocket-bomb")) {
+        if (str_eq(room->name(), "clump-missile")) {
+            clump_count += 1;
+            missile_count += 2;
+        } else if (str_eq(room->name(), "missile-silo") or
+                   str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
         } else if ((*room->metaclass())->category() == Room::Category::weapon) {
             ++lateral_count;
@@ -758,7 +764,8 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
     }
 
     // If the player has a missile heavy build, create extra defenses.
-    if ((lateral_count == 0 and missile_count > 0 and
+    if ((clump_count > 0 and rng::choice<2>(rng_source_)) or
+        (lateral_count == 0 and missile_count > 0 and
          rng::choice<3>(rng_source_) == 0) or
         (missile_count > lateral_count and missile_count - lateral_count > 3)) {
 

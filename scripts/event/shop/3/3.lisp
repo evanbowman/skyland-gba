@@ -1,4 +1,4 @@
 '((spark-cannon . 2)
   (boarding-pod . 2)
-  (mirror-hull . 8)
+  (clump-missile . 1)
   (decimator . 1))

@@ -271,6 +271,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
   ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
+  ${SOURCE_DIR}/skyland/rooms/clumpBomb.cpp
   ${SOURCE_DIR}/skyland/rooms/warEngine.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/decimator.cpp

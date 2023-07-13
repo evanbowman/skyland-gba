@@ -274,6 +274,10 @@ struct Tile
         statue_8,
         windmill,
         masonry_brick,
+        clumpbomb_1,
+        clumpbomb_2,
+        clumpbomb_3,
+        clumpbomb_4,
     };
 };
 
@@ -519,6 +523,10 @@ struct InteriorTile
         statue_8,
         windmill,
         masonry_brick,
+        clumpbomb_1,
+        clumpbomb_2,
+        clumpbomb_3,
+        clumpbomb_4,
     };
 };
 

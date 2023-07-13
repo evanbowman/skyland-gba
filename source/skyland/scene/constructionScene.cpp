@@ -1080,12 +1080,19 @@ void draw_required_space(Platform& pfrm,
         break;
     }
 
-    case Room::WeaponOrientation::vertical:
+    case Room::WeaponOrientation::vertical: {
         spr.set_tidx_16x16(98, 0);
+        const auto xs = sz.x;
+        if (xs > 1) {
+            auto offset = Fixnum::from_integer(((xs - 1)) * 16);
+            offset *= 0.5_fixed;
+            ocpy.x += offset;
+        }
         ocpy.y -= 16.0_fixed;
         spr.set_position(ocpy);
         pfrm.screen().draw(spr);
         break;
+    }
     }
 }
 

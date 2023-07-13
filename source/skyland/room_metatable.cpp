@@ -37,6 +37,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/cloak.hpp"
+#include "skyland/rooms/clumpBomb.hpp"
 #include "skyland/rooms/commandModule.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/crane.hpp"
@@ -329,6 +330,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         // Pummeler,
                                         MissileSilo,
                                         RocketSilo,
+                                        ClumpBomb,
                                         // factories
                                         Workshop,
                                         Manufactory,

@@ -87,6 +87,7 @@ enum class SystemString {
     block_cloak,
     block_cocoa,
     block_command_module,
+    block_clump_missile,
     block_cesium,
     block_crane,
     block_carved_crystal,
@@ -385,6 +386,7 @@ enum class SystemString {
     description_beam_gun,
     description_war_engine,
     description_windmill,
+    description_clump_missile,
 
     gs_paused,
     gs_slow,

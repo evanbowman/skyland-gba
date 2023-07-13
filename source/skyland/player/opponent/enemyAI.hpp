@@ -40,6 +40,7 @@ class Cannon;
 class BeamGun;
 class FlakGun;
 class DroneBay;
+class ClumpBomb;
 class IonCannon;
 class FireCharge;
 class RocketSilo;
@@ -131,6 +132,14 @@ private:
                            App&,
                            const Bitmatrix<16, 16>& matrix,
                            RocketSilo& silo,
+                           Player* owner,
+                           Island* ai_island,
+                           Island* target_island);
+
+    static void set_target(Platform&,
+                           App&,
+                           const Bitmatrix<16, 16>& matrix,
+                           ClumpBomb& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
