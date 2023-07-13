@@ -319,7 +319,12 @@ public:
         pos = pos + speed_ * app.delta_fp();
         sprite_.set_position(pos);
 
-        speed_.y = speed_.y + 0.00001_fixed;
+        if (app.game_speed() == GameSpeed::slow) {
+            speed_.y = speed_.y + 0.000005_fixed;
+        } else {
+            speed_.y = speed_.y + 0.00001_fixed;
+        }
+
 
         auto max_y = parent_->origin().y;
         max_y += Fixnum::from_integer(16 * 16 + 32);
