@@ -78,7 +78,7 @@ public:
 
     static const char* name()
     {
-        return "clump-missile";
+        return "splitter";
     }
 
 

@@ -377,7 +377,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     for (auto& room : app.player_island().rooms()) {
         const auto category = (*room->metaclass())->category();
 
-        if (str_eq(room->name(), "clump-missile")) {
+        if (str_eq(room->name(), "splitter")) {
             missile_count += 2;
         } else if (str_eq(room->name(), "missile-silo") or
                    str_eq(room->name(), "rocket-bomb")) {
@@ -752,7 +752,7 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
     auto& shull = require_metaclass("stacked-hull");
 
     for (auto& room : app.player_island().rooms()) {
-        if (str_eq(room->name(), "clump-missile")) {
+        if (str_eq(room->name(), "splitter")) {
             clump_count += 1;
             missile_count += 3;
         } else if (str_eq(room->name(), "missile-silo") or

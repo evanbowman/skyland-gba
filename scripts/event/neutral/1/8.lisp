@@ -56,7 +56,7 @@
                     manufactory
                     incinerator
                     beam-gun
-                    clump-missile)))
+                    splitter)))
         (let ((pick (sample opts)))
           (dialog
            "After boarding, you find a completely intact "

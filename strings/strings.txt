@@ -36,7 +36,7 @@ carved-stone
 cloak
 cocoa
 command-module
-clump-missile
+splitter
 cesium
 salvage-arm
 carved-crystal

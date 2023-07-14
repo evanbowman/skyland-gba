@@ -319,7 +319,9 @@ public:
         pos = pos + speed_ * app.delta_fp();
         sprite_.set_position(pos);
 
-        if (app.game_speed() == GameSpeed::slow) {
+        if (app.game_speed() == GameSpeed::fast) {
+            speed_.y = speed_.y + 0.00002_fixed;
+        } else if (app.game_speed() == GameSpeed::slow) {
             speed_.y = speed_.y + 0.000005_fixed;
         } else {
             speed_.y = speed_.y + 0.00001_fixed;
