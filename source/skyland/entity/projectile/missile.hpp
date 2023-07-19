@@ -148,6 +148,7 @@ public:
 
 
     void on_collision(Platform& pfrm, App& app, Room&) override;
+    void on_collision(Platform& pfrm, App& app, Entity&) override;
 
 
 
@@ -159,6 +160,12 @@ public:
 
 
 protected:
+    void spawn_bomblets(Platform& pfrm,
+                        App& app,
+                        Island* source,
+                        Vec2<Fixnum> origin);
+
+
     void destroy(Platform& pfrm, App& app) override;
 };
 

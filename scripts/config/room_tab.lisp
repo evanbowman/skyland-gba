@@ -47,7 +47,7 @@
   (crane        30  1000 60)
   (annihilator  320 2600 65)
   (incinerator  80  4000 55)
-  (splitter     70  5000 60)
+  (splitter     70  4000 55)
   (beam-gun     80  4000 55)
   (windmill     30  400  -25)
   (coconut-palm 1   1    0)

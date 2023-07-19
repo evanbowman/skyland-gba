@@ -844,7 +844,10 @@ private:
     u8 description_changed_ : 1;
 
     u8 accumulated_damage_ = 0;
-    u8 show_damage_delay_frames_ = 0;
+    u8 show_damage_delay_frames_ : 6;
+
+    u8 has_static_ : 1;
+    u8 unused_ : 1;
 };
 
 

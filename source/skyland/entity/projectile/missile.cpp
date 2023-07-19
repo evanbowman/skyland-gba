@@ -513,9 +513,18 @@ void ClumpMissile::burst(Platform& pfrm,
     apply_damage(0, 1, 16);
     apply_damage(0, -1, 16);
 
+    spawn_bomblets(pfrm, app, origin_room.parent(), sprite_.get_position());
+}
+
+
+
+void ClumpMissile::spawn_bomblets(Platform& pfrm,
+                                  App& app,
+                                  Island* source,
+                                  Vec2<Fixnum> origin)
+{
     for (int i = 0; i < 10; ++i) {
-        if (auto b = alloc_entity<Bomblet>(origin_room.parent(),
-                                           sprite_.get_position())) {
+        if (auto b = alloc_entity<Bomblet>(source, origin)) {
             Vec2<Float> dirv = {0, -1};
             if (rng::choice<2>(rng::critical_state)) {
                 dirv = rotate(dirv, rng::choice<35>(rng::critical_state));
@@ -527,9 +536,22 @@ void ClumpMissile::burst(Platform& pfrm,
 
             b->set_vector(Fixnum(dirv.x) * 0.0001_fixed * add_speed,
                           Fixnum(dirv.y) * 0.0002_fixed * add_speed);
-            origin_room.parent()->projectiles().push(std::move(b));
+            source->projectiles().push(std::move(b));
         }
     }
+}
+
+
+
+void ClumpMissile::on_collision(Platform& pfrm, App& app, Entity& entity)
+{
+    kill();
+    app.camera()->shake(18);
+    big_explosion(pfrm, app, sprite_.get_position());
+
+    entity.apply_damage(pfrm, app, missile_damage);
+
+    spawn_bomblets(pfrm, app, source_, sprite_.get_position());
 }
 
 
