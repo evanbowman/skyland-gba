@@ -318,6 +318,8 @@ public:
     void set_palette(Layer layer, u16 x, u16 y, u16 palette);
     u16 get_palette(Layer layer, u16 x, u16 y);
 
+    void set_flip(Layer layer, u16 x, u16 y, bool xflip, bool yflip);
+
 
     void set_scroll(Layer layer, u16 x, u16 y);
     Vec2<u16> get_scroll(Layer layer);
@@ -552,6 +554,9 @@ public:
                            bool include_background = true,
                            bool include_tiles = true,
                            bool dodge = false);
+
+
+        bool fade_active() const;
 
 
         void pixelate(u8 amount,

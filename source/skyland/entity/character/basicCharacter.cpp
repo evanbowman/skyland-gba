@@ -94,7 +94,8 @@ BasicCharacter::BasicCharacter(Island* parent,
                                const RoomCoord& position,
                                bool is_replicant)
     : Entity({{}, {}}), parent_(parent), owner_(owner),
-      grid_position_(position), race_(0), id_(alloc_character_id())
+      grid_position_(position), id_(alloc_character_id()), race_(0),
+      icon_(0)
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);

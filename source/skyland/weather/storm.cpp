@@ -23,6 +23,7 @@
 #include "storm.hpp"
 #include "number/random.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/latency.hpp"
 
 
 
@@ -67,9 +68,45 @@ void Environment::on_pause()
 
 
 
+#define STATE_BYTES 7
+#define MULT 0x13B /* for STATE_BYTES==6 only */
+#define MULT_LO (MULT & 255)
+#define MULT_HI (MULT & 256)
+
+static uint8_t rand8(void)
+{
+    static uint8_t state[STATE_BYTES] =
+    { 0x87, 0xdd, 0xdc, 0x10, 0x35, 0xbc, 0x5c };
+    static uint16_t c = 0x42;
+    static int i = 0;
+    uint16_t t;
+    uint8_t x;
+
+    x = state[i];
+    t = (uint16_t)x * MULT_LO + c;
+    c = t >> 8;
+#if MULT_HI
+    c += x;
+#endif
+    x = t & 255;
+    state[i] = x;
+    if (++i >= (int)sizeof(state))
+        i = 0;
+    return x;
+}
+
+
+
 void Storm::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    static const auto scale = rain_pos_scale;
+    if (pfrm.screen().fade_active()) {
+        return;
+    }
+
+    TIMEPOINT(t1);
+
+
+    static constexpr const auto scale = rain_pos_scale;
     static_assert(scale % 2 == 0);
 
     auto& gen = rng::utility_state;
@@ -102,26 +139,38 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     const u16 sd = delta;
+#ifdef __GBA__
     const s16 sx = pfrm.screen().size().x + 24;
     const s16 sy = pfrm.screen().size().y;
+#else
+    const s16 sx = 240;
+    const s16 sy = 160;
+#endif
+
+    int fixup = 0;
 
     for (int i = 0; i < s.particle_count_; ++i) {
         auto& rd = s.raindrops_[i];
         if ((rd.x / scale) < 0 or (rd.y / scale) > sy or (rd.x / scale) > sx or
             (rd.y / scale) < -24) {
 
+            if (fixup) {
+                continue;
+            }
+
             if (delta == 0) {
-                rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
-                rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
+                rd.x = rand8() * scale;
+                rd.y = rand8() * scale;
             } else {
-                if (rng::choice<2>(rng::utility_state)) {
+                if (rand8() % 2) {
                     rd.x = pfrm.screen().size().x * scale;
-                    rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
+                    rd.y = rand8() * scale;
                 } else {
-                    rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
+                    rd.x = rand8() * scale;
                     rd.y = 0;
                 }
             }
+            ++fixup;
         } else {
             rd.x -= (sd >> 6) + (sd >> 8);
             rd.y += (sd >> 6) + (sd >> 8);
@@ -134,6 +183,12 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     if (camera_diff_x != 0 or camera_diff_y != 0) {
         last_camera_ = camera;
     }
+
+    TIMEPOINT(t2);
+
+    // if (t2 - t1 > 2000) {
+    //     Platform::fatal(format("%", t2 - t1));
+    // }
 }
 
 
@@ -168,9 +223,13 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 void Storm::display(Platform& pfrm, App& app)
 {
+    if (pfrm.screen().fade_active()) {
+        return;
+    }
+
     auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
 
-    const auto scale = rain_pos_scale;
+    constexpr auto scale = rain_pos_scale;
 
     auto& s = *state_;
 

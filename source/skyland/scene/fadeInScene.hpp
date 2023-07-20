@@ -36,11 +36,15 @@ class FadeInScene : public WorldScene
 {
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& next) override;
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
+    void display(Platform&, App&) override;
+
 private:
     Microseconds timer_ = 0;
+    int scroll_amount_ = 0;
 };
 
 

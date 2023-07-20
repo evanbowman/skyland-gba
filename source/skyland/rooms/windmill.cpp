@@ -23,6 +23,7 @@
 #include "windmill.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/latency.hpp"
 
 
 
@@ -163,13 +164,15 @@ Power Windmill::power_usage(App& app) const
 
 
 
+static constexpr const auto rotation_lut = make_rotation_lut(0.f);
+
+
+
 void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
 {
     auto pos = visual_center();
     pos.x -= 8.0_fixed;
     pos.y -= 16.0_fixed;
-
-    constexpr auto lut = make_rotation_lut(0.f);
 
     Sprite sail;
     sail.set_size(Sprite::Size::w16_h32);
@@ -203,8 +206,8 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
             rot -= 359;
         }
         auto spos = pos;
-        spos.x += lut[rot].x * 16.0_fixed;
-        spos.y += lut[rot].y * 16.0_fixed;
+        spos.x += rotation_lut[rot].x * 16.0_fixed;
+        spos.y += rotation_lut[rot].y * 16.0_fixed;
         sail.set_position(spos);
         int sail_rot = rot + 90;
         if (sail_rot > 359) {
@@ -228,6 +231,9 @@ void Windmill::display(Platform::Screen& screen, App& app)
     collect_sprites(buf);
 
     for (auto& spr : buf) {
+        if (screen.fade_active()) {
+            spr.set_mix({});
+        }
         screen.draw(spr);
     }
 }
@@ -243,7 +249,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override
+    void update(Platform& pfrm, App&, Microseconds delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -328,6 +334,8 @@ void Windmill::finalize(Platform& pfrm, App& app)
 
 void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    TIMEPOINT(t1);
+
     Room::update(pfrm, app, delta);
     Room::ready();
 
@@ -357,6 +365,10 @@ void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
             room.apply_damage(pfrm, app, Room::health_upper_limit());
         }
     }
+
+    TIMEPOINT(t2);
+
+    // Platform::fatal(stringify(t2 - t1));
 }
 
 

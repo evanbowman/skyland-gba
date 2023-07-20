@@ -164,7 +164,7 @@ public:
     void rewind_movement_step(Platform& pfrm, const RoomCoord& new_pos);
 
 
-    enum class State {
+    enum class State : u8 {
         moving_or_idle,
         fighting,
         plunder_room,
@@ -276,12 +276,30 @@ public:
     Sprite prepare_sprite() const;
 
 
+    using IconId = u8;
+
+
+    IconId get_icon() const
+    {
+        return icon_;
+    }
+
+
+    void set_icon(IconId id)
+    {
+        icon_ = id;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
     RoomCoord grid_position_;
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;
+
+    CharacterId id_;
+    u16 idle_count_ = 0;
 
     u8 awaiting_movement_ : 1;
     u8 can_move_ : 1;
@@ -295,9 +313,9 @@ private:
     u8 race_ : 2;
 
     State state_ = State::moving_or_idle;
-    u16 idle_count_ = 0;
 
-    CharacterId id_;
+    u8 icon_;
+
 
     bool has_opponent(Room* room);
 

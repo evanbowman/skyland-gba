@@ -41,7 +41,31 @@ void FadeInScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     WorldScene::notransitions();
 
+    auto st = calc_screen_tiles(pfrm);
+    for (int i = 1; i < st.x; ++i) {
+        for (int j = 0; j < st.y; ++j) {
+            pfrm.set_tile(Layer::overlay, i, j, 112);
+        }
+    }
+
+    for (int y = 0; y < st.y; y += 3) {
+        pfrm.set_tile(Layer::overlay, 0, y, 157);
+        pfrm.set_tile(Layer::overlay, 0, y + 1, 112);
+        pfrm.set_tile(Layer::overlay, 0, y + 2, 158);
+    }
+
     pfrm.screen().set_shader(app.environment().shader(app));
+}
+
+
+
+void FadeInScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    pfrm.set_scroll(Layer::overlay, 0, 0);
+    WorldScene::exit(pfrm, app, next);
+
+    pfrm.fill_overlay(0);
+    scroll_amount_ = 0;
 }
 
 
@@ -123,7 +147,20 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);
     } else {
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
+        // const auto amount2 = 1.f - smoothstep(0.f, (fade_duration / 4) * 3, timer_);
         const Color input(ColorConstant::rich_black);
+
+        int scroll = pfrm.screen().size().x * amount;
+        auto st = calc_screen_tiles(pfrm);
+        for (int x = 0; x < ((int)pfrm.screen().size().x / 8) - scroll / 8; ++x) {
+            for (int y = 0; y < 32; ++y) {
+                auto prev = pfrm.get_tile(Layer::overlay, st.x - 1 - x, y);
+                if (prev) {
+                    pfrm.set_tile(Layer::overlay, st.x - 1 - x, y, 0);
+                }
+            }
+        }
+        scroll_amount_ = -scroll - 8;
 
         u8 amt = 255 - amount * 255;
 
@@ -136,6 +173,14 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     return null_scene();
+}
+
+
+
+void FadeInScene::display(Platform& pfrm, App& app)
+{
+    WorldScene::display(pfrm, app);
+    pfrm.set_scroll(Layer::overlay, -scroll_amount_, 0);
 }
 
 

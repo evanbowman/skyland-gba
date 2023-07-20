@@ -2074,7 +2074,10 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 {
     switch (layer) {
     case Layer::background:
+        break;
+
     case Layer::overlay:
+        set_overlay_origin(x, y);
         break;
 
     case Layer::map_0_ext:
@@ -2767,6 +2770,14 @@ void Platform::Screen::fade(float amount,
             }
         }
     }
+}
+
+
+
+
+bool Platform::Screen::fade_active() const
+{
+    return last_fade_amt > 0;
 }
 
 
@@ -5490,6 +5501,7 @@ void Platform::fill_overlay(u16 tile)
 }
 
 
+
 static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
 {
     if (get_gflag(GlobalFlag::glyph_mode)) {
@@ -5661,6 +5673,43 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
     val &= ~(SE_PALBANK_MASK);
     val |= SE_PALBANK(palette);
     MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y) + 32] = val;
+}
+
+
+
+void Platform::set_flip(Layer layer, u16 x, u16 y, bool xflip, bool yflip)
+{
+    switch (layer) {
+    case Layer::map_1_ext:
+        // TODO...
+        break;
+
+    case Layer::map_0_ext:
+        // TODO...
+        break;
+
+    case Layer::overlay: {
+        auto c = overlay_back_buffer[x + y * 32];
+        if (xflip) {
+            c |= 1 << 10;
+        } else {
+            c &= ~(1 << 10);
+        }
+
+        if (yflip) {
+            c |= 1 << 11;
+        } else {
+            c &= ~(1 << 11);
+        }
+
+        overlay_back_buffer[x + y * 32] = c;
+        overlay_back_buffer_changed = true;
+        break;
+    }
+
+    default:
+        break;
+    }
 }
 
 
