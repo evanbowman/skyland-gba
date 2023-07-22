@@ -40,6 +40,7 @@ void FadeInScene::enter(Platform& pfrm, App& app, Scene& prev)
     WorldScene::enter(pfrm, app, prev);
 
     WorldScene::notransitions();
+    WorldScene::disable_ui();
 
     auto st = calc_screen_tiles(pfrm);
     for (int i = 1; i < st.x; ++i) {
