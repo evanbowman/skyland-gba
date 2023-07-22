@@ -770,7 +770,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 it = chr_list.erase(it);
             } else {
 
-
                 if ((*it)->is_awaiting_movement()) {
                     if (movement_ready) {
                         (*it)->set_can_move();
@@ -967,9 +966,21 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             const auto group = room->group();
 
+            const auto had_target = room->get_target();
+
             room->finalize(pfrm, app);
 
             if (&owner() == &app.player()) {
+                if (had_target) {
+                    time_stream::event::WeaponSetTarget e;
+                    e.room_x_ = pos.x;
+                    e.room_y_ = pos.y;
+                    e.previous_target_x_ = had_target->x;
+                    e.previous_target_y_ = had_target->y;
+                    e.near_ = true;
+                    e.has_previous_target_ = true;
+                    app.time_stream().push(app.level_timer(), e);
+                }
                 if (group not_eq Room::Group::none) {
                     time_stream::event::PlayerRoomDestroyedWithGroup p;
                     p.x_ = pos.x;
