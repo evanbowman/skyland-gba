@@ -1267,6 +1267,10 @@ static const lisp::Binding script_api[] = {
              if (chr) {
                  chr->set_race(race);
 
+                 if (not icon) {
+                     icon = 19; // questionmark icon
+                 }
+
                  chr->set_icon(icon);
 
                  id = chr->id();
