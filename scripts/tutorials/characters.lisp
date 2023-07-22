@@ -11,7 +11,7 @@
    (workshop 3 11 30)))
 
 
-(chr-hp (chr-new (player) 1 14 'neutral 0) 50)
+(chr-hp (chr-new (player) 1 14 'neutral '((icon . 17))) 50)
 
 
 (coins-add 20000)

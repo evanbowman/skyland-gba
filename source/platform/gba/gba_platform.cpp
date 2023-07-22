@@ -1491,9 +1491,22 @@ void Platform::Screen::draw(const Sprite& spr)
 
 
 
-void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
+void Platform::load_overlay_chunk(TileDesc dst,
+                                  TileDesc src,
+                                  u16 count,
+                                  const char* image_file)
 {
     const u8* image_data = (const u8*)current_overlay_texture->tile_data_;
+
+    if (image_file) {
+        for (auto& info : overlay_textures) {
+            if (str_cmp(image_file, info.name_) == 0) {
+                image_data = (const u8*)info.tile_data_;
+                break;
+            }
+        }
+    }
+
     u8* overlay_vram_base_addr = (u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0];
 
     const auto chunk_size = vram_tile_size() * count;
@@ -5760,7 +5773,7 @@ void Platform::set_tile(Layer layer,
         if (x > 31 or y > 31) {
             return;
         }
-        set_overlay_tile(*this, x, y, val, 1);
+        set_overlay_tile(*this, x, y, val, palette ? *palette : 1);
         break;
 
     case Layer::map_1_ext:
@@ -7552,6 +7565,15 @@ Platform::Platform()
                 // color values as the image editor uses for custom tile
                 // graphics.
                 MEM_PALETTE[16 + i] = info.palette_data_[i];
+            }
+        }
+    }
+    for (auto& info : overlay_textures) {
+        if (str_eq(info.name_, "overlay_dialog")) {
+            // FIXME!!! handle this dynamically, rather than reserving a
+            // specific palette...
+            for (int i = 0; i < 16; ++i) {
+                MEM_BG_PALETTE[(10 * 16) + i] = info.palette_data_[i];
             }
         }
     }

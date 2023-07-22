@@ -95,6 +95,8 @@
 //;
 #include "data/flags.h"
 //;
+#include "data/character_art.h"
+//;
 #include "data/traded_core_flattened.h"
 //;
 #include "data/photo_village_flattened.h"
@@ -251,6 +253,8 @@ static const TextureData overlay_textures[] = {
 //;
     TEXTURE_INFO(flags, false),
 //;
+    TEXTURE_INFO(character_art, false),
+//;
     TEXTURE_INFO(traded_core_flattened, true),
 //;
     TEXTURE_INFO(photo_village_flattened, true),
@@ -275,7 +279,7 @@ static const TextureData overlay_textures[] = {
 //;
     TEXTURE_INFO(overlay_editor, true),
 //;
-    TEXTURE_INFO(overlay_dialog, false),
+    TEXTURE_INFO(overlay_dialog, true),
 //;
     TEXTURE_INFO(overlay_dialog_fullscreen, true),
 //;

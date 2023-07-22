@@ -1063,6 +1063,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             chr->__assign_id(e->id_.get());
             chr->set_race(e->race_);
+            chr->set_icon(e->icon_);
 
             island->add_character(std::move(chr));
 

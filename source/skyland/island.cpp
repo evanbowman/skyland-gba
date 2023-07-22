@@ -740,6 +740,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         e.near_ = this == &app.player_island();
         e.race_ = c.get_race();
         e.is_replicant_ = c.is_replicant();
+        e.icon_ = c.get_icon();
         app.time_stream().push(app.level_timer(), e);
     };
 

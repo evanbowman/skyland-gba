@@ -28,9 +28,13 @@
                    (setq slot (chr-slots (player)))))))
        (if slot
            (progn
-             (chr-new (player) (car (car slot)) (cdr (car slot)) 'neutral 0)
-             (chr-del (opponent) (car $0) (cdr $0))))))
-   '((1 . 14) (2 . 14) (3 . 14)))
+             (chr-new (player)
+                      (car (car slot))
+                      (cdr (car slot))
+                      'neutral
+                      (list (cons 'icon (get $0 2))))
+             (chr-del (opponent) (get $0 0) (get $0 1))))))
+   '((1 14 10) (2 14 16) (3 14 5)))
 
   (adventure-log-add 25 '())
 

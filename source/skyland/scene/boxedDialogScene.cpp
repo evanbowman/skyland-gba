@@ -380,8 +380,9 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
     text_state_.pos_ = 0;
 
     if (data_->character_.image_) {
-        const auto img = 200 + (data_->character_.image_ - 1) * 16;
-        draw_image(pfrm, img, 1, st.y - 6, 4, 4, Layer::overlay);
+        const auto img = (data_->character_.image_ - 1) * 16;
+        pfrm.load_overlay_chunk(184, img, 16, "character_art");
+        draw_image(pfrm, 184, 1, st.y - 6, 4, 4, Layer::overlay);
 
         for (int i = 4; i < data_->character_name_text_->len() + 1; ++i) {
             pfrm.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);

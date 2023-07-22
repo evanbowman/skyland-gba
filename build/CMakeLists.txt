@@ -397,6 +397,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
     ${DATA_DIR}/flags.s
+    ${DATA_DIR}/character_art.s
     ${DATA_DIR}/boot_img_flattened.s
     ${DATA_DIR}/savegame_flattened.s
     ${DATA_DIR}/ending_img_flattened.s
@@ -774,6 +775,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background_title_screen 0 0 NO YES)
     add_overlay(pub_logo 0 0 YES YES)
     add_overlay(flags 2 2 NO NO)
+    add_overlay(character_art 4 4 NO NO)
     add_overlay(traded_core 0 0 YES YES)
     add_overlay(photo_village 0 0 YES YES)
     add_overlay(photo_surface 0 0 YES YES)
@@ -786,7 +788,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_qr 0 0 NO YES)
     add_overlay(overlay_gamespeed 0 0 NO YES)
     add_overlay(overlay_editor 0 0 NO YES)
-    add_overlay(overlay_dialog 0 0 NO NO)
+    add_overlay(overlay_dialog 0 0 NO YES)
     add_overlay(overlay_dialog_fullscreen 0 0 NO YES)
     add_overlay(overlay_skyland_title 0 0 NO YES)
     add_overlay(charset 0 0 NO NO)

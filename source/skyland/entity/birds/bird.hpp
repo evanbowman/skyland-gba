@@ -62,6 +62,12 @@ public:
     {
         return {};
     }
+
+
+    virtual u8 icon() const
+    {
+        return 19;
+    }
 };
 
 

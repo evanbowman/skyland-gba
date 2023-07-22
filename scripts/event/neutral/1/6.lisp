@@ -91,7 +91,7 @@
                                (room-new (player) `(ladder ,(car (car c)) ,(cdr (car c)))))))
 
                      (let ((c (chr-slots (player))))
-                       (chr-new (player) (car (car c)) (cdr (car c)) 'neutral 0)))))
+                       (chr-new (player) (car (car c)) (cdr (car c)) 'neutral '((icon . 17)))))))
               (mkch)
               (mkch)
               (mkch))

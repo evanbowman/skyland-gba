@@ -563,6 +563,7 @@ void BoardingPod::update(Platform& pfrm, App& app, Microseconds delta)
                     e.near_ = parent() == &app.player_island();
                     e.is_replicant_ = c.is_replicant();
                     e.race_ = c.get_race();
+                    e.icon_ = c.get_icon();
                     app.time_stream().push(app.level_timer(), e);
                 }
                 edit_characters().move_contents(bp->characters_);

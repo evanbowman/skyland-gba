@@ -789,6 +789,7 @@ struct CharacterDied
     u8 is_replicant_ : 1;
     u8 mind_controlled_ : 1;
     u8 race_ : 4;
+    u8 icon_;
 
     static constexpr const auto t = Type::character_died;
 };

@@ -249,7 +249,10 @@ public:
     // Copy a chunk of the overlay texture into another chunk of the
     // texture. Allows you to create textures larger than will fit in vram, and
     // swap in sections.
-    void load_overlay_chunk(TileDesc dst, TileDesc src, u16 count);
+    void load_overlay_chunk(TileDesc dst,
+                            TileDesc src,
+                            u16 count,
+                            const char* image_file = nullptr);
 
     TileDesc map_tile0_chunk(TileDesc tile);
     TileDesc map_tile1_chunk(TileDesc tile);

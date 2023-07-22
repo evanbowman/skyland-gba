@@ -831,6 +831,10 @@ static const lisp::Binding script_api[] = {
                          chr_info.push_back(make_cons_safe(make_symbol("race"),
                                                            make_integer(race)));
                      }
+                     if (auto icon = chr->get_icon()) {
+                         chr_info.push_back(make_cons_safe(make_symbol("icon"),
+                                                           make_integer(icon)));
+                     }
                      chr_info.push_back(
                          make_cons(make_symbol("id"), make_integer(chr->id())));
                      list.push_front(chr_info.result());
@@ -1196,6 +1200,7 @@ static const lisp::Binding script_api[] = {
 
          bool is_replicant = false;
          int race = 0;
+         int icon = 0;
 
          // For backwards compatibility with old versions. We used to accept a
          // integer parameter indicating whether the character was a
@@ -1227,6 +1232,9 @@ static const lisp::Binding script_api[] = {
                          if (auto r = find_param("race")) {
                              race = r;
                          }
+                         if (auto ic = find_param("icon")) {
+                             icon = ic;
+                         }
                      }
                  }
              });
@@ -1243,14 +1251,23 @@ static const lisp::Binding script_api[] = {
 
              if (chr) {
                  id = chr->id();
+
+                 if (not icon) {
+                     icon = 2; // default goblin character icon
+                 }
+                 chr->set_icon(icon);
+
                  island->add_character(std::move(chr));
              }
+
          } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
              auto chr = ::skyland::alloc_entity<BasicCharacter>(
                  island, &app->player(), coord, is_replicant);
 
              if (chr) {
                  chr->set_race(race);
+
+                 chr->set_icon(icon);
 
                  id = chr->id();
                  island->add_character(std::move(chr));

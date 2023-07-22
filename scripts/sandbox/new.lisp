@@ -40,7 +40,8 @@
   ;; Arg 0: island
   ;; Arg 1: 'hostile or 'neutral symbol
   (let ((isle $0)
-        (mode $1))
+        (mode $1)
+        (icon $2))
 
     ;; NOTE: conf[5] holds the character count config
     (repeat (get conf 5)
@@ -53,7 +54,11 @@
               (room-new isle (list 'workshop (car (car s)) (cdr (car s))))
               (setq slot (chr-slots isle))))
         (if slot
-            (chr-new isle (car (car slot)) (cdr (car slot)) mode 0))))))
+            (chr-new isle
+                     (car (car slot))
+                     (cdr (car slot))
+                     mode
+                     (list (cons 'icon (icon)))))))))
 
 
 (island-configure
@@ -61,7 +66,7 @@
  '((power-core 1 13)))
 
 
-(mkch (player) 'neutral)
+(mkch (player) 'neutral (lambda (sample '(1 5 10 11 16 14))))
 (flag-show (player) 0)
 
 
@@ -76,7 +81,7 @@
  (opponent)
  `((power-core ,(- (get conf 1) 3) 13)))
 
-(mkch (opponent) 'hostile)
+(mkch (opponent) 'hostile (lambda 2))
 
 
 (unbind 'conf 'mkch)

@@ -36,7 +36,8 @@
                                    (car s)
                                    (cdr s)
                                    'neutral
-                                   '((race . 1)))
+                                   '((race . 1)
+                                     (icon . 18)))
                           (adventure-log-add 51 '()))))
                   (exit 2)))
 

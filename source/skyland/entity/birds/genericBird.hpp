@@ -76,6 +76,12 @@ public:
     }
 
 
+    u8 icon() const override
+    {
+        return (color_) ? 19 : 20;
+    }
+
+
 private:
     void roost(Platform& pfrm, Island* island, Microseconds delta);
 

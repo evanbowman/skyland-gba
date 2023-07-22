@@ -73,13 +73,22 @@ void clear_room_description(Platform& pfrm,
         return;
     }
 
-    const u8 y = calc_screen_tiles(pfrm).y - 2;
+    const auto st = calc_screen_tiles(pfrm);
+    const u8 y = st.y - 2;
 
     for (int i = 0; i < room_description->len(); ++i) {
-        if (pfrm.get_tile(Layer::overlay, i, y) == 425) {
-            pfrm.set_tile(Layer::overlay, i, y, 0);
+        auto xo = room_description->coord().x;
+        if (pfrm.get_tile(Layer::overlay, xo + i, y) == 425) {
+            pfrm.set_tile(Layer::overlay, xo + i, y, 0);
         }
     }
+
+    for (int x = 0; x < 4; ++x) {
+        for (int y = 0; y < 4; ++y) {
+            pfrm.set_tile(Layer::overlay, x, st.y - y - 1, 0);
+        }
+    }
+
     room_description.reset();
 }
 
@@ -757,6 +766,27 @@ void describe_room(Platform& pfrm,
             int i = 0;
             if (length(room->characters())) {
                 room_description->erase();
+
+                int chr_icon = 0;
+                bool overlap = false;
+
+                bool dup = false;
+                for (auto& chr : room->characters()) {
+                    if (chr->grid_position() == cursor_loc) {
+                        if (dup) {
+                            overlap = true;
+                            break;
+                        }
+                        chr_icon = chr->get_icon();
+                        dup = true;
+                    }
+                }
+
+                if (chr_icon and not overlap) {
+                    room_description.emplace(pfrm,
+                                             OverlayCoord{4, u8(calc_screen_tiles(pfrm).y - 1)});
+                }
+
                 for (auto& chr : room->characters()) {
                     if (chr->grid_position() == cursor_loc) {
                         if (i > 0) {
@@ -812,6 +842,23 @@ void describe_room(Platform& pfrm,
                         room_description->append("/");
                         room_description->append(25);
                         ++i;
+                    }
+                }
+
+                if (chr_icon and not overlap) {
+                    int offset = (chr_icon - 1) * 16;
+                    pfrm.load_overlay_chunk(181, offset, 16, "character_art");
+                    const auto st = calc_screen_tiles(pfrm);
+
+                    int tile = 181;
+                    for (int y = 0; y < 4; ++y) {
+                        for (int x = 0; x < 4; ++x) {
+                            pfrm.set_tile(Layer::overlay,
+                                          x,
+                                          st.y - 4 + y,
+                                          tile++,
+                                          10);
+                        }
                     }
                 }
             }
@@ -987,8 +1034,9 @@ void describe_room(Platform& pfrm,
         }
 
         for (int i = 0; i < room_description->len(); ++i) {
-            if (not pfrm.get_tile(Layer::overlay, i, y)) {
-                pfrm.set_tile(Layer::overlay, i, y, 425);
+            auto xo = room_description->coord().x;
+            if (not pfrm.get_tile(Layer::overlay, xo + i, y)) {
+                pfrm.set_tile(Layer::overlay, xo + i, y, 425);
             }
         }
     }

@@ -168,6 +168,10 @@ void Blizzard::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Blizzard::display(Platform& pfrm, App& app)
 {
+    if (pfrm.screen().fade_active()) {
+        return;
+    }
+
     auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
 
     static const int rain_pos_scale = 128;
