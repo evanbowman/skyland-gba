@@ -50,6 +50,11 @@
 (flag-show (opponent) 7)
 
 
+(island-configure
+ (player)
+ '((power-core 1 13)))
+
+
 (let ((pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
       (sc (filter (lambda (equal (car $0) 'backup-core)) (rooms (player))))
       (wpn (get '(flak-gun
@@ -61,7 +66,7 @@
   (if (or sc (not pc)) ;; player must have a core and not already have a backup
       (progn
         (defn on-converge
-          (dialog "<c:mayor:11>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
+          (dialog "<c:mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
           (exit)))
     (progn
       (dialog "A small village radios you... sounds like they're having trouble with their power-core...")
@@ -73,7 +78,7 @@
         (setq pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
 
         (dialog
-         "<c:mayor:11>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
+         "<c:mayor:10>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
         (dialog-await-y/n)
 
         (setq on-dialog-declined exit)
@@ -91,7 +96,11 @@
                                (room-new (player) `(ladder ,(car (car c)) ,(cdr (car c)))))))
 
                      (let ((c (chr-slots (player))))
-                       (chr-new (player) (car (car c)) (cdr (car c)) 'neutral '((icon . 17)))))))
+                       (chr-new (player)
+                                (car (car c))
+                                (cdr (car c))
+                                'neutral
+                                (list (cons 'icon (sample '(17 5 10)))))))))
               (mkch)
               (mkch)
               (mkch))
@@ -114,6 +123,6 @@
                (lambda
                  (impl
                   (lambda
-                    (dialog "<c:mayor:11>Thanks so much for the help!")
+                    (dialog "<c:mayor:10>Thanks so much for the help!")
                     ((eval-file "/scripts/util/pickup_cart.lisp") 3
-                     "<c:mayor:11>Oh, I almost forgot! I took a picture while we were installing the new core! I saved the photo on a cartridge for you!"))))))))))))
+                     "<c:mayor:10>Oh, I almost forgot! I took a picture while we were installing the new core! I saved the photo on a cartridge for you!"))))))))))))
