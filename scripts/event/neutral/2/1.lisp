@@ -51,7 +51,7 @@
                 (chr-del (opponent) 1 14)
                 (if (not bad)
                     (progn
-                      (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 17)))
+                      (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 7)))
                       (dialog "The survivor joined your crew!")
                       (adventure-log-add 40 '())
                       (exit))

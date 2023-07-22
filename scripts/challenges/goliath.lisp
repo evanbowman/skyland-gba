@@ -22,10 +22,10 @@
 
 (flag-show (player) 0)
 
-(chr-new (player) 1 14 'neutral 0)
-(chr-new (player) 2 14 'neutral 0)
-(chr-new (player) 1 12 'neutral 0)
-(chr-new (player) 2 12 'neutral 0)
+(chr-new (player) 1 14 'neutral '((icon . 19)))
+(chr-new (player) 2 14 'neutral '((icon . 19)))
+(chr-new (player) 1 12 'neutral '((icon . 19)))
+(chr-new (player) 2 12 'neutral '((icon . 19)))
 
 
 ;; testing...

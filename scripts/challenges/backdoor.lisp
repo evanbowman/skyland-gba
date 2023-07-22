@@ -26,7 +26,7 @@
    (workshop 3 13)))
 
 
-(chr-new (player) 2 14 'neutral 0)
+(chr-new (player) 2 14 'neutral '((icon . 19)))
 
 
 

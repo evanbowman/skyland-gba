@@ -84,6 +84,7 @@ o----------------------------o
    2 - unused
    3 - unused
 
+'icon: character artwork
 
 o----------------------------o
 
