@@ -12,7 +12,7 @@
  '((power-core 1 13)
    (manufactory 3 13)))
 
-(chr-new (player) 2 14 'neutral '((icon . 19)))
+(chr-new (player) 2 14 'neutral '((icon . 5)))
 
 
 (defn challenge-hint

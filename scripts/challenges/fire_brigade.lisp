@@ -21,7 +21,7 @@
 
 (flag-show (player) 0)
 
-(chr-new (player) 1 14 'neutral '((icon . 19)))
+(chr-new (player) 1 14 'neutral '((icon . 5)))
 
 
 (opponent-init 9 'hostile)
