@@ -269,10 +269,14 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
 
             if (chr->is_captain()) {
                 add_line(SystemString::captain_ability,
-                         [id = chr->id()](Platform& pfrm, App& app) {
-                             auto s = scene_pool::alloc<CaptainSelectScene>();
-                             s->describe_only(current_captain_ability());
-                             return s;
+                         [id = chr->id()](Platform& pfrm, App& app) -> ScenePtr<Scene> {
+                             auto info = BasicCharacter::find_by_id(app, id);
+                             if (info.first) {
+                                 auto s = scene_pool::alloc<CaptainSelectScene>();
+                                 s->describe_only(captain_ability(*info.first));
+                                 return s;
+                             }
+                             return scene_pool::alloc<ReadyScene>();
                          });
             }
 

@@ -36,6 +36,7 @@
 
 
 (defn on-converge
+  (setq on-converge nil)
   (let ((c (choice 5))
         (end (lambda
                ((eval-file "/scripts/util/pickup_cart.lisp") 4
