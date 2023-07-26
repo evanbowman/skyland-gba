@@ -21,6 +21,7 @@
 
 
 #include "selectMenuScene.hpp"
+#include "captainSelectScene.hpp"
 #include "constructionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "menuPromptScene.hpp"
@@ -31,6 +32,7 @@
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "setGamespeedScene.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -264,6 +266,15 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                     next->modify_name_ = true;
                     return next;
                 });
+
+            if (chr->is_captain()) {
+                add_line(SystemString::captain_ability,
+                         [id = chr->id()](Platform& pfrm, App& app) {
+                             auto s = scene_pool::alloc<CaptainSelectScene>();
+                             s->describe_only(current_captain_ability());
+                             return s;
+                         });
+            }
 
         } else if (auto room = isle->get_room(cursor)) {
             if ((isle == &app.player_island() or

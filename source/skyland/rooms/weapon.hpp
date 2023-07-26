@@ -59,6 +59,9 @@ public:
     virtual void fire(Platform& pfrm, App& app) = 0;
 
 
+    bool accuracy_upgrade(App&) const;
+
+
     void override_reload_timer(Microseconds new_time) override
     {
         Timer::__override_clock(new_time);
@@ -128,6 +131,9 @@ public:
 
 protected:
     std::optional<RoomCoord> target_;
+
+private:
+    Microseconds get_real_reload_time() const;
 };
 
 

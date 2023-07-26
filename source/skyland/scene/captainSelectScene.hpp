@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2022  Evan Bowman
+// Copyright (C) 2023  Evan Bowman
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of version 2 of the GNU General Public License as published by the
@@ -22,7 +22,9 @@
 
 #pragma once
 
-#include "bitvector.hpp"
+#include "graphics/overlay.hpp"
+#include "skyland/captain.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -31,39 +33,36 @@ namespace skyland
 
 
 
-enum class StateBit {
-    dialog_expects_answer,
-    launch_repl,
-    surrender_offered,
-    remote_console_force_newline,
-    easy_mode_rewind_declined,
-    crane_game_got_treasure,
-    disable_autopause,
-    successful_multiplayer_connect,
-    multiboot,
-    open_item_shop,
-    gamespeed_help_prompt,
-    move_blocks_help_prompt,
-    sel_menu_help_prompt,
-    open_captain_select,
-    count,
+class CaptainSelectScene : public Scene
+{
+public:
+    void enter(Platform&, App&, Scene&) override;
+    void exit(Platform&, App&, Scene&) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void show_page(Platform&, App&);
+
+
+    void describe_only(CaptainAbility);
+    void describe_all();
+
+
+    void set_next_scene(DeferredScene next)
+    {
+        next_ = next;
+    }
+
+
+private:
+    Buffer<CaptainAbility, 10> options_;
+    std::optional<DeferredScene> next_;
+    std::optional<TextView> tv_;
+    int index_ = 0;
+    bool describe_only_;
 };
-
-
-
-class App;
-
-
-
-void state_bit_store(App& app, StateBit state_bit, bool value);
-
-
-
-bool state_bit_load(App& app, StateBit state_bit);
-
-
-
-using StateBitvector = Bitvector<(int)StateBit::count>;
 
 
 

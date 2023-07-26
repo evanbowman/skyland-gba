@@ -24,6 +24,7 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
@@ -46,6 +47,27 @@ SHARED_VARIABLE(transporter_reload_ms);
 
 
 
+Microseconds Transporter::recharge_interval() const
+{
+    const bool parent_is_player = parent()->layer() == Layer::map_0_ext;
+
+    auto result = 1000 * transporter_reload_ms;
+    if (parent_is_player and ability_active(CaptainAbility::warp)) {
+        result /= 2;
+    }
+
+    return result;
+}
+
+
+
+void Transporter::begin_recharge()
+{
+    recharge_ = recharge_interval();
+}
+
+
+
 void Transporter::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_transporter)->c_str();
@@ -56,6 +78,7 @@ void Transporter::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 Transporter::Transporter(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
+    begin_recharge();
 }
 
 
@@ -102,7 +125,7 @@ void Transporter::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (recharge_ <= 0) {
         // Fully recharged.
-    } else if (recharge_ < 1000 * transporter_reload_ms) {
+    } else if (recharge_ < recharge_interval()) {
         recharge_ += delta;
     }
 }
@@ -514,6 +537,10 @@ void transport_character_impl(App& app,
                 unlinked->drop_movement_path();
                 unlinked->set_parent(dst_island);
                 unlinked->transported();
+
+                if (auto e = alloc_entity<CharacterOutline>(*unlinked)) {
+                    app.effects().push(std::move(e));
+                }
 
                 if (auto dst_room = dst_island->get_room(dst)) {
                     dst_room->edit_characters().push(std::move(unlinked));

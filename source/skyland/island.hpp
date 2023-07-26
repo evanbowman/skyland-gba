@@ -261,6 +261,9 @@ public:
     void test_collision(Platform&, App&, Entity& entity);
 
 
+    std::optional<RoomCoord> get_free_character_slot(App&);
+
+
     Player& owner()
     {
         return *owner_;

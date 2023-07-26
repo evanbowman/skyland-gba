@@ -132,17 +132,16 @@ public:
     }
 
 
-    void begin_recharge()
-    {
-        recharge_ = 1000 * transporter_reload_ms;
-    }
+    void begin_recharge();
 
 
     void finalize(Platform& pfrm, App& app) override;
 
 
 private:
-    Microseconds recharge_ = 1000 * transporter_reload_ms;
+    Microseconds recharge_interval() const;
+
+    Microseconds recharge_;
 };
 
 

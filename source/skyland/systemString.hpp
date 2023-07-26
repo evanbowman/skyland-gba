@@ -204,6 +204,7 @@ enum class SystemString {
     character_label_human,
     character_label_goblin,
     character_label_replicant,
+    character_label_captain,
 
     menu_text_adventure,
     menu_text_challenge,
@@ -602,9 +603,10 @@ enum class SystemString {
     filter_surface_weapons,
     filter_end,
 
+    glossary_captains = filter_end,
     // Place no new enumerations here. (filter_end)
 
-    no_dlc_prompt = filter_end,
+    no_dlc_prompt,
     dlc_erase_hint,
 
     error_power_out,
@@ -675,6 +677,12 @@ enum class SystemString {
     sel_menu_spook_bird,
     sel_menu_describe_block,
     sel_menu_edit_flag,
+
+    select_captain,
+    captain_info,
+    captain_ability,
+    captain_names,
+    captain_descs,
 
     choose_flag,
     flag_default,

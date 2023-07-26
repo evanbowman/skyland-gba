@@ -18,6 +18,23 @@ o----------------------------o
 
 o----------------------------o
 
+ (capn)
+
+ Returns the character id of
+ your captain, if one exists,
+ otherwise returns zero.
+
+
+o----------------------------o
+
+ (capn-select)
+
+ Opens the captain selection
+ prompt.
+
+
+o----------------------------o
+
  (cargo island x y)
 
  Returns a string describing

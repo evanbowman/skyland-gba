@@ -33,6 +33,7 @@
 #include "sandboxResetScene.hpp"
 #include "scriptHookScene.hpp"
 #include "selectChallengeScene.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/network.hpp"
@@ -279,6 +280,14 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
+void transport_character_impl(App& app,
+                              Island* src_island,
+                              Island* dst_island,
+                              CharacterId chr_id,
+                              const RoomCoord& dst);
+
+
+
 ScenePtr<Scene>
 PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -490,6 +499,28 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             it = room->edit_characters().erase(it);
                         } else {
                             ++it;
+                        }
+                    }
+                }
+
+                if (ability_active(CaptainAbility::warp)) {
+
+                    for (auto& room : app.opponent_island()->rooms()) {
+                        Buffer<CharacterId, 8> temp;
+
+                        for (auto& chr : room->characters()) {
+                            if (chr->owner() == &app.player()) {
+                                temp.push_back(chr->id());
+                            }
+                        }
+
+                        for (auto id : temp) {
+                            auto dst = &app.player_island();
+                            auto src = app.opponent_island();
+                            if (auto slot = dst->get_free_character_slot(app)) {
+                                transport_character_impl(
+                                    app, src, dst, id, *slot);
+                            }
                         }
                     }
                 }

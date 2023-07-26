@@ -42,6 +42,7 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
@@ -775,6 +776,24 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"capn",
+     [](int argc) {
+         auto [app, pfrm] = interp_get_context();
+         for (auto& room : app->player_island().rooms()) {
+             for (auto& chr : room->characters()) {
+                 if (chr->is_captain()) {
+                     return L_INT(chr->id());
+                 }
+             }
+         }
+         return L_INT(0);
+     }},
+    {"capn-select",
+     [](int argc) {
+         auto app = interp_get_app();
+         state_bit_store(*app, StateBit::open_captain_select, true);
+         return L_NIL;
+     }},
     {"version",
      [](int argc) {
          L_EXPECT_ARGC(argc, 0);
@@ -1277,6 +1296,8 @@ static const lisp::Binding script_api[] = {
                  island->add_character(std::move(chr));
              }
          }
+
+         rebind_captain(*app);
 
          return lisp::make_integer(id);
      }},

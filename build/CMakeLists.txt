@@ -102,6 +102,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/paint.cpp
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
+  ${SOURCE_DIR}/skyland/captain.cpp
   ${SOURCE_DIR}/skyland/console.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
@@ -179,6 +180,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/notificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectSampleScene.cpp
   ${SOURCE_DIR}/skyland/scene/adventureLogScene.cpp
+  ${SOURCE_DIR}/skyland/scene/captainSelectScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp

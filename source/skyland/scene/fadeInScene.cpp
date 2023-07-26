@@ -153,7 +153,8 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         int scroll = pfrm.screen().size().x * amount;
         auto st = calc_screen_tiles(pfrm);
-        for (int x = 0; x < ((int)pfrm.screen().size().x / 8) - scroll / 8; ++x) {
+        for (int x = 0; x < ((int)pfrm.screen().size().x / 8) - scroll / 8;
+             ++x) {
             for (int y = 0; y < 32; ++y) {
                 auto prev = pfrm.get_tile(Layer::overlay, st.x - 1 - x, y);
                 if (prev) {

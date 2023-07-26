@@ -22,6 +22,7 @@
 
 #include "worldScene.hpp"
 #include "boxedDialogScene.hpp"
+#include "captainSelectScene.hpp"
 #include "easyModeRewindScene.hpp"
 #include "globals.hpp"
 #include "multiplayerReadyScene.hpp"
@@ -765,6 +766,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         return make_dialog(app);
     }
 
+    if (state_bit_load(app, StateBit::open_captain_select)) {
+        state_bit_store(app, StateBit::open_captain_select, false);
+        return scene_pool::alloc<CaptainSelectScene>();
+    }
 
     TIMEPOINT(t4);
 

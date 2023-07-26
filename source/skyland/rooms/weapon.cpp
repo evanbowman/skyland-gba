@@ -22,6 +22,7 @@
 
 #include "weapon.hpp"
 #include "globals.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
@@ -54,9 +55,25 @@ Weapon::~Weapon()
 
 
 
+Microseconds Weapon::get_real_reload_time() const
+{
+    auto time = reload();
+
+    // FIXME: bad hack
+    const bool parent_is_player = parent()->layer() == Layer::map_0_ext;
+
+    if (ability_active(CaptainAbility::rate) and parent_is_player) {
+        time -= milliseconds(500);
+    }
+
+    return time;
+}
+
+
+
 void Weapon::timer_expired(Platform& pfrm, App& app)
 {
-    if (Timer::interval() == reload()) {
+    if (Timer::interval() == get_real_reload_time()) {
         // We need to store the point at which we finished reloading. A
         // weapon does not fire if it does not have a target, or if the
         // parent island's power drain exceeds its power supply. So,
@@ -80,7 +97,7 @@ void Weapon::timer_expired(Platform& pfrm, App& app)
     if (target_) {
 
         if (parent()->power_supply() < parent()->power_drain()) {
-            parent()->bulk_timer().schedule(this, reload() - 1);
+            parent()->bulk_timer().schedule(this, get_real_reload_time() - 1);
             Timer::__override_clock(0);
             return;
         }
@@ -94,14 +111,12 @@ void Weapon::timer_expired(Platform& pfrm, App& app)
             // block we are, even if we're concealed by cloaking.
             set_ai_aware(pfrm, app, true);
 
-            parent()->bulk_timer().schedule(this, reload());
+            parent()->bulk_timer().schedule(this, get_real_reload_time());
             return;
         }
     }
 
-    parent()->bulk_timer().schedule(this, reload() - 1); // FIXME: using
-                                                         // reload() above to
-                                                         // record events.
+    parent()->bulk_timer().schedule(this, get_real_reload_time() - 1);
     Timer::__override_clock(0);
 }
 
@@ -169,6 +184,14 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
         screen.draw(spr);
     }
+}
+
+
+
+bool Weapon::accuracy_upgrade(App& app) const
+{
+    return parent() == &app.player_island() and
+           ability_active(CaptainAbility::range);
 }
 
 

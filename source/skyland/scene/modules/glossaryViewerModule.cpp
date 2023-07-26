@@ -23,6 +23,7 @@
 #include "glossaryViewerModule.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/captainSelectScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 
@@ -119,7 +120,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 
 
-u8 last_cover_img_;
+s8 last_cover_img_ = -1;
 
 
 
@@ -129,9 +130,14 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.screen().set_shader(passthrough_shader);
     }
 
-    do {
-        cover_img_ = rng::choice<5>(rng::utility_state);
-    } while (cover_img_ == last_cover_img_);
+    if (last_cover_img_ == -1) {
+        cover_img_ = 3;
+    } else {
+        do {
+            cover_img_ = rng::choice<5>(rng::utility_state);
+        } while (cover_img_ == last_cover_img_);
+    }
+
     last_cover_img_ = cover_img_;
 
 
@@ -196,6 +202,55 @@ static const int filter_opt_count =
 
 
 
+void GlossaryViewerModule::show_captain(Platform& pfrm, int index)
+{
+    const auto st = calc_screen_tiles(pfrm);
+    for (int x = 0; x < st.x; ++x) {
+        for (int y = 0; y < st.y; ++y) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
+
+    pfrm.set_tile(Layer::overlay, 28, 1, 386);
+
+    item_description_.emplace(pfrm);
+
+    pfrm.screen().schedule_fade(0);
+    pfrm.screen().schedule_fade(1);
+
+    int offset = (captain_icon((CaptainAbility)index) - 1) * 16;
+    pfrm.load_overlay_chunk(181, offset, 16, "character_art");
+
+    for (int x = 2; x < 28; ++x) {
+        pfrm.set_tile(Layer::overlay, x, 3, 161);
+    }
+
+    int tile = 181;
+    for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 4; ++x) {
+            pfrm.set_tile(Layer::overlay, x + 2, y + 4, tile++, 10);
+        }
+    }
+
+    Text::print(pfrm, captain_name((CaptainAbility)index).c_str(), {7, 5});
+
+    item_description_->assign(
+        captain_desc((CaptainAbility)index).c_str(), {1, 9}, {28, 8});
+
+    int captain_count = (int)CaptainAbility::none;
+
+    int pg_margin = (calc_screen_tiles(pfrm).x - captain_count * 2) / 2;
+    for (int i = 0; i < captain_count; ++i) {
+        if (i == index) {
+            pfrm.set_tile(Layer::overlay, pg_margin + i * 2, 18, 160);
+        } else {
+            pfrm.set_tile(Layer::overlay, pg_margin + i * 2, 18, 159);
+        }
+    }
+}
+
+
+
 void GlossaryViewerModule::load_filters(Platform& pfrm)
 {
     Text heading(pfrm, OverlayCoord{1, 1});
@@ -224,20 +279,18 @@ void GlossaryViewerModule::draw_category_line(Platform& pfrm,
                                               int line,
                                               Text::OptColors colors)
 {
-    int offset = 0;
-    if (line == (int)Room::Category::count) {
-        ++offset;
-    }
-    const u8 y = offset + 4 + line * 2;
+    const u8 y = 4 + line * 2;
     const u8 x = 5;
     Text t(pfrm, OverlayCoord{x, y});
     if (line == (int)Room::Category::count) {
-        ++offset;
+        auto category_str = SYSTR(glossary_captains);
+        t.append(category_str->c_str(), colors);
+        pfrm.set_tile(Layer::overlay, 3, y, 386);
+    } else if (line == (int)Room::Category::count + 1) {
         auto category_str = SYSTR(glossary_filters);
         t.append(category_str->c_str(), colors);
 
         pfrm.set_tile(Layer::overlay, 3, y, 385);
-
     } else {
         auto category_str =
             (SystemString)(((int)SystemString::category_begin) + line);
@@ -285,12 +338,9 @@ void GlossaryViewerModule::load_categories(Platform& pfrm)
     }
 
     draw_category_line(pfrm, i);
+    draw_category_line(pfrm, i + 1);
 
-    if (cg_cursor_ == (int)Room::Category::count) {
-        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
-    } else {
-        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-    }
+    pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
 
     show_category_image(pfrm, cg_cursor_);
 }
@@ -369,7 +419,7 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
         pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
-    if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count) {
+    if (test_key(Key::down) and cg_cursor_ < (int)Room::Category::count + 1) {
         draw_category_line(pfrm, cg_cursor_);
         ++cg_cursor_;
         pfrm.speaker().play_sound("cursor_tick", 0);
@@ -377,11 +427,7 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Platform& pfrm,
         for (int y = 2; y < 20; ++y) {
             pfrm.set_tile(Layer::overlay, 1, y, 112);
         }
-        if (cg_cursor_ == (int)Room::Category::count) {
-            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
-        } else {
-            pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-        }
+        pfrm.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
@@ -427,6 +473,27 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     switch (state_) {
+    case State::captains:
+        if ((test_key(Key::left) or test_key(Key::up)) and capn_cursor_ > 0) {
+            --capn_cursor_;
+            show_captain(pfrm, capn_cursor_);
+        }
+        if ((test_key(Key::right) or test_key(Key::down)) and
+            capn_cursor_ < (int)CaptainAbility::none - 1) {
+            ++capn_cursor_;
+            show_captain(pfrm, capn_cursor_);
+        }
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::category_transition_in;
+            pfrm.fill_overlay(112);
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            show_category_image(pfrm, cg_cursor_);
+            pfrm.fill_overlay(112);
+            timer_ = 0;
+        }
+        break;
+
     case State::filters:
         if (test_key(Key::up) and filter_cursor_ > 0) {
             --filter_cursor_;
@@ -566,6 +633,10 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::view;
             if (cg_cursor_ == (int)Room::Category::count) {
+                state_ = State::captains;
+                capn_cursor_ = 0;
+                show_captain(pfrm, 0);
+            } else if (cg_cursor_ == (int)Room::Category::count + 1) {
                 state_ = State::filters;
                 for (int x = 0; x < 30; ++x) {
                     for (int y = 0; y < 20; ++y) {

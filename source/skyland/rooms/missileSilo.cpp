@@ -93,7 +93,7 @@ void MissileSilo::fire(Platform& pfrm, App& app)
         target = origin;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not accuracy_upgrade(app) and not pfrm.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<10>(target, rng::critical_state);
     }

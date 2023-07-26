@@ -43,6 +43,7 @@
 #include "selectMenuScene.hpp"
 #include "selectTutorialScene.hpp"
 #include "selectWeaponGroupScene.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -50,7 +51,6 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
-
 
 
 namespace skyland
@@ -783,8 +783,9 @@ void describe_room(Platform& pfrm,
                 }
 
                 if (chr_icon and not overlap) {
-                    room_description.emplace(pfrm,
-                                             OverlayCoord{4, u8(calc_screen_tiles(pfrm).y - 1)});
+                    room_description.emplace(
+                        pfrm,
+                        OverlayCoord{4, u8(calc_screen_tiles(pfrm).y - 1)});
                 }
 
                 for (auto& chr : room->characters()) {
@@ -806,6 +807,10 @@ void describe_room(Platform& pfrm,
                                     room_description->append(") ", opts);
                                 } else {
                                     auto str = [&] {
+                                        if (chr->is_captain()) {
+                                            return SYSTR(
+                                                character_label_captain);
+                                        }
                                         switch (chr->get_race()) {
                                         default:
                                         case 0:
@@ -853,11 +858,8 @@ void describe_room(Platform& pfrm,
                     int tile = 181;
                     for (int y = 0; y < 4; ++y) {
                         for (int x = 0; x < 4; ++x) {
-                            pfrm.set_tile(Layer::overlay,
-                                          x,
-                                          st.y - 4 + y,
-                                          tile++,
-                                          10);
+                            pfrm.set_tile(
+                                Layer::overlay, x, st.y - 4 + y, tile++, 10);
                         }
                     }
                 }

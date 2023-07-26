@@ -82,7 +82,7 @@ void Incinerator::fire(Platform& pfrm, App& app)
     }
     start.y -= 3.0_fixed;
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not accuracy_upgrade(app) and not pfrm.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }

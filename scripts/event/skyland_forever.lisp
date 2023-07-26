@@ -16,7 +16,11 @@
 
 
 (map (lambda
-       (chr-new (player) $0 14 'neutral 0))
+       (chr-new (player)
+                $0
+                14
+                'neutral
+                (list (cons 'icon (sample '(1 5 10 11 16 14))))))
      (range 0 3))
 
 (flag-show (player) 0)

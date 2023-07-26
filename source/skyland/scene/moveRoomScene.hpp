@@ -26,6 +26,7 @@
 #include "constructionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene/notificationScene.hpp"
@@ -57,6 +58,10 @@ public:
     MoveRoomScene(App& app, bool near)
     {
         bind_island(app, near);
+
+        if (ability_active(CaptainAbility::terrain)) {
+            required_coins_ /= 2;
+        }
     }
 
 
@@ -109,7 +114,8 @@ public:
         case State::setup_prompt: {
             auto st = calc_screen_tiles(pfrm);
             StringBuffer<30> text;
-            text += format(SYSTR(move_room_prompt)->c_str(), 800).c_str();
+            text += format(SYSTR(move_room_prompt)->c_str(), required_coins_)
+                        .c_str();
 
             text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
@@ -151,7 +157,7 @@ public:
             const bool skip = not app.opponent_island();
 
             if (skip or player(app).key_down(pfrm, Key::action_1)) {
-                if (not skip and app.coins() < 800) {
+                if (not skip and app.coins() < required_coins_) {
                     auto future_scene =
                         scene_pool::make_deferred_scene<ReadyScene>();
                     auto str = SYSTR(construction_insufficient_funds);
@@ -162,7 +168,7 @@ public:
                 unpersist_ui();
                 if (not skip) {
                     pfrm.speaker().play_sound("coin", 2);
-                    app.set_coins(pfrm, app.coins() - 800);
+                    app.set_coins(pfrm, app.coins() - required_coins_);
                 }
                 state_ = State::move_stuff;
                 yes_text_.reset();
@@ -713,6 +719,7 @@ private:
     Vec2<u8> move_diff_;
     u8 cursor_anim_frame_ = 0;
     Microseconds cursor_anim_timer_ = 0;
+    int required_coins_ = 800;
 
     std::optional<Text> text_;
     std::optional<Text> yes_text_;

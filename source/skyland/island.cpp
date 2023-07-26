@@ -22,6 +22,7 @@
 
 #include "island.hpp"
 #include "alloc_entity.hpp"
+#include "captain.hpp"
 #include "entity/explosion/explosion.hpp"
 #include "entity/misc/smokePuff.hpp"
 #include "entity/projectile/projectile.hpp"
@@ -742,6 +743,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         e.is_replicant_ = c.is_replicant();
         e.icon_ = c.get_icon();
         app.time_stream().push(app.level_timer(), e);
+        rebind_captain(app);
     };
 
 
@@ -1261,6 +1263,24 @@ void Island::display(Platform& pfrm, App& app)
 void Island::display_fires(Platform& pfrm)
 {
     fire_.display(pfrm, *this);
+}
+
+
+
+std::optional<RoomCoord> Island::get_free_character_slot(App& app)
+{
+    bool matrix[16][16];
+    plot_walkable_zones(app, matrix);
+    for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 0; y < 16; ++y) {
+            if (matrix[x][y]) {
+                if (not character_at_location({x, y})) {
+                    return RoomCoord{x, y};
+                }
+            }
+        }
+    }
+    return std::nullopt;
 }
 
 

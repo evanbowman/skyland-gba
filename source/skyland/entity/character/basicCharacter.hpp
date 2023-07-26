@@ -268,10 +268,8 @@ public:
     const char* name() const;
 
 
-    bool has_alternate_sprite() const
-    {
-        return get_race() or is_replicant();
-    }
+    bool has_alternate_sprite() const;
+
 
     Sprite prepare_sprite() const;
 
@@ -289,6 +287,9 @@ public:
     {
         icon_ = id;
     }
+
+
+    bool is_captain() const;
 
 
 private:

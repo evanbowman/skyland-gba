@@ -24,6 +24,7 @@
 #include "fatalErrorScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/captain.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/explosion/coreExplosion.hpp"
@@ -48,6 +49,7 @@
 #include "skyland/rooms/mindControl.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+
 
 
 namespace skyland
@@ -1068,6 +1070,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             island->add_character(std::move(chr));
 
             app.time_stream().pop(sizeof *e);
+
+            rebind_captain(app);
             break;
         }
 

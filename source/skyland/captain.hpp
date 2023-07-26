@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2022  Evan Bowman
+// Copyright (C) 2023  Evan Bowman
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of version 2 of the GNU General Public License as published by the
@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include "bitvector.hpp"
+#include "number/int.h"
+#include "string.hpp"
 
 
 
@@ -31,39 +32,39 @@ namespace skyland
 
 
 
-enum class StateBit {
-    dialog_expects_answer,
-    launch_repl,
-    surrender_offered,
-    remote_console_force_newline,
-    easy_mode_rewind_declined,
-    crane_game_got_treasure,
-    disable_autopause,
-    successful_multiplayer_connect,
-    multiboot,
-    open_item_shop,
-    gamespeed_help_prompt,
-    move_blocks_help_prompt,
-    sel_menu_help_prompt,
-    open_captain_select,
-    count,
+enum class CaptainAbility : u8 {
+    warp,
+    rate,
+    range,
+    terrain,
+    none,
 };
 
 
 
+void bind_captain_ability(CaptainAbility ability);
+CaptainAbility current_captain_ability();
+
+
+
+bool ability_active(CaptainAbility);
+
+
+
+u16 captain_icon(CaptainAbility cap);
+
+
+
+StringBuffer<64> captain_name(CaptainAbility cap);
+
+
+
+StringBuffer<500> captain_desc(CaptainAbility cap);
+
+
+
 class App;
-
-
-
-void state_bit_store(App& app, StateBit state_bit, bool value);
-
-
-
-bool state_bit_load(App& app, StateBit state_bit);
-
-
-
-using StateBitvector = Bitvector<(int)StateBit::count>;
+void rebind_captain(App&);
 
 
 
