@@ -99,6 +99,7 @@ private:
 
     ScenePtr<Scene> show_categories_impl(Platform&, App&, Microseconds);
 
+
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
     std::optional<TextView> item_description_;
@@ -110,12 +111,9 @@ private:
 
     void draw_category_line(Platform&, int line, Text::OptColors = {});
 
-    void show_captain(Platform& pfrm, int index);
-
     enum class State {
         show_categories,
         filters,
-        captains,
         view_filtered,
         view,
         quickview,
@@ -130,7 +128,6 @@ private:
     int page_ = 0;
     int cg_cursor_ = 0;
     int filter_cursor_ = 0;
-    int capn_cursor_ = 0;
 
     int filter_begin_ = 0;
     int filter_end_ = 0;

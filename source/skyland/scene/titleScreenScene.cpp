@@ -34,7 +34,6 @@
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/entity/birds/smallBird.hpp"
 #include "skyland/entity/misc/titleScreenMusicNote.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
@@ -248,8 +247,6 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     c.y += offset;
     view.set_center(c);
     pfrm.screen().set_view(view);
-
-    bind_captain_ability(CaptainAbility::none);
 
     pfrm.load_overlay_texture("overlay");
     pfrm.load_tile1_texture("skyland_title_1_flattened");

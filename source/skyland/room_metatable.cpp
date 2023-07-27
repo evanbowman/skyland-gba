@@ -23,7 +23,6 @@
 #include "room_metatable.hpp"
 
 #include "roomPluginInfo.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
@@ -174,10 +173,6 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
 
     Coins cost() const override
     {
-        if (ability_active(CaptainAbility::warp) and
-            str_eq(name(), Transporter::name())) {
-            return cost_ / 2;
-        }
         return cost_;
     }
 

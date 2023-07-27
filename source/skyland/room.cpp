@@ -156,7 +156,6 @@ MetaclassIndex Room::metaclass_index() const
 
 Power Room::power_usage(App& app) const
 {
-
     return (*metaclass())->consumes_power();
 }
 

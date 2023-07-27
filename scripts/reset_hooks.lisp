@@ -13,7 +13,6 @@
 (setq on-room-destroyed '())   ; A block was destroyed. [island, type, x, y]
 (setq on-crew-died '())        ; Crewmember died. Parameters: [chr-id]
 (setq on-shop-item-sel '())    ; Shop item selected
-(setq on-capn-sel '())
 
 
 

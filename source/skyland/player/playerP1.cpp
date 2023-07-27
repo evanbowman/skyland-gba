@@ -21,7 +21,6 @@
 
 
 #include "playerP1.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -208,14 +207,8 @@ void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
             }
         }
 
-        auto score_increase = (score_multiplier * (*room.metaclass())->cost());
-
-        // if (ability_active(CaptainAbility::score)) {
-        //     score_increase +=
-        //         (Fixnum::from_integer(score_increase) * 0.1_fixed).as_integer();
-        // }
-
-        app.score().set((app.score().get() + score_increase));
+        app.score().set((app.score().get() +
+                         (score_multiplier * (*room.metaclass())->cost())));
     }
 }
 

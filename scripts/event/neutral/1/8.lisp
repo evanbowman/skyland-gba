@@ -62,7 +62,7 @@
            "After boarding, you find a completely intact "
            (rname pick)
            ". Your crew asks you where to install it...")
-          (adventure-log-add 38 (list (rname pick)))
+          (adventure-log-add 38 (rname pick))
           (defn on-dialog-closed
             (setq on-dialog-closed nil)
             (while (not (construction-sites (player) (rsz pick)))

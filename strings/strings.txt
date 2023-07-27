@@ -148,7 +148,6 @@ black
 (human) 
 (goblin) 
 (replicant) 
-(captain) 
 adventure
 challenge
 multiplayer
@@ -489,7 +488,6 @@ habitable
 takes ion damage
 highly flammable
 not constructible
-captains
 You don't have any DLC installed!
 hold A to erase!
 power outage!
@@ -544,11 +542,6 @@ back
 spook bird
 describe block
 edit flag
-select captain:
-captain info
-describe captain
-Gomez#Artemis#Spry#Edward# #
-Transporter cost and recharge reduced by 50%. Boarded crew recovered when opponent destroyed!#Weapons reload 0.5 secs faster!#+1 Movement range on sky chart, weapon accuracy improved!#Terrain is 50% cheaper to build! Block movement cost reduced by half!# #
 choose flag:
 colonial
 old empire

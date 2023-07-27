@@ -27,7 +27,6 @@
 #include "hintScene.hpp"
 #include "loadLevelScene.hpp"
 #include "platform/platform.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
@@ -453,31 +452,19 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         movement_cursor_ = 0;
 
         movement_targets_.clear();
-
-        auto collect_targets = [&](int w, int h) {
-            auto cur = app.world_graph().nodes_[cursor_];
-            const auto l = cur.coord_.x - (w - 1);
-            const auto t = cur.coord_.y - (h - 1);
-            for (int x = l; x < cur.coord_.x + w; ++x) {
-                for (int y = t; y < cur.coord_.y + h; ++y) {
-                    for (auto& node : app.world_graph().nodes_) {
-                        if (node.type_ not_eq
-                                WorldGraph::Node::Type::corrupted and
-                            node.type_ not_eq WorldGraph::Node::Type::null and
-                            node.coord_ not_eq cur.coord_ and
-                            node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
-                            movement_targets_.insert(movement_targets_.begin(),
-                                                     node.coord_);
-                        }
+        auto current = app.world_graph().nodes_[cursor_];
+        for (int x = current.coord_.x - 4; x < current.coord_.x + 5; ++x) {
+            for (int y = current.coord_.y - 4; y < current.coord_.y + 5; ++y) {
+                for (auto& node : app.world_graph().nodes_) {
+                    if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
+                        node.type_ not_eq WorldGraph::Node::Type::null and
+                        node.coord_ not_eq current.coord_ and
+                        node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
+                        movement_targets_.insert(movement_targets_.begin(),
+                                                 node.coord_);
                     }
                 }
             }
-        };
-
-        if (ability_active(CaptainAbility::range)) {
-            collect_targets(6, 6);
-        } else {
-            collect_targets(5, 5);
         }
 
         render_map_key(pfrm, app);
@@ -1310,52 +1297,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_alpha(Sprite::Alpha::translucent);
         cursor.set_priority(2);
 
-        Bitmatrix<32, 32> occluded;
-        for (int x = 0; x < 32; ++x) {
-            for (int y = 0; y < 32; ++y) {
-                occluded.set(x, y, 0);
-            }
-        }
-
         auto draw_range = [&cursor, &pfrm](int x, int y) {
-            if (ability_active(CaptainAbility::range)) {
-                for (int i = 0; i < 5; ++i) {
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 + 32)});
-                    pfrm.screen().draw(cursor);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8)});
-                    pfrm.screen().draw(cursor);
-                }
-
-                for (int i = 0; i < 5; ++i) {
-                    cursor.set_texture_index(91);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 + 64)});
-                    pfrm.screen().draw(cursor);
-                    cursor.set_texture_index(74);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 - 8)});
-                    pfrm.screen().draw(cursor);
-                }
-
-
-                cursor.set_texture_index(75);
-                cursor.set_position(
-                    {Fixnum(Float(x + 1) * 8 + 64), Fixnum(Float(y - 1) * 8)});
-                pfrm.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32)});
-                pfrm.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32 + 8)});
-                pfrm.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32 + 24)});
-                pfrm.screen().draw(cursor);
-                return;
-            }
-
             for (int i = 0; i < 4; ++i) {
                 cursor.set_position(
                     {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8 + 32)});
@@ -1406,9 +1348,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         }
 
 
-        if (show_tier_2_ and tier_2_visible_ and
-            // FIXME... not enough sprites
-            not ability_active(CaptainAbility::range)) {
+        if (show_tier_2_ and tier_2_visible_) {
             for (auto& o : tier_2_reachable) {
                 cursor.set_mix({ColorConstant::rich_black, 180});
                 cursor.set_texture_index(76);

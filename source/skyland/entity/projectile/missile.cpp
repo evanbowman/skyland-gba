@@ -21,7 +21,6 @@
 
 
 #include "missile.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/room.hpp"
@@ -167,8 +166,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::falling;
             auto pos = sprite_.get_position();
             pos.x = target_x_;
-            if (not ability_active(CaptainAbility::range) and
-                not pfrm.network_peer().is_connected() and
+            if (not pfrm.network_peer().is_connected() and
                 app.game_mode() not_eq App::GameMode::tutorial) {
                 pos.x = rng::sample<3>(pos.x, rng::critical_state);
             }

@@ -9,7 +9,7 @@
 @	+ 200 tiles lz77 compressed
 @	Total size: 32 + 1192 = 1224
 @
-@	Time-stamp: 2023-07-25, 10:13:30
+@	Time-stamp: 2023-07-22, 06:58:17
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -69,6 +69,6 @@ overlay_dialogTiles:
 	.hidden overlay_dialogPal
 overlay_dialogPal:
 	.hword 0x7C1F,0x0800,0x1400,0x4884,0x113C,0x2990,0x2A68,0x4E19
-	.hword 0x5E52,0x4279,0x2331,0x56FB,0x6F37,0x1FB9,0x737B,0x2BBE
+	.hword 0x5E73,0x4279,0x2331,0x56FB,0x6F37,0x1FB9,0x737B,0x2BBE
 
 @}}BLOCK(overlay_dialog)

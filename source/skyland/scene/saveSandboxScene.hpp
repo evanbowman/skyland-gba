@@ -46,7 +46,6 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next) override
     {
         pfrm.fill_overlay(0);
-        text_.clear();
     }
 
     void enter(Platform& pfrm, App& app, Scene& prev) override

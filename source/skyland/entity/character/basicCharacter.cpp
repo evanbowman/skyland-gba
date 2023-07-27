@@ -21,7 +21,6 @@
 
 
 #include "basicCharacter.hpp"
-#include "skyland/captain.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mindControl.hpp"
@@ -95,7 +94,8 @@ BasicCharacter::BasicCharacter(Island* parent,
                                const RoomCoord& position,
                                bool is_replicant)
     : Entity({{}, {}}), parent_(parent), owner_(owner),
-      grid_position_(position), id_(alloc_character_id()), race_(0), icon_(0)
+      grid_position_(position), id_(alloc_character_id()), race_(0),
+      icon_(0)
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -544,35 +544,10 @@ void BasicCharacter::update(Platform& pfrm,
 
 
 
-bool BasicCharacter::is_captain() const
-{
-    return get_icon() and get_icon() == captain_icon(current_captain_ability());
-}
-
-
-
-bool BasicCharacter::has_alternate_sprite() const
-{
-    return is_captain() or get_race() or is_replicant();
-}
-
-
-
 Sprite BasicCharacter::prepare_sprite() const
 {
     Sprite ret = sprite_;
-
-    if (this->is_captain()) {
-        switch (ret.get_texture_index()) {
-        case 39:
-            ret.set_texture_index(99);
-            break;
-
-        case 40:
-            ret.set_texture_index(100);
-            break;
-        }
-    } else if (is_replicant_) {
+    if (is_replicant_) {
         switch (ret.get_texture_index()) {
         case 39:
             ret.set_texture_index(123);
@@ -628,11 +603,7 @@ void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
         };
 
         if (auto chr = get_opponent()) {
-            int damage_amount = 4;
-            if (is_captain()) {
-                damage_amount = 5;
-            }
-            chr->apply_damage(pfrm, app, damage_amount);
+            chr->apply_damage(pfrm, app, 4);
         } else {
             sprite_.set_texture_index(base_frame(this, app) + 5);
             state_ = State::moving_or_idle;

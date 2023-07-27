@@ -2787,6 +2787,7 @@ void Platform::Screen::fade(float amount,
 
 
 
+
 bool Platform::Screen::fade_active() const
 {
     return last_fade_amt > 0;

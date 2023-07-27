@@ -149,7 +149,7 @@ void BeamGun::fire(Platform& pfrm, App& app)
         start.x += 32.0_fixed;
     }
 
-    if (not accuracy_upgrade(app) and not pfrm.network_peer().is_connected() and
+    if (not pfrm.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }

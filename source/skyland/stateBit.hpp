@@ -45,7 +45,6 @@ enum class StateBit {
     gamespeed_help_prompt,
     move_blocks_help_prompt,
     sel_menu_help_prompt,
-    open_captain_select,
     count,
 };
 

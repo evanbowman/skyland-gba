@@ -41,7 +41,6 @@ extern "C" {
 #include "heatshrink/heatshrink_encoder.c"
 }
 #include "latency.hpp"
-#include "skyland/captain.hpp"
 
 
 
@@ -148,13 +147,7 @@ Coins App::terrain_cost(Island& island)
         99999999,
     };
 
-    auto result = terrain_cost_table[island.terrain().size() - 1];
-
-    if (ability_active(CaptainAbility::terrain)) {
-        result /= 2;
-    }
-
-    return result;
+    return terrain_cost_table[island.terrain().size() - 1];
 }
 
 
