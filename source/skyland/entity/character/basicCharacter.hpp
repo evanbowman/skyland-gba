@@ -283,7 +283,10 @@ public:
     }
 
 
-    void set_icon(IconId id);
+    void set_icon(IconId id)
+    {
+        icon_ = id;
+    }
 
 
     bool is_captain() const;
@@ -313,8 +316,6 @@ private:
     State state_ = State::moving_or_idle;
 
     u8 icon_;
-    u8 is_captain_ : 1;
-    u8 unused_ : 7;
 
 
     bool has_opponent(Room* room);

@@ -249,7 +249,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     view.set_center(c);
     pfrm.screen().set_view(view);
 
-    clear_captain_abilities();
+    bind_captain_ability(CaptainAbility::none);
 
     pfrm.load_overlay_texture("overlay");
     pfrm.load_tile1_texture("skyland_title_1_flattened");

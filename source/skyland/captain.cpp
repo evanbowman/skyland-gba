@@ -31,32 +31,27 @@ namespace skyland
 
 
 
-static Buffer<CaptainAbility, 4> bound_abilities;
+static CaptainAbility current_ability = CaptainAbility::none;
 
 
 
 void bind_captain_ability(CaptainAbility ability)
 {
-    bound_abilities.push_back(ability);
+    current_ability = ability;
 }
 
 
 
-void clear_captain_abilities()
+CaptainAbility current_captain_ability()
 {
-    bound_abilities.clear();
+    return current_ability;
 }
 
 
 
 bool ability_active(CaptainAbility cap)
 {
-    for (auto ability : bound_abilities) {
-        if (ability == cap) {
-            return true;
-        }
-    }
-    return false;
+    return current_captain_ability() == cap;
 }
 
 
@@ -147,26 +142,8 @@ StringBuffer<500> captain_desc(CaptainAbility cap)
 
 
 
-CaptainAbility captain_ability(BasicCharacter& chr)
-{
-    if (chr.is_captain()) {
-        for (int i = 0; i < (int)CaptainAbility::none; ++i) {
-            auto ability = (CaptainAbility)i;
-            if (captain_icon(ability) == chr.get_icon()) {
-                return ability;
-            }
-        }
-    }
-
-    return CaptainAbility::none;
-}
-
-
-
 void rebind_captain(App& app)
 {
-    clear_captain_abilities();
-
     auto try_bind_captain = [&app](auto& chr) {
         if (chr->owner() not_eq &player(app)) {
             return false;
@@ -184,14 +161,19 @@ void rebind_captain(App& app)
 
     for (auto& room : player_island(app).rooms()) {
         for (auto& chr : room->characters()) {
-            try_bind_captain(chr);
+            if (try_bind_captain(chr)) {
+                return;
+            }
         }
     }
     for (auto& room : opponent_island(app)->rooms()) {
         for (auto& chr : room->characters()) {
-            try_bind_captain(chr);
+            if (try_bind_captain(chr)) {
+                return;
+            }
         }
     }
+    bind_captain_ability(CaptainAbility::none);
 }
 
 

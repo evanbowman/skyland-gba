@@ -42,13 +42,8 @@ enum class CaptainAbility : u8 {
 
 
 
-class BasicCharacter;
-CaptainAbility captain_ability(BasicCharacter&);
-
-
-
-void clear_captain_abilities();
 void bind_captain_ability(CaptainAbility ability);
+CaptainAbility current_captain_ability();
 
 
 

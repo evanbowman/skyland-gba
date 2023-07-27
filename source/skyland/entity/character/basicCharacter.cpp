@@ -116,7 +116,6 @@ BasicCharacter::BasicCharacter(Island* parent,
     is_replicant_ = is_replicant;
 
     health_ = max_health;
-    is_captain_ = false;
 }
 
 
@@ -545,26 +544,9 @@ void BasicCharacter::update(Platform& pfrm,
 
 
 
-void BasicCharacter::set_icon(IconId id)
-{
-    is_captain_ = false;
-
-    for (int i = 0; i < (int)CaptainAbility::none; ++i) {
-        auto ability = (CaptainAbility)i;
-        if (captain_icon(ability) == id) {
-            is_captain_ = true;
-            break;
-        }
-    }
-
-    icon_ = id;
-}
-
-
-
 bool BasicCharacter::is_captain() const
 {
-    return is_captain_;
+    return get_icon() and get_icon() == captain_icon(current_captain_ability());
 }
 
 

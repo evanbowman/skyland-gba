@@ -1,5 +1,6 @@
 
-(dialog "You reach a small port city! Buzzing with activity, dozens of other fortresses are docked nearby...")
+(dialog
+ "You reach a small port city! You don't have a captain yet, maybe you can hire one here...")
 
 
 (opponent-init 12 'neutral)
@@ -39,7 +40,7 @@
 
 (defn on-converge
   (setq on-converge nil)
-  (dialog "While exploring, several experienced captains offer to lend their expertise. Your crew needs help deciding which to hire...")
+  (dialog "This whole island is a mess! But several washed-out captains are hanging out here, looking for a new ship to command. Which one do you want to enlist?")
   (defn on-dialog-closed
     (setq on-dialog-closed nil)
     (capn-select)))
