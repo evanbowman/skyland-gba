@@ -119,7 +119,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 
 
-u8 last_cover_img_;
+s8 last_cover_img = -1;
 
 
 
@@ -129,10 +129,14 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.screen().set_shader(passthrough_shader);
     }
 
-    do {
-        cover_img_ = rng::choice<5>(rng::utility_state);
-    } while (cover_img_ == last_cover_img_);
-    last_cover_img_ = cover_img_;
+    if (last_cover_img == -1) {
+        cover_img_ = 3;
+    } else {
+        do {
+            cover_img_ = rng::choice<5>(rng::utility_state);
+        } while (cover_img_ == last_cover_img);
+    }
+    last_cover_img = cover_img_;
 
 
     if (state_ == State::quickview) {

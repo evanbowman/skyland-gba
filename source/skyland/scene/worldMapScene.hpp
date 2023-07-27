@@ -113,6 +113,7 @@ private:
     static bool show_tier_2_;
     bool tier_2_visible_ = false;
     bool fast_ = false;
+    bool has_radar_ = false;
 
     Microseconds tier_2_timer_ = 0;
 

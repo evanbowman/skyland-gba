@@ -38,7 +38,9 @@
 #include "skyland/network.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/player/playerP1.hpp"
+#include "skyland/rooms/commandModule.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/transporter.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
@@ -490,6 +492,38 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             it = room->edit_characters().erase(it);
                         } else {
                             ++it;
+                        }
+                    }
+                }
+
+                Buffer<Transporter*, 16> ready_transporters;
+                bool has_command_module = false;
+                for (auto& room : app.player_island().rooms()) {
+                    if (auto tx = room->cast<Transporter>()) {
+                        ready_transporters.push_back(tx);
+                    }
+                    if (room->cast<CommandModule>()) {
+                        has_command_module = true;
+                    }
+                }
+
+
+                if (has_command_module and not ready_transporters.empty()) {
+                    for (auto& room : app.opponent_island()->rooms()) {
+                        Buffer<RoomCoord, 8> temp;
+
+                        for (auto& chr : room->characters()) {
+                            if (chr->owner() == &app.player()) {
+                                temp.push_back(chr->grid_position());
+                            }
+                        }
+
+                        for (auto pos : temp) {
+                            if (not ready_transporters.empty()) {
+                                auto tx = ready_transporters.back();
+                                tx->recover_character(pfrm, app, pos);
+                                ready_transporters.pop_back();
+                            }
                         }
                     }
                 }
