@@ -7,7 +7,7 @@
 (eval-file "/scripts/event/check_zone.lisp")
 
 
-(if (and (> (zone) 0) (not (capn)))
+(if (and (not (capn)) (not (choice 4)))
     (eval-file "scripts/event/neutral/hire_captain.lisp")
   (if (and (> (zone) 2) (not (cart-found? 0)) (not (choice 3)))
       (eval-file "scripts/event/neutral/3/dev_cameo.lisp")
