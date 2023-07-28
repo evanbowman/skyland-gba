@@ -55,6 +55,7 @@ void InspectP2Scene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 void clear_room_description(Platform& pfrm,
+                            App& app,
                             std::optional<Text>& room_description);
 
 
@@ -63,7 +64,7 @@ void InspectP2Scene::exit(Platform& pfrm, App& app, Scene& next)
 {
     ActiveWorldScene::exit(pfrm, app, next);
 
-    clear_room_description(pfrm, room_description_);
+    clear_room_description(pfrm, app, room_description_);
 }
 
 
@@ -164,7 +165,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
 
                 sync_cursor();
@@ -184,7 +185,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::right)) {
             if (cursor_loc.x < app.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();
@@ -194,7 +195,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();
@@ -204,7 +205,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();

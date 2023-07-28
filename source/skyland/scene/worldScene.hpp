@@ -86,6 +86,9 @@ public:
     virtual bool camera_update_check_key(Platform& pfrm, App& app);
 
 
+    virtual bool hide_chr_icon() const;
+
+
     // Do not return any new scenes. For derived scenes that want to run the
     // world logic, but not transition through any state changes.
     void notransitions()

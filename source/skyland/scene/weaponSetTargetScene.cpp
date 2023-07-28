@@ -49,6 +49,7 @@ void describe_room(Platform& pfrm,
 
 
 void clear_room_description(Platform& pfrm,
+                            App& app,
                             std::optional<Text>& room_description);
 
 
@@ -172,7 +173,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             ++cursor_tics_;
-            clear_room_description(pfrm, room_description_);
+            clear_room_description(pfrm, app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
@@ -185,7 +186,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             ++cursor_tics_;
-            clear_room_description(pfrm, room_description_);
+            clear_room_description(pfrm, app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
@@ -198,7 +199,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
             ++cursor_tics_;
-            clear_room_description(pfrm, room_description_);
+            clear_room_description(pfrm, app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
@@ -211,7 +212,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             ++cursor_tics_;
-            clear_room_description(pfrm, room_description_);
+            clear_room_description(pfrm, app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
@@ -463,7 +464,7 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     ActiveWorldScene::exit(pfrm, app, next);
 
-    clear_room_description(pfrm, room_description_);
+    clear_room_description(pfrm, app, room_description_);
 
     if (app.game_mode() == App::GameMode::co_op) {
 
@@ -1096,6 +1097,13 @@ void WeaponSetTargetScene::snap(Platform& pfrm, App& app)
 
     cursor_loc.x = choices[0].second.x;
     cursor_loc.y = choices[0].second.y;
+}
+
+
+
+bool WeaponSetTargetScene::hide_chr_icon() const
+{
+    return true;
 }
 
 

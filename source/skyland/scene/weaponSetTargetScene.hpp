@@ -52,6 +52,9 @@ public:
     void exit(Platform&, App&, Scene& next) override;
 
 
+    bool hide_chr_icon() const override;
+
+
 private:
     // Store the tile coords of the room that we're setting the target for. If
     // we stored a pointer, we'd need to make all the room pointers into

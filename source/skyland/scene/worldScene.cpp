@@ -1041,4 +1041,11 @@ void WorldScene::set_pause_icon(Platform& pfrm, u16 icon)
 
 
 
+bool WorldScene::hide_chr_icon() const
+{
+    return false;
+}
+
+
+
 } // namespace skyland

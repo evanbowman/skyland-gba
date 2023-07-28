@@ -542,6 +542,7 @@ back
 spook bird
 describe block
 edit flag
+crewmember icon
 choose flag:
 colonial
 old empire

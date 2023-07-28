@@ -67,6 +67,7 @@ void describe_room(Platform& pfrm,
 
 
 void clear_room_description(Platform& pfrm,
+                            App& app,
                             std::optional<Text>& room_description)
 {
     if (not room_description) {
@@ -83,11 +84,16 @@ void clear_room_description(Platform& pfrm,
         }
     }
 
-    for (int x = 0; x < 4; ++x) {
-        for (int y = 0; y < 4; ++y) {
-            pfrm.set_tile(Layer::overlay, x, st.y - y - 1, 0);
+    if (auto ws = app.scene().cast_world_scene()) {
+        if (not ws->hide_chr_icon()) {
+            for (int x = 0; x < 4; ++x) {
+                for (int y = 0; y < 4; ++y) {
+                    pfrm.set_tile(Layer::overlay, x, st.y - y - 1, 0);
+                }
+            }
         }
     }
+
 
     room_description.reset();
 }
@@ -164,7 +170,7 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                 // If a user selects a drone bay with a drone already
                 // attached, jump the cursor to the drone's location.
                 camera_update_timer = milliseconds(500);
-                clear_room_description(pfrm, room_description);
+                clear_room_description(pfrm, app, room_description);
                 if ((*drone)->destination() == &app.player_island()) {
                     globals().near_cursor_loc_ = (*drone)->position();
                 } else {
@@ -501,7 +507,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
@@ -510,7 +516,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
 
@@ -543,7 +549,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
@@ -552,7 +558,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
@@ -782,9 +788,17 @@ void describe_room(Platform& pfrm,
                     }
                 }
 
+                if (auto ws = app.scene().cast_world_scene()) {
+                    if (ws->hide_chr_icon()) {
+                        overlap = true;
+                    }
+                }
+
+
                 if (chr_icon and not overlap) {
-                    room_description.emplace(pfrm,
-                                             OverlayCoord{4, u8(calc_screen_tiles(pfrm).y - 1)});
+                    room_description.emplace(
+                        pfrm,
+                        OverlayCoord{4, u8(calc_screen_tiles(pfrm).y - 1)});
                 }
 
                 for (auto& chr : room->characters()) {
@@ -853,11 +867,8 @@ void describe_room(Platform& pfrm,
                     int tile = 181;
                     for (int y = 0; y < 4; ++y) {
                         for (int x = 0; x < 4; ++x) {
-                            pfrm.set_tile(Layer::overlay,
-                                          x,
-                                          st.y - 4 + y,
-                                          tile++,
-                                          10);
+                            pfrm.set_tile(
+                                Layer::overlay, x, st.y - 4 + y, tile++, 10);
                         }
                     }
                 }
@@ -1094,9 +1105,9 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
 
 
-void ReadyScene::exit(Platform& pfrm, App&, Scene& next)
+void ReadyScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    clear_room_description(pfrm, room_description_);
+    clear_room_description(pfrm, app, room_description_);
 }
 
 

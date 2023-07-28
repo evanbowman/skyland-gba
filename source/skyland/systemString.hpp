@@ -675,6 +675,7 @@ enum class SystemString {
     sel_menu_spook_bird,
     sel_menu_describe_block,
     sel_menu_edit_flag,
+    sel_menu_crewmember_icon,
 
     choose_flag,
     flag_default,

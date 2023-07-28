@@ -45,6 +45,7 @@ void describe_room(Platform& pfrm,
 
 
 void clear_room_description(Platform& pfrm,
+                            App& app,
                             std::optional<Text>& room_description);
 
 
@@ -73,7 +74,7 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next)
     {
         ActiveWorldScene::exit(pfrm, app, next);
-        clear_room_description(pfrm, room_description_);
+        clear_room_description(pfrm, app, room_description_);
         text_.reset();
     }
 
@@ -129,7 +130,7 @@ public:
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (is_far_camera()) {
@@ -143,7 +144,7 @@ public:
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < island->terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (not is_far_camera()) {
@@ -158,14 +159,14 @@ public:
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
+                clear_room_description(pfrm, app, room_description_);
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
