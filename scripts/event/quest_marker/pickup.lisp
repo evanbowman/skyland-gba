@@ -32,7 +32,7 @@
                       (car (car slot))
                       (cdr (car slot))
                       'neutral
-                      (list (cons 'icon (get $0 2))))
+                      nil)
              (chr-del (opponent) (get $0 0) (get $0 1))))))
    '((1 14 10) (2 14 16) (3 14 5)))
 

@@ -31,7 +31,7 @@
 
 (map
  (lambda
-   (chr-new (player) (car $0) (cdr $0) 'neutral '((icon . 5))))
+   (chr-new (player) (car $0) (cdr $0) 'neutral nil))
  '((3 . 13)
    (2 . 13)))
 

@@ -50,7 +50,7 @@
           (if temp
               (progn
                 (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 1)))
+                (chr-new (player) (car temp) (cdr temp) 'neutral nil)
                 (chr-del (opponent) 1 14)
                 (if (or (equal (choice 2) 1) (< (coins) 300))
                     (join "The castaway joined your crew!")
@@ -71,7 +71,7 @@
                                (sound "build0")
                                (room-new (player) `(ladder ,$1 ,$2))
                                (chr-del (opponent) 1 14)
-                               (chr-new (player) $1 (+ 1 $2) 'neutral '((icon . 1)))
+                               (chr-new (player) $1 (+ 1 $2) 'neutral nil)
                                (dialog "<c:castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
                                (defn on-dialog-closed
                                  (join "The castaway joined your crew!")

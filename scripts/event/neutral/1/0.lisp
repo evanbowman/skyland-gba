@@ -55,7 +55,7 @@
               (progn
                 (coins-add (* -400 (zone)))
                 (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 17)))
+                (chr-new (player) (car temp) (cdr temp) 'neutral nil)
                 (chr-del (opponent) 0 14)
                 (setq temp (nil))
                 (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")

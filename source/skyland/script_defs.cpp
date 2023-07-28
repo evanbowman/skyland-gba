@@ -1252,9 +1252,6 @@ static const lisp::Binding script_api[] = {
              if (chr) {
                  id = chr->id();
 
-                 if (not icon) {
-                     icon = 2; // default goblin character icon
-                 }
                  chr->set_icon(icon);
 
                  island->add_character(std::move(chr));
@@ -1266,10 +1263,6 @@ static const lisp::Binding script_api[] = {
 
              if (chr) {
                  chr->set_race(race);
-
-                 if (not icon) {
-                     icon = 19; // questionmark icon
-                 }
 
                  chr->set_icon(icon);
 

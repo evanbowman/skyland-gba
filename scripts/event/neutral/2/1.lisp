@@ -51,12 +51,12 @@
                 (chr-del (opponent) 1 14)
                 (if (not bad)
                     (progn
-                      (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 7)))
+                      (chr-new (player) (car temp) (cdr temp) 'neutral nil)
                       (dialog "The survivor joined your crew!")
                       (adventure-log-add 40 '())
                       (exit))
                   (progn
-                    (chr-new (player) (car temp) (cdr temp) 'hostile '((icon . 2)))
+                    (chr-new (player) (car temp) (cdr temp) 'hostile nil)
                     (dialog "The survivor turned out to be a vicious goblin!")
                     (adventure-log-add 41 '())
                     (setq on-dialog-closed

@@ -95,7 +95,7 @@
                                 (car (car c))
                                 (cdr (car c))
                                 'neutral
-                                (list (cons 'icon (sample '(17 5 10)))))))))
+                                nil)))))
               (mkch)
               (mkch)
               (mkch))

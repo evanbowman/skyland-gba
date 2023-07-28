@@ -53,7 +53,7 @@
 (setq qvar '())
 
 
-(chr-new (player) 2 14 'neutral '((icon . 19)))
+(chr-new (player) 2 14 'neutral nil)
 
 
 (eval-file "/scripts/reset_hooks.lisp")

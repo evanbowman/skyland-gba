@@ -44,7 +44,7 @@
 
 (flag-show (player) 0)
 
-(chr-new (player) 2 14 'neutral '((icon . 5)))
+(chr-new (player) 2 14 'neutral nil)
 
 (coins-add 8000)
 

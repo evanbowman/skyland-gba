@@ -40,8 +40,7 @@
   ;; Arg 0: island
   ;; Arg 1: 'hostile or 'neutral symbol
   (let ((isle $0)
-        (mode $1)
-        (icon $2))
+        (mode $1))
 
     ;; NOTE: conf[5] holds the character count config
     (repeat (get conf 5)
@@ -58,7 +57,7 @@
                      (car (car slot))
                      (cdr (car slot))
                      mode
-                     (list (cons 'icon (icon)))))))))
+                     nil))))))
 
 
 (island-configure
