@@ -3650,6 +3650,7 @@ static const AudioTrack* find_music(const char* name)
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/music_struttin.hpp"
 #include "data/sound_archivist.hpp"
+#include "data/sound_cancel.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
@@ -3738,6 +3739,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(coin, sound_coin),
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(archivist, sound_archivist),
+    DEF_SOUND(cancel, sound_cancel),
     DEF_SOUND(seagull_1, sound_seagull_1),
     DEF_SOUND(seagull_2, sound_seagull_2),
     DEF_SOUND(msg, sound_msg),

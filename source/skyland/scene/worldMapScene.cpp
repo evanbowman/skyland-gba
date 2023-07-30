@@ -699,6 +699,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                                   .next_world_location_ = (s8)cursor_,
                               });
 
+            prev_world_loc_ = app.current_world_location();
             app.current_world_location() = cursor_;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             cmix_ = {};
@@ -938,7 +939,28 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
+    case State::abort_move: {
+        Text::print(pfrm, "canceling...", {9, 9},
+                    Text::OptColors{{ColorConstant::rich_black,
+                                     custom_color(0xff8e38)}});
+        exit_label_.reset();
+        pfrm.screen().schedule_fade(0.5f, ColorConstant::rich_black, true, true);
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        pfrm.speaker().play_sound("cancel", 5);
+        pfrm.sleep(30);
+        app.current_world_location() = prev_world_loc_;
+        auto next = scene_pool::alloc<WorldMapScene>();
+        next->disable_scrollin_ = true;
+        app.world_graph().storm_depth_--;
+        return next;
+    }
+
     case State::wait:
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::abort_move;
+            break;
+        }
         if (cmix_.amount_ > 0) {
             timer_ += delta;
             if (timer_ > 12000) {
@@ -954,6 +976,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::fade_out: {
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::abort_move;
+            break;
+        }
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
@@ -1254,7 +1280,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 void WorldMapScene::display(Platform& pfrm, App& app)
 {
     if (state_ == State::show_saved_text or state_ == State::save_animate_out or
-        state_ == State::save_exit) {
+        state_ == State::save_exit or state_ == State::abort_move) {
         return;
     }
 

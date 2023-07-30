@@ -90,12 +90,14 @@ private:
         show_node_death_icons,
         save_animate_out,
         save_exit,
+        abort_move,
     } state_ = State::fade_in;
 
     bool move_arrow_sel_[3] = {false, true, false};
 
     void redraw_icons(Platform& pfrm);
 
+    int prev_world_loc_ = 0;
     int cursor_ = 0;
     u8 cursor_keyframe_ = 0;
     Microseconds cursor_anim_timer_ = 0;
@@ -114,6 +116,7 @@ private:
     bool tier_2_visible_ = false;
     bool fast_ = false;
     bool has_radar_ = false;
+    bool disable_scrollin_ = false;
 
     Microseconds tier_2_timer_ = 0;
 
