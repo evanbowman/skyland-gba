@@ -3650,11 +3650,11 @@ static const AudioTrack* find_music(const char* name)
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/music_struttin.hpp"
 #include "data/sound_archivist.hpp"
-#include "data/sound_cancel.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
+#include "data/sound_cancel.hpp"
 #include "data/sound_cannon.hpp"
 #include "data/sound_click.hpp"
 #include "data/sound_click_negative.hpp"

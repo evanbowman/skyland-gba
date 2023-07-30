@@ -940,11 +940,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::abort_move: {
-        Text::print(pfrm, "canceling...", {9, 9},
-                    Text::OptColors{{ColorConstant::rich_black,
-                                     custom_color(0xff8e38)}});
+        Text::print(pfrm,
+                    "canceling...",
+                    {9, 9},
+                    Text::OptColors{
+                        {ColorConstant::rich_black, custom_color(0xff8e38)}});
         exit_label_.reset();
-        pfrm.screen().schedule_fade(0.5f, ColorConstant::rich_black, true, true);
+        pfrm.screen().schedule_fade(
+            0.5f, ColorConstant::rich_black, true, true);
         pfrm.screen().clear();
         pfrm.screen().display();
         pfrm.speaker().play_sound("cancel", 5);
