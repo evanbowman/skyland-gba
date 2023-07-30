@@ -116,7 +116,6 @@ private:
     bool tier_2_visible_ = false;
     bool fast_ = false;
     bool has_radar_ = false;
-    bool disable_scrollin_ = false;
 
     Microseconds tier_2_timer_ = 0;
 

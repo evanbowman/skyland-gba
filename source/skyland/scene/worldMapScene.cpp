@@ -951,7 +951,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.sleep(30);
         app.current_world_location() = prev_world_loc_;
         auto next = scene_pool::alloc<WorldMapScene>();
-        next->disable_scrollin_ = true;
         app.world_graph().storm_depth_--;
         return next;
     }
