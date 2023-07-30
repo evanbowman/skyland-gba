@@ -279,7 +279,7 @@ static const TextureData overlay_textures[] = {
 //;
     TEXTURE_INFO(overlay_editor, true),
 //;
-    TEXTURE_INFO(overlay_dialog, true),
+    TEXTURE_INFO(overlay_dialog, false),
 //;
     TEXTURE_INFO(overlay_dialog_fullscreen, true),
 //;
