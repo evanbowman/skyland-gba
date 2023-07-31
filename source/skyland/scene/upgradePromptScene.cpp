@@ -73,6 +73,11 @@ void UpgradePromptScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
     persist_ui();
+
+    pfrm.set_tile(Layer::overlay, 0, st.y - 3, 245);
+    pfrm.set_tile(Layer::overlay, 1, st.y - 3, 246);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 247);
+    pfrm.set_tile(Layer::overlay, 1, st.y - 2, 248);
 }
 
 
