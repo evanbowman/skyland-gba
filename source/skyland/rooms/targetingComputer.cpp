@@ -76,6 +76,10 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
+    if (app.player_island().get_drift() not_eq 0.0_fixed) {
+        return;
+    }
+
     // if (app.gp_.difficulty_ not_eq GlobalPersistentData::Difficulty::beginner) {
     //     apply_damage(pfrm, app, Room::health_upper_limit());
     //     return;
