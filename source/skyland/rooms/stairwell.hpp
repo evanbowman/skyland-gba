@@ -33,10 +33,10 @@ namespace skyland
 
 
 
-class Stairwell final : public Room
+class Stairwell : public Room
 {
 public:
-    Stairwell(Island* parent, const RoomCoord& position);
+    Stairwell(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -94,7 +94,103 @@ public:
     }
 
 
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+
     void finalize(Platform& pfrm, App& app) override;
+};
+
+
+
+class StairwellPlus : public Stairwell
+{
+public:
+    StairwellPlus(Island* parent, const RoomCoord& position);
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_stairwell_plus;
+    }
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 5};
+    }
+
+
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+
+
+    static const char* name()
+    {
+        return "stairwell+";
+    }
+
+
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+
+    static RoomProperties::Bitmask properties()
+    {
+        return RoomProperties::habitable |
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::not_constructible;
+    }
+};
+
+
+
+class StairwellPlusPlus : public Stairwell
+{
+public:
+    StairwellPlusPlus(Island* parent, const RoomCoord& position);
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_stairwell_plus_plus;
+    }
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 6};
+    }
+
+
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+
+
+    static const char* name()
+    {
+        return "stairwell++";
+    }
+
+
+    static RoomProperties::Bitmask properties()
+    {
+        return RoomProperties::habitable |
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::not_constructible;
+    }
 };
 
 

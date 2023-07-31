@@ -265,7 +265,7 @@ public:
 
     Vec2<u8> size() const
     {
-        return {u8(__packed_size_x_ + 1), u8(__packed_size_y_ + 1)};
+        return {size_x_, size_y_};
     }
 
 
@@ -696,34 +696,6 @@ public:
     Float get_atp() const;
 
 
-
-    class ExtensionFields
-    {
-    public:
-        virtual ~ExtensionFields()
-        {
-        }
-
-
-        virtual void free()
-        {
-            Platform::fatal("free unimplemented!");
-        }
-
-        ExtensionFields* next_;
-    };
-
-
-    template <typename ExtensionType, typename Allocator>
-    void add_extension(Allocator& mem)
-    {
-        if (auto obj = mem.template alloc<ExtensionType>()) {
-            obj->next_ = extensions_;
-            extensions_ = obj;
-        }
-    }
-
-
     void set_hidden(bool h)
     {
         hidden_ = h;
@@ -782,11 +754,6 @@ private:
     Room* dispatch_list_;
 
 
-    // Reserved for future use, for platforms with more memory and cpu, where we
-    // may want to conditionally enable certain features.
-    ExtensionFields* extensions_ = nullptr;
-
-
     ////////////////////////////////////////////////////////////////////////////
     //
     // Two byte fields:
@@ -816,14 +783,10 @@ private:
     u8 x_position_ : 4;
     u8 y_position_ : 4;
 
-    // NOTE: we're a little tight on memory on some consoles, especially when
-    // players create a lot of rooms. Given the game's mechanics, there's
-    // practically no reason to support rooms larger than 4x4. No room structure
-    // in the game exceeds four tiles in either direction. NOTE: as zero-sized
-    // rooms don't make sense, we interpret the size fields as off-by-one,
-    // giving us a range of values from one to four.
-    u8 __packed_size_x_ : 2;
-    u8 __packed_size_y_ : 2;
+    u8 size_x_ : 4;
+    u8 size_y_ : 4;
+
+    u8 unused___ : 4;
 
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;

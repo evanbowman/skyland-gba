@@ -74,6 +74,7 @@ infirmary
 ion-cannon
 ion-fizzler
 ladder
+ladder+1
 lady-liberty
 lava
 lava*
@@ -114,6 +115,8 @@ solar-cell
 spark-cannon
 speaker
 stairwell
+stairwell+1
+stairwell+2
 statue
 stone-pillar
 sticky-piston
@@ -309,6 +312,9 @@ Built long ago on the surface, this laser burns through everything in its path, 
 Built thousands of years ago during the surface wars. Extremely durable and repairable, with huge power output. No one makes engines like this anymore.
 Mostly decorative, but generates some power. Power output doubled in stormy weather. One allowed per island.
 Built on the surface, these missiles divide into ten projeciles upon impact and ricochet off walls. Few, if any, still exist, look in shops...
+Like a ladder, but one block taller. Click a ladder to upgrade to ladder+1.
+Like a stairwell, but one block taller. Click a stairwell to upgrade to stairwell+1.
+Like a stairwell+1, but one block taller. Click a stairwell to upgrade to stairwell+2.
 paused
 slow
 regular
@@ -552,6 +558,7 @@ goblin horde
 sunflower
 merchant
 banana
+upgrade to %? 
 SEL: presets
 START: flood
 flag

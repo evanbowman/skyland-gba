@@ -23,6 +23,8 @@
 #include "stairwell.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -37,8 +39,8 @@ void Stairwell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 }
 
 
-Stairwell::Stairwell(Island* parent, const RoomCoord& position)
-    : Room(parent, name(), position)
+Stairwell::Stairwell(Island* parent, const RoomCoord& position, const char* n)
+    : Room(parent, n, position)
 {
 }
 
@@ -89,6 +91,132 @@ void Stairwell::finalize(Platform& pfrm, App& app)
         pos.y -= 32.0_fixed;
         ExploSpawner::create(pfrm, app, pos);
     }
+}
+
+
+
+ScenePtr<Scene>
+Stairwell::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+{
+    if (auto scn = Room::select(pfrm, app, cursor)) {
+        return scn;
+    }
+
+    if (not str_eq(this->name(), Stairwell::name())) {
+        return null_scene();
+    }
+
+    auto upgrade_to = skyland::metaclass_index("stairwell+");
+
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
+}
+
+
+
+void StairwellPlus::render_interior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::ladder_top;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 2] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 3] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 4] = InteriorTile::ladder_base;
+}
+
+
+
+void StairwellPlus::render_exterior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 2] = Tile::wall_window_middle_1;
+    buffer[position().x][position().y + 3] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 4] = Tile::wall_plain_2;
+}
+
+
+
+StairwellPlus::StairwellPlus(Island* parent, const RoomCoord& position)
+    : Stairwell(parent, position, name())
+{
+}
+
+
+
+void StairwellPlus::plot_walkable_zones(App& app, bool matrix[16][16])
+{
+    for (int y = 0; y < size().y; ++y) {
+        matrix[position().x][position().y + y] = true;
+    }
+}
+
+
+
+ScenePtr<Scene>
+StairwellPlus::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+{
+    if (auto scn = Room::select(pfrm, app, cursor)) {
+        return scn;
+    }
+
+    auto upgrade_to = skyland::metaclass_index("stairwell++");
+
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
+}
+
+
+
+void StairwellPlusPlus::render_interior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::ladder_top;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 2] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 3] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 4] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 5] = InteriorTile::ladder_base;
+}
+
+
+
+void StairwellPlusPlus::render_exterior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 2] = Tile::wall_window_middle_1;
+    buffer[position().x][position().y + 3] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 4] = Tile::wall_window_middle_1;
+    buffer[position().x][position().y + 5] = Tile::wall_window_2;
+}
+
+
+
+StairwellPlusPlus::StairwellPlusPlus(Island* parent, const RoomCoord& position)
+    : Stairwell(parent, position, name())
+{
+}
+
+
+
+void StairwellPlusPlus::plot_walkable_zones(App& app, bool matrix[16][16])
+{
+    for (int y = 0; y < size().y; ++y) {
+        matrix[position().x][position().y + y] = true;
+    }
+}
+
+
+
+void StairwellPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_stairwell_plus)->c_str();
+}
+
+
+
+void StairwellPlusPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_stairwell_plus_plus)->c_str();
 }
 
 

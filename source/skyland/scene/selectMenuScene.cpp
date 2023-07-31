@@ -66,9 +66,9 @@ void SelectMenuScene::redraw_line(Platform& pfrm, int line, bool highlight)
 {
     opts_->lines_[line].assign(loadstr(pfrm, opts_->strings_[line])->c_str(),
                                highlight ? highlight_colors
-                               : (opts_->specific_.get(line) ?
-                                  specific_colors :
-                                  Text::OptColors{}));
+                                         : (opts_->specific_.get(line)
+                                                ? specific_colors
+                                                : Text::OptColors{}));
 
     for (int i = opts_->lines_[line].len(); i < opts_->longest_line_; ++i) {
         opts_->lines_[line].append(
@@ -336,12 +336,11 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         if (opts_->lines_.size() == 1) {
             opts_->lines_.back().assign(line->c_str(), highlight_colors);
         } else {
-            opts_->lines_.back().assign(line->c_str(), specific ?
-                                        specific_colors :
-                                        Text::OptColors{});
+            opts_->lines_.back().assign(
+                line->c_str(), specific ? specific_colors : Text::OptColors{});
         }
         opts_->longest_line_ =
-            std::max(str_len(line->c_str()), u32(opts_->longest_line_));
+            std::max(utf8::len(line->c_str()), size_t(opts_->longest_line_));
         opts_->strings_.push_back(str);
         opts_->callbacks_.push_back(callback);
     };
@@ -523,7 +522,6 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         } else {
             pfrm.set_tile(Layer::overlay, 0, y + 1, 112);
         }
-
     }
     pfrm.set_tile(Layer::overlay, 0, 1, 475);
 }

@@ -180,6 +180,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/selectSampleScene.cpp
   ${SOURCE_DIR}/skyland/scene/adventureLogScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/upgradePromptScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp
   ${SOURCE_DIR}/skyland/scene/modifierKeyHintScene.cpp

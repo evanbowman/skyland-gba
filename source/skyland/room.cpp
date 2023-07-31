@@ -77,7 +77,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
             metaclass_index_ = i;
 
             auto mt_size = current->size();
-            if (mt_size.x > 4 or mt_size.y > 4) {
+            if (mt_size.x > 15 or mt_size.y > 15) {
                 Platform::fatal("Room size too large!");
             }
             if (mt_size.x == 0 or mt_size.y == 0) {
@@ -85,8 +85,8 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
             }
 
             // See comment along with definition of size_x_ and size_y_ fields.
-            __packed_size_x_ = mt_size.x - 1;
-            __packed_size_y_ = mt_size.y - 1;
+            size_x_ = mt_size.x;
+            size_y_ = mt_size.y;
             health_ = current->full_health();
 
             ready();
@@ -720,7 +720,6 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
 {
     Island* island = parent();
     const auto pos = position();
-    const auto sz = size();
     void* address = this;
 
     auto m_prev = metaclass_index();
@@ -746,18 +745,7 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
     this->~Room();
 
     auto& mt = *load_metaclass(m);
-    if (mt->size() not_eq sz) {
-        Platform::fatal(format("attempt to transmute room "
-                               "of differing size (%:% %), "
-                               "(%:% %)",
-                               mt->name(),
-                               mt->size().x,
-                               mt->size().y,
-                               name(),
-                               size().x,
-                               size().y)
-                            .c_str());
-    }
+
     mt->construct(address, island, pos);
 
     auto new_room = (Room*)address;
@@ -1222,11 +1210,6 @@ void Room::finalize(Platform& pfrm, App& app)
         // group when a member room's destroyed clears up a large number of
         // edge-cases.
         co_op_peer_release_lock();
-    }
-
-    while (extensions_) {
-        extensions_->free();
-        extensions_ = extensions_->next_;
     }
 }
 

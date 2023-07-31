@@ -94,6 +94,10 @@ public:
     }
 
 
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
@@ -131,6 +135,13 @@ public:
     static const char* name()
     {
         return "backup-core";
+    }
+
+
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override
+    {
+        return null_scene();
     }
 
 

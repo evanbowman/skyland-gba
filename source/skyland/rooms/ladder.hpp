@@ -33,10 +33,10 @@ namespace skyland
 
 
 
-class Ladder final : public Room
+class Ladder : public Room
 {
 public:
-    Ladder(Island* parent, const RoomCoord& position);
+    Ladder(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -70,6 +70,10 @@ public:
     }
 
 
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable |
@@ -93,6 +97,51 @@ public:
     static Icon unsel_icon()
     {
         return 3752;
+    }
+};
+
+
+
+class LadderPlus : public Ladder
+{
+public:
+    LadderPlus(Island* parent, const RoomCoord& position);
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
+
+
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_ladder_plus;
+    }
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 3};
+    }
+
+
+    static const char* name()
+    {
+        return "ladder+";
+    }
+
+
+    static RoomProperties::Bitmask properties()
+    {
+        return RoomProperties::habitable |
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::not_constructible;
     }
 };
 

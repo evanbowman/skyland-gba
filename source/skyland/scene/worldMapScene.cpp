@@ -432,7 +432,6 @@ void __draw_image(Platform& pfrm,
 
 
 
-
 bool WorldMapScene::can_abort_move() const
 {
     return prev_world_loc_ not_eq cursor_;

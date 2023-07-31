@@ -22,6 +22,8 @@
 
 #include "ladder.hpp"
 #include "platform/platform.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -38,8 +40,15 @@ void Ladder::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Ladder::Ladder(Island* parent, const RoomCoord& position)
-    : Room(parent, name(), position)
+void LadderPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_ladder_plus)->c_str();
+}
+
+
+
+Ladder::Ladder(Island* parent, const RoomCoord& position, const char* n)
+    : Room(parent, n, position)
 {
 }
 
@@ -74,6 +83,69 @@ void Ladder::plot_walkable_zones(App& app, bool matrix[16][16])
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;
     }
+}
+
+
+
+ScenePtr<Scene>
+Ladder::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+{
+    if (auto scn = Room::select(pfrm, app, cursor)) {
+        return scn;
+    }
+
+    if (not str_eq(this->name(), Ladder::name())) {
+        return null_scene();
+    }
+
+    auto upgrade_to = skyland::metaclass_index("ladder+");
+
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
+}
+
+
+
+void LadderPlus::render_interior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::ladder_top;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 2] = InteriorTile::ladder_base;
+}
+
+
+
+void LadderPlus::render_exterior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 2] = Tile::wall_plain_2;
+}
+
+
+
+LadderPlus::LadderPlus(Island* parent, const RoomCoord& position)
+    : Ladder(parent, position, name())
+{
+}
+
+
+
+ScenePtr<Scene>
+LadderPlus::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+{
+    if (auto scn = Room::select(pfrm, app, cursor)) {
+        return scn;
+    }
+
+    if (not str_eq(this->name(), LadderPlus::name())) {
+        return null_scene();
+    }
+
+    auto upgrade_to = skyland::metaclass_index("stairwell");
+
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
 }
 
 

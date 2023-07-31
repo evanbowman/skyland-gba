@@ -353,7 +353,10 @@ void BasicCharacter::update(Platform& pfrm,
                         if (not str_eq(name, "plundered-room") and
                             not str_eq(name, "stairwell") and
                             not str_eq(name, "bridge") and
-                            not str_eq(name, "ladder")) {
+                            not str_eq(name, "ladder") and
+                            not str_eq(name, "ladder+") and
+                            not str_eq(name, "stairwell+") and
+                            not str_eq(name, "stairwell++")) {
                             state_ = State::plunder_room;
                             timer_ = 0;
                         }

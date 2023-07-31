@@ -125,6 +125,7 @@ enum class SystemString {
     block_ion_cannon,
     block_ion_fizzler,
     block_ladder,
+    block_ladder_plus,
     block_lady_liberty,
     block_lava,
     block_lava_source,
@@ -165,6 +166,8 @@ enum class SystemString {
     block_spark_cannon,
     block_speaker,
     block_stairwell,
+    block_stairwell_plus,
+    block_stairwell_plus_plus,
     block_statue,
     block_stone_pillar,
     block_sticky_piston,
@@ -387,6 +390,9 @@ enum class SystemString {
     description_war_engine,
     description_windmill,
     description_clump_missile,
+    description_ladder_plus,
+    description_stairwell_plus,
+    description_stairwell_plus_plus,
 
     gs_paused,
     gs_slow,
@@ -686,6 +692,8 @@ enum class SystemString {
     flag_alt5,
     flag_alt6,
     flag_banana,
+
+    upgrade_prompt,
 
     flag_designer_presets,
     flag_designer_flood,
