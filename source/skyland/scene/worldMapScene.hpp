@@ -60,6 +60,9 @@ private:
     void update_storm_frontier(Platform& pfrm, WorldGraph& map, int offset);
 
 
+    bool can_abort_move() const;
+
+
     enum class State {
         fade_in,
         storm_scroll_in,

@@ -432,6 +432,14 @@ void __draw_image(Platform& pfrm,
 
 
 
+
+bool WorldMapScene::can_abort_move() const
+{
+    return prev_world_loc_ not_eq cursor_;
+}
+
+
+
 ScenePtr<Scene>
 WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -959,7 +967,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::wait:
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(pfrm, Key::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }
@@ -978,7 +986,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::fade_out: {
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(pfrm, Key::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }

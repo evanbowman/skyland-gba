@@ -57,12 +57,18 @@ static const auto highlight_colors =
     FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
 
 
+static const auto specific_colors =
+    FontColors{custom_color(0xead873), ColorConstant::rich_black};
+
+
 
 void SelectMenuScene::redraw_line(Platform& pfrm, int line, bool highlight)
 {
     opts_->lines_[line].assign(loadstr(pfrm, opts_->strings_[line])->c_str(),
                                highlight ? highlight_colors
-                                         : Text::OptColors{});
+                               : (opts_->specific_.get(line) ?
+                                  specific_colors :
+                                  Text::OptColors{}));
 
     for (int i = opts_->lines_[line].len(); i < opts_->longest_line_; ++i) {
         opts_->lines_[line].append(
@@ -322,14 +328,17 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
     pfrm.fill_overlay(0);
     pfrm.screen().display();
 
-    auto add_line = [&](SystemString str, auto callback) {
+    auto add_line = [&](SystemString str, bool specific, auto callback) {
         auto line = loadstr(pfrm, str);
+        opts_->specific_.set(opts_->lines_.size(), specific);
         u8 y = opts_->lines_.size() + 1;
         opts_->lines_.emplace_back(pfrm, OverlayCoord{1, y});
         if (opts_->lines_.size() == 1) {
             opts_->lines_.back().assign(line->c_str(), highlight_colors);
         } else {
-            opts_->lines_.back().assign(line->c_str());
+            opts_->lines_.back().assign(line->c_str(), specific ?
+                                        specific_colors :
+                                        Text::OptColors{});
         }
         opts_->longest_line_ =
             std::max(str_len(line->c_str()), u32(opts_->longest_line_));
@@ -342,6 +351,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
             app.game_mode() == App::GameMode::sandbox) {
             if (isle->interior_visible()) {
                 add_line(SystemString::sel_menu_view_exterior,
+                         false,
                          [](Platform& pfrm, App& app) -> ScenePtr<Scene> {
                              show_island_exterior(
                                  pfrm, app, &app.player_island());
@@ -349,6 +359,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                          });
             } else {
                 add_line(SystemString::sel_menu_view_interior,
+                         false,
                          [](Platform& pfrm, App& app) -> ScenePtr<Scene> {
                              show_island_interior(
                                  pfrm, app, &app.player_island());
@@ -361,6 +372,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
             if (isle == &app.player_island() or
                 app.game_mode() == App::GameMode::sandbox) {
                 add_line(SystemString::sel_menu_move_blocks,
+                         false,
                          [far = is_far_camera()](Platform& pfrm, App& app) {
                              return move_blocks_setup(pfrm, app, far);
                          });
@@ -370,6 +382,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         if (auto chr = isle->character_at_location(cursor)) {
             add_line(
                 SystemString::sel_menu_name_crewmember,
+                true,
                 [id = chr->id(),
                  far = is_far_camera(),
                  vis = isle->interior_visible()](Platform& pfrm, App& app) {
@@ -384,6 +397,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                 });
 
             add_line(SystemString::sel_menu_crewmember_icon,
+                     true,
                      [id = chr->id()](Platform& pfrm, App& app) {
                          return scene_pool::alloc<SetCharacterIconScene>(id);
                      });
@@ -397,6 +411,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
 
                     if (not pfrm.network_peer().is_connected()) {
                         add_line(SystemString::sel_menu_weapon_halt,
+                                 true,
                                  [this, cursor](Platform& pfrm, App& app) {
                                      if (auto room =
                                              island(app)->get_room(cursor)) {
@@ -418,6 +433,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         }
         if (bird_found) {
             add_line(SystemString::sel_menu_spook_bird,
+                     true,
                      [this, cursor](Platform& pfrm, App& app) {
                          for (auto& bird : app.birds()) {
                              if (bird->island(app) == island(app) and
@@ -437,6 +453,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                           room->parent() == &app.player_island())) {
                 add_line(
                     SystemString::sel_menu_describe_block,
+                    true,
                     [this, cursor](Platform& pfrm,
                                    App& app) -> ScenePtr<Scene> {
                         if (auto room = island(app)->get_room(cursor)) {
@@ -468,6 +485,7 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
 
         if (not is_far_camera() and cursor == *app.player_island().flag_pos()) {
             add_line(SystemString::sel_menu_edit_flag,
+                     true,
                      [this, cursor](Platform& pfrm, App& app) {
                          auto ret = scene_pool::alloc<FlagDesignerModule>();
                          ret->editing_ingame_ = true;
@@ -476,12 +494,14 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         }
 
         add_line(SystemString::sel_menu_pause,
+                 false,
                  [this, cursor](Platform& pfrm, App& app) {
                      return set_gamespeed_setup(pfrm, app);
                  });
     }
 
     add_line(SystemString::sel_menu_back,
+             false,
              [this, cursor](Platform& pfrm, App& app) { return null_scene(); });
 
     for (int i = 0; i < opts_->longest_line_ + 1; ++i) {
@@ -498,7 +518,12 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
         }
     }
     for (u32 y = 0; y < opts_->lines_.size(); ++y) {
-        pfrm.set_tile(Layer::overlay, 0, y + 1, 112);
+        if (opts_->specific_.get(y)) {
+            pfrm.set_tile(Layer::overlay, 0, y + 1, 159);
+        } else {
+            pfrm.set_tile(Layer::overlay, 0, y + 1, 112);
+        }
+
     }
     pfrm.set_tile(Layer::overlay, 0, 1, 475);
 }
@@ -558,9 +583,36 @@ SelectMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
-    if (test_key(Key::down)) {
+    if (test_key(Key::right)) {
         pfrm.speaker().play_sound("cursor_tick", 0);
-        pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 112);
+        auto prev_sel = sel_;
+        if (opts_->specific_.get(sel_)) {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 159);
+        } else {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 112);
+        }
+        redraw_line(pfrm, sel_, false);
+        int tries = 0;
+        sel_ = (sel_ + 1) % opts_->lines_.size();
+        while (tries < Options::cap) {
+            if (opts_->specific_.get(sel_)) {
+                break;
+            }
+            sel_ = (sel_ + 1) % opts_->lines_.size();
+            ++tries;
+        }
+        if (tries == Options::cap) {
+            sel_ = prev_sel;
+        }
+        pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 475);
+        redraw_line(pfrm, sel_, true);
+    } else if (test_key(Key::down)) {
+        pfrm.speaker().play_sound("cursor_tick", 0);
+        if (opts_->specific_.get(sel_)) {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 159);
+        } else {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 112);
+        }
         redraw_line(pfrm, sel_, false);
         if ((u32)sel_ < opts_->lines_.size() - 1) {
             ++sel_;
@@ -571,7 +623,11 @@ SelectMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         redraw_line(pfrm, sel_, true);
     } else if (test_key(Key::up)) {
         pfrm.speaker().play_sound("cursor_tick", 0);
-        pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 112);
+        if (opts_->specific_.get(sel_)) {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 159);
+        } else {
+            pfrm.set_tile(Layer::overlay, 0, sel_ + 1, 112);
+        }
         redraw_line(pfrm, sel_, false);
         if (sel_ > 0) {
             --sel_;

@@ -62,12 +62,16 @@ public:
 private:
     struct Options
     {
-        Buffer<Text, 10> lines_;
-        Buffer<SystemString, 10> strings_;
-        Buffer<Function<16, ScenePtr<Scene>(Platform&, App&)>, 10> callbacks_;
+        static constexpr int cap = 10;
+
+        Buffer<Text, cap> lines_;
+        Buffer<SystemString, cap> strings_;
+        Buffer<Function<16, ScenePtr<Scene>(Platform&, App&)>, cap> callbacks_;
         u8 longest_line_;
 
-        Buffer<SystemString, 10> pushed_strings_;
+        Bitvector<cap> specific_;
+
+        Buffer<SystemString, cap> pushed_strings_;
     };
 
     void redraw_line(Platform& pfrm, int line, bool highlight);
