@@ -30,6 +30,8 @@ void UpgradePromptScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
+    pfrm.speaker().play_sound("openbag", 8);
+
     persist_ui();
 
     auto st = calc_screen_tiles(pfrm);
