@@ -77,6 +77,15 @@ void Ladder::render_exterior(App* app, TileId buffer[16][16])
 
 
 
+void LadderPlus::plot_walkable_zones(App& app, bool matrix[16][16])
+{
+    for (int y = 0; y < size().y; ++y) {
+        matrix[position().x][position().y + y] = true;
+    }
+}
+
+
+
 void Ladder::plot_walkable_zones(App& app, bool matrix[16][16])
 {
     // All tiles in a ladder are walkable, that's kind of the point.

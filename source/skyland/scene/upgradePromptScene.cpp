@@ -101,6 +101,12 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
         return next;
     }
 
+    flicker_timer_ += delta;
+    if (flicker_timer_ > milliseconds(300)) {
+        flicker_timer_ -= milliseconds(300);
+        flicker_on_ = not flicker_on_;
+    }
+
     if (pfrm.network_peer().is_connected()) {
         // Upgrades unsupported in networked multiplayer.
         return scene_pool::alloc<ReadyScene>();
@@ -199,6 +205,13 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
                 origin.x += Fixnum(x * 16);
                 origin.y += Fixnum(y * 16);
                 spr.set_position({origin.x, origin.y});
+
+                if (flicker_on_) {
+                    if (app.player_island().get_room({x, y})) {
+                        spr.set_mix({ColorConstant::silver_white, 250});
+                    }
+                }
+
                 pfrm.screen().draw(spr);
             }
         }

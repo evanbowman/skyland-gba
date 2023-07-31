@@ -119,6 +119,9 @@ public:
     select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+
+
     static SystemString ui_name()
     {
         return SystemString::block_ladder_plus;
