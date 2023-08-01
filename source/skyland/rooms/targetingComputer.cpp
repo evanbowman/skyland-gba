@@ -72,14 +72,14 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
-    if (pfrm.screen().fade_active()) {
-        return;
-    }
-
     if (app.opponent().is_friendly()) {
         for (auto& r : parent()->rooms()) {
             r->unset_target(pfrm, app);
         }
+        return;
+    }
+
+    if (pfrm.screen().fade_active()) {
         return;
     }
 
