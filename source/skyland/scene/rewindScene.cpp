@@ -1029,6 +1029,20 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::character_position_jump: {
+            auto e = (time_stream::event::CharacterPositionJump*)end;
+            auto isle = &app.player_island();
+            if (auto chr = isle->find_character_by_id(e->id_.get()).first) {
+                chr->set_grid_position({e->previous_x_,
+                                        e->previous_y_});
+                chr->drop_movement_path();
+                chr->set_idle(app);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::character_moved: {
             auto e = (time_stream::event::CharacterMoved*)end;
             Island* island =

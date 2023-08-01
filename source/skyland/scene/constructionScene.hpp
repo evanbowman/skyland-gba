@@ -136,7 +136,11 @@ private:
     int touchscroll_ = 0;
     int last_touch_x_ = 0;
 
+    Microseconds flicker_timer_ = 0;
+
     Island::BlockChecksum checksum_;
+
+    bool flicker_on_ = false;
 
     bool near_;
     u8 stack_ = 0;

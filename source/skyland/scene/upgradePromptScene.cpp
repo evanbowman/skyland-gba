@@ -5,6 +5,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -213,13 +214,18 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                         {target_coord_.x, u8(target_coord_.y - size_diff_y)});
 
                     for (auto& chr : room->characters()) {
-                        auto path = allocate_dynamic<PathBuffer>("path");
                         auto pos = chr->grid_position();
-                        for (int y = 0; y < size_diff_y; ++y) {
-                            pos.y++;
-                            path->insert(path->begin(), pos);
-                        }
-                        chr->set_movement_path(pfrm, app, std::move(path));
+
+                        time_stream::event::CharacterPositionJump e;
+                        e.id_.set(chr->id());
+                        e.previous_x_ = pos.x;
+                        e.previous_y_ = pos.y;
+                        app.time_stream().push(app.level_timer(), e);
+
+                        chr->drop_movement_path();
+                        chr->set_idle(app);
+
+                        chr->set_grid_position({pos.x, u8(pos.y + size_diff_y)});
                     }
                 }
                 app.set_coins(pfrm, app.coins() - cost);
@@ -261,7 +267,8 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
                 spr.set_position({origin.x, origin.y});
 
                 if (flicker_on_) {
-                    if (app.player_island().get_room({x, y})) {
+                    if (app.player_island().get_room({x, y}) or
+                        x >= app.player_island().terrain().size()) {
                         spr.set_mix({ColorConstant::silver_white, 250});
                     }
                 }

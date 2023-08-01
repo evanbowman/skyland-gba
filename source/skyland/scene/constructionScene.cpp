@@ -285,6 +285,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return exit_scene();
     }
 
+    flicker_timer_ += delta;
+    if (flicker_timer_ > milliseconds(300)) {
+        flicker_timer_ -= milliseconds(300);
+        flicker_on_ = not flicker_on_;
+    }
+
     if (tapped_topleft_corner(pfrm, app) or
         app.player().key_down(pfrm, Key::alt_2) or
         (state_ == State::select_loc and
@@ -487,7 +493,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building: {
-
         if (app.player().key_down(pfrm, Key::start)) {
             auto mt = data_->available_buildings_[building_selector_];
             auto next = scene_pool::alloc<GlossaryViewerModule>(mt);

@@ -131,6 +131,7 @@ enum Type : u8 {
     character_disembark,
     character_movement_path_assigned,
 
+    character_position_jump,
 
     player_room_salvaged,
     opponent_room_salvaged,
@@ -748,6 +749,18 @@ struct ReplicantCreated
     u8 unused_ : 6;
 
     static constexpr const auto t = Type::replicant_created;
+};
+
+
+
+struct CharacterPositionJump
+{
+    Header header_;
+    HostInteger<CharacterId> id_;
+    u8 previous_x_ : 4;
+    u8 previous_y_ : 4;
+
+    static constexpr const auto t = Type::character_position_jump;
 };
 
 
