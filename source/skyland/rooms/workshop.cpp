@@ -25,6 +25,7 @@
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -91,6 +92,10 @@ Workshop::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (auto scn = Room::select(pfrm, app, cursor)) {
         return scn;
+    }
+
+    if (app.game_mode() == App::GameMode::tutorial) {
+        return null_scene();
     }
 
     auto upgrade_to = skyland::metaclass_index("manufactory");

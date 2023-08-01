@@ -102,6 +102,10 @@ ScenePtr<Scene> Core::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
+    if (app.game_mode() == App::GameMode::tutorial) {
+        return null_scene();
+    }
+
     auto upgrade_to = skyland::metaclass_index("reactor");
 
     return scene_pool::alloc<UpgradePromptScene>(
