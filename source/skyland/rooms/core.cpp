@@ -106,13 +106,6 @@ ScenePtr<Scene> Core::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     return scene_pool::alloc<UpgradePromptScene>(
         position(), metaclass_index(), upgrade_to);
-
-    // TODO: should the block be upgradable to reactor, or not? In practice,
-    // reactor is a different size, and a power core will always be guarded by
-    // hull, so it doesn't make tons of sense to have a shortcut for upgrading,
-    // because other blocks will always be in the way...
-
-    return null_scene();
 }
 
 

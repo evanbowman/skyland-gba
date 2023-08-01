@@ -23,6 +23,8 @@
 #include "workshop.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -80,6 +82,21 @@ void Workshop::finalize(Platform& pfrm, App& app)
     if (health() <= 0) {
         ExploSpawner::create(pfrm, app, center());
     }
+}
+
+
+
+ScenePtr<Scene>
+Workshop::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+{
+    if (auto scn = Room::select(pfrm, app, cursor)) {
+        return scn;
+    }
+
+    auto upgrade_to = skyland::metaclass_index("manufactory");
+
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
 }
 
 

@@ -207,14 +207,16 @@ void StairwellPlusPlus::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-void StairwellPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void StairwellPlus::format_description(Platform& pfrm,
+                                       StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell_plus)->c_str();
 }
 
 
 
-void StairwellPlusPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void StairwellPlusPlus::format_description(Platform& pfrm,
+                                           StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell_plus_plus)->c_str();
 }

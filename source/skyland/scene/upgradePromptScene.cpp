@@ -132,6 +132,27 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                 const auto& from = load_metaclass(upgrade_from_);
                 const auto& to = load_metaclass(upgrade_to_);
                 int size_diff_y = (*to)->size().y - (*from)->size().y;
+                int size_diff_x = (*to)->size().x - (*from)->size().x;
+
+                if (size_diff_x) {
+                    for (u8 x =
+                             (target_coord_.x + (*to)->size().x) - size_diff_x;
+                         x < target_coord_.x + (*to)->size().x;
+                         ++x) {
+                        for (u8 y = target_coord_.y;
+                             y < target_coord_.y + (*to)->size().y;
+                             ++y) {
+                            if (app.player_island().get_room({x, y})) {
+                                pfrm.speaker().play_sound("beep_error", 3);
+                                StringBuffer<80> err =
+                                    SYS_CSTR(construction_not_enough_space);
+                                return scene_pool::alloc<NotificationScene>(
+                                    err, next);
+                            }
+                        }
+                    }
+                }
+
                 if (size_diff_y) {
                     for (u8 x = target_coord_.x;
                          x < target_coord_.x + (*to)->size().x;
@@ -200,6 +221,32 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_);
     int size_diff_y = (*to)->size().y - (*from)->size().y;
+    int size_diff_x = (*to)->size().x - (*from)->size().x;
+
+    if (size_diff_x) {
+        for (u8 x = (target_coord_.x + (*to)->size().x) - size_diff_x;
+             x < target_coord_.x + (*to)->size().x;
+             ++x) {
+            for (u8 y = target_coord_.y; y < target_coord_.y + (*to)->size().y;
+                 ++y) {
+                Sprite spr;
+                spr.set_tidx_16x16(13, 1);
+                spr.set_size(Sprite::Size::w16_h16);
+                auto origin = app.player_island().visual_origin();
+                origin.x += Fixnum(x * 16);
+                origin.y += Fixnum(y * 16);
+                spr.set_position({origin.x, origin.y});
+
+                if (flicker_on_) {
+                    if (app.player_island().get_room({x, y})) {
+                        spr.set_mix({ColorConstant::silver_white, 250});
+                    }
+                }
+
+                pfrm.screen().draw(spr);
+            }
+        }
+    }
     if (size_diff_y) {
         for (u8 x = target_coord_.x; x < target_coord_.x + (*to)->size().x;
              ++x) {
