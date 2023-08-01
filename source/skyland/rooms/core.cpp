@@ -98,14 +98,14 @@ ScenePtr<Scene> Core::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return scn;
     }
 
-    // if (not parent()->manufactory_count()) {
-    //     return null_scene();
-    // }
+    if (not parent()->manufactory_count()) {
+        return null_scene();
+    }
 
-    // auto upgrade_to = skyland::metaclass_index("reactor");
+    auto upgrade_to = skyland::metaclass_index("reactor");
 
-    // return scene_pool::alloc<UpgradePromptScene>(
-    //     position(), metaclass_index(), upgrade_to);
+    return scene_pool::alloc<UpgradePromptScene>(
+        position(), metaclass_index(), upgrade_to);
 
     // TODO: should the block be upgradable to reactor, or not? In practice,
     // reactor is a different size, and a power core will always be guarded by
