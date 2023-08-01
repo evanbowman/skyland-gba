@@ -72,11 +72,14 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
-    if (app.opponent().is_friendly()) {
+    if (pfrm.screen().fade_active()) {
         return;
     }
 
-    if (app.player_island().get_drift() not_eq 0.0_fixed) {
+    if (app.opponent().is_friendly()) {
+        for (auto& r : parent()->rooms()) {
+            r->unset_target(pfrm, app);
+        }
         return;
     }
 
@@ -125,6 +128,13 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
             next_action_timer_ = milliseconds(32);
         }
     }
+}
+
+
+
+void TargetingComputer::unset_target(Platform& pfrm, App& app)
+{
+    next_action_timer_ = seconds(2);
 }
 
 

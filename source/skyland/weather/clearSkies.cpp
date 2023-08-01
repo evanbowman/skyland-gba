@@ -82,23 +82,10 @@ void ClearSkies::display(Platform& pfrm, App& app)
 
         if (isle) {
             for (u32 x = 0; x < isle->terrain().size(); ++x) {
-                for (int y = 4; y < 6; ++y) {
+                for (int y = 4; y < 7; ++y) {
                     if (isle->rooms_plot().get(x, y)) {
-                        HitBox room_hitbox;
-                        if (pfrm.get_tile(isle->layer(), x, y)) {
-                            auto hitbox_pos = isle->visual_origin();
-                            hitbox_pos.x += Fixnum::from_integer(x * 16);
-                            hitbox_pos.y += Fixnum::from_integer(y * 16);
-
-                            HitBox room_hitbox;
-                            room_hitbox.position_ = &hitbox_pos;
-                            room_hitbox.dimension_.size_.x = 16;
-                            room_hitbox.dimension_.size_.y = 16;
-                            if (room_hitbox.overlapping(sun_hb)) {
-                                disable_lensflare = true;
-                                goto LENSFLARE_CHECK_DONE;
-                            }
-                        }
+                        disable_lensflare = true;
+                        goto LENSFLARE_CHECK_DONE;
                     }
                 }
             }

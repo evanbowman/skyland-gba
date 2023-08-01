@@ -120,6 +120,9 @@ public:
     }
 
 
+    void unset_target(Platform& pfrm, App& app) override;
+
+
 private:
     Microseconds next_action_timer_ = seconds(1);
     u32 room_update_index_ = 0;

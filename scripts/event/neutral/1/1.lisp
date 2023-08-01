@@ -7,7 +7,7 @@
 
 
 
-(opponent-init 5 'hostile)
+(opponent-init 5 'neutral)
 
 
 (island-configure
@@ -38,6 +38,7 @@
                (hull 1 12)
                (missile-silo 3 13)
                (missile-silo 4 13)))
+            (opponent-mode 'hostile)
             (flag-show (opponent) 0)
             (adventure-log-add 30 '())
             (dialog "It's a trap!"))))))

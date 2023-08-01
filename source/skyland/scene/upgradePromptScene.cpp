@@ -79,6 +79,11 @@ void UpgradePromptScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_tile(Layer::overlay, 1, st.y - 3, 246);
     pfrm.set_tile(Layer::overlay, 0, st.y - 2, 247);
     pfrm.set_tile(Layer::overlay, 1, st.y - 2, 248);
+
+    pfrm.set_tile(Layer::overlay, 2, st.y - 2, 418);
+    pfrm.set_tile(Layer::overlay, 2, st.y - 3, 433);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 4, 425);
+    pfrm.set_tile(Layer::overlay, 1, st.y - 4, 425);
 }
 
 
@@ -225,7 +230,8 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                         chr->drop_movement_path();
                         chr->set_idle(app);
 
-                        chr->set_grid_position({pos.x, u8(pos.y + size_diff_y)});
+                        chr->set_grid_position(
+                            {pos.x, u8(pos.y + size_diff_y)});
                     }
                 }
                 app.set_coins(pfrm, app.coins() - cost);
@@ -269,7 +275,7 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
                 if (flicker_on_) {
                     if (app.player_island().get_room({x, y}) or
                         x >= app.player_island().terrain().size()) {
-                        spr.set_mix({ColorConstant::silver_white, 250});
+                        spr.set_mix({custom_color(0xf7ce9e), 250});
                     }
                 }
 
@@ -292,7 +298,7 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
 
                 if (flicker_on_) {
                     if (app.player_island().get_room({x, y})) {
-                        spr.set_mix({ColorConstant::silver_white, 250});
+                        spr.set_mix({custom_color(0xf7ce9e), 250});
                     }
                 }
 

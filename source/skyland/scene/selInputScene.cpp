@@ -102,6 +102,12 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
+    flicker_timer_ += delta;
+    if (flicker_timer_ > milliseconds(300)) {
+        flicker_timer_ -= milliseconds(300);
+        flicker_on_ = not flicker_on_;
+    }
+
 
     auto test_key = [&](Key k) {
         return app.player().test_key(
@@ -119,12 +125,16 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
+                flicker_timer_ = -milliseconds(150);
+                flicker_on_ = false;
                 --cursor_loc.x;
             }
         }
 
         if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
+                flicker_timer_ = -milliseconds(150);
+                flicker_on_ = false;
                 ++cursor_loc.x;
             } else {
                 // std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
@@ -136,12 +146,16 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
+                flicker_timer_ = -milliseconds(150);
+                flicker_on_ = false;
                 --cursor_loc.y;
             }
         }
 
         if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
+                flicker_timer_ = -milliseconds(150);
+                flicker_on_ = false;
                 ++cursor_loc.y;
             }
         }
@@ -283,6 +297,29 @@ void SelInputScene::display(Platform& pfrm, App& app)
         auto sz = *required_space_;
 
         auto& cursor_loc = globals().near_cursor_loc_;
+
+        auto rloc = cursor_loc;
+        rloc.y -= sz.y - 1;
+
+        for (u8 x = rloc.x; x < rloc.x + sz.x; ++x) {
+            for (u8 y = rloc.y; y < rloc.y + sz.y; ++y) {
+                if (player_island(app).get_room({x, y}) or
+                    x >= (int)player_island(app).terrain().size()) {
+
+                    if (flicker_on_) {
+                        Sprite spr;
+                        spr.set_tidx_16x16(13, 1);
+                        spr.set_size(Sprite::Size::w16_h16);
+                        auto origin = player_island(app).visual_origin();
+                        origin.x += Fixnum(x * 16);
+                        origin.y += Fixnum(y * 16);
+                        spr.set_position({origin.x, origin.y});
+                        spr.set_mix({custom_color(0xf7ce9e), 250});
+                        pfrm.screen().draw(spr);
+                    }
+                }
+            }
+        }
 
         auto origin = player_island(app).visual_origin();
         origin.x += Fixnum::from_integer(cursor_loc.x * 16);

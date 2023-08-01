@@ -448,6 +448,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
 
+                    flicker_on_ = false;
+                    flicker_timer_ = -milliseconds(150);
                     state_ = State::choose_building;
                     sound_openbag.play(pfrm, 1, seconds(2));
                     sound_openbag.reset();
@@ -511,6 +513,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto scroll_right = [&] {
+            flicker_on_ = false;
+            flicker_timer_ = -milliseconds(150);
             pfrm.speaker().play_sound("click", 1);
             if (building_selector_ <
                 (int)data_->available_buildings_.size() - 1) {
@@ -522,6 +526,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         };
         auto scroll_left = [&] {
+            flicker_on_ = false;
+            flicker_timer_ = -milliseconds(150);
             pfrm.speaker().play_sound("click", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
@@ -563,6 +569,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::down)) {
             pfrm.speaker().play_sound("click", 1);
 
+            flicker_on_ = false;
+            flicker_timer_ = -milliseconds(150);
+
             show_category_ = true;
 
             auto current_category =
@@ -599,6 +608,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_category_ = true;
 
             Room::Category target_category = current_category;
+
+            flicker_on_ = false;
+            flicker_timer_ = -milliseconds(150);
+
 
             u32 i = 0;
             for (i = 0; i < data_->available_buildings_.size(); ++i) {
@@ -1149,7 +1162,6 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_flip({});
 
-
             if (data_->construction_sites_[selector_].y == 15) {
                 origin = island(app)->visual_origin();
                 origin.x += Fixnum::from_integer(
@@ -1213,6 +1225,29 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 data_->construction_sites_[selector_].x * 16);
             origin.y += Fixnum::from_integer(
                 (data_->construction_sites_[selector_].y - (sz.y - 1)) * 16);
+
+            auto rloc = data_->construction_sites_[selector_];
+            rloc.y -= sz.y - 1;
+
+            for (u8 x = rloc.x; x < rloc.x + sz.x; ++x) {
+                for (u8 y = rloc.y; y < rloc.y + sz.y; ++y) {
+                    if (island(app)->get_room({x, y}) or
+                        x >= (int)island(app)->terrain().size()) {
+
+                        if (flicker_on_) {
+                            Sprite spr;
+                            spr.set_tidx_16x16(13, 1);
+                            spr.set_size(Sprite::Size::w16_h16);
+                            auto origin = island(app)->visual_origin();
+                            origin.x += Fixnum(x * 16);
+                            origin.y += Fixnum(y * 16);
+                            spr.set_position({origin.x, origin.y});
+                            spr.set_mix({custom_color(0xf7ce9e), 250});
+                            pfrm.screen().draw(spr);
+                        }
+                    }
+                }
+            }
 
             auto o = meta->weapon_orientation();
             draw_required_space(pfrm, app, *island(app), origin, sz, o);

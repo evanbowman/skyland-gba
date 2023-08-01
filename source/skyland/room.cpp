@@ -721,6 +721,7 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
     Island* island = parent();
     const auto pos = position();
     void* address = this;
+    const auto sz = size();
 
     auto m_prev = metaclass_index();
 
@@ -752,6 +753,9 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
     chr_list.move_contents(new_room->characters_);
 
     island->schedule_repaint();
+    if (mt->size() not_eq sz) {
+        island->rooms().reindex(true);
+    }
 }
 
 

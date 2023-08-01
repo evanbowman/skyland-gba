@@ -164,7 +164,6 @@ public:
     }
 
 
-private:
     using IndexType = u16;
 
 
@@ -213,7 +212,7 @@ private:
         }
     }
 
-
+private:
     // The room table stores rooms in a buffer, and for faster access, sorts
     // rooms in the buffer by x, and keeps track of the index of all room x
     // coordinates. So if you wanted a room with x coordinate 5, you would start

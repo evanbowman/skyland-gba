@@ -73,6 +73,9 @@ private:
     RoomCoord cached_near_cursor_;
     RoomCoord cached_far_cursor_;
     Microseconds cursor_anim_timer_ = 0;
+    Microseconds flicker_timer_ = 0;
+
+    bool flicker_on_ = false;
 
     bool cursor_anim_frame_ = false;
 
