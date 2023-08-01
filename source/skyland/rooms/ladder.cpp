@@ -33,6 +33,13 @@ namespace skyland
 
 
 
+const char* Ladder::upgrade_mt_name() const
+{
+    return "ladder+";
+}
+
+
+
 void Ladder::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_ladder)->c_str();
@@ -96,25 +103,6 @@ void Ladder::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-ScenePtr<Scene>
-Ladder::select(Platform& pfrm, App& app, const RoomCoord& cursor)
-{
-    if (auto scn = Room::select(pfrm, app, cursor)) {
-        return scn;
-    }
-
-    if (not str_eq(this->name(), Ladder::name())) {
-        return null_scene();
-    }
-
-    auto upgrade_to = skyland::metaclass_index("ladder+");
-
-    return scene_pool::alloc<UpgradePromptScene>(
-        position(), metaclass_index(), upgrade_to);
-}
-
-
-
 void LadderPlus::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::ladder_top;
@@ -140,21 +128,9 @@ LadderPlus::LadderPlus(Island* parent, const RoomCoord& position)
 
 
 
-ScenePtr<Scene>
-LadderPlus::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+const char* LadderPlus::upgrade_mt_name() const
 {
-    if (auto scn = Room::select(pfrm, app, cursor)) {
-        return scn;
-    }
-
-    if (not str_eq(this->name(), LadderPlus::name())) {
-        return null_scene();
-    }
-
-    auto upgrade_to = skyland::metaclass_index("stairwell");
-
-    return scene_pool::alloc<UpgradePromptScene>(
-        position(), metaclass_index(), upgrade_to);
+    return "stairwell";
 }
 
 

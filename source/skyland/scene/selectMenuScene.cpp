@@ -32,6 +32,7 @@
 #include "salvageRoomScene.hpp"
 #include "setGamespeedScene.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
@@ -448,6 +449,27 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
 
         if (not pfrm.network_peer().is_connected()) {
             auto room = island(app)->get_room(cursor);
+            if (island(app) == &app.player_island() and room) {
+                if (room->upgrade_mt_name()) {
+                    add_line(
+                        SystemString::sel_menu_upgrade_block,
+                        true,
+                        [this, cursor](Platform& pfrm,
+                                       App& app) -> ScenePtr<Scene> {
+                            auto room = island(app)->get_room(cursor);
+                            if (not room) {
+                                return null_scene();
+                            }
+                            auto up = room->upgrade_mt_name();
+                            if (not up) {
+                                return null_scene();
+                            }
+                            auto to = metaclass_index(up);
+                            return scene_pool::alloc<UpgradePromptScene>(
+                                room->position(), room->metaclass_index(), to);
+                        });
+                }
+            }
             if (room and (room->description_visible() or
                           room->parent() == &app.player_island())) {
                 add_line(

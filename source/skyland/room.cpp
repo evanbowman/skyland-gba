@@ -1215,6 +1215,13 @@ void Room::finalize(Platform& pfrm, App& app)
 
 
 
+const char* Room::upgrade_mt_name() const
+{
+    return nullptr;
+}
+
+
+
 void Room::ready()
 {
     if (not dispatch_queued_) {

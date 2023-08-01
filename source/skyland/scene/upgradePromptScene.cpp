@@ -128,42 +128,66 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto next = scene_pool::make_deferred_scene<ReadyScene>();
 
+            StringBuffer<80> err;
+
+            auto notify_err = [&]() {
+                pfrm.speaker().play_sound("beep_error", 3);
+                return scene_pool::alloc<NotificationScene>(err, next);
+            };
+
             if (room->metaclass_index() == upgrade_from_) {
                 const auto& from = load_metaclass(upgrade_from_);
                 const auto& to = load_metaclass(upgrade_to_);
                 int size_diff_y = (*to)->size().y - (*from)->size().y;
                 int size_diff_x = (*to)->size().x - (*from)->size().x;
 
+                const auto props = (*to)->properties();
+
+                if (props & RoomProperties::manufactory_required and
+                    app.player_island().manufactory_count() == 0) {
+                    err = SYS_CSTR(upgrade_denied_manufactory);
+                    return notify_err();
+                }
+
+                if (props & RoomProperties::workshop_required and
+                    app.player_island().workshop_count() == 0) {
+                    err = SYS_CSTR(upgrade_denied_workshop);
+                    return notify_err();
+                }
+
                 if (size_diff_x) {
-                    for (u8 x =
-                             (target_coord_.x + (*to)->size().x) - size_diff_x;
-                         x < target_coord_.x + (*to)->size().x;
-                         ++x) {
-                        for (u8 y = target_coord_.y;
-                             y < target_coord_.y + (*to)->size().y;
-                             ++y) {
+                    auto sx = (target_coord_.x + (*to)->size().x) - size_diff_x;
+                    auto ex = target_coord_.x + (*to)->size().x;
+                    auto sy = target_coord_.y;
+                    auto ey = target_coord_.y + (*to)->size().y;
+
+                    if (ex > (int)app.player_island().terrain().size()) {
+                        err = SYS_CSTR(construction_not_enough_space);
+                        return notify_err();
+                    }
+
+                    for (u8 x = sx; x < ex; ++x) {
+                        for (u8 y = sy; y < ey; ++y) {
+
                             if (app.player_island().get_room({x, y})) {
-                                pfrm.speaker().play_sound("beep_error", 3);
-                                StringBuffer<80> err =
-                                    SYS_CSTR(construction_not_enough_space);
-                                return scene_pool::alloc<NotificationScene>(
-                                    err, next);
+                                err = SYS_CSTR(construction_not_enough_space);
+                                return notify_err();
                             }
                         }
                     }
                 }
 
                 if (size_diff_y) {
-                    for (u8 x = target_coord_.x;
-                         x < target_coord_.x + (*to)->size().x;
-                         ++x) {
-                        for (u8 y = target_coord_.y - size_diff_y;
-                             y < target_coord_.y;
-                             ++y) {
+                    auto sx = target_coord_.x;
+                    auto ex = target_coord_.x + (*to)->size().x;
+                    auto sy = target_coord_.y - size_diff_y;
+
+                    for (u8 x = sx; x < ex; ++x) {
+                        for (u8 y = sy; y < target_coord_.y; ++y) {
+
                             if (app.player_island().get_room({x, y})) {
                                 pfrm.speaker().play_sound("beep_error", 3);
-                                StringBuffer<80> err =
-                                    SYS_CSTR(construction_not_enough_space);
+                                err = SYS_CSTR(construction_not_enough_space);
                                 return scene_pool::alloc<NotificationScene>(
                                     err, next);
                             }
@@ -176,8 +200,7 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (app.coins() < cost) {
                     pfrm.speaker().play_sound("beep_error", 3);
-                    StringBuffer<80> err =
-                        SYS_CSTR(construction_insufficient_funds);
+                    err = SYS_CSTR(construction_insufficient_funds);
                     return scene_pool::alloc<NotificationScene>(err, next);
                 }
 

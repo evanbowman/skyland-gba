@@ -33,6 +33,20 @@ namespace skyland
 
 
 
+const char* Forcefield::upgrade_mt_name() const
+{
+    return Forcefield2::name();
+}
+
+
+
+const char* Forcefield2::upgrade_mt_name() const
+{
+    return nullptr;
+}
+
+
+
 void Forcefield::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_forcefield)->c_str();

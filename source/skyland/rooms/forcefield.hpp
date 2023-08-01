@@ -46,6 +46,9 @@ public:
     void rewind(Platform&, App&, Microseconds delta) override;
 
 
+    const char* upgrade_mt_name() const override;
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
@@ -164,6 +167,9 @@ public:
     {
         return 9.f;
     }
+
+
+    const char* upgrade_mt_name() const override;
 
 
     void update(Platform&, App&, Microseconds delta) override;

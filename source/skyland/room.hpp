@@ -727,6 +727,9 @@ public:
     }
 
 
+    virtual const char* upgrade_mt_name() const;
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 

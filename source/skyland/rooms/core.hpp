@@ -94,8 +94,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    const char* upgrade_mt_name() const override;
 
 
     static RoomProperties::Bitmask properties()
@@ -126,6 +125,9 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
+    const char* upgrade_mt_name() const override;
+
+
     static Float atp_value()
     {
         return Core::atp_value() - 1;
@@ -135,13 +137,6 @@ public:
     static const char* name()
     {
         return "backup-core";
-    }
-
-
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override
-    {
-        return null_scene();
     }
 
 

@@ -682,6 +682,7 @@ enum class SystemString {
     sel_menu_describe_block,
     sel_menu_edit_flag,
     sel_menu_crewmember_icon,
+    sel_menu_upgrade_block,
 
     choose_flag,
     flag_default,
@@ -694,6 +695,8 @@ enum class SystemString {
     flag_banana,
 
     upgrade_prompt,
+    upgrade_denied_manufactory,
+    upgrade_denied_workshop,
 
     flag_designer_presets,
     flag_designer_flood,

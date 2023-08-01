@@ -47,6 +47,9 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
+    const char* upgrade_mt_name() const override;
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
@@ -96,10 +99,6 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
-
-
     void finalize(Platform& pfrm, App& app) override;
 };
 
@@ -139,8 +138,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    const char* upgrade_mt_name() const override;
 
 
     static RoomProperties::Bitmask properties()
@@ -164,6 +162,9 @@ public:
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
+
+
+    const char* upgrade_mt_name() const override;
 
 
     static SystemString ui_name()

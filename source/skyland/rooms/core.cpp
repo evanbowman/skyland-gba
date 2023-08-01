@@ -24,7 +24,6 @@
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 
@@ -32,6 +31,13 @@
 
 namespace skyland
 {
+
+
+
+const char* Core::upgrade_mt_name() const
+{
+    return "reactor";
+}
 
 
 
@@ -92,28 +98,6 @@ void Core::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Core::select(Platform& pfrm, App& app, const RoomCoord& cursor)
-{
-    if (auto scn = Room::select(pfrm, app, cursor)) {
-        return scn;
-    }
-
-    if (not parent()->manufactory_count()) {
-        return null_scene();
-    }
-
-    if (app.game_mode() == App::GameMode::tutorial) {
-        return null_scene();
-    }
-
-    auto upgrade_to = skyland::metaclass_index("reactor");
-
-    return scene_pool::alloc<UpgradePromptScene>(
-        position(), metaclass_index(), upgrade_to);
-}
-
-
-
 Power BackupCore::power_usage(App& app) const
 {
     auto base_power = Core::power_usage(app);
@@ -131,6 +115,13 @@ Power BackupCore::power_usage(App& app) const
         }
     }
     return base_power;
+}
+
+
+
+const char* BackupCore::upgrade_mt_name() const
+{
+    return nullptr;
 }
 
 

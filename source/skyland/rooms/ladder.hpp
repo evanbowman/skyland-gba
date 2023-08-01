@@ -70,10 +70,6 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
-
-
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::habitable |
@@ -86,6 +82,9 @@ public:
     {
         return SystemString::block_ladder;
     }
+
+
+    const char* upgrade_mt_name() const override;
 
 
     static Icon icon()
@@ -115,11 +114,10 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
-
-
     void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+
+
+    const char* upgrade_mt_name() const override;
 
 
     static SystemString ui_name()

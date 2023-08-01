@@ -33,10 +33,19 @@ namespace skyland
 {
 
 
+
+const char* Stairwell::upgrade_mt_name() const
+{
+    return "stairwell+";
+}
+
+
+
 void Stairwell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell)->c_str();
 }
+
 
 
 Stairwell::Stairwell(Island* parent, const RoomCoord& position, const char* n)
@@ -45,10 +54,12 @@ Stairwell::Stairwell(Island* parent, const RoomCoord& position, const char* n)
 }
 
 
+
 void Stairwell::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 }
+
 
 
 void Stairwell::render_interior(App* app, TileId buffer[16][16])
@@ -58,6 +69,7 @@ void Stairwell::render_interior(App* app, TileId buffer[16][16])
     buffer[position().x][position().y + 2] = InteriorTile::ladder_mid;
     buffer[position().x][position().y + 3] = InteriorTile::ladder_base;
 }
+
 
 
 void Stairwell::render_exterior(App* app, TileId buffer[16][16])
@@ -95,21 +107,9 @@ void Stairwell::finalize(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene>
-Stairwell::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+const char* StairwellPlus::upgrade_mt_name() const
 {
-    if (auto scn = Room::select(pfrm, app, cursor)) {
-        return scn;
-    }
-
-    if (not str_eq(this->name(), Stairwell::name())) {
-        return null_scene();
-    }
-
-    auto upgrade_to = skyland::metaclass_index("stairwell+");
-
-    return scene_pool::alloc<UpgradePromptScene>(
-        position(), metaclass_index(), upgrade_to);
+    return "stairwell++";
 }
 
 
@@ -152,21 +152,6 @@ void StairwellPlus::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-ScenePtr<Scene>
-StairwellPlus::select(Platform& pfrm, App& app, const RoomCoord& cursor)
-{
-    if (auto scn = Room::select(pfrm, app, cursor)) {
-        return scn;
-    }
-
-    auto upgrade_to = skyland::metaclass_index("stairwell++");
-
-    return scene_pool::alloc<UpgradePromptScene>(
-        position(), metaclass_index(), upgrade_to);
-}
-
-
-
 void StairwellPlusPlus::render_interior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::ladder_top;
@@ -203,6 +188,13 @@ void StairwellPlusPlus::plot_walkable_zones(App& app, bool matrix[16][16])
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;
     }
+}
+
+
+
+const char* StairwellPlusPlus::upgrade_mt_name() const
+{
+    return nullptr;
 }
 
 
