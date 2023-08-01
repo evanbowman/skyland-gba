@@ -314,7 +314,7 @@ Mostly decorative, but generates some power. Power output doubled in stormy weat
 Built on the surface, these missiles divide into ten projeciles upon impact and ricochet off walls. Few, if any, still exist, look in shops...
 Like a ladder, but one block taller. Click a ladder to upgrade to ladder+1.
 Like a stairwell, but one block taller. Click a stairwell to upgrade to stairwell+1.
-Like a stairwell+1, but one block taller. Click a stairwell to upgrade to stairwell+2.
+Like a stairwell+1, but one block taller. Click a stairwell+1 to upgrade to stairwell+2.
 paused
 slow
 regular

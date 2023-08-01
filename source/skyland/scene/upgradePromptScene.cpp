@@ -223,6 +223,39 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
             }
         }
     }
+
+    if (auto room = app.player_island().get_room(target_coord_)) {
+        auto origin = app.player_island().visual_origin();
+        origin.x += Fixnum::from_integer(target_coord_.x * 16);
+        origin.y += Fixnum::from_integer(target_coord_.y * 16);
+
+        origin.x -= 4.0_fixed;
+        origin.y -= 4.0_fixed;
+
+        Sprite spr;
+        spr.set_size(Sprite::Size::w16_h16);
+        spr.set_texture_index(52 * 2);
+        spr.set_position(origin);
+        pfrm.screen().draw(spr);
+
+        spr.set_flip({true, false});
+        origin.x += Fixnum::from_integer(room->size().x * 16);
+        origin.x -= 8.0_fixed;
+        spr.set_position(origin);
+        pfrm.screen().draw(spr);
+
+        spr.set_flip({true, true});
+        origin.y += Fixnum::from_integer(room->size().y * 16);
+        origin.y -= 8.0_fixed;
+        spr.set_position(origin);
+        pfrm.screen().draw(spr);
+
+        spr.set_flip({false, true});
+        origin.x -= Fixnum::from_integer(room->size().x * 16);
+        origin.x += 8.0_fixed;
+        spr.set_position(origin);
+        pfrm.screen().draw(spr);
+    }
 }
 
 

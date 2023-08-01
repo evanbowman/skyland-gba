@@ -137,6 +137,11 @@ public:
 
             state_ = State::prompt;
             persist_ui();
+
+            pfrm.set_tile(Layer::overlay, 0, st.y - 3, 249);
+            pfrm.set_tile(Layer::overlay, 1, st.y - 3, 250);
+            pfrm.set_tile(Layer::overlay, 0, st.y - 2, 251);
+            pfrm.set_tile(Layer::overlay, 1, st.y - 2, 252);
             break;
         }
 
