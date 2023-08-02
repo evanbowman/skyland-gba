@@ -83,11 +83,6 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
-    // if (app.gp_.difficulty_ not_eq GlobalPersistentData::Difficulty::beginner) {
-    //     apply_damage(pfrm, app, Room::health_upper_limit());
-    //     return;
-    // }
-
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {
