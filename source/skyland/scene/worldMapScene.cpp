@@ -22,7 +22,6 @@
 
 #include "worldMapScene.hpp"
 #include "adventureLogScene.hpp"
-#include "adventureModeSettingsScene.hpp"
 #include "graphics/overlay.hpp"
 #include "hintScene.hpp"
 #include "loadLevelScene.hpp"
@@ -340,9 +339,8 @@ static const int map_start_y = 3;
 void WorldMapScene::redraw_icons(Platform& pfrm)
 {
     save_icon_.emplace(pfrm, 126, OverlayCoord{27, 17});
-    help_icon_.emplace(pfrm, 134, OverlayCoord{21, 17});
-    settings_icon_.emplace(pfrm, 142, OverlayCoord{24, 17});
-    logbook_icon_.emplace(pfrm, 150, OverlayCoord{18, 17});
+    help_icon_.emplace(pfrm, 134, OverlayCoord{24, 17});
+    logbook_icon_.emplace(pfrm, 150, OverlayCoord{21, 17});
 }
 
 
@@ -540,7 +538,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::selected;
         } else if (app.player().key_down(pfrm, Key::left)) {
-            state_ = State::settings_selected;
+            state_ = State::help_selected;
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
@@ -556,14 +554,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::selected;
         } else if (app.player().key_down(pfrm, Key::right)) {
-            state_ = State::settings_selected;
+            state_ = State::save_selected;
         } else if (app.player().key_down(pfrm, Key::left)) {
             state_ = State::logbook_selected;
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::help_button_depressed;
-            help_icon_.emplace(pfrm, 138, OverlayCoord{21, 17});
+            help_icon_.emplace(pfrm, 138, OverlayCoord{24, 17});
             timer_ = 0;
         }
         break;
@@ -574,7 +572,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > milliseconds(100)) {
             timer_ = 0;
             state_ = State::help_button_released_wait;
-            help_icon_.emplace(pfrm, 134, OverlayCoord{21, 17});
+            help_icon_.emplace(pfrm, 134, OverlayCoord{24, 17});
         }
         break;
 
@@ -598,7 +596,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::logbook_button_depressed;
-            logbook_icon_.emplace(pfrm, 154, OverlayCoord{18, 17});
+            logbook_icon_.emplace(pfrm, 154, OverlayCoord{21, 17});
             timer_ = 0;
         }
         break;
@@ -609,7 +607,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > milliseconds(100)) {
             timer_ = 0;
             state_ = State::logbook_button_released_wait;
-            logbook_icon_.emplace(pfrm, 150, OverlayCoord{18, 17});
+            logbook_icon_.emplace(pfrm, 150, OverlayCoord{21, 17});
         }
         break;
 
@@ -619,43 +617,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > milliseconds(60)) {
             timer_ = 0;
             state_ = State::fade_out_logbook;
-        }
-        break;
-
-
-    case State::settings_selected:
-        if (app.player().key_down(pfrm, Key::up) or
-            app.player().key_down(pfrm, Key::action_2)) {
-            state_ = State::selected;
-        } else if (app.player().key_down(pfrm, Key::right)) {
-            state_ = State::save_selected;
-        } else if (app.player().key_down(pfrm, Key::left)) {
-            state_ = State::help_selected;
-        }
-
-        if (app.player().key_down(pfrm, Key::action_1)) {
-            state_ = State::settings_button_depressed;
-            settings_icon_.emplace(pfrm, 146, OverlayCoord{24, 17});
-            timer_ = 0;
-        }
-        break;
-
-
-    case State::settings_button_depressed:
-        timer_ += delta;
-        if (timer_ > milliseconds(100)) {
-            timer_ = 0;
-            state_ = State::settings_button_released_wait;
-            settings_icon_.emplace(pfrm, 142, OverlayCoord{24, 17});
-        }
-        break;
-
-
-    case State::settings_button_released_wait:
-        timer_ += delta;
-        if (timer_ > milliseconds(60)) {
-            timer_ = 0;
-            state_ = State::fade_out_settings;
         }
         break;
 
@@ -1130,21 +1091,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    case State::fade_out_settings: {
-        timer_ += delta;
-        constexpr auto fade_duration = milliseconds(1200);
-        if (timer_ > fade_duration) {
-            timer_ = 0;
-            pfrm.fill_overlay(0);
-            return scene_pool::alloc<AdventureModeSettingsScene>();
-        } else {
-            const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
-        }
-        break;
-    }
-
     case State::print_saved_text: {
         pfrm.load_overlay_texture("overlay");
         const auto screen_tiles = calc_screen_tiles(pfrm);
@@ -1464,19 +1410,11 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position(
-            {Fixnum::from_integer(136), Fixnum::from_integer(128)});
+            {Fixnum::from_integer(160), Fixnum::from_integer(128)});
         pfrm.screen().draw(cursor);
     } else if (state_ == State::help_selected or
                state_ == State::help_button_depressed or
                state_ == State::help_button_released_wait) {
-        cursor.set_size(Sprite::Size::w32_h32);
-        cursor.set_texture_index(26 + cursor_keyframe_);
-        cursor.set_position(
-            {Fixnum::from_integer(160), Fixnum::from_integer(128)});
-        pfrm.screen().draw(cursor);
-    } else if (state_ == State::settings_selected or
-               state_ == State::settings_button_depressed or
-               state_ == State::settings_button_released_wait) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position(
@@ -1559,9 +1497,8 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_ - 1);
 
     save_icon_.emplace(pfrm, 126, OverlayCoord{27, 17});
-    help_icon_.emplace(pfrm, 134, OverlayCoord{21, 17});
-    settings_icon_.emplace(pfrm, 142, OverlayCoord{24, 17});
-    logbook_icon_.emplace(pfrm, 150, OverlayCoord{18, 17});
+    help_icon_.emplace(pfrm, 134, OverlayCoord{24, 17});
+    logbook_icon_.emplace(pfrm, 150, OverlayCoord{21, 17});
 
     for (auto& node : app.world_graph().nodes_) {
         if (node.type_ == WorldGraph::Node::Type::exit) {
@@ -1622,7 +1559,6 @@ void WorldMapScene::exit(Platform& pfrm, App& app, Scene& next_scene)
 
     save_icon_.reset();
     help_icon_.reset();
-    settings_icon_.reset();
     logbook_icon_.reset();
     exit_label_.reset();
     heading_.reset();
