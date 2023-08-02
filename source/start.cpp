@@ -87,8 +87,6 @@ static inline int boot_init(Platform& pf)
     }
 
     BootScene::init(pf);
-    Text::platform_retain_alphabet(pf);
-
 
     BootScene::message(pf, "mount flash filesystem...");
 

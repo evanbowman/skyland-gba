@@ -664,14 +664,3 @@ bool state_bit_load(App& app, StateBit state_bit)
 
 
 } // namespace skyland
-
-
-
-void Text::platform_retain_alphabet(Platform& pfrm)
-{
-    Text t(pfrm, OverlayCoord{0, calc_screen_tiles(pfrm).y});
-    t.assign(
-        skyland::loadstr(pfrm, skyland::SystemString::patchfix_retain_alphabet)
-            ->c_str());
-    t.__detach();
-}

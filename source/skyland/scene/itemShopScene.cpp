@@ -63,7 +63,6 @@ void ItemShopScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (items_->empty()) {
         Platform::fatal("no shop items defined!?");
     }
-    Text::platform_retain_alphabet(pfrm);
 }
 
 

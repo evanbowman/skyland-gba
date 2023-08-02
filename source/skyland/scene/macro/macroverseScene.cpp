@@ -68,8 +68,6 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     selected_ = macrocosm(app).sector().coordinate();
     initial_sector_ = selected_;
-
-    Text::platform_retain_alphabet(pfrm);
 }
 
 

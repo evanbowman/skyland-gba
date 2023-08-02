@@ -113,9 +113,6 @@ public:
     }
 
 
-    static void platform_retain_alphabet(Platform& pfrm);
-
-
 private:
     void resize(u32 len);
 

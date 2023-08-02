@@ -42,7 +42,6 @@ void MenuOptionsScene::enter(Platform& pfrm,
                              macro::EngineImpl& state,
                              Scene& prev)
 {
-    Text::platform_retain_alphabet(pfrm);
     MacrocosmScene::enter(pfrm, state, prev);
 
     const auto st = calc_screen_tiles(pfrm);

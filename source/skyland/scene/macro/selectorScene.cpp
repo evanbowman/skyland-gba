@@ -113,7 +113,6 @@ public:
 void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
-    Text::platform_retain_alphabet(pfrm);
 
     if (show_island_size_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});

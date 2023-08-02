@@ -43,8 +43,6 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
     pfrm.screen().schedule_fade(0.f);
 
-    Text::platform_retain_alphabet(pfrm);
-
     cursor_text_.emplace(pfrm, OverlayCoord{1, 3});
     cursor_text_->assign(
         "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});

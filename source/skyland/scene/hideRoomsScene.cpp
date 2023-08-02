@@ -37,9 +37,6 @@ void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
     data_ = allocate_dynamic<Data>("hide-rooms-context");
 
 
-    Text::platform_retain_alphabet(pfrm);
-
-
     auto [mt, ms] = room_metatable();
     for (int i = 0; i < ms; ++i) {
         if (is_enabled(i) and

@@ -4420,12 +4420,8 @@ struct GlyphMapping
     //  count to zero. When a call to Platform::set_tile reduces the reference
     //  count back to zero, the tile is once again considered to be unassigned,
     //  and will be set to -1.
-    s16 reference_count_ = -1;
-
-    bool valid() const
-    {
-        return reference_count_ > -1;
-    }
+    s16 reference_count_ = 0;
+    bool unused_ = true;
 };
 
 
@@ -4448,6 +4444,23 @@ struct GlyphTable
 };
 
 static EWRAM_DATA GlyphTable glyph_table;
+
+
+
+int gc_glyphs()
+{
+    int collected = 0;
+
+    for (auto& glyph : glyph_table.mappings_) {
+        if (glyph.reference_count_ <= 0) {
+            glyph.unused_ = true;
+            glyph.reference_count_ = 0;
+            ++collected;
+        }
+    }
+
+    return collected;
+}
 
 
 
@@ -5268,7 +5281,8 @@ void Platform::enable_glyph_mode(bool enabled)
 {
     if (enabled) {
         for (auto& gm : ::glyph_table.mappings_) {
-            gm.reference_count_ = -1;
+            gm.reference_count_ = 0;
+            gm.unused_ = true;
         }
     }
     set_gflag(GlobalFlag::glyph_mode, enabled);
@@ -5333,7 +5347,8 @@ bool Platform::load_overlay_texture(const char* name)
 
             if (get_gflag(GlobalFlag::glyph_mode)) {
                 for (auto& gm : ::glyph_table.mappings_) {
-                    gm.reference_count_ = -1;
+                    gm.reference_count_ = 0;
+                    gm.unused_ = true;
                 }
             }
 
@@ -5392,13 +5407,17 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
 
     for (TileDesc tile = 0; tile < glyph_table_size; ++tile) {
         auto& gm = ::glyph_table.mappings_[tile];
-        if (gm.valid() and gm.mapper_offset_ == mapping_info.offset_) {
+        if (not gm.unused_ and gm.mapper_offset_ == mapping_info.offset_) {
             return glyph_start_offset + tile;
         }
     }
 
     for (auto& info : overlay_textures) {
         if (str_cmp(mapping_info.texture_name_, info.name_) == 0) {
+
+            bool retried = false;
+
+        RETRY:
             for (TileDesc t = 0; t < glyph_table_size; ++t) {
 
                 if (t == font_color_index_tile - 1) {
@@ -5417,9 +5436,10 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                 }
 
                 auto& gm = ::glyph_table.mappings_[t];
-                if (not gm.valid()) {
+                if (gm.unused_) {
                     gm.mapper_offset_ = mapping_info.offset_;
                     gm.reference_count_ = 0;
+                    gm.unused_ = false;
 
                     // 8 x 8 x (4 bitsperpixel / 8 bitsperbyte)
                     constexpr int tile_size = vram_tile_size();
@@ -5476,6 +5496,12 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     return t + glyph_start_offset;
                 }
             }
+
+            if (not retried) {
+                retried = true;
+                gc_glyphs();
+                goto RETRY;
+            }
         }
     }
     return bad_glyph;
@@ -5509,7 +5535,8 @@ void Platform::fill_overlay(u16 tile)
 
     if (get_gflag(GlobalFlag::glyph_mode)) {
         for (auto& gm : ::glyph_table.mappings_) {
-            gm.reference_count_ = -1;
+            gm.reference_count_ = 0;
+            gm.unused_ = true;
         }
     }
 }
@@ -5530,12 +5557,11 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
             if (is_glyph(old_tile)) {
                 auto& gm =
                     ::glyph_table.mappings_[old_tile - glyph_start_offset];
-                if (gm.valid()) {
+                if (not gm.unused_) {
                     gm.reference_count_ -= 1;
 
-                    if (gm.reference_count_ == 0) {
-                        gm.reference_count_ = -1;
-                        gm.mapper_offset_ = 0;
+                    if (gm.reference_count_ < 0) {
+                        gm.reference_count_ = 0;
                     }
                 } else {
                     // I suppose this could happen if we swapped overlay
@@ -5551,13 +5577,8 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
 
             if (is_glyph(val)) {
                 auto& gm = ::glyph_table.mappings_[val - glyph_start_offset];
-                if (not gm.valid()) {
-                    // Not clear exactly what to do here... Somehow we've
-                    // gotten into an erroneous state, but not a permanently
-                    // unrecoverable state (tile isn't valid, so it'll be
-                    // overwritten upon the next call to map_tile).
-                    warning(pfrm, "invalid assignment to glyph table");
-                    return;
+                if (gm.unused_) {
+                    Platform::fatal("invalid assignment to glyph table");
                 }
                 gm.reference_count_++;
             }

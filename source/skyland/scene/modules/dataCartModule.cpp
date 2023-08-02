@@ -99,7 +99,6 @@ void __draw_image(Platform& pfrm,
 
 void DataCartModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    Text::platform_retain_alphabet(pfrm);
     pfrm.screen().set_view(View{});
 
     pfrm.load_overlay_texture("overlay_datacart");
@@ -116,7 +115,6 @@ void DataCartModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
-    Text::print(pfrm, "0123456789()[].", OverlayCoord{0, 21});
 }
 
 

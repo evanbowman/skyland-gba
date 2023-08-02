@@ -127,11 +127,6 @@ void AdventureLogScene::enter(Platform& pfrm, App& app, Scene& prev)
     show_page(pfrm, app, 0);
     pfrm.speaker().play_sound("page_flip", 0);
     pfrm.screen().schedule_fade(1, custom_color(0xcdd6a1));
-    Text::platform_retain_alphabet(pfrm);
-    Text::print(pfrm,
-                "0123456789",
-                {0, 20},
-                FontColors{custom_color(0xf7f7ef), custom_color(0x0e0984)});
 }
 
 

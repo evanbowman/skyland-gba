@@ -235,8 +235,6 @@ void DatetimeModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.enable_glyph_mode(true);
 
     repaint(pfrm);
-
-    Text::platform_retain_alphabet(pfrm);
 }
 
 

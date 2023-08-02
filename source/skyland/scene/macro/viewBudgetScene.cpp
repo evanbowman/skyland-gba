@@ -39,8 +39,6 @@ ViewBudgetScene::ViewBudgetScene() : s_(allocate_dynamic<State>("budget-info"))
 
 void ViewBudgetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    Text::platform_retain_alphabet(pfrm);
-
     pfrm.fill_overlay(0);
     pfrm.screen().display();
     pfrm.load_overlay_texture("overlay_challenges");

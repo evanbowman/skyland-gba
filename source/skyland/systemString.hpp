@@ -704,8 +704,6 @@ enum class SystemString {
     flag,
     flag_fmt,
 
-    __NOTICE__,
-    patchfix_retain_alphabet,
     count,
 };
 
