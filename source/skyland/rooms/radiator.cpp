@@ -119,6 +119,13 @@ void Radiator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
+bool Radiator::opponent_display_on_hover() const
+{
+    return true;
+}
+
+
+
 void Radiator::display_on_hover(Platform::Screen& screen,
                                 App& app,
                                 const RoomCoord& cursor)

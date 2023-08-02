@@ -122,6 +122,9 @@ public:
     }
 
 
+    bool opponent_display_on_hover() const override;
+
+
     void display_on_hover(Platform::Screen& screen,
                           App& app,
                           const RoomCoord& cursor) override;

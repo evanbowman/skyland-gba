@@ -249,6 +249,9 @@ public:
     virtual void display(Platform::Screen& screen, App& app);
 
 
+    virtual bool opponent_display_on_hover() const;
+
+
     virtual void display_on_hover(Platform::Screen& screen,
                                   App& app,
                                   const RoomCoord& cursor);

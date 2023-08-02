@@ -321,9 +321,6 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"Ї"): return 255;
         case UTF8_GETCHR(u8"ї"): return 256;
         case UTF8_GETCHR(u8"ё"): return 87;
-        case UTF8_GETCHR(u8"ä"): return 303;
-        case UTF8_GETCHR(u8"Ü"): return 304;
-        case UTF8_GETCHR(u8"ß"): return 305;
 
         case UTF8_GETCHR(u8"ア"): return 106;
         case UTF8_GETCHR(u8"イ"): return 107;
@@ -450,6 +447,36 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"を"): return 299;
         case UTF8_GETCHR(u8"ん"): return 300;
         case UTF8_GETCHR(u8"β"): return 301;
+
+        case UTF8_GETCHR(u8"ñ"): return 73;
+        case UTF8_GETCHR(u8"á"): return 74;
+        case UTF8_GETCHR(u8"é"): return 75;
+        case UTF8_GETCHR(u8"í"): return 76;
+        case UTF8_GETCHR(u8"ó"): return 77;
+        case UTF8_GETCHR(u8"ú"): return 78;
+        case UTF8_GETCHR(u8"â"): return 79;
+        case UTF8_GETCHR(u8"ê"): return 80;
+        case UTF8_GETCHR(u8"î"): return 81;
+        case UTF8_GETCHR(u8"ô"): return 82;
+        case UTF8_GETCHR(u8"û"): return 83;
+        case UTF8_GETCHR(u8"à"): return 84;
+        case UTF8_GETCHR(u8"è"): return 85;
+        case UTF8_GETCHR(u8"ù"): return 86;
+        case UTF8_GETCHR(u8"ë"): return 87;
+        case UTF8_GETCHR(u8"ï"): return 88;
+        case UTF8_GETCHR(u8"ü"): return 89;
+        case UTF8_GETCHR(u8"ç"): return 90;
+        case UTF8_GETCHR(u8"Ç"): return 91;
+        case UTF8_GETCHR(u8"ö"): return 92;
+        case UTF8_GETCHR(u8"¡"): return 96;
+        case UTF8_GETCHR(u8"¿"): return 97;
+        case UTF8_GETCHR(u8"ì"): return 306;
+        case UTF8_GETCHR(u8"ä"): return 303;
+        case UTF8_GETCHR(u8"Ü"): return 304;
+        case UTF8_GETCHR(u8"ß"): return 305;
+        case UTF8_GETCHR(u8"Å"): return 307;
+        case UTF8_GETCHR(u8"å"): return 308;
+        case UTF8_GETCHR(u8"Ä"): return 309;
 
             // clang-format on
 

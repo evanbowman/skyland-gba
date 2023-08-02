@@ -134,6 +134,13 @@ void Room::set_injured(Platform& pfrm)
 
 
 
+bool Room::opponent_display_on_hover() const
+{
+    return false;
+}
+
+
+
 const char* Room::name() const
 {
     return (*metaclass())->name();

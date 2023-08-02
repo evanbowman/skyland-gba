@@ -404,7 +404,11 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         pfrm.screen().draw(cursor);
 
-        if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
+        if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+            if (room->opponent_display_on_hover()) {
+                room->display_on_hover(pfrm.screen(), app, cursor_loc);
+            }
+        } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
                 (*drone)->display_on_hover(pfrm.screen(), app, cursor_loc);
             }
