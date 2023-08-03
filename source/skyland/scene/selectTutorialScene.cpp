@@ -105,7 +105,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     if (state_ not_eq State::quickselect) {
-        show_options(pfrm);
+        show_options(pfrm, app);
 
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
@@ -120,6 +120,17 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     pfrm.delta_clock().reset();
+}
+
+
+
+void SelectTutorialScene::show_options(Platform& pfrm, App& app)
+{
+    pfrm.screen().clear();
+    text_.clear();
+    pfrm.screen().display();
+
+    pfrm.fill_overlay(0);
 
     pfrm.set_tile(Layer::overlay, 1, 2, 90);
     pfrm.set_tile(Layer::overlay, 28, 2, 92);
@@ -133,15 +144,6 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, 1, y, 93);
         pfrm.set_tile(Layer::overlay, 28, y, 97);
     }
-}
-
-
-
-void SelectTutorialScene::show_options(Platform& pfrm)
-{
-    pfrm.screen().clear();
-    text_.clear();
-    pfrm.screen().display();
 
     if (not tutorials_) {
         return;
@@ -160,6 +162,8 @@ void SelectTutorialScene::show_options(Platform& pfrm)
             pfrm.fatal("tutorial list format invalid");
         }
 
+        bool completed = app.gp_.watched_tutorials_.get() & (1 << index);
+
         if (index++ < start_index) {
             return;
         }
@@ -167,6 +171,13 @@ void SelectTutorialScene::show_options(Platform& pfrm)
         text_.emplace_back(pfrm,
                            name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
+
+        if (completed) {
+            pfrm.set_tile(Layer::overlay,
+                          text_.back().coord().x + text_.back().len() + 1,
+                          text_.back().coord().y,
+                          84);
+        }
     });
 
 
@@ -240,6 +251,12 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*tutorials_, index);
 
+        if (not (app.gp_.watched_tutorials_.get() & (1 << index))) {
+            app.gp_.watched_tutorials_.set(app.gp_.watched_tutorials_.get() |
+                                       (1 << index));
+            save::store_global_data(pfrm, app.gp_);
+        }
+
         auto file_name = choice->cons().cdr();
         if (file_name->type() not_eq lisp::Value::Type::string) {
             pfrm.fatal("tutorial list format invalid");
@@ -298,7 +315,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(pfrm);
+                show_options(pfrm, app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
@@ -308,7 +325,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(pfrm);
+                show_options(pfrm, app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
@@ -319,6 +336,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
+            pfrm.fill_overlay(0);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             text_.clear();
             pfrm.fill_overlay(0);

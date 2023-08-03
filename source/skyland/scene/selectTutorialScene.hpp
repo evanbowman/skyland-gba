@@ -72,7 +72,7 @@ public:
 
 
 private:
-    void show_options(Platform&);
+    void show_options(Platform&, App&);
 
     enum class State {
         fade_in,

@@ -57,7 +57,7 @@ void HideRoomsScene::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     if (changed_) {
-        save::store_global_data(pfrm, app.gp_);
+        store_hidden_rooms(pfrm);
     }
 }
 
@@ -101,7 +101,7 @@ void HideRoomsScene::repaint(Platform& pfrm, App& app)
                 {ColorConstant::rich_black, ColorConstant::aerospace_orange}};
         }
 
-        if (app.gp_.hidden_rooms_.get((*data_)->room_classes_[index])) {
+        if (room_hidden((*data_)->room_classes_[index])) {
             auto str = SYSTR(yes);
             hidden_.emplace_back(
                 pfrm,
@@ -142,7 +142,7 @@ HideRoomsScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (player(app).key_down(pfrm, Key::action_1)) {
         auto mti = (*data_)->room_classes_[index_];
-        app.gp_.hidden_rooms_.set(mti, not app.gp_.hidden_rooms_.get(mti));
+        room_set_hidden(mti, not room_hidden(mti));
         repaint(pfrm, app);
         changed_ = true;
     }

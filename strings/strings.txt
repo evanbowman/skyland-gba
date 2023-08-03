@@ -36,7 +36,7 @@ carved-stone
 cloak
 cocoa
 command-module
-splitter
+splinter-rocket
 cesium
 salvage-arm
 carved-crystal
@@ -294,14 +294,14 @@ Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 Changes the weather!
-Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
+Automatically chooses weapon targets for you! You might be able to do a better job yourself, though...
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 Like a stairwell, but half as tall.
 Heals inhabitants, slower for each additional inhabitant. Only heals crew originating from the same island as the infirmary.
 Produces replicants. A replicant has 75% of the health of the source character, and cannot heal.
 Deploys a drone! When destroyed, the deployed drone will also be destroyed.
 A powerful weapon that only works in the stormiest weather. Gains one ammo and charges one level per lightning strike.
-Text written in some strange language... what could it mean?
+Text written in some strange language... what could it mean? (If you see one, click to enlarge)
 Conceal blocks! AI player cannot see blocks created fully within a cloak. AI will guess cloaked blocks based on behavior. Takes ion damage.
 Only constructible in sandbox mode.
 Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.

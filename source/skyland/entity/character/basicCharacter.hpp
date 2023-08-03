@@ -291,6 +291,9 @@ public:
     }
 
 
+    void apply_radiation_damage(Platform&, App&, Health amount);
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -315,6 +318,7 @@ private:
     State state_ = State::moving_or_idle;
 
     u8 icon_;
+    u8 radiation_counter_ = 0;
 
 
     bool has_opponent(Room* room);

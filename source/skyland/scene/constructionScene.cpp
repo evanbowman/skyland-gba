@@ -1478,7 +1478,7 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
              meta->properties() & RoomProperties::disabled_in_tutorials) or
             (meta->properties() & RoomProperties::not_constructible) or
             (app.game_mode() not_eq App::GameMode::tutorial and
-             app.gp_.hidden_rooms_.get(i)) or
+             room_hidden(i)) or
             (app.game_mode() not_eq App::GameMode::adventure and
              meta->properties() & RoomProperties::adventure_mode_only) or
             (app.game_mode() not_eq App::GameMode::sandbox and
@@ -1494,10 +1494,6 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
              meta->properties() & RoomProperties::easy_mode_only) or
             (state_bit_load(app, StateBit::multiboot) and
              not(meta->properties() & RoomProperties::multiboot_compatible));
-
-        if (i >= app.gp_.hidden_rooms_.size()) {
-            Platform::fatal("hidden rooms Bitvector requires resize!");
-        }
 
         if (not explicitly_disabled and dependencies_satisfied and
             (not constrain_ or (constrain_ and site_has_space(app, i))) and

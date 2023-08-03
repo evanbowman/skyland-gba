@@ -60,6 +60,57 @@ Player& player(App& app)
 
 
 
+static const char* const hidden_rooms_file = "/save/hidden.txt";
+static const char rooms_hidden_delim = ',';
+
+
+
+void load_hidden_rooms(Platform& pfrm)
+{
+    Vector<char> data;
+    flash_filesystem::read_file_data_binary(pfrm, hidden_rooms_file, data);
+
+    StringBuffer<64> parse_buf;
+
+    auto it = data.begin();
+    for (; it not_eq data.end(); ++it) {
+        if (*it == '\0') {
+            break;
+        } else if (*it == rooms_hidden_delim) {
+            auto mti = metaclass_index(parse_buf.c_str());
+            if (mti) {
+                room_set_hidden(mti, true);
+            }
+            parse_buf.clear();
+        } else {
+            parse_buf.push_back(*it);
+        }
+    }
+}
+
+
+
+void store_hidden_rooms(Platform& pfrm)
+{
+    Vector<char> data;
+
+    const auto [mts, mt_count] = room_metatable();
+    for (int i = 0; i < mt_count; ++i) {
+        if (room_hidden(i)) {
+            auto name = mts[i]->name();
+            while (*name not_eq '\0') {
+                data.push_back(*name);
+                ++name;
+            }
+            data.push_back(rooms_hidden_delim);
+        }
+    }
+
+    flash_filesystem::store_file_data_binary(pfrm, hidden_rooms_file, data);
+}
+
+
+
 App::App(Platform& pfrm, bool clean_boot)
     : level_timer_(0), stat_timer_(0),
       world_state_(allocate_dynamic<WorldState>("env-buffer",
@@ -88,9 +139,11 @@ App::App(Platform& pfrm, bool clean_boot)
 
         // Hidden by default. Just as an incentive to the player to figure out
         // how the room hide menu works.
-        gp_.hidden_rooms_.set(metaclass_index("sunflower"), true);
-        gp_.hidden_rooms_.set(metaclass_index("crane"), true);
+        room_set_hidden(metaclass_index("sunflower"), true);
+        store_hidden_rooms(pfrm);
     }
+
+    load_hidden_rooms(pfrm);
 
     // On unrecoverrable errors: try to store a backup, and flush the system log
     // to sram.

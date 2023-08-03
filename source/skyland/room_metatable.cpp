@@ -551,4 +551,22 @@ RoomMeta* load_metaclass(MetaclassIndex index)
 
 
 
+static Bitvector<128> hidden_rooms;
+
+
+
+void room_set_hidden(MetaclassIndex idx, bool hidden)
+{
+    hidden_rooms.set(idx, hidden);
+}
+
+
+
+bool room_hidden(MetaclassIndex idx)
+{
+    return hidden_rooms.get(idx);
+}
+
+
+
 } // namespace skyland

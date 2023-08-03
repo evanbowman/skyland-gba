@@ -130,6 +130,12 @@ public:
                           const RoomCoord& cursor) override;
 
 
+    using ChrBuffer = Buffer<BasicCharacter*, 16>;
+
+
+    void collect_nearby_chrs(App& app, ChrBuffer& output);
+
+
 private:
     void emit_radiation(Platform& pfrm, App& app);
 

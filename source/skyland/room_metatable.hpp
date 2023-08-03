@@ -177,4 +177,15 @@ inline bool is_forcefield(RoomMeta* m)
 }
 
 
+
+void room_set_hidden(MetaclassIndex idx, bool hidden);
+bool room_hidden(MetaclassIndex);
+
+
+
+void load_hidden_rooms(Platform& pfrm);
+void store_hidden_rooms(Platform& pfrm);
+
+
+
 } // namespace skyland

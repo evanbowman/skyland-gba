@@ -64,7 +64,8 @@ struct GlobalPersistentData
         expert,
     } difficulty_ = Difficulty::beginner;
 
-    Bitvector<128> hidden_rooms_;
+    host_u64 watched_tutorials_;
+    host_u64 unused_;
 
     Bitvector<64> stateflags_;
 

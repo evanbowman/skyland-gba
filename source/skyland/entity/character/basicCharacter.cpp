@@ -173,6 +173,11 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
+    if (radiation_counter_) {
+        sprite_.set_mix({});
+    }
+    radiation_counter_ = 0;
+
     sprite_.set_position(o);
 
     sprite_.set_texture_index(base_frame(this, app) + 5);
@@ -283,9 +288,14 @@ void BasicCharacter::update(Platform& pfrm,
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
 
-    // if (mind_controlled() and state_ not_eq State::after_transport) {
-    //     sprite_.set_mix({ColorConstant::stil_de_grain, 40});
-    // }
+    if (radiation_counter_) {
+        if (radiation_counter_) {
+            radiation_counter_ -= std::min((u8)4, radiation_counter_);
+            sprite_.set_mix({custom_color(0xe81858), radiation_counter_});
+        }
+    } else {
+        sprite_.set_mix({});
+    }
 
     switch (state_) {
     case State::fighting:
@@ -757,6 +767,17 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
     if (auto room = parent_->get_room(grid_position())) {
         room->update_description();
     }
+}
+
+
+
+void BasicCharacter::apply_radiation_damage(Platform& pfrm,
+                                            App& app,
+                                            Health amount)
+{
+    radiation_counter_ = 230;
+
+    apply_damage(pfrm, app, amount);
 }
 
 

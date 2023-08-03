@@ -24,6 +24,7 @@
 #include "skyland/island.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -63,14 +64,8 @@ void Radiator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-static SharedVariable radiation_damage("radiation_damage", 20);
-
-
-
-void Radiator::emit_radiation(Platform& pfrm, App& app)
+void Radiator::collect_nearby_chrs(App& app, ChrBuffer& output)
 {
-    Buffer<BasicCharacter*, 10> queue;
-
     auto pos = position();
     for (int x = pos.x - 2; x < pos.x + 3; ++x) {
         for (int y = pos.y - 2; y < pos.y + 3; ++y) {
@@ -83,7 +78,7 @@ void Radiator::emit_radiation(Platform& pfrm, App& app)
                         continue;
                     }
                     const bool found = [&] {
-                        for (auto pushed : queue) {
+                        for (auto pushed : output) {
                             if (pushed == chr.get()) {
                                 return true;
                             }
@@ -91,16 +86,103 @@ void Radiator::emit_radiation(Platform& pfrm, App& app)
                         return false;
                     }();
                     if (not found) {
-                        queue.push_back(chr.get());
+                        output.push_back(chr.get());
                     }
                 }
             }
         }
     }
 
-    for (auto& chr : queue) {
-        chr->apply_damage(pfrm, app, radiation_damage);
+}
+
+
+
+class RadiationAnim : public Entity
+{
+public:
+    RadiationAnim(Vec2<Fixnum> pos) : Entity({})
+    {
+        sprite_.set_size(Sprite::Size::w16_h16);
+        sprite_.set_tidx_16x16(31, 0);
+        sprite_.set_position(pos);
+        sprite_.set_origin({});
+        // sprite_.set_alpha(Sprite::Alpha::translucent);
+        sprite_.set_mix({custom_color(0xe81858), 255});
     }
+
+
+    void update(Platform& pfrm, App&, Microseconds delta) override
+    {
+        // The game manipulates the time delta for slow motion stuff, etc. But
+        // we always want this UI effect to play at the same rate.
+        delta = pfrm.delta_clock().last_delta();
+
+        timer_ += delta;
+        if (timer_ >= milliseconds(80)) {
+            timer_ -= milliseconds(80);
+            auto t = sprite_.get_texture_index();
+            if (t == 31 * 2 + 5) {
+                kill();
+                return;
+            }
+
+            ++t;
+            sprite_.set_texture_index(t);
+        }
+    }
+
+
+    void rewind(Platform&, App&, Microseconds delta) override
+    {
+        kill();
+    }
+
+
+    Sprite& sprite()
+    {
+        return sprite_;
+    }
+
+private:
+    Microseconds timer_ = 0;
+};
+
+
+
+void make_radiation_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
+{
+    auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
+        auto p = pos;
+        p.x += xoff;
+        p.y += yoff;
+        if (auto e = app.alloc_entity<RadiationAnim>(pfrm, p)) {
+            e->sprite().set_flip({xflip, yflip});
+            app.effects().push(std::move(e));
+        }
+    };
+
+    segment(Fixnum::from_integer(-16), Fixnum::from_integer(-16), false, false);
+    segment(Fixnum::from_integer(-16), 0.0_fixed, false, true);
+    segment(0.0_fixed, Fixnum::from_integer(-16), true, false);
+    segment(0.0_fixed, 0.0_fixed, true, true);
+}
+
+
+
+static SharedVariable radiation_damage("radiation_damage", 20);
+
+
+
+void Radiator::emit_radiation(Platform& pfrm, App& app)
+{
+    ChrBuffer queue;
+    collect_nearby_chrs(app, queue);
+
+    for (auto& chr : queue) {
+        chr->apply_radiation_damage(pfrm, app, radiation_damage);
+    }
+
+    make_radiation_effect(pfrm, app, visual_center());
 }
 
 

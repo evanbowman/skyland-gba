@@ -32,6 +32,8 @@
         (dialog
          "<c:banana man:8>MY BANANAS!!! HAND THEM OVER!!!")
 
+        (setq on-converge nil)
+
         (setq on-dialog-closed
               (lambda
                 (dialog
