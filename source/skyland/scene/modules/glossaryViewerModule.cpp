@@ -62,7 +62,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
     temp += mt[page]->ui_name(pfrm)->c_str();
     temp += " (";
     temp += stringify(mt[page]->size().x);
-    temp += ",";
+    temp += "x";
     temp += stringify(mt[page]->size().y);
     temp += ")";
 

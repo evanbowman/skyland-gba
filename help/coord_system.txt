@@ -58,4 +58,11 @@
  sandbox's saving feature,
  and copy the file data out
  of the .sav file if you're
- using an emulator.
+ using an emulator. However,
+ the game compresses save
+ data, and if you want to
+ copy stuff out of the save
+ file, hold down the select
+ button while saving a
+ sandbox, which disables
+ compression.

@@ -1,0 +1,23 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ LICENSE INFO
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The source code for SKYLAND
+is available under the terms
+of the GPL license. If you're
+simply modding the game, this
+should not be a problem, as
+the game's scripts are
+appended to the rom in plain
+text.
+
+While the code is open source,
+the game's art assets are
+technically proprietary. That
+said, I'm a busy person, and
+I don't have the time or the
+interest to go after people
+making mods. In fact I
+encourage modding. Just
+don't sell copies of the game
+and you're fine.
