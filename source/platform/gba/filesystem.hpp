@@ -44,7 +44,8 @@ struct Root
 
 struct FileHeader
 {
-    char path_[64]; // Must be null-terminated.
+    char path_[62]; // Must be null-terminated.
+    host_u16 flags_;
     host_u32 size_;
 };
 

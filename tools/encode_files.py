@@ -18,14 +18,18 @@ def encode_file(path, real_name, out):
 
         encoded_path = real_name.encode('utf-8')
 
-        if len(encoded_path) > 63:
+        if len(encoded_path) > 61:
             print("path %s too long" % real_name)
             sys.exit()
 
         out.write(encoded_path)
 
-        for i in range(len(encoded_path), 64):
+        for i in range(len(encoded_path), 62):
             out.write('\0'.encode('utf-8'))
+
+        # Two reserved bytes for file data flags
+        out.write('\0'.encode('utf-8'))
+        out.write('\0'.encode('utf-8'))
 
         bytes_encoded += 64
 

@@ -5336,15 +5336,6 @@ bool Platform::load_overlay_texture(const char* name)
                                   charblock_size / 2));
             }
 
-            // if (validate_overlay_texture_size(*this, info.tile_data_length_)) {
-
-            // } else {
-            //     StringBuffer<32> err("texture ");
-            //     err += name;
-            //     err += "too big";
-            //     fatal(err.c_str());
-            // }
-
             if (get_gflag(GlobalFlag::glyph_mode)) {
                 for (auto& gm : ::glyph_table.mappings_) {
                     gm.reference_count_ = 0;

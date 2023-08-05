@@ -47,7 +47,7 @@ with open("fs.extracted.bin", "wb") as f:
     pos += 4
 
     for f in range(0, file_count):
-        path = data[pos:pos+64]
+        path = data[pos:pos+62]
         path = path.strip(b'\0')
         path = path.decode("utf-8")[1:] # Ignore leading slash
         pos += 64 # (path field size)
