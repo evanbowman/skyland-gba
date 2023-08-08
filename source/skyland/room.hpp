@@ -416,6 +416,7 @@ public:
 
 
     void plunder(Platform&, App&, Health damage);
+    void convert_to_plundered(Platform&, App&);
 
 
     void reset_injured_timer(Microseconds value);

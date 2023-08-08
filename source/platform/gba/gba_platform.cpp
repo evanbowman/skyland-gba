@@ -3676,7 +3676,6 @@ static const AudioTrack* find_music(const char* name)
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/music_struttin.hpp"
 #include "data/sound_archivist.hpp"
-#include "data/sound_door.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
@@ -3692,6 +3691,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_creaking.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
+#include "data/sound_door.hpp"
 #include "data/sound_drone_beep.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"

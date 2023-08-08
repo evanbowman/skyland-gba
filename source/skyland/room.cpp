@@ -30,6 +30,7 @@
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
 #include "skyland/network.hpp"
+#include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/tile.hpp"
@@ -649,6 +650,14 @@ void Room::plot_walkable_zones(App& app,
     for (int x = 0; x < size().x; ++x) {
         matrix[x_position_ + x][y_position_ + size().y - 1] = true;
     }
+
+    // For extreme edge cases: if a character is standing in a slot that it
+    // shouldn't be, designate the slot as walkable so that the character can
+    // walk out of it.
+    if (for_character) {
+        auto p = for_character->grid_position();
+        matrix[p.x][p.y] = true;
+    }
 }
 
 
@@ -787,6 +796,8 @@ bool Room::non_owner_selectable() const
 
 void Room::burn_damage(Platform& pfrm, App& app, Health amount)
 {
+    // const auto prev_health = health();
+
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {
         apply_damage(pfrm, app, amount * 4);
@@ -794,6 +805,12 @@ void Room::burn_damage(Platform& pfrm, App& app, Health amount)
         apply_damage(pfrm, app, amount * 2);
     } else {
         apply_damage(pfrm, app, amount);
+        // Hmm: revist someday, I'm not sure about this yet
+        // if (prev_health > 0 and health_ == 0) {
+        //     if (not cast<PlunderedRoom>()) {
+        //         convert_to_plundered(pfrm, app);
+        //     }
+        // }
     }
 }
 
@@ -823,89 +840,99 @@ void Room::heal(Platform& pfrm, App& app, Health amount)
 
 
 
+void Room::convert_to_plundered(Platform& pfrm, App& app)
+{
+    if (parent() not_eq &app.player_island()) {
+        time_stream::event::OpponentRoomPlundered e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.type_ = metaclass_index_;
+        app.time_stream().push(app.level_timer(), e);
+
+    } else {
+        time_stream::event::PlayerRoomPlundered e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.type_ = metaclass_index_;
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    // Ok, so when a character plunders a room, we don't actually want to
+    // leave the health as zero, and let the engine erase the room. Doing so
+    // would kill all of the characters attached to the room. Instead, we
+    // want to detach all of the room's characters, spawn a bunch of
+    // "plundered room" sentinel structures, and reattach each character to
+    // the plundered room.
+
+    // NOTE: This buffer should be plenty big enough. Only two characters
+    // can occupy one x,y slot in a room (not as a limitation of the code,
+    // but as a requirement of the gameplay). The max room size is generally
+    // four slots, so we should have eight character entities at most...
+    Buffer<EntityRef<BasicCharacter>, 16> chrs;
+
+    for (auto& chr : edit_characters()) {
+        chrs.push_back(std::move(chr));
+    }
+
+    edit_characters().clear();
+
+    // We need to splice our character list into the plundered room
+    // structures created in the same slot. Set our hidden flag, so that any
+    // calls to Island::get_room() do not return this room structure,
+    // allowing us to deal with other rooms whose coordinates overlap with
+    // our own.
+    set_hidden(true);
+
+    auto plunder_metac = load_metaclass("plundered-room");
+
+    if (not plunder_metac) {
+        error(pfrm, "failed to load metaclass");
+        return;
+    }
+
+    for (int x = 0; x < size().x; x += (*plunder_metac)->size().x) {
+        int y = 0;
+        if (size().y % 2 not_eq 0) {
+            // NOTE: plundered-room occupies two tiles vertically. For an
+            // odd-sized room height, start at 1.
+            y = 1;
+        }
+        for (; y < size().y; y += (*plunder_metac)->size().y) {
+            const RoomCoord pos = {
+                                   u8(((u8)x_position_) + x),
+                                   u8(((u8)y_position_) + y),
+            };
+            (*plunder_metac)->create(pfrm, app, parent_, pos);
+        }
+    }
+
+    // Now that we've created plundered rooms where the now-detached room
+    // was, we can add the characters back to the parent island.
+    for (auto& chr : chrs) {
+        parent_->add_character(std::move(chr));
+    }
+
+    set_hidden(false);
+    ready();
+}
+
+
+
 void Room::plunder(Platform& pfrm, App& app, Health damage)
 {
     apply_damage(pfrm, app, damage);
 
     if (health_ == 0) {
+
         if (parent() not_eq &app.player_island()) {
             // You get some coins for plundering a room
             pfrm.speaker().play_sound("coin", 2);
             app.set_coins(pfrm, app.coins() + (*metaclass())->cost() * 0.3f);
-
-            time_stream::event::OpponentRoomPlundered e;
-            e.x_ = position().x;
-            e.y_ = position().y;
-            e.type_ = metaclass_index_;
-            app.time_stream().push(app.level_timer(), e);
-
-        } else {
-            time_stream::event::PlayerRoomPlundered e;
-            e.x_ = position().x;
-            e.y_ = position().y;
-            e.type_ = metaclass_index_;
-            app.time_stream().push(app.level_timer(), e);
         }
-
-        // Ok, so when a character plunders a room, we don't actually want to
-        // leave the health as zero, and let the engine erase the room. Doing so
-        // would kill all of the characters attached to the room. Instead, we
-        // want to detach all of the room's characters, spawn a bunch of
-        // "plundered room" sentinel structures, and reattach each character to
-        // the plundered room.
-
-        // NOTE: This buffer should be plenty big enough. Only two characters
-        // can occupy one x,y slot in a room (not as a limitation of the code,
-        // but as a requirement of the gameplay). The max room size is generally
-        // four slots, so we should have eight character entities at most...
-        Buffer<EntityRef<BasicCharacter>, 16> chrs;
-
-        for (auto& chr : edit_characters()) {
-            chrs.push_back(std::move(chr));
-        }
-
-        edit_characters().clear();
 
         app.player().on_room_plundered(pfrm, app, *this);
 
-        // We need to splice our character list into the plundered room
-        // structures created in the same slot. Set our hidden flag, so that any
-        // calls to Island::get_room() do not return this room structure,
-        // allowing us to deal with other rooms whose coordinates overlap with
-        // our own.
-        set_hidden(true);
-
-        auto plunder_metac = load_metaclass("plundered-room");
-
-        if (not plunder_metac) {
-            error(pfrm, "failed to load metaclass");
-            return;
-        }
-
-        for (int x = 0; x < size().x; x += (*plunder_metac)->size().x) {
-            int y = 0;
-            if (size().y % 2 not_eq 0) {
-                // NOTE: plundered-room occupies two tiles vertically. For an
-                // odd-sized room height, start at 1.
-                y = 1;
-            }
-            for (; y < size().y; y += (*plunder_metac)->size().y) {
-                const RoomCoord pos = {
-                    u8(((u8)x_position_) + x),
-                    u8(((u8)y_position_) + y),
-                };
-                (*plunder_metac)->create(pfrm, app, parent_, pos);
-            }
-        }
-
-        // Now that we've created plundered rooms where the now-detached room
-        // was, we can add the characters back to the parent island.
-        for (auto& chr : chrs) {
-            parent_->add_character(std::move(chr));
-        }
-
-        set_hidden(false);
-        ready();
+        convert_to_plundered(pfrm, app);
     }
 }
 
