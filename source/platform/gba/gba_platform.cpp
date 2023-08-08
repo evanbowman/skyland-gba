@@ -123,6 +123,21 @@ static inline bool canary_check()
 
 
 
+#define REG_DEBUG_ENABLE (volatile u16*)0x4FFF780
+#define REG_DEBUG_FLAGS (volatile u16*)0x4FFF700
+#define REG_DEBUG_STRING (char*)0x4FFF600
+#define MGBA_LOG_INFO 3
+
+
+
+static bool mgba_detect()
+{
+    *REG_DEBUG_ENABLE = 0xC0DE;
+    return *REG_DEBUG_ENABLE == 0x1DEA;
+}
+
+
+
 static void __attribute__((noinline)) busy_wait(unsigned max)
 {
     for (unsigned i = 0; i < max; i++) {
@@ -3542,6 +3557,17 @@ void Platform::Logger::log(Severity level, const char* msg)
 
     if (not log_data_) {
         log_data_.emplace(t);
+    }
+
+    if (mgba_detect()) {
+        auto len = str_len(msg);
+        if (len > 0x100) {
+            len = 0x100;
+        }
+        for (u32 i = 0; i < len; ++i) {
+            (REG_DEBUG_STRING)[i] = msg[i];
+        }
+        *REG_DEBUG_FLAGS = MGBA_LOG_INFO | 0x100;
     }
 
     while (*msg not_eq '\0') {
@@ -7437,7 +7463,9 @@ Platform::Platform()
         bootleg_flash_type = 0;
     }
 
-
+    if (mgba_detect()) {
+        info(*this, "running in mgba (or similar)...");
+    }
 
     // Not sure how else to determine whether the cartridge has sram, flash, or
     // something else. An sram write will fail if the cartridge ram is flash, so

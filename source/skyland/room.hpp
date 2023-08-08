@@ -421,7 +421,9 @@ public:
     void reset_injured_timer(Microseconds value);
 
 
-    virtual void plot_walkable_zones(App& app, bool matrix[16][16]);
+    virtual void plot_walkable_zones(App& app,
+                                     bool matrix[16][16],
+                                     BasicCharacter* for_character);
 
 
     virtual void on_lightning(Platform& pfrm, App& app)

@@ -46,17 +46,9 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override
-    {
-        if (open_) {
-            Room::plot_walkable_zones(app, matrix);
-        }
-        // Else, do nothing, i.e. impassible.
-    }
-
-
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    void plot_walkable_zones(App& app,
+                             bool matrix[16][16],
+                             BasicCharacter* for_character) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
@@ -112,7 +104,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::habitable | RoomProperties::multiboot_compatible;
+        return RoomProperties::habitable |
+               RoomProperties::multiboot_compatible | RoomProperties::fireproof;
     }
 
 

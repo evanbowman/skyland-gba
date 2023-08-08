@@ -309,8 +309,12 @@ void CoOpTeam::receive(Platform& pfrm,
         auto info = island->find_character_by_id(packet.chr_id_.get());
 
         if (info.first) {
-            auto path = find_path(
-                pfrm, app, island, info.first->grid_position(), dst_coord);
+            auto path = find_path(pfrm,
+                                  app,
+                                  island,
+                                  info.first,
+                                  info.first->grid_position(),
+                                  dst_coord);
             if (path and *path) {
                 info.first->set_movement_path(pfrm, app, std::move(*path));
                 return;

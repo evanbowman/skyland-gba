@@ -268,7 +268,7 @@ An essential defensive structure.
 Blocks enemy projectiles, but allows your own weapons to shoot through. Vulnerable to ion damage.
 An upgraded forcefield.
 An upgraded power-core. Supplies much more energy, but succeptible to ion damage.
-An openable/closable door. Used for restricting the movement of enemy boarding parties.
+Used for restricting the movement of enemy boarding parties. Your crew may walk through doors, but not enemy units. Also fireproof!
 Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.
 Upgraded hull. Much more durable, but succeptible to ion damage.
 Deals low damage, but spread over large areas. Highly destructive when used in groups against castles with thin hull.
@@ -294,7 +294,7 @@ Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 Changes the weather!
-Automatically chooses weapon targets for you! You might be able to do a better job yourself, though...
+Automatically chooses weapon targets for you! You might be able to do a better job yourself, but oh, how convenient! Click to toggle on/off.
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 Like a stairwell, but half as tall.
 Heals inhabitants, slower for each additional inhabitant. Only heals crew originating from the same island as the infirmary.

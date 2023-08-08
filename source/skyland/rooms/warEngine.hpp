@@ -51,7 +51,9 @@ public:
     void finalize(Platform& pfrm, App& app) override;
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+    void plot_walkable_zones(App& app,
+                             bool matrix[16][16],
+                             BasicCharacter* for_character) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);

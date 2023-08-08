@@ -1261,7 +1261,8 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
     auto find_ideal_stairwell_slots = [&] {
         c->slots.clear();
-        app.opponent_island()->plot_walkable_zones(app, c->walkable_zones);
+        app.opponent_island()->plot_walkable_zones(
+            app, c->walkable_zones, nullptr);
 
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
@@ -1413,7 +1414,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
     auto c = allocate_dynamic<Context>("procgen-buffer");
 
     for (int i = 0; i < chr_count; ++i) {
-        app.opponent_island()->plot_walkable_zones(app, c->matrix_);
+        app.opponent_island()->plot_walkable_zones(app, c->matrix_, nullptr);
 
         c->slots_.clear();
 
@@ -1521,7 +1522,8 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
         }
 
         c->slots.clear();
-        app.opponent_island()->plot_walkable_zones(app, c->walkable_zones);
+        app.opponent_island()->plot_walkable_zones(
+            app, c->walkable_zones, nullptr);
 
         for (int x = 0; x < (int)app.opponent_island()->terrain().size(); ++x) {
             for (int y = 7; y < 15; ++y) {

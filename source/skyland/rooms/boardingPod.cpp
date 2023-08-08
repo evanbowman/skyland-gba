@@ -632,7 +632,9 @@ void BoardingPod::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void BoardingPod::plot_walkable_zones(App& app, bool matrix[16][16])
+void BoardingPod::plot_walkable_zones(App& app,
+                                      bool matrix[16][16],
+                                      BasicCharacter* for_character)
 {
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;

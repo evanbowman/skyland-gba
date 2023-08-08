@@ -639,7 +639,9 @@ void Room::deserialize(lisp::Value* list)
 
 
 
-void Room::plot_walkable_zones(App& app, bool matrix[16][16])
+void Room::plot_walkable_zones(App& app,
+                               bool matrix[16][16],
+                               BasicCharacter* for_character)
 {
     // By default, treat every cell in the lowest row of a room as walkable for
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to

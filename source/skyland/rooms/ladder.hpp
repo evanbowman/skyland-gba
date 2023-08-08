@@ -49,7 +49,9 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+    void plot_walkable_zones(App& app,
+                             bool matrix[16][16],
+                             BasicCharacter* for_character) override;
 
 
     static Float atp_value()
@@ -114,7 +116,9 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+    void plot_walkable_zones(App& app,
+                             bool matrix[16][16],
+                             BasicCharacter* for_character) override;
 
 
     const char* upgrade_mt_name() const override;

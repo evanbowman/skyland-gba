@@ -467,7 +467,7 @@ void Island::FireState::update(Platform& pfrm,
                 if (old_positions.get(x, y)) {
 
                     if (not plotted) {
-                        island.plot_walkable_zones(app, *mat);
+                        island.plot_walkable_zones(app, *mat, nullptr);
                         plotted = true;
                     }
 
@@ -1160,13 +1160,13 @@ void Island::on_layout_changed(App& app,
     check_destroyed();
 
     bool buffer[16][16];
-    plot_walkable_zones(app, buffer);
 
     checksum_ = 0;
 
     for (auto& room : rooms()) {
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
+                plot_walkable_zones(app, buffer, chr.get());
                 int pos = 0;
                 for (auto& node : *path) {
                     if (get_room(node) == nullptr or
@@ -1567,7 +1567,9 @@ void Island::move_room(Platform& pfrm,
 
 
 
-void Island::plot_walkable_zones(App& app, bool matrix[16][16]) const
+void Island::plot_walkable_zones(App& app,
+                                 bool matrix[16][16],
+                                 BasicCharacter* for_character) const
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -1581,7 +1583,7 @@ void Island::plot_walkable_zones(App& app, bool matrix[16][16]) const
         auto props = (*room->metaclass())->properties();
 
         if (props & RoomProperties::habitable) {
-            room->plot_walkable_zones(app, matrix);
+            room->plot_walkable_zones(app, matrix, for_character);
         }
     }
 }

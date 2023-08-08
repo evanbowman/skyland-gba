@@ -117,7 +117,8 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override
+    void
+    plot_walkable_zones(App& app, bool matrix[16][16], BasicCharacter*) override
     {
         // one cannot walk through this tile, intentionally do nothing.
     }

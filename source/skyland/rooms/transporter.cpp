@@ -309,6 +309,9 @@ void Transporter::transport_occupant(Platform& pfrm,
     }
 
     auto chr = characters().begin();
+    if (chr == characters().end()) {
+        return;
+    }
 
     auto island = other_island(app);
     if (island == nullptr) {
@@ -319,7 +322,7 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     if (not destination) {
         bool matrix[16][16];
-        island->plot_walkable_zones(app, matrix);
+        island->plot_walkable_zones(app, matrix, chr->get());
 
         Buffer<RoomCoord, 32> slots;
 

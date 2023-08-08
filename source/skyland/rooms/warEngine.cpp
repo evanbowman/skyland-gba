@@ -71,7 +71,9 @@ void WarEngine::finalize(Platform& pfrm, App& app)
 
 
 
-void WarEngine::plot_walkable_zones(App& app, bool matrix[16][16])
+void WarEngine::plot_walkable_zones(App& app,
+                                    bool matrix[16][16],
+                                    BasicCharacter* for_character)
 {
     auto x = position().x;
     auto y = position().y;

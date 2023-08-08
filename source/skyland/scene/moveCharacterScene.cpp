@@ -99,7 +99,9 @@ void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         island = app.opponent_island();
     }
 
-    island->plot_walkable_zones(app, *matrix_);
+    auto found = BasicCharacter::find_by_id(app, chr_id_);
+
+    island->plot_walkable_zones(app, *matrix_, found.first);
 
     // Now, we want to do a bfs walk, to find all connected parts of the
     // walkable areas.
@@ -273,7 +275,8 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto current = sel_chr->grid_position();
 
-            auto path = find_path(pfrm, app, island, current, *cursor_loc);
+            auto path =
+                find_path(pfrm, app, island, sel_chr, current, *cursor_loc);
 
             if (path and *path) {
                 sel_chr->set_movement_path(pfrm, app, std::move(*path));

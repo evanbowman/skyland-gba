@@ -42,6 +42,7 @@ struct PathVertexData
 std::optional<Path> find_path(Platform& pfrm,
                               App& app,
                               Island* island,
+                              BasicCharacter* for_character,
                               const RoomCoord& start,
                               const RoomCoord& end)
 {
@@ -51,8 +52,9 @@ std::optional<Path> find_path(Platform& pfrm,
     PathVertexData* vertex_mat[16][16] = {0};
 
 
+
     bool matrix[16][16];
-    island->plot_walkable_zones(app, matrix);
+    island->plot_walkable_zones(app, matrix, for_character);
 
     PathVertexData* start_v = nullptr;
 

@@ -251,9 +251,9 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*tutorials_, index);
 
-        if (not (app.gp_.watched_tutorials_.get() & (1 << index))) {
+        if (not(app.gp_.watched_tutorials_.get() & (1 << index))) {
             app.gp_.watched_tutorials_.set(app.gp_.watched_tutorials_.get() |
-                                       (1 << index));
+                                           (1 << index));
             save::store_global_data(pfrm, app.gp_);
         }
 

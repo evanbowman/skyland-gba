@@ -198,7 +198,9 @@ void Decimator::___rewind___ability_used(Platform&, App&)
 
 
 
-void Decimator::plot_walkable_zones(App& app, bool matrix[16][16])
+void Decimator::plot_walkable_zones(App& app,
+                                    bool matrix[16][16],
+                                    BasicCharacter* for_character)
 {
     auto pos = position();
 

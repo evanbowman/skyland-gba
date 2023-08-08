@@ -852,7 +852,7 @@ static const lisp::Binding script_api[] = {
 
          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
-         island->plot_walkable_zones(*interp_get_app(), matrix);
+         island->plot_walkable_zones(*interp_get_app(), matrix, nullptr);
 
          lisp::Value* ret = lisp::get_nil();
 
@@ -1165,6 +1165,7 @@ static const lisp::Binding script_api[] = {
                      auto path = find_path(*lisp::interp_get_pfrm(),
                                            *interp_get_app(),
                                            island,
+                                           chr.get(),
                                            {startx, starty},
                                            {destx, desty});
 

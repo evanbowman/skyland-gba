@@ -34,6 +34,21 @@ namespace skyland
 
 
 
+void Bulkhead::plot_walkable_zones(App& app,
+                                   bool matrix[16][16],
+                                   BasicCharacter* for_character)
+{
+    // If the door belongs to the character's home island or the door is
+    // currently open, then a character can walk through it.
+    if (for_character and for_character->owner() == &parent()->owner()) {
+        Room::plot_walkable_zones(app, matrix, for_character);
+    } else if (open_) {
+        Room::plot_walkable_zones(app, matrix, for_character);
+    }
+}
+
+
+
 void Bulkhead::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_bulkhead_door)->c_str();
@@ -51,6 +66,44 @@ Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
 void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    Room::ready();
+
+    if (length(characters())) {
+        set_open(pfrm, app, true);
+    } else {
+        auto pos = position();
+        pos.y += 1;
+        pos.x -= 1;
+        // We have to run the code below, otherwise, the door would only open
+        // when a character has finished walking into the slot that the room
+        // occupies. So a character would walk into a door, then it would open,
+        // then the character would walk out. This consumes a bit of extra cpu,
+        // but looks better.
+        bool chr_moving_in = false;
+        if (auto left = parent()->get_room(pos)) {
+            pos.x += 1;
+            for (auto& chr : left->characters()) {
+                if (chr->get_movement_path() and
+                    chr->get_movement_path()->back() == pos) {
+                    chr_moving_in = true;
+                    break;
+                }
+            }
+        }
+        pos.x += 1;
+        if (auto right = parent()->get_room(pos)) {
+            pos.x -= 1;
+            for (auto& chr : right->characters()) {
+                if (chr->get_movement_path() and
+                    chr->get_movement_path()->back() == pos) {
+                    chr_moving_in = true;
+                    break;
+                }
+            }
+        }
+        set_open(pfrm, app, chr_moving_in);
+    }
 }
 
 
@@ -90,37 +143,23 @@ void Bulkhead::render_exterior(App* app, TileId buffer[16][16])
 
 void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 {
-    if (open_ not_eq open) {
-        if (parent() == &app.player_island()) {
-            time_stream::event::PlayerRoomReloadComplete e;
-            e.room_x_ = position().x;
-            e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
-        } else {
-            time_stream::event::OpponentRoomReloadComplete e;
-            e.room_x_ = position().x;
-            e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
-        }
+    if (open_ == open) {
+        return;
+    }
+
+    if (parent() == &app.player_island()) {
+        time_stream::event::PlayerRoomReloadComplete e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRoomReloadComplete e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+        app.time_stream().push(app.level_timer(), e);
     }
 
     open_ = open;
-
-    if (parent()->interior_visible()) {
-        schedule_repaint();
-    }
-    parent()->on_layout_changed(app, {position().x, u8(position().y + 1)});
-}
-
-
-ScenePtr<Scene>
-Bulkhead::select(Platform& pfrm, App& app, const RoomCoord& cursor)
-{
-    if (length(characters())) {
-        return Room::select(pfrm, app, cursor);
-    }
-
-    set_open(pfrm, app, not open_);
 
     if (&parent()->owner() == &app.player()) {
         network::packet::OpponentBulkheadChanged packet;
@@ -130,7 +169,11 @@ Bulkhead::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         network::transmit(pfrm, packet);
     }
 
-    return null_scene();
+    if (parent()->interior_visible()) {
+        schedule_repaint();
+    }
+
+    parent()->on_layout_changed(app, {position().x, u8(position().y + 1)});
 }
 
 

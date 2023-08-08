@@ -174,7 +174,9 @@ public:
     void plot_construction_zones(bool matrix[16][16]) const;
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) const;
+    void plot_walkable_zones(App& app,
+                             bool matrix[16][16],
+                             BasicCharacter* for_character) const;
 
 
     BasicCharacter* character_at_location(const RoomCoord& loc);

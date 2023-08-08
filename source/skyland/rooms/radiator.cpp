@@ -23,8 +23,8 @@
 #include "radiator.hpp"
 #include "skyland/island.hpp"
 #include "skyland/sharedVariable.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -92,7 +92,6 @@ void Radiator::collect_nearby_chrs(App& app, ChrBuffer& output)
             }
         }
     }
-
 }
 
 
