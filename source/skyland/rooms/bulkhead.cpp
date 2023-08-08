@@ -71,15 +71,17 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (length(characters())) {
         set_open(pfrm, app, true);
+    } else if (parent()->power_supply() < parent()->power_drain()) {
+        set_open(pfrm, app, true);
     } else {
         auto pos = position();
         pos.y += 1;
-        pos.x -= 1;
         // We have to run the code below, otherwise, the door would only open
         // when a character has finished walking into the slot that the room
         // occupies. So a character would walk into a door, then it would open,
         // then the character would walk out. This consumes a bit of extra cpu,
         // but looks better.
+        pos.x -= 1;
         bool chr_moving_in = false;
         if (auto left = parent()->get_room(pos)) {
             pos.x += 1;
@@ -90,6 +92,8 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
                     break;
                 }
             }
+        } else {
+            pos.x += 1;
         }
         pos.x += 1;
         if (auto right = parent()->get_room(pos)) {
@@ -101,7 +105,21 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
                     break;
                 }
             }
+        } else {
+            pos.x -= 1;
         }
+        pos.y += 1;
+        if (auto down = parent()->get_room(pos)) {
+            pos.y -= 1;
+            for (auto& chr : down->characters()) {
+                if (chr->get_movement_path() and
+                    chr->get_movement_path()->back() == pos) {
+                    chr_moving_in = true;
+                    break;
+                }
+            }
+        }
+
         set_open(pfrm, app, chr_moving_in);
     }
 }
@@ -157,6 +175,12 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
         e.room_x_ = position().x;
         e.room_y_ = position().y;
         app.time_stream().push(app.level_timer(), e);
+    }
+
+    if (app.time_stream().pushes_enabled()) {
+        if (not pfrm.speaker().is_sound_playing("door")) {
+            pfrm.speaker().play_sound("door", 0);
+        }
     }
 
     open_ = open;

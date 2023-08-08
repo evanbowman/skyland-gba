@@ -258,7 +258,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         --speed_;
         speed_changed = true;
     }
-    if (app.player().key_down(pfrm, Key::down) and speed_ < 3) {
+    if (app.player().key_down(pfrm, Key::down) and speed_ < 2) {
         ++speed_;
         speed_changed = true;
     }

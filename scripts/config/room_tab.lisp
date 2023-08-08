@@ -29,7 +29,7 @@
   (ladder+      45  450  0)
   (ladder       30  400  0)
   (boarding-pod 600 2000 5)
-  (bulkhead-door 100 400 4)
+  (bulkhead-door 100 400 5)
   (radiator     60  400  50)
   (workshop     60  2000 10)
   (infirmary    60  1000 10)
