@@ -164,7 +164,10 @@ void Antimatter::destroy(Platform& pfrm, App& app, bool explosion)
 
 
 
-void Antimatter::on_collision(Platform& pfrm, App& app, Room& room)
+void Antimatter::on_collision(Platform& pfrm,
+                              App& app,
+                              Room& room,
+                              Vec2<u8> origin)
 {
     if (source_ == room.parent() and str_eq(room.name(), "annihilator")) {
         return;

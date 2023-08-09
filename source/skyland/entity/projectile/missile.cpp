@@ -244,7 +244,10 @@ void Missile::destroy(Platform& pfrm, App& app)
 
 
 
-void Missile::on_collision(Platform& pfrm, App& app, Room& room)
+void Missile::on_collision(Platform& pfrm,
+                           App& app,
+                           Room& room,
+                           Vec2<u8> origin)
 {
     if (source_ == room.parent() and room.metaclass() == missile_silo_mt) {
         return;
@@ -342,7 +345,8 @@ public:
     }
 
 
-    void on_collision(Platform& pfrm, App& app, Room& room) override
+    void
+    on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin) override
     {
         int damage = 25;
         switch (bounce_) {
@@ -413,7 +417,10 @@ void RocketBomb::burst(Platform& pfrm,
 
 
 
-void RocketBomb::on_collision(Platform& pfrm, App& app, Room& room)
+void RocketBomb::on_collision(Platform& pfrm,
+                              App& app,
+                              Room& room,
+                              Vec2<u8> origin)
 {
     if (source_ == room.parent() and str_eq(room.name(), RocketSilo::name())) {
         return;
@@ -556,7 +563,10 @@ void ClumpMissile::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 
-void ClumpMissile::on_collision(Platform& pfrm, App& app, Room& room)
+void ClumpMissile::on_collision(Platform& pfrm,
+                                App& app,
+                                Room& room,
+                                Vec2<u8> origin)
 {
     if (source_ == room.parent() and str_eq(room.name(), RocketSilo::name())) {
         return;

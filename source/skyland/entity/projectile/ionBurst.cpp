@@ -167,7 +167,10 @@ void IonBurst::destroy(Platform& pfrm, App& app, bool explosion)
 
 
 
-void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
+void IonBurst::on_collision(Platform& pfrm,
+                            App& app,
+                            Room& room,
+                            Vec2<u8> origin)
 {
     if (source_ == room.parent() and room.metaclass() == ion_cannon_mt) {
         return;

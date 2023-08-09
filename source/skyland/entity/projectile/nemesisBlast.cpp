@@ -106,7 +106,10 @@ extern Sound sound_impact;
 
 
 
-void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
+void NemesisBlast::on_collision(Platform& pfrm,
+                                App& app,
+                                Room& room,
+                                Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or

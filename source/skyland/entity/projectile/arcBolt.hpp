@@ -58,7 +58,8 @@ public:
     void rewind(Platform&, App&, Microseconds delta) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Room&) override;
+    void
+    on_collision(Platform& pfrm, App& app, Room&, Vec2<u8> origin) override;
 
 
     void set_step_vector(const Vec2<Fixnum>& val)

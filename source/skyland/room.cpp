@@ -899,8 +899,8 @@ void Room::convert_to_plundered(Platform& pfrm, App& app)
         }
         for (; y < size().y; y += (*plunder_metac)->size().y) {
             const RoomCoord pos = {
-                                   u8(((u8)x_position_) + x),
-                                   u8(((u8)y_position_) + y),
+                u8(((u8)x_position_) + x),
+                u8(((u8)y_position_) + y),
             };
             (*plunder_metac)->create(pfrm, app, parent_, pos);
         }

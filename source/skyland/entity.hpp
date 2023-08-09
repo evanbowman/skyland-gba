@@ -101,7 +101,8 @@ public:
     }
 
 
-    virtual void on_collision(Platform& pfrm, App& app, Room& room)
+    virtual void
+    on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
     {
     }
 

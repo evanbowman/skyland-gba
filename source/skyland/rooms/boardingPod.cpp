@@ -273,7 +273,7 @@ public:
 
 
 
-    void on_collision(Platform& pfrm, App& app, Room& room)
+    void on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
     {
         if ((*room.metaclass())->category() == Room::Category::wall or
             (*room.metaclass())->category() == Room::Category::decoration) {

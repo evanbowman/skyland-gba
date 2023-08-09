@@ -120,7 +120,10 @@ extern Sound sound_impact;
 
 
 
-void IncineratorBolt::on_collision(Platform& pfrm, App& app, Room& room)
+void IncineratorBolt::on_collision(Platform& pfrm,
+                                   App& app,
+                                   Room& room,
+                                   Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {

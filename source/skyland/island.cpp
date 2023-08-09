@@ -1308,7 +1308,8 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                     room_hitbox.dimension_.size_.y = room->size().y * tile_size;
 
                     if (room_hitbox.overlapping(entity.hitbox())) {
-                        entity.on_collision(pfrm, app, *room);
+                        entity.on_collision(pfrm, app, *room,
+                                            Vec2<u8>{(u8)x, (u8)y});
                         return;
                     }
                 }
