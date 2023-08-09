@@ -1681,6 +1681,8 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                                     if (rng::choice<4>(rng::critical_state) ==
                                         0) {
                                         m->set_gfx(2);
+                                    } else if (rng::choice<11>(rng::critical_state) == 0) {
+                                        m->set_gfx(3);
                                     }
                                 }
                             }
