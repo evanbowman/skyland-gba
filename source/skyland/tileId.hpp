@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-using TileId = u8;
+using TileId = u16;
 
 
 

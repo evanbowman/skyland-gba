@@ -50,12 +50,6 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-
-    void __unsafe__render_interior(u8 tiles[16][16]) override
-    {
-    }
-
-
     void
     construct(void* address, Island* parent, const RoomCoord& position) override
     {

@@ -56,7 +56,6 @@ struct RoomMeta
         // DO NOT CALL THIS FUNCTION UNLESS YOU REALLY KNOW WHAT YOU'RE DOING. I
         // added this interface as a hack to make multiboot stuff easier to
         // write.
-        virtual void __unsafe__render_interior(u8 tiles[16][16]) = 0;
 
         virtual void create(Platform&,
                             App&,

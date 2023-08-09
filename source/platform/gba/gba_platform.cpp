@@ -7350,10 +7350,6 @@ void Platform::Speaker::start()
 
 
 
-void mb_server_setup_vram(Platform&);
-
-
-
 static void publisher_logo_anim(Platform& pfrm)
 {
     pfrm.screen().schedule_fade(1, ColorConstant::silver_white, true, true);
@@ -7412,11 +7408,6 @@ static void publisher_logo_anim(Platform& pfrm)
 
 Platform::Platform()
 {
-    const bool mb_sent = false; // mb_send_rom((u16*)gSkyland_MB_ROMData,
-                                //             (u16*)((u8*)gSkyland_MB_ROMData +
-                                //                    gSkyland_MB_ROMSize),
-                                //             MB_DEFAULT_TRIES / 8);
-
     ::platform = this;
 
     const auto tm1 = system_clock_.now();
@@ -7424,10 +7415,6 @@ Platform::Platform()
     logger().set_threshold(Severity::fatal);
 
     keyboard().poll();
-
-    if (mb_sent) {
-        info(*this, "sent multiboot rom!");
-    }
 
     Conf conf(*this);
 
@@ -7750,10 +7737,6 @@ Platform::Platform()
     } else {
         model_id = ModelId::gba;
     }
-
-    if (mb_sent) {
-        mb_server_setup_vram(*this);
-    }
 }
 
 
@@ -7768,242 +7751,6 @@ u16 mb_exchange(u16 value)
         ;
     u16 result = REG_SIOMULTI1;
     return result;
-}
-
-
-// Gross. The platform implementation includes game data. But what else can we
-// do? This multiboot code is very gba specific, as it involves distributing
-// tile graphics over a link cable...
-#include "multiboot_room_metatable.h"
-#include "skyland/room_metatable.hpp"
-#include "skyland/tile.hpp"
-
-
-
-void mb_server_setup_vram(Platform& pfrm)
-{
-    for (int i = 0; i < 120; ++i) {
-        VBlankIntrWait();
-    }
-
-    pfrm.load_overlay_texture("overlay");
-    pfrm.enable_glyph_mode(true);
-    pfrm.screen().clear();
-    Text text(pfrm, "Sending lots of stuff...", {1, 1});
-    Text text2(pfrm, {1, 3});
-    Text text3(pfrm, {1, 5});
-    Text text4(pfrm, {1, 7});
-    Text text5(pfrm, {1, 9});
-    Text text6(pfrm, {1, 11});
-    Text text7(pfrm, {1, 13});
-    Text text8(pfrm, {1, 15});
-    Text text9(pfrm, {1, 18});
-    pfrm.screen().display();
-
-    pfrm.load_tile0_texture("tilesheet_interior");
-    pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
-
-    auto mt_buffer = allocate_dynamic<SharedRoomMetatable>("mb-buffer");
-
-    using namespace skyland;
-
-    // Map terrain tiles into vram
-    pfrm.map_tile0_chunk(Tile::terrain_middle);
-    pfrm.map_tile1_chunk(Tile::terrain_middle);
-    pfrm.map_tile0_chunk(Tile::terrain_left);
-    pfrm.map_tile1_chunk(Tile::terrain_left);
-    pfrm.map_tile0_chunk(Tile::terrain_right);
-    pfrm.map_tile1_chunk(Tile::terrain_right);
-
-
-    auto [mt, ms] = room_metatable();
-    int mt_copy_index = 0;
-    for (int i = 0; i < ms; ++i) {
-        auto& meta = mt[i];
-        if (meta->properties() & RoomProperties::multiboot_compatible) {
-            if (mt_copy_index == SHARED_MT_COUNT) {
-                Platform::fatal("mt_copy_index exceeds SHARED_MT_COUNT!");
-            }
-
-            auto& shared_mt = mt_buffer->metaclasses_[mt_copy_index++];
-            shared_mt.size_x_ = meta->size().x;
-            shared_mt.size_y_ = meta->size().y;
-            shared_mt.metaclass_index_ = i;
-
-            const char* name = meta->name();
-            memset(shared_mt.name_, '\0', sizeof(shared_mt.name_));
-            if (str_len(name) < sizeof(SharedMetaclass::name_)) {
-                memcpy(shared_mt.name_, name, str_len(name));
-            }
-
-            u8 tiles[16][16];
-            memset(tiles, 0, sizeof tiles);
-
-            int tile_out_index = 0;
-
-            meta->__unsafe__render_interior(tiles);
-            for (int j = 0; j < 16; ++j) {
-                for (int i = 0; i < 16; ++i) {
-                    const u8 t = tiles[i][j];
-                    if (t) {
-                        const int mapped = pfrm.map_tile0_chunk(t);
-                        pfrm.map_tile1_chunk(t);
-
-                        shared_mt.tiles_[tile_out_index++] = mapped;
-                    }
-                }
-            }
-        }
-    }
-
-    auto print = [&](Text& t, const char* str) {
-        t.assign(str);
-        pfrm.screen().clear();
-        pfrm.screen().display();
-    };
-
-    set_gflag(GlobalFlag::watchdog_disabled, true);
-
-    pfrm.load_sprite_texture("spritesheet");
-    pfrm.load_background_texture("background");
-
-    pfrm.screen().schedule_fade(1.f);
-
-    print(text2, "mb handshake...");
-
-    REG_RCNT = R_MULTI;
-    REG_SIOCNT = SIO_MULTI;
-    REG_SIOCNT = REG_SIOCNT | SIO_115200;
-
-    while (true) {
-        if (mb_exchange(0xBBBB) == 0xAAAA) {
-            break;
-        }
-    }
-
-    mb_exchange(0xABCD);
-
-    // TODO: handshake with multiboot program
-    // TODO: tell multiboot program how many tiles we'll be sending over
-
-    const u32 iters = (vram_tile_size() * 8 * 126) / sizeof(u16);
-    const u32 mt_iters = sizeof(*mt_buffer) / sizeof(u16);
-    const u32 bg_iters = (vram_tile_size() * 127) / sizeof(u16);
-    const u32 t0_iters = (vram_tile_size() * 4 * 111) / sizeof(u16);
-
-    int iter_count = 0;
-    auto on_iter = [&]() {
-        const u32 total_iters = iters + mt_iters + bg_iters + t0_iters * 2;
-        ++iter_count;
-        if (iter_count % 256 == 0) {
-            print(text9,
-                  format("(total %/100%)",
-                         100 * (float(iter_count) / total_iters),
-                         "%")
-                      .c_str());
-        }
-    };
-
-
-    print(text2, "transfer sprites...");
-
-    auto spritesheet_mem = ((u16*)&MEM_TILE[4][1]);
-    for (u32 i = 0; i < iters; ++i) {
-        mb_exchange(spritesheet_mem[i]);
-        if (i % 128 == 0) {
-            print(text2,
-                  format("transfer sprites... %/100%",
-                         100 * (float(i) / iters),
-                         "%")
-                      .c_str());
-        }
-        on_iter();
-    }
-    print(text2, "transfer sprites... 100/100%");
-
-    print(text3, "transfer clouds...");
-    auto background_mem = (u16*)&MEM_SCREENBLOCKS[sbb_background_texture][0];
-    for (u32 i = 0; i < bg_iters; ++i) {
-        mb_exchange(background_mem[i]);
-        if (i % 128 == 0) {
-            print(text3,
-                  format("transfer clouds... %/100%",
-                         100 * (float(i) / bg_iters),
-                         "%")
-                      .c_str());
-        }
-        on_iter();
-    }
-    print(text3, "transfer clouds... 100/100%");
-
-
-    print(text4, "transfer tile0...");
-    auto t0_mem = (u16*)&MEM_SCREENBLOCKS[sbb_t0_texture][0];
-    for (u32 i = 0; i < t0_iters; ++i) {
-        mb_exchange(t0_mem[i]);
-        if (i % 128 == 0) {
-            print(text4,
-                  format("transfer tile0... %/100%",
-                         100 * (float(i) / t0_iters),
-                         "%")
-                      .c_str());
-        }
-        on_iter();
-    }
-    print(text4, "transfer tile0... 100/100%");
-
-    print(text5, "transfer tile1...");
-    auto t1_mem = (u16*)&MEM_SCREENBLOCKS[sbb_t1_texture][0];
-    for (u32 i = 0; i < t0_iters; ++i) {
-        mb_exchange(t1_mem[i]);
-        if (i % 128 == 0) {
-            print(text5,
-                  format("transfer tile1... %/100%",
-                         100 * (float(i) / t0_iters),
-                         "%")
-                      .c_str());
-        }
-        on_iter();
-    }
-    print(text5, "transfer tile1... 100/100%");
-
-    print(text6, "sharing metatable...");
-
-    for (u32 i = 0; i < mt_iters; ++i) {
-        mb_exchange(((u16*)&*mt_buffer)[i]);
-        if (i % 128 == 0) {
-            print(text6,
-                  format("sharing metatable... %/100%",
-                         100 * (float(i) / mt_iters),
-                         "%")
-                      .c_str());
-        }
-        on_iter();
-    }
-    print(text6, "sharing metatable... 100/100%");
-
-    on_iter();
-
-
-    watchdog_counter = 0;
-    set_gflag(GlobalFlag::watchdog_disabled, false);
-
-    REG_SIOCNT = 0;
-
-    for (int i = 0; i < 120; ++i) {
-        VBlankIntrWait();
-    }
-
-    print(text7, "init link...");
-
-    multiplayer_init();
-
-    if (pfrm.network_peer().is_connected()) {
-        print(text8, "success!");
-        for (int i = 0; i < 60; ++i) {
-            VBlankIntrWait();
-        }
-    }
 }
 
 

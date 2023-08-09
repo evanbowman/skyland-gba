@@ -1674,33 +1674,38 @@ bool Island::repaint_alloc_tiles(Platform& pfrm,
 
 void Island::repaint_partial(Platform& pfrm, App& app)
 {
-    TileId buffer[16][16];
+    struct Memory {
+        TileId tiles[16][16];
+    };
+
+    auto mem = allocate_dynamic<Memory>("repaint partial buffer");
+
     for (u32 x = 0; x < terrain_.size(); ++x) {
         for (int y = 0; y < 16; ++y) {
-            buffer[x][y] = 0;
+            mem->tiles[x][y] = 0;
         }
     }
 
     for (auto& r : rooms_) {
         if (r->poll_repaint()) {
             if (interior_visible_) {
-                r->render_interior(&app, buffer);
+                r->render_interior(&app, mem->tiles);
             } else {
-                r->render_exterior(&app, buffer);
+                r->render_exterior(&app, mem->tiles);
             }
         }
     }
 
     for (auto& r : rooms_) {
-        r->render_cloak(app, buffer);
+        r->render_cloak(app, mem->tiles);
     }
 
     for (u32 x = 0; x < terrain_.size(); ++x) {
         for (u32 y = 0; y < 15; ++y) {
-            if (buffer[x][y] not_eq 0) {
+            if (mem->tiles[x][y] not_eq 0) {
                 auto tile_handle = layer_ == Layer::map_0_ext
-                                       ? pfrm.map_tile0_chunk(buffer[x][y])
-                                       : pfrm.map_tile1_chunk(buffer[x][y]);
+                                       ? pfrm.map_tile0_chunk(mem->tiles[x][y])
+                                       : pfrm.map_tile1_chunk(mem->tiles[x][y]);
 
                 if (min_y_ == 0 and tile_handle) {
                     min_y_ = y;
@@ -1727,12 +1732,16 @@ void Island::repaint(Platform& pfrm, App& app)
     // chimney, roof tiles, etc. all sort of depend on the shape of the island
     // as a whole. Anyway, this function performs all of the tile rendering.
 
-    u8 matrix[16][16];
-    TileId buffer[16][16]; // TODO: move this off of the stack!?
+    struct Memory {
+        u8 mat[16][16];
+        TileId tiles[16][16];
+    };
+
+    auto mem = allocate_dynamic<Memory>("repaint-ctx");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
-            buffer[x][y] = 0;
+            mem->tiles[x][y] = 0;
         }
     }
 
@@ -1742,19 +1751,19 @@ void Island::repaint(Platform& pfrm, App& app)
 
     if (interior_visible_) {
         for (auto& room : rooms()) {
-            room->render_interior(&app, buffer);
+            room->render_interior(&app, mem->tiles);
         }
     } else {
         for (auto& room : rooms()) {
-            room->render_exterior(&app, buffer);
+            room->render_exterior(&app, mem->tiles);
         }
     }
 
     for (auto& room : rooms()) {
-        room->render_scaffolding(app, buffer);
+        room->render_scaffolding(app, mem->tiles);
     }
 
-    plot_rooms(matrix);
+    plot_rooms(mem->mat);
 
     Buffer<RoomCoord, terrain_.capacity()> chimney_locs;
 
@@ -1802,29 +1811,29 @@ void Island::repaint(Platform& pfrm, App& app)
     for (u8 x = 0; x < 16; ++x) {
         for (int y = 15; y > -1; --y) {
 
-            rooms_plot_.set(x, y, matrix[x][y]);
+            rooms_plot_.set(x, y, mem->mat[x][y]);
 
-            if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
+            if (mem->mat[x][y] == 0 and y < 15 and mem->mat[x][y + 1] == 1) {
                 bool block_chimney = false;
-                if (buffer[x][y] == Tile::strut) {
+                if (mem->tiles[x][y] == Tile::strut) {
                     block_chimney = true;
-                    buffer[x][y] = Tile::roof_strut;
-                } else if (buffer[x][y] == Tile::strut_top) {
+                    mem->tiles[x][y] = Tile::roof_strut;
+                } else if (mem->tiles[x][y] == Tile::strut_top) {
                     block_chimney = true;
-                    buffer[x][y] = Tile::roof_strut_joined;
-                } else if (buffer[x][y] == Tile::scaffolding_angled_l or
-                           buffer[x][y] == Tile::scaffolding_angled_r) {
+                    mem->tiles[x][y] = Tile::roof_strut_joined;
+                } else if (mem->tiles[x][y] == Tile::scaffolding_angled_l or
+                           mem->tiles[x][y] == Tile::scaffolding_angled_r) {
                     block_chimney = true;
-                    buffer[x][y] = Tile::roof_strut_joined;
+                    mem->tiles[x][y] = Tile::roof_strut_joined;
                 } else {
-                    buffer[x][y] = Tile::roof_plain;
+                    mem->tiles[x][y] = Tile::roof_plain;
                 }
 
                 bool placed_chimney_this_tile = false;
                 if (not block_chimney and not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
                         if (loc.x == x and loc.y >= y) {
-                            buffer[x][y] = Tile::roof_chimney;
+                            mem->tiles[x][y] = Tile::roof_chimney;
                             chimney_loc_ = RoomCoord{u8(x), u8(y)};
                             placed_chimney = true;
                             placed_chimney_this_tile = true;
@@ -1834,40 +1843,40 @@ void Island::repaint(Platform& pfrm, App& app)
                 // NOTE: when placing a flag, we need to make sure that the slot
                 // above the current tile is empty, because the flag is two
                 // tiles tall.
-                if (y > 0 and matrix[x][y - 1] == 0 and buffer[x][y - 2] == 0) {
+                if (y > 0 and mem->mat[x][y - 1] == 0 and mem->tiles[x][y - 2] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag and y > 5) {
                         placed_flag = true;
-                        buffer[x][y] = Tile::roof_flag;
-                        buffer[x][y - 1] = Tile::flag_start;
+                        mem->tiles[x][y] = Tile::roof_flag;
+                        mem->tiles[x][y - 1] = Tile::flag_start;
                         flag_pos_ = {x, u8(y - 1)};
                     }
                 }
-            } else if (y == 14 and buffer[x][y] == 0 and
+            } else if (y == 14 and mem->tiles[x][y] == 0 and
                        x < (int)terrain_.size()) {
-                buffer[x][y] = Tile::grass;
-            } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
+                mem->tiles[x][y] = Tile::grass;
+            } else if (mem->mat[x][y] == 0 and mem->mat[x][y + 1] == 2) {
                 bool placed_chimney_this_tile = false;
                 if (not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
                         if (loc.x == x and loc.y >= y) {
-                            buffer[x][y] = Tile::tin_chimney;
+                            mem->tiles[x][y] = Tile::tin_chimney;
                             placed_chimney = true;
                             chimney_loc_ = RoomCoord{u8(x), u8(y)};
                             placed_chimney_this_tile = true;
                         }
                     }
                 }
-                if (y > 0 and matrix[x][y - 1] == 0) {
+                if (y > 0 and mem->mat[x][y - 1] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
-                        not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
+                        not placed_flag and y > 1 and mem->mat[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if ((*room->metaclass())->properties() &
                                     RoomProperties::flag_mount and
                                 y > 5) {
                                 placed_flag = true;
-                                buffer[x][y] = Tile::flag_mount;
-                                buffer[x][y - 1] = Tile::flag_start;
+                                mem->tiles[x][y] = Tile::flag_mount;
+                                mem->tiles[x][y - 1] = Tile::flag_start;
                                 flag_pos_ = {x, u8(y - 1)};
                             }
                         }
@@ -1881,24 +1890,24 @@ void Island::repaint(Platform& pfrm, App& app)
         // Clean up connections between stacked rooms
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 15; ++y) {
-                auto t1 = buffer[x][y];
-                auto t2 = buffer[x][y + 1];
+                auto t1 = mem->tiles[x][y];
+                auto t2 = mem->tiles[x][y + 1];
 
                 if (t1 == Tile::wall_window_2) {
                     if (t2 == Tile::wall_window_1) {
-                        buffer[x][y] = Tile::wall_window_middle_2;
-                        buffer[x][y + 1] = Tile::wall_window_middle_1;
+                        mem->tiles[x][y] = Tile::wall_window_middle_2;
+                        mem->tiles[x][y + 1] = Tile::wall_window_middle_1;
                     } else if (t2 == Tile::wall_plain_1) {
-                        buffer[x][y] = Tile::wall_window_middle_2;
-                        buffer[x][y + 1] = Tile::wall_plain_middle;
+                        mem->tiles[x][y] = Tile::wall_window_middle_2;
+                        mem->tiles[x][y + 1] = Tile::wall_plain_middle;
                     }
                 } else if (t1 == Tile::wall_plain_2) {
                     if (t2 == Tile::wall_window_1) {
-                        buffer[x][y] = Tile::wall_plain_middle;
-                        buffer[x][y + 1] = Tile::wall_window_middle_1;
+                        mem->tiles[x][y] = Tile::wall_plain_middle;
+                        mem->tiles[x][y + 1] = Tile::wall_window_middle_1;
                     } else if (t2 == Tile::wall_plain_1) {
-                        buffer[x][y] = Tile::wall_plain_middle;
-                        buffer[x][y + 1] = Tile::wall_plain_middle;
+                        mem->tiles[x][y] = Tile::wall_plain_middle;
+                        mem->tiles[x][y + 1] = Tile::wall_plain_middle;
                     }
                 }
             }
@@ -1906,29 +1915,29 @@ void Island::repaint(Platform& pfrm, App& app)
     }
 
     for (auto& r : rooms_) {
-        r->render_cloak(app, buffer);
+        r->render_cloak(app, mem->tiles);
     }
 
     if (flag_pos_) {
-        auto t = buffer[flag_pos_->x][flag_pos_->y];
+        auto t = mem->tiles[flag_pos_->x][flag_pos_->y];
         if (t == Tile::cloaked or t == Tile::null) {
             flag_pos_.reset();
         }
-        t = buffer[flag_pos_->x][flag_pos_->y + 1];
+        t = mem->tiles[flag_pos_->x][flag_pos_->y + 1];
         if (t == Tile::null) {
             flag_pos_.reset();
         }
     }
 
     if (chimney_loc_) {
-        auto t = buffer[chimney_loc_->x][chimney_loc_->y];
+        auto t = mem->tiles[chimney_loc_->x][chimney_loc_->y];
         if (t == Tile::cloaked or t == Tile::null) {
             chimney_loc_.reset();
         }
     }
 
-    if (not repaint_alloc_tiles(pfrm, app, buffer, false)) {
-        repaint_alloc_tiles(pfrm, app, buffer, true);
+    if (not repaint_alloc_tiles(pfrm, app, mem->tiles, false)) {
+        repaint_alloc_tiles(pfrm, app, mem->tiles, true);
     }
 
     if (layer_ == Layer::map_0_ext and flag_pos_) {
