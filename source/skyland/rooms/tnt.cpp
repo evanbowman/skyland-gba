@@ -21,8 +21,9 @@
 
 
 #include "tnt.hpp"
-#include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/entity/projectile/fireBolt.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -172,7 +173,9 @@ void Explosive::ignite(Platform& pfrm,
     }
 
     for (auto& room : *targets) {
+
         room->apply_damage(pfrm, app, damage);
+
 
         if (spread_fire and not((*room->metaclass())->properties() &
                                 RoomProperties::fireproof)) {
@@ -225,8 +228,20 @@ void TNT::finalize(Platform& pfrm, App& app)
     if (not ignition_) {
         return;
     } else {
-        ignite(pfrm, app, 2, 200, true);
+        ignite(pfrm, app, 2, 180, true);
         ExploSpawner::create(pfrm, app, center());
+
+        if (not pfrm.network_peer().is_connected()) {
+            for (int i = 0; i < 10; ++i) {
+
+                auto c = app.alloc_entity<FireBolt>(
+                    pfrm, center(), center(), parent(), position());
+                if (c) {
+                    c->set_direction(rng::choice<359>(rng::critical_state));
+                    parent()->projectiles().push(std::move(c));
+                }
+            }
+        }
     }
 }
 

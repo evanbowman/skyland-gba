@@ -107,7 +107,7 @@
    (dynamite 3 6)
    (dynamite 3 8)
    (dynamite 3 7)
-   (dynamite-ii 3 12)
+   (dynamite 3 12)
    (power-core 3 13)
    (dynamite 3 10)
    (dynamite 3 11)
