@@ -48,6 +48,9 @@ public:
     }
 
 
+    void set_direction(u16 rot);
+
+
     void set_timer(Microseconds value)
     {
         timer_ = value;

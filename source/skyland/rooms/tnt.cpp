@@ -22,6 +22,7 @@
 
 #include "tnt.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -97,7 +98,7 @@ void Explosive::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-static SharedVariable tnt_damage("dynamite_damage", 30);
+static SharedVariable tnt_damage("dynamite_damage", 50);
 static SharedVariable tnt_range("dynamite_range", 1);
 
 
@@ -182,6 +183,7 @@ void Explosive::ignite(Platform& pfrm,
 
 
         if (app.game_mode() == App::GameMode::adventure or
+            app.game_mode() == App::GameMode::challenge or
             app.game_mode() == App::GameMode::skyland_forever) {
 
             // Hack added for an achievement where you unlock dynamite-ii when
@@ -210,6 +212,21 @@ void Explosive::finalize(Platform& pfrm, App& app)
         return;
     } else {
         ignite(pfrm, app, tnt_range, tnt_damage, false);
+        ExploSpawner::create(pfrm, app, center());
+    }
+}
+
+
+
+void TNT::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (not ignition_) {
+        return;
+    } else {
+        ignite(pfrm, app, 2, 200, true);
+        ExploSpawner::create(pfrm, app, center());
     }
 }
 

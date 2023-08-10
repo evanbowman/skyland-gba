@@ -158,16 +158,7 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app) override
-    {
-        Room::finalize(pfrm, app);
-
-        if (not ignition_) {
-            return;
-        } else {
-            ignite(pfrm, app, 2, 200, true);
-        }
-    }
+    void finalize(Platform& pfrm, App& app);
 
 
     static RoomProperties::Bitmask properties()

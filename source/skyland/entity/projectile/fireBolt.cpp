@@ -43,6 +43,10 @@ extern Sound cannon_sound;
 
 
 
+static const Float speed = 0.00015f;
+
+
+
 FireBolt::FireBolt(const Vec2<Fixnum>& position,
                    const Vec2<Fixnum>& target,
                    Island* source,
@@ -54,8 +58,26 @@ FireBolt::FireBolt(const Vec2<Fixnum>& position,
 
     sprite_.set_origin({8, 8});
 
-    static const Float speed = 0.00015f;
     auto dir = direction(fvec(position), fvec(target));
+    auto step = dir * speed;
+    step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
+
+    if (dir.x > 0) {
+        sprite_.set_texture_index(86);
+        sprite_.set_rotation(1500 * -dir.y);
+    } else {
+        sprite_.set_texture_index(87);
+        sprite_.set_rotation(1500 * dir.y);
+    }
+}
+
+
+
+void FireBolt::set_direction(u16 rot)
+{
+    Vec2<Float> dir{0, -1};
+    dir = rotate(dir, rot);
+
     auto step = dir * speed;
     step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 
