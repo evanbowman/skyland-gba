@@ -7436,10 +7436,19 @@ Platform::Platform()
                  format("Repro cart detected! (type %)", bootleg_flash_type));
 
             // These bootleg flashcarts place save data in flash memory
-            // alongside the ROM. Kind of a dumb idea, but some of these things
-            // retail at $2, I'm guessing the manufacturers are trying to cut
-            // costs on the sram battery. The carts still use SRAM, and data
-            // persisted to flash needs to be copied back to sram at startup.
+            // alongside the ROM. Some of these things retail at $2, I'm
+            // guessing the manufacturers are trying to cut costs on the sram
+            // battery. The carts still use SRAM, and data persisted to flash
+            // needs to be copied back to sram at startup.
+            //
+            // But! InsideGadgets brand flashcarts use similar flash chips and
+            // have actual battery-backed SRAM or persistent FRAM. TODO: I guess
+            // I need to look into the contents of sram upon startup to see if
+            // valid save data already exists.
+            //
+            // But... resetting rom with L+R+START+SELECT would also cause code
+            // to reach this point.
+
             bootleg_cart_init_sram(*this);
             break;
 

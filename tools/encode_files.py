@@ -4,8 +4,52 @@ import os
 
 project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
 
-
 bytes_encoded = 0
+
+
+def minify_lisp(codestring):
+    result = ""
+    within_comment = False
+    within_string = False
+    last_char = None
+
+    for c in codestring:
+        if within_comment:
+            if c == '\n':
+                within_comment = False
+            continue
+
+        if within_string:
+            result += c
+            if c == '"':
+                within_string = False
+            last_char = '"'
+            continue
+
+        if c == '"':
+            result += c
+            within_string = True
+            continue
+
+        if c == ';':
+            within_comment = True
+            continue
+
+        if c == ' ' and (last_char == ' ' or last_char == None or last_char == ")"):
+            # do nothing, we're collapsing spaces
+            pass
+        elif c == '\r':
+            # don't care
+            pass
+        elif c == '\n':
+            if last_char != ' ' and last_char != ")":
+                result += ' '
+                last_char = ' '
+        else:
+            result += c
+            last_char = c
+
+    return result
 
 
 def encode_file(path, real_name, out):
@@ -35,6 +79,9 @@ def encode_file(path, real_name, out):
 
         data = test_file.read()
         file_contents = data
+
+        if path.split('.')[-1] == 'lisp':
+            file_contents = minify_lisp(data.decode('utf-8')).encode('utf-8')
 
         pad = 4 - (len(file_contents) + 1) % 4
         bytes_encoded += len(file_contents) + 1 + pad

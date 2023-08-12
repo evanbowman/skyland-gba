@@ -1930,6 +1930,9 @@ static u32 read_symbol(CharSequence& code, int offset)
         case '\t':
         case '\0':
         case ';':
+        case '"':
+        case '.':
+        case '\'':
             goto FINAL;
 
         default:
