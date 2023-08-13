@@ -58,12 +58,13 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
         return false;
     }
 
-    count_ = count;
+    count_ = 0;
 
     auto dest = cargo_;
     auto src = cargo;
 
     while (*src not_eq '\0') {
+        ++count_;
         *dest++ = *src++;
     }
     *dest = '\0';
