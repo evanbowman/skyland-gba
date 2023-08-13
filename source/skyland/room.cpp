@@ -654,7 +654,7 @@ void Room::plot_walkable_zones(App& app,
     // For extreme edge cases: if a character is standing in a slot that it
     // shouldn't be, designate the slot as walkable so that the character can
     // walk out of it.
-    if (for_character) {
+    if (for_character and for_character->parent() == parent()) {
         auto p = for_character->grid_position();
         matrix[p.x][p.y] = true;
     }
