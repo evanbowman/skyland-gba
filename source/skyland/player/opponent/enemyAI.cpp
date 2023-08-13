@@ -62,6 +62,19 @@
 // have said that the game is already too hard, so no need to write a smarter AI
 // I guess.
 //
+// P.S.: I tried converting this code to use fixed point and tested the latency,
+// and speedup was only about 25% or so. I do someday want to replace the code
+// with an implementation that uses fixed point for multiplying attack priority
+// values, but I would need to do so much retesting that I haven't found the
+// time to do it. The issues with using fixed point would only come up in
+// situations where numbers overflow or don't have enough decimal precision, and
+// I would need to carefully review the code in order to test each situation
+// specifically. Due to the limited benefit, and the fact that the AI updates
+// only one block every few frames, it's just not worth the effort until I
+// really run out of other things to improve.
+// --TLDR: you'll see floats in this code. I tested and it's not the
+// bottleneck.
+
 
 
 namespace skyland
