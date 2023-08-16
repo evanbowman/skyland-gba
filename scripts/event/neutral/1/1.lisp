@@ -12,10 +12,17 @@
 
 (island-configure
  (opponent)
- '((hull 0 14)
+ '((masonry 0 14 3)
+   (hull 0 13)
+   (masonry 2 12 3)
    (power-core 1 13)
    (hull 1 12)
    (workshop 3 13)))
+
+(secret
+ 0 13
+ "Did you know that Skyland's goblins were human once? But they remained on the ruined surface too long, and were left mutated and cruel...")
+
 
 
 (let ((trap (choice 2)))

@@ -205,7 +205,7 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
         int frames = 25;
         for (int i = 0; i < frames; ++i) {
             pfrm.screen().schedule_fade(
-                Float(i) / frames, ColorConstant::rich_black, true, true);
+                Float(i) / (frames - 1), ColorConstant::rich_black, true, true);
             pfrm.keyboard().poll();
             pfrm.screen().clear();
             pfrm.screen().display();

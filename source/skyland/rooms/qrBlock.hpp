@@ -37,11 +37,15 @@ namespace skyland
 class QrBlock final : public Decoration
 {
 public:
+
     QrBlock(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position),
           data_(allocate_dynamic<StringBuffer<400>>("qr-data"))
     {
     }
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
@@ -115,6 +119,7 @@ public:
         return 1;
     }
 
+
     ScenePtr<Scene>
     select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
@@ -125,8 +130,18 @@ public:
     }
 
 
+    bool opponent_display_on_hover() const override;
+
+
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const RoomCoord& cursor) override;
+
+
 private:
     DynamicMemory<StringBuffer<400>> data_;
+    std::optional<Platform::DynamicTexturePtr> hint_img_;
+    Microseconds hint_img_release_timer_ = 0;
 };
 
 
