@@ -35,6 +35,10 @@
    (masonry 8 13)
    (bronze-hull 8 12)))
 
+(secret
+ 4 11
+ "Farms in Skyland grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island core...")
+
 (defn on-converge
   (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
     (if m
