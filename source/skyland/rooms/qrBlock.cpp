@@ -97,7 +97,7 @@ void QrBlock::display_on_hover(Platform::Screen& screen,
     }
 
     Sprite spr;
-    auto pos = center();
+    auto pos = visual_center();
     pos.y -= 22.0_fixed;
     pos.x -= 12.0_fixed;
     spr.set_texture_index((*hint_img_)->mapping_index());
