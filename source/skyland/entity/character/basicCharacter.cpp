@@ -411,7 +411,8 @@ void BasicCharacter::update(Platform& pfrm,
                             anim_timer_ = 0;
                         } else {
                             if (not ai_automated_ and
-                                not room->cast<Infirmary>() and
+                                (not room->cast<Infirmary>() or
+                                 health() == max_health) and
                                 not room->cast<Replicator>() and
                                 not room->cast<Decimator>() and
                                 (not room->cast<Transporter>() or
