@@ -291,6 +291,13 @@ public:
     }
 
 
+    void pin();
+    void unpin();
+
+
+    bool ai_automated() const;
+
+
     void apply_radiation_damage(Platform&, App&, Health amount);
 
 
@@ -319,6 +326,9 @@ private:
 
     u8 icon_;
     u8 radiation_counter_ = 0;
+
+    u8 ai_automated_ : 1;
+    u8 unused_ : 7;
 
 
     bool has_opponent(Room* room);

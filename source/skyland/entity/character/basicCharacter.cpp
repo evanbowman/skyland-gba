@@ -24,6 +24,10 @@
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mindControl.hpp"
+#include "skyland/rooms/infirmary.hpp"
+#include "skyland/rooms/replicator.hpp"
+#include "skyland/rooms/decimator.hpp"
+#include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -115,6 +119,22 @@ BasicCharacter::BasicCharacter(Island* parent,
     is_replicant_ = is_replicant;
 
     health_ = max_health;
+
+    ai_automated_ = true;
+}
+
+
+
+void BasicCharacter::unpin()
+{
+    ai_automated_ = true;
+}
+
+
+
+void BasicCharacter::pin()
+{
+    ai_automated_ = false;
 }
 
 
@@ -172,6 +192,8 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
+
+    ai_automated_ = true;
 
     if (radiation_counter_) {
         sprite_.set_mix({});
@@ -273,6 +295,13 @@ void BasicCharacter::update(Platform&, App&, Microseconds delta)
 {
     Platform::fatal("BasicCharacter::update() called... "
                     "Use other update method instead.");
+}
+
+
+
+bool BasicCharacter::ai_automated() const
+{
+    return ai_automated_;
 }
 
 
@@ -380,6 +409,16 @@ void BasicCharacter::update(Platform& pfrm,
                                               "plundered-room")) {
                             state_ = State::repair_room;
                             anim_timer_ = 0;
+                        } else {
+                            if (not ai_automated_ and
+                                not room->cast<Infirmary>() and
+                                not room->cast<Replicator>() and
+                                not room->cast<Decimator>() and
+                                not room->cast<Transporter>()) {
+                                // At this point, the character has absolutely
+                                // nothing to do at its current location.
+                                ai_automated_ = true;
+                            }
                         }
                     }
                 }
@@ -434,6 +473,7 @@ void BasicCharacter::update(Platform& pfrm,
                 if (is_plundered) { // We've successfully ransacked the room,
                                     // let's try moving on to somewhere else.
                     this->set_idle(app);
+                    ai_automated_ = true;
                     break;
                 }
 

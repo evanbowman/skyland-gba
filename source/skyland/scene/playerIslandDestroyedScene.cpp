@@ -528,6 +528,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
 
+                for (auto& room : app.player_island().rooms()) {
+                    for (auto& chr : room->characters()) {
+                        chr->unpin();
+                    }
+                }
+
                 if (app.game_mode() == App::GameMode::co_op) {
                     network::packet::CoOpOpponentDestroyed packet;
                     network::transmit(pfrm, packet);

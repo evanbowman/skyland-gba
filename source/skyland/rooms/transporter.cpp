@@ -378,6 +378,7 @@ void Transporter::transport_occupant(Platform& pfrm,
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
         (*chr)->transported();
+        (*chr)->unpin();
 
         // While it isn't really humanly possible to move a character out of a
         // transporter and then click the transporter to transport the occupant

@@ -280,6 +280,7 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (path and *path) {
                 sel_chr->set_movement_path(pfrm, app, std::move(*path));
+                sel_chr->pin();
 
                 network::packet::ChrSetTargetV2 packet;
                 packet.target_x_ = cursor_loc->x;
