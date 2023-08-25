@@ -106,7 +106,7 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (not id_buffers_->local_.empty()) {
             auto chr_id = (id_buffers_->local_)[local_buffer_index_++];
             auto info = app.player_island().find_character_by_id(chr_id);
-            if (info.first) {
+            if (info.first and info.first->ai_automated()) {
                 EnemyAI::assign_local_character(pfrm,
                                                 app,
                                                 *info.first,
@@ -138,7 +138,7 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
             auto chr_id = (id_buffers_->boarded_)[boarded_buffer_index_++];
             if (app.opponent_island()) {
                 auto info = app.opponent_island()->find_character_by_id(chr_id);
-                if (info.first) {
+                if (info.first and info.first->ai_automated()) {
                     EnemyAI::assign_boarded_character(pfrm,
                                                       app,
                                                       *info.first,
