@@ -414,7 +414,8 @@ void BasicCharacter::update(Platform& pfrm,
                                 not room->cast<Infirmary>() and
                                 not room->cast<Replicator>() and
                                 not room->cast<Decimator>() and
-                                not room->cast<Transporter>()) {
+                                (not room->cast<Transporter>() or
+                                 (room->cast<Transporter>()->ready()))) {
                                 // At this point, the character has absolutely
                                 // nothing to do at its current location.
                                 ai_automated_ = true;
