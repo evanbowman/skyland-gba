@@ -335,24 +335,6 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[edge_of_world].reward_), awarded);
      }},
 
-    {SystemString::achievement_raid_name,
-     SystemString::achievement_raid_description,
-     "boarding-pod",
-     [](Platform&, App& app) {
-         if (auto isle = app.opponent_island()) {
-             int char_c = isle->character_count();
-             int total_c = 0;
-             for (auto& room : isle->rooms()) {
-                 total_c += length(room->characters());
-             }
-             return total_c - char_c > 4;
-         }
-         return false;
-     },
-     [](Platform&, App&, bool awarded) {
-         set_enabled(metaclass_index(info[raid].reward_), awarded);
-     }},
-
     // {SystemString::achievement_pacifist_name,
     //  SystemString::achievement_pacifist_description,
     //  "mind-control",

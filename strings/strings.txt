@@ -287,14 +287,14 @@ A switch! When the lefthand side of the switch is selected, it'll select one of 
 Indestructable hull. May only be built in sandbox mode.
 Once activated, transports an island out of a battle after 60 seconds.
 An organic defensive structure. Grows to cover the whole surface of a castle. Will not grow on fluid blocks, forcefields, or other mycelium.
-Changes into water when placed near a heat source. May only be built in sandbox mode.
+Water freezes to ice blocks in snowy weather...
 A block produced when water interacts with lava.
 Highly flammable, but takes no burn damage. Sandbox mode only.
 Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 Changes the weather!
-Automatically chooses weapon targets for you! You might be able to do a better job yourself, but oh, how convenient! Click to toggle on/off.
+Automatically chooses weapon targets for you! You might be able to do a better job yourself, but oh, how convenient! (and you can still pin targets manually)
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 Like a stairwell, but half as tall.
 Heals inhabitants, slower for each additional inhabitant. Only heals crew originating from the same island as the infirmary.

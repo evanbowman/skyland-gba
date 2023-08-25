@@ -967,6 +967,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             const auto group = room->group();
 
             const auto had_target = room->get_target();
+            const bool target_was_pinned = room->target_pinned();
 
             room->finalize(pfrm, app);
 
@@ -979,6 +980,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     e.previous_target_y_ = had_target->y;
                     e.near_ = true;
                     e.has_previous_target_ = true;
+                    e.previous_target_pinned_ = target_was_pinned;
                     app.time_stream().push(app.level_timer(), e);
                 }
                 if (group not_eq Room::Group::none) {
@@ -1308,8 +1310,8 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                     room_hitbox.dimension_.size_.y = room->size().y * tile_size;
 
                     if (room_hitbox.overlapping(entity.hitbox())) {
-                        entity.on_collision(pfrm, app, *room,
-                                            Vec2<u8>{(u8)x, (u8)y});
+                        entity.on_collision(
+                            pfrm, app, *room, Vec2<u8>{(u8)x, (u8)y});
                         return;
                     }
                 }
@@ -1674,7 +1676,8 @@ bool Island::repaint_alloc_tiles(Platform& pfrm,
 
 void Island::repaint_partial(Platform& pfrm, App& app)
 {
-    struct Memory {
+    struct Memory
+    {
         TileId tiles[16][16];
     };
 
@@ -1732,7 +1735,8 @@ void Island::repaint(Platform& pfrm, App& app)
     // chimney, roof tiles, etc. all sort of depend on the shape of the island
     // as a whole. Anyway, this function performs all of the tile rendering.
 
-    struct Memory {
+    struct Memory
+    {
         u8 mat[16][16];
         TileId tiles[16][16];
     };
@@ -1843,7 +1847,8 @@ void Island::repaint(Platform& pfrm, App& app)
                 // NOTE: when placing a flag, we need to make sure that the slot
                 // above the current tile is empty, because the flag is two
                 // tiles tall.
-                if (y > 0 and mem->mat[x][y - 1] == 0 and mem->tiles[x][y - 2] == 0) {
+                if (y > 0 and mem->mat[x][y - 1] == 0 and
+                    mem->tiles[x][y - 2] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag and y > 5) {
                         placed_flag = true;

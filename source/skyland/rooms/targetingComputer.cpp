@@ -112,13 +112,25 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
             }
             const auto category = (*room.metaclass())->category();
             if (category == Room::Category::weapon) {
-                EnemyAI::update_room(pfrm,
-                                     app,
-                                     room,
-                                     app.opponent_island()->rooms_plot(),
-                                     &app.player(),
-                                     &app.player_island(),
-                                     app.opponent_island());
+
+                // Even when the targeting AI is active, the game allows you to
+                // pin targets manually, and the AI won't try to assign them
+                // again until the block to which the target is pinned is
+                // destroyed.
+                const bool has_pinned_target =
+                    room.target_pinned() and
+                    room.get_target() and
+                    app.opponent_island()->get_room(*room.get_target());
+
+                if (not has_pinned_target) {
+                    EnemyAI::update_room(pfrm,
+                                         app,
+                                         room,
+                                         app.opponent_island()->rooms_plot(),
+                                         &app.player(),
+                                         &app.player_island(),
+                                         app.opponent_island());
+                }
             }
             next_action_timer_ = milliseconds(32);
         }

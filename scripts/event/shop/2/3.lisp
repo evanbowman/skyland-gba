@@ -1,4 +1,4 @@
 '((beam-gun . 1)
-  (boarding-pod . 2)
+  (reactor . 1)
   (mirror-hull . 8)
   (decimator . 1))

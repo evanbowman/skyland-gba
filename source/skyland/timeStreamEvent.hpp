@@ -873,7 +873,8 @@ struct WeaponSetTarget
 
     u8 has_previous_target_ : 1;
     u8 near_ : 1;
-    u8 unused_ : 6;
+    u8 previous_target_pinned_ : 1;
+    u8 unused_ : 5;
 
     static constexpr const auto t = Type::weapon_set_target;
 };

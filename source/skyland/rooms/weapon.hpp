@@ -99,7 +99,13 @@ public:
     void ___rewind___ability_used(Platform&, App&) override;
 
 
-    void set_target(Platform& pfrm, App& app, const RoomCoord& target) override;
+    bool target_pinned() const override;
+
+
+    void set_target(Platform& pfrm,
+                    App& app,
+                    const RoomCoord& target,
+                    bool pinned) override;
 
 
     void unset_target(Platform& pfrm, App& app) override;
@@ -128,6 +134,7 @@ public:
 
 protected:
     std::optional<RoomCoord> target_;
+    bool target_pinned_ = false;
 };
 
 

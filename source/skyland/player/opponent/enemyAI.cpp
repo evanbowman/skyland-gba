@@ -277,7 +277,7 @@ void EnemyAI::assign_weapon_target(Platform& pfrm,
                                    const RoomCoord& target,
                                    Island* ai_island)
 {
-    weapon.set_target(pfrm, app, target);
+    weapon.set_target(pfrm, app, target, false);
 
     // NOTE: in co-op mode, one console controls the AI, and needs to update the
     // other console withe the AI's decisions. We _could_ have both consoles run

@@ -116,7 +116,10 @@ public:
     }
 
 
-    void set_target(Platform& pfrm, App& app, const RoomCoord& target) override;
+    void set_target(Platform& pfrm,
+                    App& app,
+                    const RoomCoord& target,
+                    bool pinned) override;
 
 
     void unset_target(Platform& pfrm, App& app) override;

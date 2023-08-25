@@ -173,7 +173,17 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
 
 
-void Weapon::set_target(Platform& pfrm, App& app, const RoomCoord& target)
+bool Weapon::target_pinned() const
+{
+    return target_pinned_;
+}
+
+
+
+void Weapon::set_target(Platform& pfrm,
+                        App& app,
+                        const RoomCoord& target,
+                        bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -186,6 +196,7 @@ void Weapon::set_target(Platform& pfrm, App& app, const RoomCoord& target)
     e.room_y_ = position().y;
 
     e.near_ = parent() == &app.player_island();
+    e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
         e.previous_target_x_ = target_->x;
@@ -200,6 +211,7 @@ void Weapon::set_target(Platform& pfrm, App& app, const RoomCoord& target)
     app.time_stream().push(app.level_timer(), e);
 
     target_ = target;
+    target_pinned_ = pinned;
 }
 
 
@@ -211,11 +223,13 @@ void Weapon::unset_target(Platform& pfrm, App& app)
         return;
     }
 
+
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
     e.near_ = parent() == &app.player_island();
+    e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
         e.previous_target_x_ = target_->x;
@@ -230,6 +244,7 @@ void Weapon::unset_target(Platform& pfrm, App& app)
     app.time_stream().push(app.level_timer(), e);
 
     target_.reset();
+    target_pinned_ = false;
 }
 
 

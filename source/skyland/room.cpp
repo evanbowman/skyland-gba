@@ -918,6 +918,13 @@ void Room::convert_to_plundered(Platform& pfrm, App& app)
 
 
 
+bool Room::target_pinned() const
+{
+    return false;
+}
+
+
+
 void Room::plunder(Platform& pfrm, App& app, Health damage)
 {
     apply_damage(pfrm, app, damage);

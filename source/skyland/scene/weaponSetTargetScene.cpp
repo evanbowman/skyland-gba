@@ -226,7 +226,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island()->get_room(cursor_loc)) {
 
             auto do_set_target = [&pfrm, &app, cursor_loc](Room& room) {
-                room.set_target(pfrm, app, cursor_loc);
+                room.set_target(pfrm, app, cursor_loc, true);
                 network::packet::WeaponSetTarget packet;
                 packet.weapon_x_ = room.position().x;
                 packet.weapon_y_ = room.position().y;

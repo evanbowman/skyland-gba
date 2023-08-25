@@ -1270,10 +1270,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             if (auto room = island->get_room({e->room_x_, e->room_y_})) {
                 if (e->has_previous_target_) {
-                    room->set_target(pfrm,
-                                     app,
-                                     RoomCoord{e->previous_target_x_,
-                                               e->previous_target_y_});
+                    room->set_target(
+                        pfrm,
+                        app,
+                        RoomCoord{e->previous_target_x_, e->previous_target_y_},
+                        e->previous_target_pinned_);
                 } else {
                     room->unset_target(pfrm, app);
                 }

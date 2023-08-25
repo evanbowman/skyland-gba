@@ -29,8 +29,6 @@
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/beamGun.hpp"
-#include "skyland/rooms/bighull.hpp"
-#include "skyland/rooms/boardingPod.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -352,10 +350,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         Explosive,
                                         TNT,
                                         Cesium,
-                                        // MindControl,
                                         Radar,
                                         Transporter,
-                                        BoardingPod,
                                         TargetingComputer,
                                         CommandModule,
                                         EscapeBeacon,

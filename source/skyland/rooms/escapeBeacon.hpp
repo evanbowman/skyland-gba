@@ -112,6 +112,7 @@ public:
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::multiplayer_unsupported |
                RoomProperties::disabled_in_tutorials |
+               RoomProperties::not_constructible |
                RoomProperties::skyland_forever_unsupported;
     }
 

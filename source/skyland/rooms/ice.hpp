@@ -67,7 +67,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return (Decoration::properties() & ~RoomProperties::locked_by_default) |
-               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::not_constructible |
                RoomProperties::fireproof;
     }
 

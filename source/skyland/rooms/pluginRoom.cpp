@@ -183,7 +183,8 @@ PluginRoom::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void PluginRoom::set_target(Platform& pfrm, App& app, const RoomCoord& target)
+void PluginRoom::set_target(Platform& pfrm, App& app, const RoomCoord& target,
+                            bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not

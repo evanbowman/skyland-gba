@@ -308,7 +308,11 @@ public:
     }
 
 
-    virtual void set_target(Platform& pfrm, App& app, const RoomCoord& target)
+    virtual bool target_pinned() const;
+
+
+    virtual void
+    set_target(Platform& pfrm, App& app, const RoomCoord& target, bool pinned)
     {
     }
 

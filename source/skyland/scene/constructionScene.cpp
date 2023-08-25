@@ -240,7 +240,7 @@ void shift_rooms_right(Platform& pfrm, App& app, Island& island)
         for (auto& r : other_island->rooms()) {
             if (auto t = r->get_target()) {
                 t->x += 1;
-                r->set_target(pfrm, app, *t);
+                r->set_target(pfrm, app, *t, r->target_pinned());
             }
         }
     }
