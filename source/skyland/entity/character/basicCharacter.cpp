@@ -183,6 +183,7 @@ void BasicCharacter::transported()
     anim_timer_ = 0;
     sprite_.set_mix({ColorConstant::electric_blue, 255});
     idle_count_ = 0;
+    unpin();
 }
 
 
