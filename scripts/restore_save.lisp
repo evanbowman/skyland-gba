@@ -56,5 +56,15 @@
         (setq qids (load 'qids))
         (setq shop-items (load 'shop-items)))
 
+      (let ((grp (load 'groups))
+            (join (lambda
+                    (let ((grp $0))
+                      (lambda (groups-add grp (car $0) (cdr $0)))))))
+        (when grp
+          (groups-reset)
+          (map (join 'Up) (cdr (assoc 'Up grp)))
+          (map (join 'Left) (cdr (assoc 'Left grp)))
+          (map (join 'Right) (cdr (assoc 'Right grp)))))
+
       (when (> (load 'save-protocol) 1)
         (diff-set (load 'diff))))))

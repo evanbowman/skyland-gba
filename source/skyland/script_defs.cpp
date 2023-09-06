@@ -458,6 +458,76 @@ static const lisp::Binding script_api[] = {
          state_bit_store(*app, StateBit::dialog_expects_answer, true);
          return L_NIL;
      }},
+    {"groups",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+
+         lisp::ListBuilder ret;
+
+         lisp::ListBuilder up;
+         lisp::ListBuilder left;
+         lisp::ListBuilder right;
+
+         for (auto& room : interp_get_app()->player_island().rooms()) {
+             auto pos = room->position();
+             switch (room->group()) {
+             case Room::Group::count:
+             case Room::Group::none:
+                 break;
+
+             case Room::Group::one:
+                 up.push_back(L_CONS(L_INT(pos.x), L_INT(pos.y)));
+                 break;
+
+             case Room::Group::two:
+                 right.push_back(L_CONS(L_INT(pos.x), L_INT(pos.y)));
+                 break;
+
+             case Room::Group::three:
+                 left.push_back(L_CONS(L_INT(pos.x), L_INT(pos.y)));
+                 break;
+             }
+         }
+
+         ret.push_back(L_CONS(L_SYM("Up"), up.result()));
+         ret.push_back(L_CONS(L_SYM("Left"), left.result()));
+         ret.push_back(L_CONS(L_SYM("Right"), right.result()));
+
+         return ret.result();
+     }},
+    {"groups-reset",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+         for (auto& room : interp_get_app()->player_island().rooms()) {
+             room->set_group(Room::Group::none);
+         }
+         return L_NIL;
+     }},
+    {"groups-add",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, symbol);
+
+         u8 x = L_LOAD_INT(1);
+         u8 y = L_LOAD_INT(0);
+
+         if (auto room = interp_get_app()->player_island().get_room({x, y})) {
+             auto str = lisp::get_op(2)->symbol().name();
+             if (str_eq(str, "Up")) {
+                 room->set_group(Room::Group::one);
+             } else if (str_eq(str, "Left")) {
+                 room->set_group(Room::Group::three);
+             } else if (str_eq(str, "Right")) {
+                 room->set_group(Room::Group::two);
+             } else {
+                 Platform::fatal(format("invalid group %", str));
+             }
+         }
+
+         return L_NIL;
+     }},
     {"sound",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

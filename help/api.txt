@@ -587,6 +587,25 @@ o----------------------------o
  (defn locale-string
    (get-line-of-file lang $0))
 
+o----------------------------o
+
+ (groups)
+
+ List weapon groups.
+
+o----------------------------o
+
+ (groups-reset)
+
+ Clear weapon groups.
+
+o----------------------------o
+
+ (groups-add group x y)
+
+ Add weapon at coords (x,y)
+ to group specified by symbol
+ group.
 
 o----------------------------o
 
