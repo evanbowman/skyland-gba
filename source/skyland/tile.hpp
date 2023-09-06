@@ -278,6 +278,19 @@ struct Tile
         clumpbomb_2,
         clumpbomb_3,
         clumpbomb_4,
+        balloon_1,
+        balloon_2,
+        balloon_3,
+        balloon_4,
+        balloon_5,
+        balloon_6,
+        balloon_7,
+        balloon_8,
+        balloon_9,
+        basket_1,
+        basket_2,
+        basket_3,
+        basket_4,
     };
 };
 
@@ -527,6 +540,19 @@ struct InteriorTile
         clumpbomb_2,
         clumpbomb_3,
         clumpbomb_4,
+        balloon_1,
+        balloon_2,
+        balloon_3,
+        balloon_4,
+        balloon_5,
+        balloon_6,
+        balloon_7,
+        balloon_8,
+        balloon_9,
+        basket_1,
+        basket_2,
+        basket_3,
+        basket_4,
     };
 };
 

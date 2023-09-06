@@ -25,6 +25,7 @@
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
+#include "skyland/rooms/balloon.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
@@ -331,6 +332,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         BackupCore,
                                         WarEngine,
                                         Windmill,
+                                        Balloon,
                                         // misc
                                         Stairwell,
                                         Ladder,

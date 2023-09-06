@@ -19,6 +19,7 @@ annihilator
 arc-gun
 arch
 standby-core
+balloon
 banana-plant
 barrier
 basalt
@@ -315,6 +316,7 @@ Built on the surface, these missiles divide into ten projeciles upon impact and 
 Like a ladder, but one block taller. (Upgrade a ladder via the select menu)
 Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
+A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
 paused
 slow
 regular

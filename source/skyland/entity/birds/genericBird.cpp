@@ -94,7 +94,8 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
 
     if ((below == Tile::null or below == Tile::grass or
          below == Tile::liberty_1 or below == Tile::lava_top or
-         below == Tile::lava_left or below == Tile::lava_right) and
+         below == Tile::lava_left or below == Tile::lava_right or
+         below == Tile::balloon_1 or below == Tile::balloon_3) and
         delta > 0) {
         alerted_ = true;
     } else if (below == Tile::null or below == Tile::grass) {

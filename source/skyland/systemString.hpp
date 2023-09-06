@@ -70,6 +70,7 @@ enum class SystemString {
     block_arcgun,
     block_arch,
     block_backup_core,
+    block_balloon,
     block_banana_plant,
     block_barrier,
     block_basalt,
@@ -393,6 +394,7 @@ enum class SystemString {
     description_ladder_plus,
     description_stairwell_plus,
     description_stairwell_plus_plus,
+    description_balloon,
 
     gs_paused,
     gs_slow,

@@ -49,6 +49,15 @@ namespace skyland
 
 void Island::init_terrain(Platform& pfrm, int width, bool render)
 {
+    if (width < 0) {
+        terrain_.clear();
+        while (width < 0) {
+            terrain_.push_back(0);
+            ++width;
+        }
+        return;
+    }
+
     if (width < 3) {
         return;
     }

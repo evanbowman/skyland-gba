@@ -56,8 +56,7 @@
                     (join "The castaway joined your crew!")
                   (progn
                     (coins-set (- (coins) 300))
-                    (join "The castaway joined your crew. "
-                          "Starving, he ate 300@ of your food supplies!"))))
+                    (join "The castaway joined your crew. Starving, he ate 300@ of your food supplies!"))))
             (progn
               (dialog "Sadly, there's no room...")
               (defn on-dialog-closed

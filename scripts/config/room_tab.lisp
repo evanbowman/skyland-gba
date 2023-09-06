@@ -73,6 +73,7 @@
   (cesium       40  80   0)
   (dynamite     60  80   0)
   (dynamite-ii  51  500  0)
+  (balloon      40  300 -10)
   (spark-cannon 200 2500 30)
   (cloak        20  1500 50)
   (weather-engine 60 500 0)

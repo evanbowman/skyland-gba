@@ -50,3 +50,4 @@ discovered a shop!
 purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
+invited an explorer aboard!

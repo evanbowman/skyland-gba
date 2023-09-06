@@ -632,7 +632,9 @@ o----------------------------o
  without the size argument,
  returns terrain size of
  island.
-
+ Negative sizes will result
+ in islands with invisible
+ terrain.
 
 o----------------------------o
 

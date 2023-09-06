@@ -396,7 +396,8 @@ void BasicCharacter::update(Platform& pfrm,
                             not str_eq(name, "ladder") and
                             not str_eq(name, "ladder+") and
                             not str_eq(name, "stairwell+") and
-                            not str_eq(name, "stairwell++")) {
+                            not str_eq(name, "stairwell++") and
+                            not app.opponent().is_friendly()) {
                             state_ = State::plunder_room;
                             timer_ = 0;
                         }
