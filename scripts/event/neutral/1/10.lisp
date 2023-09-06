@@ -1,5 +1,5 @@
 
-(dialog "You come across an explorer's balloon, floating gently in the breeze. You adjust your engines to keep pace with it...")
+(dialog "<b:/scripts/misc/img/explorer.skg>You come across an explorer's balloon, floating gently in the breeze. You adjust your engines to keep pace with it...")
 
 (opponent-init -3 'neutral)
 
