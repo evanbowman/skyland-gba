@@ -35,6 +35,8 @@ namespace skyland
 
 void QrBlock::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    Room::update(pfrm, app, delta);
+
     if (hint_img_release_timer_ > 0) {
         hint_img_release_timer_ -= delta;
 
@@ -107,6 +109,20 @@ void QrBlock::display_on_hover(Platform::Screen& screen,
     Room::ready();
 
     hint_img_release_timer_ = milliseconds(100);
+}
+
+
+
+void QrBlock::render_interior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::qr_block;
+}
+
+
+
+void QrBlock::render_exterior(App* app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::qr_block;
 }
 
 
