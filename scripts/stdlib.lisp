@@ -50,10 +50,6 @@
 (macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))
 
 
-;; For our onscreen keyboard, which has no + key
-(setq add +)
-
-
 ;; A shortcut for defining functions with named arguments. e.g.:
 ;; (defun foo (a b c)
 ;;   (+ a b c))
