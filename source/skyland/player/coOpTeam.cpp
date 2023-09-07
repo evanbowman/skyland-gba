@@ -113,8 +113,8 @@ void CoOpTeam::receive(Platform& pfrm,
         if (auto room = player_island(app).get_room(
                 {packet.weapon_x_, packet.weapon_y_})) {
 
-            room->set_target(pfrm, app, {packet.target_x_, packet.target_y_},
-                             true);
+            room->set_target(
+                pfrm, app, {packet.target_x_, packet.target_y_}, true);
         }
     } else {
         if (not opponent_island(app)) {
@@ -124,8 +124,8 @@ void CoOpTeam::receive(Platform& pfrm,
         if (auto room = opponent_island(app)->get_room(
                 {packet.weapon_x_, packet.weapon_y_})) {
 
-            room->set_target(pfrm, app, {packet.target_x_, packet.target_y_},
-                             true);
+            room->set_target(
+                pfrm, app, {packet.target_x_, packet.target_y_}, true);
         }
     }
 }

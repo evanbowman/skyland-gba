@@ -118,8 +118,7 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
                 // again until the block to which the target is pinned is
                 // destroyed.
                 const bool has_pinned_target =
-                    room.target_pinned() and
-                    room.get_target() and
+                    room.target_pinned() and room.get_target() and
                     app.opponent_island()->get_room(*room.get_target());
 
                 if (not has_pinned_target) {

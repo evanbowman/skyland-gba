@@ -647,7 +647,9 @@ void BoardingPod::plot_walkable_zones(App& app,
 
 
 
-void BoardingPod::set_target(Platform& pfrm, App& app, const RoomCoord& target,
+void BoardingPod::set_target(Platform& pfrm,
+                             App& app,
+                             const RoomCoord& target,
                              bool pinned)
 {
     auto island = other_island(app);

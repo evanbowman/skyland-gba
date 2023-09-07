@@ -385,7 +385,12 @@ void SelectMenuScene::enter(Platform& pfrm, App& app, Scene& scene)
                 true,
                 [id = chr->id(),
                  far = is_far_camera(),
-                 vis = isle->interior_visible()](Platform& pfrm, App& app) {
+                 vis = isle->interior_visible()](Platform& pfrm,
+                                                 App& app) -> ScenePtr<Scene> {
+                    if (pfrm.network_peer().is_connected()) {
+                        pfrm.speaker().play_sound("beep_error", 3);
+                        return scene_pool::alloc<ReadyScene>();
+                    }
                     if (not vis) {
                         show_island_interior(pfrm, app, &app.player_island());
                     }
