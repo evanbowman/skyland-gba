@@ -198,6 +198,7 @@ enum class GlobalFlag {
     key_poll_called,
     watchdog_disabled,
     effect_window_mode,
+    iris_effect_mode,
     count
 };
 
@@ -762,6 +763,7 @@ static auto blend(const Color& c1, const Color& c2, u8 amt)
 void window_init_default()
 {
     set_gflag(GlobalFlag::effect_window_mode, false);
+    set_gflag(GlobalFlag::iris_effect_mode, false);
 
     REG_WININ = WIN_ALL;
     // Outside the window, display the background and the overlay, also objects.
@@ -787,6 +789,7 @@ void window_init_effectmode()
 void window_init_inverse_effectmode()
 {
     set_gflag(GlobalFlag::effect_window_mode, true);
+    set_gflag(GlobalFlag::iris_effect_mode, true);
 
     REG_WINOUT = WIN_ALL;
     REG_WININ = WIN_BG1 | WIN_BG3 | WIN_BG0 | WIN_OBJ;
@@ -2067,7 +2070,9 @@ void Platform::Screen::clear()
         // NOTE: this circle sidelength calculation is too expensive to fit in
         // the vblank interrupt handler, because it causes missed audio timer
         // interrupts and an unpleasant screeching sound.
-        memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+        if (get_gflag(GlobalFlag::iris_effect_mode)) {
+            memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+        }
         win_circle((*opt_dma_buffer_)->data(),
                    dma_effect_params[1],
                    dma_effect_params[2],
