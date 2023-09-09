@@ -784,6 +784,19 @@ void window_init_effectmode()
 
 
 
+void window_init_inverse_effectmode()
+{
+    set_gflag(GlobalFlag::effect_window_mode, true);
+
+    REG_WINOUT = WIN_ALL;
+    REG_WININ = WIN_BG1 | WIN_BG3 | WIN_BG0 | WIN_OBJ;
+
+    REG_WIN0V = 160;
+    REG_WIN0H = 240;
+}
+
+
+
 void Platform::override_priority(Layer layer, int priority)
 {
     switch (layer) {
@@ -2054,6 +2067,7 @@ void Platform::Screen::clear()
         // NOTE: this circle sidelength calculation is too expensive to fit in
         // the vblank interrupt handler, because it causes missed audio timer
         // interrupts and an unpleasant screeching sound.
+        memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
         win_circle((*opt_dma_buffer_)->data(),
                    dma_effect_params[1],
                    dma_effect_params[2],
@@ -7266,6 +7280,39 @@ void* Platform::system_call(const char* feature_name, void* arg)
                 DMA_TRANSFER(
                     &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
                 fill_overlay(491);
+            }
+            vblank_dma_callback = vblank_circle_effect_isr;
+            dma_effect_params[0] = radius;
+            dma_effect_params[1] = x;
+            dma_effect_params[2] = y;
+        }
+    } else if (str_eq(feature_name, "iris-wipe-effect")) {
+        int radius = ((int*)arg)[0];
+        int x = ((int*)arg)[1];
+        int y = ((int*)arg)[2];
+        if (radius == 0 and opt_dma_buffer_) {
+            // Cancel DMA transfer. Important, because we're freeing the buffer
+            // of data used by the hdma when we drop the opt_dma_buffer.
+            DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+            vblank_dma_callback = vblank_full_transfer_scroll_isr;
+            opt_dma_buffer_.reset();
+            fill_overlay(0);
+            window_init_default();
+        } else if (radius not_eq 0) {
+            if (not opt_dma_buffer_) {
+                VBlankIntrWait();
+                opt_dma_buffer_ =
+                    allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+                window_init_inverse_effectmode();
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
+                win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
+                DMA_TRANSFER(
+                    &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+                fill_overlay(112);
             }
             vblank_dma_callback = vblank_circle_effect_isr;
             dma_effect_params[0] = radius;

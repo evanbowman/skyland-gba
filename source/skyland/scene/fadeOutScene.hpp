@@ -37,8 +37,17 @@ class FadeOutScene : public WorldScene
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
+
+    void display(Platform&, App&) override;
+
+
+    void exit(Platform&, App&, Scene& prev) override;
+    void enter(Platform&, App&, Scene& next) override;
+
+
 private:
     Microseconds timer_ = 0;
+    u16 circ_effect_radius_ = 0;
 };
 
 
