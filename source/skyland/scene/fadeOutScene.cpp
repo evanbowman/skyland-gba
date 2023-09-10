@@ -61,7 +61,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.time_stream().enable_pushes(false);
     app.time_stream().clear();
 
-    constexpr auto fade_duration = milliseconds(1000);
+    constexpr auto fade_duration = milliseconds(800);
 
     if (timer_ > fade_duration) {
 
@@ -122,7 +122,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(0.5f * amount);
+        pfrm.screen().schedule_fade(amount);
         circ_effect_radius_ = 144 - int(144 * amount);
     }
 
@@ -135,12 +135,12 @@ void FadeOutScene::display(Platform& pfrm, App& app)
 {
     WorldScene::display(pfrm, app);
 
-    int circ_center_x = pfrm.screen().size().x / 2;
-    int circ_center_y = pfrm.screen().size().y / 2;
+    // int circ_center_x = pfrm.screen().size().x / 2;
+    // int circ_center_y = pfrm.screen().size().y / 2;
 
     // Platform::fatal(stringify(circ_center_y).c_str());
-    int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
-    pfrm.system_call("iris-wipe-effect", params);
+    // int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
+    // pfrm.system_call("iris-wipe-effect", params);
 }
 
 
