@@ -2018,7 +2018,7 @@ static void vblank_circle_effect_isr()
     DMA_TRANSFER(
         (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
     DMA_TRANSFER(
-        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
 
     DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
 }
