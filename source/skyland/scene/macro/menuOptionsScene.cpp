@@ -64,8 +64,10 @@ void MenuOptionsScene::exit(Platform& pfrm,
     MacrocosmScene::exit(pfrm, state, next);
 
     macroverse_text_.reset();
+    next_turn_text_.reset();
 
     pfrm.set_tile(Layer::overlay, 1, 1, 0);
+    pfrm.set_tile(Layer::overlay, 1, 2, 0);
 }
 
 

@@ -154,7 +154,10 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.load_background_texture("background_macro_night");
         } else {
             pfrm.load_background_texture("background_macro");
-            m.sector().on_day_transition();
+            m.data_->origin_sector_->on_day_transition();
+            for (auto& s : m.data_->other_sectors_) {
+                s->on_day_transition();
+            }
         }
         raster::globalstate::_recalc_depth_test.fill();
         m.sector().shadowcast();
@@ -291,8 +294,17 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     if (auto music = pfrm.speaker().completed_music()) {
         if (str_eq(music, "life_in_silco")) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
+        } else {
+            if (state.data_->frames_since_music_ > 6 and
+                rng::choice<6>(rng::utility_state) == 0) {
+                state.data_->frames_since_music_ = 0;
+                pfrm.speaker().play_music("life_in_silco", 0);
+            } else {
+                state.data_->frames_since_music_++;
+            }
         }
     }
+
 
     if (ui_) {
         auto prod = state.sector().productivity();

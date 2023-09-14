@@ -103,6 +103,7 @@ struct EngineImpl : public Engine
         u8 water_anim_index_ = 0;
         u8 lava_anim_index_ = 128;
         u8 cropcycle_index_ = 0;
+        u32 frames_since_music_ = 0;
 
         Keylock keylock_ = nolock;
 
