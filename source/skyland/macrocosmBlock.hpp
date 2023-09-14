@@ -39,8 +39,8 @@ using Stone = s32;
 using Lumber = s32;
 using Marble = s32;
 using Crystal = s32;
-using Productivity = FixedPoint<16, u32>;
-using Population = FixedPoint<16, u32>;
+using Productivity = s32;
+using Population = s32;
 using Water = s32;
 using Clay = s32;
 
@@ -172,6 +172,7 @@ enum class Type {
     rice_ripe,
 
     dynamite,
+    crops_rotten,
 
     count,
 };
@@ -207,9 +208,6 @@ struct Commodity
 
 struct Stats
 {
-    s16 housing_ = 0;
-    s16 food_storage_ = 0;
-    s16 happiness_ = 0;
 };
 
 

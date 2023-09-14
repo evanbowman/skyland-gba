@@ -71,12 +71,10 @@ struct EngineImpl : public Engine
 #define MCR_SHARED(name) SharedVariable name = #name
 
 
-        Data() : origin_sector_({0, 0})
-        {
-        }
+        Data();
 
 
-        terrain::CubeSector origin_sector_;
+        DynamicMemory<terrain::Sector> origin_sector_;
 
 
         using SectorArray =
@@ -90,7 +88,7 @@ struct EngineImpl : public Engine
         bool singularity_expand_ = false;
 
 
-        terrain::Sector* current_sector_ = &origin_sector_;
+        terrain::Sector* current_sector_;
         Float cloud_scroll_ = 0;
 
         bool freebuild_mode_ = false;
@@ -120,27 +118,27 @@ struct EngineImpl : public Engine
         struct Persistent
         {
             host_u16 year_;
-            HostInteger<Food> food_;
-            HostInteger<Stone> stone_;
-            HostInteger<Lumber> lumber_;
-            HostInteger<Marble> marble_;
-            HostInteger<Crystal> crystal_;
-            HostInteger<Water> water_;
-            HostInteger<Clay> clay_;
+            host_u32 day_;
+
+            HostInteger<s32> lumber_;
+            HostInteger<s32> stone_;
+            HostInteger<s32> clay_;
+            HostInteger<s32> water_;
+            HostInteger<s32> crystal_;
 
             HostInteger<s16> day_night_cyc_;
-            HostInteger<s16> unused_;
+            HostInteger<s16> coins_;
             HostInteger<s32> reserved_words_[8];
 
             Persistent()
             {
                 year_.set(0);
-                food_.set(0);
-                stone_.set(0);
+                day_.set(0);
                 lumber_.set(0);
-                marble_.set(0);
-                crystal_.set(0);
+                stone_.set(0);
+                clay_.set(0);
                 water_.set(0);
+                crystal_.set(0);
                 for (auto& r : reserved_words_) {
                     r.set(0);
                 }
@@ -156,7 +154,7 @@ struct EngineImpl : public Engine
     };
 
 
-    std::pair<Coins, Population> colony_cost() const;
+    std::pair<Coins, Productivity> colony_cost() const;
 
 
     terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
@@ -170,7 +168,7 @@ struct EngineImpl : public Engine
 
     void erase_sector(Vec2<s8> coord)
     {
-        if (data_->origin_sector_.coordinate() == coord) {
+        if (data_->origin_sector_->coordinate() == coord) {
             Platform::fatal("cannot erase origin sector!");
         }
 
@@ -195,9 +193,9 @@ struct EngineImpl : public Engine
 
     macro::terrain::Sector* bind_sector(Vec2<s8> coord)
     {
-        if (data_->origin_sector_.coordinate() == coord) {
-            data_->current_sector_ = &data_->origin_sector_;
-            return &data_->origin_sector_;
+        if (data_->origin_sector_->coordinate() == coord) {
+            data_->current_sector_ = &*data_->origin_sector_;
+            return &*data_->origin_sector_;
         } else {
             for (auto& s : data_->other_sectors_) {
                 if (s->coordinate() == coord) {
@@ -214,8 +212,8 @@ struct EngineImpl : public Engine
 
     macro::terrain::Sector* load_sector(Vec2<s8> coord)
     {
-        if (data_->origin_sector_.coordinate() == coord) {
-            return &data_->origin_sector_;
+        if (data_->origin_sector_->coordinate() == coord) {
+            return &*data_->origin_sector_;
         } else {
 
             for (auto& s : data_->other_sectors_) {
@@ -233,7 +231,7 @@ struct EngineImpl : public Engine
     macro::terrain::Sector* load_sector(int id)
     {
         if (id == -1) {
-            return &data_->origin_sector_;
+            return &*data_->origin_sector_;
         } else if (id < (int)data_->other_sectors_.size()) {
             return &*data_->other_sectors_[id];
         } else {
@@ -242,14 +240,7 @@ struct EngineImpl : public Engine
     }
 
 
-    int food_storage();
-
-
     macro::terrain::Sector& sector();
-
-
-
-    Coins coin_yield();
 
 
     void save(Platform& pfrm);
@@ -297,7 +288,7 @@ Vec2<Fixnum> screen_coord(Platform& pfrm, int tile_coord);
 
 
 static const int day_frames = 8000;
-static const int night_frames = 1500;
+static const int night_frames = 1000;
 
 
 } // namespace skyland::macro

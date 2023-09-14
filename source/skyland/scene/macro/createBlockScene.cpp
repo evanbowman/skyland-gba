@@ -90,9 +90,8 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
             options_.push_back(terrain::Type::dome);
         }
     }
-    // options_.push_back(terrain::Type::workshop);
     options_.push_back(terrain::Type::granary);
-    options_.push_back(terrain::Type::farmhouse);
+    // options_.push_back(terrain::Type::workshop);
     options_.push_back(terrain::Type::water_source);
 
     if (state.data_->freebuild_mode_) {
@@ -188,8 +187,6 @@ void render_cost(Platform& pfrm,
 
     if (not state.data_->freebuild_mode_) {
 
-        auto stat = stats(t, false);
-
         auto c = terrain::cost(t);
         if (harvest) {
             c = terrain::harvest(t).first;
@@ -198,33 +195,9 @@ void render_cost(Platform& pfrm,
             c = *inp_c;
         }
 
-        if (stat.housing_) {
-            text.append(" ");
-            if (harvest) {
-                text.append("-", text_colors);
-            } else {
-                text.append("+", text_colors);
-            }
-            text.append(stat.housing_, text_colors);
-            text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
-        }
-
-        if (stat.happiness_) {
-            text.append(" ");
-            if (harvest) {
-                text.append("-", text_colors);
-            } else {
-                text.append("+", text_colors);
-            }
-            text.append(stat.happiness_, text_colors);
-            text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 409);
-        }
-
-        if (c.productivity_.as_integer()) {
+        if (c.productivity_) {
             text.append(" -", text_colors);
-            text.append(c.productivity_.as_integer(), text_colors);
+            text.append(c.productivity_, text_colors);
             text.append(" ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
         }
@@ -542,16 +515,13 @@ public:
         deficit_.NAME = 0;                                                     \
     }
 
-        ASSIGN(food_);
         ASSIGN(stone_);
         ASSIGN(lumber_);
-        ASSIGN(marble_);
         ASSIGN(clay_);
         ASSIGN(crystal_);
         ASSIGN(water_);
 
-        int prod = (c.productivity_).as_integer() -
-                   state.sector().productivity().as_integer();
+        int prod = (c.productivity_) - state.sector().productivity();
         deficit_.productivity_ = 0;
         if (prod > 0) {
             deficit_.productivity_ = prod;
@@ -608,9 +578,8 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
 
         auto& p = state.data_->p();
         if (cost.stone_ > p.stone_.get() or cost.lumber_ > p.lumber_.get() or
-            cost.marble_ > p.marble_.get() or cost.water_ > p.water_.get() or
-            cost.crystal_ > p.crystal_.get() or cost.clay_ > p.clay_.get() or
-            cost.water_ > p.water_.get() or
+            cost.water_ > p.water_.get() or cost.crystal_ > p.crystal_.get() or
+            cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
             cost.productivity_ > state.sector().productivity()) {
             pfrm.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<InsufficentResourcesScene>(state, cost);
@@ -621,7 +590,6 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             auto& p = state.data_->p();
             p.stone_.set(p.stone_.get() - cost.stone_);
             p.lumber_.set(p.lumber_.get() - cost.lumber_);
-            p.marble_.set(p.marble_.get() - cost.marble_);
             p.clay_.set(p.clay_.get() - cost.clay_);
             p.crystal_.set(p.crystal_.get() - cost.crystal_);
             p.water_.set(p.water_.get() - cost.water_);
@@ -833,7 +801,6 @@ ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm,
 {
     auto c = state.sector().cursor();
     --c.z;
-    update_ui_on_exit();
     return scene_pool::alloc<ConfigurePortCountScene>(
         commodity_types_[selector_]);
 }
@@ -948,7 +915,7 @@ void ConfigurePortDestScene::enter(Platform& pfrm,
 
     auto current = state.sector().coordinate();
 
-    auto o = state.data_->origin_sector_.coordinate();
+    auto o = state.data_->origin_sector_->coordinate();
     if (o not_eq current) {
         export_options_.push_back(o);
     }
@@ -1039,15 +1006,6 @@ ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
     if (player.key_down(pfrm, Key::action_1)) {
         auto c = state.sector().cursor();
         --c.z;
-
-        terrain::Sector::ExportInfo info;
-        info.c = type_;
-        info.source_coord_ = c;
-        info.destination_ =
-            state.load_sector(export_options_[selection_])->coordinate();
-        info.export_supply_.set((u16)export_count_);
-
-        update_ui_on_exit();
 
         return scene_pool::alloc<SelectorScene>();
     }

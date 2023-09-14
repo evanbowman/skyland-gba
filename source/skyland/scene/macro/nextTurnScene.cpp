@@ -32,19 +32,41 @@ namespace skyland::macro
 
 
 
+class DayTransitionScene : public MacrocosmScene
+{
+public:
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    {
+        MacrocosmScene::update(pfrm, player, state);
+
+        state.data_->p().day_night_cyc_.set(
+            state.data_->p().day_night_cyc_.get() + 6);
+
+        if (not raster::globalstate::is_night and
+            abs(state.data_->p().day_night_cyc_.get() - 256) < 10) {
+            return scene_pool::alloc<SelectorScene>();
+        }
+
+        return null_scene();
+    }
+};
+
+
+
 ScenePtr<Scene>
 NextTurnScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    pfrm.screen().schedule_fade(0.f);
+    auto& m = macrocosm(app);
 
-    // macrocosm(app).advance(1);
-
-    pfrm.keyboard().poll();
-    if (pfrm.keyboard().pressed(Key::alt_1)) {
-        return scene_pool::alloc<MenuOptionsScene>();
+    if (raster::globalstate::is_night) {
+        return scene_pool::alloc<SelectorScene>();
     }
 
-    return scene_pool::alloc<SelectorScene>();
+    int current = m.data_->p().day_night_cyc_.get();
+    m.data_->p().day_night_cyc_.set(std::max(current, day_frames - 256));
+
+    return scene_pool::alloc<DayTransitionScene>();
 }
 
 

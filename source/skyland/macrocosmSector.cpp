@@ -35,6 +35,37 @@ namespace skyland::macro
 
 
 
+void cropcycle(bool on);
+
+
+
+void terrain::Sector::on_day_transition()
+{
+    set_productivity(population() * Population(10));
+
+    set_food(food() - population());
+    if (food() < 0) {
+        set_food(0);
+        if (population() > 1) {
+            set_population(population() - 1);
+        }
+    } else {
+        if (housing() > population()) {
+            set_population(population() + 1);
+        } else if (housing() < population()) {
+            set_population(population() - 1);
+        }
+    }
+
+    cropcycle(true);
+
+    update();
+
+    cropcycle(false);
+}
+
+
+
 terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
     : size_(size)
 {
@@ -45,119 +76,7 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
     p_.x_ = position.x;
     p_.y_ = position.y;
 
-    set_population(FixedPoint<16, u32>::from_integer(4));
-}
-
-
-
-terrain::Sector::Happiness
-terrain::Sector::get_happiness(EngineImpl& state) const
-{
-    auto ledger = annotate_happiness(state, true);
-
-    auto ent = ledger.entries();
-
-    Happiness result = 0.f;
-
-    while (ent) {
-        result += ent->contribution_;
-        ent = ent->next_;
-    }
-
-    return result;
-}
-
-
-
-fiscal::Ledger terrain::Sector::annotate_happiness(EngineImpl& state,
-                                                   bool skip_labels) const
-{
-
-    // const auto food_avail =
-    //     stat.food_ - population() / EngineImpl::food_consumption_factor();
-
-    // const auto housing_avail = stat.housing_ - population();
-
-    // int commodity_supply = 0;
-    // for (auto& commodity : stat.commodities_) {
-    //     commodity_supply += commodity.supply_;
-    // }
-
-    auto& pfrm = Platform::instance();
-
-    fiscal::Ledger result;
-
-    auto add_entry = [&](SystemString str, float value) {
-        if (skip_labels) {
-            result.add_entry("", value);
-        } else {
-            result.add_entry(loadstr(pfrm, str)->c_str(), value);
-        }
-    };
-
-    add_entry(SystemString::category_misc, stats().happiness_);
-    add_entry(SystemString::category_misc, -population().as_integer() / 64);
-
-    if (state.data_->p().food_.get() < population().as_float()) {
-        add_entry(SystemString::category_misc, -4);
-    }
-
-    return result;
-}
-
-
-
-fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
-{
-    fiscal::Ledger result;
-
-    auto st = stats();
-
-    // int productive_population = population();
-    int unproductive_population = 0;
-
-    if (st.housing_ < population().as_float()) {
-        // Homeless people are less economically productive? Sounds cynical, but
-        // probably true.
-        // productive_population = st.housing_;
-        unproductive_population = population().as_integer() - st.housing_;
-    }
-
-    // int employed_population = productive_population;
-    // int unemployed_population = 0;
-    // if (st.employment_ < employed_population) {
-    //     unemployed_population = productive_population - st.employment_;
-    //     employed_population = productive_population - unemployed_population;
-    // }
-
-    auto& pfrm = Platform::instance();
-
-    auto add_entry = [&](SystemString str, float value) {
-        if (skip_labels) {
-            result.add_entry("", value);
-        } else {
-            result.add_entry(loadstr(pfrm, str)->c_str(), value);
-        }
-    };
-
-    // if (employed_population) {
-    //     add_entry(SystemString::macro_fiscal_employed,
-    //               employed_population * 0.01f *
-    //                   EngineImpl::bindings().mcr_employment_yield_percent);
-    // }
-
-    // if (unemployed_population) {
-    //     add_entry(SystemString::macro_fiscal_unemployed,
-    //               unemployed_population * 0.01f *
-    //                   EngineImpl::bindings().mcr_jobless_yield_percent);
-    // }
-
-    if (unproductive_population) {
-        add_entry(SystemString::macro_fiscal_homelessness,
-                  -unproductive_population * 0.01f * 1);
-    }
-
-    return result;
+    set_population(1);
 }
 
 
@@ -169,34 +88,6 @@ void terrain::Sector::repaint()
 
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
-}
-
-
-
-Coins terrain::Sector::coin_yield() const
-{
-    if (auto coins = coin_yield_cache_load()) {
-        return *coins;
-    }
-
-    Coins result = 0;
-
-    const bool skip_labels = true;
-    auto values = budget(skip_labels);
-    auto current = values.entries();
-
-    while (current) {
-        result += current->contribution_;
-        current = current->next_;
-    }
-
-    if (result <= 0) {
-        result = 1;
-    }
-
-    coin_yield_cache_store(result);
-
-    return result;
 }
 
 
@@ -230,32 +121,28 @@ StringBuffer<terrain::Sector::name_len - 1> terrain::Sector::name()
 
 Productivity terrain::Sector::productivity() const
 {
-    Productivity p;
-    memcpy((u8*)&p, p_.productivity_packed_, sizeof p);
-    return p;
-}
-
-
-
-void terrain::Sector::set_productivity(Productivity p)
-{
-    memcpy(p_.productivity_packed_, &p, sizeof p);
+    return p_.productivity_.get();
 }
 
 
 
 Population terrain::Sector::population() const
 {
-    Population p;
-    memcpy((u8*)&p, p_.population_packed_, sizeof p);
-    return p;
+    return p_.population_.get();
 }
 
 
 
 void terrain::Sector::set_population(Population p)
 {
-    memcpy(p_.population_packed_, &p, sizeof p);
+    p_.population_.set(p);
+}
+
+
+
+void terrain::Sector::set_productivity(Productivity p)
+{
+    p_.productivity_.set(p);
 }
 
 
@@ -280,128 +167,8 @@ int remove_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 
 
 
-static void intersector_exchange_commodities(const Vec2<s8> source_sector,
-                                             terrain::Stats& stat)
-{
-    Buffer<std::pair<const Vec2<s8>, terrain::Stats>,
-           EngineImpl::max_sectors - 1>
-        stats;
-
-    EngineImpl& state = *_bound_state;
-
-    if (state.data_->origin_sector_.coordinate() == source_sector) {
-        stats.push_back({source_sector, stat});
-    } else {
-        stats.push_back({state.data_->origin_sector_.coordinate(),
-                         state.data_->origin_sector_.base_stats()});
-    }
-
-    for (auto& sector : state.data_->other_sectors_) {
-        if (sector->coordinate() == source_sector) {
-            stats.push_back({source_sector, stat});
-        } else {
-            stats.push_back({sector->coordinate(), sector->base_stats()});
-        }
-    }
-
-    for (auto& data : stats) {
-        if (data.first == source_sector) {
-            stat = data.second;
-            return;
-        }
-    }
-}
-
-
-
-terrain::Stats terrain::Sector::stats() const
-{
-    auto result = base_stats();
-
-    intersector_exchange_commodities(coordinate(), result);
-
-    return result;
-}
-
-
-
-terrain::Stats terrain::Sector::base_stats() const
-{
-    if (auto s = base_stats_cache_load()) {
-        return *s;
-    }
-
-    terrain::Stats result;
-
-    for (int z = 0; z < size_.z - 1; ++z) {
-        for (int x = 0; x < size_.x; ++x) {
-            for (int y = 0; y < size_.y; ++y) {
-                if (get_block({(u8)x, (u8)y, (u8)z}).type() == Type::air) {
-                    continue;
-                }
-
-                auto block_stats = get_block({(u8)x, (u8)y, (u8)z}).stats();
-
-                result.housing_ += block_stats.housing_;
-                result.food_storage_ += block_stats.food_storage_;
-                result.happiness_ += block_stats.happiness_;
-            }
-        }
-    }
-
-    base_stats_cache_store(result);
-
-    return result;
-}
-
-
-
-Float terrain::Sector::population_growth_rate_from_food_supply() const
-{
-    return 1;
-}
-
-
-
-Float terrain::Sector::population_growth_rate_from_housing_supply() const
-{
-    return 1.f;
-}
-
-
-
 void terrain::Sector::soft_update(EngineImpl& s)
 {
-    auto prod = productivity();
-    if (prod < population()) {
-        auto diff = (Productivity(0.05f) * population()) * Population(8);
-        auto h = Productivity(clamp((int)get_happiness(s), -9, 9)) *
-                 Productivity(0.1f);
-        prod += diff * (Productivity(1.f) + h);
-        if (prod > population()) {
-            prod = population();
-        }
-        set_productivity(prod);
-    }
-
-    if (population().as_float() < stats().housing_) {
-        auto pop = population();
-        auto diff = stats().housing_ - pop.as_integer();
-        pop += (Population(0.02f) * Population(diff)) * Population(4);
-        if (pop.as_float() > stats().housing_) {
-            pop = stats().housing_;
-        }
-        set_population(pop);
-    } else if (population().as_float() > stats().housing_) {
-        set_population(Population(stats().housing_));
-    }
-}
-
-
-Float terrain::Sector::population_growth_rate() const
-{
-    return population_growth_rate_from_food_supply() +
-           population_growth_rate_from_housing_supply();
 }
 
 
@@ -472,7 +239,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
     if (type not_eq Type::selector) {
-        base_stats_cache_clear();
+        // ...
     }
 
 
@@ -497,6 +264,21 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     raster::globalstate::_changed = true;
     on_block_changed(coord);
+
+    housing_ = 0;
+    granaries_ = 0;
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                auto tp = get_block({x, y, z}).type();
+                if (tp == Type::building) {
+                    ++housing_;
+                } else if (tp == Type::granary) {
+                    ++granaries_;
+                }
+            }
+        }
+    }
 }
 
 
@@ -975,6 +757,252 @@ void terrain::Sector::generate_terrain(int min_blocks, int building_count)
         generate_terrain_molten(min_blocks, building_count);
         break;
     }
+}
+
+
+
+void terrain::Sector::generate_terrain_origin(int min_blocks)
+{
+RETRY:
+
+    int count = 0;
+
+    auto gen = [&](int height_scale, Float freq) {
+        Float data[16][16];
+
+        fnl_state noise = fnlCreateState(rng::get(rng::critical_state), freq);
+        noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                data[x][y] = fnlGetNoise2D(&noise, x, y);
+            }
+        }
+
+        u8 snowline = (size().z - 1) * 0.7f;
+        if (p_.shape_ == Shape::pillar) {
+            snowline = 10;
+        }
+
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                u8 height = height_scale * data[x][y];
+                bool first = true;
+                for (int z = height - 1; z > -1; --z) {
+                    terrain::Type t = terrain::Type::basalt;
+
+                    if (first) {
+                        if (z > snowline) {
+                            t = terrain::Type::ice;
+                        } else if (z == 0) {
+                            t = terrain::Type::sand;
+                        } else if (z < snowline) {
+                            t = terrain::Type::terrain;
+                        }
+                        first = false;
+                    }
+
+                    set_block({(u8)x, (u8)y, (u8)z}, t);
+                    ++count;
+                }
+            }
+        }
+    };
+
+
+    while (count < min_blocks) {
+
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                for (u8 z = 0; z < size().z; ++z) {
+                    set_block({x, y, z}, terrain::Type::air);
+                }
+            }
+        }
+
+        count = 0;
+
+        gen(3, 0.02f);
+        gen(size().z, 0.1f);
+    }
+
+    for (int x = 1; x < size().x - 1; ++x) {
+        for (int y = 1; y < size().y - 1; ++y) {
+            for (int z = 0; z < size().z - 1; ++z) {
+                auto get_type = [&](int xoff, int yoff, int zoff) {
+                    return get_block(
+                               {(u8)(x + xoff), (u8)(y + yoff), (u8)(z + zoff)})
+                        .type();
+                };
+
+                auto is_air = [&](int xoff, int yoff, int zoff) {
+                    return get_type(xoff, yoff, zoff) == terrain::Type::air;
+                };
+
+                if (not is_air(0, 0, 0) and
+                    (z == 0 or (z > 0 and not is_air(0, 0, -1))) and
+                    not is_air(0, 0, 1) and not is_air(-1, 0, 0) and
+                    not is_air(1, 0, 0) and not is_air(0, -1, 0) and
+                    not is_air(0, 1, 0) and
+                    get_type(0, 0, -1) not_eq terrain::Type::terrain) {
+
+                    auto hide = rng::choice<8>(rng::critical_state);
+                    switch (hide) {
+                        break;
+
+                    case 0:
+                    case 1:
+                        break;
+
+                    default:
+                    case 2:
+                    case 3:
+                    case 5:
+                        if (z < 3 and
+                            rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                        break;
+
+                    case 4:
+                        set_block({(u8)x, (u8)y, (u8)z},
+                                  terrain::Type::lava_source);
+                        break;
+                    }
+                    if (z == 0 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3)) {
+                        if (rng::choice<3>(rng::critical_state) > 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                    }
+                    if (z == 1 and not is_air(0, 0, 2) and
+                        not is_air(0, 0, 3) and
+                        rng::choice<2>(rng::critical_state)) {
+                        if (rng::choice<2>(rng::critical_state) == 0) {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::crystal);
+                        } else {
+                            set_block({(u8)x, (u8)y, (u8)z},
+                                      terrain::Type::marble);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    u8 z = 0;
+    for (; z < size().z; ++z) {
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+                if (t == terrain::Type::terrain and
+                    above == terrain::Type::air) {
+                    goto BREAK;
+                }
+            }
+        }
+    }
+BREAK:
+
+    for (u8 x = 0; x < size().x; ++x) {
+        for (u8 y = 0; y < size().y; ++y) {
+            if (get_block({x, y, 0}).type() == Type::air) {
+                if (x == 0 or y == 0 or x == size().x - 1 or
+                    y == size().y - 1) {
+                    if (rng::choice<3>(rng::critical_state) == 0) {
+                        set_block({x, y, 0}, Type::sand);
+                    }
+                } else {
+                    set_block({x, y, 0}, Type::terrain);
+                }
+            }
+        }
+    }
+
+
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            for (int z = size().z - 2; z > -1; --z) {
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+                if (t == terrain::Type::building) {
+                    break;
+                }
+                if (t == terrain::Type::terrain) {
+
+                    if (rng::choice<4>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z + 1)},
+                                  terrain::Type::lumber);
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::volcanic_soil);
+                    } else if (rng::choice<7>(rng::critical_state) == 0) {
+                        set_block({(u8)x, (u8)y, (u8)(z)},
+                                  terrain::Type::tulips);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+
+    const auto area = size().x * size().y;
+    int low_count = 0;
+    for (u8 x = 0; x < size().x; ++x) {
+        for (u8 y = 0; y < size().y; ++y) {
+            auto t = get_block({(u8)x, (u8)y, (u8)0}).type();
+            auto above = get_block({(u8)x, (u8)y, (u8)1}).type();
+            if (t not_eq terrain::Type::air and above == terrain::Type::air) {
+                ++low_count;
+            }
+        }
+    }
+
+    if (low_count < (1 * area) / 3) {
+        Platform::instance().system_call("feed-watchdog", nullptr);
+        goto RETRY;
+    }
+
+
+    int tries = 0;
+    while (1) {
+        auto x = rng::choice(size().x - 2, rng::critical_state) + 1;
+        auto y = rng::choice(size().y - 2, rng::critical_state) + 1;
+
+        ++tries;
+
+        if (tries == 1000) {
+            goto RETRY;
+        }
+
+        int z = 0;
+
+        auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
+        auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        auto u = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        auto d = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        auto l = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        auto r = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
+        if (t == terrain::Type::terrain and above == terrain::Type::air and
+            u == terrain::Type::air and d == terrain::Type::air and
+            l == terrain::Type::air and r == terrain::Type::air) {
+            Vec3<u8> building_coord;
+            building_coord = {(u8)x, (u8)y, (u8)(z + 1)};
+            set_cursor(building_coord);
+            break;
+        }
+    }
+
+    update();
 }
 
 
@@ -1825,37 +1853,6 @@ PLACED_BUILDING:
 
     for (int i = 0; i < 100; ++i) {
         update();
-    }
-}
-
-
-
-void terrain::Sector::bkg_update_start()
-{
-    update();
-
-    u8 data = 9;
-    u8 rice = 3;
-
-    for (u8 x = 0; x < size().x; ++x) {
-        for (u8 y = 0; y < size().y; ++y) {
-            for (u8 z = 0; z < size().z; ++z) {
-                auto& block = ref_block({x, y, z});
-                if (block.type() == terrain::Type::potatoes_planted) {
-                    block.data_ = data;
-                    ++data;
-                    if (data > 18) {
-                        data = 1;
-                    }
-                } else if (block.type() == terrain::Type::rice_terrace) {
-                    block.data_ = rice;
-                    ++rice;
-                    if (data > 5) {
-                        data = 1;
-                    }
-                }
-            }
-        }
     }
 }
 

@@ -39,7 +39,7 @@ class MacrocosmFreebuildModule : public Module<MacrocosmFreebuildModule>
 public:
     static SystemString module_name()
     {
-        return SystemString::empty;
+        return SystemString::module_freebuild;
     }
 
 

@@ -214,8 +214,6 @@ public:
         }
 
         raster::globalstate::_recalc_depth_test.fill();
-
-        base_stats_cache_clear();
     }
 
 
@@ -243,8 +241,6 @@ public:
 
         safeset(t_start);
         safeset(t_start + 1);
-
-        coin_yield_cache_clear();
     }
 
 
@@ -845,6 +841,59 @@ public:
 
 protected:
     Block blocks_[sz][sx][sy];
+
+    struct OcclusionTable
+    {
+        bool covered_[sz][sx][sy];
+        bool bottom_edge_visible_[sz][sx][sy];
+    };
+
+    std::optional<DynamicMemory<OcclusionTable>> occlusion_;
+
+    void setup_occlusion()
+    {
+        occlusion_ = allocate_dynamic<OcclusionTable>("occ-table");
+
+        auto partially_transparent = [](Type t) {
+            return t == Type::air or t == Type::lumber or t == Type::selector;
+        };
+
+
+        for (u8 z = 0; z < size().z; ++z) {
+            for (u8 y = 0; y < size().y; ++y) {
+                for (u8 x = 0; x < size().x; ++x) {
+                    (*occlusion_)->bottom_edge_visible_[z][x][y] = true;
+                    (*occlusion_)->covered_[z][x][y] = true;
+                }
+            }
+        }
+
+        for (u8 z = 0; z < size().z - 1; ++z) {
+            for (u8 y = 0; y < size().y - 1; ++y) {
+                for (u8 x = 0; x < size().x - 1; ++x) {
+                    auto above = blocks_[z - 1][x][y].type();
+                    auto l = blocks_[z][x + 1][y].type();
+                    auto r = blocks_[z][x][y + 1].type();
+
+                    if (not partially_transparent(l) and
+                        not partially_transparent(r)) {
+                        (*occlusion_)->bottom_edge_visible_[z][x][y] = false;
+                    } else {
+                        (*occlusion_)->bottom_edge_visible_[z][x][y] = true;
+                    }
+
+                    if (not partially_transparent(above) and
+                        not partially_transparent(l) and
+                        not partially_transparent(r)) {
+
+                        (*occlusion_)->covered_[z][x][y] = true;
+                    } else {
+                        (*occlusion_)->covered_[z][x][y] = false;
+                    }
+                }
+            }
+        }
+    }
 };
 
 
@@ -860,58 +909,7 @@ public:
     {
     }
 
-
-    void base_stats_cache_clear() const override
-    {
-        base_stats_cache_.reset();
-    }
-
-
-    void base_stats_cache_store(const Stats& s) const override
-    {
-        base_stats_cache_ = s;
-    }
-
-
-    std::optional<Stats> base_stats_cache_load() const override
-    {
-        return base_stats_cache_;
-    }
-
-
-    void coin_yield_cache_clear() const override
-    {
-        coin_yield_cache_.reset();
-    }
-
-
-    void coin_yield_cache_store(Coins c) const override
-    {
-        coin_yield_cache_ = c;
-    }
-
-
-    std::optional<Coins> coin_yield_cache_load() const override
-    {
-        return coin_yield_cache_;
-    }
-
-
 private:
-    // Recalculating stats for everything when we have multiple levels slows
-    // down the game significantly, so we cache previous results. I mean, a
-    // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
-    // number crunching and will definitely lag the game if done frequently.
-    mutable std::optional<Stats> base_stats_cache_;
-
-    mutable std::optional<Coins> coin_yield_cache_;
-
-    Sector::BackgroundUpdateBlocks bkg_update_blocks_;
-
-    Sector::BackgroundUpdateBlocks* background_update_blocks() override
-    {
-        return &bkg_update_blocks_;
-    }
 };
 
 

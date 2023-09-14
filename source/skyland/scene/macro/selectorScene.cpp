@@ -24,6 +24,7 @@
 #include "checkers.hpp"
 #include "createBlockScene.hpp"
 #include "keyComboScene.hpp"
+#include "macroverseScene.hpp"
 #include "menuOptionsScene.hpp"
 #include "modifiedSelectorScene.hpp"
 #include "moveCheckerScene.hpp"

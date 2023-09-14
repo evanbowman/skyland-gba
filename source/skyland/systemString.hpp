@@ -91,6 +91,7 @@ enum class SystemString {
     block_clump_missile,
     block_cesium,
     block_crane,
+    block_crops_rotten,
     block_carved_crystal,
     block_crystal,
     block_crystal_pillar,
@@ -234,6 +235,7 @@ enum class SystemString {
     module_feedback,
     module_bug_report,
     module_cart_viewer,
+    module_freebuild,
 
     months,
 

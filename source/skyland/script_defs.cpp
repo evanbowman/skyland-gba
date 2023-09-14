@@ -639,8 +639,8 @@ static const lisp::Binding script_api[] = {
              auto str = L_LOAD_STRING(0);
 
              auto& m = macrocosm(*interp_get_app());
-             if (m.data_->origin_sector_.name() == str) {
-                 m.bind_sector(m.data_->origin_sector_.coordinate());
+             if (m.data_->origin_sector_->name() == str) {
+                 m.bind_sector(m.data_->origin_sector_->coordinate());
                  return L_INT(1);
              }
 
@@ -667,8 +667,8 @@ static const lisp::Binding script_api[] = {
              result.push_back(L_CONS(x, y));
          }
 
-         lisp::Protected x(L_INT(m.data_->origin_sector_.coordinate().x));
-         lisp::Protected y(L_INT(m.data_->origin_sector_.coordinate().y));
+         lisp::Protected x(L_INT(m.data_->origin_sector_->coordinate().x));
+         lisp::Protected y(L_INT(m.data_->origin_sector_->coordinate().y));
          result.push_back(L_CONS(x, y));
 
          return result.result();

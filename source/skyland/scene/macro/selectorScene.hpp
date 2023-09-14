@@ -59,6 +59,9 @@ private:
     bool await_start_key_ = false;
     bool show_island_size_ = false;
     bool paused_ = false;
+
+    std::optional<Text> mv_text_;
+    std::optional<Text> rot_text_;
 };
 
 

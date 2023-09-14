@@ -103,14 +103,12 @@ private:
 
     struct UIObjects
     {
-        std::optional<UIMetric> population_;
         std::optional<UIMetric> food_;
-        std::optional<UIMetric> housing_;
-        std::optional<UIMetric> happiness_;
+        std::optional<UIMetric> population_;
+        std::optional<UIMetric> productivity_;
+
         std::optional<UIMetric> lumber_;
         std::optional<UIMetric> stone_;
-        std::optional<UIMetric> productivity_;
-        std::optional<UIMetric> marble_;
         std::optional<UIMetric> crystal_;
         std::optional<UIMetric> water_;
         std::optional<UIMetric> clay_;

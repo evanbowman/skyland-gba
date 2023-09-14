@@ -17,7 +17,6 @@ class AbandonColonyScene : public MacrocosmScene
 public:
     void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev)
     {
-        drop_ui();
     }
 
 

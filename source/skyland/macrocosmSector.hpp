@@ -50,48 +50,16 @@ struct EngineImpl;
 
 
 
-namespace fiscal
-{
-
-
-
-struct LineItem
-{
-    using Label = StringBuffer<24>;
-
-    Label label_;
-    Float contribution_;
-    LineItem* next_;
-};
-
-
-
-class Ledger
-{
-public:
-    void add_entry(LineItem::Label, Float contribution);
-
-
-    const LineItem* entries() const;
-
-
-private:
-    LineItem* entries_ = nullptr;
-    ScratchBufferBulkAllocator alloc_;
-};
-
-
-
-} // namespace fiscal
-
-
-
 } // namespace skyland::macro
 
 
 
 namespace skyland::macro::terrain
 {
+
+
+
+using Food = s32;
 
 
 
@@ -115,15 +83,6 @@ public:
     };
 
 
-    struct ExportInfo
-    {
-        Commodity::Type c;
-        Vec3<u8> source_coord_;
-        Vec2<s8> destination_;
-        host_u16 export_supply_;
-    };
-
-
     Sector(Vec2<s8> position, Shape shape, Vec3<u8> size);
 
 
@@ -142,7 +101,6 @@ public:
     virtual void rotate() = 0;
     virtual void update() = 0;
 
-    void background_update();
 
     void soft_update(EngineImpl& state);
 
@@ -150,16 +108,7 @@ public:
     void render(Platform& pfrm);
 
     void set_population(Population p);
-
-
     void set_productivity(Productivity p);
-    Productivity productivity() const;
-
-
-    using Happiness = float;
-    Happiness get_happiness(EngineImpl& state) const;
-    fiscal::Ledger annotate_happiness(EngineImpl& state,
-                                      bool skip_labels = false) const;
 
 
     virtual void shadowcast() = 0;
@@ -195,51 +144,15 @@ public:
     }
 
 
-    // Begin background updates! Should be called once for each sector upon
-    // loading a save file.
-    void bkg_update_start();
-
-
-    void bkg_update_clear()
-    {
-        if (auto b = background_update_blocks()) {
-            b->clear();
-        }
-    }
-
-
-    void bkg_update_push(const Vec3<u8>& coord)
-    {
-        if (auto b = background_update_blocks()) {
-            BackgroundUpdateCoord c;
-            c.x_ = coord.x;
-            c.y_ = coord.y;
-            c.z_ = coord.z;
-            b->push_back(c);
-        }
-    }
-
-
     virtual const Block& get_block(const Vec3<u8>& coord) const = 0;
     virtual Block& ref_block(const Vec3<u8>& coord) = 0;
-
-
-    Stats stats() const;
 
 
     static const int z_limit = 9;
 
 
-
     Population population() const;
-
-    Float population_growth_rate_from_food_supply() const;
-    Float population_growth_rate_from_housing_supply() const;
-    Float population_growth_rate() const;
-    Coins coin_yield() const;
-
-
-    fiscal::Ledger budget(bool skip_labels = false) const;
+    Productivity productivity() const;
 
 
     Vec2<s8> coordinate() const;
@@ -249,6 +162,19 @@ public:
     {
         return p_.cursor_;
     }
+
+
+    Food food() const
+    {
+        return p_.food_.get();
+    }
+
+
+    void set_food(Food f)
+    {
+        p_.food_.set(f);
+    }
+
 
     void set_cursor(const Vec3<u8>& pos, bool lock_to_floor = true);
 
@@ -282,8 +208,9 @@ public:
         Vec3<u8> cursor_;
 
         char name_[name_len];
-        u8 population_packed_[sizeof(Population)];
-        u8 productivity_packed_[sizeof(Productivity)];
+        HostInteger<Population> population_;
+        HostInteger<Productivity> productivity_;
+        HostInteger<Food> food_;
 
         s8 x_;
         s8 y_;
@@ -300,10 +227,6 @@ public:
     StringBuffer<name_len - 1> name();
 
 
-
-    Stats base_stats() const;
-
-
     void repaint();
 
 
@@ -315,10 +238,6 @@ public:
         return size_;
     }
 
-
-    virtual void base_stats_cache_clear() const
-    {
-    }
 
 
     virtual u16 project_block(int x, int y, int z) const
@@ -334,39 +253,29 @@ public:
     void unpack(Vector<char>& input);
 
 
+    void on_day_transition();
+
+
+    Food food_storage() const
+    {
+        return 5 + granaries_ * 8;
+    }
+
+
+    Population housing() const
+    {
+        return 1 + housing_;
+    }
+
+
 protected:
-    virtual void base_stats_cache_store(const Stats& s) const
-    {
-    }
-
-
-    virtual std::optional<Stats> base_stats_cache_load() const
-    {
-        return {};
-    }
-
-
-    virtual void coin_yield_cache_store(Coins c) const
-    {
-    }
-
-
-    virtual std::optional<Coins> coin_yield_cache_load() const
-    {
-        return {};
-    }
-
-
-    virtual void coin_yield_cache_clear() const
-    {
-    }
-
-
     Persistent p_;
 
     u8 z_view_ = z_limit;
 
     Vec3<u8> size_;
+    u8 housing_ = 0;
+    u8 granaries_ = 0;
 
 
 public:
@@ -386,6 +295,11 @@ public:
         Platform::fatal("logic error: restore non-pillar from pillar data");
     }
 
+    virtual void restore_fb(const Persistent& p, u8 blocks[6][12][12])
+    {
+        Platform::fatal("logic error: restore non-fb-wide from fb-wide data");
+    }
+
 
     const Persistent& persistent() const
     {
@@ -394,6 +308,8 @@ public:
 
 
     void generate_terrain(int min_blocks, int buildings);
+
+    void generate_terrain_origin(int min_blocks);
 
     void generate_terrain_regular(int min_blocks, int buildings);
     void generate_terrain_desert(int min_blocks, int buildings);

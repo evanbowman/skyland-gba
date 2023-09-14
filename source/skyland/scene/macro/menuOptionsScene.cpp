@@ -22,14 +22,11 @@
 
 
 #include "menuOptionsScene.hpp"
-#include "citizensInfoScene.hpp"
 #include "macroverseScene.hpp"
 #include "nextTurnScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "viewBudgetScene.hpp"
-#include "viewCommoditiesScene.hpp"
 
 
 
@@ -42,38 +39,19 @@ void MenuOptionsScene::enter(Platform& pfrm,
                              macro::EngineImpl& state,
                              Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, state, prev);
+    if (auto m = prev.cast_macrocosm_scene()) {
+        m->drop_ui();
+    }
 
-    const auto st = calc_screen_tiles(pfrm);
-
-    // pfrm.set_tile(Layer::overlay, 0, st.y - 1, 392);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 1, 393);
-    // pfrm.set_tile(Layer::overlay, 0, st.y - 3, 394);
-    // pfrm.set_tile(Layer::overlay, 0, st.y - 4, 395);
-
-    // StringBuffer<48> cm(":");
-    // cm += SYSTR(macro_commodities)->c_str();
-
-    // commodities_text_.emplace(
-    //     pfrm, cm.c_str(), OverlayCoord{1, (u8)(st.y - 1)});
-
-    // citizens_text_.emplace(pfrm, OverlayCoord{0, (u8)(st.y - 5)});
-    // citizens_text_->assign(
-    //     "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
-    // cm = ":";
-    // cm += SYSTR(macro_citizens)->c_str();
-    // citizens_text_->append(cm.c_str());
-
-    // budget_text_.emplace(
-    //     pfrm, SYSTR(macro_budget)->c_str(), OverlayCoord{1, (u8)(st.y - 4)});
-
-    // next_turn_text_.emplace(
-    //     pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{1, (u8)(st.y - 3)});
+    pfrm.set_tile(Layer::overlay, 1, 1, 393);
+    pfrm.set_tile(Layer::overlay, 1, 2, 394);
 
     StringBuffer<32> mv(":");
     mv += SYSTR(start_menu_macroverse)->c_str();
 
-    macroverse_text_.emplace(pfrm, mv.c_str(), OverlayCoord{1, (u8)(st.y - 1)});
+    macroverse_text_.emplace(pfrm, mv.c_str(), OverlayCoord{2, 1});
+    next_turn_text_.emplace(
+        pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{2, 2});
 }
 
 
@@ -84,16 +62,10 @@ void MenuOptionsScene::exit(Platform& pfrm,
 {
 
     MacrocosmScene::exit(pfrm, state, next);
-    citizens_text_.reset();
-    budget_text_.reset();
-    next_turn_text_.reset();
+
     macroverse_text_.reset();
-    commodities_text_.reset();
-    const auto st = calc_screen_tiles(pfrm);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 1, 0);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 3, 0);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 4, 0);
+
+    pfrm.set_tile(Layer::overlay, 1, 1, 0);
 }
 
 
@@ -128,10 +100,10 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
         // } else if (player.key_down(pfrm, Key::left)) {
         //     pfrm.speaker().play_sound("cursor_tick", 0);
         //     return scene_pool::alloc<ViewBudgetScene>();
-        // } else if (player.key_down(pfrm, Key::right)) {
-        //     pfrm.speaker().play_sound("cursor_tick", 0);
-        //     return scene_pool::alloc<NextTurnScene>();
-        // } else if (player.key_down(pfrm, Key::down)) {
+        if (player.key_down(pfrm, Key::right)) {
+            pfrm.speaker().play_sound("cursor_tick", 0);
+            return scene_pool::alloc<NextTurnScene>();
+        } // else if (player.key_down(pfrm, Key::down)) {
         //     pfrm.speaker().play_sound("cursor_tick", 0);
         //     return scene_pool::alloc<ViewCommoditiesScene>();
         // } else

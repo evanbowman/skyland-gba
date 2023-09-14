@@ -683,12 +683,16 @@ AGAIN:
                 pfrm,
                 SYSTR(start_menu_newgame)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
+                    Text(pfrm, "generating world...", OverlayCoord{1, 1});
+                    pfrm.screen().schedule_fade(0);
+                    pfrm.screen().schedule_fade(1);
+                    pfrm.screen().clear();
+                    pfrm.screen().display();
                     macrocosm(app).newgame(pfrm, app);
                     pfrm.load_overlay_texture("overlay_challenges");
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },
                 cut);
-
 
             add_option(
                 pfrm,

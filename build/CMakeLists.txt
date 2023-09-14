@@ -204,28 +204,25 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/nextTurnScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/keyComboScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/selectorScene.cpp
-  ${SOURCE_DIR}/skyland/scene/macro/viewBudgetScene.cpp
-  ${SOURCE_DIR}/skyland/scene/macro/citizensInfoScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/tileOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/createBlockScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/menuOptionsScene.cpp
-  ${SOURCE_DIR}/skyland/scene/macro/viewCommoditiesScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/moveCheckerScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/datetimeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dataCartModule.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/macrocosmLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/achievementNotificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
@@ -424,6 +421,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/glossary_misc_cg_flattened.s
     ${DATA_DIR}/glossary_decoration_cg_flattened.s
     ${DATA_DIR}/spritesheet.s
+    ${DATA_DIR}/spritesheet_macro_overworld.s
     ${DATA_DIR}/spritesheet_fishing.s
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_macro.s
@@ -741,6 +739,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet_title_screen 2 4 NO)
     add_spritesheet(spritesheet_intro 2 4 NO)
     add_spritesheet(spritesheet_macro 2 4 NO)
+    add_spritesheet(spritesheet_macro_overworld 4 4 NO)
     add_spritesheet(spritesheet_macroverse 2 4 NO)
     add_spritesheet(spritesheet_fishing 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)

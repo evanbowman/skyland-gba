@@ -230,7 +230,7 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-// MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
+MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
 
 
 

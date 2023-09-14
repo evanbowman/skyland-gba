@@ -231,8 +231,6 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.load_sprite_texture("spritesheet_macro");
 
-    pfrm.screen().schedule_fade(0.f);
-
     pfrm.screen().set_view({});
 }
 
@@ -374,6 +372,66 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
 
 
 
+class EnterIslandScene : public Scene
+{
+public:
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        pfrm.screen().schedule_fade(1.f);
+
+        auto& m = macrocosm(app);
+        m.sector().render(pfrm);
+
+        pfrm.fill_overlay(112);
+    }
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        pfrm.fill_overlay(0);
+    }
+
+
+    void display(Platform& pfrm, App& app) override
+    {
+        int circ_center_x = pfrm.screen().size().x / 2;
+        int circ_center_y = pfrm.screen().size().y / 2;
+        int params[] = {circ_radius_, circ_center_x, circ_center_y};
+        pfrm.system_call("iris-wipe-effect", params);
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    {
+        timer_ += delta;
+
+        constexpr auto fade_duration = milliseconds(800);
+        if (timer_ > fade_duration) {
+            pfrm.screen().fade(0.f);
+            auto next = scene_pool::alloc<SelectorScene>();
+            next->show_island_size();
+            circ_radius_ = 0;
+            return next;
+        } else {
+            auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
+            circ_radius_ = 144 - int(144 * amount);
+            if (timer_ > delta) {
+                amount *= 0.75f;
+            }
+            pfrm.screen().schedule_fade(amount);
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    Microseconds timer_ = 0;
+    int circ_radius_ = 0;
+};
+
+
+
 ScenePtr<Scene>
 MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -397,8 +455,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             m.sector().render(pfrm);
             return next;
         } else {
-            auto next = scene_pool::alloc<SelectorScene>();
-            next->show_island_size();
+            auto next = scene_pool::alloc<EnterIslandScene>();
             return next;
         }
     }
@@ -448,7 +505,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         push_opt(SystemString::macro_set_name, st.y - 6);
 
-        const bool origin = selected_ == m.data_->origin_sector_.coordinate();
+        const bool origin = selected_ == m.data_->origin_sector_->coordinate();
         if (not origin) {
             push_opt(SystemString::macro_abandon, st.y - 4);
             push_opt(SystemString::macro_trade, st.y - 2);
@@ -810,7 +867,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                     auto s = str.c_str();
                     while (*s not_eq '\0') {
                         if (*s == '_') {
-                            pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
+                            pfrm.set_tile(Layer::overlay, 1 + i, y, 111);
                         }
                         ++s;
                         ++i;
@@ -828,17 +885,11 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                              .c_str(),
                          calc_screen_tiles(pfrm).y - 2);
 
-                // text_objs_.emplace_back(
-                //     pfrm,
-                //     stringify(m.data_->p().coins_.get()).c_str(),
-                //     OverlayCoord{2, 3});
-                // pfrm.set_tile(Layer::overlay, 1, 3, 88);
-
                 text_objs_.emplace_back(
                     pfrm,
-                    stringify(m.sector().population().as_integer()).c_str(),
+                    stringify(m.sector().productivity()).c_str(),
                     OverlayCoord{2, 4});
-                pfrm.set_tile(Layer::overlay, 1, 4, 85);
+                pfrm.set_tile(Layer::overlay, 1, 4, 111);
             }
 
             selected_colony_.reset();
@@ -866,8 +917,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (selected_colony_) {
                 auto cost = m.colony_cost();
                 if ( // m.data_->p().coins_.get() >= cost.first and
-                    m.sector().population().as_integer() >=
-                    cost.second.as_integer()) {
+                    m.sector().population() >= cost.second) {
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
@@ -1007,7 +1057,7 @@ void MacroverseScene::describe_selected(Platform& pfrm,
 
     pfrm.set_tile(Layer::overlay, 1, st.y - 2, 85);
 
-    text_objs_[1].assign(state.sector().population().as_integer());
+    text_objs_[1].assign(state.sector().population());
 }
 
 
@@ -1194,7 +1244,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
     auto& m = macrocosm(app);
 
-    draw_node(m.data_->origin_sector_);
+    draw_node(*m.data_->origin_sector_);
 
     for (auto& s : m.data_->other_sectors_) {
         draw_node(*s);

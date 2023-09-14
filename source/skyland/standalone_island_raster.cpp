@@ -610,9 +610,8 @@ int main(int argc, char** argv)
                       shape not_eq macro::terrain::Sector::Shape::pancake and
                       shape not_eq macro::terrain::Sector::Shape::pillar);
 
-        auto stats = s->stats();
         put_field("food", 0);
-        put_field("housing", stats.housing_);
+        put_field("housing", 0);
         put_field("employment", 0);
     }
 

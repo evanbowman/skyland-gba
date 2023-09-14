@@ -114,6 +114,23 @@ public:
 
     static const int z_limit = 6;
     static const int length = 12;
+
+
+    void restore_fb(const Persistent& p, u8 blocks[6][12][12]) override
+    {
+        erase();
+
+        memcpy(&p_, &p, sizeof p);
+
+        for (u8 z = 0; z < 6; ++z) {
+            for (u8 x = 0; x < 12; ++x) {
+                for (u8 y = 0; y < 12; ++y) {
+                    blocks_[z][x][y].type_ = blocks[z][x][y];
+                    blocks_[z][x][y].data_ = 0;
+                }
+            }
+        }
+    }
 };
 
 

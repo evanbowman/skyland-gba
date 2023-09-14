@@ -103,9 +103,19 @@ EngineImpl::EngineImpl(Platform& pfrm, App* app)
 
 
 
+EngineImpl::Data::Data()
+    : origin_sector_(
+          allocate_dynamic<terrain::FreebuildWideSector>("sector-mem",
+                                                         Vec2<s8>{0, 0})),
+      current_sector_(&*origin_sector_)
+{
+}
+
+
+
 void EngineImpl::newgame(Platform& pfrm, App& app)
 {
-    data_->current_sector_ = &data_->origin_sector_;
+    // data_->current_sector_ = &data_->origin_sector_;
 
     pfrm.load_background_texture("background_macro");
     raster::globalstate::is_night = false;
@@ -114,15 +124,14 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     memset((void*)&data_->p(), 0, sizeof(Data::Persistent));
 
     data_->p().year_.set(0);
-    data_->p().food_.set(80);
+    data_->p().day_.set(0);
 
 
     auto& sector = this->sector();
     sector.erase();
     sector.set_name("origin");
-    sector.set_productivity(FixedPoint<16, u32>::from_integer(16));
 
-    sector.generate_terrain_regular(120, 1);
+    sector.generate_terrain_origin(120);
 
     if (data_->checkers_mode_) {
         // ...
@@ -132,52 +141,9 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
         app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
     }
 
-
-    sector.set_cursor({3, 3, 1});
-    sector.set_population(FixedPoint<16, u32>::from_integer(16));
-}
-
-
-
-namespace fiscal
-{
-
-
-
-void Ledger::add_entry(LineItem::Label label, Float contribution)
-{
-    auto next = alloc_.alloc<LineItem>();
-    if (next) {
-        next->next_ = entries_;
-        next->label_ = label;
-        next->contribution_ = contribution;
-
-        entries_ = next.release();
-    }
-}
-
-
-
-const LineItem* Ledger::entries() const
-{
-    return entries_;
-}
-
-
-
-} // namespace fiscal
-
-
-
-Coins EngineImpl::coin_yield()
-{
-    auto coins = data_->origin_sector_.coin_yield();
-
-    for (auto& sector : data_->other_sectors_) {
-        coins += sector->coin_yield();
-    }
-
-    return coins;
+    sector.set_population(1);
+    sector.on_day_transition();
+    sector.set_food(5);
 }
 
 
@@ -199,22 +165,17 @@ int EngineImpl::food_consumption_factor()
 std::pair<Coins, Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
-        return {999999999, FixedPoint<16, u32>::from_integer(9999)};
+        return {999999999, 9999};
     } else if (data_->other_sectors_.size() == 0) {
-        return {1500 + 3000 * data_->other_sectors_.size(),
-                FixedPoint<16, u32>::from_integer(70)};
+        return {1500 + 3000 * data_->other_sectors_.size(), 100};
     } else if (data_->other_sectors_.size() < 3) {
-        return {1500 + 3000 * data_->other_sectors_.size(),
-                FixedPoint<16, u32>::from_integer(150)};
-    } else if (data_->other_sectors_.size() < 8) {
-        return {4000 + 3200 * data_->other_sectors_.size(),
-                FixedPoint<16, u32>::from_integer(200)};
-    } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 3600 * data_->other_sectors_.size(),
-                FixedPoint<16, u32>::from_integer(800)};
+        return {1500 + 3000 * data_->other_sectors_.size(), 150};
+    } else if (data_->other_sectors_.size() < 4) {
+        return {4000 + 3200 * data_->other_sectors_.size(), 200};
+    } else if (data_->other_sectors_.size() < 6) {
+        return {6000 + 3600 * data_->other_sectors_.size(), 400};
     } else {
-        return {7000 + 4000 * data_->other_sectors_.size(),
-                FixedPoint<16, u32>::from_integer(2000)};
+        return {7000 + 4000 * data_->other_sectors_.size(), 600};
     }
 }
 
@@ -262,8 +223,8 @@ template <u32 inflate> struct Sector
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
         u8 pillar_[16][6][6];
+        u8 fb_wide_[6][12][12];
     } blocks_;
-    static_assert(sizeof blocks_ == 576);
 
 
     auto read(Vector<char>& save_data, Vector<char>::Iterator rd)
@@ -287,11 +248,10 @@ template <u32 inflate> struct Sector
             ++rd;
         }
 
-        static_assert(sizeof blocks_ == 576);
         struct Ctx
         {
-            Buffer<char, 900> compressed;
-            Buffer<char, 900> decompressed;
+            Buffer<char, 1000> compressed;
+            Buffer<char, 1000> decompressed;
         };
 
         auto c = allocate_dynamic<Ctx>("decompression-context");
@@ -332,11 +292,10 @@ template <u32 inflate> struct Sector
             save_data.push_back(((u8*)&p_)[i]);
         }
 
-        static_assert(sizeof blocks_ == 576);
         struct Ctx
         {
-            Buffer<char, 900> block_data;
-            Buffer<char, 900> compressed;
+            Buffer<char, 1000> block_data;
+            Buffer<char, 1000> compressed;
         };
 
         auto c = allocate_dynamic<Ctx>("compression-context");
@@ -368,12 +327,25 @@ template <u32 inflate> struct Sector
     {
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
+        // Better compression ratio by memsetting?
+        memset(blocks_.fb_wide_, 0, sizeof blocks_.fb_wide_);
+
         switch (source.persistent().shape_) {
         case terrain::Sector::Shape::reserved_important_never_use:
-        case terrain::Sector::Shape::freebuild_wide:
         case terrain::Sector::Shape::freebuild_flat:
         case terrain::Sector::Shape::freebuild:
             Platform::fatal("save unimplemented for freebuild sector");
+            break;
+
+        case terrain::Sector::Shape::freebuild_wide:
+            for (u8 z = 0; z < 6; ++z) {
+                for (u8 x = 0; x < 12; ++x) {
+                    for (u8 y = 0; y < 12; ++y) {
+                        blocks_.fb_wide_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                    }
+                }
+            }
             break;
 
         case terrain::Sector::Shape::cube:
@@ -449,21 +421,10 @@ void EngineImpl::save(Platform& pfrm)
     auto store_sector = [&save_data](macro::terrain::Sector& sector) {
         save::Sector<0> out(sector);
         out.write(save_data);
-
-        if ( // not sector.exports()
-            true) {
-            save_data.push_back(0);
-        } else {
-            // save_data.push_back((u8)sector.exports()->size());
-            // for (auto& exp : *sector.exports()) {
-            //     for (u32 j = 0; j < sizeof exp; ++j) {
-            //         save_data.push_back(((u8*)&exp)[j]);
-            //     }
-            // }
-        }
+        save_data.push_back(0);
     };
 
-    store_sector(data_->origin_sector_);
+    store_sector(*data_->origin_sector_);
 
     for (auto& s : data_->other_sectors_) {
         store_sector(*s);
@@ -548,8 +509,11 @@ bool EngineImpl::load(Platform& pfrm, App& app)
                 dest->restore(s.p_.p_, s.blocks_.pillar_);
                 break;
 
-            case terrain::Sector::Shape::reserved_important_never_use:
             case terrain::Sector::Shape::freebuild_wide:
+                dest->restore_fb(s.p_.p_, s.blocks_.fb_wide_);
+                break;
+
+            case terrain::Sector::Shape::reserved_important_never_use:
             case terrain::Sector::Shape::freebuild_flat:
             case terrain::Sector::Shape::freebuild:
                 Platform::fatal("freebuild sector cannot be saved!");
@@ -561,7 +525,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
             dest->shadowcast();
         };
 
-        load_sector(&data_->origin_sector_);
+        load_sector(&*data_->origin_sector_);
 
         data_->other_sectors_.clear();
 
@@ -574,7 +538,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
         newgame(pfrm, app);
     }
 
-    data_->current_sector_ = &data_->origin_sector_;
+    data_->current_sector_ = &*data_->origin_sector_;
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
 
@@ -606,11 +570,6 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 
     app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
 #endif
-
-    for (auto& s : data_->other_sectors_) {
-        s->bkg_update_start();
-    }
-    data_->origin_sector_.bkg_update_start();
 
 
     return true;
@@ -695,23 +654,18 @@ Stats stats(Type t, bool shadowed)
 
     switch (t) {
     case terrain::Type::dome:
-        result.happiness_ += 4;
         break;
 
     case terrain::Type::building:
-        result.housing_ += 20;
         break;
 
     case terrain::Type::farmhouse:
-        result.housing_ += 2;
         break;
 
     case terrain::Type::workshop:
-        result.housing_ += 6;
         break;
 
     case terrain::Type::granary:
-        result.food_storage_ += 120;
         break;
 
     case terrain::Type::terrain:
@@ -727,7 +681,6 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::sunflowers:
     case terrain::Type::tulips:
-        result.happiness_ += 1;
         break;
 
     case terrain::Type::indigo:
@@ -930,14 +883,24 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     Type nt = terrain::Type::air;
 
     switch (t) {
+    case terrain::Type::tulips:
+        cost.productivity_ = 2;
+        nt = terrain::Type::terrain;
+        break;
+
+    case terrain::Type::crops_rotten:
+        cost.productivity_ = 6;
+        nt = terrain::Type::terrain;
+        break;
+
     case terrain::Type::ice:
         cost.water_ = 10;
-        cost.productivity_ = 8;
+        cost.productivity_ = 2;
         break;
 
     case terrain::Type::volcanic_soil:
     case terrain::Type::terrain:
-        cost.stone_ = 8;
+        cost.stone_ = 10;
         cost.productivity_ = 10;
         break;
 
@@ -953,8 +916,8 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
     case terrain::Type::carved_basalt:
     case terrain::Type::basalt_brick:
     case terrain::Type::basalt:
-        cost.stone_ = 12;
-        cost.productivity_ = 40;
+        cost.stone_ = 50;
+        cost.productivity_ = 60;
         break;
 
     case terrain::Type::carved_crystal:
@@ -966,7 +929,7 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
-        cost.marble_ = 10;
+        cost = terrain::cost(t);
         cost.productivity_ = 100;
         break;
 
@@ -977,8 +940,8 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::rice_ripe:
         nt = terrain::Type::rice_terrace;
-        cost.productivity_ = 16;
-        cost.food_ = 26;
+        cost.productivity_ = 12;
+        cost.food_ = 16;
         break;
 
     case terrain::Type::farmhouse:
@@ -988,8 +951,8 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::wheat_ripe:
         nt = terrain::Type::volcanic_soil;
-        cost.productivity_ = 1;
-        cost.food_ = 10;
+        cost.productivity_ = 2;
+        cost.food_ = 3;
         break;
 
     case terrain::Type::potatoes_planted:
@@ -999,13 +962,18 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::potatoes:
         nt = terrain::Type::volcanic_soil;
-        cost.food_ = 100;
+        cost.food_ = 10;
         cost.productivity_ = 8;
         break;
 
     case terrain::Type::lumber:
-        cost.lumber_ = 12;
-        cost.productivity_ = 6;
+        cost.lumber_ = 10;
+        cost.productivity_ = 4;
+        break;
+
+    case terrain::Type::lumber_spawn:
+        cost.productivity_ = 2;
+        nt = Type::terrain;
         break;
 
     default: {
@@ -1037,22 +1005,14 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::checker_highlight:
         break;
 
-    case terrain::Type::granary:
-        cost.stone_ = 20;
-        cost.lumber_ = 30;
-        cost.productivity_ = 10;
+    case terrain::Type::farmhouse:
         break;
 
+    case terrain::Type::granary:
     case terrain::Type::building:
         cost.stone_ = 10;
         cost.lumber_ = 18;
         cost.productivity_ = 10;
-        break;
-
-    case terrain::Type::farmhouse:
-        cost.stone_ = 30;
-        cost.lumber_ = 20;
-        cost.productivity_ = 20;
         break;
 
     case terrain::Type::dome:
@@ -1062,16 +1022,16 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::terrain:
-        cost.stone_ = 8;
+        cost = harvest(t).first;
         break;
 
     case terrain::Type::basalt:
-        cost.stone_ = 12;
+        cost = harvest(t).first;
         break;
 
     case terrain::Type::rice_terrace:
-        cost.productivity_ = 20;
-        cost.water_ = 5;
+        cost.productivity_ = 40;
+        cost.water_ = 10;
         break;
 
     case terrain::Type::rice_ripe:
@@ -1088,6 +1048,10 @@ terrain::Cost terrain::cost(Type t)
         cost.productivity_ = 6;
         break;
 
+    case terrain::Type::crops_rotten:
+        cost.productivity_ = 8;
+        break;
+
     case terrain::Type::dynamite:
     case terrain::Type::hematite:
     case terrain::Type::masonry:
@@ -1101,14 +1065,14 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::arch:
         cost.stone_ = 5;
         cost.clay_ = 6;
-        cost.productivity_ = 15;
+        cost.productivity_ = 20;
         break;
 
     case terrain::Type::road_ns:
     case terrain::Type::road_we:
     case terrain::Type::road_hub:
         cost.stone_ = 2;
-        cost.productivity_ = 6;
+        cost.productivity_ = 30;
         break;
 
     case terrain::Type::scaffolding:
@@ -1117,7 +1081,6 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::sand:
-        cost.stone_ = 1;
         cost.clay_ = 8;
         cost.productivity_ = 6;
         break;
@@ -1166,13 +1129,19 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::wheat_ripe:
     case terrain::Type::wheat:
+        cost.productivity_ = 2;
+        break;
+
     case terrain::Type::potatoes:
     case terrain::Type::potatoes_planted:
-        cost.productivity_ = 2;
+        cost.productivity_ = 4;
         break;
 
     case terrain::Type::sunflowers:
     case terrain::Type::tulips:
+        cost.productivity_ = 2;
+        break;
+
     case terrain::Type::indigo:
     case terrain::Type::pearls:
     case terrain::Type::honey:
@@ -1198,14 +1167,12 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
-        cost.marble_ = 10;
+        cost.crystal_ = 2;
+        cost.stone_ = 20;
         cost.productivity_ = 16;
         break;
 
     case terrain::Type::workshop:
-        cost.lumber_ = 4;
-        cost.stone_ = 8;
-        cost.productivity_ = 6;
         break;
 
     case terrain::Type::light_source:
@@ -1232,11 +1199,7 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::lumber_spawn:
-        cost.lumber_ = 0;
-        cost.marble_ = 2;
-        cost.clay_ = 5;
-        cost.water_ = 5;
-        cost.productivity_ = 10;
+        cost.productivity_ = 8;
         break;
     }
 
@@ -1252,6 +1215,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::reserved_2:
     case terrain::Type::__invalid:
         break;
+
+    case terrain::Type::crops_rotten:
+        return SystemString::block_crops_rotten;
 
     case terrain::Type::checker_red:
     case terrain::Type::checker_red_king:
@@ -1501,9 +1467,9 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::wheat);
         result.push_back(Type::potatoes_planted);
         result.push_back(Type::lumber_spawn);
-        result.push_back(Type::sunflowers);
+        // result.push_back(Type::sunflowers);
         result.push_back(Type::tulips);
-        result.push_back(Type::wool);
+        // result.push_back(Type::wool);
         remove_self();
     };
 
@@ -1730,6 +1696,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::road_we:
         return {776, 760};
 
+    case terrain::Type::crops_rotten:
     case terrain::Type::food:
         return {2888, 2904};
 
@@ -1766,14 +1733,12 @@ static bool revert_if_covered(terrain::Sector& s,
                 terrain::Categories::fluid_lava) {
             block.type_ = (u8)terrain::Type::volcanic_soil;
             raster::globalstate::_changed = true;
-            s.base_stats_cache_clear();
             s.on_block_changed(position);
             return true;
         } else if (above.type() not_eq terrain::Type::selector and
                    above.type() not_eq terrain::Type::air) {
             block.type_ = (u8)revert_to;
             raster::globalstate::_changed = true;
-            s.base_stats_cache_clear();
             s.on_block_changed(position);
             return true;
         }
@@ -2119,20 +2084,6 @@ bool parent_exists_dir_d(terrain::Sector& s,
 
 
 
-int EngineImpl::food_storage()
-{
-    int result = 80;
-    result += data_->origin_sector_.stats().food_storage_;
-
-    for (auto& s : data_->other_sectors_) {
-        result += s->stats().food_storage_;
-    }
-
-    return result;
-}
-
-
-
 bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
 {
     auto t = s.get_block(c).type();
@@ -2147,13 +2098,14 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
     auto& p = state.data_->p();
     p.stone_.set(std::min(int(p.stone_.get() + cost.stone_), 99));
     p.lumber_.set(std::min(int(p.lumber_.get() + cost.lumber_), 99));
-    p.marble_.set(std::min(int(p.marble_.get() + cost.marble_), 99));
     p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
     p.clay_.set(std::min(int(p.clay_.get() + cost.clay_), 99));
     p.water_.set(std::min(int(p.water_.get() + cost.water_), 99));
-    p.food_.set(
-        std::min((int)(p.food_.get() + cost.food_), state.food_storage()));
     p.water_.set(p.water_.get() + cost.water_);
+    s.set_food(s.food() + cost.food_);
+    if (s.food() > s.food_storage()) {
+        s.set_food(s.food_storage());
+    }
     s.set_block(c, nt);
     return true;
 }
@@ -2196,7 +2148,6 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
                 block.type_ = (u8)terrain::Type::volcanic_soil;
                 raster::globalstate::_changed = true;
-                s.base_stats_cache_clear();
                 position.z--;
                 s.on_block_changed(position);
             }
@@ -2221,7 +2172,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         revert_if_covered(s, block, position, terrain::Type::terrain);
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 3) {
+            if (block.data_ > 1) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::wheat_ripe);
             }
@@ -2303,8 +2254,14 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
-    },
-    // sunflowers
+
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 1) {
+                s.set_block(position, terrain::Type::crops_rotten);
+            }
+        }
+    },    // sunflowers
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
@@ -2580,7 +2537,6 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
                 above.type() == terrain::Type::marble) {
                 block.type_ = (u8)terrain::Type::marble;
                 raster::globalstate::_changed = true;
-                s.base_stats_cache_clear();
                 s.on_block_changed(position);
             }
         }
@@ -2697,24 +2653,26 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // potatoes_planted
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        const auto shape = s.persistent().shape_;
-        const bool is_freebuild =
-            shape == terrain::Sector::Shape::freebuild or
-            shape == terrain::Sector::Shape::freebuild_wide or
-            shape == terrain::Sector::Shape::freebuild_flat;
-
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 18 or
-                (block.data_ > 4 and is_freebuild)) {
+            if (block.data_ > 5) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::potatoes);
             }
         }
-
     },
     // wheat_ripe
-    nullptr,
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 1) {
+                s.set_block(position, terrain::Type::crops_rotten);
+            }
+        }
+    },
     // lumber_spawn
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -2724,16 +2682,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             s.set_block(position, terrain::Type::terrain);
         }
 
-        const auto shape = s.persistent().shape_;
-        const bool is_freebuild =
-            shape == terrain::Sector::Shape::freebuild or
-            shape == terrain::Sector::Shape::freebuild_wide or
-            shape == terrain::Sector::Shape::freebuild_flat;
-
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 60 or
-                (block.data_ > 8 and is_freebuild)) {
+            if (block.data_ > 12) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;
@@ -2750,96 +2701,15 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // farmhouse
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        s.bkg_update_push(position);
-
-        const int px = position.x;
-        const int py = position.y;
-        const u8 pz = position.z - 1;
-
-        const auto sz = s.size();
-
-        if (position.z == 0) {
-            return;
-        }
-
-        block.data_++;
-        if (block.data_ == 16) {
-            block.data_ = 0;
-
-            bool found = false;
-
-            for (int x = px - 1; x < px + 2; ++x) {
-                for (int y = py - 1; y < py + 2; ++y) {
-                    if (found) {
-                        break;
-                    }
-                    if (x == px and y == py) {
-                        continue;
-                    }
-                    if (x > -1 and y > -1 and x < sz.x and y < sz.y) {
-                        const Vec3<u8> coord{(u8)x, (u8)y, pz};
-                        auto& block = s.get_block(coord);
-
-                        if (not _bound_state) {
-                            Platform::fatal("logic error");
-                        }
-                        auto& state = *_bound_state;
-                        auto& p = state.data_->p();
-
-                        switch (block.type()) {
-                        case terrain::Type::rice_ripe:
-                            if (p.food_.get() not_eq state.food_storage()) {
-                                harvest_block(state, s, coord);
-                                found = true;
-                            }
-                            break;
-
-                        case terrain::Type::potatoes:
-                            if (p.food_.get() not_eq state.food_storage()) {
-                                if (harvest_block(state, s, coord)) {
-                                    if (&s not_eq &state.sector()) {
-                                        // If we're a background sector, skip
-                                        // conversion to soil and generate
-                                        // terrain directly, because then we
-                                        // need to store the soil block in the
-                                        // background update queue so that it
-                                        // converts back into terrain so that the
-                                        // farmhouse block plants crops on it.
-                                        s.set_block(coord, terrain::Type::terrain);
-                                    }
-                                }
-                                found = true;
-                            }
-                            break;
-
-                        case terrain::Type::terrain:
-                            s.set_block(coord, terrain::Type::potatoes_planted);
-                            found = true;
-                            break;
-
-                        default:
-                            break;
-                        }
-                    }
-                }
-            }
-        }
     },
     // rice_terrace
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::basalt);
 
-        const auto shape = s.persistent().shape_;
-        const bool is_freebuild =
-            shape == terrain::Sector::Shape::freebuild or
-            shape == terrain::Sector::Shape::freebuild_wide or
-            shape == terrain::Sector::Shape::freebuild_flat;
-
         if (not block.shadowed_day_ and cropcycle_) {
             block.data_++;
-            if (block.data_ > 4 or
-                (is_freebuild and block.data_ > 2)) {
+            if (block.data_ > 4) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::rice_ripe);
             }
@@ -2849,6 +2719,14 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::basalt);
+
+        if (cropcycle_) {
+            block.data_++;
+            if (block.data_ > 0) {
+                block.data_ = 0;
+                s.set_block(position, terrain::Type::rice_terrace);
+            }
+        }
     },
     // dynamite
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
@@ -2906,6 +2784,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             }
         }
     },
+    // crops (rotten)
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
 };
 // clang-format on
 
@@ -2930,30 +2813,8 @@ bool blocks_light(terrain::Type t)
 
 
 
-void terrain::Sector::background_update()
-{
-    if (auto b = background_update_blocks()) {
-
-        auto copy = *b;
-        bkg_update_clear();
-
-        for (auto& coord : copy) {
-            Vec3<u8> c{coord.x_, coord.y_, coord.z_};
-            auto& block = ref_block(c);
-
-            auto update = update_functions[block.type_];
-            if (update) {
-                update(*this, block, c);
-            }
-        }
-    }
-}
-
-
 void terrain::CubeSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
@@ -2973,8 +2834,6 @@ void terrain::CubeSector::update()
 
 void terrain::PillarSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < 16; ++z) {
         for (u8 x = 0; x < 6; ++x) {
             for (u8 y = 0; y < 6; ++y) {
@@ -2994,8 +2853,6 @@ void terrain::PillarSector::update()
 
 void terrain::PancakeSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < length; ++x) {
             for (u8 y = 0; y < length; ++y) {
@@ -3015,8 +2872,6 @@ void terrain::PancakeSector::update()
 
 void terrain::FreebuildWideSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < 6; ++z) {
         for (u8 x = 0; x < 12; ++x) {
             for (u8 y = 0; y < 12; ++y) {
@@ -3036,8 +2891,6 @@ void terrain::FreebuildWideSector::update()
 
 void terrain::FreebuildFlatSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < 5; ++z) {
         for (u8 x = 0; x < 14; ++x) {
             for (u8 y = 0; y < 14; ++y) {
@@ -3057,8 +2910,6 @@ void terrain::FreebuildFlatSector::update()
 
 void terrain::FreebuildSector::update()
 {
-    bkg_update_clear();
-
     for (int z = 0; z < 9; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {
@@ -3328,6 +3179,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, top_angled_r, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

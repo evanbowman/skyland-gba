@@ -99,7 +99,7 @@ public:
                    terrain::Sector::name_len);
 
             memcpy(data_out_->payload_.population_,
-                   s->persistent().population_packed_,
+                   &s->persistent().population_,
                    sizeof data_out_->payload_.population_);
 
             Buffer<u8, 576> blocks;

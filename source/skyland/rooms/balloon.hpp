@@ -83,8 +83,9 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::fragile | RoomProperties::multiplayer_unsupported |
-            RoomProperties::habitable | RoomProperties::not_constructible;
+               RoomProperties::fragile |
+               RoomProperties::multiplayer_unsupported |
+               RoomProperties::habitable | RoomProperties::not_constructible;
     }
 
 
@@ -155,7 +156,6 @@ public:
             }
         }
     }
-
 };
 
 
