@@ -35,6 +35,61 @@ namespace skyland::macro
 
 
 
+class ExitIslandScene : public Scene
+{
+public:
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        pfrm.fill_overlay(112);
+    }
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        pfrm.fill_overlay(0);
+    }
+
+
+    void display(Platform& pfrm, App& app) override
+    {
+        int circ_center_x = pfrm.screen().size().x / 2;
+        int circ_center_y = pfrm.screen().size().y / 2;
+        int params[] = {circ_radius_, circ_center_x, circ_center_y};
+        pfrm.system_call("iris-wipe-effect", params);
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    {
+        timer_ += delta;
+
+        constexpr auto fade_duration = milliseconds(400);
+        if (timer_ > fade_duration) {
+            pfrm.screen().schedule_fade(1);
+            circ_radius_ = 0;
+            pfrm.fill_overlay(0);
+            return scene_pool::alloc<MacroverseScene>(true);
+        } else {
+            auto amount = smoothstep(0.f, fade_duration, timer_);
+            circ_radius_ = 144 - int(144 * amount);
+            if (timer_ > delta) {
+                amount *= 0.75f;
+            }
+            pfrm.screen().schedule_fade(amount);
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    Microseconds timer_ = 0;
+    int circ_radius_ = 0;
+};
+
+
+
+
 void MenuOptionsScene::enter(Platform& pfrm,
                              macro::EngineImpl& state,
                              Scene& prev)
@@ -112,7 +167,7 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
         if (player.key_down(pfrm, Key::up)) {
             pfrm.speaker().play_sound("cursor_tick", 0);
             pfrm.fill_overlay(0);
-            return scene_pool::alloc<MacroverseScene>(true);
+            return scene_pool::alloc<ExitIslandScene>();
         }
 
     } else {

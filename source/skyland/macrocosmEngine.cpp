@@ -523,6 +523,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
             [[maybe_unused]] u8 export_count = *(it++);
 
             dest->shadowcast();
+            dest->recalc_stats();
         };
 
         load_sector(&*data_->origin_sector_);
@@ -997,12 +998,15 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::reserved_2:
     case terrain::Type::food:
     case terrain::Type::__invalid:
-    case terrain::Type::air:
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
     case terrain::Type::checker_red_king:
     case terrain::Type::checker_black_king:
     case terrain::Type::checker_highlight:
+        break;
+
+    case terrain::Type::air:
+        cost.productivity_ = 0;
         break;
 
     case terrain::Type::farmhouse:
@@ -1102,6 +1106,7 @@ terrain::Cost terrain::cost(Type t)
 
     case terrain::Type::water_source:
         cost.water_ = 10;
+        cost.productivity_ = 2;
         break;
 
     case terrain::Type::water_spread_downwards:
@@ -1176,6 +1181,7 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::light_source:
+        cost.productivity_ = 6;
         cost.stone_ = 5;
         cost.lumber_ = 4;
         cost.crystal_ = 10;

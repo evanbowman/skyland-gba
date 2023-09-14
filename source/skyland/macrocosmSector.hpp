@@ -230,6 +230,9 @@ public:
     void repaint();
 
 
+    void recalc_stats();
+
+
     virtual void on_block_changed(const Vec3<u8>& coord) = 0;
 
 

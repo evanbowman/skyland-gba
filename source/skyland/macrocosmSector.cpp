@@ -265,6 +265,13 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     raster::globalstate::_changed = true;
     on_block_changed(coord);
 
+    recalc_stats();
+}
+
+
+
+void terrain::Sector::recalc_stats()
+{
     housing_ = 0;
     granaries_ = 0;
     for (u8 z = 0; z < size().z; ++z) {

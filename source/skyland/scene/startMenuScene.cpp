@@ -530,7 +530,8 @@ AGAIN:
 
         case App::GameMode::macro:
 
-            if (macrocosm(app).data_->checkers_mode_) {
+            if (macrocosm(app).data_->checkers_mode_ or
+                macrocosm(app).data_->freebuild_mode_) {
                 add_option(
                     pfrm,
                     SYSTR(start_menu_quit)->c_str(),

@@ -1002,8 +1002,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (m.make_sector(*selected_colony_, shape_)) {
 
-                m.sector().set_population(m.sector().population() -
-                                          cost.second);
+                m.sector().set_productivity(m.sector().productivity() -
+                                            cost.second);
 
                 colony_create_slots_.clear();
 
@@ -1018,7 +1018,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 m.sector().generate_terrain(160, 1);
-                m.sector().set_population(Population(20));
+                m.sector().set_population(1);
+                m.sector().set_food(5);
 
                 pfrm.speaker().play_sound("button_wooden", 2);
             }
