@@ -1130,6 +1130,7 @@ terrain::Cost terrain::cost(Type t)
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
     case terrain::Type::lava_slant_d:
+        cost.productivity_ = 80;
         break;
 
     case terrain::Type::wheat_ripe:

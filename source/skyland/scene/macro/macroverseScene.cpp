@@ -916,8 +916,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (selected_colony_) {
                 auto cost = m.colony_cost();
-                if ( // m.data_->p().coins_.get() >= cost.first and
-                    m.sector().population() >= cost.second) {
+                if (m.sector().productivity() >= cost.second) {
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
