@@ -398,7 +398,7 @@ void MacrocosmScene::enter(Platform& pfrm,
             pfrm,
             OverlayCoord{1, 1},
             415,
-            format_ui_fraction(state.sector().productivity(), pop * 10),
+            format_ui_fraction(pop * 10, state.sector().productivity()),
             UIMetric::Align::left,
             UIMetric::Format::fraction);
 
