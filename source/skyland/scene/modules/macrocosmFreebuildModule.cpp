@@ -113,7 +113,7 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
 
     auto& m = macrocosm(app);
     m.data_->freebuild_mode_ = true;
-    m.newgame(pfrm, app);
+    //m.newgame(pfrm, app);
     app.game_mode() = App::GameMode::macro;
 
     switch (size_sel_) {

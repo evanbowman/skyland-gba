@@ -530,8 +530,7 @@ AGAIN:
 
         case App::GameMode::macro:
 
-            if (macrocosm(app).data_->checkers_mode_ or
-                macrocosm(app).data_->freebuild_mode_) {
+            if (macrocosm(app).data_->checkers_mode_) {
                 add_option(
                     pfrm,
                     SYSTR(start_menu_quit)->c_str(),
@@ -658,13 +657,17 @@ AGAIN:
                 add_option(
                     pfrm,
                     SYSTR(start_menu_quit)->c_str(),
-                    [&pfrm]() -> ScenePtr<Scene> {
+                    [&pfrm, &app]() -> ScenePtr<Scene> {
                         if (pfrm.network_peer().is_connected()) {
                             pfrm.network_peer().disconnect();
                         }
                         pfrm.fill_overlay(0);
                         pfrm.screen().set_shader(passthrough_shader);
-                        return scene_pool::alloc<TitleScreenScene>(4);
+                        if (macrocosm(app).data_->freebuild_mode_) {
+                            return scene_pool::alloc<TitleScreenScene>(3);
+                        } else {
+                            return scene_pool::alloc<TitleScreenScene>(4);
+                        }
                     },
                     fade_sweep);
                 break;
