@@ -920,14 +920,43 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     pfrm.speaker().play_sound("button_wooden", 3);
 
-                    state_ = State::select_colony_layout;
+                    // state_ = State::select_colony_layout;
 
-                    pfrm.set_tile(Layer::overlay, 1, 3, 0);
-                    pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                    // pfrm.set_tile(Layer::overlay, 1, 3, 0);
+                    // pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                    // text_objs_.clear();
+                    // show_layout_text(pfrm);
+
                     text_objs_.clear();
 
-                    show_layout_text(pfrm);
+                    shape_ = terrain::Sector::Shape::freebuild_wide;
 
+                    if (m.make_sector(*selected_colony_, shape_)) {
+
+                        m.sector().set_productivity(m.sector().productivity() -
+                                                    cost.second);
+
+                        colony_create_slots_.clear();
+
+
+                        text_objs_.clear();
+
+                        state_ = State::show;
+                        describe_selected(pfrm, m);
+
+                        if (not m.bind_sector(*selected_colony_)) {
+                            Platform::fatal("logic error (bind sector)");
+                        }
+
+                        m.sector().generate_terrain(100, 2);
+                        m.sector().set_food(5);
+                        m.sector().set_population(3);
+                        m.sector().on_day_transition();
+                        m.sector().set_food(5);
+
+                        pfrm.speaker().play_sound("button_wooden", 2);
+                        pfrm.delta_clock().reset();
+                    }
 
                     break;
 

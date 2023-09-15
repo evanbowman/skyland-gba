@@ -265,7 +265,12 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     raster::globalstate::_changed = true;
     on_block_changed(coord);
 
-    recalc_stats();
+    auto should_recalc = [](Type t)
+                         { return t == Type::building or t == Type::granary; };
+
+    if (should_recalc(type) or should_recalc(prev_type)) {
+        recalc_stats();
+    }
 }
 
 
@@ -831,6 +836,8 @@ RETRY:
 
         gen(3, 0.02f);
         gen(size().z, 0.1f);
+
+        Platform::instance().system_call("feed-watchdog", nullptr);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1075,8 +1082,10 @@ void terrain::Sector::generate_terrain_regular(int min_blocks,
 
         count = 0;
 
-        gen(3, 0.25f);
+        gen(3, 0.02f);
         gen(size().z, 0.1f);
+
+        Platform::instance().system_call("feed-watchdog", nullptr);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1153,19 +1162,8 @@ void terrain::Sector::generate_terrain_regular(int min_blocks,
     }
 
     u8 z = 0;
-    for (; z < size().z; ++z) {
-        for (int x = 0; x < size().x; ++x) {
-            for (int y = 0; y < size().y; ++y) {
-                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
-                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if (t == terrain::Type::terrain and
-                    above == terrain::Type::air) {
-                    goto PLACE_BUILDING;
-                }
-            }
-        }
-    }
-PLACE_BUILDING:
+    int tries = 0;
+
     while (building_count) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
@@ -1180,6 +1178,10 @@ PLACE_BUILDING:
             if (--building_count == 0) {
                 goto PLACED_BUILDING;
             }
+        }
+
+        if (++tries == 10000) {
+            ++z;
         }
     }
 PLACED_BUILDING:
@@ -1367,8 +1369,10 @@ void terrain::Sector::generate_terrain_desert(int min_blocks,
 
         count = 0;
 
-        gen(3, 0.25f);
+        gen(3, 0.02f);
         gen(size().z, 0.1f);
+
+        Platform::instance().system_call("feed-watchdog", nullptr);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1430,21 +1434,9 @@ void terrain::Sector::generate_terrain_desert(int min_blocks,
     }
 
     u8 z = 0;
-    for (; z < size().z; ++z) {
-        for (int x = 0; x < size().x; ++x) {
-            for (int y = 0; y < size().y; ++y) {
-                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
-                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if ((t == terrain::Type::terrain or t == terrain::Type::sand or
-                     t == terrain::Type::masonry) and
-                    above == terrain::Type::air) {
-                    goto PLACE_BUILDING;
-                }
-            }
-        }
-    }
-PLACE_BUILDING:
-    while (true) {
+    int tries = 0;
+
+    while (building_count) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
 
@@ -1462,6 +1454,10 @@ PLACE_BUILDING:
             if (--building_count == 0) {
                 goto PLACED_BUILDING;
             }
+        }
+
+        if (++tries == 10000) {
+            ++z;
         }
     }
 PLACED_BUILDING:
@@ -1556,8 +1552,10 @@ void terrain::Sector::generate_terrain_tundra(int min_blocks,
 
         count = 0;
 
-        gen(3, 0.25f);
+        gen(3, 0.02f);
         gen(size().z, 0.1f);
+
+        Platform::instance().system_call("feed-watchdog", nullptr);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1619,21 +1617,9 @@ void terrain::Sector::generate_terrain_tundra(int min_blocks,
     }
 
     u8 z = 0;
-    for (; z < size().z; ++z) {
-        for (int x = 0; x < size().x; ++x) {
-            for (int y = 0; y < size().y; ++y) {
-                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
-                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if ((t == terrain::Type::terrain or
-                     t == terrain::Type::basalt) and
-                    above == terrain::Type::air) {
-                    goto PLACE_BUILDING;
-                }
-            }
-        }
-    }
-PLACE_BUILDING:
-    while (true) {
+    int tries = 0;
+
+    while (building_count) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
 
@@ -1648,6 +1634,10 @@ PLACE_BUILDING:
             if (--building_count == 0) {
                 goto PLACED_BUILDING;
             }
+        }
+
+        if (++tries == 10000) {
+            ++z;
         }
     }
 PLACED_BUILDING:
@@ -1740,8 +1730,10 @@ void terrain::Sector::generate_terrain_molten(int min_blocks,
 
         count = 0;
 
-        gen(3, 0.25f);
+        gen(3, 0.02f);
         gen(size().z, 0.1f);
+
+        Platform::instance().system_call("feed-watchdog", nullptr);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1803,21 +1795,9 @@ void terrain::Sector::generate_terrain_molten(int min_blocks,
     }
 
     u8 z = 0;
-    for (; z < size().z; ++z) {
-        for (int x = 0; x < size().x; ++x) {
-            for (int y = 0; y < size().y; ++y) {
-                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
-                auto above = get_block({(u8)x, (u8)y, (u8)(z + 1)}).type();
-                if ((t == terrain::Type::terrain or
-                     t == terrain::Type::basalt) and
-                    above == terrain::Type::air) {
-                    goto PLACE_BUILDING;
-                }
-            }
-        }
-    }
-PLACE_BUILDING:
-    while (true) {
+    int tries = 0;
+
+    while (building_count) {
         auto x = rng::choice(size().x, rng::critical_state);
         auto y = rng::choice(size().y, rng::critical_state);
 
@@ -1832,6 +1812,10 @@ PLACE_BUILDING:
             if (--building_count == 0) {
                 goto PLACED_BUILDING;
             }
+        }
+
+        if (++tries == 10000) {
+            ++z;
         }
     }
 PLACED_BUILDING:
