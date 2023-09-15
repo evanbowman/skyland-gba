@@ -24,6 +24,8 @@
 
 
 #include "skyland/scene.hpp"
+#include "memory/buffer.hpp"
+#include "graphics/overlay.hpp"
 
 
 
@@ -42,8 +44,15 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void show_page(Platform& pfrm, int pg);
+
+
 private:
     int page_ = 0;
+
+    static const int page_count = 8;
+
+    Buffer<TextView, 3> tvs_;
 };
 
 

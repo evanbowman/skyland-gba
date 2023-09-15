@@ -2692,7 +2692,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         if (cropcycle_) {
             block.data_++;
-            if (block.data_ > 12) {
+            if (block.data_ > 9) {
                 block.data_ = 0;
                 s.set_block(position, terrain::Type::volcanic_soil);
                 ++position.z;

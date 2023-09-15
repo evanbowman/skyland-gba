@@ -33,6 +33,7 @@
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
+#include "helpScene.hpp"
 
 
 
@@ -111,18 +112,6 @@ public:
 
 
 
-class HelpScene : public Scene
-{
-public:
-
-
-private:
-    int page_ = 0;
-    std::optional<TextView> message_;
-};
-
-
-
 void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
@@ -193,12 +182,12 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     };
 
 
-    // if (player.key_pressed(pfrm, Key::select) and
-    //     not state.data_->freebuild_mode_ and
-    //     not state.data_->checkers_mode_) {
+    if (player.key_pressed(pfrm, Key::select) and
+        not state.data_->freebuild_mode_ and
+        not state.data_->checkers_mode_) {
 
-    //     return scene_pool::alloc<HelpScene>();
-    // }
+        return scene_pool::alloc<HelpScene>();
+    }
 
     if (player.key_pressed(pfrm, Key::alt_1) and state.data_->freebuild_mode_) {
 
