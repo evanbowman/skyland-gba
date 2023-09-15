@@ -1034,7 +1034,7 @@ terrain::Cost terrain::cost(Type t)
         break;
 
     case terrain::Type::rice_terrace:
-        cost.productivity_ = 40;
+        cost.productivity_ = 20;
         cost.water_ = 10;
         break;
 
@@ -2108,7 +2108,6 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
     p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
     p.clay_.set(std::min(int(p.clay_.get() + cost.clay_), 99));
     p.water_.set(std::min(int(p.water_.get() + cost.water_), 99));
-    p.water_.set(p.water_.get() + cost.water_);
     s.set_food(s.food() + cost.food_);
     if (s.food() > s.food_storage()) {
         s.set_food(s.food_storage());
