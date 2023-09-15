@@ -52,7 +52,8 @@ private:
 
     static const int page_count = 8;
 
-    Buffer<TextView, 3> tvs_;
+    std::optional<Text> heading_;
+    std::optional<TextView> tv_;
 };
 
 

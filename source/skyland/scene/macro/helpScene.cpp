@@ -35,12 +35,22 @@ namespace skyland::macro
 
 void HelpScene::show_page(Platform& pfrm, int pg)
 {
-    tvs_.clear();
-
     pfrm.fill_overlay(0);
 
-    Text heading(pfrm, {1, 1});
-    heading.append("handbook: ");
+    if (not tv_) {
+        tv_.emplace(pfrm);
+    }
+
+    // TODO: move all the text to the strings file
+
+    if (not heading_) {
+        heading_.emplace(pfrm, OverlayCoord{1, 1});
+    }
+
+    for (int i = 0; i < heading_->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, 0, 0);
+    }
+    heading_->assign("handbook: ");
 
     int margin = (calc_screen_tiles(pfrm).x - page_count * 2) / 2;
     for (int i = 0; i < page_count; ++i) {
@@ -53,79 +63,65 @@ void HelpScene::show_page(Platform& pfrm, int pg)
 
     switch (pg) {
     case 0:
-        heading.append("population ");
-        pfrm.set_tile(Layer::overlay, heading.len() + 1, 1, 413);
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Every island starts with one resident. Each day, your islands will gain and lose residents based on available food and housing! Build more housing to encourage villagers to settle!",
+        heading_->append("population ");
+        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 413);
+        tv_->assign("Every island starts with one resident. Each day, your islands will gain and lose residents based on available food and housing! Build more housing to encourage villagers to settle!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 1:
-        heading.append("productivity ");
-        pfrm.set_tile(Layer::overlay, heading.len() + 1, 1, 415);
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Each of your villagers produces ten productivity points per day! Spend productivity to build structures, plant or harvest crops, and more!",
+        heading_->append("productivity ");
+        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 415);
+        tv_->assign("Each of your villagers produces ten productivity points per day! Spend productivity to build structures, plant or harvest crops, and more!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 2:
-        heading.append("food ");
-        pfrm.set_tile(Layer::overlay, heading.len() + 1, 1, 414);
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("",
-                           {1, 4},
-                           {28, 7});
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Each villager consumes one unit of food per day. Be sure to plant some crops; your residents will start to leave if there's nothing to eat!",
+        heading_->append("food ");
+        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
+        tv_->assign("Each villager consumes one unit of food per day. Be sure to plant some crops; your residents will start to leave if there's nothing to eat!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 3:
-        heading.append("food ");
-        pfrm.set_tile(Layer::overlay, heading.len() + 1, 1, 414);
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Each island can store five units of food. Build granaries to increase your food storage limit!",
+        heading_->append("food ");
+        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
+        tv_->assign("Each island can store five units of food. Build granaries to increase your food storage limit!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 4:
-        heading.append("crops");
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Crops take a few days to ripen. Check them regularly! If you leave ripe crops unharvested, they'll go bad! Press the left shoulder button + A to check for ripe crops!",
+        heading_->append("crops");
+        tv_->assign("Crops take a few days to ripen. Check them regularly! If you leave ripe crops unharvested, they'll go bad! Press the left shoulder button + A to check for ripe crops!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 5:
-        heading.append("crops");
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Crops won't grow in the dark. But you can build light sources, allowing you to layer crops vertically!",
+        heading_->append("crops");
+        tv_->assign("Crops won't grow in the dark. But you can build light sources, allowing you to layer crops vertically!",
                            {1, 4},
                            {28, 7});
         break;
 
     case 6:
-        heading.append("crops");
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("Wheat: 2 days, yield 3, Potatoes: 6 days, yield 15, Lumber: 10 days, yields wood",
+        heading_->append("crops");
+        tv_->assign("Wheat: 2 days, yield 3, Potatoes: 6 days, yield 15, Lumber: 10 days, yields wood",
                            {1, 4},
                            {28, 7});
         break;
 
     case 7:
-        heading.append("colonies");
-        tvs_.emplace_back(pfrm);
-        tvs_.back().assign("When you have a large enough population, you can settle other nearby islands! See the macrocosm menu for options.",
+        heading_->append("colonies");
+        tv_->assign("When you have a large enough population, you can settle other nearby islands! See the macrocosm menu for options.",
                            {1, 4},
                            {28, 7});
         break;
     }
-
-    heading.__detach();
 
     auto st = calc_screen_tiles(pfrm);
     for (int x = 0; x < st.x; ++x) {
@@ -150,7 +146,8 @@ void HelpScene::exit(Platform& pfrm, App&, Scene&)
     pfrm.screen().schedule_fade(0);
     pfrm.fill_overlay(0);
 
-    tvs_.clear();
+    tv_.reset();
+    heading_.reset();
 }
 
 
@@ -172,12 +169,14 @@ ScenePtr<Scene> HelpScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (test_key(Key::right)) {
         if (page_ < page_count - 1) {
+            pfrm.speaker().play_sound("cursor_tick", 0);
             show_page(pfrm, ++page_);
         }
     }
 
     if (test_key(Key::left)) {
         if (page_ > 0) {
+            pfrm.speaker().play_sound("cursor_tick", 0);
             show_page(pfrm, --page_);
         }
     }
