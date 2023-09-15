@@ -288,8 +288,8 @@ Vec2<Fixnum> screen_coord(Platform& pfrm, int tile_coord);
 
 
 
-static const int day_frames = 12000;
-static const int night_frames = 2000;
+static const int day_frames = 16000;
+static const int night_frames = 2500;
 
 
 } // namespace skyland::macro
