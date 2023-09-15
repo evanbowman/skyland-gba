@@ -208,8 +208,8 @@ harvest:
 :layers
 view threshold: 
 :next day
-:budget
-citizens
+no crops ready for harvest!
+:check harvest
 enter
 create colony
 isle (fullsize)

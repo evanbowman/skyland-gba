@@ -288,7 +288,7 @@ Vec2<Fixnum> screen_coord(Platform& pfrm, int tile_coord);
 
 
 
-static const int day_frames = 16000;
+static const int day_frames = 18000;
 static const int night_frames = 2500;
 
 

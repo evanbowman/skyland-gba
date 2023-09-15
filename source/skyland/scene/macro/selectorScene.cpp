@@ -111,6 +111,18 @@ public:
 
 
 
+class HelpScene : public Scene
+{
+public:
+
+
+private:
+    int page_ = 0;
+    std::optional<TextView> message_;
+};
+
+
+
 void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
@@ -180,6 +192,13 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+
+    // if (player.key_pressed(pfrm, Key::select) and
+    //     not state.data_->freebuild_mode_ and
+    //     not state.data_->checkers_mode_) {
+
+    //     return scene_pool::alloc<HelpScene>();
+    // }
 
     if (player.key_pressed(pfrm, Key::alt_1) and state.data_->freebuild_mode_) {
 
@@ -386,43 +405,6 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
         // Don't show any block stats, they don't matter in this game mode.
         return;
     }
-
-    // auto stats = terrain::stats(tp, shadowed);
-
-    // if ((terrain::categories(tp) & terrain::Categories::crop) and shadowed) {
-    //     text_->append("  ");
-    //     pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 411);
-    // } else {
-    //     if (stats.food_) {
-    //         text_->append("  ");
-    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
-    //         text_->append(stats.food_);
-    //     }
-
-    //     if (stats.housing_) {
-    //         text_->append("  ");
-    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
-    //         text_->append(stats.housing_);
-    //     }
-
-    //     if (stats.productivity_) {
-    //         text_->append("  ");
-    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
-    //         text_->append(stats.productivity_);
-    //     }
-
-    //     if (stats.happiness_) {
-    //         text_->append("  ");
-    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 409);
-    //         text_->append(stats.happiness_);
-    //     }
-
-    //     if (not stats.commodities_.empty()) {
-    //         text_->append("  ");
-    //         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
-    //         text_->append(stats.commodities_[0].supply_);
-    //     }
-    // }
 
     for (int i = 0; i < text_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 18, 425);

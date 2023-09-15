@@ -107,6 +107,11 @@ void MenuOptionsScene::enter(Platform& pfrm,
     macroverse_text_.emplace(pfrm, mv.c_str(), OverlayCoord{2, 1});
     next_turn_text_.emplace(
         pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{2, 2});
+
+    harvest_text_.emplace(pfrm, OverlayCoord{1, 3});
+    harvest_text_->assign(
+        "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
+    harvest_text_->append(SYSTR(macro_check_harvest)->c_str());
 }
 
 
@@ -120,6 +125,8 @@ void MenuOptionsScene::exit(Platform& pfrm,
 
     macroverse_text_.reset();
     next_turn_text_.reset();
+    harvest_text_.reset();
+    message_text_.reset();
 
     pfrm.set_tile(Layer::overlay, 1, 1, 0);
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
@@ -151,19 +158,41 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
     if (player.key_pressed(pfrm, Key::alt_1) or
         player.key_pressed(pfrm, Key::alt_2)) {
 
-        // if (player.key_down(pfrm, Key::action_1)) {
-        //     pfrm.speaker().play_sound("cursor_tick", 0);
-        //     return scene_pool::alloc<CitizensInfoScene>();
-        // } else if (player.key_down(pfrm, Key::left)) {
-        //     pfrm.speaker().play_sound("cursor_tick", 0);
-        //     return scene_pool::alloc<ViewBudgetScene>();
+        if (player.key_down(pfrm, Key::action_1)) {
+            auto& s = state.sector();
+
+            for (u8 z = 0; z < s.size().z; ++z) {
+                for (u8 x = 0; x < s.size().x; ++x) {
+                    for (u8 y = 0; y < s.size().y; ++y) {
+                        auto tp = s.get_block({x, y, z}).type();
+                        if (tp == terrain::Type::potatoes or
+                            tp == terrain::Type::wheat_ripe or
+                            tp == terrain::Type::rice_ripe) {
+                            for (u8 zz = z + 1; zz < s.size().z; ++zz) {
+                                auto tp = s.get_block({x, y, zz}).type();
+                                if (tp not_eq terrain::Type::air and
+                                    tp not_eq terrain::Type::selector) {
+                                    s.set_z_view(zz + 1);
+                                    break;
+                                }
+                            }
+                            s.set_cursor({x, y, u8(z + 1)});
+                            pfrm.speaker().play_sound("click_digital_1", 3);
+                            return scene_pool::alloc<SelectorScene>();
+                        }
+                    }
+                }
+            }
+            pfrm.speaker().play_sound("cancel", 3);
+            message_text_.emplace(pfrm, OverlayCoord{0, 19});
+            message_text_->assign(SYS_CSTR(macro_harvest_not_ready));
+        }
+
         if (player.key_down(pfrm, Key::right)) {
             pfrm.speaker().play_sound("cursor_tick", 0);
             return scene_pool::alloc<NextTurnScene>();
-        } // else if (player.key_down(pfrm, Key::down)) {
-        //     pfrm.speaker().play_sound("cursor_tick", 0);
-        //     return scene_pool::alloc<ViewCommoditiesScene>();
-        // } else
+        }
+
         if (player.key_down(pfrm, Key::up)) {
             pfrm.speaker().play_sound("cursor_tick", 0);
             pfrm.fill_overlay(0);

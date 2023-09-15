@@ -144,6 +144,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     sector.set_population(1);
     sector.on_day_transition();
     sector.set_food(5);
+    sector.recalc_stats();
 }
 
 
@@ -963,8 +964,8 @@ std::pair<terrain::Cost, terrain::Type> terrain::harvest(Type t)
 
     case terrain::Type::potatoes:
         nt = terrain::Type::volcanic_soil;
-        cost.food_ = 10;
-        cost.productivity_ = 8;
+        cost.food_ = 15;
+        cost.productivity_ = 10;
         break;
 
     case terrain::Type::lumber:
@@ -2108,6 +2109,7 @@ bool harvest_block(macro::EngineImpl& state, terrain::Sector& s, Vec3<u8> c)
     p.crystal_.set(std::min(int(p.crystal_.get() + cost.crystal_), 99));
     p.clay_.set(std::min(int(p.clay_.get() + cost.clay_), 99));
     p.water_.set(std::min(int(p.water_.get() + cost.water_), 99));
+    p.water_.set(p.water_.get() + cost.water_);
     s.set_food(s.food() + cost.food_);
     if (s.food() > s.food_storage()) {
         s.set_food(s.food_storage());

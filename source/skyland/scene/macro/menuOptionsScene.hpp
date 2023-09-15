@@ -45,11 +45,10 @@ public:
 
 
 private:
-    std::optional<Text> citizens_text_;
-    std::optional<Text> budget_text_;
     std::optional<Text> next_turn_text_;
     std::optional<Text> macroverse_text_;
-    std::optional<Text> commodities_text_;
+    std::optional<Text> harvest_text_;
+    std::optional<Text> message_text_;
     int exit_timer_ = 0;
     u32 frames_ = 0;
 };
