@@ -217,10 +217,20 @@ atol (tiny)
 edit name
 available: %
 cost: %_
-select export:
-how many?
-where?
-commodities
+handbook: 
+population 
+productivity 
+food 
+crops
+colonies
+Every island starts with one resident. Each day, your islands will gain and lose residents based on available food and housing! Build more housing to encourage villagers to settle!
+Each of your villagers produces ten productivity points per day! Spend productivity to build structures, plant or harvest crops, and more!
+Each villager consumes one unit of food per day. Be sure to plant some crops; your residents will start to leave if there's nothing to eat!
+Each island can store five units of food. Build granaries to increase your food storage limit!
+Crops take a few days to ripen. Check them regularly! If you leave ripe crops unharvested, they'll go bad! Press the left shoulder button + A to check for ripe crops!
+Crops won't grow in the dark. But you can build light sources, allowing you to layer crops vertically!
+Wheat: 2 days, yield 3, Potatoes: 6 days, yield 15, Lumber: 10 days, yields wood
+When you have a large enough population, you can settle other nearby islands! See the macrocosm menu for options.
 trade colony
 scuttle colony
 Rename island:

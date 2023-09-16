@@ -117,13 +117,6 @@ static const TileOptionsScene::OptionInfo options[] = {
              s.update_ui(state);
              return scene_pool::alloc<SelectorScene>();
          }
-     }},
-    {SystemString::macro_export,
-     776,
-     760,
-     [](Platform&, macro::EngineImpl&, terrain::Type, Text&) {},
-     [](MacrocosmScene& s, macro::EngineImpl& state) -> ScenePtr<Scene> {
-         return scene_pool::alloc<ConfigurePortScene>();
      }}};
 
 

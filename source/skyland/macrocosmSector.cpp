@@ -265,8 +265,9 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     raster::globalstate::_changed = true;
     on_block_changed(coord);
 
-    auto should_recalc = [](Type t)
-                         { return t == Type::building or t == Type::granary; };
+    auto should_recalc = [](Type t) {
+        return t == Type::building or t == Type::granary;
+    };
 
     if (should_recalc(type) or should_recalc(prev_type)) {
         recalc_stats();

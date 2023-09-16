@@ -23,6 +23,7 @@
 #include "selectorScene.hpp"
 #include "checkers.hpp"
 #include "createBlockScene.hpp"
+#include "helpScene.hpp"
 #include "keyComboScene.hpp"
 #include "macroverseScene.hpp"
 #include "menuOptionsScene.hpp"
@@ -33,7 +34,6 @@
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
-#include "helpScene.hpp"
 
 
 
@@ -183,8 +183,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
 
     if (player.key_pressed(pfrm, Key::select) and
-        not state.data_->freebuild_mode_ and
-        not state.data_->checkers_mode_) {
+        not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<HelpScene>();
     }

@@ -41,8 +41,6 @@ void HelpScene::show_page(Platform& pfrm, int pg)
         tv_.emplace(pfrm);
     }
 
-    // TODO: move all the text to the strings file
-
     if (not heading_) {
         heading_.emplace(pfrm, OverlayCoord{1, 1});
     }
@@ -50,7 +48,7 @@ void HelpScene::show_page(Platform& pfrm, int pg)
     for (int i = 0; i < heading_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 0, 0);
     }
-    heading_->assign("handbook: ");
+    heading_->assign(SYS_CSTR(macro_help_prefix));
 
     int margin = (calc_screen_tiles(pfrm).x - page_count * 2) / 2;
     for (int i = 0; i < page_count; ++i) {
@@ -63,63 +61,47 @@ void HelpScene::show_page(Platform& pfrm, int pg)
 
     switch (pg) {
     case 0:
-        heading_->append("population ");
+        heading_->append(SYS_CSTR(macro_help_title_1));
         pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 413);
-        tv_->assign("Every island starts with one resident. Each day, your islands will gain and lose residents based on available food and housing! Build more housing to encourage villagers to settle!",
-                           {1, 4},
-                           {28, 7});
+        tv_->assign(SYS_CSTR(macro_help_1), {1, 4}, {28, 7});
         break;
 
     case 1:
-        heading_->append("productivity ");
+        heading_->append(SYS_CSTR(macro_help_title_2));
         pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 415);
-        tv_->assign("Each of your villagers produces ten productivity points per day! Spend productivity to build structures, plant or harvest crops, and more!",
-                           {1, 4},
-                           {28, 7});
+        tv_->assign(SYS_CSTR(macro_help_2), {1, 4}, {28, 7});
         break;
 
     case 2:
-        heading_->append("food ");
+        heading_->append(SYS_CSTR(macro_help_title_3));
         pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
-        tv_->assign("Each villager consumes one unit of food per day. Be sure to plant some crops; your residents will start to leave if there's nothing to eat!",
-                           {1, 4},
-                           {28, 7});
+        tv_->assign(SYS_CSTR(macro_help_3), {1, 4}, {28, 7});
         break;
 
     case 3:
-        heading_->append("food ");
+        heading_->append(SYS_CSTR(macro_help_title_3));
         pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
-        tv_->assign("Each island can store five units of food. Build granaries to increase your food storage limit!",
-                           {1, 4},
-                           {28, 7});
+        tv_->assign(SYS_CSTR(macro_help_4), {1, 4}, {28, 7});
         break;
 
     case 4:
-        heading_->append("crops");
-        tv_->assign("Crops take a few days to ripen. Check them regularly! If you leave ripe crops unharvested, they'll go bad! Press the left shoulder button + A to check for ripe crops!",
-                           {1, 4},
-                           {28, 7});
+        heading_->append(SYS_CSTR(macro_help_title_4));
+        tv_->assign(SYS_CSTR(macro_help_5), {1, 4}, {28, 7});
         break;
 
     case 5:
-        heading_->append("crops");
-        tv_->assign("Crops won't grow in the dark. But you can build light sources, allowing you to layer crops vertically!",
-                           {1, 4},
-                           {28, 7});
+        heading_->append(SYS_CSTR(macro_help_title_4));
+        tv_->assign(SYS_CSTR(macro_help_6), {1, 4}, {28, 7});
         break;
 
     case 6:
-        heading_->append("crops");
-        tv_->assign("Wheat: 2 days, yield 3, Potatoes: 6 days, yield 15, Lumber: 10 days, yields wood",
-                           {1, 4},
-                           {28, 7});
+        heading_->append(SYS_CSTR(macro_help_title_4));
+        tv_->assign(SYS_CSTR(macro_help_7), {1, 4}, {28, 7});
         break;
 
     case 7:
-        heading_->append("colonies");
-        tv_->assign("When you have a large enough population, you can settle other nearby islands! See the macrocosm menu for options.",
-                           {1, 4},
-                           {28, 7});
+        heading_->append(SYS_CSTR(macro_help_title_5));
+        tv_->assign(SYS_CSTR(macro_help_8), {1, 4}, {28, 7});
         break;
     }
 

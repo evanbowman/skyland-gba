@@ -89,7 +89,6 @@ private:
 
 
 
-
 void MenuOptionsScene::enter(Platform& pfrm,
                              macro::EngineImpl& state,
                              Scene& prev)
