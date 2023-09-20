@@ -22,6 +22,17 @@ import os
 # the script contents into a
 # a local file.
 
+def unminify_lisp(codestring):
+    result = ""
+    for c in codestring:
+        if c == '\v':
+            result += ' ' * 3
+        elif c == '\t':
+            result += ' ' * 4
+        else:
+            result += c
+    return result
+
 
 with open("Skyland.gba", 'rb') as f:
     s = f.read()
@@ -64,8 +75,13 @@ with open("fs.extracted.bin", "wb") as f:
             os.makedirs(dirname)
 
         with open(path, "wb") as f:
-            f.write(data[pos:pos+file_size-1]) # -1 for null terminator
+            contents = data[pos:pos+file_size-1] # -1 for null terminator
+            if path.split('.')[-1] == "lisp":
+                contents = unminify_lisp(contents.decode("utf-8")).encode('utf-8')
+            f.write(contents)
 
         pos += file_size
 
     print("Wrote files!")
+
+# end of unpack_rom.py

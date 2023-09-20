@@ -3,5 +3,5 @@
 # release builds.
 git rev-parse --short HEAD > ../strings/commit_hash.txt
 
-python3 encode_files.py
+python3 ../tools/encode_files.py
 cat SkylandEngine.gba fs.bin > Skyland.gba

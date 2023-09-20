@@ -1756,6 +1756,7 @@ static u32 read_list(CharSequence& code, int offset)
         case '\r':
         case '\n':
         case '\t':
+        case '\v':
         case ' ':
             ++i;
             break;
@@ -1928,8 +1929,12 @@ static u32 read_symbol(CharSequence& code, int offset)
         case '\r':
         case '\n':
         case '\t':
+        case '\v':
         case '\0':
         case ';':
+        case '"':
+        case '.':
+        case '\'':
             goto FINAL;
 
         default:
@@ -2205,6 +2210,7 @@ u32 read(CharSequence& code, int offset)
 
         case '\n':
         case '\r':
+        case '\v':
         case '\t':
         case ' ':
             ++i;

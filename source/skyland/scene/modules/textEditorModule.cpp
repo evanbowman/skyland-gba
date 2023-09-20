@@ -610,6 +610,33 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
         text_buffer_.push_back('\n');
         text_buffer_.push_back('\0');
     }
+
+    tabs_to_spaces();
+}
+
+
+
+void TextEditorModule::tabs_to_spaces()
+{
+    Vector<char> temp_buffer;
+    for (char c : text_buffer_) {
+        temp_buffer.push_back(c);
+    }
+    text_buffer_.clear();
+
+    for (char c : temp_buffer) {
+        if (c == '\v') {
+            for (int i = 0; i < 3; ++i) {
+                text_buffer_.push_back(' ');
+            }
+        } else if (c == '\t') {
+            for (int i = 0; i < 4; ++i) {
+                text_buffer_.push_back(' ');
+            }
+        } else {
+            text_buffer_.push_back(c);
+        }
+    }
 }
 
 

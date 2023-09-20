@@ -4,8 +4,55 @@ import os
 
 project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
 
-
 bytes_encoded = 0
+
+
+def minify_lisp(codestring):
+    # originally I was actually minifying the sources.
+    # But spaces to tabs alone saves a lot of space... without the
+    # hassle of having to unminify stuff when I unzip the rom.
+
+    result = ""
+    spc_count = 0
+
+    for c in codestring:
+        if c == ' ':
+            spc_count += 1
+            if spc_count == 4:
+                result += '\t'
+                spc_count = 0
+        else:
+            if spc_count:
+                result += ' ' * spc_count
+                spc_count = 0
+
+            result += c
+
+    if spc_count:
+        result += ' ' * spc_count
+        spc_count = 0
+
+    # We're doing a little hack to replace 3 spaces with a vertical tab. The
+    # interpreter ignores whitespace, and doing this saves rom space.
+
+    result2 = ""
+    for c in result:
+        if c == ' ':
+            spc_count += 1
+            if spc_count == 3:
+                result2 += '\v'
+                spc_count = 0
+        else:
+            if spc_count:
+                result2 += ' ' * spc_count
+                spc_count = 0
+
+            result2 += c
+
+    if spc_count:
+        result2 += ' ' * spc_count
+
+    return result2
 
 
 def encode_file(path, real_name, out):
@@ -35,6 +82,9 @@ def encode_file(path, real_name, out):
 
         data = test_file.read()
         file_contents = data
+
+        if path.split('.')[-1] == 'lisp':
+            file_contents = minify_lisp(data.decode('utf-8')).encode('utf-8')
 
         pad = 4 - (len(file_contents) + 1) % 4
         bytes_encoded += len(file_contents) + 1 + pad
