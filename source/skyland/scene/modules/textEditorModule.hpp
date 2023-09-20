@@ -144,6 +144,9 @@ private:
     Vector<char> text_buffer_;
 
 
+    void tabs_to_spaces();
+
+
     Vector<char>::Iterator current_line();
     int line_length();
 

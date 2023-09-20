@@ -22,126 +22,15 @@ import os
 # the script contents into a
 # a local file.
 
-def fmt_lisp_let(expr, indent):
-    result = expr[0]
-    result += " "
-    result += "("
-    for b in expr[1]:
-        result += fmt_lisp_sexpr(b, indent)
-    result += ")"
-    tab = indent + 2
-    for e in expr[2:]:
-        result += os.linesep + (" " * tab) + fmt_lisp_atom(e, tab)
-    return result
-
-def fmt_lisp_if(expr, indent):
-    result = expr[0]
-    result += " "
-    result += fmt_lisp_atom(expr[1], indent)
-    if len(expr[2:]) > 1:
-        tab = indent + 4
-        result += os.linesep + (" " * tab) + fmt_lisp_atom(expr[2], tab)
-        tab -= 2;
-        result += os.linesep + (" " * tab) + fmt_lisp_atom(expr[3], tab)
-    else:
-        tab = indent + 2
-        result += os.linesep + (" " * tab) + fmt_lisp_atom(expr[2], tab)
-    return result
-
-def fmt_lisp_defn(expr, indent):
-    result = str(expr[0])
-    tab = indent + 2
-    result += " " + str(expr[1])
-    for atom in expr[2:]:
-        result += os.linesep + (" " * tab) + fmt_lisp_atom(atom, tab)
-    return result
-
-def fmt_lisp_atom(atom, indent):
-    if type(atom) == list:
-        return fmt_lisp_sexpr(atom, indent)
-    else:
-        return str(atom)
-
-def fmt_lisp_sexpr(expr, indent):
-    result = "("
-    tab = indent
-    if len(expr):
-        if expr[0] == "defn" or expr[0] == "defn/c": result += fmt_lisp_defn(expr, indent)
-        elif expr[0] == "let": result += fmt_lisp_let(expr, indent)
-        elif expr[0] == "if": result += fmt_lisp_if(expr, indent)
-        else:
-            z = True
-            for atom in expr:
-                if not z:
-                    result += " "
-                result += fmt_lisp_atom(atom, tab)
-                z = False
-    result += ")"
-    return result
-
-def fmt_lisp_syntax(tree):
-    result = ""
-    for entry in tree:
-        result += fmt_lisp_sexpr(entry, 0)
-        result += os.linesep + os.linesep
-    return result
-
-def read_lisp_toplevel(code):
-    result = []
-    off = 0
-    while True:
-        if off == len(code) or code[off] == '\0':
-            break
-        elif code[off] == '(':
-            off += 1
-            nested, d = read_lisp_sexpr(code, off)
-            off += d
-            result.append(nested)
-        else:
-            off += 1
-    return result
-
-def read_lisp_sexpr(code, offset):
-    result = []
-    off = 0
-    word = ""
-    while True:
-        if code[off + offset] == '(':
-            if len(word):
-                result.append(word)
-                word = ""
-            off += 1
-            nested, d = read_lisp_sexpr(code, off + offset)
-            off += d
-            result.append(nested)
-        elif code[off + offset] == " ":
-            if len(word):
-                result.append(word)
-                word = ""
-            off += 1
-        elif code[off + offset] == ")":
-            if len(word):
-                result.append(word)
-            return result, off + 1
-        elif code[off + offset] == '"':
-            if len(word):
-                result.append(word)
-            word += '"'
-            off += 1
-            while code[off + offset] != '"':
-                word += code[off + offset]
-                off += 1
-            word += '"'
-            off += 1
-        else:
-            word += code[off + offset]
-            off += 1
-
-
 def unminify_lisp(codestring):
-    result = ";;; unminified by unpack_rom.py" + os.linesep
-    result += ";;; sorry about the formatting! feel free to improve it..." + os.linesep * 2
-    result += fmt_lisp_syntax(read_lisp_toplevel(codestring))
+    result = ""
+    for c in codestring:
+        if c == '\v':
+            result += ' ' * 3
+        elif c == '\t':
+            result += ' ' * 4
+        else:
+            result += c
     return result
 
 

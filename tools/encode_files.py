@@ -8,48 +8,51 @@ bytes_encoded = 0
 
 
 def minify_lisp(codestring):
+    # originally I was actually minifying the sources.
+    # But spaces to tabs alone saves a lot of space... without the
+    # hassle of having to unminify stuff when I unzip the rom.
+
     result = ""
-    within_comment = False
-    within_string = False
-    last_char = None
+    spc_count = 0
 
     for c in codestring:
-        if within_comment:
-            if c == '\n':
-                within_comment = False
-            continue
-
-        if within_string:
-            result += c
-            if c == '"':
-                within_string = False
-            last_char = '"'
-            continue
-
-        if c == '"':
-            result += c
-            within_string = True
-            continue
-
-        if c == ';':
-            within_comment = True
-            continue
-
-        if c == ' ' and (last_char == ' ' or last_char == None or last_char == ")"):
-            # do nothing, we're collapsing spaces
-            pass
-        elif c == '\r':
-            # don't care
-            pass
-        elif c == '\n':
-            if last_char != ' ' and last_char != ")":
-                result += ' '
-                last_char = ' '
+        if c == ' ':
+            spc_count += 1
+            if spc_count == 4:
+                result += '\t'
+                spc_count = 0
         else:
-            result += c
-            last_char = c
+            if spc_count:
+                result += ' ' * spc_count
+                spc_count = 0
 
-    return result
+            result += c
+
+    if spc_count:
+        result += ' ' * spc_count
+        spc_count = 0
+
+    # We're doing a little hack to replace 3 spaces with a vertical tab. The
+    # interpreter ignores whitespace, and doing this saves rom space.
+
+    result2 = ""
+    for c in result:
+        if c == ' ':
+            spc_count += 1
+            if spc_count == 3:
+                result2 += '\v'
+                spc_count = 0
+        else:
+            if spc_count:
+                result2 += ' ' * spc_count
+                spc_count = 0
+
+            result2 += c
+
+    if spc_count:
+        result2 += ' ' * spc_count
+
+    return result2
 
 
 def encode_file(path, real_name, out):
