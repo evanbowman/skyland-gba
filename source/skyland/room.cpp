@@ -770,9 +770,35 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
     auto new_room = (Room*)address;
     chr_list.move_contents(new_room->characters_);
 
+    const int size_diff_y = mt->size().y - sz.y;
+
     island->schedule_repaint();
-    if (mt->size() not_eq sz) {
+    if (size_diff_y) {
         island->rooms().reindex(true);
+
+        // NOTE: because rewinding a room-mutation calls move_room, which would
+        // result in the room being moved twice.
+        if (app.game_speed() not_eq GameSpeed::rewind) {
+
+            const auto new_pos = RoomCoord{pos.x, u8(pos.y - size_diff_y)};
+
+            parent()->move_room(pfrm, app, pos, new_pos);
+
+            for (auto& chr : characters()) {
+                auto pos = chr->grid_position();
+
+                time_stream::event::CharacterPositionJump e;
+                e.id_.set(chr->id());
+                e.previous_x_ = pos.x;
+                e.previous_y_ = pos.y;
+                app.time_stream().push(app.level_timer(), e);
+
+                chr->drop_movement_path();
+                chr->set_idle(app);
+
+                chr->set_grid_position({pos.x, u8(pos.y + size_diff_y)});
+            }
+        }
     }
 }
 

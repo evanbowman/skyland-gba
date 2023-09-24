@@ -7,9 +7,9 @@
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
 //	+ 481 tiles lz77 compressed
-//	Total size: 32 + 2892 = 2924
+//	Total size: 32 + 2912 = 2944
 //
-//	Time-stamp: 2023-06-29, 09:31:12
+//	Time-stamp: 2023-09-21, 08:16:28
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_SKYLAND_TITLE_2_FLATTENED_H
 #define GRIT_SKYLAND_TITLE_2_FLATTENED_H
 
-#define skyland_title_2_flattenedTilesLen 2892
-extern const unsigned int skyland_title_2_flattenedTiles[723];
+#define skyland_title_2_flattenedTilesLen 2912
+extern const unsigned int skyland_title_2_flattenedTiles[728];
 
 #define skyland_title_2_flattenedPalLen 32
 extern const unsigned short skyland_title_2_flattenedPal[16];

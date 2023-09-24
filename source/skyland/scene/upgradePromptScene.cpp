@@ -211,29 +211,7 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 room->__unsafe__transmute(pfrm, app, upgrade_to_);
-                if (size_diff_y) {
-                    app.player_island().move_room(
-                        pfrm,
-                        app,
-                        target_coord_,
-                        {target_coord_.x, u8(target_coord_.y - size_diff_y)});
 
-                    for (auto& chr : room->characters()) {
-                        auto pos = chr->grid_position();
-
-                        time_stream::event::CharacterPositionJump e;
-                        e.id_.set(chr->id());
-                        e.previous_x_ = pos.x;
-                        e.previous_y_ = pos.y;
-                        app.time_stream().push(app.level_timer(), e);
-
-                        chr->drop_movement_path();
-                        chr->set_idle(app);
-
-                        chr->set_grid_position(
-                            {pos.x, u8(pos.y + size_diff_y)});
-                    }
-                }
                 app.set_coins(pfrm, app.coins() - cost);
                 app.level_coins_spent() += cost;
                 pfrm.speaker().play_sound("build0", 4);

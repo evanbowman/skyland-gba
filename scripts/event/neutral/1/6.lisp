@@ -51,14 +51,14 @@
 
 
 (let ((pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
+      (rc (filter (lambda (equal (car $0) 'reactor)) (rooms (player))))
       (sc (filter (lambda (equal (car $0) 'backup-core)) (rooms (player))))
-      (wpn (get '(flak-gun
-                  fire-charge)
-                (choice 2))))
+      (wpn (sample '(flak-gun fire-charge))))
 
-  (secret 1 14 (string "Notice: surplus " wpn " in stock!"))
+  (when pc
+    (secret 1 14 (string "Notice: surplus " wpn " in stock!")))
 
-  (if (or sc (not pc)) ;; player must have a core and not already have a backup
+  (if (or sc (and (not rc) (not pc))) ;; player must have a core and not already have a backup
       (progn
         (defn on-converge
           (dialog "<c:mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
@@ -71,6 +71,7 @@
 
         ;; In case anything changed...
         (setq pc (filter (lambda (equal (car $0) 'power-core)) (rooms (player))))
+        (setq rc (filter (lambda (equal (car $0) 'reactor)) (rooms (player))))
 
         (dialog
          "<c:mayor:10>After a few years of use, our old power supply ran out of nuclear fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
@@ -79,7 +80,19 @@
         (setq on-dialog-declined exit)
 
         (defn on-dialog-accepted
-          (let ((c (car pc)))
+          (let ((c nil))
+            (if pc
+                (setq c (car pc))
+              (progn
+                ;; The player has no powercore, but is instead donating a
+                ;; reactor. Give a potentially rare weapon!
+                (setq c (car rc))
+                (setq wpn (sample '(flak-gun
+                                    annihilator
+                                    decimator
+                                    rocket-bomb
+                                    incinerator)))))
+
             (room-mut (player) (get c 1) (get c 2) 'backup-core)
             (room-mut (opponent) 5 11 'power-core)
 
@@ -110,9 +123,13 @@
                      (let ((cb $0))
 
                        (sel-input wpn
-                                  (string "Place " (rname wpn) " (2x1):")
+                                  (string "Place " (rname wpn)
+                                          (format " (%x%):"
+                                                  (car (rsz wpn))
+                                                  (cdr (rsz wpn))))
                                   (lambda
                                     (room-new (player) `(,wpn ,$1 ,$2))
+                                    (sound "build0")
                                     (cb)))))))
               (impl
                (lambda
