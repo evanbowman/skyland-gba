@@ -86,5 +86,5 @@
 
 (defn/c dialog-await-binary-q
   (dialog-opts-reset)
-  (dialog-opts-push $0 (lambda (on-dialog-accepted)))
-  (dialog-opts-push $1 (lambda (on-dialog-declined))))
+  (dialog-opts-push $0 (lambda (if on-dialog-accepted (on-dialog-accepted))))
+  (dialog-opts-push $1 (lambda (if on-dialog-declined (on-dialog-declined)))))

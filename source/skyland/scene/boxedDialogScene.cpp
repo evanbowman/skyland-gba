@@ -621,11 +621,10 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             lisp::foreach (opts, [&](lisp::Value* elem) {
                 auto text = elem->cons().car()->string().value();
-                auto t_len = utf8::len(text);
 
                 const u8 t_y = y;
                 y -= 2;
-                const u8 t_x = (st.x - 2) - t_len;
+                const u8 t_x = (st.x - 2) - max_text_len;
 
                 OverlayCoord pos{t_x, t_y};
                 data_->text_opts_.emplace_back(pfrm, text, pos);
