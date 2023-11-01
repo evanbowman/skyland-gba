@@ -1306,7 +1306,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     cursor_loc.y = 14;
 
                     auto next = scene_pool::alloc<BoxedDialogSceneWS>(
-                        std::move(dialog), false);
+                        std::move(dialog));
 
                     return next;
                 }

@@ -6,14 +6,17 @@
 ;; Callbacks invoked by the engine for various events.
 (setq on-fadein '())           ; After fadein at beginning of level.
 (setq on-converge '())         ; When other island finishes approaching player.
-(setq on-dialog-accepted '())  ; Upon selecting yes in a dialog prompt.
-(setq on-dialog-declined '())  ; Upon selecting no in a dialog prompt.
 (setq on-dialog-closed '())    ; Dialog box closed.
 (setq on-victory '())          ; Defeated opponent island.
 (setq on-room-destroyed '())   ; A block was destroyed. [island, type, x, y]
 (setq on-crew-died '())        ; Crewmember died. Parameters: [chr-id]
 (setq on-shop-item-sel '())    ; Shop item selected
+(dialog-opts-reset)
 
+;; legacy callbacks, no longer invoked by the engine, but still used in various
+;; scripts.
+(setq on-dialog-accepted '())  ; Upon selecting yes in a dialog prompt.
+(setq on-dialog-declined '())  ; Upon selecting no in a dialog prompt.
 
 
 (if (not (bound 'last-zone))

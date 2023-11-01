@@ -1129,6 +1129,10 @@ void funcall(Value* obj, u8 argc)
 
 void safecall(Value* fn, u8 argc)
 {
+    if (fn->type() not_eq Value::Type::function) {
+        Platform::fatal("attempt to all non-function!");
+    }
+
     lisp::funcall(fn, argc);
     auto result = lisp::get_op(0);
     if (result->type() == lisp::Value::Type::error) {

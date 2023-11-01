@@ -425,9 +425,7 @@ ScenePtr<Scene> WorldScene::make_dialog(App& app)
     if (app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
-        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
-        state_bit_store(app, StateBit::dialog_expects_answer, false);
-        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), answer);
+        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer));
     }
     return null_scene();
 }

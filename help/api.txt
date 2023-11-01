@@ -191,36 +191,6 @@ o----------------------------o
 
 o----------------------------o
 
- (dialog-await-y/n)
-
- Tells the dialog system
- to open a y/n message box
- after playing the dialog.
- Depending on the player's
- selection, the engine will
- either invoke the function
- bound to
- on-dialog-accepted
- or to
- on-dialog-declined.
-
- See dialog_engine.txt for
- formatting options.
-
-
- NOTE: if you call
- dialog-await-y/n, the
- on-dialog-closed hook will
- not be called when closing
- the current dialog.
- Otherwise, it wouldn't be
- possible to create a new
- and distinct dialog from an
- on-dialog-accepted hook!
-
-
-o----------------------------o
-
  (diff)
 
  Return an int representing

@@ -330,7 +330,7 @@ AGAIN:
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(qr_code_size_warning);
                         auto next = scene_pool::alloc<BoxedDialogScene>(
-                            std::move(dialog), false);
+                            std::move(dialog));
                         next->set_next_scene(show_qr);
                         return next;
                     } else {
@@ -343,8 +343,8 @@ AGAIN:
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(qr_code_size_error);
-                    auto next = scene_pool::alloc<BoxedDialogScene>(
-                        std::move(dialog), false);
+                    auto next =
+                        scene_pool::alloc<BoxedDialogScene>(std::move(dialog));
                     next->set_next_scene(scene_pool::make_deferred_scene<
                                          macro::SelectorScene>());
 

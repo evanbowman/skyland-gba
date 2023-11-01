@@ -278,7 +278,7 @@ public:
                 get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2 + 1)
                     ->c_str();
             auto next =
-                scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
+                scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer));
 
             next->pause_if_hostile_ = false;
             next->autorestore_music_volume_ = true;

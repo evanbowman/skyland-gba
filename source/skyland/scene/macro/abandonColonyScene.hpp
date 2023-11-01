@@ -45,8 +45,7 @@ public:
 
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_ended)->c_str();
-            auto next =
-                scene_pool::alloc<BoxedDialogScene>(std::move(buffer), false);
+            auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene([&pfrm, &state] {
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 pfrm.fill_overlay(0);

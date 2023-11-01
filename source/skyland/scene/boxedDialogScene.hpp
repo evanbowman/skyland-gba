@@ -45,8 +45,8 @@ namespace skyland
 class BoxedDialogScene : public Scene
 {
 public:
-    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
-        : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
+    BoxedDialogScene(DialogBuffer buffer)
+        : buffer_(std::move(buffer)),
           data_(allocate_dynamic<Data>("dialog-data"))
     {
         goto_tutorial_ = 0;
@@ -82,8 +82,6 @@ public:
         done,
         animate_out,
         boolean_choice,
-        choice_select_hold,
-        choice_show,
         y_n_wait,
         clear,
     };
@@ -123,14 +121,13 @@ private:
 
     DialogBuffer buffer_;
 
-    u8 expects_answer_y_n_ : 1;
-    u8 goto_tutorial_ : 5;
+    u8 goto_tutorial_ : 6;
     u8 allow_fastforward_ : 1;
     u8 wait_ = 0;
-    u8 choice_tries_ = 0;
 
-    bool choice_sel_ = true;
+    int choice_sel_ = 0;
     bool img_view_ = false;
+    bool cursor_anim_ = false;
 
     struct Data
     {
@@ -142,8 +139,8 @@ private:
             u16 image_ = 0;
         } character_;
 
-        std::optional<Text> yes_text_;
-        std::optional<Text> no_text_;
+        Buffer<Text, 14> text_opts_;
+
         std::optional<UIMetric> coins_;
         std::optional<Text> character_name_text_;
 
@@ -164,8 +161,7 @@ ScenePtr<Scene> dialog_prompt(Platform& pfrm,
 class BoxedDialogSceneWS : public WorldScene
 {
 public:
-    BoxedDialogSceneWS(DialogBuffer buffer, bool expects_answer_y_n)
-        : dialog_scene_(std::move(buffer), expects_answer_y_n)
+    BoxedDialogSceneWS(DialogBuffer buffer) : dialog_scene_(std::move(buffer))
     {
     }
 

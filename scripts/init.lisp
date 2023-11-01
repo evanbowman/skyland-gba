@@ -64,3 +64,27 @@
 (defn/c adventure-log-add
   ;; args: event-code parameters
   (setq adventure-log (cons (cons $0 $1) adventure-log)))
+
+
+(defn/c dialog-opts-reset
+  (setq dialog-opts nil))
+
+(dialog-opts-reset)
+
+(defn/c dialog-opts-push
+  (setq dialog-opts (cons (cons $0 $1) dialog-opts)))
+
+;; For backwards compatibility. The old dialog api had a function for setting up
+;; a yes/no question box, and the engine would then invoke on-dialog-accepted
+;; and on-dialog-declined callbacks. But, eventually, I wanted more control over
+;; the dialog options, and to allow players to select from more than two
+;; options. This helper function exists for when only a simple yes/no choice is
+;; needed, but the dialog-opts-reset and dialog-opts-push functions may be
+;; called manually for more fine-grained control over dialog settings.
+(defn/c dialog-await-y/n
+  (dialog-await-binary-q "yes" "no"))
+
+(defn/c dialog-await-binary-q
+  (dialog-opts-reset)
+  (dialog-opts-push $0 (lambda (on-dialog-accepted)))
+  (dialog-opts-push $1 (lambda (on-dialog-declined))))

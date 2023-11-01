@@ -138,7 +138,7 @@ public:
                     }
 
                     auto next = scene_pool::alloc<BoxedDialogSceneWS>(
-                        std::move(buffer), false);
+                        std::move(buffer));
 
                     next->pause_if_hostile_ = false;
                     next->autorestore_music_volume_ = true;

@@ -97,10 +97,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
-        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
-        state_bit_store(app, StateBit::dialog_expects_answer, false);
-        auto next =
-            scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+        auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
         next->set_next_scene(scene_pool::make_deferred_scene<SelectorScene>());
         return next;
     }

@@ -452,12 +452,6 @@ static const lisp::Binding script_api[] = {
          }
          return lisp::make_userdata(app->opponent_island());
      }},
-    {"dialog-await-y/n",
-     [](int argc) {
-         auto app = interp_get_app();
-         state_bit_store(*app, StateBit::dialog_expects_answer, true);
-         return L_NIL;
-     }},
     {"groups",
      [](int argc) {
          L_EXPECT_ARGC(argc, 0);

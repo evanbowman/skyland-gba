@@ -833,7 +833,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(adventure_completed_message);
                         auto next = scene_pool::alloc<BoxedDialogScene>(
-                            std::move(dialog), false);
+                            std::move(dialog));
 
                         next->disallow_fastforward();
 

@@ -447,9 +447,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (abandon_) {
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_started)->c_str();
-            state_bit_store(app, StateBit::dialog_expects_answer, false);
-            auto next =
-                scene_pool::alloc<BoxedDialogScene>(std::move(buffer), false);
+            auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene(
                 scene_pool::make_deferred_scene<AbandonColonyScene>());
             m.sector().render(pfrm);
