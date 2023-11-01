@@ -646,10 +646,33 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                           (st.x - 1) - (max_text_len + 4),
                           st.y - (7 + i + y_start),
                           83);
+
+            const bool overlap =
+                max_text_len + 4 + 1 + data_->character_.name_.length() >= 30;
+
+            const bool overlap_edge =
+                max_text_len + 4 + 1 + data_->character_.name_.length() >= 29;
+
+            u16 corner_tile = 90;
+
+            if (overlap) {
+                corner_tile = 132;
+                pfrm.set_tile(Layer::overlay,
+                              (st.x - 1) - (max_text_len + 4),
+                              st.y - (6 + y_start) - 1,
+                              133);
+            } else if (overlap_edge) {
+                corner_tile = 132;
+                pfrm.set_tile(Layer::overlay,
+                              (st.x - 1) - (max_text_len + 4),
+                              st.y - (6 + y_start) - 1,
+                              134);
+            }
+
             pfrm.set_tile(Layer::overlay,
                           (st.x - 1) - (max_text_len + 4),
                           st.y - (6 + y_start),
-                          90);
+                          corner_tile);
 
             for (int j = 0; j < (int)max_text_len + 3; ++j) {
                 pfrm.set_tile(
