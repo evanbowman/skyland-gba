@@ -106,8 +106,8 @@ void store_hidden_rooms(Platform& pfrm)
         }
     }
 
-    flash_filesystem::store_file_data_binary(pfrm, hidden_rooms_file, data,
-                                             {.use_compression_ = true});
+    flash_filesystem::store_file_data_binary(
+        pfrm, hidden_rooms_file, data, {.use_compression_ = true});
 }
 
 
