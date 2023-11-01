@@ -53,7 +53,7 @@
          "this storm approaching, we don't think we can make the delivery. "
          "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
          "you generously.")
-        (dialog-await-y/n)
+        (dialog-await-binary-q "I accept!" "Sorry, but no.")
 
         (setq on-dialog-accepted
               (lambda
