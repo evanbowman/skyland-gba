@@ -25,7 +25,7 @@
            (string val)
            "@! Pay!")
 
-          (dialog-await-y/n)
+          (dialog-await-binary-q "I'll pay…" "no way!")
           (setq on-converge nil)))
 
 

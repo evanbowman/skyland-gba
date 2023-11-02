@@ -95,37 +95,33 @@
                (+ 900 (choice 500))
              (max (list (+ 900 (choice 500))
                         (/ (coins) 2))))))
-  (setq on-converge
-        (lambda
-          (dialog
-           "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
-           (string val)
-           "@! Pay!")
+  (defn on-converge
+    (dialog
+     "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
+     (string val)
+     "@! Pay!")
 
-          (dialog-await-y/n)
-          (setq on-converge nil)))
+    (dialog-await-binary-q "I'll pay…" "no way!")
+    (setq on-converge nil))
 
 
-  (setq on-dialog-accepted
-        (lambda
-          (if (> val (coins))
-              (progn
-                (opponent-mode 'hostile)
-                (adventure-log-add 32 '())
-                (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
-            (progn
-              (coins-add (- val))
-              (adventure-log-add 31 (list val))
-              (dialog "The goblin king rejoices, having successfully extorted "
-                      (string val)
-                      "@.")
-              (exit))))))
+  (defn on-dialog-accepted
+    (if (> val (coins))
+        (progn
+          (opponent-mode 'hostile)
+          (adventure-log-add 32 '())
+          (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
+      (progn
+        (coins-add (- val))
+        (adventure-log-add 31 (list val))
+        (dialog "The goblin king rejoices, having successfully extorted "
+                (string val)
+                "@.")
+        (exit)))))
 
 
 
-
-(setq on-dialog-declined
-      (lambda
-        (opponent-mode 'hostile)
-        (adventure-log-add 33 '())
-        (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))
+(defn on-dialog-declined
+  (opponent-mode 'hostile)
+  (adventure-log-add 33 '())
+  (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!"))

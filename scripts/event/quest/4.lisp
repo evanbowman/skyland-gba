@@ -68,7 +68,7 @@
       fee
       (* fee 2)))
 
-    (dialog-await-y/n)
+    (dialog-await-binary-q "ok!" "no thanks")
 
     (defn on-dialog-accepted
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))

@@ -49,7 +49,7 @@
       (lambda
         (dialog
          "<c:banana man:8>Waaa! My precious b'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?")
-        (dialog-await-binary-q "Of course!" "I'm kind of busy...")
+        (dialog-await-binary-q "of course!" "I'm kind of busy…")
 
         (setq on-dialog-accepted
               (lambda

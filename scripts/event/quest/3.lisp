@@ -15,7 +15,7 @@
   (dialog
    "<c:chauffeur:11>Hey man, I was supposed to pick up a whole bunch of people and give em a lift outa here, but the skies've been crawling with goblins ever since these storm clouds started rollin' in, I don't think I can make it there in time. You've got a big, powerful fortress, wanna help a fella out?")
 
-  (dialog-await-y/n))
+  (dialog-await-binary-q "I accept!" "I'm kind of busy…"))
 
 
 (defn on-dialog-accepted

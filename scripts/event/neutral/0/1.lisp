@@ -29,7 +29,7 @@
 (setq on-converge
       (lambda
         (dialog "<c:redbeard:12>Aarrrgh!! You're tresspassing in my domain. Gimme 600@ or I'll blast your island to bits!")
-        (dialog-await-y/n)
+        (dialog-await-binary-q "here's the money…" "never!")
         (setq on-converge nil)))
 
 
