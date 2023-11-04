@@ -45,13 +45,7 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
-#include "skyland/entity/projectile/arcBolt.hpp"
-#include "skyland/entity/projectile/cannonball.hpp"
-#include "skyland/entity/projectile/decimatorBurst.hpp"
-#include "skyland/entity/projectile/flak.hpp"
-#include "skyland/entity/projectile/ionBurst.hpp"
-#include "skyland/entity/projectile/missile.hpp"
-#include "skyland/entity/projectile/nemesisBlast.hpp"
+#include "skyland/rooms/weapon.hpp"
 #include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
@@ -517,6 +511,35 @@ static const lisp::Binding script_api[] = {
          for (auto& room : interp_get_app()->player_island().rooms()) {
              room->set_group(Room::Group::none);
          }
+         return L_NIL;
+     }},
+    {"emit",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 5);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, integer);
+         L_EXPECT_OP(3, integer);
+         L_EXPECT_OP(4, user_data);
+
+         auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+         u8 x1 = L_LOAD_INT(3);
+         u8 y1 = L_LOAD_INT(2);
+         u8 x2 = L_LOAD_INT(1);
+         u8 y2 = L_LOAD_INT(0);
+
+         auto [app, pfrm] = interp_get_context();
+
+         if (auto room = island->get_room({x1, y1})) {
+             if ((*room->metaclass())->category() == Room::Category::weapon) {
+                 room->set_target(*pfrm, *app, {x2, y2}, false);
+                 if (not str_eq(room->name(), "decimator")) {
+                     ((Weapon*)room)->fire(*pfrm, *app);
+                 }
+                 room->unset_target(*pfrm, *app);
+             }
+         }
+
          return L_NIL;
      }},
     {"groups-add",

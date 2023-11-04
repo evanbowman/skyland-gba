@@ -206,6 +206,20 @@ o----------------------------o
 
 o----------------------------o
 
+ (emit isle
+       x1
+       y1
+       x2
+       y2)
+
+ Causes a given weapon at pos
+ x1 y1 to emit its projectile,
+ aimed at x2 y2, ignoring
+ weapon reload timing.
+
+
+o----------------------------o
+
  (eval-file path)
 
  Evaluate code in another

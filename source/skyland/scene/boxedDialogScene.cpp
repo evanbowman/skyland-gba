@@ -139,6 +139,12 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         break;
     }
 
+    case 'B': {
+        parse_command_int();
+        halt_text_ = true;
+        break;
+    }
+
     case 'b': {
         const auto bkg_name = parse_command_str();
         pfrm.screen().set_shader(passthrough_shader);
@@ -257,6 +263,10 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
             }
             if (*text_state_.current_word_ == '<') {
                 process_command(pfrm, app);
+            }
+            if (halt_text_) {
+                halt_text_ = false;
+                return false;
             }
             if (text_state_.timer_ < 0) {
                 return true;

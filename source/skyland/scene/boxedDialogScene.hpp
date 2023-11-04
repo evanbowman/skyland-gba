@@ -118,6 +118,7 @@ private:
     DisplayMode display_mode_ = DisplayMode::animate_in;
 
     TextWriterState text_state_;
+    bool halt_text_ = false;
 
     DialogBuffer buffer_;
 
