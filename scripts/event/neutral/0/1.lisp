@@ -44,8 +44,8 @@
                         (emit (opponent) 0 14 (terrain (player)) 0))
 
                       (defn cb3
-                        (dialog "<c:redbeard:12>Yaargh!! I'm just a simple pirate, trying to earn a decent living here! <B:0> So what's it gonna be? Last chance...")
-                        (dialog-await-binary-q "pay 600@" "fight")
+                        (dialog "<c:redbeard:12>Yaargh!! I'm just a simple marauder, trying to earn a decent living here! <B:0> So what's it gonna be? Last chance...")
+                        (dialog-await-binary-q "pay 600@" "fight back")
                         (unbind 'cb0 'cb1 'cb2 'cb3))
 
                       (on-timeout 400 'cb0)
