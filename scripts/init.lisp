@@ -73,3 +73,6 @@
   (dialog-opts-reset)
   (dialog-opts-push $0 (lambda (if on-dialog-accepted (on-dialog-accepted))))
   (dialog-opts-push $1 (lambda (if on-dialog-declined (on-dialog-declined)))))
+
+;; For backwards compatibility...
+(defn/c repl (push-menu "repl" '()))

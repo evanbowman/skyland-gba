@@ -88,6 +88,7 @@ public:
 
     bool disable_backdrop_ = false;
     bool inspect_ = false;
+    bool disable_fade_on_exit_ = false;
 
 private:
     void load_page(Platform& pfrm, int page);

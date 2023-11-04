@@ -26,14 +26,7 @@
 #ifndef __TEST__
 #include "platform.hpp"
 #endif
-
-#if defined(__NDS__)
-#define HEAP_DATA
-#elif defined(__GBA__)
-#define HEAP_DATA __attribute__((section(".ewram")))
-#else
-#define HEAP_DATA
-#endif
+#include "heap_data.hpp"
 
 
 

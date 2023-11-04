@@ -29,10 +29,8 @@
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
-#include "itemShopScene.hpp"
 #include "keyComboScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
-#include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
 #include "moveRoomScene.hpp"
 #include "notificationScene.hpp"
@@ -45,8 +43,10 @@
 #include "selectWeaponGroupScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/script_defs.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
@@ -456,9 +456,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (state_bit_load(app, StateBit::open_item_shop)) {
-        state_bit_store(app, StateBit::open_item_shop, false);
-        return scene_pool::alloc<ItemShopScene>();
+    if (auto next = process_script_menu_request()) {
+        return next;
     }
 
     if (app.game_mode() == App::GameMode::adventure or
@@ -684,12 +683,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                                                cursor_loc)) {
             return scene;
         }
-    }
-
-    if (not pfrm.network_peer().is_connected() and
-        state_bit_load(app, StateBit::launch_repl)) {
-        state_bit_store(app, StateBit::launch_repl, false);
-        return scene_pool::alloc<LispReplScene>();
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {

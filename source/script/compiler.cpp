@@ -144,6 +144,8 @@ int compile_quoted(CompilerContext& ctx,
 
         auto inst = append<instruction::PushList>(buffer, write_pos);
         inst->element_count_ = list_len;
+    } else if (code->type() == Value::Type::nil) {
+        append<instruction::PushNil>(buffer, write_pos);
     }
 
     return write_pos;
@@ -410,7 +412,6 @@ int compile_impl(CompilerContext& ctx,
 
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "'")) {
-
             write_pos = compile_quoted(
                 ctx, buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and

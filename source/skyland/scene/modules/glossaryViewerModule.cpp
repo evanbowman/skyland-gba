@@ -187,6 +187,10 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.fill_overlay(0);
 
+    if (disable_fade_on_exit_) {
+        pfrm.screen().schedule_fade(0);
+    }
+
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 

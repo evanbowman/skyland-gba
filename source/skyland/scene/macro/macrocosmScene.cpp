@@ -83,11 +83,6 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         screenshake = 0;
     }
 
-    if (state_bit_load(app, StateBit::launch_repl)) {
-        state_bit_store(app, StateBit::launch_repl, false);
-        return scene_pool::alloc<LispReplScene>();
-    }
-
     const auto exit_cond = app.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
         app.exit_condition() = App::ExitCondition::none;

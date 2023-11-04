@@ -35,6 +35,7 @@
 #include "selectMenuScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/script_defs.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 
@@ -362,10 +363,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (not pfrm.network_peer().is_connected() and
-        state_bit_load(app, StateBit::launch_repl)) {
-        state_bit_store(app, StateBit::launch_repl, false);
-        return scene_pool::alloc<LispReplScene>();
+    if (auto next = process_script_menu_request()) {
+        return next;
     }
 
     if (describe_room_timer_ > 0) {

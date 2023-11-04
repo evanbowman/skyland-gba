@@ -237,16 +237,6 @@ o----------------------------o
 
 o----------------------------o
 
- (item-shop)
-
- Open the item shop prompt.
- You need to set the
- shop-items variable first.
- See shop.lisp for examples.
-
-
-o----------------------------o
-
  (key-bind str symbol)
 
  While the game does not
@@ -390,6 +380,40 @@ o----------------------------o
 
  1: serve a command line over
     uart, at 9600 baud.
+
+
+o----------------------------o
+
+ (push-menu menu-name-str params)
+
+ Allows you to open up certain
+ game menus. Multiple
+ sequential push-menu calls
+ will push requests to a
+ queue, such that subsequent
+ requests will be processed
+ after the requested menu
+ is closed.
+
+ An additional parameter may
+ be passed to push-menu for
+ certain menus. See below:
+
+ Menu names:
+ "item-shop", no params
+ "glossary", room type symbol
+ "repl", no params
+ "construction", no params
+ "qrcode", string to encode
+
+ For example:
+ (push-menu "glossary" '(hull))
+ (push-menu "item-shop" '())
+
+ etc. See scripts for details.
+ NOTE: the item-shop menu
+ expects the global shop-items
+ variable to be assigned.
 
 
 o----------------------------o

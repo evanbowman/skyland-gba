@@ -22,7 +22,7 @@
         (setq on-dialog-closed
               (lambda
                 (dialog "<c:goblin king:3>#cackle# minionsss, pepare for boarding!")
-                (setq on-dialog-closed '())))))
+                (setq on-dialog-closed nil)))))
 
 
 

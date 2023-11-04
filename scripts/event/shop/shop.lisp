@@ -25,45 +25,57 @@
           (progn
             (dialog "Hah! You can't afford that!")
             (defn on-dialog-closed
-              (item-shop)))
+              (push-menu "item-shop" '())))
         (progn
           (dialog
            "<c:shopkeeper:7>"
            name
            (format "? I'll sell you one for %@..." (get info 1)))
-          (dialog-await-y/n)
 
-          (defn on-dialog-accepted
-            (coins-add (* -1 (get info 1)))
-            (adventure-log-add 50 (list name (get info 1)))
+          (dialog-opts-reset)
 
-            (sel-input (get info 0)
-                       "pick a slot:"
-                       (lambda
-                         (room-new (player) (list (get info 0) $1 $2))
-                         (sound "build0")
+          (dialog-opts-push
+           "I'll buy it!"
+           (lambda
+             (coins-add (* -1 (get info 1)))
+             (adventure-log-add 50 (list name (get info 1)))
 
-                         (setq shop-items
-                               (filter
-                                (lambda
-                                  (> (get $0 2) 0))
-                                (replace
-                                 shop-items
-                                 info
-                                 (list (car info)
-                                       (get info 1)
-                                       (- (get info 2) 1)
-                                       (get info 2)))))
+             (sel-input (get info 0)
+                        "pick a slot:"
+                        (lambda
+                          (room-new (player) (list (get info 0) $1 $2))
+                          (sound "build0")
 
-                         (if shop-items
-                             (item-shop)
-                           (progn
-                             (dialog
-                              "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? WE'RE CLOSED.")
-                             (exit))))))
+                          (setq shop-items
+                                (filter
+                                 (lambda
+                                   (> (get $0 2) 0))
+                                 (replace
+                                  shop-items
+                                  info
+                                  (list (car info)
+                                        (get info 1)
+                                        (- (get info 2) 1)
+                                        (get info 2)))))
 
-          (defn on-dialog-declined
-            (item-shop)))))))
+                          (if shop-items
+                              (push-menu "item-shop" '())
+                            (progn
+                              (dialog
+                               "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? WE'RE CLOSED.")
+                              (exit)))))))
+
+          (dialog-opts-push (if (> (length name) 13)
+                                ;; use alternate text for long block names
+                                (string name " stats?")
+                              (format "describe %" name))
+                            (lambda
+                              (push-menu "glossary" (list (car info)))
+                              (push-menu "item-shop" '())))
+
+          (dialog-opts-push "no thanks…"
+                            (lambda
+                              (push-menu "item-shop" '()))))))))
 
 
 (defn on-fadein
@@ -72,7 +84,7 @@
    "(when done, use the start menu to return to your sky chart)")
 
   (defn on-dialog-closed
-    (item-shop)))
+    (push-menu "item-shop" '())))
 
 
 (island-configure

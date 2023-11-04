@@ -23,21 +23,13 @@
 #include "lisp.hpp"
 #include "allocator.hpp"
 #include "bytecode.hpp"
+#include "heap_data.hpp"
 #include "listBuilder.hpp"
 #include "localization.hpp"
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include "number/random.hpp"
 #include <complex>
-#if defined(__NDS__)
-#define HEAP_DATA
-#elif defined(__GBA__)
-#define HEAP_DATA __attribute__((section(".ewram")))
-#else
-#include <fstream>
-#include <iostream>
-#define HEAP_DATA
-#endif
 
 
 namespace lisp {

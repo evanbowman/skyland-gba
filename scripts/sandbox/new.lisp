@@ -12,7 +12,7 @@
 (coins-set (get conf 0))
 (terrain (player) (get conf 1))
 
-(setq chr-names '())
+(setq chr-names nil)
 
 
 (defn sb-help

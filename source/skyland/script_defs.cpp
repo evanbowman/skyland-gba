@@ -25,6 +25,7 @@
 #include "configure_island.hpp"
 #include "dataCart.hpp"
 #include "eternal/eternal.hpp"
+#include "heap_data.hpp"
 #include "macrocosmEngine.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
@@ -36,6 +37,8 @@
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
+#include "scene/qrViewerScene.hpp"
+#include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
@@ -49,6 +52,9 @@
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
+#include "skyland/scene/itemShopScene.hpp"
+#include "skyland/scene/lispReplScene.hpp"
+#include "skyland/scene/modules/glossaryViewerModule.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
@@ -436,6 +442,22 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
 
 
 
+static HEAP_DATA Buffer<DeferredScene, 8> push_menu_queue;
+
+
+
+ScenePtr<Scene> process_script_menu_request()
+{
+    if (not push_menu_queue.empty()) {
+        auto req = std::move(*push_menu_queue.begin());
+        push_menu_queue.erase(push_menu_queue.begin());
+        return req();
+    }
+    return null_scene();
+}
+
+
+
 static const lisp::Binding script_api[] = {
     {"player",
      [](int argc) {
@@ -529,12 +551,6 @@ static const lisp::Binding script_api[] = {
          lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 1);
          return L_NIL;
      }},
-    {"repl",
-     [](int argc) {
-         auto app = interp_get_app();
-         state_bit_store(*app, StateBit::launch_repl, true);
-         return L_NIL;
-     }},
     {"diff",
      [](int argc) {
          auto app = interp_get_app();
@@ -571,11 +587,48 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"item-shop",
+    {"push-menu",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 0);
-         auto& app = *interp_get_app();
-         state_bit_store(app, StateBit::open_item_shop, true);
+         L_EXPECT_ARGC(argc, 2);
+         // L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, string);
+
+         auto menu_name = L_LOAD_STRING(1);
+         auto param_list = lisp::get_op(0);
+
+         using scene_pool::make_deferred_scene;
+
+         if (str_eq(menu_name, "item-shop")) {
+             push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());
+         } else if (str_eq(menu_name, "glossary")) {
+             auto sym = param_list->cons().car()->symbol().name();
+             push_menu_queue.push_back([sym]() {
+                 auto idx = metaclass_index(sym);
+                 auto ret = scene_pool::alloc<GlossaryViewerModule>(idx);
+                 ret->set_next_scene(make_deferred_scene<ReadyScene>());
+                 ret->skip_categories();
+                 ret->disable_fade_on_exit_ = true;
+                 return ret;
+             });
+         } else if (str_eq(menu_name, "repl")) {
+             push_menu_queue.push_back(make_deferred_scene<LispReplScene>());
+         } else if (str_eq(menu_name, "construction")) {
+             push_menu_queue.push_back(
+                 make_deferred_scene<ConstructionScene>());
+         } else if (str_eq(menu_name, "qrcode")) {
+             lisp::Protected str_param(param_list->cons().car());
+             push_menu_queue.push_back([str_param]() mutable {
+                 auto next = scene_pool::alloc<QRViewerScene>(
+                     str_param->string().value(),
+                     "",
+                     make_deferred_scene<ReadyScene>(),
+                     ColorConstant::rich_black);
+                 next->set_origin_overworld();
+                 return next;
+             });
+         } else {
+             Platform::fatal(format("unknown menu %", menu_name));
+         }
          return L_NIL;
      }},
     {"mcr-block",
