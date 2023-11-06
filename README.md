@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="gba_jam_2021/imgs_for_readme/title.png"/>
+  <img src="imgs_for_readme/title.png"/>
 </p>
 
 <p align="center">
-  <img src="gba_jam_2021/imgs_for_readme/menu.png"/>
+  <img src="imgs_for_readme/menu.png"/>
 </p>
 
 # SKYLAND
@@ -11,11 +11,11 @@
 A realtime strategy game for Gameboy Advance.
 
 <p align="center">
-  <img src="gba_jam_2021/imgs_for_readme/cover.png"/>
+  <img src="imgs_for_readme/cover.png"/>
 </p>
 
 <p align="center">
-  <img src="gba_jam_2021/imgs_for_readme/macro.png"/>
+  <img src="imgs_for_readme/macro.png"/>
 </p>
 
 # Overview
