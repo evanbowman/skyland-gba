@@ -20,23 +20,11 @@ A realtime strategy game for Gameboy Advance.
 
 # Overview
 
+## Introduction
 
+A detailed RTS game for GBA, inspired by FTL. Created in a couple of weeks for a game jam, and then improved over the course of a few years.
 
-## Building
-
-1) Install all of the standard devkitpro libgba stuff.
-2) Make sure you have python3 and the PIP image library
-3) Install cmake
-4) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
-5) run ./build.sh
-
-
-# Modding (no C++ toolchain required!)
-
-I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in modding/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. The encode_files.py script in the extracted tools/ directory repacks the filesystem into a file called fs.bin. Then, simply run `cat SkylandEngine.gba fs.bin > Skyland.gba` to repackage the gba game. Skyland uses unicode internally, and you'll find much of the menu text in strings/strings.txt. You'll find the rest of the text scattered throughout the lisp scripts. See help/localization.txt for more info.
-
-
-# Features
+## Features
 
 Skyland is jam-packed with stuff, some of the highlights:
 * Roguelike Adventure mode, some similarities to FTL
@@ -56,11 +44,21 @@ Skyland is jam-packed with stuff, some of the highlights:
 * Builtin glossary system
 * Extensive help documentation for the scripting API
 
+## Building
+
+1) Install all of the standard devkitpro libgba stuff.
+2) Make sure you have python3 and the PIP image library
+3) Install cmake
+4) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
+5) run ./build.sh
+
+# Modding (no C++ toolchain required!)
+
+I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in modding/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. The encode_files.py script in the extracted tools/ directory repacks the filesystem into a file called fs.bin. Then, simply run `cat SkylandEngine.gba fs.bin > Skyland.gba` to repackage the gba game. Skyland uses unicode internally, and you'll find much of the menu text in strings/strings.txt. You'll find the rest of the text scattered throughout the lisp scripts. See help/localization.txt for more info.
 
 # License
 
 All artwork and music assets are proprietary. I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
-
 
 ## Coding Standards
 
