@@ -1,15 +1,25 @@
+<p align="center">
+  <img src="gba_jam_2021/imgs_for_readme/title.png"/>
+</p>
+
+<p align="center">
+  <img src="gba_jam_2021/imgs_for_readme/menu.png"/>
+</p>
+
 # SKYLAND
 
+A realtime strategy game for Gameboy Advance.
 
-## Overview
+<p align="center">
+  <img src="gba_jam_2021/imgs_for_readme/cover.png"/>
+</p>
 
-<img src="imgs_for_readme/header.png"/>
+<p align="center">
+  <img src="gba_jam_2021/imgs_for_readme/macro.png"/>
+</p>
 
-The production version of SKYLAND for gameboy advance.
+# Overview
 
-<img src="imgs_for_readme/dialog.png"/>
-
-<img src="imgs_for_readme/macro.png"/>
 
 
 ## Building
@@ -20,10 +30,37 @@ The production version of SKYLAND for gameboy advance.
 4) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
 5) run ./build.sh
 
-## License
 
-All artwork and music assets are proprietary.
-I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
+# Modding (no C++ toolchain required!)
+
+I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in modding/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. The encode_files.py script in the extracted tools/ directory repacks the filesystem into a file called fs.bin. Then, simply run `cat SkylandEngine.gba fs.bin > Skyland.gba` to repackage the gba game. Skyland uses unicode internally, and you'll find much of the menu text in strings/strings.txt. You'll find the rest of the text scattered throughout the lisp scripts. See help/localization.txt for more info.
+
+
+# Features
+
+Skyland is jam-packed with stuff, some of the highlights:
+* Roguelike Adventure mode, some similarities to FTL
+* Isometric 3d island building macrocosm mode, with freebuild creative mode
+* VS multiplayer and Co-op multiplayer modes
+* Skyland Forever, a procedurally generated endless arcade mode
+* Share macrocosm islands and adventure mode highscores on skylandgame.io by scanning QR codes
+* An integrated lisp interpreter
+* Uart serial console, serves a shell or a lisp repl over the link cable port in developer mode
+* Builtin filesystem and text editor, as well as onscreen lisp repl, available in developer mode
+* A checkers AI
+* A robust event-driven game engine with support for fast-forwarding and even rewinding gameplay
+* Scriptable button combos in lisp, similar to emacs keybindings
+* A builtin Unicode engine, with support for English, Spanish, French, Italian, Russian, and over 2000 Chinese words
+* A scriptable tutorial system
+* Support for saving on several types of bootleg flashcarts
+* Builtin glossary system
+* Extensive help documentation for the scripting API
+
+
+# License
+
+All artwork and music assets are proprietary. I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
+
 
 ## Coding Standards
 
