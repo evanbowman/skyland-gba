@@ -164,7 +164,9 @@ void CreateBlockScene::exit(Platform& pfrm,
 terrain::Cost CreateBlockScene::cost(macro::EngineImpl& state, terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
-        return terrain::Cost{};
+        auto result = terrain::Cost{};
+        result.productivity_ = 0;
+        return result;
     }
     return terrain::cost(t);
 }
@@ -577,13 +579,14 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
         auto cost = this->cost(state, options_[selector_]);
 
         auto& p = state.data_->p();
-        if (cost.stone_ > p.stone_.get() or cost.lumber_ > p.lumber_.get() or
-            cost.water_ > p.water_.get() or cost.crystal_ > p.crystal_.get() or
-            cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
-            cost.productivity_ > state.sector().productivity()) {
+        if (not state.data_->freebuild_mode_ and
+            (cost.stone_ > p.stone_.get() or cost.lumber_ > p.lumber_.get() or
+             cost.water_ > p.water_.get() or cost.crystal_ > p.crystal_.get() or
+             cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
+             cost.productivity_ > state.sector().productivity())) {
             pfrm.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<InsufficentResourcesScene>(state, cost);
-        } else {
+        } else if (not state.data_->freebuild_mode_) {
             auto prod = state.sector().productivity();
             prod -= cost.productivity_;
             state.sector().set_productivity(prod);
