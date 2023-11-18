@@ -146,7 +146,7 @@ inline constexpr auto make_rotation_lut(float v)
             auto off = detail::rotv({1.f, 0}, curr);
             return Vec2<Fixnum>{Fixnum(off.x), Fixnum(off.y)};
         });
-};
+}
 
 
 

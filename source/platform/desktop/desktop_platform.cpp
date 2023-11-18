@@ -367,13 +367,13 @@ public:
 };
 
 
-static Platform* platform = nullptr;
+Platform* __platform__ = nullptr;
 
 
 
 Platform& Platform::instance()
 {
-    return *platform;
+    return *__platform__;
 }
 
 
@@ -516,7 +516,7 @@ void Platform::Keyboard::poll()
             break;
 
         case sf::Event::Closed:
-            ::platform->data()->window_.close();
+            PLATFORM.data()->window_.close();
             break;
 
         case sf::Event::KeyPressed:
@@ -546,8 +546,7 @@ void Platform::Keyboard::poll()
         // FIXME: It may be undefined behavior to handle joystick events on the
         // non-main thread...
         case sf::Event::JoystickConnected: {
-            info(*::platform,
-                 ("joystick " +
+            info(("joystick " +
                   std::to_string(event.joystickConnect.joystickId) +
                   " connected")
                      .c_str());
@@ -555,8 +554,7 @@ void Platform::Keyboard::poll()
         }
 
         case sf::Event::JoystickDisconnected: {
-            info(*::platform,
-                 ("joystick " +
+            info(("joystick " +
                   std::to_string(event.joystickConnect.joystickId) +
                   " disconnected")
                      .c_str());
@@ -615,7 +613,7 @@ const Platform::Screen::Touch* Platform::Screen::touch() const
 
 Vec2<u32> Platform::Screen::size() const
 {
-    const auto data = ::platform->data();
+    const auto data = PLATFORM.data();
     return {data->window_size_.x / data->window_scale_,
             data->window_size_.y / data->window_scale_};
 }
@@ -673,7 +671,7 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
         }
     }
 
-    warning(*this, "Failed to allocate DynamicTexture.");
+    warning("Failed to allocate DynamicTexture.");
     return {};
 }
 
@@ -681,16 +679,15 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 
 void Platform::Screen::clear()
 {
-    auto& window = ::platform->data()->window_;
-    auto& rt = ::platform->data()->rt_;
+    auto& window = PLATFORM.data()->window_;
+    auto& rt = PLATFORM.data()->rt_;
     window.clear(sf::Color(95, 168, 234));
     rt.clear(sf::Color(95, 168, 234));
 
-    ::platform->data()->fade_overlay_.setFillColor(
-        ::platform->data()->fade_color_);
+    PLATFORM.data()->fade_overlay_.setFillColor(PLATFORM.data()->fade_color_);
 
     {
-        auto& sounds = ::platform->data()->sounds_;
+        auto& sounds = PLATFORM.data()->sounds_;
         for (auto it = sounds.begin(); it not_eq sounds.end();) {
             if (it->getStatus() == sf::Sound::Status::Stopped) {
                 it = sounds.erase(it);
@@ -711,20 +708,18 @@ void Platform::Screen::clear()
 
             if (not image.loadFromFile(image_folder + request.second +
                                        ".png")) {
-                error(*::platform,
-                      (std::string("failed to load texture ") + request.second)
+                error((std::string("failed to load texture ") + request.second)
                           .c_str());
                 exit(EXIT_FAILURE);
             } else {
-                info(*::platform,
-                     (std::string("loaded image ") + request.second).c_str());
+                info((std::string("loaded image ") + request.second).c_str());
             }
             image.createMaskFromColor({255, 0, 255, 255});
 
             if (request.first == TextureSwap::overlay) {
-                platform->data()->current_overlay_image_.create(
+                PLATFORM.data()->current_overlay_image_.create(
                     image.getSize().x, image.getSize().y);
-                ::platform->data()->current_overlay_image_.copy(
+                PLATFORM.data()->current_overlay_image_.copy(
                     image,
                     0,
                     0,
@@ -742,22 +737,22 @@ void Platform::Screen::clear()
             if (not [&] {
                     switch (request.first) {
                     case TextureSwap::spritesheet:
-                        return &::platform->data()->spritesheet_texture_;
+                        return &PLATFORM.data()->spritesheet_texture_;
 
                     case TextureSwap::tile0:
-                        return &::platform->data()->tile0_texture_;
+                        return &PLATFORM.data()->tile0_texture_;
 
                     case TextureSwap::tile1:
-                        return &::platform->data()->tile1_texture_;
+                        return &PLATFORM.data()->tile1_texture_;
 
                     case TextureSwap::overlay:
-                        return &::platform->data()->overlay_texture_;
+                        return &PLATFORM.data()->overlay_texture_;
                     }
-                    error(*::platform, "invalid texture swap enumeration");
-                    ::platform->fatal("invalid texture swap enumeration");
+                    error("invalid texture swap enumeration");
+                    PLATFORM.fatal("invalid texture swap enumeration");
                 }()
                         ->loadFromImage(image)) {
-                error(*::platform, "Failed to create texture");
+                error("Failed to create texture");
                 exit(EXIT_FAILURE);
             }
         }
@@ -878,17 +873,17 @@ void Platform::Screen::display()
     sf::View view;
     view.setSize(view_.get_size().x, view_.get_size().y);
 
-    const bool fade_overlay = ::platform->data()->fade_include_overlay_;
+    const bool fade_overlay = PLATFORM.data()->fade_include_overlay_;
 
 
     sf::View fixed_view;
     fixed_view = get_letterbox_view(view,
-                                    ::platform->data()->window_.getSize().x,
-                                    ::platform->data()->window_.getSize().y);
+                                    PLATFORM.data()->window_.getSize().x,
+                                    PLATFORM.data()->window_.getSize().y);
 
     fixed_view.setCenter({view_.get_size().x / 2, view_.get_size().y / 2});
 
-    auto& window = ::platform->data()->window_;
+    auto& window = PLATFORM.data()->window_;
     window.setView(fixed_view);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -896,20 +891,20 @@ void Platform::Screen::display()
     // Draw map layer 1
     //
 
-    if (::platform->data()->map_1_changed_) {
-        ::platform->data()->map_1_changed_ = false;
-        ::platform->data()->map_1_rt_.clear(sf::Color::Transparent);
-        ::platform->data()->map_1_rt_.draw(::platform->data()->map_1_[0]);
+    if (PLATFORM.data()->map_1_changed_) {
+        PLATFORM.data()->map_1_changed_ = false;
+        PLATFORM.data()->map_1_rt_.clear(sf::Color::Transparent);
+        PLATFORM.data()->map_1_rt_.draw(PLATFORM.data()->map_1_[0]);
         // for (int i = 0; i < 6; ++i) {
-        //     ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[i]);
+        //     PLATFORM.data()->map_0_rt_.draw(PLATFORM.data()->map_0_[i]);
         // }
-        ::platform->data()->map_1_rt_.display();
+        PLATFORM.data()->map_1_rt_.display();
     }
 
-    sf::Sprite map1(::platform->data()->map_1_rt_.getTexture());
+    sf::Sprite map1(PLATFORM.data()->map_1_rt_.getTexture());
     map1.setPosition(
-        -(::platform->data()->map_1_xscroll_ + view_.get_center().x),
-        wrap_y(-(::platform->data()->map_1_yscroll_ + view_.get_center().y)));
+        -(PLATFORM.data()->map_1_xscroll_ + view_.get_center().x),
+        wrap_y(-(PLATFORM.data()->map_1_yscroll_ + view_.get_center().y)));
     window.draw(map1);
 
 
@@ -918,21 +913,19 @@ void Platform::Screen::display()
     // Draw map layer 0
     //
 
-    if (::platform->data()->map_0_changed_) {
-        ::platform->data()->map_0_changed_ = false;
-        ::platform->data()->map_0_rt_.clear(sf::Color::Transparent);
-        ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[0]);
+    if (PLATFORM.data()->map_0_changed_) {
+        PLATFORM.data()->map_0_changed_ = false;
+        PLATFORM.data()->map_0_rt_.clear(sf::Color::Transparent);
+        PLATFORM.data()->map_0_rt_.draw(PLATFORM.data()->map_0_[0]);
         // for (int i = 0; i < 6; ++i) {
-        //     ::platform->data()->map_0_rt_.draw(::platform->data()->map_0_[i]);
+        //     PLATFORM.data()->map_0_rt_.draw(PLATFORM.data()->map_0_[i]);
         // }
-        ::platform->data()->map_0_rt_.display();
+        PLATFORM.data()->map_0_rt_.display();
     }
 
-    sf::Sprite map0(::platform->data()->map_0_rt_.getTexture());
-    int m0_xscroll =
-        -(::platform->data()->map_0_xscroll_ + view_.get_center().x);
-    int m0_yscroll =
-        -(::platform->data()->map_0_yscroll_ + view_.get_center().y);
+    sf::Sprite map0(PLATFORM.data()->map_0_rt_.getTexture());
+    int m0_xscroll = -(PLATFORM.data()->map_0_xscroll_ + view_.get_center().x);
+    int m0_yscroll = -(PLATFORM.data()->map_0_yscroll_ + view_.get_center().y);
     m0_yscroll = wrap_y(m0_yscroll);
     // std::cout << m0_yscroll << std::endl;
     map0.setPosition(m0_xscroll, m0_yscroll);
@@ -940,7 +933,7 @@ void Platform::Screen::display()
 
 
     if (not fade_overlay) {
-        window.draw(::platform->data()->fade_overlay_);
+        window.draw(PLATFORM.data()->fade_overlay_);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -966,7 +959,7 @@ void Platform::Screen::display()
                             wrap_y(pos.y.as_float() - view_.get_center().y)});
 
         sf_spr.setScale({flip.x ? -1.f : 1.f, flip.y ? -1.f : 1.f});
-        sf_spr.setTexture(::platform->data()->spritesheet_texture_);
+        sf_spr.setTexture(PLATFORM.data()->spritesheet_texture_);
 
         switch (const auto ind = spr.get_texture_index(); spr.get_size()) {
         default: // FIXME...
@@ -994,7 +987,7 @@ void Platform::Screen::display()
 
         if (const auto& mix = spr.get_mix();
             mix.color_ not_eq ColorConstant::null) {
-            sf::Shader& shader = ::platform->data()->color_shader_;
+            sf::Shader& shader = PLATFORM.data()->color_shader_;
             shader.setUniform("amount", mix.amount_ / 255.f);
             shader.setUniform("targetColor", real_color(mix.color_));
             window.draw(sf_spr, &shader);
@@ -1009,12 +1002,12 @@ void Platform::Screen::display()
     // Draw overlay
     //
 
-    auto& origin = ::platform->data()->overlay_origin_;
+    auto& origin = PLATFORM.data()->overlay_origin_;
     fixed_view.setCenter(
         {view_.get_size().x / 2 + origin.x, view_.get_size().y / 2 + origin.y});
 
     window.setView(fixed_view);
-    window.draw(::platform->data()->overlay_);
+    window.draw(PLATFORM.data()->overlay_);
 
 
     fixed_view.setCenter({view_.get_size().x / 2, view_.get_size().y / 2});
@@ -1022,13 +1015,18 @@ void Platform::Screen::display()
     window.setView(fixed_view);
 
     if (fade_overlay) {
-        window.draw(::platform->data()->fade_overlay_);
+        window.draw(PLATFORM.data()->fade_overlay_);
     }
 
     window.display();
 
     draw_queue.clear();
 }
+
+
+
+static bool fade_is_active = false;
+
 
 
 void Platform::Screen::fade(Float amount,
@@ -1039,16 +1037,18 @@ void Platform::Screen::fade(Float amount,
 {
     const auto c = real_color(k);
 
+    fade_is_active = amount > 0;
+
     if (not base) {
-        ::platform->data()->fade_color_ = {static_cast<uint8_t>(c.x * 255),
-                                           static_cast<uint8_t>(c.y * 255),
-                                           static_cast<uint8_t>(c.z * 255),
-                                           static_cast<uint8_t>(amount * 255)};
-        ::platform->data()->fade_include_sprites_ = include_sprites;
-        ::platform->data()->fade_include_overlay_ = include_overlay;
+        PLATFORM.data()->fade_color_ = {static_cast<uint8_t>(c.x * 255),
+                                        static_cast<uint8_t>(c.y * 255),
+                                        static_cast<uint8_t>(c.z * 255),
+                                        static_cast<uint8_t>(amount * 255)};
+        PLATFORM.data()->fade_include_sprites_ = include_sprites;
+        PLATFORM.data()->fade_include_overlay_ = include_overlay;
     } else {
         const auto c2 = real_color(*base);
-        ::platform->data()->fade_color_ = {
+        PLATFORM.data()->fade_color_ = {
             interpolate(static_cast<uint8_t>(c.x * 255),
                         static_cast<uint8_t>(c2.x * 255),
                         amount),
@@ -1060,6 +1060,13 @@ void Platform::Screen::fade(Float amount,
                         amount),
             static_cast<uint8_t>(255)};
     }
+}
+
+
+
+bool Platform::Screen::fade_active() const
+{
+    return fade_is_active;
 }
 
 
@@ -1237,29 +1244,29 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     path += name;
     path += ".ogg";
 
-    if (::platform->data()->music_.openFromFile(path.c_str())) {
-        ::platform->data()->music_.play();
-        ::platform->data()->music_.setLoop(true);
-        ::platform->data()->music_.setPlayingOffset(sf::microseconds(offset));
+    if (PLATFORM.data()->music_.openFromFile(path.c_str())) {
+        PLATFORM.data()->music_.play();
+        PLATFORM.data()->music_.setLoop(true);
+        PLATFORM.data()->music_.setPlayingOffset(sf::microseconds(offset));
         // For desktop releases, we have spatialized sound enabled, such that
         // the sound effects attenuate based on their distance from the center
         // of the screen. The music seems too loud by comparison, so I'm
         // playing the music more quietly than I would on the gameboy advance,
         // where everthing is mono (there's only one speaker on the device, so
         // stereo isn't really worth the resources on the gameboy).
-        ::platform->data()->music_.setVolume(70);
+        PLATFORM.data()->music_.setVolume(70);
 
         ::current_music = name;
 
     } else {
-        error(*::platform, "failed to load music file");
+        error("failed to load music file");
     }
 }
 
 
 void Platform::Speaker::stop_music()
 {
-    ::platform->data()->music_.stop();
+    PLATFORM.data()->music_.stop();
 }
 
 
@@ -1276,13 +1283,13 @@ void Platform::Speaker::play_sound(const char* name,
                     // advance, where I was supporting four concurrent audio
                     // streams.
 
-    // std::lock_guard<std::mutex> guard(::platform->data()->audio_lock_);
-    auto& data = ::platform->data()->sound_data_;
+    // std::lock_guard<std::mutex> guard(PLATFORM.data()->audio_lock_);
+    auto& data = PLATFORM.data()->sound_data_;
     auto found = data.find(name);
     if (found not_eq data.end()) {
-        ::platform->data()->sounds_.emplace_back(found->second);
+        PLATFORM.data()->sounds_.emplace_back(found->second);
 
-        auto& sound = ::platform->data()->sounds_.back();
+        auto& sound = PLATFORM.data()->sounds_.back();
 
         sound.play();
 
@@ -1299,7 +1306,7 @@ void Platform::Speaker::play_sound(const char* name,
         //     sound.setPosition({position->x, 0, position->y});
         // }
     } else {
-        error(*::platform, (std::string("no sound data for ") + name).c_str());
+        error((std::string("no sound data for ") + name).c_str());
     }
 }
 
@@ -1374,8 +1381,7 @@ void Platform::Logger::flush()
         return;
     }
 
-    flash_filesystem::store_file_data_binary(
-        *::platform, "/log.txt", *log_data_);
+    flash_filesystem::store_file_data_binary("/log.txt", *log_data_);
 
     log_data_.reset();
 }
@@ -1392,7 +1398,7 @@ void Platform::walk_filesystem(
 
 void Platform::Logger::log(Severity level, const char* msg)
 {
-    if (::platform == nullptr) {
+    if (::__platform__ == nullptr) {
         return;
     }
 
@@ -1500,13 +1506,13 @@ std::optional<DateTime> Platform::SystemClock::initial_time()
 
 Platform::Platform()
 {
-    ::platform = this;
+    ::__platform__ = this;
 
     // push_task(&::watchdog_task);
 
-    data_ = new Data(*this);
+    data_ = new Data;
     if (not data_) {
-        error(*this, "Failed to allocate context");
+        error("Failed to allocate context");
         exit(EXIT_FAILURE);
     }
 
@@ -1524,7 +1530,7 @@ Platform::Platform()
     if (not data_->color_shader_.loadFromFile(
             shader_folder + std::string("colorShader.frag"),
             sf::Shader::Fragment)) {
-        error(*this, "Failed to load shader");
+        error("Failed to load shader");
     }
     data_->color_shader_.setUniform("texture", sf::Shader::CurrentTexture);
 
@@ -1644,17 +1650,16 @@ void Platform::load_tile0_texture(const char* name)
     auto image_folder = resource_path() + ("images" PATH_DELIMITER);
 
     if (not image.loadFromFile(image_folder + name + ".png")) {
-        error(*::platform,
-              (std::string("failed to load texture ") + name).c_str());
+        error((std::string("failed to load texture ") + name).c_str());
         exit(EXIT_FAILURE);
     } else {
-        info(*::platform, (std::string("loaded image ") + name).c_str());
+        info((std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
 
-    platform->data()->current_tile0_image_.create(image.getSize().x,
-                                                  image.getSize().y);
-    ::platform->data()->current_tile0_image_.copy(
+    PLATFORM.data()->current_tile0_image_.create(image.getSize().x,
+                                                 image.getSize().y);
+    PLATFORM.data()->current_tile0_image_.copy(
         image, 0, 0, {0, 0, (int)image.getSize().x, (int)image.getSize().y});
 
     if (image.getSize().x > 4032) {
@@ -1663,14 +1668,14 @@ void Platform::load_tile0_texture(const char* name)
         replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
         std::swap(image, replacement);
     }
-    if (not ::platform->data()->tile0_texture_.loadFromImage(image)) {
-        error(*::platform, "Failed to create texture");
+    if (not PLATFORM.data()->tile0_texture_.loadFromImage(image)) {
+        error("Failed to create texture");
         exit(EXIT_FAILURE);
     }
 
-    platform->data()->map_0_[0].set_tilesize(image.getSize().y);
+    PLATFORM.data()->map_0_[0].set_tilesize(image.getSize().y);
 
-    ::platform->data()->map_0_changed_ = true;
+    PLATFORM.data()->map_0_changed_ = true;
 }
 
 
@@ -1682,20 +1687,19 @@ void Platform::load_tile1_texture(const char* name)
     auto image_folder = resource_path() + ("images" PATH_DELIMITER);
 
     if (not image.loadFromFile(image_folder + name + ".png")) {
-        error(*::platform,
-              (std::string("failed to load texture ") + name).c_str());
+        error((std::string("failed to load texture ") + name).c_str());
         exit(EXIT_FAILURE);
     } else {
-        info(*::platform, (std::string("loaded image ") + name).c_str());
+        info((std::string("loaded image ") + name).c_str());
     }
     image.createMaskFromColor({255, 0, 255, 255});
 
-    platform->data()->current_tile1_image_.create(image.getSize().x,
-                                                  image.getSize().y);
-    ::platform->data()->current_tile1_image_.copy(
+    PLATFORM.data()->current_tile1_image_.create(image.getSize().x,
+                                                 image.getSize().y);
+    PLATFORM.data()->current_tile1_image_.copy(
         image, 0, 0, {0, 0, (int)image.getSize().x, (int)image.getSize().y});
 
-    platform->data()->map_1_[0].set_tilesize(image.getSize().y);
+    PLATFORM.data()->map_1_[0].set_tilesize(image.getSize().y);
 
     if (image.getSize().x > 4032) {
         sf::Image replacement;
@@ -1703,11 +1707,11 @@ void Platform::load_tile1_texture(const char* name)
         replacement.copy(image, 0, 0, {0, 0, 4032, (int)image.getSize().y});
         std::swap(image, replacement);
     }
-    if (not ::platform->data()->tile1_texture_.loadFromImage(image)) {
-        error(*::platform, "Failed to create texture");
+    if (not PLATFORM.data()->tile1_texture_.loadFromImage(image)) {
+        error("Failed to create texture");
         exit(EXIT_FAILURE);
     }
-    ::platform->data()->map_1_changed_ = true;
+    PLATFORM.data()->map_1_changed_ = true;
 }
 
 
@@ -1718,7 +1722,7 @@ bool Platform::load_overlay_texture(const char* name)
 
     std::ifstream f(image_folder + name + ".png");
     if (not f.good()) {
-        error(*this, format("image % not found!", name));
+        error(format("image % not found!", name));
         return false;
     }
 
@@ -1731,8 +1735,8 @@ bool Platform::load_overlay_texture(const char* name)
         while (not glyph_requests.empty())
             glyph_requests.pop();
     }
-    ::platform->data()->glyph_table_.clear();
-    ::platform->data()->next_glyph_ = glyph_region_start;
+    PLATFORM.data()->glyph_table_.clear();
+    PLATFORM.data()->next_glyph_ = glyph_region_start;
 
     return true;
 }
@@ -1753,24 +1757,24 @@ void Platform::set_tile(Layer layer,
 
     switch (layer) {
     case Layer::overlay:
-        ::platform->data()->overlay_.set_tile(x, y, val);
+        PLATFORM.data()->overlay_.set_tile(x, y, val);
         break;
 
     case Layer::map_0_ext:
     case Layer::map_0:
-        ::platform->data()->map_0_changed_ = true;
-        ::platform->data()->map_0_[0].set_tile(x, y, val);
+        PLATFORM.data()->map_0_changed_ = true;
+        PLATFORM.data()->map_0_[0].set_tile(x, y, val);
         break;
 
     case Layer::map_1_ext:
     case Layer::map_1:
-        ::platform->data()->map_1_changed_ = true;
-        ::platform->data()->map_1_[0].set_tile(x, y, val);
+        PLATFORM.data()->map_1_changed_ = true;
+        PLATFORM.data()->map_1_[0].set_tile(x, y, val);
         break;
 
     case Layer::background:
-        ::platform->data()->background_changed_ = true;
-        ::platform->data()->background_.set_tile(x, y, val);
+        PLATFORM.data()->background_changed_ = true;
+        PLATFORM.data()->background_.set_tile(x, y, val);
         break;
     }
 }
@@ -1798,9 +1802,9 @@ void Platform::fill_overlay(u16 tile_desc)
 
     // std::lock_guard<std::mutex> guard(::tile_swap_mutex);
 
-    for (int i = 0; i < ::platform->data()->overlay_.size().x; ++i) {
-        for (int j = 0; j < ::platform->data()->overlay_.size().y; ++j) {
-            ::platform->data()->overlay_.set_tile(i, j, tile_desc);
+    for (int i = 0; i < PLATFORM.data()->overlay_.size().x; ++i) {
+        for (int j = 0; j < PLATFORM.data()->overlay_.size().y; ++j) {
+            PLATFORM.data()->overlay_.set_tile(i, j, tile_desc);
         }
     }
 }
@@ -1808,7 +1812,7 @@ void Platform::fill_overlay(u16 tile_desc)
 
 void Platform::set_overlay_origin(Float x, Float y)
 {
-    ::platform->data()->overlay_origin_ = {x, y};
+    PLATFORM.data()->overlay_origin_ = {x, y};
 }
 
 
@@ -1827,19 +1831,19 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
     if (not glyph_mode) {
         return 495;
     }
-    auto& glyphs = ::platform->data()->glyph_table_;
+    auto& glyphs = PLATFORM.data()->glyph_table_;
 
     auto found = glyphs.find(mapping.offset_);
     if (found not_eq glyphs.end()) {
         return found->second;
     } else {
-        const auto loc = ::platform->data()->next_glyph_++;
+        const auto loc = PLATFORM.data()->next_glyph_++;
         glyphs[mapping.offset_] = loc;
 
         {
             // This code is so wasteful... so many intermediary images... FIXME.
 
-            auto& texture = ::platform->data()->overlay_texture_;
+            auto& texture = PLATFORM.data()->overlay_texture_;
             auto old_texture_img = texture.copyToImage();
 
             sf::Image new_texture_image;
@@ -1980,7 +1984,7 @@ void Platform::NetworkPeer::disconnect()
     impl->socket_.disconnect();
 
     if (is_connected()) {
-        error(*::platform, "disconnect failed?!");
+        error("disconnect failed?!");
     }
 }
 
@@ -2022,7 +2026,7 @@ bool Platform::NetworkPeer::send_message(const Message& message)
     impl->socket_.send(message.data_, message.length_, sent);
 
     if (sent not_eq message.length_) {
-        warning(*::platform, "part of message not sent!");
+        warning("part of message not sent!");
         return false;
     }
 
@@ -2160,12 +2164,12 @@ Platform::SystemClock::SystemClock()
 
 void Platform::blit_t0_erase(u16 index)
 {
-    ::platform->data()->map_0_changed_ = true;
+    PLATFORM.data()->map_0_changed_ = true;
     int y = index / 30;
     int x = index % 30;
-    ::platform->data()->depth_0_[x][y] = 0;
+    PLATFORM.data()->depth_0_[x][y] = 0;
     for (int i = 0; i < 6; ++i) {
-        ::platform->data()->map_0_[i].set_tile(x, y, 0);
+        PLATFORM.data()->map_0_[i].set_tile(x, y, 0);
     }
 }
 
@@ -2173,12 +2177,12 @@ void Platform::blit_t0_erase(u16 index)
 
 void Platform::blit_t1_erase(u16 index)
 {
-    ::platform->data()->map_1_changed_ = true;
+    PLATFORM.data()->map_1_changed_ = true;
     int y = index / 30;
     int x = index % 30;
-    ::platform->data()->depth_1_[x][y] = 0;
+    PLATFORM.data()->depth_1_[x][y] = 0;
     for (int i = 0; i < 6; ++i) {
-        ::platform->data()->map_1_[i].set_tile(x, y, 0);
+        PLATFORM.data()->map_1_[i].set_tile(x, y, 0);
     }
 }
 
@@ -2187,17 +2191,17 @@ void Platform::blit_t1_erase(u16 index)
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
     return; // FIXME
-    ::platform->data()->map_0_changed_ = true;
+    PLATFORM.data()->map_0_changed_ = true;
     int y = to_index / 30;
     int x = to_index % 30;
     if (hard) {
         blit_t0_erase(to_index);
     }
-    int& d = ::platform->data()->depth_0_[x][y];
+    int& d = PLATFORM.data()->depth_0_[x][y];
     if (d >= 6) {
         return;
     }
-    ::platform->data()->map_0_[d++].set_tile(x, y, from_index);
+    PLATFORM.data()->map_0_[d++].set_tile(x, y, from_index);
 }
 
 
@@ -2205,17 +2209,17 @@ void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
     return; // FIXME
-    ::platform->data()->map_1_changed_ = true;
+    PLATFORM.data()->map_1_changed_ = true;
     int y = to_index / 30;
     int x = to_index % 30;
     if (hard) {
         blit_t1_erase(to_index);
     }
-    int& d = ::platform->data()->depth_1_[x][y];
+    int& d = PLATFORM.data()->depth_1_[x][y];
     if (d >= 6) {
         return;
     }
-    ::platform->data()->map_1_[d++].set_tile(x, y, from_index);
+    PLATFORM.data()->map_1_[d++].set_tile(x, y, from_index);
 }
 
 
@@ -2370,13 +2374,13 @@ Vec2<u16> Platform::get_scroll(Layer layer)
 
     case Layer::map_0_ext:
     case Layer::map_0:
-        return {(u16)::platform->data()->map_0_xscroll_,
-                (u16)::platform->data()->map_0_yscroll_};
+        return {(u16)PLATFORM.data()->map_0_xscroll_,
+                (u16)PLATFORM.data()->map_0_yscroll_};
 
     case Layer::map_1_ext:
     case Layer::map_1:
-        return {(u16)::platform->data()->map_1_xscroll_,
-                (u16)::platform->data()->map_1_yscroll_};
+        return {(u16)PLATFORM.data()->map_1_xscroll_,
+                (u16)PLATFORM.data()->map_1_yscroll_};
     }
 
     return {};
@@ -2397,23 +2401,23 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
         break;
 
     case Layer::map_0_ext:
-        ::platform->data()->map_0_xscroll_ = sx;
-        ::platform->data()->map_0_yscroll_ = sy;
+        PLATFORM.data()->map_0_xscroll_ = sx;
+        PLATFORM.data()->map_0_yscroll_ = sy;
         break;
 
     case Layer::map_1_ext:
-        ::platform->data()->map_1_xscroll_ = sx;
-        ::platform->data()->map_1_yscroll_ = sy;
+        PLATFORM.data()->map_1_xscroll_ = sx;
+        PLATFORM.data()->map_1_yscroll_ = sy;
         break;
 
     case Layer::map_0:
-        ::platform->data()->map_0_xscroll_ = sx;
-        ::platform->data()->map_0_yscroll_ = sy;
+        PLATFORM.data()->map_0_xscroll_ = sx;
+        PLATFORM.data()->map_0_yscroll_ = sy;
         break;
 
     case Layer::map_1:
-        ::platform->data()->map_1_xscroll_ = sx;
-        ::platform->data()->map_1_yscroll_ = sy;
+        PLATFORM.data()->map_1_xscroll_ = sx;
+        PLATFORM.data()->map_1_yscroll_ = sy;
         break;
 
     case Layer::background:
@@ -2424,7 +2428,10 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 
 
 
-void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
+void Platform::load_overlay_chunk(TileDesc dst,
+                                  TileDesc src,
+                                  u16 count,
+                                  const char* image_file)
 {
     auto& texture = data()->overlay_texture_;
     auto texture_img = texture.copyToImage();
@@ -2479,7 +2486,7 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 
     switch (layer) {
     case Layer::overlay:
-        ::platform->data()->overlay_.set_tile(x, y, val);
+        PLATFORM.data()->overlay_.set_tile(x, y, val);
         break;
 
     case Layer::map_0_ext:
@@ -2487,19 +2494,19 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
         break;
 
     case Layer::map_0:
-        ::platform->data()->map_0_changed_ = true;
-        ::platform->data()->map_0_[0].set_tile(x, y, val);
+        PLATFORM.data()->map_0_changed_ = true;
+        PLATFORM.data()->map_0_[0].set_tile(x, y, val);
         // std::cout << "set tile " << x << ", " << y << ", " << val << std::endl;
         break;
 
     case Layer::map_1:
-        ::platform->data()->map_1_changed_ = true;
-        ::platform->data()->map_1_[0].set_tile(x, y, val);
+        PLATFORM.data()->map_1_changed_ = true;
+        PLATFORM.data()->map_1_[0].set_tile(x, y, val);
         break;
 
     case Layer::background:
-        ::platform->data()->background_changed_ = true;
-        ::platform->data()->background_.set_tile(x, y, val);
+        PLATFORM.data()->background_changed_ = true;
+        PLATFORM.data()->background_.set_tile(x, y, val);
         break;
     }
 }
