@@ -34,29 +34,27 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> RepairDroneRangeScene::update(App& app, Microseconds delta)
 {
     if (drone_->destination() not_eq &app.player_island()) {
         far_camera();
     }
 
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto scene = ActiveWorldScene::update(app, delta)) {
         return scene;
     }
 
     if (not description_) {
-        description_.emplace(
-            pfrm, SYSTR(repair_range)->c_str(), OverlayCoord{0, 19});
+        description_.emplace(SYSTR(repair_range)->c_str(), OverlayCoord{0, 19});
 
         for (int i = 0; i < description_->len(); ++i) {
-            pfrm.set_tile(Layer::overlay, i, 18, 425);
+            PLATFORM.set_tile(Layer::overlay, i, 18, 425);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         description_.reset();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
 
         if (is_far_camera()) {
             return scene_pool::alloc<InspectP2Scene>();
@@ -70,9 +68,9 @@ RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void RepairDroneRangeScene::display(Platform& pfrm, App& app)
+void RepairDroneRangeScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     auto pos = drone_->position();
 
@@ -86,7 +84,7 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
         sprite.set_position(
             {origin.x + Fixnum::from_integer(x * 16),
              origin.y + Fixnum::from_integer((pos.y - 2) * 16)});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
 
         if (x not_eq pos.x) {
@@ -97,7 +95,7 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
                 {origin.x + Fixnum::from_integer(x * 16),
                  origin.y + Fixnum::from_integer((pos.y) * 16)});
 
-            pfrm.screen().draw(sprite);
+            PLATFORM.screen().draw(sprite);
             sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_texture_index(13);
         }
@@ -107,7 +105,7 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
             {origin.x + Fixnum::from_integer(x * 16),
              origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
 
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     }
 }
 

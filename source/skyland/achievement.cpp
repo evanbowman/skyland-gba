@@ -43,8 +43,8 @@ struct AchievementInfo
     SystemString description_;
     const char* reward_;
 
-    bool (*match_)(Platform&, App&);
-    void (*award_)(Platform&, App&, bool);
+    bool (*match_)(App&);
+    void (*award_)(App&, bool);
 };
 
 
@@ -53,130 +53,118 @@ static const AchievementInfo info[Achievement::count] = {
     {SystemString::empty,
      SystemString::empty,
      "none",
-     [](Platform&, App&) { return false; },
-     [](Platform&, App&, bool) {}},
+     [](App&) { return false; },
+     [](App&, bool) {}},
 
     {SystemString::achievement_builder_name,
      SystemString::achievement_builder_description,
      "masonry",
-     [](Platform&, App& app) {
-         return app.player_island().rooms().size() > 10;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.player_island().rooms().size() > 10; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[builder].reward_), awarded);
      }},
 
     {SystemString::achievement_architect_name,
      SystemString::achievement_architect_description,
      "bridge",
-     [](Platform&, App& app) {
-         return app.player_island().rooms().size() > 20;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.player_island().rooms().size() > 20; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[architect].reward_), awarded);
      }},
 
     {SystemString::achievement_architect2_name,
      SystemString::achievement_architect2_description,
      "fountain",
-     [](Platform&, App& app) {
-         return app.player_island().rooms().size() > 20;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.player_island().rooms().size() > 20; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[architect_2].reward_), awarded);
      }},
 
     {SystemString::achievement_explorer_name,
      SystemString::achievement_explorer_description,
      "coconut-palm",
-     [](Platform&, App& app) { return app.zone() > 1; },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.zone() > 1; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[explorer].reward_), awarded);
      }},
 
     {SystemString::achievement_strategist_name,
      SystemString::achievement_strategist_description,
      "statue",
-     [](Platform&, App& app) { return app.zone() > 2; },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.zone() > 2; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[strategist].reward_), awarded);
      }},
 
     {SystemString::achievement_stronghold_name,
      SystemString::achievement_stronghold_description,
      "bronze-hull",
-     [](Platform&, App& app) { return app.player_island().core_count() > 3; },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.player_island().core_count() > 3; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
     {SystemString::achievement_dynamite_name,
      SystemString::achievement_dynamite_description,
      "dynamite",
-     [](Platform&, App& app) {
-         return app.gp_.challenge_flags_.get() not_eq 0;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return app.gp_.challenge_flags_.get() not_eq 0; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[dynamite].reward_), awarded);
      }},
 
     {SystemString::achievement_maestro1_name,
      SystemString::achievement_maestro1_description,
      "speaker",
-     [](Platform&, App& app) {
-         return count_ones(app.gp_.challenge_flags_.get()) > 2;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return count_ones(app.gp_.challenge_flags_.get()) > 2; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
      }},
 
     {SystemString::achievement_maestro2_name,
      SystemString::achievement_maestro2_description,
      "synth",
-     [](Platform&, App& app) {
-         return count_ones(app.gp_.challenge_flags_.get()) > 2;
-     },
-     [](Platform&, App&, bool awarded) {
+     [](App& app) { return count_ones(app.gp_.challenge_flags_.get()) > 2; },
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[maestro_2].reward_), awarded);
      }},
 
     {SystemString::achievement_triage_name,
      SystemString::achievement_triage_description,
      "dynamite-ii",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[triage].reward_), awarded);
      }},
 
     {SystemString::achievement_banana_man_name,
      SystemString::achievement_banana_man_description,
      "banana-plant",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[banana_man].reward_), awarded);
      }},
 
     {SystemString::achievement_ancient_weapon_name,
      SystemString::achievement_ancient_weapon_description,
      "decimator",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
      }},
 
     {SystemString::achievement_ship_of_theseus_name,
      SystemString::achievement_ship_of_theseus_description,
      "mirror-hull",
-     [](Platform& pfrm, App& app) {
+     [](App& app) {
          if (not app.opponent_island()) {
              return false;
          }
@@ -215,25 +203,25 @@ static const AchievementInfo info[Achievement::count] = {
 
          return true;
      },
-     [](Platform& pfrm, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[ship_of_theseus].reward_), awarded);
      }},
 
     {SystemString::achievement_lemons_name,
      SystemString::achievement_lemons_description,
      "lemon-tree",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[lemons].reward_), awarded);
      }},
 
     {SystemString::achievement_new_colossus_name,
      SystemString::achievement_new_colossus_description,
      "lady-liberty",
-     [](Platform&, App& app) {
+     [](App& app) {
          if (player_island(app).character_count() >= 7) {
              u8 count = 0;
              for (auto& room : player_island(app).rooms()) {
@@ -248,25 +236,25 @@ static const AchievementInfo info[Achievement::count] = {
          }
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[new_colossus].reward_), awarded);
      }},
 
     {SystemString::achievement_meltdown_name,
      SystemString::achievement_meltdown_description,
      "radiator",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[meltdown].reward_), awarded);
      }},
 
     {SystemString::achievement_completionist_name,
      SystemString::achievement_completionist_description,
      "annihilator",
-     [](Platform&, App& app) {
+     [](App& app) {
          auto bc = count_ones(app.gp_.challenge_flags_.get());
          if (bc < challenge_count) {
              return false;
@@ -274,48 +262,48 @@ static const AchievementInfo info[Achievement::count] = {
 
          return true;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[completionist].reward_), awarded);
      }},
 
     {SystemString::achievement_mycelium_name,
      SystemString::achievement_mycelium_description,
      "mycelium",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[mycelium].reward_), awarded);
      }},
 
     {SystemString::achievement_primitive_name,
      SystemString::achievement_primitive_description,
      "windmill",
-     [](Platform&, App& app) {
+     [](App& app) {
          return app.zone() > 2 and
                 not(app.persistent_data().state_flags_.get() &
                     PersistentData::workshop_built);
      },
-     [](Platform&, App& app, bool awarded) {
+     [](App& app, bool awarded) {
          set_enabled(metaclass_index(info[primitive].reward_), awarded);
      }},
 
     {SystemString::achievement_hero_name,
      SystemString::achievement_hero_description,
      "weather-engine",
-     [](Platform&, App& app) {
+     [](App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[hero].reward_), awarded);
      }},
 
     {SystemString::achievement_end_of_line_name,
      SystemString::achievement_end_of_line_description,
      "spark-cannon",
-     [](Platform&, App& app) {
+     [](App& app) {
          if (app.zone() == 4) {
              auto current_x = app.world_graph()
                                   .nodes_[app.current_world_location()]
@@ -331,38 +319,38 @@ static const AchievementInfo info[Achievement::count] = {
          }
          return false;
      },
-     [](Platform&, App&, bool awarded) {
+     [](App&, bool awarded) {
          set_enabled(metaclass_index(info[edge_of_world].reward_), awarded);
      }},
 
     // {SystemString::achievement_pacifist_name,
     //  SystemString::achievement_pacifist_description,
     //  "mind-control",
-    //  [](Platform&, App& app) {
+    //  [](App& app) {
     //      return app.zone() > 3 and
     //          not(app.persistent_data().state_flags_.get() &
     //              PersistentData::opponent_crew_died);
     //  },
-    //  [](Platform&, App&, bool awarded){
+    //  [](App&, bool awarded){
     //      set_enabled(metaclass_index(info[raid].reward_), awarded);
     //  }}
 };
 
 
 
-void init(Platform& pfrm, App& app)
+void init(App& app)
 {
     auto flags = app.gp_.achievement_flags_;
 
     // Required for an achievement.
     challenge_count =
-        lisp::length(app.invoke_script(pfrm, "/scripts/challenges/index.lisp"));
+        lisp::length(app.invoke_script("/scripts/challenges/index.lisp"));
 
     for (int i = 0; i < Achievement::count; ++i) {
         const u64 flag = 1 << i;
 
         if (flags.get() & flag) {
-            info[i].award_(pfrm, app, true);
+            info[i].award_(app, true);
         }
     }
 }
@@ -373,7 +361,7 @@ static Bitvector<Achievement::count> raised_achievements;
 
 
 
-void raise(Platform& pfrm, App& app, Achievement achievement)
+void raise(App& app, Achievement achievement)
 {
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
@@ -395,7 +383,7 @@ static Achievement last_achievement = (Achievement)((int)Achievement::none + 1);
 
 
 
-Achievement update(Platform& pfrm, App& app)
+Achievement update(App& app)
 {
     auto check_achievement = last_achievement + 1;
     if (check_achievement == Achievement::count) {
@@ -414,10 +402,10 @@ Achievement update(Platform& pfrm, App& app)
 
     if (not(flags.get() & flag)) {
         if (raised_achievements.get(check_achievement) or
-            info[check_achievement].match_(pfrm, app)) {
+            info[check_achievement].match_(app)) {
             raised_achievements.set(check_achievement, false);
             flags.set(flags.get() | flag);
-            save::store_global_data(pfrm, app.gp_);
+            save::store_global_data(app.gp_);
             return static_cast<Achievement>(check_achievement);
         }
     }
@@ -427,23 +415,23 @@ Achievement update(Platform& pfrm, App& app)
 
 
 
-void lock(Platform& pfrm, App& app, Achievement achievement)
+void lock(App& app, Achievement achievement)
 {
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
 
     flags.set(flags.get() & ~flag);
 
-    save::store_global_data(pfrm, app.gp_);
+    save::store_global_data(app.gp_);
 
-    info[achievement].award_(pfrm, app, false);
+    info[achievement].award_(app, false);
 }
 
 
 
-void award(Platform& pfrm, App& app, Achievement achievement)
+void award(App& app, Achievement achievement)
 {
-    info[achievement].award_(pfrm, app, true);
+    info[achievement].award_(app, true);
 
     time_stream::event::Achievement e;
     e.which_ = achievement;

@@ -224,7 +224,7 @@ public:
     }
 
 
-    void init_ai_awareness(Platform& pfrm, App& app);
+    void init_ai_awareness(App& app);
 
 
     template <typename T> T* cast()
@@ -240,11 +240,11 @@ public:
 
 
 
-    void set_injured(Platform& pfrm);
+    void set_injured();
 
 
-    virtual void update(Platform& pfrm, App&, Microseconds delta);
-    virtual void rewind(Platform& pfrm, App&, Microseconds delta);
+    virtual void update(App&, Microseconds delta);
+    virtual void rewind(App&, Microseconds delta);
 
     virtual void display(Platform::Screen& screen, App& app);
 
@@ -275,7 +275,7 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room finished
     // reloading.
-    virtual void ___rewind___finished_reload(Platform&, App&)
+    virtual void ___rewind___finished_reload(App&)
     {
     }
 
@@ -283,23 +283,22 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room used
     // its special ability. Required to correctly set reload timers.
-    virtual void ___rewind___ability_used(Platform&, App&)
+    virtual void ___rewind___ability_used(App&)
     {
     }
 
 
-    virtual ScenePtr<Scene> setup(Platform& pfrm, App&);
+    virtual ScenePtr<Scene> setup(App&);
 
 
     // Block may be selected and activated even by the other player.
     virtual bool non_owner_selectable() const;
 
 
-    virtual ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor);
+    virtual ScenePtr<Scene> select(App& app, const RoomCoord& cursor);
 
 
-    ScenePtr<Scene> reject_if_friendly(Platform& pfrm, App& app);
+    ScenePtr<Scene> reject_if_friendly(App& app);
 
 
     virtual std::optional<RoomCoord> get_target() const
@@ -311,13 +310,12 @@ public:
     virtual bool target_pinned() const;
 
 
-    virtual void
-    set_target(Platform& pfrm, App& app, const RoomCoord& target, bool pinned)
+    virtual void set_target(App& app, const RoomCoord& target, bool pinned)
     {
     }
 
 
-    virtual void unset_target(Platform& pfrm, App& app)
+    virtual void unset_target(App& app)
     {
     }
 
@@ -349,7 +347,7 @@ public:
     bool is_decoration() const;
 
 
-    virtual void finalize(Platform& pfrm, App& app);
+    virtual void finalize(App& app);
 
 
     void __unsafe__ignore_finalizer()
@@ -365,7 +363,7 @@ public:
     virtual void deserialize(lisp::Value*);
 
 
-    virtual void append_name_suffix(Platform&, StringBuffer<32>& result)
+    virtual void append_name_suffix(StringBuffer<32>& result)
     {
         return;
     }
@@ -386,7 +384,7 @@ public:
     }
 
 
-    void heal(Platform& pfrm, App& app, Health amount);
+    void heal(App& app, Health amount);
 
 
     // Careful! Converts a room to an entirely new type, by changing the parent
@@ -400,7 +398,7 @@ public:
     // assertions elsewhere to check for alignment and stuff, so this code is
     // safe as long as you're careful when transmuting rooms from within derived
     // room code.
-    void __unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m);
+    void __unsafe__transmute(App& app, MetaclassIndex m);
 
 
     // DO NOT CALL __set_health()! Intended for rewind, multiplayer, and very
@@ -412,15 +410,15 @@ public:
     }
 
 
-    virtual void apply_damage(Platform&, App&, Health damage);
-    virtual void apply_damage(Platform&, App&, Health damage, Island* src);
+    virtual void apply_damage(App&, Health damage);
+    virtual void apply_damage(App&, Health damage, Island* src);
 
 
-    virtual void burn_damage(Platform& pfrm, App& app, Health damage);
+    virtual void burn_damage(App& app, Health damage);
 
 
-    void plunder(Platform&, App&, Health damage);
-    void convert_to_plundered(Platform&, App&);
+    void plunder(App&, Health damage);
+    void convert_to_plundered(App&);
 
 
     void reset_injured_timer(Microseconds value);
@@ -431,12 +429,12 @@ public:
                                      BasicCharacter* for_character);
 
 
-    virtual void on_lightning(Platform& pfrm, App& app)
+    virtual void on_lightning(App& app)
     {
     }
 
 
-    virtual void on_lightning_rewind(Platform& pfrm, App& app)
+    virtual void on_lightning_rewind(App& app)
     {
     }
 
@@ -507,7 +505,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         // TODO...
     }
@@ -534,12 +532,12 @@ public:
     void ready();
 
 
-    virtual bool attach_drone(Platform&, App&, SharedEntityRef<Drone>);
-    virtual void detach_drone(Platform&, App&, bool quiet);
+    virtual bool attach_drone(App&, SharedEntityRef<Drone>);
+    virtual void detach_drone(App&, bool quiet);
     virtual std::optional<SharedEntityRef<Drone>> drone() const;
 
 
-    virtual bool create_replicant(Platform& pfrm, App& app)
+    virtual bool create_replicant(App& app)
     {
         return false;
     }
@@ -614,9 +612,9 @@ public:
     // need to make sure that the exit method of the deferred scene passed into
     // the function correctly releases the lock with co_op_release_lock()!
 
-    ScenePtr<Scene> co_op_acquire_lock(Platform& pfrm, DeferredScene next);
+    ScenePtr<Scene> co_op_acquire_lock(DeferredScene next);
 
-    void co_op_release_lock(Platform& pfrm);
+    void co_op_release_lock();
 
     bool co_op_peer_acquire_lock();
     void co_op_peer_release_lock();
@@ -672,7 +670,7 @@ public:
     }
 
 
-    void set_ai_aware(Platform& pfrm, App& app, bool ai_aware);
+    void set_ai_aware(App& app, bool ai_aware);
 
 
     // Players don't expect the AI algo to be running while the game is paused,
@@ -741,7 +739,7 @@ public:
 
 
 protected:
-    ScenePtr<Scene> do_select(Platform& pfrm, App& app);
+    ScenePtr<Scene> do_select(App& app);
 
 
 private:

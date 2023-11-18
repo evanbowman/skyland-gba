@@ -36,25 +36,24 @@ namespace skyland
 
 
 
-void FadeOutScene::enter(Platform& pfrm, App& app, Scene& prev)
+void FadeOutScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
     disable_ui();
 }
 
 
 
-void FadeOutScene::exit(Platform& pfrm, App& app, Scene& prev)
+void FadeOutScene::exit(App& app, Scene& prev)
 {
-    WorldScene::exit(pfrm, app, prev);
+    WorldScene::exit(app, prev);
 }
 
 
 
-ScenePtr<Scene>
-FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> FadeOutScene::update(App& app, Microseconds delta)
 {
-    WorldScene::update(pfrm, app, delta);
+    WorldScene::update(app, delta);
 
     timer_ += delta;
 
@@ -67,38 +66,41 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         circ_effect_radius_ = 0;
 
-        pfrm.screen().clear();
-        display(pfrm, app);
-        pfrm.sleep(5);
+        PLATFORM.screen().clear();
+        display(app);
+        PLATFORM.sleep(5);
 
         for (auto& room : app.player_island().rooms()) {
-            room->detach_drone(pfrm, app, true);
+            room->detach_drone(app, true);
         }
 
         for (auto& room : app.opponent_island()->rooms()) {
-            room->detach_drone(pfrm, app, true);
+            room->detach_drone(app, true);
         }
 
         app.player_island().drones().clear();
         app.opponent_island()->drones().clear();
 
         for (auto& room : app.player_island().rooms()) {
-            room->unset_target(pfrm, app);
+            room->unset_target(app);
         }
 
 
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::square_1);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::square_2);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::noise);
+        PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
 
-        app.player_island().set_hidden(pfrm, app, false);
+        app.player_island().set_hidden(app, false);
         if (app.opponent_island()) {
-            app.opponent_island()->set_hidden(pfrm, app, false);
+            app.opponent_island()->set_hidden(app, false);
         }
 
-        pfrm.screen().set_shader(passthrough_shader);
-        pfrm.screen().fade(1.f);
+        PLATFORM.screen().set_shader(passthrough_shader);
+        PLATFORM.screen().fade(1.f);
         switch (app.game_mode()) {
         case App::GameMode::tutorial:
             return scene_pool::alloc<SelectTutorialScene>();
@@ -122,7 +124,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(amount);
+        PLATFORM.screen().schedule_fade(amount);
         circ_effect_radius_ = 144 - int(144 * amount);
     }
 
@@ -131,16 +133,16 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void FadeOutScene::display(Platform& pfrm, App& app)
+void FadeOutScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
-    // int circ_center_x = pfrm.screen().size().x / 2;
-    // int circ_center_y = pfrm.screen().size().y / 2;
+    // int circ_center_x = PLATFORM.screen().size().x / 2;
+    // int circ_center_y = PLATFORM.screen().size().y / 2;
 
     // Platform::fatal(stringify(circ_center_y).c_str());
     // int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
-    // pfrm.system_call("iris-wipe-effect", params);
+    // PLATFORM.system_call("iris-wipe-effect", params);
 }
 
 

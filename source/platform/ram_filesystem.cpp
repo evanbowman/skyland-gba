@@ -41,11 +41,11 @@
 
 
 
-// void __path_cache_create(Platform& pfrm)
+// void __path_cache_create()
 // {
 //     file_present_filter.clear();
 
-//     walk(pfrm, [&](const char* path) { __path_cache_insert(path); });
+//     walk([&](const char* path) { __path_cache_insert(path); });
 // }
 
 
@@ -94,10 +94,10 @@
 
 
 
-// Root load_root(Platform& pfrm)
+// Root load_root()
 // {
 //     Root root;
-//     pfrm.read_save_data(&root, sizeof root, fs_offset());
+//     PLATFORM.read_save_data(&root, sizeof root, fs_offset());
 
 
 //     return root;
@@ -105,19 +105,19 @@
 
 
 
-// Statistics statistics(Platform& pfrm)
+// Statistics statistics()
 // {
-//     const auto block_count = (pfrm.save_capacity() - fs_offset()) / block_size;
+//     const auto block_count = (PLATFORM.save_capacity() - fs_offset()) / block_size;
 
 //     Statistics stats;
 //     stats.blocks_available_ = 0;
 
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 //     auto freelist = root.freelist_.get();
 
 //     while (freelist) {
 //         FileContents::Header header;
-//         pfrm.read_save_data(&header,
+//         PLATFORM.read_save_data(&header,
 //                             sizeof header,
 //                             fs_contents_offset() + freelist * block_size);
 
@@ -133,21 +133,21 @@
 
 
 
-// bool store_root(Platform& pfrm, const Root& root)
+// bool store_root(const Root& root)
 // {
-//     return pfrm.write_save_data(&root, sizeof root, fs_offset());
+//     return PLATFORM.write_save_data(&root, sizeof root, fs_offset());
 // }
 
 
 
-// void destroy(Platform& pfrm)
+// void destroy()
 // {
 //     char buffer[block_size * 2];
 //     __builtin_memset(buffer, 0, sizeof buffer);
 
 //     __path_cache_destroy();
 
-//     pfrm.write_save_data(buffer, sizeof buffer, fs_offset());
+//     PLATFORM.write_save_data(buffer, sizeof buffer, fs_offset());
 
 //     mounted = false;
 // }
@@ -155,9 +155,9 @@
 
 
 // // Just in case we leak file blocks somehow. Maybe this is a bit paranoid.
-// static void gc(Platform& pfrm)
+// static void gc()
 // {
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
 //     Vector<u16> in_use;
 
@@ -165,14 +165,14 @@
 //     auto offset = fs_offset() + sizeof(Root);
 //     for (int i = 0; i < root.file_count_.get(); ++i) {
 //         FileInfo info;
-//         pfrm.read_save_data(&info, sizeof info, offset);
+//         PLATFORM.read_save_data(&info, sizeof info, offset);
 
 //         if (auto file = info.file_contents_.get()) {
 //             while (file) {
 //                 in_use.push_back(file);
 
 //                 FileContents::Header header;
-//                 pfrm.read_save_data(&header,
+//                 PLATFORM.read_save_data(&header,
 //                                     sizeof header,
 //                                     fs_contents_offset() + file * block_size);
 //                 auto next_file = header.next_.get();
@@ -189,7 +189,7 @@
 
 //     {
 //         const auto block_count =
-//             (pfrm.save_capacity() - fs_offset()) / block_size;
+//             (PLATFORM.save_capacity() - fs_offset()) / block_size;
 //         auto offset = fs_contents_offset();
 //         for (int i = 1; i < block_count; ++i) {
 //             bool block_in_use = false;
@@ -205,9 +205,9 @@
 
 //             if (not block_in_use) {
 //                 FileContents::Header header;
-//                 pfrm.read_save_data(&header, sizeof header, offset);
+//                 PLATFORM.read_save_data(&header, sizeof header, offset);
 //                 header.next_.set(root.freelist_.get());
-//                 pfrm.write_save_data(&header, sizeof header, offset);
+//                 PLATFORM.write_save_data(&header, sizeof header, offset);
 
 //                 root.freelist_.set(i - 1);
 //             }
@@ -216,18 +216,18 @@
 //         }
 //     }
 
-//     store_root(pfrm, root);
+//     store_root(root);
 // }
 
 
 
-// InitStatus initialize(Platform& pfrm, int fs_begin_offset)
+// InitStatus initialize(int fs_begin_offset)
 // {
 //     ram_filesystem::fs_begin_offset = fs_begin_offset;
 
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
-//     pfrm.read_save_data(&root, sizeof root, fs_offset());
+//     PLATFORM.read_save_data(&root, sizeof root, fs_offset());
 
 
 //     static const char fs_version = '1';
@@ -237,9 +237,9 @@
 
 //         ::ram_filesystem::mounted = true;
 
-//         __path_cache_create(pfrm);
+//         __path_cache_create();
 
-//         gc(pfrm);
+//         gc();
 
 //         // Already initialized previously.
 //         return InitStatus::already_initialized;
@@ -255,23 +255,23 @@
 
 //     // Construct the freelist. Only needs to be done once, the first time that
 //     // the game boots, as the filesystem persists in SRAM.
-//     const auto block_count = (pfrm.save_capacity() - fs_offset()) / block_size;
+//     const auto block_count = (PLATFORM.save_capacity() - fs_offset()) / block_size;
 //     auto offset = fs_contents_offset();
 //     for (int i = 1; i < block_count; ++i) {
 //         FileContents::Header header;
-//         pfrm.read_save_data(&header, sizeof header, offset);
+//         PLATFORM.read_save_data(&header, sizeof header, offset);
 //         header.next_.set(root.freelist_.get());
-//         pfrm.write_save_data(&header, sizeof header, offset);
+//         PLATFORM.write_save_data(&header, sizeof header, offset);
 
 //         root.freelist_.set(i - 1);
 
 //         offset += block_size;
 //     }
 
-//     if (store_root(pfrm, root)) {
+//     if (store_root(root)) {
 //         ::ram_filesystem::mounted = true;
 
-//         __path_cache_create(pfrm);
+//         __path_cache_create();
 
 //         return InitStatus::initialized;
 //     }
@@ -281,9 +281,9 @@
 
 
 
-// static u16 allocate_file_chunk(Platform& pfrm)
+// static u16 allocate_file_chunk()
 // {
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
 //     if (root.freelist_.get() == 0) {
 //         return 0;
@@ -291,13 +291,13 @@
 //         auto allocated = root.freelist_.get();
 
 //         FileContents::Header header;
-//         pfrm.read_save_data(&header,
+//         PLATFORM.read_save_data(&header,
 //                             sizeof header,
 //                             fs_contents_offset() + allocated * block_size);
 
 //         root.freelist_.set(header.next_.get());
 
-//         store_root(pfrm, root);
+//         store_root(root);
 
 //         return allocated;
 //     }
@@ -305,20 +305,20 @@
 
 
 
-// void link_file(Platform& pfrm, u16 file, u16 length)
+// void link_file(u16 file, u16 length)
 // {
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
 //     auto offset = fs_offset() + sizeof(Root);
 
 //     for (int i = 0; i < root.file_count_.get(); ++i) {
 //         FileInfo info;
-//         pfrm.read_save_data(&info, sizeof info, offset);
+//         PLATFORM.read_save_data(&info, sizeof info, offset);
 
 //         if (info.file_contents_.get() == 0 and info.file_size_.get() == 0) {
 //             info.file_size_.set(length);
 //             info.file_contents_.set(file);
-//             pfrm.write_save_data(&info, sizeof info, offset);
+//             PLATFORM.write_save_data(&info, sizeof info, offset);
 //             return;
 //         }
 
@@ -328,22 +328,22 @@
 //     FileInfo info;
 //     info.file_size_.set(length);
 //     info.file_contents_.set(file);
-//     pfrm.write_save_data(&info, sizeof info, offset);
+//     PLATFORM.write_save_data(&info, sizeof info, offset);
 
 //     root.file_count_.set(root.file_count_.get() + 1);
 
-//     store_root(pfrm, root);
+//     store_root(root);
 // }
 
 
 
-// void free_file(Platform& pfrm, u16 file)
+// void free_file(u16 file)
 // {
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
 //     while (file) {
 //         FileContents::Header header;
-//         pfrm.read_save_data(
+//         PLATFORM.read_save_data(
 //             &header, sizeof header, fs_contents_offset() + file * block_size);
 
 //         auto freelist = root.freelist_.get();
@@ -351,33 +351,33 @@
 //         auto next_file = header.next_.get();
 //         header.next_.set(freelist);
 
-//         pfrm.write_save_data(
+//         PLATFORM.write_save_data(
 //             &header, sizeof header, fs_contents_offset() + file * block_size);
 
 //         file = next_file;
 //     }
 
-//     store_root(pfrm, root);
+//     store_root(root);
 // }
 
 
 
 // template <typename F>
-// void with_file(Platform& pfrm, const char* path, F&& callback)
+// void with_file(const char* path, F&& callback)
 // {
-//     auto root = load_root(pfrm);
+//     auto root = load_root();
 
 //     auto offset = fs_offset() + sizeof(Root);
 
 //     for (int i = 0; i < root.file_count_.get(); ++i) {
 //         FileInfo info;
-//         pfrm.read_save_data(&info, sizeof info, offset);
+//         PLATFORM.read_save_data(&info, sizeof info, offset);
 
 //         if (auto file = info.file_contents_.get()) {
 //             char path_buffer[max_path + 1];
 //             path_buffer[max_path] = '\0';
 
-//             pfrm.read_save_data(path_buffer,
+//             PLATFORM.read_save_data(path_buffer,
 //                                 max_path,
 //                                 fs_contents_offset() + file * block_size +
 //                                     sizeof(FileContents::Header));
@@ -394,7 +394,7 @@
 
 
 
-// bool file_exists(Platform& pfrm, const char* path)
+// bool file_exists(const char* path)
 // {
 //     if (not ::ram_filesystem::mounted) {
 //         return false;
@@ -404,7 +404,7 @@
 //     if (__path_cache_file_exists_maybe(path)) {
 //         bool found = false;
 
-//         with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
+//         with_file(path, [&](FileInfo& info, u16 file, u16 fs_offset) {
 //             found = true;
 //         });
 
@@ -418,7 +418,7 @@
 
 
 
-// void unlink_file(Platform& pfrm, const char* path)
+// void unlink_file(const char* path)
 // {
 //     if (not ::ram_filesystem::mounted) {
 //         return;
@@ -430,20 +430,20 @@
 
 //     bool freed_file = false;
 
-//     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
+//     with_file(path, [&](FileInfo& info, u16 file, u16 fs_offset) {
 //         // Unbind the existing file
 //         info.file_size_.set(0);
 //         info.file_contents_.set(0);
-//         pfrm.write_save_data(&info, sizeof info, fs_offset);
+//         PLATFORM.write_save_data(&info, sizeof info, fs_offset);
 
 //         freed_file = true;
 
-//         free_file(pfrm, file);
+//         free_file(file);
 //     });
 
 //     if (freed_file) {
 //         __path_cache_destroy();
-//         __path_cache_create(pfrm);
+//         __path_cache_create();
 //     }
 // }
 
@@ -503,7 +503,7 @@
 
 
 // size_t
-// read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
+// read_file_data_text(const char* path, Vector<char>& output)
 // {
 //     if (not ::ram_filesystem::mounted) {
 //         return 0;
@@ -515,10 +515,10 @@
 
 //     const auto path_len = str_len(path);
 
-//     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
+//     with_file(path, [&](FileInfo& info, u16 file, u16 fs_offset) {
 //         FileContents contents;
 
-//         pfrm.read_save_data(&contents,
+//         PLATFORM.read_save_data(&contents,
 //                             sizeof contents,
 //                             fs_contents_offset() + file * block_size);
 
@@ -548,7 +548,7 @@
 //         file = contents.header_.next_.get();
 
 //         while (file) {
-//             pfrm.read_save_data(&contents,
+//             PLATFORM.read_save_data(&contents,
 //                                 sizeof contents,
 //                                 fs_contents_offset() + file * block_size);
 
@@ -577,7 +577,7 @@
 
 
 
-// bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
+// bool store_file_data_text(const char* path, Vector<char>& data)
 // {
 //     if (not ::ram_filesystem::mounted) {
 //         return false;
@@ -593,24 +593,24 @@
 //     if (__path_cache_file_exists_maybe(path)) {
 //         u16 existing_len = 0;
 
-//         with_file(pfrm, path, [&](FileInfo& info, u16, u16) {
+//         with_file(path, [&](FileInfo& info, u16, u16) {
 //             existing_len = info.file_size_.get();
 //         });
 
-//         auto s = statistics(pfrm);
+//         auto s = statistics();
 //         const u16 avail_size = s.blocks_available_ * block_size;
 
 //         if (existing_len + avail_size < (int)data.size() + (int)path_len) {
 //             return false;
 //         }
 
-//         unlink_file(pfrm, path);
+//         unlink_file(path);
 //     }
 
 //     const int length = data.size() - 1; // -1 for the assumed null terminator.
 //     u16 remaining = length + path_len + 1;
 
-//     const auto file_begin = allocate_file_chunk(pfrm);
+//     const auto file_begin = allocate_file_chunk();
 //     auto file = file_begin;
 //     if (file == 0) {
 //         return false;
@@ -636,7 +636,7 @@
 
 //     auto store_chunk = [&] {
 //         contents.header_.checksum_.set(checksum(contents));
-//         pfrm.write_save_data((u8*)&contents,
+//         PLATFORM.write_save_data((u8*)&contents,
 //                              sizeof contents,
 //                              fs_contents_offset() + file * block_size);
 //     };
@@ -644,14 +644,14 @@
 //     if (remaining == 0) {
 //         store_chunk();
 //         __path_cache_insert(path);
-//         link_file(pfrm, file_begin, length + path_len + 1);
+//         link_file(file_begin, length + path_len + 1);
 //         return true;
 //     }
 
 //     while (remaining) {
-//         auto next_file = allocate_file_chunk(pfrm);
+//         auto next_file = allocate_file_chunk();
 //         if (next_file == 0) {
-//             free_file(pfrm, file_begin);
+//             free_file(file_begin);
 //             return false;
 //         }
 //         contents.header_.next_.set(next_file);
@@ -676,7 +676,7 @@
 //     store_chunk();
 
 //     __path_cache_insert(path);
-//     link_file(pfrm, file_begin, length + path_len + 1);
+//     link_file(file_begin, length + path_len + 1);
 
 //     return true;
 // }

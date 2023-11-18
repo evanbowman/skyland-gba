@@ -120,13 +120,13 @@ void Dynamic::compute_palettes(App& app, u8 scale)
 
 
 
-void Dynamic::update(Platform& pfrm, App& app, Microseconds delta)
+void Dynamic::update(App& app, Microseconds delta)
 {
 }
 
 
 
-void Dynamic::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Dynamic::rewind(App& app, Microseconds delta)
 {
 }
 

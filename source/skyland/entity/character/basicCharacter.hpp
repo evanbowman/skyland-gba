@@ -54,13 +54,13 @@ public:
     void finalize(App& app);
 
 
-    void update(Platform&, App&, Microseconds delta, Room* room);
+    void update(App&, Microseconds delta, Room* room);
 
 
-    void update(Platform&, App&, Microseconds delta) override final;
+    void update(App&, Microseconds delta) override final;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
     const RoomCoord& grid_position() const
@@ -75,7 +75,7 @@ public:
     }
 
 
-    void set_movement_path(Platform& pfrm, App& app, Path path);
+    void set_movement_path(App& app, Path path);
 
 
     bool has_movement_path() const
@@ -132,10 +132,10 @@ public:
     }
 
 
-    void heal(Platform& pfrm, App& app, int amount);
+    void heal(App& app, int amount);
 
 
-    void apply_damage(Platform& pfrm, App& app, Health damage);
+    void apply_damage(App& app, Health damage);
 
 
     void __set_health(Health amount)
@@ -161,7 +161,7 @@ public:
     void set_can_move();
 
 
-    void rewind_movement_step(Platform& pfrm, const RoomCoord& new_pos);
+    void rewind_movement_step(const RoomCoord& new_pos);
 
 
     enum class State : u8 {
@@ -298,7 +298,7 @@ public:
     bool ai_automated() const;
 
 
-    void apply_radiation_damage(Platform&, App&, Health amount);
+    void apply_radiation_damage(App&, Health amount);
 
 
 private:
@@ -338,9 +338,9 @@ private:
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
-    void movement_step(Platform& pfrm, App& app, Microseconds delta);
+    void movement_step(App& app, Microseconds delta);
 
-    void update_attack(Platform& pfrm, App& app, Microseconds delta);
+    void update_attack(App& app, Microseconds delta);
 };
 
 

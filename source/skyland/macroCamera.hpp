@@ -18,16 +18,15 @@ private:
     Microseconds timer_ = 0;
 
 public:
-    Camera(Platform& pfrm)
+    Camera()
     {
         current_ = {0, 40.f};
-        pfrm.set_scroll(Layer::map_0, current_.x, current_.y);
-        pfrm.set_scroll(Layer::map_1, current_.x, current_.y + 8);
+        PLATFORM.set_scroll(Layer::map_0, current_.x, current_.y);
+        PLATFORM.set_scroll(Layer::map_1, current_.x, current_.y + 8);
     }
 
 
-    void update(Platform& pfrm,
-                App& app,
+    void update(App& app,
                 Island&,
                 const RoomCoord&,
                 Microseconds delta,
@@ -51,8 +50,8 @@ public:
 
         if (m.sector().size().x < 6) {
             // For outposts, which are tiny:
-            pfrm.set_scroll(Layer::map_0, current_.x, 48);
-            pfrm.set_scroll(Layer::map_1, current_.x, 48 + 8);
+            PLATFORM.set_scroll(Layer::map_0, current_.x, 48);
+            PLATFORM.set_scroll(Layer::map_1, current_.x, 48 + 8);
             return;
         }
 
@@ -113,13 +112,13 @@ public:
             shake_offset = offset;
         }
 
-        pfrm.set_scroll(Layer::map_0,
-                        current_.x,
-                        current_.y + ambient_movement_ + shake_offset);
+        PLATFORM.set_scroll(Layer::map_0,
+                            current_.x,
+                            current_.y + ambient_movement_ + shake_offset);
 
-        pfrm.set_scroll(Layer::map_1,
-                        current_.x,
-                        current_.y + 8 + ambient_movement_ + shake_offset);
+        PLATFORM.set_scroll(Layer::map_1,
+                            current_.x,
+                            current_.y + 8 + ambient_movement_ + shake_offset);
     }
 };
 

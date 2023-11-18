@@ -40,46 +40,45 @@ static const Float default_fade = 0.75f;
 
 
 
-void SelectSampleScene::enter(Platform& pfrm, App& app, Scene& prev)
+void SelectSampleScene::enter(App& app, Scene& prev)
 {
-    pfrm.screen().pixelate(128, false, true, false);
+    PLATFORM.screen().pixelate(128, false, true, false);
 
-    pfrm.load_overlay_texture("overlay_challenges");
+    PLATFORM.load_overlay_texture("overlay_challenges");
 
-    samples_ =
-        app.invoke_script(pfrm, "/scripts/config/macro_samples/index.lisp");
+    samples_ = app.invoke_script("/scripts/config/macro_samples/index.lisp");
 
     const auto sample_count = lisp::length(*samples_);
 
     page_count_ = sample_count / 5 + (sample_count % 5 ? 1 : 0);
 
-    show_options(pfrm, app);
+    show_options(app);
 
-    pfrm.screen().schedule_fade(
+    PLATFORM.screen().schedule_fade(
         default_fade, ColorConstant::rich_black, {}, false);
 }
 
 
 
-void SelectSampleScene::show_options(Platform& pfrm, App& app)
+void SelectSampleScene::show_options(App& app)
 {
-    pfrm.screen().clear();
+    PLATFORM.screen().clear();
     text_.clear();
-    pfrm.screen().display();
+    PLATFORM.screen().display();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.set_tile(Layer::overlay, 1, 2, 90);
-    pfrm.set_tile(Layer::overlay, 28, 2, 92);
-    pfrm.set_tile(Layer::overlay, 1, 15, 94);
-    pfrm.set_tile(Layer::overlay, 28, 15, 96);
+    PLATFORM.set_tile(Layer::overlay, 1, 2, 90);
+    PLATFORM.set_tile(Layer::overlay, 28, 2, 92);
+    PLATFORM.set_tile(Layer::overlay, 1, 15, 94);
+    PLATFORM.set_tile(Layer::overlay, 28, 15, 96);
     for (int x = 2; x < 28; ++x) {
-        pfrm.set_tile(Layer::overlay, x, 2, 91);
-        pfrm.set_tile(Layer::overlay, x, 15, 95);
+        PLATFORM.set_tile(Layer::overlay, x, 2, 91);
+        PLATFORM.set_tile(Layer::overlay, x, 15, 95);
     }
     for (int y = 3; y < 15; ++y) {
-        pfrm.set_tile(Layer::overlay, 1, y, 93);
-        pfrm.set_tile(Layer::overlay, 28, y, 97);
+        PLATFORM.set_tile(Layer::overlay, 1, y, 93);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 97);
     }
 
     if (not samples_) {
@@ -91,12 +90,12 @@ void SelectSampleScene::show_options(Platform& pfrm, App& app)
 
     lisp::foreach (*samples_, [&](lisp::Value* val) {
         if (val->type() not_eq lisp::Value::Type::cons) {
-            pfrm.fatal("sample list format invalid");
+            PLATFORM.fatal("sample list format invalid");
         }
 
         auto name = val->cons().car();
         if (name->type() not_eq lisp::Value::Type::string) {
-            pfrm.fatal("sample list format invalid");
+            PLATFORM.fatal("sample list format invalid");
         }
 
         if (index++ < start_index) {
@@ -107,19 +106,18 @@ void SelectSampleScene::show_options(Platform& pfrm, App& app)
             return;
         }
 
-        text_.emplace_back(pfrm,
-                           name->string().value(),
+        text_.emplace_back(name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
     });
 
 
     if (page_count_ > 1) {
-        int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
+        int margin = (calc_screen_tiles().x - page_count_ * 2) / 2;
         for (int i = 0; i < page_count_; ++i) {
             if (i == page_) {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
+                PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 83);
             } else {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
+                PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 82);
             }
         }
     }
@@ -127,21 +125,21 @@ void SelectSampleScene::show_options(Platform& pfrm, App& app)
 
 
 
-void prep_level(Platform& pfrm, App& app);
+void prep_level(App& app);
 
 
 
-void SelectSampleScene::exit(Platform& pfrm, App&, Scene& next)
+void SelectSampleScene::exit(App&, Scene& next)
 {
-    pfrm.screen().pixelate(0);
+    PLATFORM.screen().pixelate(0);
     text_.clear();
-    pfrm.fill_overlay(0);
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.fill_overlay(0);
+    PLATFORM.load_overlay_texture("overlay");
 }
 
 
 
-void SelectSampleScene::display(Platform& pfrm, App& app)
+void SelectSampleScene::display(App& app)
 {
     if (state_ not_eq State::idle) {
         return;
@@ -160,13 +158,12 @@ void SelectSampleScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 }
 
 
 
-ScenePtr<Scene>
-SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
 {
     if (exit_) {
         page_ = 0;
@@ -186,48 +183,48 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
             return null_scene();
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             if (cursor_) {
                 cursor_--;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (app.player().key_down(Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(pfrm, app);
+                show_options(app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (app.player().key_down(Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(pfrm, app);
+                show_options(app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
-            pfrm.fill_overlay(0);
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            PLATFORM.fill_overlay(0);
+        } else if (app.player().key_down(Key::action_2)) {
             text_.clear();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             exit_ = true;
         }
         break;
@@ -242,7 +239,7 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto file_name = lisp::get_list(choice, 1);
         if (file_name->type() not_eq lisp::Value::Type::string) {
-            pfrm.fatal("sample list format invalid");
+            PLATFORM.fatal("sample list format invalid");
         }
 
         s8 type_override = -1;
@@ -250,15 +247,15 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
             type_override = lisp::get_list(choice, 2)->integer().value_;
         }
 
-        app.set_coins(pfrm, 0);
+        app.set_coins(0);
 
         const char* base_path = "scripts/config/macro_samples";
         const char* fname = file_name->string().value();
 
-        auto file = pfrm.load_file(base_path, fname);
+        auto file = PLATFORM.load_file(base_path, fname);
         if (file.second) {
 
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
 
             using TranslationBuffer = Buffer<char, 2000>;
             auto inp = allocate_dynamic<TranslationBuffer>("inp-buffer");
@@ -297,10 +294,10 @@ SelectSampleScene::update(Platform& pfrm, App& app, Microseconds delta)
             bound->set_cursor({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
         }
 
-        pfrm.load_overlay_texture("overlay");
+        PLATFORM.load_overlay_texture("overlay");
 
-        pfrm.screen().schedule_fade(1.f);
-        pfrm.screen().schedule_fade(0.f);
+        PLATFORM.screen().schedule_fade(1.f);
+        PLATFORM.screen().schedule_fade(0.f);
 
         auto next = scene_pool::alloc<macro::SelectorScene>();
         next->show_island_size();

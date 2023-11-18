@@ -41,7 +41,7 @@ extern Sound ion_cannon_sound;
 
 
 
-void Annihilator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Annihilator::format_description(StringBuffer<512>& buffer)
 {
     buffer = SYSTR(description_annihilator)->c_str();
 }
@@ -55,7 +55,7 @@ Annihilator::Annihilator(Island* parent, const RoomCoord& position)
 
 
 
-void Annihilator::fire(Platform& pfrm, App& app)
+void Annihilator::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -80,15 +80,14 @@ void Annihilator::fire(Platform& pfrm, App& app)
         start.x += 6.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    ion_cannon_sound.play(pfrm, 3);
+    ion_cannon_sound.play(3);
 
-    auto c =
-        app.alloc_entity<Antimatter>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<Antimatter>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

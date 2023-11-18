@@ -36,8 +36,7 @@ namespace skyland
 
 
 
-TransportCharacterScene::TransportCharacterScene(Platform& pfrm,
-                                                 RoomCoord origin)
+TransportCharacterScene::TransportCharacterScene(RoomCoord origin)
     : NotificationScene(SYSTR(transporter_transport_char)->c_str(),
                         [] { return scene_pool::alloc<ReadyScene>(); }),
       origin_(origin)
@@ -46,9 +45,9 @@ TransportCharacterScene::TransportCharacterScene(Platform& pfrm,
 
 
 
-void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
+void TransportCharacterScene::enter(App& app, Scene& prev)
 {
-    NotificationScene::enter(pfrm, app, prev);
+    NotificationScene::enter(app, prev);
 
     far_camera();
 
@@ -69,10 +68,10 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
                     globals().far_cursor_loc_ = {x, y};
                     set_cursor = true;
                 }
-                pfrm.set_tile(app.opponent_island()->layer(),
-                              x,
-                              y,
-                              StaticTile::path_marker);
+                PLATFORM.set_tile(app.opponent_island()->layer(),
+                                  x,
+                                  y,
+                                  StaticTile::path_marker);
             }
         }
     }
@@ -80,18 +79,18 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void TransportCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
+void TransportCharacterScene::exit(App& app, Scene& next)
 {
-    NotificationScene::exit(pfrm, app, next);
+    NotificationScene::exit(app, next);
 
     if (app.opponent_island()) {
-        app.opponent_island()->repaint(pfrm, app);
+        app.opponent_island()->repaint(app);
     }
 }
 
 
 
-void TransportCharacterScene::display(Platform& pfrm, App& app)
+void TransportCharacterScene::display(App& app)
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
@@ -109,21 +108,20 @@ void TransportCharacterScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 }
 
 
 
-ScenePtr<Scene>
-TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> TransportCharacterScene::update(App& app, Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto next = ActiveWorldScene::update(app, delta)) {
         return next;
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -134,25 +132,25 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     RoomCoord* cursor_loc = nullptr;
     cursor_loc = &globals().far_cursor_loc_;
 
-    if (app.player().key_down(pfrm, Key::left)) {
+    if (app.player().key_down(Key::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
         }
     }
 
-    if (app.player().key_down(pfrm, Key::right)) {
+    if (app.player().key_down(Key::right)) {
         if (cursor_loc->x < app.opponent_island()->terrain().size()) {
             ++cursor_loc->x;
         }
     }
 
-    if (app.player().key_down(pfrm, Key::up)) {
+    if (app.player().key_down(Key::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }
 
-    if (app.player().key_down(pfrm, Key::down)) {
+    if (app.player().key_down(Key::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
         }
@@ -164,7 +162,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    if (app.player().key_down(pfrm, Key::action_1) and
+    if (app.player().key_down(Key::action_1) and
         (**matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         for (auto& room : app.opponent_island()->rooms()) {
@@ -190,7 +188,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (auto room = app.player_island().get_room(origin_)) {
             if (auto transporter = room->cast<Transporter>()) {
-                transporter->transport_occupant(pfrm, app, *cursor_loc);
+                transporter->transport_occupant(app, *cursor_loc);
                 return scene_pool::alloc<InspectP2Scene>();
             } else {
                 return scene_pool::alloc<ReadyScene>();

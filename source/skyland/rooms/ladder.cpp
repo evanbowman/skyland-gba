@@ -40,14 +40,14 @@ const char* Ladder::upgrade_mt_name() const
 
 
 
-void Ladder::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Ladder::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_ladder)->c_str();
 }
 
 
 
-void LadderPlus::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void LadderPlus::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_ladder_plus)->c_str();
 }
@@ -61,9 +61,9 @@ Ladder::Ladder(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Ladder::update(Platform& pfrm, App& app, Microseconds delta)
+void Ladder::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 

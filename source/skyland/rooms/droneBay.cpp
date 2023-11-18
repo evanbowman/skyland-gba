@@ -50,21 +50,21 @@ DroneBay::DroneBay(Island* parent, const RoomCoord& position)
 
 
 
-void DroneBay::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void DroneBay::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_drone_bay)->c_str();
 }
 
 
 
-void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
+void DroneBay::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
     if (drone_ and not(*drone_)->alive()) {
-        detach_drone(pfrm, app, false);
+        detach_drone(app, false);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
@@ -93,11 +93,11 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
+void DroneBay::rewind(App& app, Microseconds delta)
 {
     if (drone_ and not(*drone_)->alive()) {
-        ___rewind___ability_used(pfrm, app);
-        detach_drone(pfrm, app, false);
+        ___rewind___ability_used(app);
+        detach_drone(app, false);
     }
 
     if (reload_ <= 0) {
@@ -109,14 +109,14 @@ void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void DroneBay::___rewind___finished_reload(Platform&, App&)
+void DroneBay::___rewind___finished_reload(App&)
 {
     reload_ = 1;
 }
 
 
 
-void DroneBay::___rewind___ability_used(Platform&, App&)
+void DroneBay::___rewind___ability_used(App&)
 {
     reload_ = 0;
 }
@@ -148,8 +148,7 @@ void DroneBay::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene>
-DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> DroneBay::select(App& app, const RoomCoord& cursor)
 {
     if (reload_ > 0) {
         return null_scene();
@@ -165,7 +164,7 @@ DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
-    if (auto scn = reject_if_friendly(pfrm, app)) {
+    if (auto scn = reject_if_friendly(app)) {
         return scn;
     }
 
@@ -188,7 +187,7 @@ DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
             auto future_scene = []() {
                 return scene_pool::alloc<ReadyScene>();
             };
-            pfrm.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<NotificationScene>("drone-bay covered!",
                                                         future_scene);
         }
@@ -199,12 +198,10 @@ DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-bool DroneBay::attach_drone(Platform& pfrm,
-                            App& app,
-                            SharedEntityRef<Drone> drone)
+bool DroneBay::attach_drone(App& app, SharedEntityRef<Drone> drone)
 {
     if (drone_) {
-        detach_drone(pfrm, app, false);
+        detach_drone(app, false);
     }
     drone_ = drone;
 
@@ -215,7 +212,7 @@ bool DroneBay::attach_drone(Platform& pfrm,
 
 
 
-void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
+void DroneBay::detach_drone(App& app, bool quiet)
 {
     if (drone_ and not quiet) {
         (*drone_)->kill();
@@ -239,11 +236,11 @@ void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
 
 
 
-void DroneBay::finalize(Platform& pfrm, App& app)
+void DroneBay::finalize(App& app)
 {
-    detach_drone(pfrm, app, false);
+    detach_drone(app, false);
 
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 }
 
 

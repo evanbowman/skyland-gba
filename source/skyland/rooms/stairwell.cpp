@@ -41,7 +41,7 @@ const char* Stairwell::upgrade_mt_name() const
 
 
 
-void Stairwell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Stairwell::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell)->c_str();
 }
@@ -55,9 +55,9 @@ Stairwell::Stairwell(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Stairwell::update(Platform& pfrm, App& app, Microseconds delta)
+void Stairwell::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -94,16 +94,16 @@ void Stairwell::plot_walkable_zones(App& app,
 
 
 
-void Stairwell::finalize(Platform& pfrm, App& app)
+void Stairwell::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
         auto pos = center();
         pos.y += 16.0_fixed;
-        ExploSpawner::create(pfrm, app, pos);
+        ExploSpawner::create(app, pos);
         pos.y -= 32.0_fixed;
-        ExploSpawner::create(pfrm, app, pos);
+        ExploSpawner::create(app, pos);
     }
 }
 
@@ -205,16 +205,14 @@ const char* StairwellPlusPlus::upgrade_mt_name() const
 
 
 
-void StairwellPlus::format_description(Platform& pfrm,
-                                       StringBuffer<512>& buffer)
+void StairwellPlus::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell_plus)->c_str();
 }
 
 
 
-void StairwellPlusPlus::format_description(Platform& pfrm,
-                                           StringBuffer<512>& buffer)
+void StairwellPlusPlus::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_stairwell_plus_plus)->c_str();
 }

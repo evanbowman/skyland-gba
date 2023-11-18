@@ -43,7 +43,7 @@ Pummeler::Pummeler(Island* parent, const RoomCoord& position)
 
 
 
-void Pummeler::fire(Platform& pfrm, App& app)
+void Pummeler::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -64,13 +64,13 @@ void Pummeler::fire(Platform& pfrm, App& app)
         start.x += 6;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
     // auto c = app.alloc_entity<Curveshot>(
-    //     pfrm, start, target, parent(), other_island(app), position(), *target_);
+    //     start, target, parent(), other_island(app), position(), *target_);
     // if (c) {
     //     parent()->projectiles().push(std::move(c));
     // }

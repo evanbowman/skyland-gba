@@ -40,30 +40,30 @@ public:
     ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty);
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void generate_level(Platform& pfrm, App& app);
+    void generate_level(App& app);
 
 
     void set_levelgen_count(int count);
 
 
 private:
-    void generate_power_sources(Platform& pfrm, App& app);
-    void generate_stairwells(Platform& pfrm, App& app);
-    void generate_secondary_rooms(Platform& pfrm, App& app);
-    void generate_foundation(Platform& pfrm, App& app);
-    void generate_hull(Platform& pfrm, App& app);
-    void generate_weapons(Platform& pfrm, App& app, int max);
-    void generate_forcefields(Platform& pfrm, App& app);
-    void generate_characters(Platform& pfrm, App& app);
-    void generate_decorations(Platform& pfrm, App& app);
-    void generate_radiators(Platform& pfrm, App& app);
-    void generate_walls_behind_weapons(Platform& pfrm, App& app);
-    void generate_missile_defenses(Platform& pfrm, App& app);
+    void generate_power_sources(App& app);
+    void generate_stairwells(App& app);
+    void generate_secondary_rooms(App& app);
+    void generate_foundation(App& app);
+    void generate_hull(App& app);
+    void generate_weapons(App& app, int max);
+    void generate_forcefields(App& app);
+    void generate_characters(App& app);
+    void generate_decorations(App& app);
+    void generate_radiators(App& app);
+    void generate_walls_behind_weapons(App& app);
+    void generate_missile_defenses(App& app);
 
-    void cleanup_unused_terrain(Platform& pfrm, App& app);
+    void cleanup_unused_terrain(App& app);
 
 
     bool has_space(App& app, const RoomCoord& loc, const RoomCoord& sz);
@@ -72,13 +72,10 @@ private:
     Power power_remaining(App& app) const;
 
 
-    void place_room_random_loc(Platform& pfrm,
-                               App& app,
-                               int x_start,
-                               const char* room_name);
+    void place_room_random_loc(App& app, int x_start, const char* room_name);
 
 
-    void place_room_adjacent(Platform& pfrm, App& app, const char* room_name);
+    void place_room_adjacent(App& app, const char* room_name);
 
 
     rng::LinearGenerator rng_source_;

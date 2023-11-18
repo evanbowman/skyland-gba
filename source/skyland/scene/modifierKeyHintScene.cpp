@@ -35,22 +35,21 @@ namespace skyland
 
 
 
-ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app);
+ScenePtr<Scene> update_modifier_keys(App& app);
 
 
 
-ScenePtr<Scene>
-ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ModifierKeyHintScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
-    if (not player(app).key_pressed(pfrm, Key::start)) {
+    if (not player(app).key_pressed(Key::start)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (auto scene = update_modifier_keys(pfrm, app)) {
+    if (auto scene = update_modifier_keys(app)) {
         return scene;
     }
 
@@ -59,66 +58,63 @@ ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ModifierKeyHintScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
 
     for (int x = 3; x < st.x - 3; ++x) {
         for (int y = 2; y < st.y - 2; ++y) {
-            pfrm.set_tile(Layer::overlay, x, y, 112);
+            PLATFORM.set_tile(Layer::overlay, x, y, 112);
         }
     }
 
-    pfrm.set_tile(Layer::overlay, 4, 6, 392);
-    pfrm.set_tile(Layer::overlay, 4, 8, 393);
-    pfrm.set_tile(Layer::overlay, 4, 10, 394);
-    pfrm.set_tile(Layer::overlay, 4, 12, 395);
+    PLATFORM.set_tile(Layer::overlay, 4, 6, 392);
+    PLATFORM.set_tile(Layer::overlay, 4, 8, 393);
+    PLATFORM.set_tile(Layer::overlay, 4, 10, 394);
+    PLATFORM.set_tile(Layer::overlay, 4, 12, 395);
 
-    Text b_opt(pfrm, "/B", OverlayCoord{5, 6});
+    Text b_opt("/B", OverlayCoord{5, 6});
     b_opt.__detach();
 
-    Text a_opt(pfrm, "A", OverlayCoord({4, 14}));
+    Text a_opt("A", OverlayCoord({4, 14}));
     a_opt.__detach();
 
     auto title = SYSTR(modifier_keys_title);
     title_.emplace(
-        pfrm,
+
         title->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
-                     3});
+        OverlayCoord{(u8)centered_text_margins(utf8::len(title->c_str())), 3});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{8, 6});
+    text_.emplace_back(SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{8, 6});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{8, 8});
+    text_.emplace_back(SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{8, 8});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{8, 10});
+    text_.emplace_back(SYSTR(modifier_keys_opt_3)->c_str(),
+                       OverlayCoord{8, 10});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{8, 12});
+    text_.emplace_back(SYSTR(modifier_keys_opt_4)->c_str(),
+                       OverlayCoord{8, 12});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_5)->c_str(), OverlayCoord{8, 14});
+    text_.emplace_back(SYSTR(modifier_keys_opt_5)->c_str(),
+                       OverlayCoord{8, 14});
 
-    text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_6)->c_str(), OverlayCoord{4, 16});
+    text_.emplace_back(SYSTR(modifier_keys_opt_6)->c_str(),
+                       OverlayCoord{4, 16});
 
-    pfrm.screen().schedule_fade(0.5f);
+    PLATFORM.screen().schedule_fade(0.5f);
 }
 
 
 
-void ModifierKeyHintScene::exit(Platform& pfrm, App& app, Scene& next)
+void ModifierKeyHintScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
-    pfrm.screen().schedule_fade(0.f);
+    PLATFORM.screen().schedule_fade(0.f);
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 

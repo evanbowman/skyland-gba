@@ -58,7 +58,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         if (parent() == app.opponent_island()) {
             sprite_.set_texture_index(71);
@@ -66,18 +66,18 @@ public:
 
         switch (state_) {
         case Drone::State::launch:
-            Drone::update(pfrm, app, delta);
+            Drone::update(app, delta);
             break;
 
         case Drone::State::ready:
-            update_sprite(pfrm, app);
+            update_sprite(app);
             state_ = State::active;
             timer_ = 0;
             break;
 
         case State::active:
             duration_ += delta;
-            update_sprite(pfrm, app);
+            update_sprite(app);
             if (timer_ > reload_time) {
 
                 Buffer<Room*, 16> heal_queue;
@@ -108,7 +108,7 @@ public:
                 }
 
                 for (auto& room : heal_queue) {
-                    room->heal(pfrm, app, 6);
+                    room->heal(app, 6);
                     room->ready();
                 }
 
@@ -141,9 +141,9 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App&) override
+    ScenePtr<Scene> select(App&) override
     {
-        pfrm.speaker().play_sound("drone_beep", 1);
+        PLATFORM.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<RepairDroneRangeScene>(shared_from_this());
     }
 

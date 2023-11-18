@@ -35,7 +35,7 @@
 class Conf
 {
 public:
-    Conf(Platform& pfrm) : pfrm_(pfrm)
+    Conf()
     {
     }
 
@@ -80,7 +80,4 @@ public:
             }
         }
     }
-
-private:
-    Platform& pfrm_;
 };

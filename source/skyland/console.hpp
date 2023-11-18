@@ -49,10 +49,8 @@ public:
 
         using Self = Boxed<Impl, Impl, 1900>;
 
-        virtual void on_text(Platform& pfrm,
-                             App& app,
-                             Self&,
-                             Platform::RemoteConsole::Line& line);
+        virtual void
+        on_text(App& app, Self&, Platform::RemoteConsole::Line& line);
     };
 
 

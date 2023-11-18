@@ -45,7 +45,7 @@ CargoBay::CargoBay(Island* parent, const RoomCoord& position)
 
 
 
-void CargoBay::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void CargoBay::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_cargo_bay)->c_str();
 }
@@ -76,9 +76,9 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
 
 
 
-void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
+void CargoBay::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (count_) {
         Room::ready();
@@ -163,12 +163,12 @@ void CargoBay::deserialize(lisp::Value* list)
 
 
 
-void CargoBay::finalize(Platform& pfrm, App& app)
+void CargoBay::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
-        ExploSpawner::create(pfrm, app, center());
+        ExploSpawner::create(app, center());
 
         if (cargo_[0] not_eq '\0') {
             time_stream::event::CargoBayContents e;

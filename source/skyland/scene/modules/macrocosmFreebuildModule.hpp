@@ -55,14 +55,14 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void init(Platform&, App&);
+    void init(App&);
 
 
     static Factory factory_;

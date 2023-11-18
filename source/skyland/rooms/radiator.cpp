@@ -40,16 +40,16 @@ Radiator::Radiator(Island* parent, const RoomCoord& position)
 
 
 
-void Radiator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Radiator::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_radiator)->c_str();
 }
 
 
 
-void Radiator::update(Platform& pfrm, App& app, Microseconds delta)
+void Radiator::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
@@ -58,7 +58,7 @@ void Radiator::update(Platform& pfrm, App& app, Microseconds delta)
     if (damage_timer_ > seconds(1)) {
         damage_timer_ -= seconds(1);
 
-        emit_radiation(pfrm, app);
+        emit_radiation(app);
     }
 }
 
@@ -110,11 +110,11 @@ public:
     }
 
 
-    void update(Platform& pfrm, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
-        delta = pfrm.delta_clock().last_delta();
+        delta = PLATFORM.delta_clock().last_delta();
 
         timer_ += delta;
         if (timer_ >= milliseconds(80)) {
@@ -131,7 +131,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -148,13 +148,13 @@ private:
 
 
 
-void make_radiation_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
+void make_radiation_effect(App& app, Vec2<Fixnum> pos)
 {
     auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
         auto p = pos;
         p.x += xoff;
         p.y += yoff;
-        if (auto e = app.alloc_entity<RadiationAnim>(pfrm, p)) {
+        if (auto e = app.alloc_entity<RadiationAnim>(p)) {
             e->sprite().set_flip({xflip, yflip});
             app.effects().push(std::move(e));
         }
@@ -172,16 +172,16 @@ static SharedVariable radiation_damage("radiation_damage", 20);
 
 
 
-void Radiator::emit_radiation(Platform& pfrm, App& app)
+void Radiator::emit_radiation(App& app)
 {
     ChrBuffer queue;
     collect_nearby_chrs(app, queue);
 
     for (auto& chr : queue) {
-        chr->apply_radiation_damage(pfrm, app, radiation_damage);
+        chr->apply_radiation_damage(app, radiation_damage);
     }
 
-    make_radiation_effect(pfrm, app, visual_center());
+    make_radiation_effect(app, visual_center());
 }
 
 

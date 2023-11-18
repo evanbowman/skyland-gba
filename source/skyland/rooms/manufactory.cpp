@@ -31,7 +31,7 @@ namespace skyland
 
 
 
-void Manufactory::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Manufactory::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_manufactory)->c_str();
 }
@@ -45,9 +45,9 @@ Manufactory::Manufactory(Island* parent, const RoomCoord& position)
 
 
 
-void Manufactory::update(Platform& pfrm, App& app, Microseconds delta)
+void Manufactory::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -83,12 +83,12 @@ void Manufactory::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Manufactory::finalize(Platform& pfrm, App& app)
+void Manufactory::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
-        ExploSpawner::create(pfrm, app, center());
+        ExploSpawner::create(app, center());
     }
 }
 

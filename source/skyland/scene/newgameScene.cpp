@@ -45,35 +45,34 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> NewgameScene::update(App& app, Microseconds delta)
 {
-    show_island_exterior(pfrm, app, &app.player_island());
-    show_island_exterior(pfrm, app, app.opponent_island());
+    show_island_exterior(app, &app.player_island());
+    show_island_exterior(app, app.opponent_island());
 
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     switch (app.gp_.difficulty_) {
     case GlobalPersistentData::Difficulty::beginner:
-        app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");
+        app.invoke_script("/scripts/config/easy/score.lisp");
         break;
 
     case GlobalPersistentData::Difficulty::experienced:
-        app.invoke_script(pfrm, "/scripts/config/normal/score.lisp");
+        app.invoke_script("/scripts/config/normal/score.lisp");
         break;
 
     case GlobalPersistentData::Difficulty::expert:
-        app.invoke_script(pfrm, "/scripts/config/hard/score.lisp");
+        app.invoke_script("/scripts/config/hard/score.lisp");
         break;
     }
 
     bool loaded = false;
 
-    if (save::load(pfrm, app, app.persistent_data())) {
-        save::erase(pfrm);
+    if (save::load(app, app.persistent_data())) {
+        save::erase();
         loaded = true;
     } else {
-        app.set_coins(pfrm, 0);
+        app.set_coins(0);
 
         BasicCharacter::__reset_ids();
 
@@ -107,9 +106,9 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     const bool skip_save_prompt = app.gp_.stateflags_.get(sv_flag);
 
-    auto dont_remind = [](Platform& pfrm, App& app) {
+    auto dont_remind = [](App& app) {
         app.gp_.stateflags_.set(sv_flag, true);
-        save::store_global_data(pfrm, app.gp_);
+        save::store_global_data(app.gp_);
     };
 
     DeferredScene next([] {
@@ -126,7 +125,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
-            [](Platform&, App&) {},
+            [](App&) {},
             dont_remind);
 
         ret->play_alert_sfx_ = false;

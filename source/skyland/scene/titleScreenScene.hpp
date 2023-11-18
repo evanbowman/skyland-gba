@@ -38,14 +38,14 @@ class TitleScreenScene : public Scene
 public:
     TitleScreenScene(int start_page = 1);
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
     Float ambient_movement() const
@@ -54,7 +54,7 @@ public:
     }
 
 
-    void macro_gen_sample_island(Platform&, App&);
+    void macro_gen_sample_island(App&);
 
 
 private:
@@ -67,16 +67,16 @@ private:
     bool selector_shaded_ = false;
     bool flower_effect_ = false;
 
-    void run_init_scripts(Platform& pfrm, App& app, bool allow_mods);
+    void run_init_scripts(App& app, bool allow_mods);
 
 
-    void show_module_icons(Platform&, int page);
+    void show_module_icons(int page);
 
     static u8 module_page_;
     static std::optional<Vec2<u8>> module_cursor_;
 
 
-    void play_gust_sound(Platform& pfrm);
+    void play_gust_sound();
 
 
     struct Pong
@@ -93,12 +93,12 @@ private:
         Vec2<Float> ball_ = {3, 3};
         Vec2<Float> ball_speed_ = {0.35f, 0.35f};
 
-        void update(Platform&, bool sound_effects);
-        void display(Platform&, int x_scroll);
+        void update(bool sound_effects);
+        void display(int x_scroll);
     } pong_;
 
 
-    void window_image_hack(Platform&, u16 empty_tile);
+    void window_image_hack(u16 empty_tile);
 
     enum class State {
         fade_in,
@@ -129,9 +129,9 @@ private:
 
     int menu_selection_ = 0;
 
-    void put_menu_text(Platform&);
-    void put_module_text(Platform&);
-    void redraw_margins(Platform&);
+    void put_menu_text();
+    void put_module_text();
+    void redraw_margins();
 
     int menu_selection_start_ = 0;
     int menu_selection_stop_ = 0;

@@ -54,17 +54,17 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta);
+    ScenePtr<Scene> update(App& app, Microseconds delta);
 
 
-    void display(Platform& pfrm, App& app);
+    void display(App& app);
 
 
-    void init(Platform&, App&);
+    void init(App&);
 
 
-    virtual void show(Platform&, App&);
-    void draw_rulers(Platform&);
+    virtual void show(App&);
+    void draw_rulers();
 
 
     virtual u8 get_pixel(App& app, u8 x, u8 y) = 0;

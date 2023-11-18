@@ -38,12 +38,12 @@ namespace skyland
 
 
 
-void MultiplayerPeer::update(Platform& pfrm, App& app, Microseconds delta)
+void MultiplayerPeer::update(App& app, Microseconds delta)
 {
-    if (pfrm.network_peer().is_connected()) {
-        network::poll_messages(pfrm, app, *this);
+    if (PLATFORM.network_peer().is_connected()) {
+        network::poll_messages(app, *this);
     } else {
-        pfrm.fatal("connection interrupted");
+        PLATFORM.fatal("connection interrupted");
     }
 
     heartbeat_send_counter_ += delta;
@@ -53,11 +53,11 @@ void MultiplayerPeer::update(Platform& pfrm, App& app, Microseconds delta)
         heartbeat_send_counter_ = 0;
 
         network::packet::Heartbeat heartbeat;
-        network::transmit(pfrm, heartbeat);
+        network::transmit(heartbeat);
     }
 
     if (heartbeat_recv_counter_ > heartbeat_interval * 2) {
-        pfrm.fatal("connection interrupted");
+        PLATFORM.fatal("connection interrupted");
     }
 }
 
@@ -77,8 +77,7 @@ static u8 invert_axis(App& app, u8 x_coord)
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::RoomConstructed& packet)
 {
     auto metac = load_metaclass(packet.metaclass_index_.get());
@@ -90,26 +89,24 @@ void MultiplayerPeer::receive(Platform& pfrm,
         pos.x = ((app.opponent_island()->terrain().size() - 1) - pos.x) -
                 (size.x - 1);
 
-        (*metac)->create(pfrm, app, app.opponent_island(), pos);
+        (*metac)->create(app, app.opponent_island(), pos);
     }
 }
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::RoomSalvaged& packet)
 {
     if (app.opponent_island()) {
         app.opponent_island()->destroy_room(
-            pfrm, app, {invert_axis(app, packet.x_), packet.y_});
+            app, {invert_axis(app, packet.x_), packet.y_});
     }
 }
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::WeaponSetTarget& packet)
 {
     if (app.opponent_island()) {
@@ -117,7 +114,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 {invert_axis(app, packet.weapon_x_), packet.weapon_y_})) {
 
             room->set_target(
-                pfrm,
+
                 app,
                 {invert_axis(app, packet.target_x_), packet.target_y_},
                 true);
@@ -127,8 +124,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::DroneSetTarget& packet)
 {
     if (not app.opponent_island()) {
@@ -146,7 +142,6 @@ void MultiplayerPeer::receive(Platform& pfrm,
     const auto drone_x = invert_axis(app, packet.drone_x_);
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
         (*drone)->set_target(
-            pfrm,
             app,
             {invert_axis(app, packet.target_x_), packet.target_y_},
             not packet.target_near_);
@@ -155,8 +150,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::RoomDestroyed& packet)
 {
     Island* island = nullptr;
@@ -183,7 +177,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                     (*room->metaclass())->name(),
                     (*load_metaclass(packet.metaclass_index_.get()))->name()) ==
                 0) {
-                room->apply_damage(pfrm, app, Room::health_upper_limit());
+                room->apply_damage(app, Room::health_upper_limit());
             }
         }
     }
@@ -191,8 +185,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ChrSetTargetV2& packet)
 {
     Island* island = nullptr;
@@ -210,14 +203,13 @@ void MultiplayerPeer::receive(Platform& pfrm,
         auto info = island->find_character_by_id(packet.chr_id_.get());
 
         if (info.first) {
-            auto path = find_path(pfrm,
-                                  app,
+            auto path = find_path(app,
                                   island,
                                   info.first,
                                   info.first->grid_position(),
                                   dst_coord);
             if (path and *path) {
-                info.first->set_movement_path(pfrm, app, std::move(*path));
+                info.first->set_movement_path(app, std::move(*path));
                 return;
             }
         } else {
@@ -235,8 +227,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ChrBoardedV2& packet)
 {
     if (not opponent_island(app)) {
@@ -267,8 +258,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ChrDisembarkV2& packet)
 {
     if (not opponent_island(app)) {
@@ -299,8 +289,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ChrDiedV2& packet)
 {
     Island* island = nullptr;
@@ -317,14 +306,13 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
         if (found.first) {
             // kill character
-            found.first->apply_damage(pfrm, app, BasicCharacter::max_health);
+            found.first->apply_damage(app, BasicCharacter::max_health);
         }
     }
 }
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ReplicantCreated& packet)
 {
     if (not app.opponent_island()) {
@@ -334,12 +322,12 @@ void MultiplayerPeer::receive(Platform& pfrm,
     const RoomCoord loc = {invert_axis(app, packet.src_x_), packet.src_y_};
 
     auto chr = app.alloc_entity<BasicCharacter>(
-        pfrm, app.opponent_island(), &app.opponent(), loc, true);
+        app.opponent_island(), &app.opponent(), loc, true);
 
     chr->__assign_id(packet.chr_id_.get());
 
     if (chr) {
-        chr->apply_damage(pfrm, app, 255 - packet.health_);
+        chr->apply_damage(app, 255 - packet.health_);
         chr->transported();
         app.opponent_island()->add_character(std::move(chr));
     }
@@ -347,8 +335,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::DroneSpawn& packet)
 {
     if (not app.opponent_island()) {
@@ -368,7 +355,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
     if (packet.drone_class_ >= ds) {
         StringBuffer<32> err("invalid index! ");
         err += stringify(packet.drone_class_);
-        pfrm.fatal(err.c_str());
+        PLATFORM.fatal(err.c_str());
     }
     auto drone_meta = &dt[packet.drone_class_];
     if (auto drone = (*drone_meta)
@@ -380,7 +367,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
         if (auto room = app.opponent_island()->get_room(drone_bay_pos)) {
 
-            if (room->attach_drone(pfrm, app, *drone)) {
+            if (room->attach_drone(app, *drone)) {
                 island->drones().push(*drone);
             }
 
@@ -392,8 +379,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::DroneDestroyed& packet)
 {
     Island* island = nullptr;
@@ -417,7 +403,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 void MultiplayerPeer::receive(
-    Platform& pfrm,
+
     App& app,
     const network::packet::OpponentBulkheadChanged& packet)
 {
@@ -429,15 +415,14 @@ void MultiplayerPeer::receive(
 
     if (auto room = app.opponent_island()->get_room(loc)) {
         if (auto bulkhead = room->cast<Bulkhead>()) {
-            bulkhead->set_open(pfrm, app, packet.open_);
+            bulkhead->set_open(app, packet.open_);
         }
     }
 }
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::ProgramVersion& packet)
 {
     if (packet.major_.get() not_eq PROGRAM_MAJOR_VERSION or
@@ -455,13 +440,12 @@ void MultiplayerPeer::receive(Platform& pfrm,
         err += ".";
         err += stringify(packet.revision_);
 
-        pfrm.fatal(err.c_str());
+        PLATFORM.fatal(err.c_str());
     }
 }
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::Heartbeat& packet)
 {
     heartbeat_recv_counter_ = 0;
@@ -469,8 +453,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::DynamiteActivated& packet)
 {
     if (app.opponent_island()) {
@@ -484,7 +467,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
             if (room->cast<Explosive>() or room->cast<TNT>()) {
                 // Selecting an explosive starts off a countdown by applying one
                 // damage point. We want to do the same thing here.
-                room->apply_damage(pfrm, app, 1);
+                room->apply_damage(app, 1);
             } else {
                 // TODO: fatal error?
             }
@@ -494,11 +477,10 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
+void MultiplayerPeer::receive(App& app,
                               const network::packet::PlayMusic& packet)
 {
-    pfrm.speaker().play_music("life_in_silco", 0);
+    PLATFORM.speaker().play_music("life_in_silco", 0);
 }
 
 

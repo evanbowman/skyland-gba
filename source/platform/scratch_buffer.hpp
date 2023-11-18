@@ -71,5 +71,5 @@ void set_scratch_buffer_oom_handler(
 
 
 class Platform;
-void scratch_buffer_memory_diagnostics(Platform& pfrm);
-void scratch_buffer_dump_sector(Platform& pfrm, int sector);
+void scratch_buffer_memory_diagnostics();
+void scratch_buffer_dump_sector(int sector);

@@ -35,147 +35,113 @@ namespace skyland
 class CoOpTeam : public PlayerP1, public network::Listener
 {
 public:
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::RoomConstructed& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::RoomDestroyed& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::WeaponSetTarget& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpCursor& packet) override;
+    void receive(App& app, const network::packet::CoOpCursor& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::RoomSalvaged& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::ChrSetTargetV2& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::ChrDiedV2& packet) override;
+    void receive(App& app, const network::packet::ChrDiedV2& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::ChrBoardedV2& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::ChrDisembarkV2& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::ReplicantCreated& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::SetWeaponGroup& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::TerrainConstructed& packet) override;
 
 
     void
-    receive(Platform& pfrm,
-            App& app,
+    receive(App& app,
             const network::packet::TerrainConstructedLeft& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::DynamiteActivated& packet) override;
 
 
     void
-    receive(Platform& pfrm,
-            App& app,
+    receive(App& app,
             const network::packet::OpponentBulkheadChanged& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::DroneSpawn& packet) override;
+    void receive(App& app, const network::packet::DroneSpawn& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::DroneDestroyed&) override;
+    void receive(App& app, const network::packet::DroneDestroyed&) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::DroneSetTarget&) override;
+    void receive(App& app, const network::packet::DroneSetTarget&) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::Heartbeat& packet) override;
+    void receive(App& app, const network::packet::Heartbeat& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpRoomLockAcquire& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpRoomLockRelease& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpRoomLockResponse& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpChrLockAcquire& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpChrLockRelease& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpChrLockResponse& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
+    void receive(App& app,
                  const network::packet::CoOpOpponentDestroyed&) override;
 
 
-    void
-    receive(Platform& pfrm, App& app, const network::packet::Paused&) override;
+    void receive(App& app, const network::packet::Paused&) override;
 
 
-    void network_sync_cursor(Platform& pfrm,
-                             const RoomCoord& cursor,
+    void network_sync_cursor(const RoomCoord& cursor,
                              u8 cursor_icon,
                              bool near) override;
 

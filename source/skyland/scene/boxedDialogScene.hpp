@@ -66,11 +66,11 @@ public:
     }
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     enum class DisplayMode {
@@ -95,15 +95,15 @@ public:
     const char* ambience_ = nullptr;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
 private:
-    void process_command(Platform& pfrm, App& app);
+    void process_command(App& app);
 
-    bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);
+    bool advance_text(App& app, Microseconds delta, bool sfx);
 
-    void clear_textbox(Platform& pfrm);
+    void clear_textbox();
 
     struct TextWriterState
     {
@@ -153,8 +153,7 @@ private:
 
 
 
-ScenePtr<Scene> dialog_prompt(Platform& pfrm,
-                              SystemString systr,
+ScenePtr<Scene> dialog_prompt(SystemString systr,
                               DeferredScene next,
                               const char* ambience = nullptr);
 
@@ -174,25 +173,25 @@ public:
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
-        dialog_scene_.display(pfrm, app);
-        WorldScene::display(pfrm, app);
+        dialog_scene_.display(app);
+        WorldScene::display(app);
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override final
+    void enter(App& app, Scene& prev) override final
     {
-        WorldScene::enter(pfrm, app, prev);
+        WorldScene::enter(app, prev);
 
         WorldScene::notransitions();
 
-        dialog_scene_.enter(pfrm, app, prev);
+        dialog_scene_.enter(app, prev);
 
         if (app.game_mode() not_eq App::GameMode::tutorial and
             pause_if_hostile_ and app.opponent_island() and
             not app.opponent().is_friendly()) {
-            set_gamespeed(pfrm, app, GameSpeed::stopped);
+            set_gamespeed(app, GameSpeed::stopped);
             state_bit_store(app, StateBit::disable_autopause, true);
         }
 
@@ -212,24 +211,23 @@ public:
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override final
+    void exit(App& app, Scene& next) override final
     {
-        WorldScene::enter(pfrm, app, next); // FIXME!
+        WorldScene::enter(app, next); // FIXME!
 
-        dialog_scene_.exit(pfrm, app, next);
+        dialog_scene_.exit(app, next);
 
         if (autorestore_music_volume_) {
-            pfrm.speaker().set_music_volume(
+            PLATFORM.speaker().set_music_volume(
                 Platform::Speaker::music_volume_max);
         }
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override final
+    ScenePtr<Scene> update(App& app, Microseconds delta) override final
     {
         if (app.game_mode() not_eq App::GameMode::tutorial) {
-            if (auto scene = WorldScene::update(pfrm, app, delta)) {
+            if (auto scene = WorldScene::update(app, delta)) {
                 return scene;
             }
         }
@@ -245,7 +243,7 @@ public:
             // keystates are, rather than asking the player class, which may be
             // pulling keystates from a data file.
             auto key_held = [&](Key k, int timer_slot, Microseconds held_time) {
-                if (pfrm.keyboard().pressed(k)) {
+                if (PLATFORM.keyboard().pressed(k)) {
                     hold_timers_[timer_slot] += delta;
                 } else {
                     hold_timers_[timer_slot] = 0;
@@ -270,7 +268,7 @@ public:
             }
 
             auto test_key = [&](Key k, int timer_slot) {
-                if (pfrm.keyboard().down_transition(k) or
+                if (PLATFORM.keyboard().down_transition(k) or
                     key_held(k, timer_slot, milliseconds(500))) {
                     key_held_reset(timer_slot, milliseconds(100));
                     return true;
@@ -344,9 +342,9 @@ public:
             cursor_anim_frame_ = not cursor_anim_frame_;
         }
 
-        app.environment().update(pfrm, app, delta);
+        app.environment().update(app, delta);
 
-        return dialog_scene_.update(pfrm, app, delta);
+        return dialog_scene_.update(app, delta);
     }
 
 

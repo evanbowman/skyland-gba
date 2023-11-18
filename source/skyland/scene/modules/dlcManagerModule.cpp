@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
+void DlcManagerModule::enter(App& app, Scene& prev)
 {
     patches_ = allocate_dynamic<PatchList>("dlc-patch-list");
 
@@ -58,7 +58,7 @@ void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
         u8 tile_deps = 0;
         u8 spr_deps = 0;
 
-        auto v = app.invoke_ram_script(pfrm, patch_info_path.c_str());
+        auto v = app.invoke_ram_script(patch_info_path.c_str());
         if (v->type() == lisp::Value::Type::cons) {
             lisp::foreach (v, [&](lisp::Value* kvp) {
                 if (kvp->type() not_eq lisp::Value::Type::cons) {
@@ -87,17 +87,17 @@ void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
             PatchInfo{patch_name, tile_deps, spr_deps});
     };
 
-    flash_filesystem::walk_directory(pfrm, "/dlc/", on_match);
+    flash_filesystem::walk_directory("/dlc/", on_match);
 
-    pfrm.screen().fade(0.95);
-    pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
+    PLATFORM.screen().fade(0.95);
+    PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
 
-    show(pfrm);
+    show();
 }
 
 
 
-void DlcManagerModule::exit(Platform& pfrm, App& app, Scene& next)
+void DlcManagerModule::exit(App& app, Scene& next)
 {
     patch_name_.reset();
     tiles_text_.reset();
@@ -112,7 +112,7 @@ void DlcManagerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void DlcManagerModule::show(Platform& pfrm)
+void DlcManagerModule::show()
 {
     static const auto heading_colors =
         Text::OptColors{{ColorConstant::silver_white, custom_color(0x193a77)}};
@@ -130,7 +130,7 @@ void DlcManagerModule::show(Platform& pfrm)
 
 
 
-    patch_name_.emplace(pfrm, OverlayCoord{1, 1});
+    patch_name_.emplace(OverlayCoord{1, 1});
 
     StringBuffer<30> heading;
 
@@ -142,14 +142,14 @@ void DlcManagerModule::show(Platform& pfrm)
     patch_name_->append(" >", heading_colors);
 
 
-    tiles_text_.emplace(pfrm, OverlayCoord{1, 4});
+    tiles_text_.emplace(OverlayCoord{1, 4});
     tiles_text_->append("tiles: ", text_colors);
     for (int i = 0; i < (*patches_)->list_[index_].tiles_used_; ++i) {
         tiles_text_->append(" ", text_colors);
         tiles_text_->append(" ", heading_colors);
     }
 
-    sprites_text_.emplace(pfrm, OverlayCoord{1, 6});
+    sprites_text_.emplace(OverlayCoord{1, 6});
     sprites_text_->append("sprites: ", text_colors);
     for (int i = 0; i < (*patches_)->list_[index_].sprites_used_; ++i) {
         sprites_text_->append(" ", text_colors);
@@ -164,9 +164,9 @@ void DlcManagerModule::show(Platform& pfrm)
         total_sprites_used += info.sprites_used_;
     }
 
-    total_tiles_label_.emplace(pfrm, OverlayCoord{1, 14});
+    total_tiles_label_.emplace(OverlayCoord{1, 14});
     total_tiles_label_->assign("total tiles", text_colors_alt);
-    total_tiles_.emplace(pfrm, OverlayCoord{1, 15});
+    total_tiles_.emplace(OverlayCoord{1, 15});
 
     for (int i = 0; i < total_tiles_used; ++i) {
         total_tiles_->append(" ", heading_colors);
@@ -178,9 +178,9 @@ void DlcManagerModule::show(Platform& pfrm)
         total_tiles_->append(" ", text_colors);
     }
 
-    total_sprites_label_.emplace(pfrm, OverlayCoord{1, 17});
+    total_sprites_label_.emplace(OverlayCoord{1, 17});
     total_sprites_label_->assign("total sprites", text_colors_alt);
-    total_sprites_.emplace(pfrm, OverlayCoord{1, 18});
+    total_sprites_.emplace(OverlayCoord{1, 18});
 
     for (int i = 0; i < total_sprites_used; ++i) {
         total_sprites_->append(" ", heading_colors);
@@ -195,10 +195,9 @@ void DlcManagerModule::show(Platform& pfrm)
 
 
 
-ScenePtr<Scene>
-DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
 {
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
 
     if ((*patches_)->list_.empty()) {
         auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
@@ -208,25 +207,25 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
         });
     }
 
-    if (app.player().key_down(pfrm, Key::right) and
+    if (app.player().key_down(Key::right) and
         index_ < (*patches_)->list_.size() - 1) {
         ++index_;
 
         erase_text_.reset();
 
-        show(pfrm);
+        show();
 
-    } else if (app.player().key_down(pfrm, Key::left) and index_ > 0) {
+    } else if (app.player().key_down(Key::left) and index_ > 0) {
         --index_;
 
         erase_text_.reset();
 
-        show(pfrm);
+        show();
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(Key::action_1)) {
         if (not erase_text_) {
-            erase_text_.emplace(pfrm, OverlayCoord{7, 10});
+            erase_text_.emplace(OverlayCoord{7, 10});
             erase_text_->assign(
                 SYSTR(dlc_erase_hint)->c_str(),
                 Text::OptColors{{ColorConstant::silver_white,
@@ -252,17 +251,17 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
             StringBuffer<flash_filesystem::max_path> full_path;
             full_path += folder;
             full_path += path_str;
-            flash_filesystem::unlink_file(pfrm, full_path.c_str());
+            flash_filesystem::unlink_file(full_path.c_str());
         };
 
-        flash_filesystem::walk_directory(pfrm, folder.c_str(), destroy_file);
+        flash_filesystem::walk_directory(folder.c_str(), destroy_file);
 
         app.player().key_held_reset(Key::action_1, seconds(2));
 
         return scene_pool::alloc<DlcManagerModule>();
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 

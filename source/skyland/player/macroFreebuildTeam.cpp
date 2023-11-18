@@ -30,14 +30,14 @@ namespace skyland::macro
 
 
 
-void FreebuildTeam::update(Platform& pfrm, App& app, Microseconds delta)
+void FreebuildTeam::update(App& app, Microseconds delta)
 {
-    PlayerP1::update(pfrm, app, delta);
+    PlayerP1::update(app, delta);
 
-    if (pfrm.network_peer().is_connected()) {
-        network::poll_messages(pfrm, app, *this);
+    if (PLATFORM.network_peer().is_connected()) {
+        network::poll_messages(app, *this);
     } else {
-        info(pfrm, "lost connection to freebuild friend!");
+        info("lost connection to freebuild friend!");
         app.swap_player<PlayerP1>();
         return;
     }
@@ -45,9 +45,7 @@ void FreebuildTeam::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void FreebuildTeam::receive(Platform& pfrm,
-                            App& app,
-                            const network::packet::MacroSetBlock& p)
+void FreebuildTeam::receive(App& app, const network::packet::MacroSetBlock& p)
 {
     auto orientation = (int)macrocosm(app).sector().persistent().orientation_;
 

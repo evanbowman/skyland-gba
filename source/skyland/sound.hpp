@@ -48,9 +48,7 @@ public:
     ~Sound();
 
 
-    void play(Platform& pfrm,
-              int priority,
-              Microseconds max_overlap = milliseconds(200));
+    void play(int priority, Microseconds max_overlap = milliseconds(200));
 
 
     static void update_all(Microseconds delta);

@@ -40,10 +40,10 @@ public:
 
     HighscoresScene(bool show_current_score, int title_screen_page);
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds) override;
+    ScenePtr<Scene> update(App&, Microseconds) override;
 
 
     static SystemString module_name()

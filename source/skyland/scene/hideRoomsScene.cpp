@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void HideRoomsScene::enter(App& app, Scene& prev)
 {
     data_ = allocate_dynamic<Data>("hide-rooms-context");
 
@@ -45,25 +45,25 @@ void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    repaint(pfrm, app);
+    repaint(app);
 }
 
 
 
-void HideRoomsScene::exit(Platform& pfrm, App& app, Scene& prev)
+void HideRoomsScene::exit(App& app, Scene& prev)
 {
     names_.clear();
     hidden_.clear();
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     if (changed_) {
-        store_hidden_rooms(pfrm);
+        store_hidden_rooms();
     }
 }
 
 
 
-void HideRoomsScene::repaint(Platform& pfrm, App& app)
+void HideRoomsScene::repaint(App& app)
 {
     auto [mt, ms] = room_metatable();
 
@@ -82,18 +82,17 @@ void HideRoomsScene::repaint(Platform& pfrm, App& app)
                       : mt[(*data_)->room_classes_[index]];
 
         auto icon = shade ? m->icon() : m->unsel_icon();
-        draw_image(pfrm, vram, 1, y, 4, 4, Layer::overlay);
-        pfrm.load_overlay_chunk(vram, icon, 16);
+        draw_image(vram, 1, y, 4, 4, Layer::overlay);
+        PLATFORM.load_overlay_chunk(vram, icon, 16);
 
         if (m->properties() & RoomProperties::not_constructible) {
             return;
         }
 
         StringBuffer<48> description;
-        description += m->ui_name(pfrm)->c_str();
+        description += m->ui_name()->c_str();
 
-        names_.emplace_back(
-            pfrm, description.c_str(), OverlayCoord{6, u8(y + 1)});
+        names_.emplace_back(description.c_str(), OverlayCoord{6, u8(y + 1)});
 
         Text::OptColors opts;
         if (shade) {
@@ -104,18 +103,18 @@ void HideRoomsScene::repaint(Platform& pfrm, App& app)
         if (room_hidden((*data_)->room_classes_[index])) {
             auto str = SYSTR(yes);
             hidden_.emplace_back(
-                pfrm,
-                OverlayCoord{(u8)((calc_screen_tiles(pfrm).x - 1) -
-                                  utf8::len(str->c_str())),
-                             u8(y + 2)});
+
+                OverlayCoord{
+                    (u8)((calc_screen_tiles().x - 1) - utf8::len(str->c_str())),
+                    u8(y + 2)});
             hidden_.back().assign(str->c_str());
         } else {
             auto str = SYSTR(no);
             hidden_.emplace_back(
-                pfrm,
-                OverlayCoord{(u8)((calc_screen_tiles(pfrm).x - 1) -
-                                  utf8::len(str->c_str())),
-                             u8(y + 2)});
+
+                OverlayCoord{
+                    (u8)((calc_screen_tiles().x - 1) - utf8::len(str->c_str())),
+                    u8(y + 2)});
             hidden_.back().assign(str->c_str());
         }
     };
@@ -124,45 +123,43 @@ void HideRoomsScene::repaint(Platform& pfrm, App& app)
     put(index_ + 1, 197, 10, false);
     put(index_ + 2, 213, 15, false);
 
-    for (int x = 2; x < calc_screen_tiles(pfrm).x - 2; ++x) {
-        pfrm.set_tile(Layer::overlay, x, 8, 377);
+    for (int x = 2; x < calc_screen_tiles().x - 2; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 8, 377);
     }
 }
 
 
 
-ScenePtr<Scene>
-HideRoomsScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> HideRoomsScene::update(App& app, Microseconds delta)
 {
-    player(app).update(pfrm, app, delta);
+    player(app).update(app, delta);
 
-    if (player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(Key::action_2)) {
         return next_();
     }
 
-    if (player(app).key_down(pfrm, Key::action_1)) {
+    if (player(app).key_down(Key::action_1)) {
         auto mti = (*data_)->room_classes_[index_];
         room_set_hidden(mti, not room_hidden(mti));
-        repaint(pfrm, app);
+        repaint(app);
         changed_ = true;
     }
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player(app).test_key(k, milliseconds(500), milliseconds(100));
     };
 
     int limit = (int)(*data_)->room_classes_.size();
     if (test_key(Key::down) and index_ < limit - 1) {
         ++index_;
-        pfrm.speaker().play_sound("click_wooden", 2);
-        repaint(pfrm, app);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
+        repaint(app);
     }
 
     if (test_key(Key::up) and index_ > 0) {
         --index_;
-        pfrm.speaker().play_sound("click_wooden", 2);
-        repaint(pfrm, app);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
+        repaint(app);
     }
 
     return null_scene();

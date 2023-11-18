@@ -56,9 +56,9 @@ const MultiplayerSettingsScene::ParameterInfo
 
 
 
-void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MultiplayerSettingsScene::enter(App& app, Scene& prev)
 {
-    if (pfrm.network_peer().is_host()) {
+    if (PLATFORM.network_peer().is_host()) {
 
         // Feed the utility rng into a variable, sync it with the client
         // console.
@@ -67,34 +67,32 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = special_parameter_slot_co_op_rng;
         p.value_.set(*co_op_rng_);
-        network::transmit(pfrm, p);
+        network::transmit(p);
     }
 
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 
-    pfrm.screen().set_shader(passthrough_shader);
+    PLATFORM.screen().set_shader(passthrough_shader);
 
     const auto title = SYSTR(mt_title);
 
-    pfrm.load_overlay_texture("overlay_challenges");
+    PLATFORM.load_overlay_texture("overlay_challenges");
 
     title_.emplace(
-        pfrm,
+
         title->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
-                     1});
+        OverlayCoord{(u8)centered_text_margins(utf8::len(title->c_str())), 1});
 
 
     const auto msg = SYSTR(mt_hint);
     msg_.emplace(
-        pfrm,
+
         msg->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())),
-                     18});
+        OverlayCoord{(u8)centered_text_margins(utf8::len(msg->c_str())), 18});
 
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
-        settings_text_.emplace_back(pfrm, OverlayCoord{2, u8(4 + i * 2)});
+        settings_text_.emplace_back(OverlayCoord{2, u8(4 + i * 2)});
     }
 
     if (not vs_parameters_.full()) {
@@ -114,17 +112,17 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     for (u32 i = 0; i < vs_parameters_.capacity(); ++i) {
-        update_parameter(pfrm, i);
+        update_parameter(i);
     }
 
-    pfrm.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
+    PLATFORM.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
 
-    pfrm.system_call("v-parallax", (void*)false);
+    PLATFORM.system_call("v-parallax", (void*)false);
 }
 
 
 
-void MultiplayerSettingsScene::update_parameter(Platform& pfrm, u8 line_num)
+void MultiplayerSettingsScene::update_parameter(u8 line_num)
 {
     if (line_num >= vs_parameters_.capacity()) {
         return;
@@ -135,7 +133,7 @@ void MultiplayerSettingsScene::update_parameter(Platform& pfrm, u8 line_num)
     }
 
     StringBuffer<48> temp;
-    temp += loadstr(pfrm, param_info[line_num].name_)->c_str();
+    temp += loadstr(param_info[line_num].name_)->c_str();
     temp += " ";
 
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
@@ -186,7 +184,7 @@ void MultiplayerSettingsScene::update_parameter(Platform& pfrm, u8 line_num)
             player_cursor_ = 0;
         } else {
             for (u32 i = 1; i < settings_text_.size(); ++i) {
-                update_parameter(pfrm, i);
+                update_parameter(i);
             }
         }
     }
@@ -198,31 +196,31 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 
 
-void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
+void MultiplayerSettingsScene::exit(App& app, Scene& next)
 {
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     title_.reset();
     settings_text_.clear();
 
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.load_overlay_texture("overlay");
 
-    pfrm.system_call("v-parallax", (void*)true);
+    PLATFORM.system_call("v-parallax", (void*)true);
 
     if (vs_parameters_[0]) {
-        setup_co_op_game(pfrm, app);
+        setup_co_op_game(app);
     } else {
-        setup_vs_game(pfrm, app);
+        setup_vs_game(app);
     }
 }
 
 
 
-void prep_level(Platform& pfrm, App& app);
+void prep_level(App& app);
 
 
 
-void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
+void MultiplayerSettingsScene::setup_co_op_game(App& app)
 {
     if (co_op_rng_) {
         rng::critical_state = *co_op_rng_;
@@ -237,11 +235,11 @@ void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
-    SkylandForever::init(pfrm, app, 1, *co_op_rng_);
+    SkylandForever::init(app, 1, *co_op_rng_);
 
     app.persistent_data().score_.set(0);
 
-    app.set_coins(pfrm, std::max(0, app.coins() - 1000));
+    app.set_coins(std::max(0, app.coins() - 1000));
 
     app.swap_player<CoOpTeam>();
 
@@ -264,9 +262,9 @@ Microseconds MultiplayerSettingsScene::timeout_duration()
 
 
 
-void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
+void MultiplayerSettingsScene::setup_vs_game(App& app)
 {
-    const bool is_host = pfrm.network_peer().is_host();
+    const bool is_host = PLATFORM.network_peer().is_host();
     const auto non_host_start_id =
         BasicCharacter::multiplayer_vs_client_chr_start_id;
 
@@ -285,14 +283,14 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     globals().unhide_multiplayer_prep_ = vs_parameters_[2];
 
-    app.set_coins(pfrm, vs_parameters_[3]);
+    app.set_coins(vs_parameters_[3]);
 
 
-    app.player_island().init_terrain(pfrm, vs_parameters_[4]);
+    app.player_island().init_terrain(vs_parameters_[4]);
 
     // Now that we know the size of the terrain for the multiplayer match, we
     // can create and position the two islands.
-    app.create_opponent_island(pfrm, vs_parameters_[4]);
+    app.create_opponent_island(vs_parameters_[4]);
 
     app.opponent_island()->set_float_timer(
         std::numeric_limits<Microseconds>::max() / 2);
@@ -300,13 +298,13 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     set_island_positions(app.player_island(), *app.opponent_island());
 
 
-    app.player_island().clear_rooms(pfrm, app);
+    app.player_island().clear_rooms(app);
 
 
     // Unless the island configured size is really tiny, leave a one-tile gap to
     // the left of the starting position of the power core.
     const u8 player_start_x = vs_parameters_[4] > 3 ? 1 : 0;
-    app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13}, true);
+    app.player_island().add_room<Core>(app, {player_start_x, 13}, true);
 
     auto add_player_chr = [&app](u8 x, u8 y, int id) {
         auto chr = alloc_entity<BasicCharacter>(
@@ -323,8 +321,7 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     const u8 opponent_start_x =
         vs_parameters_[4] > 3 ? vs_parameters_[4] - 3 : vs_parameters_[4] - 2;
-    app.opponent_island()->add_room<Core>(
-        pfrm, app, {opponent_start_x, 13}, true);
+    app.opponent_island()->add_room<Core>(app, {opponent_start_x, 13}, true);
 
     auto add_opponent_chr = [&app](u8 x, u8 y, int id) {
         auto chr = alloc_entity<BasicCharacter>(
@@ -338,15 +335,15 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     add_opponent_chr(
         opponent_start_x + 1, 14, is_host ? non_host_start_id + 1 : 1);
 
-    app.player_island().repaint(pfrm, app);
-    app.opponent_island()->repaint(pfrm, app);
+    app.player_island().repaint(app);
+    app.opponent_island()->repaint(app);
 }
 
 
 
-void MultiplayerSettingsScene::display(Platform& pfrm, App& app)
+void MultiplayerSettingsScene::display(App& app)
 {
-    Scene::display(pfrm, app);
+    Scene::display(app);
 
     if (state_ not_eq State::edit_settings) {
         return;
@@ -358,13 +355,13 @@ void MultiplayerSettingsScene::display(Platform& pfrm, App& app)
     spr.set_position(
         {2.0_fixed, 31.0_fixed + Fixnum::from_integer(player_cursor_ * 16)});
 
-    pfrm.screen().draw(spr);
+    PLATFORM.screen().draw(spr);
 }
 
 
 
 void MultiplayerSettingsScene::receive(
-    Platform& pfrm,
+
     App& app,
     const network::packet::GameMatchParameterUpdate& packet)
 {
@@ -374,13 +371,13 @@ void MultiplayerSettingsScene::receive(
     }
 
     vs_parameters_[packet.parameter_id_] = packet.value_.get();
-    update_parameter(pfrm, packet.parameter_id_);
+    update_parameter(packet.parameter_id_);
 }
 
 
 
 void MultiplayerSettingsScene::receive(
-    Platform& pfrm,
+
     App& app,
     const network::packet::GameMatchSettingsCursor& packet)
 {
@@ -390,7 +387,7 @@ void MultiplayerSettingsScene::receive(
 
 
 void MultiplayerSettingsScene::receive(
-    Platform& pfrm,
+
     App& app,
     const network::packet::GameMatchReady& packet)
 {
@@ -399,46 +396,45 @@ void MultiplayerSettingsScene::receive(
 
 
 
-void MultiplayerSettingsScene::sync_parameters(Platform& pfrm)
+void MultiplayerSettingsScene::sync_parameters()
 {
     for (u32 i = 0; i < vs_parameters_.size(); ++i) {
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = i;
         p.value_.set(vs_parameters_[i]);
-        network::transmit(pfrm, p);
+        network::transmit(p);
     }
 }
 
 
 
-ScenePtr<Scene>
-MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
-    if (pfrm.network_peer().is_connected()) {
-        network::poll_messages(pfrm, app, *this);
+    if (PLATFORM.network_peer().is_connected()) {
+        network::poll_messages(app, *this);
     }
 
-    if (app.player().key_pressed(pfrm, Key::up)) {
+    if (app.player().key_pressed(Key::up)) {
         key_held_timers_[0] += delta;
     } else {
         key_held_timers_[0] = 0;
     }
 
-    if (app.player().key_pressed(pfrm, Key::down)) {
+    if (app.player().key_pressed(Key::down)) {
         key_held_timers_[1] += delta;
     } else {
         key_held_timers_[1] = 0;
     }
 
-    if (app.player().key_pressed(pfrm, Key::left)) {
+    if (app.player().key_pressed(Key::left)) {
         key_held_timers_[2] += delta;
     } else {
         key_held_timers_[2] = 0;
     }
 
-    if (app.player().key_pressed(pfrm, Key::right)) {
+    if (app.player().key_pressed(Key::right)) {
         key_held_timers_[3] += delta;
     } else {
         key_held_timers_[3] = 0;
@@ -451,36 +447,37 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         return null_scene();
     }
 
-    if (app.player().key_down(pfrm, Key::start)) {
-        if (not pfrm.network_peer().is_host() and parameter_sync_timer_ > 0) {
+    if (app.player().key_down(Key::start)) {
+        if (not PLATFORM.network_peer().is_host() and
+            parameter_sync_timer_ > 0) {
             return null_scene();
         }
         state_ = State::ready;
 
-        sync_parameters(pfrm);
+        sync_parameters();
 
         network::packet::GameMatchReady r;
-        network::transmit(pfrm, r);
+        network::transmit(r);
 
         const auto msg = SYSTR(mt_waiting);
         msg_.emplace(
-            pfrm,
+
             msg->c_str(),
-            OverlayCoord{
-                (u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
+            OverlayCoord{(u8)centered_text_margins(utf8::len(msg->c_str())),
+                         18});
 
 
         return null_scene();
     }
 
-    if (pfrm.network_peer().is_host()) {
+    if (PLATFORM.network_peer().is_host()) {
         parameter_sync_timer_ -= delta;
         if (parameter_sync_timer_ < 0) {
             parameter_sync_timer_ = seconds(2);
 
             // Every so often, the host device broadcasts its own parameters, in
             // case anything got out of sync.
-            sync_parameters(pfrm);
+            sync_parameters();
         }
     } else {
         if (parameter_sync_timer_ > 0) {
@@ -496,7 +493,7 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         param_info[player_cursor_].upper_limit_ == 1;
 
 
-    if (app.player().key_down(pfrm, Key::right) or
+    if (app.player().key_down(Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
         if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {
@@ -505,15 +502,15 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (is_boolean_field) {
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
-        update_parameter(pfrm, player_cursor_);
+        update_parameter(player_cursor_);
         key_held_timers_[3] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
         p.value_.set(vs_parameters_[player_cursor_]);
-        network::transmit(pfrm, p);
+        network::transmit(p);
 
-    } else if (app.player().key_down(pfrm, Key::left) or
+    } else if (app.player().key_down(Key::left) or
                key_held_timers_[2] > milliseconds(500)) {
         vs_parameters_[player_cursor_] -= param_info[player_cursor_].increment_;
         if (vs_parameters_[player_cursor_] <
@@ -523,29 +520,29 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (is_boolean_field) {
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
-        update_parameter(pfrm, player_cursor_);
+        update_parameter(player_cursor_);
         key_held_timers_[2] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
         p.value_.set(vs_parameters_[player_cursor_]);
-        network::transmit(pfrm, p);
+        network::transmit(p);
 
-    } else if (app.player().key_down(pfrm, Key::down) and
+    } else if (app.player().key_down(Key::down) and
                player_cursor_ < settings_text_.size() - 1 and
                vs_parameters_[0] == 0) {
         ++player_cursor_;
 
         network::packet::GameMatchSettingsCursor c;
         c.cursor_line_ = player_cursor_;
-        network::transmit(pfrm, c);
+        network::transmit(c);
 
-    } else if (app.player().key_down(pfrm, Key::up) and player_cursor_ > 0) {
+    } else if (app.player().key_down(Key::up) and player_cursor_ > 0) {
         --player_cursor_;
 
         network::packet::GameMatchSettingsCursor c;
         c.cursor_line_ = player_cursor_;
-        network::transmit(pfrm, c);
+        network::transmit(c);
     }
 
     return null_scene();

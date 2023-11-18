@@ -40,22 +40,19 @@ namespace skyland
 
 
 
-void describe_room(Platform& pfrm,
-                   App& app,
+void describe_room(App& app,
                    Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
 
-void clear_room_description(Platform& pfrm,
-                            App& app,
-                            std::optional<Text>& room_description);
+void clear_room_description(App& app, std::optional<Text>& room_description);
 
 
 
-std::tuple<u8, u8, Island*>
-check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos);
+std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
+                                                  const Vec2<u32>& pos);
 
 
 
@@ -85,10 +82,9 @@ u8 minimap_width(App& app)
 
 
 
-ScenePtr<Scene>
-WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> WeaponSetTargetScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
@@ -129,16 +125,15 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
 
-    if (app.player().key_down(pfrm, Key::alt_2) and
+    if (app.player().key_down(Key::alt_2) and
         group_ not_eq Room::Group::none and
-        not pfrm.network_peer().is_connected()) {
+        not PLATFORM.network_peer().is_connected()) {
         firing_mode_ = (firing_mode_ + 1) % 3;
     }
 
@@ -147,24 +142,24 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         minimap_repaint_timer_ -= delta;
         if (minimap_repaint_timer_ < 0) {
             minimap_repaint_timer_ = 0;
-            minimap_repaint(pfrm, app);
+            minimap_repaint(app);
             cursor_tics_ = 0;
         }
     }
 
     if (cursor_tics_ > 4) {
-        minimap_hide(pfrm, app);
+        minimap_hide(app);
     }
 
 
-    if (app.player().key_down(pfrm, Key::select)) {
+    if (app.player().key_down(Key::select)) {
         minimap_disabled = not minimap_disabled;
-        pfrm.speaker().play_sound("click_wooden", 2);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
         if (minimap_disabled) {
-            minimap_hide(pfrm, app);
+            minimap_hide(app);
         } else {
-            minimap_repaint(pfrm, app);
-            minimap_show(pfrm, app);
+            minimap_repaint(app);
+            minimap_show(app);
         }
     }
 
@@ -173,67 +168,67 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             ++cursor_tics_;
-            clear_room_description(pfrm, app, room_description_);
+            clear_room_description(app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
 
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            app.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
     if (test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             ++cursor_tics_;
-            clear_room_description(pfrm, app, room_description_);
+            clear_room_description(app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
 
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            app.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
     if (test_key(Key::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
             ++cursor_tics_;
-            clear_room_description(pfrm, app, room_description_);
+            clear_room_description(app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
 
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            app.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
     if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             ++cursor_tics_;
-            clear_room_description(pfrm, app, room_description_);
+            clear_room_description(app, room_description_);
             describe_room_timer_ = milliseconds(300);
 
             minimap_repaint_timer_ = milliseconds(110);
 
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            app.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
 
     auto onclick = [&](RoomCoord cursor_loc) -> ScenePtr<Scene> {
         if (app.opponent_island()->get_room(cursor_loc)) {
 
-            auto do_set_target = [&pfrm, &app, cursor_loc](Room& room) {
-                room.set_target(pfrm, app, cursor_loc, true);
+            auto do_set_target = [&app, cursor_loc](Room& room) {
+                room.set_target(app, cursor_loc, true);
                 network::packet::WeaponSetTarget packet;
                 packet.weapon_x_ = room.position().x;
                 packet.weapon_y_ = room.position().y;
                 packet.target_x_ = cursor_loc.x;
                 packet.target_y_ = cursor_loc.y;
                 packet.weapon_near_ = true;
-                network::transmit(pfrm, packet);
+                network::transmit(packet);
             };
 
 
@@ -333,13 +328,13 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     packet.drone_near_ =
                         drone.destination() == &app.player_island();
                     packet.target_near_ = false;
-                    network::transmit(pfrm, packet);
+                    network::transmit(packet);
                 };
 
                 if (near_) {
                     if (auto drone =
                             app.player_island().get_drone(weapon_loc_)) {
-                        (*drone)->set_target(pfrm, app, cursor_loc);
+                        (*drone)->set_target(app, cursor_loc);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());
@@ -347,7 +342,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 } else {
                     if (auto drone =
                             app.opponent_island()->get_drone(weapon_loc_)) {
-                        (*drone)->set_target(pfrm, app, cursor_loc);
+                        (*drone)->set_target(app, cursor_loc);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());
@@ -359,7 +354,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     if (test_key(Key::start)) {
-        snap(pfrm, app);
+        snap(app);
         camera_update_timer_ = milliseconds(500);
         minimap_repaint_timer_ = milliseconds(100);
     }
@@ -368,8 +363,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene;
         }
     }
-    if (auto pos = app.player().tap_released(pfrm)) {
-        auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
+    if (auto pos = app.player().tap_released()) {
+        auto [x, y, island] = check_island_tapclick(app, *pos);
         if (island == app.opponent_island()) {
             if (auto scene = onclick({x, y})) {
                 return scene;
@@ -387,14 +382,14 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     // origin.x += Fixnum::from_integer(cursor_loc.x * 16);
     // origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
-    // auto abs_cursor_y = origin.y.as_integer() - pfrm.screen().get_view().int_center().y;
+    // auto abs_cursor_y = origin.y.as_integer() - PLATFORM.screen().get_view().int_center().y;
 
     // if (abs_cursor_x > 8 * (27 - minimap_width(app) - 3)) {
-    //     minimap_show(pfrm, app, 1);
+    //     minimap_show(app, 1);
     // } else if (abs_cursor_x < 8 * (27 - minimap_width(app) + 1)) {
 
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         if (near_) {
             if (auto drone = app.player_island().get_drone(weapon_loc_)) {
                 return drone_exit_scene(drone->get());
@@ -413,11 +408,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(500);
 
             if (app.opponent_island()) {
-                describe_room(pfrm,
-                              app,
-                              app.opponent_island(),
-                              cursor_loc,
-                              room_description_);
+                describe_room(
+                    app, app.opponent_island(), cursor_loc, room_description_);
             }
         }
     }
@@ -426,9 +418,9 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void WeaponSetTargetScene::display(Platform& pfrm, App& app)
+void WeaponSetTargetScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     if (not app.opponent_island()) {
         return;
@@ -446,7 +438,7 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
     sprite.set_texture_index((17 * 2));
     sprite.set_size(Sprite::Size::w16_h16);
 
-    pfrm.screen().draw(sprite);
+    PLATFORM.screen().draw(sprite);
 
     if (firing_mode_) {
         sprite.set_size(Sprite::Size::w16_h32);
@@ -454,31 +446,31 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
         origin.x += 12.0_fixed;
         origin.y += 10.0_fixed;
         sprite.set_position(origin);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     }
 }
 
 
 
-void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
+void WeaponSetTargetScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
-    clear_room_description(pfrm, app, room_description_);
+    clear_room_description(app, room_description_);
 
     if (app.game_mode() == App::GameMode::co_op) {
 
         if (auto room = app.player_island().get_room(weapon_loc_)) {
-            room->co_op_release_lock(pfrm);
+            room->co_op_release_lock();
         }
     }
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
 
-void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
+void WeaponSetTargetScene::minimap_show(App& app)
 {
     const u8 anchor = 29 - minimap_width(app);
 
@@ -486,7 +478,7 @@ void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
         return;
     }
 
-    minimap_hide(pfrm, app);
+    minimap_hide(app);
 
     if (minimap_disabled) {
         return;
@@ -497,7 +489,7 @@ void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
     u16 tile = minimap_start_tile;
     for (int y = 0; y < 5; ++y) {
         for (int x = 0; x < width; ++x) {
-            pfrm.set_tile(Layer::overlay, anchor + x, 14 + y, tile++);
+            PLATFORM.set_tile(Layer::overlay, anchor + x, 14 + y, tile++);
         }
     }
 
@@ -507,7 +499,7 @@ void WeaponSetTargetScene::minimap_show(Platform& pfrm, App& app)
 
 
 
-void WeaponSetTargetScene::minimap_hide(Platform& pfrm, App& app)
+void WeaponSetTargetScene::minimap_hide(App& app)
 {
     if (not minimap_visible_) {
         return;
@@ -517,7 +509,7 @@ void WeaponSetTargetScene::minimap_hide(Platform& pfrm, App& app)
 
     for (int y = 0; y < 5; ++y) {
         for (int x = 0; x < width; ++x) {
-            pfrm.set_tile(Layer::overlay, minimap_x_anchor_ + x, 14 + y, 0);
+            PLATFORM.set_tile(Layer::overlay, minimap_x_anchor_ + x, 14 + y, 0);
         }
     }
 
@@ -526,9 +518,9 @@ void WeaponSetTargetScene::minimap_hide(Platform& pfrm, App& app)
 
 
 
-void WeaponSetTargetScene::minimap_init(Platform& pfrm, App& app)
+void WeaponSetTargetScene::minimap_init(App& app)
 {
-    minimap_repaint(pfrm, app);
+    minimap_repaint(app);
 }
 
 
@@ -555,7 +547,7 @@ static Platform::EncodedTile encode_small_tile(u8 tile_data[16][16])
 
 
 
-void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
+void WeaponSetTargetScene::minimap_repaint(App& app)
 {
     if (minimap_disabled) {
         return;
@@ -566,7 +558,7 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
         return;
     }
 
-    [[maybe_unused]] auto before = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto before = PLATFORM.delta_clock().sample();
 
 
     const u8 width = minimap_width(app);
@@ -979,25 +971,25 @@ void WeaponSetTargetScene::minimap_repaint(Platform& pfrm, App& app)
                     td.data_[xx][yy] = pixel_buffer[x * 8 + xx][y * 8 + yy];
                 }
             }
-            pfrm.overwrite_overlay_tile(tile, encode_small_tile(td.data_));
+            PLATFORM.overwrite_overlay_tile(tile, encode_small_tile(td.data_));
             tile++;
         }
     }
 
-    minimap_show(pfrm, app);
+    minimap_show(app);
 
-    [[maybe_unused]] auto after = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto after = PLATFORM.delta_clock().sample();
 
-    if (not pfrm.network_peer().is_connected()) {
+    if (not PLATFORM.network_peer().is_connected()) {
         // FIXME: repaint function has large overhead. Optimize and remove clock
         // reset.
-        pfrm.delta_clock().reset();
+        PLATFORM.delta_clock().reset();
     }
 }
 
 
 
-void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
+void WeaponSetTargetScene::enter(App& app, Scene& prev)
 {
     if (auto w = prev.cast_world_scene()) {
         // Yeah I know, this doesn't look pretty. If we came from a scene where
@@ -1013,7 +1005,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
     if (not app.opponent_island()) {
         return;
@@ -1024,14 +1016,14 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (initial_pos_) {
         cursor_loc = *initial_pos_;
     } else {
-        snap(pfrm, app);
+        snap(app);
     }
 
     if (not app.player_island().get_drone(weapon_loc_)) {
-        pfrm.speaker().play_sound("weapon_target", 3);
+        PLATFORM.speaker().play_sound("weapon_target", 3);
     }
 
-    app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
+    app.player().network_sync_cursor(cursor_loc, 2, false);
 
     if (near_) {
         if (auto room = app.player_island().get_room(weapon_loc_)) {
@@ -1041,7 +1033,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     far_camera();
 
-    minimap_init(pfrm, app);
+    minimap_init(app);
 
     last_player_checksum_ = app.player_island().checksum();
 
@@ -1052,7 +1044,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void WeaponSetTargetScene::snap(Platform& pfrm, App& app)
+void WeaponSetTargetScene::snap(App& app)
 {
     auto& cursor_loc = globals().far_cursor_loc_;
 

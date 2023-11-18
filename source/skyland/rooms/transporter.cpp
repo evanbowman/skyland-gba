@@ -46,7 +46,7 @@ SHARED_VARIABLE(transporter_reload_ms);
 
 
 
-void Transporter::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Transporter::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_transporter)->c_str();
 }
@@ -60,9 +60,9 @@ Transporter::Transporter(Island* parent, const RoomCoord& position)
 
 
 
-void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
+void Transporter::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (recharge_ > 0) {
 
@@ -96,9 +96,9 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Transporter::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Transporter::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (recharge_ <= 0) {
         // Fully recharged.
@@ -109,23 +109,23 @@ void Transporter::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Transporter::___rewind___finished_reload(Platform& pfrm, App& app)
+void Transporter::___rewind___finished_reload(App& app)
 {
     recharge_ = 1;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm, app);
+        parent()->repaint(app);
     }
 }
 
 
 
-void Transporter::___rewind___ability_used(Platform& pfrm, App& app)
+void Transporter::___rewind___ability_used(App& app)
 {
     recharge_ = 0;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm, app);
+        parent()->repaint(app);
     }
 }
 
@@ -155,7 +155,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -180,7 +180,7 @@ public:
         sprite_.set_position(pos);
     }
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -192,9 +192,7 @@ private:
 
 
 
-void Transporter::recover_character(Platform& pfrm,
-                                    App& app,
-                                    const RoomCoord& position)
+void Transporter::recover_character(App& app, const RoomCoord& position)
 {
     begin_recharge();
 
@@ -245,7 +243,7 @@ void Transporter::recover_character(Platform& pfrm,
                 packet.transporter_x_ = dst.x;
                 packet.transporter_y_ = dst.x;
                 packet.transporter_near_ = &parent()->owner() == &app.player();
-                network::transmit(pfrm, packet);
+                network::transmit(packet);
 
                 // Maybe you're thinking: why is he recording two separate
                 // events? Wouldn't it be better to just record a single type of
@@ -294,8 +292,7 @@ void Transporter::recover_character(Platform& pfrm,
 
 
 
-void Transporter::transport_occupant(Platform& pfrm,
-                                     App& app,
+void Transporter::transport_occupant(App& app,
                                      std::optional<RoomCoord> destination)
 {
     begin_recharge();
@@ -366,7 +363,7 @@ void Transporter::transport_occupant(Platform& pfrm,
         packet.transporter_x_ = (*chr)->grid_position().x;
         packet.transporter_y_ = (*chr)->grid_position().y;
         packet.transporter_near_ = &parent()->owner() == &app.player();
-        network::transmit(pfrm, packet);
+        network::transmit(packet);
 
         time_stream::event::CharacterTransported e;
         e.previous_x_ = (*chr)->grid_position().x;
@@ -400,17 +397,16 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     edit_characters().erase(characters().begin());
 
-    if (not pfrm.speaker().is_sound_playing("transporter")) {
-        pfrm.speaker().play_sound("transporter", 2);
+    if (not PLATFORM.speaker().is_sound_playing("transporter")) {
+        PLATFORM.speaker().play_sound("transporter", 2);
     }
 }
 
 
 
-ScenePtr<Scene>
-Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Transporter::select(App& app, const RoomCoord& cursor)
 {
-    if (auto new_scene = Room::select(pfrm, app, cursor)) {
+    if (auto new_scene = Room::select(app, cursor)) {
         return new_scene;
     }
 
@@ -427,7 +423,7 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
 
 
-    if (auto scn = reject_if_friendly(pfrm, app)) {
+    if (auto scn = reject_if_friendly(app)) {
         return scn;
     }
 
@@ -441,9 +437,9 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         }
 
         if (parent()->has_radar() and parent() == &app.player_island()) {
-            return scene_pool::alloc<TransportCharacterScene>(pfrm, position());
+            return scene_pool::alloc<TransportCharacterScene>(position());
         } else {
-            transport_occupant(pfrm, app);
+            transport_occupant(app);
         }
 
         return null_scene();
@@ -451,7 +447,7 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         if (parent() == &app.player_island()) {
             return scene_pool::alloc<RecoverCharacterScene>(position());
         } else {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();
         }
     }
@@ -535,12 +531,12 @@ void transport_character_impl(App& app,
 
 
 
-void Transporter::finalize(Platform& pfrm, App& app)
+void Transporter::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
-        ExploSpawner::create(pfrm, app, center());
+        ExploSpawner::create(app, center());
     }
 }
 

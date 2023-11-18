@@ -47,16 +47,16 @@ MindControl::MindControl(Island* parent,
 
 
 
-void MindControl::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void MindControl::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_mind_control)->c_str();
 }
 
 
 
-void MindControl::update(Platform& pfrm, App& app, Microseconds delta)
+void MindControl::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
@@ -78,16 +78,14 @@ void MindControl::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (parent() == &app.player_island()) {
                 if (room->parent() == &app.player_island()) {
-                    EnemyAI::assign_local_character(pfrm,
-                                                    app,
+                    EnemyAI::assign_local_character(app,
                                                     *chr,
                                                     &app.player(),
                                                     &app.player_island(),
                                                     app.opponent_island(),
                                                     true);
                 } else {
-                    EnemyAI::assign_boarded_character(pfrm,
-                                                      app,
+                    EnemyAI::assign_boarded_character(app,
                                                       *chr,
                                                       &app.player(),
                                                       &app.player_island(),
@@ -95,15 +93,13 @@ void MindControl::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             } else {
                 if (room->parent() == &app.player_island()) {
-                    EnemyAI::assign_boarded_character(pfrm,
-                                                      app,
+                    EnemyAI::assign_boarded_character(app,
                                                       *chr,
                                                       &app.opponent(),
                                                       app.opponent_island(),
                                                       &app.player_island());
                 } else {
-                    EnemyAI::assign_local_character(pfrm,
-                                                    app,
+                    EnemyAI::assign_local_character(app,
                                                     *chr,
                                                     &app.opponent(),
                                                     app.opponent_island(),
@@ -135,8 +131,7 @@ void MindControl::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene>
-MindControl::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> MindControl::select(App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -187,9 +182,9 @@ void MindControl::display_on_hover(Platform::Screen& screen,
 
 
 
-void MindControl::finalize(Platform& pfrm, App& app)
+void MindControl::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (controlled_character_) {
         auto [chr, room] =

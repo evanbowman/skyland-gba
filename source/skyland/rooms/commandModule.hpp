@@ -41,14 +41,14 @@ public:
                   const char* n = name());
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()

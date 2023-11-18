@@ -46,18 +46,19 @@ namespace skyland
 
 
 
-static inline int boot_init(Platform& pf)
+static inline int boot_init()
 {
     systemstring_bind_file("strings.txt");
 
     {
-        Conf conf(pf);
+        Conf conf;
         if (conf.expect<Conf::String>("profile", "beta") == "yes") {
-            if (auto f = pf.load_file_contents("", "/licenses/user.txt")) {
-                pf.fill_overlay(112);
+            if (auto f =
+                    PLATFORM.load_file_contents("", "/licenses/user.txt")) {
+                PLATFORM.fill_overlay(112);
                 enable_text_icon_glyphs(false);
-                pf.load_overlay_texture("overlay");
-                pf.enable_glyph_mode(true);
+                PLATFORM.load_overlay_texture("overlay");
+                PLATFORM.enable_glyph_mode(true);
                 StringBuffer<256> msg;
                 msg = "This beta test rom was issued to ";
                 StringBuffer<27> fmt;
@@ -73,26 +74,26 @@ static inline int boot_init(Platform& pf)
                 msg += fmt;
                 msg += ". Please do not distribute!";
 
-                TextView tv(pf);
+                TextView tv;
                 tv.assign(msg.c_str(), {1, 1}, {28, 18});
 
                 for (int i = 0; i < 200; ++i) {
-                    pf.screen().clear();
-                    pf.screen().display();
+                    PLATFORM.screen().clear();
+                    PLATFORM.screen().display();
                 }
                 enable_text_icon_glyphs(true);
-                pf.fill_overlay(0);
+                PLATFORM.fill_overlay(0);
             }
         }
     }
 
-    BootScene::init(pf);
+    BootScene::init();
 
-    BootScene::message(pf, "mount flash filesystem...");
+    BootScene::message("mount flash filesystem...");
 
     bool clean_boot = false;
 
-    auto stat = flash_filesystem::initialize(pf, 8);
+    auto stat = flash_filesystem::initialize(8);
     if (stat == flash_filesystem::InitStatus::initialized) {
         const char* user_init_file = ";;;\n"
                                      ";;; init.lisp\n"
@@ -107,8 +108,7 @@ static inline int boot_init(Platform& pf)
                                      "\n(key-bind \"du\" 'repl)\n"
                                      "(port 1)\n";
 
-        flash_filesystem::store_file_data(pf,
-                                          "/mods/init.lisp",
+        flash_filesystem::store_file_data("/mods/init.lisp",
                                           user_init_file,
                                           str_len(user_init_file),
                                           {.use_compression_ = true});
@@ -117,7 +117,7 @@ static inline int boot_init(Platform& pf)
     }
 
 
-    BootScene::message(pf, "initializing initializer...");
+    BootScene::message("initializing initializer...");
 
     scene_pool::pool_ = &globals().scene_pool_;
 
@@ -126,25 +126,25 @@ static inline int boot_init(Platform& pf)
 
 
 
-static inline void main_loop(Platform& pf)
+static inline void main_loop()
 {
     malloc_compat::Heap heap;
 
-    const bool clean_boot = boot_init(pf);
+    const bool clean_boot = boot_init();
 
-    BootScene::message(pf, "start application...");
+    BootScene::message("start application...");
 
-    auto app = allocate_dynamic<App>("app-data", pf, clean_boot);
+    auto app = allocate_dynamic<App>("app-data", clean_boot);
 
-    while (pf.is_running()) {
-        pf.keyboard().poll();
+    while (PLATFORM.is_running()) {
+        PLATFORM.keyboard().poll();
 
-        pf.system_call("feed-watchdog", nullptr);
+        PLATFORM.system_call("feed-watchdog", nullptr);
 
-        app->update(pf, pf.delta_clock().reset());
-        pf.screen().clear();
-        app->render(pf);
-        pf.screen().display();
+        app->update(PLATFORM.delta_clock().reset());
+        PLATFORM.screen().clear();
+        app->render();
+        PLATFORM.screen().display();
     }
 }
 
@@ -156,5 +156,5 @@ static inline void main_loop(Platform& pf)
 
 void start(Platform& pfrm)
 {
-    return skyland::main_loop(pfrm);
+    return skyland::main_loop();
 }

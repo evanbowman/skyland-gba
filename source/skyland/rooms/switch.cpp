@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-void Switch::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Switch::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_switch)->c_str();
 }
@@ -78,8 +78,7 @@ void Switch::display_on_hover(Platform::Screen& screen,
 
 
 
-ScenePtr<Scene>
-Switch::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Switch::select(App& app, const RoomCoord& cursor)
 {
     if (not setup_) {
         return scene_pool::alloc<SetupSwitchScene>(position());
@@ -87,18 +86,18 @@ Switch::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     if (RoomCoord{u8(cursor.x - 1), cursor.y} == position()) {
         on_ = not on_;
-        parent()->repaint(pfrm, app);
+        parent()->repaint(app);
     } else {
         if (on_) {
             if (auto room = parent()->get_room(branch_1_)) {
                 if (room not_eq this) {
-                    room->select(pfrm, app, room->position());
+                    room->select(app, room->position());
                 }
             }
         } else {
             if (auto room = parent()->get_room(branch_2_)) {
                 if (room not_eq this) {
-                    room->select(pfrm, app, room->position());
+                    room->select(app, room->position());
                 }
             }
         }

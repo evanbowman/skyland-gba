@@ -54,7 +54,7 @@ Weapon::~Weapon()
 
 
 
-void Weapon::timer_expired(Platform& pfrm, App& app)
+void Weapon::timer_expired(App& app)
 {
     if (Timer::interval() == reload()) {
         // We need to store the point at which we finished reloading. A
@@ -88,11 +88,11 @@ void Weapon::timer_expired(Platform& pfrm, App& app)
         auto island = other_island(app);
 
         if (island and not island->is_destroyed()) {
-            fire(pfrm, app);
+            fire(app);
 
             // If we emit a projectile, the AI player pretty much knows what
             // block we are, even if we're concealed by cloaking.
-            set_ai_aware(pfrm, app, true);
+            set_ai_aware(app, true);
 
             parent()->bulk_timer().schedule(this, reload());
             return;
@@ -107,21 +107,21 @@ void Weapon::timer_expired(Platform& pfrm, App& app)
 
 
 
-void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
+void Weapon::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
 
-void Weapon::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Weapon::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 }
 
 
 
-void Weapon::___rewind___finished_reload(Platform&, App&)
+void Weapon::___rewind___finished_reload(App&)
 {
     // NOTE: the reload logic, above, increments the reload counter if the
     // reload timer is greater than zero. A bit hacky, but better than wasting
@@ -131,7 +131,7 @@ void Weapon::___rewind___finished_reload(Platform&, App&)
 
 
 
-void Weapon::___rewind___ability_used(Platform&, App&)
+void Weapon::___rewind___ability_used(App&)
 {
     // NOTE: the weapon just fired, i.e. before it fired, its reload timer must
     // have been either zero or near zero. We could technically store the exact
@@ -180,10 +180,7 @@ bool Weapon::target_pinned() const
 
 
 
-void Weapon::set_target(Platform& pfrm,
-                        App& app,
-                        const RoomCoord& target,
-                        bool pinned)
+void Weapon::set_target(App& app, const RoomCoord& target, bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -216,7 +213,7 @@ void Weapon::set_target(Platform& pfrm,
 
 
 
-void Weapon::unset_target(Platform& pfrm, App& app)
+void Weapon::unset_target(App& app)
 {
     if (not target_) {
         // Already uninitialized.
@@ -249,8 +246,7 @@ void Weapon::unset_target(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene>
-Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Weapon::select(App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -258,13 +254,13 @@ Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
-    if (auto scn = reject_if_friendly(pfrm, app)) {
+    if (auto scn = reject_if_friendly(app)) {
         return scn;
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
-        pfrm.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
         return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
@@ -278,7 +274,7 @@ Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
             scene_pool::make_deferred_scene<Next>(position(), true, target_);
 
         if (app.game_mode() == App::GameMode::co_op) {
-            return co_op_acquire_lock(pfrm, next);
+            return co_op_acquire_lock(next);
         } else {
             return next();
         }

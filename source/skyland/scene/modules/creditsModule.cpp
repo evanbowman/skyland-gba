@@ -217,7 +217,7 @@ static const std::array<Page, 12> pages_ = {{{page_0_lines},
 
 
 
-void CreditsModule::load_page(Platform& pfrm, u32 page)
+void CreditsModule::load_page(u32 page)
 {
     if (page >= pages_.size()) {
         return;
@@ -225,7 +225,7 @@ void CreditsModule::load_page(Platform& pfrm, u32 page)
 
     lines_.clear();
 
-    pfrm.fill_overlay(112);
+    PLATFORM.fill_overlay(112);
 
     u8 y = 1;
     auto data = pages_[page].text_lines_;
@@ -239,9 +239,9 @@ void CreditsModule::load_page(Platform& pfrm, u32 page)
             }
         }
         lines_.emplace_back(
-            pfrm,
+
             *data,
-            OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(*data)), y});
+            OverlayCoord{(u8)centered_text_margins(utf8::len(*data)), y});
         y += 2;
         ++data;
     }
@@ -249,29 +249,28 @@ void CreditsModule::load_page(Platform& pfrm, u32 page)
 
 
 
-void CreditsModule::enter(Platform& pfrm, App& app, Scene& prev)
+void CreditsModule::enter(App& app, Scene& prev)
 {
-    load_page(pfrm, 0);
-    pfrm.set_overlay_origin(0, -4);
+    load_page(0);
+    PLATFORM.set_overlay_origin(0, -4);
 
-    pfrm.speaker().set_music_volume(10);
+    PLATFORM.speaker().set_music_volume(10);
 }
 
 
 
-void CreditsModule::exit(Platform& pfrm, App& app, Scene& next)
+void CreditsModule::exit(App& app, Scene& next)
 {
     lines_.clear();
-    pfrm.fill_overlay(0);
-    pfrm.set_overlay_origin(0, 0);
+    PLATFORM.fill_overlay(0);
+    PLATFORM.set_overlay_origin(0, 0);
 
-    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 
 
 
-ScenePtr<Scene>
-CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> CreditsModule::update(App& app, Microseconds delta)
 {
     constexpr auto fade_duration = milliseconds(650);
 
@@ -282,8 +281,8 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ += delta;
         }
         if ((autoadvance_ and timer_ > page_times_[page_]) or
-            player(app).key_down(pfrm, Key::action_1)) {
-            if (player(app).key_down(pfrm, Key::action_2) or
+            player(app).key_down(Key::action_1)) {
+            if (player(app).key_down(Key::action_2) or
                 (u32) page_ + 1 == ::skyland::pages_.size()) {
                 state_ = State::fade_out_exit;
             } else {
@@ -298,10 +297,10 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::idle;
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -313,7 +312,7 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::page_swap;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -327,13 +326,13 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<TitleScreenScene>(3);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);
         }
         break;
 
     case State::page_swap:
-        load_page(pfrm, ++page_);
+        load_page(++page_);
         state_ = State::fade_in;
         break;
     }

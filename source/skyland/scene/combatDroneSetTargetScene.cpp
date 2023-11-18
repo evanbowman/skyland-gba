@@ -33,10 +33,9 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> CombatDroneSetTargetScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
@@ -58,11 +57,11 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return exit_scene();
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return exit_scene();
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(Key::action_1)) {
 
         network::packet::DroneSetTarget packet;
         packet.drone_x_ = drone_->position().x;
@@ -71,21 +70,21 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         packet.target_y_ = cursor_loc_.y;
         packet.drone_near_ = drone_->destination() == &app.player_island();
         packet.target_near_ = near_;
-        network::transmit(pfrm, packet);
+        network::transmit(packet);
 
-        drone_->set_target(pfrm, app, cursor_loc_, near_);
+        drone_->set_target(app, cursor_loc_, near_);
 
         return exit_scene();
     }
 
-    if (app.player().key_down(pfrm, Key::right)) {
+    if (app.player().key_down(Key::right)) {
         ++selector_;
         if (selector_ >= (int)targets_.size()) {
             selector_ = 0;
         }
     }
 
-    if (app.player().key_down(pfrm, Key::left)) {
+    if (app.player().key_down(Key::left)) {
         --selector_;
         if (selector_ < 0) {
             selector_ = targets_.size() - 1;
@@ -111,9 +110,9 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
+void CombatDroneSetTargetScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
     auto collect = [&](auto& list) {
         for (auto& drone_sp : list) {
@@ -147,22 +146,22 @@ void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void CombatDroneSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
+void CombatDroneSetTargetScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 }
 
 
 
-void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
+void CombatDroneSetTargetScene::display(App& app)
 {
     if (targets_.empty()) {
-        WorldScene::display(pfrm, app);
+        WorldScene::display(app);
         return;
     }
 
     if (not app.opponent_island()) {
-        WorldScene::display(pfrm, app);
+        WorldScene::display(app);
         return;
     }
 
@@ -184,10 +183,10 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
         sprite.set_tidx_16x16(17, 0);
         sprite.set_size(Sprite::Size::w16_h16);
 
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     }
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 }
 
 

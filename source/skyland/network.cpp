@@ -29,9 +29,9 @@ namespace skyland::network
 
 
 
-void poll_messages(Platform& pfrm, App& app, Listener& listener)
+void poll_messages(App& app, Listener& listener)
 {
-    while (auto message = pfrm.network_peer().poll_message()) {
+    while (auto message = PLATFORM.network_peer().poll_message()) {
         if (message->length_ < sizeof(packet::Header)) {
             return;
         }
@@ -39,14 +39,14 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         memcpy(&header, message->data_, sizeof header);
 
         // if (header.parity_ not_eq parity((u8*)message->data_ + 1)) {
-        //     listener.error(pfrm, app, "parity check failed!");
-        //     pfrm.network_peer().poll_consume(
+        //     listener.error(app, "parity check failed!");
+        //     PLATFORM.network_peer().poll_consume(
         //         Platform::NetworkPeer::max_message_size);
         // }
 
         switch (header.message_type_) {
         case packet::Header::invalid:
-            pfrm.network_peer().poll_consume(sizeof(packet::Header));
+            PLATFORM.network_peer().poll_consume(sizeof(packet::Header));
             continue;
 
 #define HANDLE_MESSAGE(MESSAGE_TYPE)                                           \
@@ -55,8 +55,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         if (message->length_ < sizeof(MESSAGE_TYPE)) {                         \
             return;                                                            \
         }                                                                      \
-        listener.receive(pfrm, app, *(const MESSAGE_TYPE*)message->data_);     \
-        pfrm.network_peer().poll_consume(sizeof(MESSAGE_TYPE));                \
+        listener.receive(app, *(const MESSAGE_TYPE*)message->data_);           \
+        PLATFORM.network_peer().poll_consume(sizeof(MESSAGE_TYPE));            \
         continue;                                                              \
     }
 
@@ -104,8 +104,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CoOpSyncEnd)
         }
 
-        error(pfrm, "garbled message!?");
-        pfrm.network_peer().disconnect();
+        error("garbled message!?");
+        PLATFORM.network_peer().disconnect();
         return;
     }
 }

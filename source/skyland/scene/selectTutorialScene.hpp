@@ -38,18 +38,18 @@ namespace skyland
 class SelectTutorialScene : public Module<SelectTutorialScene>
 {
 public:
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
     // The scene will load the tutorial and return immediately.
     void quick_select(int tutorial_number);
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
     static bool run_scripts()
@@ -72,7 +72,7 @@ public:
 
 
 private:
-    void show_options(Platform&, App&);
+    void show_options(App&);
 
     enum class State {
         fade_in,

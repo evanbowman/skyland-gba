@@ -53,7 +53,7 @@ std::optional<T> read_dlc_struct(Vector<char>& data, Vector<char>::Iterator& it)
 
 
 
-static void store_dlc(Platform& pfrm, Vector<char>& data)
+static void store_dlc(Vector<char>& data)
 {
     auto it = data.begin();
 
@@ -86,15 +86,14 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
             ++it;
         }
 
-        flash_filesystem::store_file_data_binary(
-            pfrm, file_name.c_str(), file_contents);
+        flash_filesystem::store_file_data_binary(file_name.c_str(),
+                                                 file_contents);
     }
 }
 
 
 
-ScenePtr<Scene>
-DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> DlcInjectorModule::update(App& app, Microseconds delta)
 {
     if (not begin_load_) {
         auto future_scene = [] {
@@ -103,10 +102,10 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
 
-        if (pfrm.device_name() == "GameboyAdvance") {
+        if (PLATFORM.device_name() == "GameboyAdvance") {
             *buffer = SYSTR(misc_dlc_message)->c_str();
         } else {
-            Platform::fatal(stringify(pfrm.device_name().length()).c_str());
+            Platform::fatal(stringify(PLATFORM.device_name().length()).c_str());
             return scene_pool::alloc<TitleScreenScene>(3);
         }
 
@@ -114,14 +113,14 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
                                                         future_scene);
     }
 
-    Module::update(pfrm, app, delta);
+    Module::update(app, delta);
 
     Vector<char> result;
 
-    pfrm.system_call("dlc-download", &result);
+    PLATFORM.system_call("dlc-download", &result);
 
     if (result.size() not_eq 0) {
-        store_dlc(pfrm, result);
+        store_dlc(result);
     }
 
     return scene_pool::alloc<TitleScreenScene>(3);

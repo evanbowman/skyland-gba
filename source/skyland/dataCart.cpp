@@ -11,9 +11,9 @@ namespace skyland
 
 
 
-const char* DataCart::config(Platform& pfrm) const
+const char* DataCart::config() const
 {
-    auto f = pfrm.load_file_contents(
+    auto f = PLATFORM.load_file_contents(
         "", format("scripts/misc/cart/cart%.ini", id_).c_str());
 
     if (not f) {
@@ -25,25 +25,24 @@ const char* DataCart::config(Platform& pfrm) const
 
 
 
-DataCart::Name DataCart::name(Platform& pfrm) const
+DataCart::Name DataCart::name() const
 {
-    return get_label_string(pfrm, "name");
+    return get_label_string("name");
 }
 
 
 
-DataCart::Subheading DataCart::subheading(Platform& pfrm) const
+DataCart::Subheading DataCart::subheading() const
 {
-    return get_label_string(pfrm, "subheading");
+    return get_label_string("subheading");
 }
 
 
 
-DataCart::LabelString DataCart::get_label_string(Platform& pfrm,
-                                                 const char* field) const
+DataCart::LabelString DataCart::get_label_string(const char* field) const
 {
-    auto f = config(pfrm);
-    Conf c(pfrm);
+    auto f = config();
+    Conf c;
     auto result = c.get(f, "label", field);
     if (auto val = std::get_if<Conf::String>(&result)) {
         return *val;
@@ -56,11 +55,10 @@ DataCart::LabelString DataCart::get_label_string(Platform& pfrm,
 
 
 
-DataCart::ContentString DataCart::get_content_string(Platform& pfrm,
-                                                     const char* field) const
+DataCart::ContentString DataCart::get_content_string(const char* field) const
 {
-    auto f = config(pfrm);
-    Conf c(pfrm);
+    auto f = config();
+    Conf c;
     auto result = c.get(f, "contents", field);
     if (auto val = std::get_if<Conf::String>(&result)) {
         return *val;
@@ -82,13 +80,13 @@ static u32 cart_lib_backup_data;
 
 
 
-DataCartLibrary::DataCartLibrary(Platform& pfrm) : carts_(cart_lib_backup_data)
+DataCartLibrary::DataCartLibrary() : carts_(cart_lib_backup_data)
 {
     Vector<char> output;
     host_u32 input;
 
     const auto bytes_read =
-        flash_filesystem::read_file_data_binary(pfrm, save_path, output);
+        flash_filesystem::read_file_data_binary(save_path, output);
 
     if (bytes_read == sizeof(input)) {
         for (u32 i = 0; i < bytes_read; ++i) {
@@ -98,8 +96,8 @@ DataCartLibrary::DataCartLibrary(Platform& pfrm) : carts_(cart_lib_backup_data)
         carts_ = input.get();
     }
 
-    Conf c(pfrm);
-    auto f = pfrm.load_file_contents("", "scripts/misc/cart/library.ini");
+    Conf c;
+    auto f = PLATFORM.load_file_contents("", "scripts/misc/cart/library.ini");
     if (f) {
         auto found = c.get(f, "info", "cart_count");
         if (auto val = std::get_if<Conf::Integer>(&found)) {
@@ -110,7 +108,7 @@ DataCartLibrary::DataCartLibrary(Platform& pfrm) : carts_(cart_lib_backup_data)
 
 
 
-void DataCartLibrary::store(Platform& pfrm, DataCart cart)
+void DataCartLibrary::store(DataCart cart)
 {
     if ((u32)cart.id() > sizeof(carts_) * 8 or (u32) cart.id() >= max_carts_) {
         Platform::fatal("cart id too high!");
@@ -132,7 +130,7 @@ void DataCartLibrary::store(Platform& pfrm, DataCart cart)
         output.push_back(((u8*)&d)[i]);
     }
 
-    flash_filesystem::store_file_data_binary(pfrm, save_path, output);
+    flash_filesystem::store_file_data_binary(save_path, output);
 }
 
 

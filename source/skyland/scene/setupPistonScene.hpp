@@ -38,7 +38,7 @@ namespace skyland
 class SetupPistonScene : public NotificationScene
 {
 public:
-    SetupPistonScene(Platform& pfrm, RoomCoord piston_loc, bool near)
+    SetupPistonScene(RoomCoord piston_loc, bool near)
         : NotificationScene(SYSTR(piston_setup)->c_str(),
                             scene_pool::make_deferred_scene<ReadyScene>()),
           piston_loc_(piston_loc)
@@ -49,10 +49,9 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        if (auto scene = ActiveWorldScene::update(app, delta)) {
             return scene;
         }
 
@@ -70,19 +69,19 @@ public:
 
         auto last_dir = dir_;
 
-        if (not piston or player(app).key_down(pfrm, Key::action_1)) {
+        if (not piston or player(app).key_down(Key::action_1)) {
             if (is_far_camera()) {
                 return scene_pool::alloc<InspectP2Scene>();
             } else {
                 return scene_pool::alloc<ReadyScene>();
             }
-        } else if (player(app).key_down(pfrm, Key::left)) {
+        } else if (player(app).key_down(Key::left)) {
             dir_ = Piston::Direction::left;
-        } else if (player(app).key_down(pfrm, Key::right)) {
+        } else if (player(app).key_down(Key::right)) {
             dir_ = Piston::Direction::right;
-        } else if (player(app).key_down(pfrm, Key::up)) {
+        } else if (player(app).key_down(Key::up)) {
             dir_ = Piston::Direction::up;
-        } else if (player(app).key_down(pfrm, Key::down)) {
+        } else if (player(app).key_down(Key::down)) {
             dir_ = Piston::Direction::down;
         }
 

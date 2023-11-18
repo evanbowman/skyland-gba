@@ -41,7 +41,7 @@ SandboxLoaderModule::ParamBuffer SandboxLoaderModule::parameters_;
 
 
 
-void prep_level(Platform& pfrm, App& app);
+void prep_level(App& app);
 
 
 
@@ -89,14 +89,14 @@ void environment_init(App& app, int type)
 
 
 
-void SandboxLoaderModule::update_parameter(Platform& pfrm, u8 line_num)
+void SandboxLoaderModule::update_parameter(u8 line_num)
 {
     if (line_num >= parameters_.capacity()) {
         return;
     }
 
     StringBuffer<28> temp;
-    temp += loadstr(pfrm, param_info[line_num].name_)->c_str();
+    temp += loadstr(param_info[line_num].name_)->c_str();
     temp += " ";
 
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
@@ -129,35 +129,33 @@ void SandboxLoaderModule::update_parameter(Platform& pfrm, u8 line_num)
 
 
 
-void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
+void SandboxLoaderModule::enter(App& app, Scene& prev)
 {
     app.game_mode() = App::GameMode::sandbox;
 
     app.camera()->reset();
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 
-    pfrm.load_overlay_texture("overlay_challenges");
+    PLATFORM.load_overlay_texture("overlay_challenges");
 
-    pfrm.system_call("v-parallax", (void*)false);
+    PLATFORM.system_call("v-parallax", (void*)false);
 
 
     const StringBuffer<32> title = SYSTR(sandbox_title)->c_str();
 
-    pfrm.load_overlay_texture("overlay_challenges");
+    PLATFORM.load_overlay_texture("overlay_challenges");
 
     title_.emplace(
-        pfrm,
+
         title.c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title.c_str())),
-                     1});
+        OverlayCoord{(u8)centered_text_margins(utf8::len(title.c_str())), 1});
 
     const StringBuffer<32> help = SYSTR(sandbox_prompt)->c_str();
 
     help_.emplace(
-        pfrm,
+
         help.c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(help.c_str())),
-                     18});
+        OverlayCoord{(u8)centered_text_margins(utf8::len(help.c_str())), 18});
 
     if (not parameters_.full()) {
         for (u32 i = 0; i < parameters_.capacity(); ++i) {
@@ -173,21 +171,21 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         parameters_[5] = 2;
     } else {
         environment_init(app, parameters_[4]);
-        pfrm.screen().set_shader(app.environment().shader(app));
+        PLATFORM.screen().set_shader(app.environment().shader(app));
     }
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
-        settings_text_.emplace_back(pfrm, OverlayCoord{2, u8(4 + i * 2)});
+        settings_text_.emplace_back(OverlayCoord{2, u8(4 + i * 2)});
     }
 
     for (u32 i = 0; i < parameters_.capacity(); ++i) {
-        update_parameter(pfrm, i);
+        update_parameter(i);
     }
 }
 
 
 
-void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
+void SandboxLoaderModule::exit(App& app, Scene& next)
 {
     title_.reset();
     help_.reset();
@@ -199,7 +197,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
         environment_init(app, parameters_[4]);
 
         if (parameters_[2]) {
-            pfrm.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(app.environment().music(), 0);
         }
 
         lisp::ListBuilder list;
@@ -209,70 +207,68 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
 
         lisp::set_var("conf", list.result());
 
-        app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");
+        app.invoke_script("/scripts/sandbox/new.lisp");
 
-        prep_level(pfrm, app);
+        prep_level(app);
 
-        show_island_exterior(pfrm, app, &app.player_island());
-        show_island_exterior(pfrm, app, app.opponent_island());
+        show_island_exterior(app, &app.player_island());
+        show_island_exterior(app, app.opponent_island());
 
-        pfrm.load_overlay_texture("overlay");
-        pfrm.system_call("v-parallax", (void*)true);
+        PLATFORM.load_overlay_texture("overlay");
+        PLATFORM.system_call("v-parallax", (void*)true);
 
-        pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+        PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
         app.birds().clear();
-        GenericBird::generate(pfrm, app);
+        GenericBird::generate(app);
     }
 }
 
 
 
-void SandboxLoaderModule::display(Platform& pfrm, App& app)
+void SandboxLoaderModule::display(App& app)
 {
-    Scene::display(pfrm, app);
+    Scene::display(app);
 
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
     spr.set_texture_index(59);
     spr.set_position({2.0_fixed, Fixnum::from_integer(31.f + cursor_ * 16)});
 
-    pfrm.screen().draw(spr);
+    PLATFORM.screen().draw(spr);
 }
 
 
 
-ScenePtr<Scene>
-SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
 
-    if (app.player().key_down(pfrm, Key::action_1) or
-        app.player().tap_released(pfrm)) {
-        pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    if (app.player().key_down(Key::action_1) or app.player().tap_released()) {
+        PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
-    } else if (app.player().key_down(pfrm, Key::action_2)) {
+    } else if (app.player().key_down(Key::action_2)) {
         cancelled_ = true;
-        pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+        PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 
     if (unveil_) {
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             0.6f, ColorConstant::rich_black, false, false);
     } else {
         unveil_ = true;
     }
 
-    if (app.player().key_pressed(pfrm, Key::left)) {
+    if (app.player().key_pressed(Key::left)) {
         long_hold_time_[1] += delta;
     } else {
         long_hold_time_[1] = 0;
     }
 
-    if (app.player().key_pressed(pfrm, Key::right)) {
+    if (app.player().key_pressed(Key::right)) {
         long_hold_time_[0] += delta;
     } else {
         long_hold_time_[0] = 0;
@@ -281,17 +277,17 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     auto update_env = [&] {
         environment_init(app, parameters_[4]);
 
-        pfrm.screen().set_shader(app.environment().shader(app));
-        pfrm.screen().set_shader_argument(0);
+        PLATFORM.screen().set_shader(app.environment().shader(app));
+        PLATFORM.screen().set_shader_argument(0);
 
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             0.7f, ColorConstant::rich_black, false, false);
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             0.6f, ColorConstant::rich_black, false, false);
     };
 
 
-    if (app.player().key_down(pfrm, Key::right) or
+    if (app.player().key_down(Key::right) or
         app.player().key_held(Key::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
@@ -304,11 +300,11 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
                 update_env();
             }
         }
-        update_parameter(pfrm, cursor_);
+        update_parameter(cursor_);
         app.player().key_held_reset(Key::right, milliseconds(80));
     }
 
-    if (app.player().key_down(pfrm, Key::left) or
+    if (app.player().key_down(Key::left) or
         app.player().key_held(Key::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
         if (long_hold_time_[1] > milliseconds(2000)) {
@@ -317,7 +313,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
-        update_parameter(pfrm, cursor_);
+        update_parameter(cursor_);
         app.player().key_held_reset(Key::left, milliseconds(80));
 
         if (long_hold_time_[0] > milliseconds(2000)) {
@@ -329,14 +325,13 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::down) and
-        cursor_ < parameters_.size() - 1) {
+    if (app.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
         ++cursor_;
-        pfrm.speaker().play_sound("click_wooden", 2);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
 
-    } else if (app.player().key_down(pfrm, Key::up) and cursor_ > 0) {
+    } else if (app.player().key_down(Key::up) and cursor_ > 0) {
         --cursor_;
-        pfrm.speaker().play_sound("click_wooden", 2);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
 

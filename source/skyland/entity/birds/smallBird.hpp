@@ -46,7 +46,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         timer1_ += delta;
         timer2_ += delta;

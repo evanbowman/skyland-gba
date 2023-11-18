@@ -40,25 +40,25 @@ namespace skyland
 class PlayerP1 : public Player
 {
 public:
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void on_room_destroyed(Platform& pfrm, App& app, Room& room) override;
+    void on_room_destroyed(App& app, Room& room) override;
 
 
-    void on_room_damaged(Platform& pfrm, App& app, Room& room);
+    void on_room_damaged(App& app, Room& room);
 
 
-    void on_room_plundered(Platform& pfrm, App& app, Room& room) override;
+    void on_room_plundered(App& app, Room& room) override;
 
 
-    bool key_down(Platform&, Key k) override;
+    bool key_down(Key k) override;
 
 
-    bool key_up(Platform&, Key k) override;
+    bool key_up(Key k) override;
 
 
-    bool key_pressed(Platform&, Key k) override;
+    bool key_pressed(Key k) override;
 
 
     bool key_held(Key k, Microseconds duration) override;
@@ -67,14 +67,14 @@ public:
     void key_held_reset(Key k, Microseconds decrement) override;
 
 
-    void key_held_distribute(Platform& pfrm, const Key* include_list) override;
+    void key_held_distribute(const Key* include_list) override;
 
 
     std::optional<std::tuple<Vec2<u32>, Microseconds>>
-    touch_released(Platform& pfrm) override;
+    touch_released() override;
 
 
-    std::optional<Vec2<u32>> touch_current(Platform& pfrm) override;
+    std::optional<Vec2<u32>> touch_current() override;
 
 
     bool touch_held(Microseconds duration) override;
@@ -83,7 +83,7 @@ public:
     void touch_consume() override;
 
 
-    Vec2<Float> touch_velocity(Platform& pfrm) override
+    Vec2<Float> touch_velocity() override
     {
         return touch_velocity_;
     }

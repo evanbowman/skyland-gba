@@ -55,9 +55,9 @@ namespace skyland
 class CoOpRngSyncScene : public WorldScene, public network::Listener
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev)
+    void enter(App& app, Scene& prev)
     {
-        WorldScene::enter(pfrm, app, prev);
+        WorldScene::enter(app, prev);
 
         for (auto& room : player_island(app).rooms()) {
             // Just in case... should there be a bug in the locking anywhere
@@ -70,20 +70,20 @@ public:
         }
     }
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    ScenePtr<Scene> update(App& app, Microseconds delta)
     {
-        network::poll_messages(pfrm, app, *this);
+        network::poll_messages(app, *this);
 
         if (syncd_) {
             return scene_pool::alloc<ReadyScene>();
         }
 
-        if (not pfrm.network_peer().is_host()) {
+        if (not PLATFORM.network_peer().is_host()) {
             timer_ += delta;
             if (timer_ > milliseconds(100)) {
                 timer_ = 0;
                 network::packet::CoOpRngSyncRequest p;
-                network::transmit(pfrm, p);
+                network::transmit(p);
             }
         }
 
@@ -91,29 +91,25 @@ public:
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpRngSyncRequest&)
+    void receive(App& app, const network::packet::CoOpRngSyncRequest&)
     {
-        if (pfrm.network_peer().is_host()) {
+        if (PLATFORM.network_peer().is_host()) {
             network::packet::CoOpRngSync p;
             p.rng_state_.set(rng::critical_state);
-            network::transmit(pfrm, p);
+            network::transmit(p);
         }
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpRngSyncAck& ack)
+    void receive(App& app, const network::packet::CoOpRngSyncAck& ack)
     {
-        if (pfrm.network_peer().is_host()) {
+        if (PLATFORM.network_peer().is_host()) {
             if (ack.rng_state_.get() == rng::critical_state) {
                 syncd_ = true;
 
                 network::packet::CoOpRngSyncAck p;
                 p.rng_state_.set(rng::critical_state);
-                network::transmit(pfrm, p);
+                network::transmit(p);
             }
         } else {
             syncd_ = true;

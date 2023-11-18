@@ -50,14 +50,14 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta)
+    void rewind(App&, Microseconds delta)
     {
         // Rewind unimplemented!
         kill();
     }
 
 
-    void update(Platform&, App&, Microseconds delta)
+    void update(App&, Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;

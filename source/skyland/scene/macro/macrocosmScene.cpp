@@ -71,8 +71,7 @@ u8 screenshake = 0;
 
 
 
-ScenePtr<Scene>
-MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MacrocosmScene::update(App& app, Microseconds delta)
 {
     if (not app.macrocosm()) {
         Platform::fatal("macro state unbound!?");
@@ -99,11 +98,11 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& m = macrocosm(app);
 
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
     app.camera()->update(
-        pfrm, app, app.player_island(), {}, delta, m.data_->checkers_mode_);
+        app, app.player_island(), {}, delta, m.data_->checkers_mode_);
 
-    app.environment().update(pfrm, app, delta);
+    app.environment().update(app, delta);
 
     m.data_->fluid_anim_timer_ += delta;
     bool was_gre = false;
@@ -119,8 +118,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         m.data_->lava_anim_index_ += 4;
     }
     if (was_gre) {
-        pfrm.screen().set_shader_argument((val << 8) | val2);
-        pfrm.system_call("psync", nullptr);
+        PLATFORM.screen().set_shader_argument((val << 8) | val2);
+        PLATFORM.system_call("psync", nullptr);
     }
 
     const bool is_night = raster::globalstate::is_night;
@@ -138,14 +137,14 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (m.data_->p().day_night_cyc_.get() > interval) {
         m.data_->p().day_night_cyc_.set(0);
 
-        // pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-        pfrm.screen().clear();
-        pfrm.screen().display();
+        // PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
         raster::globalstate::is_night = not raster::globalstate::is_night;
         if (raster::globalstate::is_night) {
-            pfrm.load_background_texture("background_macro_night");
+            PLATFORM.load_background_texture("background_macro_night");
         } else {
-            pfrm.load_background_texture("background_macro");
+            PLATFORM.load_background_texture("background_macro");
             m.data_->origin_sector_->on_day_transition();
             for (auto& s : m.data_->other_sectors_) {
                 s->on_day_transition();
@@ -154,9 +153,9 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         raster::globalstate::_recalc_depth_test.fill();
         m.sector().shadowcast();
         raster::globalstate::_changed = true;
-        m.sector().render(pfrm);
-        pfrm.screen().schedule_fade(0.1f, ColorConstant::rich_black);
-        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+        m.sector().render();
+        PLATFORM.screen().schedule_fade(0.1f, ColorConstant::rich_black);
+        PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
     }
 
     if (ui_ and not m.data_->freebuild_mode_) {
@@ -167,8 +166,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         // if (m.data_->year_timer_ > secs) {
         //     m.data_->year_timer_ = 0;
         //     m.advance(1);
-        //     pfrm.speaker().play_sound("openbook", 1);
-        //     draw_year(pfrm, m);
+        //     PLATFORM.speaker().play_sound("openbook", 1);
+        //     draw_year(m);
         //     if (ui_) {
         //         update_ui(m);
         //     }
@@ -182,31 +181,31 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (ui_) {
-        (*ui_)->food_->update(pfrm, delta);
-        (*ui_)->population_->update(pfrm, delta);
-        (*ui_)->productivity_->update(pfrm, delta);
-        (*ui_)->lumber_->update(pfrm, delta);
-        (*ui_)->stone_->update(pfrm, delta);
-        (*ui_)->crystal_->update(pfrm, delta);
-        (*ui_)->water_->update(pfrm, delta);
-        (*ui_)->clay_->update(pfrm, delta);
+        (*ui_)->food_->update(delta);
+        (*ui_)->population_->update(delta);
+        (*ui_)->productivity_->update(delta);
+        (*ui_)->lumber_->update(delta);
+        (*ui_)->stone_->update(delta);
+        (*ui_)->crystal_->update(delta);
+        (*ui_)->water_->update(delta);
+        (*ui_)->clay_->update(delta);
     }
 
 
-    auto next = update(pfrm, app.player(), m);
+    auto next = update(app.player(), m);
 
     auto& entities = m.data_->entities_;
     for (auto e = entities.begin(); e not_eq entities.end();) {
         if (not(*e)->alive()) {
             e = entities.erase(e);
         } else {
-            (*e)->update(pfrm, m, delta);
+            (*e)->update(m, delta);
             ++e;
         }
     }
 
 
-    m.sector().render_setup(pfrm);
+    m.sector().render_setup();
 
     m.data_->cloud_scroll_ += 0.000001f * delta;
 
@@ -230,7 +229,7 @@ int MacrocosmScene::current_season(Microseconds year_timer,
 }
 
 
-void MacrocosmScene::display(Platform& pfrm, App& app)
+void MacrocosmScene::display(App& app)
 {
     if (not app.macrocosm()) {
         return;
@@ -238,11 +237,11 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
     auto& m = macrocosm(app);
 
-    pfrm.system_call("_prlx_macro",
-                     (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+    PLATFORM.system_call("_prlx_macro",
+                         (void*)(intptr_t)(int)m.data_->cloud_scroll_);
 
     for (auto& e : m.data_->entities_) {
-        pfrm.screen().draw(e->sprite());
+        PLATFORM.screen().draw(e->sprite());
     }
 
     const bool is_night = raster::globalstate::is_night;
@@ -264,9 +263,9 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
     }
 
     sunmoon_spr.set_position({225.0_fixed, sunmoon_y});
-    pfrm.screen().draw(sunmoon_spr);
+    PLATFORM.screen().draw(sunmoon_spr);
 
-    display(pfrm, macrocosm(app));
+    display(macrocosm(app));
 }
 
 
@@ -278,19 +277,18 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 
 
-ScenePtr<Scene>
-MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+ScenePtr<Scene> MacrocosmScene::update(Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
 
-    if (auto music = pfrm.speaker().completed_music()) {
+    if (auto music = PLATFORM.speaker().completed_music()) {
         if (str_eq(music, "life_in_silco")) {
-            pfrm.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
         } else {
             if (state.data_->frames_since_music_ > 6 and
                 rng::choice<6>(rng::utility_state) == 0) {
                 state.data_->frames_since_music_ = 0;
-                pfrm.speaker().play_music("life_in_silco", 0);
+                PLATFORM.speaker().play_music("life_in_silco", 0);
             } else {
                 state.data_->frames_since_music_++;
             }
@@ -321,9 +319,9 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
 
 
-void MacrocosmScene::display(Platform& pfrm, macro::EngineImpl& state)
+void MacrocosmScene::display(macro::EngineImpl& state)
 {
-    state.sector().render(pfrm);
+    state.sector().render();
 }
 
 
@@ -361,9 +359,7 @@ Microseconds MacrocosmScene::year_length(macro::EngineImpl& state)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm,
-                           macro::EngineImpl& state,
-                           Scene& prev)
+void MacrocosmScene::enter(macro::EngineImpl& state, Scene& prev)
 {
     // auto secs = year_length(state);
     // auto secs_per_season = secs / 4;
@@ -387,7 +383,7 @@ void MacrocosmScene::enter(Platform& pfrm,
         auto pop = sector.population();
 
         (*ui_)->productivity_.emplace(
-            pfrm,
+
             OverlayCoord{1, 1},
             415,
             format_ui_fraction(pop * 10, state.sector().productivity()),
@@ -395,7 +391,7 @@ void MacrocosmScene::enter(Platform& pfrm,
             UIMetric::Format::fraction);
 
         (*ui_)->population_.emplace(
-            pfrm,
+
             OverlayCoord{1, 3},
             413,
             format_ui_fraction(state.sector().housing(), pop),
@@ -403,55 +399,50 @@ void MacrocosmScene::enter(Platform& pfrm,
             UIMetric::Format::fraction);
 
         (*ui_)->food_.emplace(
-            pfrm,
+
             OverlayCoord{1, 2},
             414,
             format_ui_fraction(sector.food_storage(), sector.food()),
             UIMetric::Align::left,
             UIMetric::Format::fraction);
 
-        (*ui_)->stone_.emplace(pfrm,
-                               OverlayCoord{1, 5},
+        (*ui_)->stone_.emplace(OverlayCoord{1, 5},
                                417,
                                state.data_->p().stone_.get(),
                                UIMetric::Align::left);
 
-        (*ui_)->lumber_.emplace(pfrm,
-                                OverlayCoord{1, 6},
+        (*ui_)->lumber_.emplace(OverlayCoord{1, 6},
                                 423,
                                 state.data_->p().lumber_.get(),
                                 UIMetric::Align::left);
 
-        (*ui_)->water_.emplace(pfrm,
-                               OverlayCoord{1, 7},
+        (*ui_)->water_.emplace(OverlayCoord{1, 7},
                                371,
                                state.data_->p().water_.get(),
                                UIMetric::Align::left);
 
-        (*ui_)->clay_.emplace(pfrm,
-                              OverlayCoord{1, 8},
+        (*ui_)->clay_.emplace(OverlayCoord{1, 8},
                               370,
                               state.data_->p().clay_.get(),
                               UIMetric::Align::left);
 
-        (*ui_)->crystal_.emplace(pfrm,
-                                 OverlayCoord{1, 9},
+        (*ui_)->crystal_.emplace(OverlayCoord{1, 9},
                                  424,
                                  state.data_->p().crystal_.get(),
                                  UIMetric::Align::left);
     }
 
-    draw_compass(pfrm, state);
-    draw_keylock(pfrm, state);
+    draw_compass(state);
+    draw_keylock(state);
 
     for (int y = 5; y < 13; y += 2) {
-        pfrm.set_tile(Layer::overlay, 28, y, 471);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 471);
     }
 }
 
 
 
-void MacrocosmScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
+void MacrocosmScene::exit(macro::EngineImpl& state, Scene& next)
 {
     if (not next.cast_macrocosm_scene()) {
         ui_.reset();
@@ -460,7 +451,7 @@ void MacrocosmScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MacrocosmScene::enter(App& app, Scene& prev)
 {
     if (not app.macrocosm()) {
         Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
@@ -469,15 +460,15 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
     if (not app.gp_.stateflags_.get(freebuild_flag)) {
         app.gp_.stateflags_.set(freebuild_flag, true);
-        save::store_global_data(pfrm, app.gp_);
+        save::store_global_data(app.gp_);
     }
 
-    enter(pfrm, macrocosm(app), prev);
+    enter(macrocosm(app), prev);
 }
 
 
 
-void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
+void MacrocosmScene::draw_compass(macro::EngineImpl& state)
 {
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
@@ -487,12 +478,12 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
         start_y = 1;
     }
 
-    draw_image(pfrm, compass_tile, 27, start_y, 2, 2, Layer::overlay);
+    draw_image(compass_tile, 27, start_y, 2, 2, Layer::overlay);
 }
 
 
 
-void MacrocosmScene::draw_keylock(Platform& pfrm, macro::EngineImpl& state)
+void MacrocosmScene::draw_keylock(macro::EngineImpl& state)
 {
     int y = 6;
     if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
@@ -501,32 +492,32 @@ void MacrocosmScene::draw_keylock(Platform& pfrm, macro::EngineImpl& state)
 
     switch (state.data_->keylock_) {
     case Keylock::nolock:
-        pfrm.set_tile(Layer::overlay, 27, y, 0);
-        pfrm.set_tile(Layer::overlay, 28, y, 0);
+        PLATFORM.set_tile(Layer::overlay, 27, y, 0);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 0);
         break;
 
     case Keylock::buildlock:
-        pfrm.set_tile(Layer::overlay, 27, y, 388);
-        pfrm.set_tile(Layer::overlay, 28, y, 390);
+        PLATFORM.set_tile(Layer::overlay, 27, y, 388);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;
 
     case Keylock::improvelock:
-        pfrm.set_tile(Layer::overlay, 27, y, 387);
-        pfrm.set_tile(Layer::overlay, 28, y, 390);
+        PLATFORM.set_tile(Layer::overlay, 27, y, 387);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;
 
     case Keylock::deletelock:
-        pfrm.set_tile(Layer::overlay, 27, y, 389);
-        pfrm.set_tile(Layer::overlay, 28, y, 390);
+        PLATFORM.set_tile(Layer::overlay, 27, y, 389);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;
     }
 }
 
 
 
-void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
+void MacrocosmScene::exit(App& app, Scene& next)
 {
-    exit(pfrm, macrocosm(app), next);
+    exit(macrocosm(app), next);
 }
 
 

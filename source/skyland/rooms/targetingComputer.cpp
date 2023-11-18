@@ -46,17 +46,16 @@ TargetingComputer::TargetingComputer(Island* parent,
 
 
 
-void TargetingComputer::format_description(Platform& pfrm,
-                                           StringBuffer<512>& buffer)
+void TargetingComputer::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_targeting_computer)->c_str();
 }
 
 
 
-void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
+void TargetingComputer::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (not enabled_) {
         return;
@@ -68,18 +67,18 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.game_mode() == App::GameMode::multiplayer) {
             return;
         }
-        apply_damage(pfrm, app, Room::health_upper_limit());
+        apply_damage(app, Room::health_upper_limit());
         return;
     }
 
     if (app.opponent().is_friendly()) {
         for (auto& r : parent()->rooms()) {
-            r->unset_target(pfrm, app);
+            r->unset_target(app);
         }
         return;
     }
 
-    if (pfrm.screen().fade_active()) {
+    if (PLATFORM.screen().fade_active()) {
         return;
     }
 
@@ -108,7 +107,7 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
             auto& room = *player_island(app).rooms()[room_update_index_++];
             if (&room not_eq this and room.metaclass() == this->metaclass()) {
                 // Player built two targeting computers.
-                room.apply_damage(pfrm, app, Room::health_upper_limit());
+                room.apply_damage(app, Room::health_upper_limit());
             }
             const auto category = (*room.metaclass())->category();
             if (category == Room::Category::weapon) {
@@ -122,8 +121,7 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
                     app.opponent_island()->get_room(*room.get_target());
 
                 if (not has_pinned_target) {
-                    EnemyAI::update_room(pfrm,
-                                         app,
+                    EnemyAI::update_room(app,
                                          room,
                                          app.opponent_island()->rooms_plot(),
                                          &app.player(),
@@ -138,15 +136,14 @@ void TargetingComputer::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void TargetingComputer::unset_target(Platform& pfrm, App& app)
+void TargetingComputer::unset_target(App& app)
 {
     next_action_timer_ = seconds(2);
 }
 
 
 
-ScenePtr<Scene>
-TargetingComputer::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> TargetingComputer::select(App& app, const RoomCoord& cursor)
 {
     if (parent() == &player_island(app)) {
         // I repurposed the ReloadComplete event because it's already looped
@@ -173,7 +170,7 @@ TargetingComputer::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void TargetingComputer::___rewind___finished_reload(Platform& pfrm, App& app)
+void TargetingComputer::___rewind___finished_reload(App& app)
 {
     enabled_ = not enabled_;
     schedule_repaint();

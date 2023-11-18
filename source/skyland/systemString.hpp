@@ -729,14 +729,14 @@ using SystemStringBuffer = DynamicMemory<StringBuffer<1900>>;
 
 
 
-SystemStringBuffer loadstr(Platform& pfrm, SystemString str);
+SystemStringBuffer loadstr(SystemString str);
 
 
 
 // Just a shortcut to save myself from having to type this all out hundreds of
 // times.
-#define SYS_CSTR(TAG) loadstr(pfrm, SystemString::TAG)->c_str()
-#define SYSTR(TAG) loadstr(pfrm, SystemString::TAG)
+#define SYS_CSTR(TAG) loadstr(SystemString::TAG)->c_str()
+#define SYSTR(TAG) loadstr(SystemString::TAG)
 
 
 

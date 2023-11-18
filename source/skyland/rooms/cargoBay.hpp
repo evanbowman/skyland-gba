@@ -38,7 +38,7 @@ public:
     CargoBay(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void display(Platform::Screen&, App& app) override;
@@ -47,7 +47,7 @@ public:
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()
@@ -117,7 +117,7 @@ public:
     bool set_cargo(const char* cargo, u8 count);
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
 private:

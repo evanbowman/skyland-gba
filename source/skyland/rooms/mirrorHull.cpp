@@ -37,9 +37,9 @@ MirrorHull::MirrorHull(Island* parent, const RoomCoord& position)
 
 
 
-void MirrorHull::update(Platform& pfrm, App& app, Microseconds delta)
+void MirrorHull::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -48,9 +48,9 @@ void MirrorHull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MirrorHull::rewind(Platform& pfrm, App& app, Microseconds delta)
+void MirrorHull::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

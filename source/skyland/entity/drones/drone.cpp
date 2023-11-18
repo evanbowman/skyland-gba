@@ -85,14 +85,14 @@ void Drone::set_movement_target(const RoomCoord& position)
 
 
 
-void Drone::update_sprite(Platform& pfrm, App& app)
+void Drone::update_sprite(App& app)
 {
     auto o = calc_pos(destination_, grid_pos_);
 
     Float offset = 3 * float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
                    std::numeric_limits<s16>::max();
 
-    if (pfrm.network_peer().is_connected()) {
+    if (PLATFORM.network_peer().is_connected()) {
         // The floating movement complicates proper collision checking, as
         // minute differences in the game clocks in multiplayer mode can result
         // in different collision results in each game, if the drone moves
@@ -121,7 +121,7 @@ void Drone::update_sprite(Platform& pfrm, App& app)
 
 
 
-void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Drone::rewind(App& app, Microseconds delta)
 {
     switch (state_) {
     case State::launch: {
@@ -147,7 +147,7 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
     }
 
     default:
-        update_sprite(pfrm, app);
+        update_sprite(app);
         if (timer_ > 0) {
             timer_ -= delta;
         }
@@ -157,10 +157,7 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Drone::set_target(Platform& pfrm,
-                       App& app,
-                       const RoomCoord& target,
-                       bool target_near)
+void Drone::set_target(App& app, const RoomCoord& target, bool target_near)
 {
     if (target_) {
         if (*target_ == target and target_near_ == target_near) {
@@ -189,7 +186,7 @@ void Drone::set_target(Platform& pfrm,
 
 
 
-void Drone::drop_target(Platform& pfrm, App& app)
+void Drone::drop_target(App& app)
 {
     if (app.time_stream().pushes_enabled()) {
         Platform::fatal("drop_target intended to be called only during rewind, "
@@ -202,7 +199,7 @@ void Drone::drop_target(Platform& pfrm, App& app)
 
 
 
-void Drone::apply_damage(Platform& pfrm, App& app, Health amount)
+void Drone::apply_damage(App& app, Health amount)
 {
     time_stream::event::DroneHealthChanged e;
     e.x_pos_ = grid_pos_.x;
@@ -211,12 +208,12 @@ void Drone::apply_damage(Platform& pfrm, App& app, Health amount)
     e.previous_health_.set(health());
     app.time_stream().push(app.level_timer(), e);
 
-    Entity::apply_damage(pfrm, app, amount);
+    Entity::apply_damage(app, amount);
 }
 
 
 
-void Drone::update(Platform& pfrm, App& app, Microseconds delta)
+void Drone::update(App& app, Microseconds delta)
 {
     switch (state_) {
     case State::launch: {
@@ -248,7 +245,7 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::ready:
-        update_sprite(pfrm, app);
+        update_sprite(app);
         break;
     }
 }

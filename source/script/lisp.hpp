@@ -58,7 +58,7 @@ namespace lisp {
 
 // Call this function to initialize the interpreter, must be done at startup,
 // prior to calling any of the library routines below.
-void init(Platform& pfrm);
+void init();
 
 
 struct Value;

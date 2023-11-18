@@ -38,20 +38,19 @@ namespace skyland
 class PlaceDroneScene : public ActiveWorldScene
 {
 public:
-    PlaceDroneScene(Platform& pfrm,
-                    RoomCoord origin,
+    PlaceDroneScene(RoomCoord origin,
                     const DroneMeta* drone_class,
                     bool near = true);
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
 private:

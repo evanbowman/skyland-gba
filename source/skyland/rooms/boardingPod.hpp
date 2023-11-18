@@ -39,16 +39,13 @@ public:
     BoardingPod(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
-    void apply_damage(Platform& pfrm,
-                      App& app,
-                      Health damage,
-                      Island* source) override;
+    void apply_damage(App& app, Health damage, Island* source) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -116,13 +113,10 @@ public:
     }
 
 
-    void set_target(Platform& pfrm,
-                    App& app,
-                    const RoomCoord& target,
-                    bool pinned) override;
+    void set_target(App& app, const RoomCoord& target, bool pinned) override;
 
 
-    void unset_target(Platform& pfrm, App& app) override;
+    void unset_target(App& app) override;
 
 
     void display_on_hover(Platform::Screen& screen,
@@ -138,8 +132,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     Island* owner_ = nullptr;

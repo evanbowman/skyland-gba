@@ -42,14 +42,14 @@ public:
                          std::optional<RoomCoord> initial_pos = {});
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
     bool hide_chr_icon() const override;
@@ -63,13 +63,13 @@ private:
     const RoomCoord weapon_loc_;
 
 
-    void minimap_show(Platform&, App&);
-    void minimap_hide(Platform&, App&);
-    void minimap_init(Platform&, App&);
-    void minimap_repaint(Platform&, App&);
+    void minimap_show(App&);
+    void minimap_hide(App&);
+    void minimap_init(App&);
+    void minimap_repaint(App&);
 
 
-    void snap(Platform&, App&);
+    void snap(App&);
 
 
     int selector_ = 0;

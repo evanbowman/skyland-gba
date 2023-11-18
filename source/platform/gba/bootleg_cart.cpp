@@ -289,18 +289,18 @@ static void bytecopy(u8* dest, u8* src, u32 size)
 
 
 
-void bootleg_cart_init_sram(Platform& pfrm)
+void bootleg_cart_init_sram()
 {
     const u32 total_rom_size =
         u32(&__rom_end__ - 0x8000000) + filesystem::size();
     u32 flash_size = 0;
     flash_sram_area = 0;
 
-    Conf conf(pfrm);
+    Conf conf;
     flash_sram_area = conf.expect<Conf::Integer>("hardware.gameboy_advance",
                                                  "repro_flash_save_address");
 
-    info(pfrm, format("rom size: %kb", total_rom_size / 1000));
+    info(format("rom size: %kb", total_rom_size / 1000));
 
     // Determine the size of the flash chip by checking for ROM loops,
     // then set the SRAM storage area 0x40000 bytes before the end.
@@ -315,7 +315,7 @@ void bootleg_cart_init_sram(Platform& pfrm)
     } else {
         flash_size = 0x2000000;
     }
-    info(pfrm, format("flash size detected: %kb", flash_size / 1000));
+    info(format("flash size detected: %kb", flash_size / 1000));
 
     if (flash_sram_area == 0) {
         flash_sram_area = flash_size - 0x40000;
@@ -324,12 +324,12 @@ void bootleg_cart_init_sram(Platform& pfrm)
     // RIP if the selected storage area is within the Goomba Color ROM...
     if (total_rom_size > flash_sram_area) {
         flash_sram_area = 0;
-        info(pfrm, "ROM too large to allocate repro flash sram area!");
+        info("ROM too large to allocate repro flash sram area!");
         return;
     }
 
     // Finally, restore the SRAM data and proceed.
     bytecopy(BOOTLEG_SRAM, ((u8*)AGB_ROM + flash_sram_area), save_capacity);
 
-    info(pfrm, "Restored SRAM from repro flash.");
+    info("Restored SRAM from repro flash.");
 }

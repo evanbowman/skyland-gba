@@ -47,16 +47,16 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    bool key_down(Platform&, Key k) override;
+    bool key_down(Key k) override;
 
 
-    bool key_up(Platform&, Key k) override;
+    bool key_up(Key k) override;
 
 
-    bool key_pressed(Platform&, Key k) override;
+    bool key_pressed(Key k) override;
 
 
     bool key_held(Key k, Microseconds duration) override;
@@ -65,7 +65,7 @@ public:
     void key_held_reset(Key k, Microseconds decrement) override;
 
 
-    void key_held_distribute(Platform& pfrm, const Key* include_list) override;
+    void key_held_distribute(const Key* include_list) override;
 
 
 private:

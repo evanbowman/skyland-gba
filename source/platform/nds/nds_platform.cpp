@@ -330,7 +330,7 @@ int main(int argc, char** argv)
 {
     Platform pfrm;
 
-    start(pfrm);
+    start();
 }
 
 
@@ -1709,7 +1709,7 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 
 
 
-static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
+static void set_overlay_tile(u16 x, u16 y, u16 val, int palette)
 {
     if (get_gflag(GlobalFlag::glyph_mode)) {
         // This is where we handle the reference count for mapped glyphs. If
@@ -1718,7 +1718,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
         // the incoming glyph's reference count if the incoming tile is
         // within the range of the glyph table.
 
-        const auto old_tile = pfrm.get_tile(Layer::overlay, x, y);
+        const auto old_tile = PLATFORM.get_tile(Layer::overlay, x, y);
         if (old_tile not_eq val) {
             if (is_glyph(old_tile)) {
                 auto& gm =
@@ -1736,7 +1736,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
                     // sure. The code has been stable in the real world for
                     // quite a while, so I'm commenting out the log line.
                     //
-                    // error(pfrm,
+                    // error(
                     //       "existing tile is a glyph, but has no"
                     //       " mapping table entry!");
                 }
@@ -1749,7 +1749,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
                     // gotten into an erroneous state, but not a permanently
                     // unrecoverable state (tile isn't valid, so it'll be
                     // overwritten upon the next call to map_tile).
-                    warning(pfrm, "invalid assignment to glyph table");
+                    warning("invalid assignment to glyph table");
                     return;
                 }
                 gm.reference_count_++;

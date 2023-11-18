@@ -30,7 +30,7 @@ namespace skyland
 
 
 
-void Projectile::destroy_out_of_bounds(Platform& pfrm, App& app, Island* target)
+void Projectile::destroy_out_of_bounds(App& app, Island* target)
 {
     auto t_y = target->origin().y.as_integer();
     auto max_y = t_y + 16 * 16 + 32;
@@ -51,14 +51,14 @@ void Projectile::destroy_out_of_bounds(Platform& pfrm, App& app, Island* target)
 
     if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
         pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
-        this->destroy(pfrm, app, pos.y.as_integer() > min_y);
-        pfrm.speaker().play_sound("explosion1", 2);
+        this->destroy(app, pos.y.as_integer() > min_y);
+        PLATFORM.speaker().play_sound("explosion1", 2);
     }
 }
 
 
 
-void Projectile::destroy(Platform& pfrm, App& app, bool explosion)
+void Projectile::destroy(App& app, bool explosion)
 {
     Platform::fatal("unimplemented destroy method!");
 }

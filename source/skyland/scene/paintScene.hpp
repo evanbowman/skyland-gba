@@ -51,14 +51,13 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
         app.effects().clear();
 
         if (not create_) {
             Vector<char> data;
-            flash_filesystem::read_file_data_binary(
-                pfrm, file_path_.c_str(), data);
+            flash_filesystem::read_file_data_binary(file_path_.c_str(), data);
 
             if (data.size() >= sizeof texture_) {
                 auto it = data.begin();
@@ -76,35 +75,34 @@ public:
             }
         }
 
-        Paint::init(pfrm, app);
+        Paint::init(app);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        pfrm.screen().schedule_fade(0.f);
+        PLATFORM.screen().schedule_fade(0.f);
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             Vector<char> output;
             for (u32 i = 0; i < sizeof texture_; ++i) {
                 output.push_back(((u8*)&texture_)[i]);
             }
             output.push_back('\0');
 
-            flash_filesystem::store_file_data_binary(
-                pfrm, file_path_.c_str(), output);
+            flash_filesystem::store_file_data_binary(file_path_.c_str(),
+                                                     output);
 
             return scene_pool::alloc<FileBrowserModule>();
         }
 
-        return Paint::update(pfrm, app, delta);
+        return Paint::update(app, delta);
     }
 
 
-    void display(Platform& pfrm, App& app)
+    void display(App& app)
     {
-        Paint::display(pfrm, app);
+        Paint::display(app);
     }
 
 

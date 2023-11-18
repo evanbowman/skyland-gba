@@ -16,7 +16,7 @@ ColorConstant ClearSkies::fadein_colorize_tone() const
 
 
 
-void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
+void ClearSkies::update(App& app, Microseconds delta)
 {
     timer_ -= delta;
     if (timer_ <= 0) {
@@ -27,13 +27,13 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
         switch (rng::choice<3>(rng::utility_state)) {
         case 0:
             if (not app.birds().empty()) {
-                pfrm.speaker().play_sound("seagull_1", 0);
+                PLATFORM.speaker().play_sound("seagull_1", 0);
             }
             break;
 
         case 1:
             if (not app.birds().empty()) {
-                pfrm.speaker().play_sound("seagull_2", 0);
+                PLATFORM.speaker().play_sound("seagull_2", 0);
             }
             break;
 
@@ -45,11 +45,11 @@ void ClearSkies::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ClearSkies::display(Platform& pfrm, App& app)
+void ClearSkies::display(App& app)
 {
     bool disable_lensflare = false;
 
-    const auto& view_pos = pfrm.screen().get_view().get_center();
+    const auto& view_pos = PLATFORM.screen().get_view().get_center();
 
     Sprite spr;
     spr.set_priority(3);
@@ -65,7 +65,7 @@ void ClearSkies::display(Platform& pfrm, App& app)
     }
 
     spr.set_position({x, y});
-    pfrm.screen().draw(spr);
+    PLATFORM.screen().draw(spr);
 
 
     if (auto ws = app.scene().cast_world_scene()) {
@@ -103,12 +103,12 @@ LENSFLARE_CHECK_DONE:
 
     spr.set_alpha(Sprite::Alpha::translucent);
     spr.set_tidx_16x16(78, 0);
-    pfrm.screen().draw(spr);
+    PLATFORM.screen().draw(spr);
 
     Vec2<Fixnum> scrn_center;
-    scrn_center.x = Fixnum::from_integer(pfrm.screen().size().x / 2) +
+    scrn_center.x = Fixnum::from_integer(PLATFORM.screen().size().x / 2) +
                     Fixnum::from_integer(view_pos.x);
-    scrn_center.y = Fixnum::from_integer(280 + pfrm.screen().size().y / 2) +
+    scrn_center.y = Fixnum::from_integer(280 + PLATFORM.screen().size().y / 2) +
                     Fixnum::from_integer(view_pos.y);
 
     const auto dx = scrn_center.x - x;
@@ -148,7 +148,7 @@ LENSFLARE_CHECK_DONE:
     for (auto& f : flares) {
         spr.set_position({x + dx * f.offset_, y - dy * f.offset_});
         spr.set_tidx_16x16(116, f.spr_);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 
     Flare flares2[] = {
@@ -160,7 +160,7 @@ LENSFLARE_CHECK_DONE:
         spr.set_position(
             {x + dx * f.offset_ - 8.0_fixed, y - dy * f.offset_ - 8.0_fixed});
         spr.set_texture_index(f.spr_);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 
 

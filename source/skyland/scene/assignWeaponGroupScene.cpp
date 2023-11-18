@@ -35,40 +35,38 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
     switch (state_) {
     case State::select_group:
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
         break;
 
     case State::assign_rooms:
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
 
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             if (auto room = app.player_island().get_room(cursor_loc)) {
                 if (room->co_op_locked()) {
-                    pfrm.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                     // TODO: notification
                 } else if ((*room->metaclass())->category() ==
                            Room::Category::weapon) {
@@ -93,13 +91,13 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
                         group = Room::Group::none;
                     }
                     room->set_group(group);
-                    app.player_island().repaint(pfrm, app);
+                    app.player_island().repaint(app);
 
                     network::packet::SetWeaponGroup p;
                     p.x_ = cursor_loc.x;
                     p.y_ = cursor_loc.y;
                     p.group_ = (u8)group;
-                    network::transmit(pfrm, p);
+                    network::transmit(p);
                 }
             }
         }
@@ -107,25 +105,25 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
                 ++cursor_loc.x;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
         if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
         break;
@@ -136,35 +134,34 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void AssignWeaponGroupScene::enter(Platform& pfrm, App& app, Scene& prev)
+void AssignWeaponGroupScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
-    msg_.emplace(pfrm,
-                 SYSTR(weapon_group_prompt)->c_str(),
-                 OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+    msg_.emplace(SYSTR(weapon_group_prompt)->c_str(),
+                 OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
 
 
-    app.player_island().repaint(pfrm, app);
+    app.player_island().repaint(app);
 }
 
 
 
-void AssignWeaponGroupScene::exit(Platform& pfrm, App& app, Scene& next)
+void AssignWeaponGroupScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
     if (not app.player_island().interior_visible()) {
         // app.player_island().show_groups(false);
     }
-    app.player_island().repaint(pfrm, app);
+    app.player_island().repaint(app);
 }
 
 
 
-void AssignWeaponGroupScene::display(Platform& pfrm, App& app)
+void AssignWeaponGroupScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     auto origin = app.player_island().visual_origin();
 
@@ -180,7 +177,7 @@ void AssignWeaponGroupScene::display(Platform& pfrm, App& app)
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_flip({true, false});
 
-    pfrm.screen().draw(sprite);
+    PLATFORM.screen().draw(sprite);
 }
 
 

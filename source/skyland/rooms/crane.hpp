@@ -81,14 +81,14 @@ public:
         }
     };
 
-    static Discoveries load_discoveries(Platform& pfrm);
-    static void store_discoveries(Platform& pfrm, const Discoveries& d);
+    static Discoveries load_discoveries();
+    static void store_discoveries(const Discoveries& d);
 
 
     Crane(Island* parent, const RoomCoord& position, const char* n = name());
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
     void display(Platform::Screen& screen, App& app) override;
 
 
@@ -97,7 +97,7 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
 
@@ -109,7 +109,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()
@@ -171,8 +171,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     void retract()
@@ -187,10 +186,10 @@ public:
     }
 
 
-    void apply_damage(Platform& pfrm, App& app, Health damage) override
+    void apply_damage(App& app, Health damage) override
     {
         if (state_ == State::idle) {
-            Room::apply_damage(pfrm, app, damage);
+            Room::apply_damage(app, damage);
         } else {
             // Does not take damage while dropping/retracting.
         }

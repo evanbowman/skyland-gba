@@ -41,7 +41,7 @@ namespace skyland
 
 
 
-void Crane::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Crane::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_crane)->c_str();
 }
@@ -55,18 +55,18 @@ Crane::Crane(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Crane::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Crane::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
     timer_ = 0;
     state_ = State::idle;
 }
 
 
 
-void Crane::update(Platform& pfrm, App& app, Microseconds delta)
+void Crane::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
     Room::ready();
 
     switch (state_) {
@@ -90,9 +90,9 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
             pos.y += Fixnum::from_integer(timer_) * Fixnum(0.00004f);
 
             if (item_ == Discoveries::Item::bomb) {
-                pfrm.speaker().play_sound("explosion1", 2);
-                big_explosion(pfrm, app, pos);
-                apply_damage(pfrm, app, 5);
+                PLATFORM.speaker().play_sound("explosion1", 2);
+                big_explosion(app, pos);
+                apply_damage(app, 5);
             } else {
                 // ...
             }
@@ -188,94 +188,91 @@ void Crane::display(Platform::Screen& screen, App& app)
 class CraneItemScene : public ActiveWorldScene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        ActiveWorldScene::enter(pfrm, app, prev);
+        ActiveWorldScene::enter(app, prev);
 
-        auto d = Crane::load_discoveries(pfrm);
+        auto d = Crane::load_discoveries();
         items_ = d.items();
 
         if (not items_.empty()) {
-            show(pfrm);
+            show();
         }
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override
+    void exit(App& app, Scene& next) override
     {
-        ActiveWorldScene::exit(pfrm, app, next);
+        ActiveWorldScene::exit(app, next);
         text_.reset();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    void show(Platform& pfrm)
+    void show()
     {
-        const u8 y = calc_screen_tiles(pfrm).y - 1;
+        const u8 y = calc_screen_tiles().y - 1;
 
         if (text_) {
             for (int i = 0; i < text_->len() + 2; ++i) {
-                pfrm.set_tile(Layer::overlay, i, y - 1, 0);
+                PLATFORM.set_tile(Layer::overlay, i, y - 1, 0);
             }
         }
 
         auto item = (int)items_[index_];
-        auto name =
-            get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2);
+        auto name = get_line_from_file("/strings/crane.txt", 1 + item * 2);
 
 
-        pfrm.set_tile(Layer::overlay, 0, y, 392);
-        pfrm.set_tile(Layer::overlay, 1, y, 393);
-        text_.emplace(pfrm, ":", OverlayCoord{2, y});
+        PLATFORM.set_tile(Layer::overlay, 0, y, 392);
+        PLATFORM.set_tile(Layer::overlay, 1, y, 393);
+        text_.emplace(":", OverlayCoord{2, y});
         text_->append(name->c_str());
 
         for (int i = 0; i < text_->len() + 2; ++i) {
-            pfrm.set_tile(Layer::overlay, i, y - 1, 425);
+            PLATFORM.set_tile(Layer::overlay, i, y - 1, 425);
         }
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
         if (items_.empty()) {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
             return scene_pool::alloc<ReadyScene>();
         }
 
-        if (key_down<Key::action_2>(pfrm)) {
+        if (key_down<Key::action_2>()) {
             return scene_pool::alloc<ReadyScene>();
         }
 
-        if (key_down<Key::down>(pfrm)) {
+        if (key_down<Key::down>()) {
             if (index_ == items_.size() - 1) {
                 index_ = 0;
             } else {
                 ++index_;
             }
-            pfrm.speaker().play_sound("click", 1);
-            show(pfrm);
+            PLATFORM.speaker().play_sound("click", 1);
+            show();
         }
 
-        if (key_down<Key::up>(pfrm)) {
+        if (key_down<Key::up>()) {
             if (index_ == 0) {
                 index_ = items_.size() - 1;
             } else {
                 --index_;
             }
-            pfrm.speaker().play_sound("click", 1);
-            show(pfrm);
+            PLATFORM.speaker().play_sound("click", 1);
+            show();
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_1>()) {
             auto item = (int)items_[index_];
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer +=
-                get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2)
-                    ->c_str();
+                get_line_from_file("/strings/crane.txt", 1 + item * 2)->c_str();
             *buffer += ": ";
             *buffer +=
-                get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2 + 1)
+                get_line_from_file("/strings/crane.txt", 1 + item * 2 + 1)
                     ->c_str();
             auto next =
                 scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer));
@@ -299,7 +296,7 @@ private:
 
 
 
-ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Crane::select(App& app, const RoomCoord& cursor)
 {
     auto& env = app.environment();
     auto clear_skies = not env.is_overcast();
@@ -307,11 +304,11 @@ ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     auto pos = position();
     if (cursor.x == pos.x + 2) {
         if (not clear_skies) {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
         }
 
         if (state_bit_load(app, StateBit::crane_game_got_treasure)) {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
         }
     } else {
         return scene_pool::alloc<CraneItemScene>();
@@ -361,7 +358,7 @@ static const char* crane_save_fname = "/save/crane.dat";
 
 
 
-Crane::Discoveries Crane::load_discoveries(Platform& pfrm)
+Crane::Discoveries Crane::load_discoveries()
 {
     Discoveries result;
     result.items_.set(0);
@@ -370,7 +367,7 @@ Crane::Discoveries Crane::load_discoveries(Platform& pfrm)
 
     Vector<char> output;
     const auto bytes_read =
-        flash_filesystem::read_file_data_binary(pfrm, fname, output);
+        flash_filesystem::read_file_data_binary(fname, output);
 
     if (bytes_read == sizeof(result)) {
         for (u32 i = 0; i < bytes_read; ++i) {
@@ -384,7 +381,7 @@ Crane::Discoveries Crane::load_discoveries(Platform& pfrm)
 
 
 
-void Crane::store_discoveries(Platform& pfrm, const Discoveries& d)
+void Crane::store_discoveries(const Discoveries& d)
 {
     Vector<char> output;
 
@@ -392,7 +389,7 @@ void Crane::store_discoveries(Platform& pfrm, const Discoveries& d)
         output.push_back(((u8*)&d)[i]);
     }
 
-    flash_filesystem::store_file_data_binary(pfrm, crane_save_fname, output);
+    flash_filesystem::store_file_data_binary(crane_save_fname, output);
 }
 
 

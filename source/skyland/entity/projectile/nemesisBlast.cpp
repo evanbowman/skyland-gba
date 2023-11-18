@@ -63,7 +63,7 @@ NemesisBlast::NemesisBlast(const Vec2<Fixnum>& position,
 
 
 
-void NemesisBlast::update(Platform&, App& app, Microseconds delta)
+void NemesisBlast::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -80,7 +80,7 @@ void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 
 
 
-void NemesisBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
+void NemesisBlast::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -92,9 +92,9 @@ void NemesisBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -106,10 +106,7 @@ extern Sound sound_impact;
 
 
 
-void NemesisBlast::on_collision(Platform& pfrm,
-                                App& app,
-                                Room& room,
-                                Vec2<u8> origin)
+void NemesisBlast::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or
@@ -132,49 +129,49 @@ void NemesisBlast::on_collision(Platform& pfrm,
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < damage()) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
 
-    timestream_record_destroyed(pfrm, app);
+    timestream_record_destroyed(app);
 
-    room.apply_damage(pfrm, app, damage(), source_);
+    room.apply_damage(app, damage(), source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
-        timestream_record_destroyed(pfrm, app);
+        room.set_ai_aware(app, true);
+        timestream_record_destroyed(app);
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
         kill();
         app.camera()->shake(2 + variant_ * 6);
         if (variant_ < 2) {
-            medium_explosion(pfrm, app, sprite_.get_position());
+            medium_explosion(app, sprite_.get_position());
         } else {
-            big_explosion(pfrm, app, sprite_.get_position());
+            big_explosion(app, sprite_.get_position());
         }
         if (room.health()) {
-            sound_impact.play(pfrm, 1);
+            sound_impact.play(1);
         }
     }
 }
 
 
 
-void NemesisBlast::on_collision(Platform& pfrm, App& app, Entity& entity)
+void NemesisBlast::on_collision(App& app, Entity& entity)
 {
-    timestream_record_destroyed(pfrm, app);
+    timestream_record_destroyed(app);
 
     kill();
     app.camera()->shake(2 + variant_ * 6);
-    medium_explosion(pfrm, app, sprite_.get_position());
+    medium_explosion(app, sprite_.get_position());
 
-    entity.apply_damage(pfrm, app, damage());
+    entity.apply_damage(app, damage());
 }
 
 
@@ -196,7 +193,7 @@ Health NemesisBlast::damage() const
 
 
 
-void NemesisBlast::timestream_record_destroyed(Platform& pfrm, App& app)
+void NemesisBlast::timestream_record_destroyed(App& app)
 {
     auto timestream_record = [&](time_stream::event::NemesisBlastDestroyed& c) {
         c.x_origin_ = origin_tile_.x;

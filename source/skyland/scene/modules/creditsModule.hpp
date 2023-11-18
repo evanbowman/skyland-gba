@@ -53,13 +53,13 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     static bool stop_sound()
@@ -84,7 +84,7 @@ private:
     } state_ = State::fade_in;
 
 
-    void load_page(Platform& pfrm, u32 page);
+    void load_page(u32 page);
 
 
     Buffer<Text, 12> lines_;

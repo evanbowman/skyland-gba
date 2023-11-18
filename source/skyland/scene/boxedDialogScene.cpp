@@ -41,8 +41,7 @@ namespace skyland
 
 
 
-void __draw_image(Platform& pfrm,
-                  TileDesc start_tile,
+void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
                   u16 width,
@@ -59,7 +58,7 @@ const int y_start = 1;
 
 
 
-void BoxedDialogScene::process_command(Platform& pfrm, App& app)
+void BoxedDialogScene::process_command(App& app)
 {
     ++text_state_.current_word_;
 
@@ -68,7 +67,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
     ++text_state_.current_word_;
 
     if (*text_state_.current_word_ not_eq ':') {
-        pfrm.fatal("invalid command format!");
+        PLATFORM.fatal("invalid command format!");
     }
 
     ++text_state_.current_word_;
@@ -78,7 +77,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         while (*text_state_.current_word_ not_eq ':' and
                *text_state_.current_word_ not_eq '>') {
             if (*text_state_.current_word_ == '\0') {
-                pfrm.fatal("Unexpected null byte in command sequence!");
+                PLATFORM.fatal("Unexpected null byte in command sequence!");
             }
             str.push_back(*text_state_.current_word_);
             ++text_state_.current_word_;
@@ -98,7 +97,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
 
     auto parse_command_noarg = [&] {
         if (*text_state_.current_word_ not_eq '>') {
-            pfrm.fatal("invalid command format, expected >");
+            PLATFORM.fatal("invalid command format, expected >");
         }
 
         ++text_state_.current_word_;
@@ -107,24 +106,23 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
 
     switch (c) {
     case '\0':
-        pfrm.fatal("Invalid null byte in command sequence!");
+        PLATFORM.fatal("Invalid null byte in command sequence!");
 
     case 'c': {
         data_->character_.name_ = parse_command_str();
         data_->character_.image_ = parse_command_int();
 
         if (data_->character_.image_) {
-            auto st = calc_screen_tiles(pfrm);
+            auto st = calc_screen_tiles();
 
-            data_->character_name_text_.emplace(pfrm,
-                                                OverlayCoord{1, u8(st.y - 7)});
+            data_->character_name_text_.emplace(OverlayCoord{1, u8(st.y - 7)});
 
             data_->character_name_text_->assign(
                 data_->character_.name_.c_str(),
                 Text::OptColors{
                     {custom_color(0xf3ea55), custom_color(0x232390)}});
 
-            clear_textbox(pfrm);
+            clear_textbox();
         }
         break;
     }
@@ -135,7 +133,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
     }
 
     case 'f': {
-        pfrm.screen().schedule_fade(parse_command_int() / 100.f);
+        PLATFORM.screen().schedule_fade(parse_command_int() / 100.f);
         break;
     }
 
@@ -147,41 +145,41 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
 
     case 'b': {
         const auto bkg_name = parse_command_str();
-        pfrm.screen().set_shader(passthrough_shader);
-        pfrm.screen().set_view(View{});
+        PLATFORM.screen().set_shader(passthrough_shader);
+        PLATFORM.screen().set_view(View{});
         app.camera().emplace<Camera>();
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                pfrm.set_tile(Layer::map_0_ext, i, j, 0);
-                pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+                PLATFORM.set_tile(Layer::map_0_ext, i, j, 0);
+                PLATFORM.set_tile(Layer::map_1_ext, i, j, 0);
             }
         }
         for (int x = 0; x < 30; ++x) {
             for (int y = 0; y < 2; ++y) {
-                pfrm.set_tile(Layer::overlay, x, y, 123);
+                PLATFORM.set_tile(Layer::overlay, x, y, 123);
             }
-            pfrm.set_tile(Layer::overlay, x, 13, 123);
-            pfrm.set_tile(Layer::overlay, x, 19, 123);
+            PLATFORM.set_tile(Layer::overlay, x, 13, 123);
+            PLATFORM.set_tile(Layer::overlay, x, 19, 123);
         }
-        pfrm.load_tile1_texture(bkg_name.c_str());
-        pfrm.set_scroll(Layer::map_1_ext, 0, 0);
-        __draw_image(pfrm, 1, 0, 2, 30, 14, Layer::map_1);
+        PLATFORM.load_tile1_texture(bkg_name.c_str());
+        PLATFORM.set_scroll(Layer::map_1_ext, 0, 0);
+        __draw_image(1, 0, 2, 30, 14, Layer::map_1);
 
         // Replace the textbox border with a tileset with an opaque dark
         // background.
-        pfrm.load_overlay_chunk(83, 124, 8);
+        PLATFORM.load_overlay_chunk(83, 124, 8);
         img_view_ = true;
 
         int frames = 45;
         for (int i = 0; i < frames; ++i) {
-            pfrm.screen().schedule_fade(1 - Float(i) / frames,
-                                        ColorConstant::rich_black);
-            pfrm.keyboard().poll();
-            pfrm.screen().clear();
-            pfrm.screen().display();
+            PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
+                                            ColorConstant::rich_black);
+            PLATFORM.keyboard().poll();
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
             if (ambience_) {
-                if (not pfrm.speaker().is_sound_playing(ambience_)) {
-                    pfrm.speaker().play_sound(ambience_, 9);
+                if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
+                    PLATFORM.speaker().play_sound(ambience_, 9);
                 }
             }
         }
@@ -205,13 +203,13 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
     }
 
     case 'm': {
-        pfrm.speaker().set_music_volume(parse_command_int());
+        PLATFORM.speaker().set_music_volume(parse_command_int());
         break;
     }
 
 
     default:
-        pfrm.fatal(format("Invald command %", c).c_str());
+        PLATFORM.fatal(format("Invald command %", c).c_str());
     }
 
     while (*text_state_.current_word_ == ' ') {
@@ -221,10 +219,7 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
 
 
 
-bool BoxedDialogScene::advance_text(Platform& pfrm,
-                                    App& app,
-                                    Microseconds delta,
-                                    bool sfx)
+bool BoxedDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
 {
     const auto delay = [&] {
         switch (text_state_.speed_) {
@@ -245,13 +240,13 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 
     text_state_.timer_ += delta;
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
 
     if (text_state_.timer_ > delay) {
         text_state_.timer_ = 0;
 
         if (sfx) {
-            pfrm.speaker().play_sound("msg", 5);
+            PLATFORM.speaker().play_sound("msg", 5);
         }
 
         if (text_state_.current_word_remaining_ == 0) {
@@ -262,7 +257,7 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
                 }
             }
             if (*text_state_.current_word_ == '<') {
-                process_command(pfrm, app);
+                process_command(app);
             }
             if (halt_text_) {
                 halt_text_ = false;
@@ -299,7 +294,7 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 
         static const int character_graphics_width = 4;
 
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
         static const auto margin_sum = 4;
         const auto text_box_width = st.x - margin_sum;
         const auto remaining =
@@ -327,7 +322,7 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         u16 t = 495; // bad glyph, FIXME: add a constant
 
         if (mapping_info) {
-            t = pfrm.map_glyph(cp, *mapping_info);
+            t = PLATFORM.map_glyph(cp, *mapping_info);
         }
 
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;
@@ -340,11 +335,11 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         }
 
         if (cp == '@') {
-            pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
+            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
         } else if (cp == '*') {
-            pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 149);
+            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 149);
         } else {
-            pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
+            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
         }
 
         text_state_.current_word_remaining_--;
@@ -361,94 +356,93 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 
 
 
-void BoxedDialogScene::clear_textbox(Platform& pfrm)
+void BoxedDialogScene::clear_textbox()
 {
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
 
     for (int x = 1; x < st.x - 1; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
-        pfrm.set_tile(Layer::overlay, x, st.y - (4 + y_start), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (3 + y_start), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (1 + y_start), 85);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (4 + y_start), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (3 + y_start), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (2 + y_start), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (1 + y_start), 85);
     }
 
-    pfrm.set_tile(Layer::overlay, 0, st.y - (4 + y_start), 89);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (3 + y_start), 89);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (2 + y_start), 89);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - (4 + y_start), 89);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - (3 + y_start), 89);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - (2 + y_start), 89);
 
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (4 + y_start), 88);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (3 + y_start), 88);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (2 + y_start), 88);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (4 + y_start), 88);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (3 + y_start), 88);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (2 + y_start), 88);
 
-    pfrm.set_tile(Layer::overlay, 0, st.y - (5 + y_start), 83);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (1 + y_start), 90);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (5 + y_start), 87);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (1 + y_start), 86);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - (5 + y_start), 83);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - (1 + y_start), 90);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (5 + y_start), 87);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (1 + y_start), 86);
 
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
 
     if (data_->character_.image_) {
         const auto img = (data_->character_.image_ - 1) * 16;
-        pfrm.load_overlay_chunk(184, img, 16, "character_art");
-        draw_image(pfrm, 184, 1, st.y - 6, 4, 4, Layer::overlay);
+        PLATFORM.load_overlay_chunk(184, img, 16, "character_art");
+        draw_image(184, 1, st.y - 6, 4, 4, Layer::overlay);
 
         for (int i = 4; i < data_->character_name_text_->len() + 1; ++i) {
-            pfrm.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);
+            PLATFORM.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);
         }
 
         for (int i = 1; i < data_->character_name_text_->len() + 1; ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 8, 114);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 8, 114);
         }
 
 
-        pfrm.set_tile(Layer::overlay, 0, st.y - 5, 122);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 4, 122);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 3, 122);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 5, 122);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 122);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 122);
 
-        pfrm.set_tile(Layer::overlay, 0, st.y - 6, 119);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 7, 120);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 8, 121);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 6, 119);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 7, 120);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 8, 121);
 
 
-        pfrm.set_tile(Layer::overlay,
-                      data_->character_name_text_->len() + 1,
-                      st.y - 6,
-                      115);
+        PLATFORM.set_tile(Layer::overlay,
+                          data_->character_name_text_->len() + 1,
+                          st.y - 6,
+                          115);
 
-        pfrm.set_tile(Layer::overlay,
-                      data_->character_name_text_->len() + 1,
-                      st.y - 8,
-                      116);
+        PLATFORM.set_tile(Layer::overlay,
+                          data_->character_name_text_->len() + 1,
+                          st.y - 8,
+                          116);
 
-        pfrm.set_tile(Layer::overlay,
-                      1 + data_->character_name_text_->len(),
-                      st.y - 7,
-                      112);
+        PLATFORM.set_tile(Layer::overlay,
+                          1 + data_->character_name_text_->len(),
+                          st.y - 7,
+                          112);
     }
 }
 
 
 
-void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
+void BoxedDialogScene::enter(App& app, Scene& prev)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.load_overlay_texture("overlay_dialog");
+    PLATFORM.load_overlay_texture("overlay_dialog");
 
     if (data_->character_.image_) {
-        auto st = calc_screen_tiles(pfrm);
+        auto st = calc_screen_tiles();
 
-        data_->character_name_text_.emplace(pfrm,
-                                            OverlayCoord{1, u8(st.y - 7)});
+        data_->character_name_text_.emplace(OverlayCoord{1, u8(st.y - 7)});
 
         data_->character_name_text_->assign(
             data_->character_.name_.c_str(),
             Text::OptColors{{custom_color(0xf3ea55), custom_color(0x232390)}});
     }
 
-    clear_textbox(pfrm);
+    clear_textbox();
 
     text_state_.current_word_remaining_ = 0;
     text_state_.current_word_ = buffer_->c_str();
@@ -464,26 +458,26 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
+void BoxedDialogScene::exit(App& app, Scene& prev)
 {
     if (img_view_) {
-        pfrm.fill_overlay(123);
-        pfrm.screen().schedule_fade(1.f);
-        pfrm.screen().clear();
-        pfrm.screen().display();
+        PLATFORM.fill_overlay(123);
+        PLATFORM.screen().schedule_fade(1.f);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
-                pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+                PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
             }
         }
-        pfrm.load_tile1_texture("tilesheet");
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        pfrm.fill_overlay(0);
+        PLATFORM.load_tile1_texture("tilesheet");
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        PLATFORM.fill_overlay(0);
     }
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.load_overlay_texture("overlay");
     data_->coins_.reset();
     data_->character_name_text_.reset();
 }
@@ -509,16 +503,15 @@ static lisp::Value* get_dialog_opt_list()
 
 
 
-ScenePtr<Scene>
-BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
 {
     if (data_->coins_) {
-        data_->coins_->update(pfrm, delta);
+        data_->coins_->update(delta);
     }
 
     if (ambience_) {
-        if (not pfrm.speaker().is_sound_playing(ambience_)) {
-            pfrm.speaker().play_sound(ambience_, 9);
+        if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
+            PLATFORM.speaker().play_sound(ambience_, 9);
         }
     }
 
@@ -527,7 +520,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         text_state_.timer_ += delta;
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
-            const auto st = calc_screen_tiles(pfrm);
+            const auto st = calc_screen_tiles();
             int x = st.x - 3;
             if (text_scroll_direction == 1) {
                 if (data_->character_.image_) {
@@ -536,10 +529,11 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                     x = 3;
                 }
             }
-            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) == 91) {
-                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 92);
+            if (PLATFORM.get_tile(Layer::overlay, x, st.y - (2 + y_start)) ==
+                91) {
+                PLATFORM.set_tile(Layer::overlay, x, st.y - (2 + y_start), 92);
             } else {
-                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 91);
+                PLATFORM.set_tile(Layer::overlay, x, st.y - (2 + y_start), 91);
             }
         }
     };
@@ -551,16 +545,15 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case DisplayMode::busy: {
 
-        const bool text_busy = advance_text(pfrm, app, delta, true);
+        const bool text_busy = advance_text(app, delta, true);
 
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
             if (text_state_.speed_ == 0 and allow_fastforward_ and
-                (key_down<Key::action_2>(pfrm) or
-                 key_down<Key::action_1>(pfrm))) {
+                (key_down<Key::action_2>() or key_down<Key::action_1>())) {
 
-                while (advance_text(pfrm, app, delta, false)) {
+                while (advance_text(app, delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
                         break;
                     }
@@ -576,19 +569,19 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
 
             text_state_.timer_ = 0;
 
-            clear_textbox(pfrm);
+            clear_textbox();
             display_mode_ = DisplayMode::busy;
         }
         break;
     }
 
     case DisplayMode::key_released_check1:
-        // if (key_down<Key::action_2>(pfrm) or
-        //     key_down<Key::action_1>(pfrm)) {
+        // if (key_down<Key::action_2>() or
+        //     key_down<Key::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::wait;
@@ -600,7 +593,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (auto opts = get_dialog_opt_list()) {
 
-            const auto st = calc_screen_tiles(pfrm);
+            const auto st = calc_screen_tiles();
 
             // int opt_count = lisp::length(opts);
 
@@ -623,7 +616,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 for (int y = st.y - (6 + (opt_count * 2 - 1) + y_start);
                      y < st.y - 7;
                      ++y) {
-                    pfrm.set_tile(Layer::overlay, x, y, 82);
+                    PLATFORM.set_tile(Layer::overlay, x, y, 82);
                 }
             }
 
@@ -637,25 +630,26 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 const u8 t_x = (st.x - 2) - max_text_len;
 
                 OverlayCoord pos{t_x, t_y};
-                data_->text_opts_.emplace_back(pfrm, text, pos);
+                data_->text_opts_.emplace_back(text, pos);
             });
 
-            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (6 + y_start), 86);
+            PLATFORM.set_tile(
+                Layer::overlay, st.x - 1, st.y - (6 + y_start), 86);
             int i;
             for (i = 0; i < opt_count * 2 - 1; ++i) {
-                pfrm.set_tile(
+                PLATFORM.set_tile(
                     Layer::overlay, st.x - 1, st.y - (7 + i + y_start), 88);
-                pfrm.set_tile(Layer::overlay,
+                PLATFORM.set_tile(Layer::overlay,
+                                  (st.x - 1) - (max_text_len + 4),
+                                  st.y - (7 + i + y_start),
+                                  89);
+            }
+            PLATFORM.set_tile(
+                Layer::overlay, st.x - 1, st.y - (7 + i + y_start), 87);
+            PLATFORM.set_tile(Layer::overlay,
                               (st.x - 1) - (max_text_len + 4),
                               st.y - (7 + i + y_start),
-                              89);
-            }
-            pfrm.set_tile(
-                Layer::overlay, st.x - 1, st.y - (7 + i + y_start), 87);
-            pfrm.set_tile(Layer::overlay,
-                          (st.x - 1) - (max_text_len + 4),
-                          st.y - (7 + i + y_start),
-                          83);
+                              83);
 
             const bool overlap =
                 max_text_len + 4 + 1 + data_->character_.name_.length() >= 30;
@@ -667,44 +661,43 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (overlap) {
                 corner_tile = 132;
-                pfrm.set_tile(Layer::overlay,
-                              (st.x - 1) - (max_text_len + 4),
-                              st.y - (6 + y_start) - 1,
-                              133);
+                PLATFORM.set_tile(Layer::overlay,
+                                  (st.x - 1) - (max_text_len + 4),
+                                  st.y - (6 + y_start) - 1,
+                                  133);
             } else if (overlap_edge) {
                 corner_tile = 132;
-                pfrm.set_tile(Layer::overlay,
-                              (st.x - 1) - (max_text_len + 4),
-                              st.y - (6 + y_start) - 1,
-                              134);
+                PLATFORM.set_tile(Layer::overlay,
+                                  (st.x - 1) - (max_text_len + 4),
+                                  st.y - (6 + y_start) - 1,
+                                  134);
             }
 
-            pfrm.set_tile(Layer::overlay,
-                          (st.x - 1) - (max_text_len + 4),
-                          st.y - (6 + y_start),
-                          corner_tile);
+            PLATFORM.set_tile(Layer::overlay,
+                              (st.x - 1) - (max_text_len + 4),
+                              st.y - (6 + y_start),
+                              corner_tile);
 
             for (int j = 0; j < (int)max_text_len + 3; ++j) {
-                pfrm.set_tile(
+                PLATFORM.set_tile(
                     Layer::overlay, (st.x - 2) - j, st.y - (6 + y_start), 85);
-                pfrm.set_tile(Layer::overlay,
-                              (st.x - 2) - j,
-                              st.y - (7 + i + y_start),
-                              84);
+                PLATFORM.set_tile(Layer::overlay,
+                                  (st.x - 2) - j,
+                                  st.y - (7 + i + y_start),
+                                  84);
             }
 
-            // pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (9 + y_start), 88);
-            // pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (8 + y_start), 88);
-            // pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (7 + y_start), 88);
-            // pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (10 + y_start), 87);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (9 + y_start), 88);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (8 + y_start), 88);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (7 + y_start), 88);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (10 + y_start), 87);
 
-            // pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (9 + y_start), 89);
-            // pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (8 + y_start), 89);
-            // pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
-            // pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (9 + y_start), 89);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (8 + y_start), 89);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
+            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
 
-            data_->coins_.emplace(pfrm,
-                                  OverlayCoord{1, 2},
+            data_->coins_.emplace(OverlayCoord{1, 2},
                                   146,
                                   (int)app.coins(),
                                   UIMetric::Align::left);
@@ -730,8 +723,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
         animate_moretext_icon();
-        if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
-            invoke_hook(pfrm, app, "on-dialog-closed");
+        if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
+            invoke_hook(app, "on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
         break;
@@ -749,15 +742,15 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             for (u32 i = 0; i < data_->text_opts_.size(); ++i) {
-                pfrm.set_tile(Layer::overlay,
-                              cursor_x,
-                              data_->text_opts_[i].coord().y,
-                              82);
+                PLATFORM.set_tile(Layer::overlay,
+                                  cursor_x,
+                                  data_->text_opts_[i].coord().y,
+                                  82);
             }
-            pfrm.set_tile(Layer::overlay,
-                          cursor_x,
-                          data_->text_opts_[choice_sel_].coord().y,
-                          cursor_anim_ ? 110 : 109);
+            PLATFORM.set_tile(Layer::overlay,
+                              cursor_x,
+                              data_->text_opts_[choice_sel_].coord().y,
+                              cursor_anim_ ? 110 : 109);
         };
 
         if (text_state_.timer_ > duration) {
@@ -766,37 +759,37 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             update_opt_cursor();
         }
 
-        if (key_down<Key::action_2>(pfrm)) {
+        if (key_down<Key::action_2>()) {
             choice_sel_ = 0;
-            pfrm.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click", 1);
             update_opt_cursor();
         }
 
-        if (key_down<Key::down>(pfrm)) {
+        if (key_down<Key::down>()) {
             if (choice_sel_ == 0) {
                 choice_sel_ = data_->text_opts_.size() - 1;
             } else {
                 --choice_sel_;
             }
-            pfrm.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click", 1);
             update_opt_cursor();
         }
 
-        if (key_down<Key::up>(pfrm)) {
+        if (key_down<Key::up>()) {
             if (choice_sel_ == (int)data_->text_opts_.size() - 1) {
                 choice_sel_ = 0;
             } else {
                 ++choice_sel_;
             }
-            pfrm.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click", 1);
             update_opt_cursor();
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_1>()) {
             text_state_.timer_ = 0;
 
             if (app.game_speed() not_eq GameSpeed::stopped) {
-                pfrm.speaker().play_sound("button_wooden", 3);
+                PLATFORM.speaker().play_sound("button_wooden", 3);
             }
 
             if (auto opts = get_dialog_opt_list()) {
@@ -818,19 +811,19 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (img_view_) {
             int frames = 30;
             for (int i = 0; i < frames; ++i) {
-                pfrm.screen().schedule_fade(
+                PLATFORM.screen().schedule_fade(
                     Float(i) / frames, ColorConstant::rich_black, true, true);
-                pfrm.screen().clear();
-                pfrm.screen().display();
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
                 if (ambience_) {
-                    if (not pfrm.speaker().is_sound_playing(ambience_)) {
-                        pfrm.speaker().play_sound(ambience_, 9);
+                    if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
+                        PLATFORM.speaker().play_sound(ambience_, 9);
                     }
                 }
             }
-            pfrm.sleep(20);
+            PLATFORM.sleep(20);
         }
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
         break;
 
     case DisplayMode::clear:
@@ -847,22 +840,20 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BoxedDialogScene::display(Platform& pfrm, App& app)
+void BoxedDialogScene::display(App& app)
 {
 }
 
 
 
-ScenePtr<Scene> dialog_prompt(Platform& pfrm,
-                              SystemString systr,
-                              DeferredScene next,
-                              const char* ambience)
+ScenePtr<Scene>
+dialog_prompt(SystemString systr, DeferredScene next, const char* ambience)
 {
     lisp::set_var("on-dialog-closed", L_NIL);
-    pfrm.screen().fade(0.95f);
-    pfrm.screen().fade(1.f);
+    PLATFORM.screen().fade(0.95f);
+    PLATFORM.screen().fade(1.f);
     auto dialog = allocate_dynamic<DialogString>("dialog-buffer");
-    *dialog = loadstr(pfrm, systr)->c_str();
+    *dialog = loadstr(systr)->c_str();
     auto s = scene_pool::alloc<BoxedDialogScene>(std::move(dialog));
     s->set_next_scene(next);
     s->ambience_ = ambience;

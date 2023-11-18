@@ -42,10 +42,9 @@ MindControlTargetScene::MindControlTargetScene(const RoomCoord& controller_loc)
 
 
 
-ScenePtr<Scene>
-MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
@@ -57,17 +56,16 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         } else if (cursor_loc.x == 0 and not near_) {
             near_ = true;
             near_camera();
@@ -79,7 +77,7 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (test_key(Key::right)) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
             if (near_ and
                 cursor_loc.x == app.opponent_island()->terrain().size()) {
                 far_camera();
@@ -93,24 +91,24 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (test_key(Key::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(Key::action_1)) {
         Island* island = app.opponent_island();
         if (near_) {
             island = &app.player_island();
         }
         if (not near_ and not island->interior_visible()) {
-            pfrm.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
             return null_scene();
         }
         if (auto room = island->get_room(cursor_loc)) {
@@ -142,7 +140,7 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -150,7 +148,7 @@ MindControlTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void MindControlTargetScene::display(Platform& pfrm, App& app)
+void MindControlTargetScene::display(App& app)
 {
     if (app.opponent_island()) {
         Sprite cursor;
@@ -172,46 +170,45 @@ void MindControlTargetScene::display(Platform& pfrm, App& app)
 
         cursor.set_position(origin);
 
-        pfrm.screen().draw(cursor);
+        PLATFORM.screen().draw(cursor);
     }
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 }
 
 
 
-void MindControlTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MindControlTargetScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     far_camera();
 
-    auto st = calc_screen_tiles(pfrm);
-    text_.emplace(pfrm,
-                  SYSTR(mind_control_prompt)->c_str(),
+    auto st = calc_screen_tiles();
+    text_.emplace(SYSTR(mind_control_prompt)->c_str(),
                   OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 }
 
 
 
-void MindControlTargetScene::exit(Platform& pfrm, App& app, Scene& next)
+void MindControlTargetScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 1, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 0);
     }
 
     text_.reset();

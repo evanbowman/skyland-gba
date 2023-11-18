@@ -45,7 +45,7 @@ extern Sound cannon_sound;
 
 
 
-void FireCharge::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void FireCharge::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_fire_charge)->c_str();
 }
@@ -59,7 +59,7 @@ FireCharge::FireCharge(Island* parent, const RoomCoord& position)
 
 
 
-void FireCharge::fire(Platform& pfrm, App& app)
+void FireCharge::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -86,15 +86,14 @@ void FireCharge::fire(Platform& pfrm, App& app)
     }
 
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto c =
-        app.alloc_entity<FireBolt>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<FireBolt>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

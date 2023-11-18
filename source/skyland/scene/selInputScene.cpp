@@ -36,19 +36,18 @@ namespace skyland
 
 
 
-void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
+void SelInputScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
     if (not near_) {
         far_camera();
     }
 
-    text_.emplace(pfrm,
-                  // NOTE: sel-input should have already checked the types of
-                  // its parameters.
-                  parameters_->cons().car()->cons().car()->string().value(),
-                  OverlayCoord{0, 19});
+    text_.emplace( // NOTE: sel-input should have already checked the types of
+        // its parameters.
+        parameters_->cons().car()->cons().car()->string().value(),
+        OverlayCoord{0, 19});
 
 
     auto cdr = parameters_->cons().cdr();
@@ -65,10 +64,10 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     for (int i = 0; i < text_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 
     cached_near_cursor_ = globals().near_cursor_loc_;
@@ -77,21 +76,20 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void SelInputScene::exit(Platform& pfrm, App& app, Scene& next)
+void SelInputScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
     text_.reset();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
 
-ScenePtr<Scene>
-SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto scene = ActiveWorldScene::update(app, delta)) {
         return scene;
     }
 
@@ -110,11 +108,10 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(150));
+        return app.player().test_key(k, milliseconds(500), milliseconds(150));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
 
     if (near_) {
@@ -202,12 +199,12 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (near_ and app.player().key_down(pfrm, Key::action_2)) {
+    if (near_ and app.player().key_down(Key::action_2)) {
         auto next = scene_pool::alloc<SalvageRoomScene>();
         next->set_next_scene(scene_pool::make_deferred_scene<SelInputScene>(
             parameters_.get(), near_));
         return next;
-    } else if (app.player().key_down(pfrm, Key::action_1)) {
+    } else if (app.player().key_down(Key::action_1)) {
 
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
@@ -221,7 +218,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
                     auto room = app.player_island().get_room({x, ry});
                     if (room or x == app.player_island().terrain().size() or
                         ry < construction_zone_min_y) {
-                        pfrm.speaker().play_sound("beep_error", 1);
+                        PLATFORM.speaker().play_sound("beep_error", 1);
                         return null_scene();
                     }
                 }
@@ -254,8 +251,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void draw_required_space(Platform& pfrm,
-                         App& app,
+void draw_required_space(App& app,
                          Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
@@ -263,9 +259,9 @@ void draw_required_space(Platform& pfrm,
 
 
 
-void SelInputScene::display(Platform& pfrm, App& app)
+void SelInputScene::display(App& app)
 {
-    ActiveWorldScene::display(pfrm, app);
+    ActiveWorldScene::display(app);
 
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
@@ -291,7 +287,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
         cursor.set_position(origin);
     }
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 
     if (required_space_) {
         auto sz = *required_space_;
@@ -315,7 +311,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
                         origin.y += Fixnum(y * 16);
                         spr.set_position({origin.x, origin.y});
                         spr.set_mix({custom_color(0xf7ce9e), 250});
-                        pfrm.screen().draw(spr);
+                        PLATFORM.screen().draw(spr);
                     }
                 }
             }
@@ -326,7 +322,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);
         origin.y -= Fixnum::from_integer((required_space_->y - 1) * 16);
 
-        draw_required_space(pfrm, app, player_island(app), origin, sz, w_ot_);
+        draw_required_space(app, player_island(app), origin, sz, w_ot_);
     }
 }
 

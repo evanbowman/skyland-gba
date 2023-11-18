@@ -46,7 +46,7 @@ extern Sound cannon_sound;
 
 
 
-void Incinerator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Incinerator::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_incinerator)->c_str();
 }
@@ -60,7 +60,7 @@ Incinerator::Incinerator(Island* parent, const RoomCoord& position)
 
 
 
-void Incinerator::fire(Platform& pfrm, App& app)
+void Incinerator::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -82,15 +82,15 @@ void Incinerator::fire(Platform& pfrm, App& app)
     }
     start.y -= 3.0_fixed;
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
     using Emit = IncineratorBolt;
-    auto c = app.alloc_entity<Emit>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<Emit>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }
@@ -130,16 +130,16 @@ void Incinerator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Incinerator::finalize(Platform& pfrm, App& app)
+void Incinerator::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
         auto pos = center();
         pos.y += 8.0_fixed;
-        ExploSpawner::create(pfrm, app, pos);
+        ExploSpawner::create(app, pos);
         pos.y -= 16.0_fixed;
-        ExploSpawner::create(pfrm, app, pos);
+        ExploSpawner::create(app, pos);
     }
 }
 

@@ -41,7 +41,7 @@ public:
     BeamGun(Island* parent, const RoomCoord& position);
 
 
-    void fire(Platform& pfrm, App& app) override;
+    void fire(App& app) override;
     Microseconds reload() const override;
 
 
@@ -55,7 +55,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()

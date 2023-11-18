@@ -43,17 +43,16 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& scene) override;
+    void enter(App& app, Scene& scene) override;
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
     Island* island(App& app) const;
@@ -66,7 +65,7 @@ private:
 
         Buffer<Text, cap> lines_;
         Buffer<SystemString, cap> strings_;
-        Buffer<Function<16, ScenePtr<Scene>(Platform&, App&)>, cap> callbacks_;
+        Buffer<Function<16, ScenePtr<Scene>(App&)>, cap> callbacks_;
         u8 longest_line_;
 
         Bitvector<cap> specific_;
@@ -74,7 +73,7 @@ private:
         Buffer<SystemString, cap> pushed_strings_;
     };
 
-    void redraw_line(Platform& pfrm, int line, bool highlight);
+    void redraw_line(int line, bool highlight);
 
     DynamicMemory<Options> opts_;
     int sel_ = 0;

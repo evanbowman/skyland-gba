@@ -66,23 +66,23 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Room&, Vec2<u8>) override;
+    void on_collision(App& app, Room&, Vec2<u8>) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Entity& entity) override;
+    void on_collision(App& app, Entity& entity) override;
 
 
-    Fixnum fall_speed(Platform& pfrm);
+    Fixnum fall_speed();
 
 
 protected:
-    virtual void destroy(Platform& pfrm, App& app);
+    virtual void destroy(App& app);
 
     Microseconds timer_ = 0;
     Fixnum target_x_;
@@ -115,19 +115,16 @@ public:
 
 
 
-    void on_collision(Platform& pfrm, App& app, Room&, Vec2<u8>) override;
+    void on_collision(App& app, Room&, Vec2<u8>) override;
 
 
 
-    void burst(Platform& pfrm,
-               App& app,
-               const Vec2<Fixnum>& position,
-               Room& origin_room);
+    void burst(App& app, const Vec2<Fixnum>& position, Room& origin_room);
 
 
 
 protected:
-    void destroy(Platform& pfrm, App& app) override;
+    void destroy(App& app) override;
 };
 
 
@@ -147,26 +144,20 @@ public:
 
 
 
-    void on_collision(Platform& pfrm, App& app, Room&, Vec2<u8>) override;
-    void on_collision(Platform& pfrm, App& app, Entity&) override;
+    void on_collision(App& app, Room&, Vec2<u8>) override;
+    void on_collision(App& app, Entity&) override;
 
 
 
-    void burst(Platform& pfrm,
-               App& app,
-               const Vec2<Fixnum>& position,
-               Room& origin_room);
+    void burst(App& app, const Vec2<Fixnum>& position, Room& origin_room);
 
 
 
 protected:
-    void spawn_bomblets(Platform& pfrm,
-                        App& app,
-                        Island* source,
-                        Vec2<Fixnum> origin);
+    void spawn_bomblets(App& app, Island* source, Vec2<Fixnum> origin);
 
 
-    void destroy(Platform& pfrm, App& app) override;
+    void destroy(App& app) override;
 };
 
 

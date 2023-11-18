@@ -39,7 +39,7 @@ SHARED_VARIABLE(decimator_reload_ms);
 
 
 
-void Decimator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Decimator::format_description(StringBuffer<512>& buffer)
 {
     auto secs = decimator_reload_ms / 1000;
 
@@ -58,7 +58,7 @@ Decimator::Decimator(Island* parent, const RoomCoord& position)
 
 
 
-void Decimator::unset_target(Platform& pfrm, App& app)
+void Decimator::unset_target(App& app)
 {
     reload_ = 1000 * decimator_reload_ms;
     counter_ = 0;
@@ -66,9 +66,9 @@ void Decimator::unset_target(Platform& pfrm, App& app)
 
 
 
-void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
+void Decimator::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
@@ -145,11 +145,11 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
             auto c = app.alloc_entity<DecimatorBurst>(
-                pfrm, start, target, parent(), position());
+                start, target, parent(), position());
 
             if (c) {
                 parent()->projectiles().push(std::move(c));
-                set_ai_aware(pfrm, app, true);
+                set_ai_aware(app, true);
             }
 
             if (counter_ < 6) {
@@ -165,9 +165,9 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Decimator::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Decimator::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (reload_ <= 0) {
         // Reloaded.
@@ -178,14 +178,14 @@ void Decimator::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Decimator::___rewind___finished_reload(Platform&, App&)
+void Decimator::___rewind___finished_reload(App&)
 {
     reload_ = 1;
 }
 
 
 
-void Decimator::___rewind___ability_used(Platform&, App&)
+void Decimator::___rewind___ability_used(App&)
 {
     reload_ = 0;
 
@@ -261,12 +261,12 @@ void Decimator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Decimator::finalize(Platform& pfrm, App& app)
+void Decimator::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
-        ExploSpawner::create(pfrm, app, center());
+        ExploSpawner::create(app, center());
     }
 }
 

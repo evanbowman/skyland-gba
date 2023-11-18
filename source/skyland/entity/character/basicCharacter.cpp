@@ -188,7 +188,7 @@ void BasicCharacter::transported()
 
 
 
-void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
+void BasicCharacter::rewind(App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -292,7 +292,7 @@ bool BasicCharacter::has_opponent(Room* room)
 
 
 
-void BasicCharacter::update(Platform&, App&, Microseconds delta)
+void BasicCharacter::update(App&, Microseconds delta)
 {
     Platform::fatal("BasicCharacter::update() called... "
                     "Use other update method instead.");
@@ -307,12 +307,9 @@ bool BasicCharacter::ai_automated() const
 
 
 
-void BasicCharacter::update(Platform& pfrm,
-                            App& app,
-                            Microseconds delta,
-                            Room* room)
+void BasicCharacter::update(App& app, Microseconds delta, Room* room)
 {
-    // const auto t1 = pfrm.delta_clock().sample();
+    // const auto t1 = PLATFORM.delta_clock().sample();
 
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -330,7 +327,7 @@ void BasicCharacter::update(Platform& pfrm,
     switch (state_) {
     case State::fighting:
         sprite_.set_flip({});
-        update_attack(pfrm, app, delta);
+        update_attack(app, delta);
         break;
 
     case State::after_transport: {
@@ -359,7 +356,7 @@ void BasicCharacter::update(Platform& pfrm,
                 sprite_.set_position(o);
             } else {
                 timer_ += delta;
-                movement_step(pfrm, app, delta);
+                movement_step(app, delta);
                 anim_timer_ += delta;
                 if (anim_timer_ > milliseconds(100)) {
                     anim_timer_ = 0;
@@ -481,7 +478,7 @@ void BasicCharacter::update(Platform& pfrm,
                     break;
                 }
 
-                room->plunder(pfrm, app, 2);
+                room->plunder(app, 2);
 
                 if (has_opponent(room)) {
                     state_ = State::fighting;
@@ -524,7 +521,7 @@ void BasicCharacter::update(Platform& pfrm,
         if (timer_ > milliseconds(3000)) {
             timer_ = 0;
             if (room) {
-                room->parent()->fire_extinguish(pfrm, app, grid_position_);
+                room->parent()->fire_extinguish(app, grid_position_);
                 if (has_opponent(room)) {
                     state_ = State::fighting;
                     timer_ = 0;
@@ -568,7 +565,7 @@ void BasicCharacter::update(Platform& pfrm,
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    room->heal(pfrm, app, 2);
+                    room->heal(app, 2);
                 } else {
                     this->set_idle(app);
                     break;
@@ -590,9 +587,9 @@ void BasicCharacter::update(Platform& pfrm,
         break;
     }
 
-    // const auto t2 = pfrm.delta_clock().sample();
+    // const auto t2 = PLATFORM.delta_clock().sample();
 
-    // if (pfrm.keyboard().pressed<Key::select>()) {
+    // if (PLATFORM.keyboard().pressed<Key::select>()) {
     //     Platform::fatal(format("%",
     //                            t2 - t1).c_str());
     // }
@@ -634,7 +631,7 @@ Sprite BasicCharacter::prepare_sprite() const
 
 
 
-void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
+void BasicCharacter::update_attack(App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -659,7 +656,7 @@ void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
         };
 
         if (auto chr = get_opponent()) {
-            chr->apply_damage(pfrm, app, 4);
+            chr->apply_damage(app, 4);
         } else {
             sprite_.set_texture_index(base_frame(this, app) + 5);
             state_ = State::moving_or_idle;
@@ -684,7 +681,7 @@ void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
+void BasicCharacter::movement_step(App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -749,7 +746,7 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BasicCharacter::set_movement_path(Platform& pfrm, App& app, Path path)
+void BasicCharacter::set_movement_path(App& app, Path path)
 {
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
@@ -761,8 +758,7 @@ void BasicCharacter::set_movement_path(Platform& pfrm, App& app, Path path)
 
 
 
-void BasicCharacter::rewind_movement_step(Platform& pfrm,
-                                          const RoomCoord& new_pos)
+void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
 {
     if (not movement_path_) {
         movement_path_.emplace(allocate_dynamic<PathBuffer>("path-buffer"));
@@ -787,7 +783,7 @@ void BasicCharacter::rewind_movement_step(Platform& pfrm,
 
 
 
-void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
+void BasicCharacter::heal(App& app, int amount)
 {
     if (is_replicant_) {
         // Replicants cannot heal
@@ -815,18 +811,16 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
 
 
 
-void BasicCharacter::apply_radiation_damage(Platform& pfrm,
-                                            App& app,
-                                            Health amount)
+void BasicCharacter::apply_radiation_damage(App& app, Health amount)
 {
     radiation_counter_ = 230;
 
-    apply_damage(pfrm, app, amount);
+    apply_damage(app, amount);
 }
 
 
 
-void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
+void BasicCharacter::apply_damage(App& app, Health damage)
 {
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);

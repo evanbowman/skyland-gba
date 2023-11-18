@@ -60,7 +60,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_bronze_hull)->c_str();
     }
@@ -89,8 +89,8 @@ public:
     TileId tile() const;
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

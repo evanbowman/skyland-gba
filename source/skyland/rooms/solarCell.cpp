@@ -46,7 +46,7 @@ Power SolarCell::power_usage(App& app) const
 
 
 
-void SolarCell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void SolarCell::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_solar_cell)->c_str();
 }

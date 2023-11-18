@@ -65,9 +65,9 @@ StartMenuScene::StartMenuScene(int fade_direction, int default_cursor)
 
 
 
-void StartMenuScene::enter(Platform& pfrm, App& app, Scene& prev)
+void StartMenuScene::enter(App& app, Scene& prev)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     if (app.game_mode() == App::GameMode::macro) {
         start_y_ = 0;
@@ -81,8 +81,7 @@ void StartMenuScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void StartMenuScene::add_option(Platform& pfrm,
-                                const char* str,
+void StartMenuScene::add_option(const char* str,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
@@ -93,25 +92,23 @@ void StartMenuScene::add_option(Platform& pfrm,
 
 
 
-void StartMenuScene::exit(Platform& pfrm, App&, Scene& next)
+void StartMenuScene::exit(App&, Scene& next)
 {
-    pfrm.screen().pixelate(0);
+    PLATFORM.screen().pixelate(0);
     data_->option_names_.clear();
 }
 
 
 
-static void scuttle(Platform& pfrm, App& app)
+static void scuttle(App& app)
 {
-    app.on_timeout(pfrm, milliseconds(350), [](Platform& pfrm, App& app) {
+    app.on_timeout(milliseconds(350), [](App& app) {
         for (auto& room : app.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::power) {
-                room->apply_damage(pfrm, app, Room::health_upper_limit());
+                room->apply_damage(app, Room::health_upper_limit());
 
-                app.on_timeout(
-                    pfrm, milliseconds(350), [](Platform& pfrm, App& app) {
-                        scuttle(pfrm, app);
-                    });
+                app.on_timeout(milliseconds(350),
+                               [](App& app) { scuttle(app); });
                 return;
             }
         }
@@ -127,92 +124,91 @@ static const char* fb_save_file = "/save/fbld.dat";
 class GenerateAgainScene : public macro::MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    void enter(macro::EngineImpl& state, Scene& prev) override
     {
         StringBuffer<30> text(SYSTR(repeat_query)->c_str());
 
-        auto st = calc_screen_tiles(pfrm);
+        auto st = calc_screen_tiles();
 
         const int count = st.x - text_->len();
         for (int i = 0; i < count; ++i) {
-            pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+            PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
         }
 
         for (int i = 0; i < st.x; ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
         }
 
-        yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
-        no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+        yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+        no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
         yes_text_->assign(SYSTR(salvage_option_A)->c_str());
         no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
         for (int i = 23; i < st.x; ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
         }
 
-        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
-        text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+        text_.emplace(text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
-        draw_compass(pfrm, state);
+        draw_compass(state);
     }
 
 
-    void exit(Platform& pfrm, macro::EngineImpl&, Scene& prev) override
+    void exit(macro::EngineImpl&, Scene& prev) override
     {
         text_.reset();
         yes_text_.reset();
         no_text_.reset();
 
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
         for (int x = 0; x < st.x; ++x) {
-            pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
-            pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
-            pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
-            pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
+            PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 0);
+            PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 0);
+            PLATFORM.set_tile(Layer::overlay, x, st.y - 3, 0);
+            PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 0);
         }
     }
 
 
-    virtual ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    virtual ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
     {
         auto& sector = state.sector();
 
-        if (player.key_down(pfrm, Key::left)) {
-            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-            pfrm.screen().clear();
-            pfrm.screen().display();
+        if (player.key_down(Key::left)) {
+            PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
             sector.rotate();
-            sector.render(pfrm);
-            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            draw_compass(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
-        } else if (player.key_down(pfrm, Key::right)) {
-            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-            pfrm.screen().clear();
-            pfrm.screen().display();
+            sector.render();
+            PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+        } else if (player.key_down(Key::right)) {
+            PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
             sector.rotate();
             sector.rotate();
             sector.rotate();
-            sector.render(pfrm);
-            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            draw_compass(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            sector.render();
+            PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (player.key_down(pfrm, Key::action_1)) {
-            pfrm.speaker().play_sound("button_wooden", 3);
+        if (player.key_down(Key::action_1)) {
+            PLATFORM.speaker().play_sound("button_wooden", 3);
             auto& current = state.sector();
             current.generate_terrain(160, 1);
             auto sz = current.size();
             current.set_cursor({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
             return null_scene();
         }
-        if (player.key_down(pfrm, Key::action_2)) {
+        if (player.key_down(Key::action_2)) {
             return scene_pool::alloc<macro::SelectorScene>();
         }
 
@@ -228,14 +224,12 @@ private:
 
 
 
-ScenePtr<Scene>
-StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> StartMenuScene::update(App& app, Microseconds delta)
 {
-    player(app).update(pfrm, app, delta);
+    player(app).update(app, delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player(app).test_key(k, milliseconds(500), milliseconds(100));
     };
 
 AGAIN:
@@ -248,15 +242,15 @@ AGAIN:
             auto front = *data_->disp_queue_.begin();
             data_->disp_queue_.erase(data_->disp_queue_.begin());
 
-            u8 margin = centered_text_margins(pfrm, utf8::len(front.c_str()));
+            u8 margin = centered_text_margins(utf8::len(front.c_str()));
 
             data_->text_.emplace_back(
-                pfrm,
+
                 front.c_str(),
                 OverlayCoord{margin, (u8)(start_y_ + data_->text_.size() * 2)});
 
             if (cascade_anim_in_) {
-                pfrm.speaker().play_sound("cursor_tick", 4);
+                PLATFORM.speaker().play_sound("cursor_tick", 4);
             } else {
                 goto AGAIN;
             }
@@ -264,8 +258,8 @@ AGAIN:
     }
 
     auto check_button = [&] {
-        if (player(app).key_down(pfrm, Key::action_1)) {
-            pfrm.speaker().play_sound("button_wooden", 3);
+        if (player(app).key_down(Key::action_1)) {
+            PLATFORM.speaker().play_sound("button_wooden", 3);
             const auto mode = data_->on_click_[data_->cursor_].mode_;
             if (mode == kill_menu) {
                 state_ = State::clear;
@@ -284,22 +278,21 @@ AGAIN:
 
     auto add_macro_share_opt = [&] {
         add_option(
-            pfrm,
+
             SYSTR(start_menu_share)->c_str(),
-            [&pfrm, &app]() -> ScenePtr<Scene> {
-                pfrm.fill_overlay(0);
-                Text t(pfrm,
-                       SYSTR(macro_share_please_wait)->c_str(),
+            [&app]() -> ScenePtr<Scene> {
+                PLATFORM.fill_overlay(0);
+                Text t(SYSTR(macro_share_please_wait)->c_str(),
                        OverlayCoord{1, 3});
-                pfrm.screen().clear();
-                pfrm.screen().display();
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
 
-                Text info(pfrm, "", OverlayCoord{1, 1});
+                Text info("", OverlayCoord{1, 1});
 
-                auto msg = [&pfrm, &info](const char* text) {
-                    pfrm.screen().clear();
+                auto msg = [&info](const char* text) {
+                    PLATFORM.screen().clear();
                     info.assign(text);
-                    pfrm.screen().display();
+                    PLATFORM.screen().display();
                 };
 
                 // Just in case the variable isn't bound...
@@ -307,25 +300,25 @@ AGAIN:
 
 
                 auto& current = macrocosm(app).sector();
-                auto qr = current.qr_encode(pfrm, app, msg);
+                auto qr = current.qr_encode(app, msg);
                 if (qr) {
-                    pfrm.screen().pixelate(0);
-                    pfrm.fill_overlay(0);
-                    auto show_qr = [&pfrm, code = *qr]() -> ScenePtr<Scene> {
+                    PLATFORM.screen().pixelate(0);
+                    PLATFORM.fill_overlay(0);
+                    auto show_qr = [&code = *qr]() -> ScenePtr<Scene> {
                         return scene_pool::alloc<QRViewerScene>(
                             code,
-                            [&pfrm]() {
-                                pfrm.load_overlay_texture("overlay");
-                                pfrm.load_background_texture(
+                            []() {
+                                PLATFORM.load_overlay_texture("overlay");
+                                PLATFORM.load_background_texture(
                                     "background_macro");
-                                pfrm.screen().schedule_fade(0.f);
+                                PLATFORM.screen().schedule_fade(0.f);
                                 return scene_pool::alloc<
                                     macro::SelectorScene>();
                             },
                             ColorConstant::rich_black);
                     };
                     if (qr->size() > 76) {
-                        pfrm.screen().schedule_fade(0.f);
+                        PLATFORM.screen().schedule_fade(0.f);
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(qr_code_size_warning);
@@ -337,8 +330,8 @@ AGAIN:
                         return show_qr();
                     }
                 } else {
-                    pfrm.screen().schedule_fade(0.f);
-                    pfrm.screen().pixelate(0);
+                    PLATFORM.screen().schedule_fade(0.f);
+                    PLATFORM.screen().pixelate(0);
 
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
@@ -357,12 +350,11 @@ AGAIN:
 
     switch (state_) {
     case State::init: {
-        pfrm.load_overlay_texture("overlay_challenges");
+        PLATFORM.load_overlay_texture("overlay_challenges");
 
         if (app.game_mode() == App::GameMode::macro) {
 
-            add_option(pfrm,
-                       SYSTR(start_menu_resume)->c_str(),
+            add_option(SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
@@ -378,13 +370,13 @@ AGAIN:
                 }
 
                 add_option(
-                    pfrm,
+
                     SYSTR(start_menu_next_turn)->c_str(),
                     scene_pool::make_deferred_scene<macro::NextTurnScene>(),
                     cut);
 
                 add_option(
-                    pfrm,
+
                     SYSTR(start_menu_macroverse)->c_str(),
                     scene_pool::make_deferred_scene<macro::MacroverseScene>(),
                     fade_sweep_transparent_text);
@@ -392,41 +384,39 @@ AGAIN:
 
         } else /* Game mode not_eq macro  */ {
 
-            add_option(pfrm,
-                       SYSTR(start_menu_resume)->c_str(),
+            add_option(SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<ReadyScene>(),
                        kill_menu);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_glossary)->c_str(),
-                [&pfrm, &app] {
+                [&app] {
                     auto next = scene_pool::alloc<GlossaryViewerModule>();
                     next->disable_backdrop_ = true;
-                    next->set_next_scene([&pfrm, &app]() {
+                    next->set_next_scene([&app]() {
                         auto& isle = app.player_island();
                         if (isle.interior_visible()) {
                             auto t = app.environment()
                                          .player_island_interior_texture();
-                            pfrm.load_tile0_texture(t);
+                            PLATFORM.load_tile0_texture(t);
                         } else {
-                            pfrm.load_tile0_texture(
+                            PLATFORM.load_tile0_texture(
                                 app.environment().player_island_texture());
                         }
                         if (isle.interior_visible()) {
-                            show_island_interior(
-                                pfrm, app, &app.player_island());
+                            show_island_interior(app, &app.player_island());
                         } else {
-                            show_island_exterior(
-                                pfrm, app, &app.player_island());
+                            show_island_exterior(app, &app.player_island());
                         }
-                        pfrm.set_scroll(isle.layer(),
-                                        -isle.get_position().x.as_integer(),
-                                        -isle.get_position().y.as_integer());
+                        PLATFORM.set_scroll(
+                            isle.layer(),
+                            -isle.get_position().x.as_integer(),
+                            -isle.get_position().y.as_integer());
 
-                        auto view = pfrm.screen().get_view();
+                        auto view = PLATFORM.screen().get_view();
                         view.set_center(app.camera()->center());
-                        pfrm.screen().set_view(view);
+                        PLATFORM.screen().set_view(view);
 
                         auto next = scene_pool::alloc<StartMenuScene>(1);
                         return next;
@@ -436,19 +426,18 @@ AGAIN:
                 cut);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_disable_rooms)->c_str(),
-                [&pfrm] {
-                    auto next = scene_pool::alloc<HideRoomsScene>([&pfrm]() {
-                        return scene_pool::alloc<StartMenuScene>(1);
-                    });
+                [] {
+                    auto next = scene_pool::alloc<HideRoomsScene>(
+                        []() { return scene_pool::alloc<StartMenuScene>(1); });
                     return next;
                 },
                 fade_sweep);
         }
 
 
-        if (not pfrm.network_peer().is_connected() and
+        if (not PLATFORM.network_peer().is_connected() and
             app.game_mode() not_eq App::GameMode::sandbox and
             (app.game_mode() not_eq App::GameMode::macro or
              (app.game_mode() == App::GameMode::macro and
@@ -457,8 +446,7 @@ AGAIN:
             // games. On some devices, a serial interrupt for multiplayer will
             // wake the system out of low power mode anyway.
 
-            add_option(pfrm,
-                       SYSTR(start_menu_hibernate)->c_str(),
+            add_option(SYSTR(start_menu_hibernate)->c_str(),
                        scene_pool::make_deferred_scene<HibernateScene>(),
                        fade_sweep);
         }
@@ -470,35 +458,33 @@ AGAIN:
             add_offset_ = 0;
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_repl)->c_str(),
                 [&app]() { return scene_pool::alloc<LispReplScene>(); },
                 cut);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_save_sandbox)->c_str(),
+            add_option(SYSTR(start_menu_save_sandbox)->c_str(),
                        scene_pool::make_deferred_scene<SaveSandboxScene>(),
                        fade_sweep);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_load_sandbox)->c_str(),
+            add_option(SYSTR(start_menu_load_sandbox)->c_str(),
                        scene_pool::make_deferred_scene<LoadSandboxScene>(),
                        fade_sweep);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_spectate)->c_str(),
-                [&pfrm, &app]() -> ScenePtr<Scene> {
+                [&app]() -> ScenePtr<Scene> {
                     app.swap_player<SandboxSpectatorPlayer>(app);
-                    pfrm.screen().schedule_fade(0.f);
+                    PLATFORM.screen().schedule_fade(0.f);
                     return scene_pool::alloc<SpectatorScene>();
                 },
                 cut);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_sandbox_help)->c_str(),
-                [&pfrm] {
+                [] {
                     auto hint = lisp::get_var("sb-help");
                     if (hint->type() == lisp::Value::Type::function) {
 
@@ -507,7 +493,7 @@ AGAIN:
                         safecall(hint, 0);
                         pop_op(); // result
 
-                        pfrm.screen().schedule_fade(0.f);
+                        PLATFORM.screen().schedule_fade(0.f);
 
                         return scene_pool::alloc<ReadyScene>();
                     }
@@ -517,12 +503,12 @@ AGAIN:
                 cut);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_quit)->c_str(),
-                [&pfrm]() -> ScenePtr<Scene> {
+                []() -> ScenePtr<Scene> {
                     lisp::set_var("sb-help", L_NIL);
-                    pfrm.fill_overlay(0);
-                    pfrm.screen().set_shader(passthrough_shader);
+                    PLATFORM.fill_overlay(0);
+                    PLATFORM.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<TitleScreenScene>(3);
                 },
                 fade_sweep);
@@ -532,9 +518,9 @@ AGAIN:
 
             if (macrocosm(app).data_->checkers_mode_) {
                 add_option(
-                    pfrm,
+
                     SYSTR(start_menu_quit)->c_str(),
-                    [&pfrm]() -> ScenePtr<Scene> {
+                    []() -> ScenePtr<Scene> {
                         return scene_pool::alloc<TitleScreenScene>(3);
                     },
                     fade_sweep);
@@ -548,7 +534,7 @@ AGAIN:
                 }
 
 
-                if (not pfrm.network_peer().is_connected()) {
+                if (not PLATFORM.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're
                     // already in a multiplayer session.
 
@@ -556,10 +542,10 @@ AGAIN:
                     using macro::terrain::FreebuildSector;
                     if (current.cast_freebuild_sector()) {
                         add_option(
-                            pfrm,
+
                             SYSTR(start_menu_link)->c_str(),
-                            [&pfrm, &app]() -> ScenePtr<Scene> {
-                                pfrm.screen().pixelate(0);
+                            [&app]() -> ScenePtr<Scene> {
+                                PLATFORM.screen().pixelate(0);
                                 using Next = macro::FreebuildConnectFriendScene;
                                 return scene_pool::alloc<Next>();
                             },
@@ -569,45 +555,45 @@ AGAIN:
                     add_macro_share_opt();
 
                     add_option(
-                        pfrm,
+
                         SYSTR(start_menu_freebuild_samples)->c_str(),
-                        [&pfrm, &app]() {
+                        [&app]() {
                             return scene_pool::alloc<SelectSampleScene>();
                         },
                         cut);
 
                     add_option(
-                        pfrm,
+
                         SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
-                        [&pfrm, &app]() {
+                        [&app]() {
                             auto& current = macrocosm(app).sector();
                             current.generate_terrain(160, 1);
                             auto sz = current.size();
                             current.set_cursor(
                                 {u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
-                            pfrm.screen().schedule_fade(0.f);
-                            pfrm.screen().pixelate(0);
+                            PLATFORM.screen().schedule_fade(0.f);
+                            PLATFORM.screen().pixelate(0);
                             return scene_pool::alloc<GenerateAgainScene>();
                         },
                         cut);
 
                     add_option(
-                        pfrm,
+
                         SYSTR(start_menu_repl)->c_str(),
                         [&app]() { return scene_pool::alloc<LispReplScene>(); },
                         cut);
 
                     add_option(
-                        pfrm,
+
                         SYSTR(start_menu_load)->c_str(),
-                        [&pfrm, &app]() -> ScenePtr<Scene> {
+                        [&app]() -> ScenePtr<Scene> {
                             auto& m = macrocosm(app);
 
                             using namespace macro::terrain;
 
                             Vector<char> data;
                             if (flash_filesystem::read_file_data_binary(
-                                    pfrm, fb_save_file, data)) {
+                                    fb_save_file, data)) {
 
                                 auto& current = m.sector();
                                 auto coord = current.coordinate();
@@ -630,39 +616,39 @@ AGAIN:
                                 }
                             }
 
-                            pfrm.screen().schedule_fade(0.f);
-                            pfrm.screen().pixelate(0);
+                            PLATFORM.screen().schedule_fade(0.f);
+                            PLATFORM.screen().pixelate(0);
                             return scene_pool::alloc<macro::SelectorScene>();
                         },
                         cut);
                 }
 
                 add_option(
-                    pfrm,
+
                     SYSTR(start_menu_save)->c_str(),
-                    [&pfrm, &app]() -> ScenePtr<Scene> {
+                    [&app]() -> ScenePtr<Scene> {
                         auto& current = macrocosm(app).sector();
                         Vector<char> data;
                         current.pack(data);
 
-                        flash_filesystem::store_file_data_binary(
-                            pfrm, fb_save_file, data);
+                        flash_filesystem::store_file_data_binary(fb_save_file,
+                                                                 data);
 
-                        pfrm.screen().schedule_fade(0.f);
-                        pfrm.screen().pixelate(0);
+                        PLATFORM.screen().schedule_fade(0.f);
+                        PLATFORM.screen().pixelate(0);
                         return scene_pool::alloc<macro::SelectorScene>();
                     },
                     cut);
 
                 add_option(
-                    pfrm,
+
                     SYSTR(start_menu_quit)->c_str(),
-                    [&pfrm, &app]() -> ScenePtr<Scene> {
-                        if (pfrm.network_peer().is_connected()) {
-                            pfrm.network_peer().disconnect();
+                    [&app]() -> ScenePtr<Scene> {
+                        if (PLATFORM.network_peer().is_connected()) {
+                            PLATFORM.network_peer().disconnect();
                         }
-                        pfrm.fill_overlay(0);
-                        pfrm.screen().set_shader(passthrough_shader);
+                        PLATFORM.fill_overlay(0);
+                        PLATFORM.screen().set_shader(passthrough_shader);
                         if (macrocosm(app).data_->freebuild_mode_) {
                             return scene_pool::alloc<TitleScreenScene>(3);
                         } else {
@@ -674,9 +660,9 @@ AGAIN:
             }
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_save)->c_str(),
-                [&pfrm, &app]() -> ScenePtr<Scene> {
+                [&app]() -> ScenePtr<Scene> {
                     return scene_pool::alloc<macro::SaveConfirmScene>();
                 },
                 fade_sweep);
@@ -684,26 +670,26 @@ AGAIN:
             add_macro_share_opt();
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_newgame)->c_str(),
-                [&pfrm, &app]() -> ScenePtr<Scene> {
-                    Text(pfrm, "generating world...", OverlayCoord{1, 1});
-                    pfrm.screen().schedule_fade(0);
-                    pfrm.screen().schedule_fade(1);
-                    pfrm.screen().clear();
-                    pfrm.screen().display();
-                    macrocosm(app).newgame(pfrm, app);
-                    pfrm.load_overlay_texture("overlay_challenges");
+                [&app]() -> ScenePtr<Scene> {
+                    Text("generating world...", OverlayCoord{1, 1});
+                    PLATFORM.screen().schedule_fade(0);
+                    PLATFORM.screen().schedule_fade(1);
+                    PLATFORM.screen().clear();
+                    PLATFORM.screen().display();
+                    macrocosm(app).newgame(app);
+                    PLATFORM.load_overlay_texture("overlay_challenges");
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },
                 cut);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_quit)->c_str(),
-                [&pfrm]() -> ScenePtr<Scene> {
-                    pfrm.fill_overlay(0);
-                    pfrm.screen().set_shader(passthrough_shader);
+                []() -> ScenePtr<Scene> {
+                    PLATFORM.fill_overlay(0);
+                    PLATFORM.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<TitleScreenScene>(4);
                 },
                 fade_sweep);
@@ -714,14 +700,12 @@ AGAIN:
             if (app.opponent_island() == nullptr or
                 app.world_graph().nodes_[app.current_world_location()].type_ ==
                     WorldGraph::Node::Type::shop) {
-                add_option(pfrm,
-                           SYSTR(start_menu_sky_map)->c_str(),
+                add_option(SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
             } else {
                 if (not app.opponent().is_friendly()) {
-                    add_option(pfrm,
-                               SYSTR(start_menu_end_run)->c_str(),
+                    add_option(SYSTR(start_menu_end_run)->c_str(),
                                scene_pool::make_deferred_scene<
                                    SurrenderConfirmScene>(),
                                fade_sweep);
@@ -734,12 +718,12 @@ AGAIN:
 
                 if (app.has_backup() and not is_final_boss) {
                     add_option(
-                        pfrm,
+
                         SYSTR(retry)->c_str(),
-                        [&pfrm, &app]() -> ScenePtr<Scene> {
-                            pfrm.fill_overlay(0);
-                            app.restore_backup(pfrm);
-                            pfrm.speaker().clear_sounds();
+                        [&app]() -> ScenePtr<Scene> {
+                            PLATFORM.fill_overlay(0);
+                            app.restore_backup();
+                            PLATFORM.speaker().clear_sounds();
                             return scene_pool::alloc<LoadLevelScene>();
                         },
                         fade_sweep);
@@ -749,14 +733,14 @@ AGAIN:
 
         case App::GameMode::skyland_forever:
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_scuttle)->c_str(),
-                [&pfrm, &app] {
-                    scuttle(pfrm, app);
-                    pfrm.screen().schedule_fade(0.f);
-                    pfrm.screen().pixelate(0);
+                [&app] {
+                    scuttle(app);
+                    PLATFORM.screen().schedule_fade(0.f);
+                    PLATFORM.screen().pixelate(0);
                     auto next = scene_pool::alloc<ReadyScene>();
-                    next->set_gamespeed(pfrm, app, GameSpeed::normal);
+                    next->set_gamespeed(app, GameSpeed::normal);
                     return next;
                 },
                 cut);
@@ -764,9 +748,9 @@ AGAIN:
 
         case App::GameMode::challenge:
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_hint)->c_str(),
-                [&pfrm] {
+                [] {
                     auto hint = lisp::get_var("challenge-hint");
                     if (hint->type() == lisp::Value::Type::function) {
 
@@ -775,8 +759,8 @@ AGAIN:
                         safecall(hint, 0);
                         pop_op(); // result
 
-                        pfrm.screen().schedule_fade(0.f);
-                        pfrm.screen().pixelate(0);
+                        PLATFORM.screen().schedule_fade(0.f);
+                        PLATFORM.screen().pixelate(0);
 
                         return scene_pool::alloc<ReadyScene>();
                     }
@@ -786,11 +770,11 @@ AGAIN:
                 cut);
 
             add_option(
-                pfrm,
+
                 SYSTR(start_menu_quit)->c_str(),
-                [&pfrm]() -> ScenePtr<Scene> {
-                    pfrm.fill_overlay(0);
-                    pfrm.screen().set_shader(passthrough_shader);
+                []() -> ScenePtr<Scene> {
+                    PLATFORM.fill_overlay(0);
+                    PLATFORM.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<SelectChallengeScene>();
                 },
                 fade_sweep);
@@ -815,13 +799,13 @@ AGAIN:
         static const auto fade_duration = milliseconds(300);
 
         const auto& line = data_->text_[0];
-        const auto y_center = pfrm.screen().size().y / 2;
+        const auto y_center = PLATFORM.screen().size().y / 2;
         const Float y_line = line.coord().y * 8;
         const auto y_diff = (y_line - y_center) * diff_percent_;
 
         y_offset_ = interpolate(Float(y_diff), y_offset_, delta * 0.00001f);
 
-        pfrm.set_overlay_origin(0, y_offset_ + add_offset_);
+        PLATFORM.set_overlay_origin(0, y_offset_ + add_offset_);
 
         timer_ += delta;
 
@@ -829,18 +813,18 @@ AGAIN:
 
         if (timer_ < fade_duration) {
             if (fade_direction_ == 0) {
-                pfrm.screen().schedule_fade(0.75f * step);
-                pfrm.screen().pixelate(step * 128, false);
+                PLATFORM.screen().schedule_fade(0.75f * step);
+                PLATFORM.screen().pixelate(step * 128, false);
             } else if (fade_direction_ == -1) {
-                pfrm.screen().pixelate(128, false);
+                PLATFORM.screen().pixelate(128, false);
                 // skip...
             } else {
-                pfrm.screen().pixelate(128, false);
-                pfrm.screen().schedule_fade(1.f - 0.25f * step);
+                PLATFORM.screen().pixelate(128, false);
+                PLATFORM.screen().schedule_fade(1.f - 0.25f * step);
             }
 
         } else {
-            pfrm.screen().schedule_fade(0.75f);
+            PLATFORM.screen().schedule_fade(0.75f);
             state_ = State::idle;
             timer_ = 0;
         }
@@ -848,13 +832,13 @@ AGAIN:
         if (test_key(Key::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
         if (test_key(Key::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
         check_button();
@@ -862,21 +846,21 @@ AGAIN:
     }
 
     case State::idle:
-        if (player(app).key_down(pfrm, Key::action_2) or
-            player(app).key_down(pfrm, Key::start)) {
+        if (player(app).key_down(Key::action_2) or
+            player(app).key_down(Key::start)) {
             state_ = State::clear;
         }
         check_button();
         if (test_key(Key::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
         if (test_key(Key::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
         break;
@@ -888,16 +872,16 @@ AGAIN:
     }
 
     case State::cut:
-        pfrm.set_overlay_origin(0, 0);
-        pfrm.load_overlay_texture("overlay");
-        pfrm.screen().schedule_fade(1.f);
+        PLATFORM.set_overlay_origin(0, 0);
+        PLATFORM.load_overlay_texture("overlay");
+        PLATFORM.screen().schedule_fade(1.f);
         return data_->on_click_[data_->cursor_].next_scene_();
 
     case State::exit:
-        pfrm.set_overlay_origin(0, 0);
-        pfrm.load_overlay_texture("overlay");
-        pfrm.screen().schedule_fade(0.f);
-        pfrm.screen().pixelate(0);
+        PLATFORM.set_overlay_origin(0, 0);
+        PLATFORM.load_overlay_texture("overlay");
+        PLATFORM.screen().schedule_fade(0.f);
+        PLATFORM.screen().pixelate(0);
         if (app.game_mode() == App::GameMode::macro) {
             return scene_pool::alloc<macro::SelectorScene>();
         } else {
@@ -924,9 +908,9 @@ AGAIN:
         auto step = smoothstep(0, fade_duration, timer_);
 
         if (timer_ < fade_duration) {
-            pfrm.screen().schedule_fade(0.75f + 0.25f * step);
+            PLATFORM.screen().schedule_fade(0.75f + 0.25f * step);
         } else {
-            pfrm.screen().schedule_fade(1.f);
+            PLATFORM.screen().schedule_fade(1.f);
             state_ = State::sweep_up;
             timer_ = 0;
         }
@@ -945,11 +929,11 @@ AGAIN:
         auto y = interpolate(ideal_y, y_offset_, step);
 
         if (timer_ > scroll_duration) {
-            pfrm.set_overlay_origin(0, ideal_y);
+            PLATFORM.set_overlay_origin(0, ideal_y);
             timer_ = 0;
             state_ = State::after_sweep;
         } else {
-            pfrm.set_overlay_origin(0, y);
+            PLATFORM.set_overlay_origin(0, y);
         }
 
         break;
@@ -958,22 +942,22 @@ AGAIN:
     case State::after_sweep: {
         timer_ += delta;
         if (timer_ > milliseconds(100)) {
-            pfrm.system_call("vsync", nullptr);
+            PLATFORM.system_call("vsync", nullptr);
             data_->text_.clear();
-            pfrm.screen().display();
+            PLATFORM.screen().display();
 
-            pfrm.set_overlay_origin(0, 0);
+            PLATFORM.set_overlay_origin(0, 0);
             if (not preserve_transparency_) {
-                pfrm.load_overlay_texture("overlay");
+                PLATFORM.load_overlay_texture("overlay");
             }
 
-            pfrm.screen().schedule_fade(0.f);
-            pfrm.screen().schedule_fade(1.f);
+            PLATFORM.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(1.f);
 
             auto name = data_->option_names_[data_->cursor_];
             Text text(
-                pfrm,
-                {(u8)centered_text_margins(pfrm, utf8::len(name.c_str())), 1});
+
+                {(u8)centered_text_margins(utf8::len(name.c_str())), 1});
             text.assign(name.c_str());
             text.__detach();
 
@@ -988,7 +972,7 @@ AGAIN:
 
 
 
-void StartMenuScene::display(Platform& pfrm, App& app)
+void StartMenuScene::display(App& app)
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
@@ -996,7 +980,7 @@ void StartMenuScene::display(Platform& pfrm, App& app)
 
     cursor.set_mix({ColorConstant::silver_white, 1});
 
-    auto view = pfrm.screen().get_view().get_center();
+    auto view = PLATFORM.screen().get_view().get_center();
 
     Vec2<Fixnum> origin;
 
@@ -1013,7 +997,7 @@ void StartMenuScene::display(Platform& pfrm, App& app)
         if (state_ == State::enter) {
             cursor.set_alpha(Sprite::Alpha::translucent);
         }
-        pfrm.screen().draw(cursor);
+        PLATFORM.screen().draw(cursor);
     }
 }
 

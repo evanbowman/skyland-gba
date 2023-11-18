@@ -49,8 +49,7 @@ public:
     }
 
 
-    virtual void update(Platform& pfrm,
-                        App& app,
+    virtual void update(App& app,
                         Island& target,
                         const RoomCoord& cursor_loc,
                         Microseconds delta,
@@ -80,7 +79,7 @@ public:
     }
 
 
-    virtual bool always_update(Platform& pfrm)
+    virtual bool always_update()
     {
         return false;
     }

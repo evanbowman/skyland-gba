@@ -33,54 +33,54 @@ namespace skyland::macro
 
 
 
-void HelpScene::show_page(Platform& pfrm, int pg)
+void HelpScene::show_page(int pg)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     if (not tv_) {
-        tv_.emplace(pfrm);
+        tv_.emplace();
     }
 
     if (not heading_) {
-        heading_.emplace(pfrm, OverlayCoord{1, 1});
+        heading_.emplace(OverlayCoord{1, 1});
     }
 
     for (int i = 0; i < heading_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, 0, 0);
+        PLATFORM.set_tile(Layer::overlay, i, 0, 0);
     }
     heading_->assign(SYS_CSTR(macro_help_prefix));
 
-    int margin = (calc_screen_tiles(pfrm).x - page_count * 2) / 2;
+    int margin = (calc_screen_tiles().x - page_count * 2) / 2;
     for (int i = 0; i < page_count; ++i) {
         if (i == page_) {
-            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 101);
+            PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 101);
         } else {
-            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 100);
+            PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 100);
         }
     }
 
     switch (pg) {
     case 0:
         heading_->append(SYS_CSTR(macro_help_title_1));
-        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 413);
+        PLATFORM.set_tile(Layer::overlay, heading_->len() + 1, 1, 413);
         tv_->assign(SYS_CSTR(macro_help_1), {1, 4}, {28, 7});
         break;
 
     case 1:
         heading_->append(SYS_CSTR(macro_help_title_2));
-        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 415);
+        PLATFORM.set_tile(Layer::overlay, heading_->len() + 1, 1, 415);
         tv_->assign(SYS_CSTR(macro_help_2), {1, 4}, {28, 7});
         break;
 
     case 2:
         heading_->append(SYS_CSTR(macro_help_title_3));
-        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
+        PLATFORM.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
         tv_->assign(SYS_CSTR(macro_help_3), {1, 4}, {28, 7});
         break;
 
     case 3:
         heading_->append(SYS_CSTR(macro_help_title_3));
-        pfrm.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
+        PLATFORM.set_tile(Layer::overlay, heading_->len() + 1, 1, 414);
         tv_->assign(SYS_CSTR(macro_help_4), {1, 4}, {28, 7});
         break;
 
@@ -105,28 +105,28 @@ void HelpScene::show_page(Platform& pfrm, int pg)
         break;
     }
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     for (int x = 0; x < st.x; ++x) {
-        pfrm.set_tile(Layer::overlay, x, 2, 107);
+        PLATFORM.set_tile(Layer::overlay, x, 2, 107);
     }
 }
 
 
 
-void HelpScene::enter(Platform& pfrm, App&, Scene&)
+void HelpScene::enter(App&, Scene&)
 {
-    pfrm.screen().schedule_fade(1.f);
-    pfrm.fill_overlay(0);
+    PLATFORM.screen().schedule_fade(1.f);
+    PLATFORM.fill_overlay(0);
 
-    show_page(pfrm, 0);
+    show_page(0);
 }
 
 
 
-void HelpScene::exit(Platform& pfrm, App&, Scene&)
+void HelpScene::exit(App&, Scene&)
 {
-    pfrm.screen().schedule_fade(0);
-    pfrm.fill_overlay(0);
+    PLATFORM.screen().schedule_fade(0);
+    PLATFORM.fill_overlay(0);
 
     tv_.reset();
     heading_.reset();
@@ -134,32 +134,31 @@ void HelpScene::exit(Platform& pfrm, App&, Scene&)
 
 
 
-ScenePtr<Scene> HelpScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> HelpScene::update(App& app, Microseconds delta)
 {
-    player(app).update(pfrm, app, delta);
+    player(app).update(app, delta);
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player(app).key_down(pfrm, Key::action_1) or
-        player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(Key::action_1) or
+        player(app).key_down(Key::action_2)) {
 
         return scene_pool::alloc<SelectorScene>();
     }
 
     if (test_key(Key::right)) {
         if (page_ < page_count - 1) {
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            show_page(pfrm, ++page_);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            show_page(++page_);
         }
     }
 
     if (test_key(Key::left)) {
         if (page_ > 0) {
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            show_page(pfrm, --page_);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            show_page(--page_);
         }
     }
 

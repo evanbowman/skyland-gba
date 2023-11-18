@@ -178,7 +178,7 @@ struct DepthBuffer
 
     BumpAllocator<24, DepthNode> depth_node_allocator_;
 
-    DepthBuffer(Platform& pfrm)
+    DepthBuffer()
         : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
           depth_2_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer"))
     {

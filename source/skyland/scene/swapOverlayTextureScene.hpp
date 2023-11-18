@@ -40,12 +40,11 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        auto next = ActiveWorldScene::update(pfrm, app, delta);
+        auto next = ActiveWorldScene::update(app, delta);
 
-        pfrm.load_overlay_texture(next_texture_);
+        PLATFORM.load_overlay_texture(next_texture_);
 
         if (next) {
             return next;

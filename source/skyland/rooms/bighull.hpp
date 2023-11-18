@@ -81,7 +81,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_bighull)->c_str();
     }

@@ -68,7 +68,7 @@ struct Statistics
 
 
 
-Statistics statistics(Platform& pfrm);
+Statistics statistics();
 
 
 
@@ -84,7 +84,7 @@ enum InitStatus {
 
 
 
-InitStatus initialize(Platform& pfrm, int fs_begin_offset);
+InitStatus initialize(int fs_begin_offset);
 
 
 
@@ -92,28 +92,26 @@ bool is_mounted();
 
 
 
-void unlink_file(Platform& pfrm, const char* path);
+void unlink_file(const char* path);
 
 
 
-bool file_exists(Platform& pfrm, const char* path);
+bool file_exists(const char* path);
 
 
 
-void destroy(Platform& pfrm);
+void destroy();
 
 
 
-size_t
-read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output);
+size_t read_file_data_text(const char* path, Vector<char>& output);
 
-bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data);
+bool store_file_data_text(const char* path, Vector<char>& data);
 
 
-inline size_t
-read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
+inline size_t read_file_data_binary(const char* path, Vector<char>& output)
 {
-    auto read = read_file_data_text(pfrm, path, output);
+    auto read = read_file_data_text(path, output);
     if (read > 0) {
         // This is binary data, ignore automatically-appended null byte.
         output.pop_back();
@@ -124,19 +122,17 @@ read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
 }
 
 
-inline bool
-store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
+inline bool store_file_data_binary(const char* path, Vector<char>& data)
 {
     // NOTE: store_file_data assumes that the input is null terminated, and
     // ignores the final null character.
     data.push_back('\0');
-    return store_file_data_text(pfrm, path, data);
+    return store_file_data_text(path, data);
 }
 
 
 
-inline bool
-store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
+inline bool store_file_data(const char* path, const char* ptr, u32 length)
 {
     Vector<char> buffer;
     for (u32 i = 0; i < length; ++i) {
@@ -144,7 +140,7 @@ store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
     }
     buffer.push_back('\0');
 
-    return store_file_data_text(pfrm, path, buffer);
+    return store_file_data_text(path, buffer);
 }
 
 
@@ -195,14 +191,13 @@ static_assert(max_path < FileContents::capacity);
 
 
 
-Root load_root(Platform& pfrm);
+Root load_root();
 
 
 
-template <typename F>
-void walk_directory(Platform& pfrm, const char* directory, F callback)
+template <typename F> void walk_directory(const char* directory, F callback)
 {
-    walk(pfrm, [callback, directory](const char* path) {
+    walk([callback, directory](const char* path) {
         auto remainder = starts_with(directory, StringBuffer<max_path>(path));
         if (remainder) {
             callback(remainder);
@@ -212,28 +207,28 @@ void walk_directory(Platform& pfrm, const char* directory, F callback)
 
 
 
-template <typename F> void walk(Platform& pfrm, F&& callback)
+template <typename F> void walk(F&& callback)
 {
     if (not is_mounted()) {
         return;
     }
 
-    auto root = load_root(pfrm);
+    auto root = load_root();
 
     auto offset = fs_offset() + sizeof(Root);
 
     for (int i = 0; i < root.file_count_.get(); ++i) {
         FileInfo info;
-        pfrm.read_save_data(&info, sizeof info, offset);
+        PLATFORM.read_save_data(&info, sizeof info, offset);
 
         if (auto file = info.file_contents_.get()) {
             char path_buffer[max_path + 1];
             path_buffer[max_path] = '\0';
 
-            pfrm.read_save_data(path_buffer,
-                                max_path,
-                                fs_contents_offset() + file * block_size +
-                                    sizeof(FileContents::Header));
+            PLATFORM.read_save_data(path_buffer,
+                                    max_path,
+                                    fs_contents_offset() + file * block_size +
+                                        sizeof(FileContents::Header));
 
             callback(path_buffer);
         }

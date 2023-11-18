@@ -50,7 +50,7 @@ Mycelium::~Mycelium()
 
 
 
-void Mycelium::timer_expired(Platform& pfrm, App& app)
+void Mycelium::timer_expired(App& app)
 {
     if (parent()->is_destroyed()) {
         return;
@@ -82,7 +82,7 @@ void Mycelium::timer_expired(Platform& pfrm, App& app)
         not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
         not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
         y not_eq 14) {
-        this->apply_damage(pfrm, app, health_upper_limit());
+        this->apply_damage(app, health_upper_limit());
         return;
     }
 
@@ -106,7 +106,7 @@ void Mycelium::timer_expired(Platform& pfrm, App& app)
     };
 
     auto spread = [&](u8 x, u8 y) {
-        (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
+        (*metaclass())->create(app, parent(), {x, y}, false);
 
         parent()->schedule_repaint();
 
@@ -143,9 +143,9 @@ void Mycelium::timer_expired(Platform& pfrm, App& app)
 
 
 
-void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
+void Mycelium::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 

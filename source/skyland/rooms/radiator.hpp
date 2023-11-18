@@ -39,10 +39,10 @@ public:
     Radiator(Island* parent, const RoomCoord& position);
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -63,7 +63,7 @@ public:
     }
 
 
-    // static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    // static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()
@@ -139,7 +139,7 @@ public:
 
 
 private:
-    void emit_radiation(Platform& pfrm, App& app);
+    void emit_radiation(App& app);
 
 
     Microseconds damage_timer_ = 0;

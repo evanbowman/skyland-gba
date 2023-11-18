@@ -15,28 +15,27 @@ namespace skyland::macro
 class AbandonColonyScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev)
+    void enter(macro::EngineImpl&, Scene& prev)
     {
     }
 
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override
     {
-        if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+        if (auto scene = MacrocosmScene::update(player, state)) {
             return scene;
         }
 
         if (counter_ < 10) {
-            pfrm.screen().schedule_fade(counter_ / 10.f,
-                                        ColorConstant::rich_black,
-                                        false,
-                                        false,
-                                        true,
-                                        false);
+            PLATFORM.screen().schedule_fade(counter_ / 10.f,
+                                            ColorConstant::rich_black,
+                                            false,
+                                            false,
+                                            true,
+                                            false);
         } else if (counter_ == 10) {
-            pfrm.speaker().set_music_volume(2);
+            PLATFORM.speaker().set_music_volume(2);
         }
 
         counter_ += 1;
@@ -46,16 +45,16 @@ public:
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_ended)->c_str();
             auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
-            next->set_next_scene([&pfrm, &state] {
-                pfrm.speaker().play_sound("cursor_tick", 0);
-                pfrm.fill_overlay(0);
+            next->set_next_scene([&state] {
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.fill_overlay(0);
 
 
                 auto& current = state.sector();
                 state.bind_sector({0, 0});
                 state.erase_sector(current.coordinate());
 
-                pfrm.speaker().set_music_volume(
+                PLATFORM.speaker().set_music_volume(
                     Platform::Speaker::music_volume_max);
 
                 return scene_pool::alloc<MacroverseScene>(true);

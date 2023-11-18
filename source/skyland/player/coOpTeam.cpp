@@ -37,14 +37,14 @@ namespace skyland
 
 
 
-void CoOpTeam::update(Platform& pfrm, App& app, Microseconds delta)
+void CoOpTeam::update(App& app, Microseconds delta)
 {
-    PlayerP1::update(pfrm, app, delta);
+    PlayerP1::update(app, delta);
 
-    if (pfrm.network_peer().is_connected()) {
-        network::poll_messages(pfrm, app, *this);
+    if (PLATFORM.network_peer().is_connected()) {
+        network::poll_messages(app, *this);
     } else {
-        info(pfrm, "lost connection to co-op peer!");
+        info("lost connection to co-op peer!");
 
         // Lost connection to peer player!
         app.swap_player<PlayerP1>();
@@ -59,28 +59,24 @@ void CoOpTeam::update(Platform& pfrm, App& app, Microseconds delta)
         heartbeat_send_counter_ = 0;
 
         network::packet::Heartbeat heartbeat;
-        network::transmit(pfrm, heartbeat);
+        network::transmit(heartbeat);
     }
 
     if (heartbeat_recv_counter_ > heartbeat_interval * 2) {
-        pfrm.network_peer().disconnect();
+        PLATFORM.network_peer().disconnect();
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::Heartbeat& packet)
+void CoOpTeam::receive(App& app, const network::packet::Heartbeat& packet)
 {
     heartbeat_recv_counter_ = 0;
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::RoomConstructed& packet)
+void CoOpTeam::receive(App& app, const network::packet::RoomConstructed& packet)
 {
     if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
         // Co-op player managed to construct a room in exactly the same slot as
@@ -90,31 +86,28 @@ void CoOpTeam::receive(Platform& pfrm,
         d.room_y_ = packet.y_;
         d.near_island_ = false;
         d.metaclass_index_.set(packet.metaclass_index_.get());
-        network::transmit(pfrm, d);
+        network::transmit(d);
 
         // Destroy our own copy, as it overlaps with the other player's.
-        room->apply_damage(pfrm, app, Room::health_upper_limit());
+        room->apply_damage(app, Room::health_upper_limit());
     }
 
     auto metac = load_metaclass(packet.metaclass_index_.get());
 
     RoomCoord pos{packet.x_, packet.y_};
 
-    (*metac)->create(pfrm, app, &player_island(app), pos);
+    (*metac)->create(app, &player_island(app), pos);
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::WeaponSetTarget& packet)
+void CoOpTeam::receive(App& app, const network::packet::WeaponSetTarget& packet)
 {
     if (packet.weapon_near_) {
         if (auto room = player_island(app).get_room(
                 {packet.weapon_x_, packet.weapon_y_})) {
 
-            room->set_target(
-                pfrm, app, {packet.target_x_, packet.target_y_}, true);
+            room->set_target(app, {packet.target_x_, packet.target_y_}, true);
         }
     } else {
         if (not opponent_island(app)) {
@@ -124,17 +117,14 @@ void CoOpTeam::receive(Platform& pfrm,
         if (auto room = opponent_island(app)->get_room(
                 {packet.weapon_x_, packet.weapon_y_})) {
 
-            room->set_target(
-                pfrm, app, {packet.target_x_, packet.target_y_}, true);
+            room->set_target(app, {packet.target_x_, packet.target_y_}, true);
         }
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CoOpCursor& packet)
+void CoOpTeam::receive(App& app, const network::packet::CoOpCursor& packet)
 {
     globals().co_op_cursor_.x = packet.x_;
     globals().co_op_cursor_.y = packet.y_;
@@ -166,15 +156,14 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::DynamiteActivated& packet)
 {
     RoomCoord pos{packet.x_, packet.y_};
 
     if (auto room = player_island(app).get_room(pos)) {
         if (room->cast<Explosive>() or room->cast<TNT>()) {
-            room->apply_damage(pfrm, app, 1);
+            room->apply_damage(app, 1);
         } else {
             // TODO: fatal error?
         }
@@ -183,30 +172,24 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::SetWeaponGroup& packet)
+void CoOpTeam::receive(App& app, const network::packet::SetWeaponGroup& packet)
 {
     if (auto room = player_island(app).get_room({packet.x_, packet.y_})) {
         room->set_group((Room::Group)packet.group_);
-        player_island(app).repaint(pfrm, app);
+        player_island(app).repaint(app);
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::RoomSalvaged& packet)
+void CoOpTeam::receive(App& app, const network::packet::RoomSalvaged& packet)
 {
-    player_island(app).destroy_room(pfrm, app, {packet.x_, packet.y_});
+    player_island(app).destroy_room(app, {packet.x_, packet.y_});
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::ChrDiedV2& packet)
+void CoOpTeam::receive(App& app, const network::packet::ChrDiedV2& packet)
 {
     Island* island = nullptr;
 
@@ -222,16 +205,14 @@ void CoOpTeam::receive(Platform& pfrm,
 
         if (found.first) {
             // kill character
-            found.first->apply_damage(pfrm, app, BasicCharacter::max_health);
+            found.first->apply_damage(app, BasicCharacter::max_health);
         }
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::ChrBoardedV2& packet)
+void CoOpTeam::receive(App& app, const network::packet::ChrBoardedV2& packet)
 {
     if (not opponent_island(app)) {
         return;
@@ -261,9 +242,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::ChrDisembarkV2& packet)
+void CoOpTeam::receive(App& app, const network::packet::ChrDisembarkV2& packet)
 {
     if (not opponent_island(app)) {
         return;
@@ -293,9 +272,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::ChrSetTargetV2& packet)
+void CoOpTeam::receive(App& app, const network::packet::ChrSetTargetV2& packet)
 {
     Island* island = nullptr;
 
@@ -311,35 +288,32 @@ void CoOpTeam::receive(Platform& pfrm,
         auto info = island->find_character_by_id(packet.chr_id_.get());
 
         if (info.first) {
-            auto path = find_path(pfrm,
-                                  app,
+            auto path = find_path(app,
                                   island,
                                   info.first,
                                   info.first->grid_position(),
                                   dst_coord);
             if (path and *path) {
-                info.first->set_movement_path(pfrm, app, std::move(*path));
+                info.first->set_movement_path(app, std::move(*path));
                 return;
             } else {
-                ::info(pfrm,
-                       format("path not found from %,% to %,%",
+                ::info(format("path not found from %,% to %,%",
                               dst_coord.x,
                               dst_coord.y,
                               info.first->grid_position().x,
                               info.first->grid_position().y));
             }
         } else {
-            ::info(pfrm, "chr not found!!!");
+            ::info("chr not found!!!");
         }
     } else {
-        ::info(pfrm, "island null");
+        ::info("island null");
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::ReplicantCreated& packet)
 {
     if (not opponent_island(app)) {
@@ -349,10 +323,10 @@ void CoOpTeam::receive(Platform& pfrm,
     const RoomCoord loc = {packet.src_x_, packet.src_y_};
 
     auto chr = app.alloc_entity<BasicCharacter>(
-        pfrm, &app.player_island(), &app.player(), loc, true);
+        &app.player_island(), &app.player(), loc, true);
 
     if (chr) {
-        chr->apply_damage(pfrm, app, 255 - packet.health_);
+        chr->apply_damage(app, 255 - packet.health_);
         chr->transported();
         player_island(app).add_character(std::move(chr));
     }
@@ -360,9 +334,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::RoomDestroyed& packet)
+void CoOpTeam::receive(App& app, const network::packet::RoomDestroyed& packet)
 {
     Island* island = nullptr;
 
@@ -387,7 +359,7 @@ void CoOpTeam::receive(Platform& pfrm,
                     (*room->metaclass())->name(),
                     (*load_metaclass(packet.metaclass_index_.get()))->name()) ==
                 0) {
-                room->apply_damage(pfrm, app, Room::health_upper_limit());
+                room->apply_damage(app, Room::health_upper_limit());
             }
         }
     }
@@ -395,47 +367,42 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::TerrainConstructed& packet)
 {
-    player_island(app).init_terrain(pfrm, packet.new_terrain_size_);
+    player_island(app).init_terrain(packet.new_terrain_size_);
 }
 
 
 
-void shift_rooms_right(Platform& pfrm, App& app, Island& island);
+void shift_rooms_right(App& app, Island& island);
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::TerrainConstructedLeft& packet)
 {
-    player_island(app).init_terrain(pfrm, packet.new_terrain_size_);
-    shift_rooms_right(pfrm, app, player_island(app));
+    player_island(app).init_terrain(packet.new_terrain_size_);
+    shift_rooms_right(app, player_island(app));
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::OpponentBulkheadChanged& packet)
 {
     const RoomCoord loc = {packet.room_x_, packet.room_y_};
 
     if (auto room = player_island(app).get_room(loc)) {
         if (auto bulkhead = room->cast<Bulkhead>()) {
-            bulkhead->set_open(pfrm, app, packet.open_);
+            bulkhead->set_open(app, packet.open_);
         }
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::DroneSpawn& packet)
+void CoOpTeam::receive(App& app, const network::packet::DroneSpawn& packet)
 {
     if (not app.opponent_island()) {
         return;
@@ -454,7 +421,7 @@ void CoOpTeam::receive(Platform& pfrm,
     if (packet.drone_class_ >= ds) {
         StringBuffer<32> err("invalid index! ");
         err += stringify(packet.drone_class_);
-        pfrm.fatal(err.c_str());
+        PLATFORM.fatal(err.c_str());
     }
     auto drone_meta = &dt[packet.drone_class_];
     if (auto drone = (*drone_meta)
@@ -466,7 +433,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
         if (auto room = app.player_island().get_room(drone_bay_pos)) {
 
-            if (room->attach_drone(pfrm, app, *drone)) {
+            if (room->attach_drone(app, *drone)) {
                 island->drones().push(*drone);
             }
 
@@ -478,9 +445,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::DroneDestroyed& packet)
+void CoOpTeam::receive(App& app, const network::packet::DroneDestroyed& packet)
 {
     Island* island = nullptr;
     if (packet.destination_near_) {
@@ -502,9 +467,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::DroneSetTarget& packet)
+void CoOpTeam::receive(App& app, const network::packet::DroneSetTarget& packet)
 {
     if (not app.opponent_island()) {
         return;
@@ -520,17 +483,14 @@ void CoOpTeam::receive(Platform& pfrm,
 
     const auto drone_x = packet.drone_x_;
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
-        (*drone)->set_target(pfrm,
-                             app,
-                             {packet.target_x_, packet.target_y_},
-                             not packet.target_near_);
+        (*drone)->set_target(
+            app, {packet.target_x_, packet.target_y_}, not packet.target_near_);
     }
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpRoomLockAcquire& packet)
 {
     using RespType = network::packet::CoOpRoomLockResponse;
@@ -546,13 +506,12 @@ void CoOpTeam::receive(Platform& pfrm,
         }
     }
 
-    network::transmit(pfrm, resp);
+    network::transmit(resp);
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpRoomLockRelease& packet)
 {
     if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
@@ -562,8 +521,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpRoomLockResponse& packet)
 {
     using RespType = network::packet::CoOpRoomLockResponse;
@@ -577,8 +535,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpChrLockAcquire& packet)
 {
     using RespType = network::packet::CoOpChrLockResponse;
@@ -595,13 +552,12 @@ void CoOpTeam::receive(Platform& pfrm,
         }
     }
 
-    network::transmit(pfrm, resp);
+    network::transmit(resp);
 }
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpChrLockRelease& packet)
 {
     const auto chr_id = packet.chr_id_.get();
@@ -613,8 +569,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
+void CoOpTeam::receive(App& app,
                        const network::packet::CoOpChrLockResponse& packet)
 {
     using RespType = network::packet::CoOpChrLockResponse;
@@ -628,16 +583,14 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CoOpOpponentDestroyed&)
+void CoOpTeam::receive(App& app, const network::packet::CoOpOpponentDestroyed&)
 {
     if (app.opponent_island()) {
         for (auto& room : app.opponent_island()->rooms()) {
             auto category = (*room->metaclass())->category();
             if (category == Room::Category::power) {
                 auto ko_hp = std::numeric_limits<Health>::max();
-                room->apply_damage(pfrm, app, ko_hp);
+                room->apply_damage(app, ko_hp);
             }
         }
     }
@@ -645,39 +598,36 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::Paused& pkt)
+void CoOpTeam::receive(App& app, const network::packet::Paused& pkt)
 {
     Scene* s = &app.scene();
 
     if (auto scene = s->cast_world_scene()) {
         if (pkt.status_) {
-            scene->set_gamespeed(pfrm, app, GameSpeed::stopped);
+            scene->set_gamespeed(app, GameSpeed::stopped);
         } else {
-            scene->set_gamespeed(pfrm, app, GameSpeed::normal);
+            scene->set_gamespeed(app, GameSpeed::normal);
         }
     }
 }
 
 
 
-void CoOpTeam::network_sync_cursor(Platform& pfrm,
-                                   const RoomCoord& cursor,
+void CoOpTeam::network_sync_cursor(const RoomCoord& cursor,
                                    u8 cursor_icon,
                                    bool near)
 {
     // Don't bother to send an updated position of the cursor if we have
     // outgoing stuff in the send queue. Updating the cursor graphics for co-op
     // players isn't super essential.
-    if (pfrm.network_peer().send_queue_empty()) {
+    if (PLATFORM.network_peer().send_queue_empty()) {
         network::packet::CoOpCursor p;
         p.x_ = cursor.x;
         p.y_ = cursor.y;
         p.near_ = near;
         p.icon_ = cursor_icon;
 
-        network::transmit(pfrm, p);
+        network::transmit(p);
     }
 }
 

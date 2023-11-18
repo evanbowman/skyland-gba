@@ -57,16 +57,16 @@ public:
     static int get_setting(u8 slot);
 
 
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void exit(Platform&, App&, Scene& prev) override;
+    void exit(App&, Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
     static bool enable_custom_scripts()
@@ -76,7 +76,7 @@ public:
 
 
 private:
-    void update_parameter(Platform& pfrm, u8 line_num);
+    void update_parameter(u8 line_num);
 
     u32 cursor_ = 0;
 

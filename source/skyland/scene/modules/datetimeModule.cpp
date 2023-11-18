@@ -69,7 +69,7 @@ static int days_per_month(int month, int year)
 
 
 
-static StringBuffer<48> month_name(Platform& pfrm, int month)
+static StringBuffer<48> month_name(int month)
 {
     auto mstr = SYSTR(months);
     auto cp = mstr->c_str();
@@ -92,25 +92,25 @@ static StringBuffer<48> month_name(Platform& pfrm, int month)
 
 
 
-void DatetimeModule::repaint(Platform& pfrm)
+void DatetimeModule::repaint()
 {
     for (int y = 0; y < 20; ++y) {
         for (int x = 0; x < 30; ++x) {
-            pfrm.set_tile(Layer::overlay, x, y, 0);
+            PLATFORM.set_tile(Layer::overlay, x, y, 0);
         }
     }
 
-    auto mstr = month_name(pfrm, dt_.date_.month_ - 1);
+    auto mstr = month_name(dt_.date_.month_ - 1);
     auto year_str_len = integer_text_length(2000 + dt_.date_.year_);
     u8 margin =
-        centered_text_margins(pfrm, utf8::len(mstr.c_str()) + 1 + year_str_len);
+        centered_text_margins(utf8::len(mstr.c_str()) + 1 + year_str_len);
 
     auto highlight = Text::OptColors{
         {ColorConstant::rich_black, ColorConstant::spanish_crimson}};
 
     auto noclr = std::nullopt;
 
-    Text heading(pfrm, OverlayCoord{margin, 2});
+    Text heading(OverlayCoord{margin, 2});
     heading.append(mstr.c_str(),
                    state_ == State::set_month ? highlight : noclr);
     heading.append(" ");
@@ -121,20 +121,18 @@ void DatetimeModule::repaint(Platform& pfrm)
     int hms_y = 12;
     auto draw_couplet = [&](int x, int val) {
         if (val < 10) {
-            draw_image(pfrm, 118 + 0, x, hms_y, 4, 6, Layer::overlay);
-            draw_image(
-                pfrm, 118 + val * 24, x + 4, hms_y, 4, 6, Layer::overlay);
+            draw_image(118 + 0, x, hms_y, 4, 6, Layer::overlay);
+            draw_image(118 + val * 24, x + 4, hms_y, 4, 6, Layer::overlay);
         } else {
             int tens = val / 10;
             int ones = val % 10;
-            draw_image(pfrm, 118 + tens * 24, x, hms_y, 4, 6, Layer::overlay);
-            draw_image(
-                pfrm, 118 + ones * 24, x + 4, hms_y, 4, 6, Layer::overlay);
+            draw_image(118 + tens * 24, x, hms_y, 4, 6, Layer::overlay);
+            draw_image(118 + ones * 24, x + 4, hms_y, 4, 6, Layer::overlay);
         }
     };
 
-    draw_image(pfrm, 94, 8, hms_y, 4, 6, Layer::overlay);
-    draw_image(pfrm, 94, 18, hms_y, 4, 6, Layer::overlay);
+    draw_image(94, 8, hms_y, 4, 6, Layer::overlay);
+    draw_image(94, 18, hms_y, 4, 6, Layer::overlay);
 
     draw_couplet(1, dt_.hour_);
     draw_couplet(11, dt_.minute_);
@@ -142,15 +140,15 @@ void DatetimeModule::repaint(Platform& pfrm)
 
     if (state_ == State::set_hour) {
         for (int i = 0; i < 8; ++i) {
-            pfrm.set_tile(Layer::overlay, 1 + i, hms_y + 6, 358);
+            PLATFORM.set_tile(Layer::overlay, 1 + i, hms_y + 6, 358);
         }
     } else if (state_ == State::set_min) {
         for (int i = 0; i < 8; ++i) {
-            pfrm.set_tile(Layer::overlay, 11 + i, hms_y + 6, 358);
+            PLATFORM.set_tile(Layer::overlay, 11 + i, hms_y + 6, 358);
         }
     } else if (state_ == State::set_sec) {
         for (int i = 0; i < 8; ++i) {
-            pfrm.set_tile(Layer::overlay, 21 + i, hms_y + 6, 358);
+            PLATFORM.set_tile(Layer::overlay, 21 + i, hms_y + 6, 358);
         }
     }
 
@@ -162,7 +160,7 @@ void DatetimeModule::repaint(Platform& pfrm)
 
     int k = 0;
     std::optional<Text> t_;
-    t_.emplace(pfrm, OverlayCoord{1, row});
+    t_.emplace(OverlayCoord{1, row});
 
 
     int current = day_number(1, 1, year);
@@ -201,7 +199,7 @@ void DatetimeModule::repaint(Platform& pfrm)
                 if (i == month_index) {
                     ++row;
                     t_->__detach();
-                    t_.emplace(pfrm, OverlayCoord{1, row});
+                    t_.emplace(OverlayCoord{1, row});
                 }
             }
         }
@@ -216,11 +214,11 @@ void DatetimeModule::repaint(Platform& pfrm)
 
 
 
-void DatetimeModule::enter(Platform& pfrm, App& app, Scene& prev)
+void DatetimeModule::enter(App& app, Scene& prev)
 {
-    info(pfrm, "enter datetime module");
+    info("enter datetime module");
 
-    if (auto tm = pfrm.system_clock().now()) {
+    if (auto tm = PLATFORM.system_clock().now()) {
         dt_ = *tm;
     } else {
         dt_.date_.year_ = 1;
@@ -228,33 +226,31 @@ void DatetimeModule::enter(Platform& pfrm, App& app, Scene& prev)
         dt_.date_.day_ = 1;
     }
 
-    pfrm.screen().schedule_fade(0.95f);
-    pfrm.screen().schedule_fade(1.f);
+    PLATFORM.screen().schedule_fade(0.95f);
+    PLATFORM.screen().schedule_fade(1.f);
 
-    pfrm.load_overlay_texture("overlay_large_numeral");
-    pfrm.enable_glyph_mode(true);
+    PLATFORM.load_overlay_texture("overlay_large_numeral");
+    PLATFORM.enable_glyph_mode(true);
 
-    repaint(pfrm);
+    repaint();
 }
 
 
 
-void DatetimeModule::exit(Platform& pfrm, App& app, Scene& next)
+void DatetimeModule::exit(App& app, Scene& next)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
 
-ScenePtr<Scene>
-DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> DatetimeModule::update(App& app, Microseconds delta)
 {
     auto& p = player(app);
-    p.update(pfrm, app, delta);
+    p.update(app, delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player(app).test_key(k, milliseconds(500), milliseconds(100));
     };
 
     switch (state_) {
@@ -265,20 +261,20 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 dt_.date_.month_--;
             }
-            pfrm.speaker().play_sound("click", 1);
-            repaint(pfrm);
+            PLATFORM.speaker().play_sound("click", 1);
+            repaint();
         } else if (test_key(Key::down)) {
             if (dt_.date_.month_ == 12) {
                 dt_.date_.month_ = 1;
             } else {
                 dt_.date_.month_++;
             }
-            pfrm.speaker().play_sound("click", 1);
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
+            PLATFORM.speaker().play_sound("click", 1);
+            repaint();
+        } else if (key_down<Key::action_1>()) {
             state_ = State::set_year;
-            repaint(pfrm);
-        } else if (key_down<Key::action_2>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_2>()) {
             if (not next_scene_) {
                 return scene_pool::alloc<TitleScreenScene>(3);
             }
@@ -289,19 +285,19 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (dt_.date_.year_ > 1) {
                 dt_.date_.year_--;
-                pfrm.speaker().play_sound("click", 1);
-                repaint(pfrm);
+                PLATFORM.speaker().play_sound("click", 1);
+                repaint();
             }
         } else if (test_key(Key::down)) {
             dt_.date_.year_++;
-            pfrm.speaker().play_sound("click", 1);
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
+            PLATFORM.speaker().play_sound("click", 1);
+            repaint();
+        } else if (key_down<Key::action_1>()) {
             state_ = State::set_day;
-            repaint(pfrm);
-        } else if (key_down<Key::action_2>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_2>()) {
             state_ = State::set_month;
-            repaint(pfrm);
+            repaint();
         }
         break;
 
@@ -309,22 +305,22 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (dt_.date_.day_ > 1) {
                 dt_.date_.day_--;
-                pfrm.speaker().play_sound("click", 1);
-                repaint(pfrm);
+                PLATFORM.speaker().play_sound("click", 1);
+                repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.date_.day_ <
                 days_per_month(dt_.date_.month_ - 1, 2000 + dt_.date_.year_)) {
                 dt_.date_.day_++;
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_1>()) {
             state_ = State::set_hour;
-            repaint(pfrm);
-        } else if (key_down<Key::action_2>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_2>()) {
             state_ = State::set_year;
-            repaint(pfrm);
+            repaint();
         }
         break;
 
@@ -332,21 +328,21 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (dt_.hour_ > 0) {
                 dt_.hour_--;
-                pfrm.speaker().play_sound("click", 1);
-                repaint(pfrm);
+                PLATFORM.speaker().play_sound("click", 1);
+                repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.hour_ < 23) {
                 dt_.hour_++;
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_1>()) {
             state_ = State::set_min;
-            repaint(pfrm);
-        } else if (key_down<Key::action_2>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_2>()) {
             state_ = State::set_day;
-            repaint(pfrm);
+            repaint();
         }
         break;
 
@@ -354,21 +350,21 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (dt_.minute_ > 0) {
                 dt_.minute_--;
-                pfrm.speaker().play_sound("click", 1);
-                repaint(pfrm);
+                PLATFORM.speaker().play_sound("click", 1);
+                repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.minute_ < 59) {
                 dt_.minute_++;
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_1>()) {
             state_ = State::set_sec;
-            repaint(pfrm);
-        } else if (key_down<Key::action_2>(pfrm)) {
+            repaint();
+        } else if (key_down<Key::action_2>()) {
             state_ = State::set_hour;
-            repaint(pfrm);
+            repaint();
         }
         break;
 
@@ -376,29 +372,29 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (dt_.second_ > 0) {
                 dt_.second_--;
-                repaint(pfrm);
-                pfrm.speaker().play_sound("click", 1);
+                repaint();
+                PLATFORM.speaker().play_sound("click", 1);
             }
         } else if (test_key(Key::down)) {
             if (dt_.second_ < 59) {
                 dt_.second_++;
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
-            repaint(pfrm);
-        } else if (key_down<Key::action_1>(pfrm)) {
-            pfrm.system_clock().configure(dt_);
+            repaint();
+        } else if (key_down<Key::action_1>()) {
+            PLATFORM.system_clock().configure(dt_);
 
             // Datetime cache created by macrocosm saves. Erase, or people can
             // cheat.
-            // flash_filesystem::unlink_file(pfrm, "/save/mt.dat");
+            // flash_filesystem::unlink_file("/save/mt.dat");
             if (not next_scene_) {
                 return scene_pool::alloc<TitleScreenScene>(3);
             } else {
                 return (*next_scene_)();
             }
-        } else if (key_down<Key::action_2>(pfrm)) {
+        } else if (key_down<Key::action_2>()) {
             state_ = State::set_min;
-            repaint(pfrm);
+            repaint();
         }
         break;
 

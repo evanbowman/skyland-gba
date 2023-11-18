@@ -66,7 +66,7 @@ public:
     }
 
 
-    void ___rewind___ability_used(Platform& pfrm, App& app) override
+    void ___rewind___ability_used(App& app) override
     {
         if (state_ not_eq Drone::State::launch) {
             timer_ = reload_time;
@@ -74,7 +74,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         if (parent() == app.opponent_island()) {
             sprite_.set_texture_index(68);
@@ -82,18 +82,18 @@ public:
 
         switch (state_) {
         case Drone::State::launch:
-            Drone::update(pfrm, app, delta);
+            Drone::update(app, delta);
             break;
 
         case Drone::State::ready:
-            update_sprite(pfrm, app);
+            update_sprite(app);
             state_ = State::wait;
             timer_ = 0;
             break;
 
         case State::wait:
             duration_ += delta;
-            update_sprite(pfrm, app);
+            update_sprite(app);
             if (timer_ > reload_time) {
                 if (target_) {
                     if (not app.opponent_island()) {
@@ -115,10 +115,10 @@ public:
                         target.y += Fixnum::from_integer(
                             (*drone)->position().y * 16 + 8);
 
-                        cannon_sound.play(pfrm, 3);
+                        cannon_sound.play(3);
 
                         auto c = app.alloc_entity<Cannonball>(
-                            pfrm, start, target, parent(), position());
+                            start, target, parent(), position());
                         if (c) {
                             app.camera()->shake(4);
                             parent()->projectiles().push(std::move(c));
@@ -174,9 +174,9 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App& app) override
+    ScenePtr<Scene> select(App& app) override
     {
-        pfrm.speaker().play_sound("drone_beep", 1);
+        PLATFORM.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<CombatDroneSetTargetScene>(shared_from_this());
     }
 

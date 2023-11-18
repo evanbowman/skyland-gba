@@ -36,22 +36,21 @@ static const int view_y_min = -80;
 
 
 
-void Camera::update(Platform& pfrm,
-                    App& app,
+void Camera::update(App& app,
                     Island& target,
                     const RoomCoord& cursor_loc,
                     Microseconds delta,
                     bool near)
 {
-    auto view = pfrm.screen().get_view();
+    auto view = PLATFORM.screen().get_view();
 
 
 
     int base_offset;
-    if (pfrm.screen().size().y == 160) {
+    if (PLATFORM.screen().size().y == 160) {
         base_offset = 15;
     } else {
-        base_offset = pfrm.screen().size().y / 12;
+        base_offset = PLATFORM.screen().size().y / 12;
     }
 
     target_.y = (-((base_offset - (cursor_loc.y + 1)) * 16) / 2);
@@ -125,7 +124,7 @@ void Camera::update(Platform& pfrm,
         view.set_center(current_);
     }
 
-    pfrm.screen().set_view(view);
+    PLATFORM.screen().set_view(view);
 }
 
 

@@ -58,9 +58,9 @@ struct EmergencyBackup
     // while retrying a level puts you at the beginning of the level.
     s8 next_world_location_ = -1;
 
-    void init(Platform& pfrm, App& app);
+    void init(App& app);
 
-    void store(Platform& pfrm);
+    void store();
 };
 
 
@@ -93,23 +93,23 @@ struct GlobalSaveData
 
 
 
-bool load_global_data(Platform&, GlobalPersistentData&);
+bool load_global_data(GlobalPersistentData&);
 
 
 
-void store_global_data(Platform&, const GlobalPersistentData&);
+void store_global_data(const GlobalPersistentData&);
 
 
 
-void store(Platform& pfrm, App& app, const PersistentData& d);
+void store(App& app, const PersistentData& d);
 
 
 
-bool load(Platform& pfrm, App& app, PersistentData& d);
+bool load(App& app, PersistentData& d);
 
 
 
-void erase(Platform& pfrm);
+void erase();
 
 
 

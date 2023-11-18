@@ -30,22 +30,22 @@ namespace skyland
 
 
 
-void LoadModuleScene::enter(Platform& pfrm, App&, Scene& prev)
+void LoadModuleScene::enter(App&, Scene& prev)
 {
-    show_modules(pfrm, 0);
-    pfrm.screen().fade(1.f);
+    show_modules(0);
+    PLATFORM.screen().fade(1.f);
 }
 
 
 
-void LoadModuleScene::show_modules(Platform& pfrm, int page)
+void LoadModuleScene::show_modules(int page)
 {
     auto factory = detail::_Module::factories_;
 
     int i = 1;
 
     while (factory) {
-        temp_.emplace_back(pfrm, factory->name(), OverlayCoord{1, (u8)i++});
+        temp_.emplace_back(factory->name(), OverlayCoord{1, (u8)i++});
         factory = factory->next_;
     }
 }

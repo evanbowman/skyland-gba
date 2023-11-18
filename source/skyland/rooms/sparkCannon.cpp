@@ -44,7 +44,7 @@ extern Sound cannon_sound;
 
 
 
-void SparkCannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void SparkCannon::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_spark_cannon)->c_str();
 }
@@ -58,7 +58,7 @@ SparkCannon::SparkCannon(Island* parent, const RoomCoord& position)
 
 
 
-void SparkCannon::on_lightning(Platform& pfrm, App& app)
+void SparkCannon::on_lightning(App& app)
 {
     if (level_ < 2) {
         ++level_;
@@ -80,7 +80,7 @@ void SparkCannon::on_lightning(Platform& pfrm, App& app)
 
 
 
-void SparkCannon::on_lightning_rewind(Platform& pfrm, App& app)
+void SparkCannon::on_lightning_rewind(App& app)
 {
     if (level_ > 0) {
         --level_;
@@ -150,8 +150,7 @@ void SparkCannon::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene>
-SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -160,7 +159,7 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
 
     if (level_ == 0) {
-        pfrm.speaker().play_sound("beep_error", 3);
+        PLATFORM.speaker().play_sound("beep_error", 3);
         return null_scene();
     }
 
@@ -179,24 +178,24 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         start.x += 24.0_fixed;
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
     switch (level_) {
     case 1: {
         auto ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 0 : 180, parent(), position());
+            start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 20 : 160, parent(), position());
+            start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 340 : 200, parent(), position());
+            start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
@@ -205,31 +204,31 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     default: {
         auto ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 0 : 180, parent(), position());
+            start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 10 : 190, parent(), position());
+            start, right ? 10 : 190, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 350 : 170, parent(), position());
+            start, right ? 350 : 170, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 20 : 160, parent(), position());
+            start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
         ab = app.alloc_entity<ArcBolt>(
-            pfrm, start, right ? 340 : 200, parent(), position());
+            start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
@@ -244,7 +243,7 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         }
 
         auto c = app.alloc_entity<DecimatorBurst>(
-            pfrm, start, target, parent(), position());
+            start, target, parent(), position());
 
         if (c) {
             parent()->projectiles().push(std::move(c));
@@ -280,7 +279,7 @@ SparkCannon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void SparkCannon::___rewind___finished_reload(Platform&, App&)
+void SparkCannon::___rewind___finished_reload(App&)
 {
     ++level_;
     schedule_repaint();

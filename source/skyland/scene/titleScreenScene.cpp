@@ -69,7 +69,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta)
+    void update(App&, Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -104,12 +104,11 @@ private:
 
 
 
-void init_clouds(Platform& pfrm);
+void init_clouds();
 
 
 
-void __draw_image(Platform& pfrm,
-                  TileDesc start_tile,
+void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
                   u16 width,
@@ -120,7 +119,7 @@ void __draw_image(Platform& pfrm,
 
     for (u16 y = start_y; y < start_y + height; ++y) {
         for (u16 x = start_x; x < start_x + width; ++x) {
-            pfrm.set_raw_tile(layer, x, y, tile++);
+            PLATFORM.set_raw_tile(layer, x, y, tile++);
         }
     }
 }
@@ -154,11 +153,11 @@ void plugin_rooms_unregister();
 
 
 // Added when porting the game to different screen sizes.
-static Vec2<int> scale_offset(Platform& pfrm)
+static Vec2<int> scale_offset()
 {
     int offset = 0;
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     if (st.x > 30) {
         offset += ((30 - st.x) / 2) * 8;
     }
@@ -173,33 +172,33 @@ static Vec2<int> scale_offset(Platform& pfrm)
 
 
 
-static Vec2<int> spr_scale_offset(Platform& pfrm)
+static Vec2<int> spr_scale_offset()
 {
-    if (pfrm.screen().size() == Vec2<u32>{240, 160}) {
-        return scale_offset(pfrm);
+    if (PLATFORM.screen().size() == Vec2<u32>{240, 160}) {
+        return scale_offset();
     } else {
-        return {scale_offset(pfrm).x, scale_offset(pfrm).y + 8};
+        return {scale_offset().x, scale_offset().y + 8};
     }
 }
 
 
 
-static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
+static void set_scroll(Layer layer, int x_scroll, int y_scroll)
 {
-    auto offset = scale_offset(pfrm);
+    auto offset = scale_offset();
 
-    pfrm.set_scroll(layer, -offset.x + x_scroll, -offset.y + y_scroll);
+    PLATFORM.set_scroll(layer, -offset.x + x_scroll, -offset.y + y_scroll);
 }
 
 
 
-void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
+void TitleScreenScene::enter(App& app, Scene& prev)
 {
-    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
-    pfrm.screen().schedule_fade(1.f);
+    PLATFORM.screen().schedule_fade(1.f);
 
-    pfrm.screen().set_shader(passthrough_shader);
+    PLATFORM.screen().set_shader(passthrough_shader);
     app.swap_environment<weather::ClearSkies>();
 
     app.macrocosm().reset();
@@ -212,21 +211,21 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.swap_player<PlayerP1>();
 
-    init_clouds(pfrm);
-    pfrm.system_call("v-parallax", (void*)false);
+    init_clouds();
+    PLATFORM.system_call("v-parallax", (void*)false);
 
-    app.player_island().clear(pfrm, app);
+    app.player_island().clear(app);
 
     globals().room_pools_.create("room-mem");
     globals().entity_pools_.create("entity-mem");
 
     if (app.opponent_island()) {
-        app.reset_opponent_island(pfrm);
+        app.reset_opponent_island();
     }
 
     app.key_callback_processor().clear();
 
-    pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+    PLATFORM.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
     app.effects().clear();
     app.birds().clear();
@@ -241,94 +240,94 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.game_speed() = GameSpeed::normal;
 
-    auto view = pfrm.screen().get_view();
+    auto view = PLATFORM.screen().get_view();
     auto c = view.get_center();
     c.x = 0;
     c.y += offset;
     view.set_center(c);
-    pfrm.screen().set_view(view);
+    PLATFORM.screen().set_view(view);
 
-    pfrm.load_overlay_texture("overlay");
-    pfrm.load_tile1_texture("skyland_title_1_flattened");
-    pfrm.load_tile0_texture("skyland_title_0_flattened");
-    pfrm.load_background_texture("background_title_screen");
+    PLATFORM.load_overlay_texture("overlay");
+    PLATFORM.load_tile1_texture("skyland_title_1_flattened");
+    PLATFORM.load_tile0_texture("skyland_title_0_flattened");
+    PLATFORM.load_background_texture("background_title_screen");
 
     if (not flower_effect_) {
         // (already loaded previously)
-        pfrm.load_sprite_texture("spritesheet_title_screen");
+        PLATFORM.load_sprite_texture("spritesheet_title_screen");
     }
 
-    if (not pfrm.speaker().is_music_playing("shadows")) {
-        pfrm.speaker().play_music("shadows", true);
+    if (not PLATFORM.speaker().is_music_playing("shadows")) {
+        PLATFORM.speaker().play_music("shadows", true);
     }
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    redraw_margins(pfrm);
+    redraw_margins();
 
     for (int i = 0; i < 64; ++i) {
         for (int j = 0; j < 32; ++j) {
-            pfrm.set_raw_tile(Layer::map_0, i, j, 0);
-            pfrm.set_raw_tile(Layer::map_1, i, j, 0);
+            PLATFORM.set_raw_tile(Layer::map_0, i, j, 0);
+            PLATFORM.set_raw_tile(Layer::map_1, i, j, 0);
         }
     }
 
 
-    if (pfrm.screen().size().y == 160) {
+    if (PLATFORM.screen().size().y == 160) {
         // The original graphcs, for the gba
-        __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_1);
-        __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
+        __draw_image(31, 0, 3, 30, 14, Layer::map_1);
+        __draw_image(31, 0, 3, 30, 14, Layer::map_0);
     } else {
         // The expanded background graphics, with new rows added to the
         // beginning and end. For the nds, with its taller screen.
-        __draw_image(pfrm, 1, 0, 3, 30, 16, Layer::map_1);
-        __draw_image(pfrm, 1, 0, 3, 30, 16, Layer::map_0);
+        __draw_image(1, 0, 3, 30, 16, Layer::map_1);
+        __draw_image(1, 0, 3, 30, 16, Layer::map_0);
     }
 
-    set_scroll(pfrm, Layer::map_1_ext, 0, -offset + 8);
+    set_scroll(Layer::map_1_ext, 0, -offset + 8);
 
-    pfrm.set_overlay_origin(0, 4);
+    PLATFORM.set_overlay_origin(0, 4);
 
     app.delete_backup();
 }
 
 
 
-void TitleScreenScene::redraw_margins(Platform& pfrm)
+void TitleScreenScene::redraw_margins()
 {
-    const auto screen_tiles = calc_screen_tiles(pfrm);
+    const auto screen_tiles = calc_screen_tiles();
     for (int i = 0; i < screen_tiles.x; ++i) {
 
-        pfrm.set_tile(Layer::overlay, i, 0, 112);
-        pfrm.set_tile(Layer::overlay, i, 1, 112);
-        pfrm.set_tile(Layer::overlay, i, 2, 116);
+        PLATFORM.set_tile(Layer::overlay, i, 0, 112);
+        PLATFORM.set_tile(Layer::overlay, i, 1, 112);
+        PLATFORM.set_tile(Layer::overlay, i, 2, 116);
 
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y, 112);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
 
-        if (scale_offset(pfrm).y / 8 > 0) {
+        if (scale_offset().y / 8 > 0) {
 
             int y = 0;
             for (y = 0; y < 3; ++y) {
-                pfrm.set_tile(Layer::overlay, i, y, 112);
+                PLATFORM.set_tile(Layer::overlay, i, y, 112);
             }
 
-            for (; y < scale_offset(pfrm).y / 8; ++y) {
-                pfrm.set_tile(Layer::overlay, i, y, 112);
+            for (; y < scale_offset().y / 8; ++y) {
+                PLATFORM.set_tile(Layer::overlay, i, y, 112);
             }
 
-            pfrm.set_tile(Layer::overlay, i, y, 116);
+            PLATFORM.set_tile(Layer::overlay, i, y, 116);
 
             // FIXME!
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
-            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 5, 256);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y, 112);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 5, 256);
         }
     }
 
@@ -338,8 +337,9 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
         int margin = overflow / 2;
         for (int y = 0; y < screen_tiles.y; ++y) {
             for (int x = 0; x < margin; ++x) {
-                pfrm.set_tile(Layer::overlay, x, y, 112);
-                pfrm.set_tile(Layer::overlay, (screen_tiles.x - 1) - x, y, 112);
+                PLATFORM.set_tile(Layer::overlay, x, y, 112);
+                PLATFORM.set_tile(
+                    Layer::overlay, (screen_tiles.x - 1) - x, y, 112);
             }
         }
     }
@@ -347,41 +347,41 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
 
 
 
-void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
+void TitleScreenScene::exit(App& app, Scene& next)
 {
-    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
-    pfrm.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
+    PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    PLATFORM.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
 
-    pfrm.set_overlay_origin(0, 0);
+    PLATFORM.set_overlay_origin(0, 0);
 
-    init_clouds(pfrm);
+    init_clouds();
 
     text_.reset();
 
-    pfrm.system_call("v-parallax", (void*)true);
+    PLATFORM.system_call("v-parallax", (void*)true);
 
-    pfrm.load_tile0_texture(app.environment().player_island_texture());
-    pfrm.load_tile1_texture(app.environment().opponent_island_texture());
-    pfrm.load_sprite_texture(app.environment().sprite_texture());
-    pfrm.load_background_texture(app.environment().background_texture());
+    PLATFORM.load_tile0_texture(app.environment().player_island_texture());
+    PLATFORM.load_tile1_texture(app.environment().opponent_island_texture());
+    PLATFORM.load_sprite_texture(app.environment().sprite_texture());
+    PLATFORM.load_background_texture(app.environment().background_texture());
 
-    write_custom_graphics(pfrm, app);
+    write_custom_graphics(app);
 
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
-            pfrm.set_tile(Layer::map_0_ext, x, y, 0);
-            pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+            PLATFORM.set_tile(Layer::map_0_ext, x, y, 0);
+            PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
         }
     }
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.screen().set_view(View{});
+    PLATFORM.screen().set_view(View{});
 
 
-    set_scroll(pfrm, Layer::map_1_ext, 0, 8);
-    set_scroll(pfrm, Layer::map_0_ext, 0, 0);
+    set_scroll(Layer::map_1_ext, 0, 8);
+    set_scroll(Layer::map_0_ext, 0, 0);
 
     app.birds().clear();
     app.effects().clear();
@@ -404,13 +404,13 @@ static const int modules_per_page = modules_per_row * 2;
 
 
 
-int text_offset(Platform& pfrm)
+int text_offset()
 {
     // FIXME...
     return 2;
 
     // FIXME! Use aspect ratio instead!
-    if (pfrm.device_name() == "GameboyAdvance") {
+    if (PLATFORM.device_name() == "GameboyAdvance") {
         return 2;
     } else {
         return 3;
@@ -419,19 +419,19 @@ int text_offset(Platform& pfrm)
 
 
 
-void TitleScreenScene::put_module_text(Platform& pfrm)
+void TitleScreenScene::put_module_text()
 {
     text_.reset();
-    redraw_margins(pfrm);
-    show_module_icons(pfrm, module_page_);
+    redraw_margins();
+    show_module_icons(module_page_);
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     StringBuffer<32> buffer;
     if (module_cursor_) {
         const auto index = module_page_ * modules_per_page + module_cursor_->x +
                            module_cursor_->y * modules_per_row;
         if (auto factory = detail::_Module::Factory::get(index, dev_)) {
-            buffer += *loadstr(pfrm, factory->name());
+            buffer += *loadstr(factory->name());
         } else {
             return;
         }
@@ -441,67 +441,60 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
 
     const auto len = utf8::len(buffer.c_str());
 
-    auto margin = centered_text_margins(pfrm, buffer.length());
+    auto margin = centered_text_margins(buffer.length());
     text_.emplace(
-        pfrm,
+
         buffer.c_str(),
-        OverlayCoord{u8(st.x - (len + margin)), u8(st.y - text_offset(pfrm))});
+        OverlayCoord{u8(st.x - (len + margin)), u8(st.y - text_offset())});
 }
 
 
 
-void TitleScreenScene::put_menu_text(Platform& pfrm)
+void TitleScreenScene::put_menu_text()
 {
     text_.reset();
-    redraw_margins(pfrm);
+    redraw_margins();
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     StringBuffer<32> buffer(SYS_CSTR(game_title));
     buffer += ":   ";
     const auto prefix_len = buffer.length();
-    buffer += *loadstr(pfrm, menu_text[menu_selection_]);
+    buffer += *loadstr(menu_text[menu_selection_]);
 
     const auto len = utf8::len(buffer.c_str());
 
-    auto margin = centered_text_margins(pfrm, utf8::len(buffer.c_str()));
-    text_.emplace(pfrm,
-                  buffer.c_str(),
-                  OverlayCoord{u8(st.x - (len + margin + 1)),
-                               u8(st.y - text_offset(pfrm))});
+    auto margin = centered_text_margins(utf8::len(buffer.c_str()));
+    text_.emplace(
+        buffer.c_str(),
+        OverlayCoord{u8(st.x - (len + margin + 1)), u8(st.y - text_offset())});
 
     menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
 
     menu_selection_stop_ =
         margin + 1 + utf8::len(buffer.c_str()) + (len % 2 ? 1 : 0);
 
-    pfrm.set_tile(Layer::overlay,
-                  menu_selection_start_ - 4,
-                  st.y - text_offset(pfrm),
-                  375);
+    PLATFORM.set_tile(
+        Layer::overlay, menu_selection_start_ - 4, st.y - text_offset(), 375);
 
-    pfrm.set_tile(Layer::overlay,
-                  menu_selection_stop_ - 1,
-                  st.y - text_offset(pfrm),
-                  376);
+    PLATFORM.set_tile(
+        Layer::overlay, menu_selection_stop_ - 1, st.y - text_offset(), 376);
 }
 
 
 
-void TitleScreenScene::run_init_scripts(Platform& pfrm,
-                                        App& app,
-                                        bool allow_mods)
+void TitleScreenScene::run_init_scripts(App& app, bool allow_mods)
 {
     // For some stuff, like the tutorial viewer, or multiplayer games,
     // everything would get messed up if we allowed users to run modded scripts.
 
     const bool use_rom_fs = (allow_mods == false);
 
-    app.invoke_script(pfrm, "/scripts/config/rooms.lisp", use_rom_fs);
-    app.invoke_script(pfrm, "/scripts/config/damage.lisp", use_rom_fs);
-    app.invoke_script(pfrm, "/scripts/config/timing.lisp", use_rom_fs);
+    app.invoke_script("/scripts/config/rooms.lisp", use_rom_fs);
+    app.invoke_script("/scripts/config/damage.lisp", use_rom_fs);
+    app.invoke_script("/scripts/config/timing.lisp", use_rom_fs);
 
     if (allow_mods) {
-        app.invoke_ram_script(pfrm, "/mods/init.lisp");
+        app.invoke_ram_script("/mods/init.lisp");
 
 
         auto on_match = [&](const char* const path) {
@@ -511,11 +504,11 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
             if (ends_with(init_filename, path_str)) {
                 StringBuffer<flash_filesystem::max_path> full_path("/dlc/");
                 full_path += path_str;
-                app.invoke_ram_script(pfrm, full_path.c_str());
+                app.invoke_ram_script(full_path.c_str());
             }
         };
 
-        flash_filesystem::walk_directory(pfrm, "/dlc/", on_match);
+        flash_filesystem::walk_directory("/dlc/", on_match);
     }
 }
 
@@ -556,26 +549,26 @@ static int module_page_count(bool dev)
 
 
 
-void TitleScreenScene::play_gust_sound(Platform& pfrm)
+void TitleScreenScene::play_gust_sound()
 {
     if (rng::choice<4>(rng::utility_state)) {
-        if (pfrm.speaker().is_sound_playing("gust1")) {
+        if (PLATFORM.speaker().is_sound_playing("gust1")) {
             if (rng::choice<2>(rng::utility_state)) {
-                pfrm.speaker().stop_sound("gust1");
-                pfrm.speaker().play_sound("gust2", 1);
+                PLATFORM.speaker().stop_sound("gust1");
+                PLATFORM.speaker().play_sound("gust2", 1);
             } else {
-                pfrm.speaker().stop_sound("gust1");
-                pfrm.speaker().play_sound("gust1", 1);
+                PLATFORM.speaker().stop_sound("gust1");
+                PLATFORM.speaker().play_sound("gust1", 1);
             }
         } else {
-            pfrm.speaker().play_sound("gust1", 1);
+            PLATFORM.speaker().play_sound("gust1", 1);
         }
     } else {
-        if (pfrm.speaker().is_sound_playing("gust2")) {
-            pfrm.speaker().stop_sound("gust2");
-            pfrm.speaker().play_sound("gust1", 1);
+        if (PLATFORM.speaker().is_sound_playing("gust2")) {
+            PLATFORM.speaker().stop_sound("gust2");
+            PLATFORM.speaker().play_sound("gust1", 1);
         } else {
-            pfrm.speaker().play_sound("gust2", 1);
+            PLATFORM.speaker().play_sound("gust2", 1);
         }
     }
 }
@@ -591,12 +584,11 @@ static const int faded_music_volume = 2;
 
 
 
-ScenePtr<Scene>
-TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
 
     rng::get(rng::critical_state);
     rng::get(rng::utility_state);
@@ -606,22 +598,22 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     const bool pong_sounds_on =
         (menu_selection_ == 4 or state_ == State::scroll_to_macro);
-    pong_.update(pfrm, pong_sounds_on);
+    pong_.update(pong_sounds_on);
 
     if (menu_selection_ == 3) {
         if (state_ not_eq State::scroll_archives and
-            not pfrm.speaker().is_sound_playing("struttin")) {
-            pfrm.speaker().stop_sound("creaking");
-            pfrm.speaker().play_sound("struttin", 7);
+            not PLATFORM.speaker().is_sound_playing("struttin")) {
+            PLATFORM.speaker().stop_sound("creaking");
+            PLATFORM.speaker().play_sound("struttin", 7);
         }
-    } else if (not pfrm.speaker().is_sound_playing("creaking")) {
-        pfrm.speaker().play_sound("creaking", 9);
+    } else if (not PLATFORM.speaker().is_sound_playing("creaking")) {
+        PLATFORM.speaker().play_sound("creaking", 9);
     }
 
 
-    if (app.player().key_down(pfrm, Key::action_4)) {
+    if (app.player().key_down(Key::action_4)) {
         // For the nintendo ds
-        pfrm.system_call("swap-screens", nullptr);
+        PLATFORM.system_call("swap-screens", nullptr);
     }
 
     {
@@ -631,11 +623,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const int offset = 60 + ambient_movement_;
 
-        auto view = pfrm.screen().get_view();
+        auto view = PLATFORM.screen().get_view();
         auto c = view.get_center();
         c.y = offset;
         view.set_center(c);
-        pfrm.screen().set_view(view);
+        PLATFORM.screen().set_view(view);
 
         bool macro_island_view = state_ == State::macro_island_enter or
                                  state_ == State::macro_island or
@@ -644,48 +636,34 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (x_scroll_ < -240) {
             if (not macro_island_view) {
-                set_scroll(pfrm,
-                           Layer::map_0_ext,
+                set_scroll(Layer::map_0_ext,
                            x_scroll_ - 32,
                            -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm,
-                       Layer::map_1_ext,
-                       x_scroll_ - 272,
-                       -offset + 8 + v_scroll_2_);
+            set_scroll(
+                Layer::map_1_ext, x_scroll_ - 272, -offset + 8 + v_scroll_2_);
         } else if (x_scroll_ < 0) {
             if (not macro_island_view) {
-                set_scroll(pfrm,
-                           Layer::map_0_ext,
-                           x_scroll_,
-                           -offset + 8 + v_scroll_1_);
+                set_scroll(
+                    Layer::map_0_ext, x_scroll_, -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm,
-                       Layer::map_1_ext,
-                       x_scroll_ - 272,
-                       -offset + 8 + v_scroll_2_);
+            set_scroll(
+                Layer::map_1_ext, x_scroll_ - 272, -offset + 8 + v_scroll_2_);
         } else if (x_scroll_ > 240) {
             if (not macro_island_view) {
-                set_scroll(pfrm,
-                           Layer::map_0_ext,
+                set_scroll(Layer::map_0_ext,
                            x_scroll_ + 32,
                            -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm,
-                       Layer::map_1_ext,
-                       x_scroll_ - 240,
-                       -offset + 8 + v_scroll_2_);
+            set_scroll(
+                Layer::map_1_ext, x_scroll_ - 240, -offset + 8 + v_scroll_2_);
         } else {
             if (not macro_island_view) {
-                set_scroll(pfrm,
-                           Layer::map_0_ext,
-                           x_scroll_,
-                           -offset + 8 + v_scroll_1_);
+                set_scroll(
+                    Layer::map_0_ext, x_scroll_, -offset + 8 + v_scroll_1_);
             }
-            set_scroll(pfrm,
-                       Layer::map_1_ext,
-                       x_scroll_ - 240,
-                       -offset + 8 + v_scroll_2_);
+            set_scroll(
+                Layer::map_1_ext, x_scroll_ - 240, -offset + 8 + v_scroll_2_);
         }
     }
 
@@ -721,12 +699,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {
             if (rng::choice<5>(rng::critical_state) == 0 and
-                not pfrm.speaker().is_sound_playing("seagull_1") and
-                not pfrm.speaker().is_sound_playing("seagull_2")) {
+                not PLATFORM.speaker().is_sound_playing("seagull_1") and
+                not PLATFORM.speaker().is_sound_playing("seagull_2")) {
                 if (rng::choice<2>(rng::critical_state)) {
-                    pfrm.speaker().play_sound("seagull_1", 0);
+                    PLATFORM.speaker().play_sound("seagull_1", 0);
                 } else {
-                    pfrm.speaker().play_sound("seagull_2", 0);
+                    PLATFORM.speaker().play_sound("seagull_2", 0);
                 }
             }
             bird_timer_ =
@@ -766,33 +744,33 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     for (auto& bird : app.birds()) {
         if (bird->sprite().get_position().x >
             Fixnum::from_integer(
-                (scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2))) {
+                (scale_offset().x + (197 + 16) - x_scroll_ / 2))) {
             bird->kill();
         }
     }
-    update_entities(pfrm, app, delta, app.birds());
-    update_entities(pfrm, app, delta, app.effects());
+    update_entities(app, delta, app.birds());
+    update_entities(app, delta, app.effects());
 
 
     switch (state_) {
     case State::macro_island_enter:
         timer_ += delta;
 
-        if (pfrm.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released(pfrm)) {
+        if (PLATFORM.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            pfrm.speaker().play_music("unaccompanied_wind", 0);
-            pfrm.speaker().play_sound("button_wooden", 3);
+            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().play_sound("button_wooden", 3);
 
             const auto amount =
                 1.f - smoothstep(0.f, milliseconds(1500), timer_);
             timer_ = amount * milliseconds(550);
         }
 
-        if (app.player().key_pressed(pfrm, Key::left) or
-            app.player().key_pressed(pfrm, Key::up)) {
+        if (app.player().key_pressed(Key::left) or
+            app.player().key_pressed(Key::up)) {
             state_ = State::macro_island_exit;
             repeat_left_ = true;
             const auto amount =
@@ -800,8 +778,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = amount * milliseconds(550);
             break;
         }
-        if (app.player().key_pressed(pfrm, Key::down) or
-            app.player().key_pressed(pfrm, Key::right)) {
+        if (app.player().key_pressed(Key::down) or
+            app.player().key_pressed(Key::right)) {
             state_ = State::macro_island_exit;
             repeat_right_ = true;
             const auto amount =
@@ -812,12 +790,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ > milliseconds(1500)) {
             state_ = State::macro_island;
-            set_scroll(pfrm, Layer::map_0_ext, -4, 192);
+            set_scroll(Layer::map_0_ext, -4, 192);
         } else {
             const auto amount =
                 1.f - smoothstep(0.f, milliseconds(1500), timer_);
             auto scroll = 192 - 192 * amount;
-            set_scroll(pfrm, Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
+            set_scroll(Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
         }
 
         break;
@@ -828,36 +806,36 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
             timer_ = 0;
             const auto offset = 60 + ambient_movement_;
-            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
-            pfrm.screen().set_shader(passthrough_shader);
-            pfrm.screen().set_shader_argument(0);
-            pfrm.override_priority(Layer::map_1, 2);
+            set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
+            PLATFORM.screen().set_shader(passthrough_shader);
+            PLATFORM.screen().set_shader_argument(0);
+            PLATFORM.override_priority(Layer::map_1, 2);
         } else {
             const auto amount = smoothstep(0.f, milliseconds(550), timer_);
             auto scroll = 192 - 192 * amount;
-            set_scroll(pfrm, Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
+            set_scroll(Layer::map_0_ext, -4, clamp((int)scroll, 40, 192));
         }
         break;
 
     case State::macro_island:
 
-        if (pfrm.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released(pfrm)) {
+        if (PLATFORM.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            pfrm.speaker().play_music("unaccompanied_wind", 0);
-            pfrm.speaker().play_sound("button_wooden", 3);
+            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
-        if (app.player().key_pressed(pfrm, Key::left) or
-            app.player().key_pressed(pfrm, Key::up)) {
+        if (app.player().key_pressed(Key::left) or
+            app.player().key_pressed(Key::up)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_left_ = true;
         }
-        if (app.player().key_pressed(pfrm, Key::down) or
-            app.player().key_pressed(pfrm, Key::right)) {
+        if (app.player().key_pressed(Key::down) or
+            app.player().key_pressed(Key::right)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_right_ = true;
@@ -868,27 +846,27 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             selector_timer_ = 0;
             selector_shaded_ = not selector_shaded_;
 
-            const auto st = calc_screen_tiles(pfrm);
+            const auto st = calc_screen_tiles();
             if (selector_shaded_) {
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_start_ - 4,
-                              st.y - text_offset(pfrm),
-                              373);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_start_ - 4,
+                                  st.y - text_offset(),
+                                  373);
 
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_stop_ - 1,
-                              st.y - text_offset(pfrm),
-                              374);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_stop_ - 1,
+                                  st.y - text_offset(),
+                                  374);
             } else {
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_start_ - 4,
-                              st.y - text_offset(pfrm),
-                              375);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_start_ - 4,
+                                  st.y - text_offset(),
+                                  375);
 
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_stop_ - 1,
-                              st.y - text_offset(pfrm),
-                              376);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_stop_ - 1,
+                                  st.y - text_offset(),
+                                  376);
             }
         }
         break;
@@ -902,8 +880,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::resume_end:
         state_ = State::quick_fade_in;
         menu_selection_ = 3;
-        pfrm.speaker().set_music_volume(faded_music_volume);
-        pfrm.load_tile0_texture("skyland_title_3_flattened");
+        PLATFORM.speaker().set_music_volume(faded_music_volume);
+        PLATFORM.load_tile0_texture("skyland_title_3_flattened");
         x_scroll_ = 480;
         break;
 
@@ -911,7 +889,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         state_ = State::quick_fade_in;
         menu_selection_ = 2;
         timer_ = 0;
-        pfrm.load_tile1_texture("skyland_title_2_flattened");
+        PLATFORM.load_tile1_texture("skyland_title_2_flattened");
         x_scroll_ = -240;
         break;
 
@@ -921,13 +899,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
             state_ = State::wait;
-            put_menu_text(pfrm);
+            put_menu_text();
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -939,17 +917,17 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(1100);
         if (timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
             state_ = State::wait;
-            put_menu_text(pfrm);
+            put_menu_text();
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             if (flower_effect_) {
-                pfrm.screen().schedule_fade(
+                PLATFORM.screen().schedule_fade(
                     amount, ColorConstant::rich_black, false, true);
             } else {
-                pfrm.screen().schedule_fade(
+                PLATFORM.screen().schedule_fade(
                     amount, ColorConstant::rich_black, true, true);
             }
         }
@@ -963,39 +941,39 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             selector_timer_ = 0;
             selector_shaded_ = not selector_shaded_;
 
-            const auto st = calc_screen_tiles(pfrm);
+            const auto st = calc_screen_tiles();
             if (selector_shaded_) {
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_start_ - 4,
-                              st.y - text_offset(pfrm),
-                              373);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_start_ - 4,
+                                  st.y - text_offset(),
+                                  373);
 
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_stop_ - 1,
-                              st.y - text_offset(pfrm),
-                              374);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_stop_ - 1,
+                                  st.y - text_offset(),
+                                  374);
             } else {
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_start_ - 4,
-                              st.y - text_offset(pfrm),
-                              375);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_start_ - 4,
+                                  st.y - text_offset(),
+                                  375);
 
-                pfrm.set_tile(Layer::overlay,
-                              menu_selection_stop_ - 1,
-                              st.y - text_offset(pfrm),
-                              376);
+                PLATFORM.set_tile(Layer::overlay,
+                                  menu_selection_stop_ - 1,
+                                  st.y - text_offset(),
+                                  376);
             }
         }
 
-        if (repeat_action1_ or pfrm.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released(pfrm)) {
+        if (repeat_action1_ or PLATFORM.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released()) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
             } else {
                 if (not repeat_action1_) {
-                    pfrm.speaker().play_music("unaccompanied_wind", 0);
-                    pfrm.speaker().play_sound("button_wooden", 3);
+                    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().play_sound("button_wooden", 3);
                 }
                 module_cursor_.reset();
                 module_page_ = 0;
@@ -1012,75 +990,75 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (repeat_right_ or app.player().key_pressed(pfrm, Key::right) or
-            app.player().key_pressed(pfrm, Key::down) or
+        if (repeat_right_ or app.player().key_pressed(Key::right) or
+            app.player().key_pressed(Key::down) or
             (app.player().touch_held(milliseconds(150)) and
-             app.player().touch_velocity(pfrm).x and
-             app.player().touch_velocity(pfrm).x * delta < -0.08f)) {
+             app.player().touch_velocity().x and
+             app.player().touch_velocity().x * delta < -0.08f)) {
             repeat_right_ = false;
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
-                put_menu_text(pfrm);
-                play_gust_sound(pfrm);
+                put_menu_text();
+                play_gust_sound();
                 state_ = State::scroll_right;
                 timer_ = 0;
             } else if (menu_selection_ == 2) {
                 menu_selection_ = 0;
-                put_menu_text(pfrm);
-                play_gust_sound(pfrm);
+                put_menu_text();
+                play_gust_sound();
                 state_ = State::scroll_to_center;
-                pfrm.system_call("vsync", nullptr);
-                pfrm.load_tile0_texture("skyland_title_0_flattened");
-                __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
+                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM.load_tile0_texture("skyland_title_0_flattened");
+                __draw_image(31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
             } else if (menu_selection_ == 1) {
                 menu_selection_ = 3;
-                put_menu_text(pfrm);
+                put_menu_text();
                 state_ = State::scroll_to_end;
-                play_gust_sound(pfrm);
+                play_gust_sound();
                 timer_ = 0;
-                pfrm.system_call("vsync", nullptr);
-                pfrm.load_tile0_texture("skyland_title_3_flattened");
+                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM.load_tile0_texture("skyland_title_3_flattened");
             } else if (menu_selection_ == 4) {
                 menu_selection_ = 2;
-                put_menu_text(pfrm);
+                put_menu_text();
                 state_ = State::scroll_to_macro;
-                play_gust_sound(pfrm);
+                play_gust_sound();
                 timer_ = 0;
             }
         }
-        if (repeat_left_ or app.player().key_pressed(pfrm, Key::left) or
-            app.player().key_pressed(pfrm, Key::up) or
-            app.player().touch_velocity(pfrm).x * delta > 0.08f) {
+        if (repeat_left_ or app.player().key_pressed(Key::left) or
+            app.player().key_pressed(Key::up) or
+            app.player().touch_velocity().x * delta > 0.08f) {
             repeat_left_ = false;
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
-                put_menu_text(pfrm);
+                put_menu_text();
                 state_ = State::scroll_left;
-                play_gust_sound(pfrm);
+                play_gust_sound();
                 timer_ = 0;
             } else if (menu_selection_ == 0) {
                 menu_selection_ = 2;
-                put_menu_text(pfrm);
+                put_menu_text();
                 state_ = State::scroll_macro;
-                play_gust_sound(pfrm);
-                pfrm.system_call("vsync", nullptr);
-                pfrm.load_tile1_texture("skyland_title_2_flattened");
+                play_gust_sound();
+                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM.load_tile1_texture("skyland_title_2_flattened");
                 timer_ = 0;
             } else if (menu_selection_ == 3) {
                 menu_selection_ = 1;
-                put_menu_text(pfrm);
-                play_gust_sound(pfrm);
+                put_menu_text();
+                play_gust_sound();
                 state_ = State::scroll_from_end;
                 timer_ = 0;
             } else if (menu_selection_ == 2) {
                 menu_selection_ = 4;
-                put_menu_text(pfrm);
-                play_gust_sound(pfrm);
+                put_menu_text();
+                play_gust_sound();
                 state_ = State::scroll_multiplayer;
-                pfrm.system_call("vsync", nullptr);
-                pfrm.load_tile0_texture("skyland_title_4_flattened");
-                __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
+                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM.load_tile0_texture("skyland_title_4_flattened");
+                __draw_image(31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
             }
         }
@@ -1118,9 +1096,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
         state_ = State::macro_island_enter;
 
-        pfrm.override_priority(Layer::map_1, 1);
+        PLATFORM.override_priority(Layer::map_1, 1);
 
-        pfrm.screen().set_shader(
+        PLATFORM.screen().set_shader(
             [](ShaderPalette p, ColorConstant k, int var, int index) {
                 if (index == 0) {
                     return k;
@@ -1144,10 +1122,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 return k;
             });
-        pfrm.screen().set_shader_argument(1);
+        PLATFORM.screen().set_shader_argument(1);
 
-        pfrm.load_tile0_texture("macro_rendertexture");
-        macro_gen_sample_island(pfrm, app);
+        PLATFORM.load_tile0_texture("macro_rendertexture");
+        macro_gen_sample_island(app);
         break;
 
     case State::scroll_macro: {
@@ -1170,8 +1148,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > duration) {
             timer_ = 0;
             state_ = State::wait;
-            pfrm.system_call("vsync", nullptr);
-            pfrm.load_tile1_texture("skyland_title_1_flattened");
+            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM.load_tile1_texture("skyland_title_1_flattened");
             x_scroll_ = 0;
         } else {
             const auto amount =
@@ -1187,7 +1165,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         static const auto duration = milliseconds(1250);
         if (timer_ > duration) {
             timer_ = 0;
-            pfrm.speaker().set_music_volume(faded_music_volume);
+            PLATFORM.speaker().set_music_volume(faded_music_volume);
             state_ = State::wait;
             x_scroll_ = 480;
         } else {
@@ -1197,8 +1175,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             static const auto max_vol = Platform::Speaker::music_volume_max;
             const auto low = faded_music_volume;
             const auto vol_diff = Platform::Speaker::music_volume_max - low;
-            pfrm.speaker().set_music_volume(max_vol - vol_diff * amount);
-            pfrm.speaker().set_sounds_volume(max_vol * amount);
+            PLATFORM.speaker().set_music_volume(max_vol - vol_diff * amount);
+            PLATFORM.speaker().set_sounds_volume(max_vol * amount);
         }
         break;
     }
@@ -1212,17 +1190,17 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::wait;
             x_scroll_ = 240;
-            pfrm.system_call("vsync", nullptr);
-            pfrm.load_tile0_texture("skyland_title_0_flattened");
-            pfrm.speaker().set_music_volume(max_vol);
-            pfrm.speaker().set_sounds_volume(max_vol);
-            pfrm.speaker().clear_sounds();
+            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM.load_tile0_texture("skyland_title_0_flattened");
+            PLATFORM.speaker().set_music_volume(max_vol);
+            PLATFORM.speaker().set_sounds_volume(max_vol);
+            PLATFORM.speaker().clear_sounds();
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);
             const auto low = faded_music_volume;
             const auto vol_diff = Platform::Speaker::music_volume_max - low;
-            pfrm.speaker().set_music_volume(low + vol_diff * amount);
-            pfrm.speaker().set_sounds_volume(max_vol - max_vol * amount);
+            PLATFORM.speaker().set_music_volume(low + vol_diff * amount);
+            PLATFORM.speaker().set_sounds_volume(max_vol - max_vol * amount);
             x_scroll_ = 480 - 240 * amount;
         }
         break;
@@ -1264,18 +1242,18 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(600);
         if (timer_ > fade_duration) {
 
-            pfrm.screen().set_shader(passthrough_shader);
-            pfrm.screen().set_shader_argument(0);
-            pfrm.override_priority(Layer::map_1, 2);
+            PLATFORM.screen().set_shader(passthrough_shader);
+            PLATFORM.screen().set_shader_argument(0);
+            PLATFORM.override_priority(Layer::map_1, 2);
 
             text_.reset();
             if (menu_selection_ not_eq 0) {
-                pfrm.speaker().clear_sounds();
+                PLATFORM.speaker().clear_sounds();
             }
             switch (menu_selection_) {
             case 0: {
                 app.game_mode() = App::GameMode::adventure;
-                run_init_scripts(pfrm, app, true);
+                run_init_scripts(app, true);
 
                 auto tutorial_flag = GlobalPersistentData::tutorial_prompt;
 
@@ -1286,17 +1264,17 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     module_cursor_ = {0, 0};
                     module_page_ = 1;
 
-                    pfrm.speaker().clear_sounds();
+                    PLATFORM.speaker().clear_sounds();
                     app.gp_.stateflags_.set(tutorial_flag, true);
 
                     // Title Screen Graphical bugfix (1)
                     // Text box doesn't show up, need to cycle a fade to fix the
                     // palettes.
-                    pfrm.screen().fade(0.95f);
-                    pfrm.screen().fade(1.f);
+                    PLATFORM.screen().fade(0.95f);
+                    PLATFORM.screen().fade(1.f);
 
-                    save::store_global_data(pfrm, app.gp_);
-                    app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+                    save::store_global_data(app.gp_);
+                    app.invoke_script("/scripts/reset_hooks.lisp");
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
@@ -1315,7 +1293,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             case 1: {
                 app.game_mode() = App::GameMode::challenge;
-                run_init_scripts(pfrm, app, true);
+                run_init_scripts(app, true);
                 return scene_pool::alloc<SelectChallengeScene>();
             }
 
@@ -1341,18 +1319,18 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 globals().entity_pools_.create("macro-entity-pool", 1);
 
-                app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+                app.invoke_script("/scripts/reset_hooks.lisp");
 
                 return scene_pool::alloc<MacrocosmLoaderModule>();
 
             case 3:
-                pfrm.fatal("logic error, this should be unreachable");
+                PLATFORM.fatal("logic error, this should be unreachable");
 
             case 4: {
                 app.game_mode() = App::GameMode::multiplayer;
-                run_init_scripts(pfrm, app, false);
+                run_init_scripts(app, false);
 
-                return MultiplayerConnectScene::setup(pfrm, app);
+                return MultiplayerConnectScene::setup(app);
             }
             }
         } else {
@@ -1361,12 +1339,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             // Erase text when text fade nears completion.
             if (amount > 0.9f) {
-                u8 count = calc_screen_tiles(pfrm).x - text_->coord().x;
+                u8 count = calc_screen_tiles().x - text_->coord().x;
                 text_->assign(StringBuffer<32>(' ', count).c_str());
             }
 
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -1377,19 +1355,19 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(300);
         if (timer_ > fade_duration) {
-            put_menu_text(pfrm);
+            put_menu_text();
 
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
 
             state_ = State::wait;
             timer_ = 0;
 
-            pfrm.speaker().set_music_volume(faded_music_volume);
+            PLATFORM.speaker().set_music_volume(faded_music_volume);
 
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 0.7f - 0.7f * amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -1401,25 +1379,25 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ > fade_duration) {
             app.effects().clear();
-            redraw_margins(pfrm);
-            show_module_icons(pfrm, module_page_);
+            redraw_margins();
+            show_module_icons(module_page_);
             state_ = State::show_modules;
 
-            pfrm.speaker().set_music_volume(2);
+            PLATFORM.speaker().set_music_volume(2);
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 0.7f, ColorConstant::rich_black, true, true);
 
             if (not module_cursor_) {
                 module_cursor_ = {0, 0};
             }
 
-            put_module_text(pfrm);
+            put_module_text();
 
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 0.7f * amount, ColorConstant::rich_black, true, true);
         }
         break;
@@ -1433,91 +1411,92 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             selector_shaded_ = not selector_shaded_;
         }
 
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             0.69f, ColorConstant::rich_black, false, false);
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             state_ = State::fade_modules_backout;
             timer_ = 0;
-            pfrm.fill_overlay(0);
-            redraw_margins(pfrm);
+            PLATFORM.fill_overlay(0);
+            redraw_margins();
         } else if (module_cursor_) {
 
             auto test_key = [&](Key k) {
                 return app.player().test_key(
-                    pfrm, k, milliseconds(500), milliseconds(100));
+                    k, milliseconds(500), milliseconds(100));
             };
 
             auto click_sound = [&] {
-                pfrm.speaker().play_sound("click_wooden", 2);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             };
             if (test_key(Key::right)) {
                 if (module_cursor_->x < 2) {
                     module_cursor_->x += 1;
                     click_sound();
                 } else if (module_page_ < module_page_count(dev_) - 1) {
-                    pfrm.fill_overlay(0);
-                    redraw_margins(pfrm);
+                    PLATFORM.fill_overlay(0);
+                    redraw_margins();
                     module_cursor_->x = 0;
                     module_page_++;
                     click_sound();
                 }
-                put_module_text(pfrm);
+                put_module_text();
             } else if (test_key(Key::left)) {
                 if (module_cursor_->x > 0) {
                     module_cursor_->x -= 1;
                     click_sound();
                 } else if (module_page_ > 0) {
-                    pfrm.fill_overlay(0);
-                    redraw_margins(pfrm);
+                    PLATFORM.fill_overlay(0);
+                    redraw_margins();
                     module_cursor_->x = 2;
                     --module_page_;
                     click_sound();
                 }
-                put_module_text(pfrm);
+                put_module_text();
             }
             if (test_key(Key::up) and module_cursor_->y > 0) {
                 module_cursor_->y -= 1;
-                put_module_text(pfrm);
+                put_module_text();
                 click_sound();
             } else if (test_key(Key::down) and module_cursor_->y < 1) {
                 module_cursor_->y += 1;
-                put_module_text(pfrm);
+                put_module_text();
                 click_sound();
             }
 
-            if (app.player().key_down(pfrm, Key::action_1)) {
+            if (app.player().key_down(Key::action_1)) {
 
                 auto index = module_page_ * modules_per_page +
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
-                    pfrm.speaker().clear_sounds();
-                    pfrm.speaker().play_music("unaccompanied_wind", 0);
-                    pfrm.speaker().play_sound("button_wooden", 3);
+                    PLATFORM.speaker().clear_sounds();
+                    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().play_sound("button_wooden", 3);
 
                     if (f->name() == SystemString::module_cart_viewer) {
                         state_ = State::scroll_archives;
-                        pfrm.screen().schedule_fade(0);
-                        pfrm.fill_overlay(0);
-                        redraw_margins(pfrm);
-                        pfrm.screen().schedule_fade(0.f);
+                        PLATFORM.screen().schedule_fade(0);
+                        PLATFORM.fill_overlay(0);
+                        redraw_margins();
+                        PLATFORM.screen().schedule_fade(0.f);
                         timer_ = 0;
-                        pfrm.load_tile1_texture("skyland_title_5_flattened");
-                        pfrm.speaker().play_sound("gust2", 3);
+                        PLATFORM.load_tile1_texture(
+                            "skyland_title_5_flattened");
+                        PLATFORM.speaker().play_sound("gust2", 3);
                         break;
                     }
 
-                    pfrm.fill_overlay(0);
-                    pfrm.system_call("vsync", 0); // FIXME
-                    pfrm.screen().fade(
+                    PLATFORM.fill_overlay(0);
+                    PLATFORM.system_call("vsync", 0); // FIXME
+                    PLATFORM.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
                     app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {
-                        run_init_scripts(pfrm, app, f->enable_custom_scripts());
+                        run_init_scripts(app, f->enable_custom_scripts());
                     }
 
-                    return f->create(pfrm);
+                    return f->create();
                 }
             }
         }
@@ -1528,7 +1507,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(1500);
         const auto amount = smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(amount);
+        PLATFORM.screen().schedule_fade(amount);
 
         v_scroll_1_ = 120 * amount;
         v_scroll_2_ = 120 * amount - 113;
@@ -1539,16 +1518,14 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const int offset = 60 + ambient_movement_;
 
-        set_scroll(
-            pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8 + v_scroll_1_);
-        set_scroll(
-            pfrm, Layer::map_1_ext, x_scroll_ + 32, -offset + 8 + v_scroll_2_);
+        set_scroll(Layer::map_0_ext, x_scroll_ + 32, -offset + 8 + v_scroll_1_);
+        set_scroll(Layer::map_1_ext, x_scroll_ + 32, -offset + 8 + v_scroll_2_);
 
         if (timer_ > fade_duration) {
             auto index = module_page_ * modules_per_page + module_cursor_->x +
                          module_cursor_->y * modules_per_row;
             if (auto f = detail::_Module::Factory::get(index, dev_)) {
-                return f->create(pfrm);
+                return f->create();
             }
         }
         break;
@@ -1563,22 +1540,22 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void TitleScreenScene::macro_gen_sample_island(Platform& pfrm, App& app)
+void TitleScreenScene::macro_gen_sample_island(App& app)
 {
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
+    app.macrocosm()->emplace<macro::EngineImpl>(&app);
 
     macro::raster::globalstate::_upper_half_only = true;
 
-    __draw_image(pfrm, 0, 0, 0, 30, 16, Layer::map_0);
+    __draw_image(0, 0, 0, 30, 16, Layer::map_0);
     auto& m = macrocosm(app);
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::pancake);
     m.bind_sector({0, 1});
     auto& s = m.sector();
 
-    app.invoke_script(pfrm, "/scripts/config/title_screen_isle.lisp");
+    app.invoke_script("/scripts/config/title_screen_isle.lisp");
 
-    s.render(pfrm);
+    s.render();
 
     macro::raster::globalstate::_upper_half_only = false;
 
@@ -1587,16 +1564,16 @@ void TitleScreenScene::macro_gen_sample_island(Platform& pfrm, App& app)
 
 
 
-void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
+void TitleScreenScene::show_module_icons(int page)
 {
     // left arrow icon
-    pfrm.set_tile(Layer::overlay, 1, 8, module_page_ == 0 ? 175 : 173);
+    PLATFORM.set_tile(Layer::overlay, 1, 8, module_page_ == 0 ? 175 : 173);
 
     // right arrow icon
-    pfrm.set_tile(Layer::overlay,
-                  calc_screen_tiles(pfrm).x - 2,
-                  8,
-                  module_page_ == module_page_count(dev_) - 1 ? 174 : 172);
+    PLATFORM.set_tile(Layer::overlay,
+                      calc_screen_tiles().x - 2,
+                      8,
+                      module_page_ == module_page_count(dev_) - 1 ? 174 : 172);
 
 
     auto icon_vram = 181;
@@ -1625,28 +1602,27 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 
 
     auto show_icon = [&](int x, int y) {
-        auto x_start = (4 + x * 8) + scale_offset(pfrm).x / 8;
-        auto y_start = (2 + y * 8) + scale_offset(pfrm).y / 8;
+        auto x_start = (4 + x * 8) + scale_offset().x / 8;
+        auto y_start = (2 + y * 8) + scale_offset().y / 8;
 
         const auto index = page * modules_per_page + x + y * modules_per_row;
         if (auto f = detail::_Module::Factory::get(index, dev_)) {
 
             for (int x = 0; x < 6; ++x) {
                 for (int y = 0; y < 6; ++y) {
-                    pfrm.set_tile(
+                    PLATFORM.set_tile(
                         Layer::overlay, x_start + x, y_start + y, 470);
                 }
             }
 
-            pfrm.set_tile(Layer::overlay, x_start, y_start, 466);
-            pfrm.set_tile(Layer::overlay, x_start + 5, y_start, 467);
-            pfrm.set_tile(Layer::overlay, x_start, y_start + 5, 468);
-            pfrm.set_tile(Layer::overlay, x_start + 5, y_start + 5, 469);
+            PLATFORM.set_tile(Layer::overlay, x_start, y_start, 466);
+            PLATFORM.set_tile(Layer::overlay, x_start + 5, y_start, 467);
+            PLATFORM.set_tile(Layer::overlay, x_start, y_start + 5, 468);
+            PLATFORM.set_tile(Layer::overlay, x_start + 5, y_start + 5, 469);
 
             auto icon = alloc_icon();
-            pfrm.load_overlay_chunk(icon, f->icon(), 16);
-            draw_image(
-                pfrm, icon, x_start + 1, y_start + 1, 4, 4, Layer::overlay);
+            PLATFORM.load_overlay_chunk(icon, f->icon(), 16);
+            draw_image(icon, x_start + 1, y_start + 1, 4, 4, Layer::overlay);
         }
     };
 
@@ -1659,7 +1635,7 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 
 
 
-void TitleScreenScene::display(Platform& pfrm, App& app)
+void TitleScreenScene::display(App& app)
 {
     if (flower_effect_ and state_ == State::fade_in) {
         auto amount = smoothstep(milliseconds(-400), milliseconds(800), timer_);
@@ -1667,7 +1643,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         auto darken_amount =
             smoothstep(milliseconds(-400), milliseconds(200), timer_);
 
-        IntroCreditsScene::show_sunflowers(pfrm, 32 * amount, darken_amount);
+        IntroCreditsScene::show_sunflowers(32 * amount, darken_amount);
         return;
     }
 
@@ -1677,23 +1653,23 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) +
                              Fixnum::from_integer(island_offset_),
                          Fixnum(110 - 0.25f * (240 - x_scroll_))};
-        auto scl = spr_scale_offset(pfrm);
+        auto scl = spr_scale_offset();
         pos.x += Fixnum::from_integer(scl.x);
         pos.y += Fixnum::from_integer(scl.y);
         sprite.set_position(pos);
         sprite.set_priority(3);
         sprite.set_texture_index(6);
 
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     } else if (x_scroll_ < -240) {
-        pong_.display(pfrm, x_scroll_);
+        pong_.display(x_scroll_);
     }
     for (auto& effect : app.effects()) {
         auto spr = effect->sprite();
         auto pos = spr.get_position();
         pos.x = pos.x - Fixnum::from_integer(x_scroll_);
         spr.set_position(pos);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
     for (auto& bird : app.birds()) {
         auto spr = bird->sprite();
@@ -1717,12 +1693,12 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
             std::numeric_limits<s16>::max();
 
         pos.y += Fixnum(ambient_movement);
-        auto scl = spr_scale_offset(pfrm);
+        auto scl = spr_scale_offset();
         pos.x += Fixnum::from_integer(scl.x);
         pos.y += Fixnum::from_integer(scl.y);
 
         spr.set_position(pos);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 
     if (module_cursor_ and (state_ == State::show_modules)) {
@@ -1734,8 +1710,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
 
         Vec2<Fixnum> scl;
-        scl.x = scale_offset(pfrm).x;
-        scl.y = scale_offset(pfrm).y;
+        scl.x = scale_offset().x;
+        scl.y = scale_offset().y;
 
 
         sprite.set_position(Vec2<Fixnum>{Fixnum(28 + 64.f * module_cursor_->x +
@@ -1744,7 +1720,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                                                 64.f * module_cursor_->y +
                                                 (selector_shaded_ ? 1 : 0))} +
                             scl);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
@@ -1754,7 +1730,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                                                 64.f * module_cursor_->y +
                                                 (selector_shaded_ ? 1 : 0))} +
                             scl);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
@@ -1764,7 +1740,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                                                 64.f * module_cursor_->y + 40 -
                                                 (selector_shaded_ ? 1 : 0))} +
                             scl);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
@@ -1774,35 +1750,35 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                                                 64.f * module_cursor_->y + 40 -
                                                 (selector_shaded_ ? 1 : 0))} +
                             scl);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     }
 }
 
 
 
-void TitleScreenScene::Pong::update(Platform& pfrm, bool sound_effects)
+void TitleScreenScene::Pong::update(bool sound_effects)
 {
     if (ball_.x >= 23) {
         if (sound_effects) {
-            pfrm.speaker().play_sound("pong_blip_1", 0);
+            PLATFORM.speaker().play_sound("pong_blip_1", 0);
         }
         ball_speed_.x *= -1;
     }
     if (ball_.y >= 20) {
         if (sound_effects) {
-            pfrm.speaker().play_sound("pong_blip_2", 0);
+            PLATFORM.speaker().play_sound("pong_blip_2", 0);
         }
         ball_speed_.y *= -1;
     }
     if (ball_.y < 1) {
         if (sound_effects) {
-            pfrm.speaker().play_sound("pong_blip_2", 0);
+            PLATFORM.speaker().play_sound("pong_blip_2", 0);
         }
         ball_speed_.y *= -1;
     }
     if (ball_.x < 1) {
         if (sound_effects) {
-            pfrm.speaker().play_sound("pong_blip_1", 0);
+            PLATFORM.speaker().play_sound("pong_blip_1", 0);
         }
         ball_speed_.x *= -1;
     }
@@ -1830,16 +1806,16 @@ void TitleScreenScene::Pong::update(Platform& pfrm, bool sound_effects)
 
 
 
-void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
+void TitleScreenScene::Pong::display(int x_scroll)
 {
-    auto view = pfrm.screen().get_view();
+    auto view = PLATFORM.screen().get_view();
     auto c = view.get_center();
 
     const Vec2<Fixnum> anchor = {Fixnum(73.f), Fixnum((c.y - 64) + 148)};
 
     Vec2<Fixnum> scl;
-    scl.x = spr_scale_offset(pfrm).x;
-    scl.y = spr_scale_offset(pfrm).y;
+    scl.x = spr_scale_offset().x;
+    scl.y = spr_scale_offset().y;
 
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
@@ -1854,7 +1830,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
                        0.f,
                        19.f)))} +
         scl);
-    pfrm.screen().draw(sprite);
+    PLATFORM.screen().draw(sprite);
 
     sprite.set_position(
         Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) -
@@ -1863,7 +1839,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
                                     ball_.y, pad2_.pos_, ball_.x / 22))} +
         scl);
 
-    pfrm.screen().draw(sprite);
+    PLATFORM.screen().draw(sprite);
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
@@ -1872,7 +1848,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
                          Fixnum::from_integer(480 + x_scroll),
                      Fixnum::from_integer(ball_.y) + anchor.y} +
         scl);
-    pfrm.screen().draw(sprite);
+    PLATFORM.screen().draw(sprite);
 }
 
 

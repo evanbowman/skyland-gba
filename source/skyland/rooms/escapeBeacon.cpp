@@ -39,16 +39,16 @@ EscapeBeacon::EscapeBeacon(Island* parent, const RoomCoord& position)
 
 
 
-void EscapeBeacon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void EscapeBeacon::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_escape_beacon)->c_str();
 }
 
 
 
-void EscapeBeacon::update(Platform& pfrm, App& app, Microseconds delta)
+void EscapeBeacon::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (activated_) {
 
@@ -78,9 +78,9 @@ static const auto escape_beacon_countdown = seconds(60);
 
 
 
-void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
+void EscapeBeacon::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (timer_ > 0) {
         timer_ += delta;
@@ -94,13 +94,12 @@ void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene>
-EscapeBeacon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> EscapeBeacon::select(App& app, const RoomCoord& cursor)
 {
     if (app.game_mode() == App::GameMode::adventure) {
         if (app.world_graph().nodes_[app.current_world_location()].type_ ==
             WorldGraph::Node::Type::corrupted) {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
             // You can't run from the boss.
             return null_scene();
         }

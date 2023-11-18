@@ -244,14 +244,14 @@ struct EngineImpl : public Engine
     macro::terrain::Sector& sector();
 
 
-    void save(Platform& pfrm);
-    bool load(Platform& pfrm, App& app);
+    void save();
+    bool load(App& app);
 
 
-    void newgame(Platform& pfrm, App& app);
+    void newgame(App& app);
 
 
-    EngineImpl(Platform&, App*);
+    EngineImpl(App*);
 
 
 #ifndef __CMD_MACRO_RAST__
@@ -272,7 +272,7 @@ struct EngineImpl : public Engine
 
 
 
-void background_init(Platform&);
+void background_init();
 
 
 
@@ -284,7 +284,7 @@ EngineImpl& bound_state();
 
 
 
-Vec2<Fixnum> screen_coord(Platform& pfrm, int tile_coord);
+Vec2<Fixnum> screen_coord(int tile_coord);
 
 
 

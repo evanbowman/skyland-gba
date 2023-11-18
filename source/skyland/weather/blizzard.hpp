@@ -53,8 +53,8 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta);
-    void display(Platform& pfrm, App& app) override;
+    void update(App& app, Microseconds delta);
+    void display(App& app) override;
 };
 
 

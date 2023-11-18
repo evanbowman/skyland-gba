@@ -42,18 +42,17 @@ public:
 
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        WorldScene::update(pfrm, app, delta);
+        WorldScene::update(app, delta);
 
         constexpr auto fade_duration = milliseconds(2000);
 
         if (timer_ > 0 and not island_hidden_) {
             if (player_escaped_) {
-                player_island(app).set_hidden(pfrm, app, true);
+                player_island(app).set_hidden(app, true);
             } else if (opponent_island(app)) {
-                opponent_island(app)->set_hidden(pfrm, app, true);
+                opponent_island(app)->set_hidden(app, true);
             }
             island_hidden_ = true;
         }
@@ -64,7 +63,7 @@ public:
         }
 
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().schedule_fade(amount, ColorConstant::electric_blue);
+        PLATFORM.screen().schedule_fade(amount, ColorConstant::electric_blue);
 
         return null_scene();
     }

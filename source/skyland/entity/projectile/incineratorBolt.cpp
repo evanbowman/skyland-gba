@@ -69,7 +69,7 @@ IncineratorBolt::IncineratorBolt(const Vec2<Fixnum>& position,
 
 
 
-void IncineratorBolt::update(Platform& pfrm, App& app, Microseconds delta)
+void IncineratorBolt::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -86,7 +86,7 @@ void IncineratorBolt::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
     if (timer_ > seconds(2)) {
@@ -96,7 +96,7 @@ void IncineratorBolt::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void IncineratorBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
+void IncineratorBolt::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -106,9 +106,9 @@ void IncineratorBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -120,10 +120,7 @@ extern Sound sound_impact;
 
 
 
-void IncineratorBolt::on_collision(Platform& pfrm,
-                                   App& app,
-                                   Room& room,
-                                   Vec2<u8> origin)
+void IncineratorBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -144,20 +141,20 @@ void IncineratorBolt::on_collision(Platform& pfrm,
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < 8) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
     auto coord = room.position();
 
-    room.apply_damage(pfrm, app, 8, source_);
-    room.parent()->fire_create(pfrm, app, coord);
+    room.apply_damage(app, 8, source_);
+    room.parent()->fire_create(app, coord);
 
     auto damage = [&](int xo, int yo) {
         Vec2<u8> c{u8(coord.x + xo), u8(coord.y + yo)};
         if (auto r = room.parent()->get_room(c)) {
-            r->apply_damage(pfrm, app, 2, source_);
-            room.parent()->fire_create(pfrm, app, c);
+            r->apply_damage(app, 2, source_);
+            room.parent()->fire_create(app, c);
         }
     };
 
@@ -178,39 +175,39 @@ void IncineratorBolt::on_collision(Platform& pfrm,
     damage(1, -1);
     damage(1, 1);
 
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
+    auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
-            pfrm, rng::sample<32>(pos, rng::utility_state), 61);
+            rng::sample<32>(pos, rng::utility_state), 61);
 
         if (e) {
             app.effects().push(std::move(e));
         }
     };
 
-    flak_smoke(pfrm, app, sprite_.get_position());
-    flak_smoke(pfrm, app, sprite_.get_position());
+    flak_smoke(app, sprite_.get_position());
+    flak_smoke(app, sprite_.get_position());
 
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
-        record_destroyed(pfrm, app);
+        room.set_ai_aware(app, true);
+        record_destroyed(app);
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(pfrm, app, true);
+        this->destroy(app, true);
         if (room.health()) {
-            sound_impact.play(pfrm, 1);
+            sound_impact.play(1);
         }
     }
 }
 
 
 
-void IncineratorBolt::record_destroyed(Platform& pfrm, App& app)
+void IncineratorBolt::record_destroyed(App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -237,22 +234,22 @@ void IncineratorBolt::record_destroyed(Platform& pfrm, App& app)
 
 
 
-void IncineratorBolt::destroy(Platform& pfrm, App& app, bool explosion)
+void IncineratorBolt::destroy(App& app, bool explosion)
 {
-    record_destroyed(pfrm, app);
+    record_destroyed(app);
 
     kill();
     app.camera()->shake(14);
 
     if (explosion) {
-        big_explosion(pfrm, app, sprite_.get_position());
-        ExploSpawner::create(pfrm, app, sprite_.get_position());
+        big_explosion(app, sprite_.get_position());
+        ExploSpawner::create(app, sprite_.get_position());
     }
 }
 
 
 
-void IncineratorBolt::on_collision(Platform& pfrm, App& app, Entity& entity)
+void IncineratorBolt::on_collision(App& app, Entity& entity)
 {
     if (auto drone = entity.cast_drone()) {
         if (drone->position() == origin_tile_ and drone->parent() == source_) {
@@ -262,9 +259,9 @@ void IncineratorBolt::on_collision(Platform& pfrm, App& app, Entity& entity)
     }
 
 
-    this->destroy(pfrm, app, true);
+    this->destroy(app, true);
 
-    entity.apply_damage(pfrm, app, 3);
+    entity.apply_damage(app, 3);
 }
 
 

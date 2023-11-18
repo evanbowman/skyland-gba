@@ -44,7 +44,7 @@ using SerialString = StringBuffer<1600>;
 
 
 
-DynamicMemory<SerialString> serialize(Platform&, Island& island);
+DynamicMemory<SerialString> serialize(Island& island);
 
 
 

@@ -59,7 +59,7 @@ public:
         kill();
     }
 
-    void update(Platform&, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
     }
 };

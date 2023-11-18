@@ -119,12 +119,11 @@ struct Context {
     using OperandStack = Buffer<Value*, 497>;
 
 
-    Context(Platform& pfrm)
-        : operand_stack_(allocate_dynamic<OperandStack>("lisp-operand-stack")),
-          pfrm_(pfrm)
+    Context()
+        : operand_stack_(allocate_dynamic<OperandStack>("lisp-operand-stack"))
     {
         if (not operand_stack_) {
-            pfrm_.fatal("pointer compression test failed");
+            PLATFORM.fatal("pointer compression test failed");
         }
     }
 
@@ -160,8 +159,6 @@ struct Context {
         }
 
     } gensym_state_;
-
-    Platform& pfrm_;
 };
 
 
@@ -518,7 +515,7 @@ const char* intern(const char* string)
     if (len + 1 >
         string_intern_table_size - bound_context->string_intern_pos_) {
 
-        bound_context->pfrm_.fatal("string intern table full");
+        PLATFORM.fatal("string intern table full");
     }
 
     auto& ctx = bound_context;
@@ -1013,7 +1010,7 @@ void lexical_frame_store(Value* kvp)
 }
 
 
-void vm_execute(Platform& pfrm, Value* code, int start_offset);
+void vm_execute(Value* code, int start_offset);
 
 
 // The function arguments should be sitting at the top of the operand stack
@@ -1053,7 +1050,7 @@ void funcall(Value* obj, u8 argc)
         }
 
         case Function::ModeBits::lisp_function: {
-            ctx.pfrm_.system_call("sc", nullptr);
+            PLATFORM.system_call("sc", nullptr);
             auto& ctx = *bound_context;
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
@@ -1080,7 +1077,7 @@ void funcall(Value* obj, u8 argc)
         }
 
         case Function::ModeBits::lisp_bytecode_function: {
-            ctx.pfrm_.system_call("sc", nullptr);
+            PLATFORM.system_call("sc", nullptr);
             auto& ctx = *bound_context;
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
@@ -1090,8 +1087,7 @@ void funcall(Value* obj, u8 argc)
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
 
-            vm_execute(bound_context->pfrm_,
-                       obj->function().bytecode_impl_.databuffer(),
+            vm_execute(obj->function().bytecode_impl_.databuffer(),
                        obj->function()
                            .bytecode_impl_.bytecode_offset()
                            ->integer()
@@ -1351,7 +1347,7 @@ void format_impl(Value* value, Printer& p, int depth)
     switch ((lisp::Value::Type)value->type()) {
     case lisp::Value::Type::heap_node:
         // We should never reach here.
-        bound_context->pfrm_.fatal("direct access to heap node");
+        PLATFORM.fatal("direct access to heap node");
         break;
 
     case lisp::Value::Type::nil:
@@ -2370,7 +2366,7 @@ static void eval_macro(Value* code)
         push_op(get_nil());
     } else {
         // TODO: raise error!
-        bound_context->pfrm_.fatal("invalid macro format");
+        PLATFORM.fatal("invalid macro format");
     }
 }
 
@@ -2595,7 +2591,7 @@ void eval(Value* code)
 
 Platform* interp_get_pfrm()
 {
-    return &bound_context->pfrm_;
+    return &PLATFORM;
 }
 
 
@@ -3738,13 +3734,13 @@ void gc()
 }
 
 
-void init(Platform& pfrm)
+void init()
 {
     if (bound_context) {
         return;
     }
 
-    bound_context.emplace(pfrm);
+    bound_context.emplace();
 
     value_pool_init();
     bound_context->nil_ = alloc_value();
@@ -3772,7 +3768,7 @@ void init(Platform& pfrm)
 
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
-        bound_context->pfrm_.fatal("pointer compression test failed 1");
+        PLATFORM.fatal("pointer compression test failed 1");
     }
 
     intern("'");

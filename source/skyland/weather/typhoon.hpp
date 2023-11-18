@@ -39,11 +39,11 @@ public:
     Platform::Screen::Shader shader(App& app) const override;
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
-    void on_lightning(Platform& pfrm) override;
+    void on_lightning() override;
 
 
     void rewind_lightning() override

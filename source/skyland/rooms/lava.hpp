@@ -57,7 +57,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -117,7 +117,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_lava)->c_str();
     }
@@ -141,8 +141,7 @@ public:
     }
 
 
-    virtual void
-    check_flood_parent(Platform& pfrm, App& app, Microseconds delta);
+    virtual void check_flood_parent(App& app, Microseconds delta);
 
 
 protected:
@@ -164,11 +163,10 @@ public:
     LavaSource(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void
-    check_flood_parent(Platform& pfrm, App& app, Microseconds delta) override;
+    void check_flood_parent(App& app, Microseconds delta) override;
 
 
 
@@ -178,7 +176,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_lava_source)->c_str();
     }

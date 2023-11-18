@@ -46,7 +46,7 @@ extern SharedVariable nemesis_blast_damage;
 
 
 
-void Nemesis::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Nemesis::format_description(StringBuffer<512>& buffer)
 {
     auto secs = nemesis_reload_ms / 1000;
 
@@ -68,7 +68,7 @@ Nemesis::Nemesis(Island* parent, const RoomCoord& position)
 
 
 
-void Nemesis::fire(Platform& pfrm, App& app)
+void Nemesis::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -89,15 +89,15 @@ void Nemesis::fire(Platform& pfrm, App& app)
         start.x += 22.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto v = app.alloc_entity<NemesisBlast>(
-        pfrm, start, target, parent(), position());
+    auto v =
+        app.alloc_entity<NemesisBlast>(start, target, parent(), position());
     if (v) {
         if (health() < max_health() / 4) {
             v->set_variant(2);

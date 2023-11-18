@@ -249,7 +249,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -281,7 +281,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -298,9 +298,9 @@ private:
 
 
 
-void Windmill::finalize(Platform& pfrm, App& app)
+void Windmill::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     const auto max_y =
         parent()->origin().y + 16.0_fixed * 16.0_fixed + 32.0_fixed;
@@ -332,11 +332,11 @@ void Windmill::finalize(Platform& pfrm, App& app)
 
 
 
-void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
+void Windmill::update(App& app, Microseconds delta)
 {
     TIMEPOINT(t1);
 
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
     Room::ready();
 
     // FIXME: bad hack. Rooms are appended to an unordered priority list and
@@ -362,7 +362,7 @@ void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
         if (&room not_eq this and room.metaclass() == this->metaclass()) {
             // Only one windmill allowed per island. Because we only allow so
             // many sprites per scanline.
-            room.apply_damage(pfrm, app, Room::health_upper_limit());
+            room.apply_damage(app, Room::health_upper_limit());
         }
     }
 
@@ -373,9 +373,9 @@ void Windmill::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Windmill::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Windmill::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     auto rate = 0.00005_fixed;
     if (app.environment().is_overcast()) {

@@ -54,44 +54,44 @@ public:
     }
 
 
-    virtual void update(Platform&, App&, Microseconds delta)
+    virtual void update(App&, Microseconds delta)
     {
     }
 
 
-    virtual void on_layout_changed(Platform& pfrm, App& app, Island& island)
+    virtual void on_layout_changed(App& app, Island& island)
     {
     }
 
 
-    virtual void on_room_damaged(Platform& pfrm, App& app, Room& room)
+    virtual void on_room_damaged(App& app, Room& room)
     {
     }
 
 
-    virtual void on_room_destroyed(Platform& pfrm, App& app, Room& room)
+    virtual void on_room_destroyed(App& app, Room& room)
     {
     }
 
 
-    virtual void on_room_plundered(Platform& pfrm, App& app, Room& room)
+    virtual void on_room_plundered(App& app, Room& room)
     {
     }
 
 
-    virtual bool key_up(Platform&, Key k)
-    {
-        return false;
-    }
-
-
-    virtual bool key_down(Platform&, Key k)
+    virtual bool key_up(Key k)
     {
         return false;
     }
 
 
-    virtual bool key_pressed(Platform&, Key k)
+    virtual bool key_down(Key k)
+    {
+        return false;
+    }
+
+
+    virtual bool key_pressed(Key k)
     {
         return false;
     }
@@ -123,7 +123,7 @@ public:
     // start scrolling continuously, unless we grant the new direction the same
     // scrolling inertia as the previous direction button.
     virtual void key_held_distribute(
-        Platform& pfrm,
+
         // Keys to include. Must be terminated by
         // Key::null.
         const Key* include_list = default_key_distribute_include_list)
@@ -131,12 +131,9 @@ public:
     }
 
 
-    bool test_key(Platform& pfrm,
-                  Key k,
-                  Microseconds held_time,
-                  Microseconds held_decrement)
+    bool test_key(Key k, Microseconds held_time, Microseconds held_decrement)
     {
-        if (key_down(pfrm, k) or key_held(k, held_time)) {
+        if (key_down(k) or key_held(k, held_time)) {
             key_held_reset(k, held_decrement);
             return true;
         }
@@ -144,23 +141,22 @@ public:
     }
 
 
-    virtual std::optional<std::tuple<Vec2<u32>, Microseconds>>
-    touch_released(Platform& pfrm)
+    virtual std::optional<std::tuple<Vec2<u32>, Microseconds>> touch_released()
     {
         return {};
     }
 
 
     // Only valid if touch_held()
-    virtual Vec2<Float> touch_velocity(Platform& pfrm)
+    virtual Vec2<Float> touch_velocity()
     {
         return {};
     }
 
 
-    std::optional<Vec2<u32>> tap_released(Platform& pfrm)
+    std::optional<Vec2<u32>> tap_released()
     {
-        auto info = touch_released(pfrm);
+        auto info = touch_released();
         if (info and std::get<1>(*info) < milliseconds(100)) {
             return std::get<0>(*info);
         }
@@ -177,7 +173,7 @@ public:
     }
 
 
-    virtual std::optional<Vec2<u32>> touch_current(Platform& pfrm)
+    virtual std::optional<Vec2<u32>> touch_current()
     {
         return {};
     }
@@ -189,10 +185,8 @@ public:
     }
 
 
-    virtual void network_sync_cursor(Platform& pfrm,
-                                     const RoomCoord& cursor,
-                                     u8 cursor_icon,
-                                     bool near)
+    virtual void
+    network_sync_cursor(const RoomCoord& cursor, u8 cursor_icon, bool near)
     {
     }
 

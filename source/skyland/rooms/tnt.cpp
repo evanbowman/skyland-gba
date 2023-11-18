@@ -46,9 +46,9 @@ Explosive::Explosive(Island* parent,
 
 
 
-void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
+void Explosive::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (health() not_eq max_health()) {
         Room::ready();
@@ -56,7 +56,7 @@ void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(pfrm, app, 5);
+            apply_damage(app, 5);
             damage_timer_ = 0;
         }
     }
@@ -64,19 +64,18 @@ void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene>
-Explosive::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Explosive::select(App& app, const RoomCoord& cursor)
 {
     if (parent() not_eq &app.player_island()) {
         return null_scene();
     }
 
-    Room::apply_damage(pfrm, app, 1);
+    Room::apply_damage(app, 1);
 
     network::packet::DynamiteActivated packet;
     packet.x_ = position().x;
     packet.y_ = position().y;
-    network::transmit(pfrm, packet);
+    network::transmit(packet);
 
     ignition_ = true;
 
@@ -104,44 +103,39 @@ static SharedVariable tnt_range("dynamite_range", 1);
 
 
 
-void Explosive::apply_damage(Platform& pfrm, App& app, Health damage)
+void Explosive::apply_damage(App& app, Health damage)
 {
-    Room::apply_damage(pfrm, app, damage);
+    Room::apply_damage(app, damage);
 
     ignition_ = true;
 }
 
 
 
-void Explosive::ignite(Platform& pfrm,
-                       App& app,
-                       int range,
-                       Health damage,
-                       bool spread_fire)
+void Explosive::ignite(App& app, int range, Health damage, bool spread_fire)
 {
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
+    auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
-            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+            rng::sample<48>(pos, rng::utility_state), 61);
 
         if (e) {
             app.effects().push(std::move(e));
         }
     };
 
-    flak_smoke(pfrm, app, center());
-    flak_smoke(pfrm, app, center());
+    flak_smoke(app, center());
+    flak_smoke(app, center());
 
     Vec2<s32> pos;
     pos.x = center().x.as_integer();
     pos.y = center().y.as_integer();
 
-    app.on_timeout(
-        pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
-            Vec2<Fixnum> p;
-            p.x = Fixnum::from_integer(pos.x);
-            p.y = Fixnum::from_integer(pos.y);
-            flak_smoke(pf, app, p);
-        });
+    app.on_timeout(milliseconds(190), [pos, flak_smoke](App& app) {
+        Vec2<Fixnum> p;
+        p.x = Fixnum::from_integer(pos.x);
+        p.y = Fixnum::from_integer(pos.y);
+        flak_smoke(app, p);
+    });
 
     auto targets =
         allocate_dynamic<Buffer<Room*, 300>>("dynamite-target-bufer");
@@ -167,20 +161,20 @@ void Explosive::ignite(Platform& pfrm,
                     targets->push_back(room);
                 }
             } else if (auto drone = parent()->get_drone(pos)) {
-                (*drone)->apply_damage(pfrm, app, damage);
+                (*drone)->apply_damage(app, damage);
             }
         }
     }
 
     for (auto& room : *targets) {
 
-        room->apply_damage(pfrm, app, damage);
+        room->apply_damage(app, damage);
 
 
         if (spread_fire and not((*room->metaclass())->properties() &
                                 RoomProperties::fireproof)) {
             if (room->health() > 0) {
-                room->parent()->fire_create(pfrm, app, room->position());
+                room->parent()->fire_create(app, room->position());
             }
         }
 
@@ -195,8 +189,8 @@ void Explosive::ignite(Platform& pfrm,
                 room->health() == 0) {
                 for (auto& chr : room->characters()) {
                     if (chr->owner() == &app.opponent()) {
-                        achievements::raise(
-                            pfrm, app, achievements::Achievement::triage);
+                        achievements::raise(app,
+                                            achievements::Achievement::triage);
                         break;
                     }
                 }
@@ -207,35 +201,35 @@ void Explosive::ignite(Platform& pfrm,
 
 
 
-void Explosive::finalize(Platform& pfrm, App& app)
+void Explosive::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (not ignition_) {
         return;
     } else {
-        ignite(pfrm, app, tnt_range, tnt_damage, false);
-        ExploSpawner::create(pfrm, app, center());
+        ignite(app, tnt_range, tnt_damage, false);
+        ExploSpawner::create(app, center());
     }
 }
 
 
 
-void TNT::finalize(Platform& pfrm, App& app)
+void TNT::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (not ignition_) {
         return;
     } else {
-        ignite(pfrm, app, 2, 180, true);
-        ExploSpawner::create(pfrm, app, center());
+        ignite(app, 2, 180, true);
+        ExploSpawner::create(app, center());
 
-        if (not pfrm.network_peer().is_connected()) {
+        if (not PLATFORM.network_peer().is_connected()) {
             for (int i = 0; i < 10; ++i) {
 
                 auto c = app.alloc_entity<FireBolt>(
-                    pfrm, center(), center(), parent(), position());
+                    center(), center(), parent(), position());
                 if (c) {
                     c->set_direction(rng::choice<359>(rng::critical_state));
                     parent()->projectiles().push(std::move(c));
@@ -362,9 +356,9 @@ void TNT::display_on_hover(Platform::Screen& screen,
 
 
 
-void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
+void Cesium::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
     Room::ready();
 
     if (health() not_eq max_health()) {
@@ -373,7 +367,7 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(pfrm, app, 10);
+            apply_damage(app, 10);
             damage_timer_ = 0;
         }
 
@@ -385,7 +379,7 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = parent()->get_room({x, u8(y - 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(pfrm, app, 1);
+                apply_damage(app, 1);
                 return;
             }
         }
@@ -393,7 +387,7 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = parent()->get_room({x, u8(y + 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(pfrm, app, 1);
+                apply_damage(app, 1);
                 return;
             }
         }
@@ -401,7 +395,7 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = parent()->get_room({u8(x + 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(pfrm, app, 1);
+                apply_damage(app, 1);
                 return;
             }
         }
@@ -409,7 +403,7 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = parent()->get_room({u8(x - 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(pfrm, app, 1);
+                apply_damage(app, 1);
                 return;
             }
         }
@@ -432,7 +426,7 @@ void Cesium::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Cesium::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Cesium::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_cesium)->c_str();
 }

@@ -38,11 +38,10 @@ class LispReplScene : public Scene
 public:
     LispReplScene();
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
     using Command = StringBuffer<256>;
 
@@ -55,9 +54,9 @@ private:
 
     Vec2<int> keyboard_cursor_;
 
-    void repaint_entry(Platform& pfrm, bool show_cursor = true);
+    void repaint_entry(bool show_cursor = true);
 
-    void repaint_completions(Platform& pfrm);
+    void repaint_completions();
 
 
     static constexpr const int completion_count = 10;

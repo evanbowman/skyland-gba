@@ -36,65 +36,61 @@ namespace skyland
 
 
 
-void describe_room(Platform& pfrm,
-                   App& app,
+void describe_room(App& app,
                    Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
 
-void clear_room_description(Platform& pfrm,
-                            App& app,
-                            std::optional<Text>& room_description);
+void clear_room_description(App& app, std::optional<Text>& room_description);
 
 
 
 class SpectatorScene : public ActiveWorldScene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev)
+    void enter(App& app, Scene& prev)
     {
-        ActiveWorldScene::enter(pfrm, app, prev);
+        ActiveWorldScene::enter(app, prev);
 
         for (auto& room : app.player_island().rooms()) {
             // Hack to turn off targeting computer, as the AI will instead take
             // responsibility for setting weapon targets.
             if (auto t = room->cast<TargetingComputer>()) {
                 if (t->enabled()) {
-                    t->select(pfrm, app, {});
+                    t->select(app, {});
                 }
             }
         }
 
-        text_.emplace(pfrm, SYSTR(spectate_msg)->c_str(), OverlayCoord{0, 0});
+        text_.emplace(SYSTR(spectate_msg)->c_str(), OverlayCoord{0, 0});
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next)
+    void exit(App& app, Scene& next)
     {
-        ActiveWorldScene::exit(pfrm, app, next);
-        clear_room_description(pfrm, app, room_description_);
+        ActiveWorldScene::exit(app, next);
+        clear_room_description(app, room_description_);
         text_.reset();
     }
 
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        if (auto scene = ActiveWorldScene::update(app, delta)) {
             app.swap_player<PlayerP1>();
             return scene;
         }
 
         if (app.game_speed() not_eq GameSpeed::normal) {
-            set_gamespeed(pfrm, app, GameSpeed::normal);
+            set_gamespeed(app, GameSpeed::normal);
         }
 
         auto test_key = [&](Key k) {
             return player(app).test_key(
-                pfrm, k, milliseconds(500), milliseconds(100));
+                k, milliseconds(500), milliseconds(100));
         };
 
 
@@ -116,41 +112,41 @@ public:
         }
 
 
-        player(app).key_held_distribute(pfrm);
+        player(app).key_held_distribute();
 
-        if (player(app).key_down(pfrm, Key::start)) {
+        if (player(app).key_down(Key::start)) {
             app.swap_player<PlayerP1>();
             return scene_pool::alloc<ReadyScene>();
-        } else if (player(app).key_down(pfrm, Key::action_1) or
-                   player(app).key_down(pfrm, Key::action_2) or
-                   player(app).key_down(pfrm, Key::alt_2)) {
-            pfrm.speaker().play_sound("beep_error", 2);
+        } else if (player(app).key_down(Key::action_1) or
+                   player(app).key_down(Key::action_2) or
+                   player(app).key_down(Key::alt_2)) {
+            PLATFORM.speaker().play_sound("beep_error", 2);
         }
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(pfrm, app, room_description_);
+                clear_room_description(app, room_description_);
                 describe_room_timer_ = milliseconds(300);
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             } else if (is_far_camera()) {
                 globals().near_cursor_loc_.y = globals().far_cursor_loc_.y;
                 globals().near_cursor_loc_.x =
                     player_island(app).terrain().size();
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
                 near_camera();
                 return null_scene();
             }
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < island->terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(pfrm, app, room_description_);
+                clear_room_description(app, room_description_);
                 describe_room_timer_ = milliseconds(300);
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             } else if (not is_far_camera()) {
                 globals().far_cursor_loc_.y = globals().near_cursor_loc_.y;
                 globals().far_cursor_loc_.x = 0;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
                 far_camera();
                 return null_scene();
             }
@@ -159,16 +155,16 @@ public:
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(pfrm, app, room_description_);
+                clear_room_description(app, room_description_);
                 describe_room_timer_ = milliseconds(300);
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(pfrm, app, room_description_);
+                clear_room_description(app, room_description_);
                 describe_room_timer_ = milliseconds(300);
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
 
@@ -177,7 +173,7 @@ public:
             if (describe_room_timer_ <= 0) {
                 describe_room_timer_ = milliseconds(500);
 
-                describe_room(pfrm, app, island, cursor_loc, room_description_);
+                describe_room(app, island, cursor_loc, room_description_);
             }
         }
 
@@ -185,7 +181,7 @@ public:
     }
 
 
-    void display(Platform& pfrm, App& app)
+    void display(App& app)
     {
         auto& cursor_loc = is_far_camera() ? globals().far_cursor_loc_
                                            : globals().near_cursor_loc_;
@@ -208,13 +204,13 @@ public:
 
         cursor.set_position(origin);
 
-        pfrm.screen().draw(cursor);
+        PLATFORM.screen().draw(cursor);
 
         if (auto room = app.player_island().get_room(cursor_loc)) {
-            room->display_on_hover(pfrm.screen(), app, cursor_loc);
+            room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
         }
 
-        WorldScene::display(pfrm, app);
+        WorldScene::display(app);
     }
 
 

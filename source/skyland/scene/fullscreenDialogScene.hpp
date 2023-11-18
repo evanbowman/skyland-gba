@@ -41,19 +41,19 @@ public:
     }
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
 private:
-    bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);
+    bool advance_text(App& app, Microseconds delta, bool sfx);
 
-    void clear_textbox(Platform& pfrm);
+    void clear_textbox();
 
-    void process_command(Platform& pfrm, App& app);
+    void process_command(App& app);
 
     u8 y_start() const;
 

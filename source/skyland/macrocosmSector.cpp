@@ -417,7 +417,7 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
 
 
-void terrain::Sector::render(Platform& pfrm)
+void terrain::Sector::render()
 {
     using namespace raster;
 
@@ -426,7 +426,7 @@ void terrain::Sector::render(Platform& pfrm)
 #ifdef RASTER_DEBUG_ENABLE
 #define RASTER_DEBUG()                                                         \
     do {                                                                       \
-        pfrm.sleep(10);                                                        \
+        PLATFORM.sleep(10);                                                    \
     } while (false)
 #else
 #define RASTER_DEBUG()                                                         \
@@ -434,7 +434,7 @@ void terrain::Sector::render(Platform& pfrm)
     } while (false)
 #endif
 
-    auto flush_stack_t0 = [&pfrm](auto& stack, int i) {
+    auto flush_stack_t0 = [](auto& stack, int i) {
         // The first tile can be drawn much faster, as we don't care what's
         // currently onscreen.
         bool overwrite = true;
@@ -442,7 +442,8 @@ void terrain::Sector::render(Platform& pfrm)
         while (not stack.empty()) {
             int tile = stack.back();
             RASTER_DEBUG();
-            pfrm.blit_t0_tile_to_texture(tile + RASTER_CELLCOUNT, i, overwrite);
+            PLATFORM.blit_t0_tile_to_texture(
+                tile + RASTER_CELLCOUNT, i, overwrite);
             stack.pop_back();
             overwrite = false;
         }
@@ -452,7 +453,7 @@ void terrain::Sector::render(Platform& pfrm)
     const auto uho = macro::raster::globalstate::_upper_half_only;
 
 
-    auto flush_stack_t1 = [&pfrm, uho](auto& stack, int i) {
+    auto flush_stack_t1 = [&uho](auto& stack, int i) {
         if (uho) {
             return;
         }
@@ -463,7 +464,8 @@ void terrain::Sector::render(Platform& pfrm)
         while (not stack.empty()) {
             int tile = stack.back();
             RASTER_DEBUG();
-            pfrm.blit_t1_tile_to_texture(tile + RASTER_CELLCOUNT, i, overwrite);
+            PLATFORM.blit_t1_tile_to_texture(
+                tile + RASTER_CELLCOUNT, i, overwrite);
             stack.pop_back();
             overwrite = false;
         }
@@ -510,10 +512,10 @@ void terrain::Sector::render(Platform& pfrm)
                 // pixels.
                 RASTER_DEBUG();
                 if (t >= RASTER_CELLCOUNT and not uho) {
-                    pfrm.blit_t1_tile_to_texture(
+                    PLATFORM.blit_t1_tile_to_texture(
                         stk[0] + RASTER_CELLCOUNT, t - 480, false);
                 } else {
-                    pfrm.blit_t0_tile_to_texture(
+                    PLATFORM.blit_t0_tile_to_texture(
                         stk[0] + RASTER_CELLCOUNT, t, false);
                 }
             } else {
@@ -535,9 +537,9 @@ void terrain::Sector::render(Platform& pfrm)
     const bool grew = globalstate::_grew;
 
 
-    render_setup(pfrm);
+    render_setup();
 
-    [[maybe_unused]] auto start = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto start = PLATFORM.delta_clock().sample();
 
     for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
@@ -560,7 +562,7 @@ void terrain::Sector::render(Platform& pfrm)
 
         } else if ((cursor_moved or shrunk) and
                    raster::globalstate::_recalc_depth_test.get(i)) {
-            pfrm.blit_t0_erase(i);
+            PLATFORM.blit_t0_erase(i);
         }
 
         if (auto head = (*_db)->depth_2_->visible_[i]) {
@@ -585,13 +587,13 @@ void terrain::Sector::render(Platform& pfrm)
                    raster::globalstate::_recalc_depth_test.get(
                        i + RASTER_CELLCOUNT)) {
             if (not uho) {
-                pfrm.blit_t1_erase(i);
+                PLATFORM.blit_t1_erase(i);
             }
         }
     }
 
-    [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
-    // pfrm.fatal(stringify(stop - start).c_str());
+    [[maybe_unused]] auto stop = PLATFORM.delta_clock().sample();
+    // PLATFORM.fatal(stringify(stop - start).c_str());
 
 
     globalstate::_changed = false;
@@ -607,7 +609,7 @@ void terrain::Sector::render(Platform& pfrm)
 
 
 std::optional<QRCode> terrain::Sector::qr_encode(
-    Platform& pfrm,
+
     App& app,
     Function<4 * sizeof(void*), void(const char*)> msg) const
 {
@@ -644,7 +646,7 @@ std::optional<QRCode> terrain::Sector::qr_encode(
 
     const bool was_developer_mode = app.is_developer_mode();
     app.set_developer_mode(true);
-    auto v = app.invoke_script(pfrm, "/scripts/config/uploadisle.lisp");
+    auto v = app.invoke_script("/scripts/config/uploadisle.lisp");
     if (v->type() not_eq lisp::Value::Type::string) {
         Platform::fatal("url lisp script returned non-string result");
     }

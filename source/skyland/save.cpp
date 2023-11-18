@@ -47,12 +47,12 @@ const char* save_data_lisp_filename = "/save/adventure.lisp";
 
 
 
-bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
+bool load_global_data(GlobalPersistentData& data)
 {
     Vector<char> read;
 
-    auto byte_count = flash_filesystem::read_file_data_binary(
-        pfrm, global_data_filename, read);
+    auto byte_count =
+        flash_filesystem::read_file_data_binary(global_data_filename, read);
 
     if (byte_count == sizeof(GlobalSaveData)) {
         // Read successful!
@@ -78,7 +78,7 @@ bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
 
 
 
-void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
+void store_global_data(const GlobalPersistentData& data)
 {
     GlobalSaveData out;
     out.magic_.set(global_save_data_magic);
@@ -92,7 +92,7 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     }
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_binary(
-        pfrm, global_data_filename, buffer, opts);
+        global_data_filename, buffer, opts);
 }
 
 
@@ -117,14 +117,14 @@ public:
 
 
 
-void EmergencyBackup::init(Platform& pfrm, App& app)
+void EmergencyBackup::init(App& app)
 {
     persistent_data_ = app.persistent_data();
 
     lisp_data_.emplace();
 
     LispPrinter p(*lisp_data_);
-    auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
+    auto val = app.invoke_script("/scripts/save.lisp");
     lisp::format(val, p);
 
     lisp_data_->push_back('\0');
@@ -136,7 +136,7 @@ void EmergencyBackup::init(Platform& pfrm, App& app)
 
 
 
-static void store(Platform& pfrm, const SaveData& sd)
+static void store(const SaveData& sd)
 {
     Vector<char> out_buffer;
     auto out_ptr = (const u8*)&sd;
@@ -145,12 +145,12 @@ static void store(Platform& pfrm, const SaveData& sd)
     }
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_binary(
-        pfrm, save_data_filename, out_buffer, opts);
+        save_data_filename, out_buffer, opts);
 }
 
 
 
-void EmergencyBackup::store(Platform& pfrm)
+void EmergencyBackup::store()
 {
     if (not valid_) {
         return;
@@ -164,19 +164,19 @@ void EmergencyBackup::store(Platform& pfrm)
 
     save_data.data_ = persistent_data_;
 
-    save::store(pfrm, save_data);
+    save::store(save_data);
 
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_text(
-        pfrm, save_data_lisp_filename, *lisp_data_, opts);
+        save_data_lisp_filename, *lisp_data_, opts);
 }
 
 
 
-void store(Platform& pfrm, App& app, const PersistentData& d)
+void store(App& app, const PersistentData& d)
 {
     lisp::_Printer<Vector<char>> p;
-    auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
+    auto val = app.invoke_script("/scripts/save.lisp");
     lisp::format(val, p);
     p.data_.push_back('\0');
 
@@ -192,24 +192,24 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
         save_data.data_.set_flag(PersistentData::StateFlag::dev_mode_active);
     }
 
-    store(pfrm, save_data);
+    store(save_data);
 
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_text(
-        pfrm, save_data_lisp_filename, p.data_, opts);
+        save_data_lisp_filename, p.data_, opts);
 
-    synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
-    speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
+    synth_notes_store(app.player_island(), "/save/synth.dat");
+    speaker_data_store(app.player_island(), "/save/speaker.dat");
 }
 
 
 
-bool load(Platform& pfrm, App& app, PersistentData& d)
+bool load(App& app, PersistentData& d)
 {
     Vector<char> data;
 
     const auto byte_count =
-        flash_filesystem::read_file_data_binary(pfrm, save_data_filename, data);
+        flash_filesystem::read_file_data_binary(save_data_filename, data);
 
     if (byte_count == sizeof(SaveData)) {
         SaveData save_data;
@@ -239,8 +239,8 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     data.clear();
 
 
-    auto bytes = flash_filesystem::read_file_data_text(
-        pfrm, save_data_lisp_filename, data);
+    auto bytes =
+        flash_filesystem::read_file_data_text(save_data_lisp_filename, data);
 
     if (bytes == 0) {
         return false;
@@ -259,30 +259,30 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
     auto arg = lisp::get_op(0); // result of eval()
 
-    auto fn = app.invoke_script(pfrm, "/scripts/restore_save.lisp");
+    auto fn = app.invoke_script("/scripts/restore_save.lisp");
     if (fn->type() == lisp::Value::Type::function) {
         lisp::push_op(arg);    // pass save data buffer on stack
         lisp::safecall(fn, 1); // one argument (the save data)
         lisp::pop_op();        // funcall result
     } else {
-        pfrm.fatal("not function!");
+        PLATFORM.fatal("not function!");
     }
 
     lisp::pop_op(); // result of eval() (1)
     lisp::pop_op(); // result of read() (0)
 
 
-    synth_notes_load(pfrm, app.player_island(), "/save/synth.dat");
-    speaker_data_load(pfrm, app.player_island(), "/save/speaker.dat");
+    synth_notes_load(app.player_island(), "/save/synth.dat");
+    speaker_data_load(app.player_island(), "/save/speaker.dat");
 
     return true;
 }
 
 
 
-void erase(Platform& pfrm)
+void erase()
 {
-    flash_filesystem::unlink_file(pfrm, save_data_filename);
+    flash_filesystem::unlink_file(save_data_filename);
 }
 
 

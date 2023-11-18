@@ -62,9 +62,9 @@ static const Float partial_fade_amt = 0.76f;
 
 
 
-void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
+void PlayerIslandDestroyedScene::show_stats(App& app)
 {
-    const auto screen_tiles = calc_screen_tiles(pfrm);
+    const auto screen_tiles = calc_screen_tiles();
 
     int metrics_y_offset_ = 2;
 
@@ -79,7 +79,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         }
 
         lines_.emplace_back(
-            pfrm, RoomCoord{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+            RoomCoord{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
         const auto colors =
             highlight
@@ -161,29 +161,29 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
 
 
-void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
+void PlayerIslandDestroyedScene::display(App& app)
 {
     // No overlay circle effect in multiplayer, because the vblank handler could
     // spend too long calculating the circle edges and cause a missed serial
     // interrupt.
-    if (not pfrm.network_peer().is_connected()) {
+    if (not PLATFORM.network_peer().is_connected()) {
         if (circ_effect_radius_ > 70 and last_radius_ < 70) {
-            pfrm.fill_overlay(496);
+            PLATFORM.fill_overlay(496);
         }
 
         auto pos = island_->get_position();
         auto origin_coord = island_->critical_core_loc();
         int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) -
-                            pfrm.screen().get_view().get_center().x;
+                            PLATFORM.screen().get_view().get_center().x;
         int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
-                            pfrm.screen().get_view().get_center().y - 510;
+                            PLATFORM.screen().get_view().get_center().y - 510;
         // Platform::fatal(stringify(circ_center_y).c_str());
         int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
-        pfrm.system_call("overlay-circle-effect", params);
+        PLATFORM.system_call("overlay-circle-effect", params);
     }
 
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     if (confetti_ and *confetti_) {
         for (auto& c : **confetti_) {
@@ -205,19 +205,16 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
                           255});
             const auto off = c.img_ - 102;
             spr_.set_texture_index(102 * 8 + off + c.anim_ * 4);
-            pfrm.screen().draw(spr_);
+            PLATFORM.screen().draw(spr_);
         }
     }
 }
 
 
 
-void update_confetti(Platform& pfrm,
-                     App& app,
-                     ConfettiBuffer& confetti,
-                     Microseconds delta)
+void update_confetti(App& app, ConfettiBuffer& confetti, Microseconds delta)
 {
-    const auto view = pfrm.screen().get_view().get_center();
+    const auto view = PLATFORM.screen().get_view().get_center();
 
     for (auto it = confetti.begin(); it not_eq confetti.end();) {
 
@@ -281,22 +278,21 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
-ScenePtr<Scene>
-PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 {
-    WorldScene::update(pfrm, app, delta);
+    WorldScene::update(app, delta);
 
     if (app.game_speed() not_eq GameSpeed::normal) {
-        reset_gamespeed(pfrm, app);
+        reset_gamespeed(app);
     }
 
-    app.environment().update(pfrm, app, delta);
+    app.environment().update(app, delta);
 
     app.time_stream().enable_pushes(false);
     app.time_stream().clear();
 
 
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
 
 
     const bool opponent_defeated =
@@ -313,12 +309,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (confetti_ and *confetti_) {
-        update_confetti(pfrm, app, **confetti_, delta);
+        update_confetti(app, **confetti_, delta);
     }
 
 
-    auto setup_shader = [&app, &pfrm] {
-        pfrm.screen().set_shader(
+    auto setup_shader = [&app] {
+        PLATFORM.screen().set_shader(
             [&app](ShaderPalette p, ColorConstant k, int var, int index) {
                 auto k1 = app.environment().shader(app)(std::move(p),
                                                         std::move(k),
@@ -357,12 +353,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     island_->show_flag(false);
                 }
                 for (int x = 0; x < 16; ++x) {
-                    pfrm.set_tile(layer, x, y, 0);
+                    PLATFORM.set_tile(layer, x, y, 0);
                     if (island_->fire_present({(u8)x, (u8)y})) {
-                        island_->fire_extinguish(pfrm, app, {(u8)x, (u8)y});
+                        island_->fire_extinguish(app, {(u8)x, (u8)y});
                     }
                 }
-                island_->clear_rooms(pfrm, app);
+                island_->clear_rooms(app);
             }
         }
     }
@@ -384,7 +380,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 stat_timer_ = 0;
             }
-            show_stats(pfrm, app);
+            show_stats(app);
         }
     }
 
@@ -395,15 +391,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto amount = interpolate(
             1, 12, Float(music_fadeback_timer_) / music_fadeback_seconds);
         if (not endgame) {
-            pfrm.speaker().set_music_volume(amount);
+            PLATFORM.speaker().set_music_volume(amount);
         }
     }
 
     switch (anim_state_) {
     case AnimState::init: {
-        pfrm.speaker().clear_sounds();
+        PLATFORM.speaker().clear_sounds();
         if (not endgame) {
-            pfrm.speaker().set_music_volume(1);
+            PLATFORM.speaker().set_music_volume(1);
         }
 
         app.effects().clear();
@@ -411,12 +407,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (((app.game_mode() not_eq App::GameMode::adventure or endgame) and
              app.game_mode() not_eq App::GameMode::skyland_forever and
              app.game_mode() not_eq App::GameMode::co_op)) {
-            pfrm.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
         }
 
-        pfrm.speaker().play_sound("explosion1", 3);
+        PLATFORM.speaker().play_sound("explosion1", 3);
 
-        big_explosion(pfrm, app, origin, 0);
+        big_explosion(app, origin, 0);
 
         const auto off = 50.0_fixed;
 
@@ -428,12 +424,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.swap_player<PlayerP1>();
         }
 
-        big_explosion(pfrm, app, {origin.x - off, origin.y - off}, 0);
-        big_explosion(pfrm, app, {origin.x + off, origin.y + off}, 0);
+        big_explosion(app, {origin.x - off, origin.y - off}, 0);
+        big_explosion(app, {origin.x + off, origin.y + off}, 0);
         timer_ = 0;
 
         for (auto& room : app.player_island().rooms()) {
-            room->unset_target(pfrm, app);
+            room->unset_target(app);
         }
 
         anim_state_ = AnimState::explosion_wait1;
@@ -444,13 +440,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ > milliseconds(300)) {
 
-            pfrm.speaker().play_sound("explosion1", 3);
+            PLATFORM.speaker().play_sound("explosion1", 3);
 
-            big_explosion(pfrm, app, origin, 0);
+            big_explosion(app, origin, 0);
             const auto off = Fixnum::from_integer(-50);
 
-            big_explosion(pfrm, app, {origin.x - off, origin.y + off}, 0);
-            big_explosion(pfrm, app, {origin.x + off, origin.y - off}, 0);
+            big_explosion(app, {origin.x - off, origin.y + off}, 0);
+            big_explosion(app, {origin.x + off, origin.y - off}, 0);
 
             anim_state_ = AnimState::explosion_wait2;
 
@@ -468,9 +464,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::begin_fade;
 
-            app.rumble().activate(pfrm, milliseconds(190));
+            app.rumble().activate(milliseconds(190));
 
-            pfrm.speaker().play_sound("explosion2", 4);
+            PLATFORM.speaker().play_sound("explosion2", 4);
 
             // If we destroyed the other island, erase all of the goblins on our
             // own island. We're doing this here, because the screen's faded to
@@ -478,7 +474,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             // disappear.
             if (opponent_defeated) {
 
-                invoke_hook(pfrm, app, "on-victory");
+                invoke_hook(app, "on-victory");
                 if (app.exit_condition() not_eq App::ExitCondition::none) {
                     if (app.exit_condition() == App::ExitCondition::defeat) {
                         forced_defeat_ = true;
@@ -521,7 +517,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         for (auto pos : temp) {
                             if (not ready_transporters.empty()) {
                                 auto tx = ready_transporters.back();
-                                tx->recover_character(pfrm, app, pos);
+                                tx->recover_character(app, pos);
                                 ready_transporters.pop_back();
                             }
                         }
@@ -536,7 +532,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (app.game_mode() == App::GameMode::co_op) {
                     network::packet::CoOpOpponentDestroyed packet;
-                    network::transmit(pfrm, packet);
+                    network::transmit(packet);
                 }
 
             } else {
@@ -544,11 +540,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             for (auto& room : app.player_island().rooms()) {
-                room->detach_drone(pfrm, app, true);
+                room->detach_drone(app, true);
             }
 
             for (auto& room : app.opponent_island()->rooms()) {
-                room->detach_drone(pfrm, app, true);
+                room->detach_drone(app, true);
             }
 
             app.player_island().drones().clear();
@@ -558,8 +554,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             for (u8 x = 0; x < 16; ++x) {
                 for (u8 y = 0; y < 16; ++y) {
-                    app.player_island().fire_extinguish(pfrm, app, {x, y});
-                    app.opponent_island()->fire_extinguish(pfrm, app, {x, y});
+                    app.player_island().fire_extinguish(app, {x, y});
+                    app.opponent_island()->fire_extinguish(app, {x, y});
                 }
             }
         }
@@ -573,9 +569,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::begin_fade2: {
         anim_state_ = AnimState::fade;
-        pfrm.system_call("vsync", 0);
-        pfrm.fill_overlay(0);
-        pfrm.screen().fade(1.f, ColorConstant::silver_white, {}, true, true);
+        PLATFORM.system_call("vsync", 0);
+        PLATFORM.fill_overlay(0);
+        PLATFORM.screen().fade(
+            1.f, ColorConstant::silver_white, {}, true, true);
 
         auto origin_coord = island_->critical_core_loc();
         int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16) + 8;
@@ -583,7 +580,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         Vec2<Fixnum> pos;
         pos.x = circ_center_x;
         pos.y = circ_center_y;
-        ExploSpawner::create(pfrm, app, pos);
+        ExploSpawner::create(app, pos);
         break;
     }
 
@@ -594,13 +591,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (prev_timer < seconds(1) and timer_ >= seconds(1)) {
             if (endgame) {
-                pfrm.speaker().play_music("box", 0);
+                PLATFORM.speaker().play_music("box", 0);
             }
         }
 
         sink_speed_ += 0.0000013_fixed;
         if (timer_ > fade_duration) {
-            pfrm.screen().fade(0.f);
+            PLATFORM.screen().fade(0.f);
             timer_ = 0;
             if (forced_defeat_) {
                 if (app.dialog_buffer()) {
@@ -616,7 +613,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount, ColorConstant::silver_white);
+            PLATFORM.screen().schedule_fade(amount,
+                                            ColorConstant::silver_white);
         }
         break;
     }
@@ -626,7 +624,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
             anim_state_ = AnimState::show_coins;
-            app.set_coins(pfrm, app.coins() + app.victory_coins());
+            app.set_coins(app.coins() + app.victory_coins());
         }
         break;
     }
@@ -636,15 +634,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
 
         if (endgame) {
-            pfrm.speaker().play_music("box", 0);
+            PLATFORM.speaker().play_music("box", 0);
         }
 
         for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update(pfrm, app);
+            const auto achievement = achievements::update(app);
             if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(pfrm, app, achievement);
+                achievements::award(app, achievement);
 
-                pfrm.screen().fade(1.f);
+                PLATFORM.screen().fade(1.f);
 
                 auto next =
                     scene_pool::make_deferred_scene<PlayerIslandDestroyedScene>(
@@ -658,22 +656,22 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         setup_shader();
 
         for (auto& room : app.player_island().rooms()) {
-            room->detach_drone(pfrm, app, true);
+            room->detach_drone(app, true);
         }
 
         for (auto& room : app.opponent_island()->rooms()) {
-            room->detach_drone(pfrm, app, true);
+            room->detach_drone(app, true);
         }
 
         app.player_island().drones().clear();
         app.opponent_island()->drones().clear();
 
         for (auto& room : app.player_island().rooms()) {
-            room->unset_target(pfrm, app);
+            room->unset_target(app);
         }
 
         if (island_ == &app.player_island()) {
-            invoke_hook(pfrm, app, "on-victory");
+            invoke_hook(app, "on-victory");
 
             for (auto& room : app.player_island().rooms()) {
                 for (auto it = room->characters().begin();
@@ -688,12 +686,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (not endgame) {
-            pfrm.speaker().set_music_volume(12);
+            PLATFORM.speaker().set_music_volume(12);
         }
         break;
 
     case AnimState::show_coins: {
-        pfrm.speaker().play_sound("coin", 2);
+        PLATFORM.speaker().play_sound("coin", 2);
         force_show_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
@@ -711,7 +709,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (app.game_mode() == App::GameMode::skyland_forever or
                 app.game_mode() == App::GameMode::co_op) {
-                app.reset_opponent_island(pfrm);
+                app.reset_opponent_island();
 
 
                 if (app.game_mode() == App::GameMode::co_op) {
@@ -724,7 +722,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         if (was_locked and room->co_op_locked()) {
                             Platform::fatal("failed to release lock!");
                         } else if (was_locked) {
-                            info(pfrm, "released lock!");
+                            info("released lock!");
                         }
 
                         for (auto& chr : room->characters()) {
@@ -749,14 +747,14 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         power_.reset();
 
         if (timer_ - delta < milliseconds(600) and timer_ > milliseconds(600)) {
-            pfrm.load_overlay_texture("overlay_island_destroyed");
-            const int x_start = centered_text_margins(pfrm, 22);
+            PLATFORM.load_overlay_texture("overlay_island_destroyed");
+            const int x_start = centered_text_margins(22);
             if (opponent_defeated) {
-                draw_image(pfrm, 82, x_start, 1, 22, 8, Layer::overlay);
+                draw_image(82, x_start, 1, 22, 8, Layer::overlay);
                 confetti_state_ = ConfettiState::wait_1;
                 confetti_timer_ = 0;
             } else {
-                draw_image(pfrm, 259, x_start, 1, 22, 8, Layer::overlay);
+                draw_image(259, x_start, 1, 22, 8, Layer::overlay);
             }
             stat_timer_ = milliseconds(145);
         }
@@ -768,10 +766,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             if (not opponent_defeated) {
-                pfrm.screen().set_shader_argument(amount * 200);
+                PLATFORM.screen().set_shader_argument(amount * 200);
             }
-            pfrm.screen().schedule_fade(amount * partial_fade_amt);
-            pfrm.screen().pixelate(amount * 28, false);
+            PLATFORM.screen().schedule_fade(amount * partial_fade_amt);
+            PLATFORM.screen().pixelate(amount * 28, false);
         }
         break;
     }
@@ -807,11 +805,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
 
-                app.reset_opponent_island(pfrm);
+                app.reset_opponent_island();
 
                 if (app.game_mode() == App::GameMode::multiplayer and
-                    pfrm.network_peer().is_connected()) {
-                    pfrm.network_peer().disconnect();
+                    PLATFORM.network_peer().is_connected()) {
+                    PLATFORM.network_peer().disconnect();
                     return scene_pool::alloc<LinkScene>();
                 }
 
@@ -824,8 +822,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             .nodes_[app.current_world_location()]
                             .type_ == WorldGraph::Node::Type::corrupted) {
 
-                        achievements::raise(
-                            pfrm, app, achievements::Achievement::hero);
+                        achievements::raise(app,
+                                            achievements::Achievement::hero);
 
                         lisp::dostring("(adventure-log-add 6 '())");
 
@@ -839,7 +837,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                         restore_volume_ = false;
                         if (not endgame) {
-                            pfrm.speaker().set_music_volume(13);
+                            PLATFORM.speaker().set_music_volume(13);
                         }
 
                         next->set_next_scene([] {
@@ -876,13 +874,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
 
-                pfrm.screen().set_shader(app.environment().shader(app));
-                pfrm.screen().set_shader_argument(0);
-                pfrm.system_call("vsync", nullptr);
-                pfrm.screen().fade(1.f);
+                PLATFORM.screen().set_shader(app.environment().shader(app));
+                PLATFORM.screen().set_shader_argument(0);
+                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM.screen().fade(1.f);
 
-                if (pfrm.network_peer().is_connected()) {
-                    pfrm.network_peer().disconnect();
+                if (PLATFORM.network_peer().is_connected()) {
+                    PLATFORM.network_peer().disconnect();
                     return scene_pool::alloc<LinkScene>();
                 }
 
@@ -913,7 +911,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto amount =
                 partial_fade_amt + (1.f - partial_fade_amt) *
                                        smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount);
+            PLATFORM.screen().schedule_fade(amount);
         }
         break;
     }
@@ -922,10 +920,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::idle:
         coins_.reset();
         power_.reset();
-        if (app.player().key_down(pfrm, Key::action_1) or
-            app.player().tap_released(pfrm)) {
+        if (app.player().key_down(Key::action_1) or
+            app.player().tap_released()) {
             timer_ = 0;
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
 
             if (opponent_defeated and
                 app.game_mode() == App::GameMode::adventure) {
@@ -964,7 +962,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             confetti_timer_ = 0;
             confetti_state_ = ConfettiState::wait_2;
 
-            auto vc = pfrm.screen().get_view().get_center();
+            auto vc = PLATFORM.screen().get_view().get_center();
 
             app.camera()->shake(3);
 
@@ -1001,7 +999,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             confetti_state_ = ConfettiState::wait_3;
 
 
-            auto vc = pfrm.screen().get_view().get_center();
+            auto vc = PLATFORM.screen().get_view().get_center();
 
             app.camera()->shake(3);
 
@@ -1042,9 +1040,9 @@ extern SharedVariable zone4_coin_yield;
 
 
 
-void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
+void PlayerIslandDestroyedScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     WorldScene::notransitions();
 
@@ -1052,7 +1050,7 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
     rooms_lost_ = app.player().rooms_lost_;
 
     for (auto& bird : app.birds()) {
-        bird->signal(pfrm, app);
+        bird->signal(app);
     }
 
     circ_effect_ = rng::choice<3>(rng::utility_state);
@@ -1105,7 +1103,7 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
             // destroyed castle sinks, the castle can now be tall enough that
             // the upper portion sticks out above the bottom of the screen. So,
             // destroy all rooms with a really small y-value.
-            room->apply_damage(pfrm, app, Room::health_upper_limit());
+            room->apply_damage(app, Room::health_upper_limit());
         }
     }
 
@@ -1119,22 +1117,23 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
+void PlayerIslandDestroyedScene::exit(App& app, Scene& next)
 {
     lines_.clear();
-    pfrm.load_overlay_texture("overlay");
-    pfrm.screen().pixelate(0);
+    PLATFORM.load_overlay_texture("overlay");
+    PLATFORM.screen().pixelate(0);
 
-    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
-    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
-    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
-    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
+    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
+    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
+    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
 
     if (restore_volume_) {
-        pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+        PLATFORM.speaker().set_music_volume(
+            Platform::Speaker::music_volume_max);
     }
 
-    pfrm.screen().set_shader(app.environment().shader(app));
+    PLATFORM.screen().set_shader(app.environment().shader(app));
 }
 
 

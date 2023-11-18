@@ -33,8 +33,7 @@ namespace skyland
 
 
 
-void WeatherEngine::format_description(Platform& pfrm,
-                                       StringBuffer<512>& buffer)
+void WeatherEngine::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_weather_engine)->c_str();
 }
@@ -54,8 +53,7 @@ void environment_init(App& app, int type);
 
 
 
-ScenePtr<Scene>
-WeatherEngine::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> WeatherEngine::select(App& app, const RoomCoord& cursor)
 {
     time_stream::event::WeatherChanged e;
 
@@ -68,29 +66,29 @@ WeatherEngine::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
     app.time_stream().push(app.level_timer(), e);
 
-    pfrm.screen().set_shader(app.environment().shader(app));
-    pfrm.screen().set_shader_argument(0);
+    PLATFORM.screen().set_shader(app.environment().shader(app));
+    PLATFORM.screen().set_shader_argument(0);
 
-    if (not pfrm.speaker().is_music_playing(app.environment().music())) {
-        pfrm.speaker().play_music(app.environment().music(), 0);
+    if (not PLATFORM.speaker().is_music_playing(app.environment().music())) {
+        PLATFORM.speaker().play_music(app.environment().music(), 0);
     }
 
-    pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
-    pfrm.screen().clear();
-    pfrm.screen().display();
-    pfrm.sleep(4);
-    pfrm.screen().schedule_fade(0.f);
+    PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
+    PLATFORM.sleep(4);
+    PLATFORM.screen().schedule_fade(0.f);
 
-    pfrm.speaker().play_sound("bell", 3);
+    PLATFORM.speaker().play_sound("bell", 3);
 
     return null_scene();
 }
 
 
 
-void WeatherEngine::update(Platform& pfrm, App& app, Microseconds delta)
+void WeatherEngine::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 

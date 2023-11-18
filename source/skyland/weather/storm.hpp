@@ -71,19 +71,19 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta);
+    void update(App& app, Microseconds delta);
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta);
+    void rewind(App& app, Microseconds delta);
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
     const char* music() const override;
 
 
-    virtual void on_lightning(Platform& pfrm)
+    virtual void on_lightning()
     {
         // ...
     }

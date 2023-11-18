@@ -43,7 +43,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_ice)->c_str();
     }
@@ -55,7 +55,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
     static Category category()

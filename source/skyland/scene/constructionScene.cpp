@@ -59,11 +59,11 @@ public:
     }
 
 
-    void update(Platform& pfrm, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
-        delta = pfrm.delta_clock().last_delta();
+        delta = PLATFORM.delta_clock().last_delta();
 
         timer_ += delta;
         if (timer_ >= milliseconds(80)) {
@@ -80,7 +80,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -97,13 +97,13 @@ private:
 
 
 
-void make_construction_effect(Platform& pfrm, App& app, Vec2<Fixnum> pos)
+void make_construction_effect(App& app, Vec2<Fixnum> pos)
 {
     auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
         auto p = pos;
         p.x += xoff;
         p.y += yoff;
-        if (auto e = app.alloc_entity<ConstructionAnim>(pfrm, p)) {
+        if (auto e = app.alloc_entity<ConstructionAnim>(p)) {
             e->sprite().set_flip({xflip, yflip});
             app.effects().push(std::move(e));
         }
@@ -145,16 +145,16 @@ bool ConstructionScene::constrain_;
 
 
 
-bool ConstructionScene::camera_update_check_key(Platform& pfrm, App& app)
+bool ConstructionScene::camera_update_check_key(App& app)
 {
     if (state_ == State::choose_building) {
         return false;
     }
-    return app.player().key_pressed(pfrm, Key::left) or
-           app.player().key_pressed(pfrm, Key::right) or
-           app.player().key_pressed(pfrm, Key::up) or
-           app.player().key_pressed(pfrm, Key::down) or
-           app.player().key_pressed(pfrm, Key::select);
+    return app.player().key_pressed(Key::left) or
+           app.player().key_pressed(Key::right) or
+           app.player().key_pressed(Key::up) or
+           app.player().key_pressed(Key::down) or
+           app.player().key_pressed(Key::select);
 }
 
 
@@ -180,14 +180,14 @@ static bool show_construction_icons = true;
 
 
 
-bool tapped_topleft_corner(Platform& pfrm, App& app);
+bool tapped_topleft_corner(App& app);
 
 
 
-std::optional<RoomCoord>
-get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
+std::optional<RoomCoord> get_local_tapclick(Island* island,
+                                            const Vec2<u32>& pos)
 {
-    const auto view_offset = pfrm.screen().get_view().int_center();
+    const auto view_offset = PLATFORM.screen().get_view().int_center();
 
     auto island_pos = island->get_position();
     island_pos.x -= Fixnum::from_integer(view_offset.x);
@@ -211,24 +211,22 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 
 
 
-void shift_rooms_right(Platform& pfrm, App& app, Island& island)
+void shift_rooms_right(App& app, Island& island)
 {
     auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
     for (auto& room : island.rooms()) {
         tmp->push_back(room.get());
     }
     for (auto& r : reversed(*tmp)) {
-        island.move_room(pfrm,
-                         app,
-                         r->position(),
-                         {(u8)(r->position().x + 1), r->position().y});
+        island.move_room(
+            app, r->position(), {(u8)(r->position().x + 1), r->position().y});
     }
     // NOTE: because we shifted all blocks to the right by one
     // coordinate, a drone may now be inside of a block, which we
     // don't want to deal with at the moment, so just destroy them
     // all.
     for (auto& d : island.drones()) {
-        d->apply_damage(pfrm, app, 999);
+        d->apply_damage(app, 999);
     }
     // Furthermore... all weapons on the players' island need to
     // have their targets adjusted accordingly:
@@ -240,7 +238,7 @@ void shift_rooms_right(Platform& pfrm, App& app, Island& island)
         for (auto& r : other_island->rooms()) {
             if (auto t = r->get_target()) {
                 t->x += 1;
-                r->set_target(pfrm, app, *t, r->target_pinned());
+                r->set_target(app, *t, r->target_pinned());
             }
         }
     }
@@ -248,8 +246,7 @@ void shift_rooms_right(Platform& pfrm, App& app, Island& island)
 
 
 
-ScenePtr<Scene>
-ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 {
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
@@ -272,12 +269,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     };
 
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         fixup_cursor();
         return new_scene;
     }
 
-    if (app.player().key_down(pfrm, Key::select)) {
+    if (app.player().key_down(Key::select)) {
         return scene_pool::alloc<SelectMenuScene>();
     }
 
@@ -291,10 +288,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         flicker_on_ = not flicker_on_;
     }
 
-    if (tapped_topleft_corner(pfrm, app) or
-        app.player().key_down(pfrm, Key::alt_2) or
+    if (tapped_topleft_corner(app) or app.player().key_down(Key::alt_2) or
         (state_ == State::select_loc and
-         app.player().key_down(pfrm, Key::action_2))) {
+         app.player().key_down(Key::action_2))) {
         if (not data_->construction_sites_.empty()) {
             cursor_loc.x = data_->construction_sites_[selector_].x;
             cursor_loc.y = data_->construction_sites_[selector_].y;
@@ -304,8 +300,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto tapclick = [&]() -> std::optional<Vec2<s8>> {
-        if (auto pos = app.player().tap_released(pfrm)) {
-            auto clk = get_local_tapclick(pfrm, island(app), *pos);
+        if (auto pos = app.player().tap_released()) {
+            auto clk = get_local_tapclick(island(app), *pos);
 
             if (clk) {
                 return clk->cast<s8>();
@@ -316,8 +312,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     bool sync_cursor = false;
@@ -329,9 +324,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if ( // NOTE: just because I don't want to retest the tutorials.
             app.game_mode() not_eq App::GameMode::tutorial and
             island(app)->checksum() not_eq checksum_) {
-            find_construction_sites(pfrm, app);
+            find_construction_sites(app);
             category_label_.reset();
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
             checksum_ = island(app)->checksum();
         }
 
@@ -341,13 +336,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++selector_;
 
                 sync_cursor = true;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
             } else if (near_ and app.game_mode() == App::GameMode::sandbox and
                        app.opponent_island()) {
                 auto& cursor_loc = globals().far_cursor_loc_;
 
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
                 cursor_loc.x = 0;
                 cursor_loc.y = globals().near_cursor_loc_.y;
@@ -360,7 +355,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 sync_cursor = true;
 
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
             } else if (not near_ and
                        app.game_mode() == App::GameMode::sandbox) {
@@ -369,7 +364,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y = globals().far_cursor_loc_.y;
 
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<ConstructionScene>(true);
             }
         } else if (test_key(Key::up)) {
@@ -380,7 +375,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 --selector_;
                 sync_cursor = true;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::down)) {
             stack_ = 0;
@@ -390,7 +385,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 ++selector_;
                 sync_cursor = true;
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
 
@@ -399,13 +394,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.y = data_->construction_sites_[selector_].y;
 
             if (sync_cursor) {
-                app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
+                app.player().network_sync_cursor(cursor_loc, 3, true);
             }
         }
 
         if (((tapclick and
               *tapclick == data_->construction_sites_[selector_]) or
-             app.player().key_down(pfrm, Key::action_1)) and
+             app.player().key_down(Key::action_1)) and
             not data_->construction_sites_.empty()) {
 
             tapclick.reset();
@@ -418,10 +413,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 temp += *SYSTR(construction_add_terrain);
                 temp += stringify(app.terrain_cost(*island(app)));
                 temp += "@";
-                msg(pfrm, temp.c_str());
+                msg(temp.c_str());
 
             } else {
-                if (not collect_available_buildings(pfrm, app)) {
+                if (not collect_available_buildings(app)) {
                     // Do nothing...
                 } else if (not data_->available_buildings_.empty()) {
 
@@ -451,9 +446,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     flicker_on_ = false;
                     flicker_timer_ = -milliseconds(150);
                     state_ = State::choose_building;
-                    sound_openbag.play(pfrm, 1, seconds(2));
+                    sound_openbag.play(1, seconds(2));
                     sound_openbag.reset();
-                    show_current_building_text(pfrm, app);
+                    show_current_building_text(app);
                 }
             }
         } else if (tapclick or app.player().touch_held(milliseconds(200))) {
@@ -461,8 +456,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.player().touch_held(milliseconds(200))) {
                 // If the player presses and holds the touch screen, scroll
                 // through available construction sites.
-                if (auto pos = app.player().touch_current(pfrm)) {
-                    if (auto t = get_local_tapclick(pfrm, island(app), *pos)) {
+                if (auto pos = app.player().touch_current()) {
+                    if (auto t = get_local_tapclick(island(app), *pos)) {
                         tapclick = t->cast<s8>();
                     }
                 }
@@ -495,7 +490,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building: {
-        if (app.player().key_down(pfrm, Key::start)) {
+        if (app.player().key_down(Key::start)) {
             auto mt = data_->available_buildings_[building_selector_];
             auto next = scene_pool::alloc<GlossaryViewerModule>(mt);
             category_label_.reset();
@@ -503,7 +498,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (next) {
                 const bool near = near_;
                 const u8 mti_8 = mt;
-                next->set_next_scene([near, mti_8, &pfrm]() {
+                next->set_next_scene([near, mti_8]() {
                     auto s = scene_pool::alloc<ConstructionScene>(near);
                     s->open_prompt_at(mti_8);
                     return s;
@@ -515,30 +510,30 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto scroll_right = [&] {
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
-            pfrm.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click", 1);
             if (building_selector_ <
                 (int)data_->available_buildings_.size() - 1) {
                 ++building_selector_;
-                show_current_building_text(pfrm, app);
+                show_current_building_text(app);
             } else {
                 building_selector_ = 0;
-                show_current_building_text(pfrm, app);
+                show_current_building_text(app);
             }
         };
         auto scroll_left = [&] {
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
-            pfrm.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
-                show_current_building_text(pfrm, app);
+                show_current_building_text(app);
             } else {
                 building_selector_ = data_->available_buildings_.size() - 1;
-                show_current_building_text(pfrm, app);
+                show_current_building_text(app);
             }
         };
         if (app.player().touch_held(milliseconds(200))) {
-            if (auto p = app.player().touch_current(pfrm)) {
+            if (auto p = app.player().touch_current()) {
                 if (last_touch_x_) {
                     touchscroll_ += p->x - last_touch_x_;
                     last_touch_x_ = p->x;
@@ -553,21 +548,21 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 touchscroll_ = 0;
                 scroll_left();
             }
-        } else if (app.player().key_down(pfrm, Key::action_2) or
+        } else if (app.player().key_down(Key::action_2) or
                    (tapclick and
                     *tapclick not_eq data_->construction_sites_[selector_])) {
-            find_construction_sites(pfrm, app);
+            find_construction_sites(app);
             state_ = State::select_loc;
             category_label_.reset();
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
             last_touch_x_ = 0;
             break;
         } else {
             last_touch_x_ = 0;
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
-            pfrm.speaker().play_sound("click", 1);
+        if (app.player().key_down(Key::down)) {
+            PLATFORM.speaker().play_sound("click", 1);
 
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
@@ -595,11 +590,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
             building_selector_ += i;
             building_selector_ %= data_->available_buildings_.size();
-            show_current_building_text(pfrm, app);
+            show_current_building_text(app);
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
-            pfrm.speaker().play_sound("click", 1);
+        if (app.player().key_down(Key::up)) {
+            PLATFORM.speaker().play_sound("click", 1);
             const auto current_category =
                 (*load_metaclass(
                      data_->available_buildings_[building_selector_]))
@@ -639,7 +634,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             building_selector_ = i;
-            show_current_building_text(pfrm, app);
+            show_current_building_text(app);
         }
 
         if (test_key(Key::right)) {
@@ -651,7 +646,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (tapclick == data_->construction_sites_[selector_] or
-            app.player().key_down(pfrm, Key::action_1)) {
+            app.player().key_down(Key::action_1)) {
 
             auto mti = data_->available_buildings_[building_selector_];
 
@@ -668,8 +663,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (dup) {
                     category_label_.reset();
-                    msg(pfrm, SYSTR(construciton_one_allowed)->c_str());
-                    pfrm.speaker().play_sound("beep_error", 2);
+                    msg(SYSTR(construciton_one_allowed)->c_str());
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                     state_ = State::insufficient_funds;
                     break;
                 }
@@ -677,8 +672,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (app.coins() < get_room_cost(island(app), target)) {
                 category_label_.reset();
-                msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
-                pfrm.speaker().play_sound("beep_error", 2);
+                msg(SYSTR(construction_insufficient_funds)->c_str());
+                PLATFORM.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -687,31 +682,30 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 island(app)->power_supply() - island(app)->power_drain() <
                     target->consumes_power()) {
                 category_label_.reset();
-                msg(pfrm,
-                    SYSTR(construction_insufficient_power_supply)->c_str());
-                pfrm.speaker().play_sound("beep_error", 2);
+                msg(SYSTR(construction_insufficient_power_supply)->c_str());
+                PLATFORM.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
 
             if (globals().room_pools_.empty() or island(app)->rooms().full()) {
                 category_label_.reset();
-                msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
-                pfrm.speaker().play_sound("beep_error", 2);
+                msg(SYSTR(construction_too_many_rooms)->c_str());
+                PLATFORM.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
 
             if (not site_has_space(app, mti)) {
                 category_label_.reset();
-                pfrm.speaker().play_sound("beep_error", 2);
-                msg(pfrm, SYSTR(construction_not_enough_space)->c_str());
+                PLATFORM.speaker().play_sound("beep_error", 2);
+                msg(SYSTR(construction_not_enough_space)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
             const auto diff = get_room_cost(island(app), target);
-            app.set_coins(pfrm, app.coins() - diff);
+            app.set_coins(app.coins() - diff);
             app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
@@ -719,9 +713,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const u8 dest_y =
                 data_->construction_sites_[selector_].y - (sz - 1);
 
-            pfrm.speaker().play_sound("build0", 4);
+            PLATFORM.speaker().play_sound("build0", 4);
 
-            target->create(pfrm, app, island(app), {dest_x, dest_y});
+            target->create(app, island(app), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
 
             stack_ += target->size().y;
@@ -740,7 +734,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             packet.metaclass_index_.set(mt_index);
             packet.x_ = dest_x;
             packet.y_ = dest_y;
-            network::transmit(pfrm, packet);
+            network::transmit(packet);
 
 
             if (near_) {
@@ -757,7 +751,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
             if (auto room = island(app)->get_room({dest_x, dest_y})) {
-                room->init_ai_awareness(pfrm, app);
+                room->init_ai_awareness(app);
 
                 if (app.game_speed() == GameSpeed::stopped) {
 
@@ -766,56 +760,56 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (str_eq("cloak", room->name())) {
                         for (auto& room : island(app)->rooms()) {
                             if (room->should_init_ai_awareness_upon_unpause()) {
-                                room->init_ai_awareness(pfrm, app);
+                                room->init_ai_awareness(app);
                                 room->init_ai_awareness_upon_unpause();
                             }
                         }
                     }
                 }
 
-                make_construction_effect(pfrm, app, room->visual_center());
+                make_construction_effect(app, room->visual_center());
 
-                if (auto scene = room->setup(pfrm, app)) {
+                if (auto scene = room->setup(app)) {
                     fixup_cursor();
                     return scene;
                 }
             }
 
 
-            find_construction_sites(pfrm, app);
+            find_construction_sites(app);
 
             category_label_.reset();
             state_ = State::select_loc;
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
         }
         break;
     }
 
     case State::insufficient_funds:
-        if (app.player().key_down(pfrm, Key::action_2) or
-            app.player().key_down(pfrm, Key::action_1)) {
-            find_construction_sites(pfrm, app);
+        if (app.player().key_down(Key::action_2) or
+            app.player().key_down(Key::action_1)) {
+            find_construction_sites(app);
             state_ = State::select_loc;
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
         }
         break;
 
     case State::add_terrain:
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            find_construction_sites(pfrm, app);
+        if (app.player().key_down(Key::action_2)) {
+            find_construction_sites(app);
             state_ = State::select_loc;
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
             break;
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             if (app.coins() < app.terrain_cost(*island(app))) {
-                msg(pfrm, SYSTR(construction_build)->c_str());
+                msg(SYSTR(construction_build)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
-            app.set_coins(pfrm, app.coins() - app.terrain_cost(*island(app)));
+            app.set_coins(app.coins() - app.terrain_cost(*island(app)));
 
             time_stream::event::IslandTerrainChanged e;
             e.previous_terrain_size_ = island(app)->terrain().size();
@@ -828,26 +822,26 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             terrain.push_back(Tile::terrain_middle);
             terrain.push_back(Tile::terrain_right);
 
-            pfrm.speaker().play_sound("gravel", 4);
+            PLATFORM.speaker().play_sound("gravel", 4);
 
-            island(app)->render_terrain(pfrm);
+            island(app)->render_terrain();
 
 
             if (data_->construction_sites_[selector_].x == -1) {
-                shift_rooms_right(pfrm, app, *island(app));
+                shift_rooms_right(app, *island(app));
                 network::packet::TerrainConstructedLeft packet;
                 packet.new_terrain_size_ = island(app)->terrain().size();
-                network::transmit(pfrm, packet);
+                network::transmit(packet);
             } else {
                 network::packet::TerrainConstructed packet;
                 packet.new_terrain_size_ = island(app)->terrain().size();
-                network::transmit(pfrm, packet);
+                network::transmit(packet);
             }
 
-            find_construction_sites(pfrm, app);
+            find_construction_sites(app);
             state_ = State::select_loc;
 
-            msg(pfrm, SYSTR(construction_build)->c_str());
+            msg(SYSTR(construction_build)->c_str());
         }
         break;
     }
@@ -856,7 +850,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
+void ConstructionScene::show_current_building_text(App& app)
 {
     if (app.game_mode() == App::GameMode::tutorial) {
         show_category_ = false;
@@ -872,7 +866,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     StringBuffer<48> category_str_buffer;
 
     if (show_category_) {
-        category_str_buffer = loadstr(pfrm, category_str)->c_str();
+        category_str_buffer = loadstr(category_str)->c_str();
     }
 
     if (current_category not_eq last_category_) {
@@ -883,7 +877,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     str += " :";
 
     str += (*load_metaclass(data_->available_buildings_[building_selector_]))
-               ->ui_name(pfrm)
+               ->ui_name()
                ->c_str();
 
     str += " ";
@@ -897,10 +891,10 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             ->consumes_power());
     str += "`";
 
-    msg(pfrm, str.c_str());
+    msg(str.c_str());
 
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     if (not show_construction_icons) {
         return;
@@ -909,16 +903,16 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     for (int i = st.x - 25;
          i < int((st.x - 5) - utf8::len(category_str_buffer.c_str()));
          ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 6, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 6, 425);
     }
 
     for (int y = st.y - 5; y < st.y - 2; ++y) {
-        pfrm.set_tile(Layer::overlay, st.x - 26, y, 130);
-        pfrm.set_tile(Layer::overlay, st.x - 5, y, 433);
+        PLATFORM.set_tile(Layer::overlay, st.x - 26, y, 130);
+        PLATFORM.set_tile(Layer::overlay, st.x - 5, y, 433);
     }
 
-    pfrm.set_tile(Layer::overlay, st.x - 26, st.y - 2, 419);
-    pfrm.set_tile(Layer::overlay, st.x - 5, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, st.x - 26, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, st.x - 5, st.y - 2, 418);
 
     {
         int index = building_selector_;
@@ -932,9 +926,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
         auto icon =
             (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
-        draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(258, icon, 16);
+        PLATFORM.load_overlay_chunk(258, icon, 16);
     }
 
     {
@@ -947,18 +941,18 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
         auto icon =
             (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
-        draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(181, icon, 16);
+        PLATFORM.load_overlay_chunk(181, icon, 16);
     }
 
     {
         auto icon =
             (*load_metaclass(data_->available_buildings_[building_selector_]))
                 ->icon();
-        draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(197, icon, 16);
+        PLATFORM.load_overlay_chunk(197, icon, 16);
     }
 
     {
@@ -971,9 +965,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
         auto icon =
             (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
-        draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(213, icon, 16);
+        PLATFORM.load_overlay_chunk(213, icon, 16);
     }
 
     {
@@ -988,9 +982,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
         auto icon =
             (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
-        draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(274, icon, 16);
+        PLATFORM.load_overlay_chunk(274, icon, 16);
     }
 
     if (show_category_) {
@@ -1002,7 +996,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         auto coord = OverlayCoord{x, u8(st.y - 6)};
 
         if (current_category not_eq last_category_ or not category_label_) {
-            category_label_.emplace(pfrm, coord);
+            category_label_.emplace(coord);
             category_label_->assign(category_str_buffer.c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
                                                ColorConstant::rich_black});
@@ -1010,20 +1004,19 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
         last_category_ = current_category;
 
-        pfrm.set_tile(Layer::overlay, x - 1, st.y - 6, 419);
+        PLATFORM.set_tile(Layer::overlay, x - 1, st.y - 6, 419);
 
         for (int i = x; i < x + category_label_->len(); ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 7, 425);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 7, 425);
         }
 
-        pfrm.set_tile(Layer::overlay, st.x - 5, st.y - 6, 433);
+        PLATFORM.set_tile(Layer::overlay, st.x - 5, st.y - 6, 433);
     }
 }
 
 
 
-void draw_required_space(Platform& pfrm,
-                         App& app,
+void draw_required_space(App& app,
                          Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
@@ -1036,15 +1029,15 @@ void draw_required_space(Platform& pfrm,
         sprite.set_tidx_16x16(13, 1);
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_position({origin.x, origin.y});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     } else if (sz.x == 2 and sz.y == 1) {
         Sprite sprite;
         sprite.set_tidx_16x16(13, 1);
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_position({origin.x, origin.y});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
         sprite.set_position({origin.x + 16.0_fixed, origin.y});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     } else {
         Sprite sprite;
         sprite.set_texture_index(13);
@@ -1054,7 +1047,7 @@ void draw_required_space(Platform& pfrm,
             for (int y = 0; y < sz.y / 2; ++y) {
                 sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
                                      origin.y + Fixnum::from_integer(y * 32)});
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
             }
         }
 
@@ -1066,7 +1059,7 @@ void draw_required_space(Platform& pfrm,
                 sprite.set_position(
                     {origin.x + Fixnum::from_integer(x * 16),
                      origin.y + Fixnum::from_integer((sz.y - 2) * 16 + 16)});
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
             }
         }
     }
@@ -1094,7 +1087,7 @@ void draw_required_space(Platform& pfrm,
             ocpy.y += offset;
         }
         spr.set_position(ocpy);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
         break;
     }
 
@@ -1108,7 +1101,7 @@ void draw_required_space(Platform& pfrm,
         }
         ocpy.y -= 16.0_fixed;
         spr.set_position(ocpy);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
         break;
     }
     }
@@ -1116,7 +1109,7 @@ void draw_required_space(Platform& pfrm,
 
 
 
-void ConstructionScene::display(Platform& pfrm, App& app)
+void ConstructionScene::display(App& app)
 {
     if (not island(app)) {
         return;
@@ -1157,7 +1150,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             }
 
 
-            pfrm.screen().draw(sprite);
+            PLATFORM.screen().draw(sprite);
 
             sprite.set_size(Sprite::Size::w16_h32);
             sprite.set_flip({});
@@ -1180,11 +1173,11 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_position(origin);
                 sprite.set_tidx_16x16(14, tid_1);
                 sprite.set_alpha(Sprite::Alpha::translucent);
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
                 sprite.set_tidx_16x16(14, tid_2);
                 origin.x += 16.0_fixed;
                 sprite.set_position(origin);
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
                 sprite.set_size(Sprite::Size::w16_h32);
             } else if ((u32)data_->construction_sites_[selector_].x ==
                        island(app)->terrain().size() - 1) {
@@ -1196,7 +1189,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_position(origin);
                 sprite.set_texture_index(101);
                 sprite.set_alpha(Sprite::Alpha::translucent);
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
             }
 
             if (data_->construction_sites_[selector_].x == 0) {
@@ -1208,7 +1201,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_flip({true, false});
                 sprite.set_texture_index(101);
                 sprite.set_alpha(Sprite::Alpha::translucent);
-                pfrm.screen().draw(sprite);
+                PLATFORM.screen().draw(sprite);
             }
         }
         break;
@@ -1243,14 +1236,14 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                             origin.y += Fixnum(y * 16);
                             spr.set_position({origin.x, origin.y});
                             spr.set_mix({custom_color(0xf7ce9e), 250});
-                            pfrm.screen().draw(spr);
+                            PLATFORM.screen().draw(spr);
                         }
                     }
                 }
             }
 
             auto o = meta->weapon_orientation();
-            draw_required_space(pfrm, app, *island(app), origin, sz, o);
+            draw_required_space(app, *island(app), origin, sz, o);
         }
         break;
 
@@ -1268,7 +1261,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         sprite.set_tidx_16x16(13, 1);
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_position({origin.x, origin.y + 16.0_fixed});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
         sprite.set_size(Sprite::Size::w16_h32);
 
         int tid_1 = 0;
@@ -1290,22 +1283,22 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             sprite.set_position(origin);
             sprite.set_tidx_16x16(14, tid_1);
             sprite.set_alpha(Sprite::Alpha::translucent);
-            pfrm.screen().draw(sprite);
+            PLATFORM.screen().draw(sprite);
             sprite.set_tidx_16x16(14, tid_2);
             origin.x += 16.0_fixed;
             sprite.set_position(origin);
-            pfrm.screen().draw(sprite);
+            PLATFORM.screen().draw(sprite);
         }
         break;
     }
     }
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 }
 
 
 
-void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
+void ConstructionScene::find_construction_sites(App& app)
 {
     data_->construction_sites_.clear();
 
@@ -1345,31 +1338,31 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
 
 
-void ConstructionScene::msg(Platform& pfrm, const char* text)
+void ConstructionScene::msg(const char* text)
 {
-    auto st = calc_screen_tiles(pfrm);
-    text_.emplace(pfrm, text, OverlayCoord{0, u8(st.y - 1)});
+    auto st = calc_screen_tiles();
+    text_.emplace(text, OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
-        pfrm.set_tile(Layer::overlay, i, st.y - 3, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 4, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 5, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 3, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 5, 0);
 
         if (not category_label_ or
             (category_label_ and
              (i < category_label_->coord().x or
               i >= category_label_->coord().x + category_label_->len()))) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 6, 0);
         }
 
         if (show_category_) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 7, 0);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 7, 0);
         }
     }
 }
@@ -1428,7 +1421,7 @@ bool ConstructionScene::site_has_space(App& app, MetaclassIndex m)
 
 
 
-bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
+bool ConstructionScene::collect_available_buildings(App& app)
 {
     data_->available_buildings_.clear();
 
@@ -1484,7 +1477,7 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (app.game_mode() not_eq App::GameMode::sandbox and
              meta->properties() &
                  RoomProperties::only_constructible_in_sandbox) or
-            (pfrm.network_peer().is_connected() and
+            (PLATFORM.network_peer().is_connected() and
              meta->properties() & RoomProperties::multiplayer_unsupported) or
             (app.game_mode() == App::GameMode::skyland_forever and
              meta->properties() &
@@ -1529,15 +1522,15 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
 
 
-void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ConstructionScene::enter(App& app, Scene& prev)
 {
     if (not near_) {
         power_fraction_opponent_island_ = true;
     }
 
-    pfrm.screen().fade(0.f);
+    PLATFORM.screen().fade(0.f);
 
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     if (not near_) {
         far_camera();
@@ -1545,7 +1538,7 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     persist_ui();
 
-    find_construction_sites(pfrm, app);
+    find_construction_sites(app);
 
     if (not data_->construction_sites_.empty()) {
         auto& cursor_loc =
@@ -1568,11 +1561,11 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
 
 
-        app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
+        app.player().network_sync_cursor(cursor_loc, 3, true);
     }
 
     if (jump_to_selection_) {
-        collect_available_buildings(pfrm, app);
+        collect_available_buildings(app);
         state_ = State::choose_building;
         for (u32 i = 0; i < data_->available_buildings_.size(); ++i) {
             if (data_->available_buildings_[i] == *jump_to_selection_) {
@@ -1580,17 +1573,17 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
                 break;
             }
         }
-        show_current_building_text(pfrm, app);
+        show_current_building_text(app);
     } else {
-        msg(pfrm, SYSTR(construction_build)->c_str());
+        msg(SYSTR(construction_build)->c_str());
     }
 }
 
 
 
-void ConstructionScene::exit(Platform& pfrm, App& app, Scene& next)
+void ConstructionScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
     if (next.cast_construction_scene()) {
         // We do not want the menus to flicker between scenes when we switch
@@ -1602,7 +1595,7 @@ void ConstructionScene::exit(Platform& pfrm, App& app, Scene& next)
         text_->__detach();
     } else {
         text_.reset();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 }
 

@@ -30,12 +30,9 @@ namespace skyland
 
 
 
-void configure_island(Platform& pfrm,
-                      App& app,
-                      Island& island,
-                      lisp::Value* island_desc_lat)
+void configure_island(App& app, Island& island, lisp::Value* island_desc_lat)
 {
-    island.clear_rooms(pfrm, app);
+    island.clear_rooms(app);
 
     lisp::foreach (island_desc_lat, [&](lisp::Value* val) {
         auto name_symb = lisp::get_list(val, 0);
@@ -51,7 +48,7 @@ void configure_island(Platform& pfrm,
             u8 y = lisp::get_list(val, 2)->integer().value_;
 
             if (auto c = load_metaclass(name_symb->symbol().name())) {
-                (*c)->create(pfrm, app, &island, RoomCoord{x, y}, false);
+                (*c)->create(app, &island, RoomCoord{x, y}, false);
                 if (auto room = island.get_room({x, y})) {
                     room->deserialize(val);
                 }
@@ -59,20 +56,19 @@ void configure_island(Platform& pfrm,
         }
     });
 
-    island.repaint(pfrm, app);
+    island.repaint(app);
 }
 
 
 
-void configure_island_from_codestring(Platform& pfrm,
-                                      App& app,
+void configure_island_from_codestring(App& app,
                                       Island& island,
                                       const char* lisp_data)
 {
     lisp::BasicCharSequence seq(lisp_data);
     lisp::read(seq); // leaves result of (read) at top of operand stack.
 
-    configure_island(pfrm, app, island, lisp::get_op(0));
+    configure_island(app, island, lisp::get_op(0));
 
     lisp::pop_op();
 }

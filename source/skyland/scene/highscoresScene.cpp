@@ -101,16 +101,16 @@ const char* highscore_island_file = "/save/hs_isle.dat";
 
 
 
-std::optional<HighscoreIslandInfo> highscore_island_info_load(Platform& pfrm)
+std::optional<HighscoreIslandInfo> highscore_island_info_load()
 {
     HighscoreIslandInfo result;
 
-    if (not flash_filesystem::file_exists(pfrm, highscore_island_file)) {
+    if (not flash_filesystem::file_exists(highscore_island_file)) {
         return std::nullopt;
     }
 
     Vector<char> data;
-    flash_filesystem::read_file_data_binary(pfrm, highscore_island_file, data);
+    flash_filesystem::read_file_data_binary(highscore_island_file, data);
 
     if (data.size() not_eq sizeof result) {
         return std::nullopt;
@@ -126,7 +126,7 @@ std::optional<HighscoreIslandInfo> highscore_island_info_load(Platform& pfrm)
 
 
 
-void highscore_island_info_store(Platform& pfrm, App& app)
+void highscore_island_info_store(App& app)
 {
     HighscoreIslandInfo info;
     int blockdata_iter = 0;
@@ -134,7 +134,7 @@ void highscore_island_info_store(Platform& pfrm, App& app)
 
     memset(&info, 0, sizeof info);
 
-    flash_filesystem::unlink_file(pfrm, highscore_island_file);
+    flash_filesystem::unlink_file(highscore_island_file);
 
     if (not app.has_backup()) {
         return;
@@ -203,27 +203,26 @@ void highscore_island_info_store(Platform& pfrm, App& app)
             result.push_back(((u8*)(&info))[i]);
         }
 
-        flash_filesystem::store_file_data_binary(
-            pfrm, highscore_island_file, result);
+        flash_filesystem::store_file_data_binary(highscore_island_file, result);
     }
 }
 
 
 
-void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
+void HighscoresScene::enter(App& app, Scene& prev)
 {
-    pfrm.screen().schedule_fade(0.95f);
-    pfrm.screen().schedule_fade(1.f);
+    PLATFORM.screen().schedule_fade(0.95f);
+    PLATFORM.screen().schedule_fade(1.f);
 
-    const auto screen_tiles = calc_screen_tiles(pfrm);
+    const auto screen_tiles = calc_screen_tiles();
 
     int metrics_y_offset_ = -6;
 
     if (not show_current_score_) {
         auto str = SYSTR(highscores_leaderboard);
         auto len = utf8::len(str->c_str());
-        u8 margin = centered_text_margins(pfrm, len);
-        leaderboard_text_.emplace(pfrm, OverlayCoord{margin, 17});
+        u8 margin = centered_text_margins(len);
+        leaderboard_text_.emplace(OverlayCoord{margin, 17});
         leaderboard_text_->assign(str->c_str());
     }
 
@@ -239,7 +238,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
 
         lines_.emplace_back(
-            pfrm, Vec2<u8>{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+            Vec2<u8>{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
         const auto colors =
             highlight
@@ -284,7 +283,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
             PersistentData::StateFlag::dev_mode_active)) {
 
         if (score > (int)highscores.values_[0].get()) {
-            highscore_island_info_store(pfrm, app);
+            highscore_island_info_store(app);
         }
 
         for (auto& highscore : reversed(highscores.values_)) {
@@ -307,7 +306,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     lines_.emplace_back(
-        pfrm, Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+        Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
     lines_.back().append(SYSTR(highscores_title)->c_str());
 
@@ -334,15 +333,15 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
 
         if (changed) {
-            save::store_global_data(pfrm, app.gp_);
+            save::store_global_data(app.gp_);
         }
     }
 
     auto upload = SYSTR(highscores_upload);
 
-    u8 margin = centered_text_margins(pfrm, utf8::len(upload->c_str()));
+    u8 margin = centered_text_margins(utf8::len(upload->c_str()));
 
-    upload_hint_.emplace(pfrm, OverlayCoord{margin, u8(screen_tiles.y - 1)});
+    upload_hint_.emplace(OverlayCoord{margin, u8(screen_tiles.y - 1)});
     upload_hint_->assign(
         upload->c_str(),
         OptColors{{ColorConstant::rich_black, ColorConstant::silver_white}});
@@ -350,7 +349,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
+void HighscoresScene::exit(App& app, Scene& prev)
 {
     lines_.clear();
     upload_hint_.reset();
@@ -359,7 +358,7 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
+static Vector<char> encode_highscore_data(App& app)
 {
     StringBuffer<LoginToken::size> token_str;
     for (int i = 0; i < 8; ++i) {
@@ -394,7 +393,7 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
     payload.version_subminor_ = PROGRAM_SUBMINOR_VERSION;
     payload.version_revision_ = PROGRAM_VERSION_REVISION;
 
-    if (auto info = highscore_island_info_load(pfrm)) {
+    if (auto info = highscore_island_info_load()) {
         payload.island_ = *info;
     } else {
         memset(&payload.island_, 0, sizeof payload.island_);
@@ -437,8 +436,8 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
 
     u16 fs_checksum = 0;
 
-    pfrm.walk_filesystem([&pfrm, &fs_checksum](const char* path) {
-        if (auto f = pfrm.load_file_contents("", path)) {
+    PLATFORM.walk_filesystem([&fs_checksum](const char* path) {
+        if (auto f = PLATFORM.load_file_contents("", path)) {
             StringBuffer<86> str_path(path);
             if (ends_with(StringBuffer<4>(".lisp"), str_path)) {
                 while (*f not_eq '\0') {
@@ -479,9 +478,9 @@ static Vector<char> encode_highscore_data(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
+ScenePtr<Scene> HighscoresScene::update(App& app, Microseconds)
 {
-    if (app.player().key_pressed(pfrm, Key::select)) {
+    if (app.player().key_pressed(Key::select)) {
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(
             "/scripts/config/leaderboard.lisp",
             "",
@@ -489,13 +488,13 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
             scene_pool::make_deferred_scene<HighscoresScene>());
     }
 
-    if (app.player().key_pressed(pfrm, Key::alt_1) and
-        app.player().key_pressed(pfrm, Key::alt_2)) {
-        pfrm.speaker().play_sound("button_wooden", 3);
+    if (app.player().key_pressed(Key::alt_1) and
+        app.player().key_pressed(Key::alt_2)) {
+        PLATFORM.speaker().play_sound("button_wooden", 3);
         auto p = title_screen_page_;
 
-        auto next = [p, &app, &pfrm]() {
-            auto encoded = encode_highscore_data(pfrm, app);
+        auto next = [p, &app]() {
+            auto encoded = encode_highscore_data(app);
 
             auto temp = allocate_dynamic<StringBuffer<700>>("temp-buf");
             auto fmt_buf = allocate_dynamic<StringBuffer<700>>("fmt-buf");
@@ -519,7 +518,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
             return next();
         }
 
-        auto gettext = [next, &pfrm]() {
+        auto gettext = [next]() {
             auto receive = [next](const char* text) {
                 __login_token.valid_ = true;
                 if (str_len(text) not_eq 8) {
@@ -541,15 +540,15 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
             gettext);
     }
 
-    if (app.player().key_down(pfrm, Key::action_1) or
-        app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_1) or
+        app.player().key_down(Key::action_2)) {
 
         for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update(pfrm, app);
+            const auto achievement = achievements::update(app);
             if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(pfrm, app, achievement);
+                achievements::award(app, achievement);
 
-                pfrm.screen().fade(1.f);
+                PLATFORM.screen().fade(1.f);
 
                 const auto pg = title_screen_page_;
 

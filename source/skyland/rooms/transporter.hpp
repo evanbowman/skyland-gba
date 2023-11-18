@@ -44,15 +44,15 @@ public:
     Transporter(Island* parent, const RoomCoord& position);
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
-    void ___rewind___ability_used(Platform&, App&) override;
+    void ___rewind___ability_used(App&) override;
 
 
 
@@ -66,18 +66,16 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
-    void transport_occupant(Platform& pfrm,
-                            App& app,
+    void transport_occupant(App& app,
                             // NOTE: if you do not pass a destination, the
                             // transporter logic will select a random one.
                             std::optional<RoomCoord> destination = {});
 
 
-    void recover_character(Platform&, App& app, const RoomCoord& pos);
+    void recover_character(App& app, const RoomCoord& pos);
 
 
     static Vec2<u8> size()
@@ -138,7 +136,7 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
 private:

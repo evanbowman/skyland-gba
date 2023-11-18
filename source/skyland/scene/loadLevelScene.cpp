@@ -63,20 +63,20 @@ void set_island_positions(Island& left_island, Island& right_island)
 
 
 
-void LoadLevelScene::enter(Platform& pfrm, App& app, Scene& prev)
+void LoadLevelScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
-    app.player_island().render(pfrm, app);
+    app.player_island().render(app);
 }
 
 
 
-void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
+void LoadLevelScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
-    GenericBird::generate(pfrm, app);
+    GenericBird::generate(app);
 }
 
 
@@ -88,7 +88,7 @@ SHARED_VARIABLE(zone4_coin_yield);
 
 
 
-void prep_level(Platform& pfrm, App& app)
+void prep_level(App& app)
 {
     auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
@@ -131,11 +131,11 @@ void prep_level(Platform& pfrm, App& app)
 
     app.level_begin_score() = app.persistent_data().score_.get();
 
-    app.player_island().init_ai_awareness(pfrm, app);
+    app.player_island().init_ai_awareness(app);
 
 
     if (app.opponent_island()) {
-        app.opponent_island()->set_drift(pfrm, app, Fixnum(-0.000025f));
+        app.opponent_island()->set_drift(app, Fixnum(-0.000025f));
 
         set_island_positions(app.player_island(), *app.opponent_island());
 
@@ -165,27 +165,29 @@ void prep_level(Platform& pfrm, App& app)
             }
         }
 
-        app.opponent_island()->init_ai_awareness(pfrm, app);
+        app.opponent_island()->init_ai_awareness(app);
 
 
-        show_island_exterior(pfrm, app, app.opponent_island());
+        show_island_exterior(app, app.opponent_island());
 
 
-        write_custom_graphics(pfrm, app);
+        write_custom_graphics(app);
+    } else {
+        app.player_island().set_position(
+            {Fixnum::from_integer(10), Fixnum::from_integer(374)});
     }
 }
 
 
 
-ScenePtr<Scene>
-LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> LoadLevelScene::update(App& app, Microseconds delta)
 {
     const auto loc = app.current_world_location();
-    info(pfrm, format("%", loc));
+    info(format("%", loc));
     auto& node = app.world_graph().nodes_[loc];
 
     for (auto& room : app.player_island().rooms()) {
-        room->detach_drone(pfrm, app, true);
+        room->detach_drone(app, true);
     }
     app.player_island().drones().clear();
 
@@ -201,43 +203,44 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldGraph::Node::Type::neutral:
     case WorldGraph::Node::Type::neutral_hidden:
     default: {
-        app.invoke_script(pfrm, "/scripts/event/neutral.lisp");
+        app.invoke_script("/scripts/event/neutral.lisp");
         break;
     }
 
     case WorldGraph::Node::Type::quest:
-        app.invoke_script(pfrm, "/scripts/event/quest.lisp");
+        app.invoke_script("/scripts/event/quest.lisp");
         break;
 
     case WorldGraph::Node::Type::corrupted:
-        app.invoke_script(pfrm, "/scripts/event/storm_king.lisp");
+        app.invoke_script("/scripts/event/storm_king.lisp");
         break;
 
     case WorldGraph::Node::Type::quest_marker:
-        app.invoke_script(pfrm, "/scripts/event/quest_marker.lisp");
+        app.invoke_script("/scripts/event/quest_marker.lisp");
         break;
 
     case WorldGraph::Node::Type::exit:
     case WorldGraph::Node::Type::hostile:
     case WorldGraph::Node::Type::hostile_hidden: {
-        app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
+        app.invoke_script("/scripts/event/hostile.lisp");
         break;
     }
     case WorldGraph::Node::Type::shop:
-        app.invoke_script(pfrm, "/scripts/event/shop/shop.lisp");
+        app.invoke_script("/scripts/event/shop/shop.lisp");
         break;
     }
 
     if (node.type_ == WorldGraph::Node::Type::corrupted) {
-        pfrm.speaker().play_music("unaccompanied_wind", 0);
+        PLATFORM.speaker().play_music("unaccompanied_wind", 0);
 
     } else {
-        if (not pfrm.speaker().is_music_playing(app.environment().music())) {
-            pfrm.speaker().play_music(app.environment().music(), 0);
+        if (not PLATFORM.speaker().is_music_playing(
+                app.environment().music())) {
+            PLATFORM.speaker().play_music(app.environment().music(), 0);
         }
     }
 
-    prep_level(pfrm, app);
+    prep_level(app);
 
     if (node.type_ == WorldGraph::Node::Type::shop) {
         app.opponent_island()->set_position(
@@ -253,8 +256,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
 
-        auto future_scene = [&pfrm,
-                             &app,
+        auto future_scene = [&app,
                              storm_king = node.type_ ==
                                           WorldGraph::Node::Type::corrupted] {
             if (storm_king) {

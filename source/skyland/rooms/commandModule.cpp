@@ -47,17 +47,16 @@ CommandModule::CommandModule(Island* parent,
 
 
 
-void CommandModule::format_description(Platform& pfrm,
-                                       StringBuffer<512>& buffer)
+void CommandModule::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_command_module)->c_str();
 }
 
 
 
-void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
+void CommandModule::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
@@ -70,14 +69,14 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
             // already orchestrating character movement.
             return;
         } else {
-            apply_damage(pfrm, app, Room::health_upper_limit());
+            apply_damage(app, Room::health_upper_limit());
             return;
         }
     }
 
     if (app.game_mode() == App::GameMode::co_op) {
         // Unsupported in co-op mode.
-        apply_damage(pfrm, app, Room::health_upper_limit());
+        apply_damage(app, Room::health_upper_limit());
     }
 
     if (app.opponent().is_friendly()) {
@@ -107,8 +106,7 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
             auto chr_id = (id_buffers_->local_)[local_buffer_index_++];
             auto info = app.player_island().find_character_by_id(chr_id);
             if (info.first and info.first->ai_automated()) {
-                EnemyAI::assign_local_character(pfrm,
-                                                app,
+                EnemyAI::assign_local_character(app,
                                                 *info.first,
                                                 &app.player(),
                                                 &app.player_island(),
@@ -139,8 +137,7 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.opponent_island()) {
                 auto info = app.opponent_island()->find_character_by_id(chr_id);
                 if (info.first and info.first->ai_automated()) {
-                    EnemyAI::assign_boarded_character(pfrm,
-                                                      app,
+                    EnemyAI::assign_boarded_character(app,
                                                       *info.first,
                                                       &app.player(),
                                                       &app.player_island(),
@@ -156,7 +153,7 @@ void CommandModule::update(Platform& pfrm, App& app, Microseconds delta)
         auto& room = *player_island(app).rooms()[room_check_index_++];
         if (&room not_eq this and room.metaclass() == this->metaclass()) {
             // Player built two command modules.
-            room.apply_damage(pfrm, app, Room::health_upper_limit());
+            room.apply_damage(app, Room::health_upper_limit());
         }
     }
 }

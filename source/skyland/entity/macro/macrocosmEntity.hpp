@@ -44,12 +44,12 @@ public:
     }
 
 
-    virtual void update(Platform& pfrm, macro::Engine& s, Microseconds delta)
+    virtual void update(macro::Engine& s, Microseconds delta)
     {
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override final;
+    void update(App&, Microseconds delta) override final;
 
 
 private:

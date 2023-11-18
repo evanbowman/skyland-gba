@@ -42,8 +42,7 @@ namespace skyland
 
 
 
-void draw_required_space(Platform& pfrm,
-                         App& app,
+void draw_required_space(App& app,
                          Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
@@ -82,23 +81,22 @@ public:
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& prev) override
+    void exit(App& app, Scene& prev) override
     {
-        ActiveWorldScene::exit(pfrm, app, prev);
+        ActiveWorldScene::exit(app, prev);
 
         text_.reset();
         no_text_.reset();
         yes_text_.reset();
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
 private:

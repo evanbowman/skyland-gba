@@ -41,18 +41,18 @@ public:
     MacrocosmScene();
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override final;
-    void exit(Platform& pfrm, App& app, Scene& next) override final;
+    void enter(App& app, Scene& prev) override final;
+    void exit(App& app, Scene& next) override final;
 
 
-    virtual void enter(Platform& pfrm, macro::EngineImpl&, Scene& prev);
-    virtual void exit(Platform& pfrm, macro::EngineImpl&, Scene& next);
+    virtual void enter(macro::EngineImpl&, Scene& prev);
+    virtual void exit(macro::EngineImpl&, Scene& next);
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;
+    ScenePtr<Scene> update(App&, Microseconds delta) override final;
 
 
-    void display(Platform&, App&) override final;
+    void display(App&) override final;
 
 
     MacrocosmScene* cast_macrocosm_scene() override
@@ -61,14 +61,13 @@ public:
     }
 
 
-    virtual ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state);
+    virtual ScenePtr<Scene> update(Player& player, macro::EngineImpl& state);
 
-    virtual void display(Platform& pfrm, macro::EngineImpl& state);
+    virtual void display(macro::EngineImpl& state);
 
 
-    void draw_compass(Platform& pfrm, macro::EngineImpl& state);
-    void draw_keylock(Platform& pfrm, macro::EngineImpl& state);
+    void draw_compass(macro::EngineImpl& state);
+    void draw_keylock(macro::EngineImpl& state);
 
 
     void drop_ui()
@@ -92,7 +91,7 @@ public:
     }
 
 
-    void draw_year(Platform& pfrm, macro::EngineImpl& state);
+    void draw_year(macro::EngineImpl& state);
 
 private:
     int current_season(Microseconds year_timer, Microseconds secs_per_season);

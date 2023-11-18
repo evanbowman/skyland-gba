@@ -41,7 +41,7 @@ public:
     Pummeler(Island* parent, const RoomCoord& position);
 
 
-    void fire(Platform& pfrm, App& app) override;
+    void fire(App& app) override;
     Microseconds reload() const override;
 
 

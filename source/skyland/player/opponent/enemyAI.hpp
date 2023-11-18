@@ -66,10 +66,10 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void on_room_damaged(Platform&, App& app, Room&) override;
+    void on_room_damaged(App& app, Room&) override;
 
 
     void add_coins(Coins value)
@@ -78,16 +78,14 @@ public:
     }
 
 
-    static void assign_boarded_character(Platform&,
-                                         App&,
+    static void assign_boarded_character(App&,
                                          BasicCharacter& character,
                                          Player* owner,
                                          Island* ai_island,
                                          Island* target_island);
 
 
-    static void assign_local_character(Platform&,
-                                       App&,
+    static void assign_local_character(App&,
                                        BasicCharacter& character,
                                        Player* owner,
                                        Island* ai_island,
@@ -95,8 +93,7 @@ public:
                                        bool repair_priority = false);
 
 
-    static void update_room(Platform&,
-                            App&,
+    static void update_room(App&,
                             Room& room,
                             const Bitmatrix<16, 16>& matrix,
                             Player* owner,
@@ -104,48 +101,42 @@ public:
                             Island* target_island);
 
 private:
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            Room& generic_gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            FireCharge& fire_charge,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            MissileSilo& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            RocketSilo& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            ClumpBomb& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            IonCannon& cannon,
                            Player* owner,
@@ -153,8 +144,7 @@ private:
                            Island* target_island);
 
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            BeamGun& gun,
                            Player* owner,
@@ -162,8 +152,7 @@ private:
                            Island* target_island);
 
 
-    static void set_target(Platform&,
-                           App&,
+    static void set_target(App&,
                            const Bitmatrix<16, 16>& matrix,
                            FlakGun& gun,
                            Player* owner,
@@ -171,31 +160,27 @@ private:
                            Island* target_island);
 
 
-    void combat_drone_set_target(Platform&,
-                                 App&,
+    void combat_drone_set_target(App&,
                                  const Bitmatrix<16, 16>& matrix,
                                  Drone& drone);
 
 
-    void offensive_drone_set_target(Platform&,
-                                    App&,
+    void offensive_drone_set_target(App&,
                                     const Bitmatrix<16, 16>& matrix,
                                     Drone& drone);
 
 
-    static void update_drone_bay(Platform&,
-                                 App&,
+    static void update_drone_bay(App&,
                                  const Bitmatrix<16, 16>& matrix,
                                  DroneBay& db,
                                  Island* ai_island,
                                  Island* target_island);
 
 
-    void resolve_insufficient_power(Platform&, App&);
+    void resolve_insufficient_power(App&);
 
 
-    static void assign_weapon_target(Platform&,
-                                     App&,
+    static void assign_weapon_target(App&,
                                      Room& weapon,
                                      const RoomCoord& target,
                                      Island* ai_island);

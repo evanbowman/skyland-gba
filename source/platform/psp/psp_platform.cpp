@@ -189,7 +189,7 @@ void Platform::fill_overlay(u16 TileDesc)
 }
 
 
-static void set_overlay_tile(Platform& pfrm, int x, int y, u16 val)
+static void set_overlay_tile(int x, int y, u16 val)
 {
 }
 

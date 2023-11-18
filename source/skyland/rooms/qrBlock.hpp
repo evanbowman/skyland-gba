@@ -44,10 +44,10 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_qr)->c_str();
     }
@@ -113,8 +113,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     void set_message(const char* msg)

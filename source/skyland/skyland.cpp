@@ -49,7 +49,7 @@ namespace skyland
 
 
 
-void init_clouds(Platform& pfrm);
+void init_clouds();
 
 
 
@@ -65,10 +65,10 @@ static const char rooms_hidden_delim = ',';
 
 
 
-void load_hidden_rooms(Platform& pfrm)
+void load_hidden_rooms()
 {
     Vector<char> data;
-    flash_filesystem::read_file_data_binary(pfrm, hidden_rooms_file, data);
+    flash_filesystem::read_file_data_binary(hidden_rooms_file, data);
 
     StringBuffer<64> parse_buf;
 
@@ -90,7 +90,7 @@ void load_hidden_rooms(Platform& pfrm)
 
 
 
-void store_hidden_rooms(Platform& pfrm)
+void store_hidden_rooms()
 {
     Vector<char> data;
 
@@ -107,15 +107,15 @@ void store_hidden_rooms(Platform& pfrm)
     }
 
     flash_filesystem::store_file_data_binary(
-        pfrm, hidden_rooms_file, data, {.use_compression_ = true});
+        hidden_rooms_file, data, {.use_compression_ = true});
 }
 
 
 
-App::App(Platform& pfrm, bool clean_boot)
+App::App(bool clean_boot)
     : level_timer_(0), stat_timer_(0),
       world_state_(allocate_dynamic<WorldState>("env-buffer",
-                                                pfrm,
+
                                                 Layer::map_0_ext,
                                                 5,
                                                 player())),
@@ -124,16 +124,16 @@ App::App(Platform& pfrm, bool clean_boot)
 {
     player_.emplace<PlayerP1>();
 
-    init_clouds(pfrm);
+    init_clouds();
 
 
     current_scene_ = initial_scene(clean_boot);
     next_scene_ = initial_scene(clean_boot);
 
-    custom_flag_image_.load(pfrm, *this);
+    custom_flag_image_.load(*this);
 
-    if (not save::load_global_data(pfrm, gp_)) {
-        info(pfrm, "global data not found");
+    if (not save::load_global_data(gp_)) {
+        info("global data not found");
         for (auto& score : gp_.highscores_.values_) {
             score.set(0);
         }
@@ -141,19 +141,19 @@ App::App(Platform& pfrm, bool clean_boot)
         // Hidden by default. Just as an incentive to the player to figure out
         // how the room hide menu works.
         room_set_hidden(metaclass_index("sunflower"), true);
-        store_hidden_rooms(pfrm);
+        store_hidden_rooms();
     }
 
-    load_hidden_rooms(pfrm);
+    load_hidden_rooms();
 
     // On unrecoverrable errors: try to store a backup, and flush the system log
     // to sram.
-    pfrm.on_unrecoverrable_error([this](Platform& pfrm) {
+    PLATFORM.on_unrecoverrable_error([this]() {
         if (backup_->valid_) {
-            backup_->store(pfrm);
+            backup_->store();
         }
         if (is_developer_mode()) {
-            pfrm.logger().flush();
+            PLATFORM.logger().flush();
         }
     });
 
@@ -174,7 +174,7 @@ App::App(Platform& pfrm, bool clean_boot)
     const auto sb = StateBit::remote_console_force_newline;
     state_bit_store(*this, sb, true);
 
-    info(pfrm, "initialized application...");
+    info("initialized application...");
 }
 
 
@@ -213,7 +213,7 @@ bool App::has_backup()
 
 
 
-void App::restore_backup(Platform& pfrm)
+void App::restore_backup()
 {
     if (not backup_->valid_) {
         Platform::fatal("restore from invalid backup!");
@@ -224,7 +224,7 @@ void App::restore_backup(Platform& pfrm)
     persistent_data_ = backup_->persistent_data_;
     rng::critical_state = backup_->rng_state_;
 
-    invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+    invoke_script("/scripts/reset_hooks.lisp");
 
     lisp::VectorCharSequence seq(*backup_->lisp_data_);
     lisp::read(seq);
@@ -232,19 +232,19 @@ void App::restore_backup(Platform& pfrm)
 
     auto arg = lisp::get_op(0); // result of eval()
 
-    auto fn = invoke_script(pfrm, "/scripts/restore_save.lisp");
+    auto fn = invoke_script("/scripts/restore_save.lisp");
     if (fn->type() == lisp::Value::Type::function) {
         lisp::push_op(arg); // pass save data buffer on stack
         safecall(fn, 1);    // one argument (the save data)
         lisp::pop_op();     // funcall result
     } else {
-        pfrm.fatal("not function!");
+        PLATFORM.fatal("not function!");
     }
 
     lisp::pop_op(); // result of eval() (1)
     lisp::pop_op(); // result of read() (0)
 
-    player_island().fires_extinguish(pfrm, *this);
+    player_island().fires_extinguish(*this);
 
     current_world_location() = backup_->next_world_location_;
     ++world_graph().storm_depth_;
@@ -252,9 +252,9 @@ void App::restore_backup(Platform& pfrm)
 
 
 
-void App::create_backup(Platform& pfrm, const BackupContext& ctx)
+void App::create_backup(const BackupContext& ctx)
 {
-    backup_->init(pfrm, *this);
+    backup_->init(*this);
     backup_->next_world_location_ = ctx.next_world_location_;
 }
 
@@ -279,9 +279,9 @@ void App::delete_backup()
 
 
 
-void write_custom_graphics(Platform& pfrm, App& app)
+void write_custom_graphics(App& app)
 {
-    vram_write_flag(pfrm, app.custom_flag_image_, Layer::map_0_ext);
+    vram_write_flag(app.custom_flag_image_, Layer::map_0_ext);
 }
 
 
@@ -297,10 +297,10 @@ static constexpr const char* console_header =
 
 
 
-void App::start_console(Platform& pfrm)
+void App::start_console()
 {
-    pfrm.remote_console().start();
-    pfrm.remote_console().printline(console_header);
+    PLATFORM.remote_console().start();
+    PLATFORM.remote_console().printline(console_header);
 }
 
 
@@ -336,7 +336,7 @@ static int scratch_buffer_highwater = 0;
 
 
 
-void App::update(Platform& pfrm, Microseconds delta)
+void App::update(Microseconds delta)
 {
     TIMEPOINT(t1);
 
@@ -344,7 +344,7 @@ void App::update(Platform& pfrm, Microseconds delta)
     const auto previous_score = score().get();
 
     if (next_scene_) {
-        next_scene_->enter(pfrm, *this, *current_scene_);
+        next_scene_->enter(*this, *current_scene_);
 
         current_scene_ = std::move(next_scene_);
     }
@@ -353,16 +353,16 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     TIMEPOINT(t2);
 
-    auto line = pfrm.remote_console().readline();
+    auto line = PLATFORM.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
         if (not console_state_) {
             console_state_.emplace(allocate_dynamic<ConsoleState>("console"));
         }
         (*console_state_)
-            ->impl_->on_text(pfrm, *this, (*console_state_)->impl_, *line);
+            ->impl_->on_text(*this, (*console_state_)->impl_, *line);
     }
 
-    rumble_.update(pfrm, delta);
+    rumble_.update(delta);
 
     TIMEPOINT(t3);
 
@@ -373,7 +373,7 @@ void App::update(Platform& pfrm, Microseconds delta)
             it->second -= delta;
 
             if (not(it->second > 0)) {
-                it->first(pfrm, *this);
+                it->first(*this);
                 it = deferred_callbacks_.erase(it);
             } else {
                 ++it;
@@ -383,12 +383,12 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     TIMEPOINT(t4);
 
-    next_scene_ = current_scene_->update(pfrm, *this, delta);
+    next_scene_ = current_scene_->update(*this, delta);
 
     TIMEPOINT(t5);
 
     if (next_scene_) {
-        current_scene_->exit(pfrm, *this, *next_scene_);
+        current_scene_->exit(*this, *next_scene_);
     }
 
     if (rng::critical_state not_eq previous_rng) {
@@ -399,12 +399,12 @@ void App::update(Platform& pfrm, Microseconds delta)
     }
 
     if (score().get() not_eq previous_score) {
-        record_score_diff(pfrm, score().get() - previous_score);
+        record_score_diff(score().get() - previous_score);
     }
 
     TIMEPOINT(t6);
 
-    for (const char* sound : pfrm.speaker().completed_sounds()) {
+    for (const char* sound : PLATFORM.speaker().completed_sounds()) {
         // Do not play sounds associated with the game's ui.
         if (not is_gui_sound(sound)) {
 
@@ -428,7 +428,7 @@ void App::update(Platform& pfrm, Microseconds delta)
     TIMEPOINT(t7);
 
 
-    // if (pfrm.keyboard().pressed<Key::select>()) {
+    // if (PLATFORM.keyboard().pressed<Key::select>()) {
     //     Platform::fatal(format("% % % % % %",
     //                            t2 - t1,
     //                            t3 - t2,
@@ -449,13 +449,13 @@ void App::update(Platform& pfrm, Microseconds delta)
         str += stringify(scratch_buffers_remaining());
         str += " left)";
 
-        info(pfrm, str.c_str());
+        info(str.c_str());
     }
 }
 
 
 
-void App::record_score_diff(Platform& pfrm, int diff)
+void App::record_score_diff(int diff)
 {
     if (diff > 0) {
 
@@ -502,21 +502,21 @@ void App::update_parallax(Microseconds delta)
 
 
 
-void App::render(Platform& pfrm)
+void App::render()
 {
     if (not macrocosm()) {
-        pfrm.system_call("_prlx7",
-                         (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
-        pfrm.system_call("_prlx8",
-                         (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
+        PLATFORM.system_call(
+            "_prlx7", (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
+        PLATFORM.system_call(
+            "_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
     }
 
-    current_scene_->display(pfrm, *this);
+    current_scene_->display(*this);
 }
 
 
 
-void App::set_coins(Platform& pfrm, Coins coins)
+void App::set_coins(Coins coins)
 {
     time_stream::event::CoinsChanged e;
     e.previous_value_.set(persistent_data_.coins_);
@@ -527,41 +527,41 @@ void App::set_coins(Platform& pfrm, Coins coins)
 
 
 
-void init_clouds(Platform& pfrm)
+void init_clouds()
 {
-    pfrm.system_call("parallax-clouds", (void*)true);
+    PLATFORM.system_call("parallax-clouds", (void*)true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {
-            pfrm.set_tile(Layer::background, i, j, 4);
+            PLATFORM.set_tile(Layer::background, i, j, 4);
         }
     }
 
     for (int x = 0; x < 32; ++x) {
         for (int y = 0; y < 2; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 72);
+            PLATFORM.set_tile(Layer::background, x, y, 72);
         }
         for (int y = 2; y < 4; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 73);
+            PLATFORM.set_tile(Layer::background, x, y, 73);
         }
         for (int y = 4; y < 6; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 74);
+            PLATFORM.set_tile(Layer::background, x, y, 74);
         }
         for (int y = 6; y < 8; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 75);
+            PLATFORM.set_tile(Layer::background, x, y, 75);
         }
     }
 
     for (int i = 0; i < 32; ++i) {
-        pfrm.set_tile(Layer::background, i, 18, 5);
-        pfrm.set_tile(Layer::background, i, 19, 5);
+        PLATFORM.set_tile(Layer::background, i, 18, 5);
+        PLATFORM.set_tile(Layer::background, i, 19, 5);
     }
 
     auto put_cloud_block = [&](int x, int y, int offset) {
-        pfrm.set_tile(Layer::background, x, y, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y, offset++);
-        pfrm.set_tile(Layer::background, x, y + 1, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y + 1, offset);
+        PLATFORM.set_tile(Layer::background, x, y, offset++);
+        PLATFORM.set_tile(Layer::background, x + 1, y, offset++);
+        PLATFORM.set_tile(Layer::background, x, y + 1, offset++);
+        PLATFORM.set_tile(Layer::background, x + 1, y + 1, offset);
     };
 
     auto put_fg_cloud_type_n = [&](int x, int type) {
@@ -596,28 +596,28 @@ void init_clouds(Platform& pfrm)
     // lines from these rows, scrolled up into the gaps between tiles created by
     // vertical parallax scrolling.
     for (int i = 0; i < 32; ++i) {
-        pfrm.set_tile(Layer::background, i, 20, 7);
-        pfrm.set_tile(Layer::background, i, 21, 7);
-        pfrm.set_tile(Layer::background, i, 22, 7);
-        pfrm.set_tile(Layer::background, i, 23, 7);
+        PLATFORM.set_tile(Layer::background, i, 20, 7);
+        PLATFORM.set_tile(Layer::background, i, 21, 7);
+        PLATFORM.set_tile(Layer::background, i, 22, 7);
+        PLATFORM.set_tile(Layer::background, i, 23, 7);
     }
 }
 
 
 
-lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
+lisp::Value* App::invoke_ram_script(const char* ram_fs_path)
 {
     if (not is_developer_mode()) {
         return L_NIL;
     }
 
     Vector<char> buffer;
-    if (flash_filesystem::read_file_data_text(pfrm, ram_fs_path, buffer)) {
+    if (flash_filesystem::read_file_data_text(ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
-        return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        return lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.data_.c_str());
+            PLATFORM.fatal(p.data_.c_str());
         });
     }
 
@@ -640,24 +640,42 @@ void App::set_developer_mode(bool value)
 
 
 
-lisp::Value*
-App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+bool App::load_file(const char* path, Vector<char>& result)
 {
-    auto on_err = [&pfrm](lisp::Value& err) {
+    if (flash_filesystem::read_file_data(path, result)) {
+        return true;
+    }
+
+    auto fd = Platform::instance().load_file("", path);
+    if (fd.second) {
+        for (u32 i = 0; i < fd.second; ++i) {
+            result.push_back(fd.first[i]);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+
+
+lisp::Value* App::invoke_script(const char* path, bool rom_fs_only)
+{
+    auto on_err = [](lisp::Value& err) {
         lisp::DefaultPrinter p;
         lisp::format(&err, p);
-        pfrm.fatal(p.data_.c_str());
+        PLATFORM.fatal(p.data_.c_str());
     };
 
-    if (is_developer_mode() and not pfrm.network_peer().is_connected() and
+    if (is_developer_mode() and not PLATFORM.network_peer().is_connected() and
         game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
 
         Vector<char> buffer;
-        if (flash_filesystem::read_file_data_text(pfrm, path, buffer)) {
+        if (flash_filesystem::read_file_data_text(path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, on_err);
             // In case the script took a bit to execute.
-            pfrm.delta_clock().reset();
+            PLATFORM.delta_clock().reset();
             return result;
         }
     }
@@ -666,16 +684,16 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         ++path;
     }
 
-    if (auto contents = pfrm.load_file_contents("", path)) {
+    if (auto contents = PLATFORM.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
         auto result = lisp::dostring(seq, on_err);
-        pfrm.delta_clock().reset();
+        PLATFORM.delta_clock().reset();
         return result;
     } else {
         StringBuffer<100> err("script '");
         err += path;
         err += "' missing";
-        pfrm.fatal(err.c_str());
+        PLATFORM.fatal(err.c_str());
     }
 }
 

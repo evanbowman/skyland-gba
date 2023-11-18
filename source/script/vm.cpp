@@ -55,7 +55,7 @@ Instruction* read(ScratchBuffer& buffer, int& pc)
 }
 
 
-void vm_execute(Platform& pfrm, Value* code_buffer, const int start_offset)
+void vm_execute(Value* code_buffer, const int start_offset)
 {
     int pc = start_offset;
 

@@ -68,7 +68,7 @@ Flak::Flak(const Vec2<Fixnum>& position,
 
 
 
-void Flak::update(Platform& pfrm, App& app, Microseconds delta)
+void Flak::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -99,13 +99,13 @@ void Flak::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 }
 
 
 
-void Flak::record_destroyed(Platform& pfrm, App& app)
+void Flak::record_destroyed(App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -132,12 +132,12 @@ void Flak::record_destroyed(Platform& pfrm, App& app)
 
 
 
-void Flak::destroy(Platform& pfrm, App& app, bool explosion)
+void Flak::destroy(App& app, bool explosion)
 {
-    record_destroyed(pfrm, app);
+    record_destroyed(app);
 
     if (explosion) {
-        explode(pfrm, app);
+        explode(app);
     }
 
     app.camera()->shake(8);
@@ -147,39 +147,38 @@ void Flak::destroy(Platform& pfrm, App& app, bool explosion)
 
 
 
-void Flak::explode(Platform& pfrm, App& app)
+void Flak::explode(App& app)
 {
-    big_explosion(pfrm, app, sprite_.get_position());
+    big_explosion(app, sprite_.get_position());
 
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
+    auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
-            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+            rng::sample<48>(pos, rng::utility_state), 61);
 
         if (e) {
             app.effects().push(std::move(e));
         }
     };
 
-    flak_smoke(pfrm, app, sprite_.get_position());
-    flak_smoke(pfrm, app, sprite_.get_position());
+    flak_smoke(app, sprite_.get_position());
+    flak_smoke(app, sprite_.get_position());
 
 
     Vec2<s32> pos;
     pos.x = sprite_.get_position().x.as_integer();
     pos.y = sprite_.get_position().y.as_integer();
 
-    app.on_timeout(
-        pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
-            Vec2<Fixnum> p;
-            p.x = Fixnum::from_integer(pos.x);
-            p.y = Fixnum::from_integer(pos.y);
-            flak_smoke(pf, app, p);
-        });
+    app.on_timeout(milliseconds(190), [pos, flak_smoke](App& app) {
+        Vec2<Fixnum> p;
+        p.x = Fixnum::from_integer(pos.x);
+        p.y = Fixnum::from_integer(pos.y);
+        flak_smoke(app, p);
+    });
 }
 
 
 
-void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Flak::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -189,9 +188,9 @@ void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -210,8 +209,7 @@ void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Flak::burst(Platform& pfrm,
-                 App& app,
+void Flak::burst(App& app,
                  const Vec2<Fixnum>& position,
                  Room& origin_room,
                  Island* source)
@@ -226,7 +224,7 @@ void Flak::burst(Platform& pfrm,
         const int y = grid_y_start + y_off;
         if (x >= 0 and x < 16 and y >= 0 and y < 16) {
             if (auto room = island->get_room({u8(x), u8(y)})) {
-                room->apply_damage(pfrm, app, damage, source);
+                room->apply_damage(app, damage, source);
             }
         }
     };
@@ -259,7 +257,7 @@ void Flak::burst(Platform& pfrm,
 
 
 
-void Flak::on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
+void Flak::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (destroyed_) {
         return;
@@ -267,7 +265,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < flak_r1_damage) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
@@ -291,22 +289,22 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
         return;
     }
 
-    Flak::burst(pfrm, app, sprite_.get_position(), room, source_);
+    Flak::burst(app, sprite_.get_position(), room, source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
-        record_destroyed(pfrm, app);
-        explode(pfrm, app);
+        room.set_ai_aware(app, true);
+        record_destroyed(app);
+        explode(app);
         app.camera()->shake(8);
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
         destroyed_ = true;
-        destroy(pfrm, app, true);
+        destroy(app, true);
     }
 }
 

@@ -35,14 +35,14 @@ namespace skyland
 class FadeOutScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
-    void exit(Platform&, App&, Scene& prev) override;
-    void enter(Platform&, App&, Scene& next) override;
+    void exit(App&, Scene& prev) override;
+    void enter(App&, Scene& next) override;
 
 
 private:

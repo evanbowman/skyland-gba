@@ -82,15 +82,15 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 
 
 
-void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
+void GenericBird::roost(Island* island, Microseconds delta)
 {
     auto o = island->origin();
     o.x += Fixnum::from_integer(position_.x * 16);
     o.y += Fixnum::from_integer(position_.y * 16);
 
     auto layer = island->layer();
-    auto t = pfrm.get_tile(layer, position_.x, position_.y);
-    auto below = pfrm.get_tile(layer, position_.x, position_.y + 1);
+    auto t = PLATFORM.get_tile(layer, position_.x, position_.y);
+    auto below = PLATFORM.get_tile(layer, position_.x, position_.y + 1);
 
     if ((below == Tile::null or below == Tile::grass or
          below == Tile::liberty_1 or below == Tile::lava_top or
@@ -144,7 +144,7 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
 
 
 
-void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
+void GenericBird::update(App& app, Microseconds delta)
 {
     Island* island = nullptr;
 
@@ -160,7 +160,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (island->is_destroyed()) {
-        this->signal(pfrm, app);
+        this->signal(app);
     }
 
     if (island not_eq nullptr) {
@@ -174,7 +174,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::roost: {
 
-        roost(pfrm, island, delta);
+        roost(island, delta);
 
         if (alerted_ and delta > 0) {
             state_ = State::fly;
@@ -188,7 +188,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::caw: {
-        roost(pfrm, island, delta);
+        roost(island, delta);
 
         anim_timer_ += delta;
         flight_timer_ += delta;
@@ -270,7 +270,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
+void GenericBird::rewind(App& app, Microseconds delta)
 {
     Island* island = nullptr;
 
@@ -281,7 +281,7 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (island->is_destroyed()) {
-        this->signal(pfrm, app);
+        this->signal(app);
     }
 
     if (island == nullptr) {
@@ -290,7 +290,7 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::roost: {
-        roost(pfrm, island, 0);
+        roost(island, 0);
         break;
     }
 
@@ -346,7 +346,7 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void GenericBird::signal(Platform&, App&)
+void GenericBird::signal(App&)
 {
     if (state_ == State::roost) {
         alerted_ = true;
@@ -366,7 +366,7 @@ Island* GenericBird::island(App& app)
 
 
 
-void GenericBird::generate(Platform& pfrm, App& app)
+void GenericBird::generate(App& app)
 {
     for (auto it = app.birds().begin(); it not_eq app.birds().end();) {
         if ((*it)->island(app) == opponent_island(app)) {
@@ -381,11 +381,10 @@ void GenericBird::generate(Platform& pfrm, App& app)
     if (rng::choice<4>(rng::utility_state) > 0) {
         int used = rng::choice<4>(rng::utility_state);
         remaining_birds -= used;
-        GenericBird::spawn(pfrm, app, *app.opponent_island(), used);
+        GenericBird::spawn(app, *app.opponent_island(), used);
     }
     if (rng::choice<4>(rng::utility_state) > 0) {
-        GenericBird::spawn(pfrm,
-                           app,
+        GenericBird::spawn(app,
                            app.player_island(),
                            rng::choice(remaining_birds, rng::utility_state));
     }
@@ -393,7 +392,7 @@ void GenericBird::generate(Platform& pfrm, App& app)
 
 
 
-void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
+void GenericBird::spawn(App& app, Island& island, int count)
 {
     Buffer<u8, 10> used;
 
@@ -430,10 +429,10 @@ void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
 
                 auto pos = RoomCoord{column, y};
 
-                if (auto dt = pfrm.make_dynamic_texture()) {
+                if (auto dt = PLATFORM.make_dynamic_texture()) {
                     bool near = &island == &app.player_island();
                     app.birds().push(
-                        app.alloc_entity<GenericBird>(pfrm, *dt, pos, near));
+                        app.alloc_entity<GenericBird>(*dt, pos, near));
                     break;
                 }
             }

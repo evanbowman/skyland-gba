@@ -19,8 +19,7 @@ namespace skyland
 
 
 
-void __draw_image(Platform& pfrm,
-                  TileDesc start_tile,
+void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
                   u16 width,
@@ -37,83 +36,83 @@ fluid_shader(ShaderPalette p, ColorConstant k, int var, int index);
 
 
 
-void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
+void MacrocosmFreebuildModule::enter(App& app, Scene& prev)
 {
-    pfrm.screen().schedule_fade(0.f);
-    pfrm.screen().schedule_fade(1.f);
+    PLATFORM.screen().schedule_fade(0.f);
+    PLATFORM.screen().schedule_fade(1.f);
 
     auto prompt_str = SYSTR(freebuild_terrain_size);
-    u8 margin = centered_text_margins(pfrm, utf8::len(prompt_str->c_str()));
+    u8 margin = centered_text_margins(utf8::len(prompt_str->c_str()));
 
-    prompt_.emplace(pfrm, prompt_str->c_str(), OverlayCoord{margin, 4});
+    prompt_.emplace(prompt_str->c_str(), OverlayCoord{margin, 4});
 
-    t1_.emplace(pfrm, SYSTR(macro_deep)->c_str(), OverlayCoord{3, 7});
+    t1_.emplace(SYSTR(macro_deep)->c_str(), OverlayCoord{3, 7});
     t1_->append(" 10x10x8");
 
-    t2_.emplace(pfrm, SYSTR(macro_wide)->c_str(), OverlayCoord{3, 9});
+    t2_.emplace(SYSTR(macro_wide)->c_str(), OverlayCoord{3, 9});
     t2_->append(" 12x12x5");
 
-    t3_.emplace(pfrm, SYSTR(macro_superflat)->c_str(), OverlayCoord{3, 11});
+    t3_.emplace(SYSTR(macro_superflat)->c_str(), OverlayCoord{3, 11});
     t3_->append(" 14x14x4");
 }
 
 
 
-void MacrocosmFreebuildModule::exit(Platform& pfrm, App& app, Scene& prev)
+void MacrocosmFreebuildModule::exit(App& app, Scene& prev)
 {
     prompt_.reset();
     t1_.reset();
     t2_.reset();
     t3_.reset();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
 
-void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
+void MacrocosmFreebuildModule::init(App& app)
 {
-    pfrm.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(app.environment().music(), 0);
 
 
-    app.camera().emplace<macro::Camera>(pfrm);
+    app.camera().emplace<macro::Camera>();
 
-    pfrm.load_background_texture("background_macro");
-    // pfrm.system_call("parallax-clouds", false);
+    PLATFORM.load_background_texture("background_macro");
+    // PLATFORM.system_call("parallax-clouds", false);
 
-    pfrm.load_sprite_texture("spritesheet_macro");
-    pfrm.load_tile0_texture("macro_rendertexture");
-    pfrm.load_tile1_texture("macro_rendertexture");
+    PLATFORM.load_sprite_texture("spritesheet_macro");
+    PLATFORM.load_tile0_texture("macro_rendertexture");
+    PLATFORM.load_tile1_texture("macro_rendertexture");
 
     for (int x = 0; x < 32; ++x) {
         for (int y = 0; y < 32; ++y) {
-            pfrm.set_raw_tile(Layer::map_0, x, y, 0);
-            pfrm.set_raw_tile(Layer::map_1, x, y, 0);
+            PLATFORM.set_raw_tile(Layer::map_0, x, y, 0);
+            PLATFORM.set_raw_tile(Layer::map_1, x, y, 0);
         }
     }
 
 
-    macro::background_init(pfrm);
+    macro::background_init();
 
 
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 
 
-    __draw_image(pfrm, 0, 0, 0, 30, 16, Layer::map_0);
-    __draw_image(pfrm, 0, 0, 17, 30, 16, Layer::map_1);
+    __draw_image(0, 0, 0, 30, 16, Layer::map_0);
+    __draw_image(0, 0, 17, 30, 16, Layer::map_1);
 
 
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
+    app.macrocosm()->emplace<macro::EngineImpl>(&app);
 
 
-    pfrm.screen().set_shader(macro::fluid_shader);
-    pfrm.load_tile0_texture("macro_rendertexture");
-    pfrm.load_tile1_texture("macro_rendertexture");
+    PLATFORM.screen().set_shader(macro::fluid_shader);
+    PLATFORM.load_tile0_texture("macro_rendertexture");
+    PLATFORM.load_tile1_texture("macro_rendertexture");
 
     auto& m = macrocosm(app);
     m.data_->freebuild_mode_ = true;
-    //m.newgame(pfrm, app);
+    //m.newgame(app);
     app.game_mode() = App::GameMode::macro;
 
     switch (size_sel_) {
@@ -149,22 +148,21 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
     }
     }
 
-    pfrm.system_call("vsync", nullptr);
+    PLATFORM.system_call("vsync", nullptr);
 
-    m.sector().render(pfrm);
+    m.sector().render();
 
-    pfrm.sleep(1);
-    pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-    pfrm.screen().schedule_fade(0.f);
+    PLATFORM.sleep(1);
+    PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+    PLATFORM.screen().schedule_fade(0.f);
 
-    pfrm.system_call("_prlx_macro",
-                     (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+    PLATFORM.system_call("_prlx_macro",
+                         (void*)(intptr_t)(int)m.data_->cloud_scroll_);
 }
 
 
 
-ScenePtr<Scene>
-MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MacrocosmFreebuildModule::update(App& app, Microseconds delta)
 {
     // if (not app.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
     //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
@@ -174,53 +172,53 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
     //     });
     // }
 
-    if (pfrm.device_name() == "MacroDesktopDemo" or
-        app.player().key_down(pfrm, Key::action_1)) {
+    if (PLATFORM.device_name() == "MacroDesktopDemo" or
+        app.player().key_down(Key::action_1)) {
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
-            pfrm.speaker().play_sound("button_wooden", 3);
+        if (app.player().key_down(Key::action_1)) {
+            PLATFORM.speaker().play_sound("button_wooden", 3);
         } else {
             size_sel_ = 2;
         }
 
-        init(pfrm, app);
+        init(app);
 
         auto next = scene_pool::alloc<macro::SelectorScene>();
         next->show_island_size();
         return next;
     }
 
-    if (app.player().key_down(pfrm, Key::up)) {
+    if (app.player().key_down(Key::up)) {
         if (size_sel_ > 0) {
             --size_sel_;
-            pfrm.speaker().play_sound("click_wooden", 2);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::down)) {
+    if (app.player().key_down(Key::down)) {
         if (size_sel_ < 2) {
             ++size_sel_;
-            pfrm.speaker().play_sound("click_wooden", 2);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
         }
     }
 
     switch (size_sel_) {
     case 0:
-        pfrm.set_tile(Layer::overlay, 1, 7, 396);
-        pfrm.set_tile(Layer::overlay, 1, 9, 0);
-        pfrm.set_tile(Layer::overlay, 1, 11, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 7, 396);
+        PLATFORM.set_tile(Layer::overlay, 1, 9, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 11, 0);
         break;
 
     case 1:
-        pfrm.set_tile(Layer::overlay, 1, 7, 0);
-        pfrm.set_tile(Layer::overlay, 1, 9, 396);
-        pfrm.set_tile(Layer::overlay, 1, 11, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 7, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 9, 396);
+        PLATFORM.set_tile(Layer::overlay, 1, 11, 0);
         break;
 
     case 2:
-        pfrm.set_tile(Layer::overlay, 1, 7, 0);
-        pfrm.set_tile(Layer::overlay, 1, 9, 0);
-        pfrm.set_tile(Layer::overlay, 1, 11, 396);
+        PLATFORM.set_tile(Layer::overlay, 1, 7, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 9, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 11, 396);
         break;
     }
 

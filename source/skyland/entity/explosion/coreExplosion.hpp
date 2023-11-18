@@ -71,7 +71,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         timer_ += delta * 2;
 
@@ -106,7 +106,7 @@ public:
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         timer_ -= delta * 2;
 
@@ -134,22 +134,19 @@ private:
 
 
 
-inline void core_explosion(Platform& pfrm,
-                           App& app,
-                           Island* parent,
-                           const Vec2<Fixnum>& pos)
+inline void core_explosion(App& app, Island* parent, const Vec2<Fixnum>& pos)
 {
     if (parent->core_count() == 1) {
         // There's a special death sequence animation for the final destroyed
         // core.
-        big_explosion(pfrm, app, pos);
+        big_explosion(app, pos);
         return;
     }
 
 
-    int min_x = pfrm.screen().get_view().int_center().x - 48;
-    int max_x =
-        pfrm.screen().get_view().int_center().x + pfrm.screen().size().x + 48;
+    int min_x = PLATFORM.screen().get_view().int_center().x - 48;
+    int max_x = PLATFORM.screen().get_view().int_center().x +
+                PLATFORM.screen().size().x + 48;
     int max_y = 700;
     int min_y = 450;
 
@@ -163,8 +160,8 @@ inline void core_explosion(Platform& pfrm,
             for (int j = 0; j < 4; ++j) {
                 const int angle = j * 90 + 45 + i * 3;
                 const u8 half_angle = angle / 2;
-                if (auto exp = app.alloc_entity<Explosion2>(
-                        pfrm, pos, half_angle, (u8)i)) {
+                if (auto exp =
+                        app.alloc_entity<Explosion2>(pos, half_angle, (u8)i)) {
                     auto dir = rotate({1, 0}, angle);
                     dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
                     Vec2<Fixnum> spd;
@@ -178,14 +175,14 @@ inline void core_explosion(Platform& pfrm,
     }
 
 
-    auto dt = pfrm.make_dynamic_texture();
+    auto dt = PLATFORM.make_dynamic_texture();
     if (dt) {
         auto p = pos;
         p.x -= 32.0_fixed;
         p.y -= 32.0_fixed;
         auto make_segment = [&](int q) {
             return app.effects().push(
-                app.alloc_entity<CoreExplosionQuarter>(pfrm, *dt, p, q));
+                app.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
         };
         make_segment(3);
         make_segment(2);

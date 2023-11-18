@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-void BulkTimer::rewind(Platform& pfrm, App& app, Microseconds elapsed_delta)
+void BulkTimer::rewind(App& app, Microseconds elapsed_delta)
 {
     if (elapsed_delta == 0) {
         return;
@@ -61,7 +61,7 @@ void BulkTimer::rewind(Platform& pfrm, App& app, Microseconds elapsed_delta)
 
 
 
-void BulkTimer::update(Platform& pfrm, App& app, Microseconds elapsed_delta)
+void BulkTimer::update(App& app, Microseconds elapsed_delta)
 {
     if (elapsed_delta == 0) {
         return;
@@ -75,7 +75,7 @@ void BulkTimer::update(Platform& pfrm, App& app, Microseconds elapsed_delta)
 
         list->clock_ -= elapsed_delta;
         if (list->clock_ <= 0) {
-            list->timer_expired(pfrm, app);
+            list->timer_expired(app);
         } else {
             // Not finished counting down, re-link the timer to the update
             // list.

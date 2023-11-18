@@ -32,12 +32,12 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-BugReportModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> BugReportModule::update(App& app, Microseconds delta)
 {
     StringBuffer<64> hash("Build hash: ");
 
-    if (auto str = pfrm.load_file_contents("", "/strings/commit_hash.txt")) {
+    if (auto str =
+            PLATFORM.load_file_contents("", "/strings/commit_hash.txt")) {
         while (*str not_eq '\0' and *str not_eq '\n' and *str not_eq '\r') {
             hash.push_back(*str);
             ++str;

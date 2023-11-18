@@ -55,26 +55,24 @@ QRViewerScene::QRViewerScene(const QRCode& qr,
 
 
 
-void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
+void QRViewerScene::enter(App& app, Scene& prev)
 {
-    pfrm.load_overlay_texture("overlay_qr");
+    PLATFORM.load_overlay_texture("overlay_qr");
 
-    tv_.emplace(pfrm);
+    tv_.emplace();
 
     if (qr_ or (text_ and not(*text_)->empty())) {
 
         if (not overworld_) {
             auto str = SYSTR(qr_prep);
-            auto m = centered_text_margins(pfrm, utf8::len(str->c_str()));
-            Text t(
-                pfrm,
-                OverlayCoord{(u8)m, (u8)(calc_screen_tiles(pfrm).y / 2 - 1)});
+            auto m = centered_text_margins(utf8::len(str->c_str()));
+            Text t(OverlayCoord{(u8)m, (u8)(calc_screen_tiles().y / 2 - 1)});
             t.assign(str->c_str(),
                      OptColors{{ColorConstant::silver_white,
                                 custom_color(0x392194)}});
-            pfrm.system_call("vsync", nullptr);
-            pfrm.screen().fade(1.f, custom_color(0x392194));
-            pfrm.screen().display();
+            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM.screen().fade(1.f, custom_color(0x392194));
+            PLATFORM.screen().display();
         }
 
         if (not qr_ and text_ and not(*text_)->empty()) {
@@ -93,13 +91,13 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                 qr_->position_marker_inner_color_index(7);
             }
 
-            pfrm.screen().display();
+            PLATFORM.screen().display();
 
 
             u8 margin = 1;
 
             if (qr_->drawsize(format_) <= 38 / 2) {
-                const auto st = calc_screen_tiles(pfrm);
+                const auto st = calc_screen_tiles();
 
                 margin = (st.y - qr_->drawsize(format_)) / 2;
 
@@ -111,7 +109,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                         0);
                 }();
 
-                pfrm.fill_overlay(0);
+                PLATFORM.fill_overlay(0);
 
 
 
@@ -124,13 +122,13 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                                        ColorConstant::silver_white}});
 
                 if (overworld_) {
-                    pfrm.fill_overlay(0);
+                    PLATFORM.fill_overlay(0);
                 }
 
                 auto next_str = SYSTR(a_next);
 
                 u8 next_start = st.x - utf8::len(next_str->c_str());
-                next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
+                next_text_.emplace(OverlayCoord{next_start, 19});
                 next_text_->assign(
                     next_str->c_str(),
                     OptColors{{overworld_ ? custom_color(0x4e4e73)
@@ -139,28 +137,27 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                                           : custom_color(0x392194)}});
             }
 
-            qr_->draw(pfrm, {2, (u8)margin}, (int)format_);
+            qr_->draw({2, (u8)margin}, (int)format_);
         } else {
             Platform::fatal("qr gen failed");
         }
     }
 
-    pfrm.screen().schedule_fade(
+    PLATFORM.screen().schedule_fade(
         1.f, overworld_ ? custom_color(0x4e4e73) : ColorConstant::silver_white);
 }
 
 
 
-void QRViewerScene::exit(Platform& pfrm, App& app, Scene& next)
+void QRViewerScene::exit(App& app, Scene& next)
 {
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.load_overlay_texture("overlay");
     next_text_.reset();
 }
 
 
 
-ScenePtr<Scene>
-QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> QRViewerScene::update(App& app, Microseconds delta)
 {
     if (exit_) {
         return next_();
@@ -175,15 +172,14 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
     }
 
-    if (timer_ > milliseconds(300) and
-        player(app).key_down(pfrm, Key::action_1)) {
+    if (timer_ > milliseconds(300) and player(app).key_down(Key::action_1)) {
         exit_ = true;
         tv_.reset();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
         if (overworld_) {
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
         } else {
-            pfrm.screen().schedule_fade(1.f, exit_color_);
+            PLATFORM.screen().schedule_fade(1.f, exit_color_);
         }
     }
 
@@ -203,7 +199,7 @@ ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
 
 
 
-void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ConfiguredURLQRViewerScene::enter(App& app, Scene& prev)
 {
     // NOTE: enabling developer mode does not allow the player to record
     // highscores. But, we do want the software to be resiliant to future
@@ -213,7 +209,7 @@ void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
     const bool was_developer_mode = app.is_developer_mode();
     app.set_developer_mode(true);
 
-    auto v = app.invoke_script(pfrm, config_path_.c_str());
+    auto v = app.invoke_script(config_path_.c_str());
     if (v->type() not_eq lisp::Value::Type::string) {
         Platform::fatal("url lisp script returned non-string result");
     }
@@ -227,7 +223,7 @@ void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
     **text_ = v->string().value();
     **text_ += *temp;
 
-    QRViewerScene::enter(pfrm, app, prev);
+    QRViewerScene::enter(app, prev);
 }
 
 

@@ -35,11 +35,10 @@ namespace skyland::macro
 class FreebuildTeam : public PlayerP1, public network::Listener
 {
 public:
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void
-    receive(Platform&, App&, const network::packet::MacroSetBlock& p) override;
+    void receive(App&, const network::packet::MacroSetBlock& p) override;
 
 
 private:

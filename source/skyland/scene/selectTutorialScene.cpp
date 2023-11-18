@@ -53,17 +53,17 @@ void SelectTutorialScene::quick_select(int tutorial_number)
 
 
 
-void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
+void SelectTutorialScene::enter(App& app, Scene& prev)
 {
-    pfrm.screen().set_shader(passthrough_shader);
+    PLATFORM.screen().set_shader(passthrough_shader);
 
-    pfrm.speaker().play_music("unaccompanied_wind", 0);
+    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
 
-    app.set_coins(pfrm, 0);
+    app.set_coins(0);
 
     app.player_island().projectiles().clear();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     app.stat_timer().reset(0);
 
@@ -71,7 +71,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
-            app.player_island().fire_extinguish(pfrm, app, {x, y});
+            app.player_island().fire_extinguish(app, {x, y});
         }
     }
 
@@ -80,69 +80,70 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.swap_player<PlayerP1>();
 
     if (state_ not_eq State::quickselect) {
-        pfrm.load_overlay_texture("overlay_challenges");
+        PLATFORM.load_overlay_texture("overlay_challenges");
 
-        pfrm.system_call("v-parallax", (void*)false);
+        PLATFORM.system_call("v-parallax", (void*)false);
     }
 
     app.game_mode() = App::GameMode::tutorial;
 
-    if (auto script =
-            pfrm.load_file_contents("scripts", "tutorials/tutorials.lisp")) {
+    if (auto script = PLATFORM.load_file_contents("scripts",
+                                                  "tutorials/tutorials.lisp")) {
         lisp::BasicCharSequence seq(script);
-        auto result = lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        auto result = lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.data_.c_str());
+            PLATFORM.fatal(p.data_.c_str());
         });
         tutorials_ = result;
         const auto tutorial_count = lisp::length(result);
         page_count_ = tutorial_count / 5 + (tutorial_count % 5 ? 1 : 0);
 
     } else {
-        pfrm.fatal("missing file tutorial.lisp");
+        PLATFORM.fatal("missing file tutorial.lisp");
     }
 
 
     if (state_ not_eq State::quickselect) {
-        show_options(pfrm, app);
+        show_options(app);
 
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                pfrm.set_tile(Layer::map_0_ext, i, j, 0);
-                pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+                PLATFORM.set_tile(Layer::map_0_ext, i, j, 0);
+                PLATFORM.set_tile(Layer::map_1_ext, i, j, 0);
             }
         }
 
-        pfrm.screen().set_view({});
+        PLATFORM.screen().set_view({});
 
-        pfrm.screen().fade(default_fade, ColorConstant::rich_black, {}, false);
+        PLATFORM.screen().fade(
+            default_fade, ColorConstant::rich_black, {}, false);
     }
 
-    pfrm.delta_clock().reset();
+    PLATFORM.delta_clock().reset();
 }
 
 
 
-void SelectTutorialScene::show_options(Platform& pfrm, App& app)
+void SelectTutorialScene::show_options(App& app)
 {
-    pfrm.screen().clear();
+    PLATFORM.screen().clear();
     text_.clear();
-    pfrm.screen().display();
+    PLATFORM.screen().display();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.set_tile(Layer::overlay, 1, 2, 90);
-    pfrm.set_tile(Layer::overlay, 28, 2, 92);
-    pfrm.set_tile(Layer::overlay, 1, 15, 94);
-    pfrm.set_tile(Layer::overlay, 28, 15, 96);
+    PLATFORM.set_tile(Layer::overlay, 1, 2, 90);
+    PLATFORM.set_tile(Layer::overlay, 28, 2, 92);
+    PLATFORM.set_tile(Layer::overlay, 1, 15, 94);
+    PLATFORM.set_tile(Layer::overlay, 28, 15, 96);
     for (int x = 2; x < 28; ++x) {
-        pfrm.set_tile(Layer::overlay, x, 2, 91);
-        pfrm.set_tile(Layer::overlay, x, 15, 95);
+        PLATFORM.set_tile(Layer::overlay, x, 2, 91);
+        PLATFORM.set_tile(Layer::overlay, x, 15, 95);
     }
     for (int y = 3; y < 15; ++y) {
-        pfrm.set_tile(Layer::overlay, 1, y, 93);
-        pfrm.set_tile(Layer::overlay, 28, y, 97);
+        PLATFORM.set_tile(Layer::overlay, 1, y, 93);
+        PLATFORM.set_tile(Layer::overlay, 28, y, 97);
     }
 
     if (not tutorials_) {
@@ -154,12 +155,12 @@ void SelectTutorialScene::show_options(Platform& pfrm, App& app)
 
     lisp::foreach (*tutorials_, [&](lisp::Value* val) {
         if (val->type() not_eq lisp::Value::Type::cons) {
-            pfrm.fatal("tutorial list format invalid");
+            PLATFORM.fatal("tutorial list format invalid");
         }
 
         auto name = val->cons().car();
         if (name->type() not_eq lisp::Value::Type::string) {
-            pfrm.fatal("tutorial list format invalid");
+            PLATFORM.fatal("tutorial list format invalid");
         }
 
         bool completed = app.gp_.watched_tutorials_.get() & (1 << index);
@@ -168,26 +169,25 @@ void SelectTutorialScene::show_options(Platform& pfrm, App& app)
             return;
         }
 
-        text_.emplace_back(pfrm,
-                           name->string().value(),
+        text_.emplace_back(name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
 
         if (completed) {
-            pfrm.set_tile(Layer::overlay,
-                          text_.back().coord().x + text_.back().len() + 1,
-                          text_.back().coord().y,
-                          84);
+            PLATFORM.set_tile(Layer::overlay,
+                              text_.back().coord().x + text_.back().len() + 1,
+                              text_.back().coord().y,
+                              84);
         }
     });
 
 
     if (page_count_ > 1) {
-        int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
+        int margin = (calc_screen_tiles().x - page_count_ * 2) / 2;
         for (int i = 0; i < page_count_; ++i) {
             if (i == page_) {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
+                PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 83);
             } else {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
+                PLATFORM.set_tile(Layer::overlay, margin + i * 2, 18, 82);
             }
         }
     }
@@ -195,22 +195,22 @@ void SelectTutorialScene::show_options(Platform& pfrm, App& app)
 
 
 
-void prep_level(Platform& pfrm, App& app);
+void prep_level(App& app);
 
 
 
-void SelectTutorialScene::exit(Platform& pfrm, App&, Scene& next)
+void SelectTutorialScene::exit(App&, Scene& next)
 {
     text_.clear();
-    pfrm.fill_overlay(0);
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.fill_overlay(0);
+    PLATFORM.load_overlay_texture("overlay");
 
-    pfrm.system_call("v-parallax", (void*)true);
+    PLATFORM.system_call("v-parallax", (void*)true);
 }
 
 
 
-void SelectTutorialScene::display(Platform& pfrm, App& app)
+void SelectTutorialScene::display(App& app)
 {
     if (state_ not_eq State::idle) {
         return;
@@ -229,13 +229,12 @@ void SelectTutorialScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 }
 
 
 
-ScenePtr<Scene>
-SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
 {
     if (exit_) {
         return scene_pool::alloc<TitleScreenScene>(3);
@@ -254,30 +253,30 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not(app.gp_.watched_tutorials_.get() & (1 << index))) {
             app.gp_.watched_tutorials_.set(app.gp_.watched_tutorials_.get() |
                                            (1 << index));
-            save::store_global_data(pfrm, app.gp_);
+            save::store_global_data(app.gp_);
         }
 
         auto file_name = choice->cons().cdr();
         if (file_name->type() not_eq lisp::Value::Type::string) {
-            pfrm.fatal("tutorial list format invalid");
+            PLATFORM.fatal("tutorial list format invalid");
         }
 
-        if (auto script = pfrm.load_file_contents(
+        if (auto script = PLATFORM.load_file_contents(
                 "scripts", file_name->string().value())) {
 
             lisp::BasicCharSequence seq(script);
-            lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::dostring(seq, [](lisp::Value& err) {
                 lisp::DefaultPrinter p;
                 lisp::format(&err, p);
-                pfrm.fatal(p.data_.c_str());
+                PLATFORM.fatal(p.data_.c_str());
             });
-            prep_level(pfrm, app);
-            app.player_island().repaint(pfrm, app);
-            app.player_island().render_exterior(pfrm, app);
+            prep_level(app);
+            app.player_island().repaint(app);
+            app.player_island().render_exterior(app);
 
             rng::critical_state = 42;
 
-            pfrm.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(app.environment().music(), 0);
 
             app.time_stream().enable_pushes(true);
             app.time_stream().clear();
@@ -290,7 +289,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             StringBuffer<32> err("file ");
             err += file_name->string().value();
             err += " missing";
-            pfrm.fatal(err.c_str());
+            PLATFORM.fatal(err.c_str());
         }
         break;
     }
@@ -300,48 +299,49 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             return null_scene();
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
             }
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             if (cursor_) {
                 cursor_--;
             }
         }
 
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (app.player().key_down(Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(pfrm, app);
+                show_options(app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (app.player().key_down(Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(pfrm, app);
+                show_options(app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
-            pfrm.fill_overlay(0);
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            PLATFORM.fill_overlay(0);
+        } else if (app.player().key_down(Key::action_2)) {
             text_.clear();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             exit_ = true;
-            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+            PLATFORM.screen().fade(
+                1.f, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -350,7 +350,8 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
             app.camera()->reset();
-            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+            PLATFORM.screen().fade(
+                1.f, ColorConstant::rich_black, {}, true, true);
 
             state_ = State::quickselect;
 
@@ -358,7 +359,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto amount =
                 default_fade +
                 (1.f - default_fade) * smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount);
+            PLATFORM.screen().fade(amount);
         }
         break;
     }

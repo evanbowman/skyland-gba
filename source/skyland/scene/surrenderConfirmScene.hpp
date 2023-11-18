@@ -42,31 +42,30 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             selection_ = false;
             yes_text_->assign(SYSTR(yes)->c_str());
             no_text_->assign(SYSTR(no)->c_str(), sel_colors);
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(Key::down)) {
             selection_ = true;
             yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
             no_text_->assign(SYSTR(no)->c_str());
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             if (selection_) {
                 if (app.opponent_island()) {
                     app.swap_opponent<FriendlyAI>();
                     for (auto& r : app.opponent_island()->rooms()) {
-                        r->unset_target(pfrm, app);
+                        r->unset_target(app);
                     }
                 }
                 app.exit_condition() = App::ExitCondition::defeat;
-                pfrm.speaker().stop_music();
+                PLATFORM.speaker().stop_music();
             }
             return scene_pool::alloc<ReadyScene>();
         }
@@ -75,23 +74,23 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App&, Scene& prev) override
+    void enter(App&, Scene& prev) override
     {
-        msg_.emplace(pfrm, SYSTR(are_you_sure)->c_str(), OverlayCoord{1, 3});
-        no_text_.emplace(pfrm, OverlayCoord{2, 5});
-        yes_text_.emplace(pfrm, SYSTR(yes)->c_str(), OverlayCoord{2, 7});
+        msg_.emplace(SYSTR(are_you_sure)->c_str(), OverlayCoord{1, 3});
+        no_text_.emplace(OverlayCoord{2, 5});
+        yes_text_.emplace(SYSTR(yes)->c_str(), OverlayCoord{2, 7});
 
         no_text_->assign(SYSTR(no)->c_str(), sel_colors);
     }
 
 
-    void exit(Platform& pfrm, App&, Scene& next) override
+    void exit(App&, Scene& next) override
     {
         msg_.reset();
         yes_text_.reset();
         no_text_.reset();
-        pfrm.screen().schedule_fade(0);
-        pfrm.fill_overlay(0);
+        PLATFORM.screen().schedule_fade(0);
+        PLATFORM.fill_overlay(0);
     }
 
 

@@ -44,10 +44,10 @@ public:
     Speaker(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static RoomProperties::Bitmask properties()
@@ -98,18 +98,17 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     // If signal, the speaker will select the next block below it when finished.
-    void play(Platform& pfrm, bool signal = true);
+    void play(bool signal = true);
 
 
-    void reset(Platform& pfrm, bool resume_music = true);
+    void reset(bool resume_music = true);
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
     struct Settings

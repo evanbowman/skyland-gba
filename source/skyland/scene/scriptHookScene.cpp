@@ -32,17 +32,16 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-ScriptHookScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ScriptHookScene::update(App& app, Microseconds delta)
 {
-    invoke_hook(pfrm, app, invoke_hook_name_.c_str());
+    invoke_hook(app, invoke_hook_name_.c_str());
 
     return next_scene_();
 }
 
 
 
-void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name)
+void invoke_hook(App& app, const char* lisp_hook_name)
 {
     auto var_name_sym = lisp::make_symbol(lisp_hook_name);
 
@@ -67,7 +66,7 @@ void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name)
         StringBuffer<32> err("hook ");
         err += lisp_hook_name;
         err += " is not lambda";
-        pfrm.fatal(err.c_str());
+        PLATFORM.fatal(err.c_str());
     }
 }
 

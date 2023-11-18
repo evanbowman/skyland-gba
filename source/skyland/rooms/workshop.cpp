@@ -39,7 +39,7 @@ const char* Workshop::upgrade_mt_name() const
 
 
 
-void Workshop::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Workshop::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_workshop)->c_str();
 }
@@ -53,9 +53,9 @@ Workshop::Workshop(Island* parent, const RoomCoord& position)
 
 
 
-void Workshop::update(Platform& pfrm, App& app, Microseconds delta)
+void Workshop::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -80,12 +80,12 @@ void Workshop::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Workshop::finalize(Platform& pfrm, App& app)
+void Workshop::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() <= 0) {
-        ExploSpawner::create(pfrm, app, center());
+        ExploSpawner::create(app, center());
     }
 }
 

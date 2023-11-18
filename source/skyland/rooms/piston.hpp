@@ -92,8 +92,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     static Icon icon()
@@ -108,7 +107,7 @@ public:
     }
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
 
     enum Direction { right, left, up, down };
@@ -117,7 +116,7 @@ public:
     virtual bool is_sticky() const;
 
 
-    ScenePtr<Scene> setup(Platform& pfrm, App&) override;
+    ScenePtr<Scene> setup(App&) override;
 
 
     void set_direction(Direction dir)

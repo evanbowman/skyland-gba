@@ -50,48 +50,45 @@ TextEntryScene::TextEntryScene(const char* prompt,
 
 
 
-void TextEntryScene::enter(Platform& pfrm, App& app, Scene& prev)
+void TextEntryScene::enter(App& app, Scene& prev)
 {
-    render_keyboard(pfrm);
+    render_keyboard();
 
     auto submit_str = SYSTR(submit_hint);
     auto submit_cstr = submit_str->c_str();
     auto slen = utf8::len(submit_cstr);
 
-    submit_text_.emplace(
-        pfrm, OverlayCoord{u8(centered_text_margins(pfrm, slen)), 18});
+    submit_text_.emplace(OverlayCoord{u8(centered_text_margins(slen)), 18});
 
     submit_text_->assign(
         submit_cstr,
         FontColors{custom_color(0xcdc3eb), custom_color(0x392194)});
 
-    entry_.emplace(
-        pfrm, OverlayCoord{u8(centered_text_margins(pfrm, char_limit_)), 5});
+    entry_.emplace(OverlayCoord{u8(centered_text_margins(char_limit_)), 5});
 
     auto base_colors =
         FontColors{custom_color(0xffffff), custom_color(0x392194)};
 
-    pfrm.screen().schedule_fade(1.f, custom_color(0x392194));
+    PLATFORM.screen().schedule_fade(1.f, custom_color(0x392194));
 
     auto mapping_info_lbrace = locale_texture_map()('<');
-    const u16 lbrace = pfrm.map_glyph('<', *mapping_info_lbrace);
-    pfrm.set_tile(
+    const u16 lbrace = PLATFORM.map_glyph('<', *mapping_info_lbrace);
+    PLATFORM.set_tile(
         entry_->coord().x - 2, entry_->coord().y, lbrace, base_colors);
 
     auto mapping_info_rbrace = locale_texture_map()('>');
-    const u16 rbrace = pfrm.map_glyph('>', *mapping_info_rbrace);
-    pfrm.set_tile(entry_->coord().x + char_limit_ + 1,
-                  entry_->coord().y,
-                  rbrace,
-                  base_colors);
+    const u16 rbrace = PLATFORM.map_glyph('>', *mapping_info_rbrace);
+    PLATFORM.set_tile(entry_->coord().x + char_limit_ + 1,
+                      entry_->coord().y,
+                      rbrace,
+                      base_colors);
 
 
 
     prompt_text_.emplace(
-        pfrm,
+
         OverlayCoord{
-            u8(centered_text_margins(pfrm, utf8::len(state_->prompt_.c_str()))),
-            2});
+            u8(centered_text_margins(utf8::len(state_->prompt_.c_str()))), 2});
 
     static const auto status_colors =
         FontColors{custom_color(0x392194), ColorConstant::silver_white};
@@ -112,14 +109,12 @@ static const char* keyboard[4] = {"# 1 2 3 4 5 6 7 8 9 0 = ",
                                   "z x c v b n m , . _ / ? "};
 
 
-ScenePtr<Scene>
-TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> TextEntryScene::update(App& app, Microseconds delta)
 {
-    player(app).update(pfrm, app, delta);
+    player(app).update(app, delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player(app).test_key(k, milliseconds(500), milliseconds(100));
     };
 
     auto row_strlen = str_len(keyboard[keyboard_cursor_.y]);
@@ -135,8 +130,8 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             keyboard_cursor_.x = 0;
         }
-        render_keyboard(pfrm);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        render_keyboard();
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::left)) {
@@ -145,8 +140,8 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             keyboard_cursor_.x = row_width - 1;
         }
-        render_keyboard(pfrm);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        render_keyboard();
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::up)) {
@@ -155,8 +150,8 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             keyboard_cursor_.y = 3;
         }
-        render_keyboard(pfrm);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        render_keyboard();
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::down)) {
@@ -165,20 +160,20 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             keyboard_cursor_.y = 0;
         }
-        render_keyboard(pfrm);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        render_keyboard();
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (player(app).key_down(pfrm, Key::start)) {
+    if (player(app).key_down(Key::start)) {
         if (state_->buffer_.length() >= (u32)required_chars_) {
             return receiver_(state_->buffer_.c_str());
         } else {
-            pfrm.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
         }
     }
 
 
-    if (player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(Key::action_2)) {
         if (state_->buffer_.empty()) {
             return null_scene();
         }
@@ -188,7 +183,7 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_->buffer_.c_str(),
             FontColors{custom_color(0xffffff), custom_color(0xbd7f14)});
 
-    } else if (player(app).key_down(pfrm, Key::action_1)) {
+    } else if (player(app).key_down(Key::action_1)) {
         if (state_->buffer_.length() == (u32)char_limit_) {
             return receiver_(state_->buffer_.c_str());
         }
@@ -210,7 +205,7 @@ static const auto status_colors =
     FontColors{ColorConstant::silver_white, custom_color(0x392194)};
 
 
-void TextEntryScene::render_keyboard(Platform& pfrm)
+void TextEntryScene::render_keyboard()
 {
     for (int r = 0; r < 4; ++r) {
         auto l = str_len(keyboard[r]);
@@ -218,7 +213,7 @@ void TextEntryScene::render_keyboard(Platform& pfrm)
 
             const char c = keyboard[r][i];
             auto mapping_info = locale_texture_map()(c);
-            const u16 t = pfrm.map_glyph(c, *mapping_info);
+            const u16 t = PLATFORM.map_glyph(c, *mapping_info);
 
             auto colors = status_colors;
             if ((int)i / 2 == keyboard_cursor_.x and r == keyboard_cursor_.y) {
@@ -226,19 +221,19 @@ void TextEntryScene::render_keyboard(Platform& pfrm)
                     FontColors{custom_color(0xffffff), custom_color(0xbd7f14)};
             }
 
-            pfrm.set_tile((3) + i, (19 - 10) + r * 2, t, colors);
+            PLATFORM.set_tile((3) + i, (19 - 10) + r * 2, t, colors);
         }
     }
 }
 
 
 
-void TextEntryScene::exit(Platform& pfrm, App& app, Scene& next)
+void TextEntryScene::exit(App& app, Scene& next)
 {
     entry_.reset();
     submit_text_.reset();
     prompt_text_.reset();
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 

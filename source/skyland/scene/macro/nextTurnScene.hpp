@@ -35,8 +35,7 @@ namespace skyland::macro
 class NextTurnScene : public Scene
 {
 public:
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 };
 
 

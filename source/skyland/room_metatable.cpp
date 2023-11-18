@@ -121,17 +121,15 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         new (address) T(parent, position);
     }
 
-    void create(Platform& pfrm,
-                App& app,
+    void create(App& app,
                 Island* parent,
                 const RoomCoord& position,
                 bool do_repaint) const override
     {
-        parent->add_room<T>(pfrm, app, position, do_repaint);
+        parent->add_room<T>(app, position, do_repaint);
     }
 
-    RoomPtr<Room> create(Platform& pfrm,
-                         Island* parent,
+    RoomPtr<Room> create(Island* parent,
                          const RoomCoord& position) const override
     {
         return room_pool::alloc<T>(parent, position);
@@ -142,9 +140,9 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return T::name();
     }
 
-    SystemStringBuffer ui_name(Platform& pfrm) const override
+    SystemStringBuffer ui_name() const override
     {
-        return loadstr(pfrm, T::ui_name());
+        return loadstr(T::ui_name());
     }
 
     Room::Icon icon() const override
@@ -201,10 +199,9 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     }
 
 
-    void format_description(Platform& pfrm,
-                            StringBuffer<512>& buffer) const override
+    void format_description(StringBuffer<512>& buffer) const override
     {
-        return T::format_description(pfrm, buffer);
+        return T::format_description(buffer);
     }
 
     Health full_health() const override

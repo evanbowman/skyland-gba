@@ -43,24 +43,21 @@ namespace skyland
 class Island
 {
 public:
-    Island(Platform& pfrm, Layer layer, u8 width, Player& owner);
+    Island(Layer layer, u8 width, Player& owner);
     Island(const Island&) = delete;
 
 
     using Rooms = RoomTable<92, 16>;
 
 
-    bool add_room(Platform& pfrm,
-                  App& app,
-                  RoomPtr<Room> insert,
-                  bool do_repaint = true)
+    bool add_room(App& app, RoomPtr<Room> insert, bool do_repaint = true)
     {
         if (rooms().full()) {
             return false;
         }
         auto result = rooms_.insert_room(std::move(insert));
         if (do_repaint) {
-            repaint(pfrm, app);
+            repaint(app);
         }
         recalculate_power_usage(app);
         on_layout_changed(app, insert->position());
@@ -69,8 +66,7 @@ public:
 
 
     template <typename T, typename... Args>
-    bool add_room(Platform& pfrm,
-                  App& app,
+    bool add_room(App& app,
                   const RoomCoord& position,
                   bool do_repaint,
                   Args&&... args)
@@ -82,25 +78,22 @@ public:
                 this, position, std::forward<Args>(args)...)) {
             if (rooms_.insert_room({room.release(), room_pool::deleter})) {
                 if (do_repaint) {
-                    repaint(pfrm, app);
+                    repaint(app);
                 }
                 recalculate_power_usage(app);
                 on_layout_changed(app, position);
                 return true;
             }
         }
-        pfrm.fatal("room pool exhausted");
+        PLATFORM.fatal("room pool exhausted");
         return false;
     }
 
 
-    void move_room(Platform& pfrm,
-                   App& app,
-                   const RoomCoord& from,
-                   const RoomCoord& to);
+    void move_room(App& app, const RoomCoord& from, const RoomCoord& to);
 
 
-    void init_terrain(Platform& pfrm, int width, bool render = true);
+    void init_terrain(int width, bool render = true);
 
 
     bool add_character(EntityRef<BasicCharacter> character);
@@ -112,21 +105,21 @@ public:
     Rooms& rooms();
 
 
-    void clear_rooms(Platform&, App&);
+    void clear_rooms(App&);
 
 
-    void clear(Platform&, App&);
+    void clear(App&);
 
 
-    void update(Platform&, App&, Microseconds delta);
-    void update_simple(Platform&, App&, Microseconds delta);
+    void update(App&, Microseconds delta);
+    void update_simple(App&, Microseconds delta);
 
 
-    void rewind(Platform&, App&, Microseconds delta);
+    void rewind(App&, Microseconds delta);
 
 
-    void display(Platform&, App&);
-    void display_fires(Platform&);
+    void display(App&);
+    void display_fires();
 
     const Vec2<Fixnum>& get_position() const;
 
@@ -140,7 +133,7 @@ public:
     std::optional<SharedEntityRef<Drone>> get_drone(const RoomCoord& coord);
 
 
-    void destroy_room(Platform& pfrm, App& app, const RoomCoord& coord);
+    void destroy_room(App& app, const RoomCoord& coord);
 
 
     s8 get_ambient_movement()
@@ -155,17 +148,17 @@ public:
     }
 
 
-    void set_hidden(Platform& pfrm, App& app, bool hidden);
+    void set_hidden(App& app, bool hidden);
 
 
-    void render_interior(Platform& pfrm, App& app);
-    void render_interior_fast(Platform& pfrm, App& app);
+    void render_interior(App& app);
+    void render_interior_fast(App& app);
 
 
-    void render_exterior(Platform& pfrm, App& app);
+    void render_exterior(App& app);
 
 
-    void render(Platform&, App&);
+    void render(App&);
 
 
     void plot_rooms(u8 matrix[16][16]) const;
@@ -186,7 +179,7 @@ public:
 
 
     // NOTE: generally, you should use render() intead of repaint().
-    void repaint(Platform& pfrm, App& app);
+    void repaint(App& app);
 
 
     bool interior_visible() const
@@ -215,7 +208,7 @@ public:
     }
 
 
-    void render_terrain(Platform& pfrm);
+    void render_terrain();
 
 
     void set_float_timer(Microseconds value);
@@ -227,7 +220,7 @@ public:
     }
 
 
-    void set_drift(Platform& pfrm, App& app, Fixnum drift);
+    void set_drift(App& app, Fixnum drift);
 
 
     Fixnum get_drift() const
@@ -260,7 +253,7 @@ public:
     }
 
 
-    void test_collision(Platform&, App&, Entity& entity);
+    void test_collision(App&, Entity& entity);
 
 
     Player& owner()
@@ -371,10 +364,10 @@ public:
 
 
     bool fire_present(const RoomCoord& coord) const;
-    void fire_extinguish(Platform& pfrm, App& app, const RoomCoord& coord);
-    void fire_create(Platform& pfrm, App& app, const RoomCoord& coord);
+    void fire_extinguish(App& app, const RoomCoord& coord);
+    void fire_create(App& app, const RoomCoord& coord);
 
-    void fires_extinguish(Platform& pfrm, App& app);
+    void fires_extinguish(App& app);
 
 
     const EntityList<BasicCharacter>& outdoor_characters()
@@ -398,7 +391,7 @@ public:
     }
 
 
-    void init_ai_awareness(Platform& pfrm, App& app);
+    void init_ai_awareness(App& app);
 
 
     BulkTimer& bulk_timer()
@@ -420,13 +413,10 @@ public:
 
 
 private:
-    void repaint_partial(Platform& pfrm, App& app);
+    void repaint_partial(App& app);
 
 
-    bool repaint_alloc_tiles(Platform& pfrm,
-                             App& app,
-                             TileId buffer[16][16],
-                             bool retry);
+    bool repaint_alloc_tiles(App& app, TileId buffer[16][16], bool retry);
 
 
     void resolve_cancelled_dispatch();
@@ -466,13 +456,11 @@ private:
         Microseconds anim_timer_ = 0;
         s8 anim_index_ = 0;
 
-        void
-        update(Platform& pfrm, App& app, Island& island, Microseconds delta);
+        void update(App& app, Island& island, Microseconds delta);
 
-        void
-        rewind(Platform& pfrm, App& app, Island& island, Microseconds delta);
+        void rewind(App& app, Island& island, Microseconds delta);
 
-        void display(Platform& pfrm, Island& island);
+        void display(Island& island);
 
     } fire_;
 
@@ -523,8 +511,8 @@ private:
 
 
 
-void show_island_interior(Platform& pfrm, App& app, Island* island);
-void show_island_exterior(Platform& pfrm, App& app, Island* island);
+void show_island_interior(App& app, Island* island);
+void show_island_exterior(App& app, Island* island);
 
 
 
@@ -533,19 +521,19 @@ Island* opponent_island(App& app);
 
 
 
-bool synth_notes_store(Platform& pfrm, Island& island, const char* path);
+bool synth_notes_store(Island& island, const char* path);
 
 
 
-bool synth_notes_load(Platform& pfrm, Island& island, const char* path);
+bool synth_notes_load(Island& island, const char* path);
 
 
 
-bool speaker_data_store(Platform& pfrm, Island& island, const char* path);
+bool speaker_data_store(Island& island, const char* path);
 
 
 
-bool speaker_data_load(Platform& pfrm, Island& island, const char* path);
+bool speaker_data_load(Island& island, const char* path);
 
 
 } // namespace skyland

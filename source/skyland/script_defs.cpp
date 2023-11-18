@@ -40,6 +40,7 @@
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
+#include "scene/scriptedMenuScene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
@@ -143,7 +144,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               const bool was_set = app->gp_.stateflags_.get(L_LOAD_INT(1));
               if (not was_set) {
                   app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
-                  save::store_global_data(*lisp::interp_get_pfrm(), app->gp_);
+                  save::store_global_data(app->gp_);
               }
 
               return L_INT(prev);
@@ -152,14 +153,12 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
 
-              if (auto pfrm = lisp::interp_get_pfrm()) {
-                  if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
-                      debug(*pfrm, lisp::get_op(0)->string().value());
-                  } else {
-                      lisp::DefaultPrinter p;
-                      format(lisp::get_op(0), p);
-                      debug(*pfrm, p.data_.c_str());
-                  }
+              if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+                  debug(lisp::get_op(0)->string().value());
+              } else {
+                  lisp::DefaultPrinter p;
+                  format(lisp::get_op(0), p);
+                  debug(p.data_.c_str());
               }
 
               return L_NIL;
@@ -189,8 +188,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
                   app->gp_.challenge_flags_.set(
                       app->gp_.challenge_flags_.get() | challenge_bitmask);
 
-                  save::store_global_data(*lisp::interp_get_pfrm(),
-                                          interp_get_app()->gp_);
+                  save::store_global_data(interp_get_app()->gp_);
               }
 
 
@@ -261,7 +259,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, integer);
               L_EXPECT_OP(0, integer);
 
-              Text t(*lisp::interp_get_pfrm(), {L_LOAD_U8(1), L_LOAD_U8(0)});
+              Text t({L_LOAD_U8(1), L_LOAD_U8(0)});
 
               t.assign(L_LOAD_STRING(2));
 
@@ -311,7 +309,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           }},
          {"pools-annotate",
           [](int argc) {
-              GenericPool::print_diagnostics(*lisp::interp_get_pfrm());
+              GenericPool::print_diagnostics();
               return L_NIL;
           }},
          {"lang",
@@ -324,11 +322,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, user_data);
               L_EXPECT_OP(0, string);
 
-              auto pfrm = lisp::interp_get_pfrm();
-
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              synth_notes_store(*pfrm, *island, L_LOAD_STRING(0));
+              synth_notes_store(*island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -338,11 +334,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, user_data);
               L_EXPECT_OP(0, string);
 
-              auto pfrm = lisp::interp_get_pfrm();
-
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              synth_notes_load(*pfrm, *island, L_LOAD_STRING(0));
+              synth_notes_load(*island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -352,11 +346,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, user_data);
               L_EXPECT_OP(0, string);
 
-              auto pfrm = lisp::interp_get_pfrm();
-
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              speaker_data_store(*pfrm, *island, L_LOAD_STRING(0));
+              speaker_data_store(*island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -366,11 +358,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, user_data);
               L_EXPECT_OP(0, string);
 
-              auto pfrm = lisp::interp_get_pfrm();
-
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              speaker_data_load(*pfrm, *island, L_LOAD_STRING(0));
+              speaker_data_load(*island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -400,8 +390,7 @@ std::pair<App*, Platform*> interp_get_context()
 
 
 
-DynamicMemory<FileLine>
-get_line_from_file(Platform& pfrm, const char* file_name, int line)
+DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line)
 {
     --line; // From the caller's perspective, file lines start from 1.
 
@@ -411,7 +400,7 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
         return result;
     }
 
-    if (auto contents = pfrm.load_file_contents("", file_name)) {
+    if (auto contents = PLATFORM.load_file_contents("", file_name)) {
 
         while (line) {
             while (*contents not_eq '\n' and *contents not_eq '\r') {
@@ -532,11 +521,11 @@ static const lisp::Binding script_api[] = {
 
          if (auto room = island->get_room({x1, y1})) {
              if ((*room->metaclass())->category() == Room::Category::weapon) {
-                 room->set_target(*pfrm, *app, {x2, y2}, false);
+                 room->set_target(*app, {x2, y2}, false);
                  if (not str_eq(room->name(), "decimator")) {
-                     ((Weapon*)room)->fire(*pfrm, *app);
+                     ((Weapon*)room)->fire(*app);
                  }
-                 room->unset_target(*pfrm, *app);
+                 room->unset_target(*app);
              }
          }
 
@@ -650,7 +639,11 @@ static const lisp::Binding script_api[] = {
                  return next;
              });
          } else {
-             Platform::fatal(format("unknown menu %", menu_name));
+             lisp::Protected mname(lisp::get_op(1));
+             push_menu_queue.push_back([mname]() mutable {
+                 auto menu_name = mname->string().value();
+                 return scene_pool::alloc<ScriptedMenuScene>(menu_name);
+             });
          }
          return L_NIL;
      }},
@@ -776,16 +769,15 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(0, symbol);
 
          auto mt = load_metaclass(lisp::get_op(0)->symbol().name());
-         auto& pfrm = *lisp::interp_get_pfrm();
-         return lisp::make_string((*mt)->ui_name(pfrm)->c_str());
+         return lisp::make_string((*mt)->ui_name()->c_str());
      }},
     {"cart-add",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
 
-         DataCartLibrary lib(*lisp::interp_get_pfrm());
-         lib.store(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
+         DataCartLibrary lib;
+         lib.store(L_LOAD_INT(0));
 
          return L_NIL;
      }},
@@ -794,7 +786,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
 
-         DataCartLibrary lib(*lisp::interp_get_pfrm());
+         DataCartLibrary lib;
          if (lib.load(L_LOAD_INT(0))) {
              return L_INT(1);
          }
@@ -806,13 +798,11 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
 
-         auto& pfrm = *lisp::interp_get_pfrm();
-
          DataCart cart(L_LOAD_INT(0));
          lisp::ListBuilder list;
 
-         list.push_back(lisp::make_string(cart.name(pfrm).c_str()));
-         list.push_back(lisp::make_string(cart.subheading(pfrm).c_str()));
+         list.push_back(lisp::make_string(cart.name().c_str()));
+         list.push_back(lisp::make_string(cart.subheading().c_str()));
 
          return list.result();
      }},
@@ -825,7 +815,7 @@ static const lisp::Binding script_api[] = {
          auto s = lisp::get_op(0)->symbol();
 
          KeyCallbackProcessor::Binding b{KeyCallbackProcessor::MatchSeq{},
-                                         [s](Platform& pfrm, App& app) {
+                                         [s](App& app) {
                                              // Bad hack: construct dummy symbol.
                                              auto fn = lisp::get_var(s.name());
                                              lisp::safecall(fn, 0);
@@ -911,7 +901,7 @@ static const lisp::Binding script_api[] = {
          const u8 x = L_LOAD_INT(1);
          const u8 y = L_LOAD_INT(0);
 
-         island->fire_create(*pfrm, *app, {x, y});
+         island->fire_create(*app, {x, y});
 
          return L_NIL;
      }},
@@ -1049,19 +1039,18 @@ static const lisp::Binding script_api[] = {
 
          auto s = lisp::get_op(0)->symbol();
 
-         app->on_timeout(
-             *pfrm, milliseconds(L_LOAD_INT(1)), [s](Platform&, App&) {
-                 auto v = lisp::get_var(s.name());
-                 if (v->type() == lisp::Value::Type::function) {
-                     lisp::funcall(v, 0);
-                     lisp::pop_op();
-                 } else {
-                     Platform::fatal(format("on-timeout: % is not "
-                                            "a function!",
-                                            s.name())
-                                         .c_str());
-                 }
-             });
+         app->on_timeout(milliseconds(L_LOAD_INT(1)), [s](App&) {
+             auto v = lisp::get_var(s.name());
+             if (v->type() == lisp::Value::Type::function) {
+                 lisp::funcall(v, 0);
+                 lisp::pop_op();
+             } else {
+                 Platform::fatal(format("on-timeout: % is not "
+                                        "a function!",
+                                        s.name())
+                                     .c_str());
+             }
+         });
 
          return L_NIL;
      }},
@@ -1074,7 +1063,7 @@ static const lisp::Binding script_api[] = {
 
          switch (L_LOAD_INT(0)) {
          case 1:
-             app->start_console(*pfrm);
+             app->start_console();
              break;
          }
 
@@ -1113,7 +1102,7 @@ static const lisp::Binding script_api[] = {
              rng::get(rng::critical_state), 1);
 
          o.set_levelgen_count(lisp::get_op(0)->integer().value_);
-         o.generate_level(*pfrm, *app);
+         o.generate_level(*app);
 
          app->swap_opponent<EnemyAI>();
 
@@ -1138,7 +1127,7 @@ static const lisp::Binding script_api[] = {
              pfrm->fatal(err.c_str());
          }
 
-         app->create_opponent_island(*pfrm, lisp::get_op(1)->integer().value_);
+         app->create_opponent_island(lisp::get_op(1)->integer().value_);
 
          return L_NIL;
      }},
@@ -1149,8 +1138,7 @@ static const lisp::Binding script_api[] = {
              L_EXPECT_OP(1, user_data);
 
              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-             island->init_terrain(*lisp::interp_get_pfrm(),
-                                  lisp::get_op(0)->integer().value_);
+             island->init_terrain(lisp::get_op(0)->integer().value_);
 
          } else if (argc == 1) {
              L_EXPECT_OP(0, user_data);
@@ -1174,8 +1162,8 @@ static const lisp::Binding script_api[] = {
          u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
          if (auto c = load_metaclass(name)) {
-             (*c)->create(*pfrm, *app, island, RoomCoord{x, y});
-             island->repaint(*pfrm, *app);
+             (*c)->create(*app, island, RoomCoord{x, y});
+             island->repaint(*app);
          } else {
              Platform::fatal(name);
          }
@@ -1198,7 +1186,7 @@ static const lisp::Binding script_api[] = {
              (u8)lisp::get_op(0)->integer().value_,
          };
 
-         island->destroy_room(*pfrm, *app, coord);
+         island->destroy_room(*app, coord);
 
          return L_NIL;
      }},
@@ -1221,7 +1209,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto room = island->get_room(coord)) {
              auto tp_name = lisp::get_op(0)->symbol().name();
-             room->__unsafe__transmute(*pfrm, *app, metaclass_index(tp_name));
+             room->__unsafe__transmute(*app, metaclass_index(tp_name));
          }
 
          return L_NIL;
@@ -1302,16 +1290,14 @@ static const lisp::Binding script_api[] = {
              for (auto& chr : room->characters()) {
                  if (chr->owner() == &room->parent()->owner()) {
 
-                     auto path = find_path(*lisp::interp_get_pfrm(),
-                                           *interp_get_app(),
+                     auto path = find_path(*interp_get_app(),
                                            island,
                                            chr.get(),
                                            {startx, starty},
                                            {destx, desty});
 
                      if (path and *path) {
-                         chr->set_movement_path(*lisp::interp_get_pfrm(),
-                                                *interp_get_app(),
+                         chr->set_movement_path(*interp_get_app(),
                                                 std::move(*path));
                      }
 
@@ -1428,7 +1414,7 @@ static const lisp::Binding script_api[] = {
          if (auto app = interp_get_app()) {
              if (auto room = ((Island*)lisp::get_op(2)->user_data().obj_)
                                  ->get_room(coord)) {
-                 room->select(*lisp::interp_get_pfrm(), *app, coord);
+                 room->select(*app, coord);
              }
          }
 
@@ -1484,7 +1470,7 @@ static const lisp::Binding script_api[] = {
          auto [app, pfrm] = interp_get_context();
          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-         configure_island(*pfrm, *app, *island, lisp::get_op(0));
+         configure_island(*app, *island, lisp::get_op(0));
 
          return L_NIL;
      }},
@@ -1507,9 +1493,9 @@ static const lisp::Binding script_api[] = {
          island->set_custom_flag_graphics(gfx);
 
          if (island->interior_visible()) {
-             show_island_interior(*pfrm, *app, island);
+             show_island_interior(*app, island);
          } else {
-             show_island_exterior(*pfrm, *app, island);
+             show_island_exterior(*app, island);
          }
 
          return L_NIL;
@@ -1548,8 +1534,7 @@ static const lisp::Binding script_api[] = {
              // macrocosm(*app).data_->p().coins_.set(
              //     std::min(std::numeric_limits<macro::Coins>::max(), current));
          } else {
-             app->set_coins(*lisp::interp_get_pfrm(),
-                            std::max(0, (int)(L_LOAD_INT(0) + app->coins())));
+             app->set_coins(std::max(0, (int)(L_LOAD_INT(0) + app->coins())));
          }
 
          return L_NIL;
@@ -1565,7 +1550,7 @@ static const lisp::Binding script_api[] = {
              // macrocosm(*app).data_->p().coins_.set(
              //     std::min(std::numeric_limits<macro::Coins>::max(), val));
          } else {
-             app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
+             app->set_coins(L_LOAD_INT(0));
          }
 
 
@@ -1578,23 +1563,16 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, string);
 
-         if (auto pfrm = lisp::interp_get_pfrm()) {
-
-             auto app = interp_get_app();
-             if (app == nullptr) {
-                 while (true)
-                     ;
-                 return L_NIL;
-             }
-
-             auto str = lisp::get_op(0)->string().value();
-
-             return app->invoke_script(*pfrm, str);
-         } else {
+         auto app = interp_get_app();
+         if (app == nullptr) {
              while (true)
                  ;
+             return L_NIL;
          }
-         return L_NIL;
+
+         auto str = lisp::get_op(0)->string().value();
+
+         return app->invoke_script(str);
      }},
     {"choice",
      [](int argc) {
@@ -1618,12 +1596,11 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(1, string);
          L_EXPECT_OP(0, integer);
 
-         auto line = get_line_from_file(*lisp::interp_get_pfrm(),
-                                        lisp::get_op(1)->string().value(),
+         auto line = get_line_from_file(lisp::get_op(1)->string().value(),
                                         lisp::get_op(0)->integer().value_);
 
          if (line) {
-             info(*lisp::interp_get_pfrm(), line->c_str());
+             info(line->c_str());
              return lisp::make_string(line->c_str());
          }
 
@@ -1771,8 +1748,7 @@ static const lisp::Binding script_api[] = {
              return L_NIL;
          }
 
-         achievements::raise(
-             *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
+         achievements::raise(*interp_get_app(), achievement);
 
          return L_NIL;
      }},
@@ -1862,12 +1838,11 @@ static const lisp::Binding script_api[] = {
 
 
 
-void App::init_scripts(Platform& pfrm,
-                       Function<4 * sizeof(void*), void(const char*)> msg)
+void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 {
     msg("lisp init...");
 
-    lisp::init(pfrm);
+    lisp::init();
 
     msg("export api...");
 
@@ -1883,13 +1858,13 @@ void App::init_scripts(Platform& pfrm,
 
     msg("import lisp stdlib...");
 
-    auto str = pfrm.load_file_contents("scripts", "init.lisp");
+    auto str = PLATFORM.load_file_contents("scripts", "init.lisp");
     if (str) {
         lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.data_.c_str());
+            PLATFORM.fatal(p.data_.c_str());
         });
     }
 

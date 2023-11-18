@@ -62,7 +62,7 @@ extern Sound sound_fizzle;
 
 
 
-void Antimatter::update(Platform& pfrm, App& app, Microseconds delta)
+void Antimatter::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -90,7 +90,7 @@ void Antimatter::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
 
@@ -101,7 +101,7 @@ void Antimatter::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Antimatter::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Antimatter::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -124,7 +124,7 @@ void Antimatter::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         }
         kill();
     }
@@ -132,7 +132,7 @@ void Antimatter::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Antimatter::destroy(Platform& pfrm, App& app, bool explosion)
+void Antimatter::destroy(App& app, bool explosion)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -158,16 +158,13 @@ void Antimatter::destroy(Platform& pfrm, App& app, bool explosion)
     kill();
     app.camera()->shake(8);
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 
 
 
-void Antimatter::on_collision(Platform& pfrm,
-                              App& app,
-                              Room& room,
-                              Vec2<u8> origin)
+void Antimatter::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent() and str_eq(room.name(), "annihilator")) {
         return;
@@ -182,37 +179,35 @@ void Antimatter::on_collision(Platform& pfrm,
 
 
         if (is_energized_hull) {
-            room.apply_damage(pfrm, app, 70);
+            room.apply_damage(app, 70);
             range = 1;
         } else {
-            room.apply_damage(pfrm, app, 9999);
+            room.apply_damage(app, 9999);
         }
 
 
-        auto flak_smoke =
-            [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
-                auto e = app.alloc_entity<SmokePuff>(
-                    pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+        auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
+            auto e = app.alloc_entity<SmokePuff>(
+                rng::sample<48>(pos, rng::utility_state), 61);
 
-                if (e) {
-                    app.effects().push(std::move(e));
-                }
-            };
+            if (e) {
+                app.effects().push(std::move(e));
+            }
+        };
 
-        flak_smoke(pfrm, app, sprite_.get_position());
-        flak_smoke(pfrm, app, sprite_.get_position());
+        flak_smoke(app, sprite_.get_position());
+        flak_smoke(app, sprite_.get_position());
 
-        big_explosion(pfrm, app, sprite_.get_position());
+        big_explosion(app, sprite_.get_position());
 
         const auto pos = ivec(sprite_.get_position());
 
-        app.on_timeout(
-            pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
-                Vec2<Fixnum> p;
-                p.x = pos.x;
-                p.y = pos.y;
-                flak_smoke(pf, app, p);
-            });
+        app.on_timeout(milliseconds(190), [pos, flak_smoke](App& app) {
+            Vec2<Fixnum> p;
+            p.x = pos.x;
+            p.y = pos.y;
+            flak_smoke(app, p);
+        });
 
         auto targets =
             allocate_dynamic<Buffer<Room*, 300>>("antimatter-target-buffer");
@@ -241,26 +236,26 @@ void Antimatter::on_collision(Platform& pfrm,
                         targets->push_back(other);
                     }
                 } else if (auto drone = room.parent()->get_drone(pos)) {
-                    (*drone)->apply_damage(pfrm, app, damage);
+                    (*drone)->apply_damage(app, damage);
                 }
             }
         }
 
         for (auto& room : *targets) {
-            room->apply_damage(pfrm, app, damage);
+            room->apply_damage(app, damage);
 
             if (not((*room->metaclass())->properties() &
                     RoomProperties::fireproof)) {
                 if (room->health() > 0) {
-                    room->parent()->fire_create(pfrm, app, room->position());
+                    room->parent()->fire_create(app, room->position());
                 }
             }
         }
     } else {
-        room.apply_damage(pfrm, app, 10);
+        room.apply_damage(app, 10);
     }
 
-    destroy(pfrm, app, true);
+    destroy(app, true);
 }
 
 

@@ -40,7 +40,7 @@ public:
     Replicator(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -65,7 +65,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Float atp_value()
@@ -92,11 +92,10 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
-    bool create_replicant(Platform& pfrm, App& app) override;
+    bool create_replicant(App& app) override;
 
 
     static RoomProperties::Bitmask properties()

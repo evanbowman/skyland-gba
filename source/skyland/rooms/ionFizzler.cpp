@@ -31,7 +31,7 @@ namespace skyland
 
 
 
-void IonFizzler::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void IonFizzler::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_ion_fizzler)->c_str();
 }
@@ -45,9 +45,9 @@ IonFizzler::IonFizzler(Island* parent, const RoomCoord& position)
 
 
 
-void IonFizzler::update(Platform& pfrm, App& app, Microseconds delta)
+void IonFizzler::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 

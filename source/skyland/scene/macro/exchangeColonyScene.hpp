@@ -71,14 +71,14 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds) override
+    ScenePtr<Scene> update(App& app, Microseconds) override
     {
         auto& m = skyland::macrocosm(app);
 
-        pfrm.screen().fade(1.f);
+        PLATFORM.screen().fade(1.f);
 
-        if (pfrm.network_peer().is_connected()) {
-            network::poll_messages(pfrm, app, *this);
+        if (PLATFORM.network_peer().is_connected()) {
+            network::poll_messages(app, *this);
         }
 
         switch (state_) {
@@ -86,8 +86,8 @@ public:
 
             auto s = m.load_sector(exchange_sector_);
 
-            pfrm.network_peer().listen();
-            if (not pfrm.network_peer().is_connected()) {
+            PLATFORM.network_peer().listen();
+            if (not PLATFORM.network_peer().is_connected()) {
                 return scene_pool::alloc<MacroverseScene>(true);
             }
 
@@ -130,7 +130,7 @@ public:
                     pkt.data_[1] = *(output_ptr_++);
                     pkt.data_[2] = *(output_ptr_++);
                     pkt.data_[3] = *(output_ptr_++);
-                    network::transmit(pfrm, pkt);
+                    network::transmit(pkt);
                 };
 
                 // NOTE: we don't want to overflow the send queue, don't
@@ -143,7 +143,7 @@ public:
 
             } else {
                 network::packet::BlockTransferEnd pkt;
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
                 state_ = State::wait;
             }
             break;
@@ -160,7 +160,7 @@ public:
                 // island (outpost) for a fullsize island, as they're stored in
                 // different containers.
                 pkt.status_ = not m.data_->other_sectors_.full();
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
                 state_ = State::await_status;
             }
             break;
@@ -210,9 +210,9 @@ public:
                 s->set_population(population);
             }
 
-            pfrm.network_peer().disconnect();
+            PLATFORM.network_peer().disconnect();
 
-            // TODO: m.save(pfrm);
+            // TODO: m.save();
 
             return scene_pool::alloc<MacroverseScene>(true);
         }
@@ -223,9 +223,7 @@ public:
 
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::BlockTransferData& p) override
+    void receive(App& app, const network::packet::BlockTransferData& p) override
     {
         auto start = input_ptr_ + p.sequence_ * 4;
 
@@ -236,17 +234,13 @@ public:
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::BlockTransferEnd& p) override
+    void receive(App& app, const network::packet::BlockTransferEnd& p) override
     {
         receive_complete_ = true;
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::MacroTradeStatus& p) override
+    void receive(App& app, const network::packet::MacroTradeStatus& p) override
     {
         if (p.status_ > 1) {
             // For future extensions. In case I add more descriptive error

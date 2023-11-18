@@ -47,7 +47,7 @@ public:
     }
 
 
-    virtual void signal(Platform& pfrm, App& app)
+    virtual void signal(App& app)
     {
     }
 

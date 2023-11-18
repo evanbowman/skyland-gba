@@ -49,19 +49,18 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& prev) override;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
 private:
-    void show_cursor(Platform& pfrm);
+    void show_cursor();
 
 
     enum class State {

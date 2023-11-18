@@ -17,8 +17,7 @@ namespace skyland
 
 
 
-void __draw_image(Platform& pfrm,
-                  TileDesc start_tile,
+void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
                   u16 width,
@@ -40,61 +39,61 @@ static const auto sel_colors =
 
 
 
-void CheckersModule::enter(Platform& pfrm, App& app, Scene& prev)
+void CheckersModule::enter(App& app, Scene& prev)
 {
 }
 
 
 
-void CheckersModule::exit(Platform& pfrm, App& app, Scene& next)
+void CheckersModule::exit(App& app, Scene& next)
 {
 }
 
 
 
-void CheckersModule::init(Platform& pfrm, App& app)
+void CheckersModule::init(App& app)
 {
-    pfrm.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(app.environment().music(), 0);
 
 
-    app.camera().emplace<macro::Camera>(pfrm);
+    app.camera().emplace<macro::Camera>();
 
-    pfrm.load_background_texture("background_macro");
+    PLATFORM.load_background_texture("background_macro");
 
-    pfrm.load_sprite_texture("spritesheet_macro");
-    pfrm.load_tile0_texture("macro_rendertexture");
-    pfrm.load_tile1_texture("macro_rendertexture");
+    PLATFORM.load_sprite_texture("spritesheet_macro");
+    PLATFORM.load_tile0_texture("macro_rendertexture");
+    PLATFORM.load_tile1_texture("macro_rendertexture");
 
     for (int x = 0; x < 32; ++x) {
         for (int y = 0; y < 32; ++y) {
-            pfrm.set_raw_tile(Layer::map_0, x, y, 0);
-            pfrm.set_raw_tile(Layer::map_1, x, y, 0);
+            PLATFORM.set_raw_tile(Layer::map_0, x, y, 0);
+            PLATFORM.set_raw_tile(Layer::map_1, x, y, 0);
         }
     }
 
 
-    macro::background_init(pfrm);
+    macro::background_init();
 
 
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 
 
-    __draw_image(pfrm, 0, 0, 0, 30, 16, Layer::map_0);
-    __draw_image(pfrm, 0, 0, 17, 30, 16, Layer::map_1);
+    __draw_image(0, 0, 0, 30, 16, Layer::map_0);
+    __draw_image(0, 0, 17, 30, 16, Layer::map_1);
 
 
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
+    app.macrocosm()->emplace<macro::EngineImpl>(&app);
 
 
-    pfrm.screen().set_shader(macro::fluid_shader);
-    pfrm.load_tile0_texture("macro_rendertexture");
-    pfrm.load_tile1_texture("macro_rendertexture");
+    PLATFORM.screen().set_shader(macro::fluid_shader);
+    PLATFORM.load_tile0_texture("macro_rendertexture");
+    PLATFORM.load_tile1_texture("macro_rendertexture");
 
     auto& m = macrocosm(app);
     m.data_->checkers_mode_ = true;
     m.data_->checkers_ai_moved_ = false;
-    m.newgame(pfrm, app);
+    m.newgame(app);
     app.game_mode() = App::GameMode::macro;
 
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
@@ -172,25 +171,24 @@ void CheckersModule::init(Platform& pfrm, App& app)
     }
 
 
-    pfrm.system_call("vsync", nullptr);
+    PLATFORM.system_call("vsync", nullptr);
 
-    m.sector().render(pfrm);
+    m.sector().render();
 
-    pfrm.sleep(1);
-    pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-    pfrm.screen().schedule_fade(0.f);
+    PLATFORM.sleep(1);
+    PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+    PLATFORM.screen().schedule_fade(0.f);
 
-    pfrm.system_call("_prlx_macro",
-                     (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+    PLATFORM.system_call("_prlx_macro",
+                         (void*)(intptr_t)(int)m.data_->cloud_scroll_);
 }
 
 
 
-ScenePtr<Scene>
-CheckersModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> CheckersModule::update(App& app, Microseconds delta)
 {
 
-    init(pfrm, app);
+    init(app);
 
     return scene_pool::alloc<macro::SelectorScene>();
 }

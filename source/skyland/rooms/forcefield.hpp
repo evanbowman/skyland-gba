@@ -42,8 +42,8 @@ public:
                const char* n = name());
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
     const char* upgrade_mt_name() const override;
@@ -66,7 +66,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     TileId tile() const;
@@ -126,7 +126,7 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
     static RoomProperties::Bitmask properties()
@@ -174,11 +174,11 @@ public:
     const char* upgrade_mt_name() const override;
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

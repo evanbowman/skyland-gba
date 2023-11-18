@@ -31,14 +31,14 @@ namespace skyland
 
 
 
-void FatalErrorScene::enter(Platform& pfrm, App& app, Scene& prev)
+void FatalErrorScene::enter(App& app, Scene& prev)
 {
     if (app.game_mode() not_eq App::GameMode::adventure) {
         Platform::fatal(message_.c_str());
     }
 
     const auto bkg_color = custom_color(0xcb1500);
-    pfrm.screen().schedule_fade(1.f, bkg_color);
+    PLATFORM.screen().schedule_fade(1.f, bkg_color);
 
     static constexpr const Text::OptColors text_colors{
         {custom_color(0xffffff), bkg_color}};
@@ -46,34 +46,33 @@ void FatalErrorScene::enter(Platform& pfrm, App& app, Scene& prev)
     static constexpr const Text::OptColors text_colors_inv{
         {text_colors->background_, text_colors->foreground_}};
 
-    Text::print(pfrm, "fatal error", {1, 1}, text_colors_inv);
+    Text::print("fatal error", {1, 1}, text_colors_inv);
 
-    verbose_error_.emplace(pfrm);
+    verbose_error_.emplace();
     verbose_error_->assign(message_.c_str(), {1, 3}, {28, 15}, 0, text_colors);
 
-    Text::print(pfrm, "please contact developers!", {1, 16}, text_colors_inv);
+    Text::print("please contact developers!", {1, 16}, text_colors_inv);
 
-    Text::print(pfrm, "press B to retry level", {1, 18}, text_colors_inv);
+    Text::print("press B to retry level", {1, 18}, text_colors_inv);
 }
 
 
 
-void FatalErrorScene::exit(Platform& pfrm, App&, Scene& next)
+void FatalErrorScene::exit(App&, Scene& next)
 {
     verbose_error_.reset();
 }
 
 
 
-ScenePtr<Scene>
-FatalErrorScene::update(Platform& pfrm, App& app, Microseconds dt)
+ScenePtr<Scene> FatalErrorScene::update(App& app, Microseconds dt)
 {
-    app.player().update(pfrm, app, dt);
+    app.player().update(app, dt);
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
-        pfrm.fill_overlay(0);
-        app.restore_backup(pfrm);
-        pfrm.speaker().clear_sounds();
+    if (app.player().key_down(Key::action_2)) {
+        PLATFORM.fill_overlay(0);
+        app.restore_backup();
+        PLATFORM.speaker().clear_sounds();
         return scene_pool::alloc<LoadLevelScene>();
     }
     return null_scene();

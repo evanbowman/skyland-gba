@@ -97,9 +97,9 @@ static uint8_t rand8(void)
 
 
 
-void Storm::update(Platform& pfrm, App& app, Microseconds delta)
+void Storm::update(App& app, Microseconds delta)
 {
-    if (pfrm.screen().fade_active()) {
+    if (PLATFORM.screen().fade_active()) {
         return;
     }
 
@@ -121,9 +121,9 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     if (s.thunder_timer_ <= 0) {
         s.thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
         if (rng::choice<2>(gen)) {
-            pfrm.speaker().play_sound("thunder_1", 0);
+            PLATFORM.speaker().play_sound("thunder_1", 0);
         } else {
-            pfrm.speaker().play_sound("thunder_2", 0);
+            PLATFORM.speaker().play_sound("thunder_2", 0);
         }
     }
 
@@ -134,14 +134,14 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island() and
             not app.opponent_island()->is_destroyed() and
             not app.player_island().is_destroyed()) {
-            on_lightning(pfrm);
+            on_lightning();
         }
     }
 
     const u16 sd = delta;
 #ifdef __GBA__
-    const s16 sx = pfrm.screen().size().x + 24;
-    const s16 sy = pfrm.screen().size().y;
+    const s16 sx = PLATFORM.screen().size().x + 24;
+    const s16 sy = PLATFORM.screen().size().y;
 #else
     const s16 sx = 240;
     const s16 sy = 160;
@@ -163,7 +163,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
                 rd.y = rand8() * scale;
             } else {
                 if (rand8() % 2) {
-                    rd.x = pfrm.screen().size().x * scale;
+                    rd.x = PLATFORM.screen().size().x * scale;
                     rd.y = rand8() * scale;
                 } else {
                     rd.x = rand8() * scale;
@@ -193,7 +193,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Storm::rewind(App& app, Microseconds delta)
 {
     const auto scale = rain_pos_scale;
 
@@ -203,14 +203,14 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     for (int i = 0; i < s.particle_count_; ++i) {
         auto& rd = s.raindrops_[i];
-        if ((rd.x / scale) > (s16)pfrm.screen().size().x or
+        if ((rd.x / scale) > (s16)PLATFORM.screen().size().x or
             (rd.y / scale) < 0) {
             if (rng::choice<2>(rng::utility_state)) {
                 rd.x = 0;
-                rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
+                rd.y = rng::choice(PLATFORM.screen().size().y * scale, gen);
             } else {
-                rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
-                rd.y = pfrm.screen().size().y * scale;
+                rd.x = rng::choice(PLATFORM.screen().size().x * scale, gen);
+                rd.y = PLATFORM.screen().size().y * scale;
             }
         } else {
             rd.x += (delta >> 6) + (delta >> 8);
@@ -221,9 +221,9 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Storm::display(Platform& pfrm, App& app)
+void Storm::display(App& app)
 {
-    if (pfrm.screen().fade_active()) {
+    if (PLATFORM.screen().fade_active()) {
         return;
     }
 
@@ -242,7 +242,7 @@ void Storm::display(Platform& pfrm, App& app)
     opts.position_absolute_ = true;
     opts.sz_ = Sprite::Size::w8_h8;
 
-    pfrm.screen().draw_batch(89 * 8, *batch, opts);
+    PLATFORM.screen().draw_batch(89 * 8, *batch, opts);
 }
 
 

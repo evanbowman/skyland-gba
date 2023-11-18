@@ -40,7 +40,7 @@ const char* console_usage = "\aOptions: (s: simple console, l: lisp repl)";
 class RemoteConsoleLispPrinter : public lisp::Printer
 {
 public:
-    RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
+    RemoteConsoleLispPrinter()
     {
     }
 
@@ -50,7 +50,6 @@ public:
     }
 
     Platform::RemoteConsole::Line fmt_;
-    Platform& pfrm_;
 };
 
 
@@ -84,20 +83,18 @@ static auto split(const Platform::RemoteConsole::Line& line)
 class LispConsoleImpl : public ConsoleState::Impl
 {
 public:
-    void on_text(Platform& pfrm,
-                 App& app,
-                 Self& self,
-                 Platform::RemoteConsole::Line& line) override
+    void
+    on_text(App& app, Self& self, Platform::RemoteConsole::Line& line) override
     {
-        pfrm.remote_console().printline("", "");
-        pfrm.sleep(2);
+        PLATFORM.remote_console().printline("", "");
+        PLATFORM.sleep(2);
 
         if (line == "(quit)") {
             self.emplace<ConsoleState::Impl>();
-            pfrm.remote_console().printline(console_usage);
+            PLATFORM.remote_console().printline(console_usage);
             return;
         } else {
-            RemoteConsoleLispPrinter printer(pfrm);
+            RemoteConsoleLispPrinter printer;
 
             lisp::BasicCharSequence seq(line.c_str());
             lisp::read(seq);
@@ -112,7 +109,7 @@ public:
             lisp::pop_op();
             lisp::pop_op();
 
-            pfrm.remote_console().printline(printer.fmt_.c_str(), "lisp> ");
+            PLATFORM.remote_console().printline(printer.fmt_.c_str(), "lisp> ");
         }
     }
 };
@@ -122,13 +119,11 @@ public:
 class ShellConsoleImpl : public ConsoleState::Impl
 {
 public:
-    void on_text(Platform& pfrm,
-                 App& app,
-                 Self& self,
-                 Platform::RemoteConsole::Line& line) override
+    void
+    on_text(App& app, Self& self, Platform::RemoteConsole::Line& line) override
     {
-        pfrm.remote_console().printline("", "");
-        pfrm.sleep(2);
+        PLATFORM.remote_console().printline("", "");
+        PLATFORM.sleep(2);
 
         auto parsed = split(line);
 
@@ -145,91 +140,91 @@ public:
                 "call <path>            | invoke a lisp script\r\n"
                 "ls <path>              | list files in a directory\r\n";
             // clang-format on
-            pfrm.remote_console().printline(msg, "sc> ");
+            PLATFORM.remote_console().printline(msg, "sc> ");
         } else if (line == "sbr annotate") {
-            pfrm.system_call("print-memory-diagnostics", nullptr);
+            PLATFORM.system_call("print-memory-diagnostics", nullptr);
         } else if (parsed.size() == 3 and parsed[0] == "sbr" and
                    parsed[1] == "dump") {
             auto num = parsed[2].c_str();
             if (num[0] == '@') {
                 ++num;
             }
-            scratch_buffer_dump_sector(pfrm, parse_int(num, str_len(num)));
+            scratch_buffer_dump_sector(parse_int(num, str_len(num)));
         } else if (line == "pools annotate") {
-            GenericPool::print_diagnostics(pfrm);
+            GenericPool::print_diagnostics();
         } else if (line == "quit") {
-            pfrm.remote_console().printline("");
-            pfrm.remote_console().printline(console_usage);
+            PLATFORM.remote_console().printline("");
+            PLATFORM.remote_console().printline(console_usage);
             self.emplace<ConsoleState::Impl>();
             return;
         } else if (line == "rom dump") {
-            pfrm.remote_console().printline("Dumping the entire rom as hex. "
-                                            "This will take a couple hours...",
-                                            "");
-            pfrm.sleep(180);
-            pfrm.system_call("dump-rom", nullptr);
-            pfrm.remote_console().printline("\r\nDone!", "sc> ");
+            PLATFORM.remote_console().printline(
+                "Dumping the entire rom as hex. "
+                "This will take a couple hours...",
+                "");
+            PLATFORM.sleep(180);
+            PLATFORM.system_call("dump-rom", nullptr);
+            PLATFORM.remote_console().printline("\r\nDone!", "sc> ");
         } else if (parsed.size() == 2 and parsed[0] == "download") {
             Vector<char> data;
-            if (flash_filesystem::read_file_data_binary(
-                    pfrm, parsed[1].c_str(), data)) {
+            if (flash_filesystem::read_file_data_binary(parsed[1].c_str(),
+                                                        data)) {
                 auto enc = base32::encode(data);
-                pfrm.system_call("console-write-buffer", &enc);
-                pfrm.remote_console().printline("\r\nComplete!", "sc> ");
+                PLATFORM.system_call("console-write-buffer", &enc);
+                PLATFORM.remote_console().printline("\r\nComplete!", "sc> ");
             } else {
-                pfrm.remote_console().printline("file not found!", "sc> ");
+                PLATFORM.remote_console().printline("file not found!", "sc> ");
             }
         } else if (parsed.size() == 2 and parsed[0] == "ls") {
             flash_filesystem::walk_directory(
-                pfrm, parsed[1].c_str(), [&](const char* path) {
-                    pfrm.remote_console().printline(path, "");
-                    pfrm.sleep(2);
+                parsed[1].c_str(), [&](const char* path) {
+                    PLATFORM.remote_console().printline(path, "");
+                    PLATFORM.sleep(2);
                 });
 
-            pfrm.walk_filesystem([&](const char* path) {
+            PLATFORM.walk_filesystem([&](const char* path) {
                 StringBuffer<64> prefix(parsed[1].c_str());
                 if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
-                    pfrm.remote_console().printline(path, "");
-                    pfrm.sleep(2);
+                    PLATFORM.remote_console().printline(path, "");
+                    PLATFORM.sleep(2);
                 }
             });
-            pfrm.sleep(1);
-            pfrm.remote_console().printline("\r\n", "sc> ");
+            PLATFORM.sleep(1);
+            PLATFORM.remote_console().printline("\r\n", "sc> ");
 
         } else if (parsed.size() == 2 and parsed[0] == "call") {
-            auto result = app.invoke_script(pfrm, parsed[1].c_str());
-            RemoteConsoleLispPrinter printer(pfrm);
+            auto result = app.invoke_script(parsed[1].c_str());
+            RemoteConsoleLispPrinter printer;
             format(result, printer);
-            pfrm.remote_console().printline(printer.fmt_.c_str(), "sc> ");
+            PLATFORM.remote_console().printline(printer.fmt_.c_str(), "sc> ");
         } else {
-            pfrm.remote_console().printline("error: type help for options",
-                                            "sc> ");
+            PLATFORM.remote_console().printline("error: type help for options",
+                                                "sc> ");
         }
     }
 };
 
 
 
-void ConsoleState::Impl::on_text(Platform& pfrm,
-                                 App& app,
+void ConsoleState::Impl::on_text(App& app,
                                  Self& self,
                                  Platform::RemoteConsole::Line& line)
 {
-    pfrm.remote_console().printline("", "");
-    pfrm.sleep(2);
+    PLATFORM.remote_console().printline("", "");
+    PLATFORM.sleep(2);
 
     if (line.length() == 1 and line[0] == 's') {
         const char* hint = "Simple Console ready, type help to list commands";
-        pfrm.remote_console().printline(hint, "sc> ");
+        PLATFORM.remote_console().printline(hint, "sc> ");
         self.emplace<ShellConsoleImpl>();
         return;
     } else if (line.length() == 1 and line[0] == 'l') {
-        pfrm.remote_console().printline("Skyland LISP ready! (quit) to exit.",
-                                        "lisp> ");
+        PLATFORM.remote_console().printline(
+            "Skyland LISP ready! (quit) to exit.", "lisp> ");
         self.emplace<LispConsoleImpl>();
         return;
     } else {
-        pfrm.remote_console().printline(console_usage);
+        PLATFORM.remote_console().printline(console_usage);
     }
 }
 

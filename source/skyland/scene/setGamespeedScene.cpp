@@ -36,7 +36,7 @@ namespace skyland
 
 
 
-static const SystemStringBuffer gamespeed_text(Platform& pfrm, GameSpeed speed)
+static const SystemStringBuffer gamespeed_text(GameSpeed speed)
 {
     switch (speed) {
     case GameSpeed::stopped:
@@ -57,37 +57,36 @@ static const SystemStringBuffer gamespeed_text(Platform& pfrm, GameSpeed speed)
 
 
 
-ScenePtr<Scene>
-SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SetGamespeedScene::update(App& app, Microseconds delta)
 {
-    app.player().update(pfrm, app, delta);
+    app.player().update(app, delta);
 
-    if (app.player().key_down(pfrm, Key::right)) {
+    if (app.player().key_down(Key::right)) {
         selection_++;
         selection_ %= (int)GameSpeed::count;
-        repaint_selector(pfrm);
-    } else if (app.player().key_down(pfrm, Key::left)) {
+        repaint_selector();
+    } else if (app.player().key_down(Key::left)) {
         selection_--;
         if (selection_ < 0) {
             selection_ = (int)GameSpeed::count - 1;
         }
-        repaint_selector(pfrm);
+        repaint_selector();
     }
 
-    if ((button_mode_ == 0 and app.player().key_up(pfrm, Key::alt_1)) or
-        (button_mode_ == 1 and app.player().key_down(pfrm, Key::action_1))) {
+    if ((button_mode_ == 0 and app.player().key_up(Key::alt_1)) or
+        (button_mode_ == 1 and app.player().key_down(Key::action_1))) {
         if ((GameSpeed)selection_ == GameSpeed::rewind) {
             if (app.time_stream().pushes_enabled()) {
-                set_gamespeed(pfrm, app, GameSpeed::stopped);
+                set_gamespeed(app, GameSpeed::stopped);
 
                 return scene_pool::alloc<SwapOverlayTextureScene>(
                     "overlay",
                     scene_pool::make_deferred_scene<RewindScene>(
                         is_far_camera()));
             } else {
-                set_gamespeed(pfrm, app, GameSpeed::stopped);
+                set_gamespeed(app, GameSpeed::stopped);
                 selection_ = (int)GameSpeed::stopped;
-                repaint_selector(pfrm);
+                repaint_selector();
 
                 return scene_pool::alloc<SwapOverlayTextureScene>(
                     "overlay", [] {
@@ -100,14 +99,14 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     });
             }
         } else {
-            set_gamespeed(pfrm, app, (GameSpeed)selection_);
+            set_gamespeed(app, (GameSpeed)selection_);
 
             return scene_pool::alloc<SwapOverlayTextureScene>(
                 "overlay", scene_pool::make_deferred_scene<ReadyScene>());
         }
     }
 
-    if (button_mode_ == 1 and app.player().key_down(pfrm, Key::action_2)) {
+    if (button_mode_ == 1 and app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<SwapOverlayTextureScene>(
             "overlay", scene_pool::make_deferred_scene<ReadyScene>());
     }
@@ -121,16 +120,16 @@ u16 gamespeed_icon(GameSpeed speed);
 
 
 
-void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene& scene)
+void SetGamespeedScene::enter(App& app, Scene& scene)
 {
     selection_ = (int)app.game_speed();
 
-    pfrm.fill_overlay(0);
-    pfrm.load_overlay_texture("overlay_gamespeed");
+    PLATFORM.fill_overlay(0);
+    PLATFORM.load_overlay_texture("overlay_gamespeed");
 
-    repaint_selector(pfrm);
+    repaint_selector();
 
-    pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+    PLATFORM.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
     if (auto ws = scene.cast_world_scene()) {
         if (ws->is_far_camera()) {
@@ -141,9 +140,9 @@ void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene& scene)
 
 
 
-void SetGamespeedScene::repaint_selector(Platform& pfrm)
+void SetGamespeedScene::repaint_selector()
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     for (int i = 0; i < (int)GameSpeed::count; ++i) {
         auto gs = (GameSpeed)((i + selection_) % (int)GameSpeed::count);
         auto t = gamespeed_icon(gs);
@@ -154,62 +153,61 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
             start -= 1;
         }
 
-        pfrm.set_tile(Layer::overlay, start - i * 2, 1, t++);
-        pfrm.set_tile(Layer::overlay, start - i * 2 + 1, 1, t++);
-        pfrm.set_tile(Layer::overlay, start - i * 2, 2, t++);
-        pfrm.set_tile(Layer::overlay, start - i * 2 + 1, 2, t);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2, 1, t++);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2 + 1, 1, t++);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2, 2, t++);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2 + 1, 2, t);
 
-        pfrm.set_tile(Layer::overlay, start - i * 2, 3, 119);
-        pfrm.set_tile(Layer::overlay, start - i * 2 + 1, 3, 119);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2, 3, 119);
+        PLATFORM.set_tile(Layer::overlay, start - i * 2 + 1, 3, 119);
     }
 
 
-    pfrm.set_tile(
+    PLATFORM.set_tile(
         Layer::overlay, (st.x - 5) - 2 * ((int)GameSpeed::count - 1), 1, 424);
 
 
-    pfrm.set_tile(
+    PLATFORM.set_tile(
         Layer::overlay, (st.x - 5) - 2 * ((int)GameSpeed::count - 1), 2, 128);
 
 
-    pfrm.set_tile(Layer::overlay, (st.x - 1), 1, 423);
+    PLATFORM.set_tile(Layer::overlay, (st.x - 1), 1, 423);
 
 
-    pfrm.set_tile(Layer::overlay, (st.x - 1), 2, 433);
+    PLATFORM.set_tile(Layer::overlay, (st.x - 1), 2, 433);
 
     // divider
-    pfrm.set_tile(Layer::overlay, (st.x - 4), 1, 379);
+    PLATFORM.set_tile(Layer::overlay, (st.x - 4), 1, 379);
 
 
-    pfrm.set_tile(Layer::overlay, (st.x - 4), 2, 379);
+    PLATFORM.set_tile(Layer::overlay, (st.x - 4), 2, 379);
 
-    pfrm.set_tile(Layer::overlay, (st.x - 4), 3, 119);
+    PLATFORM.set_tile(Layer::overlay, (st.x - 4), 3, 119);
 
     if (not speed_text_) {
-        speed_text_.emplace(pfrm,
-                            OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+        speed_text_.emplace(OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
     }
     StringBuffer<30> temp(SYSTR(gs_prompt)->c_str());
-    temp += gamespeed_text(pfrm, (GameSpeed)selection_)->c_str();
+    temp += gamespeed_text((GameSpeed)selection_)->c_str();
     speed_text_->assign(temp.c_str());
 
-    const u8 y = calc_screen_tiles(pfrm).y - 2;
+    const u8 y = calc_screen_tiles().y - 2;
 
     for (int i = 0; i < 30; ++i) {
-        pfrm.set_tile(Layer::overlay, i, y, 0);
+        PLATFORM.set_tile(Layer::overlay, i, y, 0);
     }
 
     for (int i = 0; i < speed_text_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, y, 425);
+        PLATFORM.set_tile(Layer::overlay, i, y, 425);
     }
 }
 
 
 
-void SetGamespeedScene::exit(Platform& pfrm, App& app, Scene&)
+void SetGamespeedScene::exit(App& app, Scene&)
 {
     speed_text_.reset();
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 

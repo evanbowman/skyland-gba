@@ -193,7 +193,7 @@ static void multi_serial_init()
 
 
 
-void download_dlc_blob(Platform& pfrm, Vector<char>& output)
+void download_dlc_blob(Vector<char>& output)
 {
     REG_RCNT = R_MULTI;
     REG_SIOCNT = SIO_MULTI;
@@ -260,7 +260,7 @@ void download_dlc_blob(Platform& pfrm, Vector<char>& output)
 
     while (dlc_transfer.state_ == DlcTransferContext::State::read_size or
            dlc_transfer.halfwords_remaining_) {
-        pfrm.system_call("feed-watchdog", nullptr);
+        PLATFORM.system_call("feed-watchdog", nullptr);
     }
 
     irqDisable(IRQ_SERIAL);

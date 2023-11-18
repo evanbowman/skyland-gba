@@ -70,7 +70,7 @@ Curveshot::Curveshot(const Vec2<Float>& position,
 
 
 
-void Curveshot::update(Platform& pfrm, App& app, Microseconds delta)
+void Curveshot::update(App& app, Microseconds delta)
 {
     Vec2<Float> pos = {sprite_.get_position().x, y_base_};
     pos = pos + app.float_delta() * step_vector_;
@@ -109,8 +109,8 @@ void Curveshot::update(Platform& pfrm, App& app, Microseconds delta)
                 (int)target->origin().x + 16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
-            this->destroy(pfrm, app, pos.y > min_y);
-            pfrm.speaker().play_sound("explosion1", 2);
+            this->destroy(app, pos.y > min_y);
+            PLATFORM.speaker().play_sound("explosion1", 2);
         }
     }
 
@@ -121,7 +121,7 @@ void Curveshot::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Curveshot::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Curveshot::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - Float(delta) * step_vector_;
@@ -131,9 +131,9 @@ void Curveshot::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -145,7 +145,7 @@ extern Sound sound_impact;
 
 
 
-void Curveshot::on_collision(Platform& pfrm, App& app, Room& room)
+void Curveshot::on_collision(App& app, Room& room)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -166,31 +166,31 @@ void Curveshot::on_collision(Platform& pfrm, App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < curveshot_damage) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
-    room.apply_damage(pfrm, app, curveshot_damage);
+    room.apply_damage(app, curveshot_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
+        room.set_ai_aware(app, true);
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(pfrm, app, true);
+        this->destroy(app, true);
         if (room.health()) {
-            sound_impact.play(pfrm, 1);
+            sound_impact.play(1);
         }
     }
 }
 
 
 
-void Curveshot::destroy(Platform& pfrm, App& app, bool explosion)
+void Curveshot::destroy(App& app, bool explosion)
 {
     // auto timestream_record =
     //     [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -207,11 +207,11 @@ void Curveshot::destroy(Platform& pfrm, App& app, bool explosion)
     // if (source_ == &app.player_island()) {
     //     time_stream::event::PlayerCurveshotDestroyed c;
     //     timestream_record(c);
-    //     app.time_stream().push(pfrm, app.level_timer(), c);
+    //     app.time_stream().push(app.level_timer(), c);
     // } else {
     //     time_stream::event::OpponentCurveshotDestroyed c;
     //     timestream_record(c);
-    //     app.time_stream().push(pfrm, app.level_timer(), c);
+    //     app.time_stream().push(app.level_timer(), c);
     // }
 
 
@@ -219,20 +219,20 @@ void Curveshot::destroy(Platform& pfrm, App& app, bool explosion)
     app.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 
 
 
-void Curveshot::on_collision(Platform& pfrm, App& app, Entity& entity)
+void Curveshot::on_collision(App& app, Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Curveshot explodes upon collision.
 
-    this->destroy(pfrm, app, true);
+    this->destroy(app, true);
 
-    entity.apply_damage(pfrm, app, curveshot_damage);
+    entity.apply_damage(app, curveshot_damage);
 }
 
 

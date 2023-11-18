@@ -34,33 +34,32 @@ namespace skyland::macro
 class CreateBlockScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
+    void enter(macro::EngineImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
+    void exit(macro::EngineImpl& state, Scene& next) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override;
 
 
-    void show_options(Platform& pfrm, macro::EngineImpl& state);
+    void show_options(macro::EngineImpl& state);
 
 
-    virtual ScenePtr<Scene> onclick(Platform&, macro::EngineImpl&);
-    virtual void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&);
+    virtual ScenePtr<Scene> onclick(macro::EngineImpl&);
+    virtual void adjust_cursor_z(Player& player, macro::EngineImpl&);
 
 
     virtual void init_cursor(macro::EngineImpl& state);
 
 
-    virtual void collect_options(Platform&, macro::EngineImpl& state);
+    virtual void collect_options(macro::EngineImpl& state);
 
 
-    virtual void message(Platform& pfrm, macro::EngineImpl&);
+    virtual void message(macro::EngineImpl&);
 
 
-    virtual void edit(Platform&, macro::EngineImpl& state, terrain::Type t);
+    virtual void edit(macro::EngineImpl& state, terrain::Type t);
 
 
     virtual terrain::Cost cost(macro::EngineImpl& state, terrain::Type t);
@@ -83,9 +82,9 @@ protected:
 class BuildImprovementScene : public CreateBlockScene
 {
 public:
-    void collect_options(Platform&, macro::EngineImpl& state) override;
+    void collect_options(macro::EngineImpl& state) override;
 
-    void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&) override
+    void adjust_cursor_z(Player& player, macro::EngineImpl&) override
     {
     }
 
@@ -100,7 +99,7 @@ public:
     }
 
 
-    void edit(Platform&, macro::EngineImpl& state, terrain::Type t) override;
+    void edit(macro::EngineImpl& state, terrain::Type t) override;
 };
 
 

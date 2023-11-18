@@ -89,7 +89,7 @@ public:
     };
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
         // Yeah, so only the host needs to send out its characters. But collect
         // them on both consoles regardless.
@@ -109,12 +109,10 @@ public:
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpSyncBegin& p) override
+    void receive(App& app, const network::packet::CoOpSyncBegin& p) override
     {
         if (state_ == State::wait) {
-            if (pfrm.network_peer().is_host()) {
+            if (PLATFORM.network_peer().is_host()) {
                 to_state(State::host_send_rooms);
             } else {
                 to_state(State::peer_receive_rooms);
@@ -123,14 +121,12 @@ public:
             // SyncBegin, second device is arrives in the scene in time to
             // receive the syncbegin but not in time to send out its own).
             network::packet::CoOpSyncBegin pkt;
-            network::transmit(pfrm, pkt);
+            network::transmit(pkt);
         }
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpSyncBlock& p) override
+    void receive(App& app, const network::packet::CoOpSyncBlock& p) override
     {
         RoomSyncInfo info;
         info.x_ = p.block_x_;
@@ -142,22 +138,18 @@ public:
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpSyncChr& p) override
+    void receive(App& app, const network::packet::CoOpSyncChr& p) override
     {
         ctx_->chr_info_.push_back(p);
     }
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::CoOpSyncEnd& p) override
+    void receive(App& app, const network::packet::CoOpSyncEnd& p) override
     {
         if (state_ == State::peer_receive_rooms) {
-            peer_synchronize(pfrm, app);
+            peer_synchronize(app);
             network::packet::CoOpSyncEnd pkt;
-            network::transmit(pfrm, pkt);
+            network::transmit(pkt);
             to_state(State::done);
         } else if (state_ == State::host_await_accept) {
             to_state(State::done);
@@ -165,10 +157,9 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        network::poll_messages(pfrm, app, *this);
+        network::poll_messages(app, *this);
 
         switch (state_) {
         case State::wait:
@@ -178,7 +169,7 @@ public:
                 // Repeatedly transmit until other player sends its own sync
                 // begin.
                 network::packet::CoOpSyncBegin pkt;
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
             }
             break;
 
@@ -199,7 +190,7 @@ public:
                 pkt.block_x_ = room->position().x;
                 pkt.block_y_ = room->position().y;
                 pkt.health_.set(room->health());
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
             }
             break;
         }
@@ -216,7 +207,7 @@ public:
                 pkt.y_ = chr->grid_position().y;
                 pkt.health_ = chr->health();
                 pkt.is_replicant_ = chr->is_replicant();
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
             }
             break;
         }
@@ -229,7 +220,7 @@ public:
             timer_ += delta;
             if (timer_ > milliseconds(200)) {
                 network::packet::CoOpSyncEnd pkt;
-                network::transmit(pfrm, pkt);
+                network::transmit(pkt);
                 to_state(State::host_await_accept);
             }
             break;
@@ -252,7 +243,7 @@ public:
 
     // Called by the receiver to sync its state after the sender finished
     // sending everything.
-    void peer_synchronize(Platform& pfrm, App& app)
+    void peer_synchronize(App& app)
     {
         auto& island = player_island(app);
 
@@ -273,7 +264,7 @@ public:
             } else {
                 // Create room if it doesn't exist.
                 auto mt = load_metaclass(rx.room_metaclass_);
-                (*mt)->create(pfrm, app, &island, {rx.x_, rx.y_});
+                (*mt)->create(app, &island, {rx.x_, rx.y_});
                 if (auto room = island.get_room({rx.x_, rx.y_})) {
                     room->__set_health(rx.health_);
                     room->mark();
@@ -285,7 +276,7 @@ public:
             if (not room->marked()) {
                 // Destroy any leftover rooms that the other console didn't tell
                 // us about.
-                room->apply_damage(pfrm, app, Room::health_upper_limit());
+                room->apply_damage(app, Room::health_upper_limit());
             }
         }
 

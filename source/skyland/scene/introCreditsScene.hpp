@@ -36,17 +36,17 @@ namespace skyland
 class IntroCreditsScene : public Scene
 {
 public:
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
-    static void show_sunflowers(Platform& pfrm, int scroll, Float darken);
+    static void show_sunflowers(int scroll, Float darken);
 
 
     bool flower_effect_ = false;

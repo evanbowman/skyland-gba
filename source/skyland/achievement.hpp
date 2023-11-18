@@ -82,28 +82,28 @@ enum Achievement : u8 {
 
 
 // Inspects save data, and re-awards any achievements from a previous session.
-void init(Platform& pfrm, App& app);
+void init(App& app);
 
 
 
 // If the library matches a new achievement, return the achievement.
-Achievement update(Platform& pfrm, App& app);
+Achievement update(App& app);
 
 
 
 // Raise an alert, forcibly unlocking an achievement.
-void raise(Platform& pfrm, App& app, Achievement achievement);
+void raise(App& app, Achievement achievement);
 
 
 
 // Re-lock the achievement. Really just needed for implementing rewind.
-void lock(Platform& pfrm, App& app, Achievement achievement);
+void lock(App& app, Achievement achievement);
 
 
 
 // update() or unlock() return an achievement, or true (respectively), call
 // award to award the achievement item to the player.
-void award(Platform& pfrm, App& app, Achievement achievement);
+void award(App& app, Achievement achievement);
 
 
 

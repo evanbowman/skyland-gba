@@ -46,7 +46,7 @@ static SHARED_VARIABLE(sf_p4_coin_yield);
 
 
 
-void prep_level(Platform& pfrm, App& app);
+void prep_level(App& app);
 
 
 
@@ -57,10 +57,10 @@ ProcgenEnemyAI::ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty)
 
 
 
-void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
+void ProcgenEnemyAI::update(App& app, Microseconds delta)
 {
     if (not app.opponent_island()) {
-        generate_level(pfrm, app);
+        generate_level(app);
 
         if (app.game_mode() == App::GameMode::skyland_forever) {
             for (auto it = app.birds().begin(); it not_eq app.birds().end();) {
@@ -70,8 +70,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     ++it;
                 }
             }
-            GenericBird::spawn(pfrm,
-                               app,
+            GenericBird::spawn(app,
                                *app.opponent_island(),
                                rng::choice<4>(rng::utility_state));
         }
@@ -106,14 +105,14 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     if (++counter == 16) {
                         counter = 0;
                         // Wait for some queued transmits to finish
-                        pfrm.sleep(4);
+                        PLATFORM.sleep(4);
                     }
 
                     network::packet::OpponentRoomCreated p;
                     p.x_ = room->position().x;
                     p.y_ = room->position().y;
                     p.metaclass_index_.set(room->metaclass_index());
-                    network::transmit(pfrm, p);
+                    network::transmit(p);
                 }
             }
         }
@@ -122,11 +121,11 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.game_mode() == App::GameMode::co_op) {
 
-            if (mt_prep_seconds == 0 and pfrm.network_peer().is_host()) {
-                EnemyAI::update(pfrm, app, delta);
+            if (mt_prep_seconds == 0 and PLATFORM.network_peer().is_host()) {
+                EnemyAI::update(app, delta);
             }
         } else {
-            EnemyAI::update(pfrm, app, delta);
+            EnemyAI::update(app, delta);
         }
     }
 
@@ -134,8 +133,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         level_text_.reset();
     } else if (not level_text_) {
         level_text_.emplace(
-            pfrm,
-            OverlayCoord{u8(calc_screen_tiles(pfrm).x -
+            OverlayCoord{u8(calc_screen_tiles().x -
                             integer_text_length(levelgen_enemy_count_)),
                          0});
     } else {
@@ -145,7 +143,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_level(App& app)
 {
     for (auto& room : app.player_island().rooms()) {
         // TODO: gather information about the layout of the player's castle.
@@ -154,12 +152,12 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
-            pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+            PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
         }
     }
 
-    pfrm.set_scroll(Layer::map_1_ext, -250, -374);
-    pfrm.screen().clear();
+    PLATFORM.set_scroll(Layer::map_1_ext, -250, -374);
+    PLATFORM.screen().clear();
 
     auto area = [&] {
         if (levelgen_enemy_count_ < 3) {
@@ -184,20 +182,20 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     levelgen_size_.x = std::min(13, std::max(3, area / levelgen_size_.y));
 
 
-    app.create_opponent_island(pfrm, levelgen_size_.x);
+    app.create_opponent_island(levelgen_size_.x);
     app.opponent_island()->show_flag(true);
 
-    generate_power_sources(pfrm, app);
+    generate_power_sources(app);
 
     if (levelgen_enemy_count_ > 2 or rng::choice<2>(rng_source_)) {
-        generate_stairwells(pfrm, app);
+        generate_stairwells(app);
     }
 
-    generate_secondary_rooms(pfrm, app);
-    generate_characters(pfrm, app);
-    generate_radiators(pfrm, app);
+    generate_secondary_rooms(app);
+    generate_characters(app);
+    generate_radiators(app);
 
-    generate_hull(pfrm, app);
+    generate_hull(app);
 
     int weapon_limit = 0;
     if (levelgen_enemy_count_ < 1) {
@@ -213,30 +211,30 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     } else {
         weapon_limit = 11;
     }
-    generate_weapons(pfrm, app, weapon_limit);
+    generate_weapons(app, weapon_limit);
 
     if (core_count_ >= 2) {
-        generate_forcefields(pfrm, app);
-        generate_missile_defenses(pfrm, app);
+        generate_forcefields(app);
+        generate_missile_defenses(app);
     }
 
-    generate_foundation(pfrm, app);
+    generate_foundation(app);
 
-    cleanup_unused_terrain(pfrm, app);
+    cleanup_unused_terrain(app);
 
-    generate_walls_behind_weapons(pfrm, app);
+    generate_walls_behind_weapons(app);
 
-    generate_decorations(pfrm, app);
+    generate_decorations(app);
 
-    generate_foundation(pfrm, app);
+    generate_foundation(app);
 
 
-    prep_level(pfrm, app);
-    show_island_exterior(pfrm, app, app.opponent_island());
+    prep_level(app);
+    show_island_exterior(app, app.opponent_island());
 
     // The level generation may have taken a long time. Shouldn't have any
     // bearing on gameplay.
-    pfrm.delta_clock().reset();
+    PLATFORM.delta_clock().reset();
 
     ++levelgen_enemy_count_;
 
@@ -294,11 +292,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         app.time_stream().clear();
     }
 
-    level_text_.emplace(
-        pfrm,
-        OverlayCoord{u8(calc_screen_tiles(pfrm).x -
-                        integer_text_length(levelgen_enemy_count_)),
-                     0});
+    level_text_.emplace(OverlayCoord{
+        u8(calc_screen_tiles().x - integer_text_length(levelgen_enemy_count_)),
+        0});
 }
 
 
@@ -314,7 +310,7 @@ static const int level_threshold_two_powercores = 4;
 
 
 
-void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_power_sources(App& app)
 {
     core_count_ = 0;
     int reactor_count = 0;
@@ -331,16 +327,14 @@ void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
     }
 
     for (int i = 0; i < core_count_; ++i) {
-        place_room_random_loc(pfrm,
-                              app,
+        place_room_random_loc(app,
                               levelgen_size_.x < 4 ? 1
                                                    : levelgen_size_.x / 2 - 1,
                               "power-core");
     }
 
     for (int i = 0; i < reactor_count; ++i) {
-        place_room_random_loc(pfrm,
-                              app,
+        place_room_random_loc(app,
                               levelgen_size_.x < 4 ? 1
                                                    : levelgen_size_.x / 2 - 1,
                               "reactor");
@@ -359,7 +353,7 @@ Power ProcgenEnemyAI::power_remaining(App& app) const
 
 
 
-void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
+void ProcgenEnemyAI::generate_weapons(App& app, int max)
 {
     const bool co_op = app.game_mode() == App::GameMode::co_op;
 
@@ -505,7 +499,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     // Fire spread is really super difficult to synchronize over a low bandwidth
     // GBA link cable. Disabled until I can get it to work reliably.
     const char* fire_charge_substitution =
-        pfrm.network_peer().is_connected() ? "nemesis" : "fire-charge";
+        PLATFORM.network_peer().is_connected() ? "nemesis" : "fire-charge";
 
     if (levelgen_enemy_count_ > 8) {
         if (missile_count > 2) {
@@ -579,7 +573,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
         if (not slots.empty()) {
             auto s = slots[0];
-            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+            (*mt)->create(app, app.opponent_island(), {s.x, s.y});
 
             for (int yy = 0; yy < s.y; ++yy) {
                 c->invalidated_missile_cells_[s.x][yy] = true;
@@ -629,7 +623,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
         if (not slots.empty()) {
             auto s = slots[0];
-            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+            (*mt)->create(app, app.opponent_island(), {s.x, s.y});
 
             for (int xx = 0; xx < 15; ++xx) {
                 c->invalidated_cannon_cells_[xx][s.y] = true;
@@ -669,7 +663,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
         if (not slots.empty()) {
             auto s = slots[0];
-            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+            (*mt)->create(app, app.opponent_island(), {s.x, s.y});
 
             c->invalidated_cannon_cells_[s.x][s.y - 1] = true;
             c->invalidated_cannon_cells_[s.x + 1][s.y - 1] = true;
@@ -738,7 +732,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
 
 
-void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_missile_defenses(App& app)
 {
     if (rng::choice<4>(rng_source_) == 0) {
         // Skip it sometimes.
@@ -792,7 +786,7 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
                 }
                 for (int x = 0; x < room->size().x; ++x) {
                     if (not app.opponent_island()->get_room(p)) {
-                        shull->create(pfrm, app, app.opponent_island(), p);
+                        shull->create(app, app.opponent_island(), p);
                     }
                     ++p.x;
                 }
@@ -803,11 +797,11 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
 
 
 
-void shift_rooms_right(Platform& pfrm, App& app, Island& island);
+void shift_rooms_right(App& app, Island& island);
 
 
 
-void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_forcefields(App& app)
 {
     struct Context
     {
@@ -830,9 +824,9 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
     }
     auto t_size = app.opponent_island()->terrain().size();
     if (free_count < 5 and t_size < 13) {
-        app.opponent_island()->init_terrain(pfrm, ++t_size, false);
-        shift_rooms_right(pfrm, app, *app.opponent_island());
-        app.opponent_island()->repaint(pfrm, app);
+        app.opponent_island()->init_terrain(++t_size, false);
+        shift_rooms_right(app, *app.opponent_island());
+        app.opponent_island()->repaint(app);
     }
 
 
@@ -960,8 +954,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
             for (auto& slot : c->slots_) {
                 if (has_space(app, slot.coord_, {1, 1})) {
                     placed = true;
-                    (*sel)->create(
-                        pfrm, app, app.opponent_island(), slot.coord_);
+                    (*sel)->create(app, app.opponent_island(), slot.coord_);
                     break;
                 }
             }
@@ -976,7 +969,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_hull(App& app)
 {
     auto& hull = require_metaclass("hull");
     auto& mhull = require_metaclass("mirror-hull");
@@ -1042,13 +1035,13 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                                 rng::choice<3>(rng_source_) == 0) {
                                 --ehull_count;
                                 ehull->create(
-                                    pfrm, app, app.opponent_island(), {x, y});
+                                    app, app.opponent_island(), {x, y});
                             } else if (missile_defense) {
                                 shull->create(
-                                    pfrm, app, app.opponent_island(), {x, y});
+                                    app, app.opponent_island(), {x, y});
                             } else {
                                 hull->create(
-                                    pfrm, app, app.opponent_island(), {x, y});
+                                    app, app.opponent_island(), {x, y});
                             }
                         }
                     }
@@ -1151,14 +1144,11 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                         not app.opponent_island()->rooms_plot().get(x, y)) {
 
                         if (place_mhull) {
-                            mhull->create(
-                                pfrm, app, app.opponent_island(), {x, y});
+                            mhull->create(app, app.opponent_island(), {x, y});
                         } else if (place_bhull) {
-                            bhull->create(
-                                pfrm, app, app.opponent_island(), {x, y});
+                            bhull->create(app, app.opponent_island(), {x, y});
                         } else {
-                            hull->create(
-                                pfrm, app, app.opponent_island(), {x, y});
+                            hull->create(app, app.opponent_island(), {x, y});
                         }
                     }
                 }
@@ -1196,7 +1186,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_walls_behind_weapons(App& app)
 {
     auto& hull = require_metaclass("masonry");
 
@@ -1224,7 +1214,7 @@ void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
                 }
 
                 if (not skip) {
-                    hull->create(pfrm, app, app.opponent_island(), behind);
+                    hull->create(app, app.opponent_island(), behind);
                 }
             }
         }
@@ -1233,7 +1223,7 @@ void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_stairwells(App& app)
 {
     // Generate stairwells
 
@@ -1332,7 +1322,7 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
                 break;
             }
             if (has_space(app, slot.coord_, (*mt)->size())) {
-                (*mt)->create(pfrm, app, app.opponent_island(), slot.coord_);
+                (*mt)->create(app, app.opponent_island(), slot.coord_);
                 --count;
                 tries = 0;
                 break;
@@ -1345,7 +1335,7 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_radiators(App& app)
 {
     int player_character_count = 0;
     int player_transporter_count = 0;
@@ -1376,15 +1366,15 @@ void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
 
         const int count = rng::choice<4>(rng_source_);
         for (int i = 0; i < count; ++i) {
-            place_room_adjacent(pfrm, app, "radiator");
+            place_room_adjacent(app, "radiator");
         }
-        place_room_adjacent(pfrm, app, "infirmary");
+        place_room_adjacent(app, "infirmary");
     }
 }
 
 
 
-void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_characters(App& app)
 {
     int transporter_count = 0;
     for (auto& room : app.opponent_island()->rooms()) {
@@ -1453,7 +1443,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_decorations(App& app)
 {
     auto& shrubbery_mt = require_metaclass("shrubbery");
 
@@ -1486,7 +1476,7 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
 
             case 3:
             case 4:
-                shrubbery_mt->create(pfrm, app, app.opponent_island(), {x, y});
+                shrubbery_mt->create(app, app.opponent_island(), {x, y});
                 break;
             }
         }
@@ -1495,9 +1485,7 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
-                                         App& app,
-                                         const char* room_name)
+void ProcgenEnemyAI::place_room_adjacent(App& app, const char* room_name)
 {
     struct Slot
     {
@@ -1579,7 +1567,7 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
                     continue;
                 }
                 if (has_space(app, slot.coord_, m->size())) {
-                    m->create(pfrm, app, app.opponent_island(), slot.coord_);
+                    m->create(app, app.opponent_island(), slot.coord_);
                     return;
                 }
             }
@@ -1595,11 +1583,11 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
 
 
 
-void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_secondary_rooms(App& app)
 {
     if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng_source_)) {
 
-        place_room_adjacent(pfrm, app, "infirmary");
+        place_room_adjacent(app, "infirmary");
     }
 
     int player_char_count = 0;
@@ -1612,7 +1600,7 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
     }
 
     if (player_char_count > 3 or player_transporter_count > 2) {
-        place_room_adjacent(pfrm, app, "infirmary");
+        place_room_adjacent(app, "infirmary");
     }
 
     if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng_source_)) {
@@ -1623,14 +1611,14 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         }
 
         for (int i = 0; i < count; ++i) {
-            place_room_adjacent(pfrm, app, "transporter");
+            place_room_adjacent(app, "transporter");
         }
     }
 }
 
 
 
-void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
+void ProcgenEnemyAI::generate_foundation(App& app)
 {
     // Generate filler structures to ensure that no rooms are floating.
 
@@ -1668,13 +1656,12 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                         }
                         if (rng::choice<18>(rng_source_) == 0) {
                             dynamite->create(
-                                pfrm, app, app.opponent_island(), {x, yy});
+                                app, app.opponent_island(), {x, yy});
                         } else if (rng::choice<40>(rng_source_) == 0) {
                             dynamite_ii->create(
-                                pfrm, app, app.opponent_island(), {x, yy});
+                                app, app.opponent_island(), {x, yy});
                         } else {
-                            mt->create(
-                                pfrm, app, app.opponent_island(), {x, yy});
+                            mt->create(app, app.opponent_island(), {x, yy});
                             if (auto r =
                                     app.opponent_island()->get_room({x, yy})) {
                                 if (auto m = r->cast<Masonry>()) {
@@ -1697,7 +1684,7 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::cleanup_unused_terrain(Platform& pfrm, App& app)
+void ProcgenEnemyAI::cleanup_unused_terrain(App& app)
 {
     while (not app.opponent_island()->terrain().empty()) {
         const u8 x_end = app.opponent_island()->terrain().size() - 1;
@@ -1710,14 +1697,13 @@ void ProcgenEnemyAI::cleanup_unused_terrain(Platform& pfrm, App& app)
         }
 
         // Empty column, reduce terrain size by 1.
-        app.opponent_island()->init_terrain(pfrm, x_end);
+        app.opponent_island()->init_terrain(x_end);
     }
 }
 
 
 
-void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
-                                           App& app,
+void ProcgenEnemyAI::place_room_random_loc(App& app,
                                            int x_start,
                                            const char* room_name)
 {
@@ -1728,7 +1714,7 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
     }
 
     auto make_room = [&](const RoomCoord& position) {
-        (*mt)->create(pfrm, app, app.opponent_island(), position);
+        (*mt)->create(app, app.opponent_island(), position);
     };
 
     int tries = 0;

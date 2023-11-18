@@ -35,8 +35,7 @@
 
 
 
-void print_char(Platform& pfrm,
-                utf8::Codepoint c,
+void print_char(utf8::Codepoint c,
                 const OverlayCoord& coord,
                 const std::optional<FontColors>& colors = {});
 
@@ -69,37 +68,35 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth)
 
 
 
-ScenePtr<Scene>
-ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ComposeSynthScene::update(App& app, Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto scene = ActiveWorldScene::update(app, delta)) {
         return scene;
     }
 
-    if (player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player(app).test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player(app).key_down(pfrm, Key::action_1)) {
+    if (player(app).key_down(Key::action_1)) {
         if (cursor_.x == 0) {
-            demo_note(pfrm);
+            demo_note();
         }
     }
 
     if (note_demo_timer_ > 0) {
         note_demo_timer_ -= delta;
         if (note_demo_timer_ < 0) {
-            pfrm.speaker().stop_chiptune_note(channel_);
+            PLATFORM.speaker().stop_chiptune_note(channel_);
         }
     }
 
 
-    pfrm.speaker().apply_chiptune_effect(
+    PLATFORM.speaker().apply_chiptune_effect(
         Platform::Speaker::Channel::square_1,
         effect_flags_.load((int)Platform::Speaker::Channel::square_1,
                            demo_index_),
@@ -107,18 +104,18 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
         delta);
 
 
-    if (not player(app).key_pressed(pfrm, Key::action_1)) {
+    if (not player(app).key_pressed(Key::action_1)) {
         if (test_key(Key::down)) {
             if (cursor_.y < 15) {
                 ++cursor_.y;
-                repaint(pfrm);
+                repaint();
             }
         }
 
         if (test_key(Key::up)) {
             if (cursor_.y > 0) {
                 --cursor_.y;
-                repaint(pfrm);
+                repaint();
             }
         }
     } else if (cursor_.x == 0) {
@@ -157,9 +154,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            demo_note(pfrm);
+            demo_note();
 
-            repaint(pfrm);
+            repaint();
         }
 
         if (test_key(Key::up)) {
@@ -194,9 +191,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            demo_note(pfrm);
+            demo_note();
 
-            repaint(pfrm);
+            repaint();
         }
 
     } else if (cursor_.x == 1) {
@@ -218,9 +215,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                     last_octave_ = notes_[cursor_.y].regular_.octave_;
                 }
 
-                demo_note(pfrm);
+                demo_note();
 
-                repaint(pfrm);
+                repaint();
             }
 
             if (test_key(Key::up)) {
@@ -238,9 +235,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                     last_octave_ = notes_[cursor_.y].regular_.octave_;
                 }
 
-                demo_note(pfrm);
+                demo_note();
 
-                repaint(pfrm);
+                repaint();
             }
         }
 
@@ -274,11 +271,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
             effect_flags_.store((int)channel_, cursor_.y, effect);
             set_effect_param_default(effect);
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
 
         } else if (test_key(Key::up)) {
@@ -290,11 +287,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
             effect_flags_.store((int)channel_, cursor_.y, effect);
             set_effect_param_default(effect);
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
         }
     } else if (cursor_.x == 3) {
@@ -330,11 +327,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ &= ~0xf0;
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
 
         } else if (test_key(Key::down)) {
@@ -346,11 +343,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ &= ~0xf0;
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
         }
     } else if (cursor_.x == 4) {
@@ -386,11 +383,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ &= ~0x0f;
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
 
         } else if (test_key(Key::down)) {
@@ -402,11 +399,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ &= ~0x0f;
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
-            repaint(pfrm);
+            repaint();
 
             if (notes_[cursor_.y].regular_.note_ not_eq
                 Platform::Speaker::Note::invalid) {
-                demo_note(pfrm);
+                demo_note();
             }
         }
     } else {
@@ -456,7 +453,7 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                         break;
                     }
 
-                    repaint(pfrm);
+                    repaint();
 
                 } else if (test_key(Key::up)) {
                     switch (cursor_.y) {
@@ -501,7 +498,7 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                         break;
                     }
 
-                    repaint(pfrm);
+                    repaint();
                 }
             };
 
@@ -525,21 +522,21 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (player(app).key_down(pfrm, Key::right) and cursor_.x < 5) {
+    if (player(app).key_down(Key::right) and cursor_.x < 5) {
         ++cursor_.x;
         if (cursor_.x == 5) {
             resume_y_ = cursor_.y;
             cursor_.y = 0;
         }
-        repaint(pfrm);
+        repaint();
     }
 
-    if (player(app).key_down(pfrm, Key::left) and cursor_.x > 0) {
+    if (player(app).key_down(Key::left) and cursor_.x > 0) {
         if (cursor_.x == 5) {
             cursor_.y = resume_y_;
         }
         --cursor_.x;
-        repaint(pfrm);
+        repaint();
     }
 
 
@@ -548,7 +545,7 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ComposeSynthScene::demo_note(Platform& pfrm)
+void ComposeSynthScene::demo_note()
 {
     if (cursor_.x < 4) {
         demo_index_ = cursor_.y;
@@ -558,20 +555,20 @@ void ComposeSynthScene::demo_note(Platform& pfrm)
         demo_index_ = resume_y_;
     }
 
-    pfrm.speaker().init_chiptune_square_1(square_1_settings_);
-    pfrm.speaker().init_chiptune_square_2(square_2_settings_);
-    pfrm.speaker().init_chiptune_noise(noise_settings_);
+    PLATFORM.speaker().init_chiptune_square_1(square_1_settings_);
+    PLATFORM.speaker().init_chiptune_square_2(square_2_settings_);
+    PLATFORM.speaker().init_chiptune_noise(noise_settings_);
 
-    pfrm.speaker().play_chiptune_note(channel_, notes_[demo_index_]);
+    PLATFORM.speaker().play_chiptune_note(channel_, notes_[demo_index_]);
 
     note_demo_timer_ = seconds(3);
 }
 
 
 
-void ComposeSynthScene::repaint(Platform& pfrm)
+void ComposeSynthScene::repaint()
 {
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     int start_x = st.x / 2 - 12;
     int start_y = (st.y - 16) / 2;
 
@@ -591,7 +588,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
                 {ColorConstant::steel_blue, ColorConstant::silver_white}};
         }
 
-        print_char(pfrm, c, {u8(start_x + x), u8(start_y + y)}, clr);
+        print_char(c, {u8(start_x + x), u8(start_y + y)}, clr);
     };
 
     auto put_str = [&](const char* str,
@@ -607,7 +604,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
         while (*str not_eq '\0') {
 
-            print_char(pfrm, *str, {u8(start_x + x), u8(start_y + y)}, clr);
+            print_char(*str, {u8(start_x + x), u8(start_y + y)}, clr);
 
             ++x;
             ++str;
@@ -909,31 +906,31 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
 
 
-void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ComposeSynthScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
-    repaint(pfrm);
+    repaint();
 
     auto island = synth_near_ ? &player_island(app) : opponent_island(app);
 
     for (auto& room : island->rooms()) {
         // Stop any currently-playing chiptunes.
         if (auto b = room->cast<Speaker>()) {
-            b->reset(pfrm);
+            b->reset();
         }
     }
 
-    island->repaint(pfrm, app);
+    island->repaint(app);
 
 
-    pfrm.screen().schedule_fade(0.5f);
+    PLATFORM.screen().schedule_fade(0.5f);
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     int start_x = st.x / 2 - 13;
     int start_y = (st.y - 16) / 2 - 1;
 
-    heading_.emplace(pfrm, OverlayCoord{(u8)start_x, (u8)start_y});
+    heading_.emplace(OverlayCoord{(u8)start_x, (u8)start_y});
 
     heading_->assign(
         [&]() {
@@ -959,18 +956,18 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
             {ColorConstant::steel_blue, ColorConstant::silver_white}});
 
 
-    pfrm.speaker().set_music_volume(6);
+    PLATFORM.speaker().set_music_volume(6);
 }
 
 
 
-void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
+void ComposeSynthScene::exit(App& app, Scene& next)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.speaker().stop_chiptune_note(channel_);
+    PLATFORM.speaker().stop_chiptune_note(channel_);
 
-    pfrm.screen().schedule_fade(0.f);
+    PLATFORM.screen().schedule_fade(0.f);
 
     if (synth_near_) {
         if (auto room = player_island(app).get_room(synth_pos_)) {
@@ -1012,7 +1009,7 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
         }
     }
 
-    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 
 

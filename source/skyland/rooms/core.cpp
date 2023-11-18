@@ -41,7 +41,7 @@ const char* Core::upgrade_mt_name() const
 
 
 
-void Core::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Core::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_power_core)->c_str();
 }
@@ -55,9 +55,9 @@ Core::Core(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Core::update(Platform& pfrm, App& app, Microseconds delta)
+void Core::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -66,13 +66,13 @@ Sound core_destroyed("core_destroyed");
 
 
 
-void Core::finalize(Platform& pfrm, App& app)
+void Core::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() == 0) {
-        core_destroyed.play(pfrm, 4, milliseconds(600));
-        core_explosion(pfrm, app, parent(), center());
+        core_destroyed.play(4, milliseconds(600));
+        core_explosion(app, parent(), center());
     }
 }
 
@@ -126,9 +126,9 @@ const char* BackupCore::upgrade_mt_name() const
 
 
 
-void BackupCore::update(Platform& pfrm, App& app, Microseconds delta)
+void BackupCore::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     for (auto& room : parent()->rooms()) {
         if ((*room->metaclass())->category() == Room::Category::power) {
@@ -136,9 +136,9 @@ void BackupCore::update(Platform& pfrm, App& app, Microseconds delta)
 
                 // One allowed per island.
                 if (length(characters()) < length(room->characters())) {
-                    apply_damage(pfrm, app, Room::health_upper_limit());
+                    apply_damage(app, Room::health_upper_limit());
                 } else {
-                    room->apply_damage(pfrm, app, Room::health_upper_limit());
+                    room->apply_damage(app, Room::health_upper_limit());
                 }
 
                 return;
@@ -149,7 +149,7 @@ void BackupCore::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BackupCore::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void BackupCore::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_backup_core)->c_str();
 }

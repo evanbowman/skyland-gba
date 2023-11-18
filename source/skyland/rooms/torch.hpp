@@ -43,13 +43,13 @@ public:
     }
 
 
-    void burn_damage(Platform& pfrm, App& app, Health damage) override
+    void burn_damage(App& app, Health damage) override
     {
         // Torches take no burn damage (that's kinda the whole point).
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_torch)->c_str();
     }

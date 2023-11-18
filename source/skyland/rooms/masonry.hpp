@@ -57,13 +57,13 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_masonry)->c_str();
     }
 
 
-    void append_name_suffix(Platform& pfrm, StringBuffer<32>& result) override
+    void append_name_suffix(StringBuffer<32>& result) override
     {
         switch (gfx_) {
         case 1:
@@ -190,8 +190,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override
+    virtual ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override
     {
         schedule_repaint();
         update_description();

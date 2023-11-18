@@ -65,13 +65,13 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     void set_next_scene(DeferredScene next)
@@ -91,14 +91,14 @@ public:
     bool disable_fade_on_exit_ = false;
 
 private:
-    void load_page(Platform& pfrm, int page);
+    void load_page(int page);
 
-    void load_categories(Platform& pfrm);
+    void load_categories();
 
-    void load_filters(Platform& pfrm);
+    void load_filters();
 
 
-    ScenePtr<Scene> show_categories_impl(Platform&, App&, Microseconds);
+    ScenePtr<Scene> show_categories_impl(App&, Microseconds);
 
 
     std::optional<Text> item_name_;
@@ -106,11 +106,11 @@ private:
     std::optional<TextView> item_description_;
     std::optional<Text> dependency_text_;
 
-    void show_category_image(Platform& pfrm, int img);
+    void show_category_image(int img);
 
     std::optional<DeferredScene> next_scene_;
 
-    void draw_category_line(Platform&, int line, Text::OptColors = {});
+    void draw_category_line(int line, Text::OptColors = {});
 
     enum class State {
         show_categories,

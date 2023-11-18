@@ -69,14 +69,14 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void on_lightning(Platform& pfrm, App& app) override;
-    void on_lightning_rewind(Platform& pfrm, App& app) override;
+    void on_lightning(App& app) override;
+    void on_lightning_rewind(App& app) override;
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()
@@ -144,8 +144,7 @@ public:
         return 3656;
     }
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
     Microseconds reload_time_remaining() const override
     {

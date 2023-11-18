@@ -33,17 +33,17 @@ namespace skyland::macro
 
 
 
-void KeyComboScene::enter(Platform& pfrm, App& app, Scene& prev)
+void KeyComboScene::enter(App& app, Scene& prev)
 {
     text_data_ = SYSTR(key_combo_prompt)->c_str();
 
-    text_.emplace(pfrm, text_data_.c_str(), OverlayCoord{0, 19});
+    text_.emplace(text_data_.c_str(), OverlayCoord{0, 19});
     for (int i = text_->len(); i < 30; ++i) {
         text_->append(" ");
     }
 
     for (int i = 0; i < 30; ++i) {
-        pfrm.set_tile(Layer::overlay, i, 18, 425);
+        PLATFORM.set_tile(Layer::overlay, i, 18, 425);
     }
 
     app.key_callback_processor().reset();
@@ -51,25 +51,24 @@ void KeyComboScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void KeyComboScene::exit(Platform& pfrm, App& app, Scene& next)
+void KeyComboScene::exit(App& app, Scene& next)
 {
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
     text_.reset();
 }
 
 
 
-ScenePtr<Scene>
-KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> KeyComboScene::update(App& app, Microseconds delta)
 {
-    if (app.player().key_down(pfrm, Key::start) or
+    if (app.player().key_down(Key::start) or
         app.key_callback_processor().seek_state() ==
             KeyCallbackProcessor::seq_max - 1 or
         (app.key_callback_processor().possibilities() == 1 and
          app.key_callback_processor().match())) {
 
         if (auto binding = app.key_callback_processor().match()) {
-            binding->callback_(pfrm, app);
+            binding->callback_(app);
         }
         app.key_callback_processor().reset();
 
@@ -77,12 +76,12 @@ KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<SelectorScene>();
     }
 
-    app.key_callback_processor().update(pfrm);
+    app.key_callback_processor().update();
 
     Key found = Key::count;
     for (int i = 0; i < (int)Key::count; ++i) {
         auto k = (Key)i;
-        if (pfrm.keyboard().down_transition(k)) {
+        if (PLATFORM.keyboard().down_transition(k)) {
             found = k;
             break;
         }

@@ -61,7 +61,7 @@ DecimatorBurst::DecimatorBurst(const Vec2<Fixnum>& position,
 
 
 
-void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
+void DecimatorBurst::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -105,7 +105,7 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 
 
 
-void DecimatorBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
+void DecimatorBurst::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -119,7 +119,7 @@ void DecimatorBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         }
         kill();
     }
@@ -127,10 +127,7 @@ void DecimatorBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void DecimatorBurst::on_collision(Platform& pfrm,
-                                  App& app,
-                                  Room& room,
-                                  Vec2<u8> origin)
+void DecimatorBurst::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or
@@ -143,7 +140,7 @@ void DecimatorBurst::on_collision(Platform& pfrm,
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < decimator_burst_damage) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
@@ -177,20 +174,20 @@ void DecimatorBurst::on_collision(Platform& pfrm,
 
     kill();
     app.camera()->shake(26);
-    big_explosion(pfrm, app, sprite_.get_position());
+    big_explosion(app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, decimator_burst_damage, source_);
+    room.apply_damage(app, decimator_burst_damage, source_);
 }
 
 
 
-void DecimatorBurst::on_collision(Platform& pfrm, App& app, Entity& entity)
+void DecimatorBurst::on_collision(App& app, Entity& entity)
 {
     // Blows through drones, does not stop.
 
     app.camera()->shake(4);
 
-    entity.apply_damage(pfrm, app, decimator_burst_damage);
+    entity.apply_damage(app, decimator_burst_damage);
 }
 
 

@@ -41,13 +41,13 @@ ItemShopScene::ItemShopScene()
 
 
 
-void ItemShopScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ItemShopScene::enter(App& app, Scene& prev)
 {
     persist_ui();
 
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
-    pfrm.speaker().play_sound("openbag", 3);
+    PLATFORM.speaker().play_sound("openbag", 3);
 
     auto items = lisp::get_var("shop-items");
     lisp::foreach (items, [this](lisp::Value* item) {
@@ -67,11 +67,11 @@ void ItemShopScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void ItemShopScene::exit(Platform& pfrm, App& app, Scene& next)
+void ItemShopScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
-    pfrm.screen().schedule_fade(0);
-    pfrm.fill_overlay(0);
+    WorldScene::exit(app, next);
+    PLATFORM.screen().schedule_fade(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
@@ -83,11 +83,11 @@ u32 ItemShopScene::item_slot(int x, int y)
 
 
 
-void ItemShopScene::describe_selection(Platform& pfrm)
+void ItemShopScene::describe_selection()
 {
     int i = item_slot(cursor_.x, cursor_.y);
     auto mt = load_metaclass((*items_)[i].mt_);
-    auto info = (*mt)->ui_name(pfrm);
+    auto info = (*mt)->ui_name();
     *info += ", ";
     *info += SYSTR(size)->c_str();
     *info += " ";
@@ -97,23 +97,22 @@ void ItemShopScene::describe_selection(Platform& pfrm)
     *info += ", ";
     *info += stringify((*mt)->consumes_power());
     *info += "`";
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     for (int x = 0; x < st.x; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 0);
     }
     for (u32 x = 0; x < info->length(); ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 425);
     }
-    Text::print(pfrm, info->c_str(), {0, (u8)(st.y - 1)});
+    Text::print(info->c_str(), {0, (u8)(st.y - 1)});
 }
 
 
 
-ScenePtr<Scene>
-ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ItemShopScene::update(App& app, Microseconds delta)
 {
-    if (auto scene = WorldScene::update(pfrm, app, delta)) {
+    if (auto scene = WorldScene::update(app, delta)) {
         return scene;
     }
 
@@ -126,26 +125,26 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::fade_in:
         timer_ += delta;
         if (timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(0.5f);
+            PLATFORM.screen().schedule_fade(0.5f);
             timer_ = 0;
             state_ = State::animate_box;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(0.5f * amount);
+            PLATFORM.screen().schedule_fade(0.5f * amount);
         }
         break;
 
     case State::animate_box: {
         timer_ += delta;
         static const auto sweep_duration = milliseconds(100);
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
 
         if (timer_ > sweep_duration) {
             timer_ = 0;
             state_ = State::ready;
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
-                    pfrm.set_tile(Layer::overlay, x, y + 1, 112);
+                    PLATFORM.set_tile(Layer::overlay, x, y + 1, 112);
                 }
             }
 
@@ -155,23 +154,18 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (i == 0) {
                     icon = (*load_metaclass(item.mt_))->icon();
                 }
-                draw_image(pfrm,
-                           tile_mem[i],
-                           slots[i].x,
-                           slots[i].y,
-                           4,
-                           4,
-                           Layer::overlay);
-                pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
+                draw_image(
+                    tile_mem[i], slots[i].x, slots[i].y, 4, 4, Layer::overlay);
+                PLATFORM.load_overlay_chunk(tile_mem[i], icon, 16);
                 u8 x = slots[i].x + 5;
                 u8 y = slots[i].y + 1;
-                Text::print(pfrm, format("%@", item.price_).c_str(), {x, y});
+                Text::print(format("%@", item.price_).c_str(), {x, y});
                 y += 1;
-                Text::print(pfrm, format("x%", item.qty_).c_str(), {x, y});
+                Text::print(format("x%", item.qty_).c_str(), {x, y});
                 ++i;
             }
 
-            describe_selection(pfrm);
+            describe_selection();
 
         } else {
             const int total = st.y - 7;
@@ -181,7 +175,7 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
                     if (y <= progress + 3) {
-                        pfrm.set_tile(Layer::overlay, x, y + 1, 112);
+                        PLATFORM.set_tile(Layer::overlay, x, y + 1, 112);
                     }
                 }
             }
@@ -191,16 +185,16 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::ready:
-        if (player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
-        if (player(app).key_down(pfrm, Key::action_1)) {
+        if (player(app).key_down(Key::action_1)) {
 
             auto fn = lisp::get_var("on-shop-item-sel");
             if (fn->type() == lisp::Value::Type::function) {
                 auto mt_i = (*items_)[item_slot(cursor_.x, cursor_.y)].mt_;
                 auto mt = load_metaclass(mt_i);
-                lisp::push_op(lisp::make_string((*mt)->ui_name(pfrm)->c_str()));
+                lisp::push_op(lisp::make_string((*mt)->ui_name()->c_str()));
                 lisp::push_op(L_INT(item_slot(cursor_.x, cursor_.y)));
                 lisp::safecall(fn, 2);
                 lisp::pop_op(); // funcall result
@@ -214,25 +208,25 @@ ItemShopScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto move_cursor = [&](int x2, int y2) {
             int i = item_slot(cursor_.x, cursor_.y);
             auto icon = (*load_metaclass((*items_)[i].mt_))->unsel_icon();
-            pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
+            PLATFORM.load_overlay_chunk(tile_mem[i], icon, 16);
             cursor_.y = y2;
             cursor_.x = x2;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
             i = item_slot(cursor_.x, cursor_.y);
             icon = (*load_metaclass((*items_)[i].mt_))->icon();
-            pfrm.load_overlay_chunk(tile_mem[i], icon, 16);
-            describe_selection(pfrm);
+            PLATFORM.load_overlay_chunk(tile_mem[i], icon, 16);
+            describe_selection();
         };
-        if (player(app).key_down(pfrm, Key::down) and cursor_.y == 0) {
+        if (player(app).key_down(Key::down) and cursor_.y == 0) {
             if (item_slot(cursor_.x, cursor_.y + 1) < items_->size()) {
                 move_cursor(cursor_.x, cursor_.y + 1);
             }
-        } else if (player(app).key_down(pfrm, Key::up) and cursor_.y == 1) {
+        } else if (player(app).key_down(Key::up) and cursor_.y == 1) {
             move_cursor(cursor_.x, cursor_.y - 1);
         }
-        if (player(app).key_down(pfrm, Key::left) and cursor_.x == 1) {
+        if (player(app).key_down(Key::left) and cursor_.x == 1) {
             move_cursor(cursor_.x - 1, cursor_.y);
-        } else if (player(app).key_down(pfrm, Key::right) and cursor_.x == 0) {
+        } else if (player(app).key_down(Key::right) and cursor_.x == 0) {
             if (item_slot(cursor_.x + 1, cursor_.y) < items_->size()) {
                 move_cursor(cursor_.x + 1, cursor_.y);
             }

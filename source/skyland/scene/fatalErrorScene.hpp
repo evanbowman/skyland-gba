@@ -39,13 +39,13 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, App&, Scene& next) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds dt) override;
+    ScenePtr<Scene> update(App& app, Microseconds dt) override;
 
 
 private:

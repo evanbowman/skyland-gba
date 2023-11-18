@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void Hull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Hull::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_hull)->c_str();
 }
@@ -61,9 +61,9 @@ TileId Hull::tile() const
 
 
 
-void Hull::update(Platform& pfrm, App& app, Microseconds delta)
+void Hull::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -72,9 +72,9 @@ void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Hull::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Hull::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

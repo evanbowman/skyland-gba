@@ -43,7 +43,7 @@ public:
         sprite_.set_size(Sprite::Size::w16_h32);
     }
 
-    void update(Platform&, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -79,7 +79,7 @@ public:
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         kill();
     }

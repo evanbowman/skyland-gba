@@ -40,7 +40,7 @@ class MissileSilo;
 class FriendlyAI : public Opponent
 {
 public:
-    void update(Platform&, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         // TODO...
     }
@@ -52,7 +52,7 @@ public:
     }
 
 
-    void on_room_damaged(Platform& pfrm, App& app, Room&) override;
+    void on_room_damaged(App& app, Room&) override;
 };
 
 

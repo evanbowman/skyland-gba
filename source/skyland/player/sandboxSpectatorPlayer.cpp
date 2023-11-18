@@ -8,21 +8,19 @@ namespace skyland
 
 
 
-void SandboxSpectatorPlayer::update(Platform& pfrm,
-                                    App& app,
-                                    Microseconds delta)
+void SandboxSpectatorPlayer::update(App& app, Microseconds delta)
 {
-    EnemyAI::update(pfrm, app, delta);
+    EnemyAI::update(app, delta);
 
     for (int i = 0; i < static_cast<int>(Key::count); ++i) {
-        if (pfrm.keyboard().pressed(static_cast<Key>(i))) {
+        if (PLATFORM.keyboard().pressed(static_cast<Key>(i))) {
             key_held_timers_[i] += delta;
         } else {
             key_held_timers_[i] = 0;
         }
     }
 
-    if (pfrm.keyboard()
+    if (PLATFORM.keyboard()
             .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
         app.camera()->reset_default(app);
     }
@@ -30,23 +28,23 @@ void SandboxSpectatorPlayer::update(Platform& pfrm,
 
 
 
-bool SandboxSpectatorPlayer::key_down(Platform& pfrm, Key k)
+bool SandboxSpectatorPlayer::key_down(Key k)
 {
-    return pfrm.keyboard().down_transition(k);
+    return PLATFORM.keyboard().down_transition(k);
 }
 
 
 
-bool SandboxSpectatorPlayer::key_up(Platform& pfrm, Key k)
+bool SandboxSpectatorPlayer::key_up(Key k)
 {
-    return pfrm.keyboard().up_transition(k);
+    return PLATFORM.keyboard().up_transition(k);
 }
 
 
 
-bool SandboxSpectatorPlayer::key_pressed(Platform& pfrm, Key k)
+bool SandboxSpectatorPlayer::key_pressed(Key k)
 {
-    return pfrm.keyboard().pressed(k);
+    return PLATFORM.keyboard().pressed(k);
 }
 
 
@@ -65,8 +63,7 @@ void SandboxSpectatorPlayer::key_held_reset(Key k, Microseconds decrement)
 
 
 
-void SandboxSpectatorPlayer::key_held_distribute(Platform& pfrm,
-                                                 const Key* include_list)
+void SandboxSpectatorPlayer::key_held_distribute(const Key* include_list)
 {
     // If any key in the include_list is pressed, distribute that key press to
     // all keys in the include list.
@@ -85,7 +82,7 @@ void SandboxSpectatorPlayer::key_held_distribute(Platform& pfrm,
     l = include_list;
 
     while (*l not_eq Key::null) {
-        if (pfrm.keyboard().pressed(*l)) {
+        if (PLATFORM.keyboard().pressed(*l)) {
             key_held_timers_[static_cast<int>(*l)] = max;
         }
         ++l;

@@ -37,18 +37,18 @@ namespace skyland
 class SelectChallengeScene : public Scene
 {
 public:
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
 private:
-    void show_options(Platform&, App&);
+    void show_options(App&);
 
     enum class State {
         fade_in,

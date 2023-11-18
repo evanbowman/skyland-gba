@@ -56,13 +56,13 @@ namespace flash_filesystem
 {
 
 
-u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
+u32 read_file_data(const char* path, Vector<char>& output)
 {
     return 0;
 }
 
 
-bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
+bool store_file_data(const char* path, Vector<char>& data)
 {
     return false;
 }
@@ -334,7 +334,7 @@ void arabic__to_string(int num, char* buffer, int base)
 
 namespace skyland
 {
-SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
+SystemStringBuffer loadstr(SystemString str)
 {
     return allocate_dynamic<StringBuffer<1900>>("dummy");
 }
@@ -351,8 +351,7 @@ void App::set_developer_mode(bool value)
 
 static lisp::Nil lnil;
 
-lisp::Value*
-App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+lisp::Value* App::invoke_script(const char* path, bool rom_fs_only)
 {
     // lol super hacky
     lnil.hdr_.type_ = lisp::Value::Type::nil;
@@ -556,7 +555,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    macro::EngineImpl engine(pfrm, nullptr);
+    macro::EngineImpl engine(nullptr);
 
     int block_count = 0;
 
@@ -582,25 +581,25 @@ int main(int argc, char** argv)
 
         std::string name(out_name);
 
-        s->render(pfrm);
+        s->render();
         result.saveToFile(name + "1.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
-        s->render(pfrm);
+        s->render();
         result.saveToFile(name + "2.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
-        s->render(pfrm);
+        s->render();
         result.saveToFile(name + "3.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
-        s->render(pfrm);
+        s->render();
         result.saveToFile(name + "4.png");
 
         put_field("w", s->size().x);

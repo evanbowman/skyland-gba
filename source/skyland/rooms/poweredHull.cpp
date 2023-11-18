@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-void PoweredHull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void PoweredHull::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_energized_hull)->c_str();
 }
@@ -47,9 +47,9 @@ PoweredHull::PoweredHull(Island* parent, const RoomCoord& position)
 
 
 
-void PoweredHull::update(Platform& pfrm, App& app, Microseconds delta)
+void PoweredHull::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -58,9 +58,9 @@ void PoweredHull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void PoweredHull::rewind(Platform& pfrm, App& app, Microseconds delta)
+void PoweredHull::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

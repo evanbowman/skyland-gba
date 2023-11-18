@@ -33,9 +33,9 @@ namespace skyland
 
 
 
-void QrBlock::update(Platform& pfrm, App& app, Microseconds delta)
+void QrBlock::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (hint_img_release_timer_ > 0) {
         hint_img_release_timer_ -= delta;
@@ -52,10 +52,9 @@ void QrBlock::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene>
-QrBlock::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> QrBlock::select(App& app, const RoomCoord& cursor)
 {
-    pfrm.speaker().play_sound("button_wooden", 3);
+    PLATFORM.speaker().play_sound("button_wooden", 3);
 
     auto next = scene_pool::alloc<QRViewerScene>(
         data_->c_str(),

@@ -46,7 +46,7 @@ extern Sound cannon_sound;
 
 
 
-void FlakGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void FlakGun::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_flak_gun)->c_str();
 }
@@ -60,7 +60,7 @@ FlakGun::FlakGun(Island* parent, const RoomCoord& position)
 
 
 
-void FlakGun::fire(Platform& pfrm, App& app)
+void FlakGun::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -85,14 +85,14 @@ void FlakGun::fire(Platform& pfrm, App& app)
         start.x += 22.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<2>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto c = app.alloc_entity<Flak>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<Flak>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

@@ -46,16 +46,16 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void exit(Platform&, App&, Scene& next) override;
+    void exit(App&, Scene& next) override;
 
 
     void persist_ui();
@@ -80,10 +80,10 @@ public:
     }
 
 
-    void set_gamespeed(Platform& pfrm, App& app, GameSpeed speed);
+    void set_gamespeed(App& app, GameSpeed speed);
 
 
-    virtual bool camera_update_check_key(Platform& pfrm, App& app);
+    virtual bool camera_update_check_key(App& app);
 
 
     virtual bool hide_chr_icon() const;
@@ -124,9 +124,9 @@ protected:
 
     Microseconds camera_update_timer_ = 0;
 
-    void reset_gamespeed(Platform& pfrm, App& app);
+    void reset_gamespeed(App& app);
 
-    void set_pause_icon(Platform& pfrm, u16 icon);
+    void set_pause_icon(u16 icon);
 
 private:
     bool persistent_ui_ = false;
@@ -142,7 +142,7 @@ private:
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;
 
-    void multiplayer_vs_timeout_step(Platform&, App&, Microseconds delta);
+    void multiplayer_vs_timeout_step(App&, Microseconds delta);
 
 protected:
     bool power_fraction_opponent_island_ = false;
@@ -153,11 +153,11 @@ protected:
 class ActiveWorldScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 private:
-    ScenePtr<Scene> on_player_island_destroyed(Platform&, App&);
-    ScenePtr<Scene> try_surrender(Platform&, App&);
+    ScenePtr<Scene> on_player_island_destroyed(App&);
+    ScenePtr<Scene> try_surrender(App&);
 };
 
 

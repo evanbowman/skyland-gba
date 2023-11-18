@@ -255,11 +255,11 @@ void __path_cache_insert(const char* path)
 
 
 
-void __path_cache_create(Platform& pfrm)
+void __path_cache_create()
 {
     file_present_filter.clear();
 
-    walk(pfrm, [&](const char* path) { __path_cache_insert(path); });
+    walk([&](const char* path) { __path_cache_insert(path); });
 }
 
 
@@ -381,9 +381,9 @@ static u32 gap_space = 0;
 
 
 
-void destroy(Platform& pfrm)
+void destroy()
 {
-    pfrm.erase_save_sector();
+    PLATFORM.erase_save_sector();
 }
 
 
@@ -395,72 +395,72 @@ u32 sector_used()
 
 
 
-u32 sector_avail(Platform& pfrm)
+u32 sector_avail()
 {
-    return pfrm.save_capacity() - end_offset;
+    return PLATFORM.save_capacity() - end_offset;
 }
 
 
 
-Statistics statistics(Platform& pfrm)
+Statistics statistics()
 {
     Statistics ret;
     ret.bytes_used_ = sector_used() - gap_space;
-    ret.bytes_available_ = sector_avail(pfrm) + gap_space;
+    ret.bytes_available_ = sector_avail() + gap_space;
 
     return ret;
 }
 
 
 
-Root load_root(Platform& pfrm)
+Root load_root()
 {
     Root root;
-    pfrm.read_save_data(&root, sizeof root, start_offset);
+    PLATFORM.read_save_data(&root, sizeof root, start_offset);
 
     return root;
 }
 
 
 
-static void init_root(Platform& pfrm, Root& root)
+static void init_root(Root& root)
 {
     memcpy(root.magic_, Root::magic_val, 8);
-    pfrm.write_save_data(&root, sizeof root, start_offset);
+    PLATFORM.write_save_data(&root, sizeof root, start_offset);
 }
 
 
 
-static void compact(Platform& pfrm);
+static void compact();
 
 
 
-InitStatus initialize(Platform& pfrm, u32 offset)
+InitStatus initialize(u32 offset)
 {
     if (offset % 2 not_eq 0) {
         return failed;
     }
 
-    if (pfrm.save_capacity() == 0) {
+    if (PLATFORM.save_capacity() == 0) {
         return initialized;
     }
 
     start_offset = offset;
-    auto root = load_root(pfrm);
+    auto root = load_root();
 
     if (memcmp(root.magic_, Root::magic_val, 8) not_eq 0) {
-        pfrm.erase_save_sector();
+        PLATFORM.erase_save_sector();
 
-        init_root(pfrm, root);
+        init_root(root);
 
         end_offset = start_offset + sizeof root;
 
-        __path_cache_create(pfrm);
+        __path_cache_create();
 
         return initialized;
     }
 
-    info(pfrm, "flash fs found root...");
+    info("flash fs found root...");
 
     offset += sizeof(Root);
 
@@ -470,11 +470,11 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     while (true) {
 
         if (offset % 2 not_eq 0) {
-            info(pfrm, "warning: bad filesystem alignment!");
+            info("warning: bad filesystem alignment!");
         }
 
         Record r;
-        pfrm.read_save_data(&r, sizeof r, offset);
+        PLATFORM.read_save_data(&r, sizeof r, offset);
 
         if (r.file_info_.name_length_ == 0xff) {
             // Uninitialized, as it holds the default flash erase value.
@@ -489,7 +489,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         for (int i = 0; i < read_size; ++i) {
             u8 val;
             const u32 off = i + offset + (sizeof r) + r.file_info_.name_length_;
-            pfrm.read_save_data(&val, 1, off);
+            PLATFORM.read_save_data(&val, 1, off);
             crc8 = crc8_table[((u8)val) ^ crc8];
         }
 
@@ -501,9 +501,8 @@ InitStatus initialize(Platform& pfrm, u32 offset)
             // way. But the filesystem data blob should be considered an
             // external input to the program and checked for all classes of
             // errors.
-            info(pfrm,
-                 format(
-                     "bad crc! expected: %, got: %", r.file_info_.crc_, crc8));
+            info(format(
+                "bad crc! expected: %, got: %", r.file_info_.crc_, crc8));
             reformat = true;
             break;
         }
@@ -521,24 +520,23 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     // somehow, by, idk, cosmic radiation or something. A successive write to an
     // address in some flash controllers will brick the system, so we want to
     // erase and rewrite the sector in this case.
-    for (int i = end_offset; i < pfrm.save_capacity(); ++i) {
+    for (int i = end_offset; i < PLATFORM.save_capacity(); ++i) {
         u8 val = 0;
-        pfrm.read_save_data(&val, 1, i);
+        PLATFORM.read_save_data(&val, 1, i);
         if (val not_eq 0xff) {
-            info(pfrm, "trailing bits unexpectedly flipped!?");
+            info("trailing bits unexpectedly flipped!?");
             reformat = true;
             break;
         }
     }
 
     if (reformat) {
-        compact(pfrm);
+        compact();
     }
 
-    __path_cache_create(pfrm);
+    __path_cache_create();
 
-    info(pfrm,
-         format("flash fs init: begin: %, end: %, gaps: %",
+    info(format("flash fs init: begin: %, end: %, gaps: %",
                 start_offset,
                 end_offset,
                 gap_space));
@@ -548,8 +546,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
 
 
-void walk(Platform& pfrm,
-          Function<8 * sizeof(void*), void(const char*)> callback)
+void walk(Function<8 * sizeof(void*), void(const char*)> callback)
 {
     auto offset = start_offset;
 
@@ -557,7 +554,7 @@ void walk(Platform& pfrm,
 
     while (true) {
         Record r;
-        pfrm.read_save_data(&r, sizeof r, offset);
+        PLATFORM.read_save_data(&r, sizeof r, offset);
 
         if (r.file_info_.name_length_ == 0xff) {
             // uninitialized, as it holds the default flash erase value.
@@ -569,7 +566,7 @@ void walk(Platform& pfrm,
         char file_name[256];
         memset(file_name, 0, 256);
 
-        pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
+        PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
 
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
@@ -586,7 +583,7 @@ void walk(Platform& pfrm,
 
 
 
-int find_file(Platform& pfrm, const char* path, Record& result)
+int find_file(const char* path, Record& result)
 {
     auto offset = start_offset;
     offset += sizeof(Root);
@@ -595,7 +592,7 @@ int find_file(Platform& pfrm, const char* path, Record& result)
         Record r;
         const auto record_offset = offset;
 
-        pfrm.read_save_data(&r, sizeof r, offset);
+        PLATFORM.read_save_data(&r, sizeof r, offset);
 
         if (r.file_info_.name_length_ == 0xff) {
             // uninitialized, as it holds the default flash erase value.
@@ -612,7 +609,7 @@ int find_file(Platform& pfrm, const char* path, Record& result)
         char file_name[256];
         memset(file_name, 0, 256);
 
-        pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
+        PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
         if (r.invalidate_.get() == Record::InvalidateStatus::valid and
             str_eq(path, file_name)) {
@@ -628,19 +625,19 @@ int find_file(Platform& pfrm, const char* path, Record& result)
 
 
 
-bool file_exists(Platform& pfrm, const char* path)
+bool file_exists(const char* path)
 {
     if (not __path_cache_file_exists_maybe(path)) {
         return false;
     }
 
     Record r;
-    return find_file(pfrm, path, r) not_eq -1;
+    return find_file(path, r) not_eq -1;
 }
 
 
 
-void unlink_file(Platform& pfrm, const char* path)
+void unlink_file(const char* path)
 {
     if (not __path_cache_file_exists_maybe(path)) {
         return;
@@ -650,22 +647,22 @@ void unlink_file(Platform& pfrm, const char* path)
 
     bool freed = false;
 
-    auto off = find_file(pfrm, path, r);
+    auto off = find_file(path, r);
     while (off not_eq -1) {
         // NOTE: first byte of record holds invalidate bytes.
         static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
         auto stat = Record::InvalidateStatus::invalid;
-        pfrm.write_save_data(&stat, 2, off);
+        PLATFORM.write_save_data(&stat, 2, off);
 
         gap_space += r.full_size();
         freed = true;
 
-        off = find_file(pfrm, path, r);
+        off = find_file(path, r);
     }
 
     if (freed) {
         __path_cache_destroy();
-        __path_cache_create(pfrm);
+        __path_cache_create();
     }
 }
 
@@ -673,9 +670,9 @@ void unlink_file(Platform& pfrm, const char* path)
 
 // Ok, now we need to copy every non-dead chunk in the filesystem into ram,
 // erase the flash sector, and write it back...
-static void compact(Platform& pfrm)
+static void compact()
 {
-    info(pfrm, "flash fs start compaction...");
+    info("flash fs start compaction...");
 
     Vector<char> data;
 
@@ -688,7 +685,7 @@ static void compact(Platform& pfrm)
 
     while (true) {
         Record r;
-        pfrm.read_save_data(&r, sizeof r, offset);
+        PLATFORM.read_save_data(&r, sizeof r, offset);
 
         if (r.file_info_.name_length_ == 0xff or offset >= end_offset) {
             // uninitialized, as it holds the default flash erase value.
@@ -700,7 +697,7 @@ static void compact(Platform& pfrm)
         char file_name[256];
         memset(file_name, 0, 256);
 
-        pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
+        PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
 
@@ -719,7 +716,7 @@ static void compact(Platform& pfrm)
             offset += r.file_info_.name_length_;
             for (u32 i = 0; i < r.file_info_.data_length_.get(); ++i) {
                 u8 val;
-                pfrm.read_save_data(&val, 1, offset++);
+                PLATFORM.read_save_data(&val, 1, offset++);
                 data.push_back(val);
             }
         } else {
@@ -727,7 +724,7 @@ static void compact(Platform& pfrm)
         }
     }
 
-    pfrm.erase_save_sector();
+    PLATFORM.erase_save_sector();
 
 
     const auto start_align = start_offset + sizeof(Root);
@@ -739,7 +736,7 @@ static void compact(Platform& pfrm)
         if (buffer.empty()) {
             return;
         }
-        pfrm.write_save_data(buffer.data(), buffer.size(), write_offset);
+        PLATFORM.write_save_data(buffer.data(), buffer.size(), write_offset);
         write_offset += buffer.size();
         buffer.clear();
     };
@@ -769,15 +766,14 @@ static void compact(Platform& pfrm)
     gap_space = 0;
 
     Root root;
-    init_root(pfrm, root);
+    init_root(root);
 
-    info(pfrm, "flash fs completed compaction!");
+    info("flash fs completed compaction!");
 }
 
 
 
-static int batch_write(Platform& pfrm,
-                       u32& offset,
+static int batch_write(u32& offset,
                        Vector<char>::Iterator begin,
                        Vector<char>::Iterator end)
 {
@@ -791,7 +787,8 @@ static int batch_write(Platform& pfrm,
         if (queue.empty()) {
             return;
         }
-        bool success = pfrm.write_save_data(queue.data(), queue.size(), offset);
+        bool success =
+            PLATFORM.write_save_data(queue.data(), queue.size(), offset);
 
         if (not success) {
             ++errors;
@@ -817,8 +814,7 @@ static int batch_write(Platform& pfrm,
 
 
 
-bool store_file_data(Platform& pfrm,
-                     const char* path,
+bool store_file_data(const char* path,
                      Vector<char>& file_data,
                      const StorageOptions& opts)
 {
@@ -858,9 +854,9 @@ bool store_file_data(Platform& pfrm,
     const auto path_total = path_len + path_padding;
 
     const u32 required_space = input.size() + path_total + sizeof(Record);
-    const auto avail_space = sector_avail(pfrm) - sizeof(Record);
+    const auto avail_space = sector_avail() - sizeof(Record);
 
-    auto existing_size = file_size(pfrm, path);
+    auto existing_size = file_size(path);
     // The file already exists. We will unlink it, allowing us to count the
     // existing size toward the available space.
     if (existing_size) {
@@ -877,9 +873,9 @@ bool store_file_data(Platform& pfrm,
 
         // We counted the size of the file that we're overwriting toward the
         // available space total. So we have to unlink it.
-        unlink_file(pfrm, path);
+        unlink_file(path);
 
-        compact(pfrm);
+        compact();
     } else if (required_space >= avail_space) {
         // NOTE: don't unlink the existing file, we don't have enough space to
         // store the replacement.
@@ -889,14 +885,14 @@ bool store_file_data(Platform& pfrm,
         return false;
     }
 
-    unlink_file(pfrm, path);
+    unlink_file(path);
 
     u8 crc8 = 0;
     for (char c : input) {
         crc8 = crc8_table[((u8)c) ^ crc8];
     }
 
-    // info(pfrm, format("calculated crc %", crc8));
+    // info( format("calculated crc %", crc8));
 
     auto off = end_offset;
     static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
@@ -921,7 +917,7 @@ bool store_file_data(Platform& pfrm,
 
     int write_errors = 0;
 
-    if (not pfrm.write_save_data(&info, sizeof info, off)) {
+    if (not PLATFORM.write_save_data(&info, sizeof info, off)) {
         ++write_errors;
     }
     off += sizeof info;
@@ -930,13 +926,13 @@ bool store_file_data(Platform& pfrm,
     memset(file_name, 0, 256);
     memcpy(file_name, path, path_len);
 
-    if (not pfrm.write_save_data(file_name, path_total, off)) {
+    if (not PLATFORM.write_save_data(file_name, path_total, off)) {
         ++write_errors;
     }
     off += path_total;
 
 
-    write_errors += batch_write(pfrm, off, input.begin(), input.end());
+    write_errors += batch_write(off, input.begin(), input.end());
 
     end_offset = off;
 
@@ -955,9 +951,9 @@ bool store_file_data(Platform& pfrm,
         // and writes sram contents back to the flash device. Hopefully doing
         // this will free up any stuck bits.
 
-        ::info(pfrm, "bad flash checksum detected, rewriting sector...");
+        ::info("bad flash checksum detected, rewriting sector...");
 
-        compact(pfrm);
+        compact();
     }
 
     return true;
@@ -965,7 +961,7 @@ bool store_file_data(Platform& pfrm,
 
 
 
-u32 file_size(Platform& pfrm, const char* path)
+u32 file_size(const char* path)
 {
     if (not __path_cache_file_exists_maybe(path)) {
         return 0;
@@ -973,7 +969,7 @@ u32 file_size(Platform& pfrm, const char* path)
 
     Record r;
 
-    auto offset = find_file(pfrm, path, r);
+    auto offset = find_file(path, r);
     if (offset == -1) {
         return 0;
     }
@@ -983,7 +979,7 @@ u32 file_size(Platform& pfrm, const char* path)
 
 
 
-u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
+u32 read_file_data(const char* path, Vector<char>& output)
 {
     if (not __path_cache_file_exists_maybe(path)) {
         return 0;
@@ -991,7 +987,7 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
     Record r;
 
-    auto offset = find_file(pfrm, path, r);
+    auto offset = find_file(path, r);
     if (offset == -1) {
         return 0;
     }
@@ -1001,7 +997,7 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
     for (int i = 0; i < r.file_info_.data_length_.get(); ++i) {
         char val;
-        pfrm.read_save_data(&val, 1, offset++);
+        PLATFORM.read_save_data(&val, 1, offset++);
         output.push_back(val);
     }
 
@@ -1048,18 +1044,18 @@ void reset()
 bool basic_readwrite()
 {
     Platform pfrm(".regr_input", ".regr_output");
-    initialize(pfrm, 8);
+    initialize(8);
 
     Vector<char> v1;
     for (int i = 0; i < 21; ++i) {
         v1.push_back('a');
     }
 
-    flash_filesystem::store_file_data(pfrm, "/tmp/rwtest.dat", v1);
+    flash_filesystem::store_file_data("/tmp/rwtest.dat", v1);
 
     Vector<char> v2;
 
-    flash_filesystem::read_file_data(pfrm, "/tmp/rwtest.dat", v2);
+    flash_filesystem::read_file_data("/tmp/rwtest.dat", v2);
 
     if (v1.size() not_eq v2.size()) {
         return false;
@@ -1090,22 +1086,22 @@ bool persistence()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(pfrm, 8);
+        initialize(8);
 
-        flash_filesystem::store_file_data(pfrm, "/tmp/ptest.dat", v1);
-        flash_filesystem::store_file_data(pfrm, "/tmp/ptest2.dat", v2);
+        flash_filesystem::store_file_data("/tmp/ptest.dat", v1);
+        flash_filesystem::store_file_data("/tmp/ptest2.dat", v2);
     }
 
     {
         reset();
         Platform pfrm(".regr_output", ".regr_output2");
-        initialize(pfrm, 8);
+        initialize(8);
 
         Vector<char> v1_1;
         Vector<char> v2_1;
 
-        flash_filesystem::read_file_data(pfrm, "/tmp/ptest.dat", v1_1);
-        flash_filesystem::read_file_data(pfrm, "/tmp/ptest2.dat", v2_1);
+        flash_filesystem::read_file_data("/tmp/ptest.dat", v1_1);
+        flash_filesystem::read_file_data("/tmp/ptest2.dat", v2_1);
 
         if (v1_1.size() not_eq v1.size() or v2_1.size() not_eq v2.size()) {
             return false;
@@ -1135,21 +1131,21 @@ bool compaction()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(pfrm, 8);
+        initialize(8);
 
-        walk(pfrm, [&files, &pfrm](const char* path) {
+        walk([&files, ](const char* path) {
             files.emplace_back();
             files.back().first = path;
-            read_file_data(pfrm, path, files.back().second);
+            read_file_data(path, files.back().second);
             std::cout << path << ", " << files.back().second.size()
                       << std::endl;
         });
 
-        compact(pfrm);
+        compact();
 
         for (auto& kvp : files) {
             Vector<char> data;
-            read_file_data(pfrm, kvp.first.c_str(), data);
+            read_file_data(kvp.first.c_str(), data);
 
             if (data.size() not_eq kvp.second.size()) {
                 puts("here");
@@ -1168,7 +1164,7 @@ bool compaction()
     // following compaction.
     reset();
     Platform pfrm(".regr_output", ".regr_output2");
-    initialize(pfrm, 8);
+    initialize(8);
 
     if (end_offset not_eq 2420) {
         std::cerr << "end offset does not match expected!"
@@ -1182,7 +1178,7 @@ bool compaction()
 
     for (auto& kvp : files) {
         Vector<char> data;
-        read_file_data(pfrm, kvp.first.c_str(), data);
+        read_file_data(kvp.first.c_str(), data);
 
         if (data.size() not_eq kvp.second.size()) {
             std::cerr << "file size does not match expected!" << std::endl;
@@ -1213,23 +1209,23 @@ bool write_triggered_compaction()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(pfrm, 8);
+        initialize(8);
 
-        auto stats = statistics(pfrm);
+        auto stats = statistics();
         std::cout << "bytes remaining " << stats.bytes_available_ << std::endl;
 
-        walk(pfrm, [&files, &pfrm](const char* path) {
+        walk([&files, ](const char* path) {
             files.emplace_back();
             files.back().first = path;
-            read_file_data(pfrm, path, files.back().second);
+            read_file_data(path, files.back().second);
         });
 
         // trigger compaction
-        store_file_data(pfrm, "/stuff.dat", test);
+        store_file_data("/stuff.dat", test);
 
         for (auto& kvp : files) {
             Vector<char> data;
-            read_file_data(pfrm, kvp.first.c_str(), data);
+            read_file_data(kvp.first.c_str(), data);
 
             if (data.size() not_eq kvp.second.size()) {
                 return false;
@@ -1247,7 +1243,7 @@ bool write_triggered_compaction()
     // following compaction.
     reset();
     Platform pfrm(".regr_output", ".regr_output2");
-    initialize(pfrm, 8);
+    initialize(8);
 
     if (end_offset not_eq 12438) {
         std::cerr << "end offset does not match expected! (" << end_offset
@@ -1261,7 +1257,7 @@ bool write_triggered_compaction()
 
     for (auto& kvp : files) {
         Vector<char> data;
-        read_file_data(pfrm, kvp.first.c_str(), data);
+        read_file_data(kvp.first.c_str(), data);
 
         if (data.size() not_eq kvp.second.size()) {
             return false;
@@ -1322,18 +1318,18 @@ int main()
 
     Platform pfrm(".logstructured.sav", ".logstructured.edit.sav");
 
-    flash_filesystem::initialize(pfrm, 8);
+    flash_filesystem::initialize(8);
 
     std::cout << "initial walk: " << std::endl;
     flash_filesystem::walk(
-        pfrm, [](const char* name) { std::cout << name << std::endl; });
+        [](const char* name) { std::cout << name << std::endl; });
 
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
-    std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
+    std::cout << "avail: " << flash_filesystem::sector_avail() << std::endl;
 
     Vector<char> test_data;
-    flash_filesystem::read_file_data(pfrm, "/mods/init.lisp", test_data);
+    flash_filesystem::read_file_data("/mods/init.lisp", test_data);
     std::string str;
     for (char c : test_data) {
         str.push_back(c);
@@ -1347,53 +1343,53 @@ int main()
         test.push_back('a');
     }
 
-    flash_filesystem::store_file_data(pfrm, "/test.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/mods/init.lisp", test);
+    flash_filesystem::store_file_data("/test.dat", test);
+    flash_filesystem::store_file_data("/mods/init.lisp", test);
 
     puts("");
 
     flash_filesystem::walk(
-        pfrm, [](const char* name) { std::cout << name << std::endl; });
+        [](const char* name) { std::cout << name << std::endl; });
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
-    std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
+    std::cout << "avail: " << flash_filesystem::sector_avail() << std::endl;
     std::cout << "gap: " << flash_filesystem::gap_space << std::endl;
 
 
 
     puts("compact!");
-    flash_filesystem::compact(pfrm);
+    flash_filesystem::compact();
     puts("");
 
     flash_filesystem::walk(
-        pfrm, [](const char* name) { std::cout << name << std::endl; });
+        [](const char* name) { std::cout << name << std::endl; });
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
-    std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
+    std::cout << "avail: " << flash_filesystem::sector_avail() << std::endl;
     std::cout << "gap: " << flash_filesystem::gap_space << std::endl;
 
-    flash_filesystem::unlink_file(pfrm, "/mods/init.lisp");
+    flash_filesystem::unlink_file("/mods/init.lisp");
 
     test.clear();
-    flash_filesystem::read_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::read_file_data("/save/macro.dat", test);
     std::cout << test.size() << std::endl;
 
     puts("stress test: write a large object repeatedly to trigger compaction:");
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
-    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
+    flash_filesystem::store_file_data("/save/macro.dat", test);
 
     flash_filesystem::walk(
-        pfrm, [](const char* name) { std::cout << name << std::endl; });
+        [](const char* name) { std::cout << name << std::endl; });
 }
 #endif // __TEST__

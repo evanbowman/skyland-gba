@@ -36,15 +36,14 @@ namespace skyland
 
 
 
-PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
-                                 RoomCoord origin,
+PlaceDroneScene::PlaceDroneScene(RoomCoord origin,
                                  const DroneMeta* drone_class,
                                  bool near)
     : matrix_(allocate_dynamic<bool[16][16]>("drone-placement-matrix")),
       origin_(origin), near_(near), drone_class_(drone_class)
 {
     if (not matrix_) {
-        pfrm.fatal("MDS: buffers exhausted");
+        PLATFORM.fatal("MDS: buffers exhausted");
     }
 
     for (int x = 0; x < 16; ++x) {
@@ -114,19 +113,19 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
 
 
 
-void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
+void PlaceDroneScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
     if (not near_) {
         far_camera();
     }
 
-    message_.emplace(
-        pfrm, SYSTR(drone_position_prompt)->c_str(), OverlayCoord{0, 19});
+    message_.emplace(SYSTR(drone_position_prompt)->c_str(),
+                     OverlayCoord{0, 19});
 
     for (int i = 0; i < message_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, 18, 425);
+        PLATFORM.set_tile(Layer::overlay, i, 18, 425);
     }
 
     Island* island = &app.player_island();
@@ -140,7 +139,8 @@ void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if ((*matrix_)[x][y] == true) {
-                pfrm.set_tile(island->layer(), x, y, Tile::airborne_selection);
+                PLATFORM.set_tile(
+                    island->layer(), x, y, Tile::airborne_selection);
             }
         }
     }
@@ -148,26 +148,26 @@ void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void PlaceDroneScene::exit(Platform& pfrm, App& app, Scene& next)
+void PlaceDroneScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
     message_.reset();
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
         island = app.opponent_island();
     }
 
-    island->repaint(pfrm, app);
+    island->repaint(app);
 }
 
 
 
-void PlaceDroneScene::display(Platform& pfrm, App& app)
+void PlaceDroneScene::display(App& app)
 {
-    ActiveWorldScene::display(pfrm, app);
+    ActiveWorldScene::display(app);
 
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
@@ -192,19 +192,18 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 }
 
 
 
-ScenePtr<Scene>
-PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -226,7 +225,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_loc = &globals().far_cursor_loc_;
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(Key::action_1)) {
         if ((*matrix_)[cursor_loc->x][cursor_loc->y]) {
             if (auto room = app.player_island().get_room(origin_)) {
                 if (auto drone =
@@ -236,13 +235,13 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                                      RoomCoord{origin_.x, u8(origin_.y - 1)})) {
                     (*drone)->set_movement_target(*cursor_loc);
 
-                    if (not room->attach_drone(pfrm, app, *drone)) {
+                    if (not room->attach_drone(app, *drone)) {
                         return scene_pool::alloc<ReadyScene>();
                     }
 
                     island->drones().push(*drone);
 
-                    app.set_coins(pfrm, app.coins() - (*drone_class_)->cost());
+                    app.set_coins(app.coins() - (*drone_class_)->cost());
 
                     network::packet::DroneSpawn spawn;
                     spawn.origin_x_ = origin_.x;
@@ -256,7 +255,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                     spawn.drone_class_ =
                         DroneMeta::index((*drone_class_)->name());
 
-                    network::transmit(pfrm, spawn);
+                    network::transmit(spawn);
 
                     globals().near_cursor_loc_ = origin_;
                     globals().near_cursor_loc_.y--;
@@ -267,49 +266,48 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         } else if (not near_) {
             globals().near_cursor_loc_.y = cursor_loc->y;
             globals().near_cursor_loc_.x =
                 app.player_island().terrain().size() - 1;
             return scene_pool::alloc<PlaceDroneScene>(
-                pfrm, origin_, drone_class_, true);
+                origin_, drone_class_, true);
         }
     }
 
     if (test_key(Key::right)) {
         if (cursor_loc->x < island->terrain().size() - 1) {
             ++cursor_loc->x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         } else if (near_ and app.opponent_island()) {
             globals().far_cursor_loc_.y = cursor_loc->y;
             globals().far_cursor_loc_.x = 0;
             return scene_pool::alloc<PlaceDroneScene>(
-                pfrm, origin_, drone_class_, false);
+                origin_, drone_class_, false);
         }
     }
 
     if (test_key(Key::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 

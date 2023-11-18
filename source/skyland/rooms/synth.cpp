@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void Synth::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Synth::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_synth)->c_str();
 }
@@ -89,12 +89,12 @@ Platform::Speaker::Channel Synth::channel() const
 
 
 
-void Synth::update(Platform& pfrm, App& app, Microseconds delta)
+void Synth::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (not speaker()) {
-        apply_damage(pfrm, app, health_upper_limit());
+        apply_damage(app, health_upper_limit());
     }
 }
 
@@ -114,7 +114,7 @@ void Synth::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Synth::select(App& app, const RoomCoord& cursor)
 {
     return scene_pool::alloc<ComposeSynthScene>(app, *this);
 }

@@ -36,7 +36,7 @@ namespace skyland
 class MenuPromptScene : public Scene
 {
 public:
-    using OptCallback = Function<4, void(Platform&, App&)>;
+    using OptCallback = Function<4, void(App&)>;
 
 
     MenuPromptScene(SystemString msg,
@@ -55,71 +55,71 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    void enter(Platform& pfrm, App&, Scene& prev) override
+    void enter(App&, Scene& prev) override
     {
-        pfrm.screen().schedule_fade(0);
-        pfrm.screen().schedule_fade(1);
+        PLATFORM.screen().schedule_fade(0);
+        PLATFORM.screen().schedule_fade(1);
 
-        text_.emplace(pfrm);
-        text_->assign(loadstr(pfrm, msg_)->c_str(), {1, 1}, {28, 14}, 0);
+        text_.emplace();
+        text_->assign(loadstr(msg_)->c_str(), {1, 1}, {28, 14}, 0);
 
-        t1_.emplace(pfrm, OverlayCoord{3, 16});
+        t1_.emplace(OverlayCoord{3, 16});
 
-        t1_->assign(loadstr(pfrm, opt_1_)->c_str(), sel_colors);
+        t1_->assign(loadstr(opt_1_)->c_str(), sel_colors);
 
-        t2_.emplace(pfrm, loadstr(pfrm, opt_2_)->c_str(), OverlayCoord{3, 18});
+        t2_.emplace(loadstr(opt_2_)->c_str(), OverlayCoord{3, 18});
 
-        pfrm.set_tile(Layer::overlay, 1, 16, 475);
-        pfrm.set_tile(Layer::overlay, 1, 18, 0);
+        PLATFORM.set_tile(Layer::overlay, 1, 16, 475);
+        PLATFORM.set_tile(Layer::overlay, 1, 18, 0);
 
         if (play_alert_sfx_) {
-            pfrm.speaker().play_sound("click_digital_1", 1);
+            PLATFORM.speaker().play_sound("click_digital_1", 1);
         }
     }
 
 
-    void exit(Platform& pfrm, App&, Scene& next) override
+    void exit(App&, Scene& next) override
     {
         text_.reset();
         t1_.reset();
         t2_.reset();
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
 
         if (not skip_unfade_) {
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
         }
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    ScenePtr<Scene> update(App& app, Microseconds delta)
     {
-        if (player(app).key_down(pfrm, Key::action_1)) {
+        if (player(app).key_down(Key::action_1)) {
             if (cursor_ == 0) {
-                opt_1_callback_(pfrm, app);
+                opt_1_callback_(app);
             } else {
-                opt_2_callback_(pfrm, app);
+                opt_2_callback_(app);
             }
-            pfrm.speaker().play_sound("button_wooden", 3);
+            PLATFORM.speaker().play_sound("button_wooden", 3);
             return next_();
         }
 
-        if (player(app).key_down(pfrm, Key::up)) {
+        if (player(app).key_down(Key::up)) {
             cursor_ = 0;
-            t1_->assign(loadstr(pfrm, opt_1_)->c_str(), sel_colors);
-            t2_->assign(loadstr(pfrm, opt_2_)->c_str());
-            pfrm.set_tile(Layer::overlay, 1, 16, 475);
-            pfrm.set_tile(Layer::overlay, 1, 18, 0);
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            t1_->assign(loadstr(opt_1_)->c_str(), sel_colors);
+            t2_->assign(loadstr(opt_2_)->c_str());
+            PLATFORM.set_tile(Layer::overlay, 1, 16, 475);
+            PLATFORM.set_tile(Layer::overlay, 1, 18, 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (player(app).key_down(pfrm, Key::down)) {
+        if (player(app).key_down(Key::down)) {
             cursor_ = 1;
-            t1_->assign(loadstr(pfrm, opt_1_)->c_str());
-            t2_->assign(loadstr(pfrm, opt_2_)->c_str(), sel_colors);
-            pfrm.set_tile(Layer::overlay, 1, 18, 475);
-            pfrm.set_tile(Layer::overlay, 1, 16, 0);
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            t1_->assign(loadstr(opt_1_)->c_str());
+            t2_->assign(loadstr(opt_2_)->c_str(), sel_colors);
+            PLATFORM.set_tile(Layer::overlay, 1, 18, 475);
+            PLATFORM.set_tile(Layer::overlay, 1, 16, 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
         return null_scene();

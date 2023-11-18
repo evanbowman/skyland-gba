@@ -323,10 +323,10 @@ private:
 
 template <u8 pages> struct BulkAllocator
 {
-    BulkAllocator(Platform& pfrm)
+    BulkAllocator()
     {
         if (scratch_buffers_remaining() < pages) {
-            warning(pfrm, "available scratch buffer count may be too low!");
+            warning("available scratch buffer count may be too low!");
         }
         buffers_.emplace_back();
     }

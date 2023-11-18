@@ -43,14 +43,14 @@ AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) : keys_list_(keys_list)
 
 
 
-void AutopilotPlayer::on_room_damaged(Platform& pfrm, App& app, Room& room)
+void AutopilotPlayer::on_room_damaged(App& app, Room& room)
 {
     auto island = room.parent();
 
     // Birds alerted when island attacked.
     for (auto& bird : app.birds()) {
         if (bird->island(app) == island) {
-            bird->signal(pfrm, app);
+            bird->signal(app);
         }
     }
 }
@@ -97,41 +97,41 @@ static bool is_key_level_triggered(Key k)
 
 
 
-void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
+void AutopilotPlayer::update(App& app, Microseconds delta)
 {
     next_key_timeout_ -= delta;
 
-    draw_image(pfrm, 290, 20, 8, 8, 6, Layer::overlay);
+    draw_image(290, 20, 8, 8, 6, Layer::overlay);
 
     key_tap_timeout_ -= delta;
     if (key_tap_timeout_ > 0) {
         if (taps_[(int)(Key::alt_1)]) {
-            pfrm.set_tile(Layer::overlay, 20, 8, 338);
-            pfrm.set_tile(Layer::overlay, 21, 8, 339);
+            PLATFORM.set_tile(Layer::overlay, 20, 8, 338);
+            PLATFORM.set_tile(Layer::overlay, 21, 8, 339);
         } else if (taps_[(int)Key::alt_2]) {
-            pfrm.set_tile(Layer::overlay, 26, 8, 340);
-            pfrm.set_tile(Layer::overlay, 27, 8, 341);
+            PLATFORM.set_tile(Layer::overlay, 26, 8, 340);
+            PLATFORM.set_tile(Layer::overlay, 27, 8, 341);
         } else if (taps_[(int)Key::right]) {
-            pfrm.set_tile(Layer::overlay, 21, 10, 342);
+            PLATFORM.set_tile(Layer::overlay, 21, 10, 342);
         } else if (taps_[(int)Key::left]) {
-            pfrm.set_tile(Layer::overlay, 20, 10, 343);
+            PLATFORM.set_tile(Layer::overlay, 20, 10, 343);
         } else if (taps_[(int)Key::up]) {
-            pfrm.set_tile(Layer::overlay, 20, 10, 344);
-            pfrm.set_tile(Layer::overlay, 21, 10, 345);
+            PLATFORM.set_tile(Layer::overlay, 20, 10, 344);
+            PLATFORM.set_tile(Layer::overlay, 21, 10, 345);
         } else if (taps_[(int)Key::down]) {
-            pfrm.set_tile(Layer::overlay, 20, 10, 346);
-            pfrm.set_tile(Layer::overlay, 21, 10, 347);
-            pfrm.set_tile(Layer::overlay, 20, 11, 348);
-            pfrm.set_tile(Layer::overlay, 21, 11, 349);
+            PLATFORM.set_tile(Layer::overlay, 20, 10, 346);
+            PLATFORM.set_tile(Layer::overlay, 21, 10, 347);
+            PLATFORM.set_tile(Layer::overlay, 20, 11, 348);
+            PLATFORM.set_tile(Layer::overlay, 21, 11, 349);
         } else if (taps_[(int)Key::action_1]) {
-            pfrm.set_tile(Layer::overlay, 27, 10, 350);
+            PLATFORM.set_tile(Layer::overlay, 27, 10, 350);
         } else if (taps_[(int)Key::action_2]) {
-            pfrm.set_tile(Layer::overlay, 26, 10, 351);
-            pfrm.set_tile(Layer::overlay, 26, 11, 352);
+            PLATFORM.set_tile(Layer::overlay, 26, 10, 351);
+            PLATFORM.set_tile(Layer::overlay, 26, 11, 352);
         } else if (taps_[(int)Key::select]) {
-            pfrm.set_tile(Layer::overlay, 21, 12, 353);
+            PLATFORM.set_tile(Layer::overlay, 21, 12, 353);
         } else if (taps_[(int)Key::start]) {
-            pfrm.set_tile(Layer::overlay, 21, 11, 412);
+            PLATFORM.set_tile(Layer::overlay, 21, 11, 412);
         }
     }
 
@@ -192,7 +192,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                 if (tm->type() == lisp::Value::Type::integer) {
                     next_key_timeout_ = milliseconds(tm->integer().value_);
                 } else {
-                    pfrm.fatal("invalid autopilot list format");
+                    PLATFORM.fatal("invalid autopilot list format");
                 }
 
                 current = current->cons().cdr();
@@ -204,17 +204,17 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                         next_timeout_key_ = key;
                         next_timeout_release_ = not state;
                     } else if (key->type() == lisp::Value::Type::string) {
-                        pfrm.fill_overlay(0);
+                        PLATFORM.fill_overlay(0);
                         app.dialog_buffer().emplace(
                             allocate_dynamic<DialogString>("dialog-buffer"));
                         **app.dialog_buffer() += key->string().value();
                     }
                 } else {
-                    pfrm.fatal("invalid autopilot list format");
+                    PLATFORM.fatal("invalid autopilot list format");
                 }
 
             } else {
-                pfrm.fatal("invalid autopilot list format");
+                PLATFORM.fatal("invalid autopilot list format");
             }
 
             keys_list_.set(first->cons().cdr());
@@ -226,21 +226,21 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-bool AutopilotPlayer::key_down(Platform&, Key k)
+bool AutopilotPlayer::key_down(Key k)
 {
     return states_[int(k)] and not prev_[int(k)];
 }
 
 
 
-bool AutopilotPlayer::key_up(Platform&, Key k)
+bool AutopilotPlayer::key_up(Key k)
 {
     return not states_[int(k)] and prev_[int(k)];
 }
 
 
 
-bool AutopilotPlayer::key_pressed(Platform&, Key k)
+bool AutopilotPlayer::key_pressed(Key k)
 {
     return states_[int(k)];
 }

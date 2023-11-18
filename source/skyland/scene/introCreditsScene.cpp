@@ -36,38 +36,37 @@ namespace skyland
 
 
 
-void IntroCreditsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void IntroCreditsScene::enter(App& app, Scene& prev)
 {
-    pfrm.speaker().play_music("shadows", true);
-    pfrm.speaker().play_sound("creaking", 9);
+    PLATFORM.speaker().play_music("shadows", true);
+    PLATFORM.speaker().play_sound("creaking", 9);
 
-    pfrm.load_overlay_texture("overlay_skyland_title");
-    pfrm.load_sprite_texture("spritesheet_title_screen");
+    PLATFORM.load_overlay_texture("overlay_skyland_title");
+    PLATFORM.load_sprite_texture("spritesheet_title_screen");
 
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, false, false);
+    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, false, false);
 
     rng::critical_state = 2021;
 
     if (app.is_developer_mode()) {
-        app.start_console(pfrm);
+        app.start_console();
     }
 }
 
 
 
-void IntroCreditsScene::exit(Platform& pfrm, App&, Scene& next)
+void IntroCreditsScene::exit(App&, Scene& next)
 {
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.load_overlay_texture("overlay");
 
-    pfrm.set_overlay_origin(0, 0);
+    PLATFORM.set_overlay_origin(0, 0);
 
     text_.reset();
 }
 
 
 
-ScenePtr<Scene>
-IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
+ScenePtr<Scene> IntroCreditsScene::update(App&, Microseconds delta)
 {
     timer_ += delta;
 
@@ -79,18 +78,18 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 
             const auto text = SYSTR(intro_credits_name);
 
-            const auto st = calc_screen_tiles(pfrm);
-            u8 margin = centered_text_margins(pfrm, utf8::len(text->c_str()));
+            const auto st = calc_screen_tiles();
+            u8 margin = centered_text_margins(utf8::len(text->c_str()));
 
-            text_.emplace(
-                pfrm, text->c_str(), OverlayCoord{margin, (u8)(st.y / 2 - 3)});
+            text_.emplace(text->c_str(),
+                          OverlayCoord{margin, (u8)(st.y / 2 - 3)});
         }
     } else if (text_) {
         flower_effect_timer_ += delta;
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
             auto amount =
                 smoothstep(milliseconds(500), milliseconds(2000), timer_);
-            pfrm.set_overlay_origin(0, amount * 30);
+            PLATFORM.set_overlay_origin(0, amount * 30);
         }
 
         if (timer_ > milliseconds(2100)) {
@@ -115,8 +114,8 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
         }
 
         if (timer_ > milliseconds(2000)) {
-            pfrm.set_overlay_origin(0, 30);
-            draw_image(pfrm, 82, 4, 9, 22, 10, Layer::overlay);
+            PLATFORM.set_overlay_origin(0, 30);
+            draw_image(82, 4, 9, 22, 10, Layer::overlay);
         }
 
         if (timer_ > milliseconds(3000) and not copyright_text_) {
@@ -126,22 +125,22 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
                                     // for version numbers.
                                     PROGRAM_MAJOR_VERSION);
             copyright_text_.emplace(
-                pfrm,
-                OverlayCoord{(u8)centered_text_margins(
-                                 pfrm, utf8::len(fmtcpystr.c_str())),
-                             20});
+
+                OverlayCoord{
+                    (u8)centered_text_margins(utf8::len(fmtcpystr.c_str())),
+                    20});
 
             copyright_text_->assign(fmtcpystr.c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
                                                ColorConstant::rich_black});
         }
 
-        auto t = pfrm.screen().touch();
-        if (timer_ > milliseconds(5500) or key_down<Key::action_2>(pfrm) or
+        auto t = PLATFORM.screen().touch();
+        if (timer_ > milliseconds(5500) or key_down<Key::action_2>() or
             (t and t->up_transition())) {
             text_.reset();
             copyright_text_.reset();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             timer_ = 0;
             bird_seq_timer_ = 0;
             bird_seq_timer2_ = 0;
@@ -149,7 +148,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
         }
     } else {
         if (timer_ > milliseconds(400)) {
-            pfrm.set_overlay_origin(0, 0);
+            PLATFORM.set_overlay_origin(0, 0);
             return scene_pool::alloc<TitleScreenScene>();
         }
     }
@@ -159,14 +158,12 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 
 
 
-void IntroCreditsScene::show_sunflowers(Platform& pfrm,
-                                        int scroll,
-                                        Float darken)
+void IntroCreditsScene::show_sunflowers(int scroll, Float darken)
 {
 }
 
 
-void IntroCreditsScene::display(Platform& pfrm, App& app)
+void IntroCreditsScene::display(App& app)
 {
     if (bird_seq_timer_) {
         Sprite spr;
@@ -187,7 +184,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
         spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 
     if (bird_seq_timer2_) {
@@ -209,7 +206,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
         spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 
     if (bird_seq_timer3_) {
@@ -232,7 +229,7 @@ void IntroCreditsScene::display(Platform& pfrm, App& app)
         spr.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         spr.set_priority(0);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 }
 

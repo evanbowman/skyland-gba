@@ -40,18 +40,18 @@ public:
     ComposeSynthScene(App& app, Synth& synth);
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
 private:
-    void repaint(Platform&);
+    void repaint();
 
 
-    void demo_note(Platform&);
+    void demo_note();
 
 
     Vec2<u8> cursor_;

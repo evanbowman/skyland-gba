@@ -42,16 +42,15 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& prev) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
 
 private:
-    void repaint(Platform& pfrm, App& app);
+    void repaint(App& app);
 
 
     struct Data

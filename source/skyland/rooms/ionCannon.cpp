@@ -46,7 +46,7 @@ Sound ion_cannon_sound("ion_cannon");
 
 
 
-void IonCannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void IonCannon::format_description(StringBuffer<512>& buffer)
 {
     auto secs = ion_cannon_reload_ms / 1000;
 
@@ -66,7 +66,7 @@ IonCannon::IonCannon(Island* parent, const RoomCoord& position)
 
 
 
-void IonCannon::fire(Platform& pfrm, App& app)
+void IonCannon::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -91,15 +91,14 @@ void IonCannon::fire(Platform& pfrm, App& app)
         start.x += 6.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    ion_cannon_sound.play(pfrm, 3);
+    ion_cannon_sound.play(3);
 
-    auto c =
-        app.alloc_entity<IonBurst>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<IonBurst>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

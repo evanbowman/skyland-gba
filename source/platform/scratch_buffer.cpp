@@ -103,7 +103,7 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 #ifndef __TEST__
-void scratch_buffer_memory_diagnostics(Platform& pfrm)
+void scratch_buffer_memory_diagnostics()
 {
     auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
         "sbr-annotation-buffer");
@@ -132,13 +132,13 @@ void scratch_buffer_memory_diagnostics(Platform& pfrm)
                       free_sbr * 2)
                    .c_str();
 
-    pfrm.remote_console().printline(output->c_str(), "sc> ");
+    PLATFORM.remote_console().printline(output->c_str(), "sc> ");
 }
 #endif
 
 
 #ifndef __TEST__
-void scratch_buffer_dump_sector(Platform& pfrm, int sector)
+void scratch_buffer_dump_sector(int sector)
 {
     if (sector >= (int)scratch_buffer_pool.cells().size()) {
         return;
@@ -163,14 +163,14 @@ void scratch_buffer_dump_sector(Platform& pfrm, int sector)
             ++p;
         }
 
-        pfrm.remote_console().printline(out.c_str(), "");
-        pfrm.sleep(20);
-        pfrm.system_call("feed-watchdog", nullptr);
+        PLATFORM.remote_console().printline(out.c_str(), "");
+        PLATFORM.sleep(20);
+        PLATFORM.system_call("feed-watchdog", nullptr);
     }
 
     StringBuffer<50> complete("dumped : ");
     complete += ((ScratchBuffer*)page.mem_.data())->tag_;
 
-    pfrm.remote_console().printline(complete.c_str(), "sc> ");
+    PLATFORM.remote_console().printline(complete.c_str(), "sc> ");
 }
 #endif

@@ -37,43 +37,39 @@ static const Float partial_fade_amt = 0.76f;
 
 
 
-void update_confetti(Platform& pfrm,
-                     App& app,
-                     ConfettiBuffer& confetti,
-                     Microseconds delta);
+void update_confetti(App& app, ConfettiBuffer& confetti, Microseconds delta);
 
 
 
-void LevelCompleteOptionsScene::show_cursor(Platform& pfrm)
+void LevelCompleteOptionsScene::show_cursor()
 {
     int tiles[2] = {0, 0};
     tiles[cursor_] = 436;
 
-    pfrm.set_tile(Layer::overlay,
-                  options_[0].coord().x - 2,
-                  options_[0].coord().y,
-                  tiles[0]);
-    pfrm.set_tile(Layer::overlay,
-                  options_[1].coord().x - 2,
-                  options_[1].coord().y,
-                  tiles[1]);
+    PLATFORM.set_tile(Layer::overlay,
+                      options_[0].coord().x - 2,
+                      options_[0].coord().y,
+                      tiles[0]);
+    PLATFORM.set_tile(Layer::overlay,
+                      options_[1].coord().x - 2,
+                      options_[1].coord().y,
+                      tiles[1]);
 }
 
 
 
-ScenePtr<Scene>
-LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> LevelCompleteOptionsScene::update(App& app, Microseconds delta)
 {
-    WorldScene::update(pfrm, app, delta);
+    WorldScene::update(app, delta);
 
     if (confetti_ and *confetti_) {
-        update_confetti(pfrm, app, **confetti_, delta);
+        update_confetti(app, **confetti_, delta);
     }
 
     switch (state_) {
     case State::select:
         timer_ += delta;
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             timer_ = 0;
             switch (cursor_) {
             case 0:
@@ -88,19 +84,19 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
             options_.clear();
-            pfrm.fill_overlay(0);
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            PLATFORM.fill_overlay(0);
+        } else if (app.player().key_down(Key::action_2)) {
             state_ = State::fade_resume;
             options_.clear();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             timer_ = 0;
-        } else if (app.player().key_down(pfrm, Key::up) and cursor_ > 0) {
+        } else if (app.player().key_down(Key::up) and cursor_ > 0) {
             --cursor_;
-            show_cursor(pfrm);
+            show_cursor();
 
-        } else if (app.player().key_down(pfrm, Key::down) and cursor_ < 1) {
+        } else if (app.player().key_down(Key::down) and cursor_ < 1) {
             ++cursor_;
-            show_cursor(pfrm);
+            show_cursor();
         }
         break;
 
@@ -108,18 +104,18 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(400);
         if (timer_ > fade_duration) {
-            pfrm.screen().set_shader(app.environment().shader(app));
-            pfrm.load_overlay_texture("overlay");
-            pfrm.screen().schedule_fade(0.1f); // palette bugfix
-            pfrm.screen().schedule_fade(0.f);
-            pfrm.screen().pixelate(0, false);
-            app.reset_opponent_island(pfrm);
+            PLATFORM.screen().set_shader(app.environment().shader(app));
+            PLATFORM.load_overlay_texture("overlay");
+            PLATFORM.screen().schedule_fade(0.1f); // palette bugfix
+            PLATFORM.screen().schedule_fade(0.f);
+            PLATFORM.screen().pixelate(0, false);
+            app.reset_opponent_island();
             return scene_pool::alloc<ReadyScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().pixelate(amount * 28, false);
-            pfrm.screen().schedule_fade(partial_fade_amt -
-                                        amount * partial_fade_amt);
+            PLATFORM.screen().pixelate(amount * 28, false);
+            PLATFORM.screen().schedule_fade(partial_fade_amt -
+                                            amount * partial_fade_amt);
         }
         break;
     }
@@ -128,14 +124,14 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
-            pfrm.load_overlay_texture("overlay");
+            PLATFORM.load_overlay_texture("overlay");
 
             return scene_pool::alloc<ZoneImageScene>();
         } else {
             const auto amount =
                 partial_fade_amt + (1.f - partial_fade_amt) *
                                        smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount);
+            PLATFORM.screen().schedule_fade(amount);
         }
         break;
     }
@@ -146,11 +142,11 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::select;
-            show_cursor(pfrm);
+            show_cursor();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount * partial_fade_amt);
-            pfrm.screen().pixelate(amount * 28, false);
+            PLATFORM.screen().schedule_fade(amount * partial_fade_amt);
+            PLATFORM.screen().pixelate(amount * 28, false);
         }
         break;
     }
@@ -160,9 +156,9 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void LevelCompleteOptionsScene::display(Platform& pfrm, App& app)
+void LevelCompleteOptionsScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     if (confetti_ and *confetti_) {
         for (auto& c : **confetti_) {
@@ -184,48 +180,48 @@ void LevelCompleteOptionsScene::display(Platform& pfrm, App& app)
                           255});
             const auto off = c.img_ - 102;
             spr_.set_texture_index(102 * 8 + off + c.anim_ * 4);
-            pfrm.screen().draw(spr_);
+            PLATFORM.screen().draw(spr_);
         }
     }
 }
 
 
 
-void LevelCompleteOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void LevelCompleteOptionsScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
-    pfrm.load_overlay_texture("overlay_island_destroyed");
+    PLATFORM.load_overlay_texture("overlay_island_destroyed");
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     StringBuffer<32> resume = SYSTR(start_menu_continue_building)->c_str();
     StringBuffer<32> sky_map = SYSTR(start_menu_sky_map)->c_str();
 
     options_.emplace_back(
-        pfrm,
+
         sky_map.c_str(),
         OverlayCoord{u8((st.x - utf8::len(sky_map.c_str())) / 2), 5});
 
     options_.emplace_back(
-        pfrm,
+
         resume.c_str(),
         OverlayCoord{u8((st.x - utf8::len(resume.c_str())) / 2), 7});
 
     if (state_ not_eq State::fade_in) {
-        pfrm.screen().pixelate(partial_fade_amt * 28, false);
-        show_cursor(pfrm);
+        PLATFORM.screen().pixelate(partial_fade_amt * 28, false);
+        show_cursor();
     }
 }
 
 
 
-void LevelCompleteOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
+void LevelCompleteOptionsScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
-    pfrm.load_overlay_texture("overlay");
-    pfrm.screen().pixelate(0.f);
+    PLATFORM.load_overlay_texture("overlay");
+    PLATFORM.screen().pixelate(0.f);
 }
 
 

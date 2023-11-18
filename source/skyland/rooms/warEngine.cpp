@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-void WarEngine::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void WarEngine::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_war_engine)->c_str();
 }
@@ -48,9 +48,9 @@ WarEngine::WarEngine(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void WarEngine::update(Platform& pfrm, App& app, Microseconds delta)
+void WarEngine::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -59,13 +59,13 @@ extern Sound core_destroyed;
 
 
 
-void WarEngine::finalize(Platform& pfrm, App& app)
+void WarEngine::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() == 0) {
-        core_destroyed.play(pfrm, 4, milliseconds(600));
-        core_explosion(pfrm, app, parent(), center());
+        core_destroyed.play(4, milliseconds(600));
+        core_explosion(app, parent(), center());
     }
 }
 

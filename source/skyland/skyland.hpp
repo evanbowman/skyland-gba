@@ -58,10 +58,10 @@ namespace skyland
 class App
 {
 public:
-    App(Platform& pfrm, bool clean_boot);
+    App(bool clean_boot);
 
-    void update(Platform& pfrm, Microseconds delta);
-    void render(Platform& pfrm);
+    void update(Microseconds delta);
+    void render();
 
 
     Island& player_island()
@@ -80,7 +80,7 @@ public:
     }
 
 
-    void set_coins(Platform&, Coins coins);
+    void set_coins(Coins coins);
 
 
     Coins terrain_cost(Island& island);
@@ -114,22 +114,22 @@ public:
     }
 
 
-    void start_console(Platform& pfrm);
+    void start_console();
 
 
-    void create_opponent_island(Platform& pfrm, int terrain_size)
+    void create_opponent_island(int terrain_size)
     {
-        reset_opponent_island(pfrm);
+        reset_opponent_island();
 
         world_state_->opponent_.emplace(
-            pfrm, Layer::map_1_ext, terrain_size, opponent());
+            Layer::map_1_ext, terrain_size, opponent());
     }
 
 
-    void reset_opponent_island(Platform& pfrm)
+    void reset_opponent_island()
     {
         if (world_state_->opponent_) {
-            world_state_->opponent_->clear_rooms(pfrm, *this);
+            world_state_->opponent_->clear_rooms(*this);
             world_state_->opponent_.reset();
         }
     }
@@ -160,7 +160,7 @@ public:
 
 
     template <typename T, typename... Args>
-    EntityRef<T> alloc_entity(Platform& pfrm, Args&&... args)
+    EntityRef<T> alloc_entity(Args&&... args)
     {
         if (auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...)) {
             return e;
@@ -187,22 +187,20 @@ public:
 
         auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
         if (not e) {
-            error(pfrm, "entity pool exhausted");
+            error("entity pool exhausted");
         }
 
         return e;
     }
 
 
-    using DeferredCallback = Function<4 * sizeof(void*), void(Platform&, App&)>;
+    using DeferredCallback = Function<4 * sizeof(void*), void(App&)>;
 
 
-    bool on_timeout(Platform& pfrm,
-                    Microseconds expire_time,
-                    const DeferredCallback& callback)
+    bool on_timeout(Microseconds expire_time, const DeferredCallback& callback)
     {
         if (not deferred_callbacks_.emplace_back(callback, expire_time)) {
-            warning(pfrm, "failed to enq timeout");
+            warning("failed to enq timeout");
             return false;
         }
         return true;
@@ -248,8 +246,7 @@ public:
     }
 
 
-    void init_scripts(Platform& pfrm,
-                      Function<4 * sizeof(void*), void(const char*)> msg);
+    void init_scripts(Function<4 * sizeof(void*), void(const char*)> msg);
 
 
     Coins& victory_coins()
@@ -369,11 +366,13 @@ public:
     GlobalPersistentData gp_;
 
 
-    lisp::Value* invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
+    lisp::Value* invoke_ram_script(const char* ram_fs_path);
 
 
-    lisp::Value*
-    invoke_script(Platform& pfrm, const char* path, bool rom_fs_only = false);
+    lisp::Value* invoke_script(const char* path, bool rom_fs_only = false);
+
+
+    bool load_file(const char* path, Vector<char>& result);
 
 
     bool is_developer_mode();
@@ -385,10 +384,10 @@ public:
         s8 next_world_location_ = -1;
     };
 
-    void create_backup(Platform& pfrm, const BackupContext& ctx);
+    void create_backup(const BackupContext& ctx);
     void delete_backup();
     bool has_backup();
-    void restore_backup(Platform& pfrm);
+    void restore_backup();
 
     save::EmergencyBackup* get_backup();
 
@@ -535,18 +534,17 @@ private:
     } remote_console_syntax_ = RemoteConsoleSyntax::none;
 
 
-    void record_score_diff(Platform& pfrm, int diff);
+    void record_score_diff(int diff);
 };
 
 
 
-void write_custom_graphics(Platform& pfrm, App& app);
+void write_custom_graphics(App& app);
 
 
 
 using FileLine = StringBuffer<1980>;
-DynamicMemory<FileLine>
-get_line_from_file(Platform& pfrm, const char* file_name, int line);
+DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line);
 
 
 

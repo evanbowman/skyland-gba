@@ -46,20 +46,20 @@ public:
     DroneBay(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
-    void ___rewind___ability_used(Platform&, App&) override;
+    void ___rewind___ability_used(App&) override;
 
 
 
     void display(Platform::Screen& screen, App& app) override;
 
 
-    void finalize(Platform&, App&) override;
+    void finalize(App&) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -101,11 +101,10 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     void plot_walkable_zones(App& app,
@@ -141,12 +140,10 @@ public:
     }
 
 
-    bool attach_drone(Platform& pfrm,
-                      App& app,
-                      SharedEntityRef<Drone> drone) override;
+    bool attach_drone(App& app, SharedEntityRef<Drone> drone) override;
 
 
-    void detach_drone(Platform& pfrm, App& app, bool quiet) override;
+    void detach_drone(App& app, bool quiet) override;
 
 
     void start_reload()

@@ -91,13 +91,13 @@ EngineImpl& bound_state()
 
 
 
-EngineImpl::EngineImpl(Platform& pfrm, App* app)
+EngineImpl::EngineImpl(App* app)
     : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
 
     if (app) {
-        app->invoke_script(pfrm, "/scripts/config/macro.lisp", true);
+        app->invoke_script("/scripts/config/macro.lisp", true);
     }
 }
 
@@ -113,11 +113,11 @@ EngineImpl::Data::Data()
 
 
 
-void EngineImpl::newgame(Platform& pfrm, App& app)
+void EngineImpl::newgame(App& app)
 {
     // data_->current_sector_ = &data_->origin_sector_;
 
-    pfrm.load_background_texture("background_macro");
+    PLATFORM.load_background_texture("background_macro");
     raster::globalstate::is_night = false;
 
     data_->other_sectors_.clear();
@@ -136,9 +136,9 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     if (data_->checkers_mode_) {
         // ...
     } else if (data_->freebuild_mode_) {
-        app.invoke_script(pfrm, "/scripts/macro/start_layout.lisp");
+        app.invoke_script("/scripts/macro/start_layout.lisp");
     } else {
-        app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
+        app.invoke_script("/scripts/macro/newgame.lisp");
     }
 
     sector.set_population(1);
@@ -403,7 +403,7 @@ template <u32 inflate> struct Sector
 
 
 
-void EngineImpl::save(Platform& pfrm)
+void EngineImpl::save()
 {
     // Dump any memory associated with the rasterizer. We don't want to run out
     // of memory while saving...
@@ -433,15 +433,14 @@ void EngineImpl::save(Platform& pfrm)
 
     const int sbr_used = save_data.chunks_used();
 
-    if (not flash_filesystem::store_file_data_binary(
-            pfrm, save::path, save_data)) {
-        info(pfrm, "macro save failed!");
+    if (not flash_filesystem::store_file_data_binary(save::path, save_data)) {
+        info("macro save failed!");
     } else {
-        info(pfrm, format("macro save used % buffers", sbr_used).c_str());
+        info(format("macro save used % buffers", sbr_used).c_str());
     }
 
     DateTime dt;
-    if (auto tm = pfrm.system_clock().now()) {
+    if (auto tm = PLATFORM.system_clock().now()) {
         dt = *tm;
         save_data.clear();
 
@@ -449,8 +448,8 @@ void EngineImpl::save(Platform& pfrm)
             save_data.push_back(((u8*)&dt)[i]);
         }
 
-        flash_filesystem::store_file_data_binary(
-            pfrm, save::timestamp_path, save_data);
+        flash_filesystem::store_file_data_binary(save::timestamp_path,
+                                                 save_data);
     }
 }
 
@@ -467,11 +466,11 @@ macro::terrain::Sector& EngineImpl::sector()
 
 
 
-bool EngineImpl::load(Platform& pfrm, App& app)
+bool EngineImpl::load(App& app)
 {
     Vector<char> input;
 
-    if (flash_filesystem::read_file_data_binary(pfrm, save::path, input)) {
+    if (flash_filesystem::read_file_data_binary(save::path, input)) {
         auto it = input.begin();
 
         save::Header header;
@@ -494,7 +493,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
             }
 
             if (dest == nullptr) {
-                info(pfrm, "failed to load sector!");
+                info("failed to load sector!");
             }
 
             switch (s.p_.p_.shape_) {
@@ -537,7 +536,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 
     } else /* No existing save file */ {
 
-        newgame(pfrm, app);
+        newgame(app);
     }
 
     data_->current_sector_ = &*data_->origin_sector_;
@@ -549,8 +548,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     lisp::ListBuilder conf;
 
     input.clear();
-    if (flash_filesystem::read_file_data_binary(
-            pfrm, save::timestamp_path, input)) {
+    if (flash_filesystem::read_file_data_binary(save::timestamp_path, input)) {
         DateTime dt;
         for (u32 i = 0; i < sizeof dt; ++i) {
             ((u8*)&dt)[i] = input[i];
@@ -570,7 +568,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     lisp::set_var("conf", conf.result());
 
 
-    app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
+    app.invoke_script("/scripts/macro/onload.lisp");
 #endif
 
 
@@ -2759,8 +2757,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             screenshake = 12;
             Platform::instance().speaker().play_sound("explosion1", 2);
 
-            auto pos = screen_coord(Platform::instance(),
-                                    s.project_block(position.x,
+            auto pos = screen_coord(s.project_block(position.x,
                                                     position.y,
                                                     position.z));
 
@@ -3228,7 +3225,7 @@ raster::TileCategory raster::tile_category(int texture_id)
 
 
 
-Vec2<Fixnum> screen_coord(Platform& pfrm, int p)
+Vec2<Fixnum> screen_coord(int p)
 {
     Vec2<Fixnum> pos;
     int y = p / 30;
@@ -3237,7 +3234,7 @@ Vec2<Fixnum> screen_coord(Platform& pfrm, int p)
     int real_x = x * 8;
     pos.y = real_y;
     pos.x = real_x;
-    pos.y -= Fixnum::from_integer(pfrm.get_scroll(Layer::map_1).y);
+    pos.y -= Fixnum::from_integer(PLATFORM.get_scroll(Layer::map_1).y);
 
     return pos;
 }

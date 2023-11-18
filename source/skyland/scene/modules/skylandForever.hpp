@@ -55,16 +55,16 @@ public:
     }
 
 
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void exit(Platform&, App&, Scene& prev) override;
+    void exit(App&, Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
     static bool enable_custom_scripts()
@@ -73,12 +73,11 @@ public:
     }
 
 
-    static void
-    init(Platform& pfrm, App& app, u8 difficulty, rng::LinearGenerator seed);
+    static void init(App& app, u8 difficulty, rng::LinearGenerator seed);
 
 
 private:
-    void update_parameter(Platform& pfrm, u8 line_num);
+    void update_parameter(u8 line_num);
 
     struct ParameterInfo
     {

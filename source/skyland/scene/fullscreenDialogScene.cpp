@@ -56,16 +56,13 @@ u8 FullscreenDialogScene::y_start() const
 
 
 
-bool FullscreenDialogScene::advance_text(Platform& pfrm,
-                                         App& app,
-                                         Microseconds delta,
-                                         bool sfx)
+bool FullscreenDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
 {
     const auto delay = milliseconds(80);
 
     text_state_.timer_ += delta;
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
 
     if (text_state_.timer_ > delay) {
         text_state_.timer_ = 0;
@@ -78,7 +75,7 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
                 }
             }
             if (*text_state_.current_word_ == '<') {
-                process_command(pfrm, app);
+                process_command(app);
             }
             if (halt_text_) {
                 halt_text_ = false;
@@ -104,13 +101,13 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
         }
 
         if (sfx) {
-            pfrm.speaker().play_sound("msg", 5);
+            PLATFORM.speaker().play_sound("msg", 5);
         }
 
         // At this point, we know the length of the next space-delimited word in
         // the string. Now we can print stuff...
 
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
         static const auto margin_sum = 4;
         const auto text_box_width = st.x - margin_sum;
         const auto remaining = (text_box_width - text_state_.pos_) -
@@ -136,7 +133,7 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
         u16 t = 495; // bad glyph, FIXME: add a constant
 
         if (mapping_info) {
-            t = pfrm.map_glyph(cp, *mapping_info);
+            t = PLATFORM.map_glyph(cp, *mapping_info);
         }
 
         const int y_offset =
@@ -147,7 +144,7 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
             x_offset = st.x - x_offset;
         }
 
-        pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
+        PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
 
         text_state_.current_word_remaining_--;
         text_state_.current_word_ += bytes_consumed;
@@ -163,14 +160,14 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
 
 
 
-void FullscreenDialogScene::clear_textbox(Platform& pfrm)
+void FullscreenDialogScene::clear_textbox()
 {
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
 
     for (int x = 1; x < st.x - 1; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - (4 + y_start()), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (3 + y_start()), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (4 + y_start()), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (3 + y_start()), 82);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 82);
     }
 
     text_state_.line_ = 0;
@@ -179,16 +176,16 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 
 
 
-void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
+void FullscreenDialogScene::enter(App& app, Scene& prev)
 {
-    pfrm.load_overlay_texture("overlay_dialog_fullscreen");
+    PLATFORM.load_overlay_texture("overlay_dialog_fullscreen");
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
-    pfrm.screen().fade(1.f, custom_color(0), {}, true, false);
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, false);
+    PLATFORM.screen().fade(1.f, custom_color(0), {}, true, false);
+    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, false);
 
-    clear_textbox(pfrm);
+    clear_textbox();
 
     text_state_.current_word_remaining_ = 0;
     text_state_.current_word_ = buffer_->c_str();
@@ -199,63 +196,64 @@ void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
+void FullscreenDialogScene::exit(App& app, Scene& prev)
 {
     if (img_view_) {
         int frames = 25;
         for (int i = 0; i < frames; ++i) {
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 Float(i) / (frames - 1), ColorConstant::rich_black, true, true);
-            pfrm.keyboard().poll();
-            pfrm.screen().clear();
-            pfrm.screen().display();
+            PLATFORM.keyboard().poll();
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
         }
 
-        pfrm.sleep(10);
+        PLATFORM.sleep(10);
 
-        pfrm.fill_overlay(0);
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        pfrm.set_overlay_origin(0, 0);
-        pfrm.load_overlay_texture("overlay");
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        PLATFORM.set_overlay_origin(0, 0);
+        PLATFORM.load_overlay_texture("overlay");
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        PLATFORM.fill_overlay(0);
         if (app.opponent_island()) {
-            show_island_exterior(pfrm, app, app.opponent_island());
+            show_island_exterior(app, app.opponent_island());
         }
-        app.player_island().repaint(pfrm, app);
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        pfrm.delta_clock().reset();
+        app.player_island().repaint(app);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        PLATFORM.delta_clock().reset();
     } else {
-        pfrm.load_overlay_texture("overlay");
+        PLATFORM.load_overlay_texture("overlay");
     }
 
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 }
 
 
 
-ScenePtr<Scene>
-FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> FullscreenDialogScene::update(App& app, Microseconds delta)
 {
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);
         text_state_.timer_ += delta;
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
-            const auto st = calc_screen_tiles(pfrm);
+            const auto st = calc_screen_tiles();
             int x = st.x - 3;
             if (text_scroll_direction == 1) {
                 x = 3;
             }
-            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start())) ==
+            if (PLATFORM.get_tile(Layer::overlay, x, st.y - (2 + y_start())) ==
                 91) {
-                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 92);
+                PLATFORM.set_tile(
+                    Layer::overlay, x, st.y - (2 + y_start()), 92);
             } else {
-                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start()), 91);
+                PLATFORM.set_tile(
+                    Layer::overlay, x, st.y - (2 + y_start()), 91);
             }
         }
     };
@@ -267,15 +265,14 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case DisplayMode::busy: {
 
-        const bool text_busy = advance_text(pfrm, app, delta, true);
+        const bool text_busy = advance_text(app, delta, true);
 
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
-            if (key_down<Key::action_2>(pfrm) or
-                key_down<Key::action_1>(pfrm)) {
+            if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
 
-                while (advance_text(pfrm, app, delta, false)) {
+                while (advance_text(app, delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
                         break;
                     }
@@ -291,19 +288,19 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
 
             text_state_.timer_ = 0;
 
-            clear_textbox(pfrm);
+            clear_textbox();
             display_mode_ = DisplayMode::busy;
         }
         break;
     }
 
     case DisplayMode::key_released_check1:
-        // if (key_down<Key::action_2>(pfrm) or
-        //     key_down<Key::action_1>(pfrm)) {
+        // if (key_down<Key::action_2>() or
+        //     key_down<Key::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::wait;
@@ -311,8 +308,8 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::key_released_check2:
-        // if (key_down<Key::action_2>(pfrm) or
-        //     key_down<Key::action_1>(pfrm)) {
+        // if (key_down<Key::action_2>() or
+        //     key_down<Key::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::done;
@@ -321,11 +318,11 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case DisplayMode::done:
         animate_moretext_icon();
-        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
 
             // if (text_[1] not_eq LocaleString::empty) {
             //     ++text_;
-            //     init_text(pfrm, *text_);
+            //     init_text(*text_);
             //     display_mode_ = DisplayMode::animate_in;
             // } else {
             display_mode_ = DisplayMode::animate_out;
@@ -336,7 +333,7 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::animate_out:
         display_mode_ = DisplayMode::clear;
         if (not img_view_) {
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
         }
 
         break;
@@ -350,8 +347,7 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void __draw_image(Platform& pfrm,
-                  TileDesc start_tile,
+void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
                   u16 width,
@@ -360,7 +356,7 @@ void __draw_image(Platform& pfrm,
 
 
 
-void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
+void FullscreenDialogScene::process_command(App& app)
 {
     ++text_state_.current_word_;
 
@@ -369,7 +365,7 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
     ++text_state_.current_word_;
 
     if (*text_state_.current_word_ not_eq ':') {
-        pfrm.fatal("invalid command format!");
+        PLATFORM.fatal("invalid command format!");
     }
 
     ++text_state_.current_word_;
@@ -379,7 +375,7 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
         while (*text_state_.current_word_ not_eq ':' and
                *text_state_.current_word_ not_eq '>') {
             if (*text_state_.current_word_ == '\0') {
-                pfrm.fatal("Unexpected null byte in command sequence!");
+                PLATFORM.fatal("Unexpected null byte in command sequence!");
             }
             str.push_back(*text_state_.current_word_);
             ++text_state_.current_word_;
@@ -399,7 +395,7 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
 
     auto parse_command_noarg = [&] {
         if (*text_state_.current_word_ not_eq '>') {
-            pfrm.fatal("invalid command format, expected >");
+            PLATFORM.fatal("invalid command format, expected >");
         }
 
         ++text_state_.current_word_;
@@ -408,7 +404,7 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
 
     switch (c) {
     case '\0':
-        pfrm.fatal("Invalid null byte in command sequence!");
+        PLATFORM.fatal("Invalid null byte in command sequence!");
 
     case 'c': {
         parse_command_str();
@@ -428,48 +424,48 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
     }
 
     case 'f': {
-        pfrm.screen().schedule_fade(parse_command_int() / 100.f);
+        PLATFORM.screen().schedule_fade(parse_command_int() / 100.f);
         break;
     }
 
     case 'b': {
         const auto bkg_name = parse_command_str();
-        pfrm.screen().set_shader(passthrough_shader);
-        pfrm.screen().set_view(View{});
+        PLATFORM.screen().set_shader(passthrough_shader);
+        PLATFORM.screen().set_view(View{});
 
-        pfrm.load_tile1_texture(bkg_name.c_str());
-        pfrm.set_scroll(Layer::map_1_ext, 0, 0);
-        __draw_image(pfrm, 0, 3, 3, 24, 10, Layer::map_1);
-        pfrm.screen().schedule_fade(0);
+        PLATFORM.load_tile1_texture(bkg_name.c_str());
+        PLATFORM.set_scroll(Layer::map_1_ext, 0, 0);
+        __draw_image(0, 3, 3, 24, 10, Layer::map_1);
+        PLATFORM.screen().schedule_fade(0);
 
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
-                pfrm.set_tile(Layer::map_0_ext, x, y, 0);
+                PLATFORM.set_tile(Layer::map_0_ext, x, y, 0);
             }
         }
 
         // // Replace the textbox border with a tileset with an opaque dark
         // // background.
-        // pfrm.load_overlay_chunk(83, 124, 8);
+        // PLATFORM.load_overlay_chunk(83, 124, 8);
         img_view_ = true;
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
 
         for (int x = 0; x < 30; ++x) {
             for (int y = 0; y < 20; ++y) {
                 if (y < 3 or y > 12 or x < 3 or x > 26) {
-                    pfrm.set_tile(Layer::overlay, x, y, 82);
+                    PLATFORM.set_tile(Layer::overlay, x, y, 82);
                 }
             }
         }
 
         int frames = 45;
         for (int i = 0; i < frames; ++i) {
-            pfrm.screen().schedule_fade(1 - Float(i) / frames,
-                                        ColorConstant::rich_black);
-            pfrm.keyboard().poll();
-            pfrm.screen().clear();
-            pfrm.screen().display();
+            PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
+                                            ColorConstant::rich_black);
+            PLATFORM.keyboard().poll();
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
         }
 
         break;
@@ -486,13 +482,13 @@ void FullscreenDialogScene::process_command(Platform& pfrm, App& app)
     }
 
     case 'm': {
-        pfrm.speaker().set_music_volume(parse_command_int());
+        PLATFORM.speaker().set_music_volume(parse_command_int());
         break;
     }
 
 
     default:
-        pfrm.fatal(format("Invald command %", c).c_str());
+        PLATFORM.fatal(format("Invald command %", c).c_str());
     }
 
     while (*text_state_.current_word_ == ' ') {

@@ -34,14 +34,13 @@ namespace skyland::macro
 class ModifiedSelectorScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
+    void enter(macro::EngineImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
+    void exit(macro::EngineImpl& state, Scene& next) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override;
 
 
 private:

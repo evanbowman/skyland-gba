@@ -56,20 +56,20 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Room&) override;
+    void on_collision(App& app, Room&) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Entity&) override;
+    void on_collision(App& app, Entity&) override;
 
 
 private:
-    void destroy(Platform& pfrm, App& app, bool explosion);
+    void destroy(App& app, bool explosion);
 
     Float y_base_ = 0;
     Microseconds timer_ = 0;

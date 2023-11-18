@@ -62,22 +62,20 @@ void BuildImprovementScene::init_cursor(macro::EngineImpl& state)
 
 
 
-void CreateBlockScene::enter(Platform& pfrm,
-                             macro::EngineImpl& state,
-                             Scene& prev)
+void CreateBlockScene::enter(macro::EngineImpl& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, state, prev);
+    MacrocosmScene::enter(state, prev);
 
-    collect_options(pfrm, state);
+    collect_options(state);
 
     init_cursor(state);
 
-    show_options(pfrm, state);
+    show_options(state);
 }
 
 
 
-void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
+void CreateBlockScene::collect_options(macro::EngineImpl& state)
 {
     options_.push_back(terrain::Type::terrain);
     options_.push_back(terrain::Type::building);
@@ -145,16 +143,14 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
 
 
 
-void CreateBlockScene::exit(Platform& pfrm,
-                            macro::EngineImpl& state,
-                            Scene& next)
+void CreateBlockScene::exit(macro::EngineImpl& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, state, next);
+    MacrocosmScene::exit(state, next);
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     for (int y = st.y - 8; y < st.y; ++y) {
         for (int x = 0; x < 32; ++x) {
-            pfrm.set_tile(Layer::overlay, x, y, 0);
+            PLATFORM.set_tile(Layer::overlay, x, y, 0);
         }
     }
 }
@@ -173,15 +169,14 @@ terrain::Cost CreateBlockScene::cost(macro::EngineImpl& state, terrain::Type t)
 
 
 
-void render_cost(Platform& pfrm,
-                 macro::EngineImpl& state,
+void render_cost(macro::EngineImpl& state,
                  terrain::Type t,
                  Text& text,
                  bool harvest,
                  Text::OptColors text_colors = {},
                  std::optional<terrain::Cost> inp_c = {})
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     StringBuffer<30> message;
 
@@ -201,7 +196,7 @@ void render_cost(Platform& pfrm,
             text.append(" -", text_colors);
             text.append(c.productivity_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
         }
 
         if (c.stone_) {
@@ -213,7 +208,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.stone_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
         }
 
         if (c.lumber_) {
@@ -225,7 +220,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.lumber_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 423);
         }
 
         if (c.clay_) {
@@ -237,7 +232,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.clay_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 370);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 370);
         }
 
         if (c.water_) {
@@ -249,7 +244,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.water_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 371);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 371);
         }
 
         if (c.marble_) {
@@ -261,7 +256,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.marble_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 372);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 372);
         }
 
         if (c.crystal_) {
@@ -273,7 +268,7 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.crystal_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 424);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 424);
         }
 
         if (c.food_) {
@@ -285,56 +280,56 @@ void render_cost(Platform& pfrm,
             }
             text.append(c.food_, text_colors);
             text.append(" ");
-            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
+            PLATFORM.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
         }
     }
 
     const int count = st.x - text.len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
     }
 }
 
 
 
-void CreateBlockScene::message(Platform& pfrm, macro::EngineImpl& state)
+void CreateBlockScene::message(macro::EngineImpl& state)
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
-    Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    Text text(OverlayCoord{0, u8(st.y - 1)});
     text.append(":");
-    text.append(loadstr(pfrm, terrain::name(options_[selector_]))->c_str());
-    render_cost(pfrm, state, options_[selector_], text, false);
+    text.append(loadstr(terrain::name(options_[selector_]))->c_str());
+    render_cost(state, options_[selector_], text, false);
     text.__detach();
 }
 
 
 
-void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
+void CreateBlockScene::show_options(EngineImpl& state)
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
-    message(pfrm, state);
+    message(state);
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
-        pfrm.set_tile(Layer::overlay, i, st.y - 3, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 4, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 5, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 3, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 5, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 6, 0);
     }
 
     for (int i = st.x - 25; i < st.x - 5; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 6, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 6, 425);
     }
 
     for (int y = st.y - 5; y < st.y - 2; ++y) {
-        pfrm.set_tile(Layer::overlay, st.x - 26, y, 130);
-        pfrm.set_tile(Layer::overlay, st.x - 5, y, 433);
+        PLATFORM.set_tile(Layer::overlay, st.x - 26, y, 130);
+        PLATFORM.set_tile(Layer::overlay, st.x - 5, y, 433);
     }
 
-    pfrm.set_tile(Layer::overlay, st.x - 26, st.y - 2, 419);
-    pfrm.set_tile(Layer::overlay, st.x - 5, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, st.x - 26, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, st.x - 5, st.y - 2, 418);
 
     int opt_count = options_.size();
 
@@ -349,9 +344,9 @@ void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
         }
 
         auto icon = terrain::icons(options_[index]).second;
-        draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(258, icon, 16);
+        PLATFORM.load_overlay_chunk(258, icon, 16);
     }
 
     {
@@ -363,16 +358,16 @@ void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
         }
 
         auto icon = terrain::icons(options_[index]).second;
-        draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(181, icon, 16);
+        PLATFORM.load_overlay_chunk(181, icon, 16);
     }
 
     {
         auto icon = terrain::icons(options_[selector_]).first;
-        draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(197, icon, 16);
+        PLATFORM.load_overlay_chunk(197, icon, 16);
     }
 
     {
@@ -385,9 +380,9 @@ void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
 
         auto icon = terrain::icons(options_[index]).second;
         ;
-        draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(213, icon, 16);
+        PLATFORM.load_overlay_chunk(213, icon, 16);
     }
 
     {
@@ -401,26 +396,24 @@ void CreateBlockScene::show_options(Platform& pfrm, EngineImpl& state)
         }
 
         auto icon = terrain::icons(options_[index]).second;
-        draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
+        draw_image(274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
-        pfrm.load_overlay_chunk(274, icon, 16);
+        PLATFORM.load_overlay_chunk(274, icon, 16);
     }
 }
 
 
 
-void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
-                                       Player& player,
-                                       macro::EngineImpl& state)
+void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
 {
-    if (player.key_down(pfrm, Key::up)) {
+    if (player.key_down(Key::up)) {
         auto cursor = state.sector().cursor();
         if (cursor.z < state.sector().size().z - 1) {
             cursor.z++;
             while (state.sector().get_block(cursor).type() not_eq
                    terrain::Type::air) {
                 if (cursor.z == state.sector().size().z - 1) {
-                    pfrm.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                     return;
                 }
                 cursor.z++;
@@ -428,19 +421,19 @@ void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
             auto& above = state.sector().get_block(cursor);
             if (above.type() == terrain::Type::air) {
                 state.sector().set_cursor(cursor, false);
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
         }
     }
 
-    if (player.key_down(pfrm, Key::down)) {
+    if (player.key_down(Key::down)) {
         auto cursor = state.sector().cursor();
         if (cursor.z not_eq 0) {
             cursor.z--;
             while (state.sector().get_block(cursor).type() not_eq
                    terrain::Type::air) {
                 if (cursor.z == 0) {
-                    pfrm.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                     return;
                 }
                 cursor.z--;
@@ -448,7 +441,7 @@ void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
             auto& beneath = state.sector().get_block(cursor);
             if (beneath.type() == terrain::Type::air) {
                 state.sector().set_cursor(cursor, false);
-                pfrm.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click", 1);
             }
         }
     }
@@ -456,47 +449,46 @@ void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
 
 
 
-ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
-                                         Player& player,
+ScenePtr<Scene> CreateBlockScene::update(Player& player,
                                          macro::EngineImpl& state)
 {
-    if (auto next = MacrocosmScene::update(pfrm, player, state)) {
+    if (auto next = MacrocosmScene::update(player, state)) {
         return next;
     }
 
-    if (player.key_pressed(pfrm, Key::alt_1)) {
+    if (player.key_pressed(Key::alt_1)) {
         // ...
     } else {
 
-        // adjust_cursor_z(pfrm, player, state);
+        // adjust_cursor_z(player, state);
 
-        if (player.key_down(pfrm, Key::right)) {
+        if (player.key_down(Key::right)) {
             if (selector_ < (int)options_.size() - 1) {
                 ++selector_;
             } else {
                 selector_ = 0;
             }
-            show_options(pfrm, state);
-            pfrm.speaker().play_sound("click", 1);
+            show_options(state);
+            PLATFORM.speaker().play_sound("click", 1);
         }
 
-        if (player.key_down(pfrm, Key::left)) {
+        if (player.key_down(Key::left)) {
             if (selector_ > 0) {
                 --selector_;
             } else {
                 selector_ = options_.size() - 1;
             }
-            show_options(pfrm, state);
-            pfrm.speaker().play_sound("click", 1);
+            show_options(state);
+            PLATFORM.speaker().play_sound("click", 1);
         }
     }
 
 
-    if (player.key_down(pfrm, Key::action_1)) {
-        return onclick(pfrm, state);
+    if (player.key_down(Key::action_1)) {
+        return onclick(state);
     }
 
-    if (player.key_down(pfrm, Key::action_2)) {
+    if (player.key_down(Key::action_2)) {
         return scene_pool::alloc<SelectorScene>();
     }
 
@@ -531,12 +523,11 @@ public:
     }
 
 
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    void enter(macro::EngineImpl& state, Scene& prev) override
     {
-        text_.emplace(pfrm, OverlayCoord{0, 19});
+        text_.emplace(OverlayCoord{0, 19});
 
-        render_cost(pfrm,
-                    state,
+        render_cost(state,
                     terrain::Type::air,
                     *text_,
                     false,
@@ -545,17 +536,16 @@ public:
     }
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    void exit(macro::EngineImpl& state, Scene& next) override
     {
         text_.reset();
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
     {
-        if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
+        if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
             return scene_pool::alloc<SelectorScene>();
         }
 
@@ -570,8 +560,7 @@ private:
 
 
 
-ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
-                                          macro::EngineImpl& state)
+ScenePtr<Scene> CreateBlockScene::onclick(macro::EngineImpl& state)
 {
     auto cursor = state.sector().cursor();
     if (not check_z() or cursor.z < state.sector().size().z - 1) {
@@ -584,7 +573,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
              cost.water_ > p.water_.get() or cost.crystal_ > p.crystal_.get() or
              cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
              cost.productivity_ > state.sector().productivity())) {
-            pfrm.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<InsufficentResourcesScene>(state, cost);
         } else if (not state.data_->freebuild_mode_) {
             auto prod = state.sector().productivity();
@@ -598,20 +587,20 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             p.water_.set(p.water_.get() - cost.water_);
         }
 
-        edit(pfrm, state, options_[selector_]);
+        edit(state, options_[selector_]);
         state.sector().update();
         update_ui_on_exit();
 
         if (options_[selector_] not_eq terrain::Type::air) {
-            pfrm.speaker().play_sound("build0", 4);
+            PLATFORM.speaker().play_sound("build0", 4);
 
             return scene_pool::alloc<SelectorScene>();
 
         } else {
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     } else {
-        pfrm.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
     }
 
     return null_scene();
@@ -619,9 +608,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
 
 
 
-void CreateBlockScene::edit(Platform& pfrm,
-                            macro::EngineImpl& state,
-                            terrain::Type t)
+void CreateBlockScene::edit(macro::EngineImpl& state, terrain::Type t)
 {
     auto cursor = state.sector().cursor();
 
@@ -635,10 +622,10 @@ void CreateBlockScene::edit(Platform& pfrm,
             p.rot_ = (u8)state.sector().persistent().orientation_;
             p.type_ = (u8)t;
 
-            network::transmit(pfrm, p);
+            network::transmit(p);
         }
 
-        auto pos = screen_coord(pfrm, state.sector().cursor_raster_pos());
+        auto pos = screen_coord(state.sector().cursor_raster_pos());
 
         state.add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));
     }
@@ -668,7 +655,7 @@ terrain::Cost BuildImprovementScene::cost(macro::EngineImpl& state,
 
 
 
-void BuildImprovementScene::collect_options(Platform&, macro::EngineImpl& state)
+void BuildImprovementScene::collect_options(macro::EngineImpl& state)
 {
     auto& sector = state.sector();
 
@@ -689,9 +676,7 @@ void BuildImprovementScene::collect_options(Platform&, macro::EngineImpl& state)
 
 
 
-void BuildImprovementScene::edit(Platform& pfrm,
-                                 macro::EngineImpl& state,
-                                 terrain::Type t)
+void BuildImprovementScene::edit(macro::EngineImpl& state, terrain::Type t)
 {
     auto cursor = state.sector().cursor();
 
@@ -708,10 +693,10 @@ void BuildImprovementScene::edit(Platform& pfrm,
             p.rot_ = (u8)state.sector().persistent().orientation_;
             p.type_ = (u8)t;
 
-            network::transmit(pfrm, p);
+            network::transmit(p);
         }
 
-        auto pos = screen_coord(pfrm, state.sector().cursor_raster_pos());
+        auto pos = screen_coord(state.sector().cursor_raster_pos());
         pos.y += 4.0_fixed;
 
         state.add_entity<MacrocosmEffect>(pos, 8, 13, milliseconds(80));

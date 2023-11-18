@@ -54,7 +54,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         timer_ += delta * 2;
 
@@ -73,9 +73,9 @@ public:
             }
         }
 
-        int min_x = pfrm.screen().get_view().int_center().x - 48;
-        int max_x = pfrm.screen().get_view().int_center().x +
-                    pfrm.screen().size().x + 48;
+        int min_x = PLATFORM.screen().get_view().int_center().x - 48;
+        int max_x = PLATFORM.screen().get_view().int_center().x +
+                    PLATFORM.screen().size().x + 48;
         int max_y = 700;
         int min_y = 450;
 
@@ -87,7 +87,7 @@ public:
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         timer_ -= delta * 2;
 
@@ -106,9 +106,9 @@ public:
             }
         }
 
-        int min_x = pfrm.screen().get_view().int_center().x - 48;
-        int max_x = pfrm.screen().get_view().int_center().x +
-                    pfrm.screen().size().x + 48;
+        int min_x = PLATFORM.screen().get_view().int_center().x - 48;
+        int max_x = PLATFORM.screen().get_view().int_center().x +
+                    PLATFORM.screen().size().x + 48;
         int max_y = 700;
         int min_y = 450;
 

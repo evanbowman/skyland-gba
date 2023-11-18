@@ -91,9 +91,9 @@ void PluginRoom::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
+void PluginRoom::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
@@ -132,7 +132,7 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
         if (result->type() == lisp::Value::Type::error) {
             lisp::DefaultPrinter p;
             lisp::format(result, p);
-            pfrm.fatal(p.data_.c_str());
+            PLATFORM.fatal(p.data_.c_str());
         }
 
         lisp::pop_op(); // funcall result
@@ -141,9 +141,9 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
+void PluginRoom::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
@@ -159,8 +159,7 @@ void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene>
-PluginRoom::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> PluginRoom::select(App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -183,10 +182,7 @@ PluginRoom::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
 
 
-void PluginRoom::set_target(Platform& pfrm,
-                            App& app,
-                            const RoomCoord& target,
-                            bool pinned)
+void PluginRoom::set_target(App& app, const RoomCoord& target, bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -217,7 +213,7 @@ void PluginRoom::set_target(Platform& pfrm,
 
 
 
-void PluginRoom::unset_target(Platform& pfrm, App& app)
+void PluginRoom::unset_target(App& app)
 {
     if (not target_) {
         // Already uninitialized.

@@ -38,36 +38,36 @@ namespace skyland::macro
 class ExitIslandScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        pfrm.fill_overlay(112);
+        PLATFORM.fill_overlay(112);
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override
+    void exit(App& app, Scene& next) override
     {
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
-        int circ_center_x = pfrm.screen().size().x / 2;
-        int circ_center_y = pfrm.screen().size().y / 2;
+        int circ_center_x = PLATFORM.screen().size().x / 2;
+        int circ_center_y = PLATFORM.screen().size().y / 2;
         int params[] = {circ_radius_, circ_center_x, circ_center_y};
-        pfrm.system_call("iris-wipe-effect", params);
+        PLATFORM.system_call("iris-wipe-effect", params);
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    ScenePtr<Scene> update(App&, Microseconds delta) override
     {
         timer_ += delta;
 
         constexpr auto fade_duration = milliseconds(400);
         if (timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(1);
+            PLATFORM.screen().schedule_fade(1);
             circ_radius_ = 0;
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             return scene_pool::alloc<MacroverseScene>(true);
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -75,7 +75,7 @@ public:
             if (timer_ > delta) {
                 amount *= 0.75f;
             }
-            pfrm.screen().schedule_fade(amount);
+            PLATFORM.screen().schedule_fade(amount);
         }
 
         return null_scene();
@@ -89,25 +89,23 @@ private:
 
 
 
-void MenuOptionsScene::enter(Platform& pfrm,
-                             macro::EngineImpl& state,
-                             Scene& prev)
+void MenuOptionsScene::enter(macro::EngineImpl& state, Scene& prev)
 {
     if (auto m = prev.cast_macrocosm_scene()) {
         m->drop_ui();
     }
 
-    pfrm.set_tile(Layer::overlay, 1, 1, 393);
-    pfrm.set_tile(Layer::overlay, 1, 2, 394);
+    PLATFORM.set_tile(Layer::overlay, 1, 1, 393);
+    PLATFORM.set_tile(Layer::overlay, 1, 2, 394);
 
     StringBuffer<32> mv(":");
     mv += SYSTR(start_menu_macroverse)->c_str();
 
-    macroverse_text_.emplace(pfrm, mv.c_str(), OverlayCoord{2, 1});
-    next_turn_text_.emplace(
-        pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{2, 2});
+    macroverse_text_.emplace(mv.c_str(), OverlayCoord{2, 1});
+    next_turn_text_.emplace(SYSTR(macro_next_turn)->c_str(),
+                            OverlayCoord{2, 2});
 
-    harvest_text_.emplace(pfrm, OverlayCoord{1, 3});
+    harvest_text_.emplace(OverlayCoord{1, 3});
     harvest_text_->assign(
         "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
     harvest_text_->append(SYSTR(macro_check_harvest)->c_str());
@@ -115,29 +113,26 @@ void MenuOptionsScene::enter(Platform& pfrm,
 
 
 
-void MenuOptionsScene::exit(Platform& pfrm,
-                            macro::EngineImpl& state,
-                            Scene& next)
+void MenuOptionsScene::exit(macro::EngineImpl& state, Scene& next)
 {
 
-    MacrocosmScene::exit(pfrm, state, next);
+    MacrocosmScene::exit(state, next);
 
     macroverse_text_.reset();
     next_turn_text_.reset();
     harvest_text_.reset();
     message_text_.reset();
 
-    pfrm.set_tile(Layer::overlay, 1, 1, 0);
-    pfrm.set_tile(Layer::overlay, 1, 2, 0);
+    PLATFORM.set_tile(Layer::overlay, 1, 1, 0);
+    PLATFORM.set_tile(Layer::overlay, 1, 2, 0);
 }
 
 
 
-ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
-                                         Player& player,
+ScenePtr<Scene> MenuOptionsScene::update(Player& player,
                                          macro::EngineImpl& state)
 {
-    if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+    if (auto scene = MacrocosmScene::update(player, state)) {
         return scene;
     }
 
@@ -154,10 +149,9 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
         }
     }
 
-    if (player.key_pressed(pfrm, Key::alt_1) or
-        player.key_pressed(pfrm, Key::alt_2)) {
+    if (player.key_pressed(Key::alt_1) or player.key_pressed(Key::alt_2)) {
 
-        if (player.key_down(pfrm, Key::action_1)) {
+        if (player.key_down(Key::action_1)) {
             auto& s = state.sector();
 
             for (u8 z = 0; z < s.size().z; ++z) {
@@ -176,25 +170,25 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
                                 }
                             }
                             s.set_cursor({x, y, u8(z + 1)});
-                            pfrm.speaker().play_sound("click_digital_1", 3);
+                            PLATFORM.speaker().play_sound("click_digital_1", 3);
                             return scene_pool::alloc<SelectorScene>();
                         }
                     }
                 }
             }
-            pfrm.speaker().play_sound("cancel", 3);
-            message_text_.emplace(pfrm, OverlayCoord{0, 19});
+            PLATFORM.speaker().play_sound("cancel", 3);
+            message_text_.emplace(OverlayCoord{0, 19});
             message_text_->assign(SYS_CSTR(macro_harvest_not_ready));
         }
 
-        if (player.key_down(pfrm, Key::right)) {
-            pfrm.speaker().play_sound("cursor_tick", 0);
+        if (player.key_down(Key::right)) {
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
             return scene_pool::alloc<NextTurnScene>();
         }
 
-        if (player.key_down(pfrm, Key::up)) {
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            pfrm.fill_overlay(0);
+        if (player.key_down(Key::up)) {
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.fill_overlay(0);
             return scene_pool::alloc<ExitIslandScene>();
         }
 

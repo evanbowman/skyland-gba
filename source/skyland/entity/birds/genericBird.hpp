@@ -51,23 +51,23 @@ public:
                 bool flip);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
-    void signal(Platform&, App&) override;
+    void signal(App&) override;
 
 
 
     Island* island(App& app) override;
 
 
-    static void spawn(Platform& pfrm, App& app, Island& island, int count);
+    static void spawn(App& app, Island& island, int count);
 
 
-    static void generate(Platform& pfrm, App& app);
+    static void generate(App& app);
 
 
     RoomCoord coordinate() override
@@ -83,7 +83,7 @@ public:
 
 
 private:
-    void roost(Platform& pfrm, Island* island, Microseconds delta);
+    void roost(Island* island, Microseconds delta);
 
     Platform::DynamicTexturePtr dt_;
     RoomCoord position_;

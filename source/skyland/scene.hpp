@@ -64,21 +64,21 @@ public:
     virtual ~Scene(){};
 
 
-    virtual ScenePtr<Scene> update(Platform&, App&, Microseconds delta)
+    virtual ScenePtr<Scene> update(App&, Microseconds delta)
     {
         return null_scene();
     }
 
 
-    virtual void display(Platform&, App&)
+    virtual void display(App&)
     {
     }
 
 
-    virtual void enter(Platform&, App&, Scene& prev_scene){};
+    virtual void enter(App&, Scene& prev_scene){};
 
 
-    virtual void exit(Platform&, App&, Scene& next_scene){};
+    virtual void exit(App&, Scene& next_scene){};
 
 
     // Yeah, I should be using a visitor.

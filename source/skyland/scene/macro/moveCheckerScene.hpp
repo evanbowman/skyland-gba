@@ -118,7 +118,7 @@ inline auto checker_get_movement_slots(const CheckerBoard& board,
     };
 
     auto push = [&](auto& coord, auto& jump_coord) {
-        if (is_free(coord)) {
+        if (slot_within_bounds(coord) and is_free(coord)) {
             if (slot_within_bounds(coord)) {
                 result.push_back(coord);
             }
@@ -520,7 +520,7 @@ checkers_opponent_move(CheckerBoard& board,
 class CheckersVictoryScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    void enter(macro::EngineImpl& state, Scene& prev) override
     {
         bool red_has_moves = false;
         bool black_has_moves = false;
@@ -554,26 +554,25 @@ public:
                 format(SYSTR(checker_wins)->c_str(),
                        black_won ? SYSTR(black)->c_str() : SYSTR(red)->c_str());
 
-            u8 margin = centered_text_margins(pfrm, utf8::len(str.c_str()));
+            u8 margin = centered_text_margins(utf8::len(str.c_str()));
 
-            text_.emplace(pfrm, str.c_str(), OverlayCoord{margin, 8});
+            text_.emplace(str.c_str(), OverlayCoord{margin, 8});
         }
     }
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    void exit(macro::EngineImpl& state, Scene& next) override
     {
         text_.reset();
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override
     {
         if (not player_won_) {
             return scene_pool::alloc<SelectorScene>();
-        } else if (not player_won_ or player.key_down(pfrm, Key::action_1) or
-                   player.key_down(pfrm, Key::action_2)) {
+        } else if (not player_won_ or player.key_down(Key::action_1) or
+                   player.key_down(Key::action_2)) {
 
             return scene_pool::alloc<CheckersModule>();
         }
@@ -596,12 +595,11 @@ public:
     {
     }
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
     {
-        Text t(pfrm, SYSTR(checkers_ai_thinking)->c_str(), OverlayCoord{0, 19});
-        pfrm.screen().clear();
-        pfrm.screen().display();
+        Text t(SYSTR(checkers_ai_thinking)->c_str(), OverlayCoord{0, 19});
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
 
         auto& sector = state.sector();
         auto board = CheckerBoard::from_sector(sector);
@@ -671,27 +669,26 @@ public:
     std::optional<Text> text_;
 
 
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    void enter(macro::EngineImpl& state, Scene& prev) override
     {
         refresh(state);
 
         if (not cancellable_) {
-            text_.emplace(
-                pfrm, SYSTR(checkers_jump_again)->c_str(), OverlayCoord{0, 19});
+            text_.emplace(SYSTR(checkers_jump_again)->c_str(),
+                          OverlayCoord{0, 19});
         }
     }
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    void exit(macro::EngineImpl& state, Scene& next) override
     {
         text_.reset();
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override
     {
-        if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+        if (auto scene = MacrocosmScene::update(player, state)) {
             return scene;
         }
 
@@ -699,7 +696,7 @@ public:
 
         auto& sector = state.sector();
 
-        if (player.key_down(pfrm, Key::action_2) and cancellable_) {
+        if (player.key_down(Key::action_2) and cancellable_) {
             auto& sector = state.sector();
 
             for (auto& slot : slots_) {
@@ -711,7 +708,7 @@ public:
 
             return scene_pool::alloc<SelectorScene>();
 
-        } else if (player.key_down(pfrm, Key::action_1)) {
+        } else if (player.key_down(Key::action_1)) {
 
             auto board = CheckerBoard::from_sector(sector);
             auto board_prev = board.data_[piece_loc_.x][piece_loc_.y];
@@ -763,7 +760,7 @@ public:
 
             return scene_pool::alloc<OpponentMoveCheckerScene>();
 
-        } else if (player.key_down(pfrm, Key::up)) {
+        } else if (player.key_down(Key::up)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -774,7 +771,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(pfrm, Key::down)) {
+        } else if (player.key_down(Key::down)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -785,7 +782,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(pfrm, Key::right)) {
+        } else if (player.key_down(Key::right)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -796,7 +793,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(pfrm, Key::left)) {
+        } else if (player.key_down(Key::left)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];

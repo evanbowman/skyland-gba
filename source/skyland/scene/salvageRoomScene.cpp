@@ -69,9 +69,9 @@ Island* SalvageRoomScene::island(App& app)
 
 
 
-void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
+void SalvageRoomScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     if (not island(app)) {
         return;
@@ -81,7 +81,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
         far_camera();
     }
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     StringBuffer<30> text(SYSTR(salvage_prompt)->c_str());
 
     auto& cursor_loc =
@@ -103,59 +103,59 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     text += "@";
 
-    text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+    text_.emplace(text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 
-    yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
-    no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+    yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+    no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
     yes_text_->assign(SYSTR(salvage_option_A)->c_str());
     no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
     for (int i = 23; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
     }
 
-    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
     persist_ui();
 
-    pfrm.set_tile(Layer::overlay, 0, st.y - 3, 160);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 3, 161);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 162);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 2, 163);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 160);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 161);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 162);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 163);
 
-    pfrm.set_tile(Layer::overlay, 2, st.y - 2, 418);
-    pfrm.set_tile(Layer::overlay, 2, st.y - 3, 433);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 4, 425);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 4, 425);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
 }
 
 
 
-void SalvageRoomScene::exit(Platform& pfrm, App& app, Scene& next)
+void SalvageRoomScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
     text_.reset();
     yes_text_.reset();
     no_text_.reset();
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     for (int x = 0; x < st.x; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 3, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 0);
     }
 
     auto& cursor_loc =
@@ -163,17 +163,16 @@ void SalvageRoomScene::exit(Platform& pfrm, App& app, Scene& next)
 
     if (app.game_mode() == App::GameMode::co_op) {
         if (auto room = island(app)->get_room(cursor_loc)) {
-            room->co_op_release_lock(pfrm);
+            room->co_op_release_lock();
         }
     }
 }
 
 
 
-ScenePtr<Scene>
-SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto next = ActiveWorldScene::update(app, delta)) {
         return next;
     }
 
@@ -197,7 +196,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (length(room->characters()) > 0) {
             auto future_scene = [exit_scene]() { return exit_scene(); };
             auto msg = SYSTR(salvage_error_populated);
-            pfrm.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
             if (next_) {
                 return (*next_)();
             } else {
@@ -223,16 +222,15 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             if (auto room = island(app)->get_room(cursor_loc)) {
 
                 // You cannot salvage an occupied room, doing so would destroy
                 // all of the characters inside.
                 if (length(room->characters()) == 0) {
 
-                    pfrm.speaker().play_sound("coin", 2);
-                    app.set_coins(pfrm,
-                                  app.coins() + salvage_value(app, *room));
+                    PLATFORM.speaker().play_sound("coin", 2);
+                    app.set_coins(app.coins() + salvage_value(app, *room));
 
                     u16 mt_index = 0;
                     if (auto room = island(app)->get_room(cursor_loc)) {
@@ -250,7 +248,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                             e.health_.set(room->health());
                         };
 
-                        island(app)->destroy_room(pfrm, app, cursor_loc);
+                        island(app)->destroy_room(app, cursor_loc);
 
                         if (island(app) == &app.player_island()) {
                             if (room->group() not_eq Room::Group::none) {
@@ -277,7 +275,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     packet.y_ = cursor_loc.y;
                     packet.metaclass_index_.set(mt_index);
 
-                    network::transmit(pfrm, packet);
+                    network::transmit(packet);
                 }
             } else {
                 return exit_scene();
@@ -287,7 +285,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return exit_scene();
     }
 

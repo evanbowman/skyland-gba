@@ -27,90 +27,88 @@ Coins get_room_cost(Island* island, const RoomMeta& meta);
 
 
 
-void UpgradePromptScene::enter(Platform& pfrm, App& app, Scene& prev)
+void UpgradePromptScene::enter(App& app, Scene& prev)
 {
-    ActiveWorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(app, prev);
 
-    pfrm.speaker().play_sound("openbag", 8);
+    PLATFORM.speaker().play_sound("openbag", 8);
 
     persist_ui();
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_);
 
     StringBuffer<30> text(
-        format(SYS_CSTR(upgrade_prompt), (*to)->ui_name(pfrm)->c_str())
-            .c_str());
+        format(SYS_CSTR(upgrade_prompt), (*to)->ui_name()->c_str()).c_str());
 
     text += stringify(get_room_cost(&app.player_island(), *to) -
                       get_room_cost(&app.player_island(), *from));
 
     text += "@";
 
-    text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+    text_.emplace(text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 
-    yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
-    no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+    yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+    no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
     yes_text_->assign(SYSTR(salvage_option_A)->c_str());
     no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
     for (int i = 23; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
     }
 
-    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-    pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
     persist_ui();
 
-    pfrm.set_tile(Layer::overlay, 0, st.y - 3, 245);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 3, 246);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 247);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 2, 248);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 245);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 246);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 247);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 248);
 
-    pfrm.set_tile(Layer::overlay, 2, st.y - 2, 418);
-    pfrm.set_tile(Layer::overlay, 2, st.y - 3, 433);
-    pfrm.set_tile(Layer::overlay, 0, st.y - 4, 425);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 4, 425);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
 }
 
 
 
-void UpgradePromptScene::exit(Platform& pfrm, App& app, Scene& next)
+void UpgradePromptScene::exit(App& app, Scene& next)
 {
-    ActiveWorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(app, next);
 
     text_.reset();
     yes_text_.reset();
     no_text_.reset();
 
-    const auto st = calc_screen_tiles(pfrm);
+    const auto st = calc_screen_tiles();
     for (int x = 0; x < st.x; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
-        pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 3, 0);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 0);
     }
 }
 
 
 
-ScenePtr<Scene>
-UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto next = ActiveWorldScene::update(app, delta)) {
         return next;
     }
 
@@ -120,16 +118,16 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
         flicker_on_ = not flicker_on_;
     }
 
-    if (pfrm.network_peer().is_connected()) {
+    if (PLATFORM.network_peer().is_connected()) {
         // Upgrades unsupported in networked multiplayer.
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (player(app).key_down(pfrm, Key::action_1)) {
+    if (player(app).key_down(Key::action_1)) {
         if (auto room = app.player_island().get_room(target_coord_)) {
 
             auto next = scene_pool::make_deferred_scene<ReadyScene>();
@@ -137,7 +135,7 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
             StringBuffer<80> err;
 
             auto notify_err = [&]() {
-                pfrm.speaker().play_sound("beep_error", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
                 return scene_pool::alloc<NotificationScene>(err, next);
             };
 
@@ -192,7 +190,7 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                         for (u8 y = sy; y < target_coord_.y; ++y) {
 
                             if (app.player_island().get_room({x, y})) {
-                                pfrm.speaker().play_sound("beep_error", 3);
+                                PLATFORM.speaker().play_sound("beep_error", 3);
                                 err = SYS_CSTR(construction_not_enough_space);
                                 return scene_pool::alloc<NotificationScene>(
                                     err, next);
@@ -205,19 +203,19 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
                             get_room_cost(&app.player_island(), *from);
 
                 if (app.coins() < cost) {
-                    pfrm.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error", 3);
                     err = SYS_CSTR(construction_insufficient_funds);
                     return scene_pool::alloc<NotificationScene>(err, next);
                 }
 
-                room->__unsafe__transmute(pfrm, app, upgrade_to_);
+                room->__unsafe__transmute(app, upgrade_to_);
 
-                app.set_coins(pfrm, app.coins() - cost);
+                app.set_coins(app.coins() - cost);
                 app.level_coins_spent() += cost;
-                pfrm.speaker().play_sound("build0", 4);
+                PLATFORM.speaker().play_sound("build0", 4);
             }
         } else {
-            pfrm.speaker().play_sound("beep_error", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
         }
         return scene_pool::alloc<ReadyScene>();
     }
@@ -227,9 +225,9 @@ UpgradePromptScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void UpgradePromptScene::display(Platform& pfrm, App& app)
+void UpgradePromptScene::display(App& app)
 {
-    ActiveWorldScene::display(pfrm, app);
+    ActiveWorldScene::display(app);
 
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_);
@@ -257,7 +255,7 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
                     }
                 }
 
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
             }
         }
     }
@@ -280,7 +278,7 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
                     }
                 }
 
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
             }
         }
     }
@@ -297,25 +295,25 @@ void UpgradePromptScene::display(Platform& pfrm, App& app)
         spr.set_size(Sprite::Size::w16_h16);
         spr.set_texture_index(52 * 2);
         spr.set_position(origin);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
 
         spr.set_flip({true, false});
         origin.x += Fixnum::from_integer(room->size().x * 16);
         origin.x -= 8.0_fixed;
         spr.set_position(origin);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
 
         spr.set_flip({true, true});
         origin.y += Fixnum::from_integer(room->size().y * 16);
         origin.y -= 8.0_fixed;
         spr.set_position(origin);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
 
         spr.set_flip({false, true});
         origin.x -= Fixnum::from_integer(room->size().x * 16);
         origin.x += 8.0_fixed;
         spr.set_position(origin);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     }
 }
 

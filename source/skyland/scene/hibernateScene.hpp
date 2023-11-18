@@ -39,28 +39,27 @@ namespace skyland
 class HibernateScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        text_.emplace(pfrm);
+        text_.emplace();
         text_->assign(SYSTR(misc_hibernate_message)->c_str(), {1, 4}, {28, 8});
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override
+    void exit(App& app, Scene& next) override
     {
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (key_down<Key::action_1>(pfrm)) {
+        if (key_down<Key::action_1>()) {
             text_.reset();
-            pfrm.screen().display();
-            info(pfrm, "enter hibernate...");
-            pfrm.system_call("hibernate", nullptr);
-            info(pfrm, "resume!");
+            PLATFORM.screen().display();
+            info("enter hibernate...");
+            PLATFORM.system_call("hibernate", nullptr);
+            info("resume!");
             return scene_pool::alloc<StartMenuScene>(1);
         }
 

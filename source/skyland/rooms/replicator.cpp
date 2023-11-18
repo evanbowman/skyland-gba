@@ -44,21 +44,21 @@ Replicator::Replicator(Island* parent, const RoomCoord& position)
 
 
 
-void Replicator::update(Platform& pfrm, App& app, Microseconds delta)
+void Replicator::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
 
-void Replicator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Replicator::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_replicator)->c_str();
 }
 
 
 
-bool Replicator::create_replicant(Platform& pfrm, App& app)
+bool Replicator::create_replicant(App& app)
 {
     int character_count = 0;
 
@@ -88,7 +88,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
         }();
 
         auto chr = app.alloc_entity<BasicCharacter>(
-            pfrm, parent(), found_chr->owner(), dst, true);
+            parent(), found_chr->owner(), dst, true);
 
         if (chr) {
             network::packet::ReplicantCreated packet;
@@ -96,7 +96,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             packet.src_y_ = dst.y;
             packet.health_ = replicant_health;
             packet.chr_id_.set(chr->id());
-            network::transmit(pfrm, packet);
+            network::transmit(packet);
 
 
             time_stream::event::ReplicantCreated e;
@@ -107,7 +107,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             app.time_stream().push(app.level_timer(), e);
 
 
-            chr->apply_damage(pfrm, app, 255 - replicant_health);
+            chr->apply_damage(app, 255 - replicant_health);
             chr->transported();
             edit_characters().push(std::move(chr));
             update_description();
@@ -122,10 +122,9 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene>
-Replicator::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Replicator::select(App& app, const RoomCoord& cursor)
 {
-    if (auto next = Room::select(pfrm, app, cursor)) {
+    if (auto next = Room::select(app, cursor)) {
         return next;
     }
 
@@ -153,7 +152,7 @@ Replicator::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         auto next = scene_pool::make_deferred_scene<Next>(near);
 
         if (app.game_mode() == App::GameMode::co_op) {
-            return co_op_acquire_lock(pfrm, next);
+            return co_op_acquire_lock(next);
         } else {
             return next();
         }

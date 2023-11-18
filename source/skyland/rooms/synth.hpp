@@ -41,13 +41,13 @@ class Speaker;
 class Synth final : public Decoration
 {
 public:
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     Synth(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     static RoomProperties::Bitmask properties()
@@ -98,8 +98,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     using Note = Platform::Speaker::NoteDesc;

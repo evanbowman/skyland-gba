@@ -50,13 +50,13 @@ ModifyCharacterScene::ModifyCharacterScene(CharacterId chr_id, bool near)
 
 
 
-u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
+u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void ModifyCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
+void ModifyCharacterScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
 
     Island* island = nullptr;
@@ -67,13 +67,13 @@ void ModifyCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
         island = app.opponent_island();
     }
 
-    island->render_interior_fast(pfrm, app);
+    island->render_interior_fast(app);
 
     if (app.game_mode() == App::GameMode::co_op) {
 
         network::packet::CoOpChrLockRelease pkt;
         pkt.chr_id_.set(chr_id_);
-        network::transmit(pfrm, pkt);
+        network::transmit(pkt);
 
         if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
             chr->co_op_release_lock();
@@ -83,9 +83,9 @@ void ModifyCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ModifyCharacterScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     if (not near_) {
         far_camera();
@@ -139,7 +139,7 @@ void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     // Ok, so now we do a flood fill, to find all cells reachable from the
     // position of the cursor. Erase all othre disconnected components.
-    flood_fill(pfrm, matrix, 2, cursor_loc.x, cursor_loc.y);
+    flood_fill(matrix, 2, cursor_loc.x, cursor_loc.y);
 
 
     for (int x = 0; x < 16; ++x) {
@@ -156,7 +156,8 @@ void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if ((*matrix_)[x][y]) {
-                pfrm.set_tile(island->layer(), x, y, StaticTile::path_marker);
+                PLATFORM.set_tile(
+                    island->layer(), x, y, StaticTile::path_marker);
             }
         }
     }
@@ -164,10 +165,9 @@ void ModifyCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene>
-ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
 {
-    if (app.player().key_down(pfrm, Key::select)) {
+    if (app.player().key_down(Key::select)) {
         return null_scene();
     }
 
@@ -188,37 +188,36 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
     if (test_key(Key::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::right)) {
         if (cursor_loc->x < island->terrain().size()) {
             ++cursor_loc->x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
@@ -229,11 +228,11 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         if (near_) {
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -241,7 +240,7 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_1) and
+    if (app.player().key_down(Key::action_1) and
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> BasicCharacter* {
@@ -275,11 +274,10 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto current = sel_chr->grid_position();
 
-            auto path =
-                find_path(pfrm, app, island, sel_chr, current, *cursor_loc);
+            auto path = find_path(app, island, sel_chr, current, *cursor_loc);
 
             if (path and *path) {
-                sel_chr->set_movement_path(pfrm, app, std::move(*path));
+                sel_chr->set_movement_path(app, std::move(*path));
                 sel_chr->pin();
 
                 network::packet::ChrSetTargetV2 packet;
@@ -287,7 +285,7 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 packet.target_y_ = cursor_loc->y;
                 packet.chr_id_.set(sel_chr->id());
                 packet.near_island_ = island not_eq &app.player_island();
-                network::transmit(pfrm, packet);
+                network::transmit(packet);
 
             } else {
                 // path not found, raise error?
@@ -299,14 +297,15 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             return scene_pool::alloc<InspectP2Scene>();
         }
-    } else if ((modify_name_ or pfrm.keyboard().pressed<Key::action_1>()) and
-               not pfrm.network_peer().is_connected()) {
+    } else if ((modify_name_ or
+                PLATFORM.keyboard().pressed<Key::action_1>()) and
+               not PLATFORM.network_peer().is_connected()) {
         chr_name_timer_ += delta;
         if (modify_name_ or chr_name_timer_ > milliseconds(800)) {
             auto id = chr_id_;
             if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
                 if (chr->owner() not_eq &app.player() or chr->is_replicant()) {
-                    pfrm.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error", 3);
                     if (near_) {
                         return scene_pool::alloc<ReadyScene>();
                     } else {
@@ -314,8 +313,8 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
             }
-            auto receiver = [&pfrm, id](const char* name) {
-                pfrm.screen().schedule_fade(0);
+            auto receiver = [&id](const char* name) {
+                PLATFORM.screen().schedule_fade(0);
 
                 if (str_len(name) == 0) {
                     return scene_pool::alloc<ReadyScene>();
@@ -356,7 +355,7 @@ ModifyCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ModifyCharacterScene::display(Platform& pfrm, App& app)
+void ModifyCharacterScene::display(App& app)
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
@@ -380,9 +379,9 @@ void ModifyCharacterScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     // Sprite sprite;
     // sprite.set_texture_index(19);
@@ -395,7 +394,7 @@ void ModifyCharacterScene::display(Platform& pfrm, App& app)
     //             origin.x += x * 16;
     //             origin.y += (y - 1) * 16;
     //             sprite.set_position(origin);
-    //             pfrm.screen().draw(sprite);
+    //             PLATFORM.screen().draw(sprite);
     //         }
     //     }
     // }
@@ -403,7 +402,7 @@ void ModifyCharacterScene::display(Platform& pfrm, App& app)
 
 
 
-u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
+u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y)
 {
     using Coord = RoomCoord;
 
@@ -412,7 +411,7 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
     auto stack = mem.alloc<Buffer<Coord, 16 * 16>>();
 
     if (UNLIKELY(not stack)) {
-        pfrm.fatal("fatal error in floodfill");
+        PLATFORM.fatal("fatal error in floodfill");
     }
 
     if (x >= 16 or y >= 16) {

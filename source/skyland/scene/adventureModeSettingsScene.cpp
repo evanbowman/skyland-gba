@@ -31,49 +31,45 @@ namespace skyland
 
 
 
-void AdventureModeSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void AdventureModeSettingsScene::enter(App& app, Scene& prev)
 {
     const char* difficulty_str = "difficulty:";
 
     difficulty_text_.emplace(
-        pfrm,
+
         difficulty_str,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(difficulty_str)),
-                     1});
+        OverlayCoord{(u8)centered_text_margins(str_len(difficulty_str)), 1});
 
 
     auto str1 = SYSTR(sf_casual);
     easy_text_.emplace(
-        pfrm,
+
         str1->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str1->c_str())),
-                     4});
+        OverlayCoord{(u8)centered_text_margins(str_len(str1->c_str())), 4});
 
 
     auto str2 = SYSTR(sf_normal);
     normal_text_.emplace(
-        pfrm,
+
         str2->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str2->c_str())),
-                     6});
+        OverlayCoord{(u8)centered_text_margins(str_len(str2->c_str())), 6});
 
 
     auto str3 = SYSTR(sf_hard);
     hard_text_.emplace(
-        pfrm,
-        str3->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(str3->c_str())),
-                     8});
 
-    pfrm.screen().fade(0.96f);
-    pfrm.screen().fade(1.f);
+        str3->c_str(),
+        OverlayCoord{(u8)centered_text_margins(str_len(str3->c_str())), 8});
+
+    PLATFORM.screen().fade(0.96f);
+    PLATFORM.screen().fade(1.f);
 
     original_ = (u8)app.gp_.difficulty_;
 }
 
 
 
-void AdventureModeSettingsScene::exit(Platform& pfrm, App& app, Scene& prev)
+void AdventureModeSettingsScene::exit(App& app, Scene& prev)
 {
     difficulty_text_.reset();
     easy_text_.reset();
@@ -83,23 +79,22 @@ void AdventureModeSettingsScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene>
-AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> AdventureModeSettingsScene::update(App& app, Microseconds delta)
 {
-    if (app.player().key_down(pfrm, Key::up)) {
+    if (app.player().key_down(Key::up)) {
         auto& diff = app.gp_.difficulty_;
         diff = (GlobalPersistentData::Difficulty)(((u8)diff - 1) % 3);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (app.player().key_down(pfrm, Key::down)) {
+    if (app.player().key_down(Key::down)) {
         auto& diff = app.gp_.difficulty_;
         diff = (GlobalPersistentData::Difficulty)(((u8)diff + 1) % 3);
-        pfrm.speaker().play_sound("click_wooden", 2);
+        PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    auto sel = [&pfrm](auto& text, int tile) {
-        pfrm.set_tile(
+    auto sel = [](auto& text, int tile) {
+        PLATFORM.set_tile(
             Layer::overlay, text->coord().x - 2, text->coord().y, tile);
     };
 
@@ -123,28 +118,28 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
-        pfrm.speaker().play_sound("button_wooden", 3);
+    if (app.player().key_down(Key::action_1)) {
+        PLATFORM.speaker().play_sound("button_wooden", 3);
         switch (app.gp_.difficulty_) {
         case GlobalPersistentData::Difficulty::beginner:
-            app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");
+            app.invoke_script("/scripts/config/easy/score.lisp");
             break;
 
         case GlobalPersistentData::Difficulty::experienced:
-            app.invoke_script(pfrm, "/scripts/config/normal/score.lisp");
+            app.invoke_script("/scripts/config/normal/score.lisp");
             break;
 
         case GlobalPersistentData::Difficulty::expert:
-            app.invoke_script(pfrm, "/scripts/config/hard/score.lisp");
+            app.invoke_script("/scripts/config/hard/score.lisp");
             break;
         }
 
         if ((u8)app.gp_.difficulty_ not_eq original_) {
-            save::store_global_data(pfrm, app.gp_);
+            save::store_global_data(app.gp_);
         }
 
         if (newgame_) {
-            app.invoke_script(pfrm, "/scripts/newgame.lisp");
+            app.invoke_script("/scripts/newgame.lisp");
         }
 
         return scene_pool::alloc<WorldMapScene>();

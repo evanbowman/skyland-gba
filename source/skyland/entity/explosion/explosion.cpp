@@ -32,145 +32,123 @@ namespace skyland
 
 
 
-void medium_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
+void medium_explosion(App& app, const Vec2<Fixnum>& position)
 {
     app.effects().push(app.alloc_entity<Explosion>(
-        pfrm, rng::sample<18>(position, rng::utility_state)));
+        rng::sample<18>(position, rng::utility_state)));
 
-    app.on_timeout(
-        pfrm, milliseconds(60), [pos = position](Platform& pf, App& app) {
-            app.rumble().activate(pf, milliseconds(200));
+    app.on_timeout(milliseconds(60), [pos = position](App& app) {
+        app.rumble().activate(milliseconds(200));
+        app.effects().push(app.alloc_entity<Explosion>(
+            rng::sample<18>(pos, rng::utility_state)));
+
+        app.on_timeout(milliseconds(120), [pos = pos](App& app) {
             app.effects().push(app.alloc_entity<Explosion>(
-                pf, rng::sample<18>(pos, rng::utility_state)));
-
-            app.on_timeout(
-                pf, milliseconds(120), [pos = pos](Platform& pf, App& app) {
-                    app.effects().push(app.alloc_entity<Explosion>(
-                        pf, rng::sample<18>(pos, rng::utility_state)));
-                });
+                rng::sample<18>(pos, rng::utility_state)));
         });
+    });
 }
 
 
 
-void medium_explosion_inv(Platform& pfrm,
-                          App& app,
-                          const Vec2<Fixnum>& position)
+void medium_explosion_inv(App& app, const Vec2<Fixnum>& position)
 {
     auto first = app.alloc_entity<Explosion>(
-        pfrm, rng::sample<18>(position, rng::utility_state));
+        rng::sample<18>(position, rng::utility_state));
     first->seek_end();
     app.effects().push(std::move(first));
 
-    app.on_timeout(
-        pfrm, milliseconds(60), [pos = position](Platform& pf, App& app) {
-            app.rumble().activate(pf, milliseconds(200));
+    app.on_timeout(milliseconds(60), [pos = position](App& app) {
+        app.rumble().activate(milliseconds(200));
+        auto exp = app.alloc_entity<Explosion>(
+            rng::sample<18>(pos, rng::utility_state));
+        exp->seek_end();
+        app.effects().push(std::move(exp));
+
+        app.on_timeout(milliseconds(120), [pos = pos](App& app) {
             auto exp = app.alloc_entity<Explosion>(
-                pf, rng::sample<18>(pos, rng::utility_state));
+                rng::sample<18>(pos, rng::utility_state));
             exp->seek_end();
             app.effects().push(std::move(exp));
-
-            app.on_timeout(
-                pf, milliseconds(120), [pos = pos](Platform& pf, App& app) {
-                    auto exp = app.alloc_entity<Explosion>(
-                        pf, rng::sample<18>(pos, rng::utility_state));
-                    exp->seek_end();
-                    app.effects().push(std::move(exp));
-                });
         });
+    });
 }
 
 
 
-void big_explosion(Platform& pfrm,
-                   App& app,
-                   const Vec2<Fixnum>& position,
-                   int draw_priority)
+void big_explosion(App& app, const Vec2<Fixnum>& position, int draw_priority)
 {
     for (int i = 0; i < 4; ++i) {
         app.effects().push(app.alloc_entity<Explosion>(
-            pfrm,
-            rng::sample<18>(position, rng::utility_state),
-            draw_priority));
+            rng::sample<18>(position, rng::utility_state), draw_priority));
     }
 
     int p = draw_priority;
     auto ipos = ivec(position);
 
-    app.on_timeout(
-        pfrm, milliseconds(90), [pos = ipos, p](Platform& pf, App& app) {
-            app.rumble().activate(pf, milliseconds(390));
+    app.on_timeout(milliseconds(90), [pos = ipos, p](App& app) {
+        app.rumble().activate(milliseconds(390));
 
-            for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
+            app.effects().push(app.alloc_entity<Explosion>(
+                rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state), p));
+        }
+        app.on_timeout(milliseconds(90), [pos, p](App& app) {
+            for (int i = 0; i < 2; ++i) {
                 app.effects().push(app.alloc_entity<Explosion>(
-                    pf,
-                    rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state),
+                    rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state),
                     p));
             }
-            app.on_timeout(
-                pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
-                    for (int i = 0; i < 2; ++i) {
-                        app.effects().push(app.alloc_entity<Explosion>(
-                            pf,
-                            rng::sample<48>(pos.cast<Fixnum>(),
-                                            rng::utility_state),
-                            p));
-                    }
-                    app.on_timeout(
-                        pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
-                            for (int i = 0; i < 1; ++i) {
-                                app.effects().push(app.alloc_entity<Explosion>(
-                                    pf,
-                                    rng::sample<48>(pos.cast<Fixnum>(),
-                                                    rng::utility_state),
-                                    p));
-                            }
-                        });
-                });
+            app.on_timeout(milliseconds(90), [pos, p](App& app) {
+                for (int i = 0; i < 1; ++i) {
+                    app.effects().push(app.alloc_entity<Explosion>(
+                        rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state),
+                        p));
+                }
+            });
         });
+    });
 
     app.camera()->shake(18);
 }
 
 
 
-void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
+void big_explosion_inv(App& app, const Vec2<Fixnum>& position)
 {
     for (int i = 0; i < 1; ++i) {
         auto exp = app.alloc_entity<Explosion>(
-            pfrm, rng::sample<48>(position, rng::utility_state));
+            rng::sample<48>(position, rng::utility_state));
         exp->seek_end();
         app.effects().push(std::move(exp));
     }
 
-    app.on_timeout(
-        pfrm, milliseconds(90), [pos = position](Platform& pf, App& app) {
-            app.rumble().activate(pf, milliseconds(390));
+    app.on_timeout(milliseconds(90), [pos = position](App& app) {
+        app.rumble().activate(milliseconds(390));
 
-            for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
+            auto exp = app.alloc_entity<Explosion>(
+                rng::sample<48>(pos, rng::utility_state));
+            exp->seek_end();
+            app.effects().push(std::move(exp));
+        }
+        app.on_timeout(milliseconds(90), [pos](App& app) {
+            for (int i = 0; i < 3; ++i) {
                 auto exp = app.alloc_entity<Explosion>(
-                    pf, rng::sample<48>(pos, rng::utility_state));
+                    rng::sample<32>(pos, rng::utility_state));
                 exp->seek_end();
                 app.effects().push(std::move(exp));
             }
-            app.on_timeout(pf, milliseconds(90), [pos](Platform& pf, App& app) {
-                for (int i = 0; i < 3; ++i) {
+            app.on_timeout(milliseconds(90), [pos](App& app) {
+                for (int i = 0; i < 4; ++i) {
                     auto exp = app.alloc_entity<Explosion>(
-                        pf, rng::sample<32>(pos, rng::utility_state));
+                        rng::sample<18>(pos, rng::utility_state));
                     exp->seek_end();
                     app.effects().push(std::move(exp));
                 }
-                app.on_timeout(
-                    pf, milliseconds(90), [pos](Platform& pf, App& app) {
-                        for (int i = 0; i < 4; ++i) {
-                            auto exp = app.alloc_entity<Explosion>(
-                                pf, rng::sample<18>(pos, rng::utility_state));
-                            exp->seek_end();
-                            app.effects().push(std::move(exp));
-                        }
-                    });
             });
         });
+    });
 
     app.camera()->shake(18);
 }

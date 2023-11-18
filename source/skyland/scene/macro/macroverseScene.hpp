@@ -40,14 +40,14 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 private:
     enum class State {
@@ -64,10 +64,10 @@ private:
     } state_ = State::reveal;
 
 
-    void describe_selected(Platform& pfrm, macro::EngineImpl& state);
+    void describe_selected(macro::EngineImpl& state);
 
 
-    void show_layout_text(Platform& pfrm);
+    void show_layout_text();
 
 
     Microseconds timer_;

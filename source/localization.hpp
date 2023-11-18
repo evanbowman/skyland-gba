@@ -43,7 +43,7 @@ void set_font_image(const char* font_image_name);
 
 StringBuffer<31> locale_language_name(int language);
 
-LocalizedText locale_localized_language_name(Platform& pfrm, int language);
+LocalizedText locale_localized_language_name(int language);
 
 
 // string conversion, output as standard arabic numerals (0-9)

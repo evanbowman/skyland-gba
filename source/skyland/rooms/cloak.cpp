@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void Cloak::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Cloak::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_cloak)->c_str();
 }
@@ -46,9 +46,9 @@ Cloak::Cloak(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Cloak::update(Platform& pfrm, App& app, Microseconds delta)
+void Cloak::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     const int x = position().x;
     const int y = position().y;
@@ -71,9 +71,9 @@ void Cloak::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Cloak::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Cloak::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 }
 
 

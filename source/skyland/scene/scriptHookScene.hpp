@@ -41,8 +41,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(App& app, Microseconds delta) override;
 
 
 private:
@@ -52,7 +51,7 @@ private:
 
 
 
-void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name);
+void invoke_hook(App& app, const char* lisp_hook_name);
 
 
 

@@ -83,7 +83,7 @@ public:
         return next_;
     }
 
-    static void print_diagnostics(Platform& pfrm);
+    static void print_diagnostics();
 
 private:
     const char* name_;

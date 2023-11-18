@@ -37,7 +37,7 @@ class Platform;
 #include <fstream>
 #include <iostream>
 #include <vector>
-inline void info(Platform& pfrm, const StringBuffer<200>& msg)
+inline void info(const StringBuffer<200>& msg)
 {
     std::cout << msg.c_str() << std::endl;
 }
@@ -71,7 +71,7 @@ struct Statistics
 
 
 
-Statistics statistics(Platform& pfrm);
+Statistics statistics();
 
 
 
@@ -87,7 +87,7 @@ enum InitStatus {
 
 
 
-InitStatus initialize(Platform& pfrm, u32 offset);
+InitStatus initialize(u32 offset);
 
 
 
@@ -109,25 +109,23 @@ struct StorageOptions
 
 
 
-bool store_file_data(Platform&,
-                     const char* path,
+bool store_file_data(const char* path,
                      Vector<char>& data,
                      const StorageOptions& = {});
 
 
 
-u32 read_file_data(Platform&, const char* path, Vector<char>& output);
+u32 read_file_data(const char* path, Vector<char>& output);
 
 
 
-u32 file_size(Platform&, const char* path);
+u32 file_size(const char* path);
 
 
 
-inline u32
-read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
+inline u32 read_file_data_text(const char* path, Vector<char>& output)
 {
-    auto read = read_file_data(pfrm, path, output);
+    auto read = read_file_data(path, output);
     output.push_back('\0');
 
     return read;
@@ -135,13 +133,12 @@ read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-inline bool store_file_data_text(Platform& pfrm,
-                                 const char* path,
+inline bool store_file_data_text(const char* path,
                                  Vector<char>& data,
                                  const StorageOptions& opts = {})
 {
     data.pop_back();
-    auto result = store_file_data(pfrm, path, data, opts);
+    auto result = store_file_data(path, data, opts);
     data.push_back('\0');
 
     return result;
@@ -149,29 +146,26 @@ inline bool store_file_data_text(Platform& pfrm,
 
 
 
-inline u32
-read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
+inline u32 read_file_data_binary(const char* path, Vector<char>& output)
 {
-    return read_file_data(pfrm, path, output);
+    return read_file_data(path, output);
 }
 
 
 
-inline bool store_file_data_binary(Platform& pfrm,
-                                   const char* path,
+inline bool store_file_data_binary(const char* path,
                                    Vector<char>& data,
                                    const StorageOptions& opts = {})
 {
-    return store_file_data(pfrm, path, data, opts);
+    return store_file_data(path, data, opts);
 }
 
 
 
-template <typename T>
-std::optional<T> read_file_blob(Platform& pfrm, const char* path)
+template <typename T> std::optional<T> read_file_blob(const char* path)
 {
     Vector<char> data;
-    if (flash_filesystem::read_file_data_binary(pfrm, path, data)) {
+    if (flash_filesystem::read_file_data_binary(path, data)) {
         if (data.size() == sizeof(T)) {
             T result;
             for (u32 i = 0; i < data.size(); ++i) {
@@ -185,8 +179,7 @@ std::optional<T> read_file_blob(Platform& pfrm, const char* path)
 
 
 
-template <typename T>
-bool write_file_blob(Platform& pfrm, const char* path, const T& blob)
+template <typename T> bool write_file_blob(const char* path, const T& blob)
 {
     Vector<char> data;
 
@@ -194,13 +187,12 @@ bool write_file_blob(Platform& pfrm, const char* path, const T& blob)
         data.push_back(((u8*)&blob)[i]);
     }
 
-    return flash_filesystem::store_file_data_binary(pfrm, path, data);
+    return flash_filesystem::store_file_data_binary(path, data);
 }
 
 
 
-inline bool store_file_data(Platform& pfrm,
-                            const char* path,
+inline bool store_file_data(const char* path,
                             const char* ptr,
                             u32 length,
                             const StorageOptions& opts = {})
@@ -211,20 +203,18 @@ inline bool store_file_data(Platform& pfrm,
     }
     buffer.push_back('\0');
 
-    return store_file_data_text(pfrm, path, buffer, opts);
+    return store_file_data_text(path, buffer, opts);
 }
 
 
 
-void walk(Platform& pfrm,
-          Function<8 * sizeof(void*), void(const char*)> callback);
+void walk(Function<8 * sizeof(void*), void(const char*)> callback);
 
 
 
-template <typename F>
-void walk_directory(Platform& pfrm, const char* directory, F callback)
+template <typename F> void walk_directory(const char* directory, F callback)
 {
-    walk(pfrm, [callback, directory](const char* path) {
+    walk([callback, directory](const char* path) {
         auto remainder =
             starts_with(directory, StringBuffer<FS_MAX_PATH>(path));
         if (remainder) {
@@ -235,15 +225,15 @@ void walk_directory(Platform& pfrm, const char* directory, F callback)
 
 
 
-void unlink_file(Platform& pfrm, const char* path);
+void unlink_file(const char* path);
 
 
 
-bool file_exists(Platform& pfrm, const char* path);
+bool file_exists(const char* path);
 
 
 
-void destroy(Platform& pfrm);
+void destroy();
 
 
 

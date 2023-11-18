@@ -52,14 +52,13 @@ public:
             const RoomCoord& origin_tile);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void
-    on_collision(Platform& pfrm, App& app, Room&, Vec2<u8> origin) override;
+    void on_collision(App& app, Room&, Vec2<u8> origin) override;
 
 
     void set_step_vector(const Vec2<Fixnum>& val)
@@ -75,8 +74,8 @@ public:
 
 
 private:
-    void record_destroyed(Platform& pfrm, App& app);
-    void destroy(Platform& pfrm, App& app, bool explosion) override;
+    void record_destroyed(App& app);
+    void destroy(App& app, bool explosion) override;
 
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;

@@ -121,11 +121,11 @@ void Room::reset_injured_timer(Microseconds value)
 
 
 
-void Room::set_injured(Platform& pfrm)
+void Room::set_injured()
 {
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {
-            pfrm.set_palette(
+            PLATFORM.set_palette(
                 parent_->layer(), x_position_ + x, y_position_ + y, 13);
         }
     }
@@ -251,13 +251,13 @@ public:
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         kill();
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         if (delta == 0) {
             return;
@@ -281,7 +281,7 @@ public:
     }
 
 
-    static void create(Platform& pfrm, App& app, int value, Vec2<Fixnum> pos)
+    static void create(App& app, int value, Vec2<Fixnum> pos)
     {
         auto numstr = stringify(value);
 
@@ -290,7 +290,7 @@ public:
 
         for (char c : numstr) {
             int value = c - '0';
-            if (auto e = app.alloc_entity<UIDamageNumber>(pfrm, pos, value)) {
+            if (auto e = app.alloc_entity<UIDamageNumber>(pos, value)) {
                 app.effects().push(std::move(e));
             }
             pos.x += 6.0_fixed;
@@ -304,7 +304,7 @@ private:
 
 
 
-void Room::update(Platform& pfrm, App& app, Microseconds delta)
+void Room::update(App& app, Microseconds delta)
 {
     dispatch_queued_ = false;
 
@@ -323,10 +323,10 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 injured_timer_ > milliseconds(210)) {
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         14);
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             14);
                     }
                 }
             }
@@ -335,10 +335,10 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 injured_timer_ > milliseconds(170)) {
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         15);
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             15);
                     }
                 }
             }
@@ -351,10 +351,10 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         default_palette());
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             default_palette());
                     }
                 }
             }
@@ -363,7 +363,7 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (accumulated_damage_) {
         if (--show_damage_delay_frames_ == 0) {
-            UIDamageNumber::create(pfrm, app, accumulated_damage_, center());
+            UIDamageNumber::create(app, accumulated_damage_, center());
             accumulated_damage_ = 0;
         }
         ready();
@@ -372,7 +372,7 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Room::rewind(App& app, Microseconds delta)
 {
     if (injured_timer_) {
         if (injured_timer_ < injured_anim_time) {
@@ -382,10 +382,10 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 injured_timer_ < milliseconds(10)) {
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         15);
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             15);
                     }
                 }
             }
@@ -394,10 +394,10 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 injured_timer_ < milliseconds(210)) {
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         14);
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             14);
                     }
                 }
             }
@@ -406,10 +406,10 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 injured_timer_ < milliseconds(170)) {
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         13);
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             13);
                     }
                 }
             }
@@ -422,10 +422,10 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
 
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(parent_->layer(),
-                                         x_position_ + x,
-                                         y_position_ + y,
-                                         default_palette());
+                        PLATFORM.set_palette(parent_->layer(),
+                                             x_position_ + x,
+                                             y_position_ + y,
+                                             default_palette());
                     }
                 }
             }
@@ -490,7 +490,7 @@ bool Room::description_visible()
 
 
 
-ScenePtr<Scene> Room::reject_if_friendly(Platform& pfrm, App& app)
+ScenePtr<Scene> Room::reject_if_friendly(App& app)
 {
     if (app.opponent_island() and
         // NOTE: cast should be safe, as a derived instance of Opponent should
@@ -498,7 +498,7 @@ ScenePtr<Scene> Room::reject_if_friendly(Platform& pfrm, App& app)
         (static_cast<Opponent&>(app.opponent_island()->owner()))
             .is_friendly()) {
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
-        pfrm.speaker().play_sound("beep_error", 3);
+        PLATFORM.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
         return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
@@ -508,7 +508,7 @@ ScenePtr<Scene> Room::reject_if_friendly(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
+ScenePtr<Scene> Room::do_select(App& app)
 {
     if (length(characters_)) {
 
@@ -529,7 +529,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
                 if (character->grid_position() == cursor_loc) {
 
                     if (is_co_op and character->co_op_locked()) {
-                        pfrm.speaker().play_sound("beep_error", 2);
+                        PLATFORM.speaker().play_sound("beep_error", 2);
                         // TODO: notification scene instead!
                         return null_scene();
                     }
@@ -551,7 +551,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
                                 character->co_op_acquire_lock()) {
                                 network::packet::CoOpChrLockAcquire pkt;
                                 pkt.chr_id_.set(character->id());
-                                network::transmit(pfrm, pkt);
+                                network::transmit(pkt);
 
                                 return scene_pool::alloc<Await>(
                                     n, character->id());
@@ -584,7 +584,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
+ScenePtr<Scene> Room::setup(App&)
 {
     // ...
     return null_scene();
@@ -592,7 +592,7 @@ ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
 
 
 
-ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Room::select(App& app, const RoomCoord& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {
@@ -604,9 +604,9 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     if (parent_->interior_visible() or chr_at_cursor) {
         if (not parent_->interior_visible()) {
-            show_island_interior(pfrm, app, parent_);
+            show_island_interior(app, parent_);
         }
-        return do_select(pfrm, app);
+        return do_select(app);
     }
 
     return null_scene();
@@ -662,14 +662,14 @@ void Room::plot_walkable_zones(App& app,
 
 
 
-void Room::apply_damage(Platform& pfrm, App& app, Health damage, Island* src)
+void Room::apply_damage(App& app, Health damage, Island* src)
 {
-    apply_damage(pfrm, app, damage);
+    apply_damage(app, damage);
 }
 
 
 
-void Room::apply_damage(Platform& pfrm, App& app, Health damage)
+void Room::apply_damage(App& app, Health damage)
 {
     update_description();
 
@@ -719,8 +719,8 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     } else {
         health_ -= damage;
     }
-    set_injured(pfrm);
-    parent_->owner().on_room_damaged(pfrm, app, *this);
+    set_injured();
+    parent_->owner().on_room_damaged(app, *this);
 
     if ((int)accumulated_damage_ + damage < 256) {
         accumulated_damage_ += damage;
@@ -734,7 +734,7 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
+void Room::__unsafe__transmute(App& app, MetaclassIndex m)
 {
     Island* island = parent();
     const auto pos = position();
@@ -760,7 +760,7 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
         app.time_stream().push(app.level_timer(), e);
     }
 
-    this->finalize(pfrm, app);
+    this->finalize(app);
     this->~Room();
 
     auto& mt = *load_metaclass(m);
@@ -782,7 +782,7 @@ void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
 
             const auto new_pos = RoomCoord{pos.x, u8(pos.y - size_diff_y)};
 
-            parent()->move_room(pfrm, app, pos, new_pos);
+            parent()->move_room(app, pos, new_pos);
 
             for (auto& chr : characters()) {
                 auto pos = chr->grid_position();
@@ -820,21 +820,21 @@ bool Room::non_owner_selectable() const
 
 
 
-void Room::burn_damage(Platform& pfrm, App& app, Health amount)
+void Room::burn_damage(App& app, Health amount)
 {
     // const auto prev_health = health();
 
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {
-        apply_damage(pfrm, app, amount * 4);
+        apply_damage(app, amount * 4);
     } else if (not(props & RoomProperties::habitable)) {
-        apply_damage(pfrm, app, amount * 2);
+        apply_damage(app, amount * 2);
     } else {
-        apply_damage(pfrm, app, amount);
+        apply_damage(app, amount);
         // Hmm: revist someday, I'm not sure about this yet
         // if (prev_health > 0 and health_ == 0) {
         //     if (not cast<PlunderedRoom>()) {
-        //         convert_to_plundered(pfrm, app);
+        //         convert_to_plundered(app);
         //     }
         // }
     }
@@ -842,7 +842,7 @@ void Room::burn_damage(Platform& pfrm, App& app, Health amount)
 
 
 
-void Room::heal(Platform& pfrm, App& app, Health amount)
+void Room::heal(App& app, Health amount)
 {
     update_description();
 
@@ -866,7 +866,7 @@ void Room::heal(Platform& pfrm, App& app, Health amount)
 
 
 
-void Room::convert_to_plundered(Platform& pfrm, App& app)
+void Room::convert_to_plundered(App& app)
 {
     if (parent() not_eq &app.player_island()) {
         time_stream::event::OpponentRoomPlundered e;
@@ -912,7 +912,7 @@ void Room::convert_to_plundered(Platform& pfrm, App& app)
     auto plunder_metac = load_metaclass("plundered-room");
 
     if (not plunder_metac) {
-        error(pfrm, "failed to load metaclass");
+        error("failed to load metaclass");
         return;
     }
 
@@ -928,7 +928,7 @@ void Room::convert_to_plundered(Platform& pfrm, App& app)
                 u8(((u8)x_position_) + x),
                 u8(((u8)y_position_) + y),
             };
-            (*plunder_metac)->create(pfrm, app, parent_, pos);
+            (*plunder_metac)->create(app, parent_, pos);
         }
     }
 
@@ -951,21 +951,21 @@ bool Room::target_pinned() const
 
 
 
-void Room::plunder(Platform& pfrm, App& app, Health damage)
+void Room::plunder(App& app, Health damage)
 {
-    apply_damage(pfrm, app, damage);
+    apply_damage(app, damage);
 
     if (health_ == 0) {
 
         if (parent() not_eq &app.player_island()) {
             // You get some coins for plundering a room
-            pfrm.speaker().play_sound("coin", 2);
-            app.set_coins(pfrm, app.coins() + (*metaclass())->cost() * 0.3f);
+            PLATFORM.speaker().play_sound("coin", 2);
+            app.set_coins(app.coins() + (*metaclass())->cost() * 0.3f);
         }
 
-        app.player().on_room_plundered(pfrm, app, *this);
+        app.player().on_room_plundered(app, *this);
 
-        convert_to_plundered(pfrm, app);
+        convert_to_plundered(app);
     }
 }
 
@@ -982,7 +982,7 @@ Float Room::get_atp() const
 
 
 
-void Room::init_ai_awareness(Platform& pfrm, App& app)
+void Room::init_ai_awareness(App& app)
 {
     bool concealed[4][4];
     memset(concealed, 0, sizeof concealed);
@@ -1012,7 +1012,7 @@ void Room::init_ai_awareness(Platform& pfrm, App& app)
     }
 
     if (fully_concealed) {
-        set_ai_aware(pfrm, app, false);
+        set_ai_aware(app, false);
         set_visually_cloaked(true);
     }
 
@@ -1021,7 +1021,7 @@ void Room::init_ai_awareness(Platform& pfrm, App& app)
 
 
 
-void Room::set_ai_aware(Platform& pfrm, App& app, bool ai_aware)
+void Room::set_ai_aware(App& app, bool ai_aware)
 {
     if (str_eq(name(), "cloak")) {
         // A cloak block cannot be cloaked.
@@ -1072,7 +1072,7 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override
+    void update(App&, Microseconds delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -1104,7 +1104,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -1153,7 +1153,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         if (not app.opponent_island()) {
             kill();
@@ -1170,15 +1170,15 @@ public:
 
         if (not countdown_) {
             if (pos.x.as_integer() + 8 >
-                (int)(pfrm.screen().get_view().int_center().x +
-                      pfrm.screen().size().x)) {
-                pos.x = pfrm.screen().get_view().int_center().x +
-                        pfrm.screen().size().x - (16 + 4);
+                (int)(PLATFORM.screen().get_view().int_center().x +
+                      PLATFORM.screen().size().x)) {
+                pos.x = PLATFORM.screen().get_view().int_center().x +
+                        PLATFORM.screen().size().x - (16 + 4);
                 sprite_.set_flip({true, false});
                 sprite_.set_tidx_16x16(gfx_, 0);
             } else if (pos.x.as_integer() <
-                       pfrm.screen().get_view().int_center().x) {
-                pos.x = pfrm.screen().get_view().int_center().x + 4;
+                       PLATFORM.screen().get_view().int_center().x) {
+                pos.x = PLATFORM.screen().get_view().int_center().x + 4;
                 sprite_.set_flip({});
                 sprite_.set_tidx_16x16(gfx_, 0);
             } else {
@@ -1200,7 +1200,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta) override
+    void rewind(App&, Microseconds delta) override
     {
         kill();
     }
@@ -1208,7 +1208,7 @@ public:
 
 
 
-void Room::finalize(Platform& pfrm, App& app)
+void Room::finalize(App& app)
 {
     finalized_ = true;
 
@@ -1216,12 +1216,11 @@ void Room::finalize(Platform& pfrm, App& app)
         for (auto& c : characters_) {
 
             auto position = c->sprite().get_position();
-            app.on_timeout(
-                pfrm, milliseconds(500), [pos = position](Platform&, App& app) {
-                    if (auto e = alloc_entity<Ghost>(pos)) {
-                        app.effects().push(std::move(e));
-                    }
-                });
+            app.on_timeout(milliseconds(500), [pos = position](App& app) {
+                if (auto e = alloc_entity<Ghost>(pos)) {
+                    app.effects().push(std::move(e));
+                }
+            });
         }
 
         const auto max_y =
@@ -1229,11 +1228,11 @@ void Room::finalize(Platform& pfrm, App& app)
 
         bool is_offscreen =
             (visual_center().x.as_integer() <
-             pfrm.screen().get_view().int_center().x + 8 -
+             PLATFORM.screen().get_view().int_center().x + 8 -
                  (size().x * 16) / 2) or
             (visual_center().x.as_integer() - (size().x * 16) / 2 >
-             (int)(pfrm.screen().get_view().int_center().x +
-                   pfrm.screen().size().x));
+             (int)(PLATFORM.screen().get_view().int_center().x +
+                   PLATFORM.screen().size().x));
 
         const int t = debris_tile();
 
@@ -1304,17 +1303,16 @@ void Room::ready()
 
 
 
-bool Room::attach_drone(Platform& pfrm, App&, SharedEntityRef<Drone>)
+bool Room::attach_drone(App&, SharedEntityRef<Drone>)
 {
-    warning(pfrm,
-            format("Attach drone to incompatible room %", name()).c_str());
+    warning(format("Attach drone to incompatible room %", name()).c_str());
 
     return false;
 }
 
 
 
-void Room::detach_drone(Platform&, App&, bool quiet)
+void Room::detach_drone(App&, bool quiet)
 {
     // Unimplemented.
 }
@@ -1437,7 +1435,7 @@ void Room::render_scaffolding(App& app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Room::co_op_acquire_lock(Platform& pfrm, DeferredScene next)
+ScenePtr<Scene> Room::co_op_acquire_lock(DeferredScene next)
 {
     if (co_op_locked_) {
         return null_scene();
@@ -1450,7 +1448,7 @@ ScenePtr<Scene> Room::co_op_acquire_lock(Platform& pfrm, DeferredScene next)
     network::packet::CoOpRoomLockAcquire pkt;
     pkt.x_ = position().x;
     pkt.y_ = position().y;
-    network::transmit(pfrm, pkt);
+    network::transmit(pkt);
 
     return scene_pool::alloc<MultiplayerCoOpAwaitLockScene>(next, position());
 }
@@ -1502,14 +1500,14 @@ void Room::co_op_peer_release_lock()
 
 
 
-void Room::co_op_release_lock(Platform& pfrm)
+void Room::co_op_release_lock()
 {
     co_op_peer_release_lock();
 
     network::packet::CoOpRoomLockRelease pkt;
     pkt.x_ = position().x;
     pkt.y_ = position().y;
-    network::transmit(pfrm, pkt);
+    network::transmit(pkt);
 }
 
 

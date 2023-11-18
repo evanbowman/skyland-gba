@@ -57,15 +57,13 @@ struct RoomMeta
         // added this interface as a hack to make multiboot stuff easier to
         // write.
 
-        virtual void create(Platform&,
-                            App&,
+        virtual void create(App&,
                             Island*,
                             const RoomCoord&,
                             bool do_repaint = true) const = 0;
-        virtual RoomPtr<Room>
-        create(Platform&, Island*, const RoomCoord&) const = 0;
+        virtual RoomPtr<Room> create(Island*, const RoomCoord&) const = 0;
         virtual const char* name() const = 0;
-        virtual SystemStringBuffer ui_name(Platform& pfrm) const = 0;
+        virtual SystemStringBuffer ui_name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
         virtual Float atp_value() const = 0;
@@ -75,8 +73,7 @@ struct RoomMeta
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
         virtual Room::Category category() const = 0;
-        virtual void format_description(Platform& pfrm,
-                                        StringBuffer<512>& buffer) const = 0;
+        virtual void format_description(StringBuffer<512>& buffer) const = 0;
         virtual Room::WeaponOrientation weapon_orientation() const = 0;
 
         virtual void configure(Health health, Coins cost, Power power)
@@ -182,8 +179,8 @@ bool room_hidden(MetaclassIndex);
 
 
 
-void load_hidden_rooms(Platform& pfrm);
-void store_hidden_rooms(Platform& pfrm);
+void load_hidden_rooms();
+void store_hidden_rooms();
 
 
 

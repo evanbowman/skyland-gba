@@ -50,13 +50,13 @@ public:
     using ContentString = StringBuffer<32>;
 
 
-    LabelString get_label_string(Platform& pfrm, const char* field) const;
-    ContentString get_content_string(Platform& pfrm, const char* field) const;
+    LabelString get_label_string(const char* field) const;
+    ContentString get_content_string(const char* field) const;
 
 
-    Name name(Platform& pfrm) const;
+    Name name() const;
 
-    Subheading subheading(Platform& pfrm) const;
+    Subheading subheading() const;
 
 
     int id() const
@@ -66,7 +66,7 @@ public:
 
 
 private:
-    const char* config(Platform&) const;
+    const char* config() const;
 
     int id_;
 };
@@ -76,10 +76,10 @@ private:
 class DataCartLibrary
 {
 public:
-    DataCartLibrary(Platform&);
+    DataCartLibrary();
 
 
-    void store(Platform&, DataCart cart);
+    void store(DataCart cart);
 
 
     std::optional<DataCart> load(int id) const;

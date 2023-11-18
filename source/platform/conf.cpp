@@ -247,6 +247,6 @@ Conf::Value Conf::get(const char* f, const char* section, const char* key)
 
 Conf::Value Conf::get(const char* section, const char* key)
 {
-    auto f = pfrm_.load_file_contents("", "boot.ini");
+    auto f = PLATFORM.load_file_contents("", "boot.ini");
     return get(f, section, key);
 }

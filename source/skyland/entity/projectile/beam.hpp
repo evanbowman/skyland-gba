@@ -60,22 +60,22 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Room&, Vec2<u8>) override;
+    void on_collision(App& app, Room&, Vec2<u8>) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Entity&) override;
+    void on_collision(App& app, Entity&) override;
 
 
 private:
-    void destroy(Platform& pfrm, App& app, bool explosion) override;
+    void destroy(App& app, bool explosion) override;
 
-    void record_destroyed(Platform& pfrm, App& app);
+    void record_destroyed(App& app);
 
     Microseconds timer_ = 0;
     Vec2<Fixnum> step_vector_;

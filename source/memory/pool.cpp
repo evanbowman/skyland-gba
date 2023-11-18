@@ -31,7 +31,7 @@ GenericPool* GenericPool::instances_;
 #include "platform/platform.hpp"
 
 
-void GenericPool::print_diagnostics(Platform& pfrm)
+void GenericPool::print_diagnostics()
 {
     auto pool = GenericPool::instances();
     auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
@@ -75,7 +75,7 @@ void GenericPool::print_diagnostics(Platform& pfrm)
         pool = pool->next();
     }
 
-    pfrm.logger().log(Severity::info, output->c_str());
-    pfrm.remote_console().printline(output->c_str(), "sc> ");
+    PLATFORM.logger().log(Severity::info, output->c_str());
+    PLATFORM.remote_console().printline(output->c_str(), "sc> ");
 }
 #endif

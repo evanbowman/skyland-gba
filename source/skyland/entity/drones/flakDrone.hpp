@@ -71,9 +71,9 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App& app) override
+    ScenePtr<Scene> select(App& app) override
     {
-        pfrm.speaker().play_sound("drone_beep", 1);
+        PLATFORM.speaker().play_sound("drone_beep", 1);
         std::optional<RoomCoord> initial_pos;
         if (target_near_ == (destination() == &app.player_island())) {
             initial_pos = target_;
@@ -132,7 +132,7 @@ public:
     }
 
 
-    void ___rewind___ability_used(Platform& pfrm, App& app) override
+    void ___rewind___ability_used(App& app) override
     {
         if (state_ not_eq Drone::State::launch) {
             timer_ = reload_time;
@@ -140,7 +140,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         if (parent() == app.opponent_island()) {
             sprite_.set_texture_index(69);
@@ -148,18 +148,18 @@ public:
 
         switch (state_) {
         case Drone::State::launch:
-            Drone::update(pfrm, app, delta);
+            Drone::update(app, delta);
             break;
 
         case Drone::State::ready:
-            update_sprite(pfrm, app);
+            update_sprite(app);
             state_ = State::wait;
             timer_ = 0;
             break;
 
         case State::wait:
             duration_ += delta;
-            update_sprite(pfrm, app);
+            update_sprite(app);
             if (timer_ > reload_time) {
                 if (target_) {
                     if (not app.opponent_island()) {
@@ -183,7 +183,7 @@ public:
                         target.y += Fixnum::from_integer(target_->y * 16 + 8);
 
                         auto c = app.alloc_entity<Flak>(
-                            pfrm, start, target, parent(), position());
+                            start, target, parent(), position());
                         if (c) {
                             app.camera()->shake(4);
                             parent()->projectiles().push(std::move(c));

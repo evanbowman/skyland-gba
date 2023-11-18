@@ -43,19 +43,19 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 
 
-void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MultiplayerConnectScene::enter(App& app, Scene& prev)
 {
-    pfrm.screen().schedule_fade(1.f);
-    text_.emplace(pfrm, OverlayCoord{1, 1});
+    PLATFORM.screen().schedule_fade(1.f);
+    text_.emplace(OverlayCoord{1, 1});
     text_->assign(SYSTR(multi_session_connecting)->c_str());
 
-    const char* str = pfrm.load_file_contents("scripts", "multi_init.lisp");
+    const char* str = PLATFORM.load_file_contents("scripts", "multi_init.lisp");
     if (str) {
         lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.data_.c_str());
+            PLATFORM.fatal(p.data_.c_str());
         });
     } else {
         Platform::fatal("missing multi init script!");
@@ -65,10 +65,10 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
-    pfrm.delta_clock().reset();
+    PLATFORM.delta_clock().reset();
 
-    show_island_exterior(pfrm, app, &app.player_island());
-    show_island_exterior(pfrm, app, app.opponent_island());
+    show_island_exterior(app, &app.player_island());
+    show_island_exterior(app, app.opponent_island());
 
     auto& g = globals();
     g.multiplayer_prep_timer_ = 0;
@@ -79,18 +79,19 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void MultiplayerConnectScene::exit(Platform&, App&, Scene& next)
+void MultiplayerConnectScene::exit(App&, Scene& next)
 {
     text_.reset();
 }
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm, App& app)
+ScenePtr<Scene> MultiplayerConnectScene::setup(App& app)
 {
     auto buffer = allocate_dynamic<DialogString>("dialog-string");
 
-    if (pfrm.device_name() == "GameboyAdvance" and pfrm.model_name() == "NDS") {
+    if (PLATFORM.device_name() == "GameboyAdvance" and
+        PLATFORM.model_name() == "NDS") {
 
         auto future_scene = [] {
             return scene_pool::alloc<TitleScreenScene>();
@@ -99,7 +100,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm, App& app)
         *buffer = SYSTR(error_link_nds)->c_str();
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
-    } else if (pfrm.device_name() == "GameboyAdvance") {
+    } else if (PLATFORM.device_name() == "GameboyAdvance") {
 
         auto future_scene = [] { return scene_pool::alloc<LinkScene>(); };
 
@@ -120,8 +121,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene>
-MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MultiplayerConnectScene::update(App& app, Microseconds delta)
 {
     if (not ready_) {
         ready_ = true;
@@ -132,9 +132,9 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto future_scene = [] { return scene_pool::alloc<TitleScreenScene>(); };
 
 
-    pfrm.network_peer().listen();
+    PLATFORM.network_peer().listen();
 
-    if (not pfrm.network_peer().is_connected()) {
+    if (not PLATFORM.network_peer().is_connected()) {
 
         globals().multiplayer_prep_seconds_ = 0;
 
@@ -152,7 +152,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         packet.subminor_ = PROGRAM_SUBMINOR_VERSION;
         packet.revision_ = PROGRAM_VERSION_REVISION;
 
-        network::transmit(pfrm, packet);
+        network::transmit(packet);
 
         app.swap_opponent<MultiplayerPeer>();
         rng::critical_state = 42;

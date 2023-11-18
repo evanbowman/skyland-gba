@@ -39,10 +39,9 @@ namespace skyland
 class MultiplayerReadyScene : public WorldScene
 {
 public:
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        WorldScene::update(pfrm, app, delta);
+        WorldScene::update(app, delta);
 
         timer_ += delta;
 
@@ -50,17 +49,17 @@ public:
         case State::fade_out: {
             constexpr auto fade_duration = milliseconds(800);
             if (timer_ > fade_duration) {
-                pfrm.screen().fade(1.f);
+                PLATFORM.screen().fade(1.f);
                 state_ = State::wait;
                 timer_ = 0;
 
                 network::packet::PlayMusic p;
                 p.music_id_.set(1);
-                network::transmit(pfrm, p);
+                network::transmit(p);
 
             } else {
                 const auto amount = smoothstep(0.f, fade_duration, timer_);
-                pfrm.screen().schedule_fade(amount);
+                PLATFORM.screen().schedule_fade(amount);
             }
             break;
         }

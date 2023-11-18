@@ -41,23 +41,23 @@ class WorldMap;
 class WorldMapScene : public Scene
 {
 public:
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void enter(Platform&, App&, Scene& prev_scene) override;
+    void enter(App&, Scene& prev_scene) override;
 
 
-    void exit(Platform&, App&, Scene& next_scene) override;
+    void exit(App&, Scene& next_scene) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
 private:
-    void show_map(Platform&, WorldGraph& map, int storm_depth);
+    void show_map(WorldGraph& map, int storm_depth);
 
 
-    void update_storm_frontier(Platform& pfrm, WorldGraph& map, int offset);
+    void update_storm_frontier(WorldGraph& map, int offset);
 
 
     bool can_abort_move() const;
@@ -94,7 +94,7 @@ private:
 
     bool move_arrow_sel_[3] = {false, true, false};
 
-    void redraw_icons(Platform& pfrm);
+    void redraw_icons();
 
     int prev_world_loc_ = 0;
     int cursor_ = 0;
@@ -109,7 +109,7 @@ private:
 
     Microseconds storm_scroll_timer_ = 0;
 
-    void render_map_key(Platform& pfrm, App&);
+    void render_map_key(App&);
 
     static bool show_tier_2_;
     bool tier_2_visible_ = false;

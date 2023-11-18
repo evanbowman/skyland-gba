@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-void init_clouds(Platform& pfrm);
+void init_clouds();
 
 
 
@@ -49,25 +49,24 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        pfrm.load_sprite_texture("spritesheet");
+        PLATFORM.load_sprite_texture("spritesheet");
 
 
-        show_island_exterior(pfrm, app, &app.player_island());
+        show_island_exterior(app, &app.player_island());
 
         if (app.opponent_island()) {
-            app.opponent_island()->repaint(pfrm, app);
+            app.opponent_island()->repaint(app);
         }
 
-        init_clouds(pfrm);
+        init_clouds();
 
-        WorldScene::enter(pfrm, app, prev);
+        WorldScene::enter(app, prev);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -77,7 +76,7 @@ public:
         constexpr auto wait_duration = milliseconds(750);
 
         if (app.game_speed() not_eq GameSpeed::normal) {
-            set_gamespeed(pfrm, app, GameSpeed::normal);
+            set_gamespeed(app, GameSpeed::normal);
         }
 
         if (timer_ < fade_start) {
@@ -86,20 +85,20 @@ public:
 
         } else if (timer_ > fade_duration) {
 
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
 
-            WorldScene::update(pfrm, app, delta);
+            WorldScene::update(app, delta);
 
             if (not got_treasure_ or (timer_ > fade_duration + wait_duration)) {
-                WorldScene::update(pfrm, app, delta);
+                WorldScene::update(app, delta);
 
-                pfrm.speaker().set_music_volume(
+                PLATFORM.speaker().set_music_volume(
                     Platform::Speaker::music_volume_max);
 
                 if (got_treasure_) {
-                    pfrm.speaker().play_sound("coin", 2);
+                    PLATFORM.speaker().play_sound("coin", 2);
 
-                    auto d = Crane::load_discoveries(pfrm);
+                    auto d = Crane::load_discoveries();
                     auto choices = d.unallocated_items();
 
                     auto buffer =
@@ -112,18 +111,17 @@ public:
                             rng::choice(choices.size(), app.crane_game_rng());
                         auto choice = choices[idx];
                         d.items_.set(d.items_.get() | (1 << choice));
-                        Crane::store_discoveries(pfrm, d);
+                        Crane::store_discoveries(d);
 
 
-                        make_format(
-                            *buffer,
-                            "You discovered '%'! %",
-                            get_line_from_file(
-                                pfrm, "/strings/crane.txt", 1 + choice * 2)
-                                ->c_str(),
-                            get_line_from_file(
-                                pfrm, "/strings/crane.txt", 1 + choice * 2 + 1)
-                                ->c_str());
+                        make_format(*buffer,
+                                    "You discovered '%'! %",
+                                    get_line_from_file("/strings/crane.txt",
+                                                       1 + choice * 2)
+                                        ->c_str(),
+                                    get_line_from_file("/strings/crane.txt",
+                                                       1 + choice * 2 + 1)
+                                        ->c_str());
 
                     } else {
                         rng::LinearGenerator seed = app.crane_game_rng();
@@ -134,7 +132,7 @@ public:
 
                         *buffer = format("You discovered %@!", award);
 
-                        app.set_coins(pfrm, app.coins() + award);
+                        app.set_coins(app.coins() + award);
                     }
 
                     auto next = scene_pool::alloc<BoxedDialogSceneWS>(
@@ -151,15 +149,15 @@ public:
 
         } else {
 
-            WorldScene::update(pfrm, app, delta);
+            WorldScene::update(app, delta);
 
 
             const auto amount = smoothstep(
                 0.f, fade_duration - fade_start, timer_ - fade_start);
 
-            pfrm.speaker().set_music_volume(6 + 14 * amount);
+            PLATFORM.speaker().set_music_volume(6 + 14 * amount);
 
-            pfrm.screen().schedule_fade(1.f - amount);
+            PLATFORM.screen().schedule_fade(1.f - amount);
         }
 
         return null_scene();
@@ -171,8 +169,7 @@ private:
 
 
 
-static void
-draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
+static void draw_crane(const Vec2<Fixnum>& offset, u16 image = 6)
 {
     Sprite spr;
 
@@ -181,7 +178,7 @@ draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
     spr.set_position({offset.x, offset.y});
     spr.set_origin({16, 16});
 
-    pfrm.screen().draw(spr);
+    PLATFORM.screen().draw(spr);
 
     auto pos = offset;
     while (pos.y > Fixnum::from_integer(-16)) {
@@ -189,7 +186,7 @@ draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
         spr.set_size(Sprite::Size::w16_h32);
         spr.set_position({offset.x + Fixnum::from_integer(8),
                           pos.y - Fixnum::from_integer(28)});
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
 
         pos.y -= 30.0_fixed;
     }
@@ -302,7 +299,7 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
         rng::LinearGenerator seed = app.crane_game_rng();
 
@@ -344,16 +341,15 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
         app.stat_timer().count_up(delta);
 
-        if (app.player().key_pressed(pfrm, Key::down)) {
+        if (app.player().key_pressed(Key::down)) {
             descent_speed_ += Fixnum(0.0000045f);
         }
 
-        if (app.player().key_pressed(pfrm, Key::up)) {
+        if (app.player().key_pressed(Key::up)) {
             descent_speed_ -= Fixnum(0.0000045f);
         }
 
@@ -379,9 +375,9 @@ public:
 
             if (bomb_timer_ > milliseconds(750)) {
 
-                pfrm.screen().schedule_fade(1.f);
-                pfrm.screen().clear();
-                pfrm.screen().display();
+                PLATFORM.screen().schedule_fade(1.f);
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
 
                 if (auto room = app.player_island().get_room(crane_loc_)) {
                     if (auto crane = room->cast<Crane>()) {
@@ -413,11 +409,11 @@ public:
         }
 
 
-        if (app.player().key_pressed(pfrm, Key::right)) {
+        if (app.player().key_pressed(Key::right)) {
             x_speed_ += Fixnum(0.0000045f);
         }
 
-        if (app.player().key_pressed(pfrm, Key::left)) {
+        if (app.player().key_pressed(Key::left)) {
             x_speed_ -= Fixnum(0.0000045f);
         }
 
@@ -482,12 +478,12 @@ public:
             }
         }
 
-        draw_crane(pfrm, crane_pos_, (got_treasure_ or got_bomb_) ? 13 : 6);
+        draw_crane(crane_pos_, (got_treasure_ or got_bomb_) ? 13 : 6);
         return null_scene();
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
         if (exit_) {
             return;
@@ -515,7 +511,7 @@ public:
             }
 
             spr.set_position({x, y});
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
         }
 
         spr.set_mix({ColorConstant::electric_blue, 100});
@@ -534,7 +530,7 @@ public:
                                                  object.crane_x_offset_ / 2),
                               crane_pos_.y + Fixnum::from_integer(
                                                  object.crane_y_offset_ / 2)});
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
         }
     }
 
@@ -585,47 +581,46 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        pfrm.load_sprite_texture("spritesheet_fishing");
-        pfrm.load_tile0_texture("tilesheet_fishing");
-        pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
+        PLATFORM.load_sprite_texture("spritesheet_fishing");
+        PLATFORM.load_tile0_texture("tilesheet_fishing");
+        PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
 
-        pfrm.set_scroll(Layer::map_0_ext, 0, -160);
+        PLATFORM.set_scroll(Layer::map_0_ext, 0, -160);
 
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
-                pfrm.set_tile(Layer::map_1_ext, x, y, 0);
-                pfrm.set_tile(Layer::map_0_ext, x, y, 0);
+                PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
+                PLATFORM.set_tile(Layer::map_0_ext, x, y, 0);
             }
         }
 
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 6; ++y) {
                 if (y == 0) {
-                    pfrm.set_tile(Layer::map_0_ext, x, y, 1);
+                    PLATFORM.set_tile(Layer::map_0_ext, x, y, 1);
                 } else {
-                    pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                    PLATFORM.set_tile(Layer::map_0_ext, x, y, 2);
                 }
             }
         }
 
         for (int x = 0; x < 32; ++x) {
             for (int y = 0; y < 32; ++y) {
-                pfrm.set_tile(Layer::background, x, y, 4);
+                PLATFORM.set_tile(Layer::background, x, y, 4);
             }
         }
 
-        pfrm.screen().set_view({});
+        PLATFORM.screen().set_view({});
 
         rng::utility_state = 1;
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (app.player().key_pressed(pfrm, Key::action_2)) {
+        if (app.player().key_pressed(Key::action_2)) {
             delta *= 2;
         }
 
@@ -638,11 +633,11 @@ public:
         }
 
 
-        if (app.player().key_pressed(pfrm, Key::right)) {
+        if (app.player().key_pressed(Key::right)) {
             x_speed_ += Fixnum(0.000003f);
         }
 
-        if (app.player().key_pressed(pfrm, Key::left)) {
+        if (app.player().key_pressed(Key::left)) {
             x_speed_ -= Fixnum(0.000003f);
         }
 
@@ -655,8 +650,8 @@ public:
                 const auto amount =
                     smoothstep(0.f, milliseconds(1000), fadein_timer_);
 
-                pfrm.screen().schedule_fade(1.f - amount,
-                                            ColorConstant::silver_white);
+                PLATFORM.screen().schedule_fade(1.f - amount,
+                                                ColorConstant::silver_white);
             }
 
             timer_ += delta;
@@ -664,11 +659,11 @@ public:
             if (timer_ > seconds(5)) {
                 for (int x = 0; x < 16; ++x) {
                     for (int y = 1; y < 10; ++y) {
-                        pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                        PLATFORM.set_tile(Layer::map_0_ext, x, y, 2);
                     }
                 }
 
-                pfrm.sleep(4);
+                PLATFORM.sleep(4);
             }
 
 
@@ -677,7 +672,7 @@ public:
                     Float(timer_ - milliseconds(4800)) / milliseconds(200);
                 int offset = -160;
                 offset += 75 * amt;
-                pfrm.set_scroll(Layer::map_0_ext, 0, offset);
+                PLATFORM.set_scroll(Layer::map_0_ext, 0, offset);
             }
 
             if (timer_ < seconds(4)) {
@@ -724,7 +719,7 @@ public:
             if (timer_ < seconds(7) and timer_ + delta > seconds(7)) {
                 for (int x = 0; x < 16; ++x) {
                     for (int y = 10; y < 14; ++y) {
-                        pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                        PLATFORM.set_tile(Layer::map_0_ext, x, y, 2);
                     }
                 }
             }
@@ -734,7 +729,7 @@ public:
 
             int offset = -160 + 75;
             offset += 105 * amt;
-            pfrm.set_scroll(Layer::map_0_ext, 0, offset);
+            PLATFORM.set_scroll(Layer::map_0_ext, 0, offset);
 
             if (timer_ > milliseconds(7500)) {
                 return scene_pool::alloc<CraneMinigameScene>(
@@ -747,9 +742,9 @@ public:
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
-        draw_crane(pfrm, {crane_x_, crane_offset_});
+        draw_crane({crane_x_, crane_offset_});
 
         Sprite spr;
 
@@ -758,24 +753,24 @@ public:
             case 0:
                 spr.set_texture_index(10);
                 spr.set_position(cloud.position_);
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
                 break;
 
             case 1: {
                 auto pos = cloud.position_;
                 spr.set_texture_index(7);
                 spr.set_position(pos);
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
 
                 pos.x += 32.0_fixed;
                 spr.set_texture_index(8);
                 spr.set_position(pos);
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
 
                 pos.x += 32.0_fixed;
                 spr.set_texture_index(9);
                 spr.set_position(pos);
-                pfrm.screen().draw(spr);
+                PLATFORM.screen().draw(spr);
                 break;
             }
             }
@@ -809,15 +804,14 @@ private:
 
 
 
-ScenePtr<Scene>
-CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> CraneDropScene::update(App& app, Microseconds delta)
 {
-    WorldScene::update(pfrm, app, delta);
+    WorldScene::update(app, delta);
 
     timer_ += delta;
 
     if (app.game_speed() not_eq GameSpeed::normal) {
-        set_gamespeed(pfrm, app, GameSpeed::normal);
+        set_gamespeed(app, GameSpeed::normal);
     }
 
     constexpr auto fade_duration = milliseconds(1400);
@@ -841,9 +835,9 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
         const auto amount =
             smoothstep(0.f, fade_duration - fade_start, timer_ - fade_start);
 
-        pfrm.speaker().set_music_volume(20 - 14 * amount);
+        PLATFORM.speaker().set_music_volume(20 - 14 * amount);
 
-        pfrm.screen().schedule_fade(amount);
+        PLATFORM.screen().schedule_fade(amount);
     }
 
     return null_scene();

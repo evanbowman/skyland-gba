@@ -77,7 +77,7 @@ Beam::Beam(const Vec2<Fixnum>& position,
 
 
 
-void Beam::update(Platform& pfrm, App& app, Microseconds delta)
+void Beam::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -94,7 +94,7 @@ void Beam::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
     if (timer_ > seconds(2)) {
@@ -104,7 +104,7 @@ void Beam::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Beam::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Beam::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -114,9 +114,9 @@ void Beam::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -128,7 +128,7 @@ extern Sound sound_impact;
 
 
 
-void Beam::on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
+void Beam::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -165,13 +165,13 @@ void Beam::on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
     }
 
     if (not damaged) {
-        sound_impact.play(pfrm, 1);
+        sound_impact.play(1);
         if (app.camera()->shake_magnitude() <= 2) {
             app.camera()->shake(8);
         }
-        room.apply_damage(pfrm, app, 4, source_);
+        room.apply_damage(app, 4, source_);
         if (not damaged_.push_back(room.position())) {
-            this->destroy(pfrm, app, true);
+            this->destroy(app, true);
         }
     }
 }
@@ -187,7 +187,7 @@ void Beam::restore_blocks_hit(const time_stream::event::BeamDestroyed& e)
 
 
 
-void Beam::record_destroyed(Platform& pfrm, App& app)
+void Beam::record_destroyed(App& app)
 {
     auto timestream_record = [&](time_stream::event::BeamDestroyed& c) {
         c.x_origin_ = origin_tile_.x;
@@ -220,22 +220,22 @@ void Beam::record_destroyed(Platform& pfrm, App& app)
 
 
 
-void Beam::destroy(Platform& pfrm, App& app, bool explosion)
+void Beam::destroy(App& app, bool explosion)
 {
-    record_destroyed(pfrm, app);
+    record_destroyed(app);
 
     kill();
 
     app.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 
 
 
-void Beam::on_collision(Platform& pfrm, App& app, Entity& entity)
+void Beam::on_collision(App& app, Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Beam explodes upon collision.
@@ -247,9 +247,9 @@ void Beam::on_collision(Platform& pfrm, App& app, Entity& entity)
     }
 
 
-    this->destroy(pfrm, app, true);
+    this->destroy(app, true);
 
-    entity.apply_damage(pfrm, app, 10);
+    entity.apply_damage(app, 10);
 }
 
 

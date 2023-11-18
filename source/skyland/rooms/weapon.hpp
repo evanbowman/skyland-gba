@@ -44,7 +44,7 @@ public:
     ~Weapon();
 
 
-    void timer_expired(Platform&, App&) override;
+    void timer_expired(App&) override;
 
 
     Microseconds reload_interval() const override
@@ -56,7 +56,7 @@ public:
     virtual Microseconds reload() const = 0;
 
 
-    virtual void fire(Platform& pfrm, App& app) = 0;
+    virtual void fire(App& app) = 0;
 
 
     void override_reload_timer(Microseconds new_time) override
@@ -88,27 +88,24 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
-    void ___rewind___ability_used(Platform&, App&) override;
+    void ___rewind___ability_used(App&) override;
 
 
     bool target_pinned() const override;
 
 
-    void set_target(Platform& pfrm,
-                    App& app,
-                    const RoomCoord& target,
-                    bool pinned) override;
+    void set_target(App& app, const RoomCoord& target, bool pinned) override;
 
 
-    void unset_target(Platform& pfrm, App& app) override;
+    void unset_target(App& app) override;
 
 
     std::optional<RoomCoord> get_target() const override
@@ -128,8 +125,7 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
 protected:

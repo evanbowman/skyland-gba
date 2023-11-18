@@ -45,64 +45,62 @@ namespace skyland::macro
 class KeylockScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    void enter(macro::EngineImpl& state, Scene& prev) override
     {
-        MacrocosmScene::enter(pfrm, state, prev);
+        MacrocosmScene::enter(state, prev);
 
-        Text(pfrm, SYSTR(macro_mode_lock)->c_str(), OverlayCoord{1, 1})
-            .__detach();
+        Text(SYSTR(macro_mode_lock)->c_str(), OverlayCoord{1, 1}).__detach();
 
-        pfrm.set_tile(Layer::overlay, 1, 2, 393);
-        Text(pfrm, ":", OverlayCoord{2, 2}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 2, 388);
-        pfrm.set_tile(Layer::overlay, 4, 2, 390);
+        PLATFORM.set_tile(Layer::overlay, 1, 2, 393);
+        Text(":", OverlayCoord{2, 2}).__detach();
+        PLATFORM.set_tile(Layer::overlay, 3, 2, 388);
+        PLATFORM.set_tile(Layer::overlay, 4, 2, 390);
 
-        pfrm.set_tile(Layer::overlay, 1, 3, 395);
-        Text(pfrm, ":", OverlayCoord{2, 3}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 3, 387);
-        pfrm.set_tile(Layer::overlay, 4, 3, 390);
+        PLATFORM.set_tile(Layer::overlay, 1, 3, 395);
+        Text(":", OverlayCoord{2, 3}).__detach();
+        PLATFORM.set_tile(Layer::overlay, 3, 3, 387);
+        PLATFORM.set_tile(Layer::overlay, 4, 3, 390);
 
-        pfrm.set_tile(Layer::overlay, 1, 4, 394);
-        Text(pfrm, ":", OverlayCoord{2, 4}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 4, 389);
-        pfrm.set_tile(Layer::overlay, 4, 4, 390);
+        PLATFORM.set_tile(Layer::overlay, 1, 4, 394);
+        Text(":", OverlayCoord{2, 4}).__detach();
+        PLATFORM.set_tile(Layer::overlay, 3, 4, 389);
+        PLATFORM.set_tile(Layer::overlay, 4, 4, 390);
 
-        pfrm.set_tile(Layer::overlay, 1, 5, 392);
-        Text(pfrm, ":", OverlayCoord{2, 5}).__detach();
-        pfrm.set_tile(Layer::overlay, 3, 5, 112);
-        pfrm.set_tile(Layer::overlay, 4, 5, 391);
+        PLATFORM.set_tile(Layer::overlay, 1, 5, 392);
+        Text(":", OverlayCoord{2, 5}).__detach();
+        PLATFORM.set_tile(Layer::overlay, 3, 5, 112);
+        PLATFORM.set_tile(Layer::overlay, 4, 5, 391);
     }
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    void exit(macro::EngineImpl& state, Scene& next) override
     {
-        MacrocosmScene::exit(pfrm, state, next);
-        pfrm.fill_overlay(0);
+        MacrocosmScene::exit(state, next);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override
     {
-        if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+        if (auto scene = MacrocosmScene::update(player, state)) {
             return scene;
         }
 
-        if (player.key_pressed(pfrm, Key::left)) {
+        if (player.key_pressed(Key::left)) {
             state.data_->keylock_ = Keylock::improvelock;
-            draw_keylock(pfrm, state);
-        } else if (player.key_pressed(pfrm, Key::up)) {
+            draw_keylock(state);
+        } else if (player.key_pressed(Key::up)) {
             state.data_->keylock_ = Keylock::buildlock;
-            draw_keylock(pfrm, state);
-        } else if (player.key_pressed(pfrm, Key::right)) {
+            draw_keylock(state);
+        } else if (player.key_pressed(Key::right)) {
             state.data_->keylock_ = Keylock::deletelock;
-            draw_keylock(pfrm, state);
-        } else if (player.key_pressed(pfrm, Key::down)) {
+            draw_keylock(state);
+        } else if (player.key_pressed(Key::down)) {
             state.data_->keylock_ = Keylock::nolock;
-            draw_keylock(pfrm, state);
+            draw_keylock(state);
         }
 
-        if (not player.key_pressed(pfrm, Key::alt_1)) {
+        if (not player.key_pressed(Key::alt_1)) {
             return scene_pool::alloc<SelectorScene>();
         }
 
@@ -112,12 +110,12 @@ public:
 
 
 
-void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
+void SelectorScene::enter(macro::EngineImpl& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, state, prev);
+    MacrocosmScene::enter(state, prev);
 
     if (show_island_size_) {
-        text_.emplace(pfrm, OverlayCoord{0, 19});
+        text_.emplace(OverlayCoord{0, 19});
         auto& s = state.sector();
         auto sz = s.size();
         text_->append("(");
@@ -128,18 +126,18 @@ void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
         text_->append(sz.z - 1);
         text_->append(")");
     } else if (not text_) {
-        text_.emplace(pfrm, OverlayCoord{0, 19});
-        describe_selected(pfrm, state);
+        text_.emplace(OverlayCoord{0, 19});
+        describe_selected(state);
     }
 }
 
 
 
-void SelectorScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
+void SelectorScene::exit(macro::EngineImpl& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, state, next);
+    MacrocosmScene::exit(state, next);
     for (int i = 0; i < text_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, 18, 0);
+        PLATFORM.set_tile(Layer::overlay, i, 18, 0);
     }
     text_.reset();
     text_2_.reset();
@@ -147,30 +145,29 @@ void SelectorScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 
 
 
-ScenePtr<Scene>
-SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+ScenePtr<Scene> SelectorScene::update(Player& player, macro::EngineImpl& state)
 {
     if (paused_) {
         return null_scene();
     }
 
-    if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+    if (auto scene = MacrocosmScene::update(player, state)) {
         return scene;
     }
 
     auto& sector = state.sector();
     auto cursor = sector.cursor();
 
-    if (player.key_down(pfrm, Key::start)) {
+    if (player.key_down(Key::start)) {
         await_start_key_ = true;
     }
 
-    if (player.key_pressed(pfrm, Key::start)) {
-        if (player.key_down(pfrm, Key::alt_2)) {
+    if (player.key_pressed(Key::start)) {
+        if (player.key_down(Key::alt_2)) {
             return scene_pool::alloc<KeyComboScene>(true);
         }
     } else {
-        if (await_start_key_ and player.key_up(pfrm, Key::start)) {
+        if (await_start_key_ and player.key_up(Key::start)) {
             auto next = scene_pool::alloc<StartMenuScene>(0);
             next->cascade_anim_in_ = true;
             return next;
@@ -178,27 +175,27 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     }
 
     auto test_key = [&](Key k) {
-        return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
+        return player.test_key(k, milliseconds(500), milliseconds(100));
     };
 
 
-    if (player.key_pressed(pfrm, Key::select) and
-        not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
+    if (player.key_pressed(Key::select) and not state.data_->freebuild_mode_ and
+        not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<HelpScene>();
     }
 
-    if (player.key_pressed(pfrm, Key::alt_1) and state.data_->freebuild_mode_) {
+    if (player.key_pressed(Key::alt_1) and state.data_->freebuild_mode_) {
 
         return scene_pool::alloc<KeylockScene>();
 
-    } else if (player.key_pressed(pfrm, Key::alt_1) and
+    } else if (player.key_pressed(Key::alt_1) and
                not state.data_->freebuild_mode_ and
                not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<MenuOptionsScene>();
 
-    } else if (player.key_down(pfrm, Key::alt_2)) {
+    } else if (player.key_down(Key::alt_2)) {
 
         return scene_pool::alloc<ModifiedSelectorScene>();
 
@@ -207,31 +204,31 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         if (test_key(Key::up) and cursor.y > 0) {
             --cursor.y;
             sector.set_cursor(cursor);
-            describe_selected(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            describe_selected(pfrm, state);
+            describe_selected(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            describe_selected(state);
         } else if (test_key(Key::down) and cursor.y < sector.size().x - 1) {
             ++cursor.y;
             sector.set_cursor(cursor);
-            describe_selected(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            describe_selected(pfrm, state);
+            describe_selected(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            describe_selected(state);
         } else if (test_key(Key::right) and cursor.x > 0) {
             --cursor.x;
             sector.set_cursor(cursor);
-            describe_selected(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            describe_selected(pfrm, state);
+            describe_selected(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            describe_selected(state);
         } else if (test_key(Key::left) and cursor.x < sector.size().y - 1) {
             ++cursor.x;
             sector.set_cursor(cursor);
-            describe_selected(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 0);
-            describe_selected(pfrm, state);
+            describe_selected(state);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            describe_selected(state);
         }
     }
 
-    if (player.key_down(pfrm, Key::action_1)) {
+    if (player.key_down(Key::action_1)) {
         if (state.data_->checkers_mode_) {
 
             if (cursor.z not_eq 2) {
@@ -244,7 +241,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
             auto val = board.data_[cursor.x][cursor.y];
             if (val == CheckerBoard::red or val == CheckerBoard::red_king) {
-                pfrm.speaker().play_sound("beep_error", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
                 return null_scene();
             }
 
@@ -272,7 +269,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                     }
                     if (not found) {
                         text_->assign(SYSTR(checkers_forced_jump)->c_str());
-                        pfrm.speaker().play_sound("beep_error", 3);
+                        PLATFORM.speaker().play_sound("beep_error", 3);
                         return null_scene();
                     }
 
@@ -290,17 +287,17 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             }
 
             if (not slots.empty()) {
-                pfrm.speaker().play_sound("button_wooden", 3);
+                PLATFORM.speaker().play_sound("button_wooden", 3);
                 state.sector().set_block(cursor, terrain::Type::air);
                 return scene_pool::alloc<MoveCheckerScene>(pos, slots);
             } else {
-                pfrm.speaker().play_sound("beep_error", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
             }
 
         } else {
             switch (state.data_->keylock_) {
             case Keylock::nolock: {
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<TileOptionsScene>();
             }
 
@@ -315,7 +312,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                     auto improvements =
                         terrain::improvements((terrain::Type)block.type_);
                     if (not improvements.empty()) {
-                        pfrm.speaker().play_sound("button_wooden", 3);
+                        PLATFORM.speaker().play_sound("button_wooden", 3);
                         return scene_pool::alloc<BuildImprovementScene>();
                     }
                 }
@@ -330,7 +327,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                     if (tp == terrain::Type::dynamite) {
                         state.sector().ref_block(c).data_ = 1;
                     } else {
-                        pfrm.speaker().play_sound("button_wooden", 3);
+                        PLATFORM.speaker().play_sound("button_wooden", 3);
                         state.sector().set_block(c, terrain::Type::air);
                         state.sector().set_cursor(c);
                     }
@@ -346,12 +343,12 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
 
 
-void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
+void SelectorScene::describe_selected(macro::EngineImpl& state)
 {
     auto& sector = state.sector();
 
     for (int i = 0; i < text_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, 18, 0);
+        PLATFORM.set_tile(Layer::overlay, i, 18, 0);
     }
 
     auto s = SystemString::block_air;
@@ -373,7 +370,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
             text_->assign(b.c_str());
 
             for (int i = 0; i < text_->len(); ++i) {
-                pfrm.set_tile(Layer::overlay, i, 18, 425);
+                PLATFORM.set_tile(Layer::overlay, i, 18, 425);
             }
 
             return;
@@ -384,7 +381,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
 
     StringBuffer<48> b;
     b += "(";
-    b += loadstr(pfrm, s)->c_str();
+    b += loadstr(s)->c_str();
     b += ")";
 
     text_->assign(b.c_str());
@@ -395,7 +392,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
     }
 
     for (int i = 0; i < text_->len(); ++i) {
-        pfrm.set_tile(Layer::overlay, i, 18, 425);
+        PLATFORM.set_tile(Layer::overlay, i, 18, 425);
     }
 }
 

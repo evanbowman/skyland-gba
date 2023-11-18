@@ -48,11 +48,11 @@ public:
                   ColorConstant exit_color);
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     void set_origin_overworld()
@@ -91,7 +91,7 @@ public:
         ColorConstant exit_color = custom_color(0x392194));
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(App& app, Scene& prev) override;
 
 
 private:

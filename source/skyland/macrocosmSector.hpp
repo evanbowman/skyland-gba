@@ -104,8 +104,8 @@ public:
 
     void soft_update(EngineImpl& state);
 
-    virtual void render_setup(Platform& pfrm) = 0;
-    void render(Platform& pfrm);
+    virtual void render_setup() = 0;
+    void render();
 
     void set_population(Population p);
     void set_productivity(Productivity p);
@@ -118,8 +118,7 @@ public:
     // The qrcode will hold binary data in the form:
     // first byte: island layout, rest: rle-encoded data.
     std::optional<QRCode>
-    qr_encode(Platform&,
-              App& app,
+    qr_encode(App& app,
               Function<4 * sizeof(void*), void(const char*)> msg) const;
 
 

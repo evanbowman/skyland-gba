@@ -36,10 +36,10 @@ namespace skyland
 class LoadModuleScene : public Scene
 {
 public:
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void show_modules(Platform&, int page);
+    void show_modules(int page);
 
 
     Buffer<Text, 8> temp_;

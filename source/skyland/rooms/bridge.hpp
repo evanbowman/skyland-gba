@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-void show_island_interior(Platform& pfrm, App& app, Island* island);
+void show_island_interior(App& app, Island* island);
 
 
 
@@ -111,17 +111,17 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App& app)
+    ScenePtr<Scene> select(App& app)
     {
         // Unlike most rooms, the bridge shows inhabitants while viewing a
         // castle's exterior. If selecting a character, we want to show the
         // interior representation of the castle.
         if (not characters().empty() and not parent()->interior_visible()) {
 
-            show_island_interior(pfrm, app, parent());
+            show_island_interior(app, parent());
         }
 
-        return Room::do_select(pfrm, app);
+        return Room::do_select(app);
     }
 
 

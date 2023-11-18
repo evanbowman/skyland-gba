@@ -37,9 +37,9 @@ StackedHull::StackedHull(Island* parent, const RoomCoord& position)
 
 
 
-void StackedHull::update(Platform& pfrm, App& app, Microseconds delta)
+void StackedHull::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -48,9 +48,9 @@ void StackedHull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void StackedHull::rewind(Platform& pfrm, App& app, Microseconds delta)
+void StackedHull::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

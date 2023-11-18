@@ -92,7 +92,7 @@ void FireBolt::set_direction(u16 rot)
 
 
 
-void FireBolt::update(Platform& pfrm, App& app, Microseconds delta)
+void FireBolt::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -115,7 +115,7 @@ void FireBolt::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
     if (timer_ > seconds(2)) {
@@ -125,7 +125,7 @@ void FireBolt::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void FireBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
+void FireBolt::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -135,9 +135,9 @@ void FireBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -149,10 +149,7 @@ extern Sound sound_impact;
 
 
 
-void FireBolt::on_collision(Platform& pfrm,
-                            App& app,
-                            Room& room,
-                            Vec2<u8> origin)
+void FireBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -171,36 +168,36 @@ void FireBolt::on_collision(Platform& pfrm,
         return;
     }
 
-    room.parent()->fire_create(pfrm, app, room.position());
+    room.parent()->fire_create(app, room.position());
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < 30) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
-    room.apply_damage(pfrm, app, 30, source_);
+    room.apply_damage(app, 30, source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
-        record_destroyed(pfrm, app);
+        room.set_ai_aware(app, true);
+        record_destroyed(app);
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(pfrm, app, true);
+        this->destroy(app, true);
         if (room.health()) {
-            sound_impact.play(pfrm, 1);
+            sound_impact.play(1);
         }
     }
 }
 
 
 
-void FireBolt::record_destroyed(Platform& pfrm, App& app)
+void FireBolt::record_destroyed(App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -227,25 +224,25 @@ void FireBolt::record_destroyed(Platform& pfrm, App& app)
 
 
 
-void FireBolt::destroy(Platform& pfrm, App& app, bool explosion)
+void FireBolt::destroy(App& app, bool explosion)
 {
-    record_destroyed(pfrm, app);
+    record_destroyed(app);
 
     kill();
     app.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 
 
 
-void FireBolt::on_collision(Platform& pfrm, App& app, Entity& entity)
+void FireBolt::on_collision(App& app, Entity& entity)
 {
-    this->destroy(pfrm, app, true);
+    this->destroy(app, true);
 
-    entity.apply_damage(pfrm, app, 30);
+    entity.apply_damage(app, 30);
 }
 
 

@@ -35,10 +35,9 @@ namespace skyland::macro
 class DayTransitionScene : public MacrocosmScene
 {
 public:
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
     {
-        MacrocosmScene::update(pfrm, player, state);
+        MacrocosmScene::update(player, state);
 
         state.data_->p().day_night_cyc_.set(
             state.data_->p().day_night_cyc_.get() + 6);
@@ -54,8 +53,7 @@ public:
 
 
 
-ScenePtr<Scene>
-NextTurnScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> NextTurnScene::update(App& app, Microseconds delta)
 {
     auto& m = macrocosm(app);
 

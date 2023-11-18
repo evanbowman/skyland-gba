@@ -39,7 +39,7 @@ public:
     Bulkhead(Island* parent, const RoomCoord& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -51,10 +51,10 @@ public:
                              BasicCharacter* for_character) override;
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
 
     static Float atp_value()
@@ -93,7 +93,7 @@ public:
     }
 
 
-    void set_open(Platform& pfrm, App& app, bool open);
+    void set_open(App& app, bool open);
 
 
     bool is_open() const

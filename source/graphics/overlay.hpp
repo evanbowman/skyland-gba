@@ -59,20 +59,16 @@ using OptColors = std::optional<FontColors>;
 class Text
 {
 public:
-    Text(Platform& pfrm,
-         const char* str,
+    Text(const char* str,
          const OverlayCoord& coord,
          const FontConfiguration& config = {});
 
-    Text(Platform& pfrm,
-         const OverlayCoord& coord,
-         const FontConfiguration& config = {});
+    Text(const OverlayCoord& coord, const FontConfiguration& config = {});
 
     Text(const Text&) = delete;
     Text(Text&&);
 
-    static void print(Platform& pfrm,
-                      const char* msg,
+    static void print(const char* msg,
                       const OverlayCoord& coord,
                       const OptColors& colors = {});
 
@@ -116,7 +112,6 @@ public:
 private:
     void resize(u32 len);
 
-    Platform& pfrm_;
     const OverlayCoord coord_;
     Length len_;
     const FontConfiguration config_;
@@ -127,12 +122,11 @@ private:
 class SmallIcon
 {
 public:
-    SmallIcon(Platform& pfrm, int tile, const OverlayCoord& coord);
+    SmallIcon(int tile, const OverlayCoord& coord);
     SmallIcon(const SmallIcon&) = delete;
     ~SmallIcon();
 
 private:
-    Platform& pfrm_;
     const OverlayCoord coord_;
 };
 
@@ -141,7 +135,7 @@ private:
 class MediumIcon
 {
 public:
-    MediumIcon(Platform& pfrm, int tile, const OverlayCoord& coord);
+    MediumIcon(int tile, const OverlayCoord& coord);
     MediumIcon(const MediumIcon&) = delete;
     ~MediumIcon();
 
@@ -151,7 +145,6 @@ public:
     }
 
 private:
-    Platform& pfrm_;
     const OverlayCoord coord_;
 };
 
@@ -166,7 +159,7 @@ void enable_text_icon_glyphs(bool enable);
 class TextView
 {
 public:
-    TextView(Platform& pfrm);
+    TextView();
     TextView(const TextView&) = delete;
     ~TextView();
 
@@ -195,7 +188,6 @@ public:
     }
 
 private:
-    Platform& pfrm_;
     OverlayCoord size_;
     OverlayCoord position_;
     size_t parsed_;
@@ -205,8 +197,7 @@ private:
 class Border
 {
 public:
-    Border(Platform& pfrm,
-           const OverlayCoord& size,
+    Border(const OverlayCoord& size,
            const OverlayCoord& position,
            bool fill = false,
            int tile_offset = 0,
@@ -215,7 +206,6 @@ public:
     ~Border();
 
 private:
-    Platform& pfrm_;
     OverlayCoord size_;
     OverlayCoord position_;
     bool filled_;
@@ -226,14 +216,13 @@ private:
 class BossHealthBar
 {
 public:
-    BossHealthBar(Platform& pfrm, u8 height, const OverlayCoord& position);
+    BossHealthBar(u8 height, const OverlayCoord& position);
     BossHealthBar(const BossHealthBar&) = delete;
     ~BossHealthBar();
 
     void set_health(Float percentage);
 
 private:
-    Platform& pfrm_;
     OverlayCoord position_;
     u8 height_;
 };
@@ -242,14 +231,13 @@ private:
 class LoadingBar
 {
 public:
-    LoadingBar(Platform& pfrm, u8 width, const OverlayCoord& position);
+    LoadingBar(u8 width, const OverlayCoord& position);
     LoadingBar(const LoadingBar&) = delete;
     ~LoadingBar();
 
     void set_progress(Float percentage);
 
 private:
-    Platform& pfrm_;
     OverlayCoord position_;
     u8 width_;
 };
@@ -259,14 +247,13 @@ private:
 class Sidebar
 {
 public:
-    Sidebar(Platform& pfrm, u8 width, u8 height, const OverlayCoord& pos);
+    Sidebar(u8 width, u8 height, const OverlayCoord& pos);
     Sidebar(const Sidebar&) = delete;
     ~Sidebar();
 
     void set_display_percentage(Float percentage);
 
 private:
-    Platform& pfrm_;
     const u8 width_;
     const u8 height_;
     OverlayCoord pos_;
@@ -276,14 +263,13 @@ private:
 class LeftSidebar
 {
 public:
-    LeftSidebar(Platform& pfrm, u8 width, u8 height, const OverlayCoord& pos);
+    LeftSidebar(u8 width, u8 height, const OverlayCoord& pos);
     LeftSidebar(const Sidebar&) = delete;
     ~LeftSidebar();
 
     void set_display_percentage(Float percentage);
 
 private:
-    Platform& pfrm_;
     const u8 width_;
     const u8 height_;
     OverlayCoord pos_;
@@ -293,8 +279,8 @@ private:
 class HorizontalFlashAnimation
 {
 public:
-    HorizontalFlashAnimation(Platform& pfrm, const OverlayCoord& position)
-        : pfrm_(pfrm), position_(position), width_(0), timer_(0), index_(0)
+    HorizontalFlashAnimation(const OverlayCoord& position)
+        : position_(position), width_(0), timer_(0), index_(0)
     {
     }
 
@@ -353,11 +339,10 @@ private:
     void fill(int tile)
     {
         for (int i = position_.x; i < position_.x + width_; ++i) {
-            pfrm_.set_tile(Layer::overlay, i, position_.y, tile);
+            PLATFORM.set_tile(Layer::overlay, i, position_.y, tile);
         }
     }
 
-    Platform& pfrm_;
     OverlayCoord position_;
     u8 width_;
     int timer_;
@@ -365,10 +350,10 @@ private:
 };
 
 
-inline OverlayCoord calc_screen_tiles(Platform& pfrm)
+inline OverlayCoord calc_screen_tiles()
 {
     constexpr u32 overlay_tile_size = 8;
-    return (pfrm.screen().size() / overlay_tile_size).cast<u8>();
+    return (PLATFORM.screen().size() / overlay_tile_size).cast<u8>();
 }
 
 
@@ -394,9 +379,9 @@ inline Resolution resolution(Platform::Screen& screen)
 using Margin = u16;
 
 
-inline Margin centered_text_margins(Platform& pfrm, u16 text_length)
+inline Margin centered_text_margins(u16 text_length)
 {
-    const auto width = calc_screen_tiles(pfrm).x;
+    const auto width = calc_screen_tiles().x;
 
     return (width - text_length) / 2;
 }
@@ -435,17 +420,16 @@ public:
     };
 
 
-    inline UIMetric(Platform& pfrm,
-                    const OverlayCoord& pos,
+    inline UIMetric(const OverlayCoord& pos,
                     int icon_tile,
                     u32 value,
                     Align align,
                     Format format = Format::plain_integer,
                     bool large_numerator = false)
-        : icon_tile_(icon_tile), value_(value), anim_(pfrm, pos), align_(align),
+        : icon_tile_(icon_tile), value_(value), anim_(pos), align_(align),
           format_(format), pos_(pos), large_numerator_(large_numerator)
     {
-        display(pfrm);
+        display();
     }
 
     UIMetric(const UIMetric&) = delete;
@@ -463,12 +447,12 @@ public:
 
     void set_value(u32 value);
 
-    inline void update(Platform& pfrm, Microseconds dt)
+    inline void update(Microseconds dt)
     {
         if (not anim_.done()) {
             anim_.update(dt);
             if (anim_.done()) {
-                display(pfrm);
+                display();
             }
         }
     }
@@ -490,7 +474,7 @@ public:
     }
 
 private:
-    void display(Platform& pfrm);
+    void display();
 
     const int icon_tile_;
     std::optional<SmallIcon> icon_;
@@ -504,18 +488,18 @@ private:
 };
 
 
-template <typename F> void instrument(Platform& pfrm, F&& callback)
+template <typename F> void instrument(F&& callback)
 {
     static int index;
     constexpr int sample_count = 32;
     static int buffer[32];
     static std::optional<Text> text;
 
-    const auto before = pfrm.delta_clock().sample();
+    const auto before = PLATFORM.delta_clock().sample();
 
     callback();
 
-    const auto after = pfrm.delta_clock().sample();
+    const auto after = PLATFORM.delta_clock().sample();
 
     if (index < sample_count) {
         buffer[index++] = after - before;
@@ -530,7 +514,7 @@ template <typename F> void instrument(Platform& pfrm, F&& callback)
 
         accum /= 32;
 
-        text.emplace(pfrm, OverlayCoord{1, 1});
+        text.emplace(OverlayCoord{1, 1});
         text->assign(Platform::DeltaClock::duration(before, after));
         text->append(" micros");
     }

@@ -363,8 +363,7 @@ public:
     bool is_running() const;
 
 
-    using UnrecoverrableErrorCallback =
-        Function<4 * sizeof(void*), void(Platform& pfrm)>;
+    using UnrecoverrableErrorCallback = Function<4 * sizeof(void*), void()>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
 
@@ -445,7 +444,7 @@ public:
     private:
         friend class Platform;
 
-        void init(Platform& pfrm);
+        void init();
 
         SystemClock();
     };
@@ -1023,10 +1022,12 @@ ColorConstant
 contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
 
 
+extern Platform* __platform__;
+#define PLATFORM (*__platform__)
+
 
 // Helper function for drawing background tiles larger than the default size (8x8 pixels)
-inline void draw_image(Platform& pfrm,
-                       TileDesc start_tile,
+inline void draw_image(TileDesc start_tile,
                        u16 start_x,
                        u16 start_y,
                        u16 width,
@@ -1038,48 +1039,48 @@ inline void draw_image(Platform& pfrm,
 
     for (u16 y = start_y; y < start_y + height; ++y) {
         for (u16 x = start_x; x < start_x + width; ++x) {
-            pfrm.set_tile(layer, x, y, tile++);
+            PLATFORM.set_tile(layer, x, y, tile++);
         }
     }
 }
 
 
-template <Key k> bool key_down(Platform& pfrm)
+template <Key k> bool key_down()
 {
-    return pfrm.keyboard().down_transition<k>();
+    return PLATFORM.keyboard().down_transition<k>();
 }
 
 
-inline void debug(Platform& pf, const char* msg)
+inline void debug(const char* msg)
 {
-    pf.logger().log(Severity::debug, msg);
+    PLATFORM.logger().log(Severity::debug, msg);
 }
-inline void info(Platform& pf, const char* msg)
+inline void info(const char* msg)
 {
-    pf.logger().log(Severity::info, msg);
+    PLATFORM.logger().log(Severity::info, msg);
 }
-inline void warning(Platform& pf, const char* msg)
+inline void warning(const char* msg)
 {
-    pf.logger().log(Severity::warning, msg);
+    PLATFORM.logger().log(Severity::warning, msg);
 }
-inline void error(Platform& pf, const char* msg)
+inline void error(const char* msg)
 {
-    pf.logger().log(Severity::error, msg);
+    PLATFORM.logger().log(Severity::error, msg);
 }
 
-template <u32 size> void debug(Platform& pf, const StringBuffer<size>& buffer)
+template <u32 size> void debug(const StringBuffer<size>& buffer)
 {
-    pf.logger().log(Severity::debug, buffer.c_str());
+    PLATFORM.logger().log(Severity::debug, buffer.c_str());
 }
-template <u32 size> void info(Platform& pf, const StringBuffer<size>& buffer)
+template <u32 size> void info(const StringBuffer<size>& buffer)
 {
-    pf.logger().log(Severity::debug, buffer.c_str());
+    PLATFORM.logger().log(Severity::debug, buffer.c_str());
 }
-template <u32 size> void warning(Platform& pf, const StringBuffer<size>& buffer)
+template <u32 size> void warning(const StringBuffer<size>& buffer)
 {
-    pf.logger().log(Severity::debug, buffer.c_str());
+    PLATFORM.logger().log(Severity::debug, buffer.c_str());
 }
-template <u32 size> void error(Platform& pf, const StringBuffer<size>& buffer)
+template <u32 size> void error(const StringBuffer<size>& buffer)
 {
-    pf.logger().log(Severity::debug, buffer.c_str());
+    PLATFORM.logger().log(Severity::debug, buffer.c_str());
 }

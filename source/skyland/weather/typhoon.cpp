@@ -39,9 +39,9 @@ ColorConstant Typhoon::fadein_colorize_tone() const
 
 
 
-void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Typhoon::rewind(App& app, Microseconds delta)
 {
-    Storm::rewind(pfrm, app, delta);
+    Storm::rewind(app, delta);
 
     switch (ls_) {
     case LightningState::none:
@@ -52,7 +52,7 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
         if (lightning_timer_ >= milliseconds(65)) {
             lightning_timer_ = 0;
             ls_ = LightningState::none;
-            pfrm.screen().schedule_fade(0);
+            PLATFORM.screen().schedule_fade(0);
         }
         break;
 
@@ -62,21 +62,21 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = 0;
             ls_ = LightningState::begin1;
 
-            pfrm.screen().schedule_fade(0.6f,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.6f,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            false,
+                                            false,
+                                            true,
+                                            true);
 
-            pfrm.screen().schedule_fade(0.6f,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.6f,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
         }
         break;
 
@@ -85,21 +85,21 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
         if (lightning_timer_ >= milliseconds(100)) {
             lightning_timer_ = 0;
 
-            pfrm.screen().schedule_fade(0.25f,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.25f,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            false,
+                                            false,
+                                            true,
+                                            true);
 
-            pfrm.screen().schedule_fade(0.25f,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.25f,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
 
             ls_ = LightningState::begin2;
         }
@@ -111,35 +111,35 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = 0;
             ls_ = LightningState::hold;
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 1.f, ColorConstant::rich_black, true, false, false, true, true);
 
-            pfrm.screen().schedule_fade(1.f,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(1.f,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
 
         } else {
             const auto amount =
                 smoothstep(0.f, milliseconds(430), lightning_timer_);
-            pfrm.screen().schedule_fade(amount,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            PLATFORM.screen().schedule_fade(amount,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            false,
+                                            false,
+                                            true,
+                                            true);
 
-            pfrm.screen().schedule_fade(amount,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(amount,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
         }
         break;
     }
@@ -147,9 +147,9 @@ void Typhoon::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
+void Typhoon::update(App& app, Microseconds delta)
 {
-    Storm::update(pfrm, app, delta);
+    Storm::update(app, delta);
 
     switch (ls_) {
     case LightningState::none:
@@ -160,21 +160,21 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
         if (lightning_timer_ <= 0) {
             lightning_timer_ = milliseconds(48);
             ls_ = LightningState::begin2;
-            pfrm.screen().schedule_fade(0.25f,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.25f,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            false,
+                                            false,
+                                            true,
+                                            true);
 
-            pfrm.screen().schedule_fade(0.25f,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(0.25f,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
         }
         break;
 
@@ -184,31 +184,31 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = milliseconds(100);
             ls_ = LightningState::hold;
 
-            pfrm.speaker().play_sound("thunder_close_1", 0);
+            PLATFORM.speaker().play_sound("thunder_close_1", 0);
 
             time_stream::event::Lightning e;
             app.time_stream().push(app.level_timer(), e);
 
             for (auto& room : player_island(app).rooms()) {
-                room->on_lightning(pfrm, app);
+                room->on_lightning(app);
             }
 
             if (opponent_island(app)) {
                 for (auto& room : opponent_island(app)->rooms()) {
-                    room->on_lightning(pfrm, app);
+                    room->on_lightning(app);
                 }
             }
 
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().schedule_fade(
                 1.f, ColorConstant::rich_black, true, false, false, true, true);
 
-            pfrm.screen().schedule_fade(1.f,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(1.f,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
         }
         break;
 
@@ -226,7 +226,7 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
             lightning_timer_ = 0;
             ls_ = LightningState::none;
 
-            pfrm.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f);
 
             time_stream::event::LightningDone e;
             app.time_stream().push(app.level_timer(), e);
@@ -234,21 +234,21 @@ void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             const auto amount =
                 smoothstep(0.f, milliseconds(430), lightning_timer_);
-            pfrm.screen().schedule_fade(amount,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        false,
-                                        false,
-                                        true,
-                                        true);
+            PLATFORM.screen().schedule_fade(amount,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            false,
+                                            false,
+                                            true,
+                                            true);
 
-            pfrm.screen().schedule_fade(amount,
-                                        ColorConstant::silver_white,
-                                        false,
-                                        false,
-                                        true,
-                                        false,
-                                        true);
+            PLATFORM.screen().schedule_fade(amount,
+                                            ColorConstant::silver_white,
+                                            false,
+                                            false,
+                                            true,
+                                            false,
+                                            true);
         }
         break;
     }
@@ -378,15 +378,15 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
 
 
 
-void Typhoon::on_lightning(Platform& pfrm)
+void Typhoon::on_lightning()
 {
     ls_ = LightningState::begin1;
     lightning_timer_ = milliseconds(65);
 
-    pfrm.screen().schedule_fade(
+    PLATFORM.screen().schedule_fade(
         0.6f, ColorConstant::rich_black, true, false, false, true, true);
 
-    pfrm.screen().schedule_fade(
+    PLATFORM.screen().schedule_fade(
         0.6f, ColorConstant::silver_white, false, false, true, false, true);
 }
 

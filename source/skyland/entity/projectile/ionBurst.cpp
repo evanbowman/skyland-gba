@@ -65,7 +65,7 @@ Sound sound_fizzle("fizzle");
 
 
 
-void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
+void IonBurst::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -93,7 +93,7 @@ void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
 
@@ -104,7 +104,7 @@ void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void IonBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
+void IonBurst::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -127,7 +127,7 @@ void IonBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         }
         kill();
     }
@@ -135,7 +135,7 @@ void IonBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void IonBurst::destroy(Platform& pfrm, App& app, bool explosion)
+void IonBurst::destroy(App& app, bool explosion)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -161,16 +161,13 @@ void IonBurst::destroy(Platform& pfrm, App& app, bool explosion)
     kill();
     app.camera()->shake(8);
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 
 
 
-void IonBurst::on_collision(Platform& pfrm,
-                            App& app,
-                            Room& room,
-                            Vec2<u8> origin)
+void IonBurst::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent() and room.metaclass() == ion_cannon_mt) {
         return;
@@ -181,19 +178,18 @@ void IonBurst::on_collision(Platform& pfrm,
         return;
     }
 
-    destroy(pfrm, app, true);
+    destroy(app, true);
 
     if ((*room.metaclass())->properties() &
         RoomProperties::cancels_ion_damage) {
-        sound_fizzle.play(pfrm, 1);
+        sound_fizzle.play(1);
     } else {
-        room.apply_damage(pfrm, app, ion_burst_damage);
+        room.apply_damage(app, ion_burst_damage);
 
         // A hack for the "meltdown" achievement.
         if (str_eq(room.name(), "reactor") and room.health() <= 0) {
             if (room.parent() == app.opponent_island()) {
-                achievements::raise(
-                    pfrm, app, achievements::Achievement::meltdown);
+                achievements::raise(app, achievements::Achievement::meltdown);
             }
         }
     }

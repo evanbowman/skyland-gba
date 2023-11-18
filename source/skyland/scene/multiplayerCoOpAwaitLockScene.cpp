@@ -29,8 +29,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Platform& pfrm,
-                                                      App& app,
+ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(App& app,
                                                       Microseconds delta)
 {
     auto on_failure = [&] {
@@ -39,11 +38,11 @@ ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Platform& pfrm,
             // have checked the room's lock and acquired it.
             room->co_op_peer_release_lock();
         }
-        pfrm.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         return scene_pool::alloc<ReadyScene>();
     };
 
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto scene = ActiveWorldScene::update(app, delta)) {
         on_failure();
         return scene;
     }
@@ -66,19 +65,18 @@ ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Platform& pfrm,
 
 
 
-ScenePtr<Scene> MultiplayerCoOpAwaitChrLockScene::update(Platform& pfrm,
-                                                         App& app,
+ScenePtr<Scene> MultiplayerCoOpAwaitChrLockScene::update(App& app,
                                                          Microseconds delta)
 {
     auto on_failure = [&] {
         if (auto chr = BasicCharacter::find_by_id(app, id_).first) {
             chr->co_op_release_lock();
         }
-        pfrm.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         return scene_pool::alloc<ReadyScene>();
     };
 
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto scene = ActiveWorldScene::update(app, delta)) {
         on_failure();
         return scene;
     }

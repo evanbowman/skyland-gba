@@ -66,7 +66,7 @@ public:
     }
 
 
-    void rewind(Platform&, App&, Microseconds delta)
+    void rewind(App&, Microseconds delta)
     {
         // In some older code I was accidentally updating effects twice per
         // frame. Multiply delta x2 until I get around to fixing all the timers.
@@ -100,7 +100,7 @@ public:
     }
 
 
-    void update(Platform&, App& app, Microseconds delta)
+    void update(App& app, Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;

@@ -74,10 +74,10 @@ public:
     }
 
 
-    virtual void update(Platform&, App&, Microseconds delta) = 0;
+    virtual void update(App&, Microseconds delta) = 0;
 
 
-    virtual void rewind(Platform& pfrm, App& app, Microseconds delta)
+    virtual void rewind(App& app, Microseconds delta)
     {
         Platform::fatal("rewind unimplemented for this entity!");
     }
@@ -101,13 +101,12 @@ public:
     }
 
 
-    virtual void
-    on_collision(Platform& pfrm, App& app, Room& room, Vec2<u8> origin)
+    virtual void on_collision(App& app, Room& room, Vec2<u8> origin)
     {
     }
 
 
-    virtual void on_collision(Platform& pfrm, App& app, Entity& other)
+    virtual void on_collision(App& app, Entity& other)
     {
     }
 
@@ -118,7 +117,7 @@ public:
     }
 
 
-    virtual void apply_damage(Platform& pfrm, App& app, Health amount)
+    virtual void apply_damage(App& app, Health amount)
     {
         health_ = std::max(0, health_ - amount);
     }
@@ -224,16 +223,13 @@ using SharedEntityList =
 
 
 template <typename T>
-void update_entities(Platform& pfrm,
-                     App& app,
-                     Microseconds dt,
-                     EntityList<T>& lat)
+void update_entities(App& app, Microseconds dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {
             it = lat.erase(it);
         } else {
-            (*it)->update(pfrm, app, dt);
+            (*it)->update(app, dt);
             ++it;
         }
     }
@@ -242,16 +238,13 @@ void update_entities(Platform& pfrm,
 
 
 template <typename T>
-void rewind_entities(Platform& pfrm,
-                     App& app,
-                     Microseconds dt,
-                     EntityList<T>& lat)
+void rewind_entities(App& app, Microseconds dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {
             it = lat.erase(it);
         } else {
-            (*it)->rewind(pfrm, app, dt);
+            (*it)->rewind(app, dt);
             ++it;
         }
     }

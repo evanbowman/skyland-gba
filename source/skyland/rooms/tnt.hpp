@@ -42,10 +42,10 @@ public:
               const char* class_name = name());
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -71,8 +71,7 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
 
 
     static Category category()
@@ -127,14 +126,10 @@ public:
     }
 
 
-    void apply_damage(Platform& pfrm, App& app, Health damage) override;
+    void apply_damage(App& app, Health damage) override;
 
 
-    void ignite(Platform& pfrm,
-                App& app,
-                int range,
-                Health damage,
-                bool spread_fire);
+    void ignite(App& app, int range, Health damage, bool spread_fire);
 
 
     void display_on_hover(Platform::Screen& screen,
@@ -158,7 +153,7 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app);
+    void finalize(App& app);
 
 
     static RoomProperties::Bitmask properties()
@@ -212,14 +207,14 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app) override
+    void finalize(App& app) override
     {
-        Room::finalize(pfrm, app);
+        Room::finalize(app);
 
         if (not ignition_) {
             return;
         } else {
-            ignite(pfrm, app, 2, 100, true);
+            ignite(app, 2, 100, true);
         }
     }
 
@@ -255,17 +250,16 @@ public:
     }
 
 
-    ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const RoomCoord& cursor) override
+    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override
     {
-        return Room::select(pfrm, app, cursor);
+        return Room::select(app, cursor);
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
     void display_on_hover(Platform::Screen& screen,

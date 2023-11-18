@@ -34,7 +34,7 @@ namespace skyland
 
 
 // Generate a wavy animation for the flag, and copy the tiles into vram.
-void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer)
+void vram_write_flag(const FlagPixels& px, Layer layer)
 {
     u8 tile_data[16][16] = {0};
 
@@ -51,9 +51,11 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer)
     }
 
     if (layer == Layer::map_0_ext) {
-        pfrm.overwrite_t0_tile(Tile::flag_start, pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t0_tile(Tile::flag_start,
+                                   PLATFORM.encode_tile(tile_data));
     } else {
-        pfrm.overwrite_t1_tile(Tile::flag_start, pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t1_tile(Tile::flag_start,
+                                   PLATFORM.encode_tile(tile_data));
     }
 
     // Now, we want to generate our wavy animation...
@@ -65,11 +67,11 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer)
     }
 
     if (layer == Layer::map_0_ext) {
-        pfrm.overwrite_t0_tile(Tile::flag_start + 1,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t0_tile(Tile::flag_start + 1,
+                                   PLATFORM.encode_tile(tile_data));
     } else {
-        pfrm.overwrite_t1_tile(Tile::flag_start + 1,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t1_tile(Tile::flag_start + 1,
+                                   PLATFORM.encode_tile(tile_data));
     }
 
 
@@ -87,11 +89,11 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer)
     }
 
     if (layer == Layer::map_0_ext) {
-        pfrm.overwrite_t0_tile(Tile::flag_start + 2,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t0_tile(Tile::flag_start + 2,
+                                   PLATFORM.encode_tile(tile_data));
     } else {
-        pfrm.overwrite_t1_tile(Tile::flag_start + 2,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t1_tile(Tile::flag_start + 2,
+                                   PLATFORM.encode_tile(tile_data));
     }
 
     for (int x = 5; x < 9; ++x) { // undo shift down
@@ -107,21 +109,21 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer)
     }
 
     if (layer == Layer::map_0_ext) {
-        pfrm.overwrite_t0_tile(Tile::flag_start + 3,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t0_tile(Tile::flag_start + 3,
+                                   PLATFORM.encode_tile(tile_data));
     } else {
-        pfrm.overwrite_t1_tile(Tile::flag_start + 3,
-                               pfrm.encode_tile(tile_data));
+        PLATFORM.overwrite_t1_tile(Tile::flag_start + 3,
+                                   PLATFORM.encode_tile(tile_data));
     }
 }
 
 
 
-void load_flag(Platform& pfrm, App& app, u16 t)
+void load_flag(App& app, u16 t)
 {
-    pfrm.load_tile0_texture("tilesheet");
+    PLATFORM.load_tile0_texture("tilesheet");
 
-    auto data = pfrm.extract_tile(Layer::map_0, t);
+    auto data = PLATFORM.extract_tile(Layer::map_0, t);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
             app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
@@ -131,9 +133,9 @@ void load_flag(Platform& pfrm, App& app, u16 t)
 
 
 
-void FlagPixels::load_custom(Platform& pfrm, Layer layer, u16 offset)
+void FlagPixels::load_custom(Layer layer, u16 offset)
 {
-    auto data = pfrm.extract_tile(layer, 382 + offset);
+    auto data = PLATFORM.extract_tile(layer, 382 + offset);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
             pixels[x][y] = data.data_[x][y + 1];
@@ -143,11 +145,11 @@ void FlagPixels::load_custom(Platform& pfrm, Layer layer, u16 offset)
 
 
 
-void load_default_flag(Platform& pfrm, App& app)
+void load_default_flag(App& app)
 {
-    pfrm.load_tile0_texture("tilesheet");
+    PLATFORM.load_tile0_texture("tilesheet");
 
-    auto data = pfrm.extract_tile(Layer::map_0, Tile::flag_start);
+    auto data = PLATFORM.extract_tile(Layer::map_0, Tile::flag_start);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
             app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
@@ -161,7 +163,7 @@ static const char* flag_save_file = "/save/flag.dat";
 
 
 
-void FlagPixels::save(Platform& pfrm)
+void FlagPixels::save()
 {
     Vector<char> img;
     for (u32 i = 0; i < sizeof pixels; ++i) {
@@ -169,20 +171,20 @@ void FlagPixels::save(Platform& pfrm)
     }
 
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
-    flash_filesystem::store_file_data_binary(pfrm, flag_save_file, img, opts);
+    flash_filesystem::store_file_data_binary(flag_save_file, img, opts);
 }
 
 
 
-void FlagPixels::load(Platform& pfrm, App& app)
+void FlagPixels::load(App& app)
 {
     Vector<char> img;
-    if (flash_filesystem::read_file_data_binary(pfrm, flag_save_file, img)) {
+    if (flash_filesystem::read_file_data_binary(flag_save_file, img)) {
         for (u32 i = 0; i < img.size(); ++i) {
             ((u8*)pixels)[i] = img[i];
         }
     } else {
-        load_default_flag(pfrm, app);
+        load_default_flag(app);
     }
 }
 

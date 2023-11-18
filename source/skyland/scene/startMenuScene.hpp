@@ -39,16 +39,16 @@ public:
     StartMenuScene(int fade_direction, int default_cursor = 0);
 
 
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void exit(Platform&, App&, Scene& next) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
     bool cascade_anim_in_ = false;
@@ -103,8 +103,7 @@ private:
     Float diff_percent_ = 0.3f;
     int add_offset_ = 0;
 
-    void add_option(Platform&,
-                    const char* str,
+    void add_option(const char* str,
                     DeferredScene on_click,
                     TransitionMode transition_mode);
 

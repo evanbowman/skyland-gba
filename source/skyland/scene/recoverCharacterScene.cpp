@@ -42,10 +42,9 @@ RecoverCharacterScene::RecoverCharacterScene(const RoomCoord& transporter_loc)
 
 
 
-ScenePtr<Scene>
-RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
         return new_scene;
     }
 
@@ -56,49 +55,48 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto& cursor_loc = globals().far_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute(pfrm);
+    app.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::right)) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 0);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(Key::action_1)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
             if (length(room->characters())) {
                 if (auto origin =
                         app.player_island().get_room(transporter_loc_)) {
 
                     if (auto transporter = origin->cast<Transporter>()) {
-                        transporter->recover_character(pfrm, app, cursor_loc);
+                        transporter->recover_character(app, cursor_loc);
                         return scene_pool::alloc<ReadyScene>();
                     }
                 }
@@ -106,7 +104,7 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -115,9 +113,9 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void RecoverCharacterScene::display(Platform& pfrm, App& app)
+void RecoverCharacterScene::display(App& app)
 {
-    WorldScene::display(pfrm, app);
+    WorldScene::display(app);
 
     if (not app.opponent_island()) {
         return;
@@ -136,43 +134,42 @@ void RecoverCharacterScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    PLATFORM.screen().draw(cursor);
 }
 
 
 
-void RecoverCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
+void RecoverCharacterScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
     far_camera();
 
-    auto st = calc_screen_tiles(pfrm);
-    text_.emplace(pfrm,
-                  SYSTR(transporter_recover_char)->c_str(),
+    auto st = calc_screen_tiles();
+    text_.emplace(SYSTR(transporter_recover_char)->c_str(),
                   OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
-        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 }
 
 
 
-void RecoverCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
+void RecoverCharacterScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 
 
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     for (int i = 0; i < st.x; ++i) {
-        pfrm.set_tile(Layer::overlay, i, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 2, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 1, 0);
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 0);
     }
 
     text_.reset();

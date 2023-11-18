@@ -38,33 +38,33 @@ namespace skyland::macro
 
 
 
-void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MacroverseScene::enter(App& app, Scene& prev)
 {
     if (not app.macrocosm()) {
-        pfrm.fatal("logic error while entering macroverse!");
+        PLATFORM.fatal("logic error while entering macroverse!");
     }
 
     if (fastload_) {
-        pfrm.load_overlay_texture("overlay_challenges");
+        PLATFORM.load_overlay_texture("overlay_challenges");
         auto str = SYSTR(start_menu_macroverse);
         Text heading(
-            pfrm,
-            OverlayCoord{
-                (u8)centered_text_margins(pfrm, utf8::len(str->c_str())), 1});
+
+            OverlayCoord{(u8)centered_text_margins(utf8::len(str->c_str())),
+                         1});
         heading.assign(str->c_str());
         heading.__detach();
     }
 
-    pfrm.load_sprite_texture("spritesheet_macroverse");
+    PLATFORM.load_sprite_texture("spritesheet_macroverse");
 
-    pfrm.screen().schedule_fade(0.f);
-    pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, false);
+    PLATFORM.screen().schedule_fade(0.f);
+    PLATFORM.screen().schedule_fade(1.f, ColorConstant::rich_black, false);
 
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 
     // Clear the background texture.
-    pfrm.load_tile0_texture("macro_rendertexture");
-    pfrm.load_tile1_texture("macro_rendertexture");
+    PLATFORM.load_tile0_texture("macro_rendertexture");
+    PLATFORM.load_tile1_texture("macro_rendertexture");
 
     selected_ = macrocosm(app).sector().coordinate();
     initial_sector_ = selected_;
@@ -211,27 +211,27 @@ ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
-void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
+void MacroverseScene::exit(App& app, Scene& prev)
 {
     auto& sector = macrocosm(app).sector();
     sector.repaint();
 
-    pfrm.screen().set_shader(fluid_shader);
+    PLATFORM.screen().set_shader(fluid_shader);
 
-    pfrm.sleep(1);
-    pfrm.screen().fade(1.f);
+    PLATFORM.sleep(1);
+    PLATFORM.screen().fade(1.f);
 
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     if (text_objs_.size()) {
         Platform::fatal("text objs not cleared, tearing will occur!");
     }
-    pfrm.load_overlay_texture("overlay");
+    PLATFORM.load_overlay_texture("overlay");
 
-    pfrm.load_sprite_texture("spritesheet_macro");
+    PLATFORM.load_sprite_texture("spritesheet_macro");
 
-    pfrm.screen().set_view({});
+    PLATFORM.screen().set_view({});
 }
 
 
@@ -240,9 +240,9 @@ static const auto reveal_time = milliseconds(90);
 
 
 
-static Vec2<Fixnum> sector_map_display_pos(Platform& pfrm, Vec2<s8> coord)
+static Vec2<Fixnum> sector_map_display_pos(Vec2<s8> coord)
 {
-    const auto sw = pfrm.screen().size();
+    const auto sw = PLATFORM.screen().size();
 
     Vec2<Fixnum> origin{Fixnum::from_integer(sw.x / 2 - 16),
                         Fixnum::from_integer(sw.y / 2 - 16)};
@@ -259,9 +259,9 @@ static const int layout_icon_width = 6;
 
 
 
-u8 layout_icon_margins(Platform& pfrm)
+u8 layout_icon_margins()
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
     // six tile wide gfx.
 
     st.x -= layout_icon_width * 3;
@@ -272,7 +272,7 @@ u8 layout_icon_margins(Platform& pfrm)
 
 
 
-void MacroverseScene::show_layout_text(Platform& pfrm)
+void MacroverseScene::show_layout_text()
 {
     text_objs_.clear();
 
@@ -299,10 +299,10 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
 
     auto sstr1 = SYSTR(macro_cube);
     const auto sl1 = utf8::len(sstr1->c_str());
-    auto m = layout_icon_margins(pfrm);
+    auto m = layout_icon_margins();
 
     text_objs_.emplace_back(
-        pfrm,
+
         OverlayCoord{(u8)((m + layout_icon_width / 2) - sl1 / 2),
                      (u8)(layout_icon_y_start_row + 8)});
 
@@ -313,7 +313,7 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     const auto sl1_1 = utf8::len(str1_1);
 
     text_objs_.emplace_back(
-        pfrm,
+
         OverlayCoord{(u8)((m + layout_icon_width / 2) - sl1_1 / 2),
                      (u8)(layout_icon_y_start_row + 10)});
 
@@ -323,11 +323,9 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     auto sstr2 = SYSTR(macro_pancake);
     const auto sl2 = utf8::len(sstr2->c_str());
 
-    text_objs_.emplace_back(pfrm,
-                            OverlayCoord{(u8)(((m * 2 + layout_icon_width) +
-                                               layout_icon_width / 2) -
-                                              sl2 / 2),
-                                         (u8)(layout_icon_y_start_row + 8)});
+    text_objs_.emplace_back(OverlayCoord{
+        (u8)(((m * 2 + layout_icon_width) + layout_icon_width / 2) - sl2 / 2),
+        (u8)(layout_icon_y_start_row + 8)});
 
     text_objs_.back().assign(sstr2->c_str(), col_2_colors);
 
@@ -335,11 +333,9 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     const char* str2_2 = "12x12x3";
     const auto sl2_2 = utf8::len(str2_2);
 
-    text_objs_.emplace_back(pfrm,
-                            OverlayCoord{(u8)(((m * 2 + layout_icon_width) +
-                                               layout_icon_width / 2) -
-                                              sl2_2 / 2),
-                                         (u8)(layout_icon_y_start_row + 10)});
+    text_objs_.emplace_back(OverlayCoord{
+        (u8)(((m * 2 + layout_icon_width) + layout_icon_width / 2) - sl2_2 / 2),
+        (u8)(layout_icon_y_start_row + 10)});
 
     text_objs_.back().assign(str2_2, col_2_colors);
 
@@ -348,11 +344,10 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     auto sstr3 = SYSTR(macro_pillar);
     const auto sl3 = utf8::len(sstr3->c_str());
 
-    text_objs_.emplace_back(pfrm,
-                            OverlayCoord{(u8)(((m * 3 + layout_icon_width * 2) +
-                                               layout_icon_width / 2) -
-                                              sl3 / 2),
-                                         (u8)(layout_icon_y_start_row + 8)});
+    text_objs_.emplace_back(OverlayCoord{
+        (u8)(((m * 3 + layout_icon_width * 2) + layout_icon_width / 2) -
+             sl3 / 2),
+        (u8)(layout_icon_y_start_row + 8)});
 
     text_objs_.back().assign(sstr3->c_str(), col_3_colors);
 
@@ -361,11 +356,10 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     const char* str3_2 = "6x6x16";
     const auto sl3_2 = utf8::len(str2_2);
 
-    text_objs_.emplace_back(pfrm,
-                            OverlayCoord{(u8)(((m * 3 + layout_icon_width * 2) +
-                                               layout_icon_width / 2) -
-                                              sl3_2 / 2),
-                                         (u8)(layout_icon_y_start_row + 10)});
+    text_objs_.emplace_back(OverlayCoord{
+        (u8)(((m * 3 + layout_icon_width * 2) + layout_icon_width / 2) -
+             sl3_2 / 2),
+        (u8)(layout_icon_y_start_row + 10)});
 
     text_objs_.back().assign(str3_2, col_3_colors);
 }
@@ -375,39 +369,39 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
 class EnterIslandScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        pfrm.screen().schedule_fade(1.f);
+        PLATFORM.screen().schedule_fade(1.f);
 
         auto& m = macrocosm(app);
-        m.sector().render(pfrm);
+        m.sector().render();
 
-        pfrm.fill_overlay(112);
+        PLATFORM.fill_overlay(112);
     }
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override
+    void exit(App& app, Scene& next) override
     {
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
-        int circ_center_x = pfrm.screen().size().x / 2;
-        int circ_center_y = pfrm.screen().size().y / 2;
+        int circ_center_x = PLATFORM.screen().size().x / 2;
+        int circ_center_y = PLATFORM.screen().size().y / 2;
         int params[] = {circ_radius_, circ_center_x, circ_center_y};
-        pfrm.system_call("iris-wipe-effect", params);
+        PLATFORM.system_call("iris-wipe-effect", params);
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    ScenePtr<Scene> update(App&, Microseconds delta) override
     {
         timer_ += delta;
 
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
-            pfrm.screen().fade(0.f);
+            PLATFORM.screen().fade(0.f);
             auto next = scene_pool::alloc<SelectorScene>();
             next->show_island_size();
             circ_radius_ = 0;
@@ -418,7 +412,7 @@ public:
             if (timer_ > delta) {
                 amount *= 0.75f;
             }
-            pfrm.screen().schedule_fade(amount);
+            PLATFORM.screen().schedule_fade(amount);
         }
 
         return null_scene();
@@ -432,8 +426,7 @@ private:
 
 
 
-ScenePtr<Scene>
-MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MacroverseScene::update(App& app, Microseconds delta)
 {
     if (not app.macrocosm()) {
         Platform::fatal(format("% %", __FILE__, __LINE__).c_str());
@@ -450,7 +443,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene(
                 scene_pool::make_deferred_scene<AbandonColonyScene>());
-            m.sector().render(pfrm);
+            m.sector().render();
             return next;
         } else {
             auto next = scene_pool::alloc<EnterIslandScene>();
@@ -461,10 +454,10 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto clear_description = [&] {
         text_objs_.clear();
-        auto st_y = calc_screen_tiles(pfrm).y;
+        auto st_y = calc_screen_tiles().y;
         for (int y = st_y - 6; y < st_y; ++y) {
-            for (int x = 0; x < calc_screen_tiles(pfrm).x; ++x) {
-                pfrm.set_tile(Layer::overlay, x, y, 0);
+            for (int x = 0; x < calc_screen_tiles().x; ++x) {
+                PLATFORM.set_tile(Layer::overlay, x, y, 0);
             }
         }
     };
@@ -475,12 +468,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         state_ = State::options;
         text_objs_.clear();
 
-        auto st = calc_screen_tiles(pfrm);
+        auto st = calc_screen_tiles();
 
         auto push_opt = [&](SystemString str, u8 y) {
-            auto s = loadstr(pfrm, str);
-            u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
-            text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
+            auto s = loadstr(str);
+            u8 mg = centered_text_margins(utf8::len(s->c_str())) + 1;
+            text_objs_.emplace_back(s->c_str(), OverlayCoord{mg, y});
         };
 
         push_opt(SystemString::macro_enter, st.y - 6);
@@ -493,12 +486,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         state_ = State::options_2;
         text_objs_.clear();
 
-        auto st = calc_screen_tiles(pfrm);
+        auto st = calc_screen_tiles();
 
         auto push_opt = [&](SystemString str, u8 y) {
-            auto s = loadstr(pfrm, str);
-            u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
-            text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
+            auto s = loadstr(str);
+            u8 mg = centered_text_margins(utf8::len(s->c_str())) + 1;
+            text_objs_.emplace_back(s->c_str(), OverlayCoord{mg, y});
         };
 
         push_opt(SystemString::macro_set_name, st.y - 6);
@@ -511,23 +504,24 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
-    auto v = pfrm.screen().get_view();
-    auto cam = sector_map_display_pos(pfrm, selected_);
+    auto v = PLATFORM.screen().get_view();
+    auto cam = sector_map_display_pos(selected_);
 
     if (state_ == State::create_colony and selected_colony_) {
-        cam = (cam + sector_map_display_pos(pfrm, *selected_colony_));
+        cam = (cam + sector_map_display_pos(*selected_colony_));
         cam.x = cam.x.as_float() / 2;
         cam.y = cam.y.as_float() / 2; // Fixed point division broke for this
                                       // calculation.
     }
 
-    Vec2<Float> target{cam.x.as_float() - (pfrm.screen().size().x / 2 - 16),
-                       cam.y.as_float() - (pfrm.screen().size().y / 2 - 16)};
+    Vec2<Float> target{cam.x.as_float() - (PLATFORM.screen().size().x / 2 - 16),
+                       cam.y.as_float() -
+                           (PLATFORM.screen().size().y / 2 - 16)};
 
     camera_ = interpolate(target, camera_, delta * 0.0000081f);
 
     v.set_center(camera_);
-    pfrm.screen().set_view(v);
+    PLATFORM.screen().set_view(v);
 
 
     m.data_->cloud_scroll_ += 0.000001f * delta;
@@ -548,10 +542,10 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::wait;
 
-            pfrm.screen().set_shader([](ShaderPalette p,
-                                        ColorConstant k,
-                                        int var,
-                                        int index) -> ColorConstant {
+            PLATFORM.screen().set_shader([](ShaderPalette p,
+                                            ColorConstant k,
+                                            int var,
+                                            int index) -> ColorConstant {
                 auto blend = [&](auto sc, auto d) {
                     const Color dst(custom_color(sc));
                     const Color src(custom_color(d));
@@ -591,13 +585,13 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > tm) {
             timer_ = 0;
             state_ = State::show;
-            describe_selected(pfrm, macrocosm(app));
+            describe_selected(macrocosm(app));
 
         } else {
             const auto step = smoothstep(0.f, tm, timer_);
             const auto amount = 1.f - 0.6f * step;
-            pfrm.screen().set_shader_argument(step * 255);
-            pfrm.screen().schedule_fade(
+            PLATFORM.screen().set_shader_argument(step * 255);
+            PLATFORM.screen().schedule_fade(
                 amount, ColorConstant::rich_black, false);
         }
         break;
@@ -605,67 +599,67 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::show:
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             enter_opt_state();
-            pfrm.speaker().play_sound("button_wooden", 3);
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            PLATFORM.speaker().play_sound("button_wooden", 3);
+        } else if (app.player().key_down(Key::action_2)) {
             m.bind_sector(initial_sector_);
             clear_description();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             exit_ = true;
-            pfrm.speaker().play_sound("button_wooden", 3);
+            PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (app.player().key_down(Key::left)) {
             if (auto s = m.bind_sector({s8(selected_.x - 1), selected_.y})) {
                 selected_ = s->coordinate();
-                describe_selected(pfrm, m);
-                pfrm.speaker().play_sound("click_wooden", 2);
+                describe_selected(m);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
             }
         }
 
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (app.player().key_down(Key::right)) {
             if (auto s = m.bind_sector({s8(selected_.x + 1), selected_.y})) {
                 selected_ = s->coordinate();
-                describe_selected(pfrm, m);
-                pfrm.speaker().play_sound("click_wooden", 2);
+                describe_selected(m);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
             }
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             if (auto s = m.bind_sector({selected_.x, s8(selected_.y - 1)})) {
                 selected_ = s->coordinate();
-                describe_selected(pfrm, m);
-                pfrm.speaker().play_sound("click_wooden", 2);
+                describe_selected(m);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
             }
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(Key::down)) {
             if (auto s = m.bind_sector({selected_.x, s8(selected_.y + 1)})) {
                 selected_ = s->coordinate();
-                describe_selected(pfrm, m);
-                pfrm.speaker().play_sound("click_wooden", 2);
+                describe_selected(m);
+                PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
             }
         }
         break;
 
     case State::options_2: {
-        if (app.player().key_down(pfrm, Key::down) and
+        if (app.player().key_down(Key::down) and
             opt_cursor_ < text_objs_.size() - 1) {
-            pfrm.speaker().play_sound("click_wooden", 2);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
             ++opt_cursor_;
         }
 
-        if (app.player().key_down(pfrm, Key::up) and opt_cursor_ > 0) {
-            pfrm.speaker().play_sound("click_wooden", 2);
+        if (app.player().key_down(Key::up) and opt_cursor_ > 0) {
+            PLATFORM.speaker().play_sound("click_wooden", 2);
             --opt_cursor_;
         }
 
@@ -683,20 +677,20 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 sel_pos = {x, y};
             }
 
-            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+            PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             enter_opt_state();
-            pfrm.speaker().play_sound("click_wooden", 2);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
             opt_cursor_ = 2;
-        } else if (app.player().key_down(pfrm, Key::action_1)) {
-            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+        } else if (app.player().key_down(Key::action_1)) {
+            PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             switch (opt_cursor_) {
             case 0:
                 text_objs_.clear();
-                pfrm.fill_overlay(0);
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.fill_overlay(0);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
                 state_ = State::text_prompt;
                 break;
 
@@ -709,13 +703,13 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 abandon_ = true;
                 clear_description();
 
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
 
                 auto sz = m.sector().size();
                 m.sector().set_block({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)},
                                      terrain::Type::singularity);
 
-                pfrm.speaker().set_music_volume(5);
+                PLATFORM.speaker().set_music_volume(5);
             }
             }
         }
@@ -724,14 +718,14 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::options: {
-        if (app.player().key_down(pfrm, Key::down) and
+        if (app.player().key_down(Key::down) and
             opt_cursor_ < text_objs_.size() - 1) {
-            pfrm.speaker().play_sound("click_wooden", 2);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
             ++opt_cursor_;
         }
 
-        if (app.player().key_down(pfrm, Key::up) and opt_cursor_ > 0) {
-            pfrm.speaker().play_sound("click_wooden", 2);
+        if (app.player().key_down(Key::up) and opt_cursor_ > 0) {
+            PLATFORM.speaker().play_sound("click_wooden", 2);
             --opt_cursor_;
         }
 
@@ -749,47 +743,45 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 sel_pos = {x, y};
             }
 
-            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+            PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+        if (app.player().key_down(Key::action_2)) {
+            PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             text_objs_.clear();
-            describe_selected(pfrm, m);
+            describe_selected(m);
             state_ = State::show;
             opt_cursor_ = 0;
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
-            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+        if (app.player().key_down(Key::action_1)) {
+            PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             switch (opt_cursor_) {
             case 0:
                 text_objs_.clear();
-                pfrm.fill_overlay(0);
+                PLATFORM.fill_overlay(0);
                 exit_ = true;
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
                 break;
 
             case 1: {
                 state_ = State::create_colony_options;
                 text_objs_.clear();
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
                 clear_description();
                 text_objs_.clear();
 
-                auto st = calc_screen_tiles(pfrm);
+                auto st = calc_screen_tiles();
 
                 auto push_opt = [&](SystemString str, u8 y, u8 n1, u8 n2) {
-                    auto s = loadstr(pfrm, str);
+                    auto s = loadstr(str);
                     *s += " (";
                     *s += stringify(n1);
                     *s += "/";
                     *s += stringify(n2);
                     *s += ")";
-                    u8 mg =
-                        centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
-                    text_objs_.emplace_back(
-                        pfrm, s->c_str(), OverlayCoord{mg, y});
+                    u8 mg = centered_text_margins(utf8::len(s->c_str())) + 1;
+                    text_objs_.emplace_back(s->c_str(), OverlayCoord{mg, y});
                 };
 
                 push_opt(SystemString::macro_fullsize_colony,
@@ -804,7 +796,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 text_objs_.clear();
                 opt_cursor_ = 0;
                 enter_opt2_state();
-                pfrm.speaker().play_sound("button_wooden", 3);
+                PLATFORM.speaker().play_sound("button_wooden", 3);
                 break;
             }
 
@@ -824,24 +816,24 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto cursor_tile = 0;
 
-            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+            PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (app.player().key_down(pfrm, Key::up) or
-            app.player().key_down(pfrm, Key::down)) {
-            pfrm.speaker().play_sound("click_wooden", 2);
+        if (app.player().key_down(Key::up) or
+            app.player().key_down(Key::down)) {
+            PLATFORM.speaker().play_sound("click_wooden", 2);
         }
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
+        if (app.player().key_down(Key::action_2)) {
             text_objs_.clear();
             opt_cursor_ = 0;
             enter_opt_state();
-            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+            PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             break;
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
-            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+        if (app.player().key_down(Key::action_1)) {
+            PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             colony_create_slots_.clear();
             auto push = [&](s8 x, s8 y) {
                 if (not m.load_sector({x, y})) {
@@ -855,17 +847,16 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             push(selected_.x, selected_.y + 1);
 
             if (colony_create_slots_.empty()) {
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
             } else {
                 auto textline = [&](const StringBuffer<48>& str, u8 y) {
-                    text_objs_.emplace_back(
-                        pfrm, str.c_str(), OverlayCoord{1, y});
+                    text_objs_.emplace_back(str.c_str(), OverlayCoord{1, y});
                     u32 i = 0;
 
                     auto s = str.c_str();
                     while (*s not_eq '\0') {
                         if (*s == '_') {
-                            pfrm.set_tile(Layer::overlay, 1 + i, y, 111);
+                            PLATFORM.set_tile(Layer::overlay, 1 + i, y, 111);
                         }
                         ++s;
                         ++i;
@@ -877,17 +868,17 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 state_ = State::create_colony;
                 text_objs_.clear();
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
 
                 textline(format(SYSTR(macro_colony_cost)->c_str(), cost.second)
                              .c_str(),
-                         calc_screen_tiles(pfrm).y - 2);
+                         calc_screen_tiles().y - 2);
 
                 text_objs_.emplace_back(
-                    pfrm,
+
                     stringify(m.sector().productivity()).c_str(),
                     OverlayCoord{2, 4});
-                pfrm.set_tile(Layer::overlay, 1, 4, 111);
+                PLATFORM.set_tile(Layer::overlay, 1, 4, 111);
             }
 
             selected_colony_.reset();
@@ -911,19 +902,19 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::create_colony: {
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
             if (selected_colony_) {
                 auto cost = m.colony_cost();
                 if (m.sector().productivity() >= cost.second) {
 
-                    pfrm.speaker().play_sound("button_wooden", 3);
+                    PLATFORM.speaker().play_sound("button_wooden", 3);
 
                     // state_ = State::select_colony_layout;
 
-                    // pfrm.set_tile(Layer::overlay, 1, 3, 0);
-                    // pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                    // PLATFORM.set_tile(Layer::overlay, 1, 3, 0);
+                    // PLATFORM.set_tile(Layer::overlay, 1, 4, 0);
                     // text_objs_.clear();
-                    // show_layout_text(pfrm);
+                    // show_layout_text();
 
                     text_objs_.clear();
 
@@ -940,7 +931,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                         text_objs_.clear();
 
                         state_ = State::show;
-                        describe_selected(pfrm, m);
+                        describe_selected(m);
 
                         if (not m.bind_sector(*selected_colony_)) {
                             Platform::fatal("logic error (bind sector)");
@@ -952,25 +943,25 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                         m.sector().on_day_transition();
                         m.sector().set_food(5);
 
-                        pfrm.speaker().play_sound("button_wooden", 2);
-                        pfrm.delta_clock().reset();
+                        PLATFORM.speaker().play_sound("button_wooden", 2);
+                        PLATFORM.delta_clock().reset();
                     }
 
                     break;
 
                 } else {
-                    pfrm.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                 }
             }
         }
 
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            pfrm.set_tile(Layer::overlay, 1, 3, 0);
-            pfrm.set_tile(Layer::overlay, 1, 4, 0);
+        if (app.player().key_down(Key::action_2)) {
+            PLATFORM.set_tile(Layer::overlay, 1, 3, 0);
+            PLATFORM.set_tile(Layer::overlay, 1, 4, 0);
             enter_opt_state();
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (app.player().key_down(Key::left)) {
             for (auto& s : colony_create_slots_) {
                 if (s.x < selected_.x) {
                     selected_colony_ = s;
@@ -979,7 +970,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (app.player().key_down(Key::right)) {
             for (auto& s : colony_create_slots_) {
                 if (s.x > selected_.x) {
                     selected_colony_ = s;
@@ -988,7 +979,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             for (auto& s : colony_create_slots_) {
                 if (s.y < selected_.y) {
                     selected_colony_ = s;
@@ -997,7 +988,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(Key::down)) {
             for (auto& s : colony_create_slots_) {
                 if (s.y > selected_.y) {
                     selected_colony_ = s;
@@ -1013,18 +1004,17 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto cost = m.colony_cost();
 
-        if (app.player().key_down(pfrm, Key::left) and (int) shape_ > 0) {
+        if (app.player().key_down(Key::left) and (int) shape_ > 0) {
             shape_ = (terrain::Sector::Shape)((int)shape_ - 1);
-            pfrm.speaker().play_sound("click_wooden", 2);
-            show_layout_text(pfrm);
-        } else if (app.player().key_down(pfrm, Key::right) and
-                   (int) shape_ < 2) {
+            PLATFORM.speaker().play_sound("click_wooden", 2);
+            show_layout_text();
+        } else if (app.player().key_down(Key::right) and (int) shape_ < 2) {
             shape_ = (terrain::Sector::Shape)((int)shape_ + 1);
-            pfrm.speaker().play_sound("click_wooden", 2);
-            show_layout_text(pfrm);
+            PLATFORM.speaker().play_sound("click_wooden", 2);
+            show_layout_text();
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (app.player().key_down(Key::action_1)) {
 
             if (m.make_sector(*selected_colony_, shape_)) {
 
@@ -1037,7 +1027,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 text_objs_.clear();
 
                 state_ = State::show;
-                describe_selected(pfrm, m);
+                describe_selected(m);
 
                 if (not m.bind_sector(*selected_colony_)) {
                     Platform::fatal("logic error (bind sector)");
@@ -1047,7 +1037,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 m.sector().set_population(1);
                 m.sector().set_food(5);
 
-                pfrm.speaker().play_sound("button_wooden", 2);
+                PLATFORM.speaker().play_sound("button_wooden", 2);
             }
         }
 
@@ -1060,43 +1050,43 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MacroverseScene::describe_selected(Platform& pfrm,
-                                        macro::EngineImpl& state)
+void MacroverseScene::describe_selected(macro::EngineImpl& state)
 {
-    auto st = calc_screen_tiles(pfrm);
+    auto st = calc_screen_tiles();
 
     if (text_objs_.size() not_eq 2) {
         text_objs_.clear();
 
-        text_objs_.emplace_back(pfrm, OverlayCoord{1, (u8)(st.y - 4)});
-        text_objs_.emplace_back(pfrm, OverlayCoord{2, (u8)(st.y - 2)});
+        text_objs_.emplace_back(OverlayCoord{1, (u8)(st.y - 4)});
+        text_objs_.emplace_back(OverlayCoord{2, (u8)(st.y - 2)});
     }
 
     for (int i = 0; i < text_objs_[0].len(); ++i) {
-        pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 0);
+        PLATFORM.set_tile(Layer::overlay, 1 + i, st.y - 3, 0);
     }
 
     text_objs_[0].assign(state.sector().name().c_str());
 
     for (int i = 0; i < text_objs_[0].len(); ++i) {
-        pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 86);
+        PLATFORM.set_tile(Layer::overlay, 1 + i, st.y - 3, 86);
     }
 
-    pfrm.set_tile(Layer::overlay, 1, st.y - 2, 85);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 85);
 
     text_objs_[1].assign(state.sector().population());
 }
 
 
 
-void MacroverseScene::display(Platform& pfrm, App& app)
+void MacroverseScene::display(App& app)
 {
     if (exit_ or state_ == State::text_prompt) {
         return;
     }
 
-    pfrm.system_call("_prlx_macro",
-                     (void*)(intptr_t)(int)macrocosm(app).data_->cloud_scroll_);
+    PLATFORM.system_call(
+        "_prlx_macro",
+        (void*)(intptr_t)(int)macrocosm(app).data_->cloud_scroll_);
 
 
     if (state_ == State::select_colony_layout) {
@@ -1104,31 +1094,31 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         auto origin = camera_.cast<Fixnum>();
         origin.y += Fixnum::from_integer(8 * layout_icon_y_start_row);
 
-        auto draw = [&pfrm](int t_start, Vec2<Fixnum> origin) {
+        auto draw = [](int t_start, Vec2<Fixnum> origin) {
             Sprite spr;
             spr.set_texture_index(t_start++);
             spr.set_position(origin);
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
 
             origin.x += 32.0_fixed;
             spr.set_texture_index(t_start++);
             spr.set_position(origin);
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
 
             origin.x -= 32.0_fixed;
             origin.y += 32.0_fixed;
             spr.set_texture_index(t_start++);
             spr.set_position(origin);
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
 
             origin.x += 32.0_fixed;
             spr.set_texture_index(t_start);
             spr.set_position(origin);
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
         };
 
 
-        auto mrgn = layout_icon_margins(pfrm);
+        auto mrgn = layout_icon_margins();
 
         int ic1 = 14;
         int ic2 = 18;
@@ -1182,7 +1172,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             return;
         }
 
-        auto origin = sector_map_display_pos(pfrm, c);
+        auto origin = sector_map_display_pos(c);
 
         int t_start = 8;
 
@@ -1196,10 +1186,10 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         spr.set_position(origin);
         spr.set_texture_index(t_start);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
         spr.set_texture_index(t_start + 1);
         spr.set_position({origin.x, origin.y + 32.0_fixed});
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     };
 
 
@@ -1224,7 +1214,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             return;
         }
 
-        auto origin = sector_map_display_pos(pfrm, c);
+        auto origin = sector_map_display_pos(c);
         origin.x += 8.0_fixed;
         origin.y += 8.0_fixed;
 
@@ -1242,13 +1232,13 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         spr.set_position(origin);
         spr.set_texture_index(t_start);
-        pfrm.screen().draw(spr);
+        PLATFORM.screen().draw(spr);
     };
 
 
     if (state_ == State::create_colony) {
         for (auto& slot : colony_create_slots_) {
-            auto origin = sector_map_display_pos(pfrm, slot);
+            auto origin = sector_map_display_pos(slot);
             origin.x += 8.0_fixed;
             origin.y += 8.0_fixed;
 
@@ -1265,7 +1255,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             }
 
 
-            pfrm.screen().draw(spr);
+            PLATFORM.screen().draw(spr);
         }
     }
 

@@ -30,7 +30,7 @@ namespace skyland
 
 
 
-void ExploSpawner::update(Platform& pfrm, App& app, Microseconds delta)
+void ExploSpawner::update(App& app, Microseconds delta)
 {
     timer1_ += delta;
     timer2_ += delta;
@@ -46,7 +46,7 @@ void ExploSpawner::update(Platform& pfrm, App& app, Microseconds delta)
         }
         auto pos = sprite_.get_position();
         pos = rng::sample<16>(pos, rng::utility_state);
-        if (auto ent = app.alloc_entity<Explosion3>(pfrm, pos, 90 / 2, 0)) {
+        if (auto ent = app.alloc_entity<Explosion3>(pos, 90 / 2, 0)) {
 
             ent->set_speed(
                 {0.0_fixed, Fixnum::from_integer(-1) * 0.0001_fixed});
@@ -58,9 +58,9 @@ void ExploSpawner::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ExploSpawner::create(Platform& pfrm, App& app, const Vec2<Fixnum>& pos)
+void ExploSpawner::create(App& app, const Vec2<Fixnum>& pos)
 {
-    if (auto ent = app.alloc_entity<ExploSpawner>(pfrm, pos)) {
+    if (auto ent = app.alloc_entity<ExploSpawner>(pos)) {
         app.effects().push(std::move(ent));
     }
 }

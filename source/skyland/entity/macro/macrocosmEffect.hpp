@@ -48,7 +48,7 @@ public:
     }
 
 
-    void update(Platform& pfrm, macro::Engine& s, Microseconds delta) override
+    void update(macro::Engine& s, Microseconds delta) override
     {
         timer_ += delta;
         if (timer_ >= rate_) {

@@ -42,7 +42,7 @@ Water::Water(Island* parent, const RoomCoord& position, const char* name)
 
 
 
-void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
+void Water::check_flood_parent(App& app, Microseconds delta)
 {
     // NOTE: we want to destroy a water block if its parent water block no
     // longer exists.
@@ -80,22 +80,22 @@ void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Water::update(Platform& pfrm, App& app, Microseconds delta)
+void Water::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (parent()->is_destroyed()) {
         return;
     }
 
     if (app.environment().is_cold()) {
-        __unsafe__transmute(pfrm, app, ::skyland::metaclass_index("ice"));
+        __unsafe__transmute(app, ::skyland::metaclass_index("ice"));
         return;
     }
 
     Room::ready();
 
-    check_flood_parent(pfrm, app, delta);
+    check_flood_parent(app, delta);
 
     if (has_flood_parent_) {
         flood_timer_ += delta;
@@ -103,7 +103,7 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto kill_fire = [&](u8 x, u8 y) {
         if (parent()->fire_present({x, y})) {
-            parent()->fire_extinguish(pfrm, app, {x, y});
+            parent()->fire_extinguish(app, {x, y});
         }
     };
 
@@ -131,8 +131,7 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ -= milliseconds(300);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("water"))
-                ->create(pfrm, app, parent(), {x, y}, false);
+            (*load_metaclass("water"))->create(app, parent(), {x, y}, false);
 
             parent()->schedule_repaint();
 
@@ -232,18 +231,16 @@ WaterSource::WaterSource(Island* parent, const RoomCoord& position)
 
 
 
-void WaterSource::update(Platform& pfrm, App& app, Microseconds delta)
+void WaterSource::update(App& app, Microseconds delta)
 {
     flood_timer_ += delta;
 
-    Water::update(pfrm, app, delta);
+    Water::update(app, delta);
 }
 
 
 
-void WaterSource::check_flood_parent(Platform& pfrm,
-                                     App& app,
-                                     Microseconds delta)
+void WaterSource::check_flood_parent(App& app, Microseconds delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

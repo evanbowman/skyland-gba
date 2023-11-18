@@ -34,14 +34,13 @@ namespace skyland::macro
 class SelectorScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
+    void enter(macro::EngineImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
+    void exit(macro::EngineImpl& state, Scene& next) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
+    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override;
 
 
     void show_island_size()
@@ -51,7 +50,7 @@ public:
 
 
 private:
-    void describe_selected(Platform& pfrm, macro::EngineImpl& state);
+    void describe_selected(macro::EngineImpl& state);
 
     std::optional<Text> text_;
     std::optional<Text> text_2_;

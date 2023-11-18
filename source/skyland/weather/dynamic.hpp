@@ -39,10 +39,10 @@ public:
     Dynamic(App& app);
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
     Platform::Screen::Shader shader(App& app) const override;

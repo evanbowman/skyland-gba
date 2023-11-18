@@ -84,9 +84,9 @@ static const char* alt_keyboard[7][6] = {{"Z", "Y", "G", "F", "V", "Q"},
                                          {"@", "*", ";", ":", "%", "#"}};
 
 
-void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
+void LispReplScene::repaint_entry(bool show_cursor)
 {
-    const auto screen_tiles = calc_screen_tiles(pfrm);
+    const auto screen_tiles = calc_screen_tiles();
 
     const auto darker_clr = Text::OptColors{
         {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
@@ -94,7 +94,7 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
     entry_->assign(":", darker_clr);
 
     for (int i = 1; i < 32; ++i) {
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
     }
 
     auto colors = [this]() -> Text::OptColors {
@@ -128,8 +128,8 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
 
     keyboard_.clear();
 
-    keyboard_top_.emplace(pfrm, OverlayCoord{2, 2});
-    keyboard_bottom_.emplace(pfrm, OverlayCoord{2, 10});
+    keyboard_top_.emplace(OverlayCoord{2, 2});
+    keyboard_bottom_.emplace(OverlayCoord{2, 10});
 
     auto& kb = alt_ ? alt_keyboard : keyboard;
 
@@ -139,7 +139,7 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
     }
 
     for (int i = 0; i < 7; ++i) {
-        keyboard_.emplace_back(pfrm, OverlayCoord{1, u8(3 + i)});
+        keyboard_.emplace_back(OverlayCoord{1, u8(3 + i)});
         keyboard_.back().append(kb[i][5], darker_clr);
 
         for (int j = 0; j < 6; ++j) {
@@ -158,36 +158,36 @@ void LispReplScene::repaint_entry(Platform& pfrm, bool show_cursor)
 }
 
 
-void LispReplScene::enter(Platform& pfrm, App& app, Scene& prev)
+void LispReplScene::enter(App& app, Scene& prev)
 {
     enable_text_icon_glyphs(false);
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
 
     keyboard_cursor_ = {2, 4}; // For convenience, place cursor at left paren
 
-    const auto screen_tiles = calc_screen_tiles(pfrm);
+    const auto screen_tiles = calc_screen_tiles();
 
-    entry_.emplace(pfrm, OverlayCoord{0, u8(screen_tiles.y - 1)});
+    entry_.emplace(OverlayCoord{0, u8(screen_tiles.y - 1)});
 
     const char* version_text = "Skyland LISP v03";
 
     for (int i = 0; i < 31; ++i) {
-        pfrm.set_tile(Layer::overlay, i, 0, 112);
+        PLATFORM.set_tile(Layer::overlay, i, 0, 112);
     }
 
     const auto vrsn_coord =
         OverlayCoord{u8((screen_tiles.x - 2) - str_len(version_text)), 0};
 
-    version_text_.emplace(pfrm, vrsn_coord);
+    version_text_.emplace(vrsn_coord);
 
     version_text_->assign(version_text);
 
-    repaint_entry(pfrm);
+    repaint_entry();
 }
 
 
-void LispReplScene::exit(Platform& pfrm, App& app, Scene& next)
+void LispReplScene::exit(App& app, Scene& next)
 {
     entry_.reset();
     keyboard_.clear();
@@ -195,8 +195,8 @@ void LispReplScene::exit(Platform& pfrm, App& app, Scene& next)
     keyboard_top_.reset();
     keyboard_bottom_.reset();
 
-    pfrm.fill_overlay(0);
-    pfrm.screen().fade(0.f);
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().fade(0.f);
 
     enable_text_icon_glyphs(true);
 }
@@ -222,7 +222,7 @@ private:
 } // namespace
 
 
-void LispReplScene::repaint_completions(Platform& pfrm)
+void LispReplScene::repaint_completions()
 {
     cpl_->completions_.clear();
 
@@ -233,7 +233,7 @@ void LispReplScene::repaint_completions(Platform& pfrm)
                 {ColorConstant::rich_black, ColorConstant::aerospace_orange}};
         }
 
-        cpl_->completions_.emplace_back(pfrm, OverlayCoord{10, u8(2 + i)});
+        cpl_->completions_.emplace_back(OverlayCoord{10, u8(2 + i)});
 
         const auto str = cpl_->completion_strs_[i];
         int j;
@@ -264,66 +264,65 @@ void LispReplScene::repaint_completions(Platform& pfrm)
 }
 
 
-ScenePtr<Scene>
-LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> LispReplScene::update(App& app, Microseconds delta)
 {
     constexpr auto fade_duration = milliseconds(700);
     if (timer_ < fade_duration) {
         if (timer_ + delta > fade_duration) {
-            pfrm.screen().fade(0.34f);
+            PLATFORM.screen().fade(0.34f);
         }
         timer_ += delta;
 
         const auto amount = 0.34f * smoothstep(0.f, fade_duration, timer_);
 
         if (timer_ < fade_duration) {
-            pfrm.screen().fade(amount);
+            PLATFORM.screen().fade(amount);
         }
     }
 
     switch (display_mode_) {
     case DisplayMode::completion_list:
-        if (pfrm.keyboard().down_transition<Key::down>() and
+        if (PLATFORM.keyboard().down_transition<Key::down>() and
             cpl_->completion_cursor_ < cpl_->completion_strs_.size() - 1) {
             ++cpl_->completion_cursor_;
-            repaint_completions(pfrm);
-            pfrm.speaker().play_sound("scroll", 1);
-        } else if (pfrm.keyboard().down_transition<Key::up>() and
+            repaint_completions();
+            PLATFORM.speaker().play_sound("scroll", 1);
+        } else if (PLATFORM.keyboard().down_transition<Key::up>() and
                    cpl_->completion_cursor_ > 0) {
             --cpl_->completion_cursor_;
-            repaint_completions(pfrm);
-            pfrm.speaker().play_sound("scroll", 1);
-        } else if (pfrm.keyboard().down_transition<Key::action_2>()) {
-            repaint_entry(pfrm);
+            repaint_completions();
+            PLATFORM.speaker().play_sound("scroll", 1);
+        } else if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+            repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
             display_mode_ = DisplayMode::entry;
-        } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
             *command_ += (cpl_->completion_strs_[cpl_->completion_cursor_] +
                           cpl_->completion_prefix_len_);
-            repaint_entry(pfrm);
+            repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
-            pfrm.speaker().play_sound("typewriter", 2);
+            PLATFORM.speaker().play_sound("typewriter", 2);
             display_mode_ = DisplayMode::entry;
         }
         break;
 
     case DisplayMode::entry:
-        if (pfrm.keyboard().pressed<Key::alt_2>()) {
+        if (PLATFORM.keyboard().pressed<Key::alt_2>()) {
             auto prev_alt = alt_;
             alt_ = true;
             if (not prev_alt) {
-                repaint_entry(pfrm);
+                repaint_entry();
             }
         } else {
             auto prev_alt = alt_;
             alt_ = false;
             if (prev_alt) {
-                repaint_entry(pfrm);
+                repaint_entry();
             }
         }
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             if (command_->empty()) {
                 if (app.macrocosm()) {
                     return scene_pool::alloc<macro::SelectorScene>();
@@ -332,13 +331,13 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
             command_->pop_back();
-            repaint_entry(pfrm);
-        } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            repaint_entry();
+        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
             auto& kb = alt_ ? alt_keyboard : keyboard;
             command_->push_back(kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
-            repaint_entry(pfrm);
-            pfrm.speaker().play_sound("typewriter", 2);
-        } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
+            repaint_entry();
+            PLATFORM.speaker().play_sound("typewriter", 2);
+        } else if (PLATFORM.keyboard().down_transition<Key::alt_1>()) {
             // Try to isolate an identifier from the command buffer, for autocomplete.
 
             auto is_delimiter = [](char c) {
@@ -401,18 +400,18 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (not cpl_->completion_strs_.empty()) {
                         display_mode_ = DisplayMode::completion_list;
                         cpl_->completion_cursor_ = 0;
-                        repaint_completions(pfrm);
-                        repaint_entry(pfrm, false);
+                        repaint_completions();
+                        repaint_entry(false);
                     }
                 }
             } else {
-                error(pfrm, "command empty or recent delimiter");
+                error("command empty or recent delimiter");
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::start>()) {
+        if (PLATFORM.keyboard().down_transition<Key::start>()) {
 
-            pfrm.speaker().play_sound("tw_bell", 2);
+            PLATFORM.speaker().play_sound("tw_bell", 2);
 
             lisp::BasicCharSequence seq(command_->c_str());
             lisp::read(seq);
@@ -427,46 +426,46 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             display_mode_ = DisplayMode::show_result;
 
-            repaint_entry(pfrm);
+            repaint_entry();
         }
 
-        if (pfrm.keyboard().down_transition<Key::left>()) {
+        if (PLATFORM.keyboard().down_transition<Key::left>()) {
             if (keyboard_cursor_.x == 0) {
                 keyboard_cursor_.x = 5;
             } else {
                 keyboard_cursor_.x -= 1;
             }
-            pfrm.speaker().play_sound("scroll", 1);
-            repaint_entry(pfrm);
-        } else if (pfrm.keyboard().down_transition<Key::right>()) {
+            PLATFORM.speaker().play_sound("scroll", 1);
+            repaint_entry();
+        } else if (PLATFORM.keyboard().down_transition<Key::right>()) {
             if (keyboard_cursor_.x == 5) {
                 keyboard_cursor_.x = 0;
             } else {
                 keyboard_cursor_.x += 1;
             }
-            pfrm.speaker().play_sound("scroll", 1);
-            repaint_entry(pfrm);
-        } else if (pfrm.keyboard().down_transition<Key::up>()) {
+            PLATFORM.speaker().play_sound("scroll", 1);
+            repaint_entry();
+        } else if (PLATFORM.keyboard().down_transition<Key::up>()) {
             if (keyboard_cursor_.y == 0) {
                 keyboard_cursor_.y = 6;
             } else {
                 keyboard_cursor_.y -= 1;
             }
-            pfrm.speaker().play_sound("scroll", 1);
-            repaint_entry(pfrm);
-        } else if (pfrm.keyboard().down_transition<Key::down>()) {
+            PLATFORM.speaker().play_sound("scroll", 1);
+            repaint_entry();
+        } else if (PLATFORM.keyboard().down_transition<Key::down>()) {
             if (keyboard_cursor_.y == 6) {
                 keyboard_cursor_.y = 0;
             } else {
                 keyboard_cursor_.y += 1;
             }
-            pfrm.speaker().play_sound("scroll", 1);
-            repaint_entry(pfrm);
+            PLATFORM.speaker().play_sound("scroll", 1);
+            repaint_entry();
         }
         break;
 
     case DisplayMode::show_result:
-        if (pfrm.keyboard()
+        if (PLATFORM.keyboard()
                 .down_transition<Key::action_2,
                                  Key::action_1,
                                  Key::start,
@@ -477,7 +476,7 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             display_mode_ = DisplayMode::entry;
             command_->clear();
-            repaint_entry(pfrm);
+            repaint_entry();
             return null_scene();
         }
         break;

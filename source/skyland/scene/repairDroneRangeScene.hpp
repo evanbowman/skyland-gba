@@ -42,10 +42,10 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
 public:

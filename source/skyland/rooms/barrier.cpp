@@ -36,9 +36,9 @@ Barrier::Barrier(Island* parent, const RoomCoord& position)
 
 
 
-void Barrier::update(Platform& pfrm, App& app, Microseconds delta)
+void Barrier::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 
@@ -57,10 +57,10 @@ void Barrier::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Barrier::apply_damage(Platform& pfrm, App& app, Health damage)
+void Barrier::apply_damage(App& app, Health damage)
 {
     // Takes no damage, kind of the whole point.
-    Room::apply_damage(pfrm, app, 0);
+    Room::apply_damage(app, 0);
 }
 
 

@@ -90,12 +90,12 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
-    void display(Platform&, App&) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    void display(App&) override;
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(App& app, Scene& prev) override;
+    void exit(App& app, Scene& next) override;
 
 
 private:
@@ -113,7 +113,7 @@ private:
 
     std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
-    void show_stats(Platform&, App&);
+    void show_stats(App&);
 
     Microseconds stat_timer_ = 0;
 

@@ -45,11 +45,11 @@ public:
     {
     }
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     static SystemString module_name()
@@ -70,10 +70,10 @@ public:
     }
 
 
-    void show_cart(Platform& pfrm, int index);
+    void show_cart(int index);
 
 
-    ScenePtr<Scene> boot_cart(Platform& pfrm, int cart_index);
+    ScenePtr<Scene> boot_cart(int cart_index);
 
 
     void set_index(int index)

@@ -33,76 +33,76 @@ namespace skyland
 
 
 
-void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
+void PlayerP1::update(App& app, Microseconds delta)
 {
     // Really dumb keylogger, for the tutorial levels. Dump lisp code to SRAM.
 
     if (app.game_mode() == App::GameMode::tutorial) {
         StringBuffer<48> out = "(";
 
-        if (pfrm.keyboard().down_transition<Key::left>()) {
+        if (PLATFORM.keyboard().down_transition<Key::left>()) {
             out += stringify(last_key_ / 1000);
             out += " Left)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::right>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::right>()) {
             out += stringify(last_key_ / 1000);
             out += " Right)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::up>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::up>()) {
             out += stringify(last_key_ / 1000);
             out += " Up)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::down>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::down>()) {
             out += stringify(last_key_ / 1000);
             out += " Down)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
             out += stringify(last_key_ / 1000);
             out += " A)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             out += stringify(last_key_ / 1000);
             out += " B)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::alt_1>()) {
             out += stringify(last_key_ / 1000);
             out += " L-p)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::alt_2>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::alt_2>()) {
             out += stringify(last_key_ / 1000);
             out += " R)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::start>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::start>()) {
             out += stringify(last_key_ / 1000);
             out += " Start-p)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().down_transition<Key::select>()) {
+        } else if (PLATFORM.keyboard().down_transition<Key::select>()) {
             out += stringify(last_key_ / 1000);
             out += " Select)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
         }
 
-        if (pfrm.keyboard().up_transition<Key::start>()) {
+        if (PLATFORM.keyboard().up_transition<Key::start>()) {
             out = "(";
             out += stringify(last_key_ / 1000);
             out += " Start-np)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
-        } else if (pfrm.keyboard().up_transition<Key::alt_1>()) {
+        } else if (PLATFORM.keyboard().up_transition<Key::alt_1>()) {
             out = "(";
             out += stringify(last_key_ / 1000);
             out += " L-np)";
-            debug(pfrm, out.c_str());
+            debug(out.c_str());
             last_key_ = 0;
         }
 
@@ -114,21 +114,21 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (delta > 0) {
             if (touch_held(milliseconds(200))) {
-                if (auto p = touch_current(pfrm)) {
+                if (auto p = touch_current()) {
                     auto last = last_touch_;
                     auto velocity =
                         (p->cast<s32>() - last.cast<s32>()).cast<Float>();
                     velocity.x /= delta;
                     velocity.y /= delta;
-                    // info(pfrm, format("p__ % %", p->x, p->y));
-                    // info(pfrm, format("lst % %", last.x, last.y));
+                    // info(format("p__ % %", p->x, p->y));
+                    // info(format("lst % %", last.x, last.y));
                     touch_velocity_.x =
                         ((19 * touch_velocity_.x) + velocity.x) / 20;
                     touch_velocity_.y =
                         ((19 * touch_velocity_.y) + velocity.y) / 20;
 
 
-                    // info(pfrm, format("vel % %",
+                    // info(format("vel % %",
                     //                   touch_velocity_.x,
                     //                   touch_velocity_.y));
                 }
@@ -138,7 +138,7 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        if (auto t = pfrm.screen().touch()) {
+        if (auto t = PLATFORM.screen().touch()) {
             if (auto pos = t->read()) {
                 last_touch_ = *pos;
                 touch_held_time_ += delta;
@@ -160,14 +160,14 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
         // record held keys unless the keylogger is off.
 
         for (int i = 0; i < static_cast<int>(Key::count); ++i) {
-            if (pfrm.keyboard().pressed(static_cast<Key>(i))) {
+            if (PLATFORM.keyboard().pressed(static_cast<Key>(i))) {
                 key_held_timers_[i] += delta;
             } else {
                 key_held_timers_[i] = 0;
             }
         }
 
-        if (pfrm.keyboard()
+        if (PLATFORM.keyboard()
                 .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
             app.camera()->reset_default(app);
         }
@@ -189,7 +189,7 @@ SharedVariable score_multiplier("score_multiplier", 1);
 
 
 
-void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
+void PlayerP1::on_room_destroyed(App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
         if (room.cast<Mycelium>()) {
@@ -214,21 +214,21 @@ void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
 
 
 
-void PlayerP1::on_room_damaged(Platform& pfrm, App& app, Room& room)
+void PlayerP1::on_room_damaged(App& app, Room& room)
 {
     auto island = room.parent();
 
     // Birds alerted when island attacked.
     for (auto& bird : app.birds()) {
         if (bird->island(app) == island) {
-            bird->signal(pfrm, app);
+            bird->signal(app);
         }
     }
 }
 
 
 
-void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
+void PlayerP1::on_room_plundered(App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
         app.score().set(
@@ -236,31 +236,30 @@ void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
              1.5f * (score_multiplier * (*room.metaclass())->cost())));
 
         if (str_eq((*room.metaclass())->name(), "decimator")) {
-            achievements::raise(
-                pfrm, app, achievements::Achievement::ancient_weapon);
+            achievements::raise(app, achievements::Achievement::ancient_weapon);
         }
     }
 }
 
 
 
-bool PlayerP1::key_down(Platform& pfrm, Key k)
+bool PlayerP1::key_down(Key k)
 {
-    return pfrm.keyboard().down_transition(k);
+    return PLATFORM.keyboard().down_transition(k);
 }
 
 
 
-bool PlayerP1::key_up(Platform& pfrm, Key k)
+bool PlayerP1::key_up(Key k)
 {
-    return pfrm.keyboard().up_transition(k);
+    return PLATFORM.keyboard().up_transition(k);
 }
 
 
 
-bool PlayerP1::key_pressed(Platform& pfrm, Key k)
+bool PlayerP1::key_pressed(Key k)
 {
-    return pfrm.keyboard().pressed(k);
+    return PLATFORM.keyboard().pressed(k);
 }
 
 
@@ -279,7 +278,7 @@ void PlayerP1::key_held_reset(Key k, Microseconds decrement)
 
 
 
-void PlayerP1::key_held_distribute(Platform& pfrm, const Key* include_list)
+void PlayerP1::key_held_distribute(const Key* include_list)
 {
     // If any key in the include_list is pressed, distribute that key press to
     // all keys in the include list.
@@ -298,7 +297,7 @@ void PlayerP1::key_held_distribute(Platform& pfrm, const Key* include_list)
     l = include_list;
 
     while (*l not_eq Key::null) {
-        if (pfrm.keyboard().pressed(*l)) {
+        if (PLATFORM.keyboard().pressed(*l)) {
             key_held_timers_[static_cast<int>(*l)] = max;
         }
         ++l;
@@ -307,14 +306,13 @@ void PlayerP1::key_held_distribute(Platform& pfrm, const Key* include_list)
 
 
 
-std::optional<std::tuple<Vec2<u32>, Microseconds>>
-PlayerP1::touch_released(Platform& pfrm)
+std::optional<std::tuple<Vec2<u32>, Microseconds>> PlayerP1::touch_released()
 {
     if (touch_invalidate_) {
         return {};
     }
 
-    if (auto t = pfrm.screen().touch()) {
+    if (auto t = PLATFORM.screen().touch()) {
         if (auto pos = t->up_transition()) {
             return std::make_tuple(*pos, last_touch_held_time_);
         }
@@ -324,13 +322,13 @@ PlayerP1::touch_released(Platform& pfrm)
 
 
 
-std::optional<Vec2<u32>> PlayerP1::touch_current(Platform& pfrm)
+std::optional<Vec2<u32>> PlayerP1::touch_current()
 {
     if (touch_invalidate_) {
         return {};
     }
 
-    if (auto t = pfrm.screen().touch()) {
+    if (auto t = PLATFORM.screen().touch()) {
         return t->read();
     }
     return {};

@@ -43,46 +43,46 @@ namespace skyland
 class SaveSandboxScene : public Scene
 {
 public:
-    void exit(Platform& pfrm, App& app, Scene& next) override
+    void exit(App& app, Scene& next) override
     {
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
         text_.clear();
     }
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
 
         for (int x = 1; x < st.x - 1; ++x) {
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 4 + y, 498);
+                PLATFORM.set_tile(Layer::overlay, x, 4 + y, 498);
             }
 
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 9 + y, 498);
+                PLATFORM.set_tile(Layer::overlay, x, 9 + y, 498);
             }
 
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 14 + y, 498);
+                PLATFORM.set_tile(Layer::overlay, x, 14 + y, 498);
             }
         }
 
         const auto colors =
             FontColors{ColorConstant::indigo_tint, custom_color(0xd9dee6)};
 
-        text_.emplace_back(pfrm, OverlayCoord{2, 5});
+        text_.emplace_back(OverlayCoord{2, 5});
         text_.back().assign("sandbox 1", colors);
 
-        text_.emplace_back(pfrm, OverlayCoord{2, 10});
+        text_.emplace_back(OverlayCoord{2, 10});
         text_.back().assign("sandbox 2", colors);
 
-        text_.emplace_back(pfrm, OverlayCoord{2, 15});
+        text_.emplace_back(OverlayCoord{2, 15});
         text_.back().assign("sandbox 3", colors);
     }
 
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
         Sprite sprite;
         sprite.set_tidx_16x16(28, 1);
@@ -92,7 +92,7 @@ public:
         sprite.set_mix({ColorConstant::silver_white, 1});
 
 
-        auto view = pfrm.screen().get_view().get_center();
+        auto view = PLATFORM.screen().get_view().get_center();
 
         Vec2<Fixnum> origin;
         origin.x = 5;
@@ -101,43 +101,43 @@ public:
         origin.y += Fixnum(view.y);
 
         sprite.set_position(origin);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
-        origin.x += Fixnum::from_integer((pfrm.screen().size().x - 16) + 7);
+        origin.x += Fixnum::from_integer((PLATFORM.screen().size().x - 16) + 7);
         sprite.set_position(origin);
         sprite.set_flip({true, false});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
         origin.y += Fixnum::from_integer(23 + 16);
         sprite.set_position(origin);
         sprite.set_flip({true, true});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
-        origin.x -= Fixnum::from_integer((pfrm.screen().size().x - 16) + 7);
+        origin.x -= Fixnum::from_integer((PLATFORM.screen().size().x - 16) + 7);
         sprite.set_position(origin);
         sprite.set_flip({false, true});
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
     }
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    ScenePtr<Scene> update(App& app, Microseconds delta)
     {
-        if (player(app).key_down(pfrm, Key::action_1)) {
-            return on_selected(pfrm, app);
+        if (player(app).key_down(Key::action_1)) {
+            return on_selected(app);
         }
 
-        if (player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_2)) {
             return scene_pool::alloc<StartMenuScene>(1);
         }
 
-        if (player(app).key_down(pfrm, Key::down)) {
+        if (player(app).key_down(Key::down)) {
             if (cursor_ < 2) {
                 ++cursor_;
             }
         }
 
-        if (player(app).key_down(pfrm, Key::up)) {
+        if (player(app).key_down(Key::up)) {
             if (cursor_ > 0) {
                 --cursor_;
             }
@@ -170,43 +170,40 @@ public:
 
 
 
-    virtual ScenePtr<Scene> on_selected(Platform& pfrm, App& app)
+    virtual ScenePtr<Scene> on_selected(App& app)
     {
         VectorPrinter p;
-        auto val = app.invoke_script(pfrm, "/scripts/sandbox/save.lisp");
+        auto val = app.invoke_script("/scripts/sandbox/save.lisp");
         lisp::format(val, p);
 
         p.data_.push_back('\0');
 
         // For debugging purposes: don't compress sandbox data if select key
         // pressed.
-        const bool compress_output = not pfrm.keyboard().pressed<Key::select>();
+        const bool compress_output =
+            not PLATFORM.keyboard().pressed<Key::select>();
 
         flash_filesystem::store_file_data_text(
-            pfrm,
+
             format("/save/sb%.lisp", cursor_).c_str(),
             p.data_,
             {.use_compression_ = compress_output});
 
-        synth_notes_store(pfrm,
-                          app.player_island(),
+        synth_notes_store(app.player_island(),
                           format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_store(pfrm,
-                           app.player_island(),
+        speaker_data_store(app.player_island(),
                            format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_store(pfrm,
-                          *app.opponent_island(),
+        synth_notes_store(*app.opponent_island(),
                           format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_store(pfrm,
-                           *app.opponent_island(),
+        speaker_data_store(*app.opponent_island(),
                            format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
 
         return scene_pool::alloc<FadeInScene>();
     }
@@ -227,12 +224,12 @@ void set_island_positions(Island& left_island, Island& right_island);
 class LoadSandboxScene : public SaveSandboxScene
 {
 public:
-    ScenePtr<Scene> on_selected(Platform& pfrm, App& app) override
+    ScenePtr<Scene> on_selected(App& app) override
     {
         Vector<char> data;
 
         auto bytes = flash_filesystem::read_file_data_text(
-            pfrm, format("/save/sb%.lisp", cursor()).c_str(), data);
+            format("/save/sb%.lisp", cursor()).c_str(), data);
 
         if (bytes == 0) {
             return null_scene();
@@ -244,41 +241,37 @@ public:
 
         auto arg = lisp::get_op(0); // result of eval()
 
-        auto fn = app.invoke_script(pfrm, "/scripts/sandbox/restore.lisp");
+        auto fn = app.invoke_script("/scripts/sandbox/restore.lisp");
         if (fn->type() == lisp::Value::Type::function) {
             lisp::push_op(arg); // pass save data buffer on stack
             safecall(fn, 1);    // one argument (the save data)
             lisp::pop_op();     // funcall result
         } else {
-            pfrm.fatal("restore.lisp does not return a function!");
+            PLATFORM.fatal("restore.lisp does not return a function!");
         }
 
         lisp::pop_op(); // result of eval() (1)
         lisp::pop_op(); // result of read() (0)
 
 
-        synth_notes_load(pfrm,
-                         app.player_island(),
+        synth_notes_load(app.player_island(),
                          format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_load(pfrm,
-                          app.player_island(),
+        speaker_data_load(app.player_island(),
                           format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_load(pfrm,
-                         *app.opponent_island(),
+        synth_notes_load(*app.opponent_island(),
                          format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_load(pfrm,
-                          *app.opponent_island(),
+        speaker_data_load(*app.opponent_island(),
                           format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
 
         set_island_positions(app.player_island(), *app.opponent_island());
-        app.opponent_island()->set_drift(pfrm, app, Fixnum(-0.000025f));
+        app.opponent_island()->set_drift(app, Fixnum(-0.000025f));
 
         app.time_stream().clear();
 

@@ -159,16 +159,16 @@ Platform::Screen::Shader Blizzard::shader(App& app) const
 
 
 
-void Blizzard::update(Platform& pfrm, App& app, Microseconds delta)
+void Blizzard::update(App& app, Microseconds delta)
 {
-    Storm::update(pfrm, app, delta);
+    Storm::update(app, delta);
 }
 
 
 
-void Blizzard::display(Platform& pfrm, App& app)
+void Blizzard::display(App& app)
 {
-    if (pfrm.screen().fade_active()) {
+    if (PLATFORM.screen().fade_active()) {
         return;
     }
 
@@ -188,7 +188,7 @@ void Blizzard::display(Platform& pfrm, App& app)
     opts.position_absolute_ = true;
     opts.sz_ = Sprite::Size::w8_h8;
 
-    pfrm.screen().draw_batch(89 * 8 + 1, *batch, opts);
+    PLATFORM.screen().draw_batch(89 * 8 + 1, *batch, opts);
 }
 
 

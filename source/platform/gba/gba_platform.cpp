@@ -153,7 +153,7 @@ namespace
 class RemoteConsoleLispPrinter : public lisp::Printer
 {
 public:
-    RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
+    RemoteConsoleLispPrinter()
     {
     }
 
@@ -163,7 +163,6 @@ public:
     }
 
     Platform::RemoteConsole::Line fmt_;
-    Platform& pfrm_;
 };
 
 } // namespace
@@ -371,13 +370,13 @@ static const TextureData* current_background = &tile_textures[0];
 void start(Platform&);
 
 
-static Platform* platform;
+Platform* __platform__;
 
 
 
 Platform& Platform::instance()
 {
-    return *platform;
+    return *__platform__;
 }
 
 
@@ -409,13 +408,13 @@ int main(int argc, char** argv)
 
     const int resume = setjmp(stack_overflow_resume_context);
     if (resume) {
-        ::platform = &pf; // In case it was corrupted.
+        ::__platform__ = &pf; // In case it was corrupted.
         // NOTE: assigning the global platform pointer from a cached version on
         // the stack is fine. We overflowed the stack into iwram, but the stuff
         // on the stack itself is not corrupted.
 
         if (unrecoverrable_error_callback) {
-            (*unrecoverrable_error_callback)(pf);
+            (*unrecoverrable_error_callback)();
         }
         on_stack_overflow();
     }
@@ -427,8 +426,7 @@ int main(int argc, char** argv)
 
 
 
-void print_char(Platform& pfrm,
-                utf8::Codepoint c,
+void print_char(utf8::Codepoint c,
                 const OverlayCoord& coord,
                 const std::optional<FontColors>& colors = {});
 
@@ -437,25 +435,25 @@ void print_char(Platform& pfrm,
 static inline void on_stack_overflow()
 {
     static constexpr const auto bkg_color = custom_color(0xcb1500);
-    ::platform->screen().fade(1.f, bkg_color);
-    ::platform->fill_overlay(0);
+    ::__platform__->screen().fade(1.f, bkg_color);
+    ::__platform__->fill_overlay(0);
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
-    ::platform->speaker().stop_music();
+    ::__platform__->speaker().stop_music();
 
-    ::platform->enable_glyph_mode(false);
-    platform->fill_overlay(0);
+    ::__platform__->enable_glyph_mode(false);
+    __platform__->fill_overlay(0);
 
-    ::platform->load_overlay_texture("stack_overflow_flattened");
+    ::__platform__->load_overlay_texture("stack_overflow_flattened");
 
-    draw_image(*::platform, 1, 0, 3, 30, 12, Layer::overlay);
+    draw_image(1, 0, 3, 30, 12, Layer::overlay);
 
     memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
              overlay_back_buffer,
              (sizeof(u16) * (21 * 32)) / 4);
 
-    platform->screen().clear();
-    platform->screen().display();
+    __platform__->screen().clear();
+    __platform__->screen().display();
 
     while (true)
         ;
@@ -860,7 +858,7 @@ static void init_video(Platform::Screen& screen)
 }
 
 
-static bool unlock_gameboy_player(Platform& pfrm)
+static bool unlock_gameboy_player()
 {
     volatile u32* keys = (volatile u32*)0x04000130;
 
@@ -1244,7 +1242,7 @@ u16 find_dynamic_mapping(u16 virtual_index)
             return i * 2;
         }
     }
-    warning(*::platform, "mapping not found");
+    warning("mapping not found");
     return 0;
 }
 
@@ -2331,10 +2329,10 @@ Vec2<u32> Platform::Screen::size() const
 
 
 
-static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
+static bool validate_tilemap_texture_size(size_t size)
 {
     if (size > charblock_size) {
-        pfrm.fatal("tileset exceeds charblock size");
+        PLATFORM.fatal("tileset exceeds charblock size");
         return false;
     }
     return true;
@@ -2342,10 +2340,10 @@ static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
 
 
 
-static bool validate_background_texture_size(Platform& pfrm, size_t size)
+static bool validate_background_texture_size(size_t size)
 {
     if (size > sizeof(ScreenBlock) * 2) {
-        pfrm.fatal("background exceeds screenblock size x 2");
+        PLATFORM.fatal("background exceeds screenblock size x 2");
         return false;
     }
     return true;
@@ -2583,7 +2581,7 @@ static void vblank_isr()
         ::watchdog_counter = 0;
 
         if (not get_gflag(GlobalFlag::watchdog_disabled)) {
-            ::platform->speaker().stop_music();
+            ::__platform__->speaker().stop_music();
 
             if (not canary_check()) {
                 REG_SOUNDCNT_X = 0; // Disable the sound chip.
@@ -2593,8 +2591,8 @@ static void vblank_isr()
                 irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
                 on_stack_overflow();
             } else {
-                if (::platform and ::unrecoverrable_error_callback) {
-                    (*::unrecoverrable_error_callback)(*platform);
+                if (::__platform__ and ::unrecoverrable_error_callback) {
+                    (*::unrecoverrable_error_callback)();
                 }
             }
 
@@ -2624,23 +2622,23 @@ static void vblank_isr()
 
 void Platform::fatal(const char* msg)
 {
-    ::platform->set_overlay_origin(0, 0);
+    ::__platform__->set_overlay_origin(0, 0);
 
-    if (::platform and ::unrecoverrable_error_callback) {
-        (*::unrecoverrable_error_callback)(*platform);
+    if (::__platform__ and ::unrecoverrable_error_callback) {
+        (*::unrecoverrable_error_callback)();
     }
 
-    ::platform->screen().fade(0.f);
+    ::__platform__->screen().fade(0.f);
 
     const auto bkg_color = custom_color(0xcb1500);
 
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
 
-    ::platform->screen().fade(1.f, bkg_color);
-    ::platform->fill_overlay(0);
-    ::platform->load_overlay_texture("overlay");
-    ::platform->enable_glyph_mode(true);
+    ::__platform__->screen().fade(1.f, bkg_color);
+    ::__platform__->fill_overlay(0);
+    ::__platform__->load_overlay_texture("overlay");
+    ::__platform__->enable_glyph_mode(true);
 
     static constexpr const Text::OptColors text_colors{
         {custom_color(0xffffff), bkg_color}};
@@ -2648,7 +2646,7 @@ void Platform::fatal(const char* msg)
     static constexpr const Text::OptColors text_colors_inv{
         {text_colors->background_, text_colors->foreground_}};
 
-    Text text(*::platform, {1, 1});
+    Text text({1, 1});
     text.append("fatal error:", text_colors_inv);
 
     std::optional<Text> text2;
@@ -2662,14 +2660,14 @@ void Platform::fatal(const char* msg)
     auto show_default_scrn = [&] {
         irqEnable(IRQ_VBLANK);
 
-        ::platform->screen().clear();
+        ::__platform__->screen().clear();
 
         verbose_error.reset();
 
-        ::platform->screen().display();
-        ::platform->screen().clear();
+        ::__platform__->screen().display();
+        ::__platform__->screen().clear();
 
-        text2.emplace(*::platform, OverlayCoord{1, 3});
+        text2.emplace(OverlayCoord{1, 3});
 
         const auto msg_len = str_len(msg);
         if (msg_len > 26) {
@@ -2687,8 +2685,7 @@ void Platform::fatal(const char* msg)
 
         auto render_line =
             [&](const char* line, int spacing, Text::OptColors colors) {
-                line_buffer.emplace_back(*::platform,
-                                         OverlayCoord{1, u8(6 + offset)});
+                line_buffer.emplace_back(OverlayCoord{1, u8(6 + offset)});
                 line_buffer.back().append(line, colors);
                 offset += spacing;
             };
@@ -2700,41 +2697,41 @@ void Platform::fatal(const char* msg)
         render_line("  GND ---------------> GND", 2, text_colors);
         render_line("    3.3 volts, 9600 baud    ", 2, text_colors_inv);
 
-        Text text3(*::platform, {1, 18});
+        Text text3({1, 18});
         text3.append("L+R+START+SELECT reset...", text_colors);
 
-        ::platform->screen().display();
+        ::__platform__->screen().display();
 
         irqDisable(IRQ_VBLANK);
     };
 
     show_default_scrn();
 
-    lisp::init(*::platform);
+    lisp::init();
 
     auto show_verbose_msg = [&] {
         irqEnable(IRQ_VBLANK);
 
-        ::platform->screen().clear();
+        ::__platform__->screen().clear();
 
         text2.reset();
         line_buffer.clear();
 
-        ::platform->screen().display();
-        ::platform->screen().clear();
+        ::__platform__->screen().display();
+        ::__platform__->screen().clear();
 
-        verbose_error.emplace(*::platform);
+        verbose_error.emplace();
         verbose_error->assign(msg, {1, 3}, {28, 14}, 0, text_colors);
 
-        ::platform->screen().display();
+        ::__platform__->screen().display();
 
         irqDisable(IRQ_VBLANK);
     };
 
     while (true) {
 
-        if (auto line = ::platform->remote_console().readline()) {
-            RemoteConsoleLispPrinter printer(*::platform);
+        if (auto line = ::__platform__->remote_console().readline()) {
+            RemoteConsoleLispPrinter printer;
 
             lisp::BasicCharSequence seq(line->c_str());
             lisp::read(seq);
@@ -2744,12 +2741,12 @@ void Platform::fatal(const char* msg)
             lisp::pop_op();
             lisp::pop_op();
 
-            ::platform->remote_console().printline(printer.fmt_.c_str());
+            ::__platform__->remote_console().printline(printer.fmt_.c_str());
         }
 
-        ::platform->keyboard().poll();
+        ::__platform__->keyboard().poll();
 
-        if (::platform->keyboard().down_transition<Key::action_2>()) {
+        if (::__platform__->keyboard().down_transition<Key::action_2>()) {
 
             if (not verbose_error) {
                 show_verbose_msg();
@@ -3014,7 +3011,7 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
         }
     }
 
-    warning(*this, "Failed to allocate DynamicTexture.");
+    warning("Failed to allocate DynamicTexture.");
     return {};
 }
 
@@ -3205,8 +3202,7 @@ void Platform::load_background_texture(const char* name)
                 MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
             }
 
-            if (validate_background_texture_size(*this,
-                                                 info.tile_data_length_)) {
+            if (validate_background_texture_size(info.tile_data_length_)) {
                 if (info.compressed_) {
                     LZ77UnCompVram(
                         info.tile_data_,
@@ -3221,7 +3217,7 @@ void Platform::load_background_texture(const char* name)
                 StringBuffer<45> buf = "unable to load: ";
                 buf += name;
 
-                error(*this, buf.c_str());
+                error(buf.c_str());
             }
 
             return;
@@ -3396,7 +3392,7 @@ enum FlashDevice {
 
 
 
-static u32 flash_capacity(Platform& pfrm)
+static u32 flash_capacity()
 {
     REG_WAITCNT |= WS_SRAM_8;
 
@@ -3419,12 +3415,11 @@ static u32 flash_capacity(Platform& pfrm)
         (manufacturer == FLASH_MFR_SANYO and
          device == FLASH_DEV_LE26FV10N1TS)) {
 
-        info(pfrm,
-             "detected 128kb flash chip. Bank switching unimplemented, using "
+        info("detected 128kb flash chip. Bank switching unimplemented, using "
              "64kb.");
     }
 
-    info(pfrm, "detected 64kb flash chip");
+    info("detected 64kb flash chip");
     return 64000;
 }
 
@@ -3516,7 +3511,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
             bool success =
                 bootleg_flash_writeback(bootleg_flash_type, offset, length);
             if (not success) {
-                info(*this, "flash write verification failed!");
+                info("flash write verification failed!");
                 return false;
             }
         }
@@ -3551,7 +3546,7 @@ void Platform::erase_save_sector()
         FLASH_CMD(FLASH_CMD_ERASE);
         FLASH_CMD(FLASH_CMD_ERASE_CHIP);
 
-        info(*this, "begin flash erase!");
+        info("begin flash erase!");
 
         // Wait for erase to complete.
         while (*((volatile u8*)0x0E000000) not_eq 0xff)
@@ -3559,7 +3554,7 @@ void Platform::erase_save_sector()
     }
 
     if (bootleg_flash_type) {
-        info(*this, "flash erase!");
+        info("flash erase!");
         bootleg_flash_erase(bootleg_flash_type);
     }
 }
@@ -3606,7 +3601,7 @@ Vector<char>* Platform::Logger::data()
 
 void Platform::Logger::log(Severity level, const char* msg)
 {
-    if (::platform == nullptr) {
+    if (::__platform__ == nullptr) {
         return;
     }
 
@@ -3650,8 +3645,7 @@ void Platform::Logger::flush()
         return;
     }
 
-    flash_filesystem::store_file_data_binary(
-        *::platform, "/log.txt", *log_data_);
+    flash_filesystem::store_file_data_binary("/log.txt", *log_data_);
 
     // log_data_.reset();
 }
@@ -4429,7 +4423,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     play_sound("footstep3", 0);
 
     // auto tmp = allocate_dynamic<OptDmaBufferData>("test");
-    // auto before = platform->delta_clock().sample();
+    // auto before = __platform__->delta_clock().sample();
     // // audio_update_fast_isr();
 
     // alignas(4) u16 tmp2[162];
@@ -4439,7 +4433,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     //            0,
     //            156);
 
-    // auto after = platform->delta_clock().sample();
+    // auto after = __platform__->delta_clock().sample();
     // Platform::fatal(format("dt %", after - before));
 }
 
@@ -4927,7 +4921,7 @@ static void audio_update_swap(const SoundMixerCallback& cb)
 
 void Platform::Speaker::set_music_speed(MusicSpeed speed)
 {
-    if (platform->network_peer().is_connected()) {
+    if (__platform__->network_peer().is_connected()) {
         audio_update_swap(audio_update_fast_cb);
         return;
     }
@@ -5127,19 +5121,19 @@ void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
 // We want our code to be resiliant to cartridges lacking an RTC chip. Run the
 // timer-based delta clock for a while, and make sure that the RTC also counted
 // up.
-static bool rtc_verify_operability(std::optional<DateTime> tm1, Platform& pfrm)
+static bool rtc_verify_operability(std::optional<DateTime> tm1)
 {
     if (get_gflag(GlobalFlag::rtc_faulty)) {
         return false;
     }
 
-    Microseconds counter = pfrm.delta_clock().reset();
+    Microseconds counter = PLATFORM.delta_clock().reset();
 
     while (counter < seconds(1) + milliseconds(250)) {
-        counter += pfrm.delta_clock().reset();
+        counter += PLATFORM.delta_clock().reset();
     }
 
-    const auto tm2 = pfrm.system_clock().now();
+    const auto tm2 = PLATFORM.system_clock().now();
 
     return tm1 and tm2 and time_diff(*tm1, *tm2) > 0;
 }
@@ -5182,10 +5176,10 @@ bool ram_overclock()
 
     if (ewram_static_data != 1) {
         memctrl_register = 0x0D000020;
-        info(*::platform, "ewram overclocking disabled");
+        info("ewram overclocking disabled");
         result = false;
     } else {
-        info(*::platform, "overclocked ewram");
+        info("overclocked ewram");
         result = true;
     }
 
@@ -5195,8 +5189,7 @@ bool ram_overclock()
     REG_DISPCNT = prev_dispcnt;
 
     if (emulator_bug) {
-        info(*::platform,
-             "The software has detected that the emulator that you're running "
+        info("The software has detected that the emulator that you're running "
              "this thing on kinda sucks.");
     }
 
@@ -5205,7 +5198,7 @@ bool ram_overclock()
 
 
 
-void show_health_and_safety_message(Platform& pfrm)
+void show_health_and_safety_message()
 {
     // Throwaway platform-specific code for displaying a health an safetly
     // warning, like late-era gba games.
@@ -5227,13 +5220,13 @@ void show_health_and_safety_message(Platform& pfrm)
 
             memcpy(cached_palette, info.palette_data_, 32);
 
-            if (validate_tilemap_texture_size(pfrm, info.tile_data_length_)) {
+            if (validate_tilemap_texture_size(info.tile_data_length_)) {
                 VBlankIntrWait();
                 memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
                          info.tile_data_,
                          info.tile_data_length_ / 2);
             } else {
-                error(pfrm, "Unable to load health and safety notice.");
+                error("Unable to load health and safety notice.");
             }
 
             break;
@@ -5301,7 +5294,7 @@ void show_health_and_safety_message(Platform& pfrm)
 
     while (true) {
         ++frames;
-        pfrm.system_call("feed-watchdog", nullptr);
+        PLATFORM.system_call("feed-watchdog", nullptr);
         VBlankIntrWait();
 
         if (frames > 60) {
@@ -5324,10 +5317,10 @@ void show_health_and_safety_message(Platform& pfrm)
         }
 
         missed_keys.reset();
-        pfrm.keyboard().poll();
+        PLATFORM.keyboard().poll();
         bool exit = false;
         for (int i = 0; i < (int)Key::count; ++i) {
-            if (pfrm.keyboard().pressed((Key)i)) {
+            if (PLATFORM.keyboard().pressed((Key)i)) {
                 exit = true;
                 break;
             }
@@ -5619,7 +5612,7 @@ void Platform::fill_overlay(u16 tile)
 
 
 
-static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
+static void set_overlay_tile(u16 x, u16 y, u16 val, int palette)
 {
     if (get_gflag(GlobalFlag::glyph_mode)) {
         // This is where we handle the reference count for mapped glyphs. If
@@ -5628,7 +5621,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
         // the incoming glyph's reference count if the incoming tile is
         // within the range of the glyph table.
 
-        const auto old_tile = pfrm.get_tile(Layer::overlay, x, y);
+        const auto old_tile = PLATFORM.get_tile(Layer::overlay, x, y);
         if (old_tile not_eq val) {
             if (is_glyph(old_tile)) {
                 auto& gm =
@@ -5727,14 +5720,14 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
     }();
 
     if (existing_mapping) {
-        set_overlay_tile(*this, x, y, glyph, *existing_mapping);
+        set_overlay_tile(x, y, glyph, *existing_mapping);
     } else {
         const auto target = custom_text_palette_write_ptr;
 
         MEM_BG_PALETTE[target * 16 + default_colors.fg_] = fg_color_hash;
         MEM_BG_PALETTE[target * 16 + default_colors.bg_] = bg_color_hash;
 
-        set_overlay_tile(*this, x, y, glyph, target);
+        set_overlay_tile(x, y, glyph, target);
 
         custom_text_palette_write_ptr =
             ((target + 1) - custom_text_palette_begin) %
@@ -5742,7 +5735,7 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
             custom_text_palette_begin;
 
         if (custom_text_palette_write_ptr == custom_text_palette_begin) {
-            warning(*this, "wraparound in custom text palette alloc");
+            warning("wraparound in custom text palette alloc");
         }
     }
 }
@@ -5833,7 +5826,7 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
         set_map_tile_16p_palette(sbb_t0_tiles, x, y, palette);
     } else if (layer == Layer::overlay) {
         auto t = get_tile(Layer::overlay, x, y);
-        set_overlay_tile(*this, x, y, t, palette);
+        set_overlay_tile(x, y, t, palette);
     }
 }
 
@@ -5871,7 +5864,7 @@ void Platform::set_tile(Layer layer,
         if (x > 31 or y > 31) {
             return;
         }
-        set_overlay_tile(*this, x, y, val, palette ? *palette : 1);
+        set_overlay_tile(x, y, val, palette ? *palette : 1);
         break;
 
     case Layer::map_1_ext:
@@ -6176,7 +6169,7 @@ int Platform::NetworkPeer::send_queue_size() const
 bool Platform::NetworkPeer::send_message(const Message& message)
 {
     if (message.length_ > sizeof(TxInfo::data_)) {
-        ::platform->fatal("invalid network packet size");
+        ::__platform__->fatal("invalid network packet size");
     }
 
     if (not is_connected()) {
@@ -6296,7 +6289,7 @@ static void multiplayer_schedule_tx()
 static void multiplayer_serial_isr()
 {
     if (UNLIKELY(multiplayer_error())) {
-        ::platform->network_peer().disconnect();
+        ::__platform__->network_peer().disconnect();
         return;
     }
 
@@ -6359,7 +6352,7 @@ void Platform::NetworkPeer::poll_consume(u32 size)
     if (mc.poller_current_message) {
         mc.rx_message_pool.free(mc.poller_current_message);
     } else {
-        ::platform->fatal("logic error in net poll");
+        ::__platform__->fatal("logic error in net poll");
     }
     mc.poller_current_message = nullptr;
 }
@@ -6371,9 +6364,9 @@ static void multiplayer_init()
     Microseconds delta = 0;
 
 MASTER_RETRY:
-    ::platform->network_peer().disconnect();
+    ::__platform__->network_peer().disconnect();
 
-    ::platform->sleep(5);
+    ::__platform__->sleep(5);
 
     REG_RCNT = R_MULTI;
     REG_SIOCNT = SIO_MULTI;
@@ -6385,52 +6378,54 @@ MASTER_RETRY:
     // Put this here for now, not sure whether it's really necessary...
     REG_SIOMLT_SEND = 0x5555;
 
-    ::platform->delta_clock().reset();
+    ::__platform__->delta_clock().reset();
 
     while (not multiplayer_validate()) {
-        delta += ::platform->delta_clock().reset();
+        delta += ::__platform__->delta_clock().reset();
         if (delta > seconds(20)) {
             if (not multiplayer_validate_modes()) {
-                error(*::platform, "not all GBAs are in MULTI mode");
+                error("not all GBAs are in MULTI mode");
             }
-            ::platform->network_peer().disconnect(); // just for good measure
+            ::__platform__->network_peer()
+                .disconnect(); // just for good measure
             REG_SIOCNT = 0;
             irqDisable(IRQ_SERIAL);
             return;
         }
-        ::platform->system_call("feed-watchdog", nullptr);
+        ::__platform__->system_call("feed-watchdog", nullptr);
     }
 
     const char* handshake =
         "lnsk06"; // Link cable program, skyland, 6 byte packet.
 
     if (str_len(handshake) not_eq Platform::NetworkPeer::max_message_size) {
-        ::platform->network_peer().disconnect();
-        error(*::platform, "handshake string does not equal message size");
+        ::__platform__->network_peer().disconnect();
+        error("handshake string does not equal message size");
         return;
     }
 
     set_gflag(GlobalFlag::multiplayer_connected, true);
 
-    ::platform->network_peer().send_message({(u8*)handshake, sizeof handshake});
+    ::__platform__->network_peer().send_message(
+        {(u8*)handshake, sizeof handshake});
 
     multiplayer_schedule_tx();
 
     if (multiplayer_is_master()) {
-        info(*::platform, "I am the master");
+        info("I am the master");
     }
 
     while (true) {
-        ::platform->system_call("feed-watchdog", nullptr);
-        delta += ::platform->delta_clock().reset();
+        ::__platform__->system_call("feed-watchdog", nullptr);
+        delta += ::__platform__->delta_clock().reset();
         if (delta > seconds(20)) {
             StringBuffer<64> err =
                 "no valid handshake received within a reasonable window ";
             err += stringify(multiplayer_comms.rx_message_count);
-            error(*::platform, err.c_str());
-            ::platform->network_peer().disconnect();
+            error(err.c_str());
+            ::__platform__->network_peer().disconnect();
             return;
-        } else if (auto msg = ::platform->network_peer().poll_message()) {
+        } else if (auto msg = ::__platform__->network_peer().poll_message()) {
             for (u32 i = 0; i < sizeof handshake; ++i) {
                 if (((u8*)msg->data_)[i] not_eq handshake[i]) {
                     if (multiplayer_is_master()) {
@@ -6442,13 +6437,13 @@ MASTER_RETRY:
                         // keep retrying, in order to account for the scenario
                         // where the other device is not yet plugged in, or the
                         // other player has not initiated their own connection.
-                        info(*::platform, "master retrying...");
+                        info("master retrying...");
 
                         StringBuffer<32> temp = "got: ";
                         for (u32 i = 0; i < sizeof handshake; ++i) {
                             temp.push_back(((char*)msg->data_)[i]);
                         }
-                        info(*::platform, temp.c_str());
+                        info(temp.c_str());
 
                         // busy-wait for a bit. This is sort of necessary;
                         // Platform::sleep() does not contribute to the
@@ -6458,14 +6453,14 @@ MASTER_RETRY:
                         busy_wait(10000);
                         goto MASTER_RETRY; // lol yikes a goto
                     } else {
-                        ::platform->network_peer().disconnect();
-                        info(*::platform, "invalid handshake");
+                        ::__platform__->network_peer().disconnect();
+                        info("invalid handshake");
                         return;
                     }
                 }
             }
-            info(*::platform, "validated handshake");
-            ::platform->network_peer().poll_consume(sizeof handshake);
+            info("validated handshake");
+            ::__platform__->network_peer().poll_consume(sizeof handshake);
             return;
         }
     }
@@ -6523,7 +6518,7 @@ void Platform::NetworkPeer::disconnect()
     // sent out when you try to reconnect, instead of the handshake message);
     if (is_connected()) {
 
-        info(*::platform, "disconnected!");
+        info("disconnected!");
         set_gflag(GlobalFlag::multiplayer_connected, false);
         irqDisable(IRQ_SERIAL);
         irqDisable(IRQ_TIMER2);
@@ -6553,7 +6548,7 @@ void Platform::NetworkPeer::disconnect()
                 note.push_back(((char*)msg->data_)[5]);
                 note.push_back(((char*)msg->data_)[6]);
                 note += " during disconnect";
-                info(*::platform, note.c_str());
+                info(note.c_str());
                 mc.rx_message_pool.free(msg);
                 msg = nullptr;
             }
@@ -6821,14 +6816,14 @@ std::optional<DateTime> Platform::SystemClock::now()
 
 
 
-void Platform::SystemClock::init(Platform& pfrm)
+void Platform::SystemClock::init()
 {
     GPIO_PORT_READ_ENABLE = 1;
 
     auto status = rtc_get_status();
     if (status & S3511A_STATUS_POWER) {
         set_gflag(GlobalFlag::rtc_faulty, true);
-        warning(pfrm, "RTC chip power failure");
+        warning("RTC chip power failure");
     }
 }
 
@@ -7084,7 +7079,7 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 
 
 
-void download_dlc_blob(Platform&, Vector<char>&);
+void download_dlc_blob(Vector<char>&);
 
 
 
@@ -7293,7 +7288,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
             vblank_dma_callback = vblank_horizontal_transfer_scroll_isr;
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
-        download_dlc_blob(*this, *(Vector<char>*)arg);
+        download_dlc_blob(*(Vector<char>*)arg);
     } else if (str_eq(feature_name, "vsync")) {
         VBlankIntrWait();
     } else if (str_eq(feature_name, "overlay-circle-effect")) {
@@ -7373,7 +7368,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         REG_KEYCNT =
             KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
     } else if (str_eq(feature_name, "print-memory-diagnostics")) {
-        scratch_buffer_memory_diagnostics(*this);
+        scratch_buffer_memory_diagnostics();
     } else if (str_eq(feature_name, "console-write-buffer")) {
         auto v = (Vector<char>*)arg;
 
@@ -7440,35 +7435,35 @@ void Platform::Speaker::start()
 
 
 
-static void publisher_logo_anim(Platform& pfrm)
+static void publisher_logo_anim()
 {
-    pfrm.screen().schedule_fade(1, ColorConstant::silver_white, true, true);
+    PLATFORM.screen().schedule_fade(1, ColorConstant::silver_white, true, true);
 
-    pfrm.screen().clear();
-    pfrm.screen().fade(1, ColorConstant::silver_white, {}, true, true);
-    pfrm.load_overlay_texture("pub_logo_flattened");
-    pfrm.screen().display();
+    PLATFORM.screen().clear();
+    PLATFORM.screen().fade(1, ColorConstant::silver_white, {}, true, true);
+    PLATFORM.load_overlay_texture("pub_logo_flattened");
+    PLATFORM.screen().display();
     bool skip = false;
     volatile u32* keys = (volatile u32*)0x04000130;
     for (int i = 0; i < 15; ++i) {
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             1.f - (Float(i) / 15), ColorConstant::silver_white, true, true);
         if (~(*keys) & KEY_B) {
             skip = true;
         }
-        pfrm.screen().clear();
-        pfrm.screen().display();
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
 
         if (i == 0) {
-            pfrm.fill_overlay(1);
-            draw_image(pfrm, 1, 0, 5, 30, 10, Layer::overlay);
+            PLATFORM.fill_overlay(1);
+            draw_image(1, 0, 5, 30, 10, Layer::overlay);
         }
     }
-    pfrm.screen().schedule_fade(0);
+    PLATFORM.screen().schedule_fade(0);
     if (not skip) {
         for (int i = 0; i < 55; ++i) {
-            pfrm.screen().clear();
-            pfrm.screen().display();
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
             if (~(*keys) & KEY_B) {
                 break;
             }
@@ -7476,29 +7471,29 @@ static void publisher_logo_anim(Platform& pfrm)
     }
     int fadout_frames = 20;
     for (int i = 0; i < fadout_frames; ++i) {
-        pfrm.screen().schedule_fade(
+        PLATFORM.screen().schedule_fade(
             (Float(i) / fadout_frames), ColorConstant::rich_black, true, true);
 
-        pfrm.screen().clear();
-        pfrm.screen().display();
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
     }
 
-    pfrm.screen().schedule_fade(1, ColorConstant::rich_black, true, true);
-    pfrm.screen().clear();
-    pfrm.screen().display();
+    PLATFORM.screen().schedule_fade(1, ColorConstant::rich_black, true, true);
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
 
-    pfrm.fill_overlay(0);
+    PLATFORM.fill_overlay(0);
     for (int i = 0; i < 10; ++i) {
         VBlankIntrWait();
     }
-    pfrm.screen().schedule_fade(0);
+    PLATFORM.screen().schedule_fade(0);
 }
 
 
 
 Platform::Platform()
 {
-    ::platform = this;
+    ::__platform__ = this;
 
     const auto tm1 = system_clock_.now();
 
@@ -7506,7 +7501,7 @@ Platform::Platform()
 
     keyboard().poll();
 
-    Conf conf(*this);
+    Conf conf;
 
     static const char* conf_section = "hardware.gameboy_advance";
 
@@ -7522,8 +7517,7 @@ Platform::Platform()
         case 1:
         case 2:
         case 3:
-            info(*this,
-                 format("Repro cart detected! (type %)", bootleg_flash_type));
+            info(format("Repro cart detected! (type %)", bootleg_flash_type));
 
             // These bootleg flashcarts place save data in flash memory
             // alongside the ROM. Some of these things retail at $2, I'm
@@ -7539,7 +7533,7 @@ Platform::Platform()
             // But... resetting rom with L+R+START+SELECT would also cause code
             // to reach this point.
 
-            bootleg_cart_init_sram(*this);
+            bootleg_cart_init_sram();
             break;
 
         default:
@@ -7552,7 +7546,7 @@ Platform::Platform()
     }
 
     if (mgba_detect()) {
-        info(*this, "running in mgba (or similar)...");
+        info("running in mgba (or similar)...");
     }
 
     // Not sure how else to determine whether the cartridge has sram, flash, or
@@ -7571,9 +7565,9 @@ Platform::Platform()
 
         if (sram_test_result not_eq sram_test_const) {
             set_gflag(GlobalFlag::save_using_flash, true);
-            info(*this, "SRAM write failed, falling back to FLASH");
+            info("SRAM write failed, falling back to FLASH");
 
-            ::save_capacity = flash_capacity(*this);
+            ::save_capacity = flash_capacity();
         } else {
             ::save_capacity =
                 conf.expect<Conf::Integer>(conf_section, "sram_capacity");
@@ -7589,39 +7583,39 @@ Platform::Platform()
     {
         StringBuffer<32> used("iwram used: ");
         used += stringify(&__data_end__ - &__iwram_start__);
-        info(*this, used.c_str());
+        info(used.c_str());
 
         used = "ewram used: ";
         used += stringify(&__eheap_start - &__ewram_start);
-        info(*this, used.c_str());
+        info(used.c_str());
 
         used = "estimated stack size: ";
         used += stringify(stk_size);
-        info(*this, used.c_str());
+        info(used.c_str());
     }
 
     // IMPORTANT: No calls to map_glyph() are allowed before reaching this
     // line. Otherwise, the glyph table has not yet been constructed.
 
-    info(*this, "Verifying BIOS...");
+    info("Verifying BIOS...");
 
     const auto bios_version = BiosCheckSum();
     switch (bios_version) {
     case BiosVersion::NDS:
-        info(*this, "BIOS matches Nintendo DS");
+        info("BIOS matches Nintendo DS");
         break;
     case BiosVersion::GBA:
-        info(*this, "BIOS matches GAMEBOY Advance");
+        info("BIOS matches GAMEBOY Advance");
         break;
     default:
-        warning(*this, "BIOS checksum failed, may be corrupt");
+        warning("BIOS checksum failed, may be corrupt");
         break;
     }
 
     // NOTE: initializing the system clock is easier before interrupts are
     // enabled, because the system clock pulls data from the gpio port on the
     // cartridge.
-    system_clock_.init(*this);
+    system_clock_.init();
 
 
     irqInit(); // NOTE: Do not move these lines with respect to
@@ -7643,12 +7637,12 @@ Platform::Platform()
 
     CONF_BOOL(show_epilepsy_warning);
     if (show_epilepsy_warning) {
-        show_health_and_safety_message(*this);
+        show_health_and_safety_message();
     }
 
     CONF_BOOL(detect_gbp);
-    if (detect_gbp and unlock_gameboy_player(*this)) {
-        info(*this, "gameboy player unlocked!");
+    if (detect_gbp and unlock_gameboy_player()) {
+        info("gameboy player unlocked!");
 
         set_gflag(GlobalFlag::gbp_unlocked, true);
 
@@ -7660,7 +7654,7 @@ Platform::Platform()
         rumble_init(&conf);
 
     } else {
-        info(*this, "gbp not detected");
+        info("gbp not detected");
 
         rumble_init(nullptr);
     }
@@ -7718,7 +7712,7 @@ Platform::Platform()
 
     CONF_BOOL(show_publisher_logo);
     if (show_publisher_logo) {
-        publisher_logo_anim(*this);
+        publisher_logo_anim();
     }
 
     fill_overlay(0);
@@ -7771,7 +7765,7 @@ Platform::Platform()
         // something just feels off to me when turning this feature on. The game
         // is almost too smooth.
         REG_WAITCNT = 0b0000000000011011;
-        info(*this, "enabled optimized waitstates...");
+        info("enabled optimized waitstates...");
     }
 
     CONF_BOOL(prefetch);
@@ -7782,9 +7776,9 @@ Platform::Platform()
 
     CONF_BOOL(detect_rtc);
 
-    if (not detect_rtc or not rtc_verify_operability(tm1, *this)) {
+    if (not detect_rtc or not rtc_verify_operability(tm1)) {
         set_gflag(GlobalFlag::rtc_faulty, true);
-        info(*this, "RTC chip appears either non-existant or non-functional");
+        info("RTC chip appears either non-existant or non-functional");
     } else {
         auto now = system_clock_.now();
         if (now->date_.year_ not_eq 0 and now->date_.month_ not_eq 0 and
@@ -7797,10 +7791,10 @@ Platform::Platform()
 
             log_format_time(str, *::start_time);
 
-            info(*::platform, str.c_str());
+            info(str.c_str());
 
         } else {
-            info(*this, "RTC chip exists, but starttime is zeroed!");
+            info("RTC chip exists, but starttime is zeroed!");
         }
     }
 

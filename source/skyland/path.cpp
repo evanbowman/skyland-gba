@@ -39,14 +39,13 @@ struct PathVertexData
 
 
 
-std::optional<Path> find_path(Platform& pfrm,
-                              App& app,
+std::optional<Path> find_path(App& app,
                               Island* island,
                               BasicCharacter* for_character,
                               const RoomCoord& start,
                               const RoomCoord& end)
 {
-    BulkAllocator<2> vertex_memory_(pfrm);
+    BulkAllocator<2> vertex_memory_;
 
     Buffer<PathVertexData*, 256> priority_q;
     PathVertexData* vertex_mat[16][16] = {0};
@@ -70,7 +69,7 @@ std::optional<Path> find_path(Platform& pfrm,
                         }
                         vertex_mat[x][y] = priority_q.back();
                     } else {
-                        error(pfrm, "failed to push vertex");
+                        error("failed to push vertex");
                     }
                 }
             }
@@ -78,7 +77,7 @@ std::optional<Path> find_path(Platform& pfrm,
     }
 
     if (not start_v) {
-        error(pfrm, "missing startv");
+        error("missing startv");
         return {};
     }
 

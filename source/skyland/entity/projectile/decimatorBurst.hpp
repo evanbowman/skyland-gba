@@ -54,17 +54,16 @@ public:
     }
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta) override;
+    void rewind(App&, Microseconds delta) override;
 
 
-    void
-    on_collision(Platform& pfrm, App& app, Room&, Vec2<u8> origin) override;
+    void on_collision(App& app, Room&, Vec2<u8> origin) override;
 
 
-    void on_collision(Platform& pfrm, App& app, Entity&) override;
+    void on_collision(App& app, Entity&) override;
 
 
 private:

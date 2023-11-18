@@ -41,85 +41,76 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override
+    void enter(App& app, Scene& prev) override
     {
-        ActiveWorldScene::enter(pfrm, app, prev);
+        ActiveWorldScene::enter(app, prev);
 
-        text_.emplace(pfrm,
-                      SYSTR(modifier_keys_opt_5)->c_str(),
-                      OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+        text_.emplace(SYSTR(modifier_keys_opt_5)->c_str(),
+                      OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
 
         text_->append(" ");
 
-        pfrm.set_tile(
-            Layer::overlay, text_->len(), calc_screen_tiles(pfrm).y - 1, 395);
+        PLATFORM.set_tile(
+            Layer::overlay, text_->len(), calc_screen_tiles().y - 1, 395);
 
-        pfrm.set_tile(Layer::overlay,
-                      text_->len() + 1,
-                      calc_screen_tiles(pfrm).y - 1,
-                      393);
+        PLATFORM.set_tile(
+            Layer::overlay, text_->len() + 1, calc_screen_tiles().y - 1, 393);
 
-        pfrm.set_tile(Layer::overlay,
-                      text_->len() + 2,
-                      calc_screen_tiles(pfrm).y - 1,
-                      394);
+        PLATFORM.set_tile(
+            Layer::overlay, text_->len() + 2, calc_screen_tiles().y - 1, 394);
 
         for (int i = 0; i < text_->len() + 3; ++i) {
-            pfrm.set_tile(Layer::overlay, i, 18, 425);
+            PLATFORM.set_tile(Layer::overlay, i, 18, 425);
         }
     }
 
 
 
-    void exit(Platform& pfrm, App& app, Scene& prev) override
+    void exit(App& app, Scene& prev) override
     {
-        ActiveWorldScene::exit(pfrm, app, prev);
+        ActiveWorldScene::exit(app, prev);
 
         text_.reset();
 
-        pfrm.fill_overlay(0);
+        PLATFORM.fill_overlay(0);
     }
 
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
+        if (auto next = ActiveWorldScene::update(app, delta)) {
             return next;
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_down(Key::up)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::one) {
-                    if (auto scene =
-                            room->select(pfrm, app, room->position())) {
+                    if (auto scene = room->select(app, room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(pfrm, Key::right)) {
+        } else if (app.player().key_down(Key::right)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::two) {
-                    if (auto scene =
-                            room->select(pfrm, app, room->position())) {
+                    if (auto scene = room->select(app, room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(pfrm, Key::left)) {
+        } else if (app.player().key_down(Key::left)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::three) {
-                    if (auto scene =
-                            room->select(pfrm, app, room->position())) {
+                    if (auto scene = room->select(app, room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(pfrm, Key::action_2)) {
+        } else if (app.player().key_down(Key::action_2)) {
             return cancel_();
         }
 

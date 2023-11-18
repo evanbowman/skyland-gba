@@ -40,7 +40,7 @@ extern SharedVariable arcbolt_damage;
 
 
 
-void ArcGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void ArcGun::format_description(StringBuffer<512>& buffer)
 {
     auto secs = arc_gun_reload_ms / 1000;
 
@@ -60,7 +60,7 @@ ArcGun::ArcGun(Island* parent, const RoomCoord& position)
 
 
 
-void ArcGun::fire(Platform& pfrm, App& app)
+void ArcGun::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -84,15 +84,14 @@ void ArcGun::fire(Platform& pfrm, App& app)
         start.x += 6.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto ab =
-        app.alloc_entity<ArcBolt>(pfrm, start, target, parent(), position());
+    auto ab = app.alloc_entity<ArcBolt>(start, target, parent(), position());
     if (ab) {
         parent()->projectiles().push(std::move(ab));
     }

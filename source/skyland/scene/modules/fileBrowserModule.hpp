@@ -82,14 +82,14 @@ public:
                       bool is_rom_path = false);
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
 private:
@@ -122,13 +122,13 @@ private:
         options,
     } mode_ = Mode::browse;
 
-    void repaint(Platform& pfrm);
+    void repaint();
 
     int scroll_index_ = 0;
 
     u8 opt_index_ = 0;
 
-    void show_opts(Platform& pfrm);
+    void show_opts();
 
 
     static const int max_folder_name = 20;

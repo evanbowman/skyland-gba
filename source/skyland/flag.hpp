@@ -48,18 +48,18 @@ struct FlagPixels
 
     u8 pixels[width][height];
 
-    void save(Platform&);
-    void load(Platform&, App&);
-    void load_custom(Platform&, Layer layer, u16 offset);
+    void save();
+    void load(App&);
+    void load_custom(Layer layer, u16 offset);
 };
 
 
 
-void vram_write_flag(Platform& pfrm, const FlagPixels& px, Layer layer);
+void vram_write_flag(const FlagPixels& px, Layer layer);
 
 
 
-void load_default_flag(Platform& pfrm, App& app);
+void load_default_flag(App& app);
 
 
 

@@ -42,26 +42,25 @@ namespace skyland::macro
 class FreebuildConnectFriendScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, App&, Scene& prev) override
+    void enter(App&, Scene& prev) override
     {
-        text_.emplace(
-            pfrm, SYSTR(multi_session_connecting)->c_str(), OverlayCoord{1, 3});
+        text_.emplace(SYSTR(multi_session_connecting)->c_str(),
+                      OverlayCoord{1, 3});
     }
 
 
-    void exit(Platform& pfrm, App&, Scene& next) override
+    void exit(App&, Scene& next) override
     {
         text_.reset();
         failure_text_.reset();
-        pfrm.fill_overlay(0);
-        pfrm.screen().schedule_fade(0);
+        PLATFORM.fill_overlay(0);
+        PLATFORM.screen().schedule_fade(0);
     }
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene> update(App& app, Microseconds delta) override
     {
-        player(app).update(pfrm, app, delta);
+        player(app).update(app, delta);
 
         switch (state_) {
         case State::show: {
@@ -70,14 +69,14 @@ public:
         }
 
         case State::connect: {
-            pfrm.network_peer().listen();
+            PLATFORM.network_peer().listen();
 
-            if (not pfrm.network_peer().is_connected()) {
+            if (not PLATFORM.network_peer().is_connected()) {
                 state_ = State::failure;
-                failure_text_.emplace(pfrm);
+                failure_text_.emplace();
                 failure_text_->assign(SYSTR(multi_connection_failure)->c_str(),
                                       {1, 5},
-                                      {u8(calc_screen_tiles(pfrm).x - 2), 10});
+                                      {u8(calc_screen_tiles().x - 2), 10});
                 break;
             }
 
@@ -86,8 +85,8 @@ public:
         }
 
         case State::failure:
-            if (pfrm.keyboard().down_transition(Key::action_1) or
-                pfrm.keyboard().down_transition(Key::action_2)) {
+            if (PLATFORM.keyboard().down_transition(Key::action_1) or
+                PLATFORM.keyboard().down_transition(Key::action_2)) {
                 return scene_pool::alloc<SelectorScene>();
             }
             break;
@@ -97,7 +96,7 @@ public:
             if (auto s = macrocosm(app).sector().cast_freebuild_sector()) {
                 s->reset();
             }
-            pfrm.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(app.environment().music(), 0);
             return scene_pool::alloc<SelectorScene>();
         }
 

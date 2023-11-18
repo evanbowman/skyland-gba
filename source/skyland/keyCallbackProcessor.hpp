@@ -62,7 +62,7 @@ public:
     };
 
 
-    using Callback = Function<2 * sizeof(void*), void(Platform&, App&)>;
+    using Callback = Function<2 * sizeof(void*), void(App&)>;
 
 
     struct Binding
@@ -78,7 +78,7 @@ public:
     }
 
 
-    void update(Platform& pfrm)
+    void update()
     {
         if (seek_state() == seq_max - 1) {
             return;
@@ -87,7 +87,7 @@ public:
         Key found = Key::count;
         for (int i = 0; i < (int)Key::count; ++i) {
             auto k = (Key)i;
-            if (pfrm.keyboard().down_transition(k)) {
+            if (PLATFORM.keyboard().down_transition(k)) {
                 found = k;
                 break;
             }

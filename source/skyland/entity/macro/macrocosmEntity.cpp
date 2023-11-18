@@ -31,9 +31,9 @@ namespace skyland::macro
 
 
 
-void MacrocosmEntity::update(Platform& pfrm, App& app, Microseconds delta)
+void MacrocosmEntity::update(App& app, Microseconds delta)
 {
-    update(pfrm, macrocosm(app), delta);
+    update(macrocosm(app), delta);
 }
 
 

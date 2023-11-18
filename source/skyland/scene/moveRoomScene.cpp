@@ -29,64 +29,63 @@ namespace skyland
 
 
 
-ScenePtr<Scene>
-MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> MoveRoomScene::update(App& app, Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
+    if (auto next = ActiveWorldScene::update(app, delta)) {
         return next;
     }
 
     if (app.game_speed() not_eq GameSpeed::stopped) {
-        set_gamespeed(pfrm, app, GameSpeed::stopped);
+        set_gamespeed(app, GameSpeed::stopped);
     }
 
     switch (state_) {
     case State::setup_prompt: {
-        auto st = calc_screen_tiles(pfrm);
+        auto st = calc_screen_tiles();
         StringBuffer<30> text;
         text += format(SYSTR(move_room_prompt)->c_str(), 800).c_str();
 
-        text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
+        text_.emplace(text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
         const int count = st.x - text_->len();
         for (int i = 0; i < count; ++i) {
-            pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+            PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
         }
 
         for (int i = 0; i < st.x; ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
         }
 
-        yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
-        no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+        yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+        no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
         yes_text_->assign(SYSTR(salvage_option_A)->c_str());
         no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
         for (int i = 23; i < st.x; ++i) {
-            pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
         }
 
-        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-        pfrm.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
 
         state_ = State::prompt;
         persist_ui();
 
-        pfrm.set_tile(Layer::overlay, 0, st.y - 3, 249);
-        pfrm.set_tile(Layer::overlay, 1, st.y - 3, 250);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 2, 251);
-        pfrm.set_tile(Layer::overlay, 1, st.y - 2, 252);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 249);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 250);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 251);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 252);
 
-        pfrm.set_tile(Layer::overlay, 2, st.y - 2, 418);
-        pfrm.set_tile(Layer::overlay, 2, st.y - 3, 433);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 4, 425);
-        pfrm.set_tile(Layer::overlay, 1, st.y - 4, 425);
+        PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
+        PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
         break;
     }
 
     case State::prompt: {
-        if (player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_2)) {
             if (is_far_camera()) {
                 return scene_pool::alloc<InspectP2Scene>();
             }
@@ -95,49 +94,48 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const bool skip = not app.opponent_island();
 
-        if (skip or player(app).key_down(pfrm, Key::action_1)) {
+        if (skip or player(app).key_down(Key::action_1)) {
             if (not skip and app.coins() < 800) {
                 auto future_scene =
                     scene_pool::make_deferred_scene<ReadyScene>();
                 auto str = SYSTR(construction_insufficient_funds);
-                pfrm.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
                 return scene_pool::alloc<NotificationScene>(str->c_str(),
                                                             future_scene);
             }
             unpersist_ui();
             if (not skip) {
-                pfrm.speaker().play_sound("coin", 2);
-                app.set_coins(pfrm, app.coins() - 800);
+                PLATFORM.speaker().play_sound("coin", 2);
+                app.set_coins(app.coins() - 800);
             }
             state_ = State::move_stuff;
             yes_text_.reset();
             no_text_.reset();
             text_.reset();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
 
-            auto st = calc_screen_tiles(pfrm);
+            auto st = calc_screen_tiles();
 
-            text_.emplace(pfrm,
-                          SYSTR(move_room_1)->c_str(),
+            text_.emplace(SYSTR(move_room_1)->c_str(),
                           OverlayCoord{0, u8(st.y - 1)});
 
             for (int i = 0; i < text_->len(); ++i) {
-                pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+                PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
             }
         }
         break;
     }
 
     case State::move_stuff:
-        if ((player(app).key_pressed(pfrm, Key::start) or
-             player(app).key_pressed(pfrm, Key::action_1)) and
-            (player(app).key_down(pfrm, Key::left) or
-             player(app).key_down(pfrm, Key::right) or
-             player(app).key_down(pfrm, Key::up) or
-             player(app).key_down(pfrm, Key::down))) {
+        if ((player(app).key_pressed(Key::start) or
+             player(app).key_pressed(Key::action_1)) and
+            (player(app).key_down(Key::left) or
+             player(app).key_down(Key::right) or
+             player(app).key_down(Key::up) or
+             player(app).key_down(Key::down))) {
             state_ = State::select_group;
             text_.reset();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
             group_selection_ = allocate_dynamic<GroupSelection>("selgroup");
             (*group_selection_)->anchor_ = cursor();
             (*group_selection_)->sel_tl_ = cursor();
@@ -147,15 +145,15 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
 
-        if (player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
-        if (player(app).key_down(pfrm, Key::action_1)) {
+        if (player(app).key_down(Key::action_1)) {
             auto cursor_loc = cursor();
             if (auto r = island_->get_room(cursor_loc)) {
                 if (str_eq(r->name(), "mycelium")) {
                     // Can't be moved!
-                    pfrm.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error", 3);
                     return null_scene();
                 }
                 state_ = State::move_block;
@@ -163,33 +161,32 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 move_diff_ =
                     (cursor_loc.cast<int>() - move_src_.cast<int>()).cast<u8>();
                 text_.reset();
-                pfrm.fill_overlay(0);
+                PLATFORM.fill_overlay(0);
 
                 mv_size_.x = r->size().x;
                 mv_size_.y = r->size().y;
                 mv_ot_ = (*r->metaclass())->weapon_orientation();
 
-                auto st = calc_screen_tiles(pfrm);
+                auto st = calc_screen_tiles();
 
-                text_.emplace(pfrm,
-                              SYSTR(move_room_2)->c_str(),
+                text_.emplace(SYSTR(move_room_2)->c_str(),
                               OverlayCoord{0, u8(st.y - 1)});
                 for (int i = 0; i < text_->len(); ++i) {
-                    pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+                    PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
                 }
             }
         }
         break;
 
     case State::move_block:
-        if (player(app).key_down(pfrm, Key::action_1) or
-            player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_1) or
+            player(app).key_down(Key::action_2)) {
 
             auto cursor_loc = cursor();
             cursor_loc =
                 (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
 
-            if (player(app).key_down(pfrm, Key::action_1)) {
+            if (player(app).key_down(Key::action_1)) {
                 if (auto room = island_->get_room(move_src_)) {
                     for (u32 x = 0; x < room->size().x; ++x) {
                         for (int y = 0; y < room->size().y; ++y) {
@@ -198,7 +195,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                             c.y = cursor_loc.y + y;
 
                             auto err = [&]() {
-                                pfrm.speaker().play_sound("beep_error", 3);
+                                PLATFORM.speaker().play_sound("beep_error", 3);
                                 return null_scene();
                             };
 
@@ -216,22 +213,21 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                             }
                         }
                     }
-                    pfrm.speaker().play_sound("build0", 4);
-                    island_->move_room(pfrm, app, move_src_, cursor_loc);
+                    PLATFORM.speaker().play_sound("build0", 4);
+                    island_->move_room(app, move_src_, cursor_loc);
                 }
             }
 
             text_.reset();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
 
-            auto st = calc_screen_tiles(pfrm);
+            auto st = calc_screen_tiles();
 
-            text_.emplace(pfrm,
-                          SYSTR(move_room_1)->c_str(),
+            text_.emplace(SYSTR(move_room_1)->c_str(),
                           OverlayCoord{0, u8(st.y - 1)});
 
             for (int i = 0; i < text_->len(); ++i) {
-                pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+                PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
             }
 
             state_ = State::move_stuff;
@@ -239,8 +235,8 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::select_group:
-        if (not player(app).key_pressed(pfrm, Key::action_1) and
-            not player(app).key_pressed(pfrm, Key::start)) {
+        if (not player(app).key_pressed(Key::action_1) and
+            not player(app).key_pressed(Key::start)) {
             state_ = State::move_group;
             for (int x = (*group_selection_)->sel_tl_.x;
                  x < (*group_selection_)->sel_tr_.x + 1;
@@ -269,12 +265,12 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::move_group:
-        if (player(app).key_down(pfrm, Key::action_1) or
-            player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(Key::action_1) or
+            player(app).key_down(Key::action_2)) {
             text_.reset();
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
 
-            if (player(app).key_down(pfrm, Key::action_1)) {
+            if (player(app).key_down(Key::action_1)) {
                 auto offset_x =
                     (*group_selection_)->anchor_.x - this->cursor().x;
                 auto offset_y =
@@ -289,7 +285,8 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                                 dest.y = (dest.y - offset_y) + y;
 
                                 auto err = [&]() {
-                                    pfrm.speaker().play_sound("beep_error", 3);
+                                    PLATFORM.speaker().play_sound("beep_error",
+                                                                  3);
                                     return null_scene();
                                 };
 
@@ -321,7 +318,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
 
-                pfrm.speaker().play_sound("build0", 4);
+                PLATFORM.speaker().play_sound("build0", 4);
 
                 time_stream::event::MoveRegionBegin e;
                 app.time_stream().push(app.level_timer(), e);
@@ -331,7 +328,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         auto dest = room->position();
                         dest.x = dest.x - offset_x;
                         dest.y = dest.y - offset_y;
-                        island_->move_room(pfrm, app, room->position(), dest);
+                        island_->move_room(app, room->position(), dest);
                         room->set_hidden(true);
                     }
                 }
@@ -344,14 +341,13 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            auto st = calc_screen_tiles(pfrm);
+            auto st = calc_screen_tiles();
 
-            text_.emplace(pfrm,
-                          SYSTR(move_room_1)->c_str(),
+            text_.emplace(SYSTR(move_room_1)->c_str(),
                           OverlayCoord{0, u8(st.y - 1)});
 
             for (int i = 0; i < text_->len(); ++i) {
-                pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+                PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
             }
 
             group_selection_.reset();
@@ -362,15 +358,13 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return app.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     auto& cursor_loc = cursor();
 
     auto sync_cursor = [&] {
-        app.player().network_sync_cursor(
-            pfrm, cursor_loc, cursor_anim_frame_, true);
+        app.player().network_sync_cursor(cursor_loc, cursor_anim_frame_, true);
     };
 
     if ((int)state_ > (int)State::prompt) {
@@ -380,7 +374,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             //     auto offset_y =
             //         (*group_selection_)->anchor_.y - this->cursor().y;
             //     if (offset_y not_eq 0) {
-            //         pfrm.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error", 2);
             //         return null_scene();
             //     }
             // }
@@ -388,7 +382,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 sync_cursor();
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
                 if (state_ == State::select_group) {
                     auto anchor = (*group_selection_)->anchor_;
@@ -416,7 +410,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             //     auto offset_y =
             //         (*group_selection_)->anchor_.y - this->cursor().y;
             //     if (offset_y not_eq 0) {
-            //         pfrm.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error", 2);
             //         return null_scene();
             //     }
             // }
@@ -424,7 +418,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (cursor_loc.x < island_->terrain().size()) {
                 ++cursor_loc.x;
                 sync_cursor();
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
                 if (state_ == State::select_group) {
                     auto anchor = (*group_selection_)->anchor_;
@@ -454,7 +448,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             //     auto offset_x =
             //         (*group_selection_)->anchor_.x - this->cursor().x;
             //     if (offset_x not_eq 0) {
-            //         pfrm.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error", 2);
             //         return null_scene();
             //     }
             // }
@@ -462,7 +456,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 sync_cursor();
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
                 if (state_ == State::select_group) {
                     auto anchor = (*group_selection_)->anchor_;
@@ -490,7 +484,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             //     auto offset_x =
             //         (*group_selection_)->anchor_.x - this->cursor().x;
             //     if (offset_x not_eq 0) {
-            //         pfrm.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error", 2);
             //         return null_scene();
             //     }
             // }
@@ -498,7 +492,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 sync_cursor();
-                pfrm.speaker().play_sound("cursor_tick", 0);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
 
                 if (state_ == State::select_group) {
                     auto anchor = (*group_selection_)->anchor_;
@@ -534,7 +528,7 @@ MoveRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MoveRoomScene::display(Platform& pfrm, App& app)
+void MoveRoomScene::display(App& app)
 {
     if ((int)state_ > (int)State::prompt) {
         Sprite cursor;
@@ -558,7 +552,7 @@ void MoveRoomScene::display(Platform& pfrm, App& app)
             cursor.set_position(origin);
 
 
-            pfrm.screen().draw(cursor);
+            PLATFORM.screen().draw(cursor);
         };
 
         if (state_ == State::select_group or state_ == State::move_group) {
@@ -592,7 +586,7 @@ void MoveRoomScene::display(Platform& pfrm, App& app)
                         origin.x += Fixnum::from_integer(x * 16);
                         origin.y += Fixnum::from_integer(y * 16);
                         auto o = (*room->metaclass())->weapon_orientation();
-                        draw_required_space(pfrm, app, *island_, origin, sz, o);
+                        draw_required_space(app, *island_, origin, sz, o);
                     }
                 }
             }
@@ -612,7 +606,7 @@ void MoveRoomScene::display(Platform& pfrm, App& app)
         sprite.set_position(origin);
         sprite.set_texture_index((15 * 2) + cursor_anim_frame_);
         sprite.set_size(Sprite::Size::w16_h16);
-        pfrm.screen().draw(sprite);
+        PLATFORM.screen().draw(sprite);
 
         sprite.set_size(Sprite::Size::w16_h32);
 
@@ -623,17 +617,17 @@ void MoveRoomScene::display(Platform& pfrm, App& app)
         origin.x += Fixnum::from_integer(cursor_loc.x * 16);
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);
         auto sz = mv_size_;
-        draw_required_space(pfrm, app, *island_, origin, sz, mv_ot_);
+        draw_required_space(app, *island_, origin, sz, mv_ot_);
     }
 
     if ((int)state_ > (int)State::prompt) {
         auto& cursor_loc = cursor();
         if (auto room = island_->get_room(cursor_loc)) {
-            room->display_on_hover(pfrm.screen(), app, cursor_loc);
+            room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
         }
     }
 
-    ActiveWorldScene::display(pfrm, app);
+    ActiveWorldScene::display(app);
 }
 
 

@@ -22,4 +22,4 @@ bool bootleg_flash_writeback(BootlegFlashType flash_type,
 void bootleg_flash_erase(BootlegFlashType flash_type);
 
 
-void bootleg_cart_init_sram(Platform& pfrm);
+void bootleg_cart_init_sram();

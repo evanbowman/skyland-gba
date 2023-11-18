@@ -61,8 +61,7 @@ public:
 
 
 
-    TextEditorModule(Platform& pfrm,
-                     UserContext&& context,
+    TextEditorModule(UserContext&& context,
                      const char* file_path,
                      SyntaxMode syntax_mode,
                      FileMode file_mode = FileMode::update,
@@ -70,7 +69,7 @@ public:
 
 
     // A special constructor, for opening the syslog.
-    TextEditorModule(Platform& pfrm, UserContext&& context);
+    TextEditorModule(UserContext&& context);
 
 
     static bool run_scripts()
@@ -92,11 +91,11 @@ public:
     }
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
     struct ParserState
@@ -121,24 +120,23 @@ private:
     } mode_ = Mode::nav;
 
 
-    void render(Platform& pfrm, int start_line);
-    void render_keyboard(Platform& pfrm);
-    void render_completions(Platform& pfrm);
+    void render(int start_line);
+    void render_keyboard();
+    void render_completions();
 
 
     Vector<char>::Iterator insert_pos();
-    void insert_char(Platform& pfrm,
-                     char c,
+    void insert_char(char c,
                      std::optional<Vector<char>::Iterator> insert_hint = {});
     void erase_char(std::optional<Vector<char>::Iterator> erase_hint = {});
 
 
-    void delete_selection(Platform& pfrm);
+    void delete_selection();
     void save_selection(Vector<char>& output);
-    void paste_selection(Platform& pfrm, Vector<char>& source);
+    void paste_selection(Vector<char>& source);
 
 
-    void show_status(Platform& pfrm);
+    void show_status();
 
 
     Vector<char> text_buffer_;
@@ -157,7 +155,7 @@ private:
 
     StringBuffer<32> current_word();
 
-    void center_view(Platform& pfrm);
+    void center_view();
 
 
     struct State

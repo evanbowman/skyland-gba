@@ -49,7 +49,7 @@ void Bulkhead::plot_walkable_zones(App& app,
 
 
 
-void Bulkhead::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Bulkhead::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_bulkhead_door)->c_str();
 }
@@ -63,16 +63,16 @@ Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
 
 
 
-void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
+void Bulkhead::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     Room::ready();
 
     if (length(characters())) {
-        set_open(pfrm, app, true);
+        set_open(app, true);
     } else if (parent()->power_supply() < parent()->power_drain()) {
-        set_open(pfrm, app, true);
+        set_open(app, true);
     } else {
         auto pos = position();
         pos.y += 1;
@@ -120,7 +120,7 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        set_open(pfrm, app, chr_moving_in);
+        set_open(app, chr_moving_in);
     }
 }
 
@@ -142,9 +142,9 @@ void Bulkhead::render_interior(App* app, TileId buffer[16][16])
 
 
 
-void Bulkhead::___rewind___finished_reload(Platform& pfrm, App& app)
+void Bulkhead::___rewind___finished_reload(App& app)
 {
-    set_open(pfrm, app, not open_);
+    set_open(app, not open_);
 }
 
 
@@ -159,7 +159,7 @@ void Bulkhead::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
+void Bulkhead::set_open(App& app, bool open)
 {
     if (open_ == open) {
         return;
@@ -178,8 +178,8 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
     }
 
     if (app.time_stream().pushes_enabled()) {
-        if (not pfrm.speaker().is_sound_playing("door")) {
-            pfrm.speaker().play_sound("door", 0);
+        if (not PLATFORM.speaker().is_sound_playing("door")) {
+            PLATFORM.speaker().play_sound("door", 0);
         }
     }
 
@@ -190,7 +190,7 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
         packet.room_x_ = position().x;
         packet.room_y_ = position().y;
         packet.open_ = open_;
-        network::transmit(pfrm, packet);
+        network::transmit(packet);
     }
 
     if (parent()->interior_visible()) {

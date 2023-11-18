@@ -45,7 +45,7 @@ extern Sound cannon_sound;
 
 
 
-void BeamGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void BeamGun::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_beam_gun)->c_str();
 }
@@ -73,7 +73,7 @@ public:
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         timer_ -= delta;
         if (timer_ < 0) {
@@ -85,18 +85,14 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         timer_ += delta;
         if (timer_ > milliseconds(32)) {
             timer_ -= milliseconds(32);
             if (++beam_count_ < 10) {
-                auto c = app.alloc_entity<Beam>(pfrm,
-                                                position_,
-                                                target_,
-                                                source_,
-                                                origin_tile_,
-                                                beam_count_);
+                auto c = app.alloc_entity<Beam>(
+                    position_, target_, source_, origin_tile_, beam_count_);
                 if (c) {
                     source_->projectiles().push(std::move(c));
                 }
@@ -125,7 +121,7 @@ private:
 
 
 
-void BeamGun::fire(Platform& pfrm, App& app)
+void BeamGun::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -149,15 +145,14 @@ void BeamGun::fire(Platform& pfrm, App& app)
         start.x += 32.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto c = app.alloc_entity<BeamSpawner>(
-        pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<BeamSpawner>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

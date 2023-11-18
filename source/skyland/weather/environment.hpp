@@ -63,10 +63,10 @@ public:
         return false;
     }
 
-    virtual void update(Platform& pfrm, App& app, Microseconds delta) = 0;
-    virtual void rewind(Platform& pfrm, App& app, Microseconds delta) = 0;
+    virtual void update(App& app, Microseconds delta) = 0;
+    virtual void rewind(App& app, Microseconds delta) = 0;
 
-    virtual void display(Platform& pfrm, App& app) = 0;
+    virtual void display(App& app) = 0;
 
     virtual const char* player_island_texture() const = 0;
     virtual const char* player_island_interior_texture() const = 0;
@@ -107,19 +107,19 @@ public:
 class CleanEnvironment : public Environment
 {
 public:
-    void update(Platform& pfrm, App& app, Microseconds delta) override
+    void update(App& app, Microseconds delta) override
     {
         // Nothing...
     }
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    void rewind(App& app, Microseconds delta) override
     {
         // Nothing...
     }
 
 
-    void display(Platform& pfrm, App& app) override
+    void display(App& app) override
     {
         // Nothing...
     }
@@ -178,10 +178,10 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void display(Platform& pfrm, App& app) override;
+    void display(App& app) override;
 
 
     ColorConstant fadein_colorize_tone() const override;

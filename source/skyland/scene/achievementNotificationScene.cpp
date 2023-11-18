@@ -32,8 +32,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
-                                                     App& app,
+ScenePtr<Scene> AchievementNotificationScene::update(App& app,
                                                      Microseconds delta)
 {
     // NOTE: do not call WorldScene::update, the game should be considered
@@ -46,13 +45,13 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
     switch (state_) {
     case State::fade_in: {
         if (skip_fade_ or timer_ > fade_duration) {
-            pfrm.screen().schedule_fade(0.5f);
+            PLATFORM.screen().schedule_fade(0.5f);
             timer_ = 0;
-            pfrm.speaker().play_sound("click_digital_1", 1);
+            PLATFORM.speaker().play_sound("click_digital_1", 1);
             state_ = State::animate_box_sweep;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(0.5f * amount);
+            PLATFORM.screen().schedule_fade(0.5f * amount);
         }
         break;
     }
@@ -60,7 +59,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
     case State::animate_box_sweep: {
         static const auto sweep_duration = milliseconds(100);
 
-        const auto st = calc_screen_tiles(pfrm);
+        const auto st = calc_screen_tiles();
 
         if (timer_ > sweep_duration) {
             timer_ = 0;
@@ -68,15 +67,15 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
-                    pfrm.set_tile(Layer::overlay, x, y, 112);
+                    PLATFORM.set_tile(Layer::overlay, x, y, 112);
                 }
             }
 
             for (int x = 4; x < st.x - 4; ++x) {
-                pfrm.set_tile(Layer::overlay, x, 8, 377);
+                PLATFORM.set_tile(Layer::overlay, x, 8, 377);
             }
 
-            pfrm.set_tile(Layer::overlay, st.x - 5, 4, 378);
+            PLATFORM.set_tile(Layer::overlay, st.x - 5, 4, 378);
 
             auto mt = load_metaclass(achievements::reward(achievement_));
             if (not mt) {
@@ -87,33 +86,34 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
                 {ColorConstant::rich_black, custom_color(0xead873)}};
 
 
-            achievement_text_.emplace(pfrm, OverlayCoord{3, 4});
+            achievement_text_.emplace(OverlayCoord{3, 4});
             achievement_text_->append(" ", banner_color);
             achievement_text_->append(SYSTR(achievement_msg_title)->c_str(),
                                       banner_color);
 
 
-            pfrm.set_tile(Layer::overlay, 3 + achievement_text_->len(), 4, 482);
+            PLATFORM.set_tile(
+                Layer::overlay, 3 + achievement_text_->len(), 4, 482);
             for (int x = 0; x < achievement_text_->len() + 1; ++x) {
-                pfrm.set_tile(Layer::overlay, 3 + x, 3, 478);
+                PLATFORM.set_tile(Layer::overlay, 3 + x, 3, 478);
             }
-            pfrm.set_tile(Layer::overlay, 2, 4, 480);
-            pfrm.set_tile(Layer::overlay, 2, 5, 481);
-            pfrm.set_tile(Layer::overlay, 2, 3, 479);
+            PLATFORM.set_tile(Layer::overlay, 2, 4, 480);
+            PLATFORM.set_tile(Layer::overlay, 2, 5, 481);
+            PLATFORM.set_tile(Layer::overlay, 2, 3, 479);
 
 
-            achievement_name_.emplace(pfrm, OverlayCoord{4, 6});
+            achievement_name_.emplace(OverlayCoord{4, 6});
             achievement_name_->assign(
-                loadstr(pfrm, achievements::name(achievement_))->c_str());
+                loadstr(achievements::name(achievement_))->c_str());
 
-            unlocked_text_.emplace(pfrm, OverlayCoord{4, 9});
+            unlocked_text_.emplace(OverlayCoord{4, 9});
             unlocked_text_->assign(SYSTR(achievement_msg_unlocked)->c_str());
 
             StringBuffer<17> temp;
 
-            item_name_.emplace(pfrm, OverlayCoord{9, 11});
+            item_name_.emplace(OverlayCoord{9, 11});
 
-            make_format(temp, "%", (*mt)->ui_name(pfrm)->c_str());
+            make_format(temp, "%", (*mt)->ui_name()->c_str());
 
             item_name_->assign(temp.c_str());
 
@@ -125,12 +125,12 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
                         (*mt)->consumes_power(),
                         (*mt)->full_health());
 
-            item_details_.emplace(pfrm, OverlayCoord{9, 13});
+            item_details_.emplace(OverlayCoord{9, 13});
             item_details_->assign(temp.c_str());
 
             auto icon = (*mt)->unsel_icon();
-            draw_image(pfrm, 181, 4, 11, 4, 4, Layer::overlay);
-            pfrm.load_overlay_chunk(181, icon, 16);
+            draw_image(181, 4, 11, 4, 4, Layer::overlay);
+            PLATFORM.load_overlay_chunk(181, icon, 16);
 
         } else {
 
@@ -141,7 +141,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
                     if (y <= progress + 3) {
-                        pfrm.set_tile(Layer::overlay, x, y, 112);
+                        PLATFORM.set_tile(Layer::overlay, x, y, 112);
                     }
                 }
             }
@@ -151,9 +151,8 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
     }
 
     case State::wait:
-        if (timer_ > seconds(2) and
-            (app.player().key_down(pfrm, Key::action_1) or
-             app.player().key_down(pfrm, Key::action_2))) {
+        if (timer_ > seconds(2) and (app.player().key_down(Key::action_1) or
+                                     app.player().key_down(Key::action_2))) {
 
             timer_ = 0;
             state_ = State::fade_out;
@@ -161,7 +160,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
             achievement_name_.reset();
             achievement_text_.reset();
 
-            pfrm.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
         }
         break;
 
@@ -170,11 +169,11 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
             return next_scene_();
         }
         if (timer_ > fade_duration) {
-            pfrm.screen().fade(0.f);
+            PLATFORM.screen().fade(0.f);
             return next_scene_();
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(0.5f * amount);
+            PLATFORM.screen().schedule_fade(0.5f * amount);
         }
         break;
     }
@@ -184,18 +183,18 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
 
 
-void AchievementNotificationScene::enter(Platform& pfrm, App& app, Scene& prev)
+void AchievementNotificationScene::enter(App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    WorldScene::enter(app, prev);
 
-    // pfrm.screen().schedule_fade(0.5f);
+    // PLATFORM.screen().schedule_fade(0.5f);
 }
 
 
 
-void AchievementNotificationScene::exit(Platform& pfrm, App& app, Scene& next)
+void AchievementNotificationScene::exit(App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    WorldScene::exit(app, next);
 }
 
 

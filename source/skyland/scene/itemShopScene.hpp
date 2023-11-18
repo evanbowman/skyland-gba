@@ -38,11 +38,11 @@ public:
     ItemShopScene();
 
 
-    void enter(Platform&, App&, Scene& prev) override;
-    void exit(Platform&, App&, Scene& next) override;
+    void enter(App&, Scene& prev) override;
+    void exit(App&, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
 private:
@@ -60,7 +60,7 @@ private:
 
     Vec2<u8> cursor_;
 
-    void describe_selection(Platform&);
+    void describe_selection();
 
     u32 item_slot(int x, int y);
 

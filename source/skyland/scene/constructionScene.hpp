@@ -55,19 +55,19 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    ScenePtr<Scene> update(App&, Microseconds delta) override;
 
 
-    void display(Platform&, App&) override;
+    void display(App&) override;
 
 
-    void enter(Platform&, App&, Scene& prev) override;
+    void enter(App&, Scene& prev) override;
 
 
-    void exit(Platform&, App&, Scene& next) override;
+    void exit(App&, Scene& next) override;
 
 
-    bool camera_update_check_key(Platform& pfrm, App& app) override;
+    bool camera_update_check_key(App& app) override;
 
 
     ConstructionScene* cast_construction_scene() override
@@ -97,16 +97,16 @@ private:
     Island* island(App& app);
 
 
-    bool collect_available_buildings(Platform&, App&);
+    bool collect_available_buildings(App&);
 
 
-    void find_construction_sites(Platform&, App&);
+    void find_construction_sites(App&);
 
 
-    void msg(Platform& pfrm, const char* text);
+    void msg(const char* text);
 
 
-    void show_current_building_text(Platform& pfrm, App& app);
+    void show_current_building_text(App& app);
 
 
     using Coord = Vec2<s8>;

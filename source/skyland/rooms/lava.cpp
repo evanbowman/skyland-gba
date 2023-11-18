@@ -42,7 +42,7 @@ Lava::Lava(Island* parent, const RoomCoord& position, const char* name)
 
 
 
-void Lava::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
+void Lava::check_flood_parent(App& app, Microseconds delta)
 {
     // NOTE: we want to destroy a lava block if its parent lava block no
     // longer exists.
@@ -80,9 +80,9 @@ void Lava::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Lava::update(Platform& pfrm, App& app, Microseconds delta)
+void Lava::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (parent()->is_destroyed()) {
         return;
@@ -90,7 +90,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 
     Room::ready();
 
-    check_flood_parent(pfrm, app, delta);
+    check_flood_parent(app, delta);
 
     if (has_flood_parent_) {
         flood_timer_ += delta;
@@ -112,7 +112,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 
                     if (not parent()->fire_present({x, y}) and
                         not(props & RoomProperties::fireproof)) {
-                        parent()->fire_create(pfrm, app, {x, y});
+                        parent()->fire_create(app, {x, y});
                     }
 
                     if (props & RoomProperties::fluid) {
@@ -122,7 +122,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
                         if (room->cast<Water>()) {
                             solidify = true;
                             if (position().y <= y) {
-                                room->apply_damage(pfrm, app, 9999);
+                                room->apply_damage(app, 9999);
                             }
                         }
                     }
@@ -142,7 +142,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
         damage(x, y - 1);
 
         if (solidify) {
-            __unsafe__transmute(pfrm, app, skyland::metaclass_index("basalt"));
+            __unsafe__transmute(app, skyland::metaclass_index("basalt"));
             return;
         }
     }
@@ -151,8 +151,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ -= milliseconds(1000);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("lava"))
-                ->create(pfrm, app, parent(), {x, y}, false);
+            (*load_metaclass("lava"))->create(app, parent(), {x, y}, false);
 
             parent()->schedule_repaint();
 
@@ -252,18 +251,16 @@ LavaSource::LavaSource(Island* parent, const RoomCoord& position)
 
 
 
-void LavaSource::update(Platform& pfrm, App& app, Microseconds delta)
+void LavaSource::update(App& app, Microseconds delta)
 {
     flood_timer_ += delta;
 
-    Lava::update(pfrm, app, delta);
+    Lava::update(app, delta);
 }
 
 
 
-void LavaSource::check_flood_parent(Platform& pfrm,
-                                    App& app,
-                                    Microseconds delta)
+void LavaSource::check_flood_parent(App& app, Microseconds delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

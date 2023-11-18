@@ -79,13 +79,13 @@ static void systemstring_get_index_cache()
 
 
 
-SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
+SystemStringBuffer loadstr(SystemString str)
 {
     systemstring_get_index_cache();
 
     auto result = allocate_dynamic<StringBuffer<1900>>("system-string");
 
-    if (auto data = pfrm.load_file_contents("strings", lang_file.c_str())) {
+    if (auto data = PLATFORM.load_file_contents("strings", lang_file.c_str())) {
         const char* const data_start = data;
 
         if ((*index_cache)->file_offset_[(int)str]) {
@@ -122,7 +122,7 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
         while (index not_eq target_line) {
             while (*data not_eq '\n') {
                 if (*data == '\0') {
-                    pfrm.fatal("null byte in localized text");
+                    PLATFORM.fatal("null byte in localized text");
                 }
                 ++data;
             }

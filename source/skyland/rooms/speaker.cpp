@@ -31,7 +31,7 @@ namespace skyland
 
 
 
-void Speaker::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Speaker::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_speaker)->c_str();
 }
@@ -71,9 +71,9 @@ static const auto time_interval = milliseconds(100);
 
 
 
-void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
+void Speaker::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (playing_) {
         Room::ready();
@@ -83,16 +83,16 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ += delta;
             if (timer_ > milliseconds(750)) {
 
-                pfrm.speaker().stop_chiptune_note(
+                PLATFORM.speaker().stop_chiptune_note(
                     Platform::Speaker::Channel::square_1);
 
-                pfrm.speaker().stop_chiptune_note(
+                PLATFORM.speaker().stop_chiptune_note(
                     Platform::Speaker::Channel::square_2);
 
-                pfrm.speaker().stop_chiptune_note(
+                PLATFORM.speaker().stop_chiptune_note(
                     Platform::Speaker::Channel::noise);
 
-                pfrm.speaker().stop_chiptune_note(
+                PLATFORM.speaker().stop_chiptune_note(
                     Platform::Speaker::Channel::wave);
 
                 end_music_ = false;
@@ -115,39 +115,38 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
                     parent()->get_room({position().x, u8(position().y + 1)})) {
                 auto s = room->cast<Speaker>();
                 if (s and signal_) {
-                    s->play(pfrm);
+                    s->play();
                 } else {
                     end_music_ = true;
                     if (signal_) {
                         room->select(
-                            pfrm,
-                            app,
-                            RoomCoord{position().x, u8(position().y + 1)});
+
+                            app, RoomCoord{position().x, u8(position().y + 1)});
                     } else {
-                        reset(pfrm, true);
+                        reset(true);
                     }
                 }
             } else {
-                reset(pfrm, true);
+                reset(true);
                 end_music_ = true;
             }
             playing_ = false;
 
-            parent()->repaint(pfrm, app);
+            parent()->repaint(app);
 
             return;
         }
 
 
-        pfrm.speaker().init_chiptune_square_1(settings_.square_1_);
-        pfrm.speaker().init_chiptune_square_2(settings_.square_2_);
-        pfrm.speaker().init_chiptune_noise(settings_.noise_);
+        PLATFORM.speaker().init_chiptune_square_1(settings_.square_1_);
+        PLATFORM.speaker().init_chiptune_square_2(settings_.square_2_);
+        PLATFORM.speaker().init_chiptune_noise(settings_.noise_);
 
         timer_ = 0;
 
         auto play_note = [&](Platform::Speaker::Channel ch, Synth& s) {
             auto note = s.notes()[index_];
-            pfrm.speaker().play_chiptune_note(ch, note);
+            PLATFORM.speaker().play_chiptune_note(ch, note);
         };
 
 
@@ -176,7 +175,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (auto p = square_1()) {
-        pfrm.speaker().apply_chiptune_effect(
+        PLATFORM.speaker().apply_chiptune_effect(
             Platform::Speaker::Channel::square_1,
             load_effect((int)Platform::Speaker::Channel::square_1),
             p->effect_parameters()[index_].value_,
@@ -185,7 +184,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (auto n = noise()) {
-        pfrm.speaker().apply_chiptune_effect(
+        PLATFORM.speaker().apply_chiptune_effect(
             Platform::Speaker::Channel::noise,
             load_effect((int)Platform::Speaker::Channel::noise),
             n->effect_parameters()[index_].value_,
@@ -193,7 +192,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (auto p = square_2()) {
-        pfrm.speaker().apply_chiptune_effect(
+        PLATFORM.speaker().apply_chiptune_effect(
             Platform::Speaker::Channel::square_2,
             load_effect((int)Platform::Speaker::Channel::square_2),
             p->effect_parameters()[index_].value_,
@@ -232,19 +231,18 @@ void Speaker::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene>
-Speaker::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Speaker::select(App& app, const RoomCoord& cursor)
 {
-    play(pfrm);
+    play();
 
-    parent()->repaint(pfrm, app);
+    parent()->repaint(app);
 
     return null_scene();
 }
 
 
 
-void Speaker::reset(Platform& pfrm, bool resume_music)
+void Speaker::reset(bool resume_music)
 {
     playing_ = false;
     end_music_ = false;
@@ -252,7 +250,7 @@ void Speaker::reset(Platform& pfrm, bool resume_music)
 
 
 
-void Speaker::play(Platform& pfrm, bool signal)
+void Speaker::play(bool signal)
 {
     if (playing_) {
         return;
@@ -262,7 +260,7 @@ void Speaker::play(Platform& pfrm, bool signal)
 
     for (auto& room : parent()->rooms()) {
         if (auto b = room->cast<Speaker>()) {
-            b->reset(pfrm, false);
+            b->reset(false);
             b->end_music_ = false;
         }
     }
@@ -372,32 +370,35 @@ Synth* Speaker::noise() const
 
 
 
-void Speaker::finalize(Platform& pfrm, App& app)
+void Speaker::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (auto p1 = square_1()) {
-        p1->apply_damage(pfrm, app, health_upper_limit());
+        p1->apply_damage(app, health_upper_limit());
     }
 
     if (auto p2 = square_2()) {
-        p2->apply_damage(pfrm, app, health_upper_limit());
+        p2->apply_damage(app, health_upper_limit());
     }
 
     if (auto wav = wave()) {
-        wav->apply_damage(pfrm, app, health_upper_limit());
+        wav->apply_damage(app, health_upper_limit());
     }
 
     if (auto n = noise()) {
-        n->apply_damage(pfrm, app, health_upper_limit());
+        n->apply_damage(app, health_upper_limit());
     }
 
     if (playing_) {
 
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
-        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::square_1);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::square_2);
+        PLATFORM.speaker().stop_chiptune_note(
+            Platform::Speaker::Channel::noise);
+        PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
     }
 }
 

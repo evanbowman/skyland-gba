@@ -45,13 +45,13 @@ public:
     Decimator(Island* parent, const RoomCoord& position);
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void update(App&, Microseconds delta) override;
 
 
-    void rewind(Platform&, App&, Microseconds delta);
+    void rewind(App&, Microseconds delta);
 
 
     static WeaponOrientation weapon_orientation()
@@ -60,12 +60,12 @@ public:
     }
 
 
-    void unset_target(Platform& pfrm, App& app) override;
+    void unset_target(App& app) override;
 
 
-    void ___rewind___finished_reload(Platform&, App&) override;
+    void ___rewind___finished_reload(App&) override;
 
-    void ___rewind___ability_used(Platform&, App&) override;
+    void ___rewind___ability_used(App&) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -139,7 +139,7 @@ public:
     }
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
 private:

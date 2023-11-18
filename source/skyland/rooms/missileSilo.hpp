@@ -45,7 +45,7 @@ public:
     MissileSilo(Island* parent, const RoomCoord& position);
 
 
-    void fire(Platform& pfrm, App& app) override;
+    void fire(App& app) override;
     Microseconds reload() const override;
 
 
@@ -59,7 +59,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()

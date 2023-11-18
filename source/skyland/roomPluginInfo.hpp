@@ -60,18 +60,16 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    void create(Platform& pfrm,
-                App& app,
+    void create(App& app,
                 Island* parent,
                 const RoomCoord& position,
                 bool do_repaint) const override
     {
-        parent->add_room<PluginRoom>(pfrm, app, position, do_repaint, mt_);
+        parent->add_room<PluginRoom>(app, position, do_repaint, mt_);
     }
 
 
-    RoomPtr<Room> create(Platform& pfrm,
-                         Island* parent,
+    RoomPtr<Room> create(Island* parent,
                          const RoomCoord& position) const override
     {
         return room_pool::alloc<PluginRoom>(parent, position, mt_);
@@ -112,7 +110,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    SystemStringBuffer ui_name(Platform& pfrm) const override
+    SystemStringBuffer ui_name() const override
     {
         auto ret = allocate_dynamic<StringBuffer<1900>>("locale-string");
         *ret += name();
@@ -160,7 +158,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    void format_description(Platform&, StringBuffer<512>&) const override
+    void format_description(StringBuffer<512>&) const override
     {
         Platform::fatal("attempt to fetch desciption for a plugin room.");
     }

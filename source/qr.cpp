@@ -80,7 +80,7 @@ QRCode::Sidelength QRCode::size() const
 
 
 
-void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format)
+void QRCode::copy_to_vram(u16 tile_start_offset, int format)
 {
     auto sz = size();
 
@@ -114,8 +114,8 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format)
                     }
                 }
 
-                pfrm.overwrite_overlay_tile(output_tile++,
-                                            pfrm.encode_tile(tile_data));
+                PLATFORM.overwrite_overlay_tile(
+                    output_tile++, PLATFORM.encode_tile(tile_data));
             }
         }
     } else if (sz > 36 or format == 2) {
@@ -139,8 +139,8 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format)
                     }
                 }
 
-                pfrm.overwrite_overlay_tile(output_tile++,
-                                            pfrm.encode_tile(tile_data));
+                PLATFORM.overwrite_overlay_tile(
+                    output_tile++, PLATFORM.encode_tile(tile_data));
             }
         }
     } else {
@@ -172,8 +172,8 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset, int format)
                     }
                 }
 
-                pfrm.overwrite_overlay_tile(output_tile++,
-                                            pfrm.encode_tile(tile_data));
+                PLATFORM.overwrite_overlay_tile(
+                    output_tile++, PLATFORM.encode_tile(tile_data));
             }
         }
     }
@@ -195,12 +195,11 @@ int QRCode::drawsize(int format) const
 
 
 
-void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord, int format)
+void QRCode::draw(const Vec2<u8>& screen_coord, int format)
 {
-    copy_to_vram(pfrm, 181, format);
+    copy_to_vram(181, format);
 
-    draw_image(pfrm,
-               181,
+    draw_image(181,
                screen_coord.x,
                screen_coord.y,
                drawsize(format),

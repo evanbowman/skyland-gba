@@ -272,7 +272,7 @@ public:
     std::map<std::string, sf::SoundBuffer> sound_data_;
 
 
-    Data(Platform& pfrm)
+    Data()
         : overlay_(&overlay_texture_, {8, 8}, 32, 32),
           map_0_{
               {&tile0_texture_, {8, 8}, 64, 32},
@@ -2139,7 +2139,7 @@ void Platform::SystemClock::configure(DateTime dt)
 
 
 
-void Platform::SystemClock::init(Platform& pfrm)
+void Platform::SystemClock::init()
 {
 }
 

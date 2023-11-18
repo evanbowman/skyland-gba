@@ -48,7 +48,7 @@ public:
     Power power_usage(App& app) const override;
 
 
-    void finalize(Platform& pfrm, App& app) override;
+    void finalize(App& app) override;
 
 
     int debris_tile() override
@@ -75,7 +75,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_windmill)->c_str();
     }
@@ -99,10 +99,10 @@ public:
     }
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta) override;
+    void update(App& app, Microseconds delta) override;
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
+    void rewind(App& app, Microseconds delta) override;
 
 
     void plot_walkable_zones(App& app,

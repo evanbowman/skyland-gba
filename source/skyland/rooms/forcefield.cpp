@@ -47,7 +47,7 @@ const char* Forcefield2::upgrade_mt_name() const
 
 
 
-void Forcefield::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Forcefield::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_forcefield)->c_str();
 }
@@ -63,9 +63,9 @@ Forcefield::Forcefield(Island* parent,
 
 
 
-void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
+void Forcefield::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -74,9 +74,9 @@ void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Forcefield::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Forcefield::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -101,7 +101,7 @@ void Forcefield::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Forcefield2::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Forcefield2::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_forcefield2)->c_str();
 }
@@ -128,20 +128,20 @@ Sound glass_break_sound("glass_break");
 
 
 
-void Forcefield::finalize(Platform& pfrm, App& app)
+void Forcefield::finalize(App& app)
 {
-    Room::finalize(pfrm, app);
+    Room::finalize(app);
 
     if (health() == 0) {
-        glass_break_sound.play(pfrm, 3);
+        glass_break_sound.play(3);
     }
 }
 
 
 
-void Forcefield2::update(Platform& pfrm, App& app, Microseconds delta)
+void Forcefield2::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -150,9 +150,9 @@ void Forcefield2::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Forcefield2::rewind(Platform& pfrm, App& app, Microseconds delta)
+void Forcefield2::rewind(App& app, Microseconds delta)
 {
-    Room::rewind(pfrm, app, delta);
+    Room::rewind(app, delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

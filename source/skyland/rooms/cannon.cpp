@@ -46,7 +46,7 @@ Sound cannon_sound("cannon");
 
 
 
-void Cannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Cannon::format_description(StringBuffer<512>& buffer)
 {
     auto secs = cannon_reload_ms / 1000;
 
@@ -66,7 +66,7 @@ Cannon::Cannon(Island* parent, const RoomCoord& position)
 
 
 
-void Cannon::fire(Platform& pfrm, App& app)
+void Cannon::fire(App& app)
 {
     auto island = other_island(app);
 
@@ -90,15 +90,14 @@ void Cannon::fire(Platform& pfrm, App& app)
         start.x += 6.0_fixed;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
-    cannon_sound.play(pfrm, 3);
+    cannon_sound.play(3);
 
-    auto c =
-        app.alloc_entity<Cannonball>(pfrm, start, target, parent(), position());
+    auto c = app.alloc_entity<Cannonball>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

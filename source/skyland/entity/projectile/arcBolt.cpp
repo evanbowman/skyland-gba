@@ -80,7 +80,7 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
 
 
-void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
+void ArcBolt::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -102,7 +102,7 @@ void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < seconds(0)) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         }
         kill();
     }
@@ -110,7 +110,7 @@ void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
+void ArcBolt::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -137,7 +137,7 @@ void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        destroy_out_of_bounds(pfrm, app, target);
+        destroy_out_of_bounds(app, target);
     }
 
     if (timer_ > seconds(2)) {
@@ -151,14 +151,11 @@ extern Sound sound_impact;
 
 
 
-u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
+u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void ArcBolt::on_collision(Platform& pfrm,
-                           App& app,
-                           Room& room,
-                           Vec2<u8> origin)
+void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -179,7 +176,7 @@ void ArcBolt::on_collision(Platform& pfrm,
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < arcbolt_damage) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
@@ -204,7 +201,7 @@ void ArcBolt::on_collision(Platform& pfrm,
         }
     }
 
-    flood_fill(pfrm, state->matrix_, 16, room.position().x, room.position().y);
+    flood_fill(state->matrix_, 16, room.position().x, room.position().y);
 
     for (u32 x = 0; x < room.parent()->terrain().size(); ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -226,30 +223,30 @@ void ArcBolt::on_collision(Platform& pfrm,
     }
 
     for (auto& room : state->rooms_) {
-        room->apply_damage(pfrm, app, arcbolt_damage, source_);
+        room->apply_damage(app, arcbolt_damage, source_);
     }
 
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(pfrm, app, true);
-        record_destroyed(pfrm, app);
+        room.set_ai_aware(app, true);
+        record_destroyed(app);
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        pfrm.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        destroy(pfrm, app, true);
+        destroy(app, true);
         if (room.health()) {
-            sound_impact.play(pfrm, 1);
+            sound_impact.play(1);
         }
     }
 }
 
 
 
-void ArcBolt::record_destroyed(Platform& pfrm, App& app)
+void ArcBolt::record_destroyed(App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& e) {
@@ -276,15 +273,15 @@ void ArcBolt::record_destroyed(Platform& pfrm, App& app)
 
 
 
-void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
+void ArcBolt::destroy(App& app, bool explosion)
 {
-    record_destroyed(pfrm, app);
+    record_destroyed(app);
 
     kill();
     app.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(pfrm, app, sprite_.get_position());
+        medium_explosion(app, sprite_.get_position());
     }
 }
 

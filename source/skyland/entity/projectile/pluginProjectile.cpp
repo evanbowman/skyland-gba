@@ -68,7 +68,7 @@ PluginProjectile::PluginProjectile(const Vec2<Fixnum>& position,
 
 
 
-void PluginProjectile::update(Platform&, App& app, Microseconds delta)
+void PluginProjectile::update(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + app.delta_fp() * step_vector_;
@@ -83,7 +83,7 @@ void PluginProjectile::update(Platform&, App& app, Microseconds delta)
 
 
 
-void PluginProjectile::rewind(Platform& pfrm, App& app, Microseconds delta)
+void PluginProjectile::rewind(App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - app.delta_fp() * step_vector_;
@@ -93,9 +93,9 @@ void PluginProjectile::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(pfrm, app);
+            room->___rewind___ability_used(app);
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(pfrm, app);
+            (*drone)->___rewind___ability_used(app);
         }
         kill();
     }
@@ -107,10 +107,7 @@ extern Sound sound_impact;
 
 
 
-void PluginProjectile::on_collision(Platform& pfrm,
-                                    App& app,
-                                    Room& room,
-                                    Vec2<u8> origin)
+void PluginProjectile::on_collision(App& app, Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (auto origin = source_->get_room(origin_tile_)) {
@@ -131,26 +128,26 @@ void PluginProjectile::on_collision(Platform& pfrm,
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < damage_) {
-        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        room.apply_damage(app, Room::health_upper_limit());
         return;
     }
 
-    timestream_record_destroyed(pfrm, app);
+    timestream_record_destroyed(app);
 
     kill();
     app.camera()->shake(8);
-    medium_explosion(pfrm, app, sprite_.get_position());
+    medium_explosion(app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, damage_);
+    room.apply_damage(app, damage_);
 
     if (room.health()) {
-        sound_impact.play(pfrm, 1);
+        sound_impact.play(1);
     }
 }
 
 
 
-void PluginProjectile::timestream_record_destroyed(Platform& pfrm, App& app)
+void PluginProjectile::timestream_record_destroyed(App& app)
 {
     auto timestream_record =
         [&](time_stream::event::PluginProjectileDestroyed& c) {
@@ -180,15 +177,15 @@ void PluginProjectile::timestream_record_destroyed(Platform& pfrm, App& app)
 
 
 
-void PluginProjectile::on_collision(Platform& pfrm, App& app, Entity& entity)
+void PluginProjectile::on_collision(App& app, Entity& entity)
 {
-    timestream_record_destroyed(pfrm, app);
+    timestream_record_destroyed(app);
 
     kill();
     app.camera()->shake(8);
-    medium_explosion(pfrm, app, sprite_.get_position());
+    medium_explosion(app, sprite_.get_position());
 
-    entity.apply_damage(pfrm, app, damage_);
+    entity.apply_damage(app, damage_);
 }
 
 

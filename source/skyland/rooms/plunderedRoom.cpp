@@ -31,8 +31,7 @@ namespace skyland
 
 
 
-void PlunderedRoom::format_description(Platform& pfrm,
-                                       StringBuffer<512>& buffer)
+void PlunderedRoom::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_plundered_room)->c_str();
 }
@@ -45,9 +44,9 @@ PlunderedRoom::PlunderedRoom(Island* parent, const RoomCoord& position)
 }
 
 
-void PlunderedRoom::update(Platform& pfrm, App& app, Microseconds delta)
+void PlunderedRoom::update(App& app, Microseconds delta)
 {
-    Room::update(pfrm, app, delta);
+    Room::update(app, delta);
 }
 
 

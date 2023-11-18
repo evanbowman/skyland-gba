@@ -30,7 +30,7 @@ namespace skyland
 
 
 
-void Radar::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Radar::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_radar)->c_str();
 }

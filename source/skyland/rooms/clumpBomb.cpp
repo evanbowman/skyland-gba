@@ -46,7 +46,7 @@ extern Sound missile_sound;
 
 
 
-void ClumpBomb::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void ClumpBomb::format_description(StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_clump_missile)->c_str();
 }
@@ -67,14 +67,14 @@ ClumpBomb::ClumpBomb(Island* parent, const RoomCoord& position)
 
 
 
-void ClumpBomb::fire(Platform& pfrm, App& app)
+void ClumpBomb::fire(App& app)
 {
     auto island = other_island(app);
 
     Vec2<Fixnum> target;
 
     auto room = island->get_room(*target_);
-    if (room and not pfrm.network_peer().is_connected()) {
+    if (room and not PLATFORM.network_peer().is_connected()) {
         // Note: if we use the center of a room as a target, we
         // have issues with multiplayer games, where a missile
         // targets a 2x2 room covered by 1x1 hull blocks for
@@ -93,7 +93,7 @@ void ClumpBomb::fire(Platform& pfrm, App& app)
         target = origin;
     }
 
-    if (not pfrm.network_peer().is_connected() and
+    if (not PLATFORM.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<2>(target, rng::critical_state);
     }
@@ -104,9 +104,9 @@ void ClumpBomb::fire(Platform& pfrm, App& app)
     app.camera()->shake(6);
 
     auto m = app.alloc_entity<ClumpMissile>(
-        pfrm, start, target, position().x, position().y, parent());
+        start, target, position().x, position().y, parent());
 
-    missile_sound.play(pfrm, 3, milliseconds(400));
+    missile_sound.play(3, milliseconds(400));
 
     if (m) {
         parent()->projectiles().push(std::move(m));
