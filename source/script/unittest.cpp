@@ -283,8 +283,8 @@ int main(int argc, char** argv)
 
     lisp::init();
 
-    lisp::BasicCharSequence ut_seq(utilities);
-    lisp::dostring(ut_seq, [](lisp::Value& err) {});
+    // lisp::BasicCharSequence ut_seq(utilities);
+    // lisp::dostring(ut_seq, [](lisp::Value& err) {});
 
     const char* prompt = ">> ";
 

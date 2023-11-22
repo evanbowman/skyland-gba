@@ -51,7 +51,16 @@ private:
 
 
 
-void invoke_hook(App& app, const char* lisp_hook_name);
+struct InvokeHookConfig
+{
+    bool reset_timestream_ = true;
+};
+
+
+
+void invoke_hook(App& app,
+                 const char* lisp_hook_name,
+                 const InvokeHookConfig& config = {});
 
 
 

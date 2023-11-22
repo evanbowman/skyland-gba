@@ -41,7 +41,9 @@ ScenePtr<Scene> ScriptHookScene::update(App& app, Microseconds delta)
 
 
 
-void invoke_hook(App& app, const char* lisp_hook_name)
+void invoke_hook(App& app,
+                 const char* lisp_hook_name,
+                 const InvokeHookConfig& config)
 {
     auto var_name_sym = lisp::make_symbol(lisp_hook_name);
 
@@ -56,9 +58,11 @@ void invoke_hook(App& app, const char* lisp_hook_name)
 
         // Not worth trying to roll back lisp code, do not allow rewind if we've
         // run a script.
-        app.time_stream().clear();
-        time_stream::event::Initial e;
-        app.time_stream().push(app.level_timer(), e);
+        if (config.reset_timestream_) {
+            app.time_stream().clear();
+            time_stream::event::Initial e;
+            app.time_stream().push(app.level_timer(), e);
+        }
 
         lisp::pop_op(); // funcall result
 

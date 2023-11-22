@@ -26,7 +26,7 @@
                            ret)))))
 
         (map (lambda
-               (push (car $0) (cdr $0) (rsz (car $0))))
+               (push (car $0) (cdr $0) (rinfo 'size (car $0))))
              opts)
 
         ret))))

@@ -31,6 +31,52 @@
 // running the interpreter.
 
 
+u32 str_len(const char* str)
+{
+    const char* s;
+
+    for (s = str; *s; ++s)
+        ;
+    return (s - str);
+}
+
+
+bool str_eq(const char* p1, const char* p2)
+{
+    while (true) {
+        if (*p1 not_eq *p2) {
+            return false;
+        }
+        if (*p1 == '\0' or *p2 == '\0') {
+            return true;
+        }
+        ++p1;
+        ++p2;
+    }
+}
+
+
+int str_cmp(const char* p1, const char* p2)
+{
+    const unsigned char* s1 = (const unsigned char*)p1;
+    const unsigned char* s2 = (const unsigned char*)p2;
+
+    unsigned char c1, c2;
+
+    do {
+        c1 = (unsigned char)*s1++;
+        c2 = (unsigned char)*s2++;
+
+        if (c1 == '\0') {
+            return c1 - c2;
+        }
+
+    } while (c1 == c2);
+
+    return c1 - c2;
+}
+
+
 rng::Value rng::get(LinearGenerator& gen)
 {
     gen = 1664525 * gen + 1013904223;
@@ -45,6 +91,19 @@ void Platform::fatal(const char* msg)
 {
     std::cerr << "fatal error: " << msg << std::endl;
     exit(EXIT_FAILURE);
+}
+
+
+void str_reverse(char str[], int length)
+{
+    int start = 0;
+    int end = length - 1;
+
+    while (start < end) {
+        std::swap(*(str + start), *(str + end));
+        start++;
+        end--;
+    }
 }
 
 
@@ -83,13 +142,40 @@ void arabic__to_string(int num, char* buffer, int base)
 }
 
 
+
+Platform* __platform__ = nullptr;
+
+
+
 Platform::Platform()
 {
+    __platform__ = this;
 }
 
 
 Platform::~Platform()
 {
+}
+
+
+template <u32 length> StringBuffer<length> to_string(int num)
+{
+    char temp[length];
+    arabic__to_string(num, temp, 10);
+
+    return temp;
+}
+
+
+StringBuffer<12> stringify(s32 num)
+{
+    return to_string<12>(num);
+}
+
+
+void Platform::Logger::log(Severity level, const char* msg)
+{
+    std::cout << msg << std::endl;
 }
 
 

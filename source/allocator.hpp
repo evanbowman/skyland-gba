@@ -321,6 +321,68 @@ private:
 
 
 
+template <u32 max_pages> struct GenericBumpAllocator
+{
+    Buffer<ScratchBufferPtr, max_pages> pages_;
+    ScratchBufferPtr current_page_;
+    size_t current_page_remaining_ = 0;
+
+
+    GenericBumpAllocator() : current_page_(make_scratch_buffer("xml"))
+    {
+        pages_.emplace_back(current_page_);
+        current_page_remaining_ = SCRATCH_BUFFER_SIZE;
+    }
+
+
+    const char* strdup(const char* str)
+    {
+        const auto len = str_len(str);
+        if (auto cpy = (char*)alloc(len + 1, 1)) {
+            for (u32 i = 0; i < len; ++i) {
+                cpy[i] = str[i];
+            }
+            cpy[len] = '\0';
+            return cpy;
+        }
+        return nullptr;
+    }
+
+
+    template <typename T> T* alloc()
+    {
+        return reinterpret_cast<T*>(alloc(sizeof(T), alignof(T)));
+    }
+
+
+    template <typename T> T* alloc_array(u32 count)
+    {
+        return reinterpret_cast<T*>(alloc(sizeof(T) * count, alignof(T)));
+    }
+
+
+    void* alloc(u32 bytes, u32 alignment)
+    {
+        if (bytes + alignment > current_page_remaining_) { // FIXME
+            current_page_ = make_scratch_buffer("xml");
+            current_page_remaining_ = SCRATCH_BUFFER_SIZE;
+            pages_.emplace_back(current_page_);
+        }
+
+        void* alloc_ptr = current_page_->data_ +
+                          (SCRATCH_BUFFER_SIZE - current_page_remaining_);
+
+        if (align(alignment, bytes, alloc_ptr, current_page_remaining_)) {
+            current_page_remaining_ -= bytes;
+            return alloc_ptr;
+        }
+
+        return nullptr;
+    }
+};
+
+
+
 template <u8 pages> struct BulkAllocator
 {
     BulkAllocator()

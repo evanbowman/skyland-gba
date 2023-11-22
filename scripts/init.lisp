@@ -76,3 +76,7 @@
 
 ;; For backwards compatibility...
 (defn/c repl (push-menu "repl" '()))
+
+;; shortcut accessors for room metadata
+(defn/c rinfo
+  (cdr (assoc $0 (room-meta $1))))

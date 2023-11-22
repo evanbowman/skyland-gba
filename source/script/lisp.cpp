@@ -22,6 +22,7 @@
 
 #include "lisp.hpp"
 #include "allocator.hpp"
+#include "eternal/eternal.hpp"
 #include "bytecode.hpp"
 #include "heap_data.hpp"
 #include "listBuilder.hpp"
@@ -30,6 +31,11 @@
 #include "memory/pool.hpp"
 #include "number/random.hpp"
 #include <complex>
+
+
+#if not MAPBOX_ETERNAL_IS_CONSTEXPR
+#error "NON-Constexpr lookup table!"
+#endif
 
 
 namespace lisp {
@@ -148,6 +154,7 @@ struct Context {
     int string_intern_pos_ = 0;
     int eval_depth_ = 0;
     int interp_entry_count_ = 0;
+    int alloc_highwater_ = 0;
 
     struct GensymState {
         u8 char_1_ : 6;
@@ -407,7 +414,7 @@ static Value* globals_tree_find(Value* key)
     auto& ctx = *bound_context;
 
     if (ctx.globals_tree_ == get_nil()) {
-        return get_nil();
+        return nullptr;
     }
 
     auto pt = globals_tree_splay(ctx.globals_tree_, key);
@@ -417,12 +424,7 @@ static Value* globals_tree_find(Value* key)
         return pt->cons().car()->cons().cdr();
     }
 
-    StringBuffer<31> hint("[var: ");
-    hint += key->symbol().name();
-    hint += "]";
-
-    return make_error(Error::Code::undefined_variable_access,
-                      make_string(hint.c_str()));
+    return nullptr;
 }
 
 
@@ -470,15 +472,6 @@ void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback)
     }
 }
 
-
-void get_env(::Function<6 * sizeof(void*), void(const char*)> callback)
-{
-    auto& ctx = bound_context;
-
-    globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
-        callback((const char*)val.cons().car()->symbol().name());
-    });
-}
 
 
 Value* get_arg(u16 n)
@@ -1163,88 +1156,6 @@ Value* _get_local(u8 slot)
 }
 
 
-Value* get_var(Value* symbol)
-{
-    if (symbol->symbol().name()[0] == '$') {
-        if (symbol->symbol().name()[1] == 'V') {
-            // Special case: use '$V' to access arguments as a list.
-            ListBuilder lat;
-            for (int i = bound_context->current_fn_argc_ - 1; i > -1; --i) {
-                lat.push_front(get_arg(i));
-            }
-            return lat.result();
-        } else if (symbol->symbol().name()[1] == 'q') {
-            // A shortcut to allow you to refer to the quote symbol.
-            return make_symbol("'");
-        } else {
-            s32 argn = 0;
-            for (u32 i = 1; symbol->symbol().name()[i] not_eq '\0'; ++i) {
-                argn = argn * 10 + (symbol->symbol().name()[i] - '0');
-            }
-
-            return get_arg(argn);
-        }
-    }
-
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
-
-        while (stack not_eq get_nil()) {
-
-            auto bindings = stack->cons().car();
-            while (bindings not_eq get_nil()) {
-                auto kvp = bindings->cons().car();
-                if (kvp->cons().car()->symbol().unique_id() ==
-                    symbol->symbol().unique_id()) {
-                    return kvp->cons().cdr();
-                }
-
-                bindings = bindings->cons().cdr();
-            }
-
-            stack = stack->cons().cdr();
-        }
-    }
-
-    auto found = globals_tree_find(symbol);
-
-    if (found->type() not_eq Value::Type::error) {
-        return found;
-    } else {
-        return found;
-    }
-}
-
-
-Value* set_var(Value* symbol, Value* val)
-{
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
-
-        while (stack not_eq get_nil()) {
-
-            auto bindings = stack->cons().car();
-            while (bindings not_eq get_nil()) {
-                auto kvp = bindings->cons().car();
-                if (kvp->cons().car()->symbol().unique_id() ==
-                    symbol->symbol().unique_id()) {
-
-                    kvp->cons().set_cdr(val);
-                    return get_nil();
-                }
-
-                bindings = bindings->cons().cdr();
-            }
-
-            stack = stack->cons().cdr();
-        }
-    }
-
-    globals_tree_insert(symbol, val);
-    return get_nil();
-}
-
-
 bool is_boolean_true(Value* val)
 {
     switch (val->type()) {
@@ -1542,19 +1453,6 @@ ProtectedBase::ProtectedBase()
 }
 
 
-ProtectedBase::ProtectedBase(const ProtectedBase&)
-{
-    prev_ = nullptr;
-    next_ = __protected_values;
-
-    if (__protected_values) {
-        __protected_values->prev_ = this;
-    }
-
-    __protected_values = this;
-}
-
-
 ProtectedBase::~ProtectedBase()
 {
     if (prev_ == nullptr) {
@@ -1657,6 +1555,7 @@ static int gc_sweep()
     }
 
     int collect_count = 0;
+    int used_count = 0;
 
     for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
 
@@ -1665,12 +1564,18 @@ static int gc_sweep()
         if (val->hdr_.alive_) {
             if (val->hdr_.mark_bit_) {
                 val->hdr_.mark_bit_ = false;
+                ++used_count;
             } else {
                 invoke_finalizer(val);
                 value_pool_free(val);
                 ++collect_count;
             }
         }
+    }
+
+    if (used_count > bound_context->alloc_highwater_) {
+        bound_context->alloc_highwater_ = used_count;
+        info(::format("LISP mem %", used_count));
     }
 
     return collect_count;
@@ -2686,7 +2591,10 @@ Value* gensym()
 }
 
 
-static const Binding builtins[] = {
+using Builtin = lisp::Value* (*)(int);
+MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =
+    mapbox::eternal::map<mapbox::eternal::string, Builtin>(
+{
     {"set",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
@@ -3085,8 +2993,7 @@ static const Binding builtins[] = {
          L_EXPECT_OP(0, symbol);
 
          auto found = globals_tree_find(get_op0());
-         return make_integer(found not_eq get_nil() and
-                             found->type() not_eq lisp::Value::Type::error);
+         return make_integer(found not_eq nullptr);
      }},
     {"filter",
      [](int argc) {
@@ -3681,11 +3588,131 @@ static const Binding builtins[] = {
          } else {
              return get_nil();
          }
-     }}};
+                    }}});
+
+
+void get_env(::Function<6 * sizeof(void*), void(const char*)> callback)
+{
+    auto& ctx = bound_context;
+
+    for (auto& kvp : builtin_table) {
+        callback(kvp.first.c_str());
+    }
+
+    globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
+        callback((const char*)val.cons().car()->symbol().name());
+    });
+}
+
+
+Value* get_var(Value* symbol)
+{
+    if (symbol->symbol().name()[0] == '$') {
+        if (symbol->symbol().name()[1] == 'V') {
+            // Special case: use '$V' to access arguments as a list.
+            ListBuilder lat;
+            for (int i = bound_context->current_fn_argc_ - 1; i > -1; --i) {
+                lat.push_front(get_arg(i));
+            }
+            return lat.result();
+        } else if (symbol->symbol().name()[1] == 'q') {
+            // A shortcut to allow you to refer to the quote symbol.
+            return make_symbol("'");
+        } else {
+            s32 argn = 0;
+            for (u32 i = 1; symbol->symbol().name()[i] not_eq '\0'; ++i) {
+                argn = argn * 10 + (symbol->symbol().name()[i] - '0');
+            }
+
+            return get_arg(argn);
+        }
+    }
+
+    // First, check to see if any lexical (non-global) bindings exist for a
+    // symbol.
+    if (bound_context->lexical_bindings_ not_eq get_nil()) {
+        auto stack = bound_context->lexical_bindings_;
+
+        while (stack not_eq get_nil()) {
+
+            auto bindings = stack->cons().car();
+            while (bindings not_eq get_nil()) {
+                auto kvp = bindings->cons().car();
+                if (kvp->cons().car()->symbol().unique_id() ==
+                    symbol->symbol().unique_id()) {
+                    return kvp->cons().cdr();
+                }
+
+                bindings = bindings->cons().cdr();
+            }
+
+            stack = stack->cons().cdr();
+        }
+    }
+
+    // After walking all the way up the stack, we didn't find any existing
+    // lexical bindings. Now, we want to check the global variable tree to see
+    // if any variable exists.
+    auto found = globals_tree_find(symbol);
+
+    if (found) {
+        return found;
+    }
+
+    // Lastly, we want to check to see if any builtin functions exist for our
+    // symbol name. By keeping builtins out of the globals tree, we decrease the
+    // lower bound on the interpreter's memory usage. On the other hand, doing
+    // this does put additional pressure on the gc (because the functions need
+    // to be boxed as lisp function each time they're accessed).
+    //
+    auto found_builtin = builtin_table.find(symbol->symbol().name());
+    if (found_builtin not_eq builtin_table.end()) {
+        return lisp::make_function(found_builtin->second);
+    }
+
+    StringBuffer<31> hint("[var: ");
+    hint += symbol->symbol().name();
+    hint += "]";
+
+    return make_error(Error::Code::undefined_variable_access,
+                      make_string(hint.c_str()));
+}
+
+
+Value* set_var(Value* symbol, Value* val)
+{
+    if (bound_context->lexical_bindings_ not_eq get_nil()) {
+        auto stack = bound_context->lexical_bindings_;
+
+        while (stack not_eq get_nil()) {
+
+            auto bindings = stack->cons().car();
+            while (bindings not_eq get_nil()) {
+                auto kvp = bindings->cons().car();
+                if (kvp->cons().car()->symbol().unique_id() ==
+                    symbol->symbol().unique_id()) {
+
+                    kvp->cons().set_cdr(val);
+                    return get_nil();
+                }
+
+                bindings = bindings->cons().cdr();
+            }
+
+            stack = stack->cons().cdr();
+        }
+    }
+
+    globals_tree_insert(symbol, val);
+    return get_nil();
+}
 
 
 void bind_functions(const Binding* bindings, int count)
 {
+    // FIXME: The comment below must be out of date... I'm now using a splay
+    // tree...
+
     // TODO: I haven't implemented balancing code for the global variable tree
     // yet. Because we use a pointer comparison based on a node's symbol intern
     // ponter when comparing keys in the tree, if we intern a symbol and insert
@@ -3773,7 +3800,7 @@ void init()
 
     intern("'");
 
-    bind_functions(builtins, sizeof(builtins) / sizeof(builtins[0]));
+    // bind_functions(builtins, sizeof(builtins) / sizeof(builtins[0]));
 }
 
 

@@ -610,7 +610,9 @@ static const lisp::Binding script_api[] = {
 
          using scene_pool::make_deferred_scene;
 
-         if (str_eq(menu_name, "item-shop")) {
+         if (str_eq(menu_name, "ready")) {
+             push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
+         } else if (str_eq(menu_name, "item-shop")) {
              push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());
          } else if (str_eq(menu_name, "glossary")) {
              auto sym = param_list->cons().car()->symbol().name();
@@ -628,10 +630,10 @@ static const lisp::Binding script_api[] = {
              push_menu_queue.push_back(
                  make_deferred_scene<ConstructionScene>());
          } else if (str_eq(menu_name, "qrcode")) {
-             lisp::Protected str_param(param_list->cons().car());
-             push_menu_queue.push_back([str_param]() mutable {
+             auto tmp = save_str(param_list->cons().car()->string().value());
+             push_menu_queue.emplace_back([tmp]() mutable {
                  auto next = scene_pool::alloc<QRViewerScene>(
-                     str_param->string().value(),
+                     tmp->data_,
                      "",
                      make_deferred_scene<ReadyScene>(),
                      ColorConstant::rich_black);
@@ -639,10 +641,12 @@ static const lisp::Binding script_api[] = {
                  return next;
              });
          } else {
-             lisp::Protected mname(lisp::get_op(1));
-             push_menu_queue.push_back([mname]() mutable {
-                 auto menu_name = mname->string().value();
-                 return scene_pool::alloc<ScriptedMenuScene>(menu_name);
+             auto tmp = save_str(lisp::get_op(1)->string().value());
+             // NOTE: because lisp::Protected is not copyable, there is no way
+             // to hide a pure lisp string from the garbage collector when
+             // passed through a lambda capture clause.
+             push_menu_queue.push_back([tmp]() {
+                 return scene_pool::alloc<ScriptedMenuScene>(tmp->data_);
              });
          }
          return L_NIL;
@@ -753,23 +757,32 @@ static const lisp::Binding script_api[] = {
 
          return lisp::make_integer(count);
      }},
-    {"rsz",
+    {"room-meta",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, symbol);
 
          auto mt = load_metaclass(lisp::get_op(0)->symbol().name());
+
+         lisp::ListBuilder b;
+         b.push_back(L_CONS(L_SYM("name"),
+                            lisp::make_string((*mt)->ui_name()->c_str())));
+
          auto sz = (*mt)->size();
 
-         return L_CONS(L_INT(sz.x), L_INT(sz.y));
-     }},
-    {"rname",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-         L_EXPECT_OP(0, symbol);
+         b.push_back(L_CONS(L_SYM("size"),
+                            L_CONS(L_INT(sz.x), L_INT(sz.y))));
 
-         auto mt = load_metaclass(lisp::get_op(0)->symbol().name());
-         return lisp::make_string((*mt)->ui_name()->c_str());
+         b.push_back(L_CONS(L_SYM("ico1"),
+                            L_INT((*mt)->icon())));
+
+         b.push_back(L_CONS(L_SYM("ico2"),
+                            L_INT((*mt)->unsel_icon())));
+
+         b.push_back(L_CONS(L_SYM("pwr"),
+                            L_INT((*mt)->consumes_power())));
+
+         return b.result();
      }},
     {"cart-add",
      [](int argc) {
@@ -1792,6 +1805,36 @@ static const lisp::Binding script_api[] = {
 
          return L_CONS(L_INT(app->zone() - 1),
                        L_CONS(L_INT(node.coord_.x), L_INT(node.coord_.y)));
+     }},
+    {"gui-add-node",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, string);
+         L_EXPECT_OP(1, string);
+         auto app = interp_get_app();
+         app->scene().gui_add_node(nullptr,
+                                   L_LOAD_STRING(1),
+                                   L_LOAD_STRING(0));
+         return L_NIL;
+     }},
+    {"gui-delete-node",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+         auto app = interp_get_app();
+         app->scene().gui_delete_node(L_LOAD_STRING(0));
+         return L_NIL;
+     }},
+    {"gui-set-attr",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(2, string);
+         auto app = interp_get_app();
+         app->scene().gui_set_attr(L_LOAD_STRING(2),
+                                   L_LOAD_STRING(1),
+                                   lisp::get_op0());
+         return L_NIL;
      }},
     {"construction-sites",
      [](int argc) {

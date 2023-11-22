@@ -25,66 +25,28 @@
 
 #include "memory/buffer.hpp"
 #include "number/numeric.hpp"
+#include "platform/scratch_buffer.hpp"
 
 
 
-inline u32 str_len(const char* str)
-{
-    const char* s;
-
-    for (s = str; *s; ++s)
-        ;
-    return (s - str);
-}
+ScratchBufferPtr save_str(const char* str);
 
 
-inline void str_reverse(char str[], int length)
-{
-    int start = 0;
-    int end = length - 1;
 
-    while (start < end) {
-        std::swap(*(str + start), *(str + end));
-        start++;
-        end--;
-    }
-}
+u32 str_len(const char* str);
 
 
-inline bool str_eq(const char* p1, const char* p2)
-{
-    while (true) {
-        if (*p1 not_eq *p2) {
-            return false;
-        }
-        if (*p1 == '\0' or *p2 == '\0') {
-            return true;
-        }
-        ++p1;
-        ++p2;
-    }
-}
+
+void str_reverse(char str[], int length);
 
 
-inline int str_cmp(const char* p1, const char* p2)
-{
-    const unsigned char* s1 = (const unsigned char*)p1;
-    const unsigned char* s2 = (const unsigned char*)p2;
 
-    unsigned char c1, c2;
+bool str_eq(const char* p1, const char* p2);
 
-    do {
-        c1 = (unsigned char)*s1++;
-        c2 = (unsigned char)*s2++;
 
-        if (c1 == '\0') {
-            return c1 - c2;
-        }
 
-    } while (c1 == c2);
+int str_cmp(const char* p1, const char* p2);
 
-    return c1 - c2;
-}
 
 
 // NOTE: Capacity is a holdover from before StringAdapter was a template,

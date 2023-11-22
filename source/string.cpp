@@ -21,6 +21,86 @@
 
 
 #include "string.hpp"
+#include "platform/platform.hpp"
+
+
+
+ScratchBufferPtr save_str(const char* str)
+{
+    if (str_len(str) - 1 > SCRATCH_BUFFER_SIZE) {
+        Platform::fatal("save_str passed excessively long string");
+    }
+    auto tmp = make_scratch_buffer("cached-str");
+    auto out = tmp->data_;
+    while (*str not_eq '\0') {
+        *(out++) = *(str++);
+    }
+    *out = '\0';
+    return tmp;
+}
+
+
+
+u32 str_len(const char* str)
+{
+    const char* s;
+
+    for (s = str; *s; ++s)
+        ;
+    return (s - str);
+}
+
+
+
+void str_reverse(char str[], int length)
+{
+    int start = 0;
+    int end = length - 1;
+
+    while (start < end) {
+        std::swap(*(str + start), *(str + end));
+        start++;
+        end--;
+    }
+}
+
+
+
+bool str_eq(const char* p1, const char* p2)
+{
+    while (true) {
+        if (*p1 not_eq *p2) {
+            return false;
+        }
+        if (*p1 == '\0' or *p2 == '\0') {
+            return true;
+        }
+        ++p1;
+        ++p2;
+    }
+}
+
+
+
+int str_cmp(const char* p1, const char* p2)
+{
+    const unsigned char* s1 = (const unsigned char*)p1;
+    const unsigned char* s2 = (const unsigned char*)p2;
+
+    unsigned char c1, c2;
+
+    do {
+        c1 = (unsigned char)*s1++;
+        c2 = (unsigned char)*s2++;
+
+        if (c1 == '\0') {
+            return c1 - c2;
+        }
+
+    } while (c1 == c2);
+
+    return c1 - c2;
+}
 
 
 

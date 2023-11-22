@@ -413,7 +413,8 @@ o----------------------------o
  be passed to push-menu for
  certain menus. See below:
 
- Menu names:
+ Builtin menu names:
+ "ready", no params
  "item-shop", no params
  "glossary", room type symbol
  "repl", no params
@@ -425,9 +426,10 @@ o----------------------------o
  (push-menu "item-shop" '())
 
  etc. See scripts for details.
- NOTE: the item-shop menu
- expects the global shop-items
- variable to be assigned.
+
+ You may also script custom
+ menus. See
+ /scripts/misc/gui/
 
 
 o----------------------------o
@@ -499,19 +501,10 @@ o----------------------------o
 
 o----------------------------o
 
- (rname type-sym)
+ (room-meta type-sym)
 
- Returns the string name of
- a room. Different than the
- type sym due to localization.
-
-
-o----------------------------o
-
- (rsz type-sym)
-
- Returns the size of a room
- in the form '(x . y).
+ Accessor for metadata
+ describing a type of room.
 
 
 o----------------------------o
@@ -614,6 +607,29 @@ o----------------------------o
  Add weapon at coords (x,y)
  to group specified by symbol
  group.
+
+
+o----------------------------o
+
+ (gui-add-node id type)
+
+ Add a node to the gui tree.
+
+
+o----------------------------o
+
+ (gui-set-attr id name value)
+
+ Assign an attribute in a
+ gui element.
+
+
+o----------------------------o
+
+ (gui-delete-node id)
+
+ Delete a gui node.
+
 
 o----------------------------o
 

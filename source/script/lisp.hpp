@@ -830,7 +830,7 @@ class ProtectedBase {
 public:
     ProtectedBase();
 
-    ProtectedBase(const ProtectedBase&);
+    ProtectedBase(const ProtectedBase&) = delete;
 
     ProtectedBase(ProtectedBase&&) = delete;
 
@@ -857,10 +857,6 @@ protected:
 class Protected : public ProtectedBase {
 public:
     Protected(Value* val) : val_(val)
-    {
-    }
-
-    Protected(const Protected& other) : ProtectedBase(other), val_(other.val_)
     {
     }
 

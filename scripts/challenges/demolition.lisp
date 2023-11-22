@@ -43,7 +43,7 @@
                            (cons (string
                                   (string (cdr $0))
                                   " "
-                                  (rname (car $0))
+                                  (rinfo 'name (car $0))
                                   ",")
                                  hint)))
                    rem)

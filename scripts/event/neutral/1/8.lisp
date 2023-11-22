@@ -60,18 +60,18 @@
         (let ((pick (sample opts)))
           (dialog
            "After boarding, you find a completely intact "
-           (rname pick)
+           (rinfo 'name pick)
            ". Your crew asks you where to install it...")
-          (adventure-log-add 38 (rname pick))
+          (adventure-log-add 38 (rinfo 'name pick))
           (defn on-dialog-closed
             (setq on-dialog-closed nil)
-            (while (not (construction-sites (player) (rsz pick)))
+            (while (not (construction-sites (player) (rinfo 'size pick)))
               (terrain (player) (+ (terrain (player)) 1)))
             (sel-input
              pick
              (format "Pick a slot (%x%)"
-                     (car (rsz pick))
-                     (cdr (rsz pick)))
+                     (car (rinfo 'size pick))
+                     (cdr (rinfo 'size pick)))
              (lambda
                (room-new (player) `(,pick ,$1 ,$2))
                (sound "build0")

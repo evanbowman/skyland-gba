@@ -116,17 +116,17 @@
             (while (< (length (construction-sites (player) '(2 . 1))) 2)
               (terrain (player) (+ (terrain (player)) 1)))
 
-            (adventure-log-add 36 (list (rname wpn) 3))
+            (adventure-log-add 36 (list (rinfo 'name wpn) 3))
 
             (let ((impl
                    (lambda
                      (let ((cb $0))
 
                        (sel-input wpn
-                                  (string "Place " (rname wpn)
+                                  (string "Place " (rinfo 'name wpn)
                                           (format " (%x%):"
-                                                  (car (rsz wpn))
-                                                  (cdr (rsz wpn))))
+                                                  (car (rinfo 'size wpn))
+                                                  (cdr (rinfo 'size wpn))))
                                   (lambda
                                     (room-new (player) `(,wpn ,$1 ,$2))
                                     (sound "build0")

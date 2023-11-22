@@ -32,21 +32,21 @@
       (item (sample '(arc-gun flak-gun fire-charge)))
       (skip 1))
 
-  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (rsz item)))))
+  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
   (room-new (opponent) (list item 5 14))
   (room-new (opponent) (list item 5 13))
   (room-new (opponent) (list item 5 12))
   (room-new (opponent) (list item 5 11))
 
-  (room-new (opponent) (list item (+ 5 (car (rsz item))) 14))
-  (room-new (opponent) (list item (+ 5 (car (rsz item))) 13))
-  (room-new (opponent) (list item (+ 5 (car (rsz item))) 12))
-  (room-new (opponent) (list item (+ 5 (car (rsz item))) 11))
+  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 14))
+  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 13))
+  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 12))
+  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 11))
 
   (setq on-converge
         (lambda
           (dialog "<c:merchant:7> We ordered too many "
-                  (rname item)
+                  (rinfo 'name item)
                   "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, "
                   (if (< (coins) 1300)
                       "...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
@@ -82,22 +82,22 @@
                     (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
                     (setq on-dialog-declined (lambda (unbind 'fut) (exit))))))
             (progn
-              (adventure-log-add 10 (list (rname item) 1300))
+              (adventure-log-add 10 (list (rinfo 'name item) 1300))
               (coins-add -1300)
-              (mktr (rsz item))
+              (mktr (rinfo 'size item))
               (sel-input
                item
                (string
                 "place first "
-                (rname item)
-                (format " (%x%):" (car (rsz item)) (cdr (rsz item))))
+                (rinfo 'name item)
+                (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
                (lambda
                  (room-new (player) (list item $1 $2))
                  (sound "build0")
-                 (mktr (rsz item))
+                 (mktr (rinfo 'size item))
                  (sel-input
                   item
-                  (string "place second " (rname item) ":")
+                  (string "place second " (rinfo 'name item) ":")
                   (lambda
                     (room-new (player) (list item $1 $2))
                     (sound "build0")
