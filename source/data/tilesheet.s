@@ -9,7 +9,7 @@
 @	+ 1528 tiles Metatiled by 2x2 not compressed
 @	Total size: 32 + 48896 = 48928
 @
-@	Time-stamp: 2023-11-22, 17:38:10
+@	Time-stamp: 2023-11-22, 17:55:03
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -1744,7 +1744,7 @@ tilesheetTiles:
 	.global tilesheetPal		@ 32 unsigned chars
 	.hidden tilesheetPal
 tilesheetPal:
-	.hword 0x7C1F,0x14A6,0x498C,0x62D3,0x12DC,0x113C,0x24AD,0x35E4
+	.hword 0x7C1F,0x30C2,0x498C,0x62D3,0x12DC,0x113C,0x24AD,0x35E4
 	.hword 0x43B7,0x77DE,0x7774,0x7BEC,0x6562,0x539B,0x3ED5,0x1DAD
 
 @}}BLOCK(tilesheet)
