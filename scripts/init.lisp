@@ -13,8 +13,8 @@
     (map
      (lambda
        (cons
-        (car (cdr $0))
-        (car (cdr (cdr $0)))))
+        (cadr $0)
+        (cadr (cdr $0))))
      (filter
       (lambda (equal (car $0) 'cargo-bay))
       rooms))))

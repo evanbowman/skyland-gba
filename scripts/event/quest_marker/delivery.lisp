@@ -27,7 +27,7 @@
                   ;; Clear out cargo
                   (cargo-set
                    (player)
-                   (car (car p))
+                   (caar p)
                    (cdr (car p))
                    "")
 

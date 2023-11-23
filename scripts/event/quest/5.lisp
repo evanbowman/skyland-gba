@@ -79,11 +79,11 @@
 
         (let ((site (construction-sites (player) '(1 . 2))))
           (sound "build0")
-          (room-new (player) (list 'ladder (car (car site)) (cdr (car site))))))
+          (room-new (player) (list 'ladder (caar site) (cdr (car site))))))
 
       (setq sl (chr-slots (player)))
       (let ((id (chr-new (player)
-                         (car (car sl))
+                         (caar sl)
                          (cdr (car sl))
                          'neutral
                          '((icon . 23)))))

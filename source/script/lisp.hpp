@@ -621,19 +621,35 @@ Value* make_cons_safe(Value* car, Value* cdr);
 #define L_LOAD_STRING(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->string().value()
 
 
-struct Binding {
-    const char* name_;
-    Value* (*function_)(int argc);
+using SymbolCallback = ::Function<6 * sizeof(void*), void(const char*)>;
+
+
+struct NativeInterface {
+    NativeInterface();
+
+    using Function = lisp::Function::CPP_Impl;
+
+    // Given a string function name, should return a C++ lisp function
+    // implementation.
+    Function (*lookup_function_)(const char* function_name);
+
+    // Provides names of all registered functions.
+    void (*get_symbols_)(SymbolCallback callback);
 };
 
 
-// A convenience method for efficiently binding C functions to lisp global
-// variables.
-void bind_functions(const Binding* bindings, int count);
+// Allows library users to register a set of lisp functions written as native
+// C++ functions. Technically, you could call make_function() instead for each
+// function that you want to register. But using a NativeInterface allows the
+// interpreter to lazily pull functions into the environment as needed, reducing
+// memory usage. NOTE: only one library of native functions may be bound at a
+// time. But an application using this interpreter shouldn't need to bind
+// multiple sets of native functions...
+void register_native_interface(NativeInterface ni);
 
 
-void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback);
-void get_env(::Function<6 * sizeof(void*), void(const char*)> callback);
+void get_interns(SymbolCallback callback);
+void get_env(SymbolCallback callback);
 
 
 Value* get_nil();

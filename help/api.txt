@@ -6,7 +6,9 @@
 
  Does not describe the
  SKYLAND lisp standard
- library.
+ library. For builtin
+ functions, see
+ skyland_lisp.txt.
 
 
 o----------------------------o
@@ -241,6 +243,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (help)
+
+ No arguments: open up the
+ help directory of the file
+ browser.
+
+
+o----------------------------o
+
  (island-configure
     island
     room-desc-list)
@@ -288,6 +299,24 @@ o----------------------------o
 
  Clear all existing bindings
  created by key-bind.
+
+
+o----------------------------o
+
+ (lang)
+
+ Return the bound language
+ file. e.g.:
+
+ "/strings/strings.txt"
+
+
+o----------------------------o
+
+ (log val)
+
+ Write a value to the
+ system log.
 
 
 o----------------------------o
@@ -555,6 +584,15 @@ o----------------------------o
  (sound "name")
 
  Play a sound effect.
+
+
+o----------------------------o
+
+ (fatal value)
+
+ Terminate the game, and
+ display fatal error message
+ containing value.
 
 
 o----------------------------o

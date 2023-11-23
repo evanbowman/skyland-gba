@@ -23,6 +23,7 @@
 #pragma once
 
 #include "containers/vector.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -34,6 +35,7 @@ namespace skyland
 struct UserContext
 {
     std::optional<Vector<char>> yank_buffer_;
+    std::optional<DeferredScene> browser_exit_scene_;
 };
 
 

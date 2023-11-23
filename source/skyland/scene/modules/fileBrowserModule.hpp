@@ -142,4 +142,8 @@ private:
 
 
 
+StringBuffer<16> get_extension(const StringBuffer<200>& cwd);
+
+
+
 } // namespace skyland

@@ -101,11 +101,11 @@
                      (if (not (chr-slots (player)))
                          (let ((c (construction-sites (player) '(1 . 2))))
                            (if c
-                               (room-new (player) `(ladder ,(car (car c)) ,(cdr (car c)))))))
+                               (room-new (player) `(ladder ,(caar c) ,(cdr (car c)))))))
 
                      (let ((c (chr-slots (player))))
                        (chr-new (player)
-                                (car (car c))
+                                (caar c)
                                 (cdr (car c))
                                 'neutral
                                 nil)))))

@@ -1,4 +1,4 @@
-;; to open this menu: (push-menu "test")
+;; to open this menu: (push-menu "test" nil)
 
 ((code (id . "c1")
        (src . "/scripts/misc/gui/test.lisp"))

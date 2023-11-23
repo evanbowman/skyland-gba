@@ -37,6 +37,7 @@
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
+#include "scene/modules/fileBrowserModule.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
@@ -149,20 +150,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_INT(prev);
           }},
-         {"log",
-          [](int argc) {
-              L_EXPECT_ARGC(argc, 1);
-
-              if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
-                  debug(lisp::get_op(0)->string().value());
-              } else {
-                  lisp::DefaultPrinter p;
-                  format(lisp::get_op(0), p);
-                  debug(p.data_.c_str());
-              }
-
-              return L_NIL;
-          }},
          {"fade",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
@@ -197,16 +184,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
          {"hibernate",
           [](int argc) {
               lisp::interp_get_pfrm()->system_call("hibernate", nullptr);
-              return L_NIL;
-          }},
-         {"fatal",
-          [](int argc) {
-              L_EXPECT_ARGC(argc, 1);
-
-              lisp::DefaultPrinter p;
-              format(lisp::get_op(0), p);
-              Platform::fatal(p.data_.c_str());
-
               return L_NIL;
           }},
          {"now",
@@ -272,14 +249,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               lisp::interp_get_pfrm()->screen().clear();
               return L_NIL;
           }},
-         {"sound",
-          [](int argc) {
-              L_EXPECT_ARGC(argc, 1);
-              L_EXPECT_OP(0, string);
-              lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0),
-                                                            1);
-              return L_NIL;
-          }},
          {"display",
           [](int argc) {
               lisp::interp_get_pfrm()->screen().display();
@@ -311,10 +280,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           [](int argc) {
               GenericPool::print_diagnostics();
               return L_NIL;
-          }},
-         {"lang",
-          [](int argc) {
-              return lisp::make_string(systemstring_bound_file());
           }},
          {"synth-notes-store",
           [](int argc) {
@@ -441,7 +406,13 @@ ScenePtr<Scene> process_script_menu_request()
 
 
 
-static const lisp::Binding script_api[] = {
+using Binding = lisp::NativeInterface::Function;
+
+
+
+MAPBOX_ETERNAL_CONSTEXPR const auto binding_table = mapbox::eternal::hash_map<
+    mapbox::eternal::string,
+    Binding>({
     {"player",
      [](int argc) {
          auto app = interp_get_app();
@@ -456,6 +427,22 @@ static const lisp::Binding script_api[] = {
              }
          }
          return lisp::make_userdata(app->opponent_island());
+     }},
+    {"lang",
+     [](int argc) { return lisp::make_string(systemstring_bound_file()); }},
+    {"log",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+
+         if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+             debug(lisp::get_op(0)->string().value());
+         } else {
+             lisp::DefaultPrinter p;
+             format(lisp::get_op(0), p);
+             debug(p.data_.c_str());
+         }
+
+         return L_NIL;
      }},
     {"groups",
      [](int argc) {
@@ -597,6 +584,20 @@ static const lisp::Binding script_api[] = {
 
          s.set_block({x, y, z}, type);
 
+         return L_NIL;
+     }},
+    {"help",
+     [](int argc) {
+         using scene_pool::make_deferred_scene;
+
+         if (argc == 0) {
+             push_menu_queue.emplace_back([] {
+                 UserContext ctx;
+                 ctx.browser_exit_scene_ = make_deferred_scene<ReadyScene>();
+                 return scene_pool::alloc<FileBrowserModule>(
+                     std::move(ctx), "/help/", true);
+             });
+         }
          return L_NIL;
      }},
     {"push-menu",
@@ -770,17 +771,13 @@ static const lisp::Binding script_api[] = {
 
          auto sz = (*mt)->size();
 
-         b.push_back(L_CONS(L_SYM("size"),
-                            L_CONS(L_INT(sz.x), L_INT(sz.y))));
+         b.push_back(L_CONS(L_SYM("size"), L_CONS(L_INT(sz.x), L_INT(sz.y))));
 
-         b.push_back(L_CONS(L_SYM("ico1"),
-                            L_INT((*mt)->icon())));
+         b.push_back(L_CONS(L_SYM("ico1"), L_INT((*mt)->icon())));
 
-         b.push_back(L_CONS(L_SYM("ico2"),
-                            L_INT((*mt)->unsel_icon())));
+         b.push_back(L_CONS(L_SYM("ico2"), L_INT((*mt)->unsel_icon())));
 
-         b.push_back(L_CONS(L_SYM("pwr"),
-                            L_INT((*mt)->consumes_power())));
+         b.push_back(L_CONS(L_SYM("pwr"), L_INT((*mt)->consumes_power())));
 
          return b.result();
      }},
@@ -1812,9 +1809,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(0, string);
          L_EXPECT_OP(1, string);
          auto app = interp_get_app();
-         app->scene().gui_add_node(nullptr,
-                                   L_LOAD_STRING(1),
-                                   L_LOAD_STRING(0));
+         app->scene().gui_add_node(nullptr, L_LOAD_STRING(1), L_LOAD_STRING(0));
          return L_NIL;
      }},
     {"gui-delete-node",
@@ -1825,15 +1820,24 @@ static const lisp::Binding script_api[] = {
          app->scene().gui_delete_node(L_LOAD_STRING(0));
          return L_NIL;
      }},
+    {"fatal",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+
+         lisp::DefaultPrinter p;
+         format(lisp::get_op(0), p);
+         Platform::fatal(p.data_.c_str());
+
+         return L_NIL;
+     }},
     {"gui-set-attr",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);
          L_EXPECT_OP(1, string);
          L_EXPECT_OP(2, string);
          auto app = interp_get_app();
-         app->scene().gui_set_attr(L_LOAD_STRING(2),
-                                   L_LOAD_STRING(1),
-                                   lisp::get_op0());
+         app->scene().gui_set_attr(
+             L_LOAD_STRING(2), L_LOAD_STRING(1), lisp::get_op0());
          return L_NIL;
      }},
     {"construction-sites",
@@ -1877,7 +1881,28 @@ static const lisp::Binding script_api[] = {
 
          return builder.result();
      }},
-};
+});
+
+
+
+static Binding binding_lookup_function(const char* name)
+{
+    auto found_binding = binding_table.find(name);
+    if (found_binding not_eq binding_table.end()) {
+        return found_binding->second;
+    }
+
+    return nullptr;
+}
+
+
+
+static void binding_name_getter(lisp::SymbolCallback cb)
+{
+    for (auto& fn : binding_table) {
+        cb(fn.first.c_str());
+    }
+}
 
 
 
@@ -1889,8 +1914,12 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 
     msg("export api...");
 
-    lisp::bind_functions(script_api,
-                         sizeof(script_api) / sizeof(script_api[0]));
+    lisp::NativeInterface ni;
+    ni.lookup_function_ = binding_lookup_function;
+    ni.get_symbols_ = binding_name_getter;
+
+    lisp::register_native_interface(ni);
+
 
     __app = this;
 

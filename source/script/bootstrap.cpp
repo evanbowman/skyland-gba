@@ -142,9 +142,7 @@ void arabic__to_string(int num, char* buffer, int base)
 }
 
 
-
 Platform* __platform__ = nullptr;
-
 
 
 Platform::Platform()

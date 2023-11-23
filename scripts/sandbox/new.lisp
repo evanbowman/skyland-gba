@@ -49,12 +49,12 @@
         (if (not slot)
             (let ((s (construction-sites isle '(2 . 2))))
               (if (not s)
-                  (syscall "fatal" "not enough room to place chrs!"))
-              (room-new isle (list 'workshop (car (car s)) (cdr (car s))))
+                  (fatal "not enough room to place chrs!"))
+              (room-new isle (list 'workshop (caar s) (cdr (car s))))
               (setq slot (chr-slots isle))))
         (if slot
             (chr-new isle
-                     (car (car slot))
+                     (caar slot)
                      (cdr (car slot))
                      mode
                      nil))))))

@@ -24,13 +24,13 @@
                         (terrain (player) (+ (terrain (player)) 1)))
 
                       (let ((s (construction-sites (player) '(1 . 2))))
-                        (room-new (player) (list 'ladder (car (car s)) (cdr (car s))))
+                        (room-new (player) (list 'ladder (caar s) (cdr (car s))))
                         (setq ss (chr-slots (player)))))
 
                     (if g
                         (let ((s (get ss (choice (length ss)))))
                           (chr-del (opponent)
-                                   (car (car g))
+                                   (caar g)
                                    (cdr (car g)))
                           (chr-new (player)
                                    (car s)

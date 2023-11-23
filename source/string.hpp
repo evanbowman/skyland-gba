@@ -372,6 +372,13 @@ StringBuffer<buffer_size> stringify(const FixedPoint<precision, T>& fp)
 
 
 
+template <u32 s1, u32 s2>
+bool str_eq(const StringBuffer<s1>& lhs, const StringBuffer<s2>& rhs)
+{
+    return str_eq(lhs.c_str(), rhs.c_str());
+}
+
+
 template <u32 size, typename Arg, typename... Args>
 void make_format(StringBuffer<size>& output,
                  const char* fmt_str,

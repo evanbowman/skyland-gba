@@ -21,24 +21,6 @@
 
 o----------------------------o
 
- (syscall "lang")
-
- Return the bound language
- file. e.g.:
-
- "/strings/strings.txt"
-
-
-o----------------------------o
-
- (syscall "log" val)
-
- Write a value to the
- system log.
-
-
-o----------------------------o
-
  (syscall "setvar" string int)
 
  Configure a SKYLAND engine
@@ -61,15 +43,6 @@ o----------------------------o
 
  Label challenge as
  completed.
-
-
-o----------------------------o
-
- (syscall "fatal" value)
-
- Terminate the game, and
- display fatal error message
- containing value.
 
 
 o----------------------------o

@@ -443,6 +443,24 @@ o----------------------------o
 
 o----------------------------o
 
+ (caar list)
+
+ Returns the car of the first
+ element of a list.
+ i.e.: (car (car list))
+
+
+o----------------------------o
+
+ (cadr list)
+
+ Returns the second element
+ of a list.
+ i.e.: (car (cdr list))
+
+
+o----------------------------o
+
  (compile function)
 
  Return a bytecode-compiled
@@ -482,6 +500,16 @@ o----------------------------o
 
  Return a list containing n
  repetitions of value.
+
+
+o----------------------------o
+
+ (filter function list)
+
+ Return a new list,
+ containing only elements for
+ which function returns a
+ non-false value.
 
 
 o----------------------------o

@@ -103,6 +103,10 @@ void FileBrowserModule::exit(App&, Scene& next)
     PLATFORM.screen().clear();
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
+
+    if (user_context_.browser_exit_scene_) {
+        PLATFORM.screen().schedule_fade(0);
+    }
 }
 
 
@@ -305,6 +309,9 @@ StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
 
     for (auto c : cwd) {
         if (c == '.') {
+            if (not result.empty()) {
+                result.clear();
+            }
             found_extension = true;
         }
 
@@ -499,6 +506,9 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
                     std::move(user_context_));
             }
         } else if (app.player().key_down(Key::action_2)) {
+            if (user_context_.browser_exit_scene_) {
+                return (*user_context_.browser_exit_scene_)();
+            }
             return scene_pool::alloc<TitleScreenScene>(3);
         }
         break;

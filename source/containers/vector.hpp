@@ -318,6 +318,14 @@ public:
     Vector(const Vector& other) = delete;
 
 
+    T& back()
+    {
+        auto last = end();
+        --last;
+        return *last;
+    }
+
+
     void push_back(const T& elem, ScratchBuffer::Tag t = "")
     {
         Chunk* current = (Chunk*)data_->data_;

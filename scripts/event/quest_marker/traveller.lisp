@@ -54,7 +54,7 @@
                              (dialog "<c:traveller:23> Goodbye, and good luck!")
                              (map (lambda
                                     (if (equal id (cdr (assoc 'id (cdr (cdr $0)))))
-                                        (chr-del (player) (car $0) (car (cdr $0)))))
+                                        (chr-del (player) (car $0) (cadr $0))))
                                   (chrs (player)))
                              (defn on-dialog-closed
                                (dialog "The traveller returned to his island!")

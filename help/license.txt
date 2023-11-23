@@ -1,6 +1,6 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+o----------------------------o
  LICENSE INFO
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+o----------------------------o
 
 The source code for SKYLAND
 is available under the terms

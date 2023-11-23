@@ -24,12 +24,12 @@
            (let ((s (construction-sites (player) '(1 . 2))))
              (if s
                  (progn
-                   (room-new (player) (list 'ladder (car (car s)) (cdr (car s))))
+                   (room-new (player) (list 'ladder (caar s) (cdr (car s))))
                    (setq slot (chr-slots (player)))))))
        (if slot
            (progn
              (chr-new (player)
-                      (car (car slot))
+                      (caar slot)
                       (cdr (car slot))
                       'neutral
                       nil)
