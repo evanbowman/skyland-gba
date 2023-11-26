@@ -82,11 +82,11 @@
  ; result: 1
 
  To retrieve the second
- element of a piar, call
+ element of a pair, call
  the cdr function:
 
  (cdr (cons 1 3))
- ; result: 2
+ ; result: 3
 
  Now, you may be wondering:
  what if I cons together
@@ -108,7 +108,7 @@
 
  By terminating our chain of
  pairs with nil, we've
- created a list container!
+ created a list datastructure!
 
 
  #### Lists: ####
@@ -530,6 +530,20 @@ o----------------------------o
 
  Invoke the garbage collcetor.
 
+
+o----------------------------o
+
+ (gen count callback)
+
+ Generate a list of count
+ elements, by invoking
+ callback count times, while
+ passing the number of prior
+ invocations to callback.
+
+ e.g.:
+ (gen 5 (lambda (* $0 2)))
+ -> '(0 2 4 6 8)
 
 o----------------------------o
 
