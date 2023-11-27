@@ -116,7 +116,7 @@ int compile_quoted(CompilerContext& ctx,
             memcpy(inst->name_, name, Symbol::buffer_size);
         } else {
             auto inst = append<instruction::PushSymbol>(buffer, write_pos);
-            inst->name_offset_.set(symbol_offset(code->symbol().name()));
+            inst->ptr_.set(code->symbol().name());
         }
 
     } else if (code->type() == Value::Type::cons) {
@@ -196,7 +196,7 @@ int compile_let(CompilerContext& ctx,
                 } else {
                     auto inst =
                         append<instruction::LexicalDef>(buffer, write_pos);
-                    inst->name_offset_.set(symbol_offset(sym->symbol().name()));
+                    inst->ptr_.set(sym->symbol().name());
                 }
             }
         }
@@ -327,7 +327,7 @@ int compile_impl(CompilerContext& ctx,
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 append<instruction::LoadVar>(buffer, write_pos)
-                    ->name_offset_.set(symbol_offset(code->symbol().name()));
+                    ->ptr_.set(code->symbol().name());
             }
         }
 

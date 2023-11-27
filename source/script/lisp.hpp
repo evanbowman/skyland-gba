@@ -584,6 +584,7 @@ struct Value {
 };
 
 
+Value* make_boolean(bool is_true);
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
 Value* make_integer(s32 value);
@@ -595,6 +596,9 @@ Value* make_symbol(const char* name,
 Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_character(utf8::Codepoint cp);
+
+
+void apropos(const char* match, Vector<const char*>& out);
 
 
 Value* gensym();
@@ -632,6 +636,11 @@ struct NativeInterface {
     // Given a string function name, should return a C++ lisp function
     // implementation.
     Function (*lookup_function_)(const char* function_name);
+
+    // If a stable, internalized symbol exists in the interface, return
+    // it. Allows the interpreter to avoid internalizing strings for builtin
+    // functions provided by the interface.
+    const char* (*resolve_intern_sym_)(const char* name);
 
     // Provides names of all registered functions.
     void (*get_symbols_)(SymbolCallback callback);

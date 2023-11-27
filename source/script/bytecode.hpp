@@ -27,6 +27,9 @@
 #include "platform/scratch_buffer.hpp"
 
 
+// NOTE: Bytecode is not portable, nor is it intended to be.
+
+
 namespace lisp {
 
 
@@ -34,6 +37,23 @@ using Opcode = u8;
 
 
 namespace instruction {
+
+
+struct UnalignedPtr {
+    const char* get()
+    {
+        const char* result;
+        memcpy(&result, ptr_, sizeof(ptr_));
+        return result;
+    }
+
+    void set(const char* val)
+    {
+        memcpy(ptr_, &val, sizeof(ptr_));
+    }
+
+    u8 ptr_[sizeof(const char*)];
+};
 
 
 struct Header {
@@ -61,7 +81,7 @@ struct Fatal {
 
 struct LoadVar {
     Header header_;
-    host_u16 name_offset_;
+    UnalignedPtr ptr_;
 
     static const char* name()
     {
@@ -169,7 +189,7 @@ struct Push2 {
 
 struct PushSymbol {
     Header header_;
-    host_u16 name_offset_;
+    UnalignedPtr ptr_;
 
     static const char* name()
     {
@@ -604,7 +624,7 @@ struct Not {
 
 struct LexicalDef {
     Header header_;
-    host_u16 name_offset_;
+    UnalignedPtr ptr_;
 
     static const char* name()
     {

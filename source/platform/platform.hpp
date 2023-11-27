@@ -962,6 +962,8 @@ public:
 
         std::optional<Line> readline();
 
+        Line* peek_buffer();
+
         bool printline(const char* text, const char* prompt = "> ");
 
         void printline_blocking(const char* text, const char* prompt = "> ")

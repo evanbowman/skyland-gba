@@ -1902,6 +1902,28 @@ static void binding_name_getter(lisp::SymbolCallback cb)
     for (auto& fn : binding_table) {
         cb(fn.first.c_str());
     }
+
+    auto [mt, ms] = room_metatable();
+
+    for (int i = 0; i < plugin_rooms_begin(); ++i) {
+        cb(mt[i]->name());
+    }
+}
+
+
+
+static const char* binding_intern_sym_resolver(const char* name)
+{
+    auto found_intern = binding_table.find(name);
+    if (found_intern not_eq binding_table.end()) {
+        return found_intern->first.c_str();
+    }
+
+    if (auto mt = load_metaclass(name)) {
+        return (*mt)->name();
+    }
+
+    return nullptr;
 }
 
 
@@ -1915,6 +1937,7 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     msg("export api...");
 
     lisp::NativeInterface ni;
+    ni.resolve_intern_sym_ = binding_intern_sym_resolver;
     ni.lookup_function_ = binding_lookup_function;
     ni.get_symbols_ = binding_name_getter;
 

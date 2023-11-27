@@ -173,6 +173,12 @@ struct Context {
 static std::optional<Context> bound_context;
 
 
+const char* native_interface_resolve_intern_default(const char*)
+{
+    return nullptr;
+}
+
+
 Function::CPP_Impl native_interface_fn_lookup_default(const char*)
 {
     return nullptr;
@@ -186,6 +192,7 @@ void native_interface_fn_name_getter_default(SymbolCallback)
 
 NativeInterface::NativeInterface()
     : lookup_function_(native_interface_fn_lookup_default),
+      resolve_intern_sym_(native_interface_resolve_intern_default),
       get_symbols_(native_interface_fn_name_getter_default)
 {
 }
@@ -529,41 +536,6 @@ void gc_symbols()
 }
 
 
-const char* intern(const char* string)
-{
-    const auto len = str_len(string);
-
-    if (len + 1 >
-        string_intern_table_size - bound_context->string_intern_pos_) {
-
-        PLATFORM.fatal("string intern table full");
-    }
-
-    auto& ctx = bound_context;
-
-    const char* search = symbol_intern_table;
-    for (int i = 0; i < ctx->string_intern_pos_;) {
-        if (str_eq(search + i, string)) {
-            return search + i;
-        } else {
-            while (search[i] not_eq '\0') {
-                ++i;
-            }
-            ++i;
-        }
-    }
-
-    auto result = symbol_intern_table + ctx->string_intern_pos_;
-
-    for (u32 i = 0; i < len; ++i) {
-        (symbol_intern_table)[ctx->string_intern_pos_++] = string[i];
-    }
-    (symbol_intern_table)[ctx->string_intern_pos_++] = '\0';
-
-    return result;
-}
-
-
 CompressedPtr compr(Value* val)
 {
     CompressedPtr result;
@@ -714,6 +686,16 @@ Value* make_cons(Value* car, Value* cdr)
         return val;
     }
     return bound_context->oom_;
+}
+
+
+Value* make_boolean(bool is_true)
+{
+    if (is_true) {
+        return L_INT(1);
+    } else {
+        return L_NIL;
+    }
 }
 
 
@@ -2619,6 +2601,38 @@ Value* gensym()
 }
 
 
+void apropos(const char* match, Vector<const char*>& completion_strs)
+{
+    StringBuffer<16> ident(match);
+
+    auto handle_completion = [&ident, &completion_strs](const char* intern) {
+        const auto intern_len = str_len(intern);
+        if (intern_len <= ident.length()) {
+            // I mean, there's no reason to autocomplete
+            // to something shorter or the same length...
+            return;
+        }
+
+        for (u32 i = 0; i < ident.length() and i < intern_len; ++i) {
+            if (ident[i] not_eq intern[i]) {
+                return;
+            }
+        }
+
+        for (auto& str : completion_strs) {
+            if (str == intern) {
+                return;
+            }
+        }
+
+        completion_strs.push_back(intern);
+    };
+
+    get_env(handle_completion);
+    get_interns(handle_completion);
+}
+
+
 using Builtin = lisp::Value* (*)(int);
 MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
     mapbox::eternal::string,
@@ -2716,6 +2730,21 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
           L_EXPECT_ARGC(argc, 2);
 
           return make_integer(is_equal(get_op0(), get_op1()));
+      }},
+     {"apropos",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          L_EXPECT_OP(0, string);
+
+          Vector<const char*> results;
+          apropos(L_LOAD_STRING(0), results);
+
+          ListBuilder list;
+          for (auto& r : results) {
+              list.push_back(make_string(r));
+          }
+
+          return list.result();
       }},
      {"apply",
       [](int argc) {
@@ -2952,6 +2981,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
                   auto err = lisp::Error::Code::invalid_argument_type;
                   return lisp::make_error(err, L_NIL);
               }
+              set_var(sym, L_NIL);
               globals_tree_erase(sym);
           }
 
@@ -3245,7 +3275,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
               return get_op0();
           }
       }},
-     {"globals", [](int argc) { return bound_context->globals_tree_; }},
      {"disassemble", [](int argc) {
           L_EXPECT_ARGC(argc, 1);
           L_EXPECT_OP(0, function);
@@ -3657,6 +3686,55 @@ void get_env(SymbolCallback callback)
 }
 
 
+const char* intern(const char* string)
+{
+    const auto len = str_len(string);
+
+    auto& ctx = bound_context;
+
+    auto found_builtin = builtin_table.find(string);
+    if (found_builtin not_eq builtin_table.end()) {
+        // If the string exists as a constant in the builtin table, then it
+        // needn't be copied to the string intern table.
+        return found_builtin->first.c_str();
+    }
+
+    if (auto ni_sym = ctx->native_interface_.resolve_intern_sym_(string)) {
+        return ni_sym;
+    }
+
+    // Ok, no stable pointer to the string exists anywhere, so we'll have to
+    // preserve the string contents in intern memory.
+
+    if (len + 1 >
+        string_intern_table_size - bound_context->string_intern_pos_) {
+
+        PLATFORM.fatal("string intern table full");
+    }
+
+    const char* search = symbol_intern_table;
+    for (int i = 0; i < ctx->string_intern_pos_;) {
+        if (str_eq(search + i, string)) {
+            return search + i;
+        } else {
+            while (search[i] not_eq '\0') {
+                ++i;
+            }
+            ++i;
+        }
+    }
+
+    auto result = symbol_intern_table + ctx->string_intern_pos_;
+
+    for (u32 i = 0; i < len; ++i) {
+        (symbol_intern_table)[ctx->string_intern_pos_++] = string[i];
+    }
+    (symbol_intern_table)[ctx->string_intern_pos_++] = '\0';
+
+    return result;
+}
+
+
 Value* get_var(Value* symbol)
 {
     if (symbol->symbol().name()[0] == '$') {
@@ -3817,96 +3895,6 @@ void init()
     }
 
     intern("'");
-}
-
-
-void load_module(Module* module)
-{
-    Protected buffer(make_databuffer("lisp-module"));
-    Protected zero(make_integer(0));
-
-    Protected bytecode(make_cons(zero, buffer));
-    push_op(make_bytecode_function(bytecode)); // result on stack
-
-    auto load_module_symbol = [&](int sym) {
-        auto search = (const char*)module + sizeof(Module::Header);
-
-        for (int i = 0;;) {
-            if (sym == 0) {
-                return search + i;
-            } else {
-                while (search[i] not_eq '\0') {
-                    ++i;
-                }
-                ++i;
-                --sym;
-            }
-        }
-    };
-
-    auto sbr = buffer->data_buffer().value();
-
-    auto data = load_module_symbol(module->header_.symbol_count_.get());
-    memcpy(sbr->data_, data, module->header_.bytecode_length_.get());
-
-    int depth = 0;
-    int index = 0;
-
-    while (true) {
-        auto inst = instruction::load_instruction(*sbr, index);
-
-        switch (inst->op_) {
-        case instruction::PushLambda::op():
-            ++depth;
-            ++index;
-            break;
-
-        case instruction::Ret::op():
-            if (depth == 0) {
-                return;
-            }
-            --depth;
-            ++index;
-            break;
-
-        case instruction::LoadVarRelocatable::op(): {
-            auto sym_num =
-                ((instruction::LoadVarRelocatable*)inst)->name_offset_.get();
-            auto str = load_module_symbol(sym_num);
-            ((instruction::LoadVar*)inst)
-                ->name_offset_.set(symbol_offset(intern(str)));
-            inst->op_ = instruction::LoadVar::op();
-            ++index;
-            break;
-        }
-
-        case instruction::PushSymbolRelocatable::op(): {
-            auto sym_num =
-                ((instruction::PushSymbolRelocatable*)inst)->name_offset_.get();
-            auto str = load_module_symbol(sym_num);
-            ((instruction::PushSymbol*)inst)
-                ->name_offset_.set(symbol_offset(intern(str)));
-            inst->op_ = instruction::PushSymbol::op();
-            ++index;
-            break;
-        }
-
-        case instruction::LexicalDefRelocatable::op(): {
-            auto sym_num =
-                ((instruction::LexicalDefRelocatable*)inst)->name_offset_.get();
-            auto str = load_module_symbol(sym_num);
-            ((instruction::LexicalDef*)inst)
-                ->name_offset_.set(symbol_offset(intern(str)));
-            inst->op_ = instruction::LexicalDef::op();
-            ++index;
-            break;
-        }
-
-        default:
-            ++index;
-            break;
-        }
-    }
 }
 
 

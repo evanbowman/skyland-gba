@@ -504,7 +504,7 @@ RoomMeta* load_metaclass(const char* name)
 {
     auto [mt, ms] = room_metatable();
 
-    for (int i = 0; i < ms; ++i) {
+    for (int i = 0; i < __room_metatable.builtin_slots_end(); ++i) {
         if (str_cmp(mt[i]->name(), name) == 0) {
             return &mt[i];
         }

@@ -220,7 +220,9 @@ void ConsoleState::Impl::on_text(App& app,
         return;
     } else if (line.length() == 1 and line[0] == 'l') {
         PLATFORM.remote_console().printline(
-            "Skyland LISP ready! (quit) to exit.", "lisp> ");
+            "Skyland LISP ready! (quit) to exit. Try (help), or (apropos "
+            "\"...\")",
+            "lisp> ");
         self.emplace<LispConsoleImpl>();
         return;
     } else {

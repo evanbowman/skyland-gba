@@ -112,8 +112,7 @@ TOP:
 
         case LoadVar::op(): {
             auto inst = read<LoadVar>(code, pc);
-            push_op(
-                get_var_stable(symbol_from_offset(inst->name_offset_.get())));
+            push_op(get_var_stable(inst->ptr_.get()));
             break;
         }
 
@@ -193,7 +192,7 @@ TOP:
 
         case PushSymbol::op(): {
             auto inst = read<PushSymbol>(code, pc);
-            push_op(make_symbol(symbol_from_offset(inst->name_offset_.get()),
+            push_op(make_symbol(inst->ptr_.get(),
                                 Symbol::ModeBits::stable_pointer));
             break;
         }
@@ -489,9 +488,8 @@ TOP:
 
         case LexicalDef::op(): {
             auto inst = read<LexicalDef>(code, pc);
-            Protected sym(
-                make_symbol(symbol_from_offset(inst->name_offset_.get()),
-                            Symbol::ModeBits::stable_pointer));
+            Protected sym(make_symbol(inst->ptr_.get(),
+                                      Symbol::ModeBits::stable_pointer));
 
             // pair of (sym . value)
             auto pair = make_cons(sym, get_op0());

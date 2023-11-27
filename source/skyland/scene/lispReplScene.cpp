@@ -281,7 +281,7 @@ void LispReplScene::repaint_completions()
 
 ScenePtr<Scene> LispReplScene::update(App& app, Microseconds delta)
 {
- TOP:
+TOP:
     constexpr auto fade_duration = milliseconds(700);
     if (timer_ < fade_duration) {
         if (timer_ + delta > fade_duration) {
@@ -387,33 +387,7 @@ ScenePtr<Scene> LispReplScene::update(App& app, Microseconds delta)
                     // identifier out of the command buffer again.
                     cpl_->completion_prefix_len_ = ident.length();
 
-                    auto handle_completion = [&ident,
-                                              this](const char* intern) {
-                        const auto intern_len = str_len(intern);
-                        if (intern_len <= ident.length()) {
-                            // I mean, there's no reason to autocomplete
-                            // to something shorter or the same length...
-                            return;
-                        }
-
-                        for (u32 i = 0; i < ident.length() and i < intern_len;
-                             ++i) {
-                            if (ident[i] not_eq intern[i]) {
-                                return;
-                            }
-                        }
-
-                        for (auto& str : cpl_->completion_strs_) {
-                            if (str == intern) {
-                                return;
-                            }
-                        }
-
-                        cpl_->completion_strs_.push_back(intern);
-                    };
-
-                    lisp::get_env(handle_completion);
-                    lisp::get_interns(handle_completion);
+                    lisp::apropos(ident.c_str(), cpl_->completion_strs_);
 
                     if (cpl_->completion_strs_.size() not_eq 0) {
                         for (int x = 11; x < 30; ++x) {

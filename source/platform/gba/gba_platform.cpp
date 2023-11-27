@@ -6939,7 +6939,6 @@ static void uart_serial_isr()
     }
 
     if (data not_eq '\r') {
-
         if (data == 0x7f) {
             // Why would you send 0x7f but not handle it upon echo? I have no
             // idea why some terminals send a backspace character yet don't
@@ -6957,6 +6956,9 @@ static void uart_serial_isr()
             // Don't echo ctrl-D back to the terminal. Causes problems in some
             // client shells.
             REG_SIODATA8 = '!';
+        } else if (data == '\t') {
+            // Don't echo back a tab character. The server interprets tabs as
+            // autocomplete requests.
         } else {
             REG_SIODATA8 = data;
         }
@@ -7008,6 +7010,17 @@ static void remote_console_start()
 void Platform::RemoteConsole::start()
 {
     remote_console_start();
+}
+
+
+
+auto Platform::RemoteConsole::peek_buffer() -> Line*
+{
+    auto& state = *::remote_console_state;
+    if (state.rx_in_progress_) {
+        return &**state.rx_in_progress_;
+    }
+    return nullptr;
 }
 
 
