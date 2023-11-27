@@ -85,4 +85,4 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 7))
+  (challenge-complete 7))

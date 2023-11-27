@@ -8,7 +8,7 @@
  SKYLAND lisp standard
  library. For builtin
  functions, see
- skyland_lisp.txt.
+ lisp_builtins.txt.
 
 
 o----------------------------o
@@ -39,6 +39,14 @@ o----------------------------o
  cargo-bay on island at
  (x, y). Maximum nineteen
  characters.
+
+
+o----------------------------o
+
+ (challenge-complete integer)
+
+ Label challenge # as
+ completed.
 
 
 o----------------------------o
@@ -481,15 +489,6 @@ o----------------------------o
 
 o----------------------------o
 
- (repl)
-
- The game will launch a repl
- the next time that it enters
- an idle state.
-
-
-o----------------------------o
-
  (rooms island)
 
  Returns a list describing
@@ -571,12 +570,19 @@ o----------------------------o
 
 (sel-input 'hull "pick a coord:"
  (lambda
-  (syscall "log"
-           (string
-            "user entered "
-            $0
-            $1
-            $2))))
+  (log (string
+        "user entered "
+        $0
+        $1
+        $2))))
+
+
+o----------------------------o
+
+ (setvar string int)
+
+ Configure a SKYLAND engine
+ variable.
 
 
 o----------------------------o
@@ -625,6 +631,14 @@ o----------------------------o
 
  (defn locale-string
    (get-line-of-file lang $0))
+
+
+o----------------------------o
+
+ (getvar string)
+
+ Retrieve a SKYLAND engine
+ variable.
 
 o----------------------------o
 

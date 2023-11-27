@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (syscall "setvar" (cdr $0) (car $0)))
+(map (lambda (setvar (cdr $0) (car $0)))
  '((190 . "decimator_burst_damage")
    (25  . "nemesis_blast_damage")
    (40  . "cannonball_damage")
@@ -14,4 +14,4 @@
    (10  . "flak_r3_damage")
    (20  . "arcbolt_damage")))
 
-(syscall "setvar" "block_crack_threshold_health" 60)
+(setvar "block_crack_threshold_health" 60)

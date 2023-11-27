@@ -423,7 +423,6 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/glossary_misc_cg_flattened.s
     ${DATA_DIR}/glossary_decoration_cg_flattened.s
     ${DATA_DIR}/spritesheet.s
-    ${DATA_DIR}/spritesheet_macro_overworld.s
     ${DATA_DIR}/spritesheet_fishing.s
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_macro.s
@@ -741,7 +740,6 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet_title_screen 2 4 NO)
     add_spritesheet(spritesheet_intro 2 4 NO)
     add_spritesheet(spritesheet_macro 2 4 NO)
-    add_spritesheet(spritesheet_macro_overworld 4 4 NO)
     add_spritesheet(spritesheet_macroverse 2 4 NO)
     add_spritesheet(spritesheet_fishing 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)

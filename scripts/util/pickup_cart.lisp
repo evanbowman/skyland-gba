@@ -17,9 +17,9 @@
                               (car (cart-info n))
                               (format "! (cartridge %)" (+ n 1)))
                       (setq on-dialog-closed
-                            (if (syscall "save-bit-load" 8)
+                            (if (save-bit-load 8)
                                 exit
                               (lambda
                                 (dialog "(To load data carts, go to the extras room of the title screen!)")
-                                (syscall "save-bit-store" 8 1)
+                                (save-bit-store 8 1)
                                 (setq on-dialog-closed exit)))))))))))

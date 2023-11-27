@@ -32,7 +32,7 @@
               (if (equal 1 (rcnt (opponent) 'masonry))
                   (progn
                     (dialog "<c:goblin king:3>Wowowow! Beautiful! Ssspectacular!")
-                    (syscall "challenge-complete" 3)
+                    (challenge-complete 3)
                     (setq on-dialog-closed
                           (lambda
                             (exit 2)))))))))

@@ -7,7 +7,7 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 12))
+  (challenge-complete 12))
 
 
 (defn challenge-hint

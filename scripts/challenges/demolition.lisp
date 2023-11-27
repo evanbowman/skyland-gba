@@ -56,7 +56,7 @@
               (setq skip 1)
               (exit 3)))
         (if (not skip)
-            (syscall "challenge-complete" 11))))))
+            (challenge-complete 11))))))
 
 
 

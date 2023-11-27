@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (syscall "setvar" (cdr $0) (car $0)))
+(map (lambda (setvar (cdr $0) (car $0)))
  ;; Percentage of the value
  ;; of the enemy castle
  ;; granted to the player
@@ -14,4 +14,4 @@
    (16 . "zone3_coin_yield")
    (10 . "zone4_coin_yield")))
 
-(syscall "setvar" "score_multiplier" 4)
+(score_multiplier 4)

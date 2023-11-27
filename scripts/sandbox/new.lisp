@@ -19,11 +19,11 @@
   (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
-(if (not (syscall "save-bit-load" 3))
+(if (not (save-bit-load 3))
     (setq on-fadein
           (lambda
             (setq on-fadein nil)
-            (syscall "save-bit-store" 3 1)
+            (save-bit-store 3 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
             (dialog-await-binary-q "sure!" "no thanks")
             (setq on-dialog-accepted sb-help)

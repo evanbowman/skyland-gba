@@ -5,7 +5,7 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 4)
+  (challenge-complete 4)
   (achieve 18))
 
 

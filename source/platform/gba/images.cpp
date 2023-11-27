@@ -21,8 +21,6 @@
 //;
 #include "data/spritesheet_macro.h"
 //;
-#include "data/spritesheet_macro_overworld.h"
-//;
 #include "data/spritesheet_macroverse.h"
 //;
 #include "data/spritesheet_fishing.h"
@@ -178,8 +176,6 @@ static const TextureData sprite_textures[] = {
     TEXTURE_INFO(spritesheet_intro, false),
 //;
     TEXTURE_INFO(spritesheet_macro, false),
-//;
-    TEXTURE_INFO(spritesheet_macro_overworld, false),
 //;
     TEXTURE_INFO(spritesheet_macroverse, false),
 //;

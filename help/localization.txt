@@ -42,7 +42,7 @@ embedded in all of the game's
 lisp level scripts. But
 the engine provide the 
 language file path via
-(syscall "lang"),
+(lang),
 so technically you could
 localize the text in the lisp
 scripts by moving the dialog
@@ -56,7 +56,7 @@ e.g.:
 (defn/c locale_string
   ;; args: line, integer
   (get-line-of-file
-   (syscall "lang")
+   (lang)
    $0))
 
 Repack the rom by using

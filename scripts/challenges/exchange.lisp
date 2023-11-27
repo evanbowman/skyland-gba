@@ -9,7 +9,7 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 10))
+  (challenge-complete 10))
 
 
 (defn challenge-hint
