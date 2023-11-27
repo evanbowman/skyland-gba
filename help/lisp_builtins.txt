@@ -315,6 +315,13 @@ o----------------------------o
 
 o----------------------------o
 
+ (split string delim)
+
+ Does what you'd expect.
+
+
+o----------------------------o
+
  (string ...)
 
  Compose a string by

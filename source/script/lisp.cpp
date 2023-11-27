@@ -2708,6 +2708,35 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
           }
           return lat;
       }},
+     {"split",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 2);
+          L_EXPECT_OP(0, string);
+          L_EXPECT_OP(1, string);
+
+          const char delim = *L_LOAD_STRING(0);
+          auto str = L_LOAD_STRING(1);
+
+          ListBuilder b;
+
+          StringBuffer<96> temp;
+
+          while (*str not_eq '\0') {
+              if (*str == delim) {
+                  b.push_back(make_string(temp.c_str()));
+                  temp.clear();
+              } else {
+                  temp.push_back(*str);
+              }
+              ++str;
+          }
+
+          if (not temp.empty()) {
+              b.push_back(make_string(temp.c_str()));
+          }
+
+          return b.result();
+      }},
      {"arg",
       [](int argc) {
           L_EXPECT_ARGC(argc, 1);
