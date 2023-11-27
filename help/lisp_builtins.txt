@@ -35,6 +35,16 @@ o----------------------------o
 
 o----------------------------o
 
+ (apropos string)
+
+ Returns all symbols in the
+ environment beginning with
+ the prefix specified by the
+ string argument.
+
+
+o----------------------------o
+
  (arg n)
 
  Programatically retrieve
@@ -168,6 +178,7 @@ o----------------------------o
  (gc)
 
  Invoke the garbage collcetor.
+ Returns the collect count.
 
 
 o----------------------------o
