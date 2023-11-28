@@ -14,4 +14,4 @@
    (16 . "zone3_coin_yield")
    (10 . "zone4_coin_yield")))
 
-(score_multiplier 4)
+(setvar "score_multiplier" 4)
