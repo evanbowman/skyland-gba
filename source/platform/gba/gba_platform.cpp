@@ -3011,7 +3011,6 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
         }
     }
 
-    warning("Failed to allocate DynamicTexture.");
     return {};
 }
 
