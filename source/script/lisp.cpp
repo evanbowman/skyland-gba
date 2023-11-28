@@ -2760,6 +2760,59 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
 
           return make_integer(is_equal(get_op0(), get_op1()));
       }},
+     {"nil?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::nil);
+      }},
+     {"int?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::integer);
+      }},
+     {"pair?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::cons);
+      }},
+     {"lambda?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::function);
+      }},
+     {"error?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::error);
+      }},
+     {"symbol?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::symbol);
+      }},
+     {"userdata?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::user_data);
+      }},
+     {"string?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::string);
+      }},
+     {"char?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          return make_boolean(get_op0()->type() == Value::Type::character);
+      }},
+     {"odd?",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 1);
+          if (get_op0()->type() == Value::Type::integer) {
+              return make_boolean(L_LOAD_INT(0) % 2);
+          }
+          return make_boolean(false);
+      }},
      {"apropos",
       [](int argc) {
           L_EXPECT_ARGC(argc, 1);

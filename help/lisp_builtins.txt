@@ -386,3 +386,19 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (nil? v)
+ (int? v)
+ (pair? v)
+ (lambda? v)
+ (error? v)
+ (symbol? v)
+ (userdata? v)
+ (string? v)
+ (char? v)
+ (odd? v)
+
+ Standard predicates.
+
+
+o----------------------------o
