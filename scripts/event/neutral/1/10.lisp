@@ -7,12 +7,12 @@
  (opponent)
  '((balloon 0 10)))
 
-(terrain (opponent) -3)
+(terrain-set (opponent) -3)
 
 (chr-new (opponent) 1 14 'neutral 0)
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog
    "<c:explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?")
 
@@ -24,7 +24,7 @@
   (setq on-converge nil))
 
 
-(defn on-dialog-accepted
+(defn on-dialog-accepted [0]
 
   (let ((temp (chr-slots (player)))
         (join (lambda
@@ -42,11 +42,11 @@
               (join "The explorer joined your crew. Hungry, he ate 600@ of your food supplies!"))))
       (progn
         (dialog "Sadly, there's no room...")
-        (defn on-dialog-closed
+        (defn on-dialog-closed [0]
           (dialog "<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...")
-          (defn on-dialog-closed
+          (defn on-dialog-closed [0]
             (while (< (length (construction-sites (player) '(1 . 2))) 1)
-              (terrain (player) (+ (terrain (player)) 1)))
+              (terrain-set (player) (+ (terrain (player)) 1)))
             (sel-input 'ladder
                        "Place ladder (1x2):"
                        (lambda
@@ -55,12 +55,12 @@
                          (chr-del (opponent) 1 14)
                          (chr-new (player) $1 (+ 1 $2) 'neutral nil)
                          (dialog "<c:explorer:22> Thanks! I'll try to help out however I can!")
-                         (defn on-dialog-closed
+                         (defn on-dialog-closed [0]
                            (join "The explorer joined your crew!")
                            (setq on-dialog-closed nil)
                            (exit)))))))))
   (exit))
 
 
-(defn on-dialog-declined
+(defn on-dialog-declined [0]
   (exit))

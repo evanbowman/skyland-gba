@@ -33,13 +33,13 @@
  "Goblins from the surface! Now they too inhabit the skies... nowhere is safe...")
 
 
-(defn on-fadein
+(defn on-fadein [0]
   (fire-new (opponent) 0 11)
   (fire-new (opponent) 2 10)
   (setq on-fadein nil))
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog
    "The island seems thoroughly ransacked... but the pirates inexplicably "
    "left behind a weapon. Haul it aboard?")
@@ -47,9 +47,9 @@
   (setq on-converge nil))
 
 
-(defn on-dialog-accepted
+(defn on-dialog-accepted [0]
   (while (not (construction-sites (player) '(1 . 3)))
-    (terrain (player) (+ (terrain (player)) 1)))
+    (terrain-set (player) (+ (terrain (player)) 1)))
   (room-del (opponent) 7 12)
   (sel-input 'rocket-bomb
              "Pick a slot (1x3)"
@@ -60,7 +60,7 @@
                (setq on-dialog-closed exit)))
   (adventure-log-add 9 '()))
 
-(defn on-dialog-declined
+(defn on-dialog-declined [0]
   (dialog "Huh!? Who doesn't want free stuff? Suit yourself...")
   (adventure-log-add 8 '())
   (setq on-dialog-closed exit))

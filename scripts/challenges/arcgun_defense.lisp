@@ -4,15 +4,15 @@
 
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints for this one."))
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 8))
 
 
-(terrain (player) 6)
+(terrain-set (player) 6)
 (island-configure
  (player)
  '((missile-silo 0 13)

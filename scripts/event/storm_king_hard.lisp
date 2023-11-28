@@ -1,6 +1,6 @@
 
 
-(terrain (opponent) 14)
+(terrain-set (opponent) 14)
 
 
 (island-configure

@@ -15,13 +15,12 @@
                            (not (filter
                                  (lambda (equal cmp $0))
                                  friendlies-seen))))
-                       (gen
-                        (get '(6 11 7 2) (zone)) ;; number of levels to select from
-                        ;; based on current zone
-                        (lambda $0)))))
+                       (range
+                        ;; number of levels to select from based on current zone
+                        (get '(6 11 7 2) (zone))))))
 
-    (if (equal (length avail-levels) 1)
-        (setq friendlies-seen '()))
+    (when (equal (length avail-levels) 1)
+      (setq friendlies-seen '()))
 
     (let ((lv (get avail-levels (choice (length avail-levels)))))
       (setq friendlies-seen (cons lv friendlies-seen))

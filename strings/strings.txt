@@ -467,7 +467,7 @@ Complete banana man's quest!
 Borrowed tech
 Destroy a decimator by plundering!
 Ship of Theseus
-Copy an enemy castle with at least 20 blocks! (mirrored)
+Copy an enemy castle with at least 15 blocks! (mirrored)
 Lemons Rescued!
 Complete Farmer Meyer's quest!
 The New Colossus

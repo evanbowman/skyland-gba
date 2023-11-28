@@ -4,7 +4,7 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 
-(if (bound 'challenge-hint) (unbind 'challenge-hint))
+(if (bound? 'challenge-hint) (unbind 'challenge-hint))
 
 (gc)
 

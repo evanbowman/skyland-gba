@@ -17,14 +17,14 @@
     (setq shop-items (eval-file "/scripts/event/shop/shop_items.lisp")))
 
 
-(defn on-shop-item-sel
+(defn on-shop-item-sel [0]
   (let ((name $0)
         (item $1))
     (let ((info (get shop-items item)))
       (if (< (coins) (get info 1))
           (progn
             (dialog "Hah! You can't afford that!")
-            (defn on-dialog-closed
+            (defn on-dialog-closed [0]
               (push-menu "item-shop" '())))
         (progn
           (dialog
@@ -50,13 +50,12 @@
                                 (filter
                                  (lambda
                                    (> (get $0 2) 0))
-                                 (replace
-                                  shop-items
-                                  info
-                                  (list (car info)
-                                        (get info 1)
-                                        (- (get info 2) 1)
-                                        (get info 2)))))
+                                 (replace shop-items
+                                          (equalto? info)
+                                          (list (car info)
+                                                (get info 1)
+                                                (- (get info 2) 1)
+                                                (get info 2)))))
 
                           (if shop-items
                               (push-menu "item-shop" '())
@@ -78,12 +77,12 @@
                               (push-menu "item-shop" '()))))))))
 
 
-(defn on-fadein
+(defn on-fadein [0]
   (dialog
    "<c:shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
    "(when done, use the start menu to return to your sky chart)")
 
-  (defn on-dialog-closed
+  (defn on-dialog-closed [0]
     (push-menu "item-shop" '())))
 
 

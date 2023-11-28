@@ -35,7 +35,7 @@
 (flag-show (opponent) 7)
 
 
-(defn on-converge
+(defn on-converge [0]
   (let ((c (choice 5))
         (end (lambda
                ((eval-file "/scripts/util/pickup_cart.lisp") 4
@@ -63,10 +63,10 @@
            (rinfo 'name pick)
            ". Your crew asks you where to install it...")
           (adventure-log-add 38 (rinfo 'name pick))
-          (defn on-dialog-closed
+          (defn on-dialog-closed [0]
             (setq on-dialog-closed nil)
             (while (not (construction-sites (player) (rinfo 'size pick)))
-              (terrain (player) (+ (terrain (player)) 1)))
+              (terrain-set (player) (+ (terrain (player)) 1)))
             (sel-input
              pick
              (format "Pick a slot (%x%)"

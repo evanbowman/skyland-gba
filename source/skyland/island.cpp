@@ -925,19 +925,9 @@ void Island::update(App& app, Microseconds dt)
             if (app.game_mode() not_eq App::GameMode::multiplayer and
                 app.game_mode() not_eq App::GameMode::co_op) {
 
-                static auto destroyed_str = lisp::intern("on-room-destroyed");
-
-                // Creates some garbage, puts a bit of pressure on the gc, but
-                // not too much. The system supports thousands of lisp values at
-                // once, so we're unlikely to trigger the gc. Furthermore, we
-                // intentionally run the gc manually after running a level setup
-                // script, so we should have plenty of values available.
-                auto sym = lisp::make_symbol(
-                    destroyed_str, lisp::Symbol::ModeBits::stable_pointer);
-
                 // This is quite expensive! But it's convenient to be able to be
                 // able to register a callback when a room's destroyed.
-                auto fn = lisp::get_var(sym);
+                auto fn = lisp::get_var("on-room-destroyed");
                 if (fn->type() == lisp::Value::Type::function) {
                     // NOTE: fn is in a global var, as we accessed it through
                     // get_var. So there's no need to protect fn from the gc, as

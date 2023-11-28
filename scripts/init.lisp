@@ -8,7 +8,7 @@
 ;; Let's define some useful
 ;; builtin functions:
 
-(defn/c cargo-bays
+(defn/c cargo-bays [1]
   (let ((rooms (rooms $0)))
     (map
      (lambda
@@ -19,13 +19,13 @@
       (lambda (equal (car $0) 'cargo-bay))
       rooms))))
 
-(defn/c clamp
+(defn/c clamp [3]
   (cond
    ((< $0 $1) $1)
    ((> $0 $2) $2)
    (true $0)))
 
-(defn/c procgen
+(defn/c procgen [0]
   (opponent-generate
    (cond
     ((equal (zone) 0)
@@ -34,29 +34,29 @@
     ((equal (zone) 2) 12)
     (true 16))))
 
-(defn/c zone
+(defn/c zone [0]
   (car (wg-pos)))
 
 ;; Choose a random element of a list.
-(defn/c sample
+(defn/c sample [1]
   (get $0 (choice (length $0))))
 
-(defn/c secret
+(defn/c secret [3]
   (room-mut (opponent) $0 $1 'code)
   (qr-set (opponent) $0 $1 $2))
 
 ;; NOTE: see adventure_log.txt for message text...
-(defn/c adventure-log-add
+(defn/c adventure-log-add [2]
   ;; args: event-code parameters
   (setq adventure-log (cons (cons $0 $1) adventure-log)))
 
 
-(defn/c dialog-opts-reset
+(defn/c dialog-opts-reset [0]
   (setq dialog-opts nil))
 
 (dialog-opts-reset)
 
-(defn/c dialog-opts-push
+(defn/c dialog-opts-push [2]
   (setq dialog-opts (cons (cons $0 $1) dialog-opts)))
 
 ;; For backwards compatibility. The old dialog api had a function for setting up
@@ -66,17 +66,24 @@
 ;; options. This helper function exists for when only a simple yes/no choice is
 ;; needed, but the dialog-opts-reset and dialog-opts-push functions may be
 ;; called manually for more fine-grained control over dialog settings.
-(defn/c dialog-await-y/n
+(defn/c dialog-await-y/n [0]
   (dialog-await-binary-q "yes" "no"))
 
-(defn/c dialog-await-binary-q
+(defn/c dialog-await-binary-q [2]
   (dialog-opts-reset)
   (dialog-opts-push $0 (lambda (if on-dialog-accepted (on-dialog-accepted))))
   (dialog-opts-push $1 (lambda (if on-dialog-declined (on-dialog-declined)))))
 
 ;; For backwards compatibility...
-(defn/c repl (push-menu "repl" '()))
+(defn/c repl [0] (push-menu "repl" '()))
 
 ;; shortcut accessors for room metadata
-(defn/c rinfo
+(defn/c rinfo [2]
   (cdr (assoc $0 (room-meta $1))))
+
+
+(setq ctx-opts nil)
+
+;; Register a binding for the context menu
+(defn/c push-ctx-opt [2]
+  (push 'ctx-opts (cons $0 $1)))

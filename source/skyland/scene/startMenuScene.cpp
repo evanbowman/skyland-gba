@@ -100,23 +100,6 @@ void StartMenuScene::exit(App&, Scene& next)
 
 
 
-static void scuttle(App& app)
-{
-    app.on_timeout(milliseconds(350), [](App& app) {
-        for (auto& room : app.player_island().rooms()) {
-            if ((*room->metaclass())->category() == Room::Category::power) {
-                room->apply_damage(app, Room::health_upper_limit());
-
-                app.on_timeout(milliseconds(350),
-                               [](App& app) { scuttle(app); });
-                return;
-            }
-        }
-    });
-}
-
-
-
 static const char* fb_save_file = "/save/fbld.dat";
 
 
@@ -734,9 +717,10 @@ AGAIN:
         case App::GameMode::skyland_forever:
             add_option(
 
-                SYSTR(start_menu_scuttle)->c_str(),
+                SYSTR(start_menu_end_run)->c_str(),
                 [&app] {
-                    scuttle(app);
+                    app.exit_condition() = App::ExitCondition::defeat;
+                    PLATFORM.speaker().stop_music();
                     PLATFORM.screen().schedule_fade(0.f);
                     PLATFORM.screen().pixelate(0);
                     auto next = scene_pool::alloc<ReadyScene>();

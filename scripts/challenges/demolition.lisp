@@ -4,22 +4,22 @@
 
 
 
-(defn on-fadein
+(defn on-fadein [0]
   (dialog "<c:goblin king:3>This whole island needs to be demolissshed! That'sss right, every ssingle block! Not one block can remain!")
-  (defn on-dialog-closed
+  (defn on-dialog-closed [0]
     (dialog
      "<c:goblin:2>Hey King, we've finished wiring the island with explossivesss!")
-    (defn on-dialog-closed
+    (defn on-dialog-closed [0]
       (dialog
        "<c:goblin king:3>Heh. Well this complicates things... hahahahaha")
       (setq on-dialog-closed nil))))
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (dialog "Hint: Check which blocks are vulnerable to ion cannons. "
             "The glossary has a search filter for this..."))
 
@@ -27,7 +27,7 @@
 
 
 (let ((skip nil))
-  (defn on-victory
+  (defn on-victory [0]
     (let ((cnt (+ (rcnt (opponent) 'power-core)
                   (rcnt (opponent) 'reactor))))
       (if (> (length (rooms (opponent))) cnt)
@@ -60,7 +60,7 @@
 
 
 
-(terrain (player) 4)
+(terrain-set (player) 4)
 (island-configure
  (player)
  '((power-core 1 13)

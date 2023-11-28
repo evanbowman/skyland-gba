@@ -1,10 +1,10 @@
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints for this one."))
 
 
-(terrain (player) 10)
+(terrain-set (player) 10)
 (island-configure
  (player)
  '((power-core 1 13)
@@ -84,5 +84,5 @@
 (weather 2)
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 7))

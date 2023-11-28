@@ -24,7 +24,7 @@
 (chr-new (opponent) 2 14 'neutral 0)
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog "<c:captain:7> I managed to steal this decimator from some goblins, but they're catching up to me! I know... I could sell you the weapon! I'll install it on your island for @1500...")
   (setq on-converge nil)
   (dialog-await-binary-q "Here's the money…" "no thanks"))
@@ -33,8 +33,8 @@
 (setq on-dialog-declined exit)
 
 
-(defn on-dialog-accepted
-  (if (bound 'fut) (unbind 'fut))
+(defn on-dialog-accepted [0]
+  (if (bound? 'fut) (unbind 'fut))
 
   (if (< (coins) 1500)
       (progn
@@ -58,7 +58,7 @@
       ;; give the player some terrain for free.
       (repeat 2
               (if (not (construction-sites (player) '(2 . 2)))
-                  (terrain (player) (+ (terrain (player)) 1))))
+                  (terrain-set (player) (+ (terrain (player)) 1))))
 
       (sel-input
        'decimator

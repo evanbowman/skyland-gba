@@ -12,7 +12,7 @@
 
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints for this one."))
 
 
@@ -39,7 +39,7 @@
 
 
 
-(terrain (player) 8)
+(terrain-set (player) 8)
 (island-configure
  (player)
  '((power-core 1 13)

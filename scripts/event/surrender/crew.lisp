@@ -21,7 +21,7 @@
 
                     (unless ss
                       (while (not (construction-sites (player) '(1 . 2)))
-                        (terrain (player) (+ (terrain (player)) 1)))
+                        (terrain-set (player) (+ (terrain (player)) 1)))
 
                       (let ((s (construction-sites (player) '(1 . 2))))
                         (room-new (player) (list 'ladder (caar s) (cdr (car s))))

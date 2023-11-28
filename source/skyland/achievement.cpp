@@ -172,7 +172,7 @@ static const AchievementInfo info[Achievement::count] = {
          auto& p = app.player_island();
          auto& o = *app.opponent_island();
 
-         if (p.rooms().size() < 20) {
+         if (p.rooms().size() < 15) {
              return false;
          }
 

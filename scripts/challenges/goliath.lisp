@@ -6,15 +6,15 @@
 (coins-add 6000)
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 0))
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints for this one."))
 
 
-(terrain (player) 8)
+(terrain-set (player) 8)
 (island-configure
  (player)
  '((power-core 1 13)

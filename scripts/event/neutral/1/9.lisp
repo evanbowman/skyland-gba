@@ -38,22 +38,22 @@
 (flag-show (opponent) 4)
 
 
-(defn on-converge
+(defn on-converge [0]
   ;; want drones?
   (dialog "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     ;; less than 2?
     (dialog "<c:robot:13> 00111100 00100000 00110010?")
     (dialog-await-y/n)
 
     (adventure-log-add 39 '())
 
-    (defn on-dialog-accepted
+    (defn on-dialog-accepted [0]
       ;; place one drone bay
       (while (not (construction-sites (player) '(2 . 1)))
-        (terrain (player) (+ terrain (player)) 1))
+        (terrain-set (player) (+ terrain (player)) 1))
 
       (sel-input 'drone-bay
                  "Pick a slot (2x1)"
@@ -63,10 +63,10 @@
                    (dialog "<c:robot:13> 01000010 01111001 01100101!")
                    (exit))))
 
-    (defn on-dialog-declined
+    (defn on-dialog-declined [0]
       ;; place two drone bays
       (while (not (construction-sites (player) '(2 . 1)))
-        (terrain (player) (+ terrain (player)) 1))
+        (terrain-set (player) (+ terrain (player)) 1))
 
       (sel-input 'drone-bay
                  "Pick a slot (2x1) (1 of 2)"

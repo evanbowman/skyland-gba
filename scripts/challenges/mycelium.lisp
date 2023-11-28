@@ -4,7 +4,7 @@
 
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 4)
   (achieve 18))
 
@@ -12,13 +12,13 @@
 (setq challenge-hint-count 0)
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog (if (equal challenge-hint-count 0)
               "Are you sure you want a hint?"
             "Need another hint?"))
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (let ((c challenge-hint-count))
       (dialog
        (cond
@@ -36,7 +36,7 @@
   (setq on-dialog-declined (lambda '())))
 
 
-(terrain (player) 7)
+(terrain-set (player) 7)
 (island-configure
  (player)
  '((power-core 1 13)

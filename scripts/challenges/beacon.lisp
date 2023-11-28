@@ -9,21 +9,21 @@
         (dialog "<c:crew:5>Those goblins noticed us and are about to jump away to bring help! Destroy them before they can get away!")))
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (dialog "Cannons and missiles aren't going to work here. You'll need to find a way to punch a hole inside the enemy's walls and deploy a drone..."))
 
   (setq on-dialog-declined (lambda '())))
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 9))
 
 
-(terrain (player) 5)
+(terrain-set (player) 5)
 (island-configure
  (player)
  '((power-core 1 13)

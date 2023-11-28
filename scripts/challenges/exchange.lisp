@@ -4,26 +4,26 @@
 
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints..."))
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 10))
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (dialog "Hint: Transporters can remove crewmembers from enemy castles..."))
 
   (setq on-dialog-declined (lambda '())))
 
 
 
-(terrain (player) 7)
+(terrain-set (player) 7)
 (island-configure
  (player)
  '((radar 0 13) (masonry 1 14 0) (transporter 1 12) (transporter 1 9) (solar-cell 1 8) (masonry 1 11 0) (masonry 2 14 0) (masonry 2 11 0) (power-core 2 12) (hull 3 10) (masonry 3 11 0) (masonry 3 14 0) (masonry 4 14 0) (masonry 4 13 0) (masonry 4 12 0) (hull 4 10) (masonry 4 11 0) (hull 5 11) (hull 5 10) (masonry 5 14 0) (masonry 5 13 0) (masonry 5 12 0) (hull 5 9) (hull 5 8) (hull 6 11) (hull 6 12) (hull 6 13) (hull 6 14)))

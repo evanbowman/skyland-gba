@@ -27,12 +27,12 @@
               ;; weapon that we just bought. The game would basically soft-lock.
               (while (not (construction-sites (player) $0))
                 ;; Give the player +1 terrain until a construction site exists.
-                (terrain (player) (+ (terrain (player)) 1)))))
+                (terrain-set (player) (+ (terrain (player)) 1)))))
 
       (item (sample '(arc-gun flak-gun fire-charge)))
       (skip 1))
 
-  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
+  (terrain-set (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
   (room-new (opponent) (list item 5 14))
   (room-new (opponent) (list item 5 13))
   (room-new (opponent) (list item 5 12))
@@ -58,7 +58,7 @@
 
   (setq on-dialog-accepted
         (lambda
-          (if (bound 'fut) (unbind 'fut))
+          (if (bound? 'fut) (unbind 'fut))
 
           (if (< (coins) 1300)
               (progn
@@ -108,6 +108,4 @@
 
 
 
-(setq on-dialog-declined
-      (lambda
-        (exit)))
+(setq on-dialog-declined exit)

@@ -19,7 +19,7 @@
    (torch 3 9)
    (torch 5 11)))
 
-(defn on-fadein
+(defn on-fadein [0]
   (map (lambda
          (if (equal (get $0 0) 'torch)
              (fire-new (opponent) (get $0 1) (get $0 2))))
@@ -29,12 +29,12 @@
 ;; (flag-show (opponent) 1)
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog
    "Looks like a terrible battle happened here... the crew seems to have abandoned the burning island, leaving behind a powerful weapon...")
   (setq on-converge nil)
   (while (not (construction-sites (player) '(2 . 2)))
-    (terrain (player) (+ terrain (player) 1)))
+    (terrain-set (player) (+ (terrain (player)) 1)))
   (adventure-log-add 46 '())
   (sel-input 'incinerator
              "Place weapon (2x2)"

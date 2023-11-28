@@ -39,14 +39,14 @@
  4 11
  "Farms in Skyland grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island core...")
 
-(defn on-converge
+(defn on-converge [0]
   (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
     (if m
         (progn
           (dialog
            "<c:Farmer Meyer:9>Looks like a bad storm's coming this way! Hey, I have an idea! How about you do me a favor and relocate my orchard of lemon trees to my brother's island... I'll tell him to pay you 1400@ for each one that you successfully deliver!")
 
-          (defn on-dialog-closed
+          (defn on-dialog-closed [0]
             (map
              (lambda
                (if (equal (car $0) 'lemon-tree)

@@ -8,7 +8,7 @@
     (let ((load (lambda (cdr (assoc $0 data)))))
       (if (> (load 'save-protocol) 2)
           (progn
-            (terrain (player) (car (load 'terrain)))
+            (terrain-set (player) (car (load 'terrain)))
             (opponent-init (cdr (load 'terrain)) 'hostile)
 
             (island-configure (player) (car (load 'rooms)))

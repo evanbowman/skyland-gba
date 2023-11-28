@@ -3,7 +3,7 @@
 ;;;
 
 
-(terrain (player) 6)
+(terrain-set (player) 6)
 (island-configure
  (player)
  '((power-core 1 13)

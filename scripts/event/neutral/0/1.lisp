@@ -26,7 +26,7 @@
 (flag-show (opponent) 1)
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog "<c:redbeard:12>Aarrrgh!! You're tresspassing in my domain. Gimme 600@ or I'll blast your island to bits!")
   (dialog-opts-reset)
   (dialog-opts-push "here's the money…" on-dialog-accepted)
@@ -34,16 +34,16 @@
   (dialog-opts-push "you're bluffing!"
                     (lambda
 
-                      (defn cb0
+                      (defn cb0 [0]
                         (emit (opponent) 0 12 (terrain (player)) 0))
 
-                      (defn cb1
+                      (defn cb1 [0]
                         (emit (opponent) 0 13 (terrain (player)) 0))
 
-                      (defn cb2
+                      (defn cb2 [0]
                         (emit (opponent) 0 14 (terrain (player)) 0))
 
-                      (defn cb3
+                      (defn cb3 [0]
                         (dialog "<c:redbeard:12>Yaargh!! I'm just a simple marauder, trying to earn a decent living here! <B:0> So what's it gonna be? Last chance...")
                         (dialog-await-binary-q "pay 600@" "fight back")
                         (unbind 'cb0 'cb1 'cb2 'cb3))
@@ -60,9 +60,9 @@
 (let ((scr
        (lambda
          (dialog $0)
-         (defn on-dialog-closed
+         (defn on-dialog-closed [0]
            (dialog "<c:goblin:2>Yesss captain!")
-           (defn on-dialog-closed
+           (defn on-dialog-closed [0]
              (dialog "(the transmission was cut)")
              (setq on-dialog-closed nil)))
          (opponent-mode 'hostile))))

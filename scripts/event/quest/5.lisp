@@ -64,18 +64,18 @@
    (stairwell 13 5)))
 
 
-(defn on-converge
+(defn on-converge [0]
   (setq on-converge nil)
 
   (dialog "<c:traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched goblins ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
 
   (dialog-await-binary-q "of course!" "I'm kind of busy…")
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (let ((sl (chr-slots (player))))
       (when (not sl)
         (while (not (construction-sites (player) '(1 . 2)))
-          (terrain (player) (+ (terrain (player)) 1)))
+          (terrain-set (player) (+ (terrain (player)) 1)))
 
         (let ((site (construction-sites (player) '(1 . 2))))
           (sound "build0")
@@ -95,14 +95,14 @@
                 (adventure-log-add 52 '())
                 (push 'quests (cons "/scripts/event/quest_marker/traveller.lisp" m))
                 (dialog "<c:traveller:23> Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *...")
-                (defn on-dialog-closed
+                (defn on-dialog-closed [0]
                   (dialog "The mysterious traveller joined your crew!")
                   (setq on-dialog-closed exit)))
             (progn
               (dialog "<c:traveller:23> Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here...")
-              (defn on-dialog-closed
+              (defn on-dialog-closed [0]
                 (dialog "The mysterious traveller joined your crew!")
                 (setq on-dialog-closed exit))))))))
 
-  (defn on-dialog-declined
+  (defn on-dialog-declined [0]
     (exit)))

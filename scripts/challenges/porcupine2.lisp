@@ -6,7 +6,7 @@
 (coins-set 11000)
 
 
-(terrain (player) 7)
+(terrain-set (player) 7)
 (island-configure
  (player)
  '((power-core 1 13)
@@ -15,11 +15,11 @@
 (chr-new (player) 2 14 'neutral nil)
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (dialog "Build a rocket-bomb, defend it well..."))
 
   (setq on-dialog-declined (lambda '())))
@@ -87,7 +87,7 @@
    (missile-silo 11 9)))
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 6))
 
 

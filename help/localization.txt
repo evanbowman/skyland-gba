@@ -53,7 +53,7 @@ get-line-of-file with the
 language file path as a
 parameter.
 e.g.:
-(defn/c locale_string
+(defn/c locale_string [1]
   ;; args: line, integer
   (get-line-of-file
    (lang)

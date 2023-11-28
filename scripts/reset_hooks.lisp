@@ -19,15 +19,15 @@
 (setq on-dialog-declined '())  ; Upon selecting no in a dialog prompt.
 
 
-(if (not (bound 'last-zone))
+(if (not (bound? 'last-zone))
     (setq last-zone (zone)))
 
 
-(if (not (bound 'enemies-seen))
+(if (not (bound? 'enemies-seen))
     (setq enemies-seen '()))
 
 
-(if (not (bound 'friendlies-seen))
+(if (not (bound? 'friendlies-seen))
     (setq friendlies-seen '()))
 
 

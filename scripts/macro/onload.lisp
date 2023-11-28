@@ -5,7 +5,7 @@
 ;; Inputs: bound to conf global variable by engine.
 
 
-(defn hrs
+(defn hrs [1]
   ; convert timestamp to hours
   (+ (* (get $0 0) 8760) ; hours per year (approx)
      (* (get $0 1) 730)  ; hours per month (approx)

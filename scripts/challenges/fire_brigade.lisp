@@ -6,15 +6,15 @@
 (coins-add 4100)
 
 
-(defn on-victory
+(defn on-victory [0]
   (challenge-complete 12))
 
 
-(defn challenge-hint
+(defn challenge-hint [0]
   (dialog "Sorry, no hints for this one."))
 
 
-(terrain (player) 7)
+(terrain-set (player) 7)
 (island-configure
  (player)
  '((mycelium 0 7) (hull 0 8) (replicator 0 9) (power-core 0 13) (mycelium 1 8) (mycelium 1 7) (mycelium 2 7) (mycelium 2 10) (hull 2 8) (stairwell 2 11) (mycelium 2 9) (mycelium 3 10) (power-core 3 11) (mycelium 3 8) (mycelium 3 9) (mycelium 3 13) (mycelium 3 14) (mycelium 3 7) (mycelium 4 13) (mycelium 4 10) (mycelium 4 14) (mycelium 5 10) (mycelium 5 13) (mycelium 5 12) (hull 5 14) (mycelium 5 11) (cannon 6 14) (cannon 6 12) (cannon 6 13)))

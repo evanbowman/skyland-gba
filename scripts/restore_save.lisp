@@ -18,7 +18,7 @@
                             '()))
 
       (when (> (load 'save-protocol) 2)
-        (terrain (player) (load 'terrain))
+        (terrain-set (player) (load 'terrain))
 
         (island-configure (player) (load 'rooms))
 

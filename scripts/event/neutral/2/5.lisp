@@ -37,13 +37,13 @@
 
 (setq on-dialog-declined
       (lambda
-        (if (bound 'fut)
+        (if (bound? 'fut)
             (unbind 'fut))
         (exit)))
 
 
-(defn fut
-  (if (bound 'fut) (unbind 'fut))
+(defn fut [0]
+  (if (bound? 'fut) (unbind 'fut))
 
   (if (< (coins) 2000)
       (progn
@@ -62,7 +62,7 @@
     (progn
       ;; If there's no place to put a block, grant the player +1 terrain.
       (if (not (construction-sites (player) '(1 . 1)))
-          (terrain (player) (+ (terrain (player)) 1)))
+          (terrain-set (player) (+ (terrain (player)) 1)))
 
       (coins-add -2000)
 
@@ -100,7 +100,7 @@
                   (t)))))))))))
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog
    "<c:merchant:7> We're selling mirror-hull, and at a steep discount! 2000@ for eight,"
    (if (< (coins) 2000)

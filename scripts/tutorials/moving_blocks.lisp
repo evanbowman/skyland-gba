@@ -5,7 +5,7 @@
 
 (coins-add 9300)
 
-(terrain (player) 5)
+(terrain-set (player) 5)
 (island-configure
  (player)
  '((stairwell 0 11)

@@ -59,7 +59,7 @@
                 (chr-del (opponent) 0 14)
                 (unbind 'temp)
                 (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")
-                (defn on-dialog-closed
+                (defn on-dialog-closed [0]
                   (setq on-dialog-closed nil)
                   (dialog "The mercenary joined your crew!")
                   (exit))

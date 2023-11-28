@@ -22,7 +22,7 @@
    (masonry 4 14)
    (power-core 5 13)))
 
-(defn on-fadein
+(defn on-fadein [0]
   (fire-new (opponent) 3 9)
   (fire-new (opponent) 0 10)
   (setq on-fadein nil))
@@ -62,11 +62,11 @@
                 (end))
             (progn
               (dialog "Sadly, there's no room...")
-              (defn on-dialog-closed
+              (defn on-dialog-closed [0]
                 (dialog "<c:girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")
-                (defn on-dialog-closed
+                (defn on-dialog-closed [0]
                   (while (< (length (construction-sites (player) '(1 . 2))) 1)
-                    (terrain (player) (+ (terrain (player)) 1)))
+                    (terrain-set (player) (+ (terrain (player)) 1)))
                   (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
                              (lambda
@@ -75,7 +75,7 @@
                                (chr-del (opponent) 1 12)
                                (chr-new (player) $1 (+ 1 $2) 'neutral nil)
                                (dialog "<c:girl:14>Wait, you're serious! I guess I asked for it haha...")
-                               (defn on-dialog-closed
+                               (defn on-dialog-closed [0]
                                  (adventure-log-add 15 '())
                                  (dialog "The villager girl joined your crew!")
                                  (end)))))))))

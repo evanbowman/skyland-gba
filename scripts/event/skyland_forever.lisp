@@ -6,7 +6,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(terrain (player) 4)
+(terrain-set (player) 4)
 
 (island-configure
  (player)

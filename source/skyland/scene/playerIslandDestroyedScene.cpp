@@ -709,6 +709,12 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
             if (app.game_mode() == App::GameMode::skyland_forever or
                 app.game_mode() == App::GameMode::co_op) {
+
+                if (island_ == &app.player_island()) {
+                    anim_state_ = AnimState::fade_out;
+                    break;
+                }
+
                 app.reset_opponent_island();
 
 

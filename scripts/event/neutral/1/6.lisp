@@ -60,12 +60,12 @@
 
   (if (or sc (and (not rc) (not pc))) ;; player must have a core and not already have a backup
       (progn
-        (defn on-converge
+        (defn on-converge [0]
           (dialog "<c:mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
           (exit)))
     (progn
       (dialog "A small village radios you... sounds like they're having trouble with their power-core...")
-      (defn on-converge
+      (defn on-converge [0]
 
         (setq on-converge nil)
 
@@ -79,7 +79,7 @@
 
         (setq on-dialog-declined exit)
 
-        (defn on-dialog-accepted
+        (defn on-dialog-accepted [0]
           (let ((c nil))
             (if pc
                 (setq c (car pc))
@@ -114,7 +114,7 @@
               (mkch))
 
             (while (< (length (construction-sites (player) '(2 . 1))) 2)
-              (terrain (player) (+ (terrain (player)) 1)))
+              (terrain-set (player) (+ (terrain (player)) 1)))
 
             (adventure-log-add 36 (list (rinfo 'name wpn) 3))
 

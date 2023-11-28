@@ -60,7 +60,7 @@
             ((< (coins) 8000) (/ (coins) 2))
             (true 8000)))
       (qid 4))
-  (defn on-converge
+  (defn on-converge [0]
     (setq on-converge nil)
     (dialog
      (format
@@ -70,7 +70,7 @@
 
     (dialog-await-binary-q "ok!" "no thanks")
 
-    (defn on-dialog-accepted
+    (defn on-dialog-accepted [0]
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
             (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
         (if (and m c)
@@ -82,7 +82,7 @@
               (coins-set (- (coins) fee))
               (cargo-set (player) (car c) (cdr c) "ceramic tiles")
               (dialog "<c:merchant:7>Great, here are your tiles!")
-              (defn on-dialog-closed
+              (defn on-dialog-closed [0]
                 (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
                 (exit)
                 (setq on-dialog-closed exit)))

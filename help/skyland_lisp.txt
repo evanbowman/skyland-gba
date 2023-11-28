@@ -51,10 +51,20 @@
  functions (e.g. $0 $1 $2...)
  I do this to reduce
  stress on the string intern
- table. A macro in stdlib.lisp
- exists for functions with
- named args if you don't like
- positional args.
+ table. The defn macros allow
+ you to specify a required
+ argument count. While
+ positional arguments are
+ less readable than named
+ arguments, most lisp
+ functions should be small
+ anyway...
+
+ Furthermore, the fn macro
+ allows you to declare
+ functions with named
+ arguments.
+
 
  2) (setq ...) assigns global
  variables, or overwrites

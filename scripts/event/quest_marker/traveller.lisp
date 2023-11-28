@@ -3,7 +3,7 @@
 (dialog "You reach the location that the mysterious man labeled on your map...")
 
 
-(defn on-fadein
+(defn on-fadein [0]
   (map (lambda
          (if (equal (get $0 0) 'torch)
              (fire-new (opponent) (get $0 1) (get $0 2))))
@@ -18,7 +18,7 @@
                (setq id (cdr (assoc 'id (cdr (cdr $0))))))))
        (chrs (player)))
 
-  (defn on-converge
+  (defn on-converge [0]
     (setq on-converge nil)
     (if tr
         (progn
@@ -41,11 +41,11 @@
                     (setq sel (cons (car pick) sel))))))
 
             (dialog "<c:traveller:23> We've arrived! Unfortunately, it's time we parted ways; I need to start repairs and move my island out of the way of this storm. I'm grateful for your help, here're a few things that you may find useful (2000@ and one random block) ")
-            (defn on-dialog-closed
+            (defn on-dialog-closed [0]
               (coins-add 2000)
               (let ((sym0 (get sel 0)))
                 (while (not (construction-sites (player) (rinfo 'size sym0)))
-                  (terrain (player) (+ (terrain (player)) 1)))
+                  (terrain-set (player) (+ (terrain (player)) 1)))
                 (sel-input sym0
                            (string "Place " (rinfo 'name sym0))
                            (lambda
@@ -56,7 +56,7 @@
                                     (if (equal id (cdr (assoc 'id (cdr (cdr $0)))))
                                         (chr-del (player) (car $0) (cadr $0))))
                                   (chrs (player)))
-                             (defn on-dialog-closed
+                             (defn on-dialog-closed [0]
                                (dialog "The traveller returned to his island!")
                                (setq on-dialog-closed exit))))))))
       (progn

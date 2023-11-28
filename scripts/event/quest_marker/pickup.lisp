@@ -15,7 +15,7 @@
 (chr-new (opponent) 3 14 'neutral 0)
 
 
-(defn on-dialog-closed
+(defn on-dialog-closed [0]
   (setq on-dialog-closed exit)
   (map
    (lambda
@@ -45,7 +45,7 @@
       (dialog "You'd like to invite them aboard, but there seems to be no room..."))))
 
 
-(defn on-converge
+(defn on-converge [0]
   (dialog
    "<c:passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
   (coins-add 1500))

@@ -1,6 +1,6 @@
 (coins-add 5000)
 
-(terrain (player) 4)
+(terrain-set (player) 4)
 (island-configure
  (player)
  '((power-core 1 13)

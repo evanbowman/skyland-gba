@@ -32,7 +32,7 @@
 
 (setq on-converge
       (lambda
-        (if (not (bound 'lemon-quest-max-reward))
+        (if (not (bound? 'lemon-quest-max-reward))
             (setq lemon-quest-max-reward 99999))
 
         (let ((c (min (list lemon-quest-max-reward

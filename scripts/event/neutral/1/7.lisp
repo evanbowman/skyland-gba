@@ -32,7 +32,7 @@
    (stacked-hull 6 11)))
 
 
-(defn on-converge
+(defn on-converge [0]
   (let ((r (filter (lambda
                      (or (equal (get $0 0) 'hull)
                          (equal (get $0 0) 'bronze-hull)))
@@ -44,7 +44,7 @@
                     (string cost)
                     "@, you interested?")
             (dialog-await-y/n)
-            (defn on-dialog-accepted
+            (defn on-dialog-accepted [0]
               (if (< (coins) cost)
                   (progn
                     (dialog "<c:engineer:15>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (coins) " " cost))
@@ -65,6 +65,6 @@
         (setq on-converge nil)))))
 
 
-(defn on-dialog-declined
+(defn on-dialog-declined [0]
   (dialog "<c:engineer:15>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up...")
   (exit))

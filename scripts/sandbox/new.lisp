@@ -10,12 +10,12 @@
 
 
 (coins-set (get conf 0))
-(terrain (player) (get conf 1))
+(terrain-set (player) (get conf 1))
 
 (setq chr-names nil)
 
 
-(defn sb-help
+(defn sb-help [0]
   (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
@@ -36,7 +36,7 @@
 ;; NOTE: in case I haven't explained elsewhere, the interpreter does a small
 ;; symbol optimization to save space in the string intern table, hence all of
 ;; the four-character variable names.
-(defn mkch
+(defn mkch [2]
   ;; Arg 0: island
   ;; Arg 1: 'hostile or 'neutral symbol
   (let ((isle $0)

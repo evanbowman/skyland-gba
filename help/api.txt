@@ -11,12 +11,39 @@
  lisp_builtins.txt.
 
 
+
+##############################
+
+ Section 1:
+
+ Achievements and
+ unlockables
+
+##############################
+
 o----------------------------o
 
  (achieve integer)
 
  Unlock achievement.
 
+
+o----------------------------o
+
+ (challenge-complete integer)
+
+ Label challenge # as
+ completed.
+
+
+
+##############################
+
+ Section2:
+
+ Island modifications
+
+##############################
 
 o----------------------------o
 
@@ -43,19 +70,188 @@ o----------------------------o
 
 o----------------------------o
 
- (challenge-complete integer)
+ (flag-show island variant)
 
- Label challenge # as
- completed.
+ Display a flag. For opponent
+ islands only, you may pass
+ an integer variant for
+ alternate flag graphics to
+ display. Otherwise, pass
+ zero in the variant argument.
 
 
 o----------------------------o
 
- (choice n)
+ (groups)
 
- Returns a random number
- between 0 and n.
+ List weapon groups.
 
+
+o----------------------------o
+
+ (groups-reset)
+
+ Clear weapon groups.
+
+
+o----------------------------o
+
+ (groups-add group x y)
+
+ Add weapon at coords (x,y)
+ to group specified by symbol
+ group.
+
+
+o----------------------------o
+
+ (island-configure
+    island
+    room-desc-list)
+
+ Configure rooms for and
+ island.
+
+
+o----------------------------o
+
+ (opponent) -> island
+
+ Returns a reference to the
+ opponent's island. NOTE:
+ make sure that you've
+ called opponent-init before
+ trying to access the
+ opponent.
+
+
+o----------------------------o
+
+ (opponent-init
+    terrain-size
+    mode-sym)
+
+ Create an island for the
+ opponent, with
+ terrain-size. See
+ opponent-mode for
+ description of mode-sym.
+
+
+o----------------------------o
+
+ (opponent-mode mode-sym)
+
+ If mode sym is 'hostile,
+ the opponent island will
+ run a hostile AI algorithm,
+ if the mode sym is
+ 'neutral, the opponent
+ will not attack unless
+ attacked by the player.
+
+
+o----------------------------o
+
+ (player) -> island
+
+ Returns a reference to the
+ player's island.
+
+
+o----------------------------o
+
+ (qr-set island x y value)
+
+ Populate a code block with
+ text!
+
+
+o----------------------------o
+
+ (rcnt island name-sym)
+
+ Return the number of room
+ instances matching name-sym
+ that're registered with the
+ engine.
+
+
+o----------------------------o
+
+ (rooms island)
+
+ Returns a list describing
+ the rooms associated with
+ island.
+
+
+o----------------------------o
+
+ (room-new island desc)
+
+ Add a room to island,
+ where desc is a list of
+ (room-sym room-x room-y)
+
+
+o----------------------------o
+
+ (room-del island x y)
+
+ Remove room room at x y from
+ island.
+
+o----------------------------o
+
+ (room-mut island x y type-sym)
+
+ Convert a room to a
+ completely different type!
+ See rooms.lisp for all of
+ the type symbols.
+
+ The converted room must have
+ the same dimensions as the
+ source room, or the game will
+ raise a fatal error.
+
+
+o----------------------------o
+
+ (room-meta type-sym)
+
+ Accessor for metadata
+ describing a type of room.
+
+
+o----------------------------o
+
+ (terrain island)
+
+ Returns the size of an
+ island's terrain.
+
+
+o----------------------------o
+
+ (terrain-set island size)
+
+ Set island terrain size.
+ Negative sizes will result
+ in islands with invisible
+ terrain.
+
+
+
+##############################
+
+ Section3:
+
+ Crewmembers
+ (Characters, aka: chrs)
+
+##############################
 
 o----------------------------o
 
@@ -141,6 +337,55 @@ o----------------------------o
  Returns a list of coords
  into which a character can
  be inserted.
+
+
+
+##############################
+
+ Section4:
+
+ Callbacks
+
+##############################
+
+o----------------------------o
+
+ (on-fadein)
+ (on-converge)
+ (on-dialog-closed)
+ (on-room-destroyed)
+ (on-victory)
+ (on-crew-died)
+ (on-shop-item-sel)
+
+ A set of event functions,
+ called by the engine for
+ various scenarios. You may
+ override any of these
+ functions with custom
+ behavior.
+
+ NOTE: on-room-destroyed is
+ somewhat costly to register
+ a callback for. But better
+ to provide it than not at
+ all.
+
+
+
+##############################
+
+ Section5:
+
+ Miscellaneous
+
+##############################
+
+
+ (choice n)
+
+ Returns a random number
+ between 0 and n.
 
 
 o----------------------------o
@@ -260,16 +505,6 @@ o----------------------------o
 
 o----------------------------o
 
- (island-configure
-    island
-    room-desc-list)
-
- Configure rooms for and
- island.
-
-
-o----------------------------o
-
  (key-bind str symbol)
 
  While the game does not
@@ -329,29 +564,6 @@ o----------------------------o
 
 o----------------------------o
 
- (on-fadein)
- (on-converge)
- (on-dialog-accepted)
- (on-dialog-declined)
- (on-dialog-closed)
- (on-room-destroyed)
-
- A set of event functions,
- called by the engine for
- various scenarios. You may
- override any of these
- functions with custom
- behavior.
-
- NOTE: on-room-destroyed is
- somewhat costly to register
- a callback for. But better
- to provide it than not at
- all.
-
-
-o----------------------------o
-
  (on-timeout
   milliseconds
   callback-sym)
@@ -359,18 +571,6 @@ o----------------------------o
  Invoke function bound to
  callback-sym after integer
  milliseconds have passed.
-
-
-o----------------------------o
-
- (opponent) -> island
-
- Returns a reference to the
- opponent's island. NOTE:
- make sure that you've
- called opponent-init before
- trying to access the
- opponent.
 
 
 o----------------------------o
@@ -386,40 +586,6 @@ o----------------------------o
  Integer argument
  undocumented. A sort of
  difficulty rating.
-
-
-o----------------------------o
-
- (opponent-init
-    terrain-size
-    mode-sym)
-
- Create an island for the
- opponent, with
- terrain-size. See
- opponent-mode for
- description of mode-sym.
-
-
-o----------------------------o
-
- (opponent-mode mode-sym)
-
- If mode sym is 'hostile,
- the opponent island will
- run a hostile AI algorithm,
- if the mode sym is
- 'neutral, the opponent
- will not attack unless
- attacked by the player.
-
-
-o----------------------------o
-
- (player) -> island
-
- Returns a reference to the
- player's island.
 
 
 o----------------------------o
@@ -467,72 +633,6 @@ o----------------------------o
  You may also script custom
  menus. See
  /scripts/misc/gui/
-
-
-o----------------------------o
-
- (qr-set island x y value)
-
- Populate a code block with
- text!
-
-
-o----------------------------o
-
- (rcnt island name-sym)
-
- Return the number of room
- instances matching name-sym
- that're registered with the
- engine.
-
-
-o----------------------------o
-
- (rooms island)
-
- Returns a list describing
- the rooms associated with
- island.
-
-
-o----------------------------o
-
- (room-new island desc)
-
- Add a room to island,
- where desc is a list of
- (room-sym room-x room-y)
-
-
-o----------------------------o
-
- (room-del island x y)
-
- Remove room room at x y from
- island.
-
-o----------------------------o
-
- (room-mut island x y type-sym)
-
- Convert a room to a
- completely different type!
- See rooms.lisp for all of
- the type symbols.
-
- The converted room must have
- the same dimensions as the
- source room, or the game will
- raise a fatal error.
-
-
-o----------------------------o
-
- (room-meta type-sym)
-
- Accessor for metadata
- describing a type of room.
 
 
 o----------------------------o
@@ -603,18 +703,6 @@ o----------------------------o
 
 o----------------------------o
 
- (flag-show island variant)
-
- Display a flag. For opponent
- islands only, you may pass
- an integer variant for
- alternate flag graphics to
- display. Otherwise, pass
- zero in the variant argument.
-
-
-o----------------------------o
-
  (get-line-of-file path line)
 
  Retrieve a string containing
@@ -629,8 +717,8 @@ o----------------------------o
 
  (setq lang "/strings/english.txt")
 
- (defn locale-string
-   (get-line-of-file lang $0))
+ (defn locale-string [1]
+   (get-line-of-file (lang) $0))
 
 
 o----------------------------o
@@ -639,27 +727,6 @@ o----------------------------o
 
  Retrieve a SKYLAND engine
  variable.
-
-o----------------------------o
-
- (groups)
-
- List weapon groups.
-
-o----------------------------o
-
- (groups-reset)
-
- Clear weapon groups.
-
-o----------------------------o
-
- (groups-add group x y)
-
- Add weapon at coords (x,y)
- to group specified by symbol
- group.
-
 
 o----------------------------o
 
@@ -682,35 +749,6 @@ o----------------------------o
 
  Delete a gui node.
 
-
-o----------------------------o
-
- (syscall string ...)
-
- Invoke a skyland engine
- system call. In addition to
- the standard lisp engine
- functions provided here,
- the engine provides a large
- number of low-level
- functions via syscall.
-
- See syscall.txt for
- documentation.
-
-
-o----------------------------o
-
- (terrain island size)
-
- Sets the terrain size of
- island to size. If called
- without the size argument,
- returns terrain size of
- island.
- Negative sizes will result
- in islands with invisible
- terrain.
 
 o----------------------------o
 

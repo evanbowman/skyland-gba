@@ -120,9 +120,6 @@ struct Nil {
 };
 
 
-const char* intern(const char* string);
-
-
 struct Symbol {
     ValueHeader hdr_;
 
@@ -168,28 +165,7 @@ struct Symbol {
     }
 
 
-    void set_name(const char* name)
-    {
-        switch ((ModeBits)hdr_.mode_bits_) {
-        case ModeBits::requires_intern:
-            set_intern_name(intern(name));
-            break;
-
-        case ModeBits::stable_pointer:
-            set_intern_name(name);
-            break;
-
-        case ModeBits::small:
-            set_intern_name(0);
-            memset(data_.small_name_, '\0', sizeof data_.small_name_);
-            for (u32 i = 0; i < buffer_size; ++i) {
-                if (*name not_eq '\0') {
-                    data_.small_name_[i] = *(name++);
-                }
-            }
-            break;
-        }
-    }
+    void set_name(const char* name);
 
 
     const char* unique_id()
@@ -633,15 +609,21 @@ struct NativeInterface {
     NativeInterface();
 
     using Function = lisp::Function::CPP_Impl;
+    using RequiredArgs = int;
+
+    using LookupResult = std::pair<RequiredArgs, Function>;
 
     // Given a string function name, should return a C++ lisp function
     // implementation.
-    Function (*lookup_function_)(const char* function_name);
+    LookupResult (*lookup_function_)(const char* function_name);
 
     // If a stable, internalized symbol exists in the interface, return
     // it. Allows the interpreter to avoid internalizing strings for builtin
     // functions provided by the interface.
     const char* (*resolve_intern_sym_)(const char* name);
+
+    // Find a function's name, given its address.
+    const char* (*lookup_name_)(Function fn);
 
     // Provides names of all registered functions.
     void (*get_symbols_)(SymbolCallback callback);

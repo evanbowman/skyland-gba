@@ -3,15 +3,32 @@
  library documentation
 
 
- Builtin Function
+ Core Library Function
  documentation:
+
+
+
+##############################
+
+ Section1:
+
+ Lists
+
+##############################
 
 o----------------------------o
 
- (abs n)
+ (acons key value alist)
 
- Return absolute value of
- integer n.
+ Append (key . value) to
+ association list alist.
+
+
+o----------------------------o
+
+ (append list1 list2)
+
+ Concatenate lists.
 
 
 o----------------------------o
@@ -35,35 +52,19 @@ o----------------------------o
 
 o----------------------------o
 
- (apropos string)
+ (assoc key alist)
 
- Returns all symbols in the
- environment beginning with
- the prefix specified by the
- string argument.
-
-
-o----------------------------o
-
- (arg n)
-
- Programatically retrieve
- function argument specified
- by integer n.
-
- If you want to access args
- as a list, use special
- variable $V.
+ Search alist, return the
+ key value pair for which
+ the key matches the supplied
+ argument.
 
 
 o----------------------------o
 
- (bound symbol)
+ (bisect list)
 
- Return a true value if a
- variable binding exists for
- symbol. Return a false value
- otherwise.
+ Split a list in half.
 
 
 o----------------------------o
@@ -110,37 +111,21 @@ o----------------------------o
 
 o----------------------------o
 
- (compile function)
+ (contains list value)
 
- Return a bytecode-compiled
- version of supplied
- function.
+ Check if list contains value.
 
 
 o----------------------------o
 
- (equal a b)
+ (curry function ...)
 
- Return a true value if a
- and b are equivalent. Return
- a false value otherwise.
+ Return a partially
+ evaluated function.
 
- False values include 0 or
- nil. True values include
- everything else.
-
- equal may not return zero
- or one! Return type is not
- specified, only guaranteed
- to be true or false.
-
-
-o----------------------------o
-
- (eval list)
-
- Evaluate a list as lisp
- code.
+ e.g.:
+ (setq temp (curry cons 1))
+ (temp 2) -> (1 . 2)
 
 
 o----------------------------o
@@ -163,27 +148,7 @@ o----------------------------o
 
 o----------------------------o
 
- (format string values...)
-
- Substitute values into
- string for each % character.
-
- e.g.:
- (format "nums % %" 1 'cat)
- -> "nums 1 cat"
-
-
-o----------------------------o
-
- (gc)
-
- Invoke the garbage collcetor.
- Returns the collect count.
-
-
-o----------------------------o
-
- (gen count callback)
+ (gen callback count)
 
  Generate a list of count
  elements, by invoking
@@ -192,20 +157,8 @@ o----------------------------o
  invocations to callback.
 
  e.g.:
- (gen 5 (lambda (* $0 2)))
+ (gen (lambda (* $0 2)) 5)
  -> '(0 2 4 6 8)
-
-o----------------------------o
-
- (gensym)
-
- Generate a unique symbol.
- Technically, return values
- wrap around after a few
- hundred thousand gensym
- calls. But a gba program
- would never use a macro that
- big! :)
 
 o----------------------------o
 
@@ -213,19 +166,6 @@ o----------------------------o
 
  Retrieve element of list
  specified by integer index.
-
-
-o----------------------------o
-
- (interp-stat)
-
- Return a list representing
- statistics about the
- lisp interpreter's internal
- state, e.g. heap avialable,
- stack slots used, string
- intern table size, variable
- binding count.
 
 
 o----------------------------o
@@ -266,11 +206,18 @@ o----------------------------o
 
 o----------------------------o
 
- (not value)
+ (min list)
 
- If value is true, return
- a false value. Otherwise,
- return a true value.
+ Return the minimum value
+ in a list of integers.
+ 
+
+o----------------------------o
+
+ (max list)
+
+ Return the maximum value
+ in a list of integers.
 
 
 o----------------------------o
@@ -287,21 +234,12 @@ o----------------------------o
 
 o----------------------------o
 
- (read string)
+ (replace list predicate v)
 
- Parse a lisp datastructure
- encoded as a string.
-
-
-o----------------------------o
-
- (require-args function num)
-
- Produce an error if future
- calls to function accept
- fewer than num args. Returns
- the modified copy of
- the function.
+ For each element where
+ predicate returns true,
+ replace the element in the
+ list with value v.
 
 
 o----------------------------o
@@ -314,14 +252,73 @@ o----------------------------o
 
 o----------------------------o
 
- (set symbol value)
+ (sort list comparator)
 
- Set a global variable or
- let binding to a new value.
+ Sort a list.
 
- The standard libary defines
- a setq macro, so usually no
- need to call set manually.
+
+
+##############################
+
+ Section2:
+
+ Math
+
+##############################
+
+o----------------------------o
+
+ (abs n)
+
+ Return absolute value of
+ integer n.
+
+
+o----------------------------o
+
+ (< a b)
+ (> a b)
+ (+ ...)
+ (- a b)
+ (* ...)
+ (/ a b)
+
+ Standard operators.
+
+ Note: + and * are variadic.
+
+ Note: (-) called with one
+ argument flips a number's
+ sign.
+
+
+
+##############################
+
+ Section3:
+
+ Strings
+
+##############################
+
+o----------------------------o
+
+ (format string values...)
+
+ Substitute values into
+ string for each % character.
+
+ e.g.:
+ (format "nums % %" 1 'cat)
+ -> "nums 1 cat"
+
+
+o----------------------------o
+
+ (read string)
+
+ Parse a lisp datastructure
+ encoded as a string.
 
 
 o----------------------------o
@@ -341,29 +338,52 @@ o----------------------------o
  concatenating them.
 
 
+
+##############################
+
+ Section4:
+
+ Symbols
+
+##############################
+
+o----------------------------o
+
+ (apropos string)
+
+ Returns all symbols in the
+ environment beginning with
+ the prefix specified by the
+ string argument.
+
+o----------------------------o
+
+ (bound? symbol)
+
+ Return a true value if a
+ variable binding exists for
+ symbol. Return a false value
+ otherwise.
+
+
+o----------------------------o
+
+ (gensym)
+
+ Generate a unique symbol.
+ Technically, return values
+ wrap around after a few
+ hundred thousand gensym
+ calls. But a gba program
+ would never use a macro that
+ big! :)
+
 o----------------------------o
 
  (symbol string)
 
  Create a symbol from a
  string.
-
-
-o----------------------------o
-
- (this)
-
- Return the current
- executing function (if any).
-
-
-o----------------------------o
-
- (type value)
-
- Return a symbol
- representing the type of a
- value.
 
 
 o----------------------------o
@@ -380,21 +400,14 @@ o----------------------------o
  standard library functions.
 
 
-o----------------------------o
+
+##############################
 
- (< a b)
- (> a b)
- (+ ...)
- (- a b)
- (* ...)
- (/ a b)
+ Section5:
 
- Standard operators.
+ Predicates
 
- Note: (-) called with one
- argument flips a number's
- sign.
-
+##############################
 
 o----------------------------o
 
@@ -410,6 +423,251 @@ o----------------------------o
  (odd? v)
 
  Standard predicates.
+
+o----------------------------o
+
+ (equalto? v)
+
+ Returns a predicate which
+ evaluates to true when
+ applied to values equal to
+ v.
+
+
+
+##############################
+
+ Section6:
+
+ System and Control
+
+##############################
+
+o----------------------------o
+
+ (arg n)
+
+ Programatically retrieve
+ function argument specified
+ by integer n.
+
+ If you want to access args
+ as a list, use special
+ variable $V.
+
+
+o----------------------------o
+
+ (compile function)
+
+ Return a bytecode-compiled
+ version of supplied
+ function.
+
+
+o----------------------------o
+
+ (equal a b)
+
+ Return a true value if a
+ and b are equivalent. Return
+ a false value otherwise.
+
+ False values include 0 or
+ nil. True values include
+ everything else.
+
+ equal may not return zero
+ or one! Return type is not
+ specified, only guaranteed
+ to be true or false.
+
+
+o----------------------------o
+
+ (eval list)
+
+ Evaluate a list as lisp
+ code.
+
+
+o----------------------------o
+
+ (gc)
+
+ Invoke the garbage collcetor.
+ Returns the collect count.
+
+
+o----------------------------o
+
+ (identity v)
+
+ Returns its input.
+
+
+o----------------------------o
+
+ (interp-stat)
+
+ Return a list representing
+ statistics about the
+ lisp interpreter's internal
+ state, e.g. heap avialable,
+ stack slots used, string
+ intern table size, variable
+ binding count.
+
+
+o----------------------------o
+
+ (nameof value)
+
+ Returns a symbol representing
+ the name of a value, if
+ bound to a global variable.
+
+o----------------------------o
+
+ (not value)
+
+ If value is true, return
+ a false value. Otherwise,
+ return a true value.
+
+
+o----------------------------o
+
+ (require-args function num)
+
+ Produce an error if future
+ calls to function accept
+ fewer than num args. Returns
+ the modified copy of
+ the function.
+
+
+o----------------------------o
+
+ (set symbol value)
+
+ Set a global variable or
+ let binding to a new value.
+
+ The standard libary defines
+ a setq macro, so usually no
+ need to call set manually.
+
+
+o----------------------------o
+
+ (this)
+
+ Return the current
+ executing function (if any).
+
+
+
+##############################
+
+ Section7:
+
+ Macros
+
+##############################
+
+o----------------------------o
+
+ (+= variable number)
+
+ (setq variable
+       (+ variable number))
+
+
+o----------------------------o
+
+ (and expressions...)
+
+ Return true if all
+ expressions evaluate to
+ true. Stop checking
+ expressions if any expression
+ evaluates to false.
+
+
+o----------------------------o
+
+ (or expressions...)
+
+ Return true if one expression
+ evaluates to true. Stop
+ checking expressions if any
+ expression evaluates to true.
+
+
+o----------------------------o
+
+ (cond)
+
+ TODO: document cond.
+ It works like most lisp
+ dialects.
+
+
+o----------------------------o
+
+ (defn name [arg-count]
+   body...)
+
+ Define a new function,
+ which expects at least
+ arg-count args.
+
+
+o----------------------------o
+
+ (defn/c name [arg-count]
+   body...)
+
+ Like defn, but defines a
+ bytecode compiled function.
+
+
+o----------------------------o
+
+ (progn expression...)
+
+ Evaluate each expression and
+ return the result of the
+ final expression.
+
+
+o----------------------------o
+
+ (setq variable value)
+
+ Set variable to value.
+ A shortcut for calling
+ (set), but quotes the
+ variable for you.
+
+
+o----------------------------o
+
+ (unless condition
+   ...)
+
+ Evaluate expressions if
+ condition is false.
+
+
+o----------------------------o
+
+ (when condition
+   ...)
+
+ Evaluate expressions if
+ condition is true.
 
 
 o----------------------------o

@@ -95,7 +95,7 @@
                (+ 900 (choice 500))
              (max (list (+ 900 (choice 500))
                         (/ (coins) 2))))))
-  (defn on-converge
+  (defn on-converge [0]
     (dialog
      "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
      (string val)
@@ -105,7 +105,7 @@
     (setq on-converge nil))
 
 
-  (defn on-dialog-accepted
+  (defn on-dialog-accepted [0]
     (if (> val (coins))
         (progn
           (opponent-mode 'hostile)
@@ -121,7 +121,7 @@
 
 
 
-(defn on-dialog-declined
+(defn on-dialog-declined [0]
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
   (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!"))
