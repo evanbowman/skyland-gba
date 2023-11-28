@@ -56,19 +56,17 @@
     (if (choice 3)
         (progn
           (let ((locs (construction-sites (player) '(1 . 1))))
-            (if locs
-                (progn
-                  (let ((c (get locs (choice (length locs)))))
-                    (room-new (player) (list 'mycelium (car c) (cdr c))))
-                  (adventure-log-add 34 '())
-                  (dialog "While attempting to board, several spores on the castle burst, infesting your island with mycelium!"))))
+            (when locs
+              (let ((c (get locs (choice (length locs)))))
+                (room-new (player) (list 'mycelium (car c) (cdr c))))
+              (adventure-log-add 34 '())
+              (dialog "While attempting to board, several spores on the castle burst, infesting your island with mycelium!")))
           (end))
-      (progn
-        (let ((temp (+ 1000 (choice 1000))))
-          (dialog "You explore, and find cargo worth " (string temp) "@!")
-          (coins-add temp)
-          (adventure-log-add 35 (list temp))
-          (end))))))
+      (let ((temp (+ 1000 (choice 1000))))
+        (dialog "You explore, and find cargo worth " (string temp) "@!")
+        (coins-add temp)
+        (adventure-log-add 35 (list temp))
+        (end)))))
 
 
 
