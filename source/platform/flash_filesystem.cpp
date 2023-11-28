@@ -1031,6 +1031,11 @@ u32 read_file_data(const char* path, Vector<char>& output)
 } // namespace flash_filesystem
 
 
+
+
+#ifdef __TEST__
+
+
 void arabic__to_string(int num, char* buffer, int base)
 {
     int i = 0;
@@ -1064,10 +1069,6 @@ void arabic__to_string(int num, char* buffer, int base)
 
     return;
 }
-
-
-
-#ifdef __TEST__
 
 
 
