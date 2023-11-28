@@ -30,63 +30,21 @@
 // platform class for regression testing. See below for actual implementation.
 //
 // NOTE: to compile the unit tests:
-// g++ -std=c++17 flash_filesystem.cpp ../../external/heatshrink/heatshrink_encoder.c ../../external/heatshrink/heatshrink_decoder.c -I ../ -I ../../external -g3 -D__FAKE_VECTOR__ -D__TEST__ -o fs_regression
+// g++ -std=c++17 flash_filesystem.cpp ../string.cpp ../../external/heatshrink/heatshrink_encoder.c ../../external/heatshrink/heatshrink_decoder.c -I ../ -I ../../external -g3 -D__FAKE_VECTOR__ -D__TEST__ -o fs_regression
 
 
 
 #include <fstream>
 #include <iostream>
 
-void arabic__to_string(int num, char* buffer, int base)
-{
-    int i = 0;
-    bool is_negative = false;
-
-    if (num == 0) {
-        buffer[i++] = '0';
-        buffer[i] = '\0';
-        return;
-    }
-
-    // Based on the behavior of itoa()
-    if (num < 0 && base == 10) {
-        is_negative = true;
-        num = -num;
-    }
-
-    while (num != 0) {
-        int rem = num % base;
-        buffer[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        num = num / base;
-    }
-
-    if (is_negative) {
-        buffer[i++] = '-';
-    }
-
-    buffer[i] = '\0';
-
-    str_reverse(buffer, i);
-
-    return;
-}
-
-
-template <u32 length> StringBuffer<length> to_string(int num)
-{
-    char temp[length];
-    arabic__to_string(num, temp, 10);
-
-    return temp;
-}
 
 
 
-StringBuffer<12> stringify(s32 num)
-{
-    return to_string<12>(num);
-}
 
+
+#define PLATFORM (*__platform__)
+
+Platform* __platform__;
 
 
 // Test harness for non-gba backtesting
@@ -118,6 +76,8 @@ public:
     Platform(const std::string& input, const std::string& output)
         : input_(input), output_(output)
     {
+        __platform__ = this;
+
         std::ifstream stream("Skyland" + input_,
                              std::ios::in | std::ios::binary);
         std::vector<uint8_t> contents((std::istreambuf_iterator<char>(stream)),
@@ -183,19 +143,19 @@ private:
 };
 
 
-inline void debug(Platform& pf, const char* msg)
+inline void debug(const char* msg)
 {
     std::cerr << msg << std::endl;
 }
-inline void info(Platform& pf, const char* msg)
+inline void info(const char* msg)
 {
     std::cerr << msg << std::endl;
 }
-inline void warning(Platform& pf, const char* msg)
+inline void warning(const char* msg)
 {
     std::cerr << msg << std::endl;
 }
-inline void error(Platform& pf, const char* msg)
+inline void error(const char* msg)
 {
     std::cerr << msg << std::endl;
 }
@@ -435,6 +395,26 @@ static void compact();
 
 
 
+static bool is_path_bad(const char* name)
+{
+    if (*name not_eq '/') {
+        // If a path does not start at the filesystem root, it is automatically
+        // bad.
+        return true;
+    }
+
+    while (*name not_eq '\0') {
+        if (*name < 0) {
+            return true;
+        }
+        ++name;
+    }
+
+    return false;
+}
+
+
+
 InitStatus initialize(u32 offset)
 {
     if (offset % 2 not_eq 0) {
@@ -536,10 +516,34 @@ InitStatus initialize(u32 offset)
 
     __path_cache_create();
 
-    info(format("flash fs init: begin: %, end: %, gaps: %",
-                start_offset,
-                end_offset,
-                gap_space));
+    auto stat = [&] {
+                    info(format("flash fs init: begin: %, end: %, gaps: %",
+                                start_offset,
+                                end_offset,
+                                gap_space));
+                };
+
+    stat();
+
+    Vector<StringBuffer<256>> bad_files;
+    walk([&](const char* name) {
+             if (is_path_bad(name)) {
+                 bad_files.push_back(name);
+                 info(format("encountered bad file %, size %. "
+                             "Attempting recovery...",
+                             name,
+                             file_size(name)));
+             }
+         });
+
+    for (auto& f : bad_files) {
+        unlink_file(f.c_str());
+    }
+    if (bad_files.size() not_eq 0) {
+        bad_files.clear();
+        compact();
+        stat();
+    }
 
     return already_initialized;
 }
@@ -818,6 +822,11 @@ bool store_file_data(const char* path,
                      Vector<char>& file_data,
                      const StorageOptions& opts)
 {
+    if (is_path_bad(path)) {
+        info(format("invalid file name! %", path));
+        return false;
+    }
+
     // Append a new file to the end of the filesystem log.
 
     Vector<char> comp_buffer;
@@ -1022,6 +1031,41 @@ u32 read_file_data(const char* path, Vector<char>& output)
 } // namespace flash_filesystem
 
 
+void arabic__to_string(int num, char* buffer, int base)
+{
+    int i = 0;
+    bool is_negative = false;
+
+    if (num == 0) {
+        buffer[i++] = '0';
+        buffer[i] = '\0';
+        return;
+    }
+
+    // Based on the behavior of itoa()
+    if (num < 0 && base == 10) {
+        is_negative = true;
+        num = -num;
+    }
+
+    while (num != 0) {
+        int rem = num % base;
+        buffer[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        num = num / base;
+    }
+
+    if (is_negative) {
+        buffer[i++] = '-';
+    }
+
+    buffer[i] = '\0';
+
+    str_reverse(buffer, i);
+
+    return;
+}
+
+
 
 #ifdef __TEST__
 
@@ -1133,7 +1177,7 @@ bool compaction()
         Platform pfrm(".regr_input", ".regr_output");
         initialize(8);
 
-        walk([&files, ](const char* path) {
+        walk([&files](const char* path) {
             files.emplace_back();
             files.back().first = path;
             read_file_data(path, files.back().second);
@@ -1214,7 +1258,7 @@ bool write_triggered_compaction()
         auto stats = statistics();
         std::cout << "bytes remaining " << stats.bytes_available_ << std::endl;
 
-        walk([&files, ](const char* path) {
+        walk([&files](const char* path) {
             files.emplace_back();
             files.back().first = path;
             read_file_data(path, files.back().second);
@@ -1308,6 +1352,18 @@ void regression()
 
 } // namespace flash_filesystem
 
+
+bool is_name_bad(const char* name)
+{
+    while (*name not_eq '\0') {
+        if (*name < 0 or *name > 127) {
+            return true;
+        }
+        ++name;
+    }
+
+    return false;
+}
 
 
 int main()
