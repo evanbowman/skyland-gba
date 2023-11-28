@@ -8,7 +8,7 @@
 
 # SKYLAND
 
-A realtime strategy game for Gameboy Advance.
+A realtime strategy game for Gameboy Advance. [watch the trailer!](https://www.youtube.com/watch?v=ih5aFE132jM)
 
 <p align="center">
   <img src="imgs_for_readme/cover.png"/>
