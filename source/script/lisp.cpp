@@ -626,6 +626,7 @@ Value* make_function(Function::CPP_Impl impl)
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::function;
         val->function().cpp_impl_ = impl;
+        val->function().required_args_ = 0;
         val->hdr_.mode_bits_ = Function::ModeBits::cpp_function;
         return val;
     }
@@ -638,6 +639,7 @@ static Value* make_lisp_function(Value* impl)
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::function;
         val->function().lisp_impl_.code_ = compr(impl);
+        val->function().required_args_ = 0;
         val->function().lisp_impl_.lexical_bindings_ =
             compr(bound_context->lexical_bindings_);
 
@@ -654,6 +656,7 @@ Value* make_bytecode_function(Value* bytecode)
         val->hdr_.type_ = Value::Type::function;
         val->function().bytecode_impl_.lexical_bindings_ =
             compr(bound_context->lexical_bindings_);
+        val->function().required_args_ = 0;
 
         val->function().bytecode_impl_.bytecode_ = compr(bytecode);
         val->hdr_.mode_bits_ = Function::ModeBits::lisp_bytecode_function;
@@ -1038,7 +1041,7 @@ void funcall(Value* obj, u8 argc)
 
     switch (obj->type()) {
     case Value::Type::function: {
-        if (bound_context->operand_stack_->size() < argc) {
+        if (obj->function().required_args_ > argc) {
             pop_args();
             push_op(make_error(Error::Code::invalid_argc, obj));
             break;
@@ -1122,6 +1125,10 @@ void safecall(Value* fn, u8 argc)
 {
     if (fn->type() not_eq Value::Type::function) {
         Platform::fatal("attempt to all non-function!");
+    }
+
+    if (bound_context->operand_stack_->size() < argc) {
+        Platform::fatal("invalid argc for safecall");
     }
 
     lisp::funcall(fn, argc);
@@ -1335,7 +1342,12 @@ void format_impl(Value* value, Printer& p, int depth)
         break;
 
     case lisp::Value::Type::function:
-        p.put_str("<lambda>");
+        p.put_str("<lambda");
+        if (value->function().required_args_) {
+            p.put_str(":");
+            p.put_str(stringify(value->function().required_args_).c_str());
+        }
+        p.put_str(">");
         break;
 
     case lisp::Value::Type::user_data:
@@ -2646,6 +2658,19 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
 
           return L_NIL;
       }},
+     {"require-args",
+      [](int argc) {
+          L_EXPECT_ARGC(argc, 2);
+          L_EXPECT_OP(1, function);
+          L_EXPECT_OP(0, integer);
+
+          lisp::Protected result(L_NIL);
+          result = alloc_value();
+          result->function() = get_op1()->function();
+          result->function().required_args_ = L_LOAD_INT(0);
+
+          return (Value*)result;
+      }},
      {"cons",
       [](int argc) {
           L_EXPECT_ARGC(argc, 2);
@@ -3293,10 +3318,19 @@ MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table = mapbox::eternal::hash_map<
               return L_NIL;
           }
 
-          L_EXPECT_OP(1, cons);
           L_EXPECT_OP(0, integer);
 
-          return get_list(get_op1(), get_op0()->integer().value_);
+          const auto index = L_LOAD_INT(0);
+
+          // if (get_op0()->type() == lisp::Value::Type::string) {
+          //     auto str_data = L_LOAD_STRING(0);
+          //     auto str_size = str_len(str_data);
+
+          // }
+
+          L_EXPECT_OP(1, cons);
+
+          return get_list(get_op1(), index);
       }},
      {"read",
       [](int argc) {

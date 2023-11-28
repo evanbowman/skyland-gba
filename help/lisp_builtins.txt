@@ -295,6 +295,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (require-args function num)
+
+ Produce an error if future
+ calls to function accept
+ fewer than num args. Returns
+ the modified copy of
+ the function.
+
+
+o----------------------------o
+
  (reverse list)
 
  Return list in reverse

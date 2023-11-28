@@ -313,6 +313,7 @@ private:
 
 struct Function {
     ValueHeader hdr_;
+    u8 required_args_;
 
     static ValueHeader::Type type()
     {
