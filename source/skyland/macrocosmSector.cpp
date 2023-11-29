@@ -610,7 +610,7 @@ void terrain::Sector::render()
 
 std::optional<QRCode> terrain::Sector::qr_encode(
 
-    App& app,
+
     Function<4 * sizeof(void*), void(const char*)> msg) const
 {
     Vector<u8> data;
@@ -644,13 +644,13 @@ std::optional<QRCode> terrain::Sector::qr_encode(
 
     msg("fetch upload url...");
 
-    const bool was_developer_mode = app.is_developer_mode();
-    app.set_developer_mode(true);
-    auto v = app.invoke_script("/scripts/config/uploadisle.lisp");
+    const bool was_developer_mode = APP.is_developer_mode();
+    APP.set_developer_mode(true);
+    auto v = APP.invoke_script("/scripts/config/uploadisle.lisp");
     if (v->type() not_eq lisp::Value::Type::string) {
         Platform::fatal("url lisp script returned non-string result");
     }
-    app.set_developer_mode(was_developer_mode);
+    APP.set_developer_mode(was_developer_mode);
 
 
     msg("base32 encoding...");

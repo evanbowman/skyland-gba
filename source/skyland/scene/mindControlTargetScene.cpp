@@ -42,13 +42,13 @@ MindControlTargetScene::MindControlTargetScene(const RoomCoord& controller_loc)
 
 
 
-ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> MindControlTargetScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -56,10 +56,10 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
@@ -69,17 +69,17 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
         } else if (cursor_loc.x == 0 and not near_) {
             near_ = true;
             near_camera();
-            globals().near_cursor_loc_.x = app.player_island().terrain().size();
+            globals().near_cursor_loc_.x = APP.player_island().terrain().size();
             globals().near_cursor_loc_.y = globals().far_cursor_loc_.y;
         }
     }
 
     if (test_key(Key::right)) {
-        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+        if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             if (near_ and
-                cursor_loc.x == app.opponent_island()->terrain().size()) {
+                cursor_loc.x == APP.opponent_island()->terrain().size()) {
                 far_camera();
                 near_ = false;
                 globals().far_cursor_loc_.x = 0;
@@ -102,10 +102,10 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
-        Island* island = app.opponent_island();
+    if (APP.player().key_down(Key::action_1)) {
+        Island* island = APP.opponent_island();
         if (near_) {
-            island = &app.player_island();
+            island = &APP.player_island();
         }
         if (not near_ and not island->interior_visible()) {
             PLATFORM.speaker().play_sound("beep_error", 2);
@@ -114,12 +114,12 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
         if (auto room = island->get_room(cursor_loc)) {
             if (length(room->characters())) {
                 if (auto origin =
-                        app.player_island().get_room(controller_loc_)) {
+                        APP.player_island().get_room(controller_loc_)) {
 
                     BasicCharacter* ch = nullptr;
                     CharacterId id = 0;
                     for (auto& chr : room->characters()) {
-                        if (chr->owner() not_eq &app.player() and
+                        if (chr->owner() not_eq &APP.player() and
                             chr->grid_position() == cursor_loc and
                             not chr->mind_controlled()) {
                             id = chr->id();
@@ -130,7 +130,7 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
                     if (id and ch) {
                         if (auto controller = origin->cast<MindControl>()) {
                             ch->start_mind_control(
-                                app, &app.player(), controller);
+                                app, &APP.player(), controller);
                             globals().near_cursor_loc_ = room->position();
                             return scene_pool::alloc<ReadyScene>();
                         }
@@ -140,7 +140,7 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -148,16 +148,16 @@ ScenePtr<Scene> MindControlTargetScene::update(App& app, Microseconds delta)
 }
 
 
-void MindControlTargetScene::display(App& app)
+void MindControlTargetScene::display()
 {
-    if (app.opponent_island()) {
+    if (APP.opponent_island()) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_tidx_16x16(17, 0);
 
-        Island* island = app.opponent_island();
+        Island* island = APP.opponent_island();
         if (near_) {
-            island = &app.player_island();
+            island = &APP.player_island();
         }
 
         auto origin = island->visual_origin();
@@ -173,14 +173,14 @@ void MindControlTargetScene::display(App& app)
         PLATFORM.screen().draw(cursor);
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 
 
-void MindControlTargetScene::enter(App& app, Scene& prev)
+void MindControlTargetScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     far_camera();
 
@@ -200,9 +200,9 @@ void MindControlTargetScene::enter(App& app, Scene& prev)
 
 
 
-void MindControlTargetScene::exit(App& app, Scene& next)
+void MindControlTargetScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
 
     auto st = calc_screen_tiles();

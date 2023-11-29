@@ -42,14 +42,14 @@ namespace skyland::macro
 class FreebuildConnectFriendScene : public Scene
 {
 public:
-    void enter(App&, Scene& prev) override
+    void enter(Scene& prev) override
     {
         text_.emplace(SYSTR(multi_session_connecting)->c_str(),
                       OverlayCoord{1, 3});
     }
 
 
-    void exit(App&, Scene& next) override
+    void exit(Scene& next) override
     {
         text_.reset();
         failure_text_.reset();
@@ -58,9 +58,9 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        player(app).update(app, delta);
+        player().update(delta);
 
         switch (state_) {
         case State::show: {
@@ -92,11 +92,11 @@ public:
             break;
 
         case State::sync:
-            app.swap_player<macro::FreebuildTeam>();
-            if (auto s = macrocosm(app).sector().cast_freebuild_sector()) {
+            APP.swap_player<macro::FreebuildTeam>();
+            if (auto s = macrocosm().sector().cast_freebuild_sector()) {
                 s->reset();
             }
-            PLATFORM.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(APP.environment().music(), 0);
             return scene_pool::alloc<SelectorScene>();
         }
 

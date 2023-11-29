@@ -41,7 +41,7 @@ SandboxLoaderModule::ParamBuffer SandboxLoaderModule::parameters_;
 
 
 
-void prep_level(App& app);
+void prep_level();
 
 
 
@@ -66,23 +66,23 @@ int SandboxLoaderModule::get_setting(u8 slot)
 
 
 
-void environment_init(App& app, int type)
+void environment_init(int type)
 {
     switch (type) {
     case 1:
-        app.swap_environment<weather::ClearSkies>();
+        APP.swap_environment<weather::ClearSkies>();
         break;
 
     case 2:
-        app.swap_environment<weather::Storm>();
+        APP.swap_environment<weather::Storm>();
         break;
 
     case 3:
-        app.swap_environment<weather::Typhoon>();
+        APP.swap_environment<weather::Typhoon>();
         break;
 
     case 4:
-        app.swap_environment<weather::Blizzard>();
+        APP.swap_environment<weather::Blizzard>();
         break;
     }
 }
@@ -129,11 +129,11 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
 
 
 
-void SandboxLoaderModule::enter(App& app, Scene& prev)
+void SandboxLoaderModule::enter(Scene& prev)
 {
-    app.game_mode() = App::GameMode::sandbox;
+    APP.game_mode() = App::GameMode::sandbox;
 
-    app.camera()->reset();
+    APP.camera()->reset();
     PLATFORM.screen().set_view({});
 
     PLATFORM.load_overlay_texture("overlay_challenges");
@@ -170,8 +170,8 @@ void SandboxLoaderModule::enter(App& app, Scene& prev)
         parameters_[4] = 1;
         parameters_[5] = 2;
     } else {
-        environment_init(app, parameters_[4]);
-        PLATFORM.screen().set_shader(app.environment().shader(app));
+        environment_init(parameters_[4]);
+        PLATFORM.screen().set_shader(APP.environment().shader());
     }
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -185,7 +185,7 @@ void SandboxLoaderModule::enter(App& app, Scene& prev)
 
 
 
-void SandboxLoaderModule::exit(App& app, Scene& next)
+void SandboxLoaderModule::exit(Scene& next)
 {
     title_.reset();
     help_.reset();
@@ -194,10 +194,10 @@ void SandboxLoaderModule::exit(App& app, Scene& next)
 
     if (not cancelled_) {
 
-        environment_init(app, parameters_[4]);
+        environment_init(parameters_[4]);
 
         if (parameters_[2]) {
-            PLATFORM.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(APP.environment().music(), 0);
         }
 
         lisp::ListBuilder list;
@@ -207,28 +207,28 @@ void SandboxLoaderModule::exit(App& app, Scene& next)
 
         lisp::set_var("conf", list.result());
 
-        app.invoke_script("/scripts/sandbox/new.lisp");
+        APP.invoke_script("/scripts/sandbox/new.lisp");
 
-        prep_level(app);
+        prep_level();
 
-        show_island_exterior(app, &app.player_island());
-        show_island_exterior(app, app.opponent_island());
+        show_island_exterior(&APP.player_island());
+        show_island_exterior(APP.opponent_island());
 
         PLATFORM.load_overlay_texture("overlay");
         PLATFORM.system_call("v-parallax", (void*)true);
 
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-        app.birds().clear();
-        GenericBird::generate(app);
+        APP.birds().clear();
+        GenericBird::generate();
     }
 }
 
 
 
-void SandboxLoaderModule::display(App& app)
+void SandboxLoaderModule::display()
 {
-    Scene::display(app);
+    Scene::display();
 
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
@@ -240,16 +240,16 @@ void SandboxLoaderModule::display(App& app)
 
 
 
-ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> SandboxLoaderModule::update(Microseconds delta)
 {
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
-    if (app.player().key_down(Key::action_1) or app.player().tap_released()) {
+    if (APP.player().key_down(Key::action_1) or APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
-    } else if (app.player().key_down(Key::action_2)) {
+    } else if (APP.player().key_down(Key::action_2)) {
         cancelled_ = true;
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<TitleScreenScene>(3);
@@ -262,22 +262,22 @@ ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
         unveil_ = true;
     }
 
-    if (app.player().key_pressed(Key::left)) {
+    if (APP.player().key_pressed(Key::left)) {
         long_hold_time_[1] += delta;
     } else {
         long_hold_time_[1] = 0;
     }
 
-    if (app.player().key_pressed(Key::right)) {
+    if (APP.player().key_pressed(Key::right)) {
         long_hold_time_[0] += delta;
     } else {
         long_hold_time_[0] = 0;
     }
 
     auto update_env = [&] {
-        environment_init(app, parameters_[4]);
+        environment_init(parameters_[4]);
 
-        PLATFORM.screen().set_shader(app.environment().shader(app));
+        PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
 
         PLATFORM.screen().schedule_fade(
@@ -287,8 +287,8 @@ ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
     };
 
 
-    if (app.player().key_down(Key::right) or
-        app.player().key_held(Key::right, milliseconds(500))) {
+    if (APP.player().key_down(Key::right) or
+        APP.player().key_held(Key::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
 
@@ -301,11 +301,11 @@ ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
             }
         }
         update_parameter(cursor_);
-        app.player().key_held_reset(Key::right, milliseconds(80));
+        APP.player().key_held_reset(Key::right, milliseconds(80));
     }
 
-    if (app.player().key_down(Key::left) or
-        app.player().key_held(Key::left, milliseconds(500))) {
+    if (APP.player().key_down(Key::left) or
+        APP.player().key_held(Key::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
         if (long_hold_time_[1] > milliseconds(2000)) {
             parameters_[cursor_] -= param_info[cursor_].increment_ * 9;
@@ -314,7 +314,7 @@ ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
-        app.player().key_held_reset(Key::left, milliseconds(80));
+        APP.player().key_held_reset(Key::left, milliseconds(80));
 
         if (long_hold_time_[0] > milliseconds(2000)) {
             parameters_[cursor_] += param_info[cursor_].increment_ * 3;
@@ -325,11 +325,11 @@ ScenePtr<Scene> SandboxLoaderModule::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
+    if (APP.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
         ++cursor_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
 
-    } else if (app.player().key_down(Key::up) and cursor_ > 0) {
+    } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
         --cursor_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }

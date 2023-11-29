@@ -38,9 +38,9 @@ Infirmary::Infirmary(Island* parent, const RoomCoord& position)
 }
 
 
-void Infirmary::update(App& app, Microseconds delta)
+void Infirmary::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     // Optimization: room has no inhabitants, don't schedule for updates.
     if (characters().empty()) {
@@ -67,7 +67,7 @@ void Infirmary::update(App& app, Microseconds delta)
             for (auto& character : characters()) {
                 if (character->owner() == &parent()->owner() and
                     character->state() not_eq BasicCharacter::State::fighting) {
-                    character->heal(app, distribute_health);
+                    character->heal(distribute_health);
                 }
             }
         }
@@ -100,12 +100,12 @@ void Infirmary::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Infirmary::finalize(App& app)
+void Infirmary::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
-        ExploSpawner::create(app, center());
+        ExploSpawner::create(center());
     }
 }
 

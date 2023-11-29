@@ -46,76 +46,73 @@ namespace skyland
 
 
 
-void InspectP2Scene::enter(App& app, Scene& prev)
+void InspectP2Scene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     far_camera();
 }
 
 
 
-void clear_room_description(App& app, std::optional<Text>& room_description);
+void clear_room_description(std::optional<Text>& room_description);
 
 
 
-void InspectP2Scene::exit(App& app, Scene& next)
+void InspectP2Scene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
-    clear_room_description(app, room_description_);
+    clear_room_description(room_description_);
 }
 
 
 
-ScenePtr<Scene> update_modifier_keys(App& app);
+ScenePtr<Scene> update_modifier_keys();
 
 
 
-void describe_room(App& app,
-                   Island* island,
+void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
 
-std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
-                                                  const Vec2<u32>& pos);
+std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 
 
 
-ScenePtr<Scene> player_island_onclick(App& app,
-                                      Microseconds& camera_update_timer,
+ScenePtr<Scene> player_island_onclick(Microseconds& camera_update_timer,
                                       std::optional<Text>& room_description,
                                       const RoomCoord& pos);
 
 
 
-bool tapped_topleft_corner(App& app);
+bool tapped_topleft_corner();
 
 
 
-ScenePtr<Scene> process_exit_condition(App& app, App::ExitCondition c);
+ScenePtr<Scene> process_exit_condition(App::ExitCondition c);
 
 
 
-ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
+ScenePtr<Scene> InspectP2Scene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
 
-    const auto exit_cond = app.exit_condition();
+    const auto exit_cond = APP.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
-        set_gamespeed(app, GameSpeed::normal);
-        if (auto next = process_exit_condition(app, exit_cond)) {
+        set_gamespeed(GameSpeed::normal);
+        if (auto next = process_exit_condition(exit_cond)) {
             return next;
         }
     }
 
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -123,42 +120,42 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     auto sync_cursor = [&] {
-        app.player().network_sync_cursor(cursor_loc, cursor_anim_frame_, false);
+        APP.player().network_sync_cursor(cursor_loc, cursor_anim_frame_, false);
     };
 
 
 
-    if (app.player().key_pressed(Key::start)) {
+    if (APP.player().key_pressed(Key::start)) {
 
-        if (app.player().key_down(Key::start)) {
+        if (APP.player().key_down(Key::start)) {
             await_start_key_ = true;
         }
 
-        if (app.player().key_held(Key::start, milliseconds(800))) {
+        if (APP.player().key_held(Key::start, milliseconds(800))) {
             return scene_pool::alloc<ModifierKeyHintScene>();
         }
 
-        if (auto scene = update_modifier_keys(app)) {
+        if (auto scene = update_modifier_keys()) {
             return scene;
         }
 
     } else {
 
-        if (app.player().key_down(Key::select)) {
+        if (APP.player().key_down(Key::select)) {
             return scene_pool::alloc<SelectMenuScene>();
         }
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
 
                 sync_cursor();
@@ -169,16 +166,16 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
 
                 near_cursor.y = cursor_loc.y;
 
-                app.player().network_sync_cursor(near_cursor, 0, true);
+                APP.player().network_sync_cursor(near_cursor, 0, true);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<ReadyScene>();
             }
         }
 
         if (test_key(Key::right)) {
-            if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+            if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();
@@ -188,7 +185,7 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();
@@ -198,16 +195,16 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
         if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 sync_cursor();
             }
         }
 
-        if (await_start_key_ and app.player().key_up(Key::start) and
-            app.game_mode() not_eq App::GameMode::multiplayer and
-            app.game_mode() not_eq App::GameMode::co_op) {
+        if (await_start_key_ and APP.player().key_up(Key::start) and
+            APP.game_mode() not_eq App::GameMode::multiplayer and
+            APP.game_mode() not_eq App::GameMode::co_op) {
             auto next = scene_pool::alloc<StartMenuScene>(0);
             next->cascade_anim_in_ = true;
             return next;
@@ -223,11 +220,11 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
     }
 
 
-    if (app.player().touch_held(milliseconds(200))) {
-        if (auto pos = app.player().touch_current()) {
+    if (APP.player().touch_held(milliseconds(200))) {
+        if (auto pos = APP.player().touch_current()) {
             const auto view_offset =
                 PLATFORM.screen().get_view().get_center().cast<s32>();
-            auto island_pos = app.opponent_island()->get_position();
+            auto island_pos = APP.opponent_island()->get_position();
             island_pos.x -= Fixnum::from_integer(view_offset.x);
             island_pos.y -= Fixnum::from_integer(view_offset.y);
 
@@ -235,7 +232,7 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
                 Fixnum::from_integer(pos->x) <=
                     island_pos.x +
                         Fixnum::from_integer(
-                            app.opponent_island()->terrain().size() * 16)) {
+                            APP.opponent_island()->terrain().size() * 16)) {
 
                 int x_tile = -((island_pos.x.as_integer() - pos->x) / 16);
                 int y_tile = -((island_pos.y.as_integer() - pos->y) / 16);
@@ -249,10 +246,10 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
     }
 
 
-    if (app.game_mode() == App::GameMode::sandbox and
-        (tapped_topleft_corner(app) or app.player().key_down(Key::alt_2))) {
+    if (APP.game_mode() == App::GameMode::sandbox and
+        (tapped_topleft_corner() or APP.player().key_down(Key::alt_2))) {
         return scene_pool::alloc<ConstructionScene>(false);
-    } else if (app.player().key_down(Key::alt_2)) {
+    } else if (APP.player().key_down(Key::alt_2)) {
 
         PLATFORM.speaker().play_sound("beep_error", 2);
 
@@ -262,30 +259,30 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
 
         near_cursor.y = cursor_loc.y;
 
-        app.player().network_sync_cursor(near_cursor, 0, true);
+        APP.player().network_sync_cursor(near_cursor, 0, true);
 
         return scene_pool::alloc<ReadyScene>();
     }
 
 
-    if (auto pos = app.player().tap_released()) {
-        auto [x, y, island] = check_island_tapclick(app, *pos);
+    if (auto pos = APP.player().tap_released()) {
+        auto [x, y, island] = check_island_tapclick(*pos);
 
-        if (island == &app.player_island()) {
+        if (island == &APP.player_island()) {
             if (auto scene = player_island_onclick(
-                    app, camera_update_timer_, room_description_, {x, y})) {
+                    camera_update_timer_, room_description_, {x, y})) {
                 return scene;
             } else {
                 globals().near_cursor_loc_ = {x, y};
                 return scene_pool::alloc<ReadyScene>();
             }
-        } else if (island == app.opponent_island()) {
+        } else if (island == APP.opponent_island()) {
             camera_update_timer_ = milliseconds(500);
             globals().far_cursor_loc_ = {x, y};
         } else if (island == nullptr) {
             const auto view_offset =
                 PLATFORM.screen().get_view().get_center().cast<s32>();
-            auto island_pos = app.opponent_island()->get_position();
+            auto island_pos = APP.opponent_island()->get_position();
             island_pos.x -= Fixnum::from_integer(view_offset.x);
 
             if (Fixnum::from_integer(pos->x) < island_pos.x) {
@@ -295,31 +292,31 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
-        if (auto room = app.opponent_island()->get_room(cursor_loc)) {
-            if (app.game_mode() == App::GameMode::sandbox or
+    if (APP.player().key_down(Key::action_1)) {
+        if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
+            if (APP.game_mode() == App::GameMode::sandbox or
                 room->non_owner_selectable() or
-                room->owner() == &app.player_island()) {
-                return room->select(app, cursor_loc);
+                room->owner() == &APP.player_island()) {
+                return room->select(cursor_loc);
             } else {
                 PLATFORM.speaker().play_sound("beep_error", 2);
             }
-        } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &app.player_island()) {
-                return (*drone)->select(app);
+        } else if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &APP.player_island()) {
+                return (*drone)->select();
             } else {
                 PLATFORM.speaker().play_sound("beep_error", 2);
             }
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
-        if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &app.player_island()) {
+    if (APP.player().key_down(Key::action_2)) {
+        if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &APP.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
-        } else if (app.game_mode() == App::GameMode::sandbox) {
-            if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+        } else if (APP.game_mode() == App::GameMode::sandbox) {
+            if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
                 const auto props = (*room->metaclass())->properties();
                 if (not(props & RoomProperties::salvage_disallowed)) {
                     return scene_pool::alloc<SalvageRoomScene>(false);
@@ -336,15 +333,15 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
         }
     }
 
-    if (await_b_key_ and app.player().key_up(Key::action_2)) {
+    if (await_b_key_ and APP.player().key_up(Key::action_2)) {
         await_b_key_ = false;
-        if (app.game_mode() == App::GameMode::tutorial) {
-            return scene_pool::alloc<MoveRoomScene>(app, false);
+        if (APP.game_mode() == App::GameMode::tutorial) {
+            return scene_pool::alloc<MoveRoomScene>(false);
         }
     }
     if (await_b_key_ and
-        app.player().key_held(Key::action_2, milliseconds(400))) {
-        return scene_pool::alloc<MoveRoomScene>(app, false);
+        APP.player().key_held(Key::action_2, milliseconds(400))) {
+        return scene_pool::alloc<MoveRoomScene>(false);
     }
 
     if (not is_far_camera()) {
@@ -360,8 +357,7 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
         if (describe_room_timer_ <= 0) {
             describe_room_timer_ = milliseconds(500);
 
-            describe_room(
-                app, app.opponent_island(), cursor_loc, room_description_);
+            describe_room(APP.opponent_island(), cursor_loc, room_description_);
         }
     }
 
@@ -370,14 +366,14 @@ ScenePtr<Scene> InspectP2Scene::update(App& app, Microseconds delta)
 
 
 
-void InspectP2Scene::display(App& app)
+void InspectP2Scene::display()
 {
-    if (app.opponent_island()) {
+    if (APP.opponent_island()) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
-        auto origin = app.opponent_island()->visual_origin();
+        auto origin = APP.opponent_island()->visual_origin();
 
         auto& cursor_loc = globals().far_cursor_loc_;
 
@@ -388,18 +384,18 @@ void InspectP2Scene::display(App& app)
 
         PLATFORM.screen().draw(cursor);
 
-        if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+        if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
             if (room->opponent_display_on_hover()) {
-                room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
+                room->display_on_hover(PLATFORM.screen(), cursor_loc);
             }
-        } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &app.player_island()) {
-                (*drone)->display_on_hover(PLATFORM.screen(), app, cursor_loc);
+        } else if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &APP.player_island()) {
+                (*drone)->display_on_hover(PLATFORM.screen(), cursor_loc);
             }
         }
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 

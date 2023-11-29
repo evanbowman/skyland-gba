@@ -48,9 +48,9 @@ WarEngine::WarEngine(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void WarEngine::update(App& app, Microseconds delta)
+void WarEngine::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -59,20 +59,19 @@ extern Sound core_destroyed;
 
 
 
-void WarEngine::finalize(App& app)
+void WarEngine::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() == 0) {
         core_destroyed.play(4, milliseconds(600));
-        core_explosion(app, parent(), center());
+        core_explosion(parent(), center());
     }
 }
 
 
 
-void WarEngine::plot_walkable_zones(App& app,
-                                    bool matrix[16][16],
+void WarEngine::plot_walkable_zones(bool matrix[16][16],
                                     BasicCharacter* for_character)
 {
     auto x = position().x;

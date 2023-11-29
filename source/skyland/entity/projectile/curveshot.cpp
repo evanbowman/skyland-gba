@@ -70,10 +70,10 @@ Curveshot::Curveshot(const Vec2<Float>& position,
 
 
 
-void Curveshot::update(App& app, Microseconds delta)
+void Curveshot::update(Microseconds delta)
 {
     Vec2<Float> pos = {sprite_.get_position().x, y_base_};
-    pos = pos + app.float_delta() * step_vector_;
+    pos = pos + APP.float_delta() * step_vector_;
     y_base_ = pos.y;
 
     pos.y -= height_ *
@@ -87,10 +87,10 @@ void Curveshot::update(App& app, Microseconds delta)
 
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
@@ -99,7 +99,7 @@ void Curveshot::update(App& app, Microseconds delta)
         auto min_y = t_y + construction_zone_min_y * 16;
         int max_x = 9999999;
         int min_x = -9999999;
-        if (target == &app.player_island()) {
+        if (target == &APP.player_island()) {
             // If we're shooting at the player's island, the projectile moves
             // leftwards, and we care about the min bound.
             min_x = (int)target->origin().x - 32;
@@ -109,7 +109,7 @@ void Curveshot::update(App& app, Microseconds delta)
                 (int)target->origin().x + 16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
-            this->destroy(app, pos.y > min_y);
+            this->destroy(pos.y > min_y);
             PLATFORM.speaker().play_sound("explosion1", 2);
         }
     }
@@ -121,7 +121,7 @@ void Curveshot::update(App& app, Microseconds delta)
 
 
 
-void Curveshot::rewind(App& app, Microseconds delta)
+void Curveshot::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - Float(delta) * step_vector_;
@@ -131,9 +131,9 @@ void Curveshot::rewind(App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(app);
+            (*drone)->___rewind___ability_used();
         }
         kill();
     }
@@ -145,7 +145,7 @@ extern Sound sound_impact;
 
 
 
-void Curveshot::on_collision(App& app, Room& room)
+void Curveshot::on_collision(Room& room)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -166,14 +166,14 @@ void Curveshot::on_collision(App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < curveshot_damage) {
-        room.apply_damage(app, Room::health_upper_limit());
+        room.apply_damage(Room::health_upper_limit());
         return;
     }
 
-    room.apply_damage(app, curveshot_damage);
+    room.apply_damage(curveshot_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(app, true);
+        room.set_ai_aware(true);
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
@@ -181,7 +181,7 @@ void Curveshot::on_collision(App& app, Room& room)
         timer_ = 0;
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(app, true);
+        this->destroy(true);
         if (room.health()) {
             sound_impact.play(1);
         }
@@ -190,7 +190,7 @@ void Curveshot::on_collision(App& app, Room& room)
 
 
 
-void Curveshot::destroy(App& app, bool explosion)
+void Curveshot::destroy(bool explosion)
 {
     // auto timestream_record =
     //     [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -204,35 +204,35 @@ void Curveshot::destroy(App& app, bool explosion)
     //     };
 
 
-    // if (source_ == &app.player_island()) {
+    // if (source_ == &APP.player_island()) {
     //     time_stream::event::PlayerCurveshotDestroyed c;
     //     timestream_record(c);
-    //     app.time_stream().push(app.level_timer(), c);
+    //     APP.time_stream().push(APP.level_timer(), c);
     // } else {
     //     time_stream::event::OpponentCurveshotDestroyed c;
     //     timestream_record(c);
-    //     app.time_stream().push(app.level_timer(), c);
+    //     APP.time_stream().push(APP.level_timer(), c);
     // }
 
 
     kill();
-    app.camera()->shake(8);
+    APP.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(app, sprite_.get_position());
+        medium_explosion(sprite_.get_position());
     }
 }
 
 
 
-void Curveshot::on_collision(App& app, Entity& entity)
+void Curveshot::on_collision(Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Curveshot explodes upon collision.
 
-    this->destroy(app, true);
+    this->destroy(true);
 
-    entity.apply_damage(app, curveshot_damage);
+    entity.apply_damage(curveshot_damage);
 }
 
 

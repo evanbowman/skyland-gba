@@ -35,13 +35,13 @@ namespace skyland
 class ReadyScene final : public ActiveWorldScene
 {
 public:
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
-    void exit(App&, Scene& next) override;
+    void exit(Scene& next) override;
 
 
 private:

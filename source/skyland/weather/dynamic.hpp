@@ -36,19 +36,19 @@ namespace skyland::weather
 class Dynamic : public Typhoon
 {
 public:
-    Dynamic(App& app);
+    Dynamic();
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App& app, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    Platform::Screen::Shader shader(App& app) const override;
+    Platform::Screen::Shader shader() const override;
 
 
-    void compute_palettes(App& app, u8 scale);
+    void compute_palettes(u8 scale);
 };
 
 

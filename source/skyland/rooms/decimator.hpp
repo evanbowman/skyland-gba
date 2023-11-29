@@ -48,10 +48,10 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta);
+    void rewind(Microseconds delta);
 
 
     static WeaponOrientation weapon_orientation()
@@ -60,20 +60,19 @@ public:
     }
 
 
-    void unset_target(App& app) override;
+    void unset_target() override;
 
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
-    void ___rewind___ability_used(App&) override;
+    void ___rewind___ability_used() override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override;
 
 
@@ -139,7 +138,7 @@ public:
     }
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
 private:

@@ -155,11 +155,9 @@ private:
     bool flip_x_ : 1;
     bool flip_y_ : 1;
 
-    // Extra flags reserved for future use.
-    u8 flags1_ : 3;
     u8 priority_ : 2;
-    u8 palette_ : 1;
-    u8 reserved_ : 1;
+    u8 palette_ : 4;
+    u8 reserved_ : 4;
 
     // Because sprites are only 16x32 or 32x32, 16bits for the origin field is
     // quite generous...

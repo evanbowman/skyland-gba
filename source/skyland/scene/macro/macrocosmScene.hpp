@@ -41,18 +41,18 @@ public:
     MacrocosmScene();
 
 
-    void enter(App& app, Scene& prev) override final;
-    void exit(App& app, Scene& next) override final;
+    void enter(Scene& prev) override final;
+    void exit(Scene& next) override final;
 
 
     virtual void enter(macro::EngineImpl&, Scene& prev);
     virtual void exit(macro::EngineImpl&, Scene& next);
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override final;
+    ScenePtr<Scene> update(Microseconds delta) override final;
 
 
-    void display(App&) override final;
+    void display() override final;
 
 
     MacrocosmScene* cast_macrocosm_scene() override

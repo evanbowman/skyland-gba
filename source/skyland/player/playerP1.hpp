@@ -40,16 +40,16 @@ namespace skyland
 class PlayerP1 : public Player
 {
 public:
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void on_room_destroyed(App& app, Room& room) override;
+    void on_room_destroyed(Room& room) override;
 
 
-    void on_room_damaged(App& app, Room& room);
+    void on_room_damaged(Room& room);
 
 
-    void on_room_plundered(App& app, Room& room) override;
+    void on_room_plundered(Room& room) override;
 
 
     bool key_down(Key k) override;

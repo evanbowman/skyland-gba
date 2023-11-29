@@ -55,7 +55,7 @@ QRViewerScene::QRViewerScene(const QRCode& qr,
 
 
 
-void QRViewerScene::enter(App& app, Scene& prev)
+void QRViewerScene::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_qr");
 
@@ -149,7 +149,7 @@ void QRViewerScene::enter(App& app, Scene& prev)
 
 
 
-void QRViewerScene::exit(App& app, Scene& next)
+void QRViewerScene::exit(Scene& next)
 {
     PLATFORM.load_overlay_texture("overlay");
     next_text_.reset();
@@ -157,14 +157,14 @@ void QRViewerScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> QRViewerScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> QRViewerScene::update(Microseconds delta)
 {
     if (exit_) {
         return next_();
     }
 
     if (overworld_) {
-        app.level_timer().count_up(delta);
+        APP.level_timer().count_up(delta);
     }
 
     timer_ += delta;
@@ -172,7 +172,7 @@ ScenePtr<Scene> QRViewerScene::update(App& app, Microseconds delta)
         timer_ = 0;
     }
 
-    if (timer_ > milliseconds(300) and player(app).key_down(Key::action_1)) {
+    if (timer_ > milliseconds(300) and player().key_down(Key::action_1)) {
         exit_ = true;
         tv_.reset();
         PLATFORM.fill_overlay(0);
@@ -199,22 +199,22 @@ ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
 
 
 
-void ConfiguredURLQRViewerScene::enter(App& app, Scene& prev)
+void ConfiguredURLQRViewerScene::enter(Scene& prev)
 {
     // NOTE: enabling developer mode does not allow the player to record
     // highscores. But, we do want the software to be resiliant to future
     // changes, and we make a temporary exception, allowing users to run custom
     // scripts if and only if we're reading the config script for the highscore
     // server url.
-    const bool was_developer_mode = app.is_developer_mode();
-    app.set_developer_mode(true);
+    const bool was_developer_mode = APP.is_developer_mode();
+    APP.set_developer_mode(true);
 
-    auto v = app.invoke_script(config_path_.c_str());
+    auto v = APP.invoke_script(config_path_.c_str());
     if (v->type() not_eq lisp::Value::Type::string) {
         Platform::fatal("url lisp script returned non-string result");
     }
 
-    app.set_developer_mode(was_developer_mode);
+    APP.set_developer_mode(was_developer_mode);
 
     auto temp = allocate_dynamic<StringBuffer<500>>("temp-buf-qr");
     // Prepend the url from config.
@@ -223,7 +223,7 @@ void ConfiguredURLQRViewerScene::enter(App& app, Scene& prev)
     **text_ = v->string().value();
     **text_ += *temp;
 
-    QRViewerScene::enter(app, prev);
+    QRViewerScene::enter(prev);
 }
 
 

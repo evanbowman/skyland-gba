@@ -31,7 +31,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> FeedbackModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> FeedbackModule::update(Microseconds delta)
 {
     return scene_pool::alloc<ConfiguredURLQRViewerScene>(
         "/scripts/config/feedback.lisp",

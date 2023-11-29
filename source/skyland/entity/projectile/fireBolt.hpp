@@ -57,21 +57,21 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void on_collision(App& app, Room&, Vec2<u8> origin) override;
+    void on_collision(Room&, Vec2<u8> origin) override;
 
 
-    void on_collision(App& app, Entity&) override;
+    void on_collision(Entity&) override;
 
 
 private:
-    void record_destroyed(App& app);
-    void destroy(App& app, bool explosion);
+    void record_destroyed();
+    void destroy(bool explosion);
 
     Microseconds timer_ = 0;
     Vec2<Fixnum> step_vector_;

@@ -50,26 +50,23 @@ public:
     using Rooms = RoomTable<92, 16>;
 
 
-    bool add_room(App& app, RoomPtr<Room> insert, bool do_repaint = true)
+    bool add_room(RoomPtr<Room> insert, bool do_repaint = true)
     {
         if (rooms().full()) {
             return false;
         }
         auto result = rooms_.insert_room(std::move(insert));
         if (do_repaint) {
-            repaint(app);
+            repaint();
         }
-        recalculate_power_usage(app);
-        on_layout_changed(app, insert->position());
+        recalculate_power_usage();
+        on_layout_changed(insert->position());
         return result;
     }
 
 
     template <typename T, typename... Args>
-    bool add_room(App& app,
-                  const RoomCoord& position,
-                  bool do_repaint,
-                  Args&&... args)
+    bool add_room(const RoomCoord& position, bool do_repaint, Args&&... args)
     {
         if (rooms().full()) {
             return false;
@@ -78,10 +75,10 @@ public:
                 this, position, std::forward<Args>(args)...)) {
             if (rooms_.insert_room({room.release(), room_pool::deleter})) {
                 if (do_repaint) {
-                    repaint(app);
+                    repaint();
                 }
-                recalculate_power_usage(app);
-                on_layout_changed(app, position);
+                recalculate_power_usage();
+                on_layout_changed(position);
                 return true;
             }
         }
@@ -90,7 +87,7 @@ public:
     }
 
 
-    void move_room(App& app, const RoomCoord& from, const RoomCoord& to);
+    void move_room(const RoomCoord& from, const RoomCoord& to);
 
 
     void init_terrain(int width, bool render = true);
@@ -105,20 +102,20 @@ public:
     Rooms& rooms();
 
 
-    void clear_rooms(App&);
+    void clear_rooms();
 
 
-    void clear(App&);
+    void clear();
 
 
-    void update(App&, Microseconds delta);
-    void update_simple(App&, Microseconds delta);
+    void update(Microseconds delta);
+    void update_simple(Microseconds delta);
 
 
-    void rewind(App&, Microseconds delta);
+    void rewind(Microseconds delta);
 
 
-    void display(App&);
+    void display();
     void display_fires();
 
     const Vec2<Fixnum>& get_position() const;
@@ -133,7 +130,7 @@ public:
     std::optional<SharedEntityRef<Drone>> get_drone(const RoomCoord& coord);
 
 
-    void destroy_room(App& app, const RoomCoord& coord);
+    void destroy_room(const RoomCoord& coord);
 
 
     s8 get_ambient_movement()
@@ -148,17 +145,17 @@ public:
     }
 
 
-    void set_hidden(App& app, bool hidden);
+    void set_hidden(bool hidden);
 
 
-    void render_interior(App& app);
-    void render_interior_fast(App& app);
+    void render_interior();
+    void render_interior_fast();
 
 
-    void render_exterior(App& app);
+    void render_exterior();
 
 
-    void render(App&);
+    void render();
 
 
     void plot_rooms(u8 matrix[16][16]) const;
@@ -167,8 +164,7 @@ public:
     void plot_construction_zones(bool matrix[16][16]) const;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) const;
 
 
@@ -179,7 +175,7 @@ public:
 
 
     // NOTE: generally, you should use render() intead of repaint().
-    void repaint(App& app);
+    void repaint();
 
 
     bool interior_visible() const
@@ -220,7 +216,7 @@ public:
     }
 
 
-    void set_drift(App& app, Fixnum drift);
+    void set_drift(Fixnum drift);
 
 
     Fixnum get_drift() const
@@ -253,7 +249,7 @@ public:
     }
 
 
-    void test_collision(App&, Entity& entity);
+    void test_collision(Entity& entity);
 
 
     Player& owner()
@@ -304,7 +300,7 @@ public:
     }
 
 
-    void on_layout_changed(App& app, const RoomCoord& room_added_removed_coord);
+    void on_layout_changed(const RoomCoord& room_added_removed_coord);
 
 
     SharedEntityList<Drone>& drones()
@@ -364,10 +360,10 @@ public:
 
 
     bool fire_present(const RoomCoord& coord) const;
-    void fire_extinguish(App& app, const RoomCoord& coord);
-    void fire_create(App& app, const RoomCoord& coord);
+    void fire_extinguish(const RoomCoord& coord);
+    void fire_create(const RoomCoord& coord);
 
-    void fires_extinguish(App& app);
+    void fires_extinguish();
 
 
     const EntityList<BasicCharacter>& outdoor_characters()
@@ -391,7 +387,7 @@ public:
     }
 
 
-    void init_ai_awareness(App& app);
+    void init_ai_awareness();
 
 
     BulkTimer& bulk_timer()
@@ -413,16 +409,16 @@ public:
 
 
 private:
-    void repaint_partial(App& app);
+    void repaint_partial();
 
 
-    bool repaint_alloc_tiles(App& app, TileId buffer[16][16], bool retry);
+    bool repaint_alloc_tiles(TileId buffer[16][16], bool retry);
 
 
     void resolve_cancelled_dispatch();
 
 
-    void recalculate_power_usage(App& app);
+    void recalculate_power_usage();
 
 
     void check_destroyed();
@@ -456,9 +452,9 @@ private:
         Microseconds anim_timer_ = 0;
         s8 anim_index_ = 0;
 
-        void update(App& app, Island& island, Microseconds delta);
+        void update(Island& island, Microseconds delta);
 
-        void rewind(App& app, Island& island, Microseconds delta);
+        void rewind(Island& island, Microseconds delta);
 
         void display(Island& island);
 
@@ -511,13 +507,13 @@ private:
 
 
 
-void show_island_interior(App& app, Island* island);
-void show_island_exterior(App& app, Island* island);
+void show_island_interior(Island* island);
+void show_island_exterior(Island* island);
 
 
 
-Island& player_island(App& app);
-Island* opponent_island(App& app);
+Island& player_island();
+Island* opponent_island();
 
 
 

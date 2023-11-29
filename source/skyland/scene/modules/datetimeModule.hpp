@@ -60,11 +60,11 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override;
-    void exit(App& app, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void repaint();

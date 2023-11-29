@@ -46,16 +46,16 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App&, Scene& next) override;
+    void exit(Scene& next) override;
 
 
     void persist_ui();
@@ -80,10 +80,10 @@ public:
     }
 
 
-    void set_gamespeed(App& app, GameSpeed speed);
+    void set_gamespeed(GameSpeed speed);
 
 
-    virtual bool camera_update_check_key(App& app);
+    virtual bool camera_update_check_key();
 
 
     virtual bool hide_chr_icon() const;
@@ -115,7 +115,7 @@ public:
     }
 
 
-    ScenePtr<Scene> make_dialog(App&);
+    ScenePtr<Scene> make_dialog();
 
 
 protected:
@@ -124,7 +124,7 @@ protected:
 
     Microseconds camera_update_timer_ = 0;
 
-    void reset_gamespeed(App& app);
+    void reset_gamespeed();
 
     void set_pause_icon(u16 icon);
 
@@ -142,7 +142,7 @@ private:
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;
 
-    void multiplayer_vs_timeout_step(App&, Microseconds delta);
+    void multiplayer_vs_timeout_step(Microseconds delta);
 
 protected:
     bool power_fraction_opponent_island_ = false;
@@ -153,11 +153,11 @@ protected:
 class ActiveWorldScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 private:
-    ScenePtr<Scene> on_player_island_destroyed(App&);
-    ScenePtr<Scene> try_surrender(App&);
+    ScenePtr<Scene> on_player_island_destroyed();
+    ScenePtr<Scene> try_surrender();
 };
 
 

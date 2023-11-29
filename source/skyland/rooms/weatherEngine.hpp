@@ -44,13 +44,13 @@ public:
                   const char* n = name());
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -74,7 +74,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     bool description_visible() override

@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-void DlcManagerModule::enter(App& app, Scene& prev)
+void DlcManagerModule::enter(Scene& prev)
 {
     patches_ = allocate_dynamic<PatchList>("dlc-patch-list");
 
@@ -58,7 +58,7 @@ void DlcManagerModule::enter(App& app, Scene& prev)
         u8 tile_deps = 0;
         u8 spr_deps = 0;
 
-        auto v = app.invoke_ram_script(patch_info_path.c_str());
+        auto v = APP.invoke_ram_script(patch_info_path.c_str());
         if (v->type() == lisp::Value::Type::cons) {
             lisp::foreach (v, [&](lisp::Value* kvp) {
                 if (kvp->type() not_eq lisp::Value::Type::cons) {
@@ -97,7 +97,7 @@ void DlcManagerModule::enter(App& app, Scene& prev)
 
 
 
-void DlcManagerModule::exit(App& app, Scene& next)
+void DlcManagerModule::exit(Scene& next)
 {
     patch_name_.reset();
     tiles_text_.reset();
@@ -195,9 +195,9 @@ void DlcManagerModule::show()
 
 
 
-ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> DlcManagerModule::update(Microseconds delta)
 {
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     if ((*patches_)->list_.empty()) {
         auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
@@ -207,7 +207,7 @@ ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
         });
     }
 
-    if (app.player().key_down(Key::right) and
+    if (APP.player().key_down(Key::right) and
         index_ < (*patches_)->list_.size() - 1) {
         ++index_;
 
@@ -215,7 +215,7 @@ ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
 
         show();
 
-    } else if (app.player().key_down(Key::left) and index_ > 0) {
+    } else if (APP.player().key_down(Key::left) and index_ > 0) {
         --index_;
 
         erase_text_.reset();
@@ -223,7 +223,7 @@ ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
         show();
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         if (not erase_text_) {
             erase_text_.emplace(OverlayCoord{7, 10});
             erase_text_->assign(
@@ -233,7 +233,7 @@ ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_held(Key::action_1, seconds(2))) {
+    if (APP.player().key_held(Key::action_1, seconds(2))) {
         StringBuffer<flash_filesystem::max_path> folder("/dlc/");
         folder += (*patches_)->list_[index_].name_.c_str();
 
@@ -256,12 +256,12 @@ ScenePtr<Scene> DlcManagerModule::update(App& app, Microseconds delta)
 
         flash_filesystem::walk_directory(folder.c_str(), destroy_file);
 
-        app.player().key_held_reset(Key::action_1, seconds(2));
+        APP.player().key_held_reset(Key::action_1, seconds(2));
 
         return scene_pool::alloc<DlcManagerModule>();
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 

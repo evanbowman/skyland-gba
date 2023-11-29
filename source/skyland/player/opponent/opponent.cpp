@@ -30,14 +30,14 @@ namespace skyland
 
 
 
-void Opponent::on_room_damaged(App& app, Room& room)
+void Opponent::on_room_damaged(Room& room)
 {
     auto island = room.parent();
 
     // Birds alerted when island attacked.
-    for (auto& bird : app.birds()) {
-        if (bird->island(app) == island) {
-            bird->signal(app);
+    for (auto& bird : APP.birds()) {
+        if (bird->island() == island) {
+            bird->signal();
         }
     }
 }

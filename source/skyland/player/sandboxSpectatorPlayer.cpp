@@ -8,9 +8,9 @@ namespace skyland
 
 
 
-void SandboxSpectatorPlayer::update(App& app, Microseconds delta)
+void SandboxSpectatorPlayer::update(Microseconds delta)
 {
-    EnemyAI::update(app, delta);
+    EnemyAI::update(delta);
 
     for (int i = 0; i < static_cast<int>(Key::count); ++i) {
         if (PLATFORM.keyboard().pressed(static_cast<Key>(i))) {
@@ -22,7 +22,7 @@ void SandboxSpectatorPlayer::update(App& app, Microseconds delta)
 
     if (PLATFORM.keyboard()
             .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
-        app.camera()->reset_default(app);
+        APP.camera()->reset_default();
     }
 }
 

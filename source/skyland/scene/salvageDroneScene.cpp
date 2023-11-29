@@ -35,9 +35,9 @@ namespace skyland
 
 
 
-void SalvageDroneScene::enter(App& app, Scene& prev)
+void SalvageDroneScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     auto st = calc_screen_tiles();
     StringBuffer<30> text(SYSTR(salvage_drone)->c_str());
@@ -68,9 +68,9 @@ void SalvageDroneScene::enter(App& app, Scene& prev)
 
 
 
-void SalvageDroneScene::exit(App& app, Scene& next)
+void SalvageDroneScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     yes_text_.reset();
     no_text_.reset();
@@ -81,27 +81,27 @@ void SalvageDroneScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> SalvageDroneScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SalvageDroneScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         for (auto& room : drone_->parent()->rooms()) {
             auto found = room->drone();
             if (found and (*found).get() == drone_.get()) {
-                room->detach_drone(app, false);
+                room->detach_drone(false);
 
                 network::packet::DroneDestroyed destroyed;
                 destroyed.drone_x_ = drone_->position().x;
                 destroyed.drone_y_ = drone_->position().y;
                 destroyed.destination_near_ =
-                    drone_->destination() == &app.player_island();
+                    drone_->destination() == &APP.player_island();
 
                 network::transmit(destroyed);
 

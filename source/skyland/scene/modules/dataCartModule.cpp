@@ -96,7 +96,7 @@ void __draw_image(TileDesc start_tile,
 
 
 
-void DataCartModule::enter(App& app, Scene& prev)
+void DataCartModule::enter(Scene& prev)
 {
     PLATFORM.screen().set_view(View{});
 
@@ -118,7 +118,7 @@ void DataCartModule::enter(App& app, Scene& prev)
 
 
 
-void DataCartModule::exit(App&, Scene& next)
+void DataCartModule::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
     PLATFORM.speaker().stop_sound("archivist");
@@ -126,13 +126,13 @@ void DataCartModule::exit(App&, Scene& next)
 
 
 
-ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> DataCartModule::update(Microseconds delta)
 {
     auto prompt_flag = GlobalPersistentData::datacarts_prompt;
 
-    if (not app.gp_.stateflags_.get(prompt_flag)) {
-        app.gp_.stateflags_.set(prompt_flag, true);
-        save::store_global_data(app.gp_);
+    if (not APP.gp_.stateflags_.get(prompt_flag)) {
+        APP.gp_.stateflags_.set(prompt_flag, true);
+        save::store_global_data(APP.gp_);
         auto next = []() -> ScenePtr<Scene> {
             auto ret = scene_pool::alloc<DataCartModule>(true);
             ret->skip_dialog_ = true;
@@ -150,10 +150,10 @@ ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
             SystemString::dialog_datacarts_return, next, "archivist");
     }
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     if (not PLATFORM.speaker().is_sound_playing("archivist")) {
@@ -161,7 +161,7 @@ ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
     }
 
 
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     switch (state_) {
     case State::init: {
@@ -191,8 +191,8 @@ ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
             }
             PLATFORM.screen().schedule_fade(amount);
 
-            if (app.player().key_down(Key::action_1) or
-                app.player().key_down(Key::action_2) or
+            if (APP.player().key_down(Key::action_1) or
+                APP.player().key_down(Key::action_2) or
                 timer_ > fade_duration) {
                 timer_ = 0;
                 state_ = State::wait_0;
@@ -210,8 +210,8 @@ ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
 
     case State::wait_0:
         timer_ += delta;
-        if (app.player().key_down(Key::action_1) or
-            app.player().key_down(Key::action_2) or
+        if (APP.player().key_down(Key::action_1) or
+            APP.player().key_down(Key::action_2) or
             timer_ > milliseconds(1000)) {
             timer_ = 0;
             state_ = State::fade_partial;
@@ -251,12 +251,12 @@ ScenePtr<Scene> DataCartModule::update(App& app, Microseconds delta)
                 show_cart(cart_index_);
             }
         }
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().schedule_fade(
                 1.f, ColorConstant::rich_black, {}, true, true);
             state_ = State::exit;
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             if (auto cart = carts_->load(cart_index_)) {
                 state_ = State::anim_out;
                 timer_ = 0;
@@ -369,7 +369,7 @@ public:
     }
 
 
-    void enter(App&, Scene&) override
+    void enter(Scene&) override
     {
         PLATFORM.enable_glyph_mode(false);
         PLATFORM.fill_overlay(0);
@@ -384,7 +384,7 @@ public:
     }
 
 
-    void exit(App&, Scene&) override
+    void exit(Scene&) override
     {
         PLATFORM.enable_glyph_mode(true);
         PLATFORM.speaker().set_music_volume(
@@ -394,9 +394,9 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds) override
+    ScenePtr<Scene> update(Microseconds) override
     {
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             PLATFORM.fill_overlay(0);
             auto next = scene_pool::alloc<DataCartModule>();
             next->skip_dialog_ = true;

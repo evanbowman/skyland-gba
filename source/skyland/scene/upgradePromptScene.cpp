@@ -27,9 +27,9 @@ Coins get_room_cost(Island* island, const RoomMeta& meta);
 
 
 
-void UpgradePromptScene::enter(App& app, Scene& prev)
+void UpgradePromptScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     PLATFORM.speaker().play_sound("openbag", 8);
 
@@ -43,8 +43,8 @@ void UpgradePromptScene::enter(App& app, Scene& prev)
     StringBuffer<30> text(
         format(SYS_CSTR(upgrade_prompt), (*to)->ui_name()->c_str()).c_str());
 
-    text += stringify(get_room_cost(&app.player_island(), *to) -
-                      get_room_cost(&app.player_island(), *from));
+    text += stringify(get_room_cost(&APP.player_island(), *to) -
+                      get_room_cost(&APP.player_island(), *from));
 
     text += "@";
 
@@ -87,9 +87,9 @@ void UpgradePromptScene::enter(App& app, Scene& prev)
 
 
 
-void UpgradePromptScene::exit(App& app, Scene& next)
+void UpgradePromptScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     text_.reset();
     yes_text_.reset();
@@ -106,9 +106,9 @@ void UpgradePromptScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> UpgradePromptScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
@@ -123,12 +123,12 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (player(app).key_down(Key::action_2)) {
+    if (player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (player(app).key_down(Key::action_1)) {
-        if (auto room = app.player_island().get_room(target_coord_)) {
+    if (player().key_down(Key::action_1)) {
+        if (auto room = APP.player_island().get_room(target_coord_)) {
 
             auto next = scene_pool::make_deferred_scene<ReadyScene>();
 
@@ -148,13 +148,13 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
                 const auto props = (*to)->properties();
 
                 if (props & RoomProperties::manufactory_required and
-                    app.player_island().manufactory_count() == 0) {
+                    APP.player_island().manufactory_count() == 0) {
                     err = SYS_CSTR(upgrade_denied_manufactory);
                     return notify_err();
                 }
 
                 if (props & RoomProperties::workshop_required and
-                    app.player_island().workshop_count() == 0) {
+                    APP.player_island().workshop_count() == 0) {
                     err = SYS_CSTR(upgrade_denied_workshop);
                     return notify_err();
                 }
@@ -165,7 +165,7 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
                     auto sy = target_coord_.y;
                     auto ey = target_coord_.y + (*to)->size().y;
 
-                    if (ex > (int)app.player_island().terrain().size()) {
+                    if (ex > (int)APP.player_island().terrain().size()) {
                         err = SYS_CSTR(construction_not_enough_space);
                         return notify_err();
                     }
@@ -173,7 +173,7 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
                     for (u8 x = sx; x < ex; ++x) {
                         for (u8 y = sy; y < ey; ++y) {
 
-                            if (app.player_island().get_room({x, y})) {
+                            if (APP.player_island().get_room({x, y})) {
                                 err = SYS_CSTR(construction_not_enough_space);
                                 return notify_err();
                             }
@@ -189,7 +189,7 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
                     for (u8 x = sx; x < ex; ++x) {
                         for (u8 y = sy; y < target_coord_.y; ++y) {
 
-                            if (app.player_island().get_room({x, y})) {
+                            if (APP.player_island().get_room({x, y})) {
                                 PLATFORM.speaker().play_sound("beep_error", 3);
                                 err = SYS_CSTR(construction_not_enough_space);
                                 return scene_pool::alloc<NotificationScene>(
@@ -199,19 +199,19 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
                     }
                 }
 
-                auto cost = get_room_cost(&app.player_island(), *to) -
-                            get_room_cost(&app.player_island(), *from);
+                auto cost = get_room_cost(&APP.player_island(), *to) -
+                            get_room_cost(&APP.player_island(), *from);
 
-                if (app.coins() < cost) {
+                if (APP.coins() < cost) {
                     PLATFORM.speaker().play_sound("beep_error", 3);
                     err = SYS_CSTR(construction_insufficient_funds);
                     return scene_pool::alloc<NotificationScene>(err, next);
                 }
 
-                room->__unsafe__transmute(app, upgrade_to_);
+                room->__unsafe__transmute(upgrade_to_);
 
-                app.set_coins(app.coins() - cost);
-                app.level_coins_spent() += cost;
+                APP.set_coins(APP.coins() - cost);
+                APP.level_coins_spent() += cost;
                 PLATFORM.speaker().play_sound("build0", 4);
             }
         } else {
@@ -225,9 +225,9 @@ ScenePtr<Scene> UpgradePromptScene::update(App& app, Microseconds delta)
 
 
 
-void UpgradePromptScene::display(App& app)
+void UpgradePromptScene::display()
 {
-    ActiveWorldScene::display(app);
+    ActiveWorldScene::display();
 
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_);
@@ -243,14 +243,14 @@ void UpgradePromptScene::display(App& app)
                 Sprite spr;
                 spr.set_tidx_16x16(13, 1);
                 spr.set_size(Sprite::Size::w16_h16);
-                auto origin = app.player_island().visual_origin();
+                auto origin = APP.player_island().visual_origin();
                 origin.x += Fixnum(x * 16);
                 origin.y += Fixnum(y * 16);
                 spr.set_position({origin.x, origin.y});
 
                 if (flicker_on_) {
-                    if (app.player_island().get_room({x, y}) or
-                        x >= app.player_island().terrain().size()) {
+                    if (APP.player_island().get_room({x, y}) or
+                        x >= APP.player_island().terrain().size()) {
                         spr.set_mix({custom_color(0xf7ce9e), 250});
                     }
                 }
@@ -267,13 +267,13 @@ void UpgradePromptScene::display(App& app)
                 Sprite spr;
                 spr.set_tidx_16x16(13, 1);
                 spr.set_size(Sprite::Size::w16_h16);
-                auto origin = app.player_island().visual_origin();
+                auto origin = APP.player_island().visual_origin();
                 origin.x += Fixnum(x * 16);
                 origin.y += Fixnum(y * 16);
                 spr.set_position({origin.x, origin.y});
 
                 if (flicker_on_) {
-                    if (app.player_island().get_room({x, y})) {
+                    if (APP.player_island().get_room({x, y})) {
                         spr.set_mix({custom_color(0xf7ce9e), 250});
                     }
                 }
@@ -283,8 +283,8 @@ void UpgradePromptScene::display(App& app)
         }
     }
 
-    if (auto room = app.player_island().get_room(target_coord_)) {
-        auto origin = app.player_island().visual_origin();
+    if (auto room = APP.player_island().get_room(target_coord_)) {
+        auto origin = APP.player_island().visual_origin();
         origin.x += Fixnum::from_integer(target_coord_.x * 16);
         origin.y += Fixnum::from_integer(target_coord_.y * 16);
 

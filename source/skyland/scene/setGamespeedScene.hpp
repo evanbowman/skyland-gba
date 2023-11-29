@@ -35,10 +35,10 @@ namespace skyland
 class SetGamespeedScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
-    void enter(App&, Scene&) override;
-    void exit(App&, Scene&) override;
+    void enter(Scene&) override;
+    void exit(Scene&) override;
 
 
     int button_mode_ = 0;

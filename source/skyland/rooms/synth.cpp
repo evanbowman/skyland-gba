@@ -89,12 +89,12 @@ Platform::Speaker::Channel Synth::channel() const
 
 
 
-void Synth::update(App& app, Microseconds delta)
+void Synth::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (not speaker()) {
-        apply_damage(app, health_upper_limit());
+        apply_damage(health_upper_limit());
     }
 }
 
@@ -114,9 +114,9 @@ void Synth::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Synth::select(const RoomCoord& cursor)
 {
-    return scene_pool::alloc<ComposeSynthScene>(app, *this);
+    return scene_pool::alloc<ComposeSynthScene>(*this);
 }
 
 

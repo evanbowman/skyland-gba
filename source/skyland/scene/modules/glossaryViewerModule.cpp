@@ -123,7 +123,7 @@ s8 last_cover_img = -1;
 
 
 
-void GlossaryViewerModule::enter(App& app, Scene& prev)
+void GlossaryViewerModule::enter(Scene& prev)
 {
     if (state_ not_eq State::quickview) {
         PLATFORM.screen().set_shader(passthrough_shader);
@@ -173,10 +173,10 @@ void GlossaryViewerModule::enter(App& app, Scene& prev)
 
 
 
-void GlossaryViewerModule::exit(App& app, Scene& next)
+void GlossaryViewerModule::exit(Scene& next)
 {
     if (state_ not_eq State::quickview) {
-        PLATFORM.screen().set_shader(app.environment().shader(app));
+        PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
     }
 
@@ -351,11 +351,10 @@ void GlossaryViewerModule::show_category_image(int img)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(App& app,
-                                                           Microseconds delta)
+ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Microseconds delta)
 {
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     if (test_key(Key::up) and cg_cursor_ > 0) {
@@ -384,11 +383,11 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(App& app,
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         state_ = State::category_transition_out;
         PLATFORM.speaker().play_sound("button_wooden", 3);
         timer_ = 0;
-    } else if (app.player().key_down(Key::action_2)) {
+    } else if (APP.player().key_down(Key::action_2)) {
         state_ = State::fadeout;
         timer_ = 0;
         draw_category_line(cg_cursor_);
@@ -414,14 +413,14 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(App& app,
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> GlossaryViewerModule::update(Microseconds delta)
 {
     auto [mt, ms] = room_metatable();
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
 
@@ -446,7 +445,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
             PLATFORM.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
 
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
@@ -512,8 +511,8 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
                 page_ = 0;
                 load_page((**filter_buf_)[0]);
             }
-        } else if (app.player().key_down(Key::action_2) or
-                   app.player().key_down(Key::left)) {
+        } else if (APP.player().key_down(Key::action_2) or
+                   APP.player().key_down(Key::left)) {
             state_ = State::category_transition_in;
             PLATFORM.fill_overlay(112);
             PLATFORM.screen().clear();
@@ -613,7 +612,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
     }
 
     case State::show_categories:
-        if (auto scn = show_categories_impl(app, delta)) {
+        if (auto scn = show_categories_impl(delta)) {
             return scn;
         }
         break;
@@ -655,7 +654,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             state_ = State::filters;
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
@@ -685,7 +684,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             if (state_ == State::quickview) {
                 if (next_scene_) {
                     return (*next_scene_)();
@@ -704,7 +703,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(App& app, Microseconds delta)
         break;
 
     case State::category_transition_enter: {
-        if (auto scn = show_categories_impl(app, delta)) {
+        if (auto scn = show_categories_impl(delta)) {
             return scn;
         }
 

@@ -46,9 +46,9 @@ Reactor::Reactor(Island* parent, const RoomCoord& position)
 
 
 
-void Reactor::update(App& app, Microseconds delta)
+void Reactor::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -57,13 +57,13 @@ extern Sound core_destroyed;
 
 
 
-void Reactor::finalize(App& app)
+void Reactor::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() == 0) {
         core_destroyed.play(4, milliseconds(600));
-        core_explosion(app, parent(), center());
+        core_explosion(parent(), center());
     }
 }
 

@@ -26,17 +26,14 @@ public:
     }
 
 
-    void update(App& app,
-                Island&,
-                const RoomCoord&,
-                Microseconds delta,
-                bool checkers_mode)
+    void
+    update(Island&, const RoomCoord&, Microseconds delta, bool checkers_mode)
     {
-        if (not app.macrocosm()) {
+        if (not APP.macrocosm()) {
             return;
         }
 
-        auto& m = macrocosm(app);
+        auto& m = macrocosm();
 
         timer_ += milliseconds(16);
         u8 ambient_offset = 2 *
@@ -62,11 +59,11 @@ public:
 
         //target_.x = -x * 4;
         target_.y = -24 + y * 4;
-        if (macrocosm(app).sector().size().x == 14) {
+        if (macrocosm().sector().size().x == 14) {
             target_.y = clamp(target_.y, 0, 100);
-        } else if (macrocosm(app).sector().size().x == 8) {
+        } else if (macrocosm().sector().size().x == 8) {
             target_.y = clamp(target_.y, 0, 40);
-        } else if (macrocosm(app).sector().size().x == 6) {
+        } else if (macrocosm().sector().size().x == 6) {
             target_.y = clamp(target_.y, 0, 80);
         } else {
             target_.y = clamp(target_.y, 0, 80);

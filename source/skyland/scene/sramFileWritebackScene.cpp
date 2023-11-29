@@ -41,7 +41,7 @@ SramFileWritebackScene::SramFileWritebackScene(const char* path,
 
 
 
-ScenePtr<Scene> SramFileWritebackScene::update(App&, Microseconds delta)
+ScenePtr<Scene> SramFileWritebackScene::update(Microseconds delta)
 {
     flash_filesystem::store_file_data_text(
         path_.c_str(), text_buffer_, {.use_compression_ = true});
@@ -52,13 +52,13 @@ ScenePtr<Scene> SramFileWritebackScene::update(App&, Microseconds delta)
 
 
 
-void SramFileWritebackScene::enter(App&, Scene& prev)
+void SramFileWritebackScene::enter(Scene& prev)
 {
 }
 
 
 
-void SramFileWritebackScene::exit(App&, Scene& next)
+void SramFileWritebackScene::exit(Scene& next)
 {
 }
 

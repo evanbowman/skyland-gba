@@ -161,7 +161,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override
+    virtual ScenePtr<Scene> select(const RoomCoord& cursor) override
     {
         schedule_repaint();
         gfx_ += 1;

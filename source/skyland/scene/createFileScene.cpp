@@ -66,37 +66,37 @@ StringBuffer<16> get_extension(const StringBuffer<200>& cwd);
 
 
 
-ScenePtr<Scene> CreateFileScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> CreateFileScene::update(Microseconds delta)
 {
-    if (app.player().key_down(Key::left)) {
+    if (APP.player().key_down(Key::left)) {
         if (keyboard_cursor_.x > 0) {
             --keyboard_cursor_.x;
         } else {
             keyboard_cursor_.x = 6;
         }
         render_keyboard();
-    } else if (app.player().key_down(Key::right)) {
+    } else if (APP.player().key_down(Key::right)) {
         if (keyboard_cursor_.x < 6) {
             ++keyboard_cursor_.x;
         } else {
             keyboard_cursor_.x = 0;
         }
         render_keyboard();
-    } else if (app.player().key_down(Key::up)) {
+    } else if (APP.player().key_down(Key::up)) {
         if (keyboard_cursor_.y > 0) {
             --keyboard_cursor_.y;
         } else {
             keyboard_cursor_.y = 6;
         }
         render_keyboard();
-    } else if (app.player().key_down(Key::down)) {
+    } else if (APP.player().key_down(Key::down)) {
         if (keyboard_cursor_.y < 6) {
             ++keyboard_cursor_.y;
         } else {
             keyboard_cursor_.y = 0;
         }
         render_keyboard();
-    } else if (app.player().key_down(Key::action_1)) {
+    } else if (APP.player().key_down(Key::action_1)) {
         const char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
         path_.push_back(c);
         auto temp = path_;
@@ -105,7 +105,7 @@ ScenePtr<Scene> CreateFileScene::update(App& app, Microseconds delta)
         }
         entry_->assign(temp.c_str(), text_entry_colors);
 
-    } else if (app.player().key_down(Key::action_2)) {
+    } else if (APP.player().key_down(Key::action_2)) {
         if (not path_.empty()) {
             path_.pop_back();
             auto temp = path_;
@@ -116,7 +116,7 @@ ScenePtr<Scene> CreateFileScene::update(App& app, Microseconds delta)
         } else {
             // TODO: exit
         }
-    } else if (app.player().key_down(Key::start)) {
+    } else if (APP.player().key_down(Key::start)) {
         if (not path_.empty()) {
             StringBuffer<100> full_path_(file_path_.c_str());
             full_path_ += path_;
@@ -164,7 +164,7 @@ void CreateFileScene::render_keyboard()
 }
 
 
-void CreateFileScene::enter(App& app, Scene& prev)
+void CreateFileScene::enter(Scene& prev)
 {
     render_keyboard();
 
@@ -175,7 +175,7 @@ void CreateFileScene::enter(App& app, Scene& prev)
 
 
 
-void CreateFileScene::exit(App& app, Scene& next)
+void CreateFileScene::exit(Scene& next)
 {
     title_text_.reset();
     entry_.reset();

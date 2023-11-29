@@ -62,10 +62,10 @@ extern Sound sound_fizzle;
 
 
 
-void Antimatter::update(App& app, Microseconds delta)
+void Antimatter::update(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.delta_fp() * step_vector_;
+    pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
@@ -83,14 +83,14 @@ void Antimatter::update(App& app, Microseconds delta)
     // }
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
-        destroy_out_of_bounds(app, target);
+        destroy_out_of_bounds(target);
     }
 
 
@@ -101,10 +101,10 @@ void Antimatter::update(App& app, Microseconds delta)
 
 
 
-void Antimatter::rewind(App& app, Microseconds delta)
+void Antimatter::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.delta_fp() * step_vector_;
+    pos = pos - APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
@@ -124,7 +124,7 @@ void Antimatter::rewind(App& app, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         }
         kill();
     }
@@ -132,7 +132,7 @@ void Antimatter::rewind(App& app, Microseconds delta)
 
 
 
-void Antimatter::destroy(App& app, bool explosion)
+void Antimatter::destroy(bool explosion)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -145,26 +145,26 @@ void Antimatter::destroy(App& app, bool explosion)
             c.y_speed__data_.set(step_vector_.y.data());
         };
 
-    if (source_ == &app.player_island()) {
+    if (source_ == &APP.player_island()) {
         time_stream::event::PlayerAntimatterDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     } else {
         time_stream::event::OpponentAntimatterDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     }
 
     kill();
-    app.camera()->shake(8);
+    APP.camera()->shake(8);
     if (explosion) {
-        medium_explosion(app, sprite_.get_position());
+        medium_explosion(sprite_.get_position());
     }
 }
 
 
 
-void Antimatter::on_collision(App& app, Room& room, Vec2<u8> origin)
+void Antimatter::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent() and str_eq(room.name(), "annihilator")) {
         return;
@@ -179,34 +179,34 @@ void Antimatter::on_collision(App& app, Room& room, Vec2<u8> origin)
 
 
         if (is_energized_hull) {
-            room.apply_damage(app, 70);
+            room.apply_damage(70);
             range = 1;
         } else {
-            room.apply_damage(app, 9999);
+            room.apply_damage(9999);
         }
 
 
-        auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
-            auto e = app.alloc_entity<SmokePuff>(
+        auto flak_smoke = [](const Vec2<Fixnum>& pos) {
+            auto e = APP.alloc_entity<SmokePuff>(
                 rng::sample<48>(pos, rng::utility_state), 61);
 
             if (e) {
-                app.effects().push(std::move(e));
+                APP.effects().push(std::move(e));
             }
         };
 
-        flak_smoke(app, sprite_.get_position());
-        flak_smoke(app, sprite_.get_position());
+        flak_smoke(sprite_.get_position());
+        flak_smoke(sprite_.get_position());
 
-        big_explosion(app, sprite_.get_position());
+        big_explosion(sprite_.get_position());
 
         const auto pos = ivec(sprite_.get_position());
 
-        app.on_timeout(milliseconds(190), [pos, flak_smoke](App& app) {
+        APP.on_timeout(milliseconds(190), [pos, flak_smoke]() {
             Vec2<Fixnum> p;
             p.x = pos.x;
             p.y = pos.y;
-            flak_smoke(app, p);
+            flak_smoke(p);
         });
 
         auto targets =
@@ -236,26 +236,26 @@ void Antimatter::on_collision(App& app, Room& room, Vec2<u8> origin)
                         targets->push_back(other);
                     }
                 } else if (auto drone = room.parent()->get_drone(pos)) {
-                    (*drone)->apply_damage(app, damage);
+                    (*drone)->apply_damage(damage);
                 }
             }
         }
 
         for (auto& room : *targets) {
-            room->apply_damage(app, damage);
+            room->apply_damage(damage);
 
             if (not((*room->metaclass())->properties() &
                     RoomProperties::fireproof)) {
                 if (room->health() > 0) {
-                    room->parent()->fire_create(app, room->position());
+                    room->parent()->fire_create(room->position());
                 }
             }
         }
     } else {
-        room.apply_damage(app, 10);
+        room.apply_damage(10);
     }
 
-    destroy(app, true);
+    destroy(true);
 }
 
 

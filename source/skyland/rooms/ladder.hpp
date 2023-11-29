@@ -39,7 +39,7 @@ public:
     Ladder(Island* parent, const RoomCoord& position, const char* n = name());
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);
@@ -49,8 +49,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override;
 
 
@@ -116,8 +115,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override;
 
 

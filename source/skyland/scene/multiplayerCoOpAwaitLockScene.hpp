@@ -43,7 +43,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void signal_result(bool result)
@@ -77,7 +77,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void signal_result(bool result)

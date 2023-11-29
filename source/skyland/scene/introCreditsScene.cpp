@@ -36,7 +36,7 @@ namespace skyland
 
 
 
-void IntroCreditsScene::enter(App& app, Scene& prev)
+void IntroCreditsScene::enter(Scene& prev)
 {
     PLATFORM.speaker().play_music("shadows", true);
     PLATFORM.speaker().play_sound("creaking", 9);
@@ -48,14 +48,14 @@ void IntroCreditsScene::enter(App& app, Scene& prev)
 
     rng::critical_state = 2021;
 
-    if (app.is_developer_mode()) {
-        app.start_console();
+    if (APP.is_developer_mode()) {
+        APP.start_console();
     }
 }
 
 
 
-void IntroCreditsScene::exit(App&, Scene& next)
+void IntroCreditsScene::exit(Scene& next)
 {
     PLATFORM.load_overlay_texture("overlay");
 
@@ -66,7 +66,7 @@ void IntroCreditsScene::exit(App&, Scene& next)
 
 
 
-ScenePtr<Scene> IntroCreditsScene::update(App&, Microseconds delta)
+ScenePtr<Scene> IntroCreditsScene::update(Microseconds delta)
 {
     timer_ += delta;
 
@@ -163,7 +163,7 @@ void IntroCreditsScene::show_sunflowers(int scroll, Float darken)
 }
 
 
-void IntroCreditsScene::display(App& app)
+void IntroCreditsScene::display()
 {
     if (bird_seq_timer_) {
         Sprite spr;

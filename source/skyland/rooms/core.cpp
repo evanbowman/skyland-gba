@@ -55,9 +55,9 @@ Core::Core(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Core::update(App& app, Microseconds delta)
+void Core::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -66,13 +66,13 @@ Sound core_destroyed("core_destroyed");
 
 
 
-void Core::finalize(App& app)
+void Core::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() == 0) {
         core_destroyed.play(4, milliseconds(600));
-        core_explosion(app, parent(), center());
+        core_explosion(parent(), center());
     }
 }
 
@@ -98,9 +98,9 @@ void Core::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-Power BackupCore::power_usage(App& app) const
+Power BackupCore::power_usage() const
 {
-    auto base_power = Core::power_usage(app);
+    auto base_power = Core::power_usage();
 
     if (health() == 0) {
         return 0;
@@ -126,9 +126,9 @@ const char* BackupCore::upgrade_mt_name() const
 
 
 
-void BackupCore::update(App& app, Microseconds delta)
+void BackupCore::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     for (auto& room : parent()->rooms()) {
         if ((*room->metaclass())->category() == Room::Category::power) {
@@ -136,9 +136,9 @@ void BackupCore::update(App& app, Microseconds delta)
 
                 // One allowed per island.
                 if (length(characters()) < length(room->characters())) {
-                    apply_damage(app, Room::health_upper_limit());
+                    apply_damage(Room::health_upper_limit());
                 } else {
-                    room->apply_damage(app, Room::health_upper_limit());
+                    room->apply_damage(Room::health_upper_limit());
                 }
 
                 return;

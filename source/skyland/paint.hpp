@@ -54,21 +54,21 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta);
+    ScenePtr<Scene> update(Microseconds delta);
 
 
-    void display(App& app);
+    void display();
 
 
-    void init(App&);
+    void init();
 
 
-    virtual void show(App&);
+    virtual void show();
     void draw_rulers();
 
 
-    virtual u8 get_pixel(App& app, u8 x, u8 y) = 0;
-    virtual void set_pixel(App& app, u8 x, u8 y, u8 value) = 0;
+    virtual u8 get_pixel(u8 x, u8 y) = 0;
+    virtual void set_pixel(u8 x, u8 y, u8 value) = 0;
 
 
     u8 width() const

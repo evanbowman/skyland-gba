@@ -144,14 +144,14 @@ void GenericBird::roost(Island* island, Microseconds delta)
 
 
 
-void GenericBird::update(App& app, Microseconds delta)
+void GenericBird::update(Microseconds delta)
 {
     Island* island = nullptr;
 
     if (near_) {
-        island = &player_island(app);
+        island = &player_island();
     } else {
-        island = opponent_island(app);
+        island = opponent_island();
     }
 
     if (island == nullptr) {
@@ -160,7 +160,7 @@ void GenericBird::update(App& app, Microseconds delta)
     }
 
     if (island->is_destroyed()) {
-        this->signal(app);
+        this->signal();
     }
 
     if (island not_eq nullptr) {
@@ -245,7 +245,7 @@ void GenericBird::update(App& app, Microseconds delta)
                 e.color_ = color_;
                 e.flip_ = sprite_.get_flip().x;
                 e.near_ = near_;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
 
             kill();
@@ -270,18 +270,18 @@ void GenericBird::update(App& app, Microseconds delta)
 
 
 
-void GenericBird::rewind(App& app, Microseconds delta)
+void GenericBird::rewind(Microseconds delta)
 {
     Island* island = nullptr;
 
     if (near_) {
-        island = &player_island(app);
+        island = &player_island();
     } else {
-        island = opponent_island(app);
+        island = opponent_island();
     }
 
     if (island->is_destroyed()) {
-        this->signal(app);
+        this->signal();
     }
 
     if (island == nullptr) {
@@ -346,7 +346,7 @@ void GenericBird::rewind(App& app, Microseconds delta)
 
 
 
-void GenericBird::signal(App&)
+void GenericBird::signal()
 {
     if (state_ == State::roost) {
         alerted_ = true;
@@ -355,22 +355,22 @@ void GenericBird::signal(App&)
 
 
 
-Island* GenericBird::island(App& app)
+Island* GenericBird::island()
 {
     if (near_) {
-        return &player_island(app);
+        return &player_island();
     } else {
-        return opponent_island(app);
+        return opponent_island();
     }
 }
 
 
 
-void GenericBird::generate(App& app)
+void GenericBird::generate()
 {
-    for (auto it = app.birds().begin(); it not_eq app.birds().end();) {
-        if ((*it)->island(app) == opponent_island(app)) {
-            it = app.birds().erase(it);
+    for (auto it = APP.birds().begin(); it not_eq APP.birds().end();) {
+        if ((*it)->island() == opponent_island()) {
+            it = APP.birds().erase(it);
         } else {
             ++it;
         }
@@ -381,23 +381,22 @@ void GenericBird::generate(App& app)
     if (rng::choice<4>(rng::utility_state) > 0) {
         int used = rng::choice<4>(rng::utility_state);
         remaining_birds -= used;
-        GenericBird::spawn(app, *app.opponent_island(), used);
+        GenericBird::spawn(*APP.opponent_island(), used);
     }
     if (rng::choice<4>(rng::utility_state) > 0) {
-        GenericBird::spawn(app,
-                           app.player_island(),
+        GenericBird::spawn(APP.player_island(),
                            rng::choice(remaining_birds, rng::utility_state));
     }
 }
 
 
 
-void GenericBird::spawn(App& app, Island& island, int count)
+void GenericBird::spawn(Island& island, int count)
 {
     Buffer<u8, 10> used;
 
-    for (auto& bird : app.birds()) {
-        if (bird->island(app) == &island) {
+    for (auto& bird : APP.birds()) {
+        if (bird->island() == &island) {
             used.push_back(bird->coordinate().x);
         }
     }
@@ -430,9 +429,9 @@ void GenericBird::spawn(App& app, Island& island, int count)
                 auto pos = RoomCoord{column, y};
 
                 if (auto dt = PLATFORM.make_dynamic_texture()) {
-                    bool near = &island == &app.player_island();
-                    app.birds().push(
-                        app.alloc_entity<GenericBird>(*dt, pos, near));
+                    bool near = &island == &APP.player_island();
+                    APP.birds().push(
+                        APP.alloc_entity<GenericBird>(*dt, pos, near));
                     break;
                 }
             }

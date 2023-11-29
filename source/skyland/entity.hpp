@@ -74,10 +74,10 @@ public:
     }
 
 
-    virtual void update(App&, Microseconds delta) = 0;
+    virtual void update(Microseconds delta) = 0;
 
 
-    virtual void rewind(App& app, Microseconds delta)
+    virtual void rewind(Microseconds delta)
     {
         Platform::fatal("rewind unimplemented for this entity!");
     }
@@ -101,12 +101,12 @@ public:
     }
 
 
-    virtual void on_collision(App& app, Room& room, Vec2<u8> origin)
+    virtual void on_collision(Room& room, Vec2<u8> origin)
     {
     }
 
 
-    virtual void on_collision(App& app, Entity& other)
+    virtual void on_collision(Entity& other)
     {
     }
 
@@ -117,7 +117,7 @@ public:
     }
 
 
-    virtual void apply_damage(App& app, Health amount)
+    virtual void apply_damage(Health amount)
     {
         health_ = std::max(0, health_ - amount);
     }
@@ -222,14 +222,13 @@ using SharedEntityList =
 
 
 
-template <typename T>
-void update_entities(App& app, Microseconds dt, EntityList<T>& lat)
+template <typename T> void update_entities(Microseconds dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {
             it = lat.erase(it);
         } else {
-            (*it)->update(app, dt);
+            (*it)->update(dt);
             ++it;
         }
     }
@@ -237,14 +236,13 @@ void update_entities(App& app, Microseconds dt, EntityList<T>& lat)
 
 
 
-template <typename T>
-void rewind_entities(App& app, Microseconds dt, EntityList<T>& lat)
+template <typename T> void rewind_entities(Microseconds dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {
             it = lat.erase(it);
         } else {
-            (*it)->rewind(app, dt);
+            (*it)->rewind(dt);
             ++it;
         }
     }

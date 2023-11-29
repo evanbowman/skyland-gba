@@ -643,7 +643,7 @@ void TextEditorModule::tabs_to_spaces()
 
 
 
-void TextEditorModule::enter(App&, Scene& prev)
+void TextEditorModule::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_editor");
 
@@ -689,7 +689,7 @@ void TextEditorModule::enter(App&, Scene& prev)
 
 
 
-void TextEditorModule::exit(App&, Scene& next)
+void TextEditorModule::exit(Scene& next)
 {
     PLATFORM.system_call("vsync", nullptr);
     PLATFORM.screen().fade(0.9f, ColorConstant::rich_black, {}, true, true);
@@ -708,9 +708,9 @@ void TextEditorModule::exit(App&, Scene& next)
 // particular is a cluttered mess of copy-pasted code, mainly due to related but
 // slightly differing behavior in all of the different keyboard shortcuts and
 // editing modes.
-ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> TextEditorModule::update(Microseconds delta)
 {
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     auto unshade_cursor = [&] {
         cursor_shaded_ = false;
@@ -788,7 +788,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
         shade_cursor();
     };
 
-    if (app.player().key_down(Key::select)) {
+    if (APP.player().key_down(Key::select)) {
         if (selected()) {
             deselect();
         } else {
@@ -811,14 +811,14 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(Key::alt_2)) {
-            if (app.player().key_pressed(Key::alt_1)) {
+        if (APP.player().key_down(Key::alt_2)) {
+            if (APP.player().key_pressed(Key::alt_1)) {
                 center_view();
             }
-        } else if (app.player().key_pressed(Key::alt_2)) {
-            if (app.player().key_down(Key::alt_1)) {
+        } else if (APP.player().key_pressed(Key::alt_2)) {
+            if (APP.player().key_down(Key::alt_1)) {
                 center_view();
-            } else if (app.player().key_down(Key::right)) {
+            } else if (APP.player().key_down(Key::right)) {
                 unshade_cursor();
                 bool do_render = false;
                 cursor_.x += skip_word();
@@ -838,7 +838,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                     render(start_line_);
                 }
                 shade_cursor();
-            } else if (app.player().key_down(Key::left)) {
+            } else if (APP.player().key_down(Key::left)) {
                 unshade_cursor();
                 bool do_render = false;
                 cursor_.x -= back_word();
@@ -857,7 +857,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                     render(start_line_);
                 }
                 shade_cursor();
-            } else if (app.player().key_down(Key::down)) {
+            } else if (APP.player().key_down(Key::down)) {
 
                 if (cursor_shaded_) {
                     unshade_cursor();
@@ -898,7 +898,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
 
                 shade_cursor();
 
-            } else if (app.player().key_down(Key::up)) {
+            } else if (APP.player().key_down(Key::up)) {
 
                 if (cursor_.y == 0) {
                     return null_scene();
@@ -942,21 +942,21 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 }
 
                 shade_cursor();
-            } else if (app.player().key_down(Key::action_1)) {
+            } else if (APP.player().key_down(Key::action_1)) {
                 user_context_.yank_buffer_.reset();
                 if (state_->sel_begin_) {
                     user_context_.yank_buffer_.emplace();
                     save_selection(*user_context_.yank_buffer_);
                     deselect();
                 }
-            } else if (app.player().key_down(Key::action_2)) {
+            } else if (APP.player().key_down(Key::action_2)) {
                 if (user_context_.yank_buffer_) {
                     paste_selection(*user_context_.yank_buffer_);
                     render(start_line_);
                 }
             }
-        } else if (app.player().key_pressed(Key::alt_1)) {
-            if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_pressed(Key::alt_1)) {
+            if (APP.player().key_down(Key::action_1)) {
                 auto pos = insert_pos();
                 insert_char('\n', pos);
                 cursor_.x = 0; // newline
@@ -980,7 +980,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 }
                 render(start_line_);
                 shade_cursor();
-            } else if (app.player().key_down(Key::action_2)) {
+            } else if (APP.player().key_down(Key::action_2)) {
                 if (selected()) {
                     delete_selection();
                 } else {
@@ -1001,7 +1001,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 }
                 render(start_line_);
                 shade_cursor();
-            } else if (app.player().key_down(Key::right)) {
+            } else if (APP.player().key_down(Key::right)) {
                 cursor_.x = line_length();
                 ideal_cursor_right_ = cursor_.x;
                 if (cursor_.x < column_offset_) {
@@ -1015,7 +1015,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 sel_forward(dummy);
                 render(start_line_);
                 shade_cursor();
-            } else if (app.player().key_down(Key::left)) {
+            } else if (APP.player().key_down(Key::left)) {
                 cursor_.x = 0;
                 ideal_cursor_right_ = cursor_.x;
                 if (cursor_.x > column_offset_ + (calc_screen_tiles().x - 1)) {
@@ -1028,7 +1028,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 sel_backward(dummy);
                 render(start_line_);
                 shade_cursor();
-            } else if (app.player().key_down(Key::down)) {
+            } else if (APP.player().key_down(Key::down)) {
                 cursor_.x = 0;
                 cursor_.y = line_count_;
                 column_offset_ = 0;
@@ -1038,7 +1038,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 sel_forward(dummy);
                 render(start_line_);
                 shade_cursor();
-            } else if (app.player().key_down(Key::up)) {
+            } else if (APP.player().key_down(Key::up)) {
                 cursor_.x = 0;
                 cursor_.y = 0;
                 column_offset_ = 0;
@@ -1048,14 +1048,14 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 render(start_line_);
                 shade_cursor();
             }
-        } else if ((app.player().key_down(Key::up) or
-                    (app.player().key_held(Key::up, milliseconds(400)))) and
+        } else if ((APP.player().key_down(Key::up) or
+                    (APP.player().key_held(Key::up, milliseconds(400)))) and
                    cursor_.y > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             --cursor_.y;
 
-            app.player().key_held_reset(Key::up, milliseconds(60));
+            APP.player().key_held_reset(Key::up, milliseconds(60));
 
             bool do_render = false;
 
@@ -1087,8 +1087,8 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
 
             shade_cursor();
             show_status();
-        } else if ((app.player().key_down(Key::down) or
-                    (app.player().key_held(Key::down, milliseconds(400)))) and
+        } else if ((APP.player().key_down(Key::down) or
+                    (APP.player().key_held(Key::down, milliseconds(400)))) and
                    cursor_.y < line_count_) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
@@ -1096,7 +1096,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
 
             bool do_render = false;
 
-            app.player().key_held_reset(Key::down, milliseconds(60));
+            APP.player().key_held_reset(Key::down, milliseconds(60));
 
             if (cursor_.y > start_line_ + (calc_screen_tiles().y - 3)) {
                 start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
@@ -1126,10 +1126,10 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
 
             shade_cursor();
             show_status();
-        } else if (app.player().key_down(Key::right) or
-                   (app.player().key_held(Key::right, milliseconds(400)))) {
+        } else if (APP.player().key_down(Key::right) or
+                   (APP.player().key_held(Key::right, milliseconds(400)))) {
 
-            app.player().key_held_reset(Key::right, milliseconds(60));
+            APP.player().key_held_reset(Key::right, milliseconds(60));
 
             if (line_length() > cursor_.x) {
                 unshade_cursor();
@@ -1186,13 +1186,13 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 shade_cursor();
                 show_status();
             }
-        } else if (app.player().key_down(Key::left) or
-                   (app.player().key_held(Key::left, milliseconds(400)))) {
+        } else if (APP.player().key_down(Key::left) or
+                   (APP.player().key_held(Key::left, milliseconds(400)))) {
 
             if (cursor_.x > 0) {
                 bool do_render = false;
 
-                app.player().key_held_reset(Key::left, milliseconds(60));
+                APP.player().key_held_reset(Key::left, milliseconds(60));
 
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
@@ -1249,7 +1249,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                 show_status();
             }
 
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             if (selected()) {
                 deselect();
             } else {
@@ -1277,7 +1277,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
                     state_->file_path_.c_str(),
                     filesystem_ == FileSystem::rom);
             }
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
             show_keyboard_ = true;
             mode_ = Mode::edit;
@@ -1288,40 +1288,40 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
         break;
 
     case Mode::edit:
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             mode_ = Mode::nav;
             show_keyboard_ = false;
             render(start_line_);
             shade_cursor();
-        } else if (app.player().key_down(Key::left)) {
+        } else if (APP.player().key_down(Key::left)) {
             if (keyboard_cursor_.x == 0) {
                 keyboard_cursor_.x = 6;
             } else {
                 --keyboard_cursor_.x;
             }
             render_keyboard();
-        } else if (app.player().key_down(Key::right)) {
+        } else if (APP.player().key_down(Key::right)) {
             if (keyboard_cursor_.x == 6) {
                 keyboard_cursor_.x = 0;
             } else {
                 ++keyboard_cursor_.x;
             }
             render_keyboard();
-        } else if (app.player().key_down(Key::up)) {
+        } else if (APP.player().key_down(Key::up)) {
             if (keyboard_cursor_.y == 0) {
                 keyboard_cursor_.y = 6;
             } else {
                 --keyboard_cursor_.y;
             }
             render_keyboard();
-        } else if (app.player().key_down(Key::down)) {
+        } else if (APP.player().key_down(Key::down)) {
             if (keyboard_cursor_.y == 6) {
                 keyboard_cursor_.y = 0;
             } else {
                 ++keyboard_cursor_.y;
             }
             render_keyboard();
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             if (keyboard_cursor_.y == 5 and keyboard_cursor_.x == 6) {
                 erase_char();
                 cursor_.x -= 1;
@@ -1368,7 +1368,7 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
             }
             render(start_line_);
             shade_cursor();
-        } else if (app.player().key_down(Key::alt_1)) {
+        } else if (APP.player().key_down(Key::alt_1)) {
 
             state_->current_word_ = current_word();
             state_->completions_.clear();
@@ -1430,23 +1430,23 @@ ScenePtr<Scene> TextEditorModule::update(App& app, Microseconds delta)
         break;
 
     case Mode::autocomplete:
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             mode_ = Mode::edit;
             show_keyboard_ = true;
             show_completions_ = false;
             render(start_line_);
             shade_cursor();
-        } else if (app.player().key_down(Key::up)) {
+        } else if (APP.player().key_down(Key::up)) {
             if (selected_completion_ > 0) {
                 --selected_completion_;
                 render_completions();
             }
-        } else if (app.player().key_down(Key::down)) {
+        } else if (APP.player().key_down(Key::down)) {
             if (selected_completion_ < (int)state_->completions_.size() - 1) {
                 ++selected_completion_;
                 render_completions();
             }
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             mode_ = Mode::edit;
 
             auto cpl = state_->completions_[selected_completion_];

@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> BugReportModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> BugReportModule::update(Microseconds delta)
 {
     StringBuffer<64> hash("Build hash: ");
 

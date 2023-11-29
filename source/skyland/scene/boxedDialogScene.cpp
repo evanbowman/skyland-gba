@@ -58,7 +58,7 @@ const int y_start = 1;
 
 
 
-void BoxedDialogScene::process_command(App& app)
+void BoxedDialogScene::process_command()
 {
     ++text_state_.current_word_;
 
@@ -147,7 +147,7 @@ void BoxedDialogScene::process_command(App& app)
         const auto bkg_name = parse_command_str();
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.screen().set_view(View{});
-        app.camera().emplace<Camera>();
+        APP.camera().emplace<Camera>();
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 PLATFORM.set_tile(Layer::map_0_ext, i, j, 0);
@@ -219,7 +219,7 @@ void BoxedDialogScene::process_command(App& app)
 
 
 
-bool BoxedDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
+bool BoxedDialogScene::advance_text(Microseconds delta, bool sfx)
 {
     const auto delay = [&] {
         switch (text_state_.speed_) {
@@ -257,7 +257,7 @@ bool BoxedDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
                 }
             }
             if (*text_state_.current_word_ == '<') {
-                process_command(app);
+                process_command();
             }
             if (halt_text_) {
                 halt_text_ = false;
@@ -426,7 +426,7 @@ void BoxedDialogScene::clear_textbox()
 
 
 
-void BoxedDialogScene::enter(App& app, Scene& prev)
+void BoxedDialogScene::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(0);
 
@@ -458,7 +458,7 @@ void BoxedDialogScene::enter(App& app, Scene& prev)
 
 
 
-void BoxedDialogScene::exit(App& app, Scene& prev)
+void BoxedDialogScene::exit(Scene& prev)
 {
     if (img_view_) {
         PLATFORM.fill_overlay(123);
@@ -503,7 +503,7 @@ static lisp::Value* get_dialog_opt_list()
 
 
 
-ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
 {
     if (data_->coins_) {
         data_->coins_->update(delta);
@@ -545,7 +545,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
 
     case DisplayMode::busy: {
 
-        const bool text_busy = advance_text(app, delta, true);
+        const bool text_busy = advance_text(delta, true);
 
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
@@ -553,7 +553,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
             if (text_state_.speed_ == 0 and allow_fastforward_ and
                 (key_down<Key::action_2>() or key_down<Key::action_1>())) {
 
-                while (advance_text(app, delta, false)) {
+                while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
                         break;
                     }
@@ -699,7 +699,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
 
             data_->coins_.emplace(OverlayCoord{1, 2},
                                   146,
-                                  (int)app.coins(),
+                                  (int)APP.coins(),
                                   UIMetric::Align::left);
 
             display_mode_ = DisplayMode::y_n_wait;
@@ -724,7 +724,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
         }
         animate_moretext_icon();
         if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
-            invoke_hook(app, "on-dialog-closed");
+            invoke_hook("on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
         break;
@@ -788,7 +788,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
         if (key_down<Key::action_1>()) {
             text_state_.timer_ = 0;
 
-            if (app.game_speed() not_eq GameSpeed::stopped) {
+            if (APP.game_speed() not_eq GameSpeed::stopped) {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
             }
 
@@ -840,7 +840,7 @@ ScenePtr<Scene> BoxedDialogScene::update(App& app, Microseconds delta)
 
 
 
-void BoxedDialogScene::display(App& app)
+void BoxedDialogScene::display()
 {
 }
 

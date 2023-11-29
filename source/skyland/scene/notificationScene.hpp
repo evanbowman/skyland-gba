@@ -42,11 +42,11 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void enter(App& app, Scene& prev) override;
-    void exit(App& app, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
 public:

@@ -58,26 +58,26 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
-        if (parent() == app.opponent_island()) {
+        if (parent() == APP.opponent_island()) {
             sprite_.set_texture_index(71);
         }
 
         switch (state_) {
         case Drone::State::launch:
-            Drone::update(app, delta);
+            Drone::update(delta);
             break;
 
         case Drone::State::ready:
-            update_sprite(app);
+            update_sprite();
             state_ = State::active;
             timer_ = 0;
             break;
 
         case State::active:
             duration_ += delta;
-            update_sprite(app);
+            update_sprite();
             if (timer_ > reload_time) {
 
                 Buffer<Room*, 16> heal_queue;
@@ -108,7 +108,7 @@ public:
                 }
 
                 for (auto& room : heal_queue) {
-                    room->heal(app, 6);
+                    room->heal(6);
                     room->ready();
                 }
 
@@ -141,7 +141,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App&) override
+    ScenePtr<Scene> select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<RepairDroneRangeScene>(shared_from_this());

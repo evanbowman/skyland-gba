@@ -157,16 +157,16 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 
 
-static auto fire_alloc_texture(App& app, Island& island)
+static auto fire_alloc_texture(Island& island)
 {
     std::optional<Platform::DynamicTexturePtr> result;
 
     // Check to see if the other island already has a texture allocated
     // for the fire effect. If so, share the texture.
-    if (&island == &app.player_island() and app.opponent_island()) {
-        result = app.opponent_island()->fire_texture();
-    } else if (&island == app.opponent_island()) {
-        result = app.player_island().fire_texture();
+    if (&island == &APP.player_island() and APP.opponent_island()) {
+        result = APP.opponent_island()->fire_texture();
+    } else if (&island == APP.opponent_island()) {
+        result = APP.player_island().fire_texture();
     }
 
     if (not result) {
@@ -186,7 +186,7 @@ static const auto fire_spread_time = seconds(9);
 
 
 
-void Island::FireState::rewind(App& app, Island& island, Microseconds delta)
+void Island::FireState::rewind(Island& island, Microseconds delta)
 {
     if (spread_timer_ > 0) {
         spread_timer_ -= delta;
@@ -209,7 +209,7 @@ void Island::FireState::rewind(App& app, Island& island, Microseconds delta)
 
         if (present and not texture_) {
 
-            texture_ = fire_alloc_texture(app, island);
+            texture_ = fire_alloc_texture(island);
 
         } else if (not present) {
             texture_.reset();
@@ -232,7 +232,7 @@ void Island::FireState::rewind(App& app, Island& island, Microseconds delta)
             // to save vram. Both islands share a texture for the fire effect,
             // and only one island updates the tile glyph.
             (texture_->strong_count() == 1 or
-             &island == &app.player_island())) {
+             &island == &APP.player_island())) {
             (*texture_)->remap(154 + anim_index_);
         }
     }
@@ -240,7 +240,7 @@ void Island::FireState::rewind(App& app, Island& island, Microseconds delta)
 
 
 
-void Island::rewind(App& app, Microseconds delta)
+void Island::rewind(Microseconds delta)
 {
     timer_ -= delta;
 
@@ -272,9 +272,9 @@ void Island::rewind(App& app, Microseconds delta)
                 // FIXME: faking the rewound smoke effects doesn't work if the
                 // island is moving. So just don't spawn them. We'll need to
                 // think of another way.
-                if (auto e = app.alloc_entity<SmokePuff>(o)) {
+                if (auto e = APP.alloc_entity<SmokePuff>(o)) {
                     e->jump_to_end();
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
             }
         }
@@ -285,17 +285,17 @@ void Island::rewind(App& app, Microseconds delta)
         if ((*it)->health() == 0) {
             it = projectiles.erase(it);
         } else {
-            (*it)->rewind(app, delta);
+            (*it)->rewind(delta);
             ++it;
         }
     }
 
-    bulk_timer_.rewind(app, delta);
+    bulk_timer_.rewind(delta);
 
     for (auto& room : rooms_) {
-        room->rewind(app, delta);
+        room->rewind(delta);
         for (auto& chr : room->characters()) {
-            chr->rewind(app, delta);
+            chr->rewind(delta);
         }
     }
 
@@ -308,7 +308,7 @@ void Island::rewind(App& app, Microseconds delta)
         if (not(*it)->alive()) {
             it = drones_.erase(it);
         } else {
-            (*it)->rewind(app, delta);
+            (*it)->rewind(delta);
             ++it;
         }
     }
@@ -317,10 +317,10 @@ void Island::rewind(App& app, Microseconds delta)
     if (schedule_repaint_) {
         schedule_repaint_ = false;
         schedule_repaint_partial_ = false;
-        repaint(app);
+        repaint();
     } else if (schedule_repaint_partial_) {
         schedule_repaint_partial_ = false;
-        repaint_partial(app);
+        repaint_partial();
     }
 
 
@@ -334,7 +334,7 @@ void Island::rewind(App& app, Microseconds delta)
                         -get_position().x.as_integer(),
                         -get_position().y.as_integer() - ambient_offset);
 
-    fire_.rewind(app, *this, delta);
+    fire_.rewind(*this, delta);
 }
 
 
@@ -356,14 +356,14 @@ void Island::check_destroyed()
 
 
 
-void Island::set_hidden(App& app, bool hidden)
+void Island::set_hidden(bool hidden)
 {
     bool was_hidden = hidden_;
 
     hidden_ = hidden;
 
     if (not hidden_ and was_hidden) {
-        repaint(app);
+        repaint();
     } else if (hidden_ and not was_hidden) {
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
@@ -394,34 +394,34 @@ bool Island::fire_present(const RoomCoord& coord) const
 
 
 
-void Island::fires_extinguish(App& app)
+void Island::fires_extinguish()
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             PLATFORM.set_tile(layer_, x, y, 0);
-            fire_extinguish(app, {(u8)x, (u8)y});
+            fire_extinguish({(u8)x, (u8)y});
         }
     }
 }
 
 
 
-void Island::fire_extinguish(App& app, const RoomCoord& coord)
+void Island::fire_extinguish(const RoomCoord& coord)
 {
     if (not fire_.positions_.get(coord.x, coord.y)) {
         return;
     }
 
-    if (this == &player_island(app)) {
+    if (this == &player_island()) {
         time_stream::event::PlayerFireExtinguished e;
         e.x_ = coord.x;
         e.y_ = coord.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentFireExtinguished e;
         e.x_ = coord.x;
         e.y_ = coord.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     fire_.positions_.set(coord.x, coord.y, false);
@@ -429,22 +429,22 @@ void Island::fire_extinguish(App& app, const RoomCoord& coord)
 
 
 
-void Island::fire_create(App& app, const RoomCoord& coord)
+void Island::fire_create(const RoomCoord& coord)
 {
     if (fire_.positions_.get(coord.x, coord.y)) {
         return;
     }
 
-    if (this == &player_island(app)) {
+    if (this == &player_island()) {
         time_stream::event::PlayerFireCreated e;
         e.x_ = coord.x;
         e.y_ = coord.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentFireCreated e;
         e.x_ = coord.x;
         e.y_ = coord.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     fire_.positions_.set(coord.x, coord.y, true);
@@ -452,7 +452,7 @@ void Island::fire_create(App& app, const RoomCoord& coord)
 
 
 
-void Island::FireState::update(App& app, Island& island, Microseconds delta)
+void Island::FireState::update(Island& island, Microseconds delta)
 {
     damage_timer_ += delta;
     spread_timer_ += delta;
@@ -470,7 +470,7 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
                 if (old_positions.get(x, y)) {
 
                     if (not plotted) {
-                        island.plot_walkable_zones(app, *mat, nullptr);
+                        island.plot_walkable_zones(*mat, nullptr);
                         plotted = true;
                     }
 
@@ -483,7 +483,7 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
 
                     if (not(*mat)[x][y] and
                         not(props & RoomProperties::highly_flammable)) {
-                        island.fire_extinguish(app, {x, y});
+                        island.fire_extinguish({x, y});
                     }
 
                     auto try_spread = [&](u8 x, u8 y) {
@@ -496,11 +496,11 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
                                 return;
                             }
                         } else if (not(*mat)[x][y]) {
-                            island.fire_extinguish(app, {x, y});
+                            island.fire_extinguish({x, y});
                             return;
                         }
                         if (not old_positions.get(x, y)) {
-                            island.fire_create(app, {x, y});
+                            island.fire_create({x, y});
                         }
                     };
 
@@ -553,9 +553,9 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
                     if (auto room = island.get_room({x, y})) {
                         if ((*room->metaclass())->properties() &
                             RoomProperties::fireproof) {
-                            island.fire_extinguish(app, {x, y});
+                            island.fire_extinguish({x, y});
                         } else {
-                            room->burn_damage(app, 2);
+                            room->burn_damage(2);
 
                             auto try_spread = [&](u8 x, u8 y) {
                                 if (island.fire_present({x, y})) {
@@ -594,14 +594,14 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
                             }
                         }
                     } else {
-                        island.fire_extinguish(app, {x, y});
+                        island.fire_extinguish({x, y});
                     }
                 }
             }
         }
 
         for (auto& c : spread_queue) {
-            island.fire_create(app, c);
+            island.fire_create(c);
         }
 
         if (not fire_present) {
@@ -610,7 +610,7 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
 
         if (fire_present and not texture_) {
 
-            texture_ = fire_alloc_texture(app, island);
+            texture_ = fire_alloc_texture(island);
 
         } else if (not fire_present) {
             texture_.reset();
@@ -631,7 +631,7 @@ void Island::FireState::update(App& app, Island& island, Microseconds delta)
             // to save vram. Both islands share a texture for the fire effect,
             // and only one island updates the tile glyph.
             (texture_->strong_count() == 1 or
-             &island == &app.player_island())) {
+             &island == &APP.player_island())) {
             (*texture_)->remap(154 + anim_index_);
         }
     }
@@ -662,7 +662,7 @@ void Island::FireState::display(Island& island)
 
 
 
-void Island::update_simple(App& app, Microseconds dt)
+void Island::update_simple(Microseconds dt)
 {
     timer_ += dt;
 
@@ -690,8 +690,8 @@ void Island::update_simple(App& app, Microseconds dt)
             o.x += Fixnum::from_integer(chimney_loc_->x * 16 + 8);
             o.y += Fixnum::from_integer(chimney_loc_->y * 16 - 4);
 
-            if (auto e = app.alloc_entity<SmokePuff>(o)) {
-                app.effects().push(std::move(e));
+            if (auto e = APP.alloc_entity<SmokePuff>(o)) {
+                APP.effects().push(std::move(e));
             }
         }
     }
@@ -708,11 +708,11 @@ void Island::update_simple(App& app, Microseconds dt)
 
 
 
-void Island::update(App& app, Microseconds dt)
+void Island::update(Microseconds dt)
 {
     TIMEPOINT(t1);
 
-    update_simple(app, dt);
+    update_simple(dt);
 
     TIMEPOINT(t2);
 
@@ -725,7 +725,7 @@ void Island::update(App& app, Microseconds dt)
 
     auto on_character_died = [&](BasicCharacter& c) {
         if (not PLATFORM.network_peer().is_connected() and
-            c.owner() == &app.player()) {
+            c.owner() == &APP.player()) {
 
             auto fn = lisp::get_var("on-crew-died");
             if (fn->type() == lisp::Value::Type::function) {
@@ -734,17 +734,17 @@ void Island::update(App& app, Microseconds dt)
                 lisp::pop_op(); // result
             }
         }
-        c.finalize(app);
+        c.finalize();
         time_stream::event::CharacterDied e;
         e.x_ = c.grid_position().x;
         e.y_ = c.grid_position().y;
         e.id_.set(c.id());
-        e.owned_by_player_ = c.owner() == &app.player();
-        e.near_ = this == &app.player_island();
+        e.owned_by_player_ = c.owner() == &APP.player();
+        e.near_ = this == &APP.player_island();
         e.race_ = c.get_race();
         e.is_replicant_ = c.is_replicant();
         e.icon_ = c.get_icon();
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     };
 
 
@@ -756,14 +756,14 @@ void Island::update(App& app, Microseconds dt)
 
                 network::packet::ChrDiedV2 packet;
                 packet.chr_id_.set((*it)->id());
-                packet.near_island_ = this not_eq &app.player_island();
+                packet.near_island_ = this not_eq &APP.player_island();
                 network::transmit(packet);
 
                 on_character_died(**it);
 
                 const auto pos = (*it)->sprite().get_position();
                 if (auto e = alloc_entity<Ghost>(pos)) {
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
 
                 if (room) {
@@ -788,7 +788,7 @@ void Island::update(App& app, Microseconds dt)
                     ++character_count_;
                 }
 
-                (*it)->update(app, dt, room);
+                (*it)->update(dt, room);
                 ++it;
             }
         }
@@ -803,8 +803,8 @@ void Island::update(App& app, Microseconds dt)
 
             auto sync = [x = (*it)->position().x,
                          y = (*it)->position().y,
-                         near = (*it)->destination() ==
-                                &app.player_island()](App& app) {
+                         near =
+                             (*it)->destination() == &APP.player_island()]() {
                 network::packet::DroneDestroyed destroyed;
                 destroyed.drone_x_ = x;
                 destroyed.drone_y_ = y;
@@ -814,16 +814,16 @@ void Island::update(App& app, Microseconds dt)
             };
 
             if (PLATFORM.network_peer().is_connected()) {
-                if (not app.on_timeout(sync_delay, sync)) {
-                    sync(app);
+                if (not APP.on_timeout(sync_delay, sync)) {
+                    sync();
                 }
             }
 
-            medium_explosion(app, (*it)->sprite().get_position());
+            medium_explosion((*it)->sprite().get_position());
 
             it = drones_.erase(it);
         } else {
-            (*it)->update(app, dt);
+            (*it)->update(dt);
             ++it;
         }
     }
@@ -844,7 +844,7 @@ void Island::update(App& app, Microseconds dt)
     }
 
 
-    bulk_timer_.update(app, dt);
+    bulk_timer_.update(dt);
 
 
     resolve_cancelled_dispatch();
@@ -882,7 +882,7 @@ void Island::update(App& app, Microseconds dt)
                 // Five rooms destroyed on the same island in the same frame! If
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
-                big_explosion(app, room->center());
+                big_explosion(room->center());
             }
 
             if (str_eq(room->name(), "power-core") or
@@ -892,8 +892,8 @@ void Island::update(App& app, Microseconds dt)
             }
 
             if (destroyed_count < 2 and
-                app.game_mode() not_eq App::GameMode::multiplayer and
-                app.game_mode() not_eq App::GameMode::co_op) {
+                APP.game_mode() not_eq App::GameMode::multiplayer and
+                APP.game_mode() not_eq App::GameMode::co_op) {
                 PLATFORM.sleep(2);
             }
 
@@ -903,8 +903,8 @@ void Island::update(App& app, Microseconds dt)
 
             auto sync = [x = pos.x,
                          y = pos.y,
-                         near = &owner() not_eq &app.player(),
-                         mt](App& app) {
+                         near = &owner() not_eq &APP.player(),
+                         mt]() {
                 network::packet::RoomDestroyed packet;
                 packet.room_x_ = x;
                 packet.room_y_ = y;
@@ -922,8 +922,8 @@ void Island::update(App& app, Microseconds dt)
             // Running a callback for each room destroyed and then resetting the
             // delta clock would ruin multiplayer sync. We have no need to
             // register an on-room-destroyed callback in multiplayer anyway...
-            if (app.game_mode() not_eq App::GameMode::multiplayer and
-                app.game_mode() not_eq App::GameMode::co_op) {
+            if (APP.game_mode() not_eq App::GameMode::multiplayer and
+                APP.game_mode() not_eq App::GameMode::co_op) {
 
                 // This is quite expensive! But it's convenient to be able to be
                 // able to register a callback when a room's destroyed.
@@ -948,7 +948,7 @@ void Island::update(App& app, Microseconds dt)
                     // No pauses during multiplayer, of course.
                     if (not PLATFORM.network_peer().is_connected()) {
                         // Sleep a few frames when a block is destroyed.
-                        if (this == &app.player_island()) {
+                        if (this == &APP.player_island()) {
                             PLATFORM.sleep(4);
                         } else {
                             PLATFORM.sleep(2);
@@ -962,9 +962,9 @@ void Island::update(App& app, Microseconds dt)
             const auto had_target = room->get_target();
             const bool target_was_pinned = room->target_pinned();
 
-            room->finalize(app);
+            room->finalize();
 
-            if (&owner() == &app.player()) {
+            if (&owner() == &APP.player()) {
                 if (had_target) {
                     time_stream::event::WeaponSetTarget e;
                     e.room_x_ = pos.x;
@@ -974,7 +974,7 @@ void Island::update(App& app, Microseconds dt)
                     e.near_ = true;
                     e.has_previous_target_ = true;
                     e.previous_target_pinned_ = target_was_pinned;
-                    app.time_stream().push(app.level_timer(), e);
+                    APP.time_stream().push(APP.level_timer(), e);
                 }
                 if (group not_eq Room::Group::none) {
                     time_stream::event::PlayerRoomDestroyedWithGroup p;
@@ -982,20 +982,20 @@ void Island::update(App& app, Microseconds dt)
                     p.y_ = pos.y;
                     p.type_ = mt;
                     p.group_ = (u8)group;
-                    app.time_stream().push(app.level_timer(), p);
+                    APP.time_stream().push(APP.level_timer(), p);
                 } else {
                     time_stream::event::PlayerRoomDestroyed p;
                     p.x_ = pos.x;
                     p.y_ = pos.y;
                     p.type_ = mt;
-                    app.time_stream().push(app.level_timer(), p);
+                    APP.time_stream().push(APP.level_timer(), p);
                 }
             } else {
                 time_stream::event::OpponentRoomDestroyed p;
                 p.x_ = pos.x;
                 p.y_ = pos.y;
                 p.type_ = mt;
-                app.time_stream().push(app.level_timer(), p);
+                APP.time_stream().push(APP.level_timer(), p);
             }
 
 
@@ -1007,7 +1007,7 @@ void Island::update(App& app, Microseconds dt)
             }
 
             if (PLATFORM.network_peer().is_connected()) {
-                if (not app.on_timeout(sync_delay, sync)) {
+                if (not APP.on_timeout(sync_delay, sync)) {
                     // Explanation: we don't want to transmit the room destroyed
                     // packet right away. We only transmit room destroyed
                     // packets in the first place to keep games in sync. If one
@@ -1027,12 +1027,12 @@ void Island::update(App& app, Microseconds dt)
                     // room-destroyed packet as a last resort, in case the games
                     // somehow got out of sync. This packet should in almost all
                     // cases be meaningless to the other game.
-                    sync(app);
+                    sync();
                 }
             }
 
 
-            app.player().on_room_destroyed(app, *room);
+            APP.player().on_room_destroyed(*room);
 
             [&] {
                 for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
@@ -1046,7 +1046,7 @@ void Island::update(App& app, Microseconds dt)
 
             owner().rooms_lost_++;
 
-            on_layout_changed(app, pos);
+            on_layout_changed(pos);
 
             check_destroyed();
 
@@ -1054,14 +1054,14 @@ void Island::update(App& app, Microseconds dt)
                 PLATFORM.sleep(3);
             }
 
-            recalculate_power_usage(app);
+            recalculate_power_usage();
 
             do_repaint = true;
 
         } else {
             if (dt not_eq 0) {
                 // Do not update a room if the game is stopped.
-                room->update(app, dt);
+                room->update(dt);
             } else {
                 // If a room was ready, and we didn't update it, then it's still
                 // ready.
@@ -1092,11 +1092,11 @@ void Island::update(App& app, Microseconds dt)
     TIMEPOINT(t4);
 
     if (do_repaint) {
-        repaint(app);
+        repaint();
         schedule_repaint_partial_ = false;
     } else if (schedule_repaint_partial_) {
         schedule_repaint_partial_ = false;
-        repaint_partial(app);
+        repaint_partial();
     }
 
 
@@ -1109,7 +1109,7 @@ void Island::update(App& app, Microseconds dt)
     TIMEPOINT(t6);
 
 
-    update_entities(app, dt, projectiles_);
+    update_entities(dt, projectiles_);
 
 
     TIMEPOINT(t7);
@@ -1121,7 +1121,7 @@ void Island::update(App& app, Microseconds dt)
 
     TIMEPOINT(t8);
 
-    fire_.update(app, *this, dt);
+    fire_.update(*this, dt);
 
 
     TIMEPOINT(t9);
@@ -1149,8 +1149,7 @@ void Island::update(App& app, Microseconds dt)
 
 
 
-void Island::on_layout_changed(App& app,
-                               const RoomCoord& room_added_removed_coord)
+void Island::on_layout_changed(const RoomCoord& room_added_removed_coord)
 {
     check_destroyed();
 
@@ -1161,7 +1160,7 @@ void Island::on_layout_changed(App& app,
     for (auto& room : rooms()) {
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
-                plot_walkable_zones(app, buffer, chr.get());
+                plot_walkable_zones(buffer, chr.get());
                 int pos = 0;
                 for (auto& node : *path) {
                     if (get_room(node) == nullptr or
@@ -1198,7 +1197,7 @@ static constexpr const int screen_limit_y = 700;
 
 
 
-void Island::display(App& app)
+void Island::display()
 {
     if (hidden_) {
         return;
@@ -1239,13 +1238,13 @@ void Island::display(App& app)
     resolve_cancelled_dispatch();
 
     if (drawfirst_) {
-        drawfirst_->display(PLATFORM.screen(), app);
+        drawfirst_->display(PLATFORM.screen());
     }
 
     Room* room = dispatch_list_;
     while (room) {
         if (room not_eq drawfirst_) {
-            room->display(PLATFORM.screen(), app);
+            room->display(PLATFORM.screen());
         }
         room = room->dispatch_next();
     }
@@ -1272,7 +1271,7 @@ HitBox Island::hitbox() const
 
 
 
-void Island::test_collision(App& app, Entity& entity)
+void Island::test_collision(Entity& entity)
 {
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
@@ -1303,7 +1302,7 @@ void Island::test_collision(App& app, Entity& entity)
                     room_hitbox.dimension_.size_.y = room->size().y * tile_size;
 
                     if (room_hitbox.overlapping(entity.hitbox())) {
-                        entity.on_collision(app, *room, Vec2<u8>{(u8)x, (u8)y});
+                        entity.on_collision(*room, Vec2<u8>{(u8)x, (u8)y});
                         return;
                     }
                 }
@@ -1320,8 +1319,8 @@ void Island::test_collision(App& app, Entity& entity)
     if (island_hitbox.overlapping(entity.hitbox())) {
         for (auto& drone_sp : drones_) {
             if (entity.hitbox().overlapping((drone_sp)->hitbox())) {
-                entity.on_collision(app, *drone_sp);
-                (drone_sp)->on_collision(app, entity);
+                entity.on_collision(*drone_sp);
+                (drone_sp)->on_collision(entity);
             }
         }
     }
@@ -1360,38 +1359,38 @@ void Island::set_position(const Vec2<Fixnum>& position)
 
 
 
-void Island::render(App& app)
+void Island::render()
 {
     if (interior_visible_) {
-        render_interior(app);
+        render_interior();
     } else {
-        render_exterior(app);
+        render_exterior();
     }
 }
 
 
 
-void Island::render_interior_fast(App& app)
+void Island::render_interior_fast()
 {
     if (interior_visible_) {
-        repaint(app);
+        repaint();
         return;
     }
 
-    render_interior(app);
+    render_interior();
 }
 
 
 
-void Island::render_interior(App& app)
+void Island::render_interior()
 {
     interior_visible_ = true;
 
     if (layer_ == Layer::map_0_ext) {
-        auto t = app.environment().player_island_interior_texture();
+        auto t = APP.environment().player_island_interior_texture();
         PLATFORM.load_tile0_texture(t);
     } else {
-        auto t = app.environment().opponent_island_interior_texture();
+        auto t = APP.environment().opponent_island_interior_texture();
         PLATFORM.load_tile1_texture(t);
     }
 
@@ -1401,26 +1400,26 @@ void Island::render_interior(App& app)
     layer_ == Layer::map_0_ext ? PLATFORM.clear_tile0_mappings()
                                : PLATFORM.clear_tile1_mappings();
 
-    repaint(app);
+    repaint();
 }
 
 
 
-void Island::render_exterior(App& app)
+void Island::render_exterior()
 {
     interior_visible_ = false;
 
     if (layer_ == Layer::map_0_ext) {
-        PLATFORM.load_tile0_texture(app.environment().player_island_texture());
+        PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
     } else {
         PLATFORM.load_tile1_texture(
-            app.environment().opponent_island_texture());
+            APP.environment().opponent_island_texture());
     }
 
     layer_ == Layer::map_0_ext ? PLATFORM.clear_tile0_mappings()
                                : PLATFORM.clear_tile1_mappings();
 
-    repaint(app);
+    repaint();
 }
 
 
@@ -1455,13 +1454,13 @@ void Island::plot_rooms(u8 matrix[16][16]) const
 }
 
 
-void Island::recalculate_power_usage(App& app)
+void Island::recalculate_power_usage()
 {
     power_supply_ = 0;
     power_drain_ = 0;
 
     for (auto& room : rooms_) {
-        auto power = room->power_usage(app);
+        auto power = room->power_usage();
 
         if (power < 0) {
             power_supply_ += -power;
@@ -1485,7 +1484,7 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 
 
 
-void Island::move_room(App& app, const RoomCoord& from, const RoomCoord& to)
+void Island::move_room(const RoomCoord& from, const RoomCoord& to)
 {
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
         if (not(*it)->hidden() and (*it)->position() == from) {
@@ -1507,7 +1506,7 @@ void Island::move_room(App& app, const RoomCoord& from, const RoomCoord& to)
                 chr->drop_movement_path();
             }
 
-            if (app.game_speed() == GameSpeed::stopped and
+            if (APP.game_speed() == GameSpeed::stopped and
                 not room->ai_aware()) {
                 // The room is cloaked, and we're moving it. We want to update
                 // visibility in case the room was moved out of the range of a
@@ -1517,25 +1516,25 @@ void Island::move_room(App& app, const RoomCoord& from, const RoomCoord& to)
 
             rooms_.insert_room(std::move(room));
 
-            recalculate_power_usage(app);
-            on_layout_changed(app, from);
+            recalculate_power_usage();
+            on_layout_changed(from);
 
             schedule_repaint_ = true;
 
-            if (this == &app.player_island()) {
+            if (this == &APP.player_island()) {
                 time_stream::event::PlayerRoomMoved e;
                 e.x_ = to.x;
                 e.y_ = to.y;
                 e.prev_x_ = from.x;
                 e.prev_y_ = from.y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomMoved e;
                 e.x_ = to.x;
                 e.y_ = to.y;
                 e.prev_x_ = from.x;
                 e.prev_y_ = from.y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
 
             Buffer<Vec2<u8>, 16> fire_respawn_locs;
@@ -1546,13 +1545,13 @@ void Island::move_room(App& app, const RoomCoord& from, const RoomCoord& to)
                     u8 tx = x + to.x;
                     u8 ty = y + to.y;
                     if (fire_present({ox, oy})) {
-                        fire_extinguish(app, {ox, oy});
+                        fire_extinguish({ox, oy});
                         fire_respawn_locs.push_back({tx, ty});
                     }
                 }
             }
             for (auto& l : fire_respawn_locs) {
-                fire_create(app, {l.x, l.y});
+                fire_create({l.x, l.y});
             }
         }
     }
@@ -1560,8 +1559,7 @@ void Island::move_room(App& app, const RoomCoord& from, const RoomCoord& to)
 
 
 
-void Island::plot_walkable_zones(App& app,
-                                 bool matrix[16][16],
+void Island::plot_walkable_zones(bool matrix[16][16],
                                  BasicCharacter* for_character) const
 {
     for (int x = 0; x < 16; ++x) {
@@ -1576,7 +1574,7 @@ void Island::plot_walkable_zones(App& app,
         auto props = (*room->metaclass())->properties();
 
         if (props & RoomProperties::habitable) {
-            room->plot_walkable_zones(app, matrix, for_character);
+            room->plot_walkable_zones(matrix, for_character);
         }
     }
 }
@@ -1615,7 +1613,7 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 
 
-bool Island::repaint_alloc_tiles(App& app, TileId buffer[16][16], bool retry)
+bool Island::repaint_alloc_tiles(TileId buffer[16][16], bool retry)
 {
     for (int x = 0; x < 16; ++x) {
         // NOTE: only handle 15 rows because render_terrain() takes care of the
@@ -1661,7 +1659,7 @@ bool Island::repaint_alloc_tiles(App& app, TileId buffer[16][16], bool retry)
 
 
 
-void Island::repaint_partial(App& app)
+void Island::repaint_partial()
 {
     struct Memory
     {
@@ -1679,15 +1677,15 @@ void Island::repaint_partial(App& app)
     for (auto& r : rooms_) {
         if (r->poll_repaint()) {
             if (interior_visible_) {
-                r->render_interior(&app, mem->tiles);
+                r->render_interior(&APP, mem->tiles);
             } else {
-                r->render_exterior(&app, mem->tiles);
+                r->render_exterior(&APP, mem->tiles);
             }
         }
     }
 
     for (auto& r : rooms_) {
-        r->render_cloak(app, mem->tiles);
+        r->render_cloak(mem->tiles);
     }
 
     for (u32 x = 0; x < terrain_.size(); ++x) {
@@ -1710,7 +1708,7 @@ void Island::repaint_partial(App& app)
 
 
 
-void Island::repaint(App& app)
+void Island::repaint()
 {
     if (hidden_) {
         return;
@@ -1743,16 +1741,16 @@ void Island::repaint(App& app)
 
     if (interior_visible_) {
         for (auto& room : rooms()) {
-            room->render_interior(&app, mem->tiles);
+            room->render_interior(&APP, mem->tiles);
         }
     } else {
         for (auto& room : rooms()) {
-            room->render_exterior(&app, mem->tiles);
+            room->render_exterior(&APP, mem->tiles);
         }
     }
 
     for (auto& room : rooms()) {
-        room->render_scaffolding(app, mem->tiles);
+        room->render_scaffolding(mem->tiles);
     }
 
     plot_rooms(mem->mat);
@@ -1908,7 +1906,7 @@ void Island::repaint(App& app)
     }
 
     for (auto& r : rooms_) {
-        r->render_cloak(app, mem->tiles);
+        r->render_cloak(mem->tiles);
     }
 
     if (flag_pos_) {
@@ -1929,8 +1927,8 @@ void Island::repaint(App& app)
         }
     }
 
-    if (not repaint_alloc_tiles(app, mem->tiles, false)) {
-        repaint_alloc_tiles(app, mem->tiles, true);
+    if (not repaint_alloc_tiles(mem->tiles, false)) {
+        repaint_alloc_tiles(mem->tiles, true);
     }
 
     if (layer_ == Layer::map_0_ext and flag_pos_) {
@@ -1960,17 +1958,17 @@ void Island::repaint(App& app)
 
 
 
-void Island::set_drift(App& app, Fixnum drift)
+void Island::set_drift(Fixnum drift)
 {
-    if (app.opponent_island() and this == app.opponent_island()) {
+    if (APP.opponent_island() and this == APP.opponent_island()) {
 
         time_stream::event::OpponentIslandDriftChanged e;
         e.previous_speed__data_.set(drift_.data());
 
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
-    if (this == &app.player_island()) {
+    if (this == &APP.player_island()) {
         Platform::fatal("player island not intended to change position");
     }
 
@@ -2013,21 +2011,21 @@ Room* Island::get_room(const RoomCoord& coord)
 
 
 
-void Island::destroy_room(App& app, const RoomCoord& coord)
+void Island::destroy_room(const RoomCoord& coord)
 {
     for (auto& room : rooms_) {
         if (coord.x >= room->position().x and coord.y >= room->position().y and
             coord.x < room->position().x + room->size().x and
             coord.y < room->position().y + room->size().y) {
 
-            room->finalize(app);
+            room->finalize();
             rooms_.erase(&room);
             owner().rooms_lost_++;
 
-            on_layout_changed(app, coord);
+            on_layout_changed(coord);
 
-            repaint(app);
-            recalculate_power_usage(app);
+            repaint();
+            recalculate_power_usage();
             return;
         }
     }
@@ -2035,10 +2033,10 @@ void Island::destroy_room(App& app, const RoomCoord& coord)
 
 
 
-void Island::init_ai_awareness(App& app)
+void Island::init_ai_awareness()
 {
     for (auto& r : rooms()) {
-        r->init_ai_awareness(app);
+        r->init_ai_awareness();
     }
 }
 
@@ -2083,9 +2081,9 @@ void Island::resolve_cancelled_dispatch()
 
 
 
-void Island::clear(App& app)
+void Island::clear()
 {
-    clear_rooms(app);
+    clear_rooms();
 
     characters_.clear();
     projectiles_.clear();
@@ -2094,10 +2092,10 @@ void Island::clear(App& app)
 
 
 
-void Island::clear_rooms(App& app)
+void Island::clear_rooms()
 {
     for (auto& room : rooms_) {
-        room->finalize(app);
+        room->finalize();
     }
 
     cancel_dispatch();
@@ -2128,10 +2126,10 @@ u8 Island::character_count() const
 
 
 
-void show_island_interior(App& app, Island* island)
+void show_island_interior(Island* island)
 {
     if (island) {
-        island->render_interior(app);
+        island->render_interior();
 
         if (auto gfx = island->custom_flag_graphics()) {
             FlagPixels px;
@@ -2140,15 +2138,15 @@ void show_island_interior(App& app, Island* island)
         }
     }
 
-    write_custom_graphics(app);
+    write_custom_graphics();
 }
 
 
 
-void show_island_exterior(App& app, Island* island)
+void show_island_exterior(Island* island)
 {
     if (island) {
-        island->render_exterior(app);
+        island->render_exterior();
 
         if (auto gfx = island->custom_flag_graphics()) {
             FlagPixels px;
@@ -2157,7 +2155,7 @@ void show_island_exterior(App& app, Island* island)
         }
     }
 
-    write_custom_graphics(app);
+    write_custom_graphics();
 }
 
 
@@ -2169,16 +2167,16 @@ u8 Island::min_y() const
 
 
 
-Island& player_island(App& app)
+Island& player_island()
 {
-    return app.player_island();
+    return APP.player_island();
 }
 
 
 
-Island* opponent_island(App& app)
+Island* opponent_island()
 {
-    return app.opponent_island();
+    return APP.opponent_island();
 }
 
 

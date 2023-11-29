@@ -53,31 +53,31 @@ void SelectTutorialScene::quick_select(int tutorial_number)
 
 
 
-void SelectTutorialScene::enter(App& app, Scene& prev)
+void SelectTutorialScene::enter(Scene& prev)
 {
     PLATFORM.screen().set_shader(passthrough_shader);
 
     PLATFORM.speaker().play_music("unaccompanied_wind", 0);
 
-    app.set_coins(0);
+    APP.set_coins(0);
 
-    app.player_island().projectiles().clear();
+    APP.player_island().projectiles().clear();
 
     PLATFORM.fill_overlay(0);
 
-    app.stat_timer().reset(0);
+    APP.stat_timer().reset(0);
 
-    app.effects().clear();
+    APP.effects().clear();
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
-            app.player_island().fire_extinguish(app, {x, y});
+            APP.player_island().fire_extinguish({x, y});
         }
     }
 
     // In case we came from a previous tutorial, give control back to the
     // player.
-    app.swap_player<PlayerP1>();
+    APP.swap_player<PlayerP1>();
 
     if (state_ not_eq State::quickselect) {
         PLATFORM.load_overlay_texture("overlay_challenges");
@@ -85,7 +85,7 @@ void SelectTutorialScene::enter(App& app, Scene& prev)
         PLATFORM.system_call("v-parallax", (void*)false);
     }
 
-    app.game_mode() = App::GameMode::tutorial;
+    APP.game_mode() = App::GameMode::tutorial;
 
     if (auto script = PLATFORM.load_file_contents("scripts",
                                                   "tutorials/tutorials.lisp")) {
@@ -105,7 +105,7 @@ void SelectTutorialScene::enter(App& app, Scene& prev)
 
 
     if (state_ not_eq State::quickselect) {
-        show_options(app);
+        show_options();
 
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
@@ -125,7 +125,7 @@ void SelectTutorialScene::enter(App& app, Scene& prev)
 
 
 
-void SelectTutorialScene::show_options(App& app)
+void SelectTutorialScene::show_options()
 {
     PLATFORM.screen().clear();
     text_.clear();
@@ -163,7 +163,7 @@ void SelectTutorialScene::show_options(App& app)
             PLATFORM.fatal("tutorial list format invalid");
         }
 
-        bool completed = app.gp_.watched_tutorials_.get() & (1 << index);
+        bool completed = APP.gp_.watched_tutorials_.get() & (1 << index);
 
         if (index++ < start_index) {
             return;
@@ -195,11 +195,11 @@ void SelectTutorialScene::show_options(App& app)
 
 
 
-void prep_level(App& app);
+void prep_level();
 
 
 
-void SelectTutorialScene::exit(App&, Scene& next)
+void SelectTutorialScene::exit(Scene& next)
 {
     text_.clear();
     PLATFORM.fill_overlay(0);
@@ -210,7 +210,7 @@ void SelectTutorialScene::exit(App&, Scene& next)
 
 
 
-void SelectTutorialScene::display(App& app)
+void SelectTutorialScene::display()
 {
     if (state_ not_eq State::idle) {
         return;
@@ -234,7 +234,7 @@ void SelectTutorialScene::display(App& app)
 
 
 
-ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SelectTutorialScene::update(Microseconds delta)
 {
     if (exit_) {
         return scene_pool::alloc<TitleScreenScene>(3);
@@ -250,10 +250,10 @@ ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*tutorials_, index);
 
-        if (not(app.gp_.watched_tutorials_.get() & (1 << index))) {
-            app.gp_.watched_tutorials_.set(app.gp_.watched_tutorials_.get() |
+        if (not(APP.gp_.watched_tutorials_.get() & (1 << index))) {
+            APP.gp_.watched_tutorials_.set(APP.gp_.watched_tutorials_.get() |
                                            (1 << index));
-            save::store_global_data(app.gp_);
+            save::store_global_data(APP.gp_);
         }
 
         auto file_name = choice->cons().cdr();
@@ -270,19 +270,19 @@ ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
                 lisp::format(&err, p);
                 PLATFORM.fatal(p.data_.c_str());
             });
-            prep_level(app);
-            app.player_island().repaint(app);
-            app.player_island().render_exterior(app);
+            prep_level();
+            APP.player_island().repaint();
+            APP.player_island().render_exterior();
 
             rng::critical_state = 42;
 
-            PLATFORM.speaker().play_music(app.environment().music(), 0);
+            PLATFORM.speaker().play_music(APP.environment().music(), 0);
 
-            app.time_stream().enable_pushes(true);
-            app.time_stream().clear();
+            APP.time_stream().enable_pushes(true);
+            APP.time_stream().clear();
 
             time_stream::event::Initial e;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
 
             return scene_pool::alloc<FadeInScene>();
         } else {
@@ -299,44 +299,44 @@ ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
             return null_scene();
         }
 
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
             }
         }
 
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             if (cursor_) {
                 cursor_--;
             }
         }
 
-        if (app.player().key_down(Key::right)) {
+        if (APP.player().key_down(Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             text_.clear();
             PLATFORM.fill_overlay(0);
             exit_ = true;
@@ -349,7 +349,7 @@ ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
     case State::fade_out: {
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
-            app.camera()->reset();
+            APP.camera()->reset();
             PLATFORM.screen().fade(
                 1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -365,7 +365,7 @@ ScenePtr<Scene> SelectTutorialScene::update(App& app, Microseconds delta)
     }
     }
 
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     return null_scene();
 }

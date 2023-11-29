@@ -36,9 +36,9 @@ namespace skyland
 
 
 
-void SelInputScene::enter(App& app, Scene& prev)
+void SelInputScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -76,9 +76,9 @@ void SelInputScene::enter(App& app, Scene& prev)
 
 
 
-void SelInputScene::exit(App& app, Scene& next)
+void SelInputScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     text_.reset();
 
@@ -87,9 +87,9 @@ void SelInputScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SelInputScene::update(Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
@@ -108,10 +108,10 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(150));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     if (near_) {
@@ -129,7 +129,7 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
         }
 
         if (test_key(Key::right)) {
-            if (cursor_loc.x < app.player_island().terrain().size()) {
+            if (cursor_loc.x < APP.player_island().terrain().size()) {
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
                 ++cursor_loc.x;
@@ -159,7 +159,7 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
 
     } else {
 
-        if (not app.opponent_island()) {
+        if (not APP.opponent_island()) {
             near_ = true;
             return null_scene();
         }
@@ -173,14 +173,14 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
                 --cursor_loc.x;
             } else {
                 globals().near_cursor_loc_.x =
-                    app.player_island().terrain().size();
+                    APP.player_island().terrain().size();
                 globals().near_cursor_loc_.y = cursor_loc.y;
                 near_ = true;
             }
         }
 
         if (test_key(Key::right)) {
-            if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+            if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
             }
         }
@@ -199,12 +199,12 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
     }
 
 
-    if (near_ and app.player().key_down(Key::action_2)) {
+    if (near_ and APP.player().key_down(Key::action_2)) {
         auto next = scene_pool::alloc<SalvageRoomScene>();
         next->set_next_scene(scene_pool::make_deferred_scene<SelInputScene>(
             parameters_.get(), near_));
         return next;
-    } else if (app.player().key_down(Key::action_1)) {
+    } else if (APP.player().key_down(Key::action_1)) {
 
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
@@ -215,8 +215,8 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
                  ++x) {
                 for (u8 y = 0; y < required_space_->y; ++y) {
                     u8 ry = cursor_loc.y - y;
-                    auto room = app.player_island().get_room({x, ry});
-                    if (room or x == app.player_island().terrain().size() or
+                    auto room = APP.player_island().get_room({x, ry});
+                    if (room or x == APP.player_island().terrain().size() or
                         ry < construction_zone_min_y) {
                         PLATFORM.speaker().play_sound("beep_error", 1);
                         return null_scene();
@@ -225,8 +225,8 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
             }
         }
 
-        lisp::push_op(lisp::make_userdata(near_ ? &app.player_island()
-                                                : app.opponent_island()));
+        lisp::push_op(lisp::make_userdata(near_ ? &APP.player_island()
+                                                : APP.opponent_island()));
 
         lisp::push_op(lisp::make_integer(cursor_loc.x));
 
@@ -251,24 +251,23 @@ ScenePtr<Scene> SelInputScene::update(App& app, Microseconds delta)
 
 
 
-void draw_required_space(App& app,
-                         Island& island,
+void draw_required_space(Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
                          Room::WeaponOrientation o);
 
 
 
-void SelInputScene::display(App& app)
+void SelInputScene::display()
 {
-    ActiveWorldScene::display(app);
+    ActiveWorldScene::display();
 
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
     if (near_) {
-        auto origin = app.player_island().visual_origin();
+        auto origin = APP.player_island().visual_origin();
 
         auto& cursor_loc = globals().near_cursor_loc_;
 
@@ -276,8 +275,8 @@ void SelInputScene::display(App& app)
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
         cursor.set_position(origin);
-    } else if (app.opponent_island()) {
-        auto origin = app.opponent_island()->visual_origin();
+    } else if (APP.opponent_island()) {
+        auto origin = APP.opponent_island()->visual_origin();
 
         auto& cursor_loc = globals().far_cursor_loc_;
 
@@ -299,14 +298,14 @@ void SelInputScene::display(App& app)
 
         for (u8 x = rloc.x; x < rloc.x + sz.x; ++x) {
             for (u8 y = rloc.y; y < rloc.y + sz.y; ++y) {
-                if (player_island(app).get_room({x, y}) or
-                    x >= (int)player_island(app).terrain().size()) {
+                if (player_island().get_room({x, y}) or
+                    x >= (int)player_island().terrain().size()) {
 
                     if (flicker_on_) {
                         Sprite spr;
                         spr.set_tidx_16x16(13, 1);
                         spr.set_size(Sprite::Size::w16_h16);
-                        auto origin = player_island(app).visual_origin();
+                        auto origin = player_island().visual_origin();
                         origin.x += Fixnum(x * 16);
                         origin.y += Fixnum(y * 16);
                         spr.set_position({origin.x, origin.y});
@@ -317,12 +316,12 @@ void SelInputScene::display(App& app)
             }
         }
 
-        auto origin = player_island(app).visual_origin();
+        auto origin = player_island().visual_origin();
         origin.x += Fixnum::from_integer(cursor_loc.x * 16);
         origin.y += Fixnum::from_integer(cursor_loc.y * 16);
         origin.y -= Fixnum::from_integer((required_space_->y - 1) * 16);
 
-        draw_required_space(app, player_island(app), origin, sz, w_ot_);
+        draw_required_space(player_island(), origin, sz, w_ot_);
     }
 }
 

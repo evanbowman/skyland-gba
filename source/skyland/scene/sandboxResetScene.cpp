@@ -37,21 +37,21 @@ static const auto sel_colors =
 
 
 
-ScenePtr<Scene> SandboxResetScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SandboxResetScene::update(Microseconds delta)
 {
-    if (app.player().key_down(Key::up)) {
+    if (APP.player().key_down(Key::up)) {
         selection_ = true;
         yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
         no_text_->assign(SYSTR(exit)->c_str());
     }
 
-    if (app.player().key_down(Key::down)) {
+    if (APP.player().key_down(Key::down)) {
         selection_ = false;
         yes_text_->assign(SYSTR(yes)->c_str());
         no_text_->assign(SYSTR(exit)->c_str(), sel_colors);
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         if (selection_) {
             return scene_pool::alloc<SandboxLoaderModule>();
         } else {
@@ -63,7 +63,7 @@ ScenePtr<Scene> SandboxResetScene::update(App& app, Microseconds delta)
 }
 
 
-void SandboxResetScene::enter(App&, Scene& prev)
+void SandboxResetScene::enter(Scene& prev)
 {
     msg_.emplace(SYSTR(reset_sandbox_query)->c_str(), OverlayCoord{1, 1});
     yes_text_.emplace(OverlayCoord{2, 3});
@@ -74,7 +74,7 @@ void SandboxResetScene::enter(App&, Scene& prev)
 
 
 
-void SandboxResetScene::exit(App&, Scene& next)
+void SandboxResetScene::exit(Scene& next)
 {
     msg_.reset();
     yes_text_.reset();

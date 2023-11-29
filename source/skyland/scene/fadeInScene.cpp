@@ -35,9 +35,9 @@ namespace skyland
 
 
 
-void FadeInScene::enter(App& app, Scene& prev)
+void FadeInScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     WorldScene::notransitions();
     WorldScene::disable_ui();
@@ -55,15 +55,15 @@ void FadeInScene::enter(App& app, Scene& prev)
         PLATFORM.set_tile(Layer::overlay, 0, y + 2, 158);
     }
 
-    PLATFORM.screen().set_shader(app.environment().shader(app));
+    PLATFORM.screen().set_shader(APP.environment().shader());
 }
 
 
 
-void FadeInScene::exit(App& app, Scene& next)
+void FadeInScene::exit(Scene& next)
 {
     PLATFORM.set_scroll(Layer::overlay, 0, 0);
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
     PLATFORM.fill_overlay(0);
     scroll_amount_ = 0;
@@ -71,73 +71,72 @@ void FadeInScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> FadeInScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> FadeInScene::update(Microseconds delta)
 {
-    WorldScene::update(app, delta);
+    WorldScene::update(delta);
 
     timer_ += delta;
 
-    app.environment().update(app, delta);
+    APP.environment().update(delta);
 
 
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
 
-        if (app.game_mode() == App::GameMode::sandbox or
-            app.game_mode() == App::GameMode::adventure) {
-            app.time_stream().enable_pushes(true);
-            app.time_stream().clear();
+        if (APP.game_mode() == App::GameMode::sandbox or
+            APP.game_mode() == App::GameMode::adventure) {
+            APP.time_stream().enable_pushes(true);
+            APP.time_stream().clear();
 
             time_stream::event::Initial e;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
 
-        const auto loc = app.current_world_location();
-        auto& node = app.world_graph().nodes_[loc];
+        const auto loc = APP.current_world_location();
+        auto& node = APP.world_graph().nodes_[loc];
         if (node.type_ == WorldGraph::Node::Type::corrupted) {
             if (not PLATFORM.speaker().is_music_playing(
-                    app.environment().music())) {
-                PLATFORM.speaker().play_music(app.environment().music(), 0);
+                    APP.environment().music())) {
+                PLATFORM.speaker().play_music(APP.environment().music(), 0);
             }
         }
 
-        state_bit_store(app, StateBit::disable_autopause, false);
+        state_bit_store(StateBit::disable_autopause, false);
 
         PLATFORM.screen().fade(0.f);
-        auto future_scene = [&app]() {
+        auto future_scene = []() {
             auto next = scene_pool::alloc<ReadyScene>();
-            if (app.game_mode() not_eq App::GameMode::tutorial and
+            if (APP.game_mode() not_eq App::GameMode::tutorial and
                 not PLATFORM.network_peer().is_connected()) {
 
-                const auto loc = app.current_world_location();
-                auto& node = app.world_graph().nodes_[loc];
+                const auto loc = APP.current_world_location();
+                auto& node = APP.world_graph().nodes_[loc];
 
                 if (node.type_ == WorldGraph::Node::Type::hostile or
                     node.type_ == WorldGraph::Node::Type::hostile_hidden or
                     node.type_ == WorldGraph::Node::Type::exit or
-                    app.game_mode() == App::GameMode::challenge) {
+                    APP.game_mode() == App::GameMode::challenge) {
 
-                    app.on_timeout(milliseconds(250), [](App& app) {
-                        if (auto w = app.scene().cast_world_scene()) {
-                            if (state_bit_load(app,
-                                               StateBit::disable_autopause)) {
+                    APP.on_timeout(milliseconds(250), []() {
+                        if (auto w = APP.scene().cast_world_scene()) {
+                            if (state_bit_load(StateBit::disable_autopause)) {
                                 return;
                             }
-                            w->set_gamespeed(app, GameSpeed::stopped);
+                            w->set_gamespeed(GameSpeed::stopped);
                         }
                     });
                 }
             }
-            app.dropped_frames_ = 0;
+            APP.dropped_frames_ = 0;
             return next;
         };
 
-        if (app.opponent_island() and
-            app.opponent_island()->get_drift() == 0.0_fixed) {
+        if (APP.opponent_island() and
+            APP.opponent_island()->get_drift() == 0.0_fixed) {
             // Bugfix: converge callback never fires because islands are both
             // really large.
-            app.on_timeout(milliseconds(500), [](App& app) {
-                invoke_hook(app, "on-converge");
+            APP.on_timeout(milliseconds(500), []() {
+                invoke_hook("on-converge");
                 lisp::set_var("on-converge", L_NIL);
             });
         }
@@ -163,7 +162,7 @@ ScenePtr<Scene> FadeInScene::update(App& app, Microseconds delta)
 
         u8 amt = 255 - amount * 255;
 
-        const Color ao(app.environment().fadein_colorize_tone());
+        const Color ao(APP.environment().fadein_colorize_tone());
 
         Color color(fast_interpolate(ao.r_, input.r_, amt),
                     fast_interpolate(ao.g_, input.g_, amt),
@@ -176,9 +175,9 @@ ScenePtr<Scene> FadeInScene::update(App& app, Microseconds delta)
 
 
 
-void FadeInScene::display(App& app)
+void FadeInScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
     PLATFORM.set_scroll(Layer::overlay, -scroll_amount_, 0);
 }
 

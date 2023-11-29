@@ -51,7 +51,7 @@ static const auto node_death_sequence_time = milliseconds(1500);
 
 
 // TODO: create a worldGraph.cpp and move this function there.
-void WorldGraph::generate(App& app)
+void WorldGraph::generate()
 {
     storm_depth_ = 1;
 
@@ -177,7 +177,7 @@ void WorldGraph::generate(App& app)
             }
         }
         if (tries == 255 or i == 19 or // only place one store actually
-            app.zone() < 2) {
+            APP.zone() < 2) {
             nodes_[i].type_ = WorldGraph::Node::Type::null;
         }
     }
@@ -258,8 +258,7 @@ void WorldGraph::generate(App& app)
 
 
 
-static void
-draw_stormcloud_background(App& app, int cloud_depth, bool clear = true)
+static void draw_stormcloud_background(int cloud_depth, bool clear = true)
 {
     if (clear) {
         for (int x = 0; x < 16; ++x) {
@@ -341,12 +340,12 @@ void WorldMapScene::redraw_icons()
 
 
 
-void WorldMapScene::render_map_key(App& app)
+void WorldMapScene::render_map_key()
 {
     StringBuffer<32> text_ = "error";
 
     WorldGraph::Node* node = nullptr;
-    for (auto& n : app.world_graph().nodes_) {
+    for (auto& n : APP.world_graph().nodes_) {
         if (n.coord_ == movement_targets_[movement_cursor_]) {
             node = &n;
             break;
@@ -407,7 +406,7 @@ void WorldMapScene::render_map_key(App& app)
     redraw_icons();
     map_key_->assign(text_.c_str());
 
-    update_storm_frontier(app.world_graph(), 0);
+    update_storm_frontier(APP.world_graph(), 0);
 }
 
 
@@ -432,7 +431,7 @@ bool WorldMapScene::can_abort_move() const
 
 
 
-ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
 {
     cursor_anim_timer_ += delta;
     if (cursor_anim_timer_ > milliseconds(200)) {
@@ -454,12 +453,12 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
         movement_targets_.clear();
 
         auto collect_targets = [&](int w, int h) {
-            auto cur = app.world_graph().nodes_[cursor_];
+            auto cur = APP.world_graph().nodes_[cursor_];
             const auto l = cur.coord_.x - (w - 1);
             const auto t = cur.coord_.y - (h - 1);
             for (int x = l; x < cur.coord_.x + w; ++x) {
                 for (int y = t; y < cur.coord_.y + h; ++y) {
-                    for (auto& node : app.world_graph().nodes_) {
+                    for (auto& node : APP.world_graph().nodes_) {
                         if (node.type_ not_eq
                                 WorldGraph::Node::Type::corrupted and
                             node.type_ not_eq WorldGraph::Node::Type::null and
@@ -474,7 +473,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
         };
 
         has_radar_ = false;
-        for (auto& room : app.player_island().rooms()) {
+        for (auto& room : APP.player_island().rooms()) {
             if (room->cast<Radar>()) {
                 has_radar_ = true;
                 break;
@@ -487,55 +486,55 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
             collect_targets(5, 5);
         }
 
-        render_map_key(app);
+        render_map_key();
     };
 
 
-    if (app.player().key_down(Key::start)) {
+    if (APP.player().key_down(Key::start)) {
         show_tier_2_ = not show_tier_2_;
     }
 
     switch (state_) {
     case State::deselected:
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::selected;
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
-        if (app.player().key_down(Key::right) or
-            app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::right) or
+            APP.player().key_down(Key::left)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             to_move_state();
         }
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             state_ = State::save_selected;
         }
         break;
 
     case State::selected:
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             to_move_state();
         }
-        if (app.player().key_down(Key::right) or
-            app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::right) or
+            APP.player().key_down(Key::left)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             to_move_state();
-        } else if (app.player().key_down(Key::down)) {
+        } else if (APP.player().key_down(Key::down)) {
             state_ = State::save_selected;
         }
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             state_ = State::deselected;
         }
         break;
 
     case State::save_selected:
-        if (app.player().key_down(Key::up) or
-            app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::up) or
+            APP.player().key_down(Key::action_2)) {
             state_ = State::selected;
-        } else if (app.player().key_down(Key::left)) {
+        } else if (APP.player().key_down(Key::left)) {
             state_ = State::help_selected;
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::save_button_depressed;
             save_icon_.emplace(130, OverlayCoord{27, 17});
             timer_ = 0;
@@ -544,16 +543,16 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
 
 
     case State::help_selected:
-        if (app.player().key_down(Key::up) or
-            app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::up) or
+            APP.player().key_down(Key::action_2)) {
             state_ = State::selected;
-        } else if (app.player().key_down(Key::right)) {
+        } else if (APP.player().key_down(Key::right)) {
             state_ = State::save_selected;
-        } else if (app.player().key_down(Key::left)) {
+        } else if (APP.player().key_down(Key::left)) {
             state_ = State::logbook_selected;
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::help_button_depressed;
             help_icon_.emplace(138, OverlayCoord{24, 17});
             timer_ = 0;
@@ -581,14 +580,14 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
 
 
     case State::logbook_selected:
-        if (app.player().key_down(Key::up) or
-            app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::up) or
+            APP.player().key_down(Key::action_2)) {
             state_ = State::selected;
-        } else if (app.player().key_down(Key::right)) {
+        } else if (APP.player().key_down(Key::right)) {
             state_ = State::help_selected;
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::logbook_button_depressed;
             logbook_icon_.emplace(154, OverlayCoord{21, 17});
             timer_ = 0;
@@ -642,37 +641,37 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                 tier_2_visible_ = true;
             }
         }
-        if (app.player().key_down(Key::action_1)) {
-            if (app.world_graph().nodes_[cursor_].type_ not_eq
+        if (APP.player().key_down(Key::action_1)) {
+            if (APP.world_graph().nodes_[cursor_].type_ not_eq
                 WorldGraph::Node::Type::shop) {
-                app.world_graph().nodes_[cursor_].type_ =
+                APP.world_graph().nodes_[cursor_].type_ =
                     WorldGraph::Node::Type::visited;
             }
 
             for (int i = 0; i < 19; ++i) {
-                if (app.world_graph().nodes_[i].coord_ ==
+                if (APP.world_graph().nodes_[i].coord_ ==
                     movement_targets_[movement_cursor_]) {
                     cursor_ = i;
                 }
             }
             // In case anything goes wrong: create an emergency backup!
-            app.create_backup(App::BackupContext{
+            APP.create_backup(App::BackupContext{
                 .next_world_location_ = (s8)cursor_,
             });
 
-            prev_world_loc_ = app.current_world_location();
-            app.current_world_location() = cursor_;
-            show_map(app.world_graph(), app.world_graph().storm_depth_);
+            prev_world_loc_ = APP.current_world_location();
+            APP.current_world_location() = cursor_;
+            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
             cmix_ = {};
             map_key_.reset();
             redraw_icons();
-            update_storm_frontier(app.world_graph(), 0);
-            ++app.world_graph().storm_depth_;
+            update_storm_frontier(APP.world_graph(), 0);
+            ++APP.world_graph().storm_depth_;
 
-            if (app.world_graph().nodes_[cursor_].type_ ==
+            if (APP.world_graph().nodes_[cursor_].type_ ==
                 WorldGraph::Node::Type::visited) {
-                draw_stormcloud_background(
-                    app, app.world_graph().storm_depth_, false);
+                draw_stormcloud_background(APP.world_graph().storm_depth_,
+                                           false);
                 state_ = State::storm_advance;
             } else {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -680,16 +679,16 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                 cmix_ = {ColorConstant::stil_de_grain, 200};
             }
 
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             state_ = State::selected;
             map_key_.reset();
             redraw_icons();
-            update_storm_frontier(app.world_graph(), 0);
-            show_map(app.world_graph(), app.world_graph().storm_depth_);
+            update_storm_frontier(APP.world_graph(), 0);
+            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
             cmix_ = {};
         }
         // auto current = movement_targets_[movement_cursor_];
-        if (app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::left)) {
             Buffer<int, 10> left;
 
             tier_2_visible_ = false;
@@ -742,8 +741,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                     }
                 }
             }
-            render_map_key(app);
-        } else if (app.player().key_down(Key::right)) {
+            render_map_key();
+        } else if (APP.player().key_down(Key::right)) {
             Buffer<int, 10> right;
 
             tier_2_visible_ = false;
@@ -799,8 +798,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                     }
                 }
             }
-            render_map_key(app);
-        } else if (app.player().key_down(Key::up)) {
+            render_map_key();
+        } else if (APP.player().key_down(Key::up)) {
             Buffer<int, 10> above;
 
             tier_2_visible_ = false;
@@ -847,8 +846,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                     }
                 }
             }
-            render_map_key(app);
-        } else if (app.player().key_down(Key::down)) {
+            render_map_key();
+        } else if (APP.player().key_down(Key::down)) {
             Buffer<int, 10> beneath;
 
             tier_2_visible_ = false;
@@ -897,7 +896,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
                     }
                 }
             }
-            render_map_key(app);
+            render_map_key();
         }
         break;
     }
@@ -914,14 +913,14 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
         PLATFORM.screen().display();
         PLATFORM.speaker().play_sound("cancel", 5);
         PLATFORM.sleep(30);
-        app.current_world_location() = prev_world_loc_;
+        APP.current_world_location() = prev_world_loc_;
         auto next = scene_pool::alloc<WorldMapScene>();
-        app.world_graph().storm_depth_--;
+        APP.world_graph().storm_depth_--;
         return next;
     }
 
     case State::wait:
-        if (app.player().key_down(Key::action_2) and can_abort_move()) {
+        if (APP.player().key_down(Key::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }
@@ -940,7 +939,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
 
 
     case State::fade_out: {
-        if (app.player().key_down(Key::action_2) and can_abort_move()) {
+        if (APP.player().key_down(Key::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }
@@ -979,8 +978,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
             state_ = State::deselected;
         } else {
             timer_ += delta;
-            if (app.player().key_down(Key::action_1) or
-                app.player().key_down(Key::action_2)) {
+            if (APP.player().key_down(Key::action_1) or
+                APP.player().key_down(Key::action_2)) {
                 fast_ = true;
             }
             if (fast_) {
@@ -989,7 +988,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
             if (timer_ > node_death_sequence_time) {
                 timer_ = 0;
                 state_ = State::deselected;
-                auto current = app.world_graph().nodes_[cursor_];
+                auto current = APP.world_graph().nodes_[cursor_];
                 if (current.type_ == WorldGraph::Node::Type::corrupted) {
                     state_ = State::fade_out;
                 }
@@ -1006,8 +1005,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
             state_ = State::show_node_death_icons;
             fast_ = false;
             timer_ = 0;
-            show_map(app.world_graph(), app.world_graph().storm_depth_);
-            update_storm_frontier(app.world_graph(), 0);
+            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            update_storm_frontier(APP.world_graph(), 0);
         } else {
             const auto amount =
                 1.f - smoothstep(0.f, fade_duration, storm_scroll_timer_);
@@ -1024,8 +1023,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
             storm_scroll_timer_ = 0;
             state_ = State::show_node_death_icons;
             timer_ = 0;
-            show_map(app.world_graph(), app.world_graph().storm_depth_);
-            update_storm_frontier(app.world_graph(), 0);
+            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            update_storm_frontier(APP.world_graph(), 0);
         } else {
             const auto amount =
                 1.f - smoothstep(0.f, fade_duration, storm_scroll_timer_);
@@ -1041,7 +1040,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::print_saved_text;
-            save::store(app, app.persistent_data());
+            save::store(APP.persistent_data());
             PLATFORM.fill_overlay(0);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -1118,8 +1117,8 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
         const auto prev_timer = timer_;
         timer_ += delta;
 
-        if (app.player().key_down(Key::action_1) or
-            app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_1) or
+            APP.player().key_down(Key::action_2)) {
             timer_ = milliseconds(7450);
         }
 
@@ -1223,7 +1222,7 @@ ScenePtr<Scene> WorldMapScene::update(App& app, Microseconds delta)
 
 
 
-void WorldMapScene::display(App& app)
+void WorldMapScene::display()
 {
     if (state_ == State::show_saved_text or state_ == State::save_animate_out or
         state_ == State::save_exit or state_ == State::abort_move) {
@@ -1233,7 +1232,7 @@ void WorldMapScene::display(App& app)
     Sprite cursor;
     cursor.set_priority(0);
 
-    Vec2<s8> cursor_loc = app.world_graph().nodes_[cursor_].coord_;
+    Vec2<s8> cursor_loc = APP.world_graph().nodes_[cursor_].coord_;
     cursor_loc.x += 5;
     cursor_loc.y += 3;
 
@@ -1252,7 +1251,7 @@ void WorldMapScene::display(App& app)
 
 
     if (state_ == State::selected) {
-        auto current = app.world_graph().nodes_[cursor_].coord_;
+        auto current = APP.world_graph().nodes_[cursor_].coord_;
         cursor.set_texture_index((15 * 2) + cursor_keyframe_);
         cursor.set_position({Fixnum((current.x + map_start_x) * Float(8) - 4),
                              Fixnum((current.y + map_start_y) * Float(8) - 4)});
@@ -1265,11 +1264,11 @@ void WorldMapScene::display(App& app)
                              Fixnum((target.y + map_start_y) * Float(8) - 4)});
         PLATFORM.screen().draw(cursor);
 
-        for (auto& t : app.world_graph().nodes_) {
+        for (auto& t : APP.world_graph().nodes_) {
             if (t.type_ not_eq WorldGraph::Node::Type::null and
                 t.type_ not_eq WorldGraph::Node::Type::corrupted and
                 (map_start_x + t.coord_.x) * 8 <
-                    (app.world_graph().storm_depth_ + 2) * 16) {
+                    (APP.world_graph().storm_depth_ + 2) * 16) {
                 cursor.set_texture_index(111);
                 cursor.set_position(
                     {Fixnum((t.coord_.x + map_start_x) * Float(8) - 3),
@@ -1282,7 +1281,7 @@ void WorldMapScene::display(App& app)
             }
         }
 
-        auto current = app.world_graph().nodes_[cursor_];
+        auto current = APP.world_graph().nodes_[cursor_];
         auto x = (current.coord_.x + map_start_x) - 4;
         auto y = (current.coord_.y + map_start_y) - 4;
         cursor.set_texture_index(76);
@@ -1367,7 +1366,7 @@ void WorldMapScene::display(App& app)
         Buffer<Vec2<s8>, 10> tier_2_reachable;
         for (int x = o.x - 4; x < o.x + 5; ++x) {
             for (int y = o.y - 4; y < o.y + 5; ++y) {
-                for (auto& node : app.world_graph().nodes_) {
+                for (auto& node : APP.world_graph().nodes_) {
                     if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
                         node.type_ not_eq WorldGraph::Node::Type::null and
                         node.coord_ not_eq o and
@@ -1429,26 +1428,26 @@ void WorldMapScene::display(App& app)
 
 
 
-void WorldMapScene::enter(App& app, Scene& prev_scene)
+void WorldMapScene::enter(Scene& prev_scene)
 {
     PLATFORM.screen().set_shader(passthrough_shader);
 
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-    app.swap_player<PlayerP1>();
+    APP.swap_player<PlayerP1>();
 
-    app.effects().clear();
-    app.player_island().projectiles().clear();
+    APP.effects().clear();
+    APP.player_island().projectiles().clear();
 
-    cursor_ = app.current_world_location();
+    cursor_ = APP.current_world_location();
 
     auto view = PLATFORM.screen().get_view();
     view.set_center({});
     PLATFORM.screen().set_view(view);
 
-    app.time_stream().clear();
+    APP.time_stream().clear();
 
-    auto& current = app.world_graph().nodes_[cursor_];
+    auto& current = APP.world_graph().nodes_[cursor_];
     if (current.type_ not_eq WorldGraph::Node::Type::shop) {
         current.type_ = WorldGraph::Node::Type::visited;
     }
@@ -1457,7 +1456,7 @@ void WorldMapScene::enter(App& app, Scene& prev_scene)
     PLATFORM.load_tile1_texture("tilesheet_world_map_backdrop");
 
     PLATFORM.set_scroll(Layer::map_1_ext, 16, 0);
-    draw_stormcloud_background(app, app.world_graph().storm_depth_);
+    draw_stormcloud_background(APP.world_graph().storm_depth_);
 
     PLATFORM.enable_glyph_mode(true);
 
@@ -1480,18 +1479,18 @@ void WorldMapScene::enter(App& app, Scene& prev_scene)
 
     heading_.emplace(OverlayCoord{1, 1});
 
-    heading_->assign(format(SYSTR(wg_title)->c_str(), app.zone()).c_str());
+    heading_->assign(format(SYSTR(wg_title)->c_str(), APP.zone()).c_str());
 
     warning_.emplace(OverlayCoord{1, 18});
     warning_->assign(SYSTR(wg_storm_label)->c_str());
 
-    show_map(app.world_graph(), app.world_graph().storm_depth_ - 1);
+    show_map(APP.world_graph(), APP.world_graph().storm_depth_ - 1);
 
     save_icon_.emplace(126, OverlayCoord{27, 17});
     help_icon_.emplace(134, OverlayCoord{24, 17});
     logbook_icon_.emplace(150, OverlayCoord{21, 17});
 
-    for (auto& node : app.world_graph().nodes_) {
+    for (auto& node : APP.world_graph().nodes_) {
         if (node.type_ == WorldGraph::Node::Type::exit) {
             exit_label_.emplace(
 
@@ -1502,7 +1501,7 @@ void WorldMapScene::enter(App& app, Scene& prev_scene)
     }
 
 
-    update_storm_frontier(app.world_graph(), -1);
+    update_storm_frontier(APP.world_graph(), -1);
 }
 
 
@@ -1542,7 +1541,7 @@ void WorldMapScene::show_map(WorldGraph& map, int storm_depth)
 
 
 
-void WorldMapScene::exit(App& app, Scene& next_scene)
+void WorldMapScene::exit(Scene& next_scene)
 {
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -1557,7 +1556,7 @@ void WorldMapScene::exit(App& app, Scene& next_scene)
 
     PLATFORM.load_overlay_texture("overlay");
 
-    show_island_exterior(app, app.opponent_island());
+    show_island_exterior(APP.opponent_island());
 }
 
 

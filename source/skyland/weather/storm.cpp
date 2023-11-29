@@ -97,7 +97,7 @@ static uint8_t rand8(void)
 
 
 
-void Storm::update(App& app, Microseconds delta)
+void Storm::update(Microseconds delta)
 {
     if (PLATFORM.screen().fade_active()) {
         return;
@@ -111,7 +111,7 @@ void Storm::update(App& app, Microseconds delta)
 
     auto& gen = rng::utility_state;
 
-    auto camera = app.camera()->center().cast<s16>();
+    auto camera = APP.camera()->center().cast<s16>();
     auto camera_diff_x = camera.x - last_camera_.x;
     auto camera_diff_y = camera.y - last_camera_.y;
 
@@ -131,9 +131,9 @@ void Storm::update(App& app, Microseconds delta)
     if (s.lightning_timer_ <= 0) {
         s.lightning_timer_ = seconds(4) + rng::choice(13, gen) * seconds(1);
 
-        if (app.opponent_island() and
-            not app.opponent_island()->is_destroyed() and
-            not app.player_island().is_destroyed()) {
+        if (APP.opponent_island() and
+            not APP.opponent_island()->is_destroyed() and
+            not APP.player_island().is_destroyed()) {
             on_lightning();
         }
     }
@@ -193,7 +193,7 @@ void Storm::update(App& app, Microseconds delta)
 
 
 
-void Storm::rewind(App& app, Microseconds delta)
+void Storm::rewind(Microseconds delta)
 {
     const auto scale = rain_pos_scale;
 
@@ -221,7 +221,7 @@ void Storm::rewind(App& app, Microseconds delta)
 
 
 
-void Storm::display(App& app)
+void Storm::display()
 {
     if (PLATFORM.screen().fade_active()) {
         return;
@@ -254,9 +254,9 @@ const char* Storm::music() const
 
 
 
-Platform::Screen::Shader Storm::shader(App& app) const
+Platform::Screen::Shader Storm::shader() const
 {
-    return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
+    return [](ShaderPalette palette, ColorConstant k, int arg, int index) {
         switch (palette) {
         case ShaderPalette::tile0:
             switch (index & 0x0f) {
@@ -273,7 +273,7 @@ Platform::Screen::Shader Storm::shader(App& app) const
             case 9:
                 return custom_color(0xe8ebe6);
             case 10:
-                if (not player_island(app).interior_visible()) {
+                if (not player_island().interior_visible()) {
                     return custom_color(0x9adbd6);
                 }
                 break;
@@ -303,8 +303,8 @@ Platform::Screen::Shader Storm::shader(App& app) const
             case 9:
                 return custom_color(0xe8ebe6);
             case 10: // FIXME
-                if (opponent_island(app) and
-                    not opponent_island(app)->interior_visible()) {
+                if (opponent_island() and
+                    not opponent_island()->interior_visible()) {
                     return custom_color(0x899668);
                 }
                 break;

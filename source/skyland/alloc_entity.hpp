@@ -59,7 +59,7 @@ public:
         kill();
     }
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
     }
 };

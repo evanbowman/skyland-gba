@@ -214,7 +214,7 @@ void DatetimeModule::repaint()
 
 
 
-void DatetimeModule::enter(App& app, Scene& prev)
+void DatetimeModule::enter(Scene& prev)
 {
     info("enter datetime module");
 
@@ -237,20 +237,20 @@ void DatetimeModule::enter(App& app, Scene& prev)
 
 
 
-void DatetimeModule::exit(App& app, Scene& next)
+void DatetimeModule::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
 }
 
 
 
-ScenePtr<Scene> DatetimeModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> DatetimeModule::update(Microseconds delta)
 {
-    auto& p = player(app);
-    p.update(app, delta);
+    auto& p = player();
+    p.update(delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     switch (state_) {

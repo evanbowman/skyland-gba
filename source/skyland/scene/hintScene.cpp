@@ -70,7 +70,7 @@ static void show_hint(const HintInfo& info, TextView& text)
 
 
 
-void HintScene::enter(App&, Scene& prev)
+void HintScene::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(82);
 
@@ -83,7 +83,7 @@ void HintScene::enter(App&, Scene& prev)
 }
 
 
-void HintScene::exit(App&, Scene& next)
+void HintScene::exit(Scene& next)
 {
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
     heading_.reset();
@@ -92,7 +92,7 @@ void HintScene::exit(App&, Scene& next)
 }
 
 
-ScenePtr<Scene> HintScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> HintScene::update(Microseconds delta)
 {
     switch (state_) {
     case State::scene_intro: {
@@ -113,7 +113,7 @@ ScenePtr<Scene> HintScene::update(App& app, Microseconds delta)
     }
 
     case State::idle:
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             // if (hint_index_ >= (sizeof(hints) / sizeof(HintInfo))) {
             //     hint_index_ = 0;
             // } else {
@@ -124,7 +124,7 @@ ScenePtr<Scene> HintScene::update(App& app, Microseconds delta)
             timer_ = 0;
 
             state_ = State::fade_out;
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             return scene_pool::alloc<WorldMapScene>();
         }
         break;

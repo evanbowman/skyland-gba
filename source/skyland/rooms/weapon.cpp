@@ -54,7 +54,7 @@ Weapon::~Weapon()
 
 
 
-void Weapon::timer_expired(App& app)
+void Weapon::timer_expired()
 {
     if (Timer::interval() == reload()) {
         // We need to store the point at which we finished reloading. A
@@ -64,16 +64,16 @@ void Weapon::timer_expired(App& app)
         // timer in certain cases. We could perhaps save some space by not
         // pushing this event in cases where we know that it's most likely
         // unnecessary.
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     }
 
@@ -85,14 +85,14 @@ void Weapon::timer_expired(App& app)
             return;
         }
 
-        auto island = other_island(app);
+        auto island = other_island();
 
         if (island and not island->is_destroyed()) {
-            fire(app);
+            fire();
 
             // If we emit a projectile, the AI player pretty much knows what
             // block we are, even if we're concealed by cloaking.
-            set_ai_aware(app, true);
+            set_ai_aware(true);
 
             parent()->bulk_timer().schedule(this, reload());
             return;
@@ -107,21 +107,21 @@ void Weapon::timer_expired(App& app)
 
 
 
-void Weapon::update(App& app, Microseconds delta)
+void Weapon::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
 
-void Weapon::rewind(App& app, Microseconds delta)
+void Weapon::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 }
 
 
 
-void Weapon::___rewind___finished_reload(App&)
+void Weapon::___rewind___finished_reload()
 {
     // NOTE: the reload logic, above, increments the reload counter if the
     // reload timer is greater than zero. A bit hacky, but better than wasting
@@ -131,7 +131,7 @@ void Weapon::___rewind___finished_reload(App&)
 
 
 
-void Weapon::___rewind___ability_used(App&)
+void Weapon::___rewind___ability_used()
 {
     // NOTE: the weapon just fired, i.e. before it fired, its reload timer must
     // have been either zero or near zero. We could technically store the exact
@@ -148,14 +148,14 @@ void Weapon::___rewind___ability_used(App&)
 
 
 void Weapon::display_on_hover(Platform::Screen& screen,
-                              App& app,
+
                               const RoomCoord& cursor)
 {
     if (not target_) {
         return;
     }
 
-    auto target_island = other_island(app);
+    auto target_island = other_island();
 
     if (target_island) {
         auto pos = target_island->visual_origin();
@@ -180,7 +180,7 @@ bool Weapon::target_pinned() const
 
 
 
-void Weapon::set_target(App& app, const RoomCoord& target, bool pinned)
+void Weapon::set_target(const RoomCoord& target, bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -192,7 +192,7 @@ void Weapon::set_target(App& app, const RoomCoord& target, bool pinned)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &app.player_island();
+    e.near_ = parent() == &APP.player_island();
     e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
@@ -205,7 +205,7 @@ void Weapon::set_target(App& app, const RoomCoord& target, bool pinned)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     target_ = target;
     target_pinned_ = pinned;
@@ -213,7 +213,7 @@ void Weapon::set_target(App& app, const RoomCoord& target, bool pinned)
 
 
 
-void Weapon::unset_target(App& app)
+void Weapon::unset_target()
 {
     if (not target_) {
         // Already uninitialized.
@@ -225,7 +225,7 @@ void Weapon::unset_target(App& app)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &app.player_island();
+    e.near_ = parent() == &APP.player_island();
     e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
@@ -238,7 +238,7 @@ void Weapon::unset_target(App& app)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     target_.reset();
     target_pinned_ = false;
@@ -246,7 +246,7 @@ void Weapon::unset_target(App& app)
 
 
 
-ScenePtr<Scene> Weapon::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Weapon::select(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -254,7 +254,7 @@ ScenePtr<Scene> Weapon::select(App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
-    if (auto scn = reject_if_friendly(app)) {
+    if (auto scn = reject_if_friendly()) {
         return scn;
     }
 
@@ -266,14 +266,14 @@ ScenePtr<Scene> Weapon::select(App& app, const RoomCoord& cursor)
     }
 
 
-    if (parent() == &app.player_island()) {
+    if (parent() == &APP.player_island()) {
 
         using Next = WeaponSetTargetScene;
 
         auto next =
             scene_pool::make_deferred_scene<Next>(position(), true, target_);
 
-        if (app.game_mode() == App::GameMode::co_op) {
+        if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);
         } else {
             return next();

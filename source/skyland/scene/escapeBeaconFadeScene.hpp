@@ -42,17 +42,17 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        WorldScene::update(app, delta);
+        WorldScene::update(delta);
 
         constexpr auto fade_duration = milliseconds(2000);
 
         if (timer_ > 0 and not island_hidden_) {
             if (player_escaped_) {
-                player_island(app).set_hidden(app, true);
-            } else if (opponent_island(app)) {
-                opponent_island(app)->set_hidden(app, true);
+                player_island().set_hidden(true);
+            } else if (opponent_island()) {
+                opponent_island()->set_hidden(true);
             }
             island_hidden_ = true;
         }

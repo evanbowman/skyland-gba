@@ -30,9 +30,9 @@ namespace skyland::weather
 
 
 
-Dynamic::Dynamic(App& app)
+Dynamic::Dynamic()
 {
-    compute_palettes(app, 70);
+    compute_palettes(70);
 }
 
 
@@ -92,7 +92,7 @@ static const ColorConstant background_clear_palette[4] = {
 
 
 
-void Dynamic::compute_palettes(App& app, u8 scale)
+void Dynamic::compute_palettes(u8 scale)
 {
     auto mix = [&](auto c1, auto c2, int var) {
         auto col1 = Color(c1);
@@ -120,19 +120,19 @@ void Dynamic::compute_palettes(App& app, u8 scale)
 
 
 
-void Dynamic::update(App& app, Microseconds delta)
+void Dynamic::update(Microseconds delta)
 {
 }
 
 
 
-void Dynamic::rewind(App& app, Microseconds delta)
+void Dynamic::rewind(Microseconds delta)
 {
 }
 
 
 
-Platform::Screen::Shader Dynamic::shader(App& app) const
+Platform::Screen::Shader Dynamic::shader() const
 {
     return [state = ScratchMemory<State>(state_)](
                ShaderPalette palette, ColorConstant k, int arg, int index) {

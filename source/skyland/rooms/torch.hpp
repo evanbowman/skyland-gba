@@ -43,7 +43,7 @@ public:
     }
 
 
-    void burn_damage(App& app, Health damage) override
+    void burn_damage(Health damage) override
     {
         // Torches take no burn damage (that's kinda the whole point).
     }
@@ -55,9 +55,9 @@ public:
     }
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
-        Room::render_scaffolding(app, buffer);
+        Room::render_scaffolding(buffer);
     }
 
 

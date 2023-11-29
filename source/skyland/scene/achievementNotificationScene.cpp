@@ -32,8 +32,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AchievementNotificationScene::update(App& app,
-                                                     Microseconds delta)
+ScenePtr<Scene> AchievementNotificationScene::update(Microseconds delta)
 {
     // NOTE: do not call WorldScene::update, the game should be considered
     // paused.
@@ -151,8 +150,8 @@ ScenePtr<Scene> AchievementNotificationScene::update(App& app,
     }
 
     case State::wait:
-        if (timer_ > seconds(2) and (app.player().key_down(Key::action_1) or
-                                     app.player().key_down(Key::action_2))) {
+        if (timer_ > seconds(2) and (APP.player().key_down(Key::action_1) or
+                                     APP.player().key_down(Key::action_2))) {
 
             timer_ = 0;
             state_ = State::fade_out;
@@ -183,18 +182,18 @@ ScenePtr<Scene> AchievementNotificationScene::update(App& app,
 
 
 
-void AchievementNotificationScene::enter(App& app, Scene& prev)
+void AchievementNotificationScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     // PLATFORM.screen().schedule_fade(0.5f);
 }
 
 
 
-void AchievementNotificationScene::exit(App& app, Scene& next)
+void AchievementNotificationScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 }
 
 

@@ -49,28 +49,28 @@ WeatherEngine::WeatherEngine(Island* parent,
 
 
 
-void environment_init(App& app, int type);
+void environment_init(int type);
 
 
 
-ScenePtr<Scene> WeatherEngine::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> WeatherEngine::select(const RoomCoord& cursor)
 {
     time_stream::event::WeatherChanged e;
 
-    if (app.environment().is_overcast()) {
+    if (APP.environment().is_overcast()) {
         e.prev_weather_ = 3; // FIXME!
-        environment_init(app, 1);
+        environment_init(1);
     } else {
         e.prev_weather_ = 1;
-        environment_init(app, 3);
+        environment_init(3);
     }
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
-    PLATFORM.screen().set_shader(app.environment().shader(app));
+    PLATFORM.screen().set_shader(APP.environment().shader());
     PLATFORM.screen().set_shader_argument(0);
 
-    if (not PLATFORM.speaker().is_music_playing(app.environment().music())) {
-        PLATFORM.speaker().play_music(app.environment().music(), 0);
+    if (not PLATFORM.speaker().is_music_playing(APP.environment().music())) {
+        PLATFORM.speaker().play_music(APP.environment().music(), 0);
     }
 
     PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
@@ -86,9 +86,9 @@ ScenePtr<Scene> WeatherEngine::select(App& app, const RoomCoord& cursor)
 
 
 
-void WeatherEngine::update(App& app, Microseconds delta)
+void WeatherEngine::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 

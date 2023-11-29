@@ -33,8 +33,8 @@ namespace skyland
 
 
 
-void prep_level(App& app);
-void environment_init(App& app, int type);
+void prep_level();
+void environment_init(int type);
 
 
 
@@ -50,13 +50,13 @@ static const u8 settings_start = 10;
 
 
 
-void SkylandForever::enter(App& app, Scene& prev)
+void SkylandForever::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_challenges");
     PLATFORM.system_call("v-parallax", (void*)false);
 
 
-    app.level_coins_spent() = 0;
+    APP.level_coins_spent() = 0;
 
 
     msg_.emplace();
@@ -65,15 +65,15 @@ void SkylandForever::enter(App& app, Scene& prev)
                  OverlayCoord{28, 6});
 
 
-    app.game_mode() = App::GameMode::skyland_forever;
+    APP.game_mode() = App::GameMode::skyland_forever;
 
     parameters_.push_back(1);
     parameters_.push_back(1);
 
-    parameters_[0] = (int)app.gp_.difficulty_;
+    parameters_[0] = (int)APP.gp_.difficulty_;
 
-    environment_init(app, parameters_[1]);
-    PLATFORM.screen().set_shader(app.environment().shader(app));
+    environment_init(parameters_[1]);
+    PLATFORM.screen().set_shader(APP.environment().shader());
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
         settings_text_.emplace_back(
@@ -101,7 +101,7 @@ void SkylandForever::enter(App& app, Scene& prev)
 
 
 
-void SkylandForever::exit(App& app, Scene& prev)
+void SkylandForever::exit(Scene& prev)
 {
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -110,12 +110,12 @@ void SkylandForever::exit(App& app, Scene& prev)
     settings_text_.clear();
     msg_.reset();
 
-    environment_init(app, parameters_[1]);
+    environment_init(parameters_[1]);
 
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.system_call("v-parallax", (void*)true);
 
-    init(app, parameters_[0], rng::critical_state);
+    init(parameters_[0], rng::critical_state);
 
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.system_call("v-parallax", (void*)true);
@@ -125,56 +125,56 @@ void SkylandForever::exit(App& app, Scene& prev)
 
 
 
-void SkylandForever::init(App& app, u8 difficulty, rng::LinearGenerator seed)
+void SkylandForever::init(u8 difficulty, rng::LinearGenerator seed)
 {
-    app.set_coins(0);
+    APP.set_coins(0);
 
     switch (difficulty) {
     case 0:
-        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::beginner;
-        app.invoke_script("/scripts/config/forever/easy.lisp");
+        APP.gp_.difficulty_ = GlobalPersistentData::Difficulty::beginner;
+        APP.invoke_script("/scripts/config/forever/easy.lisp");
         break;
 
     case 1:
-        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::experienced;
-        app.invoke_script("/scripts/config/forever/normal.lisp");
+        APP.gp_.difficulty_ = GlobalPersistentData::Difficulty::experienced;
+        APP.invoke_script("/scripts/config/forever/normal.lisp");
         break;
 
     case 2:
-        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::expert;
-        app.invoke_script("/scripts/config/forever/hard.lisp");
+        APP.gp_.difficulty_ = GlobalPersistentData::Difficulty::expert;
+        APP.invoke_script("/scripts/config/forever/hard.lisp");
         break;
     }
 
-    app.persistent_data().total_seconds_.set(0);
+    APP.persistent_data().total_seconds_.set(0);
 
-    app.player_island().init_terrain(4);
+    APP.player_island().init_terrain(4);
 
-    app.persistent_data().score_.set(0);
+    APP.persistent_data().score_.set(0);
 
-    PLATFORM.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(APP.environment().music(), 0);
 
-    app.invoke_script("/scripts/event/skyland_forever.lisp");
+    APP.invoke_script("/scripts/event/skyland_forever.lisp");
 
-    prep_level(app);
-    app.player_island().set_position(
+    prep_level();
+    APP.player_island().set_position(
         {Fixnum::from_integer(10), Fixnum::from_integer(374)});
 
-    app.reset_opponent_island();
-    app.swap_opponent<ProcgenEnemyAI>(seed, difficulty);
+    APP.reset_opponent_island();
+    APP.swap_opponent<ProcgenEnemyAI>(seed, difficulty);
 
 
-    show_island_exterior(app, &app.player_island());
-    show_island_exterior(app, app.opponent_island());
+    show_island_exterior(&APP.player_island());
+    show_island_exterior(APP.opponent_island());
 }
 
 
 
-ScenePtr<Scene> SkylandForever::update(App& app, Microseconds delta)
+ScenePtr<Scene> SkylandForever::update(Microseconds delta)
 {
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     if (unveil_) {
         PLATFORM.screen().schedule_fade(
@@ -184,9 +184,9 @@ ScenePtr<Scene> SkylandForever::update(App& app, Microseconds delta)
     }
 
     auto update_env = [&] {
-        environment_init(app, parameters_[1]);
+        environment_init(parameters_[1]);
 
-        PLATFORM.screen().set_shader(app.environment().shader(app));
+        PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
 
         PLATFORM.screen().schedule_fade(
@@ -195,43 +195,43 @@ ScenePtr<Scene> SkylandForever::update(App& app, Microseconds delta)
             0.6f, ColorConstant::rich_black, false, false);
     };
 
-    if (app.player().key_down(Key::right) or
-        app.player().key_held(Key::right, milliseconds(500))) {
+    if (APP.player().key_down(Key::right) or
+        APP.player().key_held(Key::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
         }
         update_parameter(cursor_);
-        app.player().key_held_reset(Key::right, milliseconds(80));
+        APP.player().key_held_reset(Key::right, milliseconds(80));
         if (cursor_ == 1) {
             update_env();
         }
     }
 
-    if (app.player().key_down(Key::left) or
-        app.player().key_held(Key::left, milliseconds(500))) {
+    if (APP.player().key_down(Key::left) or
+        APP.player().key_held(Key::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
 
         if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
-        app.player().key_held_reset(Key::left, milliseconds(80));
+        APP.player().key_held_reset(Key::left, milliseconds(80));
         if (cursor_ == 1) {
             update_env();
         }
     }
 
-    if (app.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
+    if (APP.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
         ++cursor_;
 
-    } else if (app.player().key_down(Key::up) and cursor_ > 0) {
+    } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
         --cursor_;
     }
 
-    if (app.player().key_down(Key::action_1) or app.player().tap_released()) {
+    if (APP.player().key_down(Key::action_1) or APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
-    } else if (app.player().key_down(Key::action_2)) {
+    } else if (APP.player().key_down(Key::action_2)) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<TitleScreenScene>(3);
     }
@@ -241,9 +241,9 @@ ScenePtr<Scene> SkylandForever::update(App& app, Microseconds delta)
 
 
 
-void SkylandForever::display(App& app)
+void SkylandForever::display()
 {
-    Scene::display(app);
+    Scene::display();
 
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);

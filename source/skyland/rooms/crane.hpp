@@ -88,23 +88,23 @@ public:
     Crane(Island* parent, const RoomCoord& position, const char* n = name());
 
 
-    void update(App&, Microseconds delta) override;
-    void display(Platform::Screen& screen, App& app) override;
+    void update(Microseconds delta) override;
+    void display(Platform::Screen& screen) override;
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 
-    void rewind(App& app, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -171,7 +171,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     void retract()
@@ -186,10 +186,10 @@ public:
     }
 
 
-    void apply_damage(App& app, Health damage) override
+    void apply_damage(Health damage) override
     {
         if (state_ == State::idle) {
-            Room::apply_damage(app, damage);
+            Room::apply_damage(damage);
         } else {
             // Does not take damage while dropping/retracting.
         }

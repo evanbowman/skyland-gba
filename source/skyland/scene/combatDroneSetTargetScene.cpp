@@ -33,18 +33,18 @@ namespace skyland
 
 
 
-ScenePtr<Scene> CombatDroneSetTargetScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> CombatDroneSetTargetScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     auto exit_scene = [&]() -> ScenePtr<Scene> {
-        if (drone_->destination() == &app.player_island()) {
+        if (drone_->destination() == &APP.player_island()) {
             globals().near_cursor_loc_ = drone_->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -57,34 +57,34 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(App& app, Microseconds delta)
         return exit_scene();
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return exit_scene();
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
 
         network::packet::DroneSetTarget packet;
         packet.drone_x_ = drone_->position().x;
         packet.drone_y_ = drone_->position().y;
         packet.target_x_ = cursor_loc_.x;
         packet.target_y_ = cursor_loc_.y;
-        packet.drone_near_ = drone_->destination() == &app.player_island();
+        packet.drone_near_ = drone_->destination() == &APP.player_island();
         packet.target_near_ = near_;
         network::transmit(packet);
 
-        drone_->set_target(app, cursor_loc_, near_);
+        drone_->set_target(cursor_loc_, near_);
 
         return exit_scene();
     }
 
-    if (app.player().key_down(Key::right)) {
+    if (APP.player().key_down(Key::right)) {
         ++selector_;
         if (selector_ >= (int)targets_.size()) {
             selector_ = 0;
         }
     }
 
-    if (app.player().key_down(Key::left)) {
+    if (APP.player().key_down(Key::left)) {
         --selector_;
         if (selector_ < 0) {
             selector_ = targets_.size() - 1;
@@ -95,7 +95,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(App& app, Microseconds delta)
     auto loc = target->position();
     cursor_loc_ = loc;
 
-    if (target->destination() == &app.player_island()) {
+    if (target->destination() == &APP.player_island()) {
         near_camera();
         globals().near_cursor_loc_ = loc;
         near_ = true;
@@ -110,9 +110,9 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(App& app, Microseconds delta)
 
 
 
-void CombatDroneSetTargetScene::enter(App& app, Scene& prev)
+void CombatDroneSetTargetScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     auto collect = [&](auto& list) {
         for (auto& drone_sp : list) {
@@ -126,50 +126,50 @@ void CombatDroneSetTargetScene::enter(App& app, Scene& prev)
     };
 
 
-    near_ = drone_->destination() == &app.player_island();
+    near_ = drone_->destination() == &APP.player_island();
     if (not near_) {
         far_camera();
     }
 
     if (near_) {
-        if (app.opponent_island()) {
-            collect(app.opponent_island()->drones());
+        if (APP.opponent_island()) {
+            collect(APP.opponent_island()->drones());
         }
-        collect(app.player_island().drones());
+        collect(APP.player_island().drones());
     } else {
-        collect(app.player_island().drones());
-        if (app.opponent_island()) {
-            collect(app.opponent_island()->drones());
+        collect(APP.player_island().drones());
+        if (APP.opponent_island()) {
+            collect(APP.opponent_island()->drones());
         }
     }
 }
 
 
 
-void CombatDroneSetTargetScene::exit(App& app, Scene& next)
+void CombatDroneSetTargetScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 }
 
 
 
-void CombatDroneSetTargetScene::display(App& app)
+void CombatDroneSetTargetScene::display()
 {
     if (targets_.empty()) {
-        WorldScene::display(app);
+        WorldScene::display();
         return;
     }
 
-    if (not app.opponent_island()) {
-        WorldScene::display(app);
+    if (not APP.opponent_island()) {
+        WorldScene::display();
         return;
     }
 
     Island* island;
     if (near_) {
-        island = &app.player_island();
+        island = &APP.player_island();
     } else {
-        island = app.opponent_island();
+        island = APP.opponent_island();
     }
 
     if (island) {
@@ -186,7 +186,7 @@ void CombatDroneSetTargetScene::display(App& app)
         PLATFORM.screen().draw(sprite);
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 

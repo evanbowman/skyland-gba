@@ -42,21 +42,20 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -128,18 +127,18 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 
     using ChrBuffer = Buffer<BasicCharacter*, 16>;
 
 
-    void collect_nearby_chrs(App& app, ChrBuffer& output);
+    void collect_nearby_chrs(ChrBuffer& output);
 
 
 private:
-    void emit_radiation(App& app);
+    void emit_radiation();
 
 
     Microseconds damage_timer_ = 0;

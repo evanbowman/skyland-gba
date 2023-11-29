@@ -62,7 +62,7 @@ static const Float partial_fade_amt = 0.76f;
 
 
 
-void PlayerIslandDestroyedScene::show_stats(App& app)
+void PlayerIslandDestroyedScene::show_stats()
 {
     const auto screen_tiles = calc_screen_tiles();
 
@@ -112,9 +112,9 @@ void PlayerIslandDestroyedScene::show_stats(App& app)
 
     switch (lines_.size()) {
     case 0: {
-        int secs = app.stat_timer().whole_seconds();
-        if (app.game_mode() == App::GameMode::skyland_forever) {
-            secs = app.persistent_data().total_seconds_.get();
+        int secs = APP.stat_timer().whole_seconds();
+        if (APP.game_mode() == App::GameMode::skyland_forever) {
+            secs = APP.persistent_data().total_seconds_.get();
         }
         print_metric_impl(SYSTR(level_complete_time)->c_str(),
                           format_time(secs, true));
@@ -122,19 +122,19 @@ void PlayerIslandDestroyedScene::show_stats(App& app)
     }
 
     case 1:
-        if (app.game_mode() == App::GameMode::skyland_forever or
-            app.game_mode() == App::GameMode::co_op) {
+        if (APP.game_mode() == App::GameMode::skyland_forever or
+            APP.game_mode() == App::GameMode::co_op) {
             print_metric(SYSTR(level_complete_pauses)->c_str(),
-                         app.persistent_data().total_pauses_.get());
+                         APP.persistent_data().total_pauses_.get());
         } else {
             print_metric(SYSTR(level_complete_pauses)->c_str(),
-                         app.pause_count());
+                         APP.pause_count());
         }
         break;
 
     case 2:
         print_metric(SYSTR(level_complete_coins)->c_str(),
-                     app.level_coins_spent());
+                     APP.level_coins_spent());
         break;
 
     case 3: {
@@ -147,9 +147,9 @@ void PlayerIslandDestroyedScene::show_stats(App& app)
     }
 
     case 4: {
-        if (app.game_mode() not_eq App::GameMode::skyland_forever) {
+        if (APP.game_mode() not_eq App::GameMode::skyland_forever) {
             StringBuffer<24> fmt;
-            auto score_diff = app.score().get() - app.level_begin_score();
+            auto score_diff = APP.score().get() - APP.level_begin_score();
             fmt += "+";
             fmt += stringify(score_diff);
             print_metric_impl(SYSTR(highscores_score)->c_str(), fmt.c_str());
@@ -161,7 +161,7 @@ void PlayerIslandDestroyedScene::show_stats(App& app)
 
 
 
-void PlayerIslandDestroyedScene::display(App& app)
+void PlayerIslandDestroyedScene::display()
 {
     // No overlay circle effect in multiplayer, because the vblank handler could
     // spend too long calculating the circle edges and cause a missed serial
@@ -183,7 +183,7 @@ void PlayerIslandDestroyedScene::display(App& app)
     }
 
 
-    WorldScene::display(app);
+    WorldScene::display();
 
     if (confetti_ and *confetti_) {
         for (auto& c : **confetti_) {
@@ -212,7 +212,7 @@ void PlayerIslandDestroyedScene::display(App& app)
 
 
 
-void update_confetti(App& app, ConfettiBuffer& confetti, Microseconds delta)
+void update_confetti(ConfettiBuffer& confetti, Microseconds delta)
 {
     const auto view = PLATFORM.screen().get_view().get_center();
 
@@ -278,48 +278,48 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
-ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
 {
-    WorldScene::update(app, delta);
+    WorldScene::update(delta);
 
-    if (app.game_speed() not_eq GameSpeed::normal) {
-        reset_gamespeed(app);
+    if (APP.game_speed() not_eq GameSpeed::normal) {
+        reset_gamespeed();
     }
 
-    app.environment().update(app, delta);
+    APP.environment().update(delta);
 
-    app.time_stream().enable_pushes(false);
-    app.time_stream().clear();
+    APP.time_stream().enable_pushes(false);
+    APP.time_stream().clear();
 
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
 
     const bool opponent_defeated =
-        island_ not_eq &app.player_island() and not forced_defeat_;
+        island_ not_eq &APP.player_island() and not forced_defeat_;
 
 
     const bool endgame =
-        app.game_mode() == App::GameMode::adventure and
+        APP.game_mode() == App::GameMode::adventure and
         ((not opponent_defeated and
-          app.player_island().power_supply()) // surrender condition
+          APP.player_island().power_supply()) // surrender condition
          or (opponent_defeated and
-             app.world_graph().nodes_[app.current_world_location()].type_ ==
+             APP.world_graph().nodes_[APP.current_world_location()].type_ ==
                  WorldGraph::Node::Type::corrupted));
 
 
     if (confetti_ and *confetti_) {
-        update_confetti(app, **confetti_, delta);
+        update_confetti(**confetti_, delta);
     }
 
 
-    auto setup_shader = [&app] {
+    auto setup_shader = [] {
         PLATFORM.screen().set_shader(
-            [&app](ShaderPalette p, ColorConstant k, int var, int index) {
-                auto k1 = app.environment().shader(app)(std::move(p),
-                                                        std::move(k),
-                                                        std::move(var),
-                                                        std::move(index));
+            [](ShaderPalette p, ColorConstant k, int var, int index) {
+                auto k1 = APP.environment().shader()(std::move(p),
+                                                     std::move(k),
+                                                     std::move(var),
+                                                     std::move(index));
                 return redden_shader(p, k1, var, index);
             });
     };
@@ -327,7 +327,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
     auto pos = island_->get_position();
     if (pos.y < 600.0_fixed) {
-        pos.y += sink_speed_ * app.delta_fp();
+        pos.y += sink_speed_ * APP.delta_fp();
 
         // Now, because some platforms implement automatic background wrapping
         // in hardware, we need to clear out tiles as they scroll outside the
@@ -355,10 +355,10 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
                 for (int x = 0; x < 16; ++x) {
                     PLATFORM.set_tile(layer, x, y, 0);
                     if (island_->fire_present({(u8)x, (u8)y})) {
-                        island_->fire_extinguish(app, {(u8)x, (u8)y});
+                        island_->fire_extinguish({(u8)x, (u8)y});
                     }
                 }
-                island_->clear_rooms(app);
+                island_->clear_rooms();
             }
         }
     }
@@ -380,7 +380,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             } else {
                 stat_timer_ = 0;
             }
-            show_stats(app);
+            show_stats();
         }
     }
 
@@ -402,34 +402,34 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             PLATFORM.speaker().set_music_volume(1);
         }
 
-        app.effects().clear();
+        APP.effects().clear();
 
-        if (((app.game_mode() not_eq App::GameMode::adventure or endgame) and
-             app.game_mode() not_eq App::GameMode::skyland_forever and
-             app.game_mode() not_eq App::GameMode::co_op)) {
+        if (((APP.game_mode() not_eq App::GameMode::adventure or endgame) and
+             APP.game_mode() not_eq App::GameMode::skyland_forever and
+             APP.game_mode() not_eq App::GameMode::co_op)) {
             PLATFORM.speaker().play_music("unaccompanied_wind", 0);
         }
 
         PLATFORM.speaker().play_sound("explosion1", 3);
 
-        big_explosion(app, origin, 0);
+        big_explosion(origin, 0);
 
         const auto off = 50.0_fixed;
 
         if (not opponent_defeated) {
-            app.swap_player<PlayerP1>();
+            APP.swap_player<PlayerP1>();
         } else if (opponent_defeated and
-                   app.game_mode() == App::GameMode::sandbox) {
+                   APP.game_mode() == App::GameMode::sandbox) {
             // In case we were in spectator mode.
-            app.swap_player<PlayerP1>();
+            APP.swap_player<PlayerP1>();
         }
 
-        big_explosion(app, {origin.x - off, origin.y - off}, 0);
-        big_explosion(app, {origin.x + off, origin.y + off}, 0);
+        big_explosion({origin.x - off, origin.y - off}, 0);
+        big_explosion({origin.x + off, origin.y + off}, 0);
         timer_ = 0;
 
-        for (auto& room : app.player_island().rooms()) {
-            room->unset_target(app);
+        for (auto& room : APP.player_island().rooms()) {
+            room->unset_target();
         }
 
         anim_state_ = AnimState::explosion_wait1;
@@ -442,11 +442,11 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
             PLATFORM.speaker().play_sound("explosion1", 3);
 
-            big_explosion(app, origin, 0);
+            big_explosion(origin, 0);
             const auto off = Fixnum::from_integer(-50);
 
-            big_explosion(app, {origin.x - off, origin.y + off}, 0);
-            big_explosion(app, {origin.x + off, origin.y - off}, 0);
+            big_explosion({origin.x - off, origin.y + off}, 0);
+            big_explosion({origin.x + off, origin.y - off}, 0);
 
             anim_state_ = AnimState::explosion_wait2;
 
@@ -464,7 +464,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::begin_fade;
 
-            app.rumble().activate(milliseconds(190));
+            APP.rumble().activate(milliseconds(190));
 
             PLATFORM.speaker().play_sound("explosion2", 4);
 
@@ -474,17 +474,17 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             // disappear.
             if (opponent_defeated) {
 
-                invoke_hook(app, "on-victory");
-                if (app.exit_condition() not_eq App::ExitCondition::none) {
-                    if (app.exit_condition() == App::ExitCondition::defeat) {
+                invoke_hook("on-victory");
+                if (APP.exit_condition() not_eq App::ExitCondition::none) {
+                    if (APP.exit_condition() == App::ExitCondition::defeat) {
                         forced_defeat_ = true;
                     }
                 }
 
-                for (auto& room : app.player_island().rooms()) {
+                for (auto& room : APP.player_island().rooms()) {
                     for (auto it = room->characters().begin();
                          it not_eq room->characters().end();) {
-                        if ((*it)->owner() not_eq &app.player()) {
+                        if ((*it)->owner() not_eq &APP.player()) {
                             it = room->edit_characters().erase(it);
                         } else {
                             ++it;
@@ -494,7 +494,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
                 Buffer<Transporter*, 16> ready_transporters;
                 bool has_command_module = false;
-                for (auto& room : app.player_island().rooms()) {
+                for (auto& room : APP.player_island().rooms()) {
                     if (auto tx = room->cast<Transporter>()) {
                         ready_transporters.push_back(tx);
                     }
@@ -505,11 +505,11 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
 
                 if (has_command_module and not ready_transporters.empty()) {
-                    for (auto& room : app.opponent_island()->rooms()) {
+                    for (auto& room : APP.opponent_island()->rooms()) {
                         Buffer<RoomCoord, 8> temp;
 
                         for (auto& chr : room->characters()) {
-                            if (chr->owner() == &app.player()) {
+                            if (chr->owner() == &APP.player()) {
                                 temp.push_back(chr->grid_position());
                             }
                         }
@@ -517,45 +517,45 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
                         for (auto pos : temp) {
                             if (not ready_transporters.empty()) {
                                 auto tx = ready_transporters.back();
-                                tx->recover_character(app, pos);
+                                tx->recover_character(pos);
                                 ready_transporters.pop_back();
                             }
                         }
                     }
                 }
 
-                for (auto& room : app.player_island().rooms()) {
+                for (auto& room : APP.player_island().rooms()) {
                     for (auto& chr : room->characters()) {
                         chr->unpin();
                     }
                 }
 
-                if (app.game_mode() == App::GameMode::co_op) {
+                if (APP.game_mode() == App::GameMode::co_op) {
                     network::packet::CoOpOpponentDestroyed packet;
                     network::transmit(packet);
                 }
 
             } else {
-                app.swap_opponent<FriendlyAI>();
+                APP.swap_opponent<FriendlyAI>();
             }
 
-            for (auto& room : app.player_island().rooms()) {
-                room->detach_drone(app, true);
+            for (auto& room : APP.player_island().rooms()) {
+                room->detach_drone(true);
             }
 
-            for (auto& room : app.opponent_island()->rooms()) {
-                room->detach_drone(app, true);
+            for (auto& room : APP.opponent_island()->rooms()) {
+                room->detach_drone(true);
             }
 
-            app.player_island().drones().clear();
-            app.opponent_island()->drones().clear();
+            APP.player_island().drones().clear();
+            APP.opponent_island()->drones().clear();
 
-            app.birds().clear(); // bugfix?
+            APP.birds().clear(); // bugfix?
 
             for (u8 x = 0; x < 16; ++x) {
                 for (u8 y = 0; y < 16; ++y) {
-                    app.player_island().fire_extinguish(app, {x, y});
-                    app.opponent_island()->fire_extinguish(app, {x, y});
+                    APP.player_island().fire_extinguish({x, y});
+                    APP.opponent_island()->fire_extinguish({x, y});
                 }
             }
         }
@@ -580,7 +580,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
         Vec2<Fixnum> pos;
         pos.x = circ_center_x;
         pos.y = circ_center_y;
-        ExploSpawner::create(app, pos);
+        ExploSpawner::create(pos);
         break;
     }
 
@@ -600,8 +600,8 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             PLATFORM.screen().fade(0.f);
             timer_ = 0;
             if (forced_defeat_) {
-                if (app.dialog_buffer()) {
-                    return make_dialog(app);
+                if (APP.dialog_buffer()) {
+                    return make_dialog();
                 }
             }
             if (opponent_defeated) {
@@ -624,7 +624,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
             anim_state_ = AnimState::show_coins;
-            app.set_coins(app.coins() + app.victory_coins());
+            APP.set_coins(APP.coins() + APP.victory_coins());
         }
         break;
     }
@@ -638,9 +638,9 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
         }
 
         for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update(app);
+            const auto achievement = achievements::update();
             if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(app, achievement);
+                achievements::award(achievement);
 
                 PLATFORM.screen().fade(1.f);
 
@@ -655,28 +655,28 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
         setup_shader();
 
-        for (auto& room : app.player_island().rooms()) {
-            room->detach_drone(app, true);
+        for (auto& room : APP.player_island().rooms()) {
+            room->detach_drone(true);
         }
 
-        for (auto& room : app.opponent_island()->rooms()) {
-            room->detach_drone(app, true);
+        for (auto& room : APP.opponent_island()->rooms()) {
+            room->detach_drone(true);
         }
 
-        app.player_island().drones().clear();
-        app.opponent_island()->drones().clear();
+        APP.player_island().drones().clear();
+        APP.opponent_island()->drones().clear();
 
-        for (auto& room : app.player_island().rooms()) {
-            room->unset_target(app);
+        for (auto& room : APP.player_island().rooms()) {
+            room->unset_target();
         }
 
-        if (island_ == &app.player_island()) {
-            invoke_hook(app, "on-victory");
+        if (island_ == &APP.player_island()) {
+            invoke_hook("on-victory");
 
-            for (auto& room : app.player_island().rooms()) {
+            for (auto& room : APP.player_island().rooms()) {
                 for (auto it = room->characters().begin();
                      it not_eq room->characters().end();) {
-                    if ((*it)->owner() not_eq &app.player()) {
+                    if ((*it)->owner() not_eq &APP.player()) {
                         it = room->edit_characters().erase(it);
                     } else {
                         ++it;
@@ -693,7 +693,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
     case AnimState::show_coins: {
         PLATFORM.speaker().play_sound("coin", 2);
         force_show_coins();
-        app.victory_coins() = 0;
+        APP.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
         break;
     }
@@ -707,19 +707,19 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
             coins_.reset();
             power_.reset();
 
-            if (app.game_mode() == App::GameMode::skyland_forever or
-                app.game_mode() == App::GameMode::co_op) {
+            if (APP.game_mode() == App::GameMode::skyland_forever or
+                APP.game_mode() == App::GameMode::co_op) {
 
-                if (island_ == &app.player_island()) {
+                if (island_ == &APP.player_island()) {
                     anim_state_ = AnimState::fade_out;
                     break;
                 }
 
-                app.reset_opponent_island();
+                APP.reset_opponent_island();
 
 
-                if (app.game_mode() == App::GameMode::co_op) {
-                    for (auto& room : player_island(app).rooms()) {
+                if (APP.game_mode() == App::GameMode::co_op) {
+                    for (auto& room : player_island().rooms()) {
                         // Just in case... should there be a bug in the locking
                         // anywhere (I haven't found any), unlock everything at
                         // the end of the level.
@@ -791,19 +791,19 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
             if (opponent_defeated) {
 
-                if (app.world_graph()
-                        .nodes_[app.current_world_location()]
+                if (APP.world_graph()
+                        .nodes_[APP.current_world_location()]
                         .type_ == WorldGraph::Node::Type::exit) {
                     // We're at the exit node. Let's adjust stuff, so that we're at
                     // the beginning of the next zone.
-                    app.current_world_location() = 0;
-                    app.world_graph().generate(app);
-                    app.zone() += 1;
+                    APP.current_world_location() = 0;
+                    APP.world_graph().generate();
+                    APP.zone() += 1;
 
-                    if (app.zone() == 4) {
+                    if (APP.zone() == 4) {
                         // No exit in the final zone, you have to fight the
                         // storm king.
-                        for (auto& node : app.world_graph().nodes_) {
+                        for (auto& node : APP.world_graph().nodes_) {
                             if (node.type_ == WorldGraph::Node::Type::exit) {
                                 node.type_ = WorldGraph::Node::Type::hostile;
                             }
@@ -811,25 +811,24 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
                     }
                 }
 
-                app.reset_opponent_island();
+                APP.reset_opponent_island();
 
-                if (app.game_mode() == App::GameMode::multiplayer and
+                if (APP.game_mode() == App::GameMode::multiplayer and
                     PLATFORM.network_peer().is_connected()) {
                     PLATFORM.network_peer().disconnect();
                     return scene_pool::alloc<LinkScene>();
                 }
 
-                switch (app.game_mode()) {
+                switch (APP.game_mode()) {
                 case App::GameMode::challenge:
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure: {
-                    if (app.world_graph()
-                            .nodes_[app.current_world_location()]
+                    if (APP.world_graph()
+                            .nodes_[APP.current_world_location()]
                             .type_ == WorldGraph::Node::Type::corrupted) {
 
-                        achievements::raise(app,
-                                            achievements::Achievement::hero);
+                        achievements::raise(achievements::Achievement::hero);
 
                         lisp::dostring("(adventure-log-add 6 '())");
 
@@ -880,7 +879,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
                 Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
 
-                PLATFORM.screen().set_shader(app.environment().shader(app));
+                PLATFORM.screen().set_shader(APP.environment().shader());
                 PLATFORM.screen().set_shader_argument(0);
                 PLATFORM.system_call("vsync", nullptr);
                 PLATFORM.screen().fade(1.f);
@@ -890,7 +889,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
                     return scene_pool::alloc<LinkScene>();
                 }
 
-                switch (app.game_mode()) {
+                switch (APP.game_mode()) {
                 case App::GameMode::challenge:
                     return scene_pool::alloc<SelectChallengeScene>();
 
@@ -926,16 +925,16 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
     case AnimState::idle:
         coins_.reset();
         power_.reset();
-        if (app.player().key_down(Key::action_1) or
-            app.player().tap_released()) {
+        if (APP.player().key_down(Key::action_1) or
+            APP.player().tap_released()) {
             timer_ = 0;
             PLATFORM.fill_overlay(0);
 
             if (opponent_defeated and
-                app.game_mode() == App::GameMode::adventure) {
+                APP.game_mode() == App::GameMode::adventure) {
 
-                const auto node_type = app.world_graph()
-                                           .nodes_[app.current_world_location()]
+                const auto node_type = APP.world_graph()
+                                           .nodes_[APP.current_world_location()]
                                            .type_;
 
                 if (node_type not_eq WorldGraph::Node::Type::exit and
@@ -970,7 +969,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
             auto vc = PLATFORM.screen().get_view().get_center();
 
-            app.camera()->shake(3);
+            APP.camera()->shake(3);
 
             confetti_ = allocate_dynamic<ConfettiBuffer>("confetti");
             if (confetti_ and *confetti_) {
@@ -1007,7 +1006,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(App& app, Microseconds delta)
 
             auto vc = PLATFORM.screen().get_view().get_center();
 
-            app.camera()->shake(3);
+            APP.camera()->shake(3);
 
             for (int i = 0; i < 18; ++i) {
                 (*confetti_)
@@ -1046,62 +1045,62 @@ extern SharedVariable zone4_coin_yield;
 
 
 
-void PlayerIslandDestroyedScene::enter(App& app, Scene& prev)
+void PlayerIslandDestroyedScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     WorldScene::notransitions();
 
-    rooms_built_ = app.player().rooms_built_;
-    rooms_lost_ = app.player().rooms_lost_;
+    rooms_built_ = APP.player().rooms_built_;
+    rooms_lost_ = APP.player().rooms_lost_;
 
-    for (auto& bird : app.birds()) {
-        bird->signal(app);
+    for (auto& bird : APP.birds()) {
+        bird->signal();
     }
 
     circ_effect_ = rng::choice<3>(rng::utility_state);
 
-    app.persistent_data().total_seconds_.set(
-        (u32)(app.persistent_data().total_seconds_.get() +
-              app.stat_timer().whole_seconds()));
+    APP.persistent_data().total_seconds_.set(
+        (u32)(APP.persistent_data().total_seconds_.get() +
+              APP.stat_timer().whole_seconds()));
 
-    level_seconds_ = app.stat_timer().whole_seconds();
+    level_seconds_ = APP.stat_timer().whole_seconds();
 
-    if (app.world_graph().nodes_[app.current_world_location()].type_ ==
+    if (APP.world_graph().nodes_[APP.current_world_location()].type_ ==
         WorldGraph::Node::Type::corrupted) {
 
         // At endgame, award the player score for any unused coins.
 
         int mult = 0.f;
-        if (app.zone() < 2) {
+        if (APP.zone() < 2) {
             mult = (0.01f * zone1_coin_yield);
-        } else if (app.zone() < 3) {
+        } else if (APP.zone() < 3) {
             mult = (0.01f * zone2_coin_yield);
-        } else if (app.zone() < 4) {
+        } else if (APP.zone() < 4) {
             mult = (0.01f * zone3_coin_yield);
         } else {
             mult = (0.01f * zone4_coin_yield);
         }
 
-        app.score().set(app.score().get() + app.coins() * mult);
+        APP.score().set(APP.score().get() + APP.coins() * mult);
 
-        if (island_ not_eq &app.player_island()) {
-            app.persistent_data().score_.set(
-                300000 + app.persistent_data().score_.get());
+        if (island_ not_eq &APP.player_island()) {
+            APP.persistent_data().score_.set(
+                300000 + APP.persistent_data().score_.get());
         }
     }
 
-    auto lv_score = app.score().get() - app.level_begin_score();
+    auto lv_score = APP.score().get() - APP.level_begin_score();
     auto score_time_penalty =
         0.5f * (lv_score - (lv_score / (std::max(1, level_seconds_ / 15))));
-    app.score().set(app.score().get() - score_time_penalty);
+    APP.score().set(APP.score().get() - score_time_penalty);
 
     if (lv_score < 0) {
-        app.score().set(app.level_begin_score());
+        APP.score().set(APP.level_begin_score());
     }
 
-    app.persistent_data().total_pauses_.set(
-        app.persistent_data().total_pauses_.get() + app.pause_count());
+    APP.persistent_data().total_pauses_.set(
+        APP.persistent_data().total_pauses_.get() + APP.pause_count());
 
     for (auto& room : island_->rooms()) {
         if (room->position().y < 7) {
@@ -1109,7 +1108,7 @@ void PlayerIslandDestroyedScene::enter(App& app, Scene& prev)
             // destroyed castle sinks, the castle can now be tall enough that
             // the upper portion sticks out above the bottom of the screen. So,
             // destroy all rooms with a really small y-value.
-            room->apply_damage(app, Room::health_upper_limit());
+            room->apply_damage(Room::health_upper_limit());
         }
     }
 
@@ -1123,7 +1122,7 @@ void PlayerIslandDestroyedScene::enter(App& app, Scene& prev)
 
 
 
-void PlayerIslandDestroyedScene::exit(App& app, Scene& next)
+void PlayerIslandDestroyedScene::exit(Scene& next)
 {
     lines_.clear();
     PLATFORM.load_overlay_texture("overlay");
@@ -1139,7 +1138,7 @@ void PlayerIslandDestroyedScene::exit(App& app, Scene& next)
             Platform::Speaker::music_volume_max);
     }
 
-    PLATFORM.screen().set_shader(app.environment().shader(app));
+    PLATFORM.screen().set_shader(APP.environment().shader());
 }
 
 

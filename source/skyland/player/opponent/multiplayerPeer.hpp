@@ -36,72 +36,59 @@ namespace skyland
 class MultiplayerPeer : public Opponent, public network::Listener
 {
 public:
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void receive(App& app,
-                 const network::packet::RoomConstructed& packet) override;
+    void receive(const network::packet::RoomConstructed& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::RoomSalvaged& packet) override;
+    void receive(const network::packet::RoomSalvaged& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::WeaponSetTarget& packet) override;
+    void receive(const network::packet::WeaponSetTarget& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::DroneSetTarget& packet) override;
+    void receive(const network::packet::DroneSetTarget& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::RoomDestroyed& packet) override;
+    void receive(const network::packet::RoomDestroyed& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::ChrSetTargetV2& packet) override;
+    void receive(const network::packet::ChrSetTargetV2& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::ChrBoardedV2& packet) override;
+    void receive(const network::packet::ChrBoardedV2& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::ChrDisembarkV2& packet) override;
+    void receive(const network::packet::ChrDisembarkV2& packet) override;
 
 
-    void receive(App& app, const network::packet::ChrDiedV2& packet) override;
+    void receive(const network::packet::ChrDiedV2& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::ReplicantCreated& packet) override;
+    void receive(const network::packet::ReplicantCreated& packet) override;
 
 
-    void receive(App& app, const network::packet::DroneSpawn& packet) override;
+    void receive(const network::packet::DroneSpawn& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::DroneDestroyed& packet) override;
+    void receive(const network::packet::DroneDestroyed& packet) override;
 
 
     void
-    receive(App& app,
-            const network::packet::OpponentBulkheadChanged& packet) override;
+    receive(const network::packet::OpponentBulkheadChanged& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::ProgramVersion& packet) override;
+    void receive(const network::packet::ProgramVersion& packet) override;
 
 
-    void receive(App& app, const network::packet::Heartbeat& packet) override;
+    void receive(const network::packet::Heartbeat& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::DynamiteActivated& packet) override;
+    void receive(const network::packet::DynamiteActivated& packet) override;
 
 
-    void receive(App& app, const network::packet::PlayMusic& packet) override;
+    void receive(const network::packet::PlayMusic& packet) override;
 
 
 private:

@@ -54,27 +54,27 @@ public:
     }
 
 
-    virtual void update(App&, Microseconds delta)
+    virtual void update(Microseconds delta)
     {
     }
 
 
-    virtual void on_layout_changed(App& app, Island& island)
+    virtual void on_layout_changed(Island& island)
     {
     }
 
 
-    virtual void on_room_damaged(App& app, Room& room)
+    virtual void on_room_damaged(Room& room)
     {
     }
 
 
-    virtual void on_room_destroyed(App& app, Room& room)
+    virtual void on_room_destroyed(Room& room)
     {
     }
 
 
-    virtual void on_room_plundered(App& app, Room& room)
+    virtual void on_room_plundered(Room& room)
     {
     }
 
@@ -197,7 +197,7 @@ public:
 
 
 
-Player& player(App& app);
+Player& player();
 
 
 

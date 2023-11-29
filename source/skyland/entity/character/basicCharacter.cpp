@@ -42,9 +42,9 @@ static const auto movement_step_duration = milliseconds(300);
 
 
 
-static u16 base_frame(BasicCharacter* character, App& app)
+static u16 base_frame(BasicCharacter* character)
 {
-    if (character->owner() == &app.player()) {
+    if (character->owner() == &APP.player()) {
         return 35;
     } else {
         return 42;
@@ -139,26 +139,26 @@ void BasicCharacter::pin()
 
 
 
-void BasicCharacter::finalize(App& app)
+void BasicCharacter::finalize()
 {
     // if (mind_controlled_) {
     //     mind_controlled_ = false;
-    //     for (auto& room : app.player_island().rooms()) {
+    //     for (auto& room : APP.player_island().rooms()) {
     //         if (auto mc = room->cast<MindControl>()) {
     //             if (mc->bound_character() == id()) {
     //                 stop_mind_control(app,
-    //                                   &mc->other_island(app)->owner(),
+    //                                   &mc->other_island()->owner(),
     //                                   mc);
     //                 return;
     //             }
     //         }
     //     }
-    //     if (app.opponent_island()) {
-    //         for (auto& room : app.opponent_island()->rooms()) {
+    //     if (APP.opponent_island()) {
+    //         for (auto& room : APP.opponent_island()->rooms()) {
     //             if (auto mc = room->cast<MindControl>()) {
     //                 if (mc->bound_character() == id()) {
     //                     stop_mind_control(app,
-    //                                       &mc->other_island(app)->owner(),
+    //                                       &mc->other_island()->owner(),
     //                                       mc);
     //                     return;
     //                 }
@@ -188,7 +188,7 @@ void BasicCharacter::transported()
 
 
 
-void BasicCharacter::rewind(App& app, Microseconds delta)
+void BasicCharacter::rewind(Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -203,7 +203,7 @@ void BasicCharacter::rewind(App& app, Microseconds delta)
 
     sprite_.set_position(o);
 
-    sprite_.set_texture_index(base_frame(this, app) + 5);
+    sprite_.set_texture_index(base_frame(this) + 5);
 
     auto has_opponent = [&](Room* room) {
         for (auto& character : room->characters()) {
@@ -241,10 +241,10 @@ void BasicCharacter::rewind(App& app, Microseconds delta)
         if (anim_timer_ < 0) {
             anim_timer_ = milliseconds(100);
             auto index = sprite_.get_texture_index();
-            if (index == base_frame(this, app) + 5) {
-                index = base_frame(this, app) + 4;
+            if (index == base_frame(this) + 5) {
+                index = base_frame(this) + 4;
             } else {
-                index = base_frame(this, app) + 5;
+                index = base_frame(this) + 5;
             }
             sprite_.set_texture_index(index);
         }
@@ -252,16 +252,16 @@ void BasicCharacter::rewind(App& app, Microseconds delta)
     } else {
         if (auto room = parent_->get_room(grid_position_)) {
             if (has_opponent(room)) {
-                sprite_.set_texture_index(base_frame(this, app));
+                sprite_.set_texture_index(base_frame(this));
                 sprite_.set_flip({});
             } else if (room->parent()->fire_present(grid_position())) {
-                sprite_.set_texture_index(base_frame(this, app) + 2);
+                sprite_.set_texture_index(base_frame(this) + 2);
                 sprite_.set_flip({});
             } else if (room->health() not_eq room->max_health()) {
-                sprite_.set_texture_index(base_frame(this, app) + 1);
+                sprite_.set_texture_index(base_frame(this) + 1);
                 sprite_.set_flip({});
             } else {
-                sprite_.set_texture_index(base_frame(this, app) + 5);
+                sprite_.set_texture_index(base_frame(this) + 5);
             }
         }
     }
@@ -269,9 +269,9 @@ void BasicCharacter::rewind(App& app, Microseconds delta)
 
 
 
-void BasicCharacter::set_idle(App& app)
+void BasicCharacter::set_idle()
 {
-    sprite_.set_texture_index(base_frame(this, app) + 5);
+    sprite_.set_texture_index(base_frame(this) + 5);
     state_ = State::moving_or_idle;
     timer_ = 0;
     idle_count_ = 0;
@@ -292,7 +292,7 @@ bool BasicCharacter::has_opponent(Room* room)
 
 
 
-void BasicCharacter::update(App&, Microseconds delta)
+void BasicCharacter::update(Microseconds delta)
 {
     Platform::fatal("BasicCharacter::update() called... "
                     "Use other update method instead.");
@@ -307,7 +307,7 @@ bool BasicCharacter::ai_automated() const
 
 
 
-void BasicCharacter::update(App& app, Microseconds delta, Room* room)
+void BasicCharacter::update(Microseconds delta, Room* room)
 {
     // const auto t1 = PLATFORM.delta_clock().sample();
 
@@ -327,7 +327,7 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
     switch (state_) {
     case State::fighting:
         sprite_.set_flip({});
-        update_attack(app, delta);
+        update_attack(delta);
         break;
 
     case State::after_transport: {
@@ -356,15 +356,15 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
                 sprite_.set_position(o);
             } else {
                 timer_ += delta;
-                movement_step(app, delta);
+                movement_step(delta);
                 anim_timer_ += delta;
                 if (anim_timer_ > milliseconds(100)) {
                     anim_timer_ = 0;
                     auto index = sprite_.get_texture_index();
-                    if (index == base_frame(this, app) + 5) {
-                        index = base_frame(this, app) + 4;
+                    if (index == base_frame(this) + 5) {
+                        index = base_frame(this) + 4;
                     } else {
-                        index = base_frame(this, app) + 5;
+                        index = base_frame(this) + 5;
                     }
                     sprite_.set_texture_index(index);
                 }
@@ -373,7 +373,7 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
             awaiting_movement_ = true;
             can_move_ = false;
             sprite_.set_position(o);
-            sprite_.set_texture_index(base_frame(this, app) + 5);
+            sprite_.set_texture_index(base_frame(this) + 5);
             ++idle_count_;
 
             if (room) {
@@ -394,7 +394,7 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
                             not str_eq(name, "ladder+") and
                             not str_eq(name, "stairwell+") and
                             not str_eq(name, "stairwell++") and
-                            not app.opponent().is_friendly()) {
+                            not APP.opponent().is_friendly()) {
                             state_ = State::plunder_room;
                             timer_ = 0;
                         }
@@ -435,7 +435,7 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
         sprite_.set_position(o);
 
         if (movement_path_) {
-            this->set_idle(app);
+            this->set_idle();
             break;
         }
 
@@ -445,10 +445,10 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
         if (anim_timer_ > milliseconds(200)) {
             anim_timer_ = 0;
             auto index = sprite_.get_texture_index();
-            if (index == base_frame(this, app) + 5) {
-                index = base_frame(this, app) + 1;
+            if (index == base_frame(this) + 5) {
+                index = base_frame(this) + 1;
             } else {
-                index = base_frame(this, app) + 5;
+                index = base_frame(this) + 5;
             }
             sprite_.set_texture_index(index);
         }
@@ -462,7 +462,7 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
                 // plundering state and rewind a transport, the character can
                 // end up in the player's island while continuing to plunder as
                 // if it were in the opponent's castle.
-                this->set_idle(app);
+                this->set_idle();
                 break;
             }
 
@@ -473,12 +473,12 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
 
                 if (is_plundered) { // We've successfully ransacked the room,
                                     // let's try moving on to somewhere else.
-                    this->set_idle(app);
+                    this->set_idle();
                     ai_automated_ = true;
                     break;
                 }
 
-                room->plunder(app, 2);
+                room->plunder(2);
 
                 if (has_opponent(room)) {
                     state_ = State::fighting;
@@ -504,16 +504,16 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
         if (anim_timer_ > milliseconds(200)) {
             anim_timer_ = 0;
             auto index = sprite_.get_texture_index();
-            if (index == base_frame(this, app) + 5) {
-                index = base_frame(this, app) + 2;
+            if (index == base_frame(this) + 5) {
+                index = base_frame(this) + 2;
             } else {
-                index = base_frame(this, app) + 5;
+                index = base_frame(this) + 5;
             }
             sprite_.set_texture_index(index);
         }
 
         if (movement_path_) {
-            this->set_idle(app);
+            this->set_idle();
             break;
         }
 
@@ -521,14 +521,14 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
         if (timer_ > milliseconds(3000)) {
             timer_ = 0;
             if (room) {
-                room->parent()->fire_extinguish(app, grid_position_);
+                room->parent()->fire_extinguish(grid_position_);
                 if (has_opponent(room)) {
                     state_ = State::fighting;
                     timer_ = 0;
                     anim_timer_ = 0;
                     break;
                 } else {
-                    this->set_idle(app);
+                    this->set_idle();
                 }
             }
         }
@@ -547,16 +547,16 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
         if (anim_timer_ > milliseconds(200)) {
             anim_timer_ = 0;
             auto index = sprite_.get_texture_index();
-            if (index == base_frame(this, app) + 5) {
-                index = base_frame(this, app) + 1;
+            if (index == base_frame(this) + 5) {
+                index = base_frame(this) + 1;
             } else {
-                index = base_frame(this, app) + 5;
+                index = base_frame(this) + 5;
             }
             sprite_.set_texture_index(index);
         }
 
         if (movement_path_) {
-            this->set_idle(app);
+            this->set_idle();
             break;
         }
 
@@ -565,9 +565,9 @@ void BasicCharacter::update(App& app, Microseconds delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    room->heal(app, 2);
+                    room->heal(2);
                 } else {
-                    this->set_idle(app);
+                    this->set_idle();
                     break;
                 }
 
@@ -623,6 +623,18 @@ Sprite BasicCharacter::prepare_sprite() const
                 break;
             }
             break;
+
+        case 2:
+            switch (ret.get_texture_index()) {
+            case 39:
+                ret.set_texture_index(99);
+                break;
+
+            case 40:
+                ret.set_texture_index(100);
+                break;
+            }
+            break;
         }
     }
 
@@ -631,7 +643,7 @@ Sprite BasicCharacter::prepare_sprite() const
 
 
 
-void BasicCharacter::update_attack(App& app, Microseconds delta)
+void BasicCharacter::update_attack(Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -656,23 +668,23 @@ void BasicCharacter::update_attack(App& app, Microseconds delta)
         };
 
         if (auto chr = get_opponent()) {
-            chr->apply_damage(app, 4);
+            chr->apply_damage(4);
         } else {
-            sprite_.set_texture_index(base_frame(this, app) + 5);
+            sprite_.set_texture_index(base_frame(this) + 5);
             state_ = State::moving_or_idle;
             timer_ = 0;
             idle_count_ = 0;
         }
 
         timer_ = 0;
-        if (sprite_.get_texture_index() == base_frame(this, app)) {
-            sprite_.set_texture_index(base_frame(this, app) + 5);
+        if (sprite_.get_texture_index() == base_frame(this)) {
+            sprite_.set_texture_index(base_frame(this) + 5);
         } else {
-            sprite_.set_texture_index(base_frame(this, app));
+            sprite_.set_texture_index(base_frame(this));
         }
     }
     if (movement_path_) {
-        sprite_.set_texture_index(base_frame(this, app) + 5);
+        sprite_.set_texture_index(base_frame(this) + 5);
         state_ = State::moving_or_idle;
         timer_ = 0;
         idle_count_ = 0;
@@ -681,7 +693,7 @@ void BasicCharacter::update_attack(App& app, Microseconds delta)
 
 
 
-void BasicCharacter::movement_step(App& app, Microseconds delta)
+void BasicCharacter::movement_step(Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -727,10 +739,10 @@ void BasicCharacter::movement_step(App& app, Microseconds delta)
             e.id_.set(id_);
             e.previous_x_ = grid_position_.x;
             e.previous_y_ = grid_position_.y;
-            e.near_ = parent_ == &app.player_island();
+            e.near_ = parent_ == &APP.player_island();
 
             if (reassign_room(grid_position_, current_position)) {
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
 
             if (auto room = parent_->get_room(grid_position())) {
@@ -746,12 +758,12 @@ void BasicCharacter::movement_step(App& app, Microseconds delta)
 
 
 
-void BasicCharacter::set_movement_path(App& app, Path path)
+void BasicCharacter::set_movement_path(Path path)
 {
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
-    e.near_ = parent_ == &app.player_island();
-    app.time_stream().push(app.level_timer(), e);
+    e.near_ = parent_ == &APP.player_island();
+    APP.time_stream().push(APP.level_timer(), e);
 
     movement_path_ = std::move(path);
 }
@@ -783,7 +795,7 @@ void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
 
 
 
-void BasicCharacter::heal(App& app, int amount)
+void BasicCharacter::heal(int amount)
 {
     if (is_replicant_) {
         // Replicants cannot heal
@@ -792,11 +804,11 @@ void BasicCharacter::heal(App& app, int amount)
 
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
-    e.owned_by_player_ = owner_ == &app.player();
-    e.near_ = parent_ == &app.player_island();
+    e.owned_by_player_ = owner_ == &APP.player();
+    e.near_ = parent_ == &APP.player_island();
     static_assert(max_health <= 255);
     e.previous_health_ = health_;
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     if (health_ + amount > max_health) {
         health_ = max_health;
@@ -811,23 +823,23 @@ void BasicCharacter::heal(App& app, int amount)
 
 
 
-void BasicCharacter::apply_radiation_damage(App& app, Health amount)
+void BasicCharacter::apply_radiation_damage(Health amount)
 {
     radiation_counter_ = 230;
 
-    apply_damage(app, amount);
+    apply_damage(amount);
 }
 
 
 
-void BasicCharacter::apply_damage(App& app, Health damage)
+void BasicCharacter::apply_damage(Health damage)
 {
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
-    e.owned_by_player_ = owner_ == &app.player();
-    e.near_ = parent_ == &app.player_island();
+    e.owned_by_player_ = owner_ == &APP.player();
+    e.near_ = parent_ == &APP.player_island();
     e.previous_health_ = health_;
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     if (auto room = parent_->get_room(grid_position())) {
         room->update_description();
@@ -912,16 +924,15 @@ bool BasicCharacter::co_op_locked() const
 
 
 
-std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(App& app,
-                                                             CharacterId id)
+std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(CharacterId id)
 {
-    auto found = app.player_island().find_character_by_id(id);
+    auto found = APP.player_island().find_character_by_id(id);
     if (found.first) {
         return found;
     }
 
-    if (app.opponent_island()) {
-        found = app.opponent_island()->find_character_by_id(id);
+    if (APP.opponent_island()) {
+        found = APP.opponent_island()->find_character_by_id(id);
         if (found.first) {
             return found;
         }

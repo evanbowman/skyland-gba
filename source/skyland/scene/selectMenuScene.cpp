@@ -43,12 +43,12 @@ namespace skyland
 
 
 
-Island* SelectMenuScene::island(App& app) const
+Island* SelectMenuScene::island() const
 {
     if (is_far_camera()) {
-        return opponent_island(app);
+        return opponent_island();
     } else {
-        return &player_island(app);
+        return &player_island();
     }
 }
 
@@ -79,20 +79,19 @@ void SelectMenuScene::redraw_line(int line, bool highlight)
 
 
 
-static ScenePtr<Scene> select_menu_help(App& app, bool far)
+static ScenePtr<Scene> select_menu_help(bool far)
 {
     const auto flag = GlobalPersistentData::sel_menu_help_prompt_dont_remind_me;
 
-    const bool skip_prompt =
-        app.gp_.stateflags_.get(flag) or
-        state_bit_load(app, StateBit::sel_menu_help_prompt);
+    const bool skip_prompt = APP.gp_.stateflags_.get(flag) or
+                             state_bit_load(StateBit::sel_menu_help_prompt);
 
-    auto dont_remind = [](App& app) {
-        app.gp_.stateflags_.set(flag, true);
-        save::store_global_data(app.gp_);
+    auto dont_remind = []() {
+        APP.gp_.stateflags_.set(flag, true);
+        save::store_global_data(APP.gp_);
     };
 
-    auto next = [far, &app] {
+    auto next = [far] {
         auto ret = scene_pool::alloc<SelectMenuScene>();
         if (far) {
             ret->far_camera();
@@ -101,13 +100,13 @@ static ScenePtr<Scene> select_menu_help(App& app, bool far)
     };
 
     if (not skip_prompt) {
-        state_bit_store(app, StateBit::sel_menu_help_prompt, true);
+        state_bit_store(StateBit::sel_menu_help_prompt, true);
         return scene_pool::alloc<MenuPromptScene>(
             SystemString::sel_menu_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
-            [](App&) {},
+            []() {},
             dont_remind);
     } else {
         return null_scene();
@@ -116,33 +115,31 @@ static ScenePtr<Scene> select_menu_help(App& app, bool far)
 
 
 
-static ScenePtr<Scene> move_blocks_setup(App& app, bool far)
+static ScenePtr<Scene> move_blocks_setup(bool far)
 {
     const auto flag =
         GlobalPersistentData::move_blocks_help_prompt_dont_remind_me;
 
     const bool skip_prompt =
-        app.gp_.stateflags_.get(flag) or
-        state_bit_load(app, StateBit::move_blocks_help_prompt) or
-        app.game_mode() == App::GameMode::tutorial;
+        APP.gp_.stateflags_.get(flag) or
+        state_bit_load(StateBit::move_blocks_help_prompt) or
+        APP.game_mode() == App::GameMode::tutorial;
 
-    auto dont_remind = [](App& app) {
-        app.gp_.stateflags_.set(flag, true);
-        save::store_global_data(app.gp_);
+    auto dont_remind = []() {
+        APP.gp_.stateflags_.set(flag, true);
+        save::store_global_data(APP.gp_);
     };
 
-    auto next = [far, &app] {
-        return scene_pool::alloc<MoveRoomScene>(app, not far);
-    };
+    auto next = [far] { return scene_pool::alloc<MoveRoomScene>(not far); };
 
     if (not skip_prompt) {
-        state_bit_store(app, StateBit::move_blocks_help_prompt, true);
+        state_bit_store(StateBit::move_blocks_help_prompt, true);
         return scene_pool::alloc<MenuPromptScene>(
             SystemString::move_blocks_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
-            [](App&) {},
+            []() {},
             dont_remind);
     } else {
         return next();
@@ -151,19 +148,18 @@ static ScenePtr<Scene> move_blocks_setup(App& app, bool far)
 
 
 
-static ScenePtr<Scene> set_gamespeed_setup(App& app)
+static ScenePtr<Scene> set_gamespeed_setup()
 {
     const auto flag =
         GlobalPersistentData::gamespeed_help_prompt_dont_remind_me;
 
-    const bool skip_prompt =
-        app.gp_.stateflags_.get(flag) or
-        state_bit_load(app, StateBit::gamespeed_help_prompt) or
-        app.game_mode() == App::GameMode::tutorial;
+    const bool skip_prompt = APP.gp_.stateflags_.get(flag) or
+                             state_bit_load(StateBit::gamespeed_help_prompt) or
+                             APP.game_mode() == App::GameMode::tutorial;
 
-    auto dont_remind = [](App& app) {
-        app.gp_.stateflags_.set(flag, true);
-        save::store_global_data(app.gp_);
+    auto dont_remind = []() {
+        APP.gp_.stateflags_.set(flag, true);
+        save::store_global_data(APP.gp_);
     };
 
     auto next = [] {
@@ -173,13 +169,13 @@ static ScenePtr<Scene> set_gamespeed_setup(App& app)
     };
 
     if (not skip_prompt) {
-        state_bit_store(app, StateBit::gamespeed_help_prompt, true);
+        state_bit_store(StateBit::gamespeed_help_prompt, true);
         return scene_pool::alloc<MenuPromptScene>(
             SystemString::gamespeed_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
-            [](App&) {},
+            []() {},
             dont_remind);
     } else {
         return next();
@@ -219,11 +215,11 @@ public:
         {1, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20, 21, 22, 23, 19};
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        ActiveWorldScene::enter(app, prev);
+        ActiveWorldScene::enter(prev);
 
-        auto found = BasicCharacter::find_by_id(app, id_);
+        auto found = BasicCharacter::find_by_id(id_);
         if (found.first) {
             auto icon = found.first->get_icon();
             for (u32 i = 0; i < (sizeof icons); ++i) {
@@ -238,22 +234,22 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
-        ActiveWorldScene::exit(app, next);
+        ActiveWorldScene::exit(next);
 
         PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
-        if (auto next = ActiveWorldScene::update(app, delta)) {
+        if (auto next = ActiveWorldScene::update(delta)) {
             return next;
         }
 
         auto test_key = [&](Key k) {
-            return app.player().test_key(
+            return APP.player().test_key(
                 k, milliseconds(500), milliseconds(100));
         };
 
@@ -282,7 +278,7 @@ public:
         }
 
         if (test_key(Key::action_1)) {
-            auto found = BasicCharacter::find_by_id(app, id_);
+            auto found = BasicCharacter::find_by_id(id_);
             if (found.first) {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 auto icn = icons[index_];
@@ -306,13 +302,13 @@ private:
 
 
 
-void SelectMenuScene::enter(App& app, Scene& scene)
+void SelectMenuScene::enter(Scene& scene)
 {
     disable_ui();
     disable_gamespeed_icon();
 
 
-    ActiveWorldScene::enter(app, scene);
+    ActiveWorldScene::enter(scene);
 
     if (auto ws = scene.cast_world_scene()) {
         if (ws->is_far_camera()) {
@@ -325,7 +321,7 @@ void SelectMenuScene::enter(App& app, Scene& scene)
 
 
     PLATFORM.screen().clear();
-    display(app);
+    display();
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
 
@@ -346,78 +342,77 @@ void SelectMenuScene::enter(App& app, Scene& scene)
         opts_->callbacks_.push_back(callback);
     };
 
-    if (auto isle = island(app)) {
-        if (isle == &app.player_island() or
-            app.game_mode() == App::GameMode::sandbox) {
+    if (auto isle = island()) {
+        if (isle == &APP.player_island() or
+            APP.game_mode() == App::GameMode::sandbox) {
             if (isle->interior_visible()) {
                 add_line(SystemString::sel_menu_view_exterior,
                          false,
-                         [](App& app) -> ScenePtr<Scene> {
-                             show_island_exterior(app, &app.player_island());
+                         []() -> ScenePtr<Scene> {
+                             show_island_exterior(&APP.player_island());
                              return null_scene();
                          });
             } else {
                 add_line(SystemString::sel_menu_view_interior,
                          false,
-                         [](App& app) -> ScenePtr<Scene> {
-                             show_island_interior(app, &app.player_island());
+                         []() -> ScenePtr<Scene> {
+                             show_island_interior(&APP.player_island());
                              return null_scene();
                          });
             }
         }
 
         if (not PLATFORM.network_peer().is_connected()) {
-            if (isle == &app.player_island() or
-                app.game_mode() == App::GameMode::sandbox) {
+            if (isle == &APP.player_island() or
+                APP.game_mode() == App::GameMode::sandbox) {
                 add_line(SystemString::sel_menu_move_blocks,
                          false,
-                         [far = is_far_camera()](App& app) {
-                             return move_blocks_setup(app, far);
+                         [far = is_far_camera()]() {
+                             return move_blocks_setup(far);
                          });
             }
         }
 
         if (auto chr = isle->character_at_location(cursor)) {
-            add_line(
-                SystemString::sel_menu_name_crewmember,
-                true,
-                [id = chr->id(),
-                 far = is_far_camera(),
-                 vis = isle->interior_visible()](App& app) -> ScenePtr<Scene> {
-                    if (PLATFORM.network_peer().is_connected()) {
-                        PLATFORM.speaker().play_sound("beep_error", 3);
-                        return scene_pool::alloc<ReadyScene>();
-                    }
-                    if (not vis) {
-                        show_island_interior(app, &app.player_island());
-                    }
+            add_line(SystemString::sel_menu_name_crewmember,
+                     true,
+                     [id = chr->id(),
+                      far = is_far_camera(),
+                      vis = isle->interior_visible()]() -> ScenePtr<Scene> {
+                         if (PLATFORM.network_peer().is_connected()) {
+                             PLATFORM.speaker().play_sound("beep_error", 3);
+                             return scene_pool::alloc<ReadyScene>();
+                         }
+                         if (not vis) {
+                             show_island_interior(&APP.player_island());
+                         }
 
-                    auto next =
-                        scene_pool::alloc<ModifyCharacterScene>(id, not far);
-                    next->modify_name_ = true;
-                    return next;
-                });
+                         auto next = scene_pool::alloc<ModifyCharacterScene>(
+                             id, not far);
+                         next->modify_name_ = true;
+                         return next;
+                     });
 
             add_line(SystemString::sel_menu_crewmember_icon,
                      true,
-                     [id = chr->id()](App& app) {
+                     [id = chr->id()]() {
                          return scene_pool::alloc<SetCharacterIconScene>(id);
                      });
 
         } else if (auto room = isle->get_room(cursor)) {
-            if ((isle == &app.player_island() or
-                 app.game_mode() == App::GameMode::sandbox) and
-                app.game_mode() not_eq App::GameMode::co_op) {
+            if ((isle == &APP.player_island() or
+                 APP.game_mode() == App::GameMode::sandbox) and
+                APP.game_mode() not_eq App::GameMode::co_op) {
                 if ((*room->metaclass())->category() ==
                     Room::Category::weapon) {
 
                     if (not PLATFORM.network_peer().is_connected()) {
                         add_line(SystemString::sel_menu_weapon_halt,
                                  true,
-                                 [this, cursor](App& app) {
+                                 [this, cursor]() {
                                      if (auto room =
-                                             island(app)->get_room(cursor)) {
-                                         room->unset_target(app);
+                                             island()->get_room(cursor)) {
+                                         room->unset_target();
                                      }
                                      return null_scene();
                                  });
@@ -427,37 +422,34 @@ void SelectMenuScene::enter(App& app, Scene& scene)
         }
 
         bool bird_found = false;
-        for (auto& bird : app.birds()) {
-            if (bird->island(app) == island(app) and
-                bird->coordinate() == cursor) {
+        for (auto& bird : APP.birds()) {
+            if (bird->island() == island() and bird->coordinate() == cursor) {
                 bird_found = true;
             }
         }
         if (bird_found) {
-            add_line(SystemString::sel_menu_spook_bird,
-                     true,
-                     [this, cursor](App& app) {
-                         for (auto& bird : app.birds()) {
-                             if (bird->island(app) == island(app) and
-                                 bird->coordinate() == cursor) {
-                                 PLATFORM.speaker().play_sound("seagull_1", 0);
-                                 bird->signal(app);
-                             }
-                         }
-                         return null_scene();
-                     });
+            add_line(SystemString::sel_menu_spook_bird, true, [this, cursor]() {
+                for (auto& bird : APP.birds()) {
+                    if (bird->island() == island() and
+                        bird->coordinate() == cursor) {
+                        PLATFORM.speaker().play_sound("seagull_1", 0);
+                        bird->signal();
+                    }
+                }
+                return null_scene();
+            });
         }
 
 
         if (not PLATFORM.network_peer().is_connected()) {
-            auto room = island(app)->get_room(cursor);
-            if (island(app) == &app.player_island() and room) {
+            auto room = island()->get_room(cursor);
+            if (island() == &APP.player_island() and room) {
                 if (room->upgrade_mt_name()) {
                     add_line(
                         SystemString::sel_menu_upgrade_block,
                         true,
-                        [this, cursor](App& app) -> ScenePtr<Scene> {
-                            auto room = island(app)->get_room(cursor);
+                        [this, cursor]() -> ScenePtr<Scene> {
+                            auto room = island()->get_room(cursor);
                             if (not room) {
                                 return null_scene();
                             }
@@ -472,12 +464,12 @@ void SelectMenuScene::enter(App& app, Scene& scene)
                 }
             }
             if (room and (room->description_visible() or
-                          room->parent() == &app.player_island())) {
+                          room->parent() == &APP.player_island())) {
                 add_line(
                     SystemString::sel_menu_describe_block,
                     true,
-                    [this, cursor](App& app) -> ScenePtr<Scene> {
-                        if (auto room = island(app)->get_room(cursor)) {
+                    [this, cursor]() -> ScenePtr<Scene> {
+                        if (auto room = island()->get_room(cursor)) {
                             auto mt = room->metaclass_index();
                             auto next =
                                 scene_pool::alloc<GlossaryViewerModule>(mt);
@@ -503,22 +495,20 @@ void SelectMenuScene::enter(App& app, Scene& scene)
 
     if (not PLATFORM.network_peer().is_connected()) {
 
-        if (not is_far_camera() and cursor == *app.player_island().flag_pos()) {
-            add_line(SystemString::sel_menu_edit_flag,
-                     true,
-                     [this, cursor](App& app) {
-                         auto ret = scene_pool::alloc<FlagDesignerModule>();
-                         ret->editing_ingame_ = true;
-                         return ret;
-                     });
+        if (not is_far_camera() and cursor == *APP.player_island().flag_pos()) {
+            add_line(SystemString::sel_menu_edit_flag, true, [this, cursor]() {
+                auto ret = scene_pool::alloc<FlagDesignerModule>();
+                ret->editing_ingame_ = true;
+                return ret;
+            });
         }
 
-        add_line(SystemString::sel_menu_pause, false, [this, cursor](App& app) {
-            return set_gamespeed_setup(app);
+        add_line(SystemString::sel_menu_pause, false, [this, cursor]() {
+            return set_gamespeed_setup();
         });
     }
 
-    add_line(SystemString::sel_menu_back, false, [this, cursor](App& app) {
+    add_line(SystemString::sel_menu_back, false, [this, cursor]() {
         return null_scene();
     });
 
@@ -547,13 +537,13 @@ void SelectMenuScene::enter(App& app, Scene& scene)
 
 
 
-void SelectMenuScene::exit(App& app, Scene& next)
+void SelectMenuScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().clear();
-    display(app);
+    display();
     PLATFORM.set_overlay_origin(0, 0);
     PLATFORM.screen().display();
 
@@ -562,14 +552,14 @@ void SelectMenuScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SelectMenuScene::update(Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
-    if (app.game_mode() not_eq App::GameMode::tutorial) {
-        if (auto scene = select_menu_help(app, is_far_camera())) {
+    if (APP.game_mode() not_eq App::GameMode::tutorial) {
+        if (auto scene = select_menu_help(is_far_camera())) {
             return scene;
         }
     }
@@ -584,8 +574,8 @@ ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
         }
     }
 
-    if ((is_far_camera() and not app.opponent_island()) or
-        player(app).key_down(Key::action_2)) {
+    if ((is_far_camera() and not APP.opponent_island()) or
+        player().key_down(Key::action_2)) {
         if (is_far_camera()) {
             return scene_pool::alloc<InspectP2Scene>();
         } else {
@@ -594,7 +584,7 @@ ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
 
@@ -653,9 +643,8 @@ ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
         redraw_line(sel_, true);
     }
 
-    if (player(app).key_down(Key::action_1) or
-        player(app).key_down(Key::select)) {
-        if (auto next = opts_->callbacks_[sel_](app)) {
+    if (player().key_down(Key::action_1) or player().key_down(Key::select)) {
+        if (auto next = opts_->callbacks_[sel_]()) {
             return next;
         } else {
             if (is_far_camera()) {
@@ -667,7 +656,7 @@ ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
     }
 
 
-    if (auto isle = island(app)) {
+    if (auto isle = island()) {
         auto cursor = is_far_camera() ? globals().far_cursor_loc_
                                       : globals().near_cursor_loc_;
 
@@ -698,18 +687,18 @@ ScenePtr<Scene> SelectMenuScene::update(App& app, Microseconds delta)
 
 
 
-void SelectMenuScene::display(App& app)
+void SelectMenuScene::display()
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_texture_index((97 * 2));
 
-    auto origin = app.player_island().visual_origin();
+    auto origin = APP.player_island().visual_origin();
     auto cursor_loc = globals().near_cursor_loc_;
 
     if (is_far_camera()) {
-        if (app.opponent_island()) {
-            origin = app.opponent_island()->visual_origin();
+        if (APP.opponent_island()) {
+            origin = APP.opponent_island()->visual_origin();
             cursor_loc = globals().far_cursor_loc_;
         }
     }
@@ -722,14 +711,14 @@ void SelectMenuScene::display(App& app)
     PLATFORM.screen().draw(cursor);
 
     if (not is_far_camera()) {
-        if (auto isle = island(app)) {
+        if (auto isle = island()) {
             if (auto room = isle->get_room(cursor_loc)) {
-                room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
+                room->display_on_hover(PLATFORM.screen(), cursor_loc);
             }
         }
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 

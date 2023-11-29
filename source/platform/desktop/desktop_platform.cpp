@@ -1570,12 +1570,11 @@ void Platform::erase_save_sector()
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
     memcpy(save_buffer + offset, data, length);
-    return true;
 
     std::ofstream out(save_file_name,
                       std::ios_base::out | std::ios_base::binary);
 
-    out.write(reinterpret_cast<const char*>(data), length);
+    out.write((const char*)save_buffer, ::save_capacity);
 
     return true;
 }
@@ -1585,15 +1584,14 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 {
     memcpy(buffer, save_buffer + offset, data_length);
-    return true;
 
     std::ifstream in(save_file_name, std::ios_base::in | std::ios_base::binary);
 
     if (!in) {
-        return false;
+        return true;
     }
 
-    in.read(reinterpret_cast<char*>(buffer), data_length);
+    in.read((char*)save_buffer, ::save_capacity);
 
     return true;
 }

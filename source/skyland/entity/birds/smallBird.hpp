@@ -46,7 +46,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer1_ += delta;
         timer2_ += delta;

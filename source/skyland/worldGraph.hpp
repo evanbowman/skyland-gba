@@ -51,7 +51,7 @@ public:
     }
 
 
-    void generate(App&);
+    void generate();
 
 
     struct Node

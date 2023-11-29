@@ -45,10 +45,10 @@ public:
 
 
 protected:
-    virtual void destroy(App& app, bool explosion);
+    virtual void destroy(bool explosion);
 
 
-    void destroy_out_of_bounds(App& app, Island* target);
+    void destroy_out_of_bounds(Island* target);
 };
 
 

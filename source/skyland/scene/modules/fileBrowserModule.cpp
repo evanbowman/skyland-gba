@@ -73,7 +73,7 @@ FileBrowserModule::FileBrowserModule(UserContext&& user_context,
 
 
 
-void FileBrowserModule::enter(App&, Scene& prev)
+void FileBrowserModule::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_editor");
 
@@ -95,7 +95,7 @@ void FileBrowserModule::enter(App&, Scene& prev)
 
 
 
-void FileBrowserModule::exit(App&, Scene& next)
+void FileBrowserModule::exit(Scene& next)
 {
     lines_.clear();
     info_.reset();
@@ -374,7 +374,7 @@ void FileBrowserModule::show_opts()
 
 
 
-ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> FileBrowserModule::update(Microseconds delta)
 {
     if (faded_) {
         faded_ = false;
@@ -440,16 +440,16 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
     };
 
     if (mode_ == Mode::options) {
-        if (app.player().key_down(Key::left) and opt_index_ > 0) {
+        if (APP.player().key_down(Key::left) and opt_index_ > 0) {
             --opt_index_;
             show_opts();
-        } else if (app.player().key_down(Key::right) and opt_index_ < 2) {
+        } else if (APP.player().key_down(Key::right) and opt_index_ < 2) {
             ++opt_index_;
             show_opts();
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             mode_ = Mode::browse;
             repaint();
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             switch (opt_index_) {
             case 0: // create
                 return scene_pool::alloc<CreateFileScene>(cwd().c_str());
@@ -481,11 +481,11 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             scroll_up();
-        } else if (app.player().key_down(Key::down) and scroll_index_ < 2) {
+        } else if (APP.player().key_down(Key::down) and scroll_index_ < 2) {
             scroll_down();
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             switch (scroll_index_) {
             case 0:
                 on_dir_changed();
@@ -505,7 +505,7 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
                 return scene_pool::alloc<TextEditorModule>(
                     std::move(user_context_));
             }
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             if (user_context_.browser_exit_scene_) {
                 return (*user_context_.browser_exit_scene_)();
             }
@@ -514,7 +514,7 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
         break;
 
     case SelectedFilesystem::sram:
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             on_dir_changed();
             if ((*path_)->size() == 1) {
                 selected_filesystem_ = SelectedFilesystem::none;
@@ -523,12 +523,12 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
                 (*path_)->pop_back();
                 repaint();
             }
-        } else if (app.player().key_down(Key::up)) {
+        } else if (APP.player().key_down(Key::up)) {
             scroll_up();
-        } else if (app.player().key_down(Key::down) and
+        } else if (APP.player().key_down(Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
             scroll_down();
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 auto selected = (**cwd_names_)[scroll_index_];
@@ -556,8 +556,8 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
                     }
                 }
             }
-        } else if (app.player().key_down(Key::start) or
-                   app.player().key_down(Key::select)) {
+        } else if (APP.player().key_down(Key::start) or
+                   APP.player().key_down(Key::select)) {
             mode_ = Mode::options;
             opt_index_ = 0;
             show_opts();
@@ -565,7 +565,7 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
         break;
 
     case SelectedFilesystem::rom:
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             on_dir_changed();
             if ((*path_)->size() == 1) {
                 selected_filesystem_ = SelectedFilesystem::none;
@@ -574,12 +574,12 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
                 (*path_)->pop_back();
                 repaint();
             }
-        } else if (app.player().key_down(Key::up)) {
+        } else if (APP.player().key_down(Key::up)) {
             scroll_up();
-        } else if (app.player().key_down(Key::down) and
+        } else if (APP.player().key_down(Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
             scroll_down();
-        } else if (app.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
                 int entry = scroll_index_ + line_offset_;
                 auto selected = (**cwd_names_)[entry];
@@ -609,7 +609,7 @@ ScenePtr<Scene> FileBrowserModule::update(App& app, Microseconds delta)
 
 
 
-void FileBrowserModule::display(App&)
+void FileBrowserModule::display()
 {
 }
 

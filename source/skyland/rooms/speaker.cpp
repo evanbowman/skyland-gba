@@ -71,9 +71,9 @@ static const auto time_interval = milliseconds(100);
 
 
 
-void Speaker::update(App& app, Microseconds delta)
+void Speaker::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (playing_) {
         Room::ready();
@@ -121,7 +121,7 @@ void Speaker::update(App& app, Microseconds delta)
                     if (signal_) {
                         room->select(
 
-                            app, RoomCoord{position().x, u8(position().y + 1)});
+                            RoomCoord{position().x, u8(position().y + 1)});
                     } else {
                         reset(true);
                     }
@@ -132,7 +132,7 @@ void Speaker::update(App& app, Microseconds delta)
             }
             playing_ = false;
 
-            parent()->repaint(app);
+            parent()->repaint();
 
             return;
         }
@@ -231,11 +231,11 @@ void Speaker::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Speaker::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Speaker::select(const RoomCoord& cursor)
 {
     play();
 
-    parent()->repaint(app);
+    parent()->repaint();
 
     return null_scene();
 }
@@ -370,24 +370,24 @@ Synth* Speaker::noise() const
 
 
 
-void Speaker::finalize(App& app)
+void Speaker::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (auto p1 = square_1()) {
-        p1->apply_damage(app, health_upper_limit());
+        p1->apply_damage(health_upper_limit());
     }
 
     if (auto p2 = square_2()) {
-        p2->apply_damage(app, health_upper_limit());
+        p2->apply_damage(health_upper_limit());
     }
 
     if (auto wav = wave()) {
-        wav->apply_damage(app, health_upper_limit());
+        wav->apply_damage(health_upper_limit());
     }
 
     if (auto n = noise()) {
-        n->apply_damage(app, health_upper_limit());
+        n->apply_damage(health_upper_limit());
     }
 
     if (playing_) {

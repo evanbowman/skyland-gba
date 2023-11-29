@@ -50,14 +50,14 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
     static bool run_scripts()
@@ -66,11 +66,11 @@ public:
     }
 
 
-    u8 get_pixel(App& app, u8 x, u8 y) override;
-    void set_pixel(App& app, u8 x, u8 y, u8 value) override;
+    u8 get_pixel(u8 x, u8 y) override;
+    void set_pixel(u8 x, u8 y, u8 value) override;
 
 
-    void show(App&) override;
+    void show() override;
 
     bool changed_ = false;
 

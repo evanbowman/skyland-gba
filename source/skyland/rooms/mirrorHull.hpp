@@ -39,8 +39,8 @@ public:
     MirrorHull(Island* parent, const RoomCoord& position);
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     int debris_tile() override

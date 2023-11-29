@@ -89,8 +89,8 @@ public:
     TileId tile() const;
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

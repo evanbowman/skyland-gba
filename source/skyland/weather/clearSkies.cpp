@@ -16,7 +16,7 @@ ColorConstant ClearSkies::fadein_colorize_tone() const
 
 
 
-void ClearSkies::update(App& app, Microseconds delta)
+void ClearSkies::update(Microseconds delta)
 {
     timer_ -= delta;
     if (timer_ <= 0) {
@@ -26,13 +26,13 @@ void ClearSkies::update(App& app, Microseconds delta)
 
         switch (rng::choice<3>(rng::utility_state)) {
         case 0:
-            if (not app.birds().empty()) {
+            if (not APP.birds().empty()) {
                 PLATFORM.speaker().play_sound("seagull_1", 0);
             }
             break;
 
         case 1:
-            if (not app.birds().empty()) {
+            if (not APP.birds().empty()) {
                 PLATFORM.speaker().play_sound("seagull_2", 0);
             }
             break;
@@ -45,7 +45,7 @@ void ClearSkies::update(App& app, Microseconds delta)
 
 
 
-void ClearSkies::display(App& app)
+void ClearSkies::display()
 {
     bool disable_lensflare = false;
 
@@ -68,12 +68,12 @@ void ClearSkies::display(App& app)
     PLATFORM.screen().draw(spr);
 
 
-    if (auto ws = app.scene().cast_world_scene()) {
+    if (auto ws = APP.scene().cast_world_scene()) {
         // auto cursor = ws->is_far_camera() ? globals().far_cursor_loc_
         //     : globals().near_cursor_loc_;
 
-        auto isle = not ws->is_far_camera() ? &app.player_island()
-                                            : app.opponent_island();
+        auto isle = not ws->is_far_camera() ? &APP.player_island()
+                                            : APP.opponent_island();
 
         HitBox sun_hb;
         Vec2<Fixnum> sun_pos = {x, y};

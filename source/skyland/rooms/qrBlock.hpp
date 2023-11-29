@@ -44,7 +44,7 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer)
@@ -113,7 +113,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     void set_message(const char* msg)
@@ -126,7 +126,7 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 

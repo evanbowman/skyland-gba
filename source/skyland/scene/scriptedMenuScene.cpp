@@ -117,9 +117,9 @@ static lisp::Value* get_elem_by_id(lisp::Value* root, const char* id)
 
 
 
-void ScriptedMenuScene::enter(App& app, Scene& prev)
+void ScriptedMenuScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     StringBuffer<96> path;
     path = "/scripts/misc/gui/";
@@ -127,7 +127,7 @@ void ScriptedMenuScene::enter(App& app, Scene& prev)
     path += ".menu.lisp";
 
     Vector<char> file;
-    if (app.load_file(path.c_str(), file)) {
+    if (APP.load_file(path.c_str(), file)) {
         lisp::VectorCharSequence seq(file);
         lisp::read(seq);
         model_ = lisp::get_op0();
@@ -137,7 +137,7 @@ void ScriptedMenuScene::enter(App& app, Scene& prev)
             auto front = v->cons().car()->symbol().name();
             if (str_eq(front, "code")) {
                 auto src = get_str_attr(v, "src");
-                app.invoke_script(src);
+                APP.invoke_script(src);
             }
         });
     }
@@ -210,19 +210,19 @@ void ScriptedMenuScene::repaint_model()
 
 
 
-void ScriptedMenuScene::exit(App& app, Scene& next)
+void ScriptedMenuScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
-    invoke_hook(app, "on-menu-exit");
+    invoke_hook("on-menu-exit");
     PLATFORM.fill_overlay(0);
 }
 
 
 
-ScenePtr<Scene> ScriptedMenuScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ScriptedMenuScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
@@ -231,31 +231,31 @@ ScenePtr<Scene> ScriptedMenuScene::update(App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     if (test_key(Key::left)) {
-        invoke_hook(app, "on-L");
+        invoke_hook("on-L");
     }
 
     if (test_key(Key::right)) {
-        invoke_hook(app, "on-R");
+        invoke_hook("on-R");
     }
 
     if (test_key(Key::up)) {
-        invoke_hook(app, "on-U");
+        invoke_hook("on-U");
     }
 
     if (test_key(Key::down)) {
-        invoke_hook(app, "on-D");
+        invoke_hook("on-D");
     }
 
     if (test_key(Key::action_1)) {
-        invoke_hook(app, "on-A");
+        invoke_hook("on-A");
     }
 
     if (test_key(Key::action_2)) {
-        invoke_hook(app, "on-B");
+        invoke_hook("on-B");
     }
 
     if (needs_repaint_) {
@@ -267,9 +267,9 @@ ScenePtr<Scene> ScriptedMenuScene::update(App& app, Microseconds delta)
 
 
 
-void ScriptedMenuScene::display(App& app)
+void ScriptedMenuScene::display()
 {
-    ActiveWorldScene::display(app);
+    ActiveWorldScene::display();
 }
 
 

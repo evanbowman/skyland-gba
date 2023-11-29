@@ -35,21 +35,21 @@ namespace skyland
 
 
 
-ScenePtr<Scene> update_modifier_keys(App& app);
+ScenePtr<Scene> update_modifier_keys();
 
 
 
-ScenePtr<Scene> ModifierKeyHintScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ModifierKeyHintScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (not player(app).key_pressed(Key::start)) {
+    if (not player().key_pressed(Key::start)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (auto scene = update_modifier_keys(app)) {
+    if (auto scene = update_modifier_keys()) {
         return scene;
     }
 
@@ -58,9 +58,9 @@ ScenePtr<Scene> ModifierKeyHintScene::update(App& app, Microseconds delta)
 
 
 
-void ModifierKeyHintScene::enter(App& app, Scene& prev)
+void ModifierKeyHintScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     const auto st = calc_screen_tiles();
 
@@ -108,9 +108,9 @@ void ModifierKeyHintScene::enter(App& app, Scene& prev)
 
 
 
-void ModifierKeyHintScene::exit(App& app, Scene& next)
+void ModifierKeyHintScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     PLATFORM.screen().schedule_fade(0.f);
 

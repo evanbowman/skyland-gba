@@ -36,10 +36,10 @@ public:
     PluginRoom(Island* parent, const RoomCoord& position, RoomMeta* metaclass);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]);
@@ -48,21 +48,20 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]);
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
     }
 
 
-    void set_target(App& app, const RoomCoord& target, bool pinned) override;
+    void set_target(const RoomCoord& target, bool pinned) override;
 
 
-    void unset_target(App& app) override;
+    void unset_target() override;
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     bool description_visible() override

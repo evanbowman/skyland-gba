@@ -42,8 +42,8 @@ public:
                const char* n = name());
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     const char* upgrade_mt_name() const override;
@@ -52,14 +52,13 @@ public:
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
-    void render_scaffolding(App& app, TileId buffer[16][16])
+    void render_scaffolding(TileId buffer[16][16])
     {
         // Forcefields float; no scaffolding.
     }
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -126,7 +125,7 @@ public:
     }
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
     static RoomProperties::Bitmask properties()
@@ -174,8 +173,8 @@ public:
     const char* upgrade_mt_name() const override;
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);

@@ -39,7 +39,7 @@ public:
     AutopilotPlayer(lisp::Value* keys_list);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     bool key_down(Key k) override;
@@ -51,7 +51,7 @@ public:
     bool key_pressed(Key k) override;
 
 
-    void on_room_damaged(App& app, Room& room) override;
+    void on_room_damaged(Room& room) override;
 
 
 private:

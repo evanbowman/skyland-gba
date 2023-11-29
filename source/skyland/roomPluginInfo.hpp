@@ -60,19 +60,11 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    void create(App& app,
-                Island* parent,
+    void create(Island* parent,
                 const RoomCoord& position,
                 bool do_repaint) const override
     {
-        parent->add_room<PluginRoom>(app, position, do_repaint, mt_);
-    }
-
-
-    RoomPtr<Room> create(Island* parent,
-                         const RoomCoord& position) const override
-    {
-        return room_pool::alloc<PluginRoom>(parent, position, mt_);
+        parent->add_room<PluginRoom>(position, do_repaint, mt_);
     }
 
 

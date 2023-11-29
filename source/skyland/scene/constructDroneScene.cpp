@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void ConstructDroneScene::draw(App& app)
+void ConstructDroneScene::draw()
 {
     auto st = calc_screen_tiles();
 
@@ -146,20 +146,20 @@ void ConstructDroneScene::draw(App& app)
 
 
 
-void ConstructDroneScene::enter(App& app, Scene& prev)
+void ConstructDroneScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     persist_ui();
 
-    draw(app);
+    draw();
 }
 
 
 
-void ConstructDroneScene::exit(App& app, Scene& next)
+void ConstructDroneScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     text_.reset();
     PLATFORM.fill_overlay(0);
@@ -167,17 +167,17 @@ void ConstructDroneScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> ConstructDroneScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ConstructDroneScene::update(Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
     auto [templates, template_count] = drone_metatable();
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         const auto cost = templates[selector_]->cost();
-        if (app.coins() >= cost) {
+        if (APP.coins() >= cost) {
             return scene_pool::alloc<PlaceDroneScene>(position_,
                                                       &templates[selector_]);
         }
@@ -185,31 +185,31 @@ ScenePtr<Scene> ConstructDroneScene::update(App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(150));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
     };
 
 
     if (test_key(Key::right)) {
         if (selector_ < (int)template_count - 1) {
             ++selector_;
-            draw(app);
+            draw();
         } else {
             selector_ = 0;
-            draw(app);
+            draw();
         }
     }
 
     if (test_key(Key::left)) {
         if (selector_ > 0) {
             --selector_;
-            draw(app);
+            draw();
         } else {
             selector_ = template_count - 1;
-            draw(app);
+            draw();
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 

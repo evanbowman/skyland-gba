@@ -45,19 +45,19 @@ TransportCharacterScene::TransportCharacterScene(RoomCoord origin)
 
 
 
-void TransportCharacterScene::enter(App& app, Scene& prev)
+void TransportCharacterScene::enter(Scene& prev)
 {
-    NotificationScene::enter(app, prev);
+    NotificationScene::enter(prev);
 
     far_camera();
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return;
     }
 
     matrix_ = allocate_dynamic<bool[16][16]>("chr-transport-matrix");
 
-    app.opponent_island()->plot_walkable_zones(app, **matrix_, nullptr);
+    APP.opponent_island()->plot_walkable_zones(**matrix_, nullptr);
 
     bool set_cursor = false;
 
@@ -68,7 +68,7 @@ void TransportCharacterScene::enter(App& app, Scene& prev)
                     globals().far_cursor_loc_ = {x, y};
                     set_cursor = true;
                 }
-                PLATFORM.set_tile(app.opponent_island()->layer(),
+                PLATFORM.set_tile(APP.opponent_island()->layer(),
                                   x,
                                   y,
                                   StaticTile::path_marker);
@@ -79,26 +79,26 @@ void TransportCharacterScene::enter(App& app, Scene& prev)
 
 
 
-void TransportCharacterScene::exit(App& app, Scene& next)
+void TransportCharacterScene::exit(Scene& next)
 {
-    NotificationScene::exit(app, next);
+    NotificationScene::exit(next);
 
-    if (app.opponent_island()) {
-        app.opponent_island()->repaint(app);
+    if (APP.opponent_island()) {
+        APP.opponent_island()->repaint();
     }
 }
 
 
 
-void TransportCharacterScene::display(App& app)
+void TransportCharacterScene::display()
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
     Vec2<Fixnum> origin;
-    if (app.opponent_island()) {
-        origin = app.opponent_island()->visual_origin();
+    if (APP.opponent_island()) {
+        origin = APP.opponent_island()->visual_origin();
     }
 
     const auto cursor_loc = globals().far_cursor_loc_;
@@ -110,47 +110,47 @@ void TransportCharacterScene::display(App& app)
 
     PLATFORM.screen().draw(cursor);
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 
 
-ScenePtr<Scene> TransportCharacterScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> TransportCharacterScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     RoomCoord* cursor_loc = nullptr;
     cursor_loc = &globals().far_cursor_loc_;
 
-    if (app.player().key_down(Key::left)) {
+    if (APP.player().key_down(Key::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
         }
     }
 
-    if (app.player().key_down(Key::right)) {
-        if (cursor_loc->x < app.opponent_island()->terrain().size()) {
+    if (APP.player().key_down(Key::right)) {
+        if (cursor_loc->x < APP.opponent_island()->terrain().size()) {
             ++cursor_loc->x;
         }
     }
 
-    if (app.player().key_down(Key::up)) {
+    if (APP.player().key_down(Key::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }
 
-    if (app.player().key_down(Key::down)) {
+    if (APP.player().key_down(Key::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
         }
@@ -162,12 +162,12 @@ ScenePtr<Scene> TransportCharacterScene::update(App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    if (app.player().key_down(Key::action_1) and
+    if (APP.player().key_down(Key::action_1) and
         (**matrix_)[cursor_loc->x][cursor_loc->y]) {
 
-        for (auto& room : app.opponent_island()->rooms()) {
+        for (auto& room : APP.opponent_island()->rooms()) {
             for (auto& other : room->characters()) {
-                if (other->owner() == &app.player()) {
+                if (other->owner() == &APP.player()) {
 
                     if (auto dest = other->destination()) {
                         // We don't want to allow a character to move into a
@@ -186,9 +186,9 @@ ScenePtr<Scene> TransportCharacterScene::update(App& app, Microseconds delta)
             }
         }
 
-        if (auto room = app.player_island().get_room(origin_)) {
+        if (auto room = APP.player_island().get_room(origin_)) {
             if (auto transporter = room->cast<Transporter>()) {
-                transporter->transport_occupant(app, *cursor_loc);
+                transporter->transport_occupant(*cursor_loc);
                 return scene_pool::alloc<InspectP2Scene>();
             } else {
                 return scene_pool::alloc<ReadyScene>();

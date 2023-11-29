@@ -39,16 +39,16 @@ public:
     StartMenuScene(int fade_direction, int default_cursor = 0);
 
 
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App&, Scene& next) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
     bool cascade_anim_in_ = false;

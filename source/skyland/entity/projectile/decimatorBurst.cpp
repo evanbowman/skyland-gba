@@ -61,29 +61,29 @@ DecimatorBurst::DecimatorBurst(const Vec2<Fixnum>& position,
 
 
 
-void DecimatorBurst::update(App& app, Microseconds delta)
+void DecimatorBurst::update(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.delta_fp() * step_vector_;
+    pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
-    if (source_ not_eq &app.player_island()) {
+    if (source_ not_eq &APP.player_island()) {
         sprite_.set_flip({true, false});
     }
 
     timer_ += delta;
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
         int max_x = 9999999;
         int min_x = -9999999;
-        if (target == &app.player_island()) {
+        if (target == &APP.player_island()) {
             // If we're shooting at the player's island, the projectile moves
             // leftwards, and we care about the min bound.
             min_x = target->origin().x.as_integer() - 32;
@@ -105,21 +105,21 @@ void DecimatorBurst::update(App& app, Microseconds delta)
 
 
 
-void DecimatorBurst::rewind(App& app, Microseconds delta)
+void DecimatorBurst::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.delta_fp() * step_vector_;
+    pos = pos - APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
 
-    if (source_ not_eq &app.player_island()) {
+    if (source_ not_eq &APP.player_island()) {
         sprite_.set_flip({true, false});
     }
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         }
         kill();
     }
@@ -127,7 +127,7 @@ void DecimatorBurst::rewind(App& app, Microseconds delta)
 
 
 
-void DecimatorBurst::on_collision(App& app, Room& room, Vec2<u8> origin)
+void DecimatorBurst::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or
@@ -140,7 +140,7 @@ void DecimatorBurst::on_collision(App& app, Room& room, Vec2<u8> origin)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < decimator_burst_damage) {
-        room.apply_damage(app, Room::health_upper_limit());
+        room.apply_damage(Room::health_upper_limit());
         return;
     }
 
@@ -161,33 +161,33 @@ void DecimatorBurst::on_collision(App& app, Room& room, Vec2<u8> origin)
         };
 
 
-    if (source_ == &app.player_island()) {
+    if (source_ == &APP.player_island()) {
         time_stream::event::PlayerDecimatorBurstDestroyed e;
         timestream_record(e);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentDecimatorBurstDestroyed e;
         timestream_record(e);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
 
     kill();
-    app.camera()->shake(26);
-    big_explosion(app, sprite_.get_position());
+    APP.camera()->shake(26);
+    big_explosion(sprite_.get_position());
 
-    room.apply_damage(app, decimator_burst_damage, source_);
+    room.apply_damage(decimator_burst_damage, source_);
 }
 
 
 
-void DecimatorBurst::on_collision(App& app, Entity& entity)
+void DecimatorBurst::on_collision(Entity& entity)
 {
     // Blows through drones, does not stop.
 
-    app.camera()->shake(4);
+    APP.camera()->shake(4);
 
-    entity.apply_damage(app, decimator_burst_damage);
+    entity.apply_damage(decimator_burst_damage);
 }
 
 

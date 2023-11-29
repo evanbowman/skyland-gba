@@ -93,7 +93,7 @@ static void store_dlc(Vector<char>& data)
 
 
 
-ScenePtr<Scene> DlcInjectorModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> DlcInjectorModule::update(Microseconds delta)
 {
     if (not begin_load_) {
         auto future_scene = [] {
@@ -113,7 +113,7 @@ ScenePtr<Scene> DlcInjectorModule::update(App& app, Microseconds delta)
                                                         future_scene);
     }
 
-    Module::update(app, delta);
+    Module::update(delta);
 
     Vector<char> result;
 

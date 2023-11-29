@@ -40,19 +40,19 @@ static const Float default_fade = 0.75f;
 
 
 
-void SelectSampleScene::enter(App& app, Scene& prev)
+void SelectSampleScene::enter(Scene& prev)
 {
     PLATFORM.screen().pixelate(128, false, true, false);
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 
-    samples_ = app.invoke_script("/scripts/config/macro_samples/index.lisp");
+    samples_ = APP.invoke_script("/scripts/config/macro_samples/index.lisp");
 
     const auto sample_count = lisp::length(*samples_);
 
     page_count_ = sample_count / 5 + (sample_count % 5 ? 1 : 0);
 
-    show_options(app);
+    show_options();
 
     PLATFORM.screen().schedule_fade(
         default_fade, ColorConstant::rich_black, {}, false);
@@ -60,7 +60,7 @@ void SelectSampleScene::enter(App& app, Scene& prev)
 
 
 
-void SelectSampleScene::show_options(App& app)
+void SelectSampleScene::show_options()
 {
     PLATFORM.screen().clear();
     text_.clear();
@@ -125,11 +125,11 @@ void SelectSampleScene::show_options(App& app)
 
 
 
-void prep_level(App& app);
+void prep_level();
 
 
 
-void SelectSampleScene::exit(App&, Scene& next)
+void SelectSampleScene::exit(Scene& next)
 {
     PLATFORM.screen().pixelate(0);
     text_.clear();
@@ -139,7 +139,7 @@ void SelectSampleScene::exit(App&, Scene& next)
 
 
 
-void SelectSampleScene::display(App& app)
+void SelectSampleScene::display()
 {
     if (state_ not_eq State::idle) {
         return;
@@ -163,7 +163,7 @@ void SelectSampleScene::display(App& app)
 
 
 
-ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SelectSampleScene::update(Microseconds delta)
 {
     if (exit_) {
         page_ = 0;
@@ -183,46 +183,46 @@ ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
             return null_scene();
         }
 
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             if (cursor_) {
                 cursor_--;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(Key::right)) {
+        if (APP.player().key_down(Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             text_.clear();
             PLATFORM.fill_overlay(0);
             exit_ = true;
@@ -232,7 +232,7 @@ ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
 
     case State::fade_out: {
 
-        auto& m = macrocosm(app);
+        auto& m = macrocosm();
 
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*samples_, index);
@@ -247,7 +247,7 @@ ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
             type_override = lisp::get_list(choice, 2)->integer().value_;
         }
 
-        app.set_coins(0);
+        APP.set_coins(0);
 
         const char* base_path = "scripts/config/macro_samples";
         const char* fname = file_name->string().value();
@@ -305,7 +305,7 @@ ScenePtr<Scene> SelectSampleScene::update(App& app, Microseconds delta)
     }
     }
 
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     return null_scene();
 }

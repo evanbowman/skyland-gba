@@ -37,7 +37,7 @@ static const Float partial_fade_amt = 0.76f;
 
 
 
-void update_confetti(App& app, ConfettiBuffer& confetti, Microseconds delta);
+void update_confetti(ConfettiBuffer& confetti, Microseconds delta);
 
 
 
@@ -58,18 +58,18 @@ void LevelCompleteOptionsScene::show_cursor()
 
 
 
-ScenePtr<Scene> LevelCompleteOptionsScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> LevelCompleteOptionsScene::update(Microseconds delta)
 {
-    WorldScene::update(app, delta);
+    WorldScene::update(delta);
 
     if (confetti_ and *confetti_) {
-        update_confetti(app, **confetti_, delta);
+        update_confetti(**confetti_, delta);
     }
 
     switch (state_) {
     case State::select:
         timer_ += delta;
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             timer_ = 0;
             switch (cursor_) {
             case 0:
@@ -85,16 +85,16 @@ ScenePtr<Scene> LevelCompleteOptionsScene::update(App& app, Microseconds delta)
             }
             options_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             state_ = State::fade_resume;
             options_.clear();
             PLATFORM.fill_overlay(0);
             timer_ = 0;
-        } else if (app.player().key_down(Key::up) and cursor_ > 0) {
+        } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
             --cursor_;
             show_cursor();
 
-        } else if (app.player().key_down(Key::down) and cursor_ < 1) {
+        } else if (APP.player().key_down(Key::down) and cursor_ < 1) {
             ++cursor_;
             show_cursor();
         }
@@ -104,12 +104,12 @@ ScenePtr<Scene> LevelCompleteOptionsScene::update(App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(400);
         if (timer_ > fade_duration) {
-            PLATFORM.screen().set_shader(app.environment().shader(app));
+            PLATFORM.screen().set_shader(APP.environment().shader());
             PLATFORM.load_overlay_texture("overlay");
             PLATFORM.screen().schedule_fade(0.1f); // palette bugfix
             PLATFORM.screen().schedule_fade(0.f);
             PLATFORM.screen().pixelate(0, false);
-            app.reset_opponent_island();
+            APP.reset_opponent_island();
             return scene_pool::alloc<ReadyScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -156,9 +156,9 @@ ScenePtr<Scene> LevelCompleteOptionsScene::update(App& app, Microseconds delta)
 
 
 
-void LevelCompleteOptionsScene::display(App& app)
+void LevelCompleteOptionsScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
 
     if (confetti_ and *confetti_) {
         for (auto& c : **confetti_) {
@@ -187,9 +187,9 @@ void LevelCompleteOptionsScene::display(App& app)
 
 
 
-void LevelCompleteOptionsScene::enter(App& app, Scene& prev)
+void LevelCompleteOptionsScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     PLATFORM.load_overlay_texture("overlay_island_destroyed");
 
@@ -216,9 +216,9 @@ void LevelCompleteOptionsScene::enter(App& app, Scene& prev)
 
 
 
-void LevelCompleteOptionsScene::exit(App& app, Scene& next)
+void LevelCompleteOptionsScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.screen().pixelate(0.f);

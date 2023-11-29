@@ -33,11 +33,11 @@ namespace skyland
 
 
 
-void PlayerP1::update(App& app, Microseconds delta)
+void PlayerP1::update(Microseconds delta)
 {
     // Really dumb keylogger, for the tutorial levels. Dump lisp code to SRAM.
 
-    if (app.game_mode() == App::GameMode::tutorial) {
+    if (APP.game_mode() == App::GameMode::tutorial) {
         StringBuffer<48> out = "(";
 
         if (PLATFORM.keyboard().down_transition<Key::left>()) {
@@ -169,7 +169,7 @@ void PlayerP1::update(App& app, Microseconds delta)
 
         if (PLATFORM.keyboard()
                 .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
-            app.camera()->reset_default(app);
+            APP.camera()->reset_default();
         }
     }
 
@@ -189,12 +189,12 @@ SharedVariable score_multiplier("score_multiplier", 1);
 
 
 
-void PlayerP1::on_room_destroyed(App& app, Room& room)
+void PlayerP1::on_room_destroyed(Room& room)
 {
-    if (room.parent() not_eq &app.player_island()) {
+    if (room.parent() not_eq &APP.player_island()) {
         if (room.cast<Mycelium>()) {
             int mcount = 0;
-            for (auto& oroom : app.opponent_island()->rooms()) {
+            for (auto& oroom : APP.opponent_island()->rooms()) {
                 if (oroom->metaclass_index() == room.metaclass_index()) {
                     ++mcount;
                 }
@@ -207,36 +207,36 @@ void PlayerP1::on_room_destroyed(App& app, Room& room)
             }
         }
 
-        app.score().set((app.score().get() +
+        APP.score().set((APP.score().get() +
                          (score_multiplier * (*room.metaclass())->cost())));
     }
 }
 
 
 
-void PlayerP1::on_room_damaged(App& app, Room& room)
+void PlayerP1::on_room_damaged(Room& room)
 {
     auto island = room.parent();
 
     // Birds alerted when island attacked.
-    for (auto& bird : app.birds()) {
-        if (bird->island(app) == island) {
-            bird->signal(app);
+    for (auto& bird : APP.birds()) {
+        if (bird->island() == island) {
+            bird->signal();
         }
     }
 }
 
 
 
-void PlayerP1::on_room_plundered(App& app, Room& room)
+void PlayerP1::on_room_plundered(Room& room)
 {
-    if (room.parent() not_eq &app.player_island()) {
-        app.score().set(
-            (app.score().get() +
+    if (room.parent() not_eq &APP.player_island()) {
+        APP.score().set(
+            (APP.score().get() +
              1.5f * (score_multiplier * (*room.metaclass())->cost())));
 
         if (str_eq((*room.metaclass())->name(), "decimator")) {
-            achievements::raise(app, achievements::Achievement::ancient_weapon);
+            achievements::raise(achievements::Achievement::ancient_weapon);
         }
     }
 }

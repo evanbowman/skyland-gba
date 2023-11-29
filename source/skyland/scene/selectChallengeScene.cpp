@@ -43,26 +43,26 @@ static const Float default_fade = 0.6f;
 
 
 
-void SelectChallengeScene::enter(App& app, Scene& prev)
+void SelectChallengeScene::enter(Scene& prev)
 {
     PLATFORM.screen().set_shader(passthrough_shader);
 
-    app.swap_environment<weather::ClearSkies>();
+    APP.swap_environment<weather::ClearSkies>();
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 
     PLATFORM.system_call("v-parallax", (void*)false);
 
-    app.player_island().clear_rooms(app);
-    app.effects().clear();
+    APP.player_island().clear_rooms();
+    APP.effects().clear();
 
-    challenges_ = app.invoke_script("/scripts/challenges/challenge.lisp");
+    challenges_ = APP.invoke_script("/scripts/challenges/challenge.lisp");
 
     const auto challenge_count = lisp::length(*challenges_);
 
     page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
 
-    show_options(app);
+    show_options();
 
     for (int i = 0; i < 16; ++i) {
         for (int j = 0; j < 16; ++j) {
@@ -83,7 +83,7 @@ void SelectChallengeScene::enter(App& app, Scene& prev)
 
 
 
-void SelectChallengeScene::show_options(App& app)
+void SelectChallengeScene::show_options()
 {
     PLATFORM.screen().clear();
     text_.clear();
@@ -121,7 +121,7 @@ void SelectChallengeScene::show_options(App& app)
             PLATFORM.fatal("challenge list format invalid");
         }
 
-        bool completed = app.gp_.challenge_flags_.get() & (1 << index);
+        bool completed = APP.gp_.challenge_flags_.get() & (1 << index);
 
         if (index++ < start_index) {
             return;
@@ -157,11 +157,11 @@ void SelectChallengeScene::show_options(App& app)
 
 
 
-void prep_level(App& app);
+void prep_level();
 
 
 
-void SelectChallengeScene::exit(App&, Scene& next)
+void SelectChallengeScene::exit(Scene& next)
 {
     text_.clear();
     PLATFORM.fill_overlay(0);
@@ -174,7 +174,7 @@ void SelectChallengeScene::exit(App&, Scene& next)
 
 
 
-void SelectChallengeScene::display(App& app)
+void SelectChallengeScene::display()
 {
     if (state_ not_eq State::idle) {
         return;
@@ -198,7 +198,7 @@ void SelectChallengeScene::display(App& app)
 
 
 
-ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SelectChallengeScene::update(Microseconds delta)
 {
     if (exit_) {
         page_ = 0;
@@ -211,11 +211,11 @@ ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
     switch (state_) {
     case State::fade_in:
         for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update(app);
+            const auto achievement = achievements::update();
             if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(app, achievement);
+                achievements::award(achievement);
 
-                app.player_island().show_flag(false);
+                APP.player_island().show_flag(false);
 
                 PLATFORM.screen().fade(1.f);
 
@@ -233,46 +233,46 @@ ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
             return null_scene();
         }
 
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             if (cursor_) {
                 cursor_--;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (app.player().key_down(Key::right)) {
+        if (APP.player().key_down(Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::left)) {
+        if (APP.player().key_down(Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(app);
+                show_options();
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
             }
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             text_.clear();
             PLATFORM.fill_overlay(0);
             exit_ = true;
@@ -283,7 +283,7 @@ ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
     case State::fade_out: {
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
-            app.camera()->reset();
+            APP.camera()->reset();
             PLATFORM.screen().fade(
                 1.f, ColorConstant::rich_black, {}, true, true);
             auto index = page_ * 5 + cursor_;
@@ -294,19 +294,19 @@ ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
                 PLATFORM.fatal("challenge list format invalid");
             }
 
-            app.set_coins(0);
+            APP.set_coins(0);
 
             StringBuffer<100> path("/scripts/");
             path += file_name->string().value();
-            app.invoke_script(path.c_str());
+            APP.invoke_script(path.c_str());
 
-            prep_level(app);
+            prep_level();
 
-            show_island_exterior(app, &app.player_island());
+            show_island_exterior(&APP.player_island());
 
             if (not PLATFORM.speaker().is_music_playing(
-                    app.environment().music())) {
-                PLATFORM.speaker().play_music(app.environment().music(), 0);
+                    APP.environment().music())) {
+                PLATFORM.speaker().play_music(APP.environment().music(), 0);
             }
 
             return scene_pool::alloc<FadeInScene>();
@@ -321,7 +321,7 @@ ScenePtr<Scene> SelectChallengeScene::update(App& app, Microseconds delta)
     }
     }
 
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     return null_scene();
 }

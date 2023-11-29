@@ -31,9 +31,9 @@ namespace skyland
 
 
 
-void FatalErrorScene::enter(App& app, Scene& prev)
+void FatalErrorScene::enter(Scene& prev)
 {
-    if (app.game_mode() not_eq App::GameMode::adventure) {
+    if (APP.game_mode() not_eq App::GameMode::adventure) {
         Platform::fatal(message_.c_str());
     }
 
@@ -58,20 +58,20 @@ void FatalErrorScene::enter(App& app, Scene& prev)
 
 
 
-void FatalErrorScene::exit(App&, Scene& next)
+void FatalErrorScene::exit(Scene& next)
 {
     verbose_error_.reset();
 }
 
 
 
-ScenePtr<Scene> FatalErrorScene::update(App& app, Microseconds dt)
+ScenePtr<Scene> FatalErrorScene::update(Microseconds dt)
 {
-    app.player().update(app, dt);
+    APP.player().update(dt);
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         PLATFORM.fill_overlay(0);
-        app.restore_backup();
+        APP.restore_backup();
         PLATFORM.speaker().clear_sounds();
         return scene_pool::alloc<LoadLevelScene>();
     }

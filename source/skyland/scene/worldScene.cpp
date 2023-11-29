@@ -49,9 +49,9 @@ namespace skyland
 
 
 
-static void apply_gamespeed(App& app, Microseconds& delta)
+static void apply_gamespeed(Microseconds& delta)
 {
-    switch (app.game_speed()) {
+    switch (APP.game_speed()) {
     case GameSpeed::normal:
         break;
 
@@ -142,14 +142,14 @@ static void hide_multiplayer_pauses_remaining()
 
 
 
-void WorldScene::set_gamespeed(App& app, GameSpeed speed)
+void WorldScene::set_gamespeed(GameSpeed speed)
 {
-    if (app.game_speed() == GameSpeed::stopped and
+    if (APP.game_speed() == GameSpeed::stopped and
         speed not_eq GameSpeed::stopped) {
 
-        for (auto& room : app.player_island().rooms()) {
+        for (auto& room : APP.player_island().rooms()) {
             if (room->should_init_ai_awareness_upon_unpause()) {
-                room->init_ai_awareness(app);
+                room->init_ai_awareness();
             }
         }
     }
@@ -157,8 +157,8 @@ void WorldScene::set_gamespeed(App& app, GameSpeed speed)
     switch (speed) {
     case GameSpeed::stopped:
     case GameSpeed::normal:
-        if (app.game_speed() not_eq GameSpeed::stopped and
-            app.game_speed() not_eq GameSpeed::normal) {
+        if (APP.game_speed() not_eq GameSpeed::stopped and
+            APP.game_speed() not_eq GameSpeed::normal) {
             PLATFORM.speaker().set_music_speed(
                 Platform::Speaker::MusicSpeed::regular);
         }
@@ -186,11 +186,11 @@ void WorldScene::set_gamespeed(App& app, GameSpeed speed)
 
     if (speed == GameSpeed::stopped) {
         PLATFORM.speaker().stash_sounds();
-    } else if (app.game_speed() == GameSpeed::stopped) {
+    } else if (APP.game_speed() == GameSpeed::stopped) {
         PLATFORM.speaker().restore_sounds();
     }
 
-    app.game_speed() = speed;
+    APP.game_speed() = speed;
     if (not disable_gamespeed_icon_) {
         if (speed == GameSpeed::normal) {
             set_pause_icon(0);
@@ -202,52 +202,52 @@ void WorldScene::set_gamespeed(App& app, GameSpeed speed)
 
 
 
-ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed(App& app)
+ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed()
 {
-    if ((app.game_mode() == App::GameMode::adventure or
-         app.game_mode() == App::GameMode::sandbox or
-         app.game_mode() == App::GameMode::skyland_forever) and
-        app.gp_.difficulty_ == GlobalPersistentData::Difficulty::beginner and
-        not state_bit_load(app, StateBit::easy_mode_rewind_declined) and
-        app.persistent_data().lives_ > 0) {
-        --app.persistent_data().lives_;
+    if ((APP.game_mode() == App::GameMode::adventure or
+         APP.game_mode() == App::GameMode::sandbox or
+         APP.game_mode() == App::GameMode::skyland_forever) and
+        APP.gp_.difficulty_ == GlobalPersistentData::Difficulty::beginner and
+        not state_bit_load(StateBit::easy_mode_rewind_declined) and
+        APP.persistent_data().lives_ > 0) {
+        --APP.persistent_data().lives_;
 
         return scene_pool::alloc<EasyModeRewindScene>();
     }
 
-    state_bit_store(app, StateBit::easy_mode_rewind_declined, false);
+    state_bit_store(StateBit::easy_mode_rewind_declined, false);
 
-    reset_gamespeed(app);
+    reset_gamespeed();
 
-    app.time_stream().clear();
+    APP.time_stream().clear();
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
     cursor_loc.x = 0;
 
-    if (app.game_mode() not_eq App::GameMode::multiplayer and
-        app.game_mode() not_eq App::GameMode::co_op) {
+    if (APP.game_mode() not_eq App::GameMode::multiplayer and
+        APP.game_mode() not_eq App::GameMode::co_op) {
         PLATFORM.sleep(4);
     }
 
-    app.effects().clear();
-    return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island());
+    APP.effects().clear();
+    return scene_pool::alloc<PlayerIslandDestroyedScene>(&APP.player_island());
 }
 
 
 
-ScenePtr<Scene> ActiveWorldScene::try_surrender(App& app)
+ScenePtr<Scene> ActiveWorldScene::try_surrender()
 {
-    auto o = app.opponent_island();
+    auto o = APP.opponent_island();
 
-    if (not app.player_island().is_boarded() and
+    if (not APP.player_island().is_boarded() and
         o->offensive_capabilities() == 0 and o->character_count() and
         o->projectiles().empty()) {
 
-        state_bit_store(app, StateBit::surrender_offered, true);
+        state_bit_store(StateBit::surrender_offered, true);
 
         // The final boss will never surrender.
-        if (app.world_graph().nodes_[app.current_world_location()].type_ not_eq
+        if (APP.world_graph().nodes_[APP.current_world_location()].type_ not_eq
             WorldGraph::Node::Type::corrupted) {
 
             return scene_pool::alloc<SurrenderWaitScene>();
@@ -259,69 +259,69 @@ ScenePtr<Scene> ActiveWorldScene::try_surrender(App& app)
 
 
 
-void WorldScene::reset_gamespeed(App& app)
+void WorldScene::reset_gamespeed()
 {
-    set_gamespeed(app, GameSpeed::normal);
+    set_gamespeed(GameSpeed::normal);
 }
 
 
 
-ScenePtr<Scene> ActiveWorldScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ActiveWorldScene::update(Microseconds delta)
 {
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
-    app.opponent().update(app, delta);
+    APP.opponent().update(delta);
 
 
-    if (auto new_scene = WorldScene::update(app, delta)) {
+    if (auto new_scene = WorldScene::update(delta)) {
         return new_scene;
     }
 
 
-    if (app.game_mode() not_eq App::GameMode::multiplayer and
-        app.game_mode() not_eq App::GameMode::multiplayer and
-        app.input_setup_info()) {
+    if (APP.game_mode() not_eq App::GameMode::multiplayer and
+        APP.game_mode() not_eq App::GameMode::multiplayer and
+        APP.input_setup_info()) {
 
-        auto next = scene_pool::alloc<SelInputScene>(*app.input_setup_info(),
+        auto next = scene_pool::alloc<SelInputScene>(*APP.input_setup_info(),
                                                      not is_far_camera());
 
-        app.input_setup_info().reset();
+        APP.input_setup_info().reset();
 
         return next;
     }
 
 
-    apply_gamespeed(app, delta);
+    apply_gamespeed(delta);
 
 
-    app.environment().update(app, delta);
+    APP.environment().update(delta);
 
 
-    if (app.player_island().is_destroyed()) {
-        return on_player_island_destroyed(app);
+    if (APP.player_island().is_destroyed()) {
+        return on_player_island_destroyed();
     }
 
-    if (app.opponent_island()) {
-        if (not state_bit_load(app, StateBit::surrender_offered) and
-            app.game_mode() == App::GameMode::adventure) {
+    if (APP.opponent_island()) {
+        if (not state_bit_load(StateBit::surrender_offered) and
+            APP.game_mode() == App::GameMode::adventure) {
 
-            if (auto next = try_surrender(app)) {
+            if (auto next = try_surrender()) {
                 return next;
             }
         }
     }
 
-    if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
-        reset_gamespeed(app);
+    if (APP.opponent_island() and APP.opponent_island()->is_destroyed()) {
+        reset_gamespeed();
 
-        if (app.exit_condition() == App::ExitCondition::none) {
+        if (APP.exit_condition() == App::ExitCondition::none) {
             auto& cursor_loc = globals().near_cursor_loc_;
 
             cursor_loc.x = 0;
 
-            app.effects().clear();
+            APP.effects().clear();
             return scene_pool::alloc<PlayerIslandDestroyedScene>(
-                app.opponent_island());
+                APP.opponent_island());
         }
     }
 
@@ -330,11 +330,11 @@ ScenePtr<Scene> ActiveWorldScene::update(App& app, Microseconds delta)
 
 
 
-void WorldScene::display(App& app)
+void WorldScene::display()
 {
-    app.environment().display(app);
+    APP.environment().display();
 
-    if (app.game_mode() == App::GameMode::co_op) {
+    if (APP.game_mode() == App::GameMode::co_op) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_texture_index(globals().co_op_cursor_icon_);
@@ -343,7 +343,7 @@ void WorldScene::display(App& app)
 
         if (globals().co_op_cursor_near_) {
 
-            auto origin = app.player_island().visual_origin();
+            auto origin = APP.player_island().visual_origin();
 
             int x = cursor_loc.x * 16;
             if (cursor_loc.x == 255) {
@@ -354,8 +354,8 @@ void WorldScene::display(App& app)
             origin.y += Fixnum::from_integer(cursor_loc.y * 16);
 
             cursor.set_position(origin);
-        } else if (app.opponent_island()) {
-            auto origin = app.opponent_island()->visual_origin();
+        } else if (APP.opponent_island()) {
+            auto origin = APP.opponent_island()->visual_origin();
 
             int x = cursor_loc.x * 16;
             if (cursor_loc.x == 255) {
@@ -371,21 +371,21 @@ void WorldScene::display(App& app)
         PLATFORM.screen().draw(cursor);
     }
 
-    app.player_island().display(app);
+    APP.player_island().display();
 
-    if (app.opponent_island()) {
-        app.opponent_island()->display(app);
+    if (APP.opponent_island()) {
+        APP.opponent_island()->display();
     }
 
-    for (auto& effect : app.effects()) {
+    for (auto& effect : APP.effects()) {
         PLATFORM.screen().draw(effect->sprite());
     }
 
     // NOTE: drawn separately because we want UI effects to appear above fire
     // effects.
-    app.player_island().display_fires();
-    if (app.opponent_island()) {
-        app.opponent_island()->display_fires();
+    APP.player_island().display_fires();
+    if (APP.opponent_island()) {
+        APP.opponent_island()->display_fires();
     }
 
     if (not birds_drawn_) {
@@ -394,7 +394,7 @@ void WorldScene::display(App& app)
         // tearing whatsoever, it's super noticeable. But not all derived scenes
         // actually call WorldScene::update(), so we perform the draw call here
         // for those cases.
-        for (auto& bird : app.birds()) {
+        for (auto& bird : APP.birds()) {
             PLATFORM.screen().draw(bird->sprite());
         }
     }
@@ -410,22 +410,22 @@ static u32 format_power_fraction(Power avail, Power used)
 
 
 
-bool WorldScene::camera_update_check_key(App& app)
+bool WorldScene::camera_update_check_key()
 {
-    return app.player().key_pressed(Key::left) or
-           app.player().key_pressed(Key::right) or
-           app.player().key_pressed(Key::up) or
-           app.player().key_pressed(Key::down) or
-           app.player().key_pressed(Key::select);
+    return APP.player().key_pressed(Key::left) or
+           APP.player().key_pressed(Key::right) or
+           APP.player().key_pressed(Key::up) or
+           APP.player().key_pressed(Key::down) or
+           APP.player().key_pressed(Key::select);
 }
 
 
 
-ScenePtr<Scene> WorldScene::make_dialog(App& app)
+ScenePtr<Scene> WorldScene::make_dialog()
 {
-    if (app.dialog_buffer()) {
-        auto buffer = std::move(*app.dialog_buffer());
-        app.dialog_buffer().reset();
+    if (APP.dialog_buffer()) {
+        auto buffer = std::move(*APP.dialog_buffer());
+        APP.dialog_buffer().reset();
         return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer));
     }
     return null_scene();
@@ -433,18 +433,18 @@ ScenePtr<Scene> WorldScene::make_dialog(App& app)
 
 
 
-void WorldScene::multiplayer_vs_timeout_step(App& app, Microseconds delta)
+void WorldScene::multiplayer_vs_timeout_step(Microseconds delta)
 {
     if (MultiplayerSettingsScene::timeout_frequency() == 0) {
         return;
     }
 
-    if (app.game_speed() == GameSpeed::stopped) {
+    if (APP.game_speed() == GameSpeed::stopped) {
         auto& tm = globals().multiplayer_timeout_remaining_;
         tm -= delta;
         if (tm <= 0) {
             tm += MultiplayerSettingsScene::timeout_duration();
-            set_gamespeed(app, GameSpeed::normal);
+            set_gamespeed(GameSpeed::normal);
         }
 
         if (not disable_ui_) {
@@ -469,7 +469,7 @@ void WorldScene::multiplayer_vs_timeout_step(App& app, Microseconds delta)
         tm -= delta;
         if (tm <= 0) {
             tm += MultiplayerSettingsScene::timeout_frequency();
-            set_gamespeed(app, GameSpeed::stopped);
+            set_gamespeed(GameSpeed::stopped);
         }
 
         if (tm < seconds(10)) {
@@ -497,7 +497,7 @@ void WorldScene::multiplayer_vs_timeout_step(App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> WorldScene::update(Microseconds delta)
 {
     auto& g = globals();
 
@@ -525,16 +525,16 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
         world_delta = clamp(world_delta, seconds(0), seconds(1) / 30);
     }
 
-    apply_gamespeed(app, world_delta);
+    apply_gamespeed(world_delta);
 
-    app.delta_fp() = world_delta;
+    APP.delta_fp() = world_delta;
 
-    app.update_parallax(world_delta);
+    APP.update_parallax(world_delta);
 
 
-    app.stat_timer().count_up(delta);
-    app.level_timer().count_up(world_delta);
-    app.time_stream().update(world_delta);
+    APP.stat_timer().count_up(delta);
+    APP.level_timer().count_up(world_delta);
+    APP.time_stream().update(world_delta);
 
 
     auto& mt_prep_timer = g.multiplayer_prep_timer_;
@@ -547,7 +547,7 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
 
     if (PLATFORM.network_peer().is_connected()) {
         if (mt_prep_seconds) {
-            if (app.game_speed() not_eq GameSpeed::stopped and
+            if (APP.game_speed() not_eq GameSpeed::stopped and
                 not disable_ui_) {
 
                 mt_prep_timer += delta;
@@ -556,7 +556,7 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
                     mt_prep_seconds--;
 
                     if (mt_prep_seconds == 0 and
-                        app.game_mode() not_eq App::GameMode::co_op) {
+                        APP.game_mode() not_eq App::GameMode::co_op) {
                         return scene_pool::alloc<MultiplayerReadyScene>();
                     }
 
@@ -578,8 +578,8 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
             }
         } else {
             g.multiplayer_prep_text_.reset();
-            if (app.game_mode() == App::GameMode::multiplayer) {
-                multiplayer_vs_timeout_step(app, delta);
+            if (APP.game_mode() == App::GameMode::multiplayer) {
+                multiplayer_vs_timeout_step(delta);
             }
         }
     } else {
@@ -588,7 +588,7 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
 
 
     auto tapped_topright_corner = [&] {
-        if (auto pos = app.player().tap_released()) {
+        if (auto pos = APP.player().tap_released()) {
             auto sz = PLATFORM.screen().size();
             if (pos->x > sz.x - 36 and pos->y < 36) {
                 return true;
@@ -600,11 +600,11 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
     auto ret = null_scene();
 
 
-    if (app.game_mode() == App::GameMode::multiplayer) {
+    if (APP.game_mode() == App::GameMode::multiplayer) {
         // Pauses unsupported in vs mode...
     } else if (not noreturn_ and
-               (app.player().key_up(Key::alt_1) or tapped_topright_corner())) {
-        if (app.game_speed() not_eq GameSpeed::stopped) {
+               (APP.player().key_up(Key::alt_1) or tapped_topright_corner())) {
+        if (APP.game_speed() not_eq GameSpeed::stopped) {
 
             bool can_pause = true;
 
@@ -612,7 +612,7 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
                 if (not g.multiplayer_pauses_remaining_) {
                     can_pause = false;
                     PLATFORM.speaker().play_sound("beep_error", 3);
-                    set_gamespeed(app, GameSpeed::normal);
+                    set_gamespeed(GameSpeed::normal);
                     auto future_scene = []() {
                         return scene_pool::alloc<ReadyScene>();
                     };
@@ -626,8 +626,8 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
             }
 
             if (can_pause) {
-                app.pause_count()++;
-                set_gamespeed(app, GameSpeed::stopped);
+                APP.pause_count()++;
+                set_gamespeed(GameSpeed::stopped);
 
                 if (PLATFORM.network_peer().is_connected()) {
                     network::packet::Paused pkt;
@@ -656,11 +656,11 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
                     network::transmit(pkt);
                 }
 
-                set_gamespeed(app, GameSpeed::normal);
+                set_gamespeed(GameSpeed::normal);
             }
         }
-        app.player().touch_consume();
-    } else if (not noreturn_ and app.player().key_pressed(Key::alt_1) and
+        APP.player().touch_consume();
+    } else if (not noreturn_ and APP.player().key_pressed(Key::alt_1) and
                not PLATFORM.network_peer().is_connected()) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
@@ -672,25 +672,25 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
 
     TIMEPOINT(t3);
 
-    if (app.opponent_island()) {
+    if (APP.opponent_island()) {
 
         const bool show_opponent_interior =
-            (app.player_island().has_radar() and
-             not static_cast<Opponent&>(app.opponent_island()->owner())
+            (APP.player_island().has_radar() and
+             not static_cast<Opponent&>(APP.opponent_island()->owner())
                      .is_friendly()) or
-            app.opponent_island()->is_boarded() or
-            (app.player_island().interior_visible() and
-             app.game_mode() == App::GameMode::sandbox);
+            APP.opponent_island()->is_boarded() or
+            (APP.player_island().interior_visible() and
+             APP.game_mode() == App::GameMode::sandbox);
 
-        if (not app.opponent_island()->interior_visible() and
+        if (not APP.opponent_island()->interior_visible() and
             show_opponent_interior) {
 
-            show_island_interior(app, app.opponent_island());
+            show_island_interior(APP.opponent_island());
 
-        } else if (app.opponent_island()->interior_visible() and
+        } else if (APP.opponent_island()->interior_visible() and
                    not show_opponent_interior) {
 
-            show_island_exterior(app, app.opponent_island());
+            show_island_exterior(APP.opponent_island());
         }
 
         // Hey, I threw this code together in a panic for a game jam, I know
@@ -698,36 +698,36 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
         // a certain distance. If the player extends the terrain on his own
         // island, drift the opponent island away to maintain the ideal
         // distance between the two.
-        if ((app.opponent_island()->get_drift() < 0.0_fixed and
-             app.opponent_island()->get_position().x.as_integer() <=
-                 (int)app.player_island().terrain().size() * 16 + 48) or
-            (app.opponent_island()->get_drift() > 0.0_fixed and
-             app.opponent_island()->get_position().x.as_integer() >
-                 (int)app.player_island().terrain().size() * 16 + 48)) {
+        if ((APP.opponent_island()->get_drift() < 0.0_fixed and
+             APP.opponent_island()->get_position().x.as_integer() <=
+                 (int)APP.player_island().terrain().size() * 16 + 48) or
+            (APP.opponent_island()->get_drift() > 0.0_fixed and
+             APP.opponent_island()->get_position().x.as_integer() >
+                 (int)APP.player_island().terrain().size() * 16 + 48)) {
 
-            app.opponent_island()->set_position(
-                {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
-                 Fixnum(app.opponent_island()->get_position().y)});
-            app.opponent_island()->set_drift(app, 0.0_fixed);
+            APP.opponent_island()->set_position(
+                {Fixnum((Float)APP.player_island().terrain().size() * 16 + 48),
+                 Fixnum(APP.opponent_island()->get_position().y)});
+            APP.opponent_island()->set_drift(0.0_fixed);
 
-            app.on_timeout(milliseconds(500),
-                           [](App& app) { invoke_hook(app, "on-converge"); });
+            APP.on_timeout(milliseconds(500),
+                           []() { invoke_hook("on-converge"); });
         }
 
-        if (app.opponent_island()->get_drift() == 0.0_fixed) {
-            if (app.opponent_island()->get_position().x.as_integer() <
-                (int)app.player_island().terrain().size() * 16 + 48) {
-                app.opponent_island()->set_drift(app, 0.00003_fixed);
+        if (APP.opponent_island()->get_drift() == 0.0_fixed) {
+            if (APP.opponent_island()->get_position().x.as_integer() <
+                (int)APP.player_island().terrain().size() * 16 + 48) {
+                APP.opponent_island()->set_drift(0.00003_fixed);
             }
         }
     }
 
-    if (camera_update_check_key(app)) {
+    if (camera_update_check_key()) {
         camera_update_timer_ = milliseconds(500);
     }
 
-    if (app.camera()->is_shaking() or camera_update_timer_ > 0 or
-        app.player().touch_current() or app.camera()->always_update()) {
+    if (APP.camera()->is_shaking() or camera_update_timer_ > 0 or
+        APP.player().touch_current() or APP.camera()->always_update()) {
 
         camera_update_timer_ -= delta;
         camera_update_timer_ = std::max((int)camera_update_timer_, 0);
@@ -741,55 +741,54 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
         // away. It really only happens when the camera's sitting idle in the
         // same spot for a long time.
 
-        if (app.opponent_island() and UNLIKELY(far_camera_)) {
+        if (APP.opponent_island() and UNLIKELY(far_camera_)) {
             auto& cursor_loc = g.far_cursor_loc_;
-            app.camera()->update(
-                app, *app.opponent_island(), cursor_loc, delta, false);
+            APP.camera()->update(
+                *APP.opponent_island(), cursor_loc, delta, false);
         } else {
             auto& cursor_loc = g.near_cursor_loc_;
-            app.camera()->update(
-                app, app.player_island(), cursor_loc, delta, true);
+            APP.camera()->update(APP.player_island(), cursor_loc, delta, true);
         }
     }
 
-    if (app.player().key_down(Key::action_4)) {
+    if (APP.player().key_down(Key::action_4)) {
         PLATFORM.system_call("swap-screens", nullptr);
     }
 
-    if (not noreturn_ and app.dialog_buffer()) {
-        return make_dialog(app);
+    if (not noreturn_ and APP.dialog_buffer()) {
+        return make_dialog();
     }
 
 
     TIMEPOINT(t4);
 
-    app.player_island().update(app, world_delta);
+    APP.player_island().update(world_delta);
 
     TIMEPOINT(t5);
 
-    if (app.opponent_island()) {
-        app.opponent_island()->update(app, world_delta);
+    if (APP.opponent_island()) {
+        APP.opponent_island()->update(world_delta);
     }
 
     TIMEPOINT(t6);
 
-    update_entities(app, world_delta, app.effects());
+    update_entities(world_delta, APP.effects());
 
-    update_entities(app, world_delta, app.birds());
+    update_entities(world_delta, APP.birds());
 
     TIMEPOINT(t7);
 
-    for (auto& bird : app.birds()) {
+    for (auto& bird : APP.birds()) {
         PLATFORM.screen().draw(bird->sprite());
     }
     birds_drawn_ = true;
 
 
-    if (app.game_mode() == App::GameMode::co_op) {
-        if (app.game_speed() not_eq GameSpeed::stopped) {
+    if (APP.game_mode() == App::GameMode::co_op) {
+        if (APP.game_speed() not_eq GameSpeed::stopped) {
             hide_multiplayer_pauses_remaining();
         } else {
-            set_pause_icon(gamespeed_icon(app.game_speed()));
+            set_pause_icon(gamespeed_icon(APP.game_speed()));
 
             if (PLATFORM.network_peer().is_connected() and not disable_ui_) {
                 show_multiplayer_pauses_remaining();
@@ -801,9 +800,9 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
     if (not disable_ui_) {
         Island* disp_power =
             power_fraction_opponent_island_
-                ? (app.opponent_island() ? app.opponent_island()
-                                         : &app.player_island())
-                : &app.player_island();
+                ? (APP.opponent_island() ? APP.opponent_island()
+                                         : &APP.player_island())
+                : &APP.player_island();
 
         if (last_power_supplied_ not_eq disp_power->power_supply() or
             last_power_used_ not_eq disp_power->power_drain()) {
@@ -846,14 +845,14 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
             }
         }
 
-        if (last_coins_ not_eq app.coins()) {
+        if (last_coins_ not_eq APP.coins()) {
             coins_.emplace(OverlayCoord{1, 2},
                            146,
-                           (int)app.coins(),
+                           (int)APP.coins(),
                            UIMetric::Align::left);
 
-            coins_->set_value(app.coins());
-            last_coins_ = app.coins();
+            coins_->set_value(APP.coins());
+            last_coins_ = APP.coins();
         }
 
         if (coins_) {
@@ -870,7 +869,7 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
             if (persistent_ui_) {
                 coins_.emplace(OverlayCoord{1, 2},
                                146,
-                               (int)app.coins(),
+                               (int)APP.coins(),
                                UIMetric::Align::left);
             }
         }
@@ -878,21 +877,21 @@ ScenePtr<Scene> WorldScene::update(App& app, Microseconds delta)
 
     TIMEPOINT(t8);
 
-    if (app.opponent_island()) {
-        for (auto& projectile : app.player_island().projectiles()) {
-            app.opponent_island()->test_collision(app, *projectile);
+    if (APP.opponent_island()) {
+        for (auto& projectile : APP.player_island().projectiles()) {
+            APP.opponent_island()->test_collision(*projectile);
         }
 
-        for (auto& projectile : app.opponent_island()->projectiles()) {
-            app.player_island().test_collision(app, *projectile);
+        for (auto& projectile : APP.opponent_island()->projectiles()) {
+            APP.player_island().test_collision(*projectile);
         }
 
-        for (auto& projectile : app.player_island().projectiles()) {
-            app.player_island().test_collision(app, *projectile);
+        for (auto& projectile : APP.player_island().projectiles()) {
+            APP.player_island().test_collision(*projectile);
         }
 
-        for (auto& projectile : app.opponent_island()->projectiles()) {
-            app.opponent_island()->test_collision(app, *projectile);
+        for (auto& projectile : APP.opponent_island()->projectiles()) {
+            APP.opponent_island()->test_collision(*projectile);
         }
     }
 
@@ -930,15 +929,15 @@ void WorldScene::unpersist_ui()
 
 
 
-void WorldScene::enter(App& app, Scene& prev)
+void WorldScene::enter(Scene& prev)
 {
-    if (app.macrocosm()) {
+    if (APP.macrocosm()) {
         Platform::fatal("entering 2d overworld from macro mode!");
     }
 
     camera_update_timer_ = milliseconds(1000);
 
-    last_coins_ = app.coins();
+    last_coins_ = APP.coins();
 
     if (auto last = prev.cast_world_scene()) {
 
@@ -950,15 +949,15 @@ void WorldScene::enter(App& app, Scene& prev)
             if (last->coins_) {
                 coins_.emplace(OverlayCoord{1, 2},
                                146,
-                               (int)app.coins(),
+                               (int)APP.coins(),
                                UIMetric::Align::left);
             }
 
             Island* disp_power =
                 power_fraction_opponent_island_
-                    ? (app.opponent_island() ? app.opponent_island()
-                                             : &app.player_island())
-                    : &app.player_island();
+                    ? (APP.opponent_island() ? APP.opponent_island()
+                                             : &APP.player_island())
+                    : &APP.player_island();
 
 
             if (last->power_) {
@@ -983,7 +982,7 @@ void WorldScene::enter(App& app, Scene& prev)
 
 
 
-void WorldScene::exit(App& app, Scene& next)
+void WorldScene::exit(Scene& next)
 {
     coins_.reset();
     power_.reset();

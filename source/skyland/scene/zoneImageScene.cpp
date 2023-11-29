@@ -45,7 +45,7 @@ void __draw_image(TileDesc start_tile,
 
 
 
-void ZoneImageScene::enter(App& app, Scene& prev)
+void ZoneImageScene::enter(Scene& prev)
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -60,7 +60,7 @@ void ZoneImageScene::enter(App& app, Scene& prev)
     PLATFORM.set_scroll(Layer::map_1_ext, 0, 8);
     PLATFORM.set_scroll(Layer::map_0_ext, 0, 0);
 
-    if (not app.current_world_location() == 0) {
+    if (not APP.current_world_location() == 0) {
         return;
     }
 
@@ -76,11 +76,11 @@ void ZoneImageScene::enter(App& app, Scene& prev)
         PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
 
-    if (app.zone() == 1) {
+    if (APP.zone() == 1) {
         PLATFORM.load_tile1_texture("zone_image_1_flattened");
-    } else if (app.zone() == 2) {
+    } else if (APP.zone() == 2) {
         PLATFORM.load_tile1_texture("zone_image_2_flattened");
-    } else if (app.zone() == 3) {
+    } else if (APP.zone() == 3) {
         PLATFORM.load_tile1_texture("zone_image_3_flattened");
     } else {
         PLATFORM.load_tile1_texture("zone_image_4_flattened");
@@ -90,8 +90,8 @@ void ZoneImageScene::enter(App& app, Scene& prev)
 
     PLATFORM.set_overlay_origin(0, 4);
 
-    auto buffer = format<200>(SYSTR(zone_text)->c_str(), app.zone());
-    if (app.zone() == 4) {
+    auto buffer = format<200>(SYSTR(zone_text)->c_str(), APP.zone());
+    if (APP.zone() == 4) {
         buffer += SYSTR(final_zone)->c_str();
     }
     auto margin = centered_text_margins(buffer.length());
@@ -104,20 +104,20 @@ void ZoneImageScene::enter(App& app, Scene& prev)
 
 
 
-void ZoneImageScene::exit(App& app, Scene& next)
+void ZoneImageScene::exit(Scene& next)
 {
     PLATFORM.set_overlay_origin(0, 0);
 
     PLATFORM.fill_overlay(0);
 
-    if (app.player_island().interior_visible()) {
-        auto t = app.environment().player_island_interior_texture();
+    if (APP.player_island().interior_visible()) {
+        auto t = APP.environment().player_island_interior_texture();
         PLATFORM.load_tile0_texture(t);
     } else {
-        PLATFORM.load_tile0_texture(app.environment().player_island_texture());
+        PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
     }
 
-    show_island_exterior(app, app.opponent_island());
+    show_island_exterior(APP.opponent_island());
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -128,11 +128,11 @@ void ZoneImageScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> ZoneImageScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ZoneImageScene::update(Microseconds delta)
 {
-    if (not app.current_world_location() == 0) {
+    if (not APP.current_world_location() == 0) {
         return scene_pool::alloc<WorldMapScene>();
-    } else if (app.zone() == 5) {
+    } else if (APP.zone() == 5) {
         return scene_pool::alloc<HighscoresScene>(true, 1);
     }
 
@@ -169,7 +169,7 @@ ScenePtr<Scene> ZoneImageScene::update(App& app, Microseconds delta)
             PLATFORM.screen().fade(
                 1.f, ColorConstant::rich_black, {}, true, true);
 
-            if (app.zone() == 1) {
+            if (APP.zone() == 1) {
                 return scene_pool::alloc<AdventureModeSettingsScene>(true);
             }
 

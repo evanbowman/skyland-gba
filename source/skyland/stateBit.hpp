@@ -51,11 +51,11 @@ class App;
 
 
 
-void state_bit_store(App& app, StateBit state_bit, bool value);
+void state_bit_store(StateBit state_bit, bool value);
 
 
 
-bool state_bit_load(App& app, StateBit state_bit);
+bool state_bit_load(StateBit state_bit);
 
 
 

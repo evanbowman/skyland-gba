@@ -76,9 +76,9 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
 
 
 
-void CargoBay::update(App& app, Microseconds delta)
+void CargoBay::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (count_) {
         Room::ready();
@@ -87,7 +87,7 @@ void CargoBay::update(App& app, Microseconds delta)
 
 
 
-void CargoBay::display(Platform::Screen& screen, App&)
+void CargoBay::display(Platform::Screen& screen)
 {
     if (parent()->interior_visible()) {
         for (auto& c : characters()) {
@@ -163,12 +163,12 @@ void CargoBay::deserialize(lisp::Value* list)
 
 
 
-void CargoBay::finalize(App& app)
+void CargoBay::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
-        ExploSpawner::create(app, center());
+        ExploSpawner::create(center());
 
         if (cargo_[0] not_eq '\0') {
             time_stream::event::CargoBayContents e;
@@ -178,9 +178,9 @@ void CargoBay::finalize(App& app)
             e.count_ = count_;
             e.x_ = position().x;
             e.y_ = position().y;
-            e.near_ = parent() == &app.player_island();
+            e.near_ = parent() == &APP.player_island();
 
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     }
 }

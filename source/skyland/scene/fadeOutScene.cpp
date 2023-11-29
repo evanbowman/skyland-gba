@@ -36,29 +36,29 @@ namespace skyland
 
 
 
-void FadeOutScene::enter(App& app, Scene& prev)
+void FadeOutScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
     disable_ui();
 }
 
 
 
-void FadeOutScene::exit(App& app, Scene& prev)
+void FadeOutScene::exit(Scene& prev)
 {
-    WorldScene::exit(app, prev);
+    WorldScene::exit(prev);
 }
 
 
 
-ScenePtr<Scene> FadeOutScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> FadeOutScene::update(Microseconds delta)
 {
-    WorldScene::update(app, delta);
+    WorldScene::update(delta);
 
     timer_ += delta;
 
-    app.time_stream().enable_pushes(false);
-    app.time_stream().clear();
+    APP.time_stream().enable_pushes(false);
+    APP.time_stream().clear();
 
     constexpr auto fade_duration = milliseconds(800);
 
@@ -67,22 +67,22 @@ ScenePtr<Scene> FadeOutScene::update(App& app, Microseconds delta)
         circ_effect_radius_ = 0;
 
         PLATFORM.screen().clear();
-        display(app);
+        display();
         PLATFORM.sleep(5);
 
-        for (auto& room : app.player_island().rooms()) {
-            room->detach_drone(app, true);
+        for (auto& room : APP.player_island().rooms()) {
+            room->detach_drone(true);
         }
 
-        for (auto& room : app.opponent_island()->rooms()) {
-            room->detach_drone(app, true);
+        for (auto& room : APP.opponent_island()->rooms()) {
+            room->detach_drone(true);
         }
 
-        app.player_island().drones().clear();
-        app.opponent_island()->drones().clear();
+        APP.player_island().drones().clear();
+        APP.opponent_island()->drones().clear();
 
-        for (auto& room : app.player_island().rooms()) {
-            room->unset_target(app);
+        for (auto& room : APP.player_island().rooms()) {
+            room->unset_target();
         }
 
 
@@ -94,14 +94,14 @@ ScenePtr<Scene> FadeOutScene::update(App& app, Microseconds delta)
             Platform::Speaker::Channel::noise);
         PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
 
-        app.player_island().set_hidden(app, false);
-        if (app.opponent_island()) {
-            app.opponent_island()->set_hidden(app, false);
+        APP.player_island().set_hidden(false);
+        if (APP.opponent_island()) {
+            APP.opponent_island()->set_hidden(false);
         }
 
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.screen().fade(1.f);
-        switch (app.game_mode()) {
+        switch (APP.game_mode()) {
         case App::GameMode::tutorial:
             return scene_pool::alloc<SelectTutorialScene>();
 
@@ -133,9 +133,9 @@ ScenePtr<Scene> FadeOutScene::update(App& app, Microseconds delta)
 
 
 
-void FadeOutScene::display(App& app)
+void FadeOutScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
 
     // int circ_center_x = PLATFORM.screen().size().x / 2;
     // int circ_center_y = PLATFORM.screen().size().y / 2;

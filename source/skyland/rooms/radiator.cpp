@@ -47,9 +47,9 @@ void Radiator::format_description(StringBuffer<512>& buffer)
 
 
 
-void Radiator::update(App& app, Microseconds delta)
+void Radiator::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
@@ -58,13 +58,13 @@ void Radiator::update(App& app, Microseconds delta)
     if (damage_timer_ > seconds(1)) {
         damage_timer_ -= seconds(1);
 
-        emit_radiation(app);
+        emit_radiation();
     }
 }
 
 
 
-void Radiator::collect_nearby_chrs(App& app, ChrBuffer& output)
+void Radiator::collect_nearby_chrs(ChrBuffer& output)
 {
     auto pos = position();
     for (int x = pos.x - 2; x < pos.x + 3; ++x) {
@@ -110,7 +110,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
@@ -131,7 +131,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -148,15 +148,15 @@ private:
 
 
 
-void make_radiation_effect(App& app, Vec2<Fixnum> pos)
+void make_radiation_effect(Vec2<Fixnum> pos)
 {
     auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
         auto p = pos;
         p.x += xoff;
         p.y += yoff;
-        if (auto e = app.alloc_entity<RadiationAnim>(p)) {
+        if (auto e = APP.alloc_entity<RadiationAnim>(p)) {
             e->sprite().set_flip({xflip, yflip});
-            app.effects().push(std::move(e));
+            APP.effects().push(std::move(e));
         }
     };
 
@@ -172,16 +172,16 @@ static SharedVariable radiation_damage("radiation_damage", 20);
 
 
 
-void Radiator::emit_radiation(App& app)
+void Radiator::emit_radiation()
 {
     ChrBuffer queue;
-    collect_nearby_chrs(app, queue);
+    collect_nearby_chrs(queue);
 
     for (auto& chr : queue) {
-        chr->apply_radiation_damage(app, radiation_damage);
+        chr->apply_radiation_damage(radiation_damage);
     }
 
-    make_radiation_effect(app, visual_center());
+    make_radiation_effect(visual_center());
 }
 
 
@@ -208,7 +208,7 @@ bool Radiator::opponent_display_on_hover() const
 
 
 void Radiator::display_on_hover(Platform::Screen& screen,
-                                App& app,
+
                                 const RoomCoord& cursor)
 {
     auto pos = position();

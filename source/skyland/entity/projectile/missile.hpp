@@ -66,23 +66,23 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void on_collision(App& app, Room&, Vec2<u8>) override;
+    void on_collision(Room&, Vec2<u8>) override;
 
 
-    void on_collision(App& app, Entity& entity) override;
+    void on_collision(Entity& entity) override;
 
 
     Fixnum fall_speed();
 
 
 protected:
-    virtual void destroy(App& app);
+    virtual void destroy();
 
     Microseconds timer_ = 0;
     Fixnum target_x_;
@@ -115,16 +115,16 @@ public:
 
 
 
-    void on_collision(App& app, Room&, Vec2<u8>) override;
+    void on_collision(Room&, Vec2<u8>) override;
 
 
 
-    void burst(App& app, const Vec2<Fixnum>& position, Room& origin_room);
+    void burst(const Vec2<Fixnum>& position, Room& origin_room);
 
 
 
 protected:
-    void destroy(App& app) override;
+    void destroy() override;
 };
 
 
@@ -144,20 +144,20 @@ public:
 
 
 
-    void on_collision(App& app, Room&, Vec2<u8>) override;
-    void on_collision(App& app, Entity&) override;
+    void on_collision(Room&, Vec2<u8>) override;
+    void on_collision(Entity&) override;
 
 
 
-    void burst(App& app, const Vec2<Fixnum>& position, Room& origin_room);
+    void burst(const Vec2<Fixnum>& position, Room& origin_room);
 
 
 
 protected:
-    void spawn_bomblets(App& app, Island* source, Vec2<Fixnum> origin);
+    void spawn_bomblets(Island* source, Vec2<Fixnum> origin);
 
 
-    void destroy(App& app) override;
+    void destroy() override;
 };
 
 

@@ -42,8 +42,8 @@ public:
     using Hull::Hull;
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     TileId tile() const;
@@ -55,7 +55,7 @@ public:
     }
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 

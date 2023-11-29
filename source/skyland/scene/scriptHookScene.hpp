@@ -41,7 +41,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
 private:
@@ -58,8 +58,7 @@ struct InvokeHookConfig
 
 
 
-void invoke_hook(App& app,
-                 const char* lisp_hook_name,
+void invoke_hook(const char* lisp_hook_name,
                  const InvokeHookConfig& config = {});
 
 

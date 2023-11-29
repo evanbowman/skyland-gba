@@ -50,14 +50,14 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta)
+    void rewind(Microseconds delta)
     {
         // Rewind unimplemented!
         kill();
     }
 
 
-    void update(App&, Microseconds delta)
+    void update(Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;

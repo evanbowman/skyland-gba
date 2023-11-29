@@ -48,7 +48,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta * 2;
 
@@ -65,7 +65,7 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         timer_ -= delta * 2;
 
@@ -95,15 +95,13 @@ private:
 
 
 
-void medium_explosion(App& app, const Vec2<Fixnum>& position);
-void medium_explosion_inv(App& app, const Vec2<Fixnum>& position);
+void medium_explosion(const Vec2<Fixnum>& position);
+void medium_explosion_inv(const Vec2<Fixnum>& position);
 
 
-void big_explosion(App& app,
-                   const Vec2<Fixnum>& position,
-                   int draw_priority = 1);
+void big_explosion(const Vec2<Fixnum>& position, int draw_priority = 1);
 
-void big_explosion_inv(App& app, const Vec2<Fixnum>& position);
+void big_explosion_inv(const Vec2<Fixnum>& position);
 
 
 

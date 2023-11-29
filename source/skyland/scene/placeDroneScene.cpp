@@ -113,9 +113,9 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
 
 
 
-void PlaceDroneScene::enter(App& app, Scene& prev)
+void PlaceDroneScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -128,13 +128,13 @@ void PlaceDroneScene::enter(App& app, Scene& prev)
         PLATFORM.set_tile(Layer::overlay, i, 18, 425);
     }
 
-    Island* island = &app.player_island();
-    if (not near_ and app.opponent_island()) {
-        island = app.opponent_island();
+    Island* island = &APP.player_island();
+    if (not near_ and APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
 
-    get_drone_slots(*matrix_, island, &app.player_island());
+    get_drone_slots(*matrix_, island, &APP.player_island());
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -148,34 +148,34 @@ void PlaceDroneScene::enter(App& app, Scene& prev)
 
 
 
-void PlaceDroneScene::exit(App& app, Scene& next)
+void PlaceDroneScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     message_.reset();
     PLATFORM.fill_overlay(0);
 
-    Island* island = &app.player_island();
-    if (not near_ and app.opponent_island()) {
-        island = app.opponent_island();
+    Island* island = &APP.player_island();
+    if (not near_ and APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
-    island->repaint(app);
+    island->repaint();
 }
 
 
 
-void PlaceDroneScene::display(App& app)
+void PlaceDroneScene::display()
 {
-    ActiveWorldScene::display(app);
+    ActiveWorldScene::display();
 
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
-    Island* island = &app.player_island();
-    if (not near_ and app.opponent_island()) {
-        island = app.opponent_island();
+    Island* island = &APP.player_island();
+    if (not near_ and APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
     Vec2<Fixnum> origin = island->visual_origin();
@@ -197,13 +197,13 @@ void PlaceDroneScene::display(App& app)
 
 
 
-ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> PlaceDroneScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -213,9 +213,9 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    Island* island = &app.player_island();
-    if (not near_ and app.opponent_island()) {
-        island = app.opponent_island();
+    Island* island = &APP.player_island();
+    if (not near_ and APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
     RoomCoord* cursor_loc;
@@ -225,9 +225,9 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
         cursor_loc = &globals().far_cursor_loc_;
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         if ((*matrix_)[cursor_loc->x][cursor_loc->y]) {
-            if (auto room = app.player_island().get_room(origin_)) {
+            if (auto room = APP.player_island().get_room(origin_)) {
                 if (auto drone =
                         (*drone_class_)
                             ->create(room->parent(),
@@ -235,13 +235,13 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
                                      RoomCoord{origin_.x, u8(origin_.y - 1)})) {
                     (*drone)->set_movement_target(*cursor_loc);
 
-                    if (not room->attach_drone(app, *drone)) {
+                    if (not room->attach_drone(*drone)) {
                         return scene_pool::alloc<ReadyScene>();
                     }
 
                     island->drones().push(*drone);
 
-                    app.set_coins(app.coins() - (*drone_class_)->cost());
+                    APP.set_coins(APP.coins() - (*drone_class_)->cost());
 
                     network::packet::DroneSpawn spawn;
                     spawn.origin_x_ = origin_.x;
@@ -250,7 +250,7 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
                     spawn.deploy_x_ = cursor_loc->x;
                     spawn.deploy_y_ = cursor_loc->y;
 
-                    spawn.destination_near_ = island == &app.player_island();
+                    spawn.destination_near_ = island == &APP.player_island();
 
                     spawn.drone_class_ =
                         DroneMeta::index((*drone_class_)->name());
@@ -266,10 +266,10 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
@@ -279,7 +279,7 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
         } else if (not near_) {
             globals().near_cursor_loc_.y = cursor_loc->y;
             globals().near_cursor_loc_.x =
-                app.player_island().terrain().size() - 1;
+                APP.player_island().terrain().size() - 1;
             return scene_pool::alloc<PlaceDroneScene>(
                 origin_, drone_class_, true);
         }
@@ -289,7 +289,7 @@ ScenePtr<Scene> PlaceDroneScene::update(App& app, Microseconds delta)
         if (cursor_loc->x < island->terrain().size() - 1) {
             ++cursor_loc->x;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (near_ and app.opponent_island()) {
+        } else if (near_ and APP.opponent_island()) {
             globals().far_cursor_loc_.y = cursor_loc->y;
             globals().far_cursor_loc_.x = 0;
             return scene_pool::alloc<PlaceDroneScene>(

@@ -39,14 +39,14 @@ public:
     ScriptedMenuScene(const char* script_name);
 
 
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
     void gui_add_node(const char* parent_id,

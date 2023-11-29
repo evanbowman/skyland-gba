@@ -58,7 +58,7 @@ Decimator::Decimator(Island* parent, const RoomCoord& position)
 
 
 
-void Decimator::unset_target(App& app)
+void Decimator::unset_target()
 {
     reload_ = 1000 * decimator_reload_ms;
     counter_ = 0;
@@ -66,9 +66,9 @@ void Decimator::unset_target(App& app)
 
 
 
-void Decimator::update(App& app, Microseconds delta)
+void Decimator::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
@@ -85,13 +85,13 @@ void Decimator::update(App& app, Microseconds delta)
         }
     }
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return;
     }
 
     const bool opponent_friendly =
-        parent() == &app.player_island() and
-        static_cast<Opponent&>(app.opponent_island()->owner()).is_friendly();
+        parent() == &APP.player_island() and
+        static_cast<Opponent&>(APP.opponent_island()->owner()).is_friendly();
 
 
     if (has_pilot and reload_ > 0) {
@@ -100,16 +100,16 @@ void Decimator::update(App& app, Microseconds delta)
             reload_ -= delta;
 
             if (reload_ < 0) {
-                if (parent() == &app.player_island()) {
+                if (parent() == &APP.player_island()) {
                     time_stream::event::PlayerRoomReloadComplete e;
                     e.room_x_ = position().x;
                     e.room_y_ = position().y;
-                    app.time_stream().push(app.level_timer(), e);
+                    APP.time_stream().push(APP.level_timer(), e);
                 } else {
                     time_stream::event::OpponentRoomReloadComplete e;
                     e.room_x_ = position().x;
                     e.room_y_ = position().y;
-                    app.time_stream().push(app.level_timer(), e);
+                    APP.time_stream().push(APP.level_timer(), e);
                 }
             }
         }
@@ -120,36 +120,36 @@ void Decimator::update(App& app, Microseconds delta)
             return;
         }
 
-        auto island = other_island(app);
+        auto island = other_island();
 
         if (island and not island->is_destroyed()) {
-            app.camera()->shake(4);
+            APP.camera()->shake(4);
 
             auto start = center();
 
             // This just makes it a bit less likely for cannonballs to
             // run into the player's own buildings, especially around
             // corners.
-            if (island == &app.player_island()) {
+            if (island == &APP.player_island()) {
                 start.x -= 18.0_fixed;
             } else {
                 start.x += 18.0_fixed;
             }
 
             auto target = center();
-            if (parent() == &app.player_island()) {
+            if (parent() == &APP.player_island()) {
                 target.x += 100.0_fixed;
             } else {
                 target.x -= 100.0_fixed;
             }
 
 
-            auto c = app.alloc_entity<DecimatorBurst>(
+            auto c = APP.alloc_entity<DecimatorBurst>(
                 start, target, parent(), position());
 
             if (c) {
                 parent()->projectiles().push(std::move(c));
-                set_ai_aware(app, true);
+                set_ai_aware(true);
             }
 
             if (counter_ < 6) {
@@ -165,9 +165,9 @@ void Decimator::update(App& app, Microseconds delta)
 
 
 
-void Decimator::rewind(App& app, Microseconds delta)
+void Decimator::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (reload_ <= 0) {
         // Reloaded.
@@ -178,14 +178,14 @@ void Decimator::rewind(App& app, Microseconds delta)
 
 
 
-void Decimator::___rewind___finished_reload(App&)
+void Decimator::___rewind___finished_reload()
 {
     reload_ = 1;
 }
 
 
 
-void Decimator::___rewind___ability_used(App&)
+void Decimator::___rewind___ability_used()
 {
     reload_ = 0;
 
@@ -198,13 +198,12 @@ void Decimator::___rewind___ability_used(App&)
 
 
 
-void Decimator::plot_walkable_zones(App& app,
-                                    bool matrix[16][16],
+void Decimator::plot_walkable_zones(bool matrix[16][16],
                                     BasicCharacter* for_character)
 {
     auto pos = position();
 
-    if (parent() == &app.player_island()) {
+    if (parent() == &APP.player_island()) {
         matrix[pos.x][pos.y + 1] = true;
     } else {
         matrix[pos.x + 1][pos.y + 1] = true;
@@ -261,12 +260,12 @@ void Decimator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Decimator::finalize(App& app)
+void Decimator::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
-        ExploSpawner::create(app, center());
+        ExploSpawner::create(center());
     }
 }
 

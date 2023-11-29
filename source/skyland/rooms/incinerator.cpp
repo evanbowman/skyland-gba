@@ -60,9 +60,9 @@ Incinerator::Incinerator(Island* parent, const RoomCoord& position)
 
 
 
-void Incinerator::fire(App& app)
+void Incinerator::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -71,11 +71,11 @@ void Incinerator::fire(App& app)
     origin.y += Fixnum::from_integer(target_->y * 16 + 8);
     target = origin;
 
-    app.camera()->shake(4);
+    APP.camera()->shake(4);
 
     auto start = center();
 
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         start.x -= 16.0_fixed;
     } else {
         start.x += 16.0_fixed;
@@ -83,21 +83,21 @@ void Incinerator::fire(App& app)
     start.y -= 3.0_fixed;
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
     cannon_sound.play(3);
 
     using Emit = IncineratorBolt;
-    auto c = app.alloc_entity<Emit>(start, target, parent(), position());
+    auto c = APP.alloc_entity<Emit>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }
 
     auto e = alloc_entity<AnimatedEffect>(start, 47, 49, milliseconds(100));
     if (e) {
-        app.effects().push(std::move(e));
+        APP.effects().push(std::move(e));
     }
 }
 
@@ -130,16 +130,16 @@ void Incinerator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Incinerator::finalize(App& app)
+void Incinerator::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
         auto pos = center();
         pos.y += 8.0_fixed;
-        ExploSpawner::create(app, pos);
+        ExploSpawner::create(pos);
         pos.y -= 16.0_fixed;
-        ExploSpawner::create(app, pos);
+        ExploSpawner::create(pos);
     }
 }
 

@@ -41,15 +41,15 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        WorldScene::enter(app, prev);
+        WorldScene::enter(prev);
 
-        set_gamespeed(app, GameSpeed::normal);
+        set_gamespeed(GameSpeed::normal);
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 private:
     RoomCoord crane_pos_;

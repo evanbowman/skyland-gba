@@ -41,19 +41,19 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
 private:
-    bool advance_text(App& app, Microseconds delta, bool sfx);
+    bool advance_text(Microseconds delta, bool sfx);
 
     void clear_textbox();
 
-    void process_command(App& app);
+    void process_command();
 
     u8 y_start() const;
 

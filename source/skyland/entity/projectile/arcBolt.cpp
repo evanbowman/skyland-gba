@@ -80,10 +80,10 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
 
 
-void ArcBolt::rewind(App& app, Microseconds delta)
+void ArcBolt::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.delta_fp() * step_vector_;
+    pos = pos - APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
@@ -102,7 +102,7 @@ void ArcBolt::rewind(App& app, Microseconds delta)
 
     if (timer_ < seconds(0)) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         }
         kill();
     }
@@ -110,10 +110,10 @@ void ArcBolt::rewind(App& app, Microseconds delta)
 
 
 
-void ArcBolt::update(App& app, Microseconds delta)
+void ArcBolt::update(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.delta_fp() * step_vector_;
+    pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
@@ -130,14 +130,14 @@ void ArcBolt::update(App& app, Microseconds delta)
     }
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
-        destroy_out_of_bounds(app, target);
+        destroy_out_of_bounds(target);
     }
 
     if (timer_ > seconds(2)) {
@@ -155,7 +155,7 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
+void ArcBolt::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -176,7 +176,7 @@ void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < arcbolt_damage) {
-        room.apply_damage(app, Room::health_upper_limit());
+        room.apply_damage(Room::health_upper_limit());
         return;
     }
 
@@ -223,13 +223,13 @@ void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
     }
 
     for (auto& room : state->rooms_) {
-        room->apply_damage(app, arcbolt_damage, source_);
+        room->apply_damage(arcbolt_damage, source_);
     }
 
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(app, true);
-        record_destroyed(app);
+        room.set_ai_aware(true);
+        record_destroyed();
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
@@ -237,7 +237,7 @@ void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
         timer_ = 0;
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        destroy(app, true);
+        destroy(true);
         if (room.health()) {
             sound_impact.play(1);
         }
@@ -246,7 +246,7 @@ void ArcBolt::on_collision(App& app, Room& room, Vec2<u8> origin)
 
 
 
-void ArcBolt::record_destroyed(App& app)
+void ArcBolt::record_destroyed()
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& e) {
@@ -260,28 +260,28 @@ void ArcBolt::record_destroyed(App& app)
         };
 
 
-    if (source_ == &app.player_island()) {
+    if (source_ == &APP.player_island()) {
         time_stream::event::PlayerArcboltDestroyed e;
         timestream_record(e);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentArcboltDestroyed e;
         timestream_record(e);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 }
 
 
 
-void ArcBolt::destroy(App& app, bool explosion)
+void ArcBolt::destroy(bool explosion)
 {
-    record_destroyed(app);
+    record_destroyed();
 
     kill();
-    app.camera()->shake(8);
+    APP.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(app, sprite_.get_position());
+        medium_explosion(sprite_.get_position());
     }
 }
 

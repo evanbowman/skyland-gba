@@ -71,7 +71,7 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta * 2;
 
@@ -86,7 +86,7 @@ public:
                     const auto pos = sprite_.get_position();
                     e.x_.set(pos.x.as_integer());
                     e.y_.set(pos.y.as_integer());
-                    app.time_stream().push(app.level_timer(), e);
+                    APP.time_stream().push(APP.level_timer(), e);
                 }
             } else {
                 if (quarter_ == 0) {
@@ -106,7 +106,7 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         timer_ -= delta * 2;
 
@@ -134,12 +134,12 @@ private:
 
 
 
-inline void core_explosion(App& app, Island* parent, const Vec2<Fixnum>& pos)
+inline void core_explosion(Island* parent, const Vec2<Fixnum>& pos)
 {
     if (parent->core_count() == 1) {
         // There's a special death sequence animation for the final destroyed
         // core.
-        big_explosion(app, pos);
+        big_explosion(pos);
         return;
     }
 
@@ -154,21 +154,21 @@ inline void core_explosion(App& app, Island* parent, const Vec2<Fixnum>& pos)
         pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
         // Don't create the explosion effect if way outside of the camera range.
     } else {
-        app.effects().clear();
+        APP.effects().clear();
 
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 4; ++j) {
                 const int angle = j * 90 + 45 + i * 3;
                 const u8 half_angle = angle / 2;
                 if (auto exp =
-                        app.alloc_entity<Explosion2>(pos, half_angle, (u8)i)) {
+                        APP.alloc_entity<Explosion2>(pos, half_angle, (u8)i)) {
                     auto dir = rotate({1, 0}, angle);
                     dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
                     Vec2<Fixnum> spd;
                     spd.x = Fixnum(dir.x);
                     spd.y = Fixnum(dir.y);
                     exp->set_speed(spd);
-                    app.effects().push(std::move(exp));
+                    APP.effects().push(std::move(exp));
                 }
             }
         }
@@ -181,8 +181,8 @@ inline void core_explosion(App& app, Island* parent, const Vec2<Fixnum>& pos)
         p.x -= 32.0_fixed;
         p.y -= 32.0_fixed;
         auto make_segment = [&](int q) {
-            return app.effects().push(
-                app.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
+            return APP.effects().push(
+                APP.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
         };
         make_segment(3);
         make_segment(2);
@@ -190,7 +190,7 @@ inline void core_explosion(App& app, Island* parent, const Vec2<Fixnum>& pos)
         make_segment(0);
     }
 
-    app.camera()->shake(28);
+    APP.camera()->shake(28);
 }
 
 

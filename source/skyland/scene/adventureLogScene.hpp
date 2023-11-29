@@ -36,11 +36,11 @@ namespace skyland
 class AdventureLogScene : public Scene
 {
 public:
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
     lisp::Value* load_logentry(int entry);
     int logentry_count();
@@ -55,7 +55,7 @@ public:
     }
 
 
-    void show_page(App&, int page_num);
+    void show_page(int page_num);
 
 
 private:

@@ -61,9 +61,9 @@ Ladder::Ladder(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Ladder::update(App& app, Microseconds delta)
+void Ladder::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -84,8 +84,7 @@ void Ladder::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void LadderPlus::plot_walkable_zones(App& app,
-                                     bool matrix[16][16],
+void LadderPlus::plot_walkable_zones(bool matrix[16][16],
                                      BasicCharacter* for_character)
 {
     for (int y = 0; y < size().y; ++y) {
@@ -95,8 +94,7 @@ void LadderPlus::plot_walkable_zones(App& app,
 
 
 
-void Ladder::plot_walkable_zones(App& app,
-                                 bool matrix[16][16],
+void Ladder::plot_walkable_zones(bool matrix[16][16],
                                  BasicCharacter* for_character)
 {
     // All tiles in a ladder are walkable, that's kind of the point.

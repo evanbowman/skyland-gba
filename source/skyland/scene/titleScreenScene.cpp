@@ -69,7 +69,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta)
+    void update(Microseconds delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -192,53 +192,53 @@ static void set_scroll(Layer layer, int x_scroll, int y_scroll)
 
 
 
-void TitleScreenScene::enter(App& app, Scene& prev)
+void TitleScreenScene::enter(Scene& prev)
 {
     PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
     PLATFORM.screen().schedule_fade(1.f);
 
     PLATFORM.screen().set_shader(passthrough_shader);
-    app.swap_environment<weather::ClearSkies>();
+    APP.swap_environment<weather::ClearSkies>();
 
-    app.macrocosm().reset();
+    APP.macrocosm().reset();
 
-    dev_ = app.is_developer_mode();
+    dev_ = APP.is_developer_mode();
 
     const int offset = 64;
 
-    app.camera().emplace<Camera>();
+    APP.camera().emplace<Camera>();
 
-    app.swap_player<PlayerP1>();
+    APP.swap_player<PlayerP1>();
 
     init_clouds();
     PLATFORM.system_call("v-parallax", (void*)false);
 
-    app.player_island().clear(app);
+    APP.player_island().clear();
 
     globals().room_pools_.create("room-mem");
     globals().entity_pools_.create("entity-mem");
 
-    if (app.opponent_island()) {
-        app.reset_opponent_island();
+    if (APP.opponent_island()) {
+        APP.reset_opponent_island();
     }
 
-    app.key_callback_processor().clear();
+    APP.key_callback_processor().clear();
 
     PLATFORM.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
-    app.effects().clear();
-    app.birds().clear();
+    APP.effects().clear();
+    APP.birds().clear();
 
     // Back to the title screen! DLC plugins need to be unloaded...
     plugin_rooms_unregister();
 
     // By default, we do not allow recording for rewind. Enabled based on game
     // mode when fading into a level.
-    app.time_stream().enable_pushes(false);
-    app.time_stream().clear();
+    APP.time_stream().enable_pushes(false);
+    APP.time_stream().clear();
 
-    app.game_speed() = GameSpeed::normal;
+    APP.game_speed() = GameSpeed::normal;
 
     auto view = PLATFORM.screen().get_view();
     auto c = view.get_center();
@@ -288,7 +288,7 @@ void TitleScreenScene::enter(App& app, Scene& prev)
 
     PLATFORM.set_overlay_origin(0, 4);
 
-    app.delete_backup();
+    APP.delete_backup();
 }
 
 
@@ -347,7 +347,7 @@ void TitleScreenScene::redraw_margins()
 
 
 
-void TitleScreenScene::exit(App& app, Scene& next)
+void TitleScreenScene::exit(Scene& next)
 {
     PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
     PLATFORM.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
@@ -360,12 +360,12 @@ void TitleScreenScene::exit(App& app, Scene& next)
 
     PLATFORM.system_call("v-parallax", (void*)true);
 
-    PLATFORM.load_tile0_texture(app.environment().player_island_texture());
-    PLATFORM.load_tile1_texture(app.environment().opponent_island_texture());
-    PLATFORM.load_sprite_texture(app.environment().sprite_texture());
-    PLATFORM.load_background_texture(app.environment().background_texture());
+    PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
+    PLATFORM.load_tile1_texture(APP.environment().opponent_island_texture());
+    PLATFORM.load_sprite_texture(APP.environment().sprite_texture());
+    PLATFORM.load_background_texture(APP.environment().background_texture());
 
-    write_custom_graphics(app);
+    write_custom_graphics();
 
 
     for (int x = 0; x < 16; ++x) {
@@ -383,8 +383,8 @@ void TitleScreenScene::exit(App& app, Scene& next)
     set_scroll(Layer::map_1_ext, 0, 8);
     set_scroll(Layer::map_0_ext, 0, 0);
 
-    app.birds().clear();
-    app.effects().clear();
+    APP.birds().clear();
+    APP.effects().clear();
 }
 
 
@@ -482,19 +482,19 @@ void TitleScreenScene::put_menu_text()
 
 
 
-void TitleScreenScene::run_init_scripts(App& app, bool allow_mods)
+void TitleScreenScene::run_init_scripts(bool allow_mods)
 {
     // For some stuff, like the tutorial viewer, or multiplayer games,
     // everything would get messed up if we allowed users to run modded scripts.
 
     const bool use_rom_fs = (allow_mods == false);
 
-    app.invoke_script("/scripts/config/rooms.lisp", use_rom_fs);
-    app.invoke_script("/scripts/config/damage.lisp", use_rom_fs);
-    app.invoke_script("/scripts/config/timing.lisp", use_rom_fs);
+    APP.invoke_script("/scripts/config/rooms.lisp", use_rom_fs);
+    APP.invoke_script("/scripts/config/damage.lisp", use_rom_fs);
+    APP.invoke_script("/scripts/config/timing.lisp", use_rom_fs);
 
     if (allow_mods) {
-        app.invoke_ram_script("/mods/init.lisp");
+        APP.invoke_ram_script("/mods/init.lisp");
 
 
         auto on_match = [&](const char* const path) {
@@ -504,7 +504,7 @@ void TitleScreenScene::run_init_scripts(App& app, bool allow_mods)
             if (ends_with(init_filename, path_str)) {
                 StringBuffer<flash_filesystem::max_path> full_path("/dlc/");
                 full_path += path_str;
-                app.invoke_ram_script(full_path.c_str());
+                APP.invoke_ram_script(full_path.c_str());
             }
         };
 
@@ -584,15 +584,15 @@ static const int faded_music_volume = 2;
 
 
 
-ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> TitleScreenScene::update(Microseconds delta)
 {
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     rng::get(rng::critical_state);
     rng::get(rng::utility_state);
-    rng::get(app.crane_game_rng());
+    rng::get(APP.crane_game_rng());
 
     hover_timer_ += delta;
 
@@ -611,7 +611,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(Key::action_4)) {
+    if (APP.player().key_down(Key::action_4)) {
         // For the nintendo ds
         PLATFORM.system_call("swap-screens", nullptr);
     }
@@ -692,7 +692,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                              Fixnum::from_integer(154)};
             pos = rng::sample<4>(pos, rng::utility_state);
             if (auto e = alloc_entity<EmberParticle>(this, pos, 51)) {
-                app.effects().push(std::move(e));
+                APP.effects().push(std::move(e));
             }
         }
     } else if (menu_selection_ == 0) {
@@ -720,7 +720,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                 (5 + rng::choice<4>(rng::critical_state)) / Float(100000);
             pos.y += Fixnum::from_integer(rng::choice<20>(rng::critical_state));
             if (auto e = alloc_entity<SmallBird>(pos, speed)) {
-                app.birds().push(std::move(e));
+                APP.birds().push(std::move(e));
             }
         }
     } else if (menu_selection_ == 3) {
@@ -735,21 +735,21 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                                  Fixnum::from_integer(140)};
                 u16 gfx = 62 + rng::choice<2>(rng::utility_state);
                 if (auto e = alloc_entity<TitleScreenMusicNote>(pos, gfx)) {
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
             }
         }
     }
 
-    for (auto& bird : app.birds()) {
+    for (auto& bird : APP.birds()) {
         if (bird->sprite().get_position().x >
             Fixnum::from_integer(
                 (scale_offset().x + (197 + 16) - x_scroll_ / 2))) {
             bird->kill();
         }
     }
-    update_entities(app, delta, app.birds());
-    update_entities(app, delta, app.effects());
+    update_entities(delta, APP.birds());
+    update_entities(delta, APP.effects());
 
 
     switch (state_) {
@@ -757,7 +757,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
         timer_ += delta;
 
         if (PLATFORM.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released()) {
+            APP.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
@@ -769,8 +769,8 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             timer_ = amount * milliseconds(550);
         }
 
-        if (app.player().key_pressed(Key::left) or
-            app.player().key_pressed(Key::up)) {
+        if (APP.player().key_pressed(Key::left) or
+            APP.player().key_pressed(Key::up)) {
             state_ = State::macro_island_exit;
             repeat_left_ = true;
             const auto amount =
@@ -778,8 +778,8 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             timer_ = amount * milliseconds(550);
             break;
         }
-        if (app.player().key_pressed(Key::down) or
-            app.player().key_pressed(Key::right)) {
+        if (APP.player().key_pressed(Key::down) or
+            APP.player().key_pressed(Key::right)) {
             state_ = State::macro_island_exit;
             repeat_right_ = true;
             const auto amount =
@@ -820,7 +820,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
     case State::macro_island:
 
         if (PLATFORM.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released()) {
+            APP.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
@@ -828,14 +828,14 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
-        if (app.player().key_pressed(Key::left) or
-            app.player().key_pressed(Key::up)) {
+        if (APP.player().key_pressed(Key::left) or
+            APP.player().key_pressed(Key::up)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_left_ = true;
         }
-        if (app.player().key_pressed(Key::down) or
-            app.player().key_pressed(Key::right)) {
+        if (APP.player().key_pressed(Key::down) or
+            APP.player().key_pressed(Key::right)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_right_ = true;
@@ -966,7 +966,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
         }
 
         if (repeat_action1_ or PLATFORM.keyboard().pressed<Key::action_1>() or
-            app.player().tap_released()) {
+            APP.player().tap_released()) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
@@ -990,11 +990,11 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             }
         }
 
-        if (repeat_right_ or app.player().key_pressed(Key::right) or
-            app.player().key_pressed(Key::down) or
-            (app.player().touch_held(milliseconds(150)) and
-             app.player().touch_velocity().x and
-             app.player().touch_velocity().x * delta < -0.08f)) {
+        if (repeat_right_ or APP.player().key_pressed(Key::right) or
+            APP.player().key_pressed(Key::down) or
+            (APP.player().touch_held(milliseconds(150)) and
+             APP.player().touch_velocity().x and
+             APP.player().touch_velocity().x * delta < -0.08f)) {
             repeat_right_ = false;
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
@@ -1027,9 +1027,9 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (repeat_left_ or app.player().key_pressed(Key::left) or
-            app.player().key_pressed(Key::up) or
-            app.player().touch_velocity().x * delta > 0.08f) {
+        if (repeat_left_ or APP.player().key_pressed(Key::left) or
+            APP.player().key_pressed(Key::up) or
+            APP.player().touch_velocity().x * delta > 0.08f) {
             repeat_left_ = false;
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
@@ -1125,7 +1125,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
         PLATFORM.screen().set_shader_argument(1);
 
         PLATFORM.load_tile0_texture("macro_rendertexture");
-        macro_gen_sample_island(app);
+        macro_gen_sample_island();
         break;
 
     case State::scroll_macro: {
@@ -1252,12 +1252,12 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             }
             switch (menu_selection_) {
             case 0: {
-                app.game_mode() = App::GameMode::adventure;
-                run_init_scripts(app, true);
+                APP.game_mode() = App::GameMode::adventure;
+                run_init_scripts(true);
 
                 auto tutorial_flag = GlobalPersistentData::tutorial_prompt;
 
-                if (app.gp_.stateflags_.get(tutorial_flag)) {
+                if (APP.gp_.stateflags_.get(tutorial_flag)) {
                     return scene_pool::alloc<NewgameScene>();
                 } else {
 
@@ -1265,7 +1265,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                     module_page_ = 1;
 
                     PLATFORM.speaker().clear_sounds();
-                    app.gp_.stateflags_.set(tutorial_flag, true);
+                    APP.gp_.stateflags_.set(tutorial_flag, true);
 
                     // Title Screen Graphical bugfix (1)
                     // Text box doesn't show up, need to cycle a fade to fix the
@@ -1273,8 +1273,8 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                     PLATFORM.screen().fade(0.95f);
                     PLATFORM.screen().fade(1.f);
 
-                    save::store_global_data(app.gp_);
-                    app.invoke_script("/scripts/reset_hooks.lisp");
+                    save::store_global_data(APP.gp_);
+                    APP.invoke_script("/scripts/reset_hooks.lisp");
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
@@ -1292,8 +1292,8 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
             }
 
             case 1: {
-                app.game_mode() = App::GameMode::challenge;
-                run_init_scripts(app, true);
+                APP.game_mode() = App::GameMode::challenge;
+                run_init_scripts(true);
                 return scene_pool::alloc<SelectChallengeScene>();
             }
 
@@ -1314,12 +1314,12 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                 // EntityLists, and the Island wouldn't store any references to
                 // entities, as we called Island::clear() when entering this
                 // scene.
-                app.birds().clear();
-                app.effects().clear();
+                APP.birds().clear();
+                APP.effects().clear();
 
                 globals().entity_pools_.create("macro-entity-pool", 1);
 
-                app.invoke_script("/scripts/reset_hooks.lisp");
+                APP.invoke_script("/scripts/reset_hooks.lisp");
 
                 return scene_pool::alloc<MacrocosmLoaderModule>();
 
@@ -1327,10 +1327,10 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                 PLATFORM.fatal("logic error, this should be unreachable");
 
             case 4: {
-                app.game_mode() = App::GameMode::multiplayer;
-                run_init_scripts(app, false);
+                APP.game_mode() = App::GameMode::multiplayer;
+                run_init_scripts(false);
 
-                return MultiplayerConnectScene::setup(app);
+                return MultiplayerConnectScene::setup();
             }
             }
         } else {
@@ -1378,7 +1378,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(500);
 
         if (timer_ > fade_duration) {
-            app.effects().clear();
+            APP.effects().clear();
             redraw_margins();
             show_module_icons(module_page_);
             state_ = State::show_modules;
@@ -1413,7 +1413,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
 
         PLATFORM.screen().schedule_fade(
             0.69f, ColorConstant::rich_black, false, false);
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             state_ = State::fade_modules_backout;
             timer_ = 0;
             PLATFORM.fill_overlay(0);
@@ -1421,7 +1421,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
         } else if (module_cursor_) {
 
             auto test_key = [&](Key k) {
-                return app.player().test_key(
+                return APP.player().test_key(
                     k, milliseconds(500), milliseconds(100));
             };
 
@@ -1463,7 +1463,7 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                 click_sound();
             }
 
-            if (app.player().key_down(Key::action_1)) {
+            if (APP.player().key_down(Key::action_1)) {
 
                 auto index = module_page_ * modules_per_page +
                              module_cursor_->x +
@@ -1490,10 +1490,10 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
                     PLATFORM.system_call("vsync", 0); // FIXME
                     PLATFORM.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
-                    app.game_mode() = App::GameMode::challenge;
+                    APP.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {
-                        run_init_scripts(app, f->enable_custom_scripts());
+                        run_init_scripts(f->enable_custom_scripts());
                     }
 
                     return f->create();
@@ -1540,26 +1540,26 @@ ScenePtr<Scene> TitleScreenScene::update(App& app, Microseconds delta)
 
 
 
-void TitleScreenScene::macro_gen_sample_island(App& app)
+void TitleScreenScene::macro_gen_sample_island()
 {
-    app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(&app);
+    APP.macrocosm().emplace();
+    APP.macrocosm()->emplace<macro::EngineImpl>(&APP);
 
     macro::raster::globalstate::_upper_half_only = true;
 
     __draw_image(0, 0, 0, 30, 16, Layer::map_0);
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::pancake);
     m.bind_sector({0, 1});
     auto& s = m.sector();
 
-    app.invoke_script("/scripts/config/title_screen_isle.lisp");
+    APP.invoke_script("/scripts/config/title_screen_isle.lisp");
 
     s.render();
 
     macro::raster::globalstate::_upper_half_only = false;
 
-    app.macrocosm().reset();
+    APP.macrocosm().reset();
 }
 
 
@@ -1635,7 +1635,7 @@ void TitleScreenScene::show_module_icons(int page)
 
 
 
-void TitleScreenScene::display(App& app)
+void TitleScreenScene::display()
 {
     if (flower_effect_ and state_ == State::fade_in) {
         auto amount = smoothstep(milliseconds(-400), milliseconds(800), timer_);
@@ -1664,14 +1664,14 @@ void TitleScreenScene::display(App& app)
     } else if (x_scroll_ < -240) {
         pong_.display(x_scroll_);
     }
-    for (auto& effect : app.effects()) {
+    for (auto& effect : APP.effects()) {
         auto spr = effect->sprite();
         auto pos = spr.get_position();
         pos.x = pos.x - Fixnum::from_integer(x_scroll_);
         spr.set_position(pos);
         PLATFORM.screen().draw(spr);
     }
-    for (auto& bird : app.birds()) {
+    for (auto& bird : APP.birds()) {
         auto spr = bird->sprite();
         auto pos = spr.get_position();
 

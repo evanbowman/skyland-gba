@@ -71,14 +71,14 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds) override
+    ScenePtr<Scene> update(Microseconds) override
     {
-        auto& m = skyland::macrocosm(app);
+        auto& m = skyland::macrocosm();
 
         PLATFORM.screen().fade(1.f);
 
         if (PLATFORM.network_peer().is_connected()) {
-            network::poll_messages(app, *this);
+            network::poll_messages(*this);
         }
 
         switch (state_) {
@@ -223,7 +223,7 @@ public:
 
 
 
-    void receive(App& app, const network::packet::BlockTransferData& p) override
+    void receive(const network::packet::BlockTransferData& p) override
     {
         auto start = input_ptr_ + p.sequence_ * 4;
 
@@ -234,13 +234,13 @@ public:
     }
 
 
-    void receive(App& app, const network::packet::BlockTransferEnd& p) override
+    void receive(const network::packet::BlockTransferEnd& p) override
     {
         receive_complete_ = true;
     }
 
 
-    void receive(App& app, const network::packet::MacroTradeStatus& p) override
+    void receive(const network::packet::MacroTradeStatus& p) override
     {
         if (p.status_ > 1) {
             // For future extensions. In case I add more descriptive error

@@ -39,20 +39,20 @@ namespace skyland
 class HibernateScene : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         text_.emplace();
         text_->assign(SYSTR(misc_hibernate_message)->c_str(), {1, 4}, {28, 8});
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.fill_overlay(0);
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (key_down<Key::action_1>()) {
             text_.reset();

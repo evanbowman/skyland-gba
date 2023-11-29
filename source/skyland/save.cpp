@@ -117,14 +117,14 @@ public:
 
 
 
-void EmergencyBackup::init(App& app)
+void EmergencyBackup::init()
 {
-    persistent_data_ = app.persistent_data();
+    persistent_data_ = APP.persistent_data();
 
     lisp_data_.emplace();
 
     LispPrinter p(*lisp_data_);
-    auto val = app.invoke_script("/scripts/save.lisp");
+    auto val = APP.invoke_script("/scripts/save.lisp");
     lisp::format(val, p);
 
     lisp_data_->push_back('\0');
@@ -173,10 +173,10 @@ void EmergencyBackup::store()
 
 
 
-void store(App& app, const PersistentData& d)
+void store(const PersistentData& d)
 {
     lisp::_Printer<Vector<char>> p;
-    auto val = app.invoke_script("/scripts/save.lisp");
+    auto val = APP.invoke_script("/scripts/save.lisp");
     lisp::format(val, p);
     p.data_.push_back('\0');
 
@@ -188,7 +188,7 @@ void store(App& app, const PersistentData& d)
     save_data.script_length_.set(0);
 
     memcpy(&save_data.data_, &d, sizeof d);
-    if (app.is_developer_mode()) {
+    if (APP.is_developer_mode()) {
         save_data.data_.set_flag(PersistentData::StateFlag::dev_mode_active);
     }
 
@@ -198,13 +198,13 @@ void store(App& app, const PersistentData& d)
     flash_filesystem::store_file_data_text(
         save_data_lisp_filename, p.data_, opts);
 
-    synth_notes_store(app.player_island(), "/save/synth.dat");
-    speaker_data_store(app.player_island(), "/save/speaker.dat");
+    synth_notes_store(APP.player_island(), "/save/synth.dat");
+    speaker_data_store(APP.player_island(), "/save/speaker.dat");
 }
 
 
 
-bool load(App& app, PersistentData& d)
+bool load(PersistentData& d)
 {
     Vector<char> data;
 
@@ -228,7 +228,7 @@ bool load(App& app, PersistentData& d)
 
         memcpy(&d, &save_data.data_, sizeof d);
 
-        if (app.is_developer_mode()) {
+        if (APP.is_developer_mode()) {
             d.set_flag(PersistentData::StateFlag::dev_mode_active);
         }
 
@@ -259,7 +259,7 @@ bool load(App& app, PersistentData& d)
 
     auto arg = lisp::get_op(0); // result of eval()
 
-    auto fn = app.invoke_script("/scripts/restore_save.lisp");
+    auto fn = APP.invoke_script("/scripts/restore_save.lisp");
     if (fn->type() == lisp::Value::Type::function) {
         lisp::push_op(arg);    // pass save data buffer on stack
         lisp::safecall(fn, 1); // one argument (the save data)
@@ -272,8 +272,8 @@ bool load(App& app, PersistentData& d)
     lisp::pop_op(); // result of read() (0)
 
 
-    synth_notes_load(app.player_island(), "/save/synth.dat");
-    speaker_data_load(app.player_island(), "/save/speaker.dat");
+    synth_notes_load(APP.player_island(), "/save/synth.dat");
+    speaker_data_load(APP.player_island(), "/save/speaker.dat");
 
     return true;
 }

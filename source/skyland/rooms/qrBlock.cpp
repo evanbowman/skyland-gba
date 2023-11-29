@@ -33,9 +33,9 @@ namespace skyland
 
 
 
-void QrBlock::update(App& app, Microseconds delta)
+void QrBlock::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (hint_img_release_timer_ > 0) {
         hint_img_release_timer_ -= delta;
@@ -52,7 +52,7 @@ void QrBlock::update(App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> QrBlock::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> QrBlock::select(const RoomCoord& cursor)
 {
     PLATFORM.speaker().play_sound("button_wooden", 3);
 
@@ -77,7 +77,7 @@ bool QrBlock::opponent_display_on_hover() const
 
 
 void QrBlock::display_on_hover(Platform::Screen& screen,
-                               App& app,
+
                                const RoomCoord& cursor)
 {
     if (not hint_img_) {

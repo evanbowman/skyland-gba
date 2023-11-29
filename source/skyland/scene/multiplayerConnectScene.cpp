@@ -43,7 +43,7 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 
 
-void MultiplayerConnectScene::enter(App& app, Scene& prev)
+void MultiplayerConnectScene::enter(Scene& prev)
 {
     PLATFORM.screen().schedule_fade(1.f);
     text_.emplace(OverlayCoord{1, 1});
@@ -67,8 +67,8 @@ void MultiplayerConnectScene::enter(App& app, Scene& prev)
 
     PLATFORM.delta_clock().reset();
 
-    show_island_exterior(app, &app.player_island());
-    show_island_exterior(app, app.opponent_island());
+    show_island_exterior(&APP.player_island());
+    show_island_exterior(APP.opponent_island());
 
     auto& g = globals();
     g.multiplayer_prep_timer_ = 0;
@@ -79,14 +79,14 @@ void MultiplayerConnectScene::enter(App& app, Scene& prev)
 
 
 
-void MultiplayerConnectScene::exit(App&, Scene& next)
+void MultiplayerConnectScene::exit(Scene& next)
 {
     text_.reset();
 }
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::setup(App& app)
+ScenePtr<Scene> MultiplayerConnectScene::setup()
 {
     auto buffer = allocate_dynamic<DialogString>("dialog-string");
 
@@ -104,7 +104,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(App& app)
 
         auto future_scene = [] { return scene_pool::alloc<LinkScene>(); };
 
-        if (not state_bit_load(app, StateBit::successful_multiplayer_connect)) {
+        if (not state_bit_load(StateBit::successful_multiplayer_connect)) {
             *buffer = SYSTR(link_gba_setup)->c_str();
 
 
@@ -121,7 +121,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(App& app)
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> MultiplayerConnectScene::update(Microseconds delta)
 {
     if (not ready_) {
         ready_ = true;
@@ -144,7 +144,7 @@ ScenePtr<Scene> MultiplayerConnectScene::update(App& app, Microseconds delta)
                                                         future_scene);
     } else {
 
-        state_bit_store(app, StateBit::successful_multiplayer_connect, true);
+        state_bit_store(StateBit::successful_multiplayer_connect, true);
 
         network::packet::ProgramVersion packet;
         packet.major_.set(PROGRAM_MAJOR_VERSION);
@@ -154,10 +154,10 @@ ScenePtr<Scene> MultiplayerConnectScene::update(App& app, Microseconds delta)
 
         network::transmit(packet);
 
-        app.swap_opponent<MultiplayerPeer>();
+        APP.swap_opponent<MultiplayerPeer>();
         rng::critical_state = 42;
 
-        app.game_mode() = App::GameMode::multiplayer;
+        APP.game_mode() = App::GameMode::multiplayer;
 
         return scene_pool::alloc<MultiplayerSettingsScene>();
     }

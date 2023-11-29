@@ -36,11 +36,11 @@ namespace skyland::weather
 class Typhoon : public Storm
 {
 public:
-    Platform::Screen::Shader shader(App& app) const override;
+    Platform::Screen::Shader shader() const override;
 
 
-    void update(App& app, Microseconds delta) override;
-    void rewind(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     void on_lightning() override;

@@ -47,12 +47,12 @@ public:
     }
 
 
-    virtual void signal(App& app)
+    virtual void signal()
     {
     }
 
 
-    virtual Island* island(App&)
+    virtual Island* island()
     {
         return nullptr;
     }

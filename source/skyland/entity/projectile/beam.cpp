@@ -77,24 +77,24 @@ Beam::Beam(const Vec2<Fixnum>& position,
 
 
 
-void Beam::update(App& app, Microseconds delta)
+void Beam::update(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.delta_fp() * step_vector_;
+    pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
 
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
-        destroy_out_of_bounds(app, target);
+        destroy_out_of_bounds(target);
     }
 
     if (timer_ > seconds(2)) {
@@ -104,19 +104,19 @@ void Beam::update(App& app, Microseconds delta)
 
 
 
-void Beam::rewind(App& app, Microseconds delta)
+void Beam::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.delta_fp() * step_vector_;
+    pos = pos - APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(app);
+            (*drone)->___rewind___ability_used();
         }
         kill();
     }
@@ -128,7 +128,7 @@ extern Sound sound_impact;
 
 
 
-void Beam::on_collision(App& app, Room& room, Vec2<u8> origin)
+void Beam::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -166,12 +166,12 @@ void Beam::on_collision(App& app, Room& room, Vec2<u8> origin)
 
     if (not damaged) {
         sound_impact.play(1);
-        if (app.camera()->shake_magnitude() <= 2) {
-            app.camera()->shake(8);
+        if (APP.camera()->shake_magnitude() <= 2) {
+            APP.camera()->shake(8);
         }
-        room.apply_damage(app, 4, source_);
+        room.apply_damage(4, source_);
         if (not damaged_.push_back(room.position())) {
-            this->destroy(app, true);
+            this->destroy(true);
         }
     }
 }
@@ -187,7 +187,7 @@ void Beam::restore_blocks_hit(const time_stream::event::BeamDestroyed& e)
 
 
 
-void Beam::record_destroyed(App& app)
+void Beam::record_destroyed()
 {
     auto timestream_record = [&](time_stream::event::BeamDestroyed& c) {
         c.x_origin_ = origin_tile_.x;
@@ -207,35 +207,35 @@ void Beam::record_destroyed(App& app)
     };
 
 
-    if (source_ == &app.player_island()) {
+    if (source_ == &APP.player_island()) {
         time_stream::event::PlayerBeamDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     } else {
         time_stream::event::OpponentBeamDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     }
 }
 
 
 
-void Beam::destroy(App& app, bool explosion)
+void Beam::destroy(bool explosion)
 {
-    record_destroyed(app);
+    record_destroyed();
 
     kill();
 
-    app.camera()->shake(8);
+    APP.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(app, sprite_.get_position());
+        medium_explosion(sprite_.get_position());
     }
 }
 
 
 
-void Beam::on_collision(App& app, Entity& entity)
+void Beam::on_collision(Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Beam explodes upon collision.
@@ -247,9 +247,9 @@ void Beam::on_collision(App& app, Entity& entity)
     }
 
 
-    this->destroy(app, true);
+    this->destroy(true);
 
-    entity.apply_damage(app, 10);
+    entity.apply_damage(10);
 }
 
 

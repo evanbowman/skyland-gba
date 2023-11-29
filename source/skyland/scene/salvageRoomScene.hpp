@@ -46,13 +46,13 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App&, Scene& next) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void set_next_scene(DeferredScene next)
@@ -62,7 +62,7 @@ public:
 
 
 private:
-    Island* island(App& app);
+    Island* island();
 
 
     std::optional<DeferredScene> next_;

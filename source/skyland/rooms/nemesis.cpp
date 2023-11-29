@@ -68,9 +68,9 @@ Nemesis::Nemesis(Island* parent, const RoomCoord& position)
 
 
 
-void Nemesis::fire(App& app)
+void Nemesis::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -79,25 +79,25 @@ void Nemesis::fire(App& app)
     origin.y += Fixnum::from_integer(target_->y * 16 + 8);
     target = origin;
 
-    app.camera()->shake(4);
+    APP.camera()->shake(4);
 
     auto start = center();
 
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         start.x -= 22.0_fixed;
     } else {
         start.x += 22.0_fixed;
     }
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
     cannon_sound.play(3);
 
     auto v =
-        app.alloc_entity<NemesisBlast>(start, target, parent(), position());
+        APP.alloc_entity<NemesisBlast>(start, target, parent(), position());
     if (v) {
         if (health() < max_health() / 4) {
             v->set_variant(2);
@@ -110,7 +110,7 @@ void Nemesis::fire(App& app)
 
     auto e = alloc_entity<AnimatedEffect>(start, 47, 49, milliseconds(100));
     if (e) {
-        app.effects().push(std::move(e));
+        APP.effects().push(std::move(e));
     }
 }
 

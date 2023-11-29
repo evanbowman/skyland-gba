@@ -34,9 +34,9 @@ namespace skyland
 
 
 
-void KeyComboScene::enter(App& app, Scene& prev)
+void KeyComboScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -53,14 +53,14 @@ void KeyComboScene::enter(App& app, Scene& prev)
         PLATFORM.set_tile(Layer::overlay, i, 18, 425);
     }
 
-    app.key_callback_processor().reset();
+    APP.key_callback_processor().reset();
 }
 
 
 
-void KeyComboScene::exit(App& app, Scene& next)
+void KeyComboScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     PLATFORM.fill_overlay(0);
     text_.reset();
@@ -68,22 +68,22 @@ void KeyComboScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> KeyComboScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
-    if (app.player().key_down(Key::start) or
-        app.key_callback_processor().seek_state() ==
+    if (APP.player().key_down(Key::start) or
+        APP.key_callback_processor().seek_state() ==
             KeyCallbackProcessor::seq_max - 1 or
-        (app.key_callback_processor().possibilities() == 1 and
-         app.key_callback_processor().match())) {
+        (APP.key_callback_processor().possibilities() == 1 and
+         APP.key_callback_processor().match())) {
 
-        if (auto binding = app.key_callback_processor().match()) {
-            binding->callback_(app);
+        if (auto binding = APP.key_callback_processor().match()) {
+            binding->callback_();
         }
-        app.key_callback_processor().reset();
+        APP.key_callback_processor().reset();
 
         if (is_far_camera()) {
             return scene_pool::alloc<InspectP2Scene>();
@@ -92,7 +92,7 @@ ScenePtr<Scene> KeyComboScene::update(App& app, Microseconds delta)
         }
     }
 
-    app.key_callback_processor().update();
+    APP.key_callback_processor().update();
 
     Key found = Key::count;
     for (int i = 0; i < (int)Key::count; ++i) {

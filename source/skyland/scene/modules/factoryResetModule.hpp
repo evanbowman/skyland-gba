@@ -54,7 +54,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     std::optional<TextView> text_;

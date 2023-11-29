@@ -46,9 +46,9 @@ Cloak::Cloak(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Cloak::update(App& app, Microseconds delta)
+void Cloak::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     const int x = position().x;
     const int y = position().y;
@@ -71,9 +71,9 @@ void Cloak::update(App& app, Microseconds delta)
 
 
 
-void Cloak::rewind(App& app, Microseconds delta)
+void Cloak::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 }
 
 
@@ -99,9 +99,9 @@ bool Cloak::cloaks_coordinate(const RoomCoord& c)
 
 
 
-void Cloak::render_cloak(App& app, TileId buffer[16][16])
+void Cloak::render_cloak(TileId buffer[16][16])
 {
-    if (parent() == &player_island(app) and parent()->interior_visible()) {
+    if (parent() == &player_island() and parent()->interior_visible()) {
         return;
     }
 

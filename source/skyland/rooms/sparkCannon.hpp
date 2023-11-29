@@ -69,11 +69,11 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void on_lightning(App& app) override;
-    void on_lightning_rewind(App& app) override;
+    void on_lightning() override;
+    void on_lightning_rewind() override;
 
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
 
     static void format_description(StringBuffer<512>& buffer);
@@ -125,8 +125,7 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -144,7 +143,7 @@ public:
         return 3656;
     }
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
     Microseconds reload_time_remaining() const override
     {

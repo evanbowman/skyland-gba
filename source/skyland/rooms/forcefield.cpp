@@ -63,9 +63,9 @@ Forcefield::Forcefield(Island* parent,
 
 
 
-void Forcefield::update(App& app, Microseconds delta)
+void Forcefield::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -74,9 +74,9 @@ void Forcefield::update(App& app, Microseconds delta)
 
 
 
-void Forcefield::rewind(App& app, Microseconds delta)
+void Forcefield::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -128,9 +128,9 @@ Sound glass_break_sound("glass_break");
 
 
 
-void Forcefield::finalize(App& app)
+void Forcefield::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() == 0) {
         glass_break_sound.play(3);
@@ -139,9 +139,9 @@ void Forcefield::finalize(App& app)
 
 
 
-void Forcefield2::update(App& app, Microseconds delta)
+void Forcefield2::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -150,9 +150,9 @@ void Forcefield2::update(App& app, Microseconds delta)
 
 
 
-void Forcefield2::rewind(App& app, Microseconds delta)
+void Forcefield2::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

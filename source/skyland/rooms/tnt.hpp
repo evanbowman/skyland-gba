@@ -42,17 +42,17 @@ public:
               const char* class_name = name());
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -63,15 +63,14 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     static Category category()
@@ -126,14 +125,14 @@ public:
     }
 
 
-    void apply_damage(App& app, Health damage) override;
+    void apply_damage(Health damage) override;
 
 
-    void ignite(App& app, int range, Health damage, bool spread_fire);
+    void ignite(int range, Health damage, bool spread_fire);
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 
@@ -153,7 +152,7 @@ public:
     }
 
 
-    void finalize(App& app);
+    void finalize();
 
 
     static RoomProperties::Bitmask properties()
@@ -188,7 +187,7 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 
@@ -207,14 +206,14 @@ public:
     }
 
 
-    void finalize(App& app) override
+    void finalize() override
     {
-        Room::finalize(app);
+        Room::finalize();
 
         if (not ignition_) {
             return;
         } else {
-            ignite(app, 2, 100, true);
+            ignite(2, 100, true);
         }
     }
 
@@ -250,20 +249,20 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override
+    ScenePtr<Scene> select(const RoomCoord& cursor) override
     {
-        return Room::select(app, cursor);
+        return Room::select(cursor);
     }
 
 
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 

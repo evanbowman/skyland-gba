@@ -49,7 +49,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta;
         if (timer_ >= rate_) {
@@ -67,7 +67,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         timer_ -= delta;
 

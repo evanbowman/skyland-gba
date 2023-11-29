@@ -55,11 +55,11 @@ namespace skyland
 class CoOpRngSyncScene : public WorldScene, public network::Listener
 {
 public:
-    void enter(App& app, Scene& prev)
+    void enter(Scene& prev)
     {
-        WorldScene::enter(app, prev);
+        WorldScene::enter(prev);
 
-        for (auto& room : player_island(app).rooms()) {
+        for (auto& room : player_island().rooms()) {
             // Just in case... should there be a bug in the locking anywhere
             // (I haven't found any), unlock everything at the end of the
             // level.
@@ -70,9 +70,9 @@ public:
         }
     }
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
-        network::poll_messages(app, *this);
+        network::poll_messages(*this);
 
         if (syncd_) {
             return scene_pool::alloc<ReadyScene>();
@@ -91,7 +91,7 @@ public:
     }
 
 
-    void receive(App& app, const network::packet::CoOpRngSyncRequest&)
+    void receive(const network::packet::CoOpRngSyncRequest&)
     {
         if (PLATFORM.network_peer().is_host()) {
             network::packet::CoOpRngSync p;
@@ -101,7 +101,7 @@ public:
     }
 
 
-    void receive(App& app, const network::packet::CoOpRngSyncAck& ack)
+    void receive(const network::packet::CoOpRngSyncAck& ack)
     {
         if (PLATFORM.network_peer().is_host()) {
             if (ack.rng_state_.get() == rng::critical_state) {

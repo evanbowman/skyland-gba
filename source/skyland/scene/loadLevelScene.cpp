@@ -63,20 +63,20 @@ void set_island_positions(Island& left_island, Island& right_island)
 
 
 
-void LoadLevelScene::enter(App& app, Scene& prev)
+void LoadLevelScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
-    app.player_island().render(app);
+    APP.player_island().render();
 }
 
 
 
-void LoadLevelScene::exit(App& app, Scene& next)
+void LoadLevelScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
-    GenericBird::generate(app);
+    GenericBird::generate();
 }
 
 
@@ -88,7 +88,7 @@ SHARED_VARIABLE(zone4_coin_yield);
 
 
 
-void prep_level(App& app)
+void prep_level()
 {
     auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
@@ -97,136 +97,136 @@ void prep_level(App& app)
     far_cursor_loc.x = 0;
     far_cursor_loc.y = 14;
 
-    const auto pl_terrain_size = app.player_island().terrain().size();
+    const auto pl_terrain_size = APP.player_island().terrain().size();
     if (pl_terrain_size > 8) {
         cursor_loc.x = pl_terrain_size / 2;
     }
 
-    for (auto& room : app.player_island().rooms()) {
+    for (auto& room : APP.player_island().rooms()) {
         room->update_description();
     }
 
     // Bugfix: in case an island is destroyed by a projectile after processing a
     // lisp exit call. e.g. island surrenders then hit by a missile.
-    app.exit_condition() = App::ExitCondition::none;
+    APP.exit_condition() = App::ExitCondition::none;
 
-    app.dropped_frames_ = 0;
-    app.victory_coins() = 0;
-    app.pause_count() = 0;
-    app.stat_timer().reset(0);
-    app.level_timer().reset(0);
-    state_bit_store(app, StateBit::surrender_offered, false);
-    rng::get(app.crane_game_rng());
-    state_bit_store(app, StateBit::crane_game_got_treasure, false);
+    APP.dropped_frames_ = 0;
+    APP.victory_coins() = 0;
+    APP.pause_count() = 0;
+    APP.stat_timer().reset(0);
+    APP.level_timer().reset(0);
+    state_bit_store(StateBit::surrender_offered, false);
+    rng::get(APP.crane_game_rng());
+    state_bit_store(StateBit::crane_game_got_treasure, false);
 
-    if (app.game_mode() not_eq App::GameMode::skyland_forever and
-        app.game_mode() not_eq App::GameMode::co_op) {
-        app.player().rooms_built_ = 0;
-        app.player().rooms_lost_ = 0;
+    if (APP.game_mode() not_eq App::GameMode::skyland_forever and
+        APP.game_mode() not_eq App::GameMode::co_op) {
+        APP.player().rooms_built_ = 0;
+        APP.player().rooms_lost_ = 0;
     }
 
-    app.persistent_data().score_.set(
-        std::max((s32)0, app.persistent_data().score_.get()));
+    APP.persistent_data().score_.set(
+        std::max((s32)0, APP.persistent_data().score_.get()));
 
 
-    app.level_begin_score() = app.persistent_data().score_.get();
+    APP.level_begin_score() = APP.persistent_data().score_.get();
 
-    app.player_island().init_ai_awareness(app);
+    APP.player_island().init_ai_awareness();
 
 
-    if (app.opponent_island()) {
-        app.opponent_island()->set_drift(app, Fixnum(-0.000025f));
+    if (APP.opponent_island()) {
+        APP.opponent_island()->set_drift(Fixnum(-0.000025f));
 
-        set_island_positions(app.player_island(), *app.opponent_island());
+        set_island_positions(APP.player_island(), *APP.opponent_island());
 
-        app.player_island().set_float_timer(0);
+        APP.player_island().set_float_timer(0);
 
-        app.opponent_island()->set_float_timer(
+        APP.opponent_island()->set_float_timer(
             std::numeric_limits<Microseconds>::max() / 2);
 
-        for (auto& room : app.opponent_island()->rooms()) {
+        for (auto& room : APP.opponent_island()->rooms()) {
             if (str_eq(room->name(), "mycelium")) {
                 // The construction cost of the initial block is high, and we
                 // don't want to award the player a large amount of coins for
                 // each block spawned.
-                app.victory_coins() += 100;
-            } else if (app.zone() < 2) {
-                app.victory_coins() +=
+                APP.victory_coins() += 100;
+            } else if (APP.zone() < 2) {
+                APP.victory_coins() +=
                     (0.01f * zone1_coin_yield) * (*room->metaclass())->cost();
-            } else if (app.zone() < 3) {
-                app.victory_coins() +=
+            } else if (APP.zone() < 3) {
+                APP.victory_coins() +=
                     (0.01f * zone2_coin_yield) * (*room->metaclass())->cost();
-            } else if (app.zone() < 4) {
-                app.victory_coins() +=
+            } else if (APP.zone() < 4) {
+                APP.victory_coins() +=
                     (0.01f * zone3_coin_yield) * (*room->metaclass())->cost();
             } else {
-                app.victory_coins() +=
+                APP.victory_coins() +=
                     (0.01f * zone4_coin_yield) * (*room->metaclass())->cost();
             }
         }
 
-        app.opponent_island()->init_ai_awareness(app);
+        APP.opponent_island()->init_ai_awareness();
 
 
-        show_island_exterior(app, app.opponent_island());
+        show_island_exterior(APP.opponent_island());
 
 
-        write_custom_graphics(app);
+        write_custom_graphics();
     } else {
-        app.player_island().set_position(
+        APP.player_island().set_position(
             {Fixnum::from_integer(10), Fixnum::from_integer(374)});
     }
 }
 
 
 
-ScenePtr<Scene> LoadLevelScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> LoadLevelScene::update(Microseconds delta)
 {
-    const auto loc = app.current_world_location();
+    const auto loc = APP.current_world_location();
     info(format("%", loc));
-    auto& node = app.world_graph().nodes_[loc];
+    auto& node = APP.world_graph().nodes_[loc];
 
-    for (auto& room : app.player_island().rooms()) {
-        room->detach_drone(app, true);
+    for (auto& room : APP.player_island().rooms()) {
+        room->detach_drone(true);
     }
-    app.player_island().drones().clear();
+    APP.player_island().drones().clear();
 
-    if (app.zone() > 3) {
-        app.swap_environment<weather::Blizzard>();
-    } else if (app.zone() > 2) {
-        app.swap_environment<weather::Storm>();
+    if (APP.zone() > 3) {
+        APP.swap_environment<weather::Blizzard>();
+    } else if (APP.zone() > 2) {
+        APP.swap_environment<weather::Storm>();
     } else {
-        app.swap_environment<weather::ClearSkies>();
+        APP.swap_environment<weather::ClearSkies>();
     }
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:
     case WorldGraph::Node::Type::neutral_hidden:
     default: {
-        app.invoke_script("/scripts/event/neutral.lisp");
+        APP.invoke_script("/scripts/event/neutral.lisp");
         break;
     }
 
     case WorldGraph::Node::Type::quest:
-        app.invoke_script("/scripts/event/quest.lisp");
+        APP.invoke_script("/scripts/event/quest.lisp");
         break;
 
     case WorldGraph::Node::Type::corrupted:
-        app.invoke_script("/scripts/event/storm_king.lisp");
+        APP.invoke_script("/scripts/event/storm_king.lisp");
         break;
 
     case WorldGraph::Node::Type::quest_marker:
-        app.invoke_script("/scripts/event/quest_marker.lisp");
+        APP.invoke_script("/scripts/event/quest_marker.lisp");
         break;
 
     case WorldGraph::Node::Type::exit:
     case WorldGraph::Node::Type::hostile:
     case WorldGraph::Node::Type::hostile_hidden: {
-        app.invoke_script("/scripts/event/hostile.lisp");
+        APP.invoke_script("/scripts/event/hostile.lisp");
         break;
     }
     case WorldGraph::Node::Type::shop:
-        app.invoke_script("/scripts/event/shop/shop.lisp");
+        APP.invoke_script("/scripts/event/shop/shop.lisp");
         break;
     }
 
@@ -235,32 +235,31 @@ ScenePtr<Scene> LoadLevelScene::update(App& app, Microseconds delta)
 
     } else {
         if (not PLATFORM.speaker().is_music_playing(
-                app.environment().music())) {
-            PLATFORM.speaker().play_music(app.environment().music(), 0);
+                APP.environment().music())) {
+            PLATFORM.speaker().play_music(APP.environment().music(), 0);
         }
     }
 
-    prep_level(app);
+    prep_level();
 
     if (node.type_ == WorldGraph::Node::Type::shop) {
-        app.opponent_island()->set_position(
-            {Fixnum((Float)app.player_island().terrain().size() * 16 + 48),
-             Fixnum(app.opponent_island()->get_position().y)});
+        APP.opponent_island()->set_position(
+            {Fixnum((Float)APP.player_island().terrain().size() * 16 + 48),
+             Fixnum(APP.opponent_island()->get_position().y)});
     }
 
-    for (auto& room : app.player_island().rooms()) {
+    for (auto& room : APP.player_island().rooms()) {
         room->reset_state();
     }
 
-    if (app.dialog_buffer()) {
-        auto buffer = std::move(*app.dialog_buffer());
-        app.dialog_buffer().reset();
+    if (APP.dialog_buffer()) {
+        auto buffer = std::move(*APP.dialog_buffer());
+        APP.dialog_buffer().reset();
 
-        auto future_scene = [&app,
-                             storm_king = node.type_ ==
+        auto future_scene = [storm_king = node.type_ ==
                                           WorldGraph::Node::Type::corrupted] {
             if (storm_king) {
-                app.swap_environment<weather::Typhoon>();
+                APP.swap_environment<weather::Typhoon>();
             }
 
             return scene_pool::alloc<FadeInScene>();

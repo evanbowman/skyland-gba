@@ -33,9 +33,9 @@ namespace skyland
 
 
 
-void Ice::update(App& app, Microseconds delta)
+void Ice::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
@@ -43,10 +43,10 @@ void Ice::update(App& app, Microseconds delta)
     u8 y = position().y;
 
     auto melt = [&] {
-        if (app.environment().is_cold()) {
+        if (APP.environment().is_cold()) {
             return;
         }
-        __unsafe__transmute(app, skyland::metaclass_index("water-source"));
+        __unsafe__transmute(skyland::metaclass_index("water-source"));
     };
 
     if (auto room = parent()->get_room({x, u8(y - 1)})) {

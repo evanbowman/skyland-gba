@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void HideRoomsScene::enter(App& app, Scene& prev)
+void HideRoomsScene::enter(Scene& prev)
 {
     data_ = allocate_dynamic<Data>("hide-rooms-context");
 
@@ -45,12 +45,12 @@ void HideRoomsScene::enter(App& app, Scene& prev)
         }
     }
 
-    repaint(app);
+    repaint();
 }
 
 
 
-void HideRoomsScene::exit(App& app, Scene& prev)
+void HideRoomsScene::exit(Scene& prev)
 {
     names_.clear();
     hidden_.clear();
@@ -63,7 +63,7 @@ void HideRoomsScene::exit(App& app, Scene& prev)
 
 
 
-void HideRoomsScene::repaint(App& app)
+void HideRoomsScene::repaint()
 {
     auto [mt, ms] = room_metatable();
 
@@ -130,36 +130,36 @@ void HideRoomsScene::repaint(App& app)
 
 
 
-ScenePtr<Scene> HideRoomsScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> HideRoomsScene::update(Microseconds delta)
 {
-    player(app).update(app, delta);
+    player().update(delta);
 
-    if (player(app).key_down(Key::action_2)) {
+    if (player().key_down(Key::action_2)) {
         return next_();
     }
 
-    if (player(app).key_down(Key::action_1)) {
+    if (player().key_down(Key::action_1)) {
         auto mti = (*data_)->room_classes_[index_];
         room_set_hidden(mti, not room_hidden(mti));
-        repaint(app);
+        repaint();
         changed_ = true;
     }
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     int limit = (int)(*data_)->room_classes_.size();
     if (test_key(Key::down) and index_ < limit - 1) {
         ++index_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
-        repaint(app);
+        repaint();
     }
 
     if (test_key(Key::up) and index_ > 0) {
         --index_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
-        repaint(app);
+        repaint();
     }
 
     return null_scene();

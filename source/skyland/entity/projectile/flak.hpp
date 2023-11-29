@@ -55,19 +55,17 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void on_collision(App& app, Room&, Vec2<u8>) override;
+    void on_collision(Room&, Vec2<u8>) override;
 
 
-    static void burst(App& app,
-                      const Vec2<Fixnum>& position,
-                      Room& origin_room,
-                      Island* source);
+    static void
+    burst(const Vec2<Fixnum>& position, Room& origin_room, Island* source);
 
 
 private:
@@ -75,10 +73,10 @@ private:
     Vec2<Fixnum> step_vector_;
     Island* source_;
 
-    void record_destroyed(App& app);
-    void destroy(App& app, bool explosion) override;
+    void record_destroyed();
+    void destroy(bool explosion) override;
 
-    void explode(App& app);
+    void explode();
 
     Microseconds flicker_time_ = 0;
 

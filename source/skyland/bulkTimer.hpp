@@ -51,7 +51,7 @@ public:
     }
 
 
-    virtual void timer_expired(App&) = 0;
+    virtual void timer_expired() = 0;
 
 
     Microseconds remaining() const
@@ -85,8 +85,8 @@ private:
 class BulkTimer
 {
 public:
-    void update(App&, Microseconds elapsed_delta);
-    void rewind(App&, Microseconds elapsed_delta);
+    void update(Microseconds elapsed_delta);
+    void rewind(Microseconds elapsed_delta);
 
 
     void schedule(Timer* subscriber, Microseconds timeout);

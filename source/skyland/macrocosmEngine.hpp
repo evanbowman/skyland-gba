@@ -245,10 +245,10 @@ struct EngineImpl : public Engine
 
 
     void save();
-    bool load(App& app);
+    bool load();
 
 
-    void newgame(App& app);
+    void newgame();
 
 
     EngineImpl(App*);
@@ -301,7 +301,7 @@ namespace skyland
 
 
 
-macro::EngineImpl& macrocosm(App& app);
+macro::EngineImpl& macrocosm();
 
 
 

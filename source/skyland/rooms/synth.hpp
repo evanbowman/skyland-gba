@@ -47,7 +47,7 @@ public:
     Synth(Island* parent, const RoomCoord& position);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     static RoomProperties::Bitmask properties()
@@ -98,7 +98,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     using Note = Platform::Speaker::NoteDesc;

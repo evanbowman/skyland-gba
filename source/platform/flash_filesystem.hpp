@@ -87,7 +87,14 @@ enum InitStatus {
 
 
 
-InitStatus initialize(u32 offset);
+struct InitConfig
+{
+    u32 offset_ = 0;
+};
+
+
+
+InitStatus initialize(const InitConfig& conf);
 
 
 

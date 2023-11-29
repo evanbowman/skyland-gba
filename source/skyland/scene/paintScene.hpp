@@ -51,9 +51,9 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        app.effects().clear();
+        APP.effects().clear();
 
         if (not create_) {
             Vector<char> data;
@@ -70,20 +70,20 @@ public:
         } else {
             for (int x = 0; x < canvas_width; ++x) {
                 for (int y = 0; y < canvas_height; ++y) {
-                    set_pixel(app, x, y, 1);
+                    set_pixel(x, y, 1);
                 }
             }
         }
 
-        Paint::init(app);
+        Paint::init();
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         PLATFORM.screen().schedule_fade(0.f);
 
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             Vector<char> output;
             for (u32 i = 0; i < sizeof texture_; ++i) {
                 output.push_back(((u8*)&texture_)[i]);
@@ -96,23 +96,23 @@ public:
             return scene_pool::alloc<FileBrowserModule>();
         }
 
-        return Paint::update(app, delta);
+        return Paint::update(delta);
     }
 
 
-    void display(App& app)
+    void display()
     {
-        Paint::display(app);
+        Paint::display();
     }
 
 
-    u8 get_pixel(App& app, u8 x, u8 y) override
+    u8 get_pixel(u8 x, u8 y) override
     {
         return texture_.get_pixel(x, y);
     }
 
 
-    void set_pixel(App& app, u8 x, u8 y, u8 tile) override
+    void set_pixel(u8 x, u8 y, u8 tile) override
     {
         texture_.set_pixel(x, y, tile);
     }

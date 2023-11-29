@@ -31,9 +31,9 @@ namespace skyland::weather
 {
 
 
-Platform::Screen::Shader Blizzard::get_shader(App& app)
+Platform::Screen::Shader Blizzard::get_shader()
 {
-    return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
+    return [](ShaderPalette palette, ColorConstant k, int arg, int index) {
         switch (palette) {
         case ShaderPalette::tile0:
             switch (index & 0x0f) {
@@ -52,7 +52,7 @@ Platform::Screen::Shader Blizzard::get_shader(App& app)
             case 9:
                 return custom_color(0xdedede);
             case 10:
-                if (not player_island(app).interior_visible()) {
+                if (not player_island().interior_visible()) {
                     return custom_color(0x9db3c9);
                 }
                 break;
@@ -76,8 +76,8 @@ Platform::Screen::Shader Blizzard::get_shader(App& app)
             case 3:
                 return custom_color(0x9bbfc4);
             case 4:
-                if (opponent_island(app) and
-                    not opponent_island(app)->interior_visible()) {
+                if (opponent_island() and
+                    not opponent_island()->interior_visible()) {
                     return custom_color(0x322f59);
                 }
                 break;
@@ -90,8 +90,8 @@ Platform::Screen::Shader Blizzard::get_shader(App& app)
             case 9:
                 return custom_color(0xdedede);
             case 10: // FIXME
-                if (opponent_island(app) and
-                    not opponent_island(app)->interior_visible()) {
+                if (opponent_island() and
+                    not opponent_island()->interior_visible()) {
                     return custom_color(0x838c6b);
                 }
                 break;
@@ -152,21 +152,21 @@ Platform::Screen::Shader Blizzard::get_shader(App& app)
 }
 
 
-Platform::Screen::Shader Blizzard::shader(App& app) const
+Platform::Screen::Shader Blizzard::shader() const
 {
-    return get_shader(app);
+    return get_shader();
 }
 
 
 
-void Blizzard::update(App& app, Microseconds delta)
+void Blizzard::update(Microseconds delta)
 {
-    Storm::update(app, delta);
+    Storm::update(delta);
 }
 
 
 
-void Blizzard::display(App& app)
+void Blizzard::display()
 {
     if (PLATFORM.screen().fade_active()) {
         return;

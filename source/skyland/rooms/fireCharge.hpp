@@ -44,7 +44,7 @@ public:
     FireCharge(Island* parent, const RoomCoord& position);
 
 
-    void fire(App& app) override;
+    void fire() override;
     Microseconds reload() const override;
 
 

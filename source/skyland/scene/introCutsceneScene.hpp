@@ -48,7 +48,7 @@ void __draw_image(TileDesc start_tile,
 class IntroCutsceneDoneScene : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.speaker().stop_music();
         PLATFORM.speaker().set_music_volume(
@@ -57,7 +57,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
         PLATFORM.fill_overlay(0);
         return scene_pool::alloc<IntroCreditsScene>();
@@ -69,7 +69,7 @@ public:
 class IntroCutsceneSceneText3 : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_overlay_texture("overlay_challenges");
 
@@ -91,13 +91,13 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         text_.reset();
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         timer_ += delta;
 
@@ -158,18 +158,18 @@ public:
 class IntroCutsceneLaunch : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_tile1_texture("intro_island_launch_flattened");
 
         __draw_image(1, 0, 3, 30, 14, Layer::map_1);
 
-        app.camera()->shake(14);
+        APP.camera()->shake(14);
     }
 
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.screen().schedule_fade(1.f);
         PLATFORM.fill_overlay(0);
@@ -177,7 +177,7 @@ public:
 
 
 
-    void display(App& app) override
+    void display() override
     {
         for (auto& p : snow_particles_) {
             Sprite spr;
@@ -245,7 +245,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         timer_ += delta;
 
@@ -305,7 +305,7 @@ private:
 class IntroCutsceneSceneText2 : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         const auto screen_tiles = calc_screen_tiles();
         for (int i = 0; i < screen_tiles.x; ++i) {
@@ -321,7 +321,7 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         const auto screen_tiles = calc_screen_tiles();
         for (int i = 0; i < screen_tiles.x; ++i) {
@@ -331,7 +331,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -363,7 +363,7 @@ public:
 class IntroCutsceneScene : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_tile1_texture("intro_crops_snow_flattened");
 
@@ -385,14 +385,14 @@ public:
     }
 
 
-    void exit(App& app, Scene& prev) override
+    void exit(Scene& prev) override
     {
         // PLATFORM.fill_overlay(0);
         PLATFORM.set_scroll(Layer::map_1, 0, 0);
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -454,7 +454,7 @@ public:
     }
 
 
-    void display(App& app) override
+    void display() override
     {
         for (auto& p : snow_particles_) {
             Sprite spr;
@@ -477,18 +477,18 @@ private:
 class IntroCutsceneExplosion2 : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_tile1_texture("intro_explosion_2_flattened");
 
         __draw_image(1, 0, 3, 30, 14, Layer::map_1);
 
-        app.camera()->shake(14);
+        APP.camera()->shake(14);
     }
 
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.screen().schedule_fade(1.f);
         PLATFORM.fill_overlay(0);
@@ -496,7 +496,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -527,7 +527,7 @@ private:
 class IntroCutsceneExplosion1 : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_tile1_texture("intro_explosion_1_flattened");
 
@@ -550,7 +550,7 @@ public:
 
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.screen().schedule_fade(1.f);
         // PLATFORM.fill_overlay(0);
@@ -558,7 +558,7 @@ public:
 
 
 
-    void display(App& app)
+    void display()
     {
         Sprite spr;
         spr.set_size(Sprite::Size::w16_h32);
@@ -573,7 +573,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -604,7 +604,7 @@ private:
 class IntroCutsceneSceneText1 : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         text_.emplace();
         text_->assign(
@@ -613,7 +613,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -642,7 +642,7 @@ public:
 class IntroCutsceneSceneBegin : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         // PLATFORM.speaker().play_music("unaccompanied_wind", 0);
 
@@ -663,7 +663,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         timer_ += delta;
 

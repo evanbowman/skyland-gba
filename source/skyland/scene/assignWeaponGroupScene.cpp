@@ -35,36 +35,36 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> AssignWeaponGroupScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
     switch (state_) {
     case State::select_group:
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
         break;
 
     case State::assign_rooms:
 
-        if (app.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
 
 
-        if (app.player().key_down(Key::action_1)) {
-            if (auto room = app.player_island().get_room(cursor_loc)) {
+        if (APP.player().key_down(Key::action_1)) {
+            if (auto room = APP.player_island().get_room(cursor_loc)) {
                 if (room->co_op_locked()) {
                     PLATFORM.speaker().play_sound("beep_error", 2);
                     // TODO: notification
@@ -83,7 +83,7 @@ ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
                     e.room_x_ = cursor_loc.x;
                     e.room_y_ = cursor_loc.y;
                     e.prev_group_ = (u8)group;
-                    app.time_stream().push(app.level_timer(), e);
+                    APP.time_stream().push(APP.level_timer(), e);
 
                     if ((int)group < (int)Room::Group::three) {
                         group = (Room::Group)((int)group + 1);
@@ -91,7 +91,7 @@ ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
                         group = Room::Group::none;
                     }
                     room->set_group(group);
-                    app.player_island().repaint(app);
+                    APP.player_island().repaint();
 
                     network::packet::SetWeaponGroup p;
                     p.x_ = cursor_loc.x;
@@ -103,7 +103,7 @@ ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
         }
 
         if (test_key(Key::right)) {
-            if (cursor_loc.x < app.player_island().terrain().size()) {
+            if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
@@ -134,36 +134,36 @@ ScenePtr<Scene> AssignWeaponGroupScene::update(App& app, Microseconds delta)
 
 
 
-void AssignWeaponGroupScene::enter(App& app, Scene& prev)
+void AssignWeaponGroupScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     msg_.emplace(SYSTR(weapon_group_prompt)->c_str(),
                  OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
 
 
-    app.player_island().repaint(app);
+    APP.player_island().repaint();
 }
 
 
 
-void AssignWeaponGroupScene::exit(App& app, Scene& next)
+void AssignWeaponGroupScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
-    if (not app.player_island().interior_visible()) {
-        // app.player_island().show_groups(false);
+    if (not APP.player_island().interior_visible()) {
+        // APP.player_island().show_groups(false);
     }
-    app.player_island().repaint(app);
+    APP.player_island().repaint();
 }
 
 
 
-void AssignWeaponGroupScene::display(App& app)
+void AssignWeaponGroupScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
 
-    auto origin = app.player_island().visual_origin();
+    auto origin = APP.player_island().visual_origin();
 
     auto& cursor_loc = globals().near_cursor_loc_;
 

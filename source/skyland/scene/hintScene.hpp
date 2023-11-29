@@ -35,10 +35,10 @@ namespace skyland
 class HintScene : public Scene
 {
 public:
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 private:
     u32 hint_index_ = 0;

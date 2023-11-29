@@ -32,12 +32,12 @@ namespace skyland
 
 
 
-Power SolarCell::power_usage(App& app) const
+Power SolarCell::power_usage() const
 {
     const auto base_power = (*metaclass())->consumes_power();
     auto power = base_power;
 
-    if (app.environment().is_overcast()) {
+    if (APP.environment().is_overcast()) {
         power /= 2;
     }
 

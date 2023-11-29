@@ -52,9 +52,9 @@ TileId BronzeHull::tile() const
 
 
 
-void BronzeHull::update(App& app, Microseconds delta)
+void BronzeHull::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -63,9 +63,9 @@ void BronzeHull::update(App& app, Microseconds delta)
 
 
 
-void BronzeHull::rewind(App& app, Microseconds delta)
+void BronzeHull::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

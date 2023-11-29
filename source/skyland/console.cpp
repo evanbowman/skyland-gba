@@ -83,8 +83,7 @@ static auto split(const Platform::RemoteConsole::Line& line)
 class LispConsoleImpl : public ConsoleState::Impl
 {
 public:
-    void
-    on_text(App& app, Self& self, Platform::RemoteConsole::Line& line) override
+    void on_text(Self& self, Platform::RemoteConsole::Line& line) override
     {
         PLATFORM.remote_console().printline("", "");
         PLATFORM.sleep(2);
@@ -119,8 +118,7 @@ public:
 class ShellConsoleImpl : public ConsoleState::Impl
 {
 public:
-    void
-    on_text(App& app, Self& self, Platform::RemoteConsole::Line& line) override
+    void on_text(Self& self, Platform::RemoteConsole::Line& line) override
     {
         PLATFORM.remote_console().printline("", "");
         PLATFORM.sleep(2);
@@ -193,7 +191,7 @@ public:
             PLATFORM.remote_console().printline("\r\n", "sc> ");
 
         } else if (parsed.size() == 2 and parsed[0] == "call") {
-            auto result = app.invoke_script(parsed[1].c_str());
+            auto result = APP.invoke_script(parsed[1].c_str());
             RemoteConsoleLispPrinter printer;
             format(result, printer);
             PLATFORM.remote_console().printline(printer.fmt_.c_str(), "sc> ");
@@ -206,8 +204,7 @@ public:
 
 
 
-void ConsoleState::Impl::on_text(App& app,
-                                 Self& self,
+void ConsoleState::Impl::on_text(Self& self,
                                  Platform::RemoteConsole::Line& line)
 {
     PLATFORM.remote_console().printline("", "");

@@ -39,24 +39,24 @@ static const auto sel_colors =
 
 
 
-void CheckersModule::enter(App& app, Scene& prev)
+void CheckersModule::enter(Scene& prev)
 {
 }
 
 
 
-void CheckersModule::exit(App& app, Scene& next)
+void CheckersModule::exit(Scene& next)
 {
 }
 
 
 
-void CheckersModule::init(App& app)
+void CheckersModule::init()
 {
-    PLATFORM.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(APP.environment().music(), 0);
 
 
-    app.camera().emplace<macro::Camera>();
+    APP.camera().emplace<macro::Camera>();
 
     PLATFORM.load_background_texture("background_macro");
 
@@ -82,19 +82,19 @@ void CheckersModule::init(App& app)
     __draw_image(0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(&app);
+    APP.macrocosm().emplace();
+    APP.macrocosm()->emplace<macro::EngineImpl>(&APP);
 
 
     PLATFORM.screen().set_shader(macro::fluid_shader);
     PLATFORM.load_tile0_texture("macro_rendertexture");
     PLATFORM.load_tile1_texture("macro_rendertexture");
 
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
     m.data_->checkers_mode_ = true;
     m.data_->checkers_ai_moved_ = false;
-    m.newgame(app);
-    app.game_mode() = App::GameMode::macro;
+    m.newgame();
+    APP.game_mode() = App::GameMode::macro;
 
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
     auto bound = m.bind_sector({0, 1});
@@ -185,10 +185,10 @@ void CheckersModule::init(App& app)
 
 
 
-ScenePtr<Scene> CheckersModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> CheckersModule::update(Microseconds delta)
 {
 
-    init(app);
+    init();
 
     return scene_pool::alloc<macro::SelectorScene>();
 }

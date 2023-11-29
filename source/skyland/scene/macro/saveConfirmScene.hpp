@@ -40,7 +40,7 @@ namespace skyland::macro
 class SaveConfirmScene : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         no_text_.emplace(SYSTR(no)->c_str(), OverlayCoord{3, 5});
         yes_text_.emplace(SYSTR(yes)->c_str(), OverlayCoord{3, 7});
@@ -49,7 +49,7 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         no_text_.reset();
         yes_text_.reset();
@@ -57,12 +57,12 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (PLATFORM.keyboard().down_transition(Key::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             if (selection_) {
-                macrocosm(app).save();
+                macrocosm().save();
                 PLATFORM.screen().schedule_fade(0.f);
                 return scene_pool::alloc<SelectorScene>();
             } else {

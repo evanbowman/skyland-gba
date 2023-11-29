@@ -71,38 +71,38 @@ u8 screenshake = 0;
 
 
 
-ScenePtr<Scene> MacrocosmScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> MacrocosmScene::update(Microseconds delta)
 {
-    if (not app.macrocosm()) {
+    if (not APP.macrocosm()) {
         Platform::fatal("macro state unbound!?");
     }
 
     if (screenshake) {
-        app.camera()->shake(screenshake);
+        APP.camera()->shake(screenshake);
         screenshake = 0;
     }
 
-    const auto exit_cond = app.exit_condition();
+    const auto exit_cond = APP.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
-        app.exit_condition() = App::ExitCondition::none;
+        APP.exit_condition() = App::ExitCondition::none;
         return scene_pool::alloc<MacroverseScene>();
     }
 
-    if (app.dialog_buffer()) {
-        auto buffer = std::move(*app.dialog_buffer());
-        app.dialog_buffer().reset();
+    if (APP.dialog_buffer()) {
+        auto buffer = std::move(*APP.dialog_buffer());
+        APP.dialog_buffer().reset();
         auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
         next->set_next_scene(scene_pool::make_deferred_scene<SelectorScene>());
         return next;
     }
 
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
 
-    app.player().update(app, delta);
-    app.camera()->update(
-        app, app.player_island(), {}, delta, m.data_->checkers_mode_);
+    APP.player().update(delta);
+    APP.camera()->update(
+        APP.player_island(), {}, delta, m.data_->checkers_mode_);
 
-    app.environment().update(app, delta);
+    APP.environment().update(delta);
 
     m.data_->fluid_anim_timer_ += delta;
     bool was_gre = false;
@@ -192,7 +192,7 @@ ScenePtr<Scene> MacrocosmScene::update(App& app, Microseconds delta)
     }
 
 
-    auto next = update(app.player(), m);
+    auto next = update(APP.player(), m);
 
     auto& entities = m.data_->entities_;
     for (auto e = entities.begin(); e not_eq entities.end();) {
@@ -229,13 +229,13 @@ int MacrocosmScene::current_season(Microseconds year_timer,
 }
 
 
-void MacrocosmScene::display(App& app)
+void MacrocosmScene::display()
 {
-    if (not app.macrocosm()) {
+    if (not APP.macrocosm()) {
         return;
     }
 
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
 
     PLATFORM.system_call("_prlx_macro",
                          (void*)(intptr_t)(int)m.data_->cloud_scroll_);
@@ -265,7 +265,7 @@ void MacrocosmScene::display(App& app)
     sunmoon_spr.set_position({225.0_fixed, sunmoon_y});
     PLATFORM.screen().draw(sunmoon_spr);
 
-    display(macrocosm(app));
+    display(macrocosm());
 }
 
 
@@ -451,19 +451,19 @@ void MacrocosmScene::exit(macro::EngineImpl& state, Scene& next)
 
 
 
-void MacrocosmScene::enter(App& app, Scene& prev)
+void MacrocosmScene::enter(Scene& prev)
 {
-    if (not app.macrocosm()) {
+    if (not APP.macrocosm()) {
         Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
     }
 
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
-    if (not app.gp_.stateflags_.get(freebuild_flag)) {
-        app.gp_.stateflags_.set(freebuild_flag, true);
-        save::store_global_data(app.gp_);
+    if (not APP.gp_.stateflags_.get(freebuild_flag)) {
+        APP.gp_.stateflags_.set(freebuild_flag, true);
+        save::store_global_data(APP.gp_);
     }
 
-    enter(macrocosm(app), prev);
+    enter(macrocosm(), prev);
 }
 
 
@@ -515,9 +515,9 @@ void MacrocosmScene::draw_keylock(macro::EngineImpl& state)
 
 
 
-void MacrocosmScene::exit(App& app, Scene& next)
+void MacrocosmScene::exit(Scene& next)
 {
-    exit(macrocosm(app), next);
+    exit(macrocosm(), next);
 }
 
 

@@ -91,9 +91,9 @@ void PluginRoom::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void PluginRoom::update(App& app, Microseconds delta)
+void PluginRoom::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
@@ -141,9 +141,9 @@ void PluginRoom::update(App& app, Microseconds delta)
 
 
 
-void PluginRoom::rewind(App& app, Microseconds delta)
+void PluginRoom::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
@@ -159,7 +159,7 @@ void PluginRoom::rewind(App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> PluginRoom::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> PluginRoom::select(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -173,7 +173,7 @@ ScenePtr<Scene> PluginRoom::select(App& app, const RoomCoord& cursor)
                                                     future_scene);
     }
 
-    if (parent() == &app.player_island()) {
+    if (parent() == &APP.player_island()) {
         return scene_pool::alloc<WeaponSetTargetScene>(
             position(), true, target_);
     }
@@ -182,7 +182,7 @@ ScenePtr<Scene> PluginRoom::select(App& app, const RoomCoord& cursor)
 
 
 
-void PluginRoom::set_target(App& app, const RoomCoord& target, bool pinned)
+void PluginRoom::set_target(const RoomCoord& target, bool pinned)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -194,7 +194,7 @@ void PluginRoom::set_target(App& app, const RoomCoord& target, bool pinned)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &app.player_island();
+    e.near_ = parent() == &APP.player_island();
 
     if (target_) {
         e.previous_target_x_ = target_->x;
@@ -206,14 +206,14 @@ void PluginRoom::set_target(App& app, const RoomCoord& target, bool pinned)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     target_ = target;
 }
 
 
 
-void PluginRoom::unset_target(App& app)
+void PluginRoom::unset_target()
 {
     if (not target_) {
         // Already uninitialized.
@@ -224,7 +224,7 @@ void PluginRoom::unset_target(App& app)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &app.player_island();
+    e.near_ = parent() == &APP.player_island();
 
     if (target_) {
         e.previous_target_x_ = target_->x;
@@ -236,7 +236,7 @@ void PluginRoom::unset_target(App& app)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
     target_.reset();
 }

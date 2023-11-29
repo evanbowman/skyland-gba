@@ -44,7 +44,7 @@ public:
     Speaker(Island* parent, const RoomCoord& position);
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);
@@ -98,7 +98,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     // If signal, the speaker will select the next block below it when finished.
@@ -108,7 +108,7 @@ public:
     void reset(bool resume_music = true);
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
     struct Settings

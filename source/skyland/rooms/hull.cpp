@@ -61,9 +61,9 @@ TileId Hull::tile() const
 
 
 
-void Hull::update(App& app, Microseconds delta)
+void Hull::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();
@@ -72,9 +72,9 @@ void Hull::update(App& app, Microseconds delta)
 
 
 
-void Hull::rewind(App& app, Microseconds delta)
+void Hull::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (last_tile_ not_eq tile()) {
         schedule_repaint();

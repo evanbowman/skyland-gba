@@ -55,19 +55,19 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App&, Scene& next) override;
+    void exit(Scene& next) override;
 
 
-    bool camera_update_check_key(App& app) override;
+    bool camera_update_check_key() override;
 
 
     ConstructionScene* cast_construction_scene() override
@@ -91,22 +91,22 @@ private:
     };
 
 
-    bool site_has_space(App& app, MetaclassIndex m);
+    bool site_has_space(MetaclassIndex m);
 
 
-    Island* island(App& app);
+    Island* island();
 
 
-    bool collect_available_buildings(App&);
+    bool collect_available_buildings();
 
 
-    void find_construction_sites(App&);
+    void find_construction_sites();
 
 
     void msg(const char* text);
 
 
-    void show_current_building_text(App& app);
+    void show_current_building_text();
 
 
     using Coord = Vec2<s8>;

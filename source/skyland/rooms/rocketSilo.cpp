@@ -67,9 +67,9 @@ RocketSilo::RocketSilo(Island* parent, const RoomCoord& position)
 
 
 
-void RocketSilo::fire(App& app)
+void RocketSilo::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -94,16 +94,16 @@ void RocketSilo::fire(App& app)
     }
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<2>(target, rng::critical_state);
     }
 
     auto start = center();
     start.y -= 24.0_fixed;
 
-    app.camera()->shake(6);
+    APP.camera()->shake(6);
 
-    auto m = app.alloc_entity<RocketBomb>(
+    auto m = APP.alloc_entity<RocketBomb>(
         start, target, position().x, position().y, parent());
 
     missile_sound.play(3, milliseconds(400));
@@ -114,7 +114,7 @@ void RocketSilo::fire(App& app)
 
     auto e = alloc_entity<AnimatedEffect>(start, 47, 49, milliseconds(100));
     if (e) {
-        app.effects().push(std::move(e));
+        APP.effects().push(std::move(e));
     }
 }
 

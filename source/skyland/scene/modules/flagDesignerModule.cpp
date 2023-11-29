@@ -37,7 +37,7 @@ namespace skyland
 
 
 
-void load_flag(App& app, u16 tile);
+void load_flag(u16 tile);
 
 
 
@@ -59,7 +59,7 @@ public:
     }
 
 
-    void enter(App&, Scene&) override
+    void enter(Scene&) override
     {
         PLATFORM.load_overlay_texture("flags");
         Text::print("historical flags:",
@@ -80,7 +80,7 @@ public:
 
 
 
-    void exit(App&, Scene&) override
+    void exit(Scene&) override
     {
         PLATFORM.load_overlay_texture("overlay");
     }
@@ -104,7 +104,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta);
+    ScenePtr<Scene> update(Microseconds delta);
 
 
 
@@ -125,7 +125,7 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_overlay_texture("flags");
 
@@ -163,7 +163,7 @@ public:
 
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.fill_overlay(0);
 
@@ -173,23 +173,22 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
-        player(app).update(app, delta);
+        player().update(delta);
 
         auto test_key = [&](Key k) {
-            return player(app).test_key(
-                k, milliseconds(500), milliseconds(100));
+            return player().test_key(k, milliseconds(500), milliseconds(100));
         };
 
-        if (player(app).key_down(Key::action_2) or
-            player(app).key_down(Key::select)) {
+        if (player().key_down(Key::action_2) or
+            player().key_down(Key::select)) {
             auto next = scene_pool::alloc<FlagDesignerModule>();
             next->editing_ingame_ = editing_ingame_;
             return next;
         }
 
-        if (player(app).key_down(Key::right)) {
+        if (player().key_down(Key::right)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             auto next = scene_pool::alloc<SurfaceFlagsScene>();
             next->editing_ingame_ = editing_ingame_;
@@ -218,34 +217,34 @@ public:
             PLATFORM.set_tile(Layer::overlay, 3, 4 + sel_ * 2, 86);
         }
 
-        if (player(app).key_down(Key::action_1)) {
+        if (player().key_down(Key::action_1)) {
             switch (sel_) {
             case 0:
-                load_default_flag(app);
+                load_default_flag();
                 break;
 
             case 1:
-                load_flag(app, 381);
+                load_flag(381);
                 break;
 
             case 2:
-                load_flag(app, 379);
+                load_flag(379);
                 break;
 
             case 6:
-                load_flag(app, 376);
+                load_flag(376);
                 break;
 
             case 3:
-                load_flag(app, 378);
+                load_flag(378);
                 break;
 
             case 5:
-                load_flag(app, 377);
+                load_flag(377);
                 break;
 
             case 4:
-                load_flag(app, 380);
+                load_flag(380);
                 break;
             }
             auto next = scene_pool::alloc<FlagDesignerModule>();
@@ -266,12 +265,12 @@ private:
 
 
 
-ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SurfaceFlagsScene::update(Microseconds delta)
 {
-    player(app).update(app, delta);
+    player().update(delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     auto clear_cursor = [&] {
@@ -295,13 +294,13 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
         cursor_timer_ = milliseconds(200);
     };
 
-    if (player(app).key_down(Key::action_1)) {
+    if (player().key_down(Key::action_1)) {
         u16 tile = 268 + 180 * page_ + cursor_.x * 4 + cursor_.y * 4 * 9;
 
         auto data = PLATFORM.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
-                app.custom_flag_image_.pixels[x][y] =
+                APP.custom_flag_image_.pixels[x][y] =
                     data.data_[x][y + 1] & 0x0f;
             }
         }
@@ -310,7 +309,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
         data = PLATFORM.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 5; ++x) {
             for (int y = 0; y < 8; ++y) {
-                app.custom_flag_image_.pixels[8 + x][y] =
+                APP.custom_flag_image_.pixels[8 + x][y] =
                     data.data_[x][y + 1] & 0x0f;
             }
         }
@@ -319,7 +318,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
         data = PLATFORM.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 4; ++y) {
-                app.custom_flag_image_.pixels[x][7 + y] =
+                APP.custom_flag_image_.pixels[x][7 + y] =
                     data.data_[x][y] & 0x0f;
             }
         }
@@ -328,7 +327,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
         data = PLATFORM.extract_tile(Layer::overlay, tile);
         for (int x = 0; x < 5; ++x) {
             for (int y = 0; y < 4; ++y) {
-                app.custom_flag_image_.pixels[8 + x][7 + y] =
+                APP.custom_flag_image_.pixels[8 + x][7 + y] =
                     data.data_[x][y] & 0x0f;
             }
         }
@@ -343,8 +342,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
         return next;
     }
 
-    if (player(app).key_down(Key::action_2) or
-        player(app).key_down(Key::select)) {
+    if (player().key_down(Key::action_2) or player().key_down(Key::select)) {
         auto next = scene_pool::alloc<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
         PLATFORM.fill_overlay(0);
@@ -393,7 +391,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             --cursor_.x;
         } else {
-            if (page_ == 0 and player(app).key_down(Key::left)) {
+            if (page_ == 0 and player().key_down(Key::left)) {
                 PLATFORM.fill_overlay(0);
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
@@ -444,32 +442,32 @@ ScenePtr<Scene> SurfaceFlagsScene::update(App& app, Microseconds delta)
 
 
 
-void FlagDesignerModule::enter(App& app, Scene& prev)
+void FlagDesignerModule::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().schedule_fade(1.f);
 
-    app.player_island().show_flag(true);
+    APP.player_island().show_flag(true);
 
 
     if (editing_ingame_) {
-        if (app.player_island().interior_visible()) {
+        if (APP.player_island().interior_visible()) {
             PLATFORM.load_tile0_texture("tilesheet");
         }
-        if (app.player_island().flag_pos()) {
-            auto flag_y = app.player_island().flag_pos()->y;
+        if (APP.player_island().flag_pos()) {
+            auto flag_y = APP.player_island().flag_pos()->y;
             target_y_ = clamp(48 - (16 - flag_y) * 16, -80, 60);
         }
     } else {
         PLATFORM.load_tile0_texture("tilesheet");
     }
 
-    Paint::init(app);
+    Paint::init();
 
     if (editing_ingame_) {
         if (not prev.cast_world_scene() or
-            app.player_island().interior_visible()) {
-            show_island_exterior(app, &app.player_island());
+            APP.player_island().interior_visible()) {
+            show_island_exterior(&APP.player_island());
         }
 
         for (int x = 0; x < 16; ++x) {
@@ -480,28 +478,28 @@ void FlagDesignerModule::enter(App& app, Scene& prev)
 
         View v;
         Float vx = -140 + -32;
-        vx += app.player_island().flag_pos()->x * 16;
+        vx += APP.player_island().flag_pos()->x * 16;
         v.set_center({vx, Float(view_shift_)});
         PLATFORM.screen().set_view(v);
 
     } else {
-        app.player_island().init_terrain(4);
-        configure_island_from_codestring(
-            app, app.player_island(), "'((power-core 1 13))");
+        APP.player_island().init_terrain(4);
+        configure_island_from_codestring(APP.player_island(),
+                                         "'((power-core 1 13))");
 
-        app.player_island().render_exterior(app);
-        app.player_island().set_position(
+        APP.player_island().render_exterior();
+        APP.player_island().set_position(
             {Fixnum::from_integer(152), Fixnum::from_integer(370)});
 
-        GenericBird::spawn(
-            app, app.player_island(), rng::choice<3>(rng::utility_state));
+        GenericBird::spawn(APP.player_island(),
+                           rng::choice<3>(rng::utility_state));
     }
 
-    show(app);
+    show();
 
     PLATFORM.screen().schedule_fade(0);
 
-    auto bg_color = app.environment().shader(app)(
+    auto bg_color = APP.environment().shader()(
         ShaderPalette::background, custom_color(0x5aadef), 0, 4);
 
     const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
@@ -511,13 +509,13 @@ void FlagDesignerModule::enter(App& app, Scene& prev)
 
 
 
-void FlagDesignerModule::exit(App& app, Scene& next)
+void FlagDesignerModule::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
 
     if (editing_ingame_) {
-        if (app.opponent_island()) {
-            show_island_exterior(app, app.opponent_island());
+        if (APP.opponent_island()) {
+            show_island_exterior(APP.opponent_island());
         }
     } else {
         PLATFORM.system_call("vsync", nullptr); // FIXME
@@ -529,26 +527,26 @@ void FlagDesignerModule::exit(App& app, Scene& next)
 
 
 
-void FlagDesignerModule::show(App& app)
+void FlagDesignerModule::show()
 {
-    Paint::show(app);
+    Paint::show();
 
-    vram_write_flag(app.custom_flag_image_, Layer::map_0_ext);
+    vram_write_flag(APP.custom_flag_image_, Layer::map_0_ext);
 }
 
 
 
-ScenePtr<Scene> FlagDesignerModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> FlagDesignerModule::update(Microseconds delta)
 {
-    if (app.player().key_down(Key::select)) {
+    if (APP.player().key_down(Key::select)) {
         auto next = scene_pool::alloc<FlagTemplateScene>();
         next->editing_ingame_ = editing_ingame_;
         return next;
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         if (changed_) {
-            app.custom_flag_image_.save();
+            APP.custom_flag_image_.save();
         }
         if (editing_ingame_) {
             return scene_pool::alloc<ReadyScene>();
@@ -573,48 +571,48 @@ ScenePtr<Scene> FlagDesignerModule::update(App& app, Microseconds delta)
 
         View v;
         Float vx = -140 + -32;
-        vx += app.player_island().flag_pos()->x * 16;
+        vx += APP.player_island().flag_pos()->x * 16;
         v.set_center({vx, Float(view_shift_)});
         PLATFORM.screen().set_view(v);
     }
 
-    app.player_island().update_simple(app, delta);
-    for (auto& r : app.player_island().rooms()) {
+    APP.player_island().update_simple(delta);
+    for (auto& r : APP.player_island().rooms()) {
         for (auto& c : r->characters()) {
-            c->update(app, 0, r.get());
+            c->update(0, r.get());
         }
     }
 
-    update_entities(app, delta, app.effects());
+    update_entities(delta, APP.effects());
 
-    return Paint::update(app, delta);
+    return Paint::update(delta);
 }
 
 
 
-void FlagDesignerModule::display(App& app)
+void FlagDesignerModule::display()
 {
-    return Paint::display(app);
+    return Paint::display();
 }
 
 
 
-u8 FlagDesignerModule::get_pixel(App& app, u8 x, u8 y)
+u8 FlagDesignerModule::get_pixel(u8 x, u8 y)
 {
     if (x >= width() or y >= height()) {
         return 111;
     }
-    return app.custom_flag_image_.pixels[x][y];
+    return APP.custom_flag_image_.pixels[x][y];
 }
 
 
 
-void FlagDesignerModule::set_pixel(App& app, u8 x, u8 y, u8 value)
+void FlagDesignerModule::set_pixel(u8 x, u8 y, u8 value)
 {
     if (x >= width() or y >= height()) {
         return;
     }
-    app.custom_flag_image_.pixels[x][y] = value;
+    APP.custom_flag_image_.pixels[x][y] = value;
     changed_ = true;
 }
 

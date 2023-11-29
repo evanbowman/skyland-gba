@@ -50,7 +50,7 @@ TextEntryScene::TextEntryScene(const char* prompt,
 
 
 
-void TextEntryScene::enter(App& app, Scene& prev)
+void TextEntryScene::enter(Scene& prev)
 {
     render_keyboard();
 
@@ -109,12 +109,12 @@ static const char* keyboard[4] = {"# 1 2 3 4 5 6 7 8 9 0 = ",
                                   "z x c v b n m , . _ / ? "};
 
 
-ScenePtr<Scene> TextEntryScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> TextEntryScene::update(Microseconds delta)
 {
-    player(app).update(app, delta);
+    player().update(delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     auto row_strlen = str_len(keyboard[keyboard_cursor_.y]);
@@ -164,7 +164,7 @@ ScenePtr<Scene> TextEntryScene::update(App& app, Microseconds delta)
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (player(app).key_down(Key::start)) {
+    if (player().key_down(Key::start)) {
         if (state_->buffer_.length() >= (u32)required_chars_) {
             return receiver_(state_->buffer_.c_str());
         } else {
@@ -173,7 +173,7 @@ ScenePtr<Scene> TextEntryScene::update(App& app, Microseconds delta)
     }
 
 
-    if (player(app).key_down(Key::action_2)) {
+    if (player().key_down(Key::action_2)) {
         if (state_->buffer_.empty()) {
             return null_scene();
         }
@@ -183,7 +183,7 @@ ScenePtr<Scene> TextEntryScene::update(App& app, Microseconds delta)
             state_->buffer_.c_str(),
             FontColors{custom_color(0xffffff), custom_color(0xbd7f14)});
 
-    } else if (player(app).key_down(Key::action_1)) {
+    } else if (player().key_down(Key::action_1)) {
         if (state_->buffer_.length() == (u32)char_limit_) {
             return receiver_(state_->buffer_.c_str());
         }
@@ -228,7 +228,7 @@ void TextEntryScene::render_keyboard()
 
 
 
-void TextEntryScene::exit(App& app, Scene& next)
+void TextEntryScene::exit(Scene& next)
 {
     entry_.reset();
     submit_text_.reset();

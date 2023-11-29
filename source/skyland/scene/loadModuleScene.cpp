@@ -30,7 +30,7 @@ namespace skyland
 
 
 
-void LoadModuleScene::enter(App&, Scene& prev)
+void LoadModuleScene::enter(Scene& prev)
 {
     show_modules(0);
     PLATFORM.screen().fade(1.f);

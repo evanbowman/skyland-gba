@@ -164,7 +164,7 @@ void LispReplScene::repaint_entry(bool show_cursor)
 }
 
 
-void LispReplScene::enter(App& app, Scene& prev)
+void LispReplScene::enter(Scene& prev)
 {
     enable_text_icon_glyphs(false);
 
@@ -200,7 +200,7 @@ void LispReplScene::enter(App& app, Scene& prev)
 }
 
 
-void LispReplScene::exit(App& app, Scene& next)
+void LispReplScene::exit(Scene& next)
 {
     entry_.reset();
     keyboard_.clear();
@@ -279,7 +279,7 @@ void LispReplScene::repaint_completions()
 }
 
 
-ScenePtr<Scene> LispReplScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> LispReplScene::update(Microseconds delta)
 {
 TOP:
     constexpr auto fade_duration = milliseconds(700);
@@ -344,7 +344,7 @@ TOP:
         }
         if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             if (command_->empty()) {
-                if (app.macrocosm()) {
+                if (APP.macrocosm()) {
                     return scene_pool::alloc<macro::SelectorScene>();
                 } else {
                     return scene_pool::alloc<ReadyScene>();

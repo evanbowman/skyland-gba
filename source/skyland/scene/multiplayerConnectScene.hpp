@@ -36,14 +36,14 @@ namespace skyland
 class MultiplayerConnectScene : public Scene
 {
 public:
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    static ScenePtr<Scene> setup(App&);
+    static ScenePtr<Scene> setup();
 
 
 private:

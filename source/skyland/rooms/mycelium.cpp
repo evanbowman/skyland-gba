@@ -50,7 +50,7 @@ Mycelium::~Mycelium()
 
 
 
-void Mycelium::timer_expired(App& app)
+void Mycelium::timer_expired()
 {
     if (parent()->is_destroyed()) {
         return;
@@ -82,7 +82,7 @@ void Mycelium::timer_expired(App& app)
         not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
         not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
         y not_eq 14) {
-        this->apply_damage(app, health_upper_limit());
+        this->apply_damage(health_upper_limit());
         return;
     }
 
@@ -106,20 +106,20 @@ void Mycelium::timer_expired(App& app)
     };
 
     auto spread = [&](u8 x, u8 y) {
-        (*metaclass())->create(app, parent(), {x, y}, false);
+        (*metaclass())->create(parent(), {x, y}, false);
 
         parent()->schedule_repaint();
 
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             time_stream::event::PlayerRoomCreated p;
             p.x_ = x;
             p.y_ = y;
-            app.time_stream().push(app.level_timer(), p);
+            APP.time_stream().push(APP.level_timer(), p);
         } else {
             time_stream::event::OpponentRoomCreated p;
             p.x_ = x;
             p.y_ = y;
-            app.time_stream().push(app.level_timer(), p);
+            APP.time_stream().push(APP.level_timer(), p);
         }
     };
 
@@ -143,9 +143,9 @@ void Mycelium::timer_expired(App& app)
 
 
 
-void Mycelium::update(App& app, Microseconds delta)
+void Mycelium::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 

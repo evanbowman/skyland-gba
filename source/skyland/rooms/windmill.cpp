@@ -150,12 +150,12 @@ inline constexpr auto make_rotation_lut(float v)
 
 
 
-Power Windmill::power_usage(App& app) const
+Power Windmill::power_usage() const
 {
     const auto base_power = (*metaclass())->consumes_power();
     auto power = base_power;
 
-    if (app.environment().is_overcast()) {
+    if (APP.environment().is_overcast()) {
         power *= 2;
     }
 
@@ -225,7 +225,7 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
 
 
 
-void Windmill::display(Platform::Screen& screen, App& app)
+void Windmill::display(Platform::Screen& screen)
 {
     Buffer<Sprite, 4> buf;
     collect_sprites(buf);
@@ -249,7 +249,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -281,7 +281,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -298,9 +298,9 @@ private:
 
 
 
-void Windmill::finalize(App& app)
+void Windmill::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     const auto max_y =
         parent()->origin().y + 16.0_fixed * 16.0_fixed + 32.0_fixed;
@@ -324,7 +324,7 @@ void Windmill::finalize(App& app)
                     Fixnum(0.04f * 0.15f) +
                     Fixnum::from_integer(rng::choice<3>(rng::utility_state)) *
                         0.003_fixed;
-                app.effects().push(std::move(e));
+                APP.effects().push(std::move(e));
             }
         }
     }
@@ -332,11 +332,11 @@ void Windmill::finalize(App& app)
 
 
 
-void Windmill::update(App& app, Microseconds delta)
+void Windmill::update(Microseconds delta)
 {
     TIMEPOINT(t1);
 
-    Room::update(app, delta);
+    Room::update(delta);
     Room::ready();
 
     // FIXME: bad hack. Rooms are appended to an unordered priority list and
@@ -346,23 +346,23 @@ void Windmill::update(App& app, Microseconds delta)
     parent()->drawfirst(this);
 
     auto rate = 0.00005_fixed;
-    if (app.environment().is_overcast()) {
+    if (APP.environment().is_overcast()) {
         rate *= 2.0_fixed;
     }
 
-    rot_ += rate * app.delta_fp();
+    rot_ += rate * APP.delta_fp();
     while (rot_ > 359.0_fixed) {
         rot_ -= 359.0_fixed;
     }
 
-    if (dup_check_ >= (int)player_island(app).rooms().size()) {
+    if (dup_check_ >= (int)player_island().rooms().size()) {
         dup_check_ = 0;
-    } else if (parent() == &app.player_island()) {
-        auto& room = *player_island(app).rooms()[dup_check_++];
+    } else if (parent() == &APP.player_island()) {
+        auto& room = *player_island().rooms()[dup_check_++];
         if (&room not_eq this and room.metaclass() == this->metaclass()) {
             // Only one windmill allowed per island. Because we only allow so
             // many sprites per scanline.
-            room.apply_damage(app, Room::health_upper_limit());
+            room.apply_damage(Room::health_upper_limit());
         }
     }
 
@@ -373,16 +373,16 @@ void Windmill::update(App& app, Microseconds delta)
 
 
 
-void Windmill::rewind(App& app, Microseconds delta)
+void Windmill::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     auto rate = 0.00005_fixed;
-    if (app.environment().is_overcast()) {
+    if (APP.environment().is_overcast()) {
         rate *= 2.0_fixed;
     }
 
-    rot_ -= rate * app.delta_fp();
+    rot_ -= rate * APP.delta_fp();
     while (rot_ < 0.0_fixed) {
         rot_ += 359.0_fixed;
     }

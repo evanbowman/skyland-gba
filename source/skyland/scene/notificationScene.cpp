@@ -30,16 +30,16 @@ namespace skyland
 
 
 
-ScenePtr<Scene> NotificationScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> NotificationScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
-    if (app.player().key_down(Key::action_1) or
-        app.player().key_down(Key::action_2) or
-        app.player().key_down(Key::left) or app.player().key_down(Key::right) or
-        app.player().key_down(Key::up) or app.player().key_down(Key::down)) {
+    if (APP.player().key_down(Key::action_1) or
+        APP.player().key_down(Key::action_2) or
+        APP.player().key_down(Key::left) or APP.player().key_down(Key::right) or
+        APP.player().key_down(Key::up) or APP.player().key_down(Key::down)) {
 
         return next_scene_();
     }
@@ -49,9 +49,9 @@ ScenePtr<Scene> NotificationScene::update(App& app, Microseconds delta)
 
 
 
-void NotificationScene::enter(App& app, Scene& prev)
+void NotificationScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     description_.emplace(OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
 
@@ -64,9 +64,9 @@ void NotificationScene::enter(App& app, Scene& prev)
 
 
 
-void NotificationScene::exit(App& app, Scene& next)
+void NotificationScene::exit(Scene& next)
 {
-    ActiveWorldScene::exit(app, next);
+    ActiveWorldScene::exit(next);
 
     description_.reset();
     PLATFORM.fill_overlay(0);

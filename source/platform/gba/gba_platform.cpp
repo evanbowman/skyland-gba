@@ -1149,7 +1149,8 @@ static PaletteBank color_mix(ColorConstant k, u8 amount)
     //     return 0;
     // }
 
-    for (PaletteBank palette = available_palettes; palette < 16; ++palette) {
+    for (PaletteBank palette = available_palettes; palette < palette_count;
+         ++palette) {
         auto& info = palette_info[palette];
         if (info.color_ == k and info.blend_amount_ == amount) {
             info.locked_ = true;

@@ -35,7 +35,7 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void Paint::init(App& app)
+void Paint::init()
 {
     for (int x = 0; x < width_; ++x) {
         for (int y = 0; y < height_; ++y) {
@@ -65,7 +65,7 @@ void Paint::init(App& app)
     v.set_center({0, Float(view_shift_)});
     PLATFORM.screen().set_view(v);
 
-    show(app);
+    show();
 
     draw_rulers();
 }
@@ -90,11 +90,11 @@ void Paint::draw_rulers()
 
 
 
-void Paint::show(App& app)
+void Paint::show()
 {
     for (int y = 0; y < height_; ++y) {
         for (int x = 0; x < width_; ++x) {
-            const auto val = get_pixel(app, x, y);
+            const auto val = get_pixel(x, y);
             if (val >= 16) {
                 Platform::fatal("pixel is not 4bit indexed color!");
             }
@@ -108,21 +108,21 @@ void Paint::show(App& app)
 
 
 
-ScenePtr<Scene> Paint::update(App& app, Microseconds delta)
+ScenePtr<Scene> Paint::update(Microseconds delta)
 {
-    if (app.player().key_down(Key::alt_1)) {
+    if (APP.player().key_down(Key::alt_1)) {
         color_--;
         color_ %= 16;
         ready_ = true;
     }
-    if (app.player().key_down(Key::alt_2)) {
+    if (APP.player().key_down(Key::alt_2)) {
         color_++;
         color_ %= 16;
         ready_ = true;
     }
     bool cursor_move_ready = false;
 
-    update_entities(app, delta, app.birds());
+    update_entities(delta, APP.birds());
 
     if (cursor_move_tic_ > 0) {
         cursor_move_tic_ -= delta;
@@ -132,50 +132,50 @@ ScenePtr<Scene> Paint::update(App& app, Microseconds delta)
         }
     }
     if (cursor_move_ready) {
-        if (app.player().key_pressed(Key::right) and cursor_.x < (width_ - 1)) {
+        if (APP.player().key_pressed(Key::right) and cursor_.x < (width_ - 1)) {
             ++cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
             draw_rulers();
         }
-        if (app.player().key_pressed(Key::left) and cursor_.x > 0) {
+        if (APP.player().key_pressed(Key::left) and cursor_.x > 0) {
             --cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
             draw_rulers();
         }
-        if (app.player().key_pressed(Key::up) and cursor_.y > 0) {
+        if (APP.player().key_pressed(Key::up) and cursor_.y > 0) {
             --cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
             draw_rulers();
         }
-        if (app.player().key_pressed(Key::down) and cursor_.y < (height_ - 1)) {
+        if (APP.player().key_pressed(Key::down) and cursor_.y < (height_ - 1)) {
             ++cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
             draw_rulers();
         }
     } else {
-        if (app.player().key_down(Key::right) and cursor_.x < (width_ - 1)) {
+        if (APP.player().key_down(Key::right) and cursor_.x < (width_ - 1)) {
             ++cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
             draw_rulers();
         }
-        if (app.player().key_down(Key::left) and cursor_.x > 0) {
+        if (APP.player().key_down(Key::left) and cursor_.x > 0) {
             --cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
             draw_rulers();
         }
-        if (app.player().key_down(Key::up) and cursor_.y > 0) {
+        if (APP.player().key_down(Key::up) and cursor_.y > 0) {
             --cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
             draw_rulers();
         }
-        if (app.player().key_down(Key::down) and cursor_.y < (height_ - 1)) {
+        if (APP.player().key_down(Key::down) and cursor_.y < (height_ - 1)) {
             ++cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
@@ -183,47 +183,47 @@ ScenePtr<Scene> Paint::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         ready_ = true;
     }
 
-    if (app.player().key_down(Key::start)) {
+    if (APP.player().key_down(Key::start)) {
         ready_ = true;
         u8 temp[16][16];
         for (int x = 0; x < width(); ++x) {
             for (int y = 0; y < height(); ++y) {
-                temp[x][y] = get_pixel(app, x, y);
+                temp[x][y] = get_pixel(x, y);
             }
         }
         flood_fill(temp, color_, cursor_.x, cursor_.y);
         for (int x = 0; x < width(); ++x) {
             for (int y = 0; y < height(); ++y) {
-                set_pixel(app, x, y, temp[x][y]);
+                set_pixel(x, y, temp[x][y]);
             }
         }
-        show(app);
+        show();
     }
-    if (app.player().key_pressed(Key::action_1) and ready_) {
-        set_pixel(app, cursor_.x, cursor_.y, color_);
-        show(app);
+    if (APP.player().key_pressed(Key::action_1) and ready_) {
+        set_pixel(cursor_.x, cursor_.y, color_);
+        show();
     }
 
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     return null_scene();
 }
 
 
 
-void Paint::display(App& app)
+void Paint::display()
 {
-    app.player_island().display(app);
+    APP.player_island().display();
 
-    for (auto& effect : app.effects()) {
+    for (auto& effect : APP.effects()) {
         PLATFORM.screen().draw(effect->sprite());
     }
 
-    for (auto& bird : app.birds()) {
+    for (auto& bird : APP.birds()) {
         PLATFORM.screen().draw(bird->sprite());
     }
 

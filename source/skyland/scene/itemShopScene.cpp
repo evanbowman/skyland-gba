@@ -41,11 +41,11 @@ ItemShopScene::ItemShopScene()
 
 
 
-void ItemShopScene::enter(App& app, Scene& prev)
+void ItemShopScene::enter(Scene& prev)
 {
     persist_ui();
 
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     PLATFORM.speaker().play_sound("openbag", 3);
 
@@ -67,9 +67,9 @@ void ItemShopScene::enter(App& app, Scene& prev)
 
 
 
-void ItemShopScene::exit(App& app, Scene& next)
+void ItemShopScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
     PLATFORM.screen().schedule_fade(0);
     PLATFORM.fill_overlay(0);
 }
@@ -110,9 +110,9 @@ void ItemShopScene::describe_selection()
 
 
 
-ScenePtr<Scene> ItemShopScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ItemShopScene::update(Microseconds delta)
 {
-    if (auto scene = WorldScene::update(app, delta)) {
+    if (auto scene = WorldScene::update(delta)) {
         return scene;
     }
 
@@ -185,10 +185,10 @@ ScenePtr<Scene> ItemShopScene::update(App& app, Microseconds delta)
     }
 
     case State::ready:
-        if (player(app).key_down(Key::action_2)) {
+        if (player().key_down(Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
         }
-        if (player(app).key_down(Key::action_1)) {
+        if (player().key_down(Key::action_1)) {
 
             auto fn = lisp::get_var("on-shop-item-sel");
             if (fn->type() == lisp::Value::Type::function) {
@@ -199,9 +199,9 @@ ScenePtr<Scene> ItemShopScene::update(App& app, Microseconds delta)
                 lisp::safecall(fn, 2);
                 lisp::pop_op(); // funcall result
 
-                app.time_stream().clear();
+                APP.time_stream().clear();
                 time_stream::event::Initial e;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
                 return null_scene();
             }
         }
@@ -217,16 +217,16 @@ ScenePtr<Scene> ItemShopScene::update(App& app, Microseconds delta)
             PLATFORM.load_overlay_chunk(tile_mem[i], icon, 16);
             describe_selection();
         };
-        if (player(app).key_down(Key::down) and cursor_.y == 0) {
+        if (player().key_down(Key::down) and cursor_.y == 0) {
             if (item_slot(cursor_.x, cursor_.y + 1) < items_->size()) {
                 move_cursor(cursor_.x, cursor_.y + 1);
             }
-        } else if (player(app).key_down(Key::up) and cursor_.y == 1) {
+        } else if (player().key_down(Key::up) and cursor_.y == 1) {
             move_cursor(cursor_.x, cursor_.y - 1);
         }
-        if (player(app).key_down(Key::left) and cursor_.x == 1) {
+        if (player().key_down(Key::left) and cursor_.x == 1) {
             move_cursor(cursor_.x - 1, cursor_.y);
-        } else if (player(app).key_down(Key::right) and cursor_.x == 0) {
+        } else if (player().key_down(Key::right) and cursor_.x == 0) {
             if (item_slot(cursor_.x + 1, cursor_.y) < items_->size()) {
                 move_cursor(cursor_.x + 1, cursor_.y);
             }

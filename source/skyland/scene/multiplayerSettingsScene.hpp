@@ -37,34 +37,31 @@ namespace skyland
 class MultiplayerSettingsScene : public Scene, public network::Listener
 {
 public:
-    void enter(App& app, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App& app, Scene& next) override;
+    void exit(Scene& next) override;
 
 
     static Microseconds timeout_frequency();
     static Microseconds timeout_duration();
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App& app) override;
-
-
-    void
-    receive(App& app,
-            const network::packet::GameMatchParameterUpdate& packet) override;
+    void display() override;
 
 
     void
-    receive(App& app,
-            const network::packet::GameMatchSettingsCursor& packet) override;
+    receive(const network::packet::GameMatchParameterUpdate& packet) override;
 
 
-    void receive(App& app,
-                 const network::packet::GameMatchReady& packet) override;
+    void
+    receive(const network::packet::GameMatchSettingsCursor& packet) override;
+
+
+    void receive(const network::packet::GameMatchReady& packet) override;
 
 
 
@@ -75,8 +72,8 @@ private:
     void update_parameter(u8 line_num);
 
 
-    void setup_vs_game(App& app);
-    void setup_co_op_game(App& app);
+    void setup_vs_game();
+    void setup_co_op_game();
 
 
     std::optional<rng::LinearGenerator> co_op_rng_;

@@ -60,9 +60,9 @@ Transporter::Transporter(Island* parent, const RoomCoord& position)
 
 
 
-void Transporter::update(App& app, Microseconds delta)
+void Transporter::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (recharge_ > 0) {
 
@@ -75,16 +75,16 @@ void Transporter::update(App& app, Microseconds delta)
 
             update_description();
 
-            if (parent() == &app.player_island()) {
+            if (parent() == &APP.player_island()) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
 
             if (parent()->interior_visible()) {
@@ -96,9 +96,9 @@ void Transporter::update(App& app, Microseconds delta)
 
 
 
-void Transporter::rewind(App& app, Microseconds delta)
+void Transporter::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
 
     if (recharge_ <= 0) {
         // Fully recharged.
@@ -109,23 +109,23 @@ void Transporter::rewind(App& app, Microseconds delta)
 
 
 
-void Transporter::___rewind___finished_reload(App& app)
+void Transporter::___rewind___finished_reload()
 {
     recharge_ = 1;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(app);
+        parent()->repaint();
     }
 }
 
 
 
-void Transporter::___rewind___ability_used(App& app)
+void Transporter::___rewind___ability_used()
 {
     recharge_ = 0;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(app);
+        parent()->repaint();
     }
 }
 
@@ -155,7 +155,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta;
 
@@ -180,7 +180,7 @@ public:
         sprite_.set_position(pos);
     }
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -192,7 +192,7 @@ private:
 
 
 
-void Transporter::recover_character(App& app, const RoomCoord& position)
+void Transporter::recover_character(const RoomCoord& position)
 {
     begin_recharge();
 
@@ -200,7 +200,7 @@ void Transporter::recover_character(App& app, const RoomCoord& position)
         schedule_repaint();
     }
 
-    auto island = other_island(app);
+    auto island = other_island();
     if (island == nullptr) {
         return;
     }
@@ -242,7 +242,7 @@ void Transporter::recover_character(App& app, const RoomCoord& position)
                 packet.dst_y_ = dst.y;
                 packet.transporter_x_ = dst.x;
                 packet.transporter_y_ = dst.x;
-                packet.transporter_near_ = &parent()->owner() == &app.player();
+                packet.transporter_near_ = &parent()->owner() == &APP.player();
                 network::transmit(packet);
 
                 // Maybe you're thinking: why is he recording two separate
@@ -263,8 +263,8 @@ void Transporter::recover_character(App& app, const RoomCoord& position)
                 e.id_.set(unlinked->id());
                 e.previous_x_ = unlinked->grid_position().x;
                 e.previous_y_ = unlinked->grid_position().y;
-                e.chr_near_ = unlinked->parent() == &app.player_island();
-                app.time_stream().push(app.level_timer(), e);
+                e.chr_near_ = unlinked->parent() == &APP.player_island();
+                APP.time_stream().push(APP.level_timer(), e);
 
                 // Again, the character is warping to a new location, let's
                 // update its position.
@@ -273,11 +273,11 @@ void Transporter::recover_character(App& app, const RoomCoord& position)
                 unlinked->set_parent(parent());
                 unlinked->transported();
 
-                if (parent() == app.opponent_island() and
+                if (parent() == APP.opponent_island() and
                     not parent()->interior_visible()) {
                     // Don't waste cpu on an effect that can't be seen.
                 } else if (auto e = alloc_entity<CharacterOutline>(*unlinked)) {
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
 
                 edit_characters().push(std::move(unlinked));
@@ -292,8 +292,7 @@ void Transporter::recover_character(App& app, const RoomCoord& position)
 
 
 
-void Transporter::transport_occupant(App& app,
-                                     std::optional<RoomCoord> destination)
+void Transporter::transport_occupant(std::optional<RoomCoord> destination)
 {
     begin_recharge();
 
@@ -310,7 +309,7 @@ void Transporter::transport_occupant(App& app,
         return;
     }
 
-    auto island = other_island(app);
+    auto island = other_island();
     if (island == nullptr) {
         return;
     }
@@ -319,7 +318,7 @@ void Transporter::transport_occupant(App& app,
 
     if (not destination) {
         bool matrix[16][16];
-        island->plot_walkable_zones(app, matrix, chr->get());
+        island->plot_walkable_zones(matrix, chr->get());
 
         Buffer<RoomCoord, 32> slots;
 
@@ -362,15 +361,15 @@ void Transporter::transport_occupant(App& app,
         packet.dst_y_ = dest->y;
         packet.transporter_x_ = (*chr)->grid_position().x;
         packet.transporter_y_ = (*chr)->grid_position().y;
-        packet.transporter_near_ = &parent()->owner() == &app.player();
+        packet.transporter_near_ = &parent()->owner() == &APP.player();
         network::transmit(packet);
 
         time_stream::event::CharacterTransported e;
         e.previous_x_ = (*chr)->grid_position().x;
         e.previous_y_ = (*chr)->grid_position().y;
         e.id_.set((*chr)->id());
-        e.source_near_ = &parent()->owner() == &app.player();
-        app.time_stream().push(app.level_timer(), e);
+        e.source_near_ = &parent()->owner() == &APP.player();
+        APP.time_stream().push(APP.level_timer(), e);
 
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
@@ -386,7 +385,7 @@ void Transporter::transport_occupant(App& app,
         (*chr)->drop_movement_path();
 
         if (auto ent = alloc_entity<CharacterOutline>(**chr)) {
-            app.effects().push(std::move(ent));
+            APP.effects().push(std::move(ent));
         }
 
         room->edit_characters().push(std::move(*chr));
@@ -404,9 +403,9 @@ void Transporter::transport_occupant(App& app,
 
 
 
-ScenePtr<Scene> Transporter::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Transporter::select(const RoomCoord& cursor)
 {
-    if (auto new_scene = Room::select(app, cursor)) {
+    if (auto new_scene = Room::select(cursor)) {
         return new_scene;
     }
 
@@ -418,12 +417,12 @@ ScenePtr<Scene> Transporter::select(App& app, const RoomCoord& cursor)
     }
 
 
-    if (not other_island(app)) {
+    if (not other_island()) {
         return null_scene();
     }
 
 
-    if (auto scn = reject_if_friendly(app)) {
+    if (auto scn = reject_if_friendly()) {
         return scn;
     }
 
@@ -436,15 +435,15 @@ ScenePtr<Scene> Transporter::select(App& app, const RoomCoord& cursor)
             return null_scene();
         }
 
-        if (parent()->has_radar() and parent() == &app.player_island()) {
+        if (parent()->has_radar() and parent() == &APP.player_island()) {
             return scene_pool::alloc<TransportCharacterScene>(position());
         } else {
-            transport_occupant(app);
+            transport_occupant();
         }
 
         return null_scene();
     } else {
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             return scene_pool::alloc<RecoverCharacterScene>(position());
         } else {
             PLATFORM.speaker().play_sound("beep_error", 3);
@@ -484,8 +483,7 @@ bool Transporter::ready() const
 
 // TODO: use this function above. No need for transport code to be
 // duplicated across the codebase.
-void transport_character_impl(App& app,
-                              Island* src_island,
+void transport_character_impl(Island* src_island,
                               Island* dst_island,
                               CharacterId chr_id,
                               const RoomCoord& dst)
@@ -510,7 +508,7 @@ void transport_character_impl(App& app,
                 room->edit_characters().erase(it);
 
                 unlinked->set_grid_position(dst);
-                unlinked->set_idle(app);
+                unlinked->set_idle();
                 unlinked->drop_movement_path();
                 unlinked->set_parent(dst_island);
                 unlinked->transported();
@@ -531,12 +529,12 @@ void transport_character_impl(App& app,
 
 
 
-void Transporter::finalize(App& app)
+void Transporter::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
-        ExploSpawner::create(app, center());
+        ExploSpawner::create(center());
     }
 }
 

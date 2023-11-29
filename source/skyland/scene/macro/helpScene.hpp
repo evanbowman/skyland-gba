@@ -37,11 +37,11 @@ namespace skyland::macro
 class HelpScene : public Scene
 {
 public:
-    void enter(App&, Scene&) override;
-    void exit(App&, Scene&) override;
+    void enter(Scene&) override;
+    void exit(Scene&) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void show_page(int pg);

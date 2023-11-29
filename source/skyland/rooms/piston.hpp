@@ -42,7 +42,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -92,7 +92,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
     static Icon icon()
@@ -107,7 +107,7 @@ public:
     }
 
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
 
     enum Direction { right, left, up, down };
@@ -116,7 +116,7 @@ public:
     virtual bool is_sticky() const;
 
 
-    ScenePtr<Scene> setup(App&) override;
+    ScenePtr<Scene> setup() override;
 
 
     void set_direction(Direction dir)

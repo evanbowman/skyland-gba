@@ -53,9 +53,9 @@ public:
 
 
 
-ScenePtr<Scene> NextTurnScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> NextTurnScene::update(Microseconds delta)
 {
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
 
     if (raster::globalstate::is_night) {
         return scene_pool::alloc<SelectorScene>();

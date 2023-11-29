@@ -57,15 +57,15 @@ static const SystemStringBuffer gamespeed_text(GameSpeed speed)
 
 
 
-ScenePtr<Scene> SetGamespeedScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SetGamespeedScene::update(Microseconds delta)
 {
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
-    if (app.player().key_down(Key::right)) {
+    if (APP.player().key_down(Key::right)) {
         selection_++;
         selection_ %= (int)GameSpeed::count;
         repaint_selector();
-    } else if (app.player().key_down(Key::left)) {
+    } else if (APP.player().key_down(Key::left)) {
         selection_--;
         if (selection_ < 0) {
             selection_ = (int)GameSpeed::count - 1;
@@ -73,18 +73,18 @@ ScenePtr<Scene> SetGamespeedScene::update(App& app, Microseconds delta)
         repaint_selector();
     }
 
-    if ((button_mode_ == 0 and app.player().key_up(Key::alt_1)) or
-        (button_mode_ == 1 and app.player().key_down(Key::action_1))) {
+    if ((button_mode_ == 0 and APP.player().key_up(Key::alt_1)) or
+        (button_mode_ == 1 and APP.player().key_down(Key::action_1))) {
         if ((GameSpeed)selection_ == GameSpeed::rewind) {
-            if (app.time_stream().pushes_enabled()) {
-                set_gamespeed(app, GameSpeed::stopped);
+            if (APP.time_stream().pushes_enabled()) {
+                set_gamespeed(GameSpeed::stopped);
 
                 return scene_pool::alloc<SwapOverlayTextureScene>(
                     "overlay",
                     scene_pool::make_deferred_scene<RewindScene>(
                         is_far_camera()));
             } else {
-                set_gamespeed(app, GameSpeed::stopped);
+                set_gamespeed(GameSpeed::stopped);
                 selection_ = (int)GameSpeed::stopped;
                 repaint_selector();
 
@@ -99,14 +99,14 @@ ScenePtr<Scene> SetGamespeedScene::update(App& app, Microseconds delta)
                     });
             }
         } else {
-            set_gamespeed(app, (GameSpeed)selection_);
+            set_gamespeed((GameSpeed)selection_);
 
             return scene_pool::alloc<SwapOverlayTextureScene>(
                 "overlay", scene_pool::make_deferred_scene<ReadyScene>());
         }
     }
 
-    if (button_mode_ == 1 and app.player().key_down(Key::action_2)) {
+    if (button_mode_ == 1 and APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<SwapOverlayTextureScene>(
             "overlay", scene_pool::make_deferred_scene<ReadyScene>());
     }
@@ -120,9 +120,9 @@ u16 gamespeed_icon(GameSpeed speed);
 
 
 
-void SetGamespeedScene::enter(App& app, Scene& scene)
+void SetGamespeedScene::enter(Scene& scene)
 {
-    selection_ = (int)app.game_speed();
+    selection_ = (int)APP.game_speed();
 
     PLATFORM.fill_overlay(0);
     PLATFORM.load_overlay_texture("overlay_gamespeed");
@@ -204,7 +204,7 @@ void SetGamespeedScene::repaint_selector()
 
 
 
-void SetGamespeedScene::exit(App& app, Scene&)
+void SetGamespeedScene::exit(Scene&)
 {
     speed_text_.reset();
     PLATFORM.fill_overlay(0);

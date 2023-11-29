@@ -162,7 +162,7 @@ MetaclassIndex Room::metaclass_index() const
 }
 
 
-Power Room::power_usage(App& app) const
+Power Room::power_usage() const
 {
     return (*metaclass())->consumes_power();
 }
@@ -174,7 +174,7 @@ bool Room::is_decoration() const
 }
 
 
-void Room::display(Platform::Screen& screen, App& app)
+void Room::display(Platform::Screen& screen)
 {
     for (auto& c : characters()) {
         const auto& pos = c->sprite().get_position();
@@ -203,10 +203,10 @@ void Room::display(Platform::Screen& screen, App& app)
 
 
 void Room::display_on_hover(Platform::Screen& screen,
-                            App& app,
+
                             const RoomCoord& cursor)
 {
-    if (not parent_->interior_visible() and parent_ == &player_island(app)) {
+    if (not parent_->interior_visible() and parent_ == &player_island()) {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
             auto spr = c->sprite();
@@ -251,13 +251,13 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         if (delta == 0) {
             return;
@@ -281,7 +281,7 @@ public:
     }
 
 
-    static void create(App& app, int value, Vec2<Fixnum> pos)
+    static void create(int value, Vec2<Fixnum> pos)
     {
         auto numstr = stringify(value);
 
@@ -290,8 +290,8 @@ public:
 
         for (char c : numstr) {
             int value = c - '0';
-            if (auto e = app.alloc_entity<UIDamageNumber>(pos, value)) {
-                app.effects().push(std::move(e));
+            if (auto e = APP.alloc_entity<UIDamageNumber>(pos, value)) {
+                APP.effects().push(std::move(e));
             }
             pos.x += 6.0_fixed;
         }
@@ -304,7 +304,7 @@ private:
 
 
 
-void Room::update(App& app, Microseconds delta)
+void Room::update(Microseconds delta)
 {
     dispatch_queued_ = false;
 
@@ -363,7 +363,7 @@ void Room::update(App& app, Microseconds delta)
 
     if (accumulated_damage_) {
         if (--show_damage_delay_frames_ == 0) {
-            UIDamageNumber::create(app, accumulated_damage_, center());
+            UIDamageNumber::create(accumulated_damage_, center());
             accumulated_damage_ = 0;
         }
         ready();
@@ -372,7 +372,7 @@ void Room::update(App& app, Microseconds delta)
 
 
 
-void Room::rewind(App& app, Microseconds delta)
+void Room::rewind(Microseconds delta)
 {
     if (injured_timer_) {
         if (injured_timer_ < injured_anim_time) {
@@ -435,15 +435,15 @@ void Room::rewind(App& app, Microseconds delta)
 
 
 
-Island* Room::other_island(App& app)
+Island* Room::other_island()
 {
-    if (&app.player_island() == parent_) {
-        if (app.opponent_island()) {
-            return &*app.opponent_island();
+    if (&APP.player_island() == parent_) {
+        if (APP.opponent_island()) {
+            return &*APP.opponent_island();
         }
         return nullptr;
     } else {
-        return &app.player_island();
+        return &APP.player_island();
     }
 }
 
@@ -490,12 +490,12 @@ bool Room::description_visible()
 
 
 
-ScenePtr<Scene> Room::reject_if_friendly(App& app)
+ScenePtr<Scene> Room::reject_if_friendly()
 {
-    if (app.opponent_island() and
+    if (APP.opponent_island() and
         // NOTE: cast should be safe, as a derived instance of Opponent should
         // always be bound to the opponent island.
-        (static_cast<Opponent&>(app.opponent_island()->owner()))
+        (static_cast<Opponent&>(APP.opponent_island()->owner()))
             .is_friendly()) {
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 3);
@@ -508,11 +508,11 @@ ScenePtr<Scene> Room::reject_if_friendly(App& app)
 
 
 
-ScenePtr<Scene> Room::do_select(App& app)
+ScenePtr<Scene> Room::do_select()
 {
     if (length(characters_)) {
 
-        const bool near = parent() == &app.player_island();
+        const bool near = parent() == &APP.player_island();
 
         RoomCoord cursor_loc;
 
@@ -522,7 +522,7 @@ ScenePtr<Scene> Room::do_select(App& app)
             cursor_loc = globals().far_cursor_loc_;
         }
 
-        const bool is_co_op = app.game_mode() == App::GameMode::co_op;
+        const bool is_co_op = APP.game_mode() == App::GameMode::co_op;
 
         auto try_move = [&](auto cond) -> ScenePtr<Scene> {
             for (auto& character : characters_) {
@@ -567,13 +567,13 @@ ScenePtr<Scene> Room::do_select(App& app)
 
 
         if (auto scene = try_move(
-                [&](auto& chr) { return chr->owner() == &app.player(); })) {
+                [&](auto& chr) { return chr->owner() == &APP.player(); })) {
             return scene;
         }
 
-        if (app.game_mode() == App::GameMode::sandbox) {
+        if (APP.game_mode() == App::GameMode::sandbox) {
             if (auto scene = try_move([&](auto& chr) {
-                    return chr->owner() == &app.opponent();
+                    return chr->owner() == &APP.opponent();
                 })) {
                 return scene;
             }
@@ -584,7 +584,7 @@ ScenePtr<Scene> Room::do_select(App& app)
 
 
 
-ScenePtr<Scene> Room::setup(App&)
+ScenePtr<Scene> Room::setup()
 {
     // ...
     return null_scene();
@@ -592,11 +592,11 @@ ScenePtr<Scene> Room::setup(App&)
 
 
 
-ScenePtr<Scene> Room::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Room::select(const RoomCoord& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {
-        if (chr->grid_position() == cursor and chr->owner() == &app.player()) {
+        if (chr->grid_position() == cursor and chr->owner() == &APP.player()) {
 
             chr_at_cursor = true;
         }
@@ -604,9 +604,9 @@ ScenePtr<Scene> Room::select(App& app, const RoomCoord& cursor)
 
     if (parent_->interior_visible() or chr_at_cursor) {
         if (not parent_->interior_visible()) {
-            show_island_interior(app, parent_);
+            show_island_interior(parent_);
         }
-        return do_select(app);
+        return do_select();
     }
 
     return null_scene();
@@ -640,8 +640,7 @@ void Room::deserialize(lisp::Value* list)
 
 
 
-void Room::plot_walkable_zones(App& app,
-                               bool matrix[16][16],
+void Room::plot_walkable_zones(bool matrix[16][16],
                                BasicCharacter* for_character)
 {
     // By default, treat every cell in the lowest row of a room as walkable for
@@ -662,14 +661,14 @@ void Room::plot_walkable_zones(App& app,
 
 
 
-void Room::apply_damage(App& app, Health damage, Island* src)
+void Room::apply_damage(Health damage, Island* src)
 {
-    apply_damage(app, damage);
+    apply_damage(damage);
 }
 
 
 
-void Room::apply_damage(App& app, Health damage)
+void Room::apply_damage(Health damage)
 {
     update_description();
 
@@ -679,32 +678,32 @@ void Room::apply_damage(App& app, Health damage)
         // one of the non-small RoomDamaged messages to populate a room's actual
         // health.
         if (damage <= 255 and damage < health()) {
-            if (parent_ == &app.player_island()) {
+            if (parent_ == &APP.player_island()) {
                 time_stream::event::PlayerRoomDamagedSmall e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.diff_ = damage;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomDamagedSmall e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.diff_ = damage;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
         } else {
-            if (parent_ == &app.player_island()) {
+            if (parent_ == &APP.player_island()) {
                 time_stream::event::PlayerRoomDamaged e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.previous_health_.set(health_);
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomDamaged e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.previous_health_.set(health_);
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
         }
     }
@@ -720,7 +719,7 @@ void Room::apply_damage(App& app, Health damage)
         health_ -= damage;
     }
     set_injured();
-    parent_->owner().on_room_damaged(app, *this);
+    parent_->owner().on_room_damaged(*this);
 
     if ((int)accumulated_damage_ + damage < 256) {
         accumulated_damage_ += damage;
@@ -734,7 +733,7 @@ void Room::apply_damage(App& app, Health damage)
 
 
 
-void Room::__unsafe__transmute(App& app, MetaclassIndex m)
+void Room::__unsafe__transmute(MetaclassIndex m)
 {
     Island* island = parent();
     const auto pos = position();
@@ -746,21 +745,21 @@ void Room::__unsafe__transmute(App& app, MetaclassIndex m)
     EntityList<BasicCharacter> chr_list;
     characters_.move_contents(chr_list);
 
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         time_stream::event::PlayerRoomTransmuted e;
         e.prev_type_ = m_prev;
         e.x_ = pos.x;
         e.y_ = pos.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomTransmuted e;
         e.prev_type_ = m_prev;
         e.x_ = pos.x;
         e.y_ = pos.y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
-    this->finalize(app);
+    this->finalize();
     this->~Room();
 
     auto& mt = *load_metaclass(m);
@@ -778,11 +777,11 @@ void Room::__unsafe__transmute(App& app, MetaclassIndex m)
 
         // NOTE: because rewinding a room-mutation calls move_room, which would
         // result in the room being moved twice.
-        if (app.game_speed() not_eq GameSpeed::rewind) {
+        if (APP.game_speed() not_eq GameSpeed::rewind) {
 
             const auto new_pos = RoomCoord{pos.x, u8(pos.y - size_diff_y)};
 
-            parent()->move_room(app, pos, new_pos);
+            parent()->move_room(pos, new_pos);
 
             for (auto& chr : characters()) {
                 auto pos = chr->grid_position();
@@ -791,10 +790,10 @@ void Room::__unsafe__transmute(App& app, MetaclassIndex m)
                 e.id_.set(chr->id());
                 e.previous_x_ = pos.x;
                 e.previous_y_ = pos.y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
 
                 chr->drop_movement_path();
-                chr->set_idle(app);
+                chr->set_idle();
 
                 chr->set_grid_position({pos.x, u8(pos.y + size_diff_y)});
             }
@@ -820,21 +819,21 @@ bool Room::non_owner_selectable() const
 
 
 
-void Room::burn_damage(App& app, Health amount)
+void Room::burn_damage(Health amount)
 {
     // const auto prev_health = health();
 
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {
-        apply_damage(app, amount * 4);
+        apply_damage(amount * 4);
     } else if (not(props & RoomProperties::habitable)) {
-        apply_damage(app, amount * 2);
+        apply_damage(amount * 2);
     } else {
-        apply_damage(app, amount);
+        apply_damage(amount);
         // Hmm: revist someday, I'm not sure about this yet
         // if (prev_health > 0 and health_ == 0) {
         //     if (not cast<PlunderedRoom>()) {
-        //         convert_to_plundered(app);
+        //         convert_to_plundered();
         //     }
         // }
     }
@@ -842,22 +841,22 @@ void Room::burn_damage(App& app, Health amount)
 
 
 
-void Room::heal(App& app, Health amount)
+void Room::heal(Health amount)
 {
     update_description();
 
-    if (parent_ == &app.player_island()) {
+    if (parent_ == &APP.player_island()) {
         time_stream::event::PlayerRoomRepaired e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomRepaired e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     const Health new_health = health_ + amount;
@@ -866,21 +865,21 @@ void Room::heal(App& app, Health amount)
 
 
 
-void Room::convert_to_plundered(App& app)
+void Room::convert_to_plundered()
 {
-    if (parent() not_eq &app.player_island()) {
+    if (parent() not_eq &APP.player_island()) {
         time_stream::event::OpponentRoomPlundered e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.type_ = metaclass_index_;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
 
     } else {
         time_stream::event::PlayerRoomPlundered e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.type_ = metaclass_index_;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     // Ok, so when a character plunders a room, we don't actually want to
@@ -928,7 +927,7 @@ void Room::convert_to_plundered(App& app)
                 u8(((u8)x_position_) + x),
                 u8(((u8)y_position_) + y),
             };
-            (*plunder_metac)->create(app, parent_, pos);
+            (*plunder_metac)->create(parent_, pos);
         }
     }
 
@@ -951,21 +950,21 @@ bool Room::target_pinned() const
 
 
 
-void Room::plunder(App& app, Health damage)
+void Room::plunder(Health damage)
 {
-    apply_damage(app, damage);
+    apply_damage(damage);
 
     if (health_ == 0) {
 
-        if (parent() not_eq &app.player_island()) {
+        if (parent() not_eq &APP.player_island()) {
             // You get some coins for plundering a room
             PLATFORM.speaker().play_sound("coin", 2);
-            app.set_coins(app.coins() + (*metaclass())->cost() * 0.3f);
+            APP.set_coins(APP.coins() + (*metaclass())->cost() * 0.3f);
         }
 
-        app.player().on_room_plundered(app, *this);
+        APP.player().on_room_plundered(*this);
 
-        convert_to_plundered(app);
+        convert_to_plundered();
     }
 }
 
@@ -982,7 +981,7 @@ Float Room::get_atp() const
 
 
 
-void Room::init_ai_awareness(App& app)
+void Room::init_ai_awareness()
 {
     bool concealed[4][4];
     memset(concealed, 0, sizeof concealed);
@@ -1012,7 +1011,7 @@ void Room::init_ai_awareness(App& app)
     }
 
     if (fully_concealed) {
-        set_ai_aware(app, false);
+        set_ai_aware(false);
         set_visually_cloaked(true);
     }
 
@@ -1021,7 +1020,7 @@ void Room::init_ai_awareness(App& app)
 
 
 
-void Room::set_ai_aware(App& app, bool ai_aware)
+void Room::set_ai_aware(bool ai_aware)
 {
     if (str_eq(name(), "cloak")) {
         // A cloak block cannot be cloaked.
@@ -1032,18 +1031,18 @@ void Room::set_ai_aware(App& app, bool ai_aware)
     update_description();
 
     if (ai_aware_ not_eq ai_aware) {
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             time_stream::event::PlayerRoomAiAwareness e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
             e.prev_aware_ = ai_aware_;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         } else {
             time_stream::event::OpponentRoomAiAwareness e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
             e.prev_aware_ = ai_aware_;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     }
 
@@ -1072,7 +1071,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -1104,7 +1103,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -1131,13 +1130,13 @@ private:
     u8 gfx_;
 
 public:
-    OffscreenWarning(RoomCoord c, Island* island, u8 gfx, App& app)
+    OffscreenWarning(RoomCoord c, Island* island, u8 gfx)
         : Entity({}), coord_(c), island_(island), gfx_(gfx)
     {
         sprite_.set_size(Sprite::Size::w16_h16);
         sprite_.set_tidx_16x16(gfx, 0);
 
-        for (auto& ent : app.effects()) {
+        for (auto& ent : APP.effects()) {
             if (auto other = ent->cast_offscreen_warning()) {
                 if (other->coord_.y == coord_.y) {
                     kill();
@@ -1153,14 +1152,14 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
-        if (not app.opponent_island()) {
+        if (not APP.opponent_island()) {
             kill();
             return;
         }
-        if (app.opponent_island()->is_destroyed() or
-            app.player_island().is_destroyed()) {
+        if (APP.opponent_island()->is_destroyed() or
+            APP.player_island().is_destroyed()) {
             kill();
         }
 
@@ -1200,7 +1199,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -1208,7 +1207,7 @@ public:
 
 
 
-void Room::finalize(App& app)
+void Room::finalize()
 {
     finalized_ = true;
 
@@ -1216,9 +1215,9 @@ void Room::finalize(App& app)
         for (auto& c : characters_) {
 
             auto position = c->sprite().get_position();
-            app.on_timeout(milliseconds(500), [pos = position](App& app) {
+            APP.on_timeout(milliseconds(500), [pos = position]() {
                 if (auto e = alloc_entity<Ghost>(pos)) {
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
             });
         }
@@ -1238,12 +1237,12 @@ void Room::finalize(App& app)
 
         if (is_offscreen) {
             u8 gfx = 56;
-            if (parent() == app.opponent_island()) {
+            if (parent() == APP.opponent_island()) {
                 gfx = 57;
             }
-            if (auto ent = alloc_entity<OffscreenWarning>(
-                    position(), parent_, gfx, app)) {
-                app.effects().push(std::move(ent));
+            if (auto ent =
+                    alloc_entity<OffscreenWarning>(position(), parent_, gfx)) {
+                APP.effects().push(std::move(ent));
             }
         } else if (t) {
             const int count = debris_count();
@@ -1262,7 +1261,7 @@ void Room::finalize(App& app)
                                   Fixnum::from_integer(
                                       rng::choice<3>(rng::utility_state)) *
                                       0.003_fixed;
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
             }
         }
@@ -1303,7 +1302,7 @@ void Room::ready()
 
 
 
-bool Room::attach_drone(App&, SharedEntityRef<Drone>)
+bool Room::attach_drone(SharedEntityRef<Drone>)
 {
     warning(format("Attach drone to incompatible room %", name()).c_str());
 
@@ -1312,7 +1311,7 @@ bool Room::attach_drone(App&, SharedEntityRef<Drone>)
 
 
 
-void Room::detach_drone(App&, bool quiet)
+void Room::detach_drone(bool quiet)
 {
     // Unimplemented.
 }
@@ -1361,7 +1360,7 @@ Room::~Room()
 
 
 
-void Room::render_scaffolding(App& app, TileId buffer[16][16])
+void Room::render_scaffolding(TileId buffer[16][16])
 {
     auto p = position();
     auto s = size();

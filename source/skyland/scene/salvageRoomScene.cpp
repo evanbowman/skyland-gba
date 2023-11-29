@@ -41,14 +41,14 @@ Coins get_room_cost(Island* island, const RoomMeta& meta);
 
 
 
-static Coins salvage_value(App& app, Room& room)
+static Coins salvage_value(Room& room)
 {
     if (str_eq(room.name(), "gold")) {
         return (*room.metaclass())->cost();
     }
 
     Coins sv = ((*room.metaclass())->cost() *
-                (not app.opponent_island() ? 1.f : salvage_factor)) *
+                (not APP.opponent_island() ? 1.f : salvage_factor)) *
                (Float(room.health()) / (*room.metaclass())->full_health());
 
     return std::min(sv, get_room_cost(room.parent(), *room.metaclass()));
@@ -56,12 +56,12 @@ static Coins salvage_value(App& app, Room& room)
 
 
 
-Island* SalvageRoomScene::island(App& app)
+Island* SalvageRoomScene::island()
 {
     if (near_) {
-        return &app.player_island();
-    } else if (app.opponent_island()) {
-        return app.opponent_island();
+        return &APP.player_island();
+    } else if (APP.opponent_island()) {
+        return APP.opponent_island();
     } else {
         return nullptr;
     }
@@ -69,11 +69,11 @@ Island* SalvageRoomScene::island(App& app)
 
 
 
-void SalvageRoomScene::enter(App& app, Scene& prev)
+void SalvageRoomScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
-    if (not island(app)) {
+    if (not island()) {
         return;
     }
 
@@ -87,15 +87,15 @@ void SalvageRoomScene::enter(App& app, Scene& prev)
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
-    if (auto room = island(app)->get_room(cursor_loc)) {
+    if (auto room = island()->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
             if ((*mt)->category() == Room::Category::power and
-                island(app)->core_count() == 1) {
+                island()->core_count() == 1) {
                 // That would be suicide! You can't salvage your island's
                 // only power core.
                 exit_countdown_ = 1;
             }
-            text += stringify(salvage_value(app, *room));
+            text += stringify(salvage_value(*room));
         } else {
             text += "0";
         }
@@ -142,9 +142,9 @@ void SalvageRoomScene::enter(App& app, Scene& prev)
 
 
 
-void SalvageRoomScene::exit(App& app, Scene& next)
+void SalvageRoomScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
     text_.reset();
     yes_text_.reset();
@@ -161,8 +161,8 @@ void SalvageRoomScene::exit(App& app, Scene& next)
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
-    if (app.game_mode() == App::GameMode::co_op) {
-        if (auto room = island(app)->get_room(cursor_loc)) {
+    if (APP.game_mode() == App::GameMode::co_op) {
+        if (auto room = island()->get_room(cursor_loc)) {
             room->co_op_release_lock();
         }
     }
@@ -170,9 +170,9 @@ void SalvageRoomScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> SalvageRoomScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
@@ -192,7 +192,7 @@ ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
 
-    if (auto room = island(app)->get_room(cursor_loc)) {
+    if (auto room = island()->get_room(cursor_loc)) {
         if (length(room->characters()) > 0) {
             auto future_scene = [exit_scene]() { return exit_scene(); };
             auto msg = SYSTR(salvage_error_populated);
@@ -210,7 +210,7 @@ ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
 
 
 
-    if (island(app) == nullptr) {
+    if (island() == nullptr) {
         return exit_scene();
     }
 
@@ -222,18 +222,18 @@ ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
         }
     } else {
 
-        if (app.player().key_down(Key::action_1)) {
-            if (auto room = island(app)->get_room(cursor_loc)) {
+        if (APP.player().key_down(Key::action_1)) {
+            if (auto room = island()->get_room(cursor_loc)) {
 
                 // You cannot salvage an occupied room, doing so would destroy
                 // all of the characters inside.
                 if (length(room->characters()) == 0) {
 
                     PLATFORM.speaker().play_sound("coin", 2);
-                    app.set_coins(app.coins() + salvage_value(app, *room));
+                    APP.set_coins(APP.coins() + salvage_value(*room));
 
                     u16 mt_index = 0;
-                    if (auto room = island(app)->get_room(cursor_loc)) {
+                    if (auto room = island()->get_room(cursor_loc)) {
                         mt_index =
                             metaclass_index((*room->metaclass())->name());
 
@@ -248,23 +248,23 @@ ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
                             e.health_.set(room->health());
                         };
 
-                        island(app)->destroy_room(app, cursor_loc);
+                        island()->destroy_room(cursor_loc);
 
-                        if (island(app) == &app.player_island()) {
+                        if (island() == &APP.player_island()) {
                             if (room->group() not_eq Room::Group::none) {
                                 time_stream::event::WeaponSetGroup e;
                                 e.room_x_ = cursor_loc.x;
                                 e.room_y_ = cursor_loc.y;
                                 e.prev_group_ = (u8)room->group();
-                                app.time_stream().push(app.level_timer(), e);
+                                APP.time_stream().push(APP.level_timer(), e);
                             }
                             time_stream::event::PlayerRoomSalvaged e;
                             setup(e);
-                            app.time_stream().push(app.level_timer(), e);
+                            APP.time_stream().push(APP.level_timer(), e);
                         } else {
                             time_stream::event::OpponentRoomSalvaged e;
                             setup(e);
-                            app.time_stream().push(app.level_timer(), e);
+                            APP.time_stream().push(APP.level_timer(), e);
                         }
                     }
 
@@ -285,7 +285,7 @@ ScenePtr<Scene> SalvageRoomScene::update(App& app, Microseconds delta)
 
 
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return exit_scene();
     }
 

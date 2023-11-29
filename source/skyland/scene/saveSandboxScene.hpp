@@ -43,13 +43,13 @@ namespace skyland
 class SaveSandboxScene : public Scene
 {
 public:
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.fill_overlay(0);
         text_.clear();
     }
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         const auto st = calc_screen_tiles();
 
@@ -82,7 +82,7 @@ public:
 
 
 
-    void display(App& app) override
+    void display() override
     {
         Sprite sprite;
         sprite.set_tidx_16x16(28, 1);
@@ -121,23 +121,23 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
-        if (player(app).key_down(Key::action_1)) {
-            return on_selected(app);
+        if (player().key_down(Key::action_1)) {
+            return on_selected();
         }
 
-        if (player(app).key_down(Key::action_2)) {
+        if (player().key_down(Key::action_2)) {
             return scene_pool::alloc<StartMenuScene>(1);
         }
 
-        if (player(app).key_down(Key::down)) {
+        if (player().key_down(Key::down)) {
             if (cursor_ < 2) {
                 ++cursor_;
             }
         }
 
-        if (player(app).key_down(Key::up)) {
+        if (player().key_down(Key::up)) {
             if (cursor_ > 0) {
                 --cursor_;
             }
@@ -170,10 +170,10 @@ public:
 
 
 
-    virtual ScenePtr<Scene> on_selected(App& app)
+    virtual ScenePtr<Scene> on_selected()
     {
         VectorPrinter p;
-        auto val = app.invoke_script("/scripts/sandbox/save.lisp");
+        auto val = APP.invoke_script("/scripts/sandbox/save.lisp");
         lisp::format(val, p);
 
         p.data_.push_back('\0');
@@ -189,17 +189,17 @@ public:
             p.data_,
             {.use_compression_ = compress_output});
 
-        synth_notes_store(app.player_island(),
+        synth_notes_store(APP.player_island(),
                           format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_store(app.player_island(),
+        speaker_data_store(APP.player_island(),
                            format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_store(*app.opponent_island(),
+        synth_notes_store(*APP.opponent_island(),
                           format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_store(*app.opponent_island(),
+        speaker_data_store(*APP.opponent_island(),
                            format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
@@ -224,7 +224,7 @@ void set_island_positions(Island& left_island, Island& right_island);
 class LoadSandboxScene : public SaveSandboxScene
 {
 public:
-    ScenePtr<Scene> on_selected(App& app) override
+    ScenePtr<Scene> on_selected() override
     {
         Vector<char> data;
 
@@ -241,7 +241,7 @@ public:
 
         auto arg = lisp::get_op(0); // result of eval()
 
-        auto fn = app.invoke_script("/scripts/sandbox/restore.lisp");
+        auto fn = APP.invoke_script("/scripts/sandbox/restore.lisp");
         if (fn->type() == lisp::Value::Type::function) {
             lisp::push_op(arg); // pass save data buffer on stack
             safecall(fn, 1);    // one argument (the save data)
@@ -254,26 +254,26 @@ public:
         lisp::pop_op(); // result of read() (0)
 
 
-        synth_notes_load(app.player_island(),
+        synth_notes_load(APP.player_island(),
                          format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_load(app.player_island(),
+        speaker_data_load(APP.player_island(),
                           format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_load(*app.opponent_island(),
+        synth_notes_load(*APP.opponent_island(),
                          format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_load(*app.opponent_island(),
+        speaker_data_load(*APP.opponent_island(),
                           format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
         PLATFORM.fill_overlay(0);
 
-        set_island_positions(app.player_island(), *app.opponent_island());
-        app.opponent_island()->set_drift(app, Fixnum(-0.000025f));
+        set_island_positions(APP.player_island(), *APP.opponent_island());
+        APP.opponent_island()->set_drift(Fixnum(-0.000025f));
 
-        app.time_stream().clear();
+        APP.time_stream().clear();
 
         return scene_pool::alloc<FadeInScene>();
     }

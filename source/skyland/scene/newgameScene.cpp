@@ -45,50 +45,50 @@ namespace skyland
 
 
 
-ScenePtr<Scene> NewgameScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> NewgameScene::update(Microseconds delta)
 {
-    show_island_exterior(app, &app.player_island());
-    show_island_exterior(app, app.opponent_island());
+    show_island_exterior(&APP.player_island());
+    show_island_exterior(APP.opponent_island());
 
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-    switch (app.gp_.difficulty_) {
+    switch (APP.gp_.difficulty_) {
     case GlobalPersistentData::Difficulty::beginner:
-        app.invoke_script("/scripts/config/easy/score.lisp");
+        APP.invoke_script("/scripts/config/easy/score.lisp");
         break;
 
     case GlobalPersistentData::Difficulty::experienced:
-        app.invoke_script("/scripts/config/normal/score.lisp");
+        APP.invoke_script("/scripts/config/normal/score.lisp");
         break;
 
     case GlobalPersistentData::Difficulty::expert:
-        app.invoke_script("/scripts/config/hard/score.lisp");
+        APP.invoke_script("/scripts/config/hard/score.lisp");
         break;
     }
 
     bool loaded = false;
 
-    if (save::load(app, app.persistent_data())) {
+    if (save::load(APP.persistent_data())) {
         save::erase();
         loaded = true;
     } else {
-        app.set_coins(0);
+        APP.set_coins(0);
 
         BasicCharacter::__reset_ids();
 
-        app.current_world_location() = 0;
-        app.world_graph().generate(app);
-        app.persistent_data().lives_ = 2;
+        APP.current_world_location() = 0;
+        APP.world_graph().generate();
+        APP.persistent_data().lives_ = 2;
 
-        app.zone() = 1;
+        APP.zone() = 1;
 
-        app.persistent_data().total_pauses_.set(0);
-        app.persistent_data().total_seconds_.set(0);
-        app.persistent_data().score_.set(0);
-        app.persistent_data().state_flags_.set(0);
+        APP.persistent_data().total_pauses_.set(0);
+        APP.persistent_data().total_seconds_.set(0);
+        APP.persistent_data().score_.set(0);
+        APP.persistent_data().state_flags_.set(0);
 
-        if (app.is_developer_mode()) {
-            app.persistent_data().set_flag(
+        if (APP.is_developer_mode()) {
+            APP.persistent_data().set_flag(
                 PersistentData::StateFlag::dev_mode_active);
         }
 
@@ -99,16 +99,16 @@ ScenePtr<Scene> NewgameScene::update(App& app, Microseconds delta)
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
-    app.player_island().set_position(
+    APP.player_island().set_position(
         {Fixnum::from_integer(10), Fixnum::from_integer(374)});
 
     const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
 
-    const bool skip_save_prompt = app.gp_.stateflags_.get(sv_flag);
+    const bool skip_save_prompt = APP.gp_.stateflags_.get(sv_flag);
 
-    auto dont_remind = [](App& app) {
-        app.gp_.stateflags_.set(sv_flag, true);
-        save::store_global_data(app.gp_);
+    auto dont_remind = []() {
+        APP.gp_.stateflags_.set(sv_flag, true);
+        save::store_global_data(APP.gp_);
     };
 
     DeferredScene next([] {
@@ -125,7 +125,7 @@ ScenePtr<Scene> NewgameScene::update(App& app, Microseconds delta)
             SystemString::ok,
             SystemString::do_not_show_again,
             next,
-            [](App&) {},
+            []() {},
             dont_remind);
 
         ret->play_alert_sfx_ = false;

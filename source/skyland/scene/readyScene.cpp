@@ -58,14 +58,13 @@ namespace skyland
 
 
 
-void describe_room(App& app,
-                   Island* island,
+void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
 
-void clear_room_description(App& app, std::optional<Text>& room_description)
+void clear_room_description(std::optional<Text>& room_description)
 {
     if (not room_description) {
         return;
@@ -81,7 +80,7 @@ void clear_room_description(App& app, std::optional<Text>& room_description)
         }
     }
 
-    if (auto ws = app.scene().cast_world_scene()) {
+    if (auto ws = APP.scene().cast_world_scene()) {
         if (not ws->hide_chr_icon()) {
             for (int x = 0; x < 4; ++x) {
                 for (int y = 0; y < 4; ++y) {
@@ -97,21 +96,20 @@ void clear_room_description(App& app, std::optional<Text>& room_description)
 
 
 
-std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
-                                                  const Vec2<u32>& pos)
+std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos)
 {
     const auto view_offset =
         PLATFORM.screen().get_view().get_center().cast<s32>();
 
     {
-        auto island_pos = app.player_island().get_position();
+        auto island_pos = APP.player_island().get_position();
         island_pos.x -= Fixnum::from_integer(view_offset.x);
         island_pos.y -= Fixnum::from_integer(view_offset.y);
 
         if (Fixnum::from_integer(pos.x) >= island_pos.x and
             Fixnum::from_integer(pos.x) <=
                 island_pos.x + Fixnum::from_integer(
-                                   app.player_island().terrain().size() * 16)) {
+                                   APP.player_island().terrain().size() * 16)) {
 
             int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
             int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
@@ -119,12 +117,12 @@ std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
             y_tile += 31; // FIXME!
 
             return std::make_tuple(
-                (u8)x_tile, (u8)y_tile, &app.player_island());
+                (u8)x_tile, (u8)y_tile, &APP.player_island());
         }
     }
 
-    if (app.opponent_island()) {
-        auto island_pos = app.opponent_island()->get_position();
+    if (APP.opponent_island()) {
+        auto island_pos = APP.opponent_island()->get_position();
         island_pos.x -= Fixnum::from_integer(view_offset.x);
         island_pos.y -= Fixnum::from_integer(view_offset.y);
 
@@ -132,7 +130,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
             Fixnum::from_integer(pos.x) <=
                 island_pos.x +
                     Fixnum::from_integer(
-                        app.opponent_island()->terrain().size() * 16)) {
+                        APP.opponent_island()->terrain().size() * 16)) {
 
             int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
             int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
@@ -140,7 +138,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
             y_tile += 31; // FIXME!
 
             return std::make_tuple(
-                (u8)x_tile, (u8)y_tile, app.opponent_island());
+                (u8)x_tile, (u8)y_tile, APP.opponent_island());
         }
     }
 
@@ -149,26 +147,25 @@ std::tuple<u8, u8, Island*> check_island_tapclick(App& app,
 
 
 
-ScenePtr<Scene> player_island_onclick(App& app,
-                                      Microseconds& camera_update_timer,
+ScenePtr<Scene> player_island_onclick(Microseconds& camera_update_timer,
                                       std::optional<Text>& room_description,
                                       const RoomCoord& pos)
 {
-    if (auto room = app.player_island().get_room(pos)) {
+    if (auto room = APP.player_island().get_room(pos)) {
         if (room->co_op_locked()) {
             PLATFORM.speaker().play_sound("beep_error", 2);
             // TODO: display notification: co-op player editing room.
             return null_scene();
         }
-        if (auto scene = room->select(app, pos)) {
+        if (auto scene = room->select(pos)) {
             return scene;
         } else if (auto db = room->cast<DroneBay>()) {
             if (auto drone = db->drone()) {
                 // If a user selects a drone bay with a drone already
                 // attached, jump the cursor to the drone's location.
                 camera_update_timer = milliseconds(500);
-                clear_room_description(app, room_description);
-                if ((*drone)->destination() == &app.player_island()) {
+                clear_room_description(room_description);
+                if ((*drone)->destination() == &APP.player_island()) {
                     globals().near_cursor_loc_ = (*drone)->position();
                 } else {
                     globals().far_cursor_loc_ = (*drone)->position();
@@ -178,9 +175,9 @@ ScenePtr<Scene> player_island_onclick(App& app,
         } else {
             return null_scene();
         }
-    } else if (auto drone = app.player_island().get_drone(pos)) {
-        if ((*drone)->parent() == &app.player_island()) {
-            return (*drone)->select(app);
+    } else if (auto drone = APP.player_island().get_drone(pos)) {
+        if ((*drone)->parent() == &APP.player_island()) {
+            return (*drone)->select();
         }
     }
 
@@ -189,9 +186,9 @@ ScenePtr<Scene> player_island_onclick(App& app,
 
 
 
-bool tapped_topleft_corner(App& app)
+bool tapped_topleft_corner()
 {
-    if (auto pos = app.player().tap_released()) {
+    if (auto pos = APP.player().tap_released()) {
         if (pos->x < 36 and pos->y < 36) {
             return true;
         }
@@ -208,27 +205,27 @@ public:
     Buffer<CharacterId, 40> boarded_chrs_;
 
 
-    void enter(App& app, Scene& prev)
+    void enter(Scene& prev)
     {
-        ActiveWorldScene::enter(app, prev);
+        ActiveWorldScene::enter(prev);
 
         PLATFORM.speaker().play_sound("drone_beep", 1);
 
-        if (not app.opponent_island()) {
+        if (not APP.opponent_island()) {
             return;
         }
 
-        for (auto& room : app.player_island().rooms()) {
+        for (auto& room : APP.player_island().rooms()) {
             for (auto& chr : room->characters()) {
-                if (chr->owner() == &app.player() and not chr->co_op_locked()) {
+                if (chr->owner() == &APP.player() and not chr->co_op_locked()) {
                     local_chrs_.push_back(chr->id());
                 }
             }
         }
 
-        for (auto& room : app.opponent_island()->rooms()) {
+        for (auto& room : APP.opponent_island()->rooms()) {
             for (auto& chr : room->characters()) {
-                if (chr->owner() == &app.player() and not chr->co_op_locked()) {
+                if (chr->owner() == &APP.player() and not chr->co_op_locked()) {
                     boarded_chrs_.push_back(chr->id());
                 }
             }
@@ -236,13 +233,13 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (auto scene = ActiveWorldScene::update(app, delta)) {
+        if (auto scene = ActiveWorldScene::update(delta)) {
             return scene;
         }
 
-        if (not app.opponent_island()) {
+        if (not APP.opponent_island()) {
             return scene_pool::alloc<ReadyScene>();
         }
 
@@ -250,25 +247,23 @@ public:
             auto current = local_chrs_.back();
             local_chrs_.pop_back();
 
-            auto info = app.player_island().find_character_by_id(current);
+            auto info = APP.player_island().find_character_by_id(current);
             if (info.first) {
-                EnemyAI::assign_local_character(app,
-                                                *info.first,
-                                                &app.player(),
-                                                &app.player_island(),
-                                                app.opponent_island());
+                EnemyAI::assign_local_character(*info.first,
+                                                &APP.player(),
+                                                &APP.player_island(),
+                                                APP.opponent_island());
             }
         } else if (not boarded_chrs_.empty()) {
             auto current = boarded_chrs_.back();
             boarded_chrs_.pop_back();
 
-            auto info = app.opponent_island()->find_character_by_id(current);
+            auto info = APP.opponent_island()->find_character_by_id(current);
             if (info.first) {
-                EnemyAI::assign_boarded_character(app,
-                                                  *info.first,
-                                                  &app.player(),
-                                                  &app.player_island(),
-                                                  app.opponent_island());
+                EnemyAI::assign_boarded_character(*info.first,
+                                                  &APP.player(),
+                                                  &APP.player_island(),
+                                                  APP.opponent_island());
             }
         } else {
             return scene_pool::alloc<ReadyScene>();
@@ -287,7 +282,7 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    void enter(App&, Scene& prev)
+    void enter(Scene& prev)
     {
         PLATFORM.screen().schedule_fade(1.f);
         PLATFORM.fill_overlay(0);
@@ -300,7 +295,7 @@ public:
     }
 
 
-    void exit(App&, Scene& next)
+    void exit(Scene& next)
     {
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.fill_overlay(0);
@@ -311,7 +306,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
         if (key_down<Key::up>()) {
             selection_ = true;
@@ -347,41 +342,41 @@ private:
 
 
 
-ScenePtr<Scene> update_modifier_keys(App& app)
+ScenePtr<Scene> update_modifier_keys()
 {
-    if (app.player().key_down(Key::alt_2)) {
+    if (APP.player().key_down(Key::alt_2)) {
         return scene_pool::alloc<KeyComboScene>(true);
-    } else if (app.player().key_down(Key::action_2) or
-               app.player().key_down(Key::down)) {
+    } else if (APP.player().key_down(Key::action_2) or
+               APP.player().key_down(Key::down)) {
         return scene_pool::alloc<AssignWeaponGroupScene>();
-    } else if (app.player().key_down(Key::up)) {
-        for (auto& room : app.player_island().rooms()) {
+    } else if (APP.player().key_down(Key::up)) {
+        for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::one) {
-                if (auto scene = room->select(app, room->position())) {
+                if (auto scene = room->select(room->position())) {
                     return scene;
                 }
             }
         }
-    } else if (app.player().key_down(Key::right)) {
-        for (auto& room : app.player_island().rooms()) {
+    } else if (APP.player().key_down(Key::right)) {
+        for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::two) {
-                if (auto scene = room->select(app, room->position())) {
+                if (auto scene = room->select(room->position())) {
                     return scene;
                 }
             }
         }
-    } else if (app.player().key_down(Key::left)) {
-        for (auto& room : app.player_island().rooms()) {
+    } else if (APP.player().key_down(Key::left)) {
+        for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::three) {
-                if (auto scene = room->select(app, room->position())) {
+                if (auto scene = room->select(room->position())) {
                     return scene;
                 }
             }
         }
-    } else if (app.player().key_down(Key::action_1)) {
+    } else if (APP.player().key_down(Key::action_1)) {
         auto resume = scene_pool::make_deferred_scene<ReadyScene>();
         return scene_pool::alloc<SelectWeaponGroupScene>(resume);
-    } else if (app.player().key_down(Key::select)) {
+    } else if (APP.player().key_down(Key::select)) {
         if (not PLATFORM.network_peer().is_connected()) {
             return scene_pool::alloc<AutoassignCharactersScene>();
         }
@@ -392,26 +387,26 @@ ScenePtr<Scene> update_modifier_keys(App& app)
 
 
 
-ScenePtr<Scene> process_exit_condition(App& app, App::ExitCondition c)
+ScenePtr<Scene> process_exit_condition(App::ExitCondition c)
 {
-    app.exit_condition() = App::ExitCondition::none;
+    APP.exit_condition() = App::ExitCondition::none;
     switch (c) {
     case App::ExitCondition::player_fled:
-        app.effects().clear();
-        app.player_island().projectiles().clear();
-        if (app.opponent_island()) {
-            app.opponent_island()->projectiles().clear();
+        APP.effects().clear();
+        APP.player_island().projectiles().clear();
+        if (APP.opponent_island()) {
+            APP.opponent_island()->projectiles().clear();
         }
         PLATFORM.speaker().play_sound("bell", 1);
         return scene_pool::alloc<EscapeBeaconFadeScene>(true);
 
     case App::ExitCondition::opponent_fled:
-        app.effects().clear();
-        app.player_island().projectiles().clear();
-        if (app.opponent_island()) {
-            app.opponent_island()->projectiles().clear();
+        APP.effects().clear();
+        APP.player_island().projectiles().clear();
+        if (APP.opponent_island()) {
+            APP.opponent_island()->projectiles().clear();
         }
-        app.effects().clear();
+        APP.effects().clear();
         PLATFORM.speaker().play_sound("bell", 1);
         return scene_pool::alloc<EscapeBeaconFadeScene>(false);
 
@@ -420,11 +415,11 @@ ScenePtr<Scene> process_exit_condition(App& app, App::ExitCondition c)
 
     case App::ExitCondition::victory:
         return scene_pool::alloc<PlayerIslandDestroyedScene>(
-            app.opponent_island(), true);
+            APP.opponent_island(), true);
 
     case App::ExitCondition::defeat:
         return scene_pool::alloc<PlayerIslandDestroyedScene>(
-            &app.player_island(), true);
+            &APP.player_island(), true);
 
     case App::ExitCondition::none:
         break;
@@ -435,16 +430,16 @@ ScenePtr<Scene> process_exit_condition(App& app, App::ExitCondition c)
 
 
 
-ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ReadyScene::update(Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
-    const auto exit_cond = app.exit_condition();
+    const auto exit_cond = APP.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
-        set_gamespeed(app, GameSpeed::normal);
-        if (auto next = process_exit_condition(app, exit_cond)) {
+        set_gamespeed(GameSpeed::normal);
+        if (auto next = process_exit_condition(exit_cond)) {
             return next;
         }
     }
@@ -453,11 +448,11 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         return next;
     }
 
-    if (app.game_mode() == App::GameMode::adventure or
-        app.game_mode() == App::GameMode::skyland_forever) {
-        const auto achievement = achievements::update(app);
+    if (APP.game_mode() == App::GameMode::adventure or
+        APP.game_mode() == App::GameMode::skyland_forever) {
+        const auto achievement = achievements::update();
         if (achievement not_eq achievements::Achievement::none) {
-            achievements::award(app, achievement);
+            achievements::award(achievement);
 
             auto next = scene_pool::make_deferred_scene<ReadyScene>();
 
@@ -471,23 +466,23 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
 
     auto sync_cursor = [&] {
-        app.player().network_sync_cursor(cursor_loc, cursor_anim_frame_, true);
+        APP.player().network_sync_cursor(cursor_loc, cursor_anim_frame_, true);
     };
 
 
-    if (not app.player().key_pressed(Key::start)) {
+    if (not APP.player().key_pressed(Key::start)) {
 
-        if (tapped_topleft_corner(app) or app.player().key_down(Key::alt_2)) {
+        if (tapped_topleft_corner() or APP.player().key_down(Key::alt_2)) {
             return scene_pool::alloc<ConstructionScene>();
         }
 
@@ -496,16 +491,16 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::right)) {
-            if (cursor_loc.x < app.player_island().terrain().size()) {
+            if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
 
@@ -514,11 +509,11 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
 
             } else if ( // Do not allow the player to inspect the other island if we're in
                 // the multiplayer waiting room.
-                app.opponent_island() and
+                APP.opponent_island() and
                 (mt_prep_seconds == 0 or globals().unhide_multiplayer_prep_)) {
 
-                if (app.world_graph()
-                        .nodes_[app.current_world_location()]
+                if (APP.world_graph()
+                        .nodes_[APP.current_world_location()]
                         .type_ == WorldGraph::Node::Type::shop) {
                     return scene_pool::alloc<ItemShopScene>();
                 }
@@ -528,7 +523,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
                 cursor_loc.x = 0;
                 cursor_loc.y = globals().near_cursor_loc_.y;
 
-                app.player().network_sync_cursor(cursor_loc, 0, false);
+                APP.player().network_sync_cursor(cursor_loc, 0, false);
 
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<InspectP2Scene>();
@@ -538,7 +533,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
@@ -547,7 +542,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
@@ -559,15 +554,15 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
             // PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (await_start_key_ and app.player().key_up(Key::start) and
-            app.game_mode() not_eq App::GameMode::multiplayer and
-            app.game_mode() not_eq App::GameMode::co_op) {
+        if (await_start_key_ and APP.player().key_up(Key::start) and
+            APP.game_mode() not_eq App::GameMode::multiplayer and
+            APP.game_mode() not_eq App::GameMode::co_op) {
             auto next = scene_pool::alloc<StartMenuScene>(0);
             next->cascade_anim_in_ = true;
             return next;
         }
 
-        if (key_down<Key::start>() and not app.player().key_down(Key::start)) {
+        if (key_down<Key::start>() and not APP.player().key_down(Key::start)) {
 
             // For tutorial mode: allows the player to raise the start key when
             // the tutorial system has taken control of the player object.
@@ -576,20 +571,20 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
 
     } else /* start pressed */ {
 
-        if (app.player().key_down(Key::start)) {
+        if (APP.player().key_down(Key::start)) {
             await_start_key_ = true;
         }
 
-        if (app.player().key_held(Key::start, milliseconds(800))) {
+        if (APP.player().key_held(Key::start, milliseconds(800))) {
             return scene_pool::alloc<ModifierKeyHintScene>();
         }
 
-        if (auto scene = update_modifier_keys(app)) {
+        if (auto scene = update_modifier_keys()) {
             return scene;
         }
     }
 
-    if (app.player().key_down(Key::select)) {
+    if (APP.player().key_down(Key::select)) {
         return scene_pool::alloc<SelectMenuScene>();
     }
 
@@ -606,11 +601,11 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
     }
 
 
-    if (app.player().touch_held(milliseconds(200))) {
-        if (auto pos = app.player().touch_current()) {
+    if (APP.player().touch_held(milliseconds(200))) {
+        if (auto pos = APP.player().touch_current()) {
             const auto view_offset =
                 PLATFORM.screen().get_view().get_center().cast<s32>();
-            auto island_pos = app.player_island().get_position();
+            auto island_pos = APP.player_island().get_position();
             island_pos.x -= Fixnum::from_integer(view_offset.x);
             island_pos.y -= Fixnum::from_integer(view_offset.y);
 
@@ -618,7 +613,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
                 Fixnum::from_integer(pos->x) <=
                     island_pos.x +
                         Fixnum::from_integer(
-                            app.player_island().terrain().size() * 16)) {
+                            APP.player_island().terrain().size() * 16)) {
 
                 int x_tile = -((island_pos.x.as_integer() - pos->x) / 16);
                 int y_tile = -((island_pos.y.as_integer() - pos->y) / 16);
@@ -631,51 +626,51 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (auto pos = app.player().tap_released()) {
-        auto [x, y, island] = check_island_tapclick(app, *pos);
+    if (auto pos = APP.player().tap_released()) {
+        auto [x, y, island] = check_island_tapclick(*pos);
 
-        if (island == &app.player_island()) {
+        if (island == &APP.player_island()) {
             if (auto scene = player_island_onclick(
-                    app, camera_update_timer_, room_description_, {x, y})) {
+                    camera_update_timer_, room_description_, {x, y})) {
                 return scene;
             } else {
                 cursor_loc = {x, std::min(u8(15), y)};
                 camera_update_timer_ = milliseconds(500);
             }
-        } else if (island == app.opponent_island()) {
+        } else if (island == APP.opponent_island()) {
             globals().far_cursor_loc_ = {x, y};
             return scene_pool::alloc<InspectP2Scene>();
         } else if (island == nullptr) {
             const auto view_offset =
                 PLATFORM.screen().get_view().get_center().cast<s32>();
-            auto island_pos = app.player_island().get_position();
+            auto island_pos = APP.player_island().get_position();
             island_pos.x -= Fixnum::from_integer(view_offset.x);
 
             if (Fixnum::from_integer(pos->x) >=
                 island_pos.x +
                     Fixnum::from_integer(
-                        app.player_island().terrain().size() * 16 + 32)) {
+                        APP.player_island().terrain().size() * 16 + 32)) {
                 globals().far_cursor_loc_ = {0, cursor_loc.y};
                 return scene_pool::alloc<InspectP2Scene>();
             }
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
+    if (APP.player().key_down(Key::action_1)) {
         if (auto scene = player_island_onclick(
-                app, camera_update_timer_, room_description_, cursor_loc)) {
+                camera_update_timer_, room_description_, cursor_loc)) {
             return scene;
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
-        if (auto room = app.player_island().get_room(cursor_loc)) {
+    if (APP.player().key_down(Key::action_2)) {
+        if (auto room = APP.player_island().get_room(cursor_loc)) {
             const auto props = (*room->metaclass())->properties();
             if (not(props & RoomProperties::salvage_disallowed)) {
 
                 auto next = scene_pool::make_deferred_scene<SalvageRoomScene>();
 
-                if (app.game_mode() == App::GameMode::co_op) {
+                if (APP.game_mode() == App::GameMode::co_op) {
                     if (auto await = room->co_op_acquire_lock(next)) {
                         return await;
                     } else {
@@ -692,8 +687,8 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
                 auto next = scene_pool::make_deferred_scene<ReadyScene>();
                 return scene_pool::alloc<NotificationScene>(msg->c_str(), next);
             }
-        } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &app.player_island()) {
+        } else if (auto drone = APP.player_island().get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &APP.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
         } else if (not PLATFORM.network_peer().is_connected()) {
@@ -701,15 +696,15 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (await_b_key_ and app.player().key_up(Key::action_2)) {
+    if (await_b_key_ and APP.player().key_up(Key::action_2)) {
         await_b_key_ = false;
-        if (app.game_mode() == App::GameMode::tutorial) {
-            return scene_pool::alloc<MoveRoomScene>(app, true);
+        if (APP.game_mode() == App::GameMode::tutorial) {
+            return scene_pool::alloc<MoveRoomScene>(true);
         }
     }
     if (await_b_key_ and
-        app.player().key_held(Key::action_2, milliseconds(400))) {
-        return scene_pool::alloc<MoveRoomScene>(app, true);
+        APP.player().key_held(Key::action_2, milliseconds(400))) {
+        return scene_pool::alloc<MoveRoomScene>(true);
     }
 
     if (describe_room_timer_ > 0) {
@@ -717,8 +712,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
         if (describe_room_timer_ <= 0) {
             describe_room_timer_ = milliseconds(500);
 
-            describe_room(
-                app, &app.player_island(), cursor_loc, room_description_);
+            describe_room(&APP.player_island(), cursor_loc, room_description_);
         }
     }
 
@@ -727,8 +721,7 @@ ScenePtr<Scene> ReadyScene::update(App& app, Microseconds delta)
 
 
 
-void describe_room(App& app,
-                   Island* island,
+void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description)
 {
@@ -741,7 +734,7 @@ void describe_room(App& app,
             return;
         }
         room->reset_description_changed();
-        if (room->parent() == &app.player_island() or
+        if (room->parent() == &APP.player_island() or
             (room->description_visible() and not room->visually_cloaked())) {
 
             int i = 0;
@@ -763,7 +756,7 @@ void describe_room(App& app,
                     }
                 }
 
-                if (auto ws = app.scene().cast_world_scene()) {
+                if (auto ws = APP.scene().cast_world_scene()) {
                     if (ws->hide_chr_icon()) {
                         overlap = true;
                     }
@@ -782,7 +775,7 @@ void describe_room(App& app,
                             room_description->append(",");
                         }
                         Text::OptColors opts;
-                        if (chr->owner() == &app.player()) {
+                        if (chr->owner() == &APP.player()) {
                             opts = {custom_color(0xff6675),
                                     ColorConstant::rich_black};
                             if (chr->is_replicant()) {
@@ -881,7 +874,7 @@ void describe_room(App& app,
                     room_description->append("/");
                     room_description->append(room->max_health());
                     room_description->append(" ");
-                    room_description->append(room->power_usage(app));
+                    room_description->append(room->power_usage());
                     room_description->append("`");
                 }
 
@@ -950,8 +943,8 @@ void describe_room(App& app,
                 }
             }
         } else {
-            for (auto& bird : app.birds()) {
-                if (bird->island(app) == island and
+            for (auto& bird : APP.birds()) {
+                if (bird->island() == island and
                     bird->coordinate() == cursor_loc) {
 
                     if (not room_description) {
@@ -995,7 +988,7 @@ void describe_room(App& app,
                         return SYS_CSTR(flag_default);
                     }
                     return "";
-                } else if (island == app.opponent_island()) {
+                } else if (island == APP.opponent_island()) {
                     return SYS_CSTR(flag_alt4);
                 } else {
                     return "";
@@ -1031,13 +1024,13 @@ void describe_room(App& app,
 
 
 
-void ReadyScene::display(App& app)
+void ReadyScene::display()
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
 
-    auto origin = app.player_island().visual_origin();
+    auto origin = APP.player_island().visual_origin();
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
@@ -1046,44 +1039,44 @@ void ReadyScene::display(App& app)
 
     cursor.set_position(origin);
 
-    if (not(app.next_scene() and
-            app.next_scene()->cast_boxed_dialog_scene_ws())) {
+    if (not(APP.next_scene() and
+            APP.next_scene()->cast_boxed_dialog_scene_ws())) {
         // Don't draw the cursor if we're going into a dialog box. If we did,
         // the cursor would flicker in and out for one frame during the scene in
         // between two dialog boxes.
         PLATFORM.screen().draw(cursor);
     }
 
-    if (auto room = app.player_island().get_room(cursor_loc)) {
-        room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
-    } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-        if ((*drone)->parent() == &app.player_island()) {
-            (*drone)->display_on_hover(PLATFORM.screen(), app, cursor_loc);
+    if (auto room = APP.player_island().get_room(cursor_loc)) {
+        room->display_on_hover(PLATFORM.screen(), cursor_loc);
+    } else if (auto drone = APP.player_island().get_drone(cursor_loc)) {
+        if ((*drone)->parent() == &APP.player_island()) {
+            (*drone)->display_on_hover(PLATFORM.screen(), cursor_loc);
         }
     }
 
-    if (app.world_graph().nodes_[app.current_world_location()].type_ ==
+    if (APP.world_graph().nodes_[APP.current_world_location()].type_ ==
         WorldGraph::Node::Type::shop) {
         Sprite spr;
         spr.set_texture_index(57);
-        auto o = app.player_island().origin();
-        o.x += Fixnum::from_integer(app.player_island().terrain().size() * 16);
+        auto o = APP.player_island().origin();
+        o.x += Fixnum::from_integer(APP.player_island().terrain().size() * 16);
         o.y += 16.0_fixed * 12.0_fixed;
         spr.set_position(o);
-        if (cursor_loc.x < app.player_island().terrain().size()) {
+        if (cursor_loc.x < APP.player_island().terrain().size()) {
             spr.set_alpha(Sprite::Alpha::translucent);
         }
         PLATFORM.screen().draw(spr);
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 
 
-void ReadyScene::exit(App& app, Scene& next)
+void ReadyScene::exit(Scene& next)
 {
-    clear_room_description(app, room_description_);
+    clear_room_description(room_description_);
 }
 
 

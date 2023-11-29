@@ -57,14 +57,14 @@ void DroneBay::format_description(StringBuffer<512>& buffer)
 
 
 
-void DroneBay::update(App& app, Microseconds delta)
+void DroneBay::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
     if (drone_ and not(*drone_)->alive()) {
-        detach_drone(app, false);
+        detach_drone(false);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
@@ -76,16 +76,16 @@ void DroneBay::update(App& app, Microseconds delta)
     if (reload_ > 0) {
         reload_ -= delta;
         if (reload_ < 0) {
-            if (parent() == &app.player_island()) {
+            if (parent() == &APP.player_island()) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
+                APP.time_stream().push(APP.level_timer(), e);
             }
         }
     }
@@ -93,11 +93,11 @@ void DroneBay::update(App& app, Microseconds delta)
 
 
 
-void DroneBay::rewind(App& app, Microseconds delta)
+void DroneBay::rewind(Microseconds delta)
 {
     if (drone_ and not(*drone_)->alive()) {
-        ___rewind___ability_used(app);
-        detach_drone(app, false);
+        ___rewind___ability_used();
+        detach_drone(false);
     }
 
     if (reload_ <= 0) {
@@ -109,24 +109,24 @@ void DroneBay::rewind(App& app, Microseconds delta)
 
 
 
-void DroneBay::___rewind___finished_reload(App&)
+void DroneBay::___rewind___finished_reload()
 {
     reload_ = 1;
 }
 
 
 
-void DroneBay::___rewind___ability_used(App&)
+void DroneBay::___rewind___ability_used()
 {
     reload_ = 0;
 }
 
 
 
-void DroneBay::display(Platform::Screen& screen, App& app)
+void DroneBay::display(Platform::Screen& screen)
 {
     if (drone_) {
-        (*drone_)->display(screen, app);
+        (*drone_)->display(screen);
     }
 }
 
@@ -148,13 +148,13 @@ void DroneBay::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> DroneBay::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> DroneBay::select(const RoomCoord& cursor)
 {
     if (reload_ > 0) {
         return null_scene();
     }
 
-    if (parent() not_eq &app.player_island()) {
+    if (parent() not_eq &APP.player_island()) {
         return null_scene();
     }
 
@@ -164,7 +164,7 @@ ScenePtr<Scene> DroneBay::select(App& app, const RoomCoord& cursor)
         return null_scene();
     }
 
-    if (auto scn = reject_if_friendly(app)) {
+    if (auto scn = reject_if_friendly()) {
         return scn;
     }
 
@@ -198,10 +198,10 @@ ScenePtr<Scene> DroneBay::select(App& app, const RoomCoord& cursor)
 
 
 
-bool DroneBay::attach_drone(App& app, SharedEntityRef<Drone> drone)
+bool DroneBay::attach_drone(SharedEntityRef<Drone> drone)
 {
     if (drone_) {
-        detach_drone(app, false);
+        detach_drone(false);
     }
     drone_ = drone;
 
@@ -212,7 +212,7 @@ bool DroneBay::attach_drone(App& app, SharedEntityRef<Drone> drone)
 
 
 
-void DroneBay::detach_drone(App& app, bool quiet)
+void DroneBay::detach_drone(bool quiet)
 {
     if (drone_ and not quiet) {
         (*drone_)->kill();
@@ -220,15 +220,15 @@ void DroneBay::detach_drone(App& app, bool quiet)
         time_stream::event::DroneDestroyed e;
         e.x_pos_ = (*drone_)->position().x;
         e.y_pos_ = (*drone_)->position().y;
-        e.destination_near_ = (*drone_)->destination() == &app.player_island();
-        e.parent_near_ = (*drone_)->parent() == &app.player_island();
+        e.destination_near_ = (*drone_)->destination() == &APP.player_island();
+        e.parent_near_ = (*drone_)->parent() == &APP.player_island();
         e.type_ = (*drone_)->metaclass_index();
         e.state_ = (*drone_)->state();
         e.timer_.set((*drone_)->timer());
         e.duration_.set((*drone_)->duration());
         e.db_x_pos_ = position().x;
         e.db_y_pos_ = position().y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     drone_.reset();
@@ -236,11 +236,11 @@ void DroneBay::detach_drone(App& app, bool quiet)
 
 
 
-void DroneBay::finalize(App& app)
+void DroneBay::finalize()
 {
-    detach_drone(app, false);
+    detach_drone(false);
 
-    Room::finalize(app);
+    Room::finalize();
 }
 
 

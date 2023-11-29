@@ -36,30 +36,29 @@ namespace skyland
 
 
 
-void describe_room(App& app,
-                   Island* island,
+void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
 
-void clear_room_description(App& app, std::optional<Text>& room_description);
+void clear_room_description(std::optional<Text>& room_description);
 
 
 
 class SpectatorScene : public ActiveWorldScene
 {
 public:
-    void enter(App& app, Scene& prev)
+    void enter(Scene& prev)
     {
-        ActiveWorldScene::enter(app, prev);
+        ActiveWorldScene::enter(prev);
 
-        for (auto& room : app.player_island().rooms()) {
+        for (auto& room : APP.player_island().rooms()) {
             // Hack to turn off targeting computer, as the AI will instead take
             // responsibility for setting weapon targets.
             if (auto t = room->cast<TargetingComputer>()) {
                 if (t->enabled()) {
-                    t->select(app, {});
+                    t->select({});
                 }
             }
         }
@@ -68,29 +67,28 @@ public:
     }
 
 
-    void exit(App& app, Scene& next)
+    void exit(Scene& next)
     {
-        ActiveWorldScene::exit(app, next);
-        clear_room_description(app, room_description_);
+        ActiveWorldScene::exit(next);
+        clear_room_description(room_description_);
         text_.reset();
     }
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (auto scene = ActiveWorldScene::update(app, delta)) {
-            app.swap_player<PlayerP1>();
+        if (auto scene = ActiveWorldScene::update(delta)) {
+            APP.swap_player<PlayerP1>();
             return scene;
         }
 
-        if (app.game_speed() not_eq GameSpeed::normal) {
-            set_gamespeed(app, GameSpeed::normal);
+        if (APP.game_speed() not_eq GameSpeed::normal) {
+            set_gamespeed(GameSpeed::normal);
         }
 
         auto test_key = [&](Key k) {
-            return player(app).test_key(
-                k, milliseconds(500), milliseconds(100));
+            return player().test_key(k, milliseconds(500), milliseconds(100));
         };
 
 
@@ -106,33 +104,32 @@ public:
 
         Island* island;
         if (is_far_camera()) {
-            island = opponent_island(app);
+            island = opponent_island();
         } else {
-            island = &player_island(app);
+            island = &player_island();
         }
 
 
-        player(app).key_held_distribute();
+        player().key_held_distribute();
 
-        if (player(app).key_down(Key::start)) {
-            app.swap_player<PlayerP1>();
+        if (player().key_down(Key::start)) {
+            APP.swap_player<PlayerP1>();
             return scene_pool::alloc<ReadyScene>();
-        } else if (player(app).key_down(Key::action_1) or
-                   player(app).key_down(Key::action_2) or
-                   player(app).key_down(Key::alt_2)) {
+        } else if (player().key_down(Key::action_1) or
+                   player().key_down(Key::action_2) or
+                   player().key_down(Key::alt_2)) {
             PLATFORM.speaker().play_sound("beep_error", 2);
         }
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             } else if (is_far_camera()) {
                 globals().near_cursor_loc_.y = globals().far_cursor_loc_.y;
-                globals().near_cursor_loc_.x =
-                    player_island(app).terrain().size();
+                globals().near_cursor_loc_.x = player_island().terrain().size();
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 near_camera();
                 return null_scene();
@@ -140,7 +137,7 @@ public:
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < island->terrain().size()) {
                 ++cursor_loc.x;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             } else if (not is_far_camera()) {
@@ -155,14 +152,14 @@ public:
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                clear_room_description(app, room_description_);
+                clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
@@ -173,7 +170,7 @@ public:
             if (describe_room_timer_ <= 0) {
                 describe_room_timer_ = milliseconds(500);
 
-                describe_room(app, island, cursor_loc, room_description_);
+                describe_room(island, cursor_loc, room_description_);
             }
         }
 
@@ -181,16 +178,16 @@ public:
     }
 
 
-    void display(App& app)
+    void display()
     {
         auto& cursor_loc = is_far_camera() ? globals().far_cursor_loc_
                                            : globals().near_cursor_loc_;
 
         Island* island;
         if (is_far_camera()) {
-            island = opponent_island(app);
+            island = opponent_island();
         } else {
-            island = &player_island(app);
+            island = &player_island();
         }
 
         Sprite cursor;
@@ -206,11 +203,11 @@ public:
 
         PLATFORM.screen().draw(cursor);
 
-        if (auto room = app.player_island().get_room(cursor_loc)) {
-            room->display_on_hover(PLATFORM.screen(), app, cursor_loc);
+        if (auto room = APP.player_island().get_room(cursor_loc)) {
+            room->display_on_hover(PLATFORM.screen(), cursor_loc);
         }
 
-        WorldScene::display(app);
+        WorldScene::display();
     }
 
 

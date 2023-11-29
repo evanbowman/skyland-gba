@@ -42,8 +42,7 @@ namespace skyland
 
 
 
-void draw_required_space(App& app,
-                         Island& island,
+void draw_required_space(Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
                          Room::WeaponOrientation o);
@@ -53,19 +52,19 @@ void draw_required_space(App& app,
 class MoveRoomScene : public ActiveWorldScene
 {
 public:
-    MoveRoomScene(App& app, bool near)
+    MoveRoomScene(bool near)
     {
-        bind_island(app, near);
+        bind_island(near);
     }
 
 
-    void bind_island(App& app, bool near)
+    void bind_island(bool near)
     {
         if (near) {
-            island_ = &player_island(app);
+            island_ = &player_island();
             near_camera();
         } else {
-            island_ = opponent_island(app);
+            island_ = opponent_island();
             far_camera();
         }
     }
@@ -81,9 +80,9 @@ public:
     }
 
 
-    void exit(App& app, Scene& prev) override
+    void exit(Scene& prev) override
     {
-        ActiveWorldScene::exit(app, prev);
+        ActiveWorldScene::exit(prev);
 
         text_.reset();
         no_text_.reset();
@@ -93,10 +92,10 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App& app) override;
+    void display() override;
 
 
 private:

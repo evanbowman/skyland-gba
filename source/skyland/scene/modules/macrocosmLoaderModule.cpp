@@ -62,9 +62,9 @@ void background_init()
 
 
 
-void MacrocosmLoaderModule::enter(App& app, Scene& prev)
+void MacrocosmLoaderModule::enter(Scene& prev)
 {
-    PLATFORM.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(APP.environment().music(), 0);
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 
@@ -73,14 +73,14 @@ void MacrocosmLoaderModule::enter(App& app, Scene& prev)
 
 
 
-ScenePtr<Scene> MacrocosmLoaderModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> MacrocosmLoaderModule::update(Microseconds delta)
 {
     if (skip_) {
         skip_ = false;
         return null_scene();
     }
 
-    app.camera().emplace<macro::Camera>();
+    APP.camera().emplace<macro::Camera>();
 
     PLATFORM.load_background_texture("background_macro");
     // PLATFORM.system_call("parallax-clouds", false);
@@ -106,14 +106,14 @@ ScenePtr<Scene> MacrocosmLoaderModule::update(App& app, Microseconds delta)
     __draw_image(0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(&app);
+    APP.macrocosm().emplace();
+    APP.macrocosm()->emplace<macro::EngineImpl>(&APP);
 
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
     auto& sector = m.sector();
 
-    m.load(app);
-    app.game_mode() = App::GameMode::macro;
+    m.load();
+    APP.game_mode() = App::GameMode::macro;
 
     PLATFORM.system_call("vsync", nullptr);
     sector.render();

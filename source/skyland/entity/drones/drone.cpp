@@ -85,7 +85,7 @@ void Drone::set_movement_target(const RoomCoord& position)
 
 
 
-void Drone::update_sprite(App& app)
+void Drone::update_sprite()
 {
     auto o = calc_pos(destination_, grid_pos_);
 
@@ -105,9 +105,9 @@ void Drone::update_sprite(App& app)
     sprite_.set_position(o);
 
     if (target_) {
-        if (destination() == app.opponent_island() and target_near_) {
+        if (destination() == APP.opponent_island() and target_near_) {
             sprite_.set_flip({true, false});
-        } else if (destination() == &app.player_island() and not target_near_) {
+        } else if (destination() == &APP.player_island() and not target_near_) {
             sprite_.set_flip({false, false});
         } else {
             if (target_->x < grid_pos_.x) {
@@ -121,7 +121,7 @@ void Drone::update_sprite(App& app)
 
 
 
-void Drone::rewind(App& app, Microseconds delta)
+void Drone::rewind(Microseconds delta)
 {
     switch (state_) {
     case State::launch: {
@@ -139,7 +139,7 @@ void Drone::rewind(App& app, Microseconds delta)
 
             sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
-            if (parent() not_eq &app.player_island()) {
+            if (parent() not_eq &APP.player_island()) {
                 sprite_.set_flip({true, false});
             }
         }
@@ -147,7 +147,7 @@ void Drone::rewind(App& app, Microseconds delta)
     }
 
     default:
-        update_sprite(app);
+        update_sprite();
         if (timer_ > 0) {
             timer_ -= delta;
         }
@@ -157,7 +157,7 @@ void Drone::rewind(App& app, Microseconds delta)
 
 
 
-void Drone::set_target(App& app, const RoomCoord& target, bool target_near)
+void Drone::set_target(const RoomCoord& target, bool target_near)
 {
     if (target_) {
         if (*target_ == target and target_near_ == target_near) {
@@ -177,8 +177,8 @@ void Drone::set_target(App& app, const RoomCoord& target, bool target_near)
         e.has_previous_target_ = false;
     }
     e.previous_target_near_ = target_near_;
-    e.destination_near_ = destination_ == &app.player_island();
-    app.time_stream().push(app.level_timer(), e);
+    e.destination_near_ = destination_ == &APP.player_island();
+    APP.time_stream().push(APP.level_timer(), e);
 
     target_ = target;
     target_near_ = target_near;
@@ -186,9 +186,9 @@ void Drone::set_target(App& app, const RoomCoord& target, bool target_near)
 
 
 
-void Drone::drop_target(App& app)
+void Drone::drop_target()
 {
-    if (app.time_stream().pushes_enabled()) {
+    if (APP.time_stream().pushes_enabled()) {
         Platform::fatal("drop_target intended to be called only during rewind, "
                         "as we do not push a time stream event in this message "
                         "for rolling back a drop_target().");
@@ -199,21 +199,21 @@ void Drone::drop_target(App& app)
 
 
 
-void Drone::apply_damage(App& app, Health amount)
+void Drone::apply_damage(Health amount)
 {
     time_stream::event::DroneHealthChanged e;
     e.x_pos_ = grid_pos_.x;
     e.y_pos_ = grid_pos_.y;
-    e.destination_near_ = destination_ == &app.player_island();
+    e.destination_near_ = destination_ == &APP.player_island();
     e.previous_health_.set(health());
-    app.time_stream().push(app.level_timer(), e);
+    APP.time_stream().push(APP.level_timer(), e);
 
-    Entity::apply_damage(app, amount);
+    Entity::apply_damage(amount);
 }
 
 
 
-void Drone::update(App& app, Microseconds delta)
+void Drone::update(Microseconds delta)
 {
     switch (state_) {
     case State::launch: {
@@ -225,10 +225,10 @@ void Drone::update(App& app, Microseconds delta)
             time_stream::event::DroneDeployed e;
             e.x_pos_ = grid_pos_.x;
             e.y_pos_ = grid_pos_.y;
-            e.parent_near_ = parent_ == &app.player_island();
-            e.destination_near_ = destination_ == &app.player_island();
+            e.parent_near_ = parent_ == &APP.player_island();
+            e.destination_near_ = destination_ == &APP.player_island();
             e.duration_.set(duration_);
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
             break;
         }
         auto amount = smoothstep(0.f, duration_, timer_);
@@ -238,21 +238,21 @@ void Drone::update(App& app, Microseconds delta)
                                Float(amount));
         sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
-        if (parent() not_eq &app.player_island()) {
+        if (parent() not_eq &APP.player_island()) {
             sprite_.set_flip({true, false});
         }
         break;
     }
 
     case State::ready:
-        update_sprite(app);
+        update_sprite();
         break;
     }
 }
 
 
 
-void Drone::display(Platform::Screen& screen, App& app)
+void Drone::display(Platform::Screen& screen)
 {
     screen.draw(sprite());
 

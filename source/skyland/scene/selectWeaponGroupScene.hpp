@@ -41,9 +41,9 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        ActiveWorldScene::enter(app, prev);
+        ActiveWorldScene::enter(prev);
 
         text_.emplace(SYSTR(modifier_keys_opt_5)->c_str(),
                       OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
@@ -66,9 +66,9 @@ public:
 
 
 
-    void exit(App& app, Scene& prev) override
+    void exit(Scene& prev) override
     {
-        ActiveWorldScene::exit(app, prev);
+        ActiveWorldScene::exit(prev);
 
         text_.reset();
 
@@ -77,40 +77,40 @@ public:
 
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (auto next = ActiveWorldScene::update(app, delta)) {
+        if (auto next = ActiveWorldScene::update(delta)) {
             return next;
         }
 
-        if (app.player().key_down(Key::up)) {
-            for (auto& room : app.player_island().rooms()) {
+        if (APP.player().key_down(Key::up)) {
+            for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::one) {
-                    if (auto scene = room->select(app, room->position())) {
+                    if (auto scene = room->select(room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(Key::right)) {
-            for (auto& room : app.player_island().rooms()) {
+        } else if (APP.player().key_down(Key::right)) {
+            for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::two) {
-                    if (auto scene = room->select(app, room->position())) {
+                    if (auto scene = room->select(room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(Key::left)) {
-            for (auto& room : app.player_island().rooms()) {
+        } else if (APP.player().key_down(Key::left)) {
+            for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::three) {
-                    if (auto scene = room->select(app, room->position())) {
+                    if (auto scene = room->select(room->position())) {
                         return scene;
                     }
                 }
             }
             return cancel_();
-        } else if (app.player().key_down(Key::action_2)) {
+        } else if (APP.player().key_down(Key::action_2)) {
             return cancel_();
         }
 

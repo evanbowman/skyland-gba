@@ -44,9 +44,9 @@ Replicator::Replicator(Island* parent, const RoomCoord& position)
 
 
 
-void Replicator::update(App& app, Microseconds delta)
+void Replicator::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -58,7 +58,7 @@ void Replicator::format_description(StringBuffer<512>& buffer)
 
 
 
-bool Replicator::create_replicant(App& app)
+bool Replicator::create_replicant()
 {
     int character_count = 0;
 
@@ -87,7 +87,7 @@ bool Replicator::create_replicant(App& app)
             }
         }();
 
-        auto chr = app.alloc_entity<BasicCharacter>(
+        auto chr = APP.alloc_entity<BasicCharacter>(
             parent(), found_chr->owner(), dst, true);
 
         if (chr) {
@@ -102,12 +102,12 @@ bool Replicator::create_replicant(App& app)
             time_stream::event::ReplicantCreated e;
             e.x_ = dst.x;
             e.y_ = dst.y;
-            e.near_ = parent() == &app.player_island();
-            e.owned_by_player_ = found_chr->owner() == &app.player();
-            app.time_stream().push(app.level_timer(), e);
+            e.near_ = parent() == &APP.player_island();
+            e.owned_by_player_ = found_chr->owner() == &APP.player();
+            APP.time_stream().push(APP.level_timer(), e);
 
 
-            chr->apply_damage(app, 255 - replicant_health);
+            chr->apply_damage(255 - replicant_health);
             chr->transported();
             edit_characters().push(std::move(chr));
             update_description();
@@ -122,14 +122,14 @@ bool Replicator::create_replicant(App& app)
 
 
 
-ScenePtr<Scene> Replicator::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Replicator::select(const RoomCoord& cursor)
 {
-    if (auto next = Room::select(app, cursor)) {
+    if (auto next = Room::select(cursor)) {
         return next;
     }
 
-    if (parent() == app.opponent_island() and
-        app.game_mode() not_eq App::GameMode::sandbox) {
+    if (parent() == APP.opponent_island() and
+        APP.game_mode() not_eq App::GameMode::sandbox) {
         return null_scene();
     }
 
@@ -148,10 +148,10 @@ ScenePtr<Scene> Replicator::select(App& app, const RoomCoord& cursor)
 
         using Next = ReplicatorSelectionScene;
 
-        const bool near = parent() == &app.player_island();
+        const bool near = parent() == &APP.player_island();
         auto next = scene_pool::make_deferred_scene<Next>(near);
 
-        if (app.game_mode() == App::GameMode::co_op) {
+        if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);
         } else {
             return next();

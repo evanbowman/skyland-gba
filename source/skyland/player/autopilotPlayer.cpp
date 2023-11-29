@@ -43,14 +43,14 @@ AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) : keys_list_(keys_list)
 
 
 
-void AutopilotPlayer::on_room_damaged(App& app, Room& room)
+void AutopilotPlayer::on_room_damaged(Room& room)
 {
     auto island = room.parent();
 
     // Birds alerted when island attacked.
-    for (auto& bird : app.birds()) {
-        if (bird->island(app) == island) {
-            bird->signal(app);
+    for (auto& bird : APP.birds()) {
+        if (bird->island() == island) {
+            bird->signal();
         }
     }
 }
@@ -97,7 +97,7 @@ static bool is_key_level_triggered(Key k)
 
 
 
-void AutopilotPlayer::update(App& app, Microseconds delta)
+void AutopilotPlayer::update(Microseconds delta)
 {
     next_key_timeout_ -= delta;
 
@@ -205,9 +205,9 @@ void AutopilotPlayer::update(App& app, Microseconds delta)
                         next_timeout_release_ = not state;
                     } else if (key->type() == lisp::Value::Type::string) {
                         PLATFORM.fill_overlay(0);
-                        app.dialog_buffer().emplace(
+                        APP.dialog_buffer().emplace(
                             allocate_dynamic<DialogString>("dialog-buffer"));
-                        **app.dialog_buffer() += key->string().value();
+                        **APP.dialog_buffer() += key->string().value();
                     }
                 } else {
                     PLATFORM.fatal("invalid autopilot list format");
@@ -219,7 +219,7 @@ void AutopilotPlayer::update(App& app, Microseconds delta)
 
             keys_list_.set(first->cons().cdr());
         } else {
-            app.exit_condition() = App::ExitCondition::misc;
+            APP.exit_condition() = App::ExitCondition::misc;
         }
     }
 }

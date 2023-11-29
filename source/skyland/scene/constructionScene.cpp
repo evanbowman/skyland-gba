@@ -59,7 +59,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
@@ -80,7 +80,7 @@ public:
     }
 
 
-    void rewind(App&, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
@@ -97,15 +97,15 @@ private:
 
 
 
-void make_construction_effect(App& app, Vec2<Fixnum> pos)
+void make_construction_effect(Vec2<Fixnum> pos)
 {
     auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
         auto p = pos;
         p.x += xoff;
         p.y += yoff;
-        if (auto e = app.alloc_entity<ConstructionAnim>(p)) {
+        if (auto e = APP.alloc_entity<ConstructionAnim>(p)) {
             e->sprite().set_flip({xflip, yflip});
-            app.effects().push(std::move(e));
+            APP.effects().push(std::move(e));
         }
     };
 
@@ -124,12 +124,12 @@ u16 room_category_icon(Room::Category category)
 
 
 
-Island* ConstructionScene::island(App& app)
+Island* ConstructionScene::island()
 {
     if (near_) {
-        return &app.player_island();
-    } else if (app.opponent_island()) {
-        return app.opponent_island();
+        return &APP.player_island();
+    } else if (APP.opponent_island()) {
+        return APP.opponent_island();
     } else {
         return nullptr;
     }
@@ -145,16 +145,16 @@ bool ConstructionScene::constrain_;
 
 
 
-bool ConstructionScene::camera_update_check_key(App& app)
+bool ConstructionScene::camera_update_check_key()
 {
     if (state_ == State::choose_building) {
         return false;
     }
-    return app.player().key_pressed(Key::left) or
-           app.player().key_pressed(Key::right) or
-           app.player().key_pressed(Key::up) or
-           app.player().key_pressed(Key::down) or
-           app.player().key_pressed(Key::select);
+    return APP.player().key_pressed(Key::left) or
+           APP.player().key_pressed(Key::right) or
+           APP.player().key_pressed(Key::up) or
+           APP.player().key_pressed(Key::down) or
+           APP.player().key_pressed(Key::select);
 }
 
 
@@ -180,7 +180,7 @@ static bool show_construction_icons = true;
 
 
 
-bool tapped_topleft_corner(App& app);
+bool tapped_topleft_corner();
 
 
 
@@ -211,34 +211,34 @@ std::optional<RoomCoord> get_local_tapclick(Island* island,
 
 
 
-void shift_rooms_right(App& app, Island& island)
+void shift_rooms_right(Island& island)
 {
     auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
     for (auto& room : island.rooms()) {
         tmp->push_back(room.get());
     }
     for (auto& r : reversed(*tmp)) {
-        island.move_room(
-            app, r->position(), {(u8)(r->position().x + 1), r->position().y});
+        island.move_room(r->position(),
+                         {(u8)(r->position().x + 1), r->position().y});
     }
     // NOTE: because we shifted all blocks to the right by one
     // coordinate, a drone may now be inside of a block, which we
     // don't want to deal with at the moment, so just destroy them
     // all.
     for (auto& d : island.drones()) {
-        d->apply_damage(app, 999);
+        d->apply_damage(999);
     }
     // Furthermore... all weapons on the players' island need to
     // have their targets adjusted accordingly:
-    Island* other_island = (&island == &app.player_island())
-                               ? app.opponent_island()
-                               : &app.player_island();
+    Island* other_island = (&island == &APP.player_island())
+                               ? APP.opponent_island()
+                               : &APP.player_island();
 
     if (other_island) {
         for (auto& r : other_island->rooms()) {
             if (auto t = r->get_target()) {
                 t->x += 1;
-                r->set_target(app, *t, r->target_pinned());
+                r->set_target(*t, r->target_pinned());
             }
         }
     }
@@ -246,7 +246,7 @@ void shift_rooms_right(App& app, Island& island)
 
 
 
-ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ConstructionScene::update(Microseconds delta)
 {
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
@@ -269,16 +269,16 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
         }
     };
 
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         fixup_cursor();
         return new_scene;
     }
 
-    if (app.player().key_down(Key::select)) {
+    if (APP.player().key_down(Key::select)) {
         return scene_pool::alloc<SelectMenuScene>();
     }
 
-    if (not island(app)) {
+    if (not island()) {
         return exit_scene();
     }
 
@@ -288,9 +288,9 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
         flicker_on_ = not flicker_on_;
     }
 
-    if (tapped_topleft_corner(app) or app.player().key_down(Key::alt_2) or
+    if (tapped_topleft_corner() or APP.player().key_down(Key::alt_2) or
         (state_ == State::select_loc and
-         app.player().key_down(Key::action_2))) {
+         APP.player().key_down(Key::action_2))) {
         if (not data_->construction_sites_.empty()) {
             cursor_loc.x = data_->construction_sites_[selector_].x;
             cursor_loc.y = data_->construction_sites_[selector_].y;
@@ -300,8 +300,8 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 
 
     auto tapclick = [&]() -> std::optional<Vec2<s8>> {
-        if (auto pos = app.player().tap_released()) {
-            auto clk = get_local_tapclick(island(app), *pos);
+        if (auto pos = APP.player().tap_released()) {
+            auto clk = get_local_tapclick(island(), *pos);
 
             if (clk) {
                 return clk->cast<s8>();
@@ -312,7 +312,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     bool sync_cursor = false;
@@ -322,12 +322,12 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
     case State::select_loc:
 
         if ( // NOTE: just because I don't want to retest the tutorials.
-            app.game_mode() not_eq App::GameMode::tutorial and
-            island(app)->checksum() not_eq checksum_) {
-            find_construction_sites(app);
+            APP.game_mode() not_eq App::GameMode::tutorial and
+            island()->checksum() not_eq checksum_) {
+            find_construction_sites();
             category_label_.reset();
             msg(SYSTR(construction_build)->c_str());
-            checksum_ = island(app)->checksum();
+            checksum_ = island()->checksum();
         }
 
         if (test_key(Key::right)) {
@@ -338,8 +338,8 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 sync_cursor = true;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
 
-            } else if (near_ and app.game_mode() == App::GameMode::sandbox and
-                       app.opponent_island()) {
+            } else if (near_ and APP.game_mode() == App::GameMode::sandbox and
+                       APP.opponent_island()) {
                 auto& cursor_loc = globals().far_cursor_loc_;
 
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -358,10 +358,10 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
 
             } else if (not near_ and
-                       app.game_mode() == App::GameMode::sandbox) {
+                       APP.game_mode() == App::GameMode::sandbox) {
                 auto& cursor_loc = globals().near_cursor_loc_;
 
-                cursor_loc.x = app.player_island().terrain().size();
+                cursor_loc.x = APP.player_island().terrain().size();
                 cursor_loc.y = globals().far_cursor_loc_.y;
 
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -394,13 +394,13 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             cursor_loc.y = data_->construction_sites_[selector_].y;
 
             if (sync_cursor) {
-                app.player().network_sync_cursor(cursor_loc, 3, true);
+                APP.player().network_sync_cursor(cursor_loc, 3, true);
             }
         }
 
         if (((tapclick and
               *tapclick == data_->construction_sites_[selector_]) or
-             app.player().key_down(Key::action_1)) and
+             APP.player().key_down(Key::action_1)) and
             not data_->construction_sites_.empty()) {
 
             tapclick.reset();
@@ -411,12 +411,12 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 state_ = State::add_terrain;
                 StringBuffer<30> temp;
                 temp += *SYSTR(construction_add_terrain);
-                temp += stringify(app.terrain_cost(*island(app)));
+                temp += stringify(APP.terrain_cost(*island()));
                 temp += "@";
                 msg(temp.c_str());
 
             } else {
-                if (not collect_available_buildings(app)) {
+                if (not collect_available_buildings()) {
                     // Do nothing...
                 } else if (not data_->available_buildings_.empty()) {
 
@@ -448,16 +448,16 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                     state_ = State::choose_building;
                     sound_openbag.play(1, seconds(2));
                     sound_openbag.reset();
-                    show_current_building_text(app);
+                    show_current_building_text();
                 }
             }
-        } else if (tapclick or app.player().touch_held(milliseconds(200))) {
+        } else if (tapclick or APP.player().touch_held(milliseconds(200))) {
 
-            if (app.player().touch_held(milliseconds(200))) {
+            if (APP.player().touch_held(milliseconds(200))) {
                 // If the player presses and holds the touch screen, scroll
                 // through available construction sites.
-                if (auto pos = app.player().touch_current()) {
-                    if (auto t = get_local_tapclick(island(app), *pos)) {
+                if (auto pos = APP.player().touch_current()) {
+                    if (auto t = get_local_tapclick(island(), *pos)) {
                         tapclick = t->cast<s8>();
                     }
                 }
@@ -490,7 +490,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
         break;
 
     case State::choose_building: {
-        if (app.player().key_down(Key::start)) {
+        if (APP.player().key_down(Key::start)) {
             auto mt = data_->available_buildings_[building_selector_];
             auto next = scene_pool::alloc<GlossaryViewerModule>(mt);
             category_label_.reset();
@@ -514,10 +514,10 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             if (building_selector_ <
                 (int)data_->available_buildings_.size() - 1) {
                 ++building_selector_;
-                show_current_building_text(app);
+                show_current_building_text();
             } else {
                 building_selector_ = 0;
-                show_current_building_text(app);
+                show_current_building_text();
             }
         };
         auto scroll_left = [&] {
@@ -526,14 +526,14 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             PLATFORM.speaker().play_sound("click", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
-                show_current_building_text(app);
+                show_current_building_text();
             } else {
                 building_selector_ = data_->available_buildings_.size() - 1;
-                show_current_building_text(app);
+                show_current_building_text();
             }
         };
-        if (app.player().touch_held(milliseconds(200))) {
-            if (auto p = app.player().touch_current()) {
+        if (APP.player().touch_held(milliseconds(200))) {
+            if (auto p = APP.player().touch_current()) {
                 if (last_touch_x_) {
                     touchscroll_ += p->x - last_touch_x_;
                     last_touch_x_ = p->x;
@@ -548,10 +548,10 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 touchscroll_ = 0;
                 scroll_left();
             }
-        } else if (app.player().key_down(Key::action_2) or
+        } else if (APP.player().key_down(Key::action_2) or
                    (tapclick and
                     *tapclick not_eq data_->construction_sites_[selector_])) {
-            find_construction_sites(app);
+            find_construction_sites();
             state_ = State::select_loc;
             category_label_.reset();
             msg(SYSTR(construction_build)->c_str());
@@ -561,7 +561,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             last_touch_x_ = 0;
         }
 
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             PLATFORM.speaker().play_sound("click", 1);
 
             flicker_on_ = false;
@@ -590,10 +590,10 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             }
             building_selector_ += i;
             building_selector_ %= data_->available_buildings_.size();
-            show_current_building_text(app);
+            show_current_building_text();
         }
 
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             PLATFORM.speaker().play_sound("click", 1);
             const auto current_category =
                 (*load_metaclass(
@@ -634,7 +634,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 }
             }
             building_selector_ = i;
-            show_current_building_text(app);
+            show_current_building_text();
         }
 
         if (test_key(Key::right)) {
@@ -646,7 +646,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
         }
 
         if (tapclick == data_->construction_sites_[selector_] or
-            app.player().key_down(Key::action_1)) {
+            APP.player().key_down(Key::action_1)) {
 
             auto mti = data_->available_buildings_[building_selector_];
 
@@ -654,7 +654,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 
             if (target->properties() & RoomProperties::singleton) {
                 bool dup = false;
-                for (auto& room : island(app)->rooms()) {
+                for (auto& room : island()->rooms()) {
                     if (room->metaclass_index() == mti) {
                         dup = true;
                         break;
@@ -670,7 +670,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 }
             }
 
-            if (app.coins() < get_room_cost(island(app), target)) {
+            if (APP.coins() < get_room_cost(island(), target)) {
                 category_label_.reset();
                 msg(SYSTR(construction_insufficient_funds)->c_str());
                 PLATFORM.speaker().play_sound("beep_error", 2);
@@ -679,7 +679,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
             }
 
             if (target->consumes_power() > 0 and
-                island(app)->power_supply() - island(app)->power_drain() <
+                island()->power_supply() - island()->power_drain() <
                     target->consumes_power()) {
                 category_label_.reset();
                 msg(SYSTR(construction_insufficient_power_supply)->c_str());
@@ -688,7 +688,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 break;
             }
 
-            if (globals().room_pools_.empty() or island(app)->rooms().full()) {
+            if (globals().room_pools_.empty() or island()->rooms().full()) {
                 category_label_.reset();
                 msg(SYSTR(construction_too_many_rooms)->c_str());
                 PLATFORM.speaker().play_sound("beep_error", 2);
@@ -696,7 +696,7 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 break;
             }
 
-            if (not site_has_space(app, mti)) {
+            if (not site_has_space(mti)) {
                 category_label_.reset();
                 PLATFORM.speaker().play_sound("beep_error", 2);
                 msg(SYSTR(construction_not_enough_space)->c_str());
@@ -704,9 +704,9 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 break;
             }
 
-            const auto diff = get_room_cost(island(app), target);
-            app.set_coins(app.coins() - diff);
-            app.level_coins_spent() += diff;
+            const auto diff = get_room_cost(island(), target);
+            APP.set_coins(APP.coins() - diff);
+            APP.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
             const u8 dest_x = data_->construction_sites_[selector_].x;
@@ -715,18 +715,18 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 
             PLATFORM.speaker().play_sound("build0", 4);
 
-            target->create(app, island(app), {dest_x, dest_y});
+            target->create(island(), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
 
             stack_ += target->size().y;
 
-            checksum_ = island(app)->checksum();
+            checksum_ = island()->checksum();
 
             if (str_eq(target->name(), "workshop")) {
-                app.persistent_data().set_flag(PersistentData::workshop_built);
+                APP.persistent_data().set_flag(PersistentData::workshop_built);
             }
 
-            app.player().rooms_built_++;
+            APP.player().rooms_built_++;
 
             auto mt_index = metaclass_index(target->name());
 
@@ -741,42 +741,42 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
                 time_stream::event::PlayerRoomCreated p;
                 p.x_ = dest_x;
                 p.y_ = dest_y;
-                app.time_stream().push(app.level_timer(), p);
+                APP.time_stream().push(APP.level_timer(), p);
             } else {
                 time_stream::event::OpponentRoomCreated p;
                 p.x_ = dest_x;
                 p.y_ = dest_y;
-                app.time_stream().push(app.level_timer(), p);
+                APP.time_stream().push(APP.level_timer(), p);
             }
 
 
-            if (auto room = island(app)->get_room({dest_x, dest_y})) {
-                room->init_ai_awareness(app);
+            if (auto room = island()->get_room({dest_x, dest_y})) {
+                room->init_ai_awareness();
 
-                if (app.game_speed() == GameSpeed::stopped) {
+                if (APP.game_speed() == GameSpeed::stopped) {
 
                     room->init_ai_awareness_upon_unpause();
 
                     if (str_eq("cloak", room->name())) {
-                        for (auto& room : island(app)->rooms()) {
+                        for (auto& room : island()->rooms()) {
                             if (room->should_init_ai_awareness_upon_unpause()) {
-                                room->init_ai_awareness(app);
+                                room->init_ai_awareness();
                                 room->init_ai_awareness_upon_unpause();
                             }
                         }
                     }
                 }
 
-                make_construction_effect(app, room->visual_center());
+                make_construction_effect(room->visual_center());
 
-                if (auto scene = room->setup(app)) {
+                if (auto scene = room->setup()) {
                     fixup_cursor();
                     return scene;
                 }
             }
 
 
-            find_construction_sites(app);
+            find_construction_sites();
 
             category_label_.reset();
             state_ = State::select_loc;
@@ -786,59 +786,59 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
     }
 
     case State::insufficient_funds:
-        if (app.player().key_down(Key::action_2) or
-            app.player().key_down(Key::action_1)) {
-            find_construction_sites(app);
+        if (APP.player().key_down(Key::action_2) or
+            APP.player().key_down(Key::action_1)) {
+            find_construction_sites();
             state_ = State::select_loc;
             msg(SYSTR(construction_build)->c_str());
         }
         break;
 
     case State::add_terrain:
-        if (app.player().key_down(Key::action_2)) {
-            find_construction_sites(app);
+        if (APP.player().key_down(Key::action_2)) {
+            find_construction_sites();
             state_ = State::select_loc;
             msg(SYSTR(construction_build)->c_str());
             break;
         }
 
-        if (app.player().key_down(Key::action_1)) {
-            if (app.coins() < app.terrain_cost(*island(app))) {
+        if (APP.player().key_down(Key::action_1)) {
+            if (APP.coins() < APP.terrain_cost(*island())) {
                 msg(SYSTR(construction_build)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
-            app.set_coins(app.coins() - app.terrain_cost(*island(app)));
+            APP.set_coins(APP.coins() - APP.terrain_cost(*island()));
 
             time_stream::event::IslandTerrainChanged e;
-            e.previous_terrain_size_ = island(app)->terrain().size();
-            e.near_ = island(app) == &app.player_island();
-            app.time_stream().push(app.level_timer(), e);
+            e.previous_terrain_size_ = island()->terrain().size();
+            e.near_ = island() == &APP.player_island();
+            APP.time_stream().push(APP.level_timer(), e);
 
 
-            auto& terrain = island(app)->terrain();
+            auto& terrain = island()->terrain();
             terrain.pop_back(); // the old edge tile
             terrain.push_back(Tile::terrain_middle);
             terrain.push_back(Tile::terrain_right);
 
             PLATFORM.speaker().play_sound("gravel", 4);
 
-            island(app)->render_terrain();
+            island()->render_terrain();
 
 
             if (data_->construction_sites_[selector_].x == -1) {
-                shift_rooms_right(app, *island(app));
+                shift_rooms_right(*island());
                 network::packet::TerrainConstructedLeft packet;
-                packet.new_terrain_size_ = island(app)->terrain().size();
+                packet.new_terrain_size_ = island()->terrain().size();
                 network::transmit(packet);
             } else {
                 network::packet::TerrainConstructed packet;
-                packet.new_terrain_size_ = island(app)->terrain().size();
+                packet.new_terrain_size_ = island()->terrain().size();
                 network::transmit(packet);
             }
 
-            find_construction_sites(app);
+            find_construction_sites();
             state_ = State::select_loc;
 
             msg(SYSTR(construction_build)->c_str());
@@ -850,9 +850,9 @@ ScenePtr<Scene> ConstructionScene::update(App& app, Microseconds delta)
 }
 
 
-void ConstructionScene::show_current_building_text(App& app)
+void ConstructionScene::show_current_building_text()
 {
-    if (app.game_mode() == App::GameMode::tutorial) {
+    if (APP.game_mode() == App::GameMode::tutorial) {
         show_category_ = false;
     }
 
@@ -882,7 +882,7 @@ void ConstructionScene::show_current_building_text(App& app)
 
     str += " ";
     str += stringify(get_room_cost(
-        island(app),
+        island(),
         (*load_metaclass(data_->available_buildings_[building_selector_]))));
     str += "@";
     str += " ";
@@ -1016,8 +1016,7 @@ void ConstructionScene::show_current_building_text(App& app)
 
 
 
-void draw_required_space(App& app,
-                         Island& island,
+void draw_required_space(Island& island,
                          const Vec2<Fixnum> origin,
                          const Vec2<u8>& sz,
                          Room::WeaponOrientation o)
@@ -1072,7 +1071,7 @@ void draw_required_space(App& app,
 
     case Room::WeaponOrientation::horizontal: {
         spr.set_tidx_16x16(97, 1);
-        const bool flip = &island == app.opponent_island();
+        const bool flip = &island == APP.opponent_island();
         spr.set_flip({flip, false});
         if (flip) {
             ocpy.x -= 16.0_fixed;
@@ -1109,9 +1108,9 @@ void draw_required_space(App& app,
 
 
 
-void ConstructionScene::display(App& app)
+void ConstructionScene::display()
 {
-    if (not island(app)) {
+    if (not island()) {
         return;
     }
 
@@ -1125,7 +1124,7 @@ void ConstructionScene::display(App& app)
 
     case State::select_loc:
         if (not data_->construction_sites_.empty()) {
-            auto origin = island(app)->visual_origin();
+            auto origin = island()->visual_origin();
 
             origin.x += Fixnum::from_integer(
                 data_->construction_sites_[selector_].x * 16);
@@ -1156,9 +1155,9 @@ void ConstructionScene::display(App& app)
             sprite.set_flip({});
 
             if (data_->construction_sites_[selector_].y == 15) {
-                origin = island(app)->visual_origin();
-                origin.x += Fixnum::from_integer(
-                    (island(app)->terrain().size() - 1) * 16);
+                origin = island()->visual_origin();
+                origin.x +=
+                    Fixnum::from_integer((island()->terrain().size() - 1) * 16);
                 origin.y += 15.0_fixed * 16.0_fixed;
 
                 int tid_1 = 0;
@@ -1167,7 +1166,7 @@ void ConstructionScene::display(App& app)
                 if (data_->construction_sites_[selector_].x == -1) {
                     sprite.set_flip({true, false});
                     std::swap(tid_1, tid_2);
-                    origin.x = island(app)->visual_origin().x - 16.0_fixed;
+                    origin.x = island()->visual_origin().x - 16.0_fixed;
                 }
                 sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_position(origin);
@@ -1180,10 +1179,10 @@ void ConstructionScene::display(App& app)
                 PLATFORM.screen().draw(sprite);
                 sprite.set_size(Sprite::Size::w16_h32);
             } else if ((u32)data_->construction_sites_[selector_].x ==
-                       island(app)->terrain().size() - 1) {
-                origin = island(app)->visual_origin();
+                       island()->terrain().size() - 1) {
+                origin = island()->visual_origin();
                 origin.x +=
-                    Fixnum::from_integer((island(app)->terrain().size()) * 16);
+                    Fixnum::from_integer((island()->terrain().size()) * 16);
                 origin.y += 15.0_fixed * 16.0_fixed;
 
                 sprite.set_position(origin);
@@ -1193,7 +1192,7 @@ void ConstructionScene::display(App& app)
             }
 
             if (data_->construction_sites_[selector_].x == 0) {
-                origin = island(app)->visual_origin();
+                origin = island()->visual_origin();
                 origin.x -= 16.0_fixed;
                 origin.y += 15.0_fixed * 16.0_fixed;
 
@@ -1213,7 +1212,7 @@ void ConstructionScene::display(App& app)
                 data_->available_buildings_[building_selector_]);
             const auto sz = meta->size();
 
-            auto origin = island(app)->visual_origin();
+            auto origin = island()->visual_origin();
             origin.x += Fixnum::from_integer(
                 data_->construction_sites_[selector_].x * 16);
             origin.y += Fixnum::from_integer(
@@ -1224,14 +1223,14 @@ void ConstructionScene::display(App& app)
 
             for (u8 x = rloc.x; x < rloc.x + sz.x; ++x) {
                 for (u8 y = rloc.y; y < rloc.y + sz.y; ++y) {
-                    if (island(app)->get_room({x, y}) or
-                        x >= (int)island(app)->terrain().size()) {
+                    if (island()->get_room({x, y}) or
+                        x >= (int)island()->terrain().size()) {
 
                         if (flicker_on_) {
                             Sprite spr;
                             spr.set_tidx_16x16(13, 1);
                             spr.set_size(Sprite::Size::w16_h16);
-                            auto origin = island(app)->visual_origin();
+                            auto origin = island()->visual_origin();
                             origin.x += Fixnum(x * 16);
                             origin.y += Fixnum(y * 16);
                             spr.set_position({origin.x, origin.y});
@@ -1243,18 +1242,18 @@ void ConstructionScene::display(App& app)
             }
 
             auto o = meta->weapon_orientation();
-            draw_required_space(app, *island(app), origin, sz, o);
+            draw_required_space(*island(), origin, sz, o);
         }
         break;
 
 
     case State::add_terrain: {
-        auto& terrain = island(app)->terrain();
+        auto& terrain = island()->terrain();
         const RoomCoord loc = {u8(terrain.size()), 15};
-        auto origin = island(app)->visual_origin();
+        auto origin = island()->visual_origin();
         origin.x += Fixnum::from_integer(loc.x * 16);
         if (data_->construction_sites_[selector_].x == -1) {
-            origin.x = island(app)->visual_origin().x - 16.0_fixed;
+            origin.x = island()->visual_origin().x - 16.0_fixed;
         }
         origin.y -= 32.0_fixed;
         Sprite sprite;
@@ -1270,12 +1269,12 @@ void ConstructionScene::display(App& app)
         if (data_->construction_sites_[selector_].x == -1) {
             sprite.set_flip({true, false});
             std::swap(tid_1, tid_2);
-            origin.x = island(app)->visual_origin().x - 16.0_fixed;
-            origin.y = island(app)->visual_origin().y + 15.0_fixed * 16.0_fixed;
+            origin.x = island()->visual_origin().x - 16.0_fixed;
+            origin.y = island()->visual_origin().y + 15.0_fixed * 16.0_fixed;
         } else {
-            origin = island(app)->visual_origin();
+            origin = island()->visual_origin();
             origin.x +=
-                Fixnum::from_integer((island(app)->terrain().size() - 1) * 16);
+                Fixnum::from_integer((island()->terrain().size() - 1) * 16);
             origin.y += 15.0_fixed * 16.0_fixed;
         }
         {
@@ -1293,28 +1292,28 @@ void ConstructionScene::display(App& app)
     }
     }
 
-    WorldScene::display(app);
+    WorldScene::display();
 }
 
 
 
-void ConstructionScene::find_construction_sites(App& app)
+void ConstructionScene::find_construction_sites()
 {
     data_->construction_sites_.clear();
 
     bool matrix[16][16];
 
-    checksum_ = island(app)->checksum();
+    checksum_ = island()->checksum();
 
-    const auto& terrain = island(app)->terrain();
+    const auto& terrain = island()->terrain();
     if (not terrain.full() and
-        app.game_mode() not_eq App::GameMode::multiplayer) {
+        APP.game_mode() not_eq App::GameMode::multiplayer) {
         // Construct terrain on lefthand side of island
         data_->construction_sites_.push_back({-1, 15});
     }
 
 
-    island(app)->plot_construction_zones(matrix);
+    island()->plot_construction_zones(matrix);
 
     for (s8 x = 0; x < 16; ++x) {
         for (s8 y = 0; y < 16; ++y) {
@@ -1325,7 +1324,7 @@ void ConstructionScene::find_construction_sites(App& app)
     }
 
     if (not terrain.full() and
-        app.game_mode() not_eq App::GameMode::multiplayer) {
+        APP.game_mode() not_eq App::GameMode::multiplayer) {
         data_->construction_sites_.push_back({s8(terrain.size()), 15});
     }
 
@@ -1369,10 +1368,10 @@ void ConstructionScene::msg(const char* text)
 
 
 
-bool ConstructionScene::site_has_space(App& app, MetaclassIndex m)
+bool ConstructionScene::site_has_space(MetaclassIndex m)
 {
     u8 matrix[16][16];
-    island(app)->plot_rooms(matrix);
+    island()->plot_rooms(matrix);
 
     int avail_x_space = 0;
 
@@ -1381,7 +1380,7 @@ bool ConstructionScene::site_has_space(App& app, MetaclassIndex m)
 
     const auto current = data_->construction_sites_[selector_];
 
-    for (int x = current.x; x < (int)island(app)->terrain().size(); ++x) {
+    for (int x = current.x; x < (int)island()->terrain().size(); ++x) {
         if (matrix[x][current.y]) {
             break;
         }
@@ -1421,22 +1420,22 @@ bool ConstructionScene::site_has_space(App& app, MetaclassIndex m)
 
 
 
-bool ConstructionScene::collect_available_buildings(App& app)
+bool ConstructionScene::collect_available_buildings()
 {
     data_->available_buildings_.clear();
 
     const auto w_count =
-        island(app)->workshop_count() + island(app)->manufactory_count();
+        island()->workshop_count() + island()->manufactory_count();
 
-    const auto f_count = island(app)->manufactory_count();
+    const auto f_count = island()->manufactory_count();
 
     auto metatable = room_metatable();
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& meta = metatable.first[i];
 
-        if (app.game_mode() == App::GameMode::multiplayer or
-            app.game_mode() == App::GameMode::tutorial or
-            app.game_mode() == App::GameMode::co_op) {
+        if (APP.game_mode() == App::GameMode::multiplayer or
+            APP.game_mode() == App::GameMode::tutorial or
+            APP.game_mode() == App::GameMode::co_op) {
             if (i >= plugin_rooms_begin()) {
                 // We disable plugin (dlc) rooms during certain game modes.
                 break;
@@ -1460,37 +1459,37 @@ bool ConstructionScene::collect_available_buildings(App& app)
         const bool dependencies_satisfied =
             (not manufactory_required or
              (manufactory_required and f_count > 0) or
-             (app.game_mode() == App::GameMode::sandbox and
+             (APP.game_mode() == App::GameMode::sandbox and
               sandbox_dependencies_off)) and
             (not workshop_required or (workshop_required and w_count > 0) or
-             (app.game_mode() == App::GameMode::sandbox and
+             (APP.game_mode() == App::GameMode::sandbox and
               sandbox_dependencies_off));
 
         const bool explicitly_disabled =
-            (app.game_mode() == App::GameMode::tutorial and
+            (APP.game_mode() == App::GameMode::tutorial and
              meta->properties() & RoomProperties::disabled_in_tutorials) or
             (meta->properties() & RoomProperties::not_constructible) or
-            (app.game_mode() not_eq App::GameMode::tutorial and
+            (APP.game_mode() not_eq App::GameMode::tutorial and
              room_hidden(i)) or
-            (app.game_mode() not_eq App::GameMode::adventure and
+            (APP.game_mode() not_eq App::GameMode::adventure and
              meta->properties() & RoomProperties::adventure_mode_only) or
-            (app.game_mode() not_eq App::GameMode::sandbox and
+            (APP.game_mode() not_eq App::GameMode::sandbox and
              meta->properties() &
                  RoomProperties::only_constructible_in_sandbox) or
             (PLATFORM.network_peer().is_connected() and
              meta->properties() & RoomProperties::multiplayer_unsupported) or
-            (app.game_mode() == App::GameMode::skyland_forever and
+            (APP.game_mode() == App::GameMode::skyland_forever and
              meta->properties() &
                  RoomProperties::skyland_forever_unsupported) or
-            (app.gp_.difficulty_ not_eq
+            (APP.gp_.difficulty_ not_eq
                  GlobalPersistentData::Difficulty::beginner and
              meta->properties() & RoomProperties::easy_mode_only) or
-            (state_bit_load(app, StateBit::multiboot) and
+            (state_bit_load(StateBit::multiboot) and
              not(meta->properties() & RoomProperties::multiboot_compatible));
 
         if (not explicitly_disabled and dependencies_satisfied and
-            (not constrain_ or (constrain_ and site_has_space(app, i))) and
-            (app.game_mode() not_eq App::GameMode::tutorial or
+            (not constrain_ or (constrain_ and site_has_space(i))) and
+            (APP.game_mode() not_eq App::GameMode::tutorial or
              // NOTE: for backwards compatibility with tutorials: The game used
              // to only display blocks that would fit into the selected
              // construction site. But players were confused during testing, so
@@ -1499,10 +1498,10 @@ bool ConstructionScene::collect_available_buildings(App& app)
              // old-styled menu, and I don't want to re-record them, so tutorial
              // mode still only displays the blocks that fit into the selected
              // construction site.
-             (app.game_mode() == App::GameMode::tutorial and
-              site_has_space(app, i)))) {
+             (APP.game_mode() == App::GameMode::tutorial and
+              site_has_space(i)))) {
             // Do not show decorations in the building list in tutorial mode.
-            if (not(app.game_mode() == App::GameMode::tutorial and
+            if (not(APP.game_mode() == App::GameMode::tutorial and
                     meta->category() == Room::Category::decoration)) {
 
                 if (not data_->available_buildings_.push_back(i)) {
@@ -1522,7 +1521,7 @@ bool ConstructionScene::collect_available_buildings(App& app)
 
 
 
-void ConstructionScene::enter(App& app, Scene& prev)
+void ConstructionScene::enter(Scene& prev)
 {
     if (not near_) {
         power_fraction_opponent_island_ = true;
@@ -1530,7 +1529,7 @@ void ConstructionScene::enter(App& app, Scene& prev)
 
     PLATFORM.screen().fade(0.f);
 
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -1538,7 +1537,7 @@ void ConstructionScene::enter(App& app, Scene& prev)
 
     persist_ui();
 
-    find_construction_sites(app);
+    find_construction_sites();
 
     if (not data_->construction_sites_.empty()) {
         auto& cursor_loc =
@@ -1561,11 +1560,11 @@ void ConstructionScene::enter(App& app, Scene& prev)
         }
 
 
-        app.player().network_sync_cursor(cursor_loc, 3, true);
+        APP.player().network_sync_cursor(cursor_loc, 3, true);
     }
 
     if (jump_to_selection_) {
-        collect_available_buildings(app);
+        collect_available_buildings();
         state_ = State::choose_building;
         for (u32 i = 0; i < data_->available_buildings_.size(); ++i) {
             if (data_->available_buildings_[i] == *jump_to_selection_) {
@@ -1573,7 +1572,7 @@ void ConstructionScene::enter(App& app, Scene& prev)
                 break;
             }
         }
-        show_current_building_text(app);
+        show_current_building_text();
     } else {
         msg(SYSTR(construction_build)->c_str());
     }
@@ -1581,9 +1580,9 @@ void ConstructionScene::enter(App& app, Scene& prev)
 
 
 
-void ConstructionScene::exit(App& app, Scene& next)
+void ConstructionScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
     if (next.cast_construction_scene()) {
         // We do not want the menus to flicker between scenes when we switch

@@ -55,7 +55,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     static Category category()

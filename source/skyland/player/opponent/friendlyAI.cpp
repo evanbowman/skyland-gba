@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void FriendlyAI::on_room_damaged(App& app, Room& room)
+void FriendlyAI::on_room_damaged(Room& room)
 {
 }
 

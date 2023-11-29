@@ -55,18 +55,18 @@ Crane::Crane(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Crane::rewind(App& app, Microseconds delta)
+void Crane::rewind(Microseconds delta)
 {
-    Room::rewind(app, delta);
+    Room::rewind(delta);
     timer_ = 0;
     state_ = State::idle;
 }
 
 
 
-void Crane::update(App& app, Microseconds delta)
+void Crane::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
     Room::ready();
 
     switch (state_) {
@@ -91,8 +91,8 @@ void Crane::update(App& app, Microseconds delta)
 
             if (item_ == Discoveries::Item::bomb) {
                 PLATFORM.speaker().play_sound("explosion1", 2);
-                big_explosion(app, pos);
-                apply_damage(app, 5);
+                big_explosion(pos);
+                apply_damage(5);
             } else {
                 // ...
             }
@@ -104,7 +104,7 @@ void Crane::update(App& app, Microseconds delta)
 
 
 void Crane::display_on_hover(Platform::Screen& screen,
-                             App& app,
+
                              const RoomCoord& cursor)
 {
     auto origin = parent()->visual_origin();
@@ -136,7 +136,7 @@ void Crane::display_on_hover(Platform::Screen& screen,
 
 
 
-void Crane::display(Platform::Screen& screen, App& app)
+void Crane::display(Platform::Screen& screen)
 {
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
@@ -188,9 +188,9 @@ void Crane::display(Platform::Screen& screen, App& app)
 class CraneItemScene : public ActiveWorldScene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        ActiveWorldScene::enter(app, prev);
+        ActiveWorldScene::enter(prev);
 
         auto d = Crane::load_discoveries();
         items_ = d.items();
@@ -201,9 +201,9 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
-        ActiveWorldScene::exit(app, next);
+        ActiveWorldScene::exit(next);
         text_.reset();
         PLATFORM.fill_overlay(0);
     }
@@ -234,7 +234,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         if (items_.empty()) {
             PLATFORM.speaker().play_sound("beep_error", 3);
@@ -296,9 +296,9 @@ private:
 
 
 
-ScenePtr<Scene> Crane::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Crane::select(const RoomCoord& cursor)
 {
-    auto& env = app.environment();
+    auto& env = APP.environment();
     auto clear_skies = not env.is_overcast();
 
     auto pos = position();
@@ -307,7 +307,7 @@ ScenePtr<Scene> Crane::select(App& app, const RoomCoord& cursor)
             PLATFORM.speaker().play_sound("beep_error", 3);
         }
 
-        if (state_bit_load(app, StateBit::crane_game_got_treasure)) {
+        if (state_bit_load(StateBit::crane_game_got_treasure)) {
             PLATFORM.speaker().play_sound("beep_error", 3);
         }
     } else {

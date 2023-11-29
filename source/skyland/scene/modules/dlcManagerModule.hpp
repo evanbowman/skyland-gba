@@ -38,11 +38,11 @@ namespace skyland
 class DlcManagerModule : public Module<DlcManagerModule>
 {
 public:
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     static SystemString module_name()

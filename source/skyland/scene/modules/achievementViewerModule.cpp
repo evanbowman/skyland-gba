@@ -37,7 +37,7 @@ u16 room_category_icon(Room::Category category);
 
 
 
-void AchievementViewerModule::load_page(App& app, int page)
+void AchievementViewerModule::load_page(int page)
 {
     const auto achievement = (achievements::Achievement)(page + 1);
 
@@ -71,7 +71,7 @@ void AchievementViewerModule::load_page(App& app, int page)
     temp += loadstr(achievements::name(achievement))->c_str();
     achievement_name_->assign(temp.c_str());
 
-    if (is_unlocked(app, achievement)) {
+    if (is_unlocked(achievement)) {
         PLATFORM.set_tile(Layer::overlay, 28, 5, 378);
     } else {
         PLATFORM.set_tile(Layer::overlay, 28, 5, 112);
@@ -123,7 +123,7 @@ void AchievementViewerModule::load_page(App& app, int page)
 
 
 
-void AchievementViewerModule::enter(App& app, Scene& prev)
+void AchievementViewerModule::enter(Scene& prev)
 {
     achievements_heading_.emplace(OverlayCoord{0, 1});
 
@@ -140,12 +140,12 @@ void AchievementViewerModule::enter(App& app, Scene& prev)
         PLATFORM.set_tile(Layer::overlay, x, 0, 477);
     }
 
-    load_page(app, 0);
+    load_page(0);
     PLATFORM.screen().fade(1.f, custom_color(0x39395a));
 
     int count = 0;
     for (int i = 0; i < achievements::count; ++i) {
-        if (achievements::is_unlocked(app, (achievements::Achievement)i)) {
+        if (achievements::is_unlocked((achievements::Achievement)i)) {
             ++count;
         }
     }
@@ -164,7 +164,7 @@ void AchievementViewerModule::enter(App& app, Scene& prev)
 
 
 
-void AchievementViewerModule::exit(App& app, Scene& next)
+void AchievementViewerModule::exit(Scene& next)
 {
     PLATFORM.screen().fade(1.f);
 
@@ -183,26 +183,26 @@ void AchievementViewerModule::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> AchievementViewerModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> AchievementViewerModule::update(Microseconds delta)
 {
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
     if (test_key(Key::right) and
         // -1 because we skip the first Achievement::none enumeration
         page_ < achievements::count - 2) {
-        load_page(app, ++page_);
+        load_page(++page_);
     }
 
     if (test_key(Key::left) and page_ > 0) {
-        load_page(app, --page_);
+        load_page(--page_);
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 

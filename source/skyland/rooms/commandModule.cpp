@@ -54,14 +54,14 @@ void CommandModule::format_description(StringBuffer<512>& buffer)
 
 
 
-void CommandModule::update(App& app, Microseconds delta)
+void CommandModule::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
-    if (&parent()->owner() == &app.opponent()) {
-        if (app.game_mode() == App::GameMode::multiplayer) {
+    if (&parent()->owner() == &APP.opponent()) {
+        if (APP.game_mode() == App::GameMode::multiplayer) {
             // While we don't want players placing a command module in opponent
             // castles in the sandbox mode, we still want to allow this block's
             // existence in opponent's castles in multiplayer mode, although it
@@ -69,17 +69,17 @@ void CommandModule::update(App& app, Microseconds delta)
             // already orchestrating character movement.
             return;
         } else {
-            apply_damage(app, Room::health_upper_limit());
+            apply_damage(Room::health_upper_limit());
             return;
         }
     }
 
-    if (app.game_mode() == App::GameMode::co_op) {
+    if (APP.game_mode() == App::GameMode::co_op) {
         // Unsupported in co-op mode.
-        apply_damage(app, Room::health_upper_limit());
+        apply_damage(Room::health_upper_limit());
     }
 
-    if (app.opponent().is_friendly()) {
+    if (APP.opponent().is_friendly()) {
         return;
     }
 
@@ -92,9 +92,9 @@ void CommandModule::update(App& app, Microseconds delta)
             local_buffer_index_ = 0;
             id_buffers_->local_.clear();
 
-            for (auto& room : app.player_island().rooms()) {
+            for (auto& room : APP.player_island().rooms()) {
                 for (auto& chr : room->characters()) {
-                    if (chr->owner() == &app.player() and
+                    if (chr->owner() == &APP.player() and
                         not chr->co_op_locked()) {
                         id_buffers_->local_.push_back(chr->id());
                     }
@@ -104,13 +104,12 @@ void CommandModule::update(App& app, Microseconds delta)
 
         if (not id_buffers_->local_.empty()) {
             auto chr_id = (id_buffers_->local_)[local_buffer_index_++];
-            auto info = app.player_island().find_character_by_id(chr_id);
+            auto info = APP.player_island().find_character_by_id(chr_id);
             if (info.first and info.first->ai_automated()) {
-                EnemyAI::assign_local_character(app,
-                                                *info.first,
-                                                &app.player(),
-                                                &app.player_island(),
-                                                app.opponent_island(),
+                EnemyAI::assign_local_character(*info.first,
+                                                &APP.player(),
+                                                &APP.player_island(),
+                                                APP.opponent_island(),
                                                 true);
             }
         }
@@ -120,10 +119,10 @@ void CommandModule::update(App& app, Microseconds delta)
             boarded_buffer_index_ = 0;
             id_buffers_->boarded_.clear();
 
-            if (app.opponent_island()) {
-                for (auto& room : app.opponent_island()->rooms()) {
+            if (APP.opponent_island()) {
+                for (auto& room : APP.opponent_island()->rooms()) {
                     for (auto& chr : room->characters()) {
-                        if (chr->owner() == &app.player() and
+                        if (chr->owner() == &APP.player() and
                             not chr->co_op_locked()) {
                             id_buffers_->boarded_.push_back(chr->id());
                         }
@@ -134,26 +133,25 @@ void CommandModule::update(App& app, Microseconds delta)
 
         if (not id_buffers_->boarded_.empty()) {
             auto chr_id = (id_buffers_->boarded_)[boarded_buffer_index_++];
-            if (app.opponent_island()) {
-                auto info = app.opponent_island()->find_character_by_id(chr_id);
+            if (APP.opponent_island()) {
+                auto info = APP.opponent_island()->find_character_by_id(chr_id);
                 if (info.first and info.first->ai_automated()) {
-                    EnemyAI::assign_boarded_character(app,
-                                                      *info.first,
-                                                      &app.player(),
-                                                      &app.player_island(),
-                                                      app.opponent_island());
+                    EnemyAI::assign_boarded_character(*info.first,
+                                                      &APP.player(),
+                                                      &APP.player_island(),
+                                                      APP.opponent_island());
                 }
             }
         }
     }
 
-    if (room_check_index_ >= player_island(app).rooms().size()) {
+    if (room_check_index_ >= player_island().rooms().size()) {
         room_check_index_ = 0;
     } else {
-        auto& room = *player_island(app).rooms()[room_check_index_++];
+        auto& room = *player_island().rooms()[room_check_index_++];
         if (&room not_eq this and room.metaclass() == this->metaclass()) {
             // Player built two command modules.
-            room.apply_damage(app, Room::health_upper_limit());
+            room.apply_damage(Room::health_upper_limit());
         }
     }
 }

@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-void show_island_interior(App& app, Island* island);
+void show_island_interior(Island* island);
 
 
 
@@ -48,8 +48,7 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         matrix[position().x][position().y] = true;
@@ -83,7 +82,7 @@ public:
     }
 
 
-    void display(Platform::Screen& screen, App& app) override
+    void display(Platform::Screen& screen) override
     {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
@@ -97,7 +96,7 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override
     {
     }
@@ -111,17 +110,17 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app)
+    ScenePtr<Scene> select()
     {
         // Unlike most rooms, the bridge shows inhabitants while viewing a
         // castle's exterior. If selecting a character, we want to show the
         // interior representation of the castle.
         if (not characters().empty() and not parent()->interior_visible()) {
 
-            show_island_interior(app, parent());
+            show_island_interior(parent());
         }
 
-        return Room::do_select(app);
+        return Room::do_select();
     }
 
 

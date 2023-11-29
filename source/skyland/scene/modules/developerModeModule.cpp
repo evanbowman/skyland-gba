@@ -71,12 +71,12 @@ void DeveloperModeModule::set_opt(bool value)
 
 
 
-void DeveloperModeModule::enter(App& app, Scene& prev)
+void DeveloperModeModule::enter(Scene& prev)
 {
     message_.emplace();
     message_overflow_.emplace();
 
-    was_developer_mode_ = app.is_developer_mode();
+    was_developer_mode_ = APP.is_developer_mode();
 
     option_text_.emplace(OverlayCoord{3, 16});
     set_opt(was_developer_mode_);
@@ -107,18 +107,18 @@ void DeveloperModeModule::enter(App& app, Scene& prev)
 
 
 
-void DeveloperModeModule::exit(App& app, Scene& next)
+void DeveloperModeModule::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
 
     PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
-    show_island_exterior(app, &player_island(app));
+    show_island_exterior(&player_island());
 }
 
 
 
-ScenePtr<Scene> DeveloperModeModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> DeveloperModeModule::update(Microseconds delta)
 {
     if (exit_) {
         PLATFORM.screen().schedule_fade(1.f);
@@ -126,12 +126,12 @@ ScenePtr<Scene> DeveloperModeModule::update(App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(Key::action_1) or
-        app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_1) or
+        APP.player().key_down(Key::action_2)) {
 
         if (was_developer_mode_ not_eq option_) {
-            app.set_developer_mode(not app.is_developer_mode());
-            save::store_global_data(app.gp_);
+            APP.set_developer_mode(not APP.is_developer_mode());
+            save::store_global_data(APP.gp_);
         }
 
         message_.reset();
@@ -141,7 +141,7 @@ ScenePtr<Scene> DeveloperModeModule::update(App& app, Microseconds delta)
         PLATFORM.screen().schedule_fade(1.f);
     }
 
-    if (app.player().key_down(Key::right) or app.player().key_down(Key::left)) {
+    if (APP.player().key_down(Key::right) or APP.player().key_down(Key::left)) {
         set_opt(not option_);
     }
 

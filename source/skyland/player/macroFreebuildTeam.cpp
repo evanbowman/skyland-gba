@@ -30,24 +30,24 @@ namespace skyland::macro
 
 
 
-void FreebuildTeam::update(App& app, Microseconds delta)
+void FreebuildTeam::update(Microseconds delta)
 {
-    PlayerP1::update(app, delta);
+    PlayerP1::update(delta);
 
     if (PLATFORM.network_peer().is_connected()) {
-        network::poll_messages(app, *this);
+        network::poll_messages(*this);
     } else {
         info("lost connection to freebuild friend!");
-        app.swap_player<PlayerP1>();
+        APP.swap_player<PlayerP1>();
         return;
     }
 }
 
 
 
-void FreebuildTeam::receive(App& app, const network::packet::MacroSetBlock& p)
+void FreebuildTeam::receive(const network::packet::MacroSetBlock& p)
 {
-    auto orientation = (int)macrocosm(app).sector().persistent().orientation_;
+    auto orientation = (int)macrocosm().sector().persistent().orientation_;
 
     Vec3<u8> coord = {p.x_, p.y_, p.z_};
 
@@ -63,12 +63,12 @@ void FreebuildTeam::receive(App& app, const network::packet::MacroSetBlock& p)
         orientation %= 4;
     }
 
-    auto& existing = macrocosm(app).sector().get_block(coord);
+    auto& existing = macrocosm().sector().get_block(coord);
     if (existing.type() == terrain::Type::selector) {
-        macrocosm(app).sector().set_cursor({p.x_, p.y_, u8(p.z_ + 1)});
+        macrocosm().sector().set_cursor({p.x_, p.y_, u8(p.z_ + 1)});
     }
 
-    macrocosm(app).sector().set_block(coord, (terrain::Type)p.type_);
+    macrocosm().sector().set_block(coord, (terrain::Type)p.type_);
 }
 
 

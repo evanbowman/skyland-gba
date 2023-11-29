@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> FactoryResetModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> FactoryResetModule::update(Microseconds delta)
 {
     if (not text_) {
         PLATFORM.screen().fade(0.9f);
@@ -42,13 +42,13 @@ ScenePtr<Scene> FactoryResetModule::update(App& app, Microseconds delta)
         text_->assign(SYSTR(factory_reset)->c_str(), {1, 1}, {28, 8});
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         text_.reset();
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 
-    if (app.player().key_pressed(Key::select) and
-        app.player().key_down(Key::action_1)) {
+    if (APP.player().key_pressed(Key::select) and
+        APP.player().key_down(Key::action_1)) {
         ++key_count_;
         if (key_count_ == 5) {
             flash_filesystem::destroy();

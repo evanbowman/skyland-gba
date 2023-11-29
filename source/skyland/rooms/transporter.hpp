@@ -47,12 +47,12 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
-    void ___rewind___ability_used(App&) override;
+    void ___rewind___ability_used() override;
 
 
 
@@ -66,16 +66,16 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
-    void transport_occupant(App& app,
-                            // NOTE: if you do not pass a destination, the
-                            // transporter logic will select a random one.
-                            std::optional<RoomCoord> destination = {});
+    void transport_occupant(
+        // NOTE: if you do not pass a destination, the
+        // transporter logic will select a random one.
+        std::optional<RoomCoord> destination = {});
 
 
-    void recover_character(App& app, const RoomCoord& pos);
+    void recover_character(const RoomCoord& pos);
 
 
     static Vec2<u8> size()
@@ -136,7 +136,7 @@ public:
     }
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
 private:
@@ -145,8 +145,7 @@ private:
 
 
 
-void transport_character_impl(App& app,
-                              Island* src_island,
+void transport_character_impl(Island* src_island,
                               Island* dst_island,
                               CharacterId chr_id,
                               const RoomCoord& dst);

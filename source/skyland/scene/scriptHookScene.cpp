@@ -32,18 +32,16 @@ namespace skyland
 
 
 
-ScenePtr<Scene> ScriptHookScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ScriptHookScene::update(Microseconds delta)
 {
-    invoke_hook(app, invoke_hook_name_.c_str());
+    invoke_hook(invoke_hook_name_.c_str());
 
     return next_scene_();
 }
 
 
 
-void invoke_hook(App& app,
-                 const char* lisp_hook_name,
-                 const InvokeHookConfig& config)
+void invoke_hook(const char* lisp_hook_name, const InvokeHookConfig& config)
 {
     auto var_name_sym = lisp::make_symbol(lisp_hook_name);
 
@@ -59,9 +57,9 @@ void invoke_hook(App& app,
         // Not worth trying to roll back lisp code, do not allow rewind if we've
         // run a script.
         if (config.reset_timestream_) {
-            app.time_stream().clear();
+            APP.time_stream().clear();
             time_stream::event::Initial e;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
 
         lisp::pop_op(); // funcall result

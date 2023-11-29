@@ -119,14 +119,14 @@ void vram_write_flag(const FlagPixels& px, Layer layer)
 
 
 
-void load_flag(App& app, u16 t)
+void load_flag(u16 t)
 {
     PLATFORM.load_tile0_texture("tilesheet");
 
     auto data = PLATFORM.extract_tile(Layer::map_0, t);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
+            APP.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
 }
@@ -145,14 +145,14 @@ void FlagPixels::load_custom(Layer layer, u16 offset)
 
 
 
-void load_default_flag(App& app)
+void load_default_flag()
 {
     PLATFORM.load_tile0_texture("tilesheet");
 
     auto data = PLATFORM.extract_tile(Layer::map_0, Tile::flag_start);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
+            APP.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
 }
@@ -176,7 +176,7 @@ void FlagPixels::save()
 
 
 
-void FlagPixels::load(App& app)
+void FlagPixels::load()
 {
     Vector<char> img;
     if (flash_filesystem::read_file_data_binary(flag_save_file, img)) {
@@ -184,7 +184,7 @@ void FlagPixels::load(App& app)
             ((u8*)pixels)[i] = img[i];
         }
     } else {
-        load_default_flag(app);
+        load_default_flag();
     }
 }
 

@@ -30,7 +30,7 @@ namespace skyland
 
 
 
-void AdventureLogScene::show_page(App&, int page_num)
+void AdventureLogScene::show_page(int page_num)
 {
     entries_.clear();
     for (int x = 0; x < 30; ++x) {
@@ -107,7 +107,7 @@ void AdventureLogScene::show_page(App&, int page_num)
 
 
 
-void AdventureLogScene::enter(App& app, Scene& prev)
+void AdventureLogScene::enter(Scene& prev)
 {
     if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind") and
         not PLATFORM.speaker().is_music_playing("box")) {
@@ -122,14 +122,14 @@ void AdventureLogScene::enter(App& app, Scene& prev)
     }
 
     PLATFORM.load_overlay_texture("overlay_adventurelog");
-    show_page(app, 0);
+    show_page(0);
     PLATFORM.speaker().play_sound("page_flip", 0);
     PLATFORM.screen().schedule_fade(1, custom_color(0xcdd6a1));
 }
 
 
 
-void AdventureLogScene::exit(App&, Scene& next)
+void AdventureLogScene::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
     entries_.clear();
@@ -196,13 +196,13 @@ int AdventureLogScene::logentry_count()
 
 
 
-ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> AdventureLogScene::update(Microseconds delta)
 {
     if (logbook_missing_) {
         return (*next_)();
     }
 
-    app.player().update(app, delta);
+    APP.player().update(delta);
 
     switch (state_) {
     case State::fade_out: {
@@ -219,8 +219,8 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
     }
 
     case State::ready: {
-        if (next_ and (app.player().key_down(Key::action_1) or
-                       app.player().key_down(Key::action_2))) {
+        if (next_ and (APP.player().key_down(Key::action_1) or
+                       APP.player().key_down(Key::action_2))) {
             state_ = State::fade_out;
             for (int x = 0; x < 30; ++x) {
                 PLATFORM.set_tile(Layer::overlay, x, 0, 90);
@@ -229,7 +229,7 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
             break;
         }
 
-        if (app.player().key_down(Key::right)) {
+        if (APP.player().key_down(Key::right)) {
 
             auto cnt = logentry_count();
 
@@ -249,7 +249,7 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(Key::left) and page_ > 0) {
+        if (APP.player().key_down(Key::left) and page_ > 0) {
             entries_.clear();
             for (int x = 0; x < 30; ++x) {
                 for (int y = 1; y < 20; ++y) {
@@ -264,7 +264,7 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
     case State::page_turn_right_anim:
         state_ = State::ready;
         ++page_;
-        show_page(app, page_);
+        show_page(page_);
         PLATFORM.speaker().play_sound("cursor_tick", 0);
         break;
         for (int i = 0; i < 4; ++i) {
@@ -327,7 +327,7 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
                             PLATFORM.screen().schedule_fade(
                                 1, custom_color(0x0e0984), true, true);
                             ++page_;
-                            show_page(app, page_);
+                            show_page(page_);
 
                             timer_ = 0;
                         }
@@ -340,7 +340,7 @@ ScenePtr<Scene> AdventureLogScene::update(App& app, Microseconds delta)
 
     case State::page_turn_left_anim:
         --page_;
-        show_page(app, page_);
+        show_page(page_);
         PLATFORM.speaker().play_sound("cursor_tick", 0);
         state_ = State::ready;
         break;

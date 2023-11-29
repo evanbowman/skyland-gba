@@ -44,9 +44,9 @@ PlunderedRoom::PlunderedRoom(Island* parent, const RoomCoord& position)
 }
 
 
-void PlunderedRoom::update(App& app, Microseconds delta)
+void PlunderedRoom::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 

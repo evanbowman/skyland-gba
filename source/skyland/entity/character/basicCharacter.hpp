@@ -51,16 +51,16 @@ public:
                    bool is_replicant);
 
 
-    void finalize(App& app);
+    void finalize();
 
 
-    void update(App&, Microseconds delta, Room* room);
+    void update(Microseconds delta, Room* room);
 
 
-    void update(App&, Microseconds delta) override final;
+    void update(Microseconds delta) override final;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
     const RoomCoord& grid_position() const
@@ -75,7 +75,7 @@ public:
     }
 
 
-    void set_movement_path(App& app, Path path);
+    void set_movement_path(Path path);
 
 
     bool has_movement_path() const
@@ -132,10 +132,10 @@ public:
     }
 
 
-    void heal(App& app, int amount);
+    void heal(int amount);
 
 
-    void apply_damage(App& app, Health damage);
+    void apply_damage(Health damage);
 
 
     void __set_health(Health amount)
@@ -144,7 +144,7 @@ public:
     }
 
 
-    void set_idle(App& app);
+    void set_idle();
 
 
     // The character will post an awaiting movement flag when it's either idle,
@@ -225,8 +225,7 @@ public:
     bool co_op_locked() const;
 
 
-    static std::pair<BasicCharacter*, Room*> find_by_id(App& app,
-                                                        CharacterId id);
+    static std::pair<BasicCharacter*, Room*> find_by_id(CharacterId id);
 
 
     void mark()
@@ -298,7 +297,7 @@ public:
     bool ai_automated() const;
 
 
-    void apply_radiation_damage(App&, Health amount);
+    void apply_radiation_damage(Health amount);
 
 
 private:
@@ -338,9 +337,9 @@ private:
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
-    void movement_step(App& app, Microseconds delta);
+    void movement_step(Microseconds delta);
 
-    void update_attack(App& app, Microseconds delta);
+    void update_attack(Microseconds delta);
 };
 
 

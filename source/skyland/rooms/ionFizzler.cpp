@@ -45,9 +45,9 @@ IonFizzler::IonFizzler(Island* parent, const RoomCoord& position)
 
 
 
-void IonFizzler::update(App& app, Microseconds delta)
+void IonFizzler::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 

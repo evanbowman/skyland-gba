@@ -54,7 +54,7 @@ public:
     }
 
 
-    void on_room_damaged(App& app, Room&) override;
+    void on_room_damaged(Room&) override;
 };
 
 

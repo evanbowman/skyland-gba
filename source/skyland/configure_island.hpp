@@ -41,13 +41,11 @@ class Island;
 
 
 
-void configure_island(App& app, Island& island, lisp::Value* island_desc_lat);
+void configure_island(Island& island, lisp::Value* island_desc_lat);
 
 
 
-void configure_island_from_codestring(App& app,
-                                      Island& island,
-                                      const char* lisp_data);
+void configure_island_from_codestring(Island& island, const char* lisp_data);
 
 
 

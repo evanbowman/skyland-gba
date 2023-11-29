@@ -37,9 +37,9 @@ namespace skyland
 class EasyModeRewindScene : public WorldScene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        WorldScene::enter(app, prev);
+        WorldScene::enter(prev);
 
         PLATFORM.load_overlay_texture("overlay_challenges");
 
@@ -58,7 +58,7 @@ public:
 
         text_.emplace(
 
-            format(lives->c_str(), app.persistent_data().lives_ + 1).c_str(),
+            format(lives->c_str(), APP.persistent_data().lives_ + 1).c_str(),
             OverlayCoord{1, 5});
 
         PLATFORM.screen().pixelate(128, false);
@@ -66,14 +66,14 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.fill_overlay(0);
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
 
         PLATFORM.load_overlay_texture("overlay");
-        WorldScene::exit(app, next);
+        WorldScene::exit(next);
 
         title_.reset();
         text_.reset();
@@ -85,29 +85,28 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             if (selected_ not_eq 0) {
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
             selected_ = 0;
-        } else if (app.player().key_down(Key::down)) {
+        } else if (APP.player().key_down(Key::down)) {
             if (selected_ not_eq 1) {
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
             selected_ = 1;
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             switch (selected_) {
             case 0:
-                state_bit_store(
-                    app, StateBit::easy_mode_rewind_declined, false);
+                state_bit_store(StateBit::easy_mode_rewind_declined, false);
                 return scene_pool::alloc<RewindScene>(false);
 
             case 1:
-                state_bit_store(app, StateBit::easy_mode_rewind_declined, true);
+                state_bit_store(StateBit::easy_mode_rewind_declined, true);
                 return scene_pool::alloc<ReadyScene>();
             }
         }

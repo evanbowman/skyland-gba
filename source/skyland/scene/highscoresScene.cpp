@@ -126,7 +126,7 @@ std::optional<HighscoreIslandInfo> highscore_island_info_load()
 
 
 
-void highscore_island_info_store(App& app)
+void highscore_island_info_store()
 {
     HighscoreIslandInfo info;
     int blockdata_iter = 0;
@@ -136,17 +136,17 @@ void highscore_island_info_store(App& app)
 
     flash_filesystem::unlink_file(highscore_island_file);
 
-    if (not app.has_backup()) {
+    if (not APP.has_backup()) {
         return;
     }
 
-    if (app.game_mode() not_eq App::GameMode::adventure) {
+    if (APP.game_mode() not_eq App::GameMode::adventure) {
         return;
     }
 
     // Use the last backup created before the end of the level where the player
     // finished the game (win or loss).
-    auto backup = app.get_backup();
+    auto backup = APP.get_backup();
     if (backup->lisp_data_) {
 
         using namespace lisp;
@@ -209,7 +209,7 @@ void highscore_island_info_store(App& app)
 
 
 
-void HighscoresScene::enter(App& app, Scene& prev)
+void HighscoresScene::enter(Scene& prev)
 {
     PLATFORM.screen().schedule_fade(0.95f);
     PLATFORM.screen().schedule_fade(1.f);
@@ -262,7 +262,7 @@ void HighscoresScene::enter(App& app, Scene& prev)
     };
 
 
-    int score = show_current_score_ ? app.persistent_data().score_.get() : 0;
+    int score = show_current_score_ ? APP.persistent_data().score_.get() : 0;
     if (score < 0) {
         score = 0;
     }
@@ -274,16 +274,16 @@ void HighscoresScene::enter(App& app, Scene& prev)
         print_metric_impl(str, stringify(num), suffix, highlight);
     };
 
-    auto& highscores = app.gp_.highscores_;
+    auto& highscores = APP.gp_.highscores_;
 
     bool changed = false;
 
-    if (not app.is_developer_mode() and
-        not(app.persistent_data().state_flags_.get() &
+    if (not APP.is_developer_mode() and
+        not(APP.persistent_data().state_flags_.get() &
             PersistentData::StateFlag::dev_mode_active)) {
 
         if (score > (int)highscores.values_[0].get()) {
-            highscore_island_info_store(app);
+            highscore_island_info_store();
         }
 
         for (auto& highscore : reversed(highscores.values_)) {
@@ -325,15 +325,15 @@ void HighscoresScene::enter(App& app, Scene& prev)
         }
     }
 
-    if (not disable_writeback_ and not app.is_developer_mode()) {
+    if (not disable_writeback_ and not APP.is_developer_mode()) {
         if (show_current_score_ and highscores.values_[0].get() == (u32)score) {
             highscores.highest_score_play_seconds_.set(
-                app.persistent_data().total_seconds_.get());
+                APP.persistent_data().total_seconds_.get());
             highscores.highest_score_multiplier_used_ = score_multiplier;
         }
 
         if (changed) {
-            save::store_global_data(app.gp_);
+            save::store_global_data(APP.gp_);
         }
     }
 
@@ -349,7 +349,7 @@ void HighscoresScene::enter(App& app, Scene& prev)
 
 
 
-void HighscoresScene::exit(App& app, Scene& prev)
+void HighscoresScene::exit(Scene& prev)
 {
     lines_.clear();
     upload_hint_.reset();
@@ -358,7 +358,7 @@ void HighscoresScene::exit(App& app, Scene& prev)
 
 
 
-static Vector<char> encode_highscore_data(App& app)
+static Vector<char> encode_highscore_data()
 {
     StringBuffer<LoginToken::size> token_str;
     for (int i = 0; i < 8; ++i) {
@@ -399,16 +399,16 @@ static Vector<char> encode_highscore_data(App& app)
         memset(&payload.island_, 0, sizeof payload.island_);
     }
 
-    payload.score_.set(app.gp_.highscores_.values_[0].get());
+    payload.score_.set(APP.gp_.highscores_.values_[0].get());
     memcpy(payload.login_token_, __login_token.text_, LoginToken::size);
 
     payload.time_seconds_.set(
-        app.gp_.highscores_.highest_score_play_seconds_.get());
+        APP.gp_.highscores_.highest_score_play_seconds_.get());
     payload.score_multiplier_ =
-        app.gp_.highscores_.highest_score_multiplier_used_;
+        APP.gp_.highscores_.highest_score_multiplier_used_;
 
     // Encode the flag data, one 4 bit pixel at a time.
-    auto& flag = app.custom_flag_image_;
+    auto& flag = APP.custom_flag_image_;
     // Sanity check.
     static_assert((FlagPixels::width * FlagPixels::height) / 2 <=
                   sizeof payload.flag_data_);
@@ -478,9 +478,9 @@ static Vector<char> encode_highscore_data(App& app)
 
 
 
-ScenePtr<Scene> HighscoresScene::update(App& app, Microseconds)
+ScenePtr<Scene> HighscoresScene::update(Microseconds)
 {
-    if (app.player().key_pressed(Key::select)) {
+    if (APP.player().key_pressed(Key::select)) {
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(
             "/scripts/config/leaderboard.lisp",
             "",
@@ -488,13 +488,13 @@ ScenePtr<Scene> HighscoresScene::update(App& app, Microseconds)
             scene_pool::make_deferred_scene<HighscoresScene>());
     }
 
-    if (app.player().key_pressed(Key::alt_1) and
-        app.player().key_pressed(Key::alt_2)) {
+    if (APP.player().key_pressed(Key::alt_1) and
+        APP.player().key_pressed(Key::alt_2)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
         auto p = title_screen_page_;
 
-        auto next = [p, &app]() {
-            auto encoded = encode_highscore_data(app);
+        auto next = [p]() {
+            auto encoded = encode_highscore_data();
 
             auto temp = allocate_dynamic<StringBuffer<700>>("temp-buf");
             auto fmt_buf = allocate_dynamic<StringBuffer<700>>("fmt-buf");
@@ -540,13 +540,13 @@ ScenePtr<Scene> HighscoresScene::update(App& app, Microseconds)
             gettext);
     }
 
-    if (app.player().key_down(Key::action_1) or
-        app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_1) or
+        APP.player().key_down(Key::action_2)) {
 
         for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update(app);
+            const auto achievement = achievements::update();
             if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(app, achievement);
+                achievements::award(achievement);
 
                 PLATFORM.screen().fade(1.f);
 

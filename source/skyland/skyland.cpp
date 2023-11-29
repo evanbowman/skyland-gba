@@ -53,9 +53,9 @@ void init_clouds();
 
 
 
-Player& player(App& app)
+Player& player()
 {
-    return app.player();
+    return APP.player();
 }
 
 
@@ -112,6 +112,9 @@ void store_hidden_rooms()
 
 
 
+App* __app__;
+
+
 App::App(bool clean_boot)
     : level_timer_(0), stat_timer_(0),
       world_state_(allocate_dynamic<WorldState>("env-buffer",
@@ -122,6 +125,8 @@ App::App(bool clean_boot)
       current_scene_(null_scene()), next_scene_(null_scene()),
       backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
 {
+    __app__ = this;
+
     player_.emplace<PlayerP1>();
 
     init_clouds();
@@ -130,7 +135,7 @@ App::App(bool clean_boot)
     current_scene_ = initial_scene(clean_boot);
     next_scene_ = initial_scene(clean_boot);
 
-    custom_flag_image_.load(*this);
+    custom_flag_image_.load();
 
     if (not save::load_global_data(gp_)) {
         info("global data not found");
@@ -172,7 +177,7 @@ App::App(bool clean_boot)
     });
 
     const auto sb = StateBit::remote_console_force_newline;
-    state_bit_store(*this, sb, true);
+    state_bit_store(sb, true);
 
     info("initialized application...");
 }
@@ -244,7 +249,7 @@ void App::restore_backup()
     lisp::pop_op(); // result of eval() (1)
     lisp::pop_op(); // result of read() (0)
 
-    player_island().fires_extinguish(*this);
+    player_island().fires_extinguish();
 
     current_world_location() = backup_->next_world_location_;
     ++world_graph().storm_depth_;
@@ -254,7 +259,7 @@ void App::restore_backup()
 
 void App::create_backup(const BackupContext& ctx)
 {
-    backup_->init(*this);
+    backup_->init();
     backup_->next_world_location_ = ctx.next_world_location_;
 }
 
@@ -279,9 +284,9 @@ void App::delete_backup()
 
 
 
-void write_custom_graphics(App& app)
+void write_custom_graphics()
 {
-    vram_write_flag(app.custom_flag_image_, Layer::map_0_ext);
+    vram_write_flag(APP.custom_flag_image_, Layer::map_0_ext);
 }
 
 
@@ -344,7 +349,7 @@ void App::update(Microseconds delta)
     const auto previous_score = score().get();
 
     if (next_scene_) {
-        next_scene_->enter(*this, *current_scene_);
+        next_scene_->enter(*current_scene_);
 
         current_scene_ = std::move(next_scene_);
     }
@@ -358,8 +363,7 @@ void App::update(Microseconds delta)
         if (not console_state_) {
             console_state_.emplace(allocate_dynamic<ConsoleState>("console"));
         }
-        (*console_state_)
-            ->impl_->on_text(*this, (*console_state_)->impl_, *line);
+        (*console_state_)->impl_->on_text((*console_state_)->impl_, *line);
     }
 
     rumble_.update(delta);
@@ -373,7 +377,7 @@ void App::update(Microseconds delta)
             it->second -= delta;
 
             if (not(it->second > 0)) {
-                it->first(*this);
+                it->first();
                 it = deferred_callbacks_.erase(it);
             } else {
                 ++it;
@@ -383,12 +387,12 @@ void App::update(Microseconds delta)
 
     TIMEPOINT(t4);
 
-    next_scene_ = current_scene_->update(*this, delta);
+    next_scene_ = current_scene_->update(delta);
 
     TIMEPOINT(t5);
 
     if (next_scene_) {
-        current_scene_->exit(*this, *next_scene_);
+        current_scene_->exit(*next_scene_);
     }
 
     if (rng::critical_state not_eq previous_rng) {
@@ -511,7 +515,7 @@ void App::render()
             "_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
     }
 
-    current_scene_->display(*this);
+    current_scene_->display();
 }
 
 
@@ -706,9 +710,9 @@ weather::Environment& App::environment()
 
 
 
-macro::EngineImpl& macrocosm(App& app)
+macro::EngineImpl& macrocosm()
 {
-    auto& m = app.macrocosm();
+    auto& m = APP.macrocosm();
     if (m) {
         // NOTE: Only macro::EngineImpl derives from macro::State, so this cast
         // is fine. We're just trying to hide the implementation to reduce build
@@ -721,16 +725,16 @@ macro::EngineImpl& macrocosm(App& app)
 
 
 
-void state_bit_store(App& app, StateBit state_bit, bool value)
+void state_bit_store(StateBit state_bit, bool value)
 {
-    app.state_bits().set((int)state_bit, value);
+    APP.state_bits().set((int)state_bit, value);
 }
 
 
 
-bool state_bit_load(App& app, StateBit state_bit)
+bool state_bit_load(StateBit state_bit)
 {
-    return app.state_bits().get((int)state_bit);
+    return APP.state_bits().get((int)state_bit);
 }
 
 

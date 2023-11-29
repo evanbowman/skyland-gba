@@ -654,272 +654,272 @@ public:
     }
 
 
-    virtual void unhandled_message(App&, const packet::Header&)
+    virtual void unhandled_message(const packet::Header&)
     {
     }
 
 
-    virtual void receive(App& app, const packet::RoomConstructed& p)
+    virtual void receive(const packet::RoomConstructed& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::RoomSalvaged& p)
+    virtual void receive(const packet::RoomSalvaged& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::TerrainConstructed& p)
+    virtual void receive(const packet::TerrainConstructed& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::TerrainConstructedLeft& p)
+    virtual void receive(const packet::TerrainConstructedLeft& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::WeaponSetTarget& p)
+    virtual void receive(const packet::WeaponSetTarget& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::DroneSetTarget& p)
+    virtual void receive(const packet::DroneSetTarget& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::RoomDestroyed& p)
+    virtual void receive(const packet::RoomDestroyed& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
 
-    virtual void receive(App& app, const packet::ChrBoardedV2& p)
+    virtual void receive(const packet::ChrBoardedV2& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::ChrDisembarkV2& p)
+    virtual void receive(const packet::ChrDisembarkV2& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::ChrDiedV2& p)
+    virtual void receive(const packet::ChrDiedV2& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::ReplicantCreated& p)
+    virtual void receive(const packet::ReplicantCreated& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::OpponentBulkheadChanged& p)
+    virtual void receive(const packet::OpponentBulkheadChanged& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::ProgramVersion& p)
+    virtual void receive(const packet::ProgramVersion& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::DroneSpawn& p)
+    virtual void receive(const packet::DroneSpawn& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::DroneDestroyed& p)
+    virtual void receive(const packet::DroneDestroyed& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::GameMatchParameterUpdate& p)
+    virtual void receive(const packet::GameMatchParameterUpdate& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::GameMatchSettingsCursor& p)
+    virtual void receive(const packet::GameMatchSettingsCursor& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::GameMatchReady& p)
+    virtual void receive(const packet::GameMatchReady& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::Heartbeat& p)
+    virtual void receive(const packet::Heartbeat& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::DynamiteActivated& p)
+    virtual void receive(const packet::DynamiteActivated& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpCursor& p)
+    virtual void receive(const packet::CoOpCursor& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::SetWeaponGroup& p)
+    virtual void receive(const packet::SetWeaponGroup& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::PlayMusic& p)
+    virtual void receive(const packet::PlayMusic& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpRoomLockAcquire& p)
+    virtual void receive(const packet::CoOpRoomLockAcquire& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpRoomLockRelease& p)
+    virtual void receive(const packet::CoOpRoomLockRelease& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpRoomLockResponse& p)
+    virtual void receive(const packet::CoOpRoomLockResponse& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpChrLockAcquire& p)
+    virtual void receive(const packet::CoOpChrLockAcquire& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpChrLockRelease& p)
+    virtual void receive(const packet::CoOpChrLockRelease& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpChrLockResponse& p)
+    virtual void receive(const packet::CoOpChrLockResponse& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpOpponentDestroyed& p)
+    virtual void receive(const packet::CoOpOpponentDestroyed& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::MacroSetBlock& p)
+    virtual void receive(const packet::MacroSetBlock& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::BlockTransferStart& p)
+    virtual void receive(const packet::BlockTransferStart& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::BlockTransferData& p)
+    virtual void receive(const packet::BlockTransferData& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::BlockTransferEnd& p)
+    virtual void receive(const packet::BlockTransferEnd& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::MacroTradeStatus& p)
+    virtual void receive(const packet::MacroTradeStatus& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::Paused& p)
+    virtual void receive(const packet::Paused& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::ChrSetTargetV2& p)
+    virtual void receive(const packet::ChrSetTargetV2& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpSyncBegin& p)
+    virtual void receive(const packet::CoOpSyncBegin& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpSyncBlock& p)
+    virtual void receive(const packet::CoOpSyncBlock& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpSyncChr& p)
+    virtual void receive(const packet::CoOpSyncChr& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::CoOpSyncEnd& p)
+    virtual void receive(const packet::CoOpSyncEnd& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void receive(App& app, const packet::OpponentRoomCreated& p)
+    virtual void receive(const packet::OpponentRoomCreated& p)
     {
-        unhandled_message(app, p.header_);
+        unhandled_message(p.header_);
     }
 
 
-    virtual void error(App&, const char* err)
+    virtual void error(const char* err)
     {
     }
 };
 
 
 
-void poll_messages(App& app, Listener& listener);
+void poll_messages(Listener& listener);
 
 
 

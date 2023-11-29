@@ -49,8 +49,7 @@ public:
     }
 
 
-    virtual void update(App& app,
-                        Island& target,
+    virtual void update(Island& target,
                         const RoomCoord& cursor_loc,
                         Microseconds delta,
                         bool near);
@@ -85,7 +84,7 @@ public:
     }
 
 
-    virtual void reset_default(App& app)
+    virtual void reset_default()
     {
     }
 

@@ -30,26 +30,26 @@ namespace skyland
 
 
 
-ScenePtr<Scene> Scene::update(App&, Microseconds delta)
+ScenePtr<Scene> Scene::update(Microseconds delta)
 {
     return null_scene();
 }
 
 
 
-void Scene::display(App&)
+void Scene::display()
 {
 }
 
 
 
-void Scene::enter(App&, Scene& prev_scene)
+void Scene::enter(Scene& prev_scene)
 {
 }
 
 
 
-void Scene::exit(App&, Scene& next_scene)
+void Scene::exit(Scene& next_scene)
 {
 }
 

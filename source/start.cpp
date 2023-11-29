@@ -93,7 +93,10 @@ static inline int boot_init()
 
     bool clean_boot = false;
 
-    auto stat = flash_filesystem::initialize(8);
+    flash_filesystem::InitConfig c;
+    c.offset_ = 8;
+
+    auto stat = flash_filesystem::initialize(c);
     if (stat == flash_filesystem::InitStatus::initialized) {
         const char* user_init_file = ";;;\n"
                                      ";;; init.lisp\n"

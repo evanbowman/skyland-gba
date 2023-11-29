@@ -46,10 +46,9 @@ namespace skyland
 
 
 
-ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth)
+ComposeSynthScene::ComposeSynthScene(Synth& synth)
     : synth_pos_(synth.position()),
-      synth_near_(synth.parent() == &player_island(app)),
-      channel_(synth.channel())
+      synth_near_(synth.parent() == &player_island()), channel_(synth.channel())
 {
     memcpy(notes_, synth.notes(), sizeof notes_);
     memcpy(effect_parameters_,
@@ -68,21 +67,21 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth)
 
 
 
-ScenePtr<Scene> ComposeSynthScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ComposeSynthScene::update(Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
-    if (player(app).key_down(Key::action_2)) {
+    if (player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player(app).key_down(Key::action_1)) {
+    if (player().key_down(Key::action_1)) {
         if (cursor_.x == 0) {
             demo_note();
         }
@@ -104,7 +103,7 @@ ScenePtr<Scene> ComposeSynthScene::update(App& app, Microseconds delta)
         delta);
 
 
-    if (not player(app).key_pressed(Key::action_1)) {
+    if (not player().key_pressed(Key::action_1)) {
         if (test_key(Key::down)) {
             if (cursor_.y < 15) {
                 ++cursor_.y;
@@ -522,7 +521,7 @@ ScenePtr<Scene> ComposeSynthScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (player(app).key_down(Key::right) and cursor_.x < 5) {
+    if (player().key_down(Key::right) and cursor_.x < 5) {
         ++cursor_.x;
         if (cursor_.x == 5) {
             resume_y_ = cursor_.y;
@@ -531,7 +530,7 @@ ScenePtr<Scene> ComposeSynthScene::update(App& app, Microseconds delta)
         repaint();
     }
 
-    if (player(app).key_down(Key::left) and cursor_.x > 0) {
+    if (player().key_down(Key::left) and cursor_.x > 0) {
         if (cursor_.x == 5) {
             cursor_.y = resume_y_;
         }
@@ -906,13 +905,13 @@ void ComposeSynthScene::repaint()
 
 
 
-void ComposeSynthScene::enter(App& app, Scene& prev)
+void ComposeSynthScene::enter(Scene& prev)
 {
-    ActiveWorldScene::enter(app, prev);
+    ActiveWorldScene::enter(prev);
 
     repaint();
 
-    auto island = synth_near_ ? &player_island(app) : opponent_island(app);
+    auto island = synth_near_ ? &player_island() : opponent_island();
 
     for (auto& room : island->rooms()) {
         // Stop any currently-playing chiptunes.
@@ -921,7 +920,7 @@ void ComposeSynthScene::enter(App& app, Scene& prev)
         }
     }
 
-    island->repaint(app);
+    island->repaint();
 
 
     PLATFORM.screen().schedule_fade(0.5f);
@@ -961,7 +960,7 @@ void ComposeSynthScene::enter(App& app, Scene& prev)
 
 
 
-void ComposeSynthScene::exit(App& app, Scene& next)
+void ComposeSynthScene::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
 
@@ -970,7 +969,7 @@ void ComposeSynthScene::exit(App& app, Scene& next)
     PLATFORM.screen().schedule_fade(0.f);
 
     if (synth_near_) {
-        if (auto room = player_island(app).get_room(synth_pos_)) {
+        if (auto room = player_island().get_room(synth_pos_)) {
             if (auto s = room->cast<Synth>()) {
                 memcpy(s->notes(), notes_, sizeof notes_);
                 memcpy(s->effect_parameters(),
@@ -988,8 +987,8 @@ void ComposeSynthScene::exit(App& app, Scene& next)
             }
         }
     } else {
-        if (opponent_island(app)) {
-            if (auto room = opponent_island(app)->get_room(synth_pos_)) {
+        if (opponent_island()) {
+            if (auto room = opponent_island()->get_room(synth_pos_)) {
                 if (auto s = room->cast<Synth>()) {
                     memcpy(s->notes(), notes_, sizeof notes_);
                     memcpy(s->effect_parameters(),

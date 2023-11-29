@@ -55,10 +55,10 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     static Factory factory_;

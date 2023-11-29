@@ -40,14 +40,14 @@ public:
     Manufactory(Island* parent, const RoomCoord& position);
 
 
-    void update(App&, Microseconds delta);
+    void update(Microseconds delta);
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
     static void format_description(StringBuffer<512>& buffer);

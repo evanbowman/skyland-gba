@@ -65,16 +65,16 @@ public:
     virtual ~Scene(){};
 
 
-    virtual ScenePtr<Scene> update(App&, Microseconds delta);
+    virtual ScenePtr<Scene> update(Microseconds delta);
 
 
-    virtual void display(App&);
+    virtual void display();
 
 
-    virtual void enter(App&, Scene& prev_scene);
+    virtual void enter(Scene& prev_scene);
 
 
-    virtual void exit(App&, Scene& next_scene);
+    virtual void exit(Scene& next_scene);
 
 
     // Yeah, I should be using a visitor.

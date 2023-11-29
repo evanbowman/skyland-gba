@@ -41,13 +41,12 @@ namespace skyland
 class SandboxSpectatorPlayer : public EnemyAI
 {
 public:
-    SandboxSpectatorPlayer(App& app)
-        : EnemyAI(&player_island(app), opponent_island(app))
+    SandboxSpectatorPlayer() : EnemyAI(&player_island(), opponent_island())
     {
     }
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     bool key_down(Key k) override;

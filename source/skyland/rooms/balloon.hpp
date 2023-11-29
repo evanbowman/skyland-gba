@@ -42,15 +42,14 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         matrix[position().x + 1][position().y + 4] = true;
     }
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -143,7 +142,7 @@ public:
     }
 
 
-    void display(Platform::Screen& screen, App& app) override
+    void display(Platform::Screen& screen) override
     {
         for (auto& c : characters()) {
             auto pos = c->sprite().get_position();

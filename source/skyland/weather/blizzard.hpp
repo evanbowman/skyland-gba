@@ -41,10 +41,10 @@ public:
     }
 
 
-    Platform::Screen::Shader shader(App& app) const override;
+    Platform::Screen::Shader shader() const override;
 
 
-    static Platform::Screen::Shader get_shader(App& app);
+    static Platform::Screen::Shader get_shader();
 
 
     bool is_cold() const override
@@ -53,8 +53,8 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta);
-    void display(App& app) override;
+    void update(Microseconds delta);
+    void display() override;
 };
 
 

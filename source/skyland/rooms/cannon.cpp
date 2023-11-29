@@ -66,9 +66,9 @@ Cannon::Cannon(Island* parent, const RoomCoord& position)
 
 
 
-void Cannon::fire(App& app)
+void Cannon::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -77,34 +77,34 @@ void Cannon::fire(App& app)
     origin.y += Fixnum::from_integer(target_->y * 16 + 8);
     target = origin;
 
-    app.camera()->shake(4);
+    APP.camera()->shake(4);
 
     auto start = center();
 
     // This just makes it a bit less likely for cannonballs to
     // run into the player's own buildings, especially around
     // corners.
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         start.x -= 6.0_fixed;
     } else {
         start.x += 6.0_fixed;
     }
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
     cannon_sound.play(3);
 
-    auto c = app.alloc_entity<Cannonball>(start, target, parent(), position());
+    auto c = APP.alloc_entity<Cannonball>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }
 
     auto e = alloc_entity<AnimatedEffect>(start, 47, 49, milliseconds(100));
     if (e) {
-        app.effects().push(std::move(e));
+        APP.effects().push(std::move(e));
     }
 }
 

@@ -45,10 +45,10 @@ public:
     }
 
 
-    Power power_usage(App& app) const override;
+    Power power_usage() const override;
 
 
-    void finalize(App& app) override;
+    void finalize() override;
 
 
     int debris_tile() override
@@ -99,14 +99,13 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App& app, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
     }
@@ -141,7 +140,7 @@ public:
     }
 
 
-    void display(Platform::Screen& screen, App& app) override;
+    void display(Platform::Screen& screen) override;
 
 
     static Vec2<u8> size()

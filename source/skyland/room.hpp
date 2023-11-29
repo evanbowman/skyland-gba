@@ -211,9 +211,9 @@ public:
     virtual void render_interior(App* app, TileId buffer[16][16]) = 0;
     virtual void render_exterior(App* app, TileId buffer[16][16]) = 0;
 
-    virtual void render_scaffolding(App& app, TileId buffer[16][16]);
+    virtual void render_scaffolding(TileId buffer[16][16]);
 
-    virtual void render_cloak(App& app, TileId buffer[16][16])
+    virtual void render_cloak(TileId buffer[16][16])
     {
     }
 
@@ -224,7 +224,7 @@ public:
     }
 
 
-    void init_ai_awareness(App& app);
+    void init_ai_awareness();
 
 
     template <typename T> T* cast()
@@ -243,21 +243,21 @@ public:
     void set_injured();
 
 
-    virtual void update(App&, Microseconds delta);
-    virtual void rewind(App&, Microseconds delta);
+    virtual void update(Microseconds delta);
+    virtual void rewind(Microseconds delta);
 
-    virtual void display(Platform::Screen& screen, App& app);
+    virtual void display(Platform::Screen& screen);
 
 
     virtual bool opponent_display_on_hover() const;
 
 
     virtual void display_on_hover(Platform::Screen& screen,
-                                  App& app,
+
                                   const RoomCoord& cursor);
 
 
-    Island* other_island(App&);
+    Island* other_island();
 
 
     RoomCoord position() const
@@ -275,7 +275,7 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room finished
     // reloading.
-    virtual void ___rewind___finished_reload(App&)
+    virtual void ___rewind___finished_reload()
     {
     }
 
@@ -283,22 +283,22 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room used
     // its special ability. Required to correctly set reload timers.
-    virtual void ___rewind___ability_used(App&)
+    virtual void ___rewind___ability_used()
     {
     }
 
 
-    virtual ScenePtr<Scene> setup(App&);
+    virtual ScenePtr<Scene> setup();
 
 
     // Block may be selected and activated even by the other player.
     virtual bool non_owner_selectable() const;
 
 
-    virtual ScenePtr<Scene> select(App& app, const RoomCoord& cursor);
+    virtual ScenePtr<Scene> select(const RoomCoord& cursor);
 
 
-    ScenePtr<Scene> reject_if_friendly(App& app);
+    ScenePtr<Scene> reject_if_friendly();
 
 
     virtual std::optional<RoomCoord> get_target() const
@@ -310,12 +310,12 @@ public:
     virtual bool target_pinned() const;
 
 
-    virtual void set_target(App& app, const RoomCoord& target, bool pinned)
+    virtual void set_target(const RoomCoord& target, bool pinned)
     {
     }
 
 
-    virtual void unset_target(App& app)
+    virtual void unset_target()
     {
     }
 
@@ -347,7 +347,7 @@ public:
     bool is_decoration() const;
 
 
-    virtual void finalize(App& app);
+    virtual void finalize();
 
 
     void __unsafe__ignore_finalizer()
@@ -384,7 +384,7 @@ public:
     }
 
 
-    void heal(App& app, Health amount);
+    void heal(Health amount);
 
 
     // Careful! Converts a room to an entirely new type, by changing the parent
@@ -398,7 +398,7 @@ public:
     // assertions elsewhere to check for alignment and stuff, so this code is
     // safe as long as you're careful when transmuting rooms from within derived
     // room code.
-    void __unsafe__transmute(App& app, MetaclassIndex m);
+    void __unsafe__transmute(MetaclassIndex m);
 
 
     // DO NOT CALL __set_health()! Intended for rewind, multiplayer, and very
@@ -410,31 +410,30 @@ public:
     }
 
 
-    virtual void apply_damage(App&, Health damage);
-    virtual void apply_damage(App&, Health damage, Island* src);
+    virtual void apply_damage(Health damage);
+    virtual void apply_damage(Health damage, Island* src);
 
 
-    virtual void burn_damage(App& app, Health damage);
+    virtual void burn_damage(Health damage);
 
 
-    void plunder(App&, Health damage);
-    void convert_to_plundered(App&);
+    void plunder(Health damage);
+    void convert_to_plundered();
 
 
     void reset_injured_timer(Microseconds value);
 
 
-    virtual void plot_walkable_zones(App& app,
-                                     bool matrix[16][16],
+    virtual void plot_walkable_zones(bool matrix[16][16],
                                      BasicCharacter* for_character);
 
 
-    virtual void on_lightning(App& app)
+    virtual void on_lightning()
     {
     }
 
 
-    virtual void on_lightning_rewind(App& app)
+    virtual void on_lightning_rewind()
     {
     }
 
@@ -490,7 +489,7 @@ public:
     }
 
 
-    virtual Power power_usage(App& app) const;
+    virtual Power power_usage() const;
 
 
     static Icon icon()
@@ -532,12 +531,12 @@ public:
     void ready();
 
 
-    virtual bool attach_drone(App&, SharedEntityRef<Drone>);
-    virtual void detach_drone(App&, bool quiet);
+    virtual bool attach_drone(SharedEntityRef<Drone>);
+    virtual void detach_drone(bool quiet);
     virtual std::optional<SharedEntityRef<Drone>> drone() const;
 
 
-    virtual bool create_replicant(App& app)
+    virtual bool create_replicant()
     {
         return false;
     }
@@ -670,7 +669,7 @@ public:
     }
 
 
-    void set_ai_aware(App& app, bool ai_aware);
+    void set_ai_aware(bool ai_aware);
 
 
     // Players don't expect the AI algo to be running while the game is paused,
@@ -739,7 +738,7 @@ public:
 
 
 protected:
-    ScenePtr<Scene> do_select(App& app);
+    ScenePtr<Scene> do_select();
 
 
 private:

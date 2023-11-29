@@ -43,19 +43,19 @@ public:
     }
 
 
-    void enter(App& app, Scene& scene) override;
+    void enter(Scene& scene) override;
 
 
-    void exit(App& app, Scene& next) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App& app) override;
+    void display() override;
 
 
-    Island* island(App& app) const;
+    Island* island() const;
 
 
 private:
@@ -65,7 +65,7 @@ private:
 
         Buffer<Text, cap> lines_;
         Buffer<SystemString, cap> strings_;
-        Buffer<Function<16, ScenePtr<Scene>(App&)>, cap> callbacks_;
+        Buffer<Function<16, ScenePtr<Scene>()>, cap> callbacks_;
         u8 longest_line_;
 
         Bitvector<cap> specific_;

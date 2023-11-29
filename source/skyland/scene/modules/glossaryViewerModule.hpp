@@ -65,13 +65,13 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App& app, Scene& next) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     void set_next_scene(DeferredScene next)
@@ -98,7 +98,7 @@ private:
     void load_filters();
 
 
-    ScenePtr<Scene> show_categories_impl(App&, Microseconds);
+    ScenePtr<Scene> show_categories_impl(Microseconds);
 
 
     std::optional<Text> item_name_;

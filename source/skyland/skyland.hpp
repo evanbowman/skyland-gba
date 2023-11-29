@@ -55,6 +55,12 @@ namespace skyland
 
 
 
+// I used to pass App around to all of the functions that needed it, avoiding
+// global variables. But adding an extra function argument is not
+extern App* __app__;
+#define APP (*__app__)
+
+
 class App
 {
 public:
@@ -129,7 +135,7 @@ public:
     void reset_opponent_island()
     {
         if (world_state_->opponent_) {
-            world_state_->opponent_->clear_rooms(*this);
+            world_state_->opponent_->clear_rooms();
             world_state_->opponent_.reset();
         }
     }
@@ -194,7 +200,7 @@ public:
     }
 
 
-    using DeferredCallback = Function<4 * sizeof(void*), void(App&)>;
+    using DeferredCallback = Function<4 * sizeof(void*), void()>;
 
 
     bool on_timeout(Microseconds expire_time, const DeferredCallback& callback)
@@ -539,7 +545,7 @@ private:
 
 
 
-void write_custom_graphics(App& app);
+void write_custom_graphics();
 
 
 

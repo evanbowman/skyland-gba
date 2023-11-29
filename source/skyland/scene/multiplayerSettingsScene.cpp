@@ -56,7 +56,7 @@ const MultiplayerSettingsScene::ParameterInfo
 
 
 
-void MultiplayerSettingsScene::enter(App& app, Scene& prev)
+void MultiplayerSettingsScene::enter(Scene& prev)
 {
     if (PLATFORM.network_peer().is_host()) {
 
@@ -196,7 +196,7 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 
 
-void MultiplayerSettingsScene::exit(App& app, Scene& next)
+void MultiplayerSettingsScene::exit(Scene& next)
 {
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -208,19 +208,19 @@ void MultiplayerSettingsScene::exit(App& app, Scene& next)
     PLATFORM.system_call("v-parallax", (void*)true);
 
     if (vs_parameters_[0]) {
-        setup_co_op_game(app);
+        setup_co_op_game();
     } else {
-        setup_vs_game(app);
+        setup_vs_game();
     }
 }
 
 
 
-void prep_level(App& app);
+void prep_level();
 
 
 
-void MultiplayerSettingsScene::setup_co_op_game(App& app)
+void MultiplayerSettingsScene::setup_co_op_game()
 {
     if (co_op_rng_) {
         rng::critical_state = *co_op_rng_;
@@ -235,15 +235,15 @@ void MultiplayerSettingsScene::setup_co_op_game(App& app)
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
-    SkylandForever::init(app, 1, *co_op_rng_);
+    SkylandForever::init(1, *co_op_rng_);
 
-    app.persistent_data().score_.set(0);
+    APP.persistent_data().score_.set(0);
 
-    app.set_coins(std::max(0, app.coins() - 1000));
+    APP.set_coins(std::max(0, APP.coins() - 1000));
 
-    app.swap_player<CoOpTeam>();
+    APP.swap_player<CoOpTeam>();
 
-    app.game_mode() = App::GameMode::co_op;
+    APP.game_mode() = App::GameMode::co_op;
 }
 
 
@@ -262,7 +262,7 @@ Microseconds MultiplayerSettingsScene::timeout_duration()
 
 
 
-void MultiplayerSettingsScene::setup_vs_game(App& app)
+void MultiplayerSettingsScene::setup_vs_game()
 {
     const bool is_host = PLATFORM.network_peer().is_host();
     const auto non_host_start_id =
@@ -283,36 +283,36 @@ void MultiplayerSettingsScene::setup_vs_game(App& app)
 
     globals().unhide_multiplayer_prep_ = vs_parameters_[2];
 
-    app.set_coins(vs_parameters_[3]);
+    APP.set_coins(vs_parameters_[3]);
 
 
-    app.player_island().init_terrain(vs_parameters_[4]);
+    APP.player_island().init_terrain(vs_parameters_[4]);
 
     // Now that we know the size of the terrain for the multiplayer match, we
     // can create and position the two islands.
-    app.create_opponent_island(vs_parameters_[4]);
+    APP.create_opponent_island(vs_parameters_[4]);
 
-    app.opponent_island()->set_float_timer(
+    APP.opponent_island()->set_float_timer(
         std::numeric_limits<Microseconds>::max() / 2);
 
-    set_island_positions(app.player_island(), *app.opponent_island());
+    set_island_positions(APP.player_island(), *APP.opponent_island());
 
 
-    app.player_island().clear_rooms(app);
+    APP.player_island().clear_rooms();
 
 
     // Unless the island configured size is really tiny, leave a one-tile gap to
     // the left of the starting position of the power core.
     const u8 player_start_x = vs_parameters_[4] > 3 ? 1 : 0;
-    app.player_island().add_room<Core>(app, {player_start_x, 13}, true);
+    APP.player_island().add_room<Core>({player_start_x, 13}, true);
 
-    auto add_player_chr = [&app](u8 x, u8 y, int id) {
+    auto add_player_chr = [](u8 x, u8 y, int id) {
         auto chr = alloc_entity<BasicCharacter>(
-            &app.player_island(), &app.player(), RoomCoord{x, y}, false);
+            &APP.player_island(), &APP.player(), RoomCoord{x, y}, false);
 
         chr->__assign_id(id);
 
-        app.player_island().add_character(std::move(chr));
+        APP.player_island().add_character(std::move(chr));
     };
 
     add_player_chr(player_start_x, 14, is_host ? 1 : non_host_start_id + 1);
@@ -321,13 +321,13 @@ void MultiplayerSettingsScene::setup_vs_game(App& app)
 
     const u8 opponent_start_x =
         vs_parameters_[4] > 3 ? vs_parameters_[4] - 3 : vs_parameters_[4] - 2;
-    app.opponent_island()->add_room<Core>(app, {opponent_start_x, 13}, true);
+    APP.opponent_island()->add_room<Core>({opponent_start_x, 13}, true);
 
-    auto add_opponent_chr = [&app](u8 x, u8 y, int id) {
+    auto add_opponent_chr = [](u8 x, u8 y, int id) {
         auto chr = alloc_entity<BasicCharacter>(
-            app.opponent_island(), &app.opponent(), RoomCoord{x, y}, false);
+            APP.opponent_island(), &APP.opponent(), RoomCoord{x, y}, false);
         chr->__assign_id(id);
-        app.opponent_island()->add_character(std::move(chr));
+        APP.opponent_island()->add_character(std::move(chr));
     };
 
     add_opponent_chr(opponent_start_x, 14, is_host ? non_host_start_id : 2);
@@ -335,15 +335,15 @@ void MultiplayerSettingsScene::setup_vs_game(App& app)
     add_opponent_chr(
         opponent_start_x + 1, 14, is_host ? non_host_start_id + 1 : 1);
 
-    app.player_island().repaint(app);
-    app.opponent_island()->repaint(app);
+    APP.player_island().repaint();
+    APP.opponent_island()->repaint();
 }
 
 
 
-void MultiplayerSettingsScene::display(App& app)
+void MultiplayerSettingsScene::display()
 {
-    Scene::display(app);
+    Scene::display();
 
     if (state_ not_eq State::edit_settings) {
         return;
@@ -362,7 +362,7 @@ void MultiplayerSettingsScene::display(App& app)
 
 void MultiplayerSettingsScene::receive(
 
-    App& app,
+
     const network::packet::GameMatchParameterUpdate& packet)
 {
     if (packet.parameter_id_ == special_parameter_slot_co_op_rng) {
@@ -378,7 +378,7 @@ void MultiplayerSettingsScene::receive(
 
 void MultiplayerSettingsScene::receive(
 
-    App& app,
+
     const network::packet::GameMatchSettingsCursor& packet)
 {
     opponent_cursor_ = packet.cursor_line_;
@@ -388,7 +388,7 @@ void MultiplayerSettingsScene::receive(
 
 void MultiplayerSettingsScene::receive(
 
-    App& app,
+
     const network::packet::GameMatchReady& packet)
 {
     opponent_ready_ = true;
@@ -408,33 +408,33 @@ void MultiplayerSettingsScene::sync_parameters()
 
 
 
-ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> MultiplayerSettingsScene::update(Microseconds delta)
 {
-    app.update_parallax(delta);
+    APP.update_parallax(delta);
 
     if (PLATFORM.network_peer().is_connected()) {
-        network::poll_messages(app, *this);
+        network::poll_messages(*this);
     }
 
-    if (app.player().key_pressed(Key::up)) {
+    if (APP.player().key_pressed(Key::up)) {
         key_held_timers_[0] += delta;
     } else {
         key_held_timers_[0] = 0;
     }
 
-    if (app.player().key_pressed(Key::down)) {
+    if (APP.player().key_pressed(Key::down)) {
         key_held_timers_[1] += delta;
     } else {
         key_held_timers_[1] = 0;
     }
 
-    if (app.player().key_pressed(Key::left)) {
+    if (APP.player().key_pressed(Key::left)) {
         key_held_timers_[2] += delta;
     } else {
         key_held_timers_[2] = 0;
     }
 
-    if (app.player().key_pressed(Key::right)) {
+    if (APP.player().key_pressed(Key::right)) {
         key_held_timers_[3] += delta;
     } else {
         key_held_timers_[3] = 0;
@@ -447,7 +447,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
         return null_scene();
     }
 
-    if (app.player().key_down(Key::start)) {
+    if (APP.player().key_down(Key::start)) {
         if (not PLATFORM.network_peer().is_host() and
             parameter_sync_timer_ > 0) {
             return null_scene();
@@ -493,7 +493,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
         param_info[player_cursor_].upper_limit_ == 1;
 
 
-    if (app.player().key_down(Key::right) or
+    if (APP.player().key_down(Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
         if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {
@@ -510,7 +510,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
         p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(p);
 
-    } else if (app.player().key_down(Key::left) or
+    } else if (APP.player().key_down(Key::left) or
                key_held_timers_[2] > milliseconds(500)) {
         vs_parameters_[player_cursor_] -= param_info[player_cursor_].increment_;
         if (vs_parameters_[player_cursor_] <
@@ -528,7 +528,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
         p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(p);
 
-    } else if (app.player().key_down(Key::down) and
+    } else if (APP.player().key_down(Key::down) and
                player_cursor_ < settings_text_.size() - 1 and
                vs_parameters_[0] == 0) {
         ++player_cursor_;
@@ -537,7 +537,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(App& app, Microseconds delta)
         c.cursor_line_ = player_cursor_;
         network::transmit(c);
 
-    } else if (app.player().key_down(Key::up) and player_cursor_ > 0) {
+    } else if (APP.player().key_down(Key::up) and player_cursor_ > 0) {
         --player_cursor_;
 
         network::packet::GameMatchSettingsCursor c;

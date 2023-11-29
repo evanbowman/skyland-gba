@@ -38,19 +38,19 @@ namespace skyland::macro
 class ExitIslandScene : public Scene
 {
 public:
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.fill_overlay(112);
     }
 
 
-    void exit(App& app, Scene& next) override
+    void exit(Scene& next) override
     {
         PLATFORM.fill_overlay(0);
     }
 
 
-    void display(App& app) override
+    void display() override
     {
         int circ_center_x = PLATFORM.screen().size().x / 2;
         int circ_center_y = PLATFORM.screen().size().y / 2;
@@ -59,7 +59,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         timer_ += delta;
 

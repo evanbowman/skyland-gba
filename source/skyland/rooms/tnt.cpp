@@ -46,9 +46,9 @@ Explosive::Explosive(Island* parent,
 
 
 
-void Explosive::update(App& app, Microseconds delta)
+void Explosive::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (health() not_eq max_health()) {
         Room::ready();
@@ -56,7 +56,7 @@ void Explosive::update(App& app, Microseconds delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(app, 5);
+            apply_damage(5);
             damage_timer_ = 0;
         }
     }
@@ -64,13 +64,13 @@ void Explosive::update(App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> Explosive::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Explosive::select(const RoomCoord& cursor)
 {
-    if (parent() not_eq &app.player_island()) {
+    if (parent() not_eq &APP.player_island()) {
         return null_scene();
     }
 
-    Room::apply_damage(app, 1);
+    Room::apply_damage(1);
 
     network::packet::DynamiteActivated packet;
     packet.x_ = position().x;
@@ -103,38 +103,38 @@ static SharedVariable tnt_range("dynamite_range", 1);
 
 
 
-void Explosive::apply_damage(App& app, Health damage)
+void Explosive::apply_damage(Health damage)
 {
-    Room::apply_damage(app, damage);
+    Room::apply_damage(damage);
 
     ignition_ = true;
 }
 
 
 
-void Explosive::ignite(App& app, int range, Health damage, bool spread_fire)
+void Explosive::ignite(int range, Health damage, bool spread_fire)
 {
-    auto flak_smoke = [](App& app, const Vec2<Fixnum>& pos) {
-        auto e = app.alloc_entity<SmokePuff>(
+    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
+        auto e = APP.alloc_entity<SmokePuff>(
             rng::sample<48>(pos, rng::utility_state), 61);
 
         if (e) {
-            app.effects().push(std::move(e));
+            APP.effects().push(std::move(e));
         }
     };
 
-    flak_smoke(app, center());
-    flak_smoke(app, center());
+    flak_smoke(center());
+    flak_smoke(center());
 
     Vec2<s32> pos;
     pos.x = center().x.as_integer();
     pos.y = center().y.as_integer();
 
-    app.on_timeout(milliseconds(190), [pos, flak_smoke](App& app) {
+    APP.on_timeout(milliseconds(190), [pos, flak_smoke]() {
         Vec2<Fixnum> p;
         p.x = Fixnum::from_integer(pos.x);
         p.y = Fixnum::from_integer(pos.y);
-        flak_smoke(app, p);
+        flak_smoke(p);
     });
 
     auto targets =
@@ -161,36 +161,35 @@ void Explosive::ignite(App& app, int range, Health damage, bool spread_fire)
                     targets->push_back(room);
                 }
             } else if (auto drone = parent()->get_drone(pos)) {
-                (*drone)->apply_damage(app, damage);
+                (*drone)->apply_damage(damage);
             }
         }
     }
 
     for (auto& room : *targets) {
 
-        room->apply_damage(app, damage);
+        room->apply_damage(damage);
 
 
         if (spread_fire and not((*room->metaclass())->properties() &
                                 RoomProperties::fireproof)) {
             if (room->health() > 0) {
-                room->parent()->fire_create(app, room->position());
+                room->parent()->fire_create(room->position());
             }
         }
 
 
-        if (app.game_mode() == App::GameMode::adventure or
-            app.game_mode() == App::GameMode::challenge or
-            app.game_mode() == App::GameMode::skyland_forever) {
+        if (APP.game_mode() == App::GameMode::adventure or
+            APP.game_mode() == App::GameMode::challenge or
+            APP.game_mode() == App::GameMode::skyland_forever) {
 
             // Hack added for an achievement where you unlock dynamite-ii when
             // destroying invading goblins with dynamite.
-            if (room->parent() == &app.player_island() and
+            if (room->parent() == &APP.player_island() and
                 room->health() == 0) {
                 for (auto& chr : room->characters()) {
-                    if (chr->owner() == &app.opponent()) {
-                        achievements::raise(app,
-                                            achievements::Achievement::triage);
+                    if (chr->owner() == &APP.opponent()) {
+                        achievements::raise(achievements::Achievement::triage);
                         break;
                     }
                 }
@@ -201,34 +200,34 @@ void Explosive::ignite(App& app, int range, Health damage, bool spread_fire)
 
 
 
-void Explosive::finalize(App& app)
+void Explosive::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (not ignition_) {
         return;
     } else {
-        ignite(app, tnt_range, tnt_damage, false);
-        ExploSpawner::create(app, center());
+        ignite(tnt_range, tnt_damage, false);
+        ExploSpawner::create(center());
     }
 }
 
 
 
-void TNT::finalize(App& app)
+void TNT::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (not ignition_) {
         return;
     } else {
-        ignite(app, 2, 180, true);
-        ExploSpawner::create(app, center());
+        ignite(2, 180, true);
+        ExploSpawner::create(center());
 
         if (not PLATFORM.network_peer().is_connected()) {
             for (int i = 0; i < 10; ++i) {
 
-                auto c = app.alloc_entity<FireBolt>(
+                auto c = APP.alloc_entity<FireBolt>(
                     center(), center(), parent(), position());
                 if (c) {
                     c->set_direction(rng::choice<359>(rng::critical_state));
@@ -325,7 +324,7 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
 
 
 void Explosive::display_on_hover(Platform::Screen& screen,
-                                 App& app,
+
                                  const RoomCoord& cursor)
 {
     display_damage_range_dist1(screen, *this);
@@ -348,7 +347,7 @@ void TNT::render_exterior(App* app, TileId buffer[16][16])
 
 
 void TNT::display_on_hover(Platform::Screen& screen,
-                           App& app,
+
                            const RoomCoord& cursor)
 {
     display_damage_range_dist2(screen, *this);
@@ -356,9 +355,9 @@ void TNT::display_on_hover(Platform::Screen& screen,
 
 
 
-void Cesium::update(App& app, Microseconds delta)
+void Cesium::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
     Room::ready();
 
     if (health() not_eq max_health()) {
@@ -367,7 +366,7 @@ void Cesium::update(App& app, Microseconds delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(app, 10);
+            apply_damage(10);
             damage_timer_ = 0;
         }
 
@@ -379,7 +378,7 @@ void Cesium::update(App& app, Microseconds delta)
         if (auto room = parent()->get_room({x, u8(y - 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(app, 1);
+                apply_damage(1);
                 return;
             }
         }
@@ -387,7 +386,7 @@ void Cesium::update(App& app, Microseconds delta)
         if (auto room = parent()->get_room({x, u8(y + 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(app, 1);
+                apply_damage(1);
                 return;
             }
         }
@@ -395,7 +394,7 @@ void Cesium::update(App& app, Microseconds delta)
         if (auto room = parent()->get_room({u8(x + 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(app, 1);
+                apply_damage(1);
                 return;
             }
         }
@@ -403,7 +402,7 @@ void Cesium::update(App& app, Microseconds delta)
         if (auto room = parent()->get_room({u8(x - 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(app, 1);
+                apply_damage(1);
                 return;
             }
         }
@@ -434,7 +433,7 @@ void Cesium::format_description(StringBuffer<512>& buffer)
 
 
 void Cesium::display_on_hover(Platform::Screen& screen,
-                              App& app,
+
                               const RoomCoord& cursor)
 {
     display_damage_range_dist2(screen, *this);

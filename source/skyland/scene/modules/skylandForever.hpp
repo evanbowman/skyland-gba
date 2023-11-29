@@ -55,16 +55,16 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
-    void exit(App&, Scene& prev) override;
+    void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
     static bool enable_custom_scripts()
@@ -73,7 +73,7 @@ public:
     }
 
 
-    static void init(App& app, u8 difficulty, rng::LinearGenerator seed);
+    static void init(u8 difficulty, rng::LinearGenerator seed);
 
 
 private:

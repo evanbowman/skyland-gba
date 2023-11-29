@@ -56,7 +56,7 @@ u8 FullscreenDialogScene::y_start() const
 
 
 
-bool FullscreenDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
+bool FullscreenDialogScene::advance_text(Microseconds delta, bool sfx)
 {
     const auto delay = milliseconds(80);
 
@@ -75,7 +75,7 @@ bool FullscreenDialogScene::advance_text(App& app, Microseconds delta, bool sfx)
                 }
             }
             if (*text_state_.current_word_ == '<') {
-                process_command(app);
+                process_command();
             }
             if (halt_text_) {
                 halt_text_ = false;
@@ -176,7 +176,7 @@ void FullscreenDialogScene::clear_textbox()
 
 
 
-void FullscreenDialogScene::enter(App& app, Scene& prev)
+void FullscreenDialogScene::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_dialog_fullscreen");
 
@@ -196,7 +196,7 @@ void FullscreenDialogScene::enter(App& app, Scene& prev)
 
 
 
-void FullscreenDialogScene::exit(App& app, Scene& prev)
+void FullscreenDialogScene::exit(Scene& prev)
 {
     if (img_view_) {
         int frames = 25;
@@ -218,10 +218,10 @@ void FullscreenDialogScene::exit(App& app, Scene& prev)
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
         PLATFORM.fill_overlay(0);
-        if (app.opponent_island()) {
-            show_island_exterior(app, app.opponent_island());
+        if (APP.opponent_island()) {
+            show_island_exterior(APP.opponent_island());
         }
-        app.player_island().repaint(app);
+        APP.player_island().repaint();
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
         PLATFORM.delta_clock().reset();
@@ -235,7 +235,7 @@ void FullscreenDialogScene::exit(App& app, Scene& prev)
 
 
 
-ScenePtr<Scene> FullscreenDialogScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> FullscreenDialogScene::update(Microseconds delta)
 {
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);
@@ -265,14 +265,14 @@ ScenePtr<Scene> FullscreenDialogScene::update(App& app, Microseconds delta)
 
     case DisplayMode::busy: {
 
-        const bool text_busy = advance_text(app, delta, true);
+        const bool text_busy = advance_text(delta, true);
 
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
             if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
 
-                while (advance_text(app, delta, false)) {
+                while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
                         break;
                     }
@@ -356,7 +356,7 @@ void __draw_image(TileDesc start_tile,
 
 
 
-void FullscreenDialogScene::process_command(App& app)
+void FullscreenDialogScene::process_command()
 {
     ++text_state_.current_word_;
 

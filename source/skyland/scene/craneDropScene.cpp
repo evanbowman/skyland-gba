@@ -49,24 +49,24 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_sprite_texture("spritesheet");
 
 
-        show_island_exterior(app, &app.player_island());
+        show_island_exterior(&APP.player_island());
 
-        if (app.opponent_island()) {
-            app.opponent_island()->repaint(app);
+        if (APP.opponent_island()) {
+            APP.opponent_island()->repaint();
         }
 
         init_clouds();
 
-        WorldScene::enter(app, prev);
+        WorldScene::enter(prev);
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         timer_ += delta;
 
@@ -75,8 +75,8 @@ public:
         constexpr auto fade_start = milliseconds(400);
         constexpr auto wait_duration = milliseconds(750);
 
-        if (app.game_speed() not_eq GameSpeed::normal) {
-            set_gamespeed(app, GameSpeed::normal);
+        if (APP.game_speed() not_eq GameSpeed::normal) {
+            set_gamespeed(GameSpeed::normal);
         }
 
         if (timer_ < fade_start) {
@@ -87,10 +87,10 @@ public:
 
             PLATFORM.screen().schedule_fade(0.f);
 
-            WorldScene::update(app, delta);
+            WorldScene::update(delta);
 
             if (not got_treasure_ or (timer_ > fade_duration + wait_duration)) {
-                WorldScene::update(app, delta);
+                WorldScene::update(delta);
 
                 PLATFORM.speaker().set_music_volume(
                     Platform::Speaker::music_volume_max);
@@ -105,10 +105,10 @@ public:
                         allocate_dynamic<DialogString>("dialog-buffer");
 
                     if (not choices.empty() and
-                        rng::choice<2>(app.crane_game_rng())) {
+                        rng::choice<2>(APP.crane_game_rng())) {
 
                         auto idx =
-                            rng::choice(choices.size(), app.crane_game_rng());
+                            rng::choice(choices.size(), APP.crane_game_rng());
                         auto choice = choices[idx];
                         d.items_.set(d.items_.get() | (1 << choice));
                         Crane::store_discoveries(d);
@@ -124,7 +124,7 @@ public:
                                         ->c_str());
 
                     } else {
-                        rng::LinearGenerator seed = app.crane_game_rng();
+                        rng::LinearGenerator seed = APP.crane_game_rng();
 
                         Coins award = 200;
                         award += rng::choice<1000>(seed);
@@ -132,7 +132,7 @@ public:
 
                         *buffer = format("You discovered %@!", award);
 
-                        app.set_coins(app.coins() + award);
+                        APP.set_coins(APP.coins() + award);
                     }
 
                     auto next = scene_pool::alloc<BoxedDialogSceneWS>(
@@ -149,7 +149,7 @@ public:
 
         } else {
 
-            WorldScene::update(app, delta);
+            WorldScene::update(delta);
 
 
             const auto amount = smoothstep(
@@ -299,9 +299,9 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
-        rng::LinearGenerator seed = app.crane_game_rng();
+        rng::LinearGenerator seed = APP.crane_game_rng();
 
         std::array<const ChunkData*, 5> choices = {
             &sector_0, &sector_1, &sector_2, &sector_3, &sector_4};
@@ -341,15 +341,15 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        app.stat_timer().count_up(delta);
+        APP.stat_timer().count_up(delta);
 
-        if (app.player().key_pressed(Key::down)) {
+        if (APP.player().key_pressed(Key::down)) {
             descent_speed_ += Fixnum(0.0000045f);
         }
 
-        if (app.player().key_pressed(Key::up)) {
+        if (APP.player().key_pressed(Key::up)) {
             descent_speed_ -= Fixnum(0.0000045f);
         }
 
@@ -379,7 +379,7 @@ public:
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
 
-                if (auto room = app.player_island().get_room(crane_loc_)) {
+                if (auto room = APP.player_island().get_room(crane_loc_)) {
                     if (auto crane = room->cast<Crane>()) {
                         if (got_bomb_) {
                             crane->set_item(0);
@@ -409,11 +409,11 @@ public:
         }
 
 
-        if (app.player().key_pressed(Key::right)) {
+        if (APP.player().key_pressed(Key::right)) {
             x_speed_ += Fixnum(0.0000045f);
         }
 
-        if (app.player().key_pressed(Key::left)) {
+        if (APP.player().key_pressed(Key::left)) {
             x_speed_ -= Fixnum(0.0000045f);
         }
 
@@ -457,8 +457,7 @@ public:
                 if (object.type_ == 0) {
                     got_bomb_ = true;
                 } else {
-                    state_bit_store(
-                        app, StateBit::crane_game_got_treasure, true);
+                    state_bit_store(StateBit::crane_game_got_treasure, true);
                     got_treasure_ = true;
                 }
 
@@ -483,7 +482,7 @@ public:
     }
 
 
-    void display(App& app) override
+    void display() override
     {
         if (exit_) {
             return;
@@ -581,7 +580,7 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.load_sprite_texture("spritesheet_fishing");
         PLATFORM.load_tile0_texture("tilesheet_fishing");
@@ -618,9 +617,9 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (app.player().key_pressed(Key::action_2)) {
+        if (APP.player().key_pressed(Key::action_2)) {
             delta *= 2;
         }
 
@@ -633,11 +632,11 @@ public:
         }
 
 
-        if (app.player().key_pressed(Key::right)) {
+        if (APP.player().key_pressed(Key::right)) {
             x_speed_ += Fixnum(0.000003f);
         }
 
-        if (app.player().key_pressed(Key::left)) {
+        if (APP.player().key_pressed(Key::left)) {
             x_speed_ -= Fixnum(0.000003f);
         }
 
@@ -742,7 +741,7 @@ public:
     }
 
 
-    void display(App& app) override
+    void display() override
     {
         draw_crane({crane_x_, crane_offset_});
 
@@ -804,14 +803,14 @@ private:
 
 
 
-ScenePtr<Scene> CraneDropScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> CraneDropScene::update(Microseconds delta)
 {
-    WorldScene::update(app, delta);
+    WorldScene::update(delta);
 
     timer_ += delta;
 
-    if (app.game_speed() not_eq GameSpeed::normal) {
-        set_gamespeed(app, GameSpeed::normal);
+    if (APP.game_speed() not_eq GameSpeed::normal) {
+        set_gamespeed(GameSpeed::normal);
     }
 
     constexpr auto fade_duration = milliseconds(1400);
@@ -823,7 +822,7 @@ ScenePtr<Scene> CraneDropScene::update(App& app, Microseconds delta)
 
     } else if (timer_ > fade_duration) {
 
-        if (auto room = app.player_island().get_room(crane_pos_)) {
+        if (auto room = APP.player_island().get_room(crane_pos_)) {
             if (auto crane = room->cast<Crane>()) {
                 crane->retract();
             }

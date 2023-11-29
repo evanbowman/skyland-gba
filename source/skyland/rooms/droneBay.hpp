@@ -46,27 +46,27 @@ public:
     DroneBay(Island* parent, const RoomCoord& position);
 
 
-    void update(App&, Microseconds delta) override;
-    void rewind(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
-    void ___rewind___ability_used(App&) override;
-
-
-
-    void display(Platform::Screen& screen, App& app) override;
+    void ___rewind___ability_used() override;
 
 
-    void finalize(App&) override;
+
+    void display(Platform::Screen& screen) override;
+
+
+    void finalize() override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -104,11 +104,10 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
-    void plot_walkable_zones(App& app,
-                             bool matrix[16][16],
+    void plot_walkable_zones(bool matrix[16][16],
                              BasicCharacter* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -140,10 +139,10 @@ public:
     }
 
 
-    bool attach_drone(App& app, SharedEntityRef<Drone> drone) override;
+    bool attach_drone(SharedEntityRef<Drone> drone) override;
 
 
-    void detach_drone(App& app, bool quiet) override;
+    void detach_drone(bool quiet) override;
 
 
     void start_reload()

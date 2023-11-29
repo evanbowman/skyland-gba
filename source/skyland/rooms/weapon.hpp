@@ -44,7 +44,7 @@ public:
     ~Weapon();
 
 
-    void timer_expired(App&) override;
+    void timer_expired() override;
 
 
     Microseconds reload_interval() const override
@@ -56,7 +56,7 @@ public:
     virtual Microseconds reload() const = 0;
 
 
-    virtual void fire(App& app) = 0;
+    virtual void fire() = 0;
 
 
     void override_reload_timer(Microseconds new_time) override
@@ -77,7 +77,7 @@ public:
     }
 
 
-    void render_scaffolding(App& app, TileId buffer[16][16]) override
+    void render_scaffolding(TileId buffer[16][16]) override
     {
     }
 
@@ -88,24 +88,24 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App& app, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void ___rewind___finished_reload(App&) override;
+    void ___rewind___finished_reload() override;
 
-    void ___rewind___ability_used(App&) override;
+    void ___rewind___ability_used() override;
 
 
     bool target_pinned() const override;
 
 
-    void set_target(App& app, const RoomCoord& target, bool pinned) override;
+    void set_target(const RoomCoord& target, bool pinned) override;
 
 
-    void unset_target(App& app) override;
+    void unset_target() override;
 
 
     std::optional<RoomCoord> get_target() const override
@@ -121,11 +121,11 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-                          App& app,
+
                           const RoomCoord& cursor) override;
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
 protected:

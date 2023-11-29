@@ -29,7 +29,7 @@ namespace skyland::network
 
 
 
-void poll_messages(App& app, Listener& listener)
+void poll_messages(Listener& listener)
 {
     while (auto message = PLATFORM.network_peer().poll_message()) {
         if (message->length_ < sizeof(packet::Header)) {
@@ -39,7 +39,7 @@ void poll_messages(App& app, Listener& listener)
         memcpy(&header, message->data_, sizeof header);
 
         // if (header.parity_ not_eq parity((u8*)message->data_ + 1)) {
-        //     listener.error(app, "parity check failed!");
+        //     listener.error("parity check failed!");
         //     PLATFORM.network_peer().poll_consume(
         //         Platform::NetworkPeer::max_message_size);
         // }
@@ -55,7 +55,7 @@ void poll_messages(App& app, Listener& listener)
         if (message->length_ < sizeof(MESSAGE_TYPE)) {                         \
             return;                                                            \
         }                                                                      \
-        listener.receive(app, *(const MESSAGE_TYPE*)message->data_);           \
+        listener.receive(*(const MESSAGE_TYPE*)message->data_);                \
         PLATFORM.network_peer().poll_consume(sizeof(MESSAGE_TYPE));            \
         continue;                                                              \
     }

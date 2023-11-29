@@ -36,19 +36,19 @@ namespace skyland
 class SurrenderWaitScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (auto next = WorldScene::update(app, delta)) {
+        if (auto next = WorldScene::update(delta)) {
             return next;
         }
 
         if (timer_ < milliseconds(350)) {
             timer_ += delta;
             if (timer_ > milliseconds(350)) {
-                app.invoke_script("/scripts/event/surrender.lisp");
+                APP.invoke_script("/scripts/event/surrender.lisp");
             }
         } else {
-            if (not app.dialog_buffer()) {
+            if (not APP.dialog_buffer()) {
                 return scene_pool::alloc<ReadyScene>();
             }
         }

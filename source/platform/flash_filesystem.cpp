@@ -39,9 +39,6 @@
 
 
 
-
-
-
 #define PLATFORM (*__platform__)
 
 Platform* __platform__;
@@ -335,6 +332,7 @@ struct Record
 
 
 
+static u32 disk_capacity = 0;
 static u32 start_offset = 0;
 static u32 end_offset = 0;
 static u32 gap_space = 0;
@@ -357,7 +355,7 @@ u32 sector_used()
 
 u32 sector_avail()
 {
-    return PLATFORM.save_capacity() - end_offset;
+    return disk_capacity - end_offset;
 }
 
 
@@ -415,8 +413,10 @@ static bool is_path_bad(const char* name)
 
 
 
-InitStatus initialize(u32 offset)
+InitStatus initialize(const InitConfig& conf)
 {
+    u32 offset = conf.offset_;
+
     if (offset % 2 not_eq 0) {
         return failed;
     }
@@ -426,6 +426,10 @@ InitStatus initialize(u32 offset)
     }
 
     start_offset = offset;
+
+    disk_capacity = PLATFORM.save_capacity();
+    disk_capacity -= start_offset;
+
     auto root = load_root();
 
     if (memcmp(root.magic_, Root::magic_val, 8) not_eq 0) {
@@ -500,7 +504,7 @@ InitStatus initialize(u32 offset)
     // somehow, by, idk, cosmic radiation or something. A successive write to an
     // address in some flash controllers will brick the system, so we want to
     // erase and rewrite the sector in this case.
-    for (int i = end_offset; i < PLATFORM.save_capacity(); ++i) {
+    for (int i = end_offset; i < (int)disk_capacity; ++i) {
         u8 val = 0;
         PLATFORM.read_save_data(&val, 1, i);
         if (val not_eq 0xff) {
@@ -517,24 +521,24 @@ InitStatus initialize(u32 offset)
     __path_cache_create();
 
     auto stat = [&] {
-                    info(format("flash fs init: begin: %, end: %, gaps: %",
-                                start_offset,
-                                end_offset,
-                                gap_space));
-                };
+        info(format("flash fs init: begin: %, end: %, gaps: %",
+                    start_offset,
+                    end_offset,
+                    gap_space));
+    };
 
     stat();
 
     Vector<StringBuffer<256>> bad_files;
     walk([&](const char* name) {
-             if (is_path_bad(name)) {
-                 bad_files.push_back(name);
-                 info(format("encountered bad file %, size %. "
-                             "Attempting recovery...",
-                             name,
-                             file_size(name)));
-             }
-         });
+        if (is_path_bad(name)) {
+            bad_files.push_back(name);
+            info(format("encountered bad file %, size %. "
+                        "Attempting recovery...",
+                        name,
+                        file_size(name)));
+        }
+    });
 
     for (auto& f : bad_files) {
         unlink_file(f.c_str());
@@ -1032,7 +1036,6 @@ u32 read_file_data(const char* path, Vector<char>& output)
 
 
 
-
 #ifdef __TEST__
 
 
@@ -1089,7 +1092,7 @@ void reset()
 bool basic_readwrite()
 {
     Platform pfrm(".regr_input", ".regr_output");
-    initialize(8);
+    initialize({.offset_ = 8});
 
     Vector<char> v1;
     for (int i = 0; i < 21; ++i) {
@@ -1131,7 +1134,7 @@ bool persistence()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(8);
+        initialize({.offset_ = 8});
 
         flash_filesystem::store_file_data("/tmp/ptest.dat", v1);
         flash_filesystem::store_file_data("/tmp/ptest2.dat", v2);
@@ -1140,7 +1143,7 @@ bool persistence()
     {
         reset();
         Platform pfrm(".regr_output", ".regr_output2");
-        initialize(8);
+        initialize({.offset_ = 8});
 
         Vector<char> v1_1;
         Vector<char> v2_1;
@@ -1176,7 +1179,7 @@ bool compaction()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(8);
+        initialize({.offset_ = 8});
 
         walk([&files](const char* path) {
             files.emplace_back();
@@ -1209,7 +1212,7 @@ bool compaction()
     // following compaction.
     reset();
     Platform pfrm(".regr_output", ".regr_output2");
-    initialize(8);
+    initialize({.offset_ = 8});
 
     if (end_offset not_eq 2420) {
         std::cerr << "end offset does not match expected!"
@@ -1254,7 +1257,7 @@ bool write_triggered_compaction()
 
     {
         Platform pfrm(".regr_input", ".regr_output");
-        initialize(8);
+        initialize({.offset_ = 8});
 
         auto stats = statistics();
         std::cout << "bytes remaining " << stats.bytes_available_ << std::endl;
@@ -1288,7 +1291,7 @@ bool write_triggered_compaction()
     // following compaction.
     reset();
     Platform pfrm(".regr_output", ".regr_output2");
-    initialize(8);
+    initialize({.offset_ = 8});
 
     if (end_offset not_eq 12438) {
         std::cerr << "end offset does not match expected! (" << end_offset
@@ -1375,7 +1378,7 @@ int main()
 
     Platform pfrm(".logstructured.sav", ".logstructured.edit.sav");
 
-    flash_filesystem::initialize(8);
+    flash_filesystem::initialize({.offset_ = 8});
 
     std::cout << "initial walk: " << std::endl;
     flash_filesystem::walk(

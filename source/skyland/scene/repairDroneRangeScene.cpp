@@ -34,13 +34,13 @@ namespace skyland
 
 
 
-ScenePtr<Scene> RepairDroneRangeScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> RepairDroneRangeScene::update(Microseconds delta)
 {
-    if (drone_->destination() not_eq &app.player_island()) {
+    if (drone_->destination() not_eq &APP.player_island()) {
         far_camera();
     }
 
-    if (auto scene = ActiveWorldScene::update(app, delta)) {
+    if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
@@ -52,7 +52,7 @@ ScenePtr<Scene> RepairDroneRangeScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         description_.reset();
         PLATFORM.fill_overlay(0);
 
@@ -68,9 +68,9 @@ ScenePtr<Scene> RepairDroneRangeScene::update(App& app, Microseconds delta)
 
 
 
-void RepairDroneRangeScene::display(App& app)
+void RepairDroneRangeScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
 
     auto pos = drone_->position();
 

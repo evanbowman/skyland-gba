@@ -249,7 +249,7 @@ void CreditsModule::load_page(u32 page)
 
 
 
-void CreditsModule::enter(App& app, Scene& prev)
+void CreditsModule::enter(Scene& prev)
 {
     load_page(0);
     PLATFORM.set_overlay_origin(0, -4);
@@ -259,7 +259,7 @@ void CreditsModule::enter(App& app, Scene& prev)
 
 
 
-void CreditsModule::exit(App& app, Scene& next)
+void CreditsModule::exit(Scene& next)
 {
     lines_.clear();
     PLATFORM.fill_overlay(0);
@@ -270,7 +270,7 @@ void CreditsModule::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> CreditsModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> CreditsModule::update(Microseconds delta)
 {
     constexpr auto fade_duration = milliseconds(650);
 
@@ -281,8 +281,8 @@ ScenePtr<Scene> CreditsModule::update(App& app, Microseconds delta)
             timer_ += delta;
         }
         if ((autoadvance_ and timer_ > page_times_[page_]) or
-            player(app).key_down(Key::action_1)) {
-            if (player(app).key_down(Key::action_2) or
+            player().key_down(Key::action_1)) {
+            if (player().key_down(Key::action_2) or
                 (u32) page_ + 1 == ::skyland::pages_.size()) {
                 state_ = State::fade_out_exit;
             } else {

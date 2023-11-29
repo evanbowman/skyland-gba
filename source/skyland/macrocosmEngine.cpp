@@ -113,7 +113,7 @@ EngineImpl::Data::Data()
 
 
 
-void EngineImpl::newgame(App& app)
+void EngineImpl::newgame()
 {
     // data_->current_sector_ = &data_->origin_sector_;
 
@@ -136,9 +136,9 @@ void EngineImpl::newgame(App& app)
     if (data_->checkers_mode_) {
         // ...
     } else if (data_->freebuild_mode_) {
-        app.invoke_script("/scripts/macro/start_layout.lisp");
+        APP.invoke_script("/scripts/macro/start_layout.lisp");
     } else {
-        app.invoke_script("/scripts/macro/newgame.lisp");
+        APP.invoke_script("/scripts/macro/newgame.lisp");
     }
 
     sector.set_population(1);
@@ -466,7 +466,7 @@ macro::terrain::Sector& EngineImpl::sector()
 
 
 
-bool EngineImpl::load(App& app)
+bool EngineImpl::load()
 {
     Vector<char> input;
 
@@ -536,7 +536,7 @@ bool EngineImpl::load(App& app)
 
     } else /* No existing save file */ {
 
-        newgame(app);
+        newgame();
     }
 
     data_->current_sector_ = &*data_->origin_sector_;
@@ -568,7 +568,7 @@ bool EngineImpl::load(App& app)
     lisp::set_var("conf", conf.result());
 
 
-    app.invoke_script("/scripts/macro/onload.lisp");
+    APP.invoke_script("/scripts/macro/onload.lisp");
 #endif
 
 

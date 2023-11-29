@@ -54,28 +54,28 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-void ModifyCharacterScene::exit(App& app, Scene& next)
+void ModifyCharacterScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
 
     Island* island = nullptr;
 
     if (near_) {
-        island = &app.player_island();
-    } else if (app.opponent_island()) {
-        island = app.opponent_island();
+        island = &APP.player_island();
+    } else if (APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
-    island->render_interior_fast(app);
+    island->render_interior_fast();
 
-    if (app.game_mode() == App::GameMode::co_op) {
+    if (APP.game_mode() == App::GameMode::co_op) {
 
         network::packet::CoOpChrLockRelease pkt;
         pkt.chr_id_.set(chr_id_);
         network::transmit(pkt);
 
-        if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
+        if (auto chr = BasicCharacter::find_by_id(chr_id_).first) {
             chr->co_op_release_lock();
         }
     }
@@ -83,9 +83,9 @@ void ModifyCharacterScene::exit(App& app, Scene& next)
 
 
 
-void ModifyCharacterScene::enter(App& app, Scene& prev)
+void ModifyCharacterScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -94,14 +94,14 @@ void ModifyCharacterScene::enter(App& app, Scene& prev)
     Island* island = nullptr;
 
     if (near_) {
-        island = &app.player_island();
-    } else if (app.opponent_island()) {
-        island = app.opponent_island();
+        island = &APP.player_island();
+    } else if (APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
-    auto found = BasicCharacter::find_by_id(app, chr_id_);
+    auto found = BasicCharacter::find_by_id(chr_id_);
 
-    island->plot_walkable_zones(app, *matrix_, found.first);
+    island->plot_walkable_zones(*matrix_, found.first);
 
     // Now, we want to do a bfs walk, to find all connected parts of the
     // walkable areas.
@@ -165,18 +165,18 @@ void ModifyCharacterScene::enter(App& app, Scene& prev)
 
 
 
-ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ModifyCharacterScene::update(Microseconds delta)
 {
-    if (app.player().key_down(Key::select)) {
+    if (APP.player().key_down(Key::select)) {
         return null_scene();
     }
 
     Island* island = nullptr;
 
     if (near_) {
-        island = &app.player_island();
-    } else if (app.opponent_island()) {
-        island = app.opponent_island();
+        island = &APP.player_island();
+    } else if (APP.opponent_island()) {
+        island = APP.opponent_island();
     }
 
     RoomCoord* cursor_loc = nullptr;
@@ -188,10 +188,10 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
     }
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
     if (test_key(Key::left)) {
         if (cursor_loc->x > 0) {
@@ -228,11 +228,11 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
     }
 
 
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         if (near_) {
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -240,11 +240,11 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_1) and
+    if (APP.player().key_down(Key::action_1) and
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> BasicCharacter* {
-            return BasicCharacter::find_by_id(app, chr_id_).first;
+            return BasicCharacter::find_by_id(chr_id_).first;
         }();
 
 
@@ -274,17 +274,17 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
 
             auto current = sel_chr->grid_position();
 
-            auto path = find_path(app, island, sel_chr, current, *cursor_loc);
+            auto path = find_path(island, sel_chr, current, *cursor_loc);
 
             if (path and *path) {
-                sel_chr->set_movement_path(app, std::move(*path));
+                sel_chr->set_movement_path(std::move(*path));
                 sel_chr->pin();
 
                 network::packet::ChrSetTargetV2 packet;
                 packet.target_x_ = cursor_loc->x;
                 packet.target_y_ = cursor_loc->y;
                 packet.chr_id_.set(sel_chr->id());
-                packet.near_island_ = island not_eq &app.player_island();
+                packet.near_island_ = island not_eq &APP.player_island();
                 network::transmit(packet);
 
             } else {
@@ -303,8 +303,8 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
         chr_name_timer_ += delta;
         if (modify_name_ or chr_name_timer_ > milliseconds(800)) {
             auto id = chr_id_;
-            if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
-                if (chr->owner() not_eq &app.player() or chr->is_replicant()) {
+            if (auto chr = BasicCharacter::find_by_id(chr_id_).first) {
+                if (chr->owner() not_eq &APP.player() or chr->is_replicant()) {
                     PLATFORM.speaker().play_sound("beep_error", 3);
                     if (near_) {
                         return scene_pool::alloc<ReadyScene>();
@@ -355,7 +355,7 @@ ScenePtr<Scene> ModifyCharacterScene::update(App& app, Microseconds delta)
 
 
 
-void ModifyCharacterScene::display(App& app)
+void ModifyCharacterScene::display()
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h16);
@@ -364,10 +364,10 @@ void ModifyCharacterScene::display(App& app)
 
     Vec2<Fixnum> origin;
     if (near_) {
-        origin = app.player_island().visual_origin();
+        origin = APP.player_island().visual_origin();
     } else {
-        if (app.opponent_island()) {
-            origin = app.opponent_island()->visual_origin();
+        if (APP.opponent_island()) {
+            origin = APP.opponent_island()->visual_origin();
         }
     }
 
@@ -381,7 +381,7 @@ void ModifyCharacterScene::display(App& app)
 
     PLATFORM.screen().draw(cursor);
 
-    WorldScene::display(app);
+    WorldScene::display();
 
     // Sprite sprite;
     // sprite.set_texture_index(19);
@@ -390,7 +390,7 @@ void ModifyCharacterScene::display(App& app)
     // for (int x = 0; x < 16; ++x) {
     //     for (int y = 0; y < 16; ++y) {
     //         if ((*matrix_)[x][y]) {
-    //             auto origin = app.player_island().origin();
+    //             auto origin = APP.player_island().origin();
     //             origin.x += x * 16;
     //             origin.y += (y - 1) * 16;
     //             sprite.set_position(origin);

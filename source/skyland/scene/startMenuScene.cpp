@@ -65,11 +65,11 @@ StartMenuScene::StartMenuScene(int fade_direction, int default_cursor)
 
 
 
-void StartMenuScene::enter(App& app, Scene& prev)
+void StartMenuScene::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(0);
 
-    if (app.game_mode() == App::GameMode::macro) {
+    if (APP.game_mode() == App::GameMode::macro) {
         start_y_ = 0;
     }
 
@@ -92,7 +92,7 @@ void StartMenuScene::add_option(const char* str,
 
 
 
-void StartMenuScene::exit(App&, Scene& next)
+void StartMenuScene::exit(Scene& next)
 {
     PLATFORM.screen().pixelate(0);
     data_->option_names_.clear();
@@ -207,12 +207,12 @@ private:
 
 
 
-ScenePtr<Scene> StartMenuScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> StartMenuScene::update(Microseconds delta)
 {
-    player(app).update(app, delta);
+    player().update(delta);
 
     auto test_key = [&](Key k) {
-        return player(app).test_key(k, milliseconds(500), milliseconds(100));
+        return player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
 AGAIN:
@@ -241,7 +241,7 @@ AGAIN:
     }
 
     auto check_button = [&] {
-        if (player(app).key_down(Key::action_1)) {
+        if (player().key_down(Key::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             const auto mode = data_->on_click_[data_->cursor_].mode_;
             if (mode == kill_menu) {
@@ -263,7 +263,7 @@ AGAIN:
         add_option(
 
             SYSTR(start_menu_share)->c_str(),
-            [&app]() -> ScenePtr<Scene> {
+            []() -> ScenePtr<Scene> {
                 PLATFORM.fill_overlay(0);
                 Text t(SYSTR(macro_share_please_wait)->c_str(),
                        OverlayCoord{1, 3});
@@ -282,8 +282,8 @@ AGAIN:
                 lisp::set_var("on-dialog-closed", L_NIL);
 
 
-                auto& current = macrocosm(app).sector();
-                auto qr = current.qr_encode(app, msg);
+                auto& current = macrocosm().sector();
+                auto qr = current.qr_encode(msg);
                 if (qr) {
                     PLATFORM.screen().pixelate(0);
                     PLATFORM.fill_overlay(0);
@@ -335,14 +335,14 @@ AGAIN:
     case State::init: {
         PLATFORM.load_overlay_texture("overlay_challenges");
 
-        if (app.game_mode() == App::GameMode::macro) {
+        if (APP.game_mode() == App::GameMode::macro) {
 
             add_option(SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            if (not macrocosm(app).data_->freebuild_mode_ and
-                not macrocosm(app).data_->checkers_mode_) {
+            if (not macrocosm().data_->freebuild_mode_ and
+                not macrocosm().data_->checkers_mode_) {
 
                 // These options don't apply to freebuild_mode_.
 
@@ -374,23 +374,23 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_glossary)->c_str(),
-                [&app] {
+                [] {
                     auto next = scene_pool::alloc<GlossaryViewerModule>();
                     next->disable_backdrop_ = true;
-                    next->set_next_scene([&app]() {
-                        auto& isle = app.player_island();
+                    next->set_next_scene([]() {
+                        auto& isle = APP.player_island();
                         if (isle.interior_visible()) {
-                            auto t = app.environment()
+                            auto t = APP.environment()
                                          .player_island_interior_texture();
                             PLATFORM.load_tile0_texture(t);
                         } else {
                             PLATFORM.load_tile0_texture(
-                                app.environment().player_island_texture());
+                                APP.environment().player_island_texture());
                         }
                         if (isle.interior_visible()) {
-                            show_island_interior(app, &app.player_island());
+                            show_island_interior(&APP.player_island());
                         } else {
-                            show_island_exterior(app, &app.player_island());
+                            show_island_exterior(&APP.player_island());
                         }
                         PLATFORM.set_scroll(
                             isle.layer(),
@@ -398,7 +398,7 @@ AGAIN:
                             -isle.get_position().y.as_integer());
 
                         auto view = PLATFORM.screen().get_view();
-                        view.set_center(app.camera()->center());
+                        view.set_center(APP.camera()->center());
                         PLATFORM.screen().set_view(view);
 
                         auto next = scene_pool::alloc<StartMenuScene>(1);
@@ -421,10 +421,10 @@ AGAIN:
 
 
         if (not PLATFORM.network_peer().is_connected() and
-            app.game_mode() not_eq App::GameMode::sandbox and
-            (app.game_mode() not_eq App::GameMode::macro or
-             (app.game_mode() == App::GameMode::macro and
-              not macrocosm(app).data_->freebuild_mode_))) {
+            APP.game_mode() not_eq App::GameMode::sandbox and
+            (APP.game_mode() not_eq App::GameMode::macro or
+             (APP.game_mode() == App::GameMode::macro and
+              not macrocosm().data_->freebuild_mode_))) {
             // Don't support the hibernate feature for active multiplayer
             // games. On some devices, a serial interrupt for multiplayer will
             // wake the system out of low power mode anyway.
@@ -435,7 +435,7 @@ AGAIN:
         }
 
 
-        switch (app.game_mode()) {
+        switch (APP.game_mode()) {
         case App::GameMode::sandbox:
             diff_percent_ = -0.1f;
             add_offset_ = 0;
@@ -443,7 +443,7 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_repl)->c_str(),
-                [&app]() { return scene_pool::alloc<LispReplScene>(); },
+                []() { return scene_pool::alloc<LispReplScene>(); },
                 cut);
 
             add_option(SYSTR(start_menu_save_sandbox)->c_str(),
@@ -457,8 +457,8 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_spectate)->c_str(),
-                [&app]() -> ScenePtr<Scene> {
-                    app.swap_player<SandboxSpectatorPlayer>(app);
+                []() -> ScenePtr<Scene> {
+                    APP.swap_player<SandboxSpectatorPlayer>();
                     PLATFORM.screen().schedule_fade(0.f);
                     return scene_pool::alloc<SpectatorScene>();
                 },
@@ -499,7 +499,7 @@ AGAIN:
 
         case App::GameMode::macro:
 
-            if (macrocosm(app).data_->checkers_mode_) {
+            if (macrocosm().data_->checkers_mode_) {
                 add_option(
 
                     SYSTR(start_menu_quit)->c_str(),
@@ -508,7 +508,7 @@ AGAIN:
                     },
                     fade_sweep);
                 break;
-            } else if (macrocosm(app).data_->freebuild_mode_) {
+            } else if (macrocosm().data_->freebuild_mode_) {
 
                 diff_percent_ = 0.18f;
                 if (not cascade_anim_in_) {
@@ -521,13 +521,13 @@ AGAIN:
                     // NOTE: Don't display the connect or load options if we're
                     // already in a multiplayer session.
 
-                    auto& current = macrocosm(app).sector();
+                    auto& current = macrocosm().sector();
                     using macro::terrain::FreebuildSector;
                     if (current.cast_freebuild_sector()) {
                         add_option(
 
                             SYSTR(start_menu_link)->c_str(),
-                            [&app]() -> ScenePtr<Scene> {
+                            []() -> ScenePtr<Scene> {
                                 PLATFORM.screen().pixelate(0);
                                 using Next = macro::FreebuildConnectFriendScene;
                                 return scene_pool::alloc<Next>();
@@ -540,16 +540,14 @@ AGAIN:
                     add_option(
 
                         SYSTR(start_menu_freebuild_samples)->c_str(),
-                        [&app]() {
-                            return scene_pool::alloc<SelectSampleScene>();
-                        },
+                        []() { return scene_pool::alloc<SelectSampleScene>(); },
                         cut);
 
                     add_option(
 
                         SYSTR(start_menu_freebuild_gen_terrain)->c_str(),
-                        [&app]() {
-                            auto& current = macrocosm(app).sector();
+                        []() {
+                            auto& current = macrocosm().sector();
                             current.generate_terrain(160, 1);
                             auto sz = current.size();
                             current.set_cursor(
@@ -563,14 +561,14 @@ AGAIN:
                     add_option(
 
                         SYSTR(start_menu_repl)->c_str(),
-                        [&app]() { return scene_pool::alloc<LispReplScene>(); },
+                        []() { return scene_pool::alloc<LispReplScene>(); },
                         cut);
 
                     add_option(
 
                         SYSTR(start_menu_load)->c_str(),
-                        [&app]() -> ScenePtr<Scene> {
-                            auto& m = macrocosm(app);
+                        []() -> ScenePtr<Scene> {
+                            auto& m = macrocosm();
 
                             using namespace macro::terrain;
 
@@ -609,8 +607,8 @@ AGAIN:
                 add_option(
 
                     SYSTR(start_menu_save)->c_str(),
-                    [&app]() -> ScenePtr<Scene> {
-                        auto& current = macrocosm(app).sector();
+                    []() -> ScenePtr<Scene> {
+                        auto& current = macrocosm().sector();
                         Vector<char> data;
                         current.pack(data);
 
@@ -626,13 +624,13 @@ AGAIN:
                 add_option(
 
                     SYSTR(start_menu_quit)->c_str(),
-                    [&app]() -> ScenePtr<Scene> {
+                    []() -> ScenePtr<Scene> {
                         if (PLATFORM.network_peer().is_connected()) {
                             PLATFORM.network_peer().disconnect();
                         }
                         PLATFORM.fill_overlay(0);
                         PLATFORM.screen().set_shader(passthrough_shader);
-                        if (macrocosm(app).data_->freebuild_mode_) {
+                        if (macrocosm().data_->freebuild_mode_) {
                             return scene_pool::alloc<TitleScreenScene>(3);
                         } else {
                             return scene_pool::alloc<TitleScreenScene>(4);
@@ -645,7 +643,7 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_save)->c_str(),
-                [&app]() -> ScenePtr<Scene> {
+                []() -> ScenePtr<Scene> {
                     return scene_pool::alloc<macro::SaveConfirmScene>();
                 },
                 fade_sweep);
@@ -655,13 +653,13 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_newgame)->c_str(),
-                [&app]() -> ScenePtr<Scene> {
+                []() -> ScenePtr<Scene> {
                     Text("generating world...", OverlayCoord{1, 1});
                     PLATFORM.screen().schedule_fade(0);
                     PLATFORM.screen().schedule_fade(1);
                     PLATFORM.screen().clear();
                     PLATFORM.screen().display();
-                    macrocosm(app).newgame(app);
+                    macrocosm().newgame();
                     PLATFORM.load_overlay_texture("overlay_challenges");
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },
@@ -680,14 +678,14 @@ AGAIN:
             break;
 
         case App::GameMode::adventure:
-            if (app.opponent_island() == nullptr or
-                app.world_graph().nodes_[app.current_world_location()].type_ ==
+            if (APP.opponent_island() == nullptr or
+                APP.world_graph().nodes_[APP.current_world_location()].type_ ==
                     WorldGraph::Node::Type::shop) {
                 add_option(SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
             } else {
-                if (not app.opponent().is_friendly()) {
+                if (not APP.opponent().is_friendly()) {
                     add_option(SYSTR(start_menu_end_run)->c_str(),
                                scene_pool::make_deferred_scene<
                                    SurrenderConfirmScene>(),
@@ -695,17 +693,17 @@ AGAIN:
                 }
 
                 bool is_final_boss =
-                    app.world_graph()
-                        .nodes_[app.current_world_location()]
+                    APP.world_graph()
+                        .nodes_[APP.current_world_location()]
                         .type_ == WorldGraph::Node::Type::corrupted;
 
-                if (app.has_backup() and not is_final_boss) {
+                if (APP.has_backup() and not is_final_boss) {
                     add_option(
 
                         SYSTR(retry)->c_str(),
-                        [&app]() -> ScenePtr<Scene> {
+                        []() -> ScenePtr<Scene> {
                             PLATFORM.fill_overlay(0);
-                            app.restore_backup();
+                            APP.restore_backup();
                             PLATFORM.speaker().clear_sounds();
                             return scene_pool::alloc<LoadLevelScene>();
                         },
@@ -718,13 +716,13 @@ AGAIN:
             add_option(
 
                 SYSTR(start_menu_end_run)->c_str(),
-                [&app] {
-                    app.exit_condition() = App::ExitCondition::defeat;
+                [] {
+                    APP.exit_condition() = App::ExitCondition::defeat;
                     PLATFORM.speaker().stop_music();
                     PLATFORM.screen().schedule_fade(0.f);
                     PLATFORM.screen().pixelate(0);
                     auto next = scene_pool::alloc<ReadyScene>();
-                    next->set_gamespeed(app, GameSpeed::normal);
+                    next->set_gamespeed(GameSpeed::normal);
                     return next;
                 },
                 cut);
@@ -830,8 +828,7 @@ AGAIN:
     }
 
     case State::idle:
-        if (player(app).key_down(Key::action_2) or
-            player(app).key_down(Key::start)) {
+        if (player().key_down(Key::action_2) or player().key_down(Key::start)) {
             state_ = State::clear;
         }
         check_button();
@@ -866,7 +863,7 @@ AGAIN:
         PLATFORM.load_overlay_texture("overlay");
         PLATFORM.screen().schedule_fade(0.f);
         PLATFORM.screen().pixelate(0);
-        if (app.game_mode() == App::GameMode::macro) {
+        if (APP.game_mode() == App::GameMode::macro) {
             return scene_pool::alloc<macro::SelectorScene>();
         } else {
             return scene_pool::alloc<ReadyScene>();
@@ -956,7 +953,7 @@ AGAIN:
 
 
 
-void StartMenuScene::display(App& app)
+void StartMenuScene::display()
 {
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);

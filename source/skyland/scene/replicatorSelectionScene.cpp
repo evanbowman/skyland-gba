@@ -39,9 +39,9 @@ static const auto replicator_fee = 700;
 
 
 
-void ReplicatorSelectionScene::enter(App& app, Scene& prev)
+void ReplicatorSelectionScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     if (not near_) {
         far_camera();
@@ -78,9 +78,9 @@ void ReplicatorSelectionScene::enter(App& app, Scene& prev)
 
 
 
-void ReplicatorSelectionScene::exit(App& app, Scene& next)
+void ReplicatorSelectionScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
     text_.reset();
     yes_text_.reset();
@@ -94,12 +94,12 @@ void ReplicatorSelectionScene::exit(App& app, Scene& next)
         PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 0);
     }
 
-    if (app.game_mode() == App::GameMode::co_op) {
+    if (APP.game_mode() == App::GameMode::co_op) {
 
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
-        Island* island = near_ ? &app.player_island() : app.opponent_island();
+        Island* island = near_ ? &APP.player_island() : APP.opponent_island();
 
         if (auto room = island->get_room(cursor_loc)) {
             room->co_op_release_lock();
@@ -109,13 +109,13 @@ void ReplicatorSelectionScene::exit(App& app, Scene& next)
 
 
 
-ScenePtr<Scene> ReplicatorSelectionScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> ReplicatorSelectionScene::update(Microseconds delta)
 {
-    if (auto next = ActiveWorldScene::update(app, delta)) {
+    if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
-    if (app.coins() < replicator_fee) {
+    if (APP.coins() < replicator_fee) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -128,20 +128,20 @@ ScenePtr<Scene> ReplicatorSelectionScene::update(App& app, Microseconds delta)
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
-        Island* island = near_ ? &app.player_island() : app.opponent_island();
+        Island* island = near_ ? &APP.player_island() : APP.opponent_island();
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             exit_countdown_ = milliseconds(500);
             if (auto room = island->get_room(cursor_loc)) {
-                if (room->create_replicant(app)) {
-                    app.set_coins(app.coins() - replicator_fee);
+                if (room->create_replicant()) {
+                    APP.set_coins(APP.coins() - replicator_fee);
                 }
                 return scene_pool::alloc<ReadyScene>();
             }
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 

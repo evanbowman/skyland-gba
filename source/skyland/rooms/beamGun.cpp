@@ -73,7 +73,7 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         timer_ -= delta;
         if (timer_ < 0) {
@@ -85,13 +85,13 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta;
         if (timer_ > milliseconds(32)) {
             timer_ -= milliseconds(32);
             if (++beam_count_ < 10) {
-                auto c = app.alloc_entity<Beam>(
+                auto c = APP.alloc_entity<Beam>(
                     position_, target_, source_, origin_tile_, beam_count_);
                 if (c) {
                     source_->projectiles().push(std::move(c));
@@ -103,7 +103,7 @@ public:
                 auto e = alloc_entity<AnimatedEffect>(
                     position_, 47, 49, milliseconds(100));
                 if (e) {
-                    app.effects().push(std::move(e));
+                    APP.effects().push(std::move(e));
                 }
             }
         }
@@ -121,9 +121,9 @@ private:
 
 
 
-void BeamGun::fire(App& app)
+void BeamGun::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -132,27 +132,27 @@ void BeamGun::fire(App& app)
     origin.y += Fixnum::from_integer(target_->y * 16 + 8);
     target = origin;
 
-    app.camera()->shake(6);
+    APP.camera()->shake(6);
 
     auto start = center();
 
     // This just makes it a bit less likely for cannonballs to
     // run into the player's own buildings, especially around
     // corners.
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         start.x -= 32.0_fixed;
     } else {
         start.x += 32.0_fixed;
     }
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<4>(target, rng::critical_state);
     }
 
     cannon_sound.play(3);
 
-    auto c = app.alloc_entity<BeamSpawner>(start, target, parent(), position());
+    auto c = APP.alloc_entity<BeamSpawner>(start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

@@ -41,16 +41,16 @@ class WorldMap;
 class WorldMapScene : public Scene
 {
 public:
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void enter(App&, Scene& prev_scene) override;
+    void enter(Scene& prev_scene) override;
 
 
-    void exit(App&, Scene& next_scene) override;
+    void exit(Scene& next_scene) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
 private:
@@ -109,7 +109,7 @@ private:
 
     Microseconds storm_scroll_timer_ = 0;
 
-    void render_map_key(App&);
+    void render_map_key();
 
     static bool show_tier_2_;
     bool tier_2_visible_ = false;

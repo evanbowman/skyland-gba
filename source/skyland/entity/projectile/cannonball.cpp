@@ -67,24 +67,24 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
 
 
 
-void Cannonball::update(App& app, Microseconds delta)
+void Cannonball::update(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.delta_fp() * step_vector_;
+    pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
 
 
     Island* target;
-    if (source_ == &app.player_island()) {
-        target = app.opponent_island();
+    if (source_ == &APP.player_island()) {
+        target = APP.opponent_island();
     } else {
-        target = &app.player_island();
+        target = &APP.player_island();
     }
 
     if (target) {
-        destroy_out_of_bounds(app, target);
+        destroy_out_of_bounds(target);
     }
 
     if (timer_ > seconds(2)) {
@@ -94,19 +94,19 @@ void Cannonball::update(App& app, Microseconds delta)
 
 
 
-void Cannonball::rewind(App& app, Microseconds delta)
+void Cannonball::rewind(Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.delta_fp() * step_vector_;
+    pos = pos - APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used(app);
+            room->___rewind___ability_used();
         } else if (auto drone = source_->get_drone(origin_tile_)) {
-            (*drone)->___rewind___ability_used(app);
+            (*drone)->___rewind___ability_used();
         }
         kill();
     }
@@ -118,7 +118,7 @@ Sound sound_impact("impact");
 
 
 
-void Cannonball::on_collision(App& app, Room& room, Vec2<u8> origin)
+void Cannonball::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
@@ -139,15 +139,15 @@ void Cannonball::on_collision(App& app, Room& room, Vec2<u8> origin)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < cannonball_damage) {
-        room.apply_damage(app, Room::health_upper_limit());
+        room.apply_damage(Room::health_upper_limit());
         return;
     }
 
-    room.apply_damage(app, cannonball_damage, source_);
+    room.apply_damage(cannonball_damage, source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        room.set_ai_aware(app, true);
-        record_destroyed(app);
+        room.set_ai_aware(true);
+        record_destroyed();
         step_vector_.x *= Fixnum::from_integer(-1);
         step_vector_.y *= Fixnum::from_integer(-1);
         source_ = room.parent();
@@ -155,7 +155,7 @@ void Cannonball::on_collision(App& app, Room& room, Vec2<u8> origin)
         timer_ = 0;
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(app, true);
+        this->destroy(true);
         if (room.health()) {
             sound_impact.play(1);
         }
@@ -164,7 +164,7 @@ void Cannonball::on_collision(App& app, Room& room, Vec2<u8> origin)
 
 
 
-void Cannonball::record_destroyed(App& app)
+void Cannonball::record_destroyed()
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -178,34 +178,34 @@ void Cannonball::record_destroyed(App& app)
         };
 
 
-    if (source_ == &app.player_island()) {
+    if (source_ == &APP.player_island()) {
         time_stream::event::PlayerCannonballDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     } else {
         time_stream::event::OpponentCannonballDestroyed c;
         timestream_record(c);
-        app.time_stream().push(app.level_timer(), c);
+        APP.time_stream().push(APP.level_timer(), c);
     }
 }
 
 
 
-void Cannonball::destroy(App& app, bool explosion)
+void Cannonball::destroy(bool explosion)
 {
-    record_destroyed(app);
+    record_destroyed();
 
     kill();
-    app.camera()->shake(8);
+    APP.camera()->shake(8);
 
     if (explosion) {
-        medium_explosion(app, sprite_.get_position());
+        medium_explosion(sprite_.get_position());
     }
 }
 
 
 
-void Cannonball::on_collision(App& app, Entity& entity)
+void Cannonball::on_collision(Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Cannonball explodes upon collision.
@@ -217,9 +217,9 @@ void Cannonball::on_collision(App& app, Entity& entity)
     }
 
 
-    this->destroy(app, true);
+    this->destroy(true);
 
-    entity.apply_damage(app, cannonball_damage);
+    entity.apply_damage(cannonball_damage);
 }
 
 

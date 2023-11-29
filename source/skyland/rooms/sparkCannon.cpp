@@ -58,29 +58,29 @@ SparkCannon::SparkCannon(Island* parent, const RoomCoord& position)
 
 
 
-void SparkCannon::on_lightning(App& app)
+void SparkCannon::on_lightning()
 {
     if (level_ < 2) {
         ++level_;
         schedule_repaint();
     } else {
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     }
 }
 
 
 
-void SparkCannon::on_lightning_rewind(App& app)
+void SparkCannon::on_lightning_rewind()
 {
     if (level_ > 0) {
         --level_;
@@ -150,7 +150,7 @@ void SparkCannon::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> SparkCannon::select(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -165,13 +165,13 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
 
     auto start = center();
 
-    auto island = other_island(app);
+    auto island = other_island();
 
     // This just makes it a bit less likely for cannonballs to
     // run into the player's own buildings, especially around
     // corners.
     bool right = true;
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         right = false;
         start.x -= 24.0_fixed;
     } else {
@@ -182,19 +182,19 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
 
     switch (level_) {
     case 1: {
-        auto ab = app.alloc_entity<ArcBolt>(
+        auto ab = APP.alloc_entity<ArcBolt>(
             start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
@@ -203,31 +203,31 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
     }
 
     default: {
-        auto ab = app.alloc_entity<ArcBolt>(
+        auto ab = APP.alloc_entity<ArcBolt>(
             start, right ? 0 : 180, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 10 : 190, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 350 : 170, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 20 : 160, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
         }
 
-        ab = app.alloc_entity<ArcBolt>(
+        ab = APP.alloc_entity<ArcBolt>(
             start, right ? 340 : 200, parent(), position());
         if (ab) {
             parent()->projectiles().push(std::move(ab));
@@ -236,13 +236,13 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
         start.y += 4.0_fixed;
 
         auto target = center();
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             target.x += 100.0_fixed;
         } else {
             target.x -= 100.0_fixed;
         }
 
-        auto c = app.alloc_entity<DecimatorBurst>(
+        auto c = APP.alloc_entity<DecimatorBurst>(
             start, target, parent(), position());
 
         if (c) {
@@ -254,16 +254,16 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
     }
 
     auto record_lv = [&] {
-        if (parent() == &app.player_island()) {
+        if (parent() == &APP.player_island()) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     };
 
@@ -279,7 +279,7 @@ ScenePtr<Scene> SparkCannon::select(App& app, const RoomCoord& cursor)
 
 
 
-void SparkCannon::___rewind___finished_reload(App&)
+void SparkCannon::___rewind___finished_reload()
 {
     ++level_;
     schedule_repaint();

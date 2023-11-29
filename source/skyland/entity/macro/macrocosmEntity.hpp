@@ -49,7 +49,7 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override final;
+    void update(Microseconds delta) override final;
 
 
 private:

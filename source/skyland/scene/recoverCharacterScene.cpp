@@ -42,23 +42,23 @@ RecoverCharacterScene::RecoverCharacterScene(const RoomCoord& transporter_loc)
 
 
 
-ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> RecoverCharacterScene::update(Microseconds delta)
 {
-    if (auto new_scene = ActiveWorldScene::update(app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     auto& cursor_loc = globals().far_cursor_loc_;
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    app.player().key_held_distribute();
+    APP.player().key_held_distribute();
 
 
     if (test_key(Key::left)) {
@@ -69,7 +69,7 @@ ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
     }
 
     if (test_key(Key::right)) {
-        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+        if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
@@ -89,14 +89,14 @@ ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_1)) {
-        if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+    if (APP.player().key_down(Key::action_1)) {
+        if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
             if (length(room->characters())) {
                 if (auto origin =
-                        app.player_island().get_room(transporter_loc_)) {
+                        APP.player_island().get_room(transporter_loc_)) {
 
                     if (auto transporter = origin->cast<Transporter>()) {
-                        transporter->recover_character(app, cursor_loc);
+                        transporter->recover_character(cursor_loc);
                         return scene_pool::alloc<ReadyScene>();
                     }
                 }
@@ -104,7 +104,7 @@ ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(Key::action_2)) {
+    if (APP.player().key_down(Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -113,11 +113,11 @@ ScenePtr<Scene> RecoverCharacterScene::update(App& app, Microseconds delta)
 }
 
 
-void RecoverCharacterScene::display(App& app)
+void RecoverCharacterScene::display()
 {
-    WorldScene::display(app);
+    WorldScene::display();
 
-    if (not app.opponent_island()) {
+    if (not APP.opponent_island()) {
         return;
     }
 
@@ -125,7 +125,7 @@ void RecoverCharacterScene::display(App& app)
     cursor.set_size(Sprite::Size::w16_h16);
     cursor.set_tidx_16x16(17, 0);
 
-    auto origin = app.opponent_island()->visual_origin();
+    auto origin = APP.opponent_island()->visual_origin();
 
     auto& cursor_loc = globals().far_cursor_loc_;
 
@@ -139,9 +139,9 @@ void RecoverCharacterScene::display(App& app)
 
 
 
-void RecoverCharacterScene::enter(App& app, Scene& prev)
+void RecoverCharacterScene::enter(Scene& prev)
 {
-    WorldScene::enter(app, prev);
+    WorldScene::enter(prev);
 
     far_camera();
 
@@ -161,9 +161,9 @@ void RecoverCharacterScene::enter(App& app, Scene& prev)
 
 
 
-void RecoverCharacterScene::exit(App& app, Scene& next)
+void RecoverCharacterScene::exit(Scene& next)
 {
-    WorldScene::exit(app, next);
+    WorldScene::exit(next);
 
 
     auto st = calc_screen_tiles();

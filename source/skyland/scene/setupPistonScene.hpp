@@ -49,39 +49,39 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (auto scene = ActiveWorldScene::update(app, delta)) {
+        if (auto scene = ActiveWorldScene::update(delta)) {
             return scene;
         }
 
         Room* room = nullptr;
 
         if (is_far_camera()) {
-            if (opponent_island(app)) {
-                room = opponent_island(app)->get_room(piston_loc_);
+            if (opponent_island()) {
+                room = opponent_island()->get_room(piston_loc_);
             }
         } else {
-            room = player_island(app).get_room(piston_loc_);
+            room = player_island().get_room(piston_loc_);
         }
 
         Piston* piston = room->cast<Piston>();
 
         auto last_dir = dir_;
 
-        if (not piston or player(app).key_down(Key::action_1)) {
+        if (not piston or player().key_down(Key::action_1)) {
             if (is_far_camera()) {
                 return scene_pool::alloc<InspectP2Scene>();
             } else {
                 return scene_pool::alloc<ReadyScene>();
             }
-        } else if (player(app).key_down(Key::left)) {
+        } else if (player().key_down(Key::left)) {
             dir_ = Piston::Direction::left;
-        } else if (player(app).key_down(Key::right)) {
+        } else if (player().key_down(Key::right)) {
             dir_ = Piston::Direction::right;
-        } else if (player(app).key_down(Key::up)) {
+        } else if (player().key_down(Key::up)) {
             dir_ = Piston::Direction::up;
-        } else if (player(app).key_down(Key::down)) {
+        } else if (player().key_down(Key::down)) {
             dir_ = Piston::Direction::down;
         }
 

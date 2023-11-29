@@ -38,14 +38,14 @@ class TitleScreenScene : public Scene
 public:
     TitleScreenScene(int start_page = 1);
 
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App&) override;
+    void display() override;
 
 
     Float ambient_movement() const
@@ -54,7 +54,7 @@ public:
     }
 
 
-    void macro_gen_sample_island(App&);
+    void macro_gen_sample_island();
 
 
 private:
@@ -67,7 +67,7 @@ private:
     bool selector_shaded_ = false;
     bool flower_effect_ = false;
 
-    void run_init_scripts(App& app, bool allow_mods);
+    void run_init_scripts(bool allow_mods);
 
 
     void show_module_icons(int page);

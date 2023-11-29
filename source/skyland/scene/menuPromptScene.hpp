@@ -36,7 +36,7 @@ namespace skyland
 class MenuPromptScene : public Scene
 {
 public:
-    using OptCallback = Function<4, void(App&)>;
+    using OptCallback = Function<4, void()>;
 
 
     MenuPromptScene(SystemString msg,
@@ -55,7 +55,7 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    void enter(App&, Scene& prev) override
+    void enter(Scene& prev) override
     {
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.screen().schedule_fade(1);
@@ -78,7 +78,7 @@ public:
     }
 
 
-    void exit(App&, Scene& next) override
+    void exit(Scene& next) override
     {
         text_.reset();
         t1_.reset();
@@ -92,19 +92,19 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
-        if (player(app).key_down(Key::action_1)) {
+        if (player().key_down(Key::action_1)) {
             if (cursor_ == 0) {
-                opt_1_callback_(app);
+                opt_1_callback_();
             } else {
-                opt_2_callback_(app);
+                opt_2_callback_();
             }
             PLATFORM.speaker().play_sound("button_wooden", 3);
             return next_();
         }
 
-        if (player(app).key_down(Key::up)) {
+        if (player().key_down(Key::up)) {
             cursor_ = 0;
             t1_->assign(loadstr(opt_1_)->c_str(), sel_colors);
             t2_->assign(loadstr(opt_2_)->c_str());
@@ -113,7 +113,7 @@ public:
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (player(app).key_down(Key::down)) {
+        if (player().key_down(Key::down)) {
             cursor_ = 1;
             t1_->assign(loadstr(opt_1_)->c_str());
             t2_->assign(loadstr(opt_2_)->c_str(), sel_colors);

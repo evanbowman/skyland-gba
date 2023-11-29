@@ -54,12 +54,12 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta * 2;
 
         auto pos = sprite_.get_position();
-        pos = pos + speed_ * app.delta_fp();
+        pos = pos + speed_ * APP.delta_fp();
         sprite_.set_position(pos);
 
         if (timer_ > milliseconds(200)) {
@@ -87,12 +87,12 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         timer_ -= delta * 2;
 
         auto pos = sprite_.get_position();
-        pos = pos - speed_ * app.delta_fp();
+        pos = pos - speed_ * APP.delta_fp();
         sprite_.set_position(pos);
 
         if (timer_ < 0) {

@@ -39,9 +39,9 @@ ColorConstant Typhoon::fadein_colorize_tone() const
 
 
 
-void Typhoon::rewind(App& app, Microseconds delta)
+void Typhoon::rewind(Microseconds delta)
 {
-    Storm::rewind(app, delta);
+    Storm::rewind(delta);
 
     switch (ls_) {
     case LightningState::none:
@@ -147,9 +147,9 @@ void Typhoon::rewind(App& app, Microseconds delta)
 
 
 
-void Typhoon::update(App& app, Microseconds delta)
+void Typhoon::update(Microseconds delta)
 {
-    Storm::update(app, delta);
+    Storm::update(delta);
 
     switch (ls_) {
     case LightningState::none:
@@ -187,15 +187,15 @@ void Typhoon::update(App& app, Microseconds delta)
             PLATFORM.speaker().play_sound("thunder_close_1", 0);
 
             time_stream::event::Lightning e;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
 
-            for (auto& room : player_island(app).rooms()) {
-                room->on_lightning(app);
+            for (auto& room : player_island().rooms()) {
+                room->on_lightning();
             }
 
-            if (opponent_island(app)) {
-                for (auto& room : opponent_island(app)->rooms()) {
-                    room->on_lightning(app);
+            if (opponent_island()) {
+                for (auto& room : opponent_island()->rooms()) {
+                    room->on_lightning();
                 }
             }
 
@@ -229,7 +229,7 @@ void Typhoon::update(App& app, Microseconds delta)
             PLATFORM.screen().schedule_fade(0.f);
 
             time_stream::event::LightningDone e;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
 
         } else {
             const auto amount =
@@ -256,9 +256,9 @@ void Typhoon::update(App& app, Microseconds delta)
 
 
 
-Platform::Screen::Shader Typhoon::shader(App& app) const
+Platform::Screen::Shader Typhoon::shader() const
 {
-    return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
+    return [](ShaderPalette palette, ColorConstant k, int arg, int index) {
         switch (palette) {
         case ShaderPalette::tile0:
             switch (index & 0x0f) {
@@ -277,7 +277,7 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
             case 9:
                 return custom_color(0xd9dbdb);
             case 10:
-                if (not player_island(app).interior_visible()) {
+                if (not player_island().interior_visible()) {
                     return custom_color(0x80acb0);
                 }
                 break;
@@ -301,8 +301,8 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
             case 3:
                 return custom_color(0x95bbbd);
             case 4:
-                if (opponent_island(app) and
-                    not opponent_island(app)->interior_visible()) {
+                if (opponent_island() and
+                    not opponent_island()->interior_visible()) {
                     return custom_color(0x322f59);
                 }
                 break;
@@ -315,8 +315,8 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
             case 9:
                 return custom_color(0xd9dbdb);
             case 10: // FIXME
-                if (opponent_island(app) and
-                    not opponent_island(app)->interior_visible()) {
+                if (opponent_island() and
+                    not opponent_island()->interior_visible()) {
                     return custom_color(0x838c6b);
                 }
                 break;

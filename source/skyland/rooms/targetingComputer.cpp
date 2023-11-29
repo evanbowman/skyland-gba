@@ -53,9 +53,9 @@ void TargetingComputer::format_description(StringBuffer<512>& buffer)
 
 
 
-void TargetingComputer::update(App& app, Microseconds delta)
+void TargetingComputer::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (not enabled_) {
         return;
@@ -63,17 +63,17 @@ void TargetingComputer::update(App& app, Microseconds delta)
 
     Room::ready();
 
-    if (&parent()->owner() == &app.opponent()) {
-        if (app.game_mode() == App::GameMode::multiplayer) {
+    if (&parent()->owner() == &APP.opponent()) {
+        if (APP.game_mode() == App::GameMode::multiplayer) {
             return;
         }
-        apply_damage(app, Room::health_upper_limit());
+        apply_damage(Room::health_upper_limit());
         return;
     }
 
-    if (app.opponent().is_friendly()) {
+    if (APP.opponent().is_friendly()) {
         for (auto& r : parent()->rooms()) {
-            r->unset_target(app);
+            r->unset_target();
         }
         return;
     }
@@ -100,14 +100,14 @@ void TargetingComputer::update(App& app, Microseconds delta)
     if (next_action_timer_ > 0) {
         next_action_timer_ -= delta;
     } else {
-        if (room_update_index_ >= player_island(app).rooms().size()) {
+        if (room_update_index_ >= player_island().rooms().size()) {
             room_update_index_ = 0;
             next_action_timer_ = seconds(3);
         } else {
-            auto& room = *player_island(app).rooms()[room_update_index_++];
+            auto& room = *player_island().rooms()[room_update_index_++];
             if (&room not_eq this and room.metaclass() == this->metaclass()) {
                 // Player built two targeting computers.
-                room.apply_damage(app, Room::health_upper_limit());
+                room.apply_damage(Room::health_upper_limit());
             }
             const auto category = (*room.metaclass())->category();
             if (category == Room::Category::weapon) {
@@ -118,15 +118,14 @@ void TargetingComputer::update(App& app, Microseconds delta)
                 // destroyed.
                 const bool has_pinned_target =
                     room.target_pinned() and room.get_target() and
-                    app.opponent_island()->get_room(*room.get_target());
+                    APP.opponent_island()->get_room(*room.get_target());
 
                 if (not has_pinned_target) {
-                    EnemyAI::update_room(app,
-                                         room,
-                                         app.opponent_island()->rooms_plot(),
-                                         &app.player(),
-                                         &app.player_island(),
-                                         app.opponent_island());
+                    EnemyAI::update_room(room,
+                                         APP.opponent_island()->rooms_plot(),
+                                         &APP.player(),
+                                         &APP.player_island(),
+                                         APP.opponent_island());
                 }
             }
             next_action_timer_ = milliseconds(32);
@@ -136,27 +135,27 @@ void TargetingComputer::update(App& app, Microseconds delta)
 
 
 
-void TargetingComputer::unset_target(App& app)
+void TargetingComputer::unset_target()
 {
     next_action_timer_ = seconds(2);
 }
 
 
 
-ScenePtr<Scene> TargetingComputer::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> TargetingComputer::select(const RoomCoord& cursor)
 {
-    if (parent() == &player_island(app)) {
+    if (parent() == &player_island()) {
         // I repurposed the ReloadComplete event because it's already looped
         // into a callback (overriden below).
         time_stream::event::PlayerRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     enabled_ = not enabled_;
@@ -170,7 +169,7 @@ ScenePtr<Scene> TargetingComputer::select(App& app, const RoomCoord& cursor)
 
 
 
-void TargetingComputer::___rewind___finished_reload(App& app)
+void TargetingComputer::___rewind___finished_reload()
 {
     enabled_ = not enabled_;
     schedule_repaint();

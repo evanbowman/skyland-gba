@@ -47,10 +47,10 @@ public:
           const RoomCoord& grid_pos);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
 
@@ -60,14 +60,14 @@ public:
     }
 
 
-    virtual void ___rewind___ability_used(App& app)
+    virtual void ___rewind___ability_used()
     {
     }
 
 
-    virtual void ___rewind___finished_reload(App& app)
+    virtual void ___rewind___finished_reload()
     {
-        ___rewind___ability_used(app);
+        ___rewind___ability_used();
     }
 
 
@@ -109,11 +109,10 @@ public:
 
 
 
-    void
-    set_target(App& app, const RoomCoord& target, bool target_near = false);
+    void set_target(const RoomCoord& target, bool target_near = false);
 
 
-    void drop_target(App& app);
+    void drop_target();
 
 
     Island* parent() const
@@ -131,7 +130,7 @@ public:
     virtual const char* name() const = 0;
 
 
-    virtual ScenePtr<Scene> select(App&) = 0;
+    virtual ScenePtr<Scene> select() = 0;
 
 
     virtual Microseconds reload_time_remaining() const = 0;
@@ -143,7 +142,7 @@ public:
     }
 
 
-    void apply_damage(App& app, Health amount) override;
+    void apply_damage(Health amount) override;
 
 
     Microseconds timer() const
@@ -159,13 +158,13 @@ public:
 
 
     virtual void display_on_hover(Platform::Screen& screen,
-                                  App& app,
+
                                   const RoomCoord& cursor)
     {
     }
 
 
-    void display(Platform::Screen& screen, App& app);
+    void display(Platform::Screen& screen);
 
 
 protected:
@@ -174,7 +173,7 @@ protected:
     Microseconds timer_ = 0;
     Microseconds duration_ = 0;
 
-    void update_sprite(App& app);
+    void update_sprite();
 
 private:
     Island* parent_;

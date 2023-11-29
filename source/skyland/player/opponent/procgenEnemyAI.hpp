@@ -40,42 +40,42 @@ public:
     ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty);
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void generate_level(App& app);
+    void generate_level();
 
 
     void set_levelgen_count(int count);
 
 
 private:
-    void generate_power_sources(App& app);
-    void generate_stairwells(App& app);
-    void generate_secondary_rooms(App& app);
-    void generate_foundation(App& app);
-    void generate_hull(App& app);
-    void generate_weapons(App& app, int max);
-    void generate_forcefields(App& app);
-    void generate_characters(App& app);
-    void generate_decorations(App& app);
-    void generate_radiators(App& app);
-    void generate_walls_behind_weapons(App& app);
-    void generate_missile_defenses(App& app);
+    void generate_power_sources();
+    void generate_stairwells();
+    void generate_secondary_rooms();
+    void generate_foundation();
+    void generate_hull();
+    void generate_weapons(int max);
+    void generate_forcefields();
+    void generate_characters();
+    void generate_decorations();
+    void generate_radiators();
+    void generate_walls_behind_weapons();
+    void generate_missile_defenses();
 
-    void cleanup_unused_terrain(App& app);
-
-
-    bool has_space(App& app, const RoomCoord& loc, const RoomCoord& sz);
+    void cleanup_unused_terrain();
 
 
-    Power power_remaining(App& app) const;
+    bool has_space(const RoomCoord& loc, const RoomCoord& sz);
 
 
-    void place_room_random_loc(App& app, int x_start, const char* room_name);
+    Power power_remaining() const;
 
 
-    void place_room_adjacent(App& app, const char* room_name);
+    void place_room_random_loc(int x_start, const char* room_name);
+
+
+    void place_room_adjacent(const char* room_name);
 
 
     rng::LinearGenerator rng_source_;

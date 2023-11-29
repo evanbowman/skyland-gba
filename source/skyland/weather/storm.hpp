@@ -71,13 +71,13 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta);
+    void update(Microseconds delta);
 
 
-    void rewind(App& app, Microseconds delta);
+    void rewind(Microseconds delta);
 
 
-    void display(App& app) override;
+    void display() override;
 
 
     const char* music() const override;
@@ -89,7 +89,7 @@ public:
     }
 
 
-    Platform::Screen::Shader shader(App& app) const override;
+    Platform::Screen::Shader shader() const override;
 
 
     ColorConstant fadein_colorize_tone() const override;

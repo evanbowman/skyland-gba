@@ -66,11 +66,11 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& next) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
     enum class DisplayMode {
@@ -95,13 +95,13 @@ public:
     const char* ambience_ = nullptr;
 
 
-    void display(App& app) override;
+    void display() override;
 
 
 private:
-    void process_command(App& app);
+    void process_command();
 
-    bool advance_text(App& app, Microseconds delta, bool sfx);
+    bool advance_text(Microseconds delta, bool sfx);
 
     void clear_textbox();
 
@@ -173,26 +173,26 @@ public:
     }
 
 
-    void display(App& app) override
+    void display() override
     {
-        dialog_scene_.display(app);
-        WorldScene::display(app);
+        dialog_scene_.display();
+        WorldScene::display();
     }
 
 
-    void enter(App& app, Scene& prev) override final
+    void enter(Scene& prev) override final
     {
-        WorldScene::enter(app, prev);
+        WorldScene::enter(prev);
 
         WorldScene::notransitions();
 
-        dialog_scene_.enter(app, prev);
+        dialog_scene_.enter(prev);
 
-        if (app.game_mode() not_eq App::GameMode::tutorial and
-            pause_if_hostile_ and app.opponent_island() and
-            not app.opponent().is_friendly()) {
-            set_gamespeed(app, GameSpeed::stopped);
-            state_bit_store(app, StateBit::disable_autopause, true);
+        if (APP.game_mode() not_eq App::GameMode::tutorial and
+            pause_if_hostile_ and APP.opponent_island() and
+            not APP.opponent().is_friendly()) {
+            set_gamespeed(GameSpeed::stopped);
+            state_bit_store(StateBit::disable_autopause, true);
         }
 
         if (auto ws = prev.cast_world_scene()) {
@@ -211,11 +211,11 @@ public:
     }
 
 
-    void exit(App& app, Scene& next) override final
+    void exit(Scene& next) override final
     {
-        WorldScene::enter(app, next); // FIXME!
+        WorldScene::enter(next); // FIXME!
 
-        dialog_scene_.exit(app, next);
+        dialog_scene_.exit(next);
 
         if (autorestore_music_volume_) {
             PLATFORM.speaker().set_music_volume(
@@ -224,10 +224,10 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override final
+    ScenePtr<Scene> update(Microseconds delta) override final
     {
-        if (app.game_mode() not_eq App::GameMode::tutorial) {
-            if (auto scene = WorldScene::update(app, delta)) {
+        if (APP.game_mode() not_eq App::GameMode::tutorial) {
+            if (auto scene = WorldScene::update(delta)) {
                 return scene;
             }
         }
@@ -277,13 +277,13 @@ public:
             };
 
             if (is_far_camera()) {
-                if (not app.opponent_island()) {
+                if (not APP.opponent_island()) {
                     near_camera();
                 } else {
                     auto& cursor_loc = globals().far_cursor_loc_;
                     if (test_key(Key::right, 0)) {
                         if (cursor_loc.x <
-                            app.opponent_island()->terrain().size()) {
+                            APP.opponent_island()->terrain().size()) {
                             ++cursor_loc.x;
                             camera_update_timer_ = milliseconds(500);
                         }
@@ -310,7 +310,7 @@ public:
             } else {
                 auto& cursor_loc = globals().near_cursor_loc_;
                 if (test_key(Key::right, 0)) {
-                    if (cursor_loc.x < app.player_island().terrain().size()) {
+                    if (cursor_loc.x < APP.player_island().terrain().size()) {
                         ++cursor_loc.x;
                         camera_update_timer_ = milliseconds(500);
                     } else {
@@ -342,9 +342,9 @@ public:
             cursor_anim_frame_ = not cursor_anim_frame_;
         }
 
-        app.environment().update(app, delta);
+        APP.environment().update(delta);
 
-        return dialog_scene_.update(app, delta);
+        return dialog_scene_.update(delta);
     }
 
 

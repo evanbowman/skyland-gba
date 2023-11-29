@@ -42,29 +42,29 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        if (app.player().key_down(Key::up)) {
+        if (APP.player().key_down(Key::up)) {
             selection_ = false;
             yes_text_->assign(SYSTR(yes)->c_str());
             no_text_->assign(SYSTR(no)->c_str(), sel_colors);
         }
 
-        if (app.player().key_down(Key::down)) {
+        if (APP.player().key_down(Key::down)) {
             selection_ = true;
             yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
             no_text_->assign(SYSTR(no)->c_str());
         }
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             if (selection_) {
-                if (app.opponent_island()) {
-                    app.swap_opponent<FriendlyAI>();
-                    for (auto& r : app.opponent_island()->rooms()) {
-                        r->unset_target(app);
+                if (APP.opponent_island()) {
+                    APP.swap_opponent<FriendlyAI>();
+                    for (auto& r : APP.opponent_island()->rooms()) {
+                        r->unset_target();
                     }
                 }
-                app.exit_condition() = App::ExitCondition::defeat;
+                APP.exit_condition() = App::ExitCondition::defeat;
                 PLATFORM.speaker().stop_music();
             }
             return scene_pool::alloc<ReadyScene>();
@@ -74,7 +74,7 @@ public:
     }
 
 
-    void enter(App&, Scene& prev) override
+    void enter(Scene& prev) override
     {
         msg_.emplace(SYSTR(are_you_sure)->c_str(), OverlayCoord{1, 3});
         no_text_.emplace(OverlayCoord{2, 5});
@@ -84,7 +84,7 @@ public:
     }
 
 
-    void exit(App&, Scene& next) override
+    void exit(Scene& next) override
     {
         msg_.reset();
         yes_text_.reset();

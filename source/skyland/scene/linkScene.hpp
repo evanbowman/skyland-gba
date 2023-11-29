@@ -41,7 +41,7 @@ class LinkScene : public Scene
 public:
     std::optional<Text> t_;
 
-    void enter(App&, Scene&) override
+    void enter(Scene&) override
     {
         PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
 
@@ -54,12 +54,12 @@ public:
         t_->assign(str->c_str(), c);
     }
 
-    void exit(App&, Scene&) override
+    void exit(Scene&) override
     {
         t_.reset();
     }
 
-    ScenePtr<Scene> update(App&, Microseconds) override
+    ScenePtr<Scene> update(Microseconds) override
     {
         if (key_down<Key::start>()) {
             return scene_pool::alloc<MultiplayerConnectScene>();

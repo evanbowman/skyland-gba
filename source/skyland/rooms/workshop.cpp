@@ -53,9 +53,9 @@ Workshop::Workshop(Island* parent, const RoomCoord& position)
 
 
 
-void Workshop::update(App& app, Microseconds delta)
+void Workshop::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 }
 
 
@@ -80,12 +80,12 @@ void Workshop::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Workshop::finalize(App& app)
+void Workshop::finalize()
 {
-    Room::finalize(app);
+    Room::finalize();
 
     if (health() <= 0) {
-        ExploSpawner::create(app, center());
+        ExploSpawner::create(center());
     }
 }
 

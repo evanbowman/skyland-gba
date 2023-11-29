@@ -36,14 +36,14 @@ namespace skyland
 class InspectP2Scene final : public ActiveWorldScene
 {
 public:
-    void enter(App&, Scene& prev) override;
-    void exit(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
+    void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(App&, Microseconds delta) override;
+    ScenePtr<Scene> update(Microseconds delta) override;
 
 
-    void display(App& app) override;
+    void display() override;
 
 
 public:

@@ -53,17 +53,17 @@ public:
     }
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App&, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void on_collision(App& app, Room&, Vec2<u8> origin) override;
+    void on_collision(Room&, Vec2<u8> origin) override;
 
 
 private:
-    void destroy(App& app, bool explosion) override;
+    void destroy(bool explosion) override;
 
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;

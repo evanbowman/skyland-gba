@@ -58,7 +58,7 @@ public:
     }
 
 
-    void enter(App&, Scene&) override
+    void enter(Scene&) override
     {
         Text title(OverlayCoord{1, 1});
         auto colors =
@@ -168,13 +168,12 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
-        player(app).update(app, delta);
+        player().update(delta);
 
         auto test_key = [&](Key k) {
-            return player(app).test_key(
-                k, milliseconds(500), milliseconds(100));
+            return player().test_key(k, milliseconds(500), milliseconds(100));
         };
 
         if (test_key(Key::down)) {

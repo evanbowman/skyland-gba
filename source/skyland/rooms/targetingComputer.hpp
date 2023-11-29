@@ -41,7 +41,7 @@ public:
                       const char* n = name());
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -107,10 +107,10 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app, const RoomCoord& cursor) override;
+    ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
-    void ___rewind___finished_reload(App& app) override;
+    void ___rewind___finished_reload() override;
 
 
     bool enabled() const
@@ -119,7 +119,7 @@ public:
     }
 
 
-    void unset_target(App& app) override;
+    void unset_target() override;
 
 
 private:

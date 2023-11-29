@@ -66,7 +66,7 @@ public:
     }
 
 
-    void ___rewind___ability_used(App& app) override
+    void ___rewind___ability_used() override
     {
         if (state_ not_eq Drone::State::launch) {
             timer_ = reload_time;
@@ -74,34 +74,34 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
-        if (parent() == app.opponent_island()) {
+        if (parent() == APP.opponent_island()) {
             sprite_.set_texture_index(68);
         }
 
         switch (state_) {
         case Drone::State::launch:
-            Drone::update(app, delta);
+            Drone::update(delta);
             break;
 
         case Drone::State::ready:
-            update_sprite(app);
+            update_sprite();
             state_ = State::wait;
             timer_ = 0;
             break;
 
         case State::wait:
             duration_ += delta;
-            update_sprite(app);
+            update_sprite();
             if (timer_ > reload_time) {
                 if (target_) {
-                    if (not app.opponent_island()) {
+                    if (not APP.opponent_island()) {
                         return;
                     }
 
-                    auto island = target_near_ ? &app.player_island()
-                                               : app.opponent_island();
+                    auto island = target_near_ ? &APP.player_island()
+                                               : APP.opponent_island();
 
                     if (auto drone = island->get_drone(*target_)) {
 
@@ -117,10 +117,10 @@ public:
 
                         cannon_sound.play(3);
 
-                        auto c = app.alloc_entity<Cannonball>(
+                        auto c = APP.alloc_entity<Cannonball>(
                             start, target, parent(), position());
                         if (c) {
-                            app.camera()->shake(4);
+                            APP.camera()->shake(4);
                             parent()->projectiles().push(std::move(c));
                         }
                         state_ = Drone::State::ready;
@@ -134,8 +134,8 @@ public:
                     time_stream::event::DroneReloadComplete e;
                     e.x_pos_ = position().x;
                     e.y_pos_ = position().y;
-                    e.destination_near_ = destination() == &app.player_island();
-                    app.time_stream().push(app.level_timer(), e);
+                    e.destination_near_ = destination() == &APP.player_island();
+                    APP.time_stream().push(APP.level_timer(), e);
                 }
             }
 
@@ -174,7 +174,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(App& app) override
+    ScenePtr<Scene> select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<CombatDroneSetTargetScene>(shared_from_this());

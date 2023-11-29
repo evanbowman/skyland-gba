@@ -36,7 +36,7 @@ namespace skyland
 class LoadModuleScene : public Scene
 {
 public:
-    void enter(App&, Scene& prev) override;
+    void enter(Scene& prev) override;
 
 
     void show_modules(int page);

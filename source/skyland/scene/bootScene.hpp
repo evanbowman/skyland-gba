@@ -77,7 +77,7 @@ public:
     }
 
 
-    void enter(App& app, Scene& prev) override
+    void enter(Scene& prev) override
     {
         if (opts_->size() > 1) {
             u8 row = 3;
@@ -90,7 +90,7 @@ public:
     }
 
 
-    void exit(App& app, Scene& prev) override
+    void exit(Scene& prev) override
     {
         text_opts_.clear();
         for (int y = 0; y < 20; ++y) {
@@ -99,7 +99,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta) override
+    ScenePtr<Scene> update(Microseconds delta) override
     {
         auto show_cursor = [&] {
             for (int y = 0; y < 20; ++y) {
@@ -136,7 +136,7 @@ public:
                 return next;
             } else {
                 if (PLATFORM.device_name() == "MacroDesktopDemo") {
-                    app.gp_.stateflags_.set(
+                    APP.gp_.stateflags_.set(
                         GlobalPersistentData::freebuild_unlocked, true);
                     return scene_pool::alloc<MacrocosmFreebuildModule>();
                 }
@@ -285,10 +285,10 @@ public:
     }
 
 
-    ScenePtr<Scene> update(App& app, Microseconds delta)
+    ScenePtr<Scene> update(Microseconds delta)
     {
         PLATFORM.load_background_texture(
-            app.environment().background_texture());
+            APP.environment().background_texture());
 
         const auto st = calc_screen_tiles();
 
@@ -303,10 +303,10 @@ public:
         PLATFORM.screen().display();
 
 
-        app.init_scripts([&](const char* text) { message(text); });
+        APP.init_scripts([&](const char* text) { message(text); });
 
         message("reticulating splines...", false);
-        skyland::achievements::init(app);
+        skyland::achievements::init();
 
         message("lisp gc sweep...");
         lisp::gc();
@@ -321,29 +321,29 @@ public:
         // boot, then we've started a multiboot game, and should progress
         // immediately to a co op match after starting up.
         if (PLATFORM.network_peer().is_connected()) {
-            state_bit_store(app, StateBit::multiboot, true);
+            state_bit_store(StateBit::multiboot, true);
             globals().room_pools_.create("room-mem");
             globals().entity_pools_.create("entity-mem");
-            app.time_stream().enable_pushes(false);
-            app.invoke_script("/scripts/config/rooms.lisp");
-            app.invoke_script("/scripts/config/damage.lisp");
-            app.invoke_script("/scripts/config/timing.lisp");
+            APP.time_stream().enable_pushes(false);
+            APP.invoke_script("/scripts/config/rooms.lisp");
+            APP.invoke_script("/scripts/config/damage.lisp");
+            APP.invoke_script("/scripts/config/timing.lisp");
             init_clouds();
             PLATFORM.load_tile0_texture(
-                app.environment().player_island_texture());
+                APP.environment().player_island_texture());
             PLATFORM.load_tile1_texture(
-                app.environment().opponent_island_texture());
-            PLATFORM.load_sprite_texture(app.environment().sprite_texture());
+                APP.environment().opponent_island_texture());
+            PLATFORM.load_sprite_texture(APP.environment().sprite_texture());
             PLATFORM.load_background_texture(
-                app.environment().background_texture());
+                APP.environment().background_texture());
             PLATFORM.system_call("v-parallax", (void*)true);
-            SkylandForever::init(app, 1, rng::get(rng::critical_state));
-            app.persistent_data().score_.set(0);
-            app.set_coins(std::max(0, app.coins() - 1000));
-            app.swap_player<CoOpTeam>();
-            app.game_mode() = App::GameMode::co_op;
+            SkylandForever::init(1, rng::get(rng::critical_state));
+            APP.persistent_data().score_.set(0);
+            APP.set_coins(std::max(0, APP.coins() - 1000));
+            APP.swap_player<CoOpTeam>();
+            APP.game_mode() = App::GameMode::co_op;
 
-            for (auto& room : app.player_island().rooms()) {
+            for (auto& room : APP.player_island().rooms()) {
                 network::packet::RoomConstructed packet;
                 packet.metaclass_index_.set(room->metaclass_index());
                 packet.x_ = room->position().x;

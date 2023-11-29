@@ -41,16 +41,16 @@ public:
     }
 
 
-    void update(App& app, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }
 
 
-    static void create(App&, const Vec2<Fixnum>& pos);
+    static void create(const Vec2<Fixnum>& pos);
 
 
 private:

@@ -42,7 +42,7 @@ Water::Water(Island* parent, const RoomCoord& position, const char* name)
 
 
 
-void Water::check_flood_parent(App& app, Microseconds delta)
+void Water::check_flood_parent(Microseconds delta)
 {
     // NOTE: we want to destroy a water block if its parent water block no
     // longer exists.
@@ -80,22 +80,22 @@ void Water::check_flood_parent(App& app, Microseconds delta)
 
 
 
-void Water::update(App& app, Microseconds delta)
+void Water::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     if (parent()->is_destroyed()) {
         return;
     }
 
-    if (app.environment().is_cold()) {
-        __unsafe__transmute(app, ::skyland::metaclass_index("ice"));
+    if (APP.environment().is_cold()) {
+        __unsafe__transmute(::skyland::metaclass_index("ice"));
         return;
     }
 
     Room::ready();
 
-    check_flood_parent(app, delta);
+    check_flood_parent(delta);
 
     if (has_flood_parent_) {
         flood_timer_ += delta;
@@ -103,7 +103,7 @@ void Water::update(App& app, Microseconds delta)
 
     auto kill_fire = [&](u8 x, u8 y) {
         if (parent()->fire_present({x, y})) {
-            parent()->fire_extinguish(app, {x, y});
+            parent()->fire_extinguish({x, y});
         }
     };
 
@@ -131,7 +131,7 @@ void Water::update(App& app, Microseconds delta)
         flood_timer_ -= milliseconds(300);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("water"))->create(app, parent(), {x, y}, false);
+            (*load_metaclass("water"))->create(parent(), {x, y}, false);
 
             parent()->schedule_repaint();
 
@@ -141,16 +141,16 @@ void Water::update(App& app, Microseconds delta)
                 }
             }
 
-            if (parent() == &app.player_island()) {
+            if (parent() == &APP.player_island()) {
                 time_stream::event::PlayerRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(app.level_timer(), p);
+                APP.time_stream().push(APP.level_timer(), p);
             } else {
                 time_stream::event::OpponentRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(app.level_timer(), p);
+                APP.time_stream().push(APP.level_timer(), p);
             }
         };
 
@@ -231,16 +231,16 @@ WaterSource::WaterSource(Island* parent, const RoomCoord& position)
 
 
 
-void WaterSource::update(App& app, Microseconds delta)
+void WaterSource::update(Microseconds delta)
 {
     flood_timer_ += delta;
 
-    Water::update(app, delta);
+    Water::update(delta);
 }
 
 
 
-void WaterSource::check_flood_parent(App& app, Microseconds delta)
+void WaterSource::check_flood_parent(Microseconds delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

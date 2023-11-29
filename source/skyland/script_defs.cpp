@@ -156,13 +156,14 @@ using Binding = lisp::NativeInterface::LookupResult;
     MAPBOX_ETERNAL_CONSTEXPR const auto binding_table =                        \
         mapbox::eternal::hash_map<mapbox::eternal::string, Binding>
 
-#define SYMTAB MAPBOX_ETERNAL_CONSTEXPR const auto symtab =             \
+#define SYMTAB                                                                 \
+    MAPBOX_ETERNAL_CONSTEXPR const auto symtab =                               \
         mapbox::eternal::hash_map<mapbox::eternal::string, int>
 #else
 #define BINDING_TABLE                                                          \
     const auto binding_table = std::unordered_map<std::string, Binding>
-#define SYMTAB const auto symtab =             \
-        std::unordered_map<mapbox::eternal::string, int>
+#define SYMTAB                                                                 \
+    const auto symtab = std::unordered_map<mapbox::eternal::string, int>
 #endif
 
 
@@ -266,15 +267,13 @@ BINDING_TABLE({
           u8 x2 = L_LOAD_INT(1);
           u8 y2 = L_LOAD_INT(0);
 
-          auto [app, pfrm] = interp_get_context();
-
           if (auto room = island->get_room({x1, y1})) {
               if ((*room->metaclass())->category() == Room::Category::weapon) {
-                  room->set_target(*app, {x2, y2}, false);
+                  room->set_target({x2, y2}, false);
                   if (not str_eq(room->name(), "decimator")) {
-                      ((Weapon*)room)->fire(*app);
+                      ((Weapon*)room)->fire();
                   }
-                  room->unset_target(*app);
+                  room->unset_target();
               }
           }
 
@@ -340,7 +339,7 @@ BINDING_TABLE({
           u8 z = L_LOAD_INT(1);
           auto type = (macro::terrain::Type)L_LOAD_INT(0);
 
-          auto& s = macrocosm(*interp_get_app()).sector();
+          auto& s = macrocosm().sector();
 
           x %= s.size().x;
           y %= s.size().y;
@@ -427,13 +426,13 @@ BINDING_TABLE({
           u8 y = L_LOAD_INT(1);
           u8 z = L_LOAD_INT(0);
 
-          auto& sector = macrocosm(*interp_get_app()).sector();
+          auto& sector = macrocosm().sector();
           return L_INT((int)sector.get_block({x, y, z}).type());
       }}},
     {"mcr-blocks",
      {0,
       [](int argc) {
-          auto& sector = macrocosm(*interp_get_app()).sector();
+          auto& sector = macrocosm().sector();
           lisp::ListBuilder lat;
 
           for (u8 z = 0; z < sector.size().z; ++z) {
@@ -462,7 +461,7 @@ BINDING_TABLE({
 
               s8 x = L_LOAD_INT(1);
               s8 y = L_LOAD_INT(0);
-              if (macrocosm(*interp_get_app()).bind_sector({x, y})) {
+              if (macrocosm().bind_sector({x, y})) {
                   return L_INT(1);
               }
               return L_NIL;
@@ -471,7 +470,7 @@ BINDING_TABLE({
 
               auto str = L_LOAD_STRING(0);
 
-              auto& m = macrocosm(*interp_get_app());
+              auto& m = macrocosm();
               if (m.data_->origin_sector_->name() == str) {
                   m.bind_sector(m.data_->origin_sector_->coordinate());
                   return L_INT(1);
@@ -490,7 +489,7 @@ BINDING_TABLE({
     {"mcr-sectors",
      {0,
       [](int argc) {
-          auto& m = macrocosm(*interp_get_app());
+          auto& m = macrocosm();
           lisp::ListBuilder result;
 
           for (auto& sector : m.data_->other_sectors_) {
@@ -589,7 +588,7 @@ BINDING_TABLE({
           auto s = lisp::get_op(0)->symbol();
 
           KeyCallbackProcessor::Binding b{KeyCallbackProcessor::MatchSeq{},
-                                          [s](App& app) {
+                                          [s]() {
                                               // Bad hack: construct dummy symbol.
                                               auto fn = lisp::get_var(s.name());
                                               lisp::safecall(fn, 0);
@@ -670,14 +669,12 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer); // x
           L_EXPECT_OP(2, user_data);
 
-          auto [app, pfrm] = interp_get_context();
-
           auto island = (Island*)lisp::get_op(2)->user_data().obj_;
 
           const u8 x = L_LOAD_INT(1);
           const u8 y = L_LOAD_INT(0);
 
-          island->fire_create(*app, {x, y});
+          island->fire_create({x, y});
 
           return L_NIL;
       }}},
@@ -757,7 +754,7 @@ BINDING_TABLE({
 
           auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
-          island->plot_walkable_zones(*interp_get_app(), matrix, nullptr);
+          island->plot_walkable_zones(matrix, nullptr);
 
           lisp::Value* ret = lisp::get_nil();
 
@@ -814,7 +811,7 @@ BINDING_TABLE({
 
           auto s = lisp::get_op(0)->symbol();
 
-          app->on_timeout(milliseconds(L_LOAD_INT(1)), [s](App&) {
+          app->on_timeout(milliseconds(L_LOAD_INT(1)), [s]() {
               auto v = lisp::get_var(s.name());
               if (v->type() == lisp::Value::Type::function) {
                   lisp::funcall(v, 0);
@@ -849,17 +846,15 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
 
-          void environment_init(App & app, int type);
+          void environment_init(int type);
 
-          auto [app, pfrm] = interp_get_context();
+          environment_init(L_LOAD_INT(0));
+          PLATFORM.screen().set_shader(APP.environment().shader());
+          PLATFORM.screen().set_shader_argument(0);
 
-          environment_init(*app, L_LOAD_INT(0));
-          pfrm->screen().set_shader(app->environment().shader(*app));
-          pfrm->screen().set_shader_argument(0);
-
-          if (not pfrm->speaker().is_music_playing(
-                  app->environment().music())) {
-              pfrm->speaker().play_music(app->environment().music(), 0);
+          if (not PLATFORM.speaker().is_music_playing(
+                  APP.environment().music())) {
+              PLATFORM.speaker().play_music(APP.environment().music(), 0);
           }
 
           return L_NIL;
@@ -878,7 +873,7 @@ BINDING_TABLE({
               rng::get(rng::critical_state), 1);
 
           o.set_levelgen_count(lisp::get_op(0)->integer().value_);
-          o.generate_level(*app);
+          o.generate_level();
 
           app->swap_opponent<EnemyAI>();
 
@@ -934,16 +929,14 @@ BINDING_TABLE({
           L_EXPECT_OP(0, cons);
           L_EXPECT_OP(1, user_data);
 
-          auto [app, pfrm] = interp_get_context();
-
           auto island = (Island*)lisp::get_op(1)->user_data().obj_;
           auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name();
           u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
           u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
           if (auto c = load_metaclass(name)) {
-              (*c)->create(*app, island, RoomCoord{x, y});
-              island->repaint(*app);
+              (*c)->create(island, RoomCoord{x, y});
+              island->repaint();
           } else {
               Platform::fatal(name);
           }
@@ -957,8 +950,6 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, user_data);
 
-          auto [app, pfrm] = interp_get_context();
-
           auto island = (Island*)lisp::get_op(2)->user_data().obj_;
 
           auto coord = RoomCoord{
@@ -966,7 +957,7 @@ BINDING_TABLE({
               (u8)lisp::get_op(0)->integer().value_,
           };
 
-          island->destroy_room(*app, coord);
+          island->destroy_room(coord);
 
           return L_NIL;
       }}},
@@ -978,10 +969,7 @@ BINDING_TABLE({
           L_EXPECT_OP(2, integer);
           L_EXPECT_OP(3, user_data);
 
-          auto [app, pfrm] = interp_get_context();
-
           auto island = (Island*)lisp::get_op(3)->user_data().obj_;
-
           auto coord = RoomCoord{
               (u8)lisp::get_op(2)->integer().value_,
               (u8)lisp::get_op(1)->integer().value_,
@@ -989,7 +977,7 @@ BINDING_TABLE({
 
           if (auto room = island->get_room(coord)) {
               auto tp_name = lisp::get_op(0)->symbol().name();
-              room->__unsafe__transmute(*app, metaclass_index(tp_name));
+              room->__unsafe__transmute(metaclass_index(tp_name));
           }
 
           return L_NIL;
@@ -1018,11 +1006,10 @@ BINDING_TABLE({
           L_EXPECT_OP(0, integer); // new-id
           L_EXPECT_OP(1, integer); // old-id
 
-          auto [app, pfrm] = interp_get_context();
           auto old_id = lisp::get_op(1)->integer().value_;
           auto new_id = lisp::get_op(0)->integer().value_;
 
-          if (auto chr = BasicCharacter::find_by_id(*app, old_id).first) {
+          if (auto chr = BasicCharacter::find_by_id(old_id).first) {
               chr->__assign_id(new_id);
               BasicCharacter::__rebase_ids(new_id + 1);
           }
@@ -1032,17 +1019,15 @@ BINDING_TABLE({
     {"chr-hp",
      {1,
       [](int argc) {
-          auto [app, pfrm] = interp_get_context();
-
           if (argc == 2) {
               auto hp = lisp::get_op(0)->integer().value_;
               auto id = lisp::get_op(1)->integer().value_;
-              if (auto chr = BasicCharacter::find_by_id(*app, id).first) {
+              if (auto chr = BasicCharacter::find_by_id(id).first) {
                   chr->__set_health(hp);
               }
           } else if (argc == 1) {
               auto id = lisp::get_op(0)->integer().value_;
-              if (auto chr = BasicCharacter::find_by_id(*app, id).first) {
+              if (auto chr = BasicCharacter::find_by_id(id).first) {
                   return lisp::make_integer(chr->health());
               }
           } else {
@@ -1071,15 +1056,11 @@ BINDING_TABLE({
               for (auto& chr : room->characters()) {
                   if (chr->owner() == &room->parent()->owner()) {
 
-                      auto path = find_path(*interp_get_app(),
-                                            island,
-                                            chr.get(),
-                                            {startx, starty},
-                                            {destx, desty});
+                      auto path = find_path(
+                          island, chr.get(), {startx, starty}, {destx, desty});
 
                       if (path and *path) {
-                          chr->set_movement_path(*interp_get_app(),
-                                                 std::move(*path));
+                          chr->set_movement_path(std::move(*path));
                       }
 
                       break;
@@ -1192,11 +1173,9 @@ BINDING_TABLE({
           coord.x = lisp::get_op(1)->integer().value_;
           coord.y = lisp::get_op(0)->integer().value_;
 
-          if (auto app = interp_get_app()) {
-              if (auto room = ((Island*)lisp::get_op(2)->user_data().obj_)
-                                  ->get_room(coord)) {
-                  room->select(*app, coord);
-              }
+          if (auto room = ((Island*)lisp::get_op(2)->user_data().obj_)
+                              ->get_room(coord)) {
+              room->select(coord);
           }
 
           return L_NIL;
@@ -1248,10 +1227,9 @@ BINDING_TABLE({
           L_EXPECT_OP(0, cons);
           L_EXPECT_OP(1, user_data);
 
-          auto [app, pfrm] = interp_get_context();
           auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-          configure_island(*app, *island, lisp::get_op(0));
+          configure_island(*island, lisp::get_op(0));
 
           return L_NIL;
       }}},
@@ -1274,9 +1252,9 @@ BINDING_TABLE({
           island->set_custom_flag_graphics(gfx);
 
           if (island->interior_visible()) {
-              show_island_interior(*app, island);
+              show_island_interior(island);
           } else {
-              show_island_exterior(*app, island);
+              show_island_exterior(island);
           }
 
           return L_NIL;
@@ -1495,7 +1473,7 @@ BINDING_TABLE({
               return L_NIL;
           }
 
-          achievements::raise(*interp_get_app(), achievement);
+          achievements::raise(achievement);
 
           return L_NIL;
       }}},

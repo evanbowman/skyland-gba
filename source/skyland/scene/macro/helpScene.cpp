@@ -113,7 +113,7 @@ void HelpScene::show_page(int pg)
 
 
 
-void HelpScene::enter(App&, Scene&)
+void HelpScene::enter(Scene&)
 {
     PLATFORM.screen().schedule_fade(1.f);
     PLATFORM.fill_overlay(0);
@@ -123,7 +123,7 @@ void HelpScene::enter(App&, Scene&)
 
 
 
-void HelpScene::exit(App&, Scene&)
+void HelpScene::exit(Scene&)
 {
     PLATFORM.screen().schedule_fade(0);
     PLATFORM.fill_overlay(0);
@@ -134,16 +134,15 @@ void HelpScene::exit(App&, Scene&)
 
 
 
-ScenePtr<Scene> HelpScene::update(App& app, Microseconds delta)
+ScenePtr<Scene> HelpScene::update(Microseconds delta)
 {
-    player(app).update(app, delta);
+    player().update(delta);
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player(app).key_down(Key::action_1) or
-        player(app).key_down(Key::action_2)) {
+    if (player().key_down(Key::action_1) or player().key_down(Key::action_2)) {
 
         return scene_pool::alloc<SelectorScene>();
     }

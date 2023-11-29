@@ -36,7 +36,7 @@ fluid_shader(ShaderPalette p, ColorConstant k, int var, int index);
 
 
 
-void MacrocosmFreebuildModule::enter(App& app, Scene& prev)
+void MacrocosmFreebuildModule::enter(Scene& prev)
 {
     PLATFORM.screen().schedule_fade(0.f);
     PLATFORM.screen().schedule_fade(1.f);
@@ -58,7 +58,7 @@ void MacrocosmFreebuildModule::enter(App& app, Scene& prev)
 
 
 
-void MacrocosmFreebuildModule::exit(App& app, Scene& prev)
+void MacrocosmFreebuildModule::exit(Scene& prev)
 {
     prompt_.reset();
     t1_.reset();
@@ -70,12 +70,12 @@ void MacrocosmFreebuildModule::exit(App& app, Scene& prev)
 
 
 
-void MacrocosmFreebuildModule::init(App& app)
+void MacrocosmFreebuildModule::init()
 {
-    PLATFORM.speaker().play_music(app.environment().music(), 0);
+    PLATFORM.speaker().play_music(APP.environment().music(), 0);
 
 
-    app.camera().emplace<macro::Camera>();
+    APP.camera().emplace<macro::Camera>();
 
     PLATFORM.load_background_texture("background_macro");
     // PLATFORM.system_call("parallax-clouds", false);
@@ -102,18 +102,18 @@ void MacrocosmFreebuildModule::init(App& app)
     __draw_image(0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(&app);
+    APP.macrocosm().emplace();
+    APP.macrocosm()->emplace<macro::EngineImpl>(&APP);
 
 
     PLATFORM.screen().set_shader(macro::fluid_shader);
     PLATFORM.load_tile0_texture("macro_rendertexture");
     PLATFORM.load_tile1_texture("macro_rendertexture");
 
-    auto& m = macrocosm(app);
+    auto& m = macrocosm();
     m.data_->freebuild_mode_ = true;
-    //m.newgame(app);
-    app.game_mode() = App::GameMode::macro;
+    //m.newgame();
+    APP.game_mode() = App::GameMode::macro;
 
     switch (size_sel_) {
     case 0: {
@@ -162,9 +162,9 @@ void MacrocosmFreebuildModule::init(App& app)
 
 
 
-ScenePtr<Scene> MacrocosmFreebuildModule::update(App& app, Microseconds delta)
+ScenePtr<Scene> MacrocosmFreebuildModule::update(Microseconds delta)
 {
-    // if (not app.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
+    // if (not APP.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
     //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
     //     *buffer = SYSTR(freebuild_locked_text)->c_str();
     //     return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
@@ -173,29 +173,29 @@ ScenePtr<Scene> MacrocosmFreebuildModule::update(App& app, Microseconds delta)
     // }
 
     if (PLATFORM.device_name() == "MacroDesktopDemo" or
-        app.player().key_down(Key::action_1)) {
+        APP.player().key_down(Key::action_1)) {
 
-        if (app.player().key_down(Key::action_1)) {
+        if (APP.player().key_down(Key::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
         } else {
             size_sel_ = 2;
         }
 
-        init(app);
+        init();
 
         auto next = scene_pool::alloc<macro::SelectorScene>();
         next->show_island_size();
         return next;
     }
 
-    if (app.player().key_down(Key::up)) {
+    if (APP.player().key_down(Key::up)) {
         if (size_sel_ > 0) {
             --size_sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
         }
     }
 
-    if (app.player().key_down(Key::down)) {
+    if (APP.player().key_down(Key::down)) {
         if (size_sel_ < 2) {
             ++size_sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);

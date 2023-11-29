@@ -114,7 +114,7 @@ void Piston::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Piston::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Piston::select(const RoomCoord& cursor)
 {
     if ((dir_ == down and position().y == 14) or
         (dir_ == left and position().x == 0) or
@@ -125,18 +125,18 @@ ScenePtr<Scene> Piston::select(App& app, const RoomCoord& cursor)
 
 
     auto record_event = [&] {
-        if (parent() == &player_island(app)) {
+        if (parent() == &player_island()) {
             // I repurposed the ReloadComplete event because it's already looped
             // into a callback (overriden below).
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            app.time_stream().push(app.level_timer(), e);
+            APP.time_stream().push(APP.level_timer(), e);
         }
     };
 
@@ -171,12 +171,12 @@ ScenePtr<Scene> Piston::select(App& app, const RoomCoord& cursor)
 
         if (auto invalid = parent()->get_room(end)) {
             // Crushed by retracting piston.
-            invalid->apply_damage(app, health_upper_limit());
+            invalid->apply_damage(health_upper_limit());
         }
 
         if (auto room = parent()->get_room(start)) {
             if (is_sticky() and room->size().x == 1 and room->size().y == 1) {
-                parent()->move_room(app, start, end);
+                parent()->move_room(start, end);
             }
         }
 
@@ -215,13 +215,13 @@ ScenePtr<Scene> Piston::select(App& app, const RoomCoord& cursor)
 
         if (room and invalid) {
             // Crushed by extending piston.
-            invalid->apply_damage(app, health_upper_limit());
+            invalid->apply_damage(health_upper_limit());
         }
 
         if (room) {
             if (room->size().x == 1 and room->size().y == 1) {
 
-                parent()->move_room(app, start, end);
+                parent()->move_room(start, end);
             } else {
                 // Play error sound effect. Cannot open, large block in the way.
                 return null_scene();
@@ -246,7 +246,7 @@ bool Piston::is_sticky() const
 
 
 
-void Piston::___rewind___finished_reload(App& app)
+void Piston::___rewind___finished_reload()
 {
     opened_ = not opened_;
     parent()->schedule_repaint();
@@ -254,9 +254,9 @@ void Piston::___rewind___finished_reload(App& app)
 
 
 
-ScenePtr<Scene> Piston::setup(App& app)
+ScenePtr<Scene> Piston::setup()
 {
-    const bool near = parent() == &player_island(app);
+    const bool near = parent() == &player_island();
 
     return scene_pool::alloc<SetupPistonScene>(position(), near);
 }

@@ -43,9 +43,9 @@ Pummeler::Pummeler(Island* parent, const RoomCoord& position)
 
 
 
-void Pummeler::fire(App& app)
+void Pummeler::fire()
 {
-    auto island = other_island(app);
+    auto island = other_island();
 
     Vec2<Fixnum> target;
 
@@ -54,23 +54,23 @@ void Pummeler::fire(App& app)
     origin.y += target_->y * 16 + 8;
     target = origin;
 
-    app.camera()->shake(4);
+    APP.camera()->shake(4);
 
     auto start = center();
 
-    if (island == &app.player_island()) {
+    if (island == &APP.player_island()) {
         start.x -= 6;
     } else {
         start.x += 6;
     }
 
     if (not PLATFORM.network_peer().is_connected() and
-        app.game_mode() not_eq App::GameMode::tutorial) {
+        APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    // auto c = app.alloc_entity<Curveshot>(
-    //     start, target, parent(), other_island(app), position(), *target_);
+    // auto c = APP.alloc_entity<Curveshot>(
+    //     start, target, parent(), other_island(), position(), *target_);
     // if (c) {
     //     parent()->projectiles().push(std::move(c));
     // }

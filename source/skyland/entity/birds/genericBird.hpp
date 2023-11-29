@@ -51,23 +51,23 @@ public:
                 bool flip);
 
 
-    void update(App&, Microseconds delta) override;
+    void update(Microseconds delta) override;
 
 
-    void rewind(App& app, Microseconds delta) override;
+    void rewind(Microseconds delta) override;
 
 
-    void signal(App&) override;
+    void signal() override;
 
 
 
-    Island* island(App& app) override;
+    Island* island() override;
 
 
-    static void spawn(App& app, Island& island, int count);
+    static void spawn(Island& island, int count);
 
 
-    static void generate(App& app);
+    static void generate();
 
 
     RoomCoord coordinate() override

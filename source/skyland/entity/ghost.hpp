@@ -43,12 +43,12 @@ public:
         sprite_.set_size(Sprite::Size::w16_h32);
     }
 
-    void update(App& app, Microseconds delta) override
+    void update(Microseconds delta) override
     {
         timer_ += delta;
 
         auto pos = sprite_.get_position();
-        pos.y -= Fixnum(0.00004f) * app.delta_fp();
+        pos.y -= Fixnum(0.00004f) * APP.delta_fp();
         sprite_.set_position(pos);
 
         if (timer_ > milliseconds(150)) {
@@ -79,7 +79,7 @@ public:
     }
 
 
-    void rewind(App& app, Microseconds delta) override
+    void rewind(Microseconds delta) override
     {
         kill();
     }

@@ -34,16 +34,15 @@ namespace skyland
 
 
 
-void Bulkhead::plot_walkable_zones(App& app,
-                                   bool matrix[16][16],
+void Bulkhead::plot_walkable_zones(bool matrix[16][16],
                                    BasicCharacter* for_character)
 {
     // If the door belongs to the character's home island or the door is
     // currently open, then a character can walk through it.
     if (for_character and for_character->owner() == &parent()->owner()) {
-        Room::plot_walkable_zones(app, matrix, for_character);
+        Room::plot_walkable_zones(matrix, for_character);
     } else if (open_) {
-        Room::plot_walkable_zones(app, matrix, for_character);
+        Room::plot_walkable_zones(matrix, for_character);
     }
 }
 
@@ -63,16 +62,16 @@ Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
 
 
 
-void Bulkhead::update(App& app, Microseconds delta)
+void Bulkhead::update(Microseconds delta)
 {
-    Room::update(app, delta);
+    Room::update(delta);
 
     Room::ready();
 
     if (length(characters())) {
-        set_open(app, true);
+        set_open(true);
     } else if (parent()->power_supply() < parent()->power_drain()) {
-        set_open(app, true);
+        set_open(true);
     } else {
         auto pos = position();
         pos.y += 1;
@@ -120,7 +119,7 @@ void Bulkhead::update(App& app, Microseconds delta)
             }
         }
 
-        set_open(app, chr_moving_in);
+        set_open(chr_moving_in);
     }
 }
 
@@ -142,9 +141,9 @@ void Bulkhead::render_interior(App* app, TileId buffer[16][16])
 
 
 
-void Bulkhead::___rewind___finished_reload(App& app)
+void Bulkhead::___rewind___finished_reload()
 {
-    set_open(app, not open_);
+    set_open(not open_);
 }
 
 
@@ -159,25 +158,25 @@ void Bulkhead::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Bulkhead::set_open(App& app, bool open)
+void Bulkhead::set_open(bool open)
 {
     if (open_ == open) {
         return;
     }
 
-    if (parent() == &app.player_island()) {
+    if (parent() == &APP.player_island()) {
         time_stream::event::PlayerRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        app.time_stream().push(app.level_timer(), e);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
-    if (app.time_stream().pushes_enabled()) {
+    if (APP.time_stream().pushes_enabled()) {
         if (not PLATFORM.speaker().is_sound_playing("door")) {
             PLATFORM.speaker().play_sound("door", 0);
         }
@@ -185,7 +184,7 @@ void Bulkhead::set_open(App& app, bool open)
 
     open_ = open;
 
-    if (&parent()->owner() == &app.player()) {
+    if (&parent()->owner() == &APP.player()) {
         network::packet::OpponentBulkheadChanged packet;
         packet.room_x_ = position().x;
         packet.room_y_ = position().y;
@@ -197,7 +196,7 @@ void Bulkhead::set_open(App& app, bool open)
         schedule_repaint();
     }
 
-    parent()->on_layout_changed(app, {position().x, u8(position().y + 1)});
+    parent()->on_layout_changed({position().x, u8(position().y + 1)});
 }
 
 

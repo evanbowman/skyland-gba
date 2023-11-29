@@ -41,7 +41,7 @@ void Switch::format_description(StringBuffer<512>& buffer)
 
 
 void Switch::display_on_hover(Platform::Screen& screen,
-                              App& app,
+
                               const RoomCoord& cursor)
 {
     if (not setup_) {
@@ -78,7 +78,7 @@ void Switch::display_on_hover(Platform::Screen& screen,
 
 
 
-ScenePtr<Scene> Switch::select(App& app, const RoomCoord& cursor)
+ScenePtr<Scene> Switch::select(const RoomCoord& cursor)
 {
     if (not setup_) {
         return scene_pool::alloc<SetupSwitchScene>(position());
@@ -86,18 +86,18 @@ ScenePtr<Scene> Switch::select(App& app, const RoomCoord& cursor)
 
     if (RoomCoord{u8(cursor.x - 1), cursor.y} == position()) {
         on_ = not on_;
-        parent()->repaint(app);
+        parent()->repaint();
     } else {
         if (on_) {
             if (auto room = parent()->get_room(branch_1_)) {
                 if (room not_eq this) {
-                    room->select(app, room->position());
+                    room->select(room->position());
                 }
             }
         } else {
             if (auto room = parent()->get_room(branch_2_)) {
                 if (room not_eq this) {
-                    room->select(app, room->position());
+                    room->select(room->position());
                 }
             }
         }
