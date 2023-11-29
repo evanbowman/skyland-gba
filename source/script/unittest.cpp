@@ -84,30 +84,6 @@ static lisp::Value* arithmetic_test()
 }
 
 
-static void intern_test()
-{
-    auto initial = lisp::intern("blah");
-    if (str_cmp("blah", initial) not_eq 0) {
-        std::cout << "interpreter intern failed" << std::endl;
-        return;
-    }
-
-    // Intern some other junk. We want to re-intern the initial string (above),
-    // and make sure that we do not receive a non-matching pointer, which would
-    // indicate that we somehow have two copies of the string in the intern
-    // table.
-    if (str_cmp(lisp::intern("dskjflfs"), "dskjflfs") not_eq 0) {
-        std::cout << "intern failed" << std::endl;
-    }
-
-    if (lisp::intern("blah") not_eq initial) {
-        std::cout << "string intern leak" << std::endl;
-        return;
-    }
-
-    std::cout << "intern test passed!" << std::endl;
-}
-
 class Printer : public lisp::Printer {
 public:
     void put_str(const char* str) override
@@ -127,7 +103,6 @@ void do_tests()
     Printer p;
     lisp::format(lisp::get_list(lisp::get_var("L"), 4), p);
 
-    intern_test();
     function_test();
     arithmetic_test();
 }

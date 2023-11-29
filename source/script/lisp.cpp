@@ -3475,12 +3475,10 @@ BUILTIN_TABLE(
                        return get_nil();
 
                    case LoadVar::op():
-                       i += 1;
                        out += "LOAD_VAR(";
-                       out += symbol_from_offset(
-                           ((HostInteger<s16>*)(data->data_ + i))->get());
+                       out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
                        out += ")";
-                       i += 2;
+                       i += sizeof(LoadVar);
                        break;
 
                    case LoadVarSmall::op(): {
@@ -3528,12 +3526,10 @@ BUILTIN_TABLE(
                    }
 
                    case PushSymbol::op():
-                       i += 1;
                        out += "PUSH_SYMBOL(";
-                       out += symbol_from_offset(
-                           ((HostInteger<s16>*)(data->data_ + i))->get());
+                       out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
                        out += ")";
-                       i += 2;
+                       i += sizeof(PushSymbol);
                        break;
 
                    case PushSymbolRelocatable::op():
@@ -3746,8 +3742,7 @@ BUILTIN_TABLE(
                    case LexicalDef::op():
                        out += LexicalDef::name();
                        out += "(";
-                       out += symbol_from_offset(
-                           ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                       out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
                        out += ")";
                        i += sizeof(LexicalDef);
                        break;
