@@ -22,6 +22,7 @@
 
 #include "path.hpp"
 #include "island.hpp"
+#include "skyland/scene/constructionScene.hpp"
 
 
 
@@ -57,7 +58,9 @@ std::optional<Path> find_path(Island* island,
     PathVertexData* start_v = nullptr;
 
     for (u8 x = 0; x < 16; ++x) {
-        for (u8 y = 0; y < 16; ++y) {
+        // NOTE: start at the minimum y for which rooms can be built. Do not
+        // include the 16th (final) row, because it just contains terrain.
+        for (u8 y = construction_zone_min_y; y < 15; ++y) {
             if (matrix[x][y]) {
                 if (auto obj = vertex_memory_.alloc<PathVertexData>()) {
                     obj->coord_ = {x, y};
