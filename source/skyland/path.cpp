@@ -32,9 +32,9 @@ namespace skyland
 
 struct PathVertexData
 {
-    RoomCoord coord_;
-    u16 dist_ = std::numeric_limits<u16>::max();
     PathVertexData* prev_ = nullptr;
+    u16 dist_ = std::numeric_limits<u16>::max();
+    RoomCoord coord_;
 };
 
 
