@@ -273,6 +273,10 @@ void PlayerP1::update_chr_ai(Microseconds delta)
 
 void PlayerP1::ChrAIState::update(Microseconds delta)
 {
+    if (not APP.opponent_island()) {
+        return;
+    }
+
     if (PLATFORM.screen().fade_active()) {
         return;
     }
