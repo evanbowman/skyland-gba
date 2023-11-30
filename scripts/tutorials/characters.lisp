@@ -96,7 +96,7 @@
    (13600 Right)
    (232 Right)
    (250 Down)
-   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! Normally, your island automates crew positioning, but you can take control by hovering over a crewmember and chosing 'pin crewmember' from the select menu!")
+   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! Normally, your island automates crew positioning, but you can take control by hovering over a crewmember and choosing 'pin crewmember' from the select menu! Even when crewmembers are not pinned, they will remain in place until they finish their tasks if you order them somewhere.")
    (500 Left)
    (100 Left)
    (800 Select)
