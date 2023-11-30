@@ -273,6 +273,10 @@ void PlayerP1::update_chr_ai(Microseconds delta)
 
 void PlayerP1::ChrAIState::update(Microseconds delta)
 {
+    if (PLATFORM.screen().fade_active()) {
+        return;
+    }
+
     if (APP.game_speed() == GameSpeed::stopped) {
         return;
     }
