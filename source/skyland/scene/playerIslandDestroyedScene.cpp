@@ -527,7 +527,6 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
                 for (auto& room : APP.player_island().rooms()) {
                     for (auto& chr : room->characters()) {
                         chr->unpin();
-                        chr->un_superpin();
                     }
                 }
 
