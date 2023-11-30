@@ -381,6 +381,7 @@ void SelectMenuScene::enter(Scene& scene)
                              auto chr = BasicCharacter::find_by_id(id);
                              if (chr.first) {
                                  chr.first->un_superpin();
+                                 chr.first->unpin();
                              }
                              return null_scene();
                          });
