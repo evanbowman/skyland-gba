@@ -396,24 +396,6 @@ void SelectMenuScene::enter(Scene& scene)
                              return null_scene();
                          });
             }
-            add_line(SystemString::sel_menu_name_crewmember,
-                     true,
-                     [id = chr->id(),
-                      far = is_far_camera(),
-                      vis = isle->interior_visible()]() -> ScenePtr<Scene> {
-                         if (PLATFORM.network_peer().is_connected()) {
-                             PLATFORM.speaker().play_sound("beep_error", 3);
-                             return scene_pool::alloc<ReadyScene>();
-                         }
-                         if (not vis) {
-                             show_island_interior(&APP.player_island());
-                         }
-
-                         auto next = scene_pool::alloc<ModifyCharacterScene>(
-                             id, not far);
-                         next->modify_name_ = true;
-                         return next;
-                     });
 
             add_line(SystemString::sel_menu_crewmember_icon,
                      true,
