@@ -817,9 +817,13 @@ void describe_room(Island* island,
                                                              opts);
 
                                     if (chr->is_superpinned()) {
+                                        int xoff = room_description->len() - 1;
+                                        if (chr->get_icon()) {
+                                            xoff += 4;
+                                        }
                                         PLATFORM.set_tile(
                                             Layer::overlay,
-                                            room_description->len() - 1,
+                                            xoff,
                                             calc_screen_tiles().y - 1,
                                             390);
                                         room_description->append(" ");
