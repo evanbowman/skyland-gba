@@ -125,6 +125,11 @@ public:
                              u8 cursor_icon,
                              bool near) override;
 
+protected:
+    void update_chr_ai(Microseconds delta) override
+    {
+    }
+
 private:
     static const auto heartbeat_interval = seconds(5);
     Microseconds heartbeat_send_counter_ = 0;

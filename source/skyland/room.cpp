@@ -209,7 +209,7 @@ void Room::display_on_hover(Platform::Screen& screen,
     if (not parent_->interior_visible() and parent_ == &player_island()) {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
-            auto spr = c->sprite();
+            auto spr = c->prepare_sprite();
             spr.set_mix({custom_color(0x28457b), 200});
             spr.set_alpha(Sprite::Alpha::translucent);
             if (pos.y.as_integer() < 700) {

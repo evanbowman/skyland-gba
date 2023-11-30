@@ -793,6 +793,9 @@ void describe_room(Island* island,
                                         case 0:
                                             return SYSTR(character_label_human);
 
+                                        case 2:
+                                            return SYSTR(character_label_dog);
+
                                         case 1:
                                             auto ret =
                                                 SYSTR(character_label_goblin);
@@ -812,6 +815,15 @@ void describe_room(Island* island,
 
                                     room_description->append(str->c_str(),
                                                              opts);
+
+                                    if (chr->is_superpinned()) {
+                                        PLATFORM.set_tile(
+                                            Layer::overlay,
+                                            room_description->len() - 1,
+                                            calc_screen_tiles().y - 1,
+                                            390);
+                                        room_description->append(" ");
+                                    }
                                 }
                             }
                         } else {

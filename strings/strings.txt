@@ -153,6 +153,7 @@ black
 (human) 
 (goblin) 
 (replicant) 
+(dog) 
 adventure
 challenge
 multiplayer
@@ -318,7 +319,7 @@ Text written in some strange language... what could it mean? (If you see one, cl
 Conceal blocks! AI player cannot see blocks created fully within a cloak. AI will guess cloaked blocks based on behavior. Takes ion damage.
 Only constructible in sandbox mode.
 Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.
-Automatically assigns positions to your crew. Rescues boarded crew from a defeated opponent if you have charged transporters.
+This block used to control the crew AI, but is no longer needed.
 Take control of one of your opponent's crewmembers.
 An old weapon from the surface world below, no one knows how to build them anymore... starts raging fires... if you're lucky, maybe you'll find one...
 Built long ago on the surface, this laser burns through everything in its path, dealing damage to each block that its beam touches.
@@ -564,6 +565,8 @@ describe block
 edit flag
 crewmember icon
 upgrade block
+pin crewmember
+unpin crewmember
 choose flag:
 colonial
 old empire

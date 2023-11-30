@@ -1020,6 +1020,11 @@ ScenePtr<Scene> RewindScene::update(Microseconds)
 
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->rewind_movement_step({e->previous_x_, e->previous_y_});
+                if (e->superpinned_) {
+                    chr->superpin(false);
+                } else {
+                    chr->un_superpin();
+                }
             } else {
                 auto err = "rewind chr mv path asgn: invalid chr id! (2)";
                 return scene_pool::alloc<FatalErrorScene>(err);

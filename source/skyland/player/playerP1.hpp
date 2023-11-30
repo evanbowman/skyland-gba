@@ -23,7 +23,10 @@
 #pragma once
 
 
+#include "allocator.hpp"
+#include "memory/buffer.hpp"
 #include "player.hpp"
+#include "skyland/characterId.hpp"
 
 
 
@@ -40,6 +43,9 @@ namespace skyland
 class PlayerP1 : public Player
 {
 public:
+    PlayerP1();
+
+
     void update(Microseconds delta) override;
 
 
@@ -70,34 +76,32 @@ public:
     void key_held_distribute(const Key* include_list) override;
 
 
-    std::optional<std::tuple<Vec2<u32>, Microseconds>>
-    touch_released() override;
-
-
-    std::optional<Vec2<u32>> touch_current() override;
-
-
-    bool touch_held(Microseconds duration) override;
-
-
-    void touch_consume() override;
-
-
-    Vec2<Float> touch_velocity() override
-    {
-        return touch_velocity_;
-    }
+protected:
+    virtual void update_chr_ai(Microseconds delta);
 
 
 private:
+    struct ChrAIState
+    {
+        using IdBuffer = Buffer<CharacterId, 80>;
+
+        Microseconds next_action_timer_ = seconds(1);
+
+        IdBuffer local_chrs_;
+        IdBuffer boarded_chrs_;
+
+        u32 local_buffer_index_ = 0;
+        u32 boarded_buffer_index_ = 0;
+
+        void update(Microseconds delta);
+    };
+
+    DynamicMemory<ChrAIState> chr_ai_;
+
+
     Microseconds last_key_ = 0;
 
-    Microseconds touch_held_time_ = 0;
     Microseconds last_touch_held_time_ = 0;
-
-    bool touch_invalidate_ = false;
-    Vec2<u32> last_touch_;
-    Vec2<Float> touch_velocity_;
 
     Microseconds key_held_timers_[static_cast<int>(Key::count)];
 };

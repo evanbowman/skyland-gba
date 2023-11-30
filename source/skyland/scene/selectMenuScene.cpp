@@ -374,6 +374,27 @@ void SelectMenuScene::enter(Scene& scene)
         }
 
         if (auto chr = isle->character_at_location(cursor)) {
+            if (chr->is_superpinned()) {
+                add_line(SystemString::sel_menu_unpin_crewmember,
+                         true,
+                         [id = chr->id()] {
+                             auto chr = BasicCharacter::find_by_id(id);
+                             if (chr.first) {
+                                 chr.first->un_superpin();
+                             }
+                             return null_scene();
+                         });
+            } else {
+                add_line(SystemString::sel_menu_pin_crewmember,
+                         true,
+                         [id = chr->id()] {
+                             auto chr = BasicCharacter::find_by_id(id);
+                             if (chr.first) {
+                                 chr.first->superpin();
+                             }
+                             return null_scene();
+                         });
+            }
             add_line(SystemString::sel_menu_name_crewmember,
                      true,
                      [id = chr->id(),
@@ -678,6 +699,11 @@ ScenePtr<Scene> SelectMenuScene::update(Microseconds delta)
             pos.x += offset;
         }
         pos.y += 8.0_fixed;
+
+        // Push the menu upwards if it ends up offscreen
+        if (opts_->lines_.size() > 8) {
+            pos.y -= Fixnum::from_integer((opts_->lines_.size() - 8) * 8);
+        }
 
         PLATFORM.set_overlay_origin(-pos.x.as_integer(), -pos.y.as_integer());
     }

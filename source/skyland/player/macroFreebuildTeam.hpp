@@ -41,6 +41,12 @@ public:
     void receive(const network::packet::MacroSetBlock& p) override;
 
 
+protected:
+    void update_chr_ai(Microseconds delta) override
+    {
+    }
+
+
 private:
     static const auto heartbeat_interval = seconds(5);
     Microseconds heartbeat_send_counter_ = 0;

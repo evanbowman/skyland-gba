@@ -772,7 +772,8 @@ struct CharacterMoved
     u8 previous_x_ : 4;
     u8 previous_y_ : 4;
     u8 near_ : 1;
-    u8 unused_ : 7;
+    u8 superpinned_ : 1;
+    u8 unused_ : 6;
 
     static constexpr const auto t = Type::character_moved;
 };

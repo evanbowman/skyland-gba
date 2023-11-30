@@ -21,6 +21,7 @@
 
 
 #include "playerP1.hpp"
+#include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -30,6 +31,12 @@
 
 namespace skyland
 {
+
+
+
+PlayerP1::PlayerP1() : chr_ai_(allocate_dynamic<ChrAIState>("crew-ai-control"))
+{
+}
 
 
 
@@ -112,50 +119,6 @@ void PlayerP1::update(Microseconds delta)
 
     } else /* not a tutorial level */ {
 
-        if (delta > 0) {
-            if (touch_held(milliseconds(200))) {
-                if (auto p = touch_current()) {
-                    auto last = last_touch_;
-                    auto velocity =
-                        (p->cast<s32>() - last.cast<s32>()).cast<Float>();
-                    velocity.x /= delta;
-                    velocity.y /= delta;
-                    // info(format("p__ % %", p->x, p->y));
-                    // info(format("lst % %", last.x, last.y));
-                    touch_velocity_.x =
-                        ((19 * touch_velocity_.x) + velocity.x) / 20;
-                    touch_velocity_.y =
-                        ((19 * touch_velocity_.y) + velocity.y) / 20;
-
-
-                    // info(format("vel % %",
-                    //                   touch_velocity_.x,
-                    //                   touch_velocity_.y));
-                }
-            } else {
-                touch_velocity_ = {};
-            }
-        }
-
-
-        if (auto t = PLATFORM.screen().touch()) {
-            if (auto pos = t->read()) {
-                last_touch_ = *pos;
-                touch_held_time_ += delta;
-            } else {
-                last_touch_held_time_ = touch_held_time_;
-                touch_held_time_ = 0;
-            }
-        } else {
-            last_touch_held_time_ = touch_held_time_;
-            touch_held_time_ = 0;
-        }
-
-
-
-        touch_invalidate_ = false;
-
-
         // Our tutorial keylogger does not log press&held, so we should not
         // record held keys unless the keylogger is off.
 
@@ -167,6 +130,8 @@ void PlayerP1::update(Microseconds delta)
             }
         }
 
+        update_chr_ai(delta);
+
         if (PLATFORM.keyboard()
                 .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
             APP.camera()->reset_default();
@@ -174,13 +139,6 @@ void PlayerP1::update(Microseconds delta)
     }
 
     last_key_ += delta;
-}
-
-
-
-void PlayerP1::touch_consume()
-{
-    touch_invalidate_ = true;
 }
 
 
@@ -306,43 +264,81 @@ void PlayerP1::key_held_distribute(const Key* include_list)
 
 
 
-std::optional<std::tuple<Vec2<u32>, Microseconds>> PlayerP1::touch_released()
+void PlayerP1::update_chr_ai(Microseconds delta)
 {
-    if (touch_invalidate_) {
-        return {};
+    chr_ai_->update(delta);
+}
+
+
+
+void PlayerP1::ChrAIState::update(Microseconds delta)
+{
+    if (APP.game_speed() == GameSpeed::stopped) {
+        return;
     }
 
-    if (auto t = PLATFORM.screen().touch()) {
-        if (auto pos = t->up_transition()) {
-            return std::make_tuple(*pos, last_touch_held_time_);
+    next_action_timer_ -= delta;
+    if (next_action_timer_ <= 0) {
+        next_action_timer_ = milliseconds(1500);
+
+        if (local_chrs_.empty() or local_buffer_index_ >= local_chrs_.size()) {
+            local_buffer_index_ = 0;
+            local_chrs_.clear();
+
+            for (auto& room : APP.player_island().rooms()) {
+                for (auto& chr : room->characters()) {
+                    if (chr->owner() == &APP.player() and
+                        not chr->co_op_locked()) {
+                        local_chrs_.push_back(chr->id());
+                    }
+                }
+            }
+        }
+
+        if (not local_chrs_.empty()) {
+            auto chr_id = (local_chrs_)[local_buffer_index_++];
+            auto info = APP.player_island().find_character_by_id(chr_id);
+            if (info.first and info.first->ai_automated() and
+                not info.first->is_superpinned()) {
+                EnemyAI::assign_local_character(*info.first,
+                                                &APP.player(),
+                                                &APP.player_island(),
+                                                APP.opponent_island(),
+                                                true);
+            }
+        }
+
+        if (boarded_chrs_.empty() or
+            boarded_buffer_index_ >= boarded_chrs_.size()) {
+            boarded_buffer_index_ = 0;
+            boarded_chrs_.clear();
+
+            if (APP.opponent_island()) {
+                for (auto& room : APP.opponent_island()->rooms()) {
+                    for (auto& chr : room->characters()) {
+                        if (chr->owner() == &APP.player() and
+                            not chr->co_op_locked()) {
+                            boarded_chrs_.push_back(chr->id());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (not boarded_chrs_.empty()) {
+            auto chr_id = (boarded_chrs_)[boarded_buffer_index_++];
+            if (APP.opponent_island()) {
+                auto info = APP.opponent_island()->find_character_by_id(chr_id);
+                if (info.first and info.first->ai_automated() and
+                    not info.first->is_superpinned()) {
+                    EnemyAI::assign_boarded_character(*info.first,
+                                                      &APP.player(),
+                                                      &APP.player_island(),
+                                                      APP.opponent_island());
+                }
+            }
         }
     }
-    return {};
-}
-
-
-
-std::optional<Vec2<u32>> PlayerP1::touch_current()
-{
-    if (touch_invalidate_) {
-        return {};
-    }
-
-    if (auto t = PLATFORM.screen().touch()) {
-        return t->read();
-    }
-    return {};
-}
-
-
-
-bool PlayerP1::touch_held(Microseconds duration)
-{
-    if (touch_invalidate_) {
-        return false;
-    }
-
-    return touch_held_time_ >= duration;
 }
 
 

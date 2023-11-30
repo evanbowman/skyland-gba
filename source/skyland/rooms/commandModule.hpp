@@ -59,7 +59,7 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::habitable |
+        return RoomProperties::not_constructible | RoomProperties::habitable |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::singleton;
         ;
@@ -120,10 +120,6 @@ private:
     };
 
     DynamicMemory<IdBuffers> id_buffers_;
-    u32 local_buffer_index_ = 0;
-    u32 boarded_buffer_index_ = 0;
-
-    u16 room_check_index_ = 0;
 };
 
 

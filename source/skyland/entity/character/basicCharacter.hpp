@@ -290,11 +290,19 @@ public:
     }
 
 
+    // When the AI is active, a pinned character will maintain its position
+    // until it finishes all current tasks available at its position, then will
+    // resume automation.
     void pin();
     void unpin();
 
+    // A superpinned character will ignore the AI completely.
+    void superpin(bool drop_path = true);
+    void un_superpin();
+
 
     bool ai_automated() const;
+    bool is_superpinned() const;
 
 
     void apply_radiation_damage(Health amount);
@@ -327,7 +335,8 @@ private:
     u8 radiation_counter_ = 0;
 
     u8 ai_automated_ : 1;
-    u8 unused_ : 7;
+    u8 superpinned_ : 1;
+    u8 unused_ : 6;
 
 
     bool has_opponent(Room* room);

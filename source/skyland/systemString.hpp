@@ -209,6 +209,7 @@ enum class SystemString {
     character_label_human,
     character_label_goblin,
     character_label_replicant,
+    character_label_dog,
 
     menu_text_adventure,
     menu_text_challenge,
@@ -699,6 +700,8 @@ enum class SystemString {
     sel_menu_edit_flag,
     sel_menu_crewmember_icon,
     sel_menu_upgrade_block,
+    sel_menu_pin_crewmember,
+    sel_menu_unpin_crewmember,
 
     choose_flag,
     flag_default,

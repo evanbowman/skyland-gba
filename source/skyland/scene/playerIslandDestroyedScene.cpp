@@ -38,7 +38,6 @@
 #include "skyland/network.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/player/playerP1.hpp"
-#include "skyland/rooms/commandModule.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/scene_pool.hpp"
@@ -498,9 +497,10 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
                     if (auto tx = room->cast<Transporter>()) {
                         ready_transporters.push_back(tx);
                     }
-                    if (room->cast<CommandModule>()) {
-                        has_command_module = true;
-                    }
+
+                    // FIXME: refactor this. command-module removed from the
+                    // game.
+                    has_command_module = true;
                 }
 
 
@@ -527,6 +527,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
                 for (auto& room : APP.player_island().rooms()) {
                     for (auto& chr : room->characters()) {
                         chr->unpin();
+                        chr->un_superpin();
                     }
                 }
 

@@ -38,7 +38,14 @@ namespace skyland
 
 
 
-static const auto movement_step_duration = milliseconds(300);
+static Microseconds movement_step_duration(int race)
+{
+    if (race == 2) {
+        return milliseconds(100);
+    } else {
+        return milliseconds(300);
+    }
+}
 
 
 
@@ -121,6 +128,7 @@ BasicCharacter::BasicCharacter(Island* parent,
     health_ = max_health;
 
     ai_automated_ = true;
+    superpinned_ = false;
 }
 
 
@@ -135,6 +143,30 @@ void BasicCharacter::unpin()
 void BasicCharacter::pin()
 {
     ai_automated_ = false;
+}
+
+
+
+void BasicCharacter::un_superpin()
+{
+    superpinned_ = false;
+}
+
+
+
+void BasicCharacter::superpin(bool drop_path)
+{
+    if (drop_path) {
+        drop_movement_path();
+    }
+    superpinned_ = true;
+}
+
+
+
+bool BasicCharacter::is_superpinned() const
+{
+    return superpinned_;
 }
 
 
@@ -231,8 +263,10 @@ void BasicCharacter::rewind(Microseconds delta)
         timer_ -= delta;
 
         if (timer_ > 0) {
-            auto fpos = interpolate(
-                fvec(dest), fvec(o), Float(timer_) / movement_step_duration);
+            auto fpos =
+                interpolate(fvec(dest),
+                            fvec(o),
+                            Float(timer_) / movement_step_duration(race_));
 
             sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x), Fixnum(fpos.y)});
         }
@@ -350,6 +384,9 @@ void BasicCharacter::update(Microseconds delta, Room* room)
     case State::moving_or_idle: {
 
         if (movement_path_) {
+            if (race_ == 2) {
+                set_can_move();
+            }
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
                 // is grid-based
@@ -565,7 +602,11 @@ void BasicCharacter::update(Microseconds delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    room->heal(2);
+                    if (race_ == 2) {
+                        room->heal(1);
+                    } else {
+                        room->heal(2);
+                    }
                 } else {
                     this->set_idle();
                     break;
@@ -626,11 +667,11 @@ Sprite BasicCharacter::prepare_sprite() const
 
         case 2:
             switch (ret.get_texture_index()) {
-            case 39:
+            case 40:
                 ret.set_texture_index(99);
                 break;
 
-            case 40:
+            case 39:
                 ret.set_texture_index(100);
                 break;
             }
@@ -717,12 +758,12 @@ void BasicCharacter::movement_step(Microseconds delta)
         }
 
         auto fpos = interpolate(
-            fvec(dest), fvec(o), Float(timer_) / movement_step_duration);
+            fvec(dest), fvec(o), Float(timer_) / movement_step_duration(race_));
 
         sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x), Fixnum(fpos.y)});
     }
 
-    if (timer_ > movement_step_duration) {
+    if (timer_ > movement_step_duration(race_)) {
         timer_ = 0;
 
         awaiting_movement_ = true;
@@ -739,6 +780,7 @@ void BasicCharacter::movement_step(Microseconds delta)
             e.id_.set(id_);
             e.previous_x_ = grid_position_.x;
             e.previous_y_ = grid_position_.y;
+            e.superpinned_ = superpinned_;
             e.near_ = parent_ == &APP.player_island();
 
             if (reassign_room(grid_position_, current_position)) {
@@ -787,7 +829,7 @@ void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
     reassign_room(grid_position_, new_pos);
 
     state_ = State::moving_or_idle;
-    timer_ = movement_step_duration;
+    timer_ = movement_step_duration(race_);
     awaiting_movement_ = false;
     can_move_ = false;
     idle_count_ = 0;
