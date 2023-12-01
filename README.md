@@ -58,4 +58,4 @@ I designed the Skyland to be moddable, and wrote all level scenarios in a custom
 
 # License
 
-All artwork and music assets are proprietary. I'm providing the source code itself under the terms of the GPL license. If you want some code snippet or a few files under a more permissive license like BSD or MIT, then contact me.
+All artwork and music assets are proprietary. The software and source code are provided for personal non-commercial use under the terms of the included license document. I originally licensed this program under the terms of the GPL license, but I've since realized that Open Source licenses are not a good fit for all projects.
