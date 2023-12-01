@@ -83,7 +83,7 @@ void Antimatter::update(Microseconds delta)
     // }
 
     Island* target;
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         target = APP.opponent_island();
     } else {
         target = &APP.player_island();
@@ -145,7 +145,7 @@ void Antimatter::destroy(bool explosion)
             c.y_speed__data_.set(step_vector_.y.data());
         };
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerAntimatterDestroyed c;
         timestream_record(c);
         APP.time_stream().push(APP.level_timer(), c);

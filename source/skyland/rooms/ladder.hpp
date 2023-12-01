@@ -53,9 +53,9 @@ public:
                              BasicCharacter* for_character) override;
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 50.f;
+        return 50.0_atp;
     }
 
 

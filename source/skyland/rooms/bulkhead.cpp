@@ -164,7 +164,7 @@ void Bulkhead::set_open(bool open)
         return;
     }
 
-    if (parent() == &APP.player_island()) {
+    if (is_player_island(parent())) {
         time_stream::event::PlayerRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;

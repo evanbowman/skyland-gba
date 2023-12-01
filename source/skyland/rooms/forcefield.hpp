@@ -83,9 +83,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 10.f;
+        return 10.0_atp;
     }
 
 
@@ -164,9 +164,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 9.f;
+        return 9.0_atp;
     }
 
 

@@ -1,9 +1,6 @@
-#pragma once
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2022  Evan Bowman
+// Copyright (C) 2023  Evan Bowman
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of version 2 of the GNU General Public License as published by the
@@ -25,9 +22,10 @@
 
 #pragma once
 
-#include "skyland/coins.hpp"
-#include "skyland/room.hpp"
+
+#include "decoration.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -36,86 +34,80 @@ namespace skyland
 
 
 
-class WeatherEngine final : public Room
+class Snow final : public Decoration
 {
 public:
-    WeatherEngine(Island* parent,
-                  const RoomCoord& position,
-                  const char* n = name());
-
-
-    void update(Microseconds delta) override;
-
-
-    void render_interior(App* app, TileId buffer[16][16]) override;
-    void render_exterior(App* app, TileId buffer[16][16]) override;
-
-    void render_scaffolding(TileId buffer[16][16]) override
+    Snow(Island* parent, const RoomCoord& position)
+        : Decoration(parent, name(), position)
     {
     }
 
 
-    static void format_description(StringBuffer<512>& buffer);
-
-
-    static Category category()
+    static void format_description(StringBuffer<512>& buffer)
     {
-        return Category::misc;
+    }
+
+
+    void render_interior(App* app, TileId buffer[16][16]) override
+    {
+        buffer[position().x][position().y] = Tile::snow;
+    }
+
+
+    void render_exterior(App* app, TileId buffer[16][16]) override
+    {
+        buffer[position().x][position().y] = Tile::snow;
     }
 
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-               RoomProperties::disabled_in_tutorials |
-               RoomProperties::disallow_chimney |
+        return RoomProperties::roof_hidden |
+               RoomProperties::fragile |
                RoomProperties::multiplayer_unsupported |
-               RoomProperties::locked_by_default;
-    }
-
-
-    ScenePtr<Scene> select(const RoomCoord& cursor) override;
-
-
-    bool description_visible() override
-    {
-        return true;
-    }
-
-
-    static ATP atp_value()
-    {
-        return 1.0_atp;
-    }
-
-
-    static Vec2<u8> size()
-    {
-        return {1, 2};
+               RoomProperties::not_constructible;
     }
 
 
     static const char* name()
     {
-        return "weather-engine";
+        return "snow";
+    }
+
+
+    int debris_tile() override
+    {
+        return 5;
+    }
+
+
+    int debris_count() override
+    {
+        return 2;
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_weather_engine;
+        return SystemString::block_snow;
+    }
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 1};
     }
 
 
     static Icon icon()
     {
-        return 3416;
+        return 2344;
     }
 
 
     static Icon unsel_icon()
     {
-        return 3432;
+        return 2360;
     }
 };
 

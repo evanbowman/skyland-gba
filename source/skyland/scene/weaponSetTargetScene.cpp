@@ -95,7 +95,7 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Microseconds delta)
     };
 
     auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
-        if (drone->destination() == &APP.player_island()) {
+        if (is_player_island(drone->destination())) {
             globals().near_cursor_loc_ = drone->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -323,8 +323,7 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Microseconds delta)
                     packet.drone_y_ = drone.position().y;
                     packet.target_x_ = cursor_loc.x;
                     packet.target_y_ = cursor_loc.y;
-                    packet.drone_near_ =
-                        drone.destination() == &APP.player_island();
+                    packet.drone_near_ = is_player_island(drone.destination());
                     packet.target_near_ = false;
                     network::transmit(packet);
                 };

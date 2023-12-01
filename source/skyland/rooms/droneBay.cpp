@@ -76,7 +76,7 @@ void DroneBay::update(Microseconds delta)
     if (reload_ > 0) {
         reload_ -= delta;
         if (reload_ < 0) {
-            if (parent() == &APP.player_island()) {
+            if (is_player_island(parent())) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
@@ -220,8 +220,8 @@ void DroneBay::detach_drone(bool quiet)
         time_stream::event::DroneDestroyed e;
         e.x_pos_ = (*drone_)->position().x;
         e.y_pos_ = (*drone_)->position().y;
-        e.destination_near_ = (*drone_)->destination() == &APP.player_island();
-        e.parent_near_ = (*drone_)->parent() == &APP.player_island();
+        e.destination_near_ = is_player_island((*drone_)->destination());
+        e.parent_near_ = is_player_island((*drone_)->parent());
         e.type_ = (*drone_)->metaclass_index();
         e.state_ = (*drone_)->state();
         e.timer_.set((*drone_)->timer());

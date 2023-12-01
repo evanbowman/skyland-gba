@@ -107,7 +107,7 @@ void Drone::update_sprite()
     if (target_) {
         if (destination() == APP.opponent_island() and target_near_) {
             sprite_.set_flip({true, false});
-        } else if (destination() == &APP.player_island() and not target_near_) {
+        } else if (is_player_island(destination())) {
             sprite_.set_flip({false, false});
         } else {
             if (target_->x < grid_pos_.x) {
@@ -177,7 +177,7 @@ void Drone::set_target(const RoomCoord& target, bool target_near)
         e.has_previous_target_ = false;
     }
     e.previous_target_near_ = target_near_;
-    e.destination_near_ = destination_ == &APP.player_island();
+    e.destination_near_ = is_player_island(destination_);
     APP.time_stream().push(APP.level_timer(), e);
 
     target_ = target;
@@ -204,7 +204,7 @@ void Drone::apply_damage(Health amount)
     time_stream::event::DroneHealthChanged e;
     e.x_pos_ = grid_pos_.x;
     e.y_pos_ = grid_pos_.y;
-    e.destination_near_ = destination_ == &APP.player_island();
+    e.destination_near_ = is_player_island(destination_);
     e.previous_health_.set(health());
     APP.time_stream().push(APP.level_timer(), e);
 
@@ -225,8 +225,8 @@ void Drone::update(Microseconds delta)
             time_stream::event::DroneDeployed e;
             e.x_pos_ = grid_pos_.x;
             e.y_pos_ = grid_pos_.y;
-            e.parent_near_ = parent_ == &APP.player_island();
-            e.destination_near_ = destination_ == &APP.player_island();
+            e.parent_near_ = is_player_island(parent_);
+            e.destination_near_ = is_player_island(destination_);
             e.duration_.set(duration_);
             APP.time_stream().push(APP.level_timer(), e);
             break;

@@ -1384,7 +1384,7 @@ void ProcgenEnemyAI::generate_characters()
         struct Slot
         {
             RoomCoord coord_;
-            Float weight_;
+            ATP weight_;
         };
 
         Buffer<Slot, 30> slots_;
@@ -1436,6 +1436,11 @@ void ProcgenEnemyAI::generate_characters()
 
 void ProcgenEnemyAI::generate_decorations()
 {
+    if (APP.environment().is_cold()) {
+        // Don't generate decorative plants and stuff when the weather is snowy.
+        return;
+    }
+
     auto& shrubbery_mt = require_metaclass("shrubbery");
 
     for (u8 x = 0; x < (int)APP.opponent_island()->terrain().size(); ++x) {

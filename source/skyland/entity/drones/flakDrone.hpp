@@ -75,12 +75,12 @@ public:
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
         std::optional<RoomCoord> initial_pos;
-        if (target_near_ == (destination() == &APP.player_island())) {
+        if (target_near_ == (is_player_island(destination()))) {
             initial_pos = target_;
         }
 
         return scene_pool::alloc<WeaponSetTargetScene>(
-            position(), destination() == &APP.player_island(), initial_pos);
+            position(), is_player_island(destination()), initial_pos);
     }
 
 
@@ -93,7 +93,7 @@ public:
         }
 
         Island* target_island;
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             target_island = APP.opponent_island();
         } else {
             target_island = &APP.player_island();
@@ -167,7 +167,7 @@ public:
                     }
 
                     Island* target_island;
-                    if (parent() == &APP.player_island()) {
+                    if (is_player_island(parent())) {
                         target_island = APP.opponent_island();
                     } else {
                         target_island = &APP.player_island();
@@ -199,7 +199,7 @@ public:
                     time_stream::event::DroneReloadComplete e;
                     e.x_pos_ = position().x;
                     e.y_pos_ = position().y;
-                    e.destination_near_ = destination() == &APP.player_island();
+                    e.destination_near_ = is_player_island(destination());
                     APP.time_stream().push(APP.level_timer(), e);
                 }
             }

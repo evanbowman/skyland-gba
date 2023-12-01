@@ -58,7 +58,7 @@ void Pummeler::fire()
 
     auto start = center();
 
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         start.x -= 6;
     } else {
         start.x += 6;

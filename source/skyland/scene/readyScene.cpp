@@ -165,7 +165,7 @@ ScenePtr<Scene> player_island_onclick(Microseconds& camera_update_timer,
                 // attached, jump the cursor to the drone's location.
                 camera_update_timer = milliseconds(500);
                 clear_room_description(room_description);
-                if ((*drone)->destination() == &APP.player_island()) {
+                if (is_player_island((*drone)->destination())) {
                     globals().near_cursor_loc_ = (*drone)->position();
                 } else {
                     globals().far_cursor_loc_ = (*drone)->position();
@@ -176,7 +176,7 @@ ScenePtr<Scene> player_island_onclick(Microseconds& camera_update_timer,
             return null_scene();
         }
     } else if (auto drone = APP.player_island().get_drone(pos)) {
-        if ((*drone)->parent() == &APP.player_island()) {
+        if (is_player_island((*drone)->parent())) {
             return (*drone)->select();
         }
     }
@@ -629,7 +629,7 @@ ScenePtr<Scene> ReadyScene::update(Microseconds delta)
     if (auto pos = APP.player().tap_released()) {
         auto [x, y, island] = check_island_tapclick(*pos);
 
-        if (island == &APP.player_island()) {
+        if (is_player_island(island)) {
             if (auto scene = player_island_onclick(
                     camera_update_timer_, room_description_, {x, y})) {
                 return scene;
@@ -688,7 +688,7 @@ ScenePtr<Scene> ReadyScene::update(Microseconds delta)
                 return scene_pool::alloc<NotificationScene>(msg->c_str(), next);
             }
         } else if (auto drone = APP.player_island().get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &APP.player_island()) {
+            if (is_player_island((*drone)->parent())) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
         } else if (not PLATFORM.network_peer().is_connected()) {
@@ -734,7 +734,7 @@ void describe_room(Island* island,
             return;
         }
         room->reset_description_changed();
-        if (room->parent() == &APP.player_island() or
+        if (is_player_island(room->parent()) or
             (room->description_visible() and not room->visually_cloaked())) {
 
             int i = 0;
@@ -1066,7 +1066,7 @@ void ReadyScene::display()
     if (auto room = APP.player_island().get_room(cursor_loc)) {
         room->display_on_hover(PLATFORM.screen(), cursor_loc);
     } else if (auto drone = APP.player_island().get_drone(cursor_loc)) {
-        if ((*drone)->parent() == &APP.player_island()) {
+        if (is_player_island((*drone)->parent())) {
             (*drone)->display_on_hover(PLATFORM.screen(), cursor_loc);
         }
     }

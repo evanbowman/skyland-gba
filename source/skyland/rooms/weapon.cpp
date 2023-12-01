@@ -64,7 +64,7 @@ void Weapon::timer_expired()
         // timer in certain cases. We could perhaps save some space by not
         // pushing this event in cases where we know that it's most likely
         // unnecessary.
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
@@ -192,7 +192,7 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &APP.player_island();
+    e.near_ = is_player_island(parent());
     e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
@@ -225,7 +225,7 @@ void Weapon::unset_target()
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &APP.player_island();
+    e.near_ = is_player_island(parent());
     e.previous_target_pinned_ = target_pinned_;
 
     if (target_) {
@@ -266,7 +266,7 @@ ScenePtr<Scene> Weapon::select(const RoomCoord& cursor)
     }
 
 
-    if (parent() == &APP.player_island()) {
+    if (is_player_island(parent())) {
 
         using Next = WeaponSetTargetScene;
 

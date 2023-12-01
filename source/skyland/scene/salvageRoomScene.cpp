@@ -250,7 +250,7 @@ ScenePtr<Scene> SalvageRoomScene::update(Microseconds delta)
 
                         island()->destroy_room(cursor_loc);
 
-                        if (island() == &APP.player_island()) {
+                        if (is_player_island(island())) {
                             if (room->group() not_eq Room::Group::none) {
                                 time_stream::event::WeaponSetGroup e;
                                 e.room_x_ = cursor_loc.x;

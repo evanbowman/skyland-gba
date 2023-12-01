@@ -781,7 +781,7 @@ void BasicCharacter::movement_step(Microseconds delta)
             e.previous_x_ = grid_position_.x;
             e.previous_y_ = grid_position_.y;
             e.superpinned_ = superpinned_;
-            e.near_ = parent_ == &APP.player_island();
+            e.near_ = is_player_island(parent_);
 
             if (reassign_room(grid_position_, current_position)) {
                 APP.time_stream().push(APP.level_timer(), e);
@@ -804,7 +804,7 @@ void BasicCharacter::set_movement_path(Path path)
 {
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
-    e.near_ = parent_ == &APP.player_island();
+    e.near_ = is_player_island(parent_);
     APP.time_stream().push(APP.level_timer(), e);
 
     movement_path_ = std::move(path);
@@ -847,7 +847,7 @@ void BasicCharacter::heal(int amount)
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
     e.owned_by_player_ = owner_ == &APP.player();
-    e.near_ = parent_ == &APP.player_island();
+    e.near_ = is_player_island(parent_);
     static_assert(max_health <= 255);
     e.previous_health_ = health_;
     APP.time_stream().push(APP.level_timer(), e);
@@ -879,7 +879,7 @@ void BasicCharacter::apply_damage(Health damage)
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
     e.owned_by_player_ = owner_ == &APP.player();
-    e.near_ = parent_ == &APP.player_island();
+    e.near_ = is_player_island(parent_);
     e.previous_health_ = health_;
     APP.time_stream().push(APP.level_timer(), e);
 

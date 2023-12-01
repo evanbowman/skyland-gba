@@ -343,7 +343,7 @@ void SelectMenuScene::enter(Scene& scene)
     };
 
     if (auto isle = island()) {
-        if (isle == &APP.player_island() or
+        if (is_player_island(isle) or
             APP.game_mode() == App::GameMode::sandbox) {
             if (isle->interior_visible()) {
                 add_line(SystemString::sel_menu_view_exterior,
@@ -363,7 +363,7 @@ void SelectMenuScene::enter(Scene& scene)
         }
 
         if (not PLATFORM.network_peer().is_connected()) {
-            if (isle == &APP.player_island() or
+            if (is_player_island(isle) or
                 APP.game_mode() == App::GameMode::sandbox) {
                 add_line(SystemString::sel_menu_move_blocks,
                          false,
@@ -404,7 +404,7 @@ void SelectMenuScene::enter(Scene& scene)
                      });
 
         } else if (auto room = isle->get_room(cursor)) {
-            if ((isle == &APP.player_island() or
+            if ((is_player_island(isle) or
                  APP.game_mode() == App::GameMode::sandbox) and
                 APP.game_mode() not_eq App::GameMode::co_op) {
                 if ((*room->metaclass())->category() ==
@@ -447,7 +447,7 @@ void SelectMenuScene::enter(Scene& scene)
 
         if (not PLATFORM.network_peer().is_connected()) {
             auto room = island()->get_room(cursor);
-            if (island() == &APP.player_island() and room) {
+            if (is_player_island(island()) and room) {
                 if (room->upgrade_mt_name()) {
                     add_line(
                         SystemString::sel_menu_upgrade_block,
@@ -468,7 +468,7 @@ void SelectMenuScene::enter(Scene& scene)
                 }
             }
             if (room and (room->description_visible() or
-                          room->parent() == &APP.player_island())) {
+                          is_player_island(room->parent()))) {
                 add_line(
                     SystemString::sel_menu_describe_block,
                     true,

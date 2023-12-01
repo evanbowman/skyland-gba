@@ -92,9 +92,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 820.f;
+        return 820.0_atp;
     }
 
 

@@ -87,7 +87,7 @@ void Curveshot::update(Microseconds delta)
 
 
     Island* target;
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         target = APP.opponent_island();
     } else {
         target = &APP.player_island();

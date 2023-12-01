@@ -357,7 +357,7 @@ void Windmill::update(Microseconds delta)
 
     if (dup_check_ >= (int)player_island().rooms().size()) {
         dup_check_ = 0;
-    } else if (parent() == &APP.player_island()) {
+    } else if (is_player_island(parent())) {
         auto& room = *player_island().rooms()[dup_check_++];
         if (&room not_eq this and room.metaclass() == this->metaclass()) {
             // Only one windmill allowed per island. Because we only allow so

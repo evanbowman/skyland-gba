@@ -110,7 +110,7 @@ void Mycelium::timer_expired()
 
         parent()->schedule_repaint();
 
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             time_stream::event::PlayerRoomCreated p;
             p.x_ = x;
             p.y_ = y;

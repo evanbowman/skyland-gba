@@ -163,7 +163,7 @@ static auto fire_alloc_texture(Island& island)
 
     // Check to see if the other island already has a texture allocated
     // for the fire effect. If so, share the texture.
-    if (&island == &APP.player_island() and APP.opponent_island()) {
+    if (is_player_island(&island) and APP.opponent_island()) {
         result = APP.opponent_island()->fire_texture();
     } else if (&island == APP.opponent_island()) {
         result = APP.player_island().fire_texture();
@@ -231,8 +231,7 @@ void Island::FireState::rewind(Island& island, Microseconds delta)
             // We only want to maintain a single reference to the fire texture,
             // to save vram. Both islands share a texture for the fire effect,
             // and only one island updates the tile glyph.
-            (texture_->strong_count() == 1 or
-             &island == &APP.player_island())) {
+            (texture_->strong_count() == 1 or is_player_island(&island))) {
             (*texture_)->remap(154 + anim_index_);
         }
     }
@@ -630,8 +629,7 @@ void Island::FireState::update(Island& island, Microseconds delta)
             // We only want to maintain a single reference to the fire texture,
             // to save vram. Both islands share a texture for the fire effect,
             // and only one island updates the tile glyph.
-            (texture_->strong_count() == 1 or
-             &island == &APP.player_island())) {
+            (texture_->strong_count() == 1 or is_player_island(&island))) {
             (*texture_)->remap(154 + anim_index_);
         }
     }
@@ -740,7 +738,7 @@ void Island::update(Microseconds dt)
         e.y_ = c.grid_position().y;
         e.id_.set(c.id());
         e.owned_by_player_ = c.owner() == &APP.player();
-        e.near_ = this == &APP.player_island();
+        e.near_ = is_player_island(this);
         e.race_ = c.get_race();
         e.is_replicant_ = c.is_replicant();
         e.icon_ = c.get_icon();
@@ -803,8 +801,7 @@ void Island::update(Microseconds dt)
 
             auto sync = [x = (*it)->position().x,
                          y = (*it)->position().y,
-                         near =
-                             (*it)->destination() == &APP.player_island()]() {
+                         near = is_player_island((*it)->destination())]() {
                 network::packet::DroneDestroyed destroyed;
                 destroyed.drone_x_ = x;
                 destroyed.drone_y_ = y;
@@ -948,7 +945,7 @@ void Island::update(Microseconds dt)
                     // No pauses during multiplayer, of course.
                     if (not PLATFORM.network_peer().is_connected()) {
                         // Sleep a few frames when a block is destroyed.
-                        if (this == &APP.player_island()) {
+                        if (is_player_island(this)) {
                             PLATFORM.sleep(4);
                         } else {
                             PLATFORM.sleep(2);
@@ -1521,7 +1518,7 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
 
             schedule_repaint_ = true;
 
-            if (this == &APP.player_island()) {
+            if (is_player_island(this)) {
                 time_stream::event::PlayerRoomMoved e;
                 e.x_ = to.x;
                 e.y_ = to.y;
@@ -1968,7 +1965,7 @@ void Island::set_drift(Fixnum drift)
         APP.time_stream().push(APP.level_timer(), e);
     }
 
-    if (this == &APP.player_island()) {
+    if (is_player_island(this)) {
         Platform::fatal("player island not intended to change position");
     }
 
@@ -2378,6 +2375,13 @@ bool synth_notes_load(Island& island, const char* path)
     }
 
     return true;
+}
+
+
+
+bool is_player_island(Island* isle)
+{
+    return isle == &APP.player_island();
 }
 
 

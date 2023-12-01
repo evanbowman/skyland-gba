@@ -90,7 +90,7 @@ void Decimator::update(Microseconds delta)
     }
 
     const bool opponent_friendly =
-        parent() == &APP.player_island() and
+        is_player_island(parent()) and
         static_cast<Opponent&>(APP.opponent_island()->owner()).is_friendly();
 
 
@@ -100,7 +100,7 @@ void Decimator::update(Microseconds delta)
             reload_ -= delta;
 
             if (reload_ < 0) {
-                if (parent() == &APP.player_island()) {
+                if (is_player_island(parent())) {
                     time_stream::event::PlayerRoomReloadComplete e;
                     e.room_x_ = position().x;
                     e.room_y_ = position().y;
@@ -130,14 +130,14 @@ void Decimator::update(Microseconds delta)
             // This just makes it a bit less likely for cannonballs to
             // run into the player's own buildings, especially around
             // corners.
-            if (island == &APP.player_island()) {
+            if (is_player_island(island)) {
                 start.x -= 18.0_fixed;
             } else {
                 start.x += 18.0_fixed;
             }
 
             auto target = center();
-            if (parent() == &APP.player_island()) {
+            if (is_player_island(parent())) {
                 target.x += 100.0_fixed;
             } else {
                 target.x -= 100.0_fixed;
@@ -203,7 +203,7 @@ void Decimator::plot_walkable_zones(bool matrix[16][16],
 {
     auto pos = position();
 
-    if (parent() == &APP.player_island()) {
+    if (is_player_island(parent())) {
         matrix[pos.x][pos.y + 1] = true;
     } else {
         matrix[pos.x + 1][pos.y + 1] = true;

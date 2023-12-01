@@ -27,7 +27,6 @@ basalt-brick
 carved-basalt
 beam-gun
 big-hull
-boarding-capsule
 war-engine
 bridge
 bronze-hull
@@ -45,6 +44,7 @@ carved-crystal
 crystal
 crystal-pillar
 dome
+snow
 stacked-hull
 mirror-hull
 mind-control
@@ -317,8 +317,6 @@ Deploys a drone! When destroyed, the deployed drone will also be destroyed.
 A powerful weapon that only works in the stormiest weather. Gains one ammo and charges one level per lightning strike.
 Text written in some strange language... what could it mean? (If you see one, click to enlarge)
 Conceal blocks! AI player cannot see blocks created fully within a cloak. AI will guess cloaked blocks based on behavior. Takes ion damage.
-Only constructible in sandbox mode.
-Attaches to an opponent's island, giving you a base within the enemy's castle. Crewmembers heal inside the pod, but more slowly than in an infirmary.
 This block used to control the crew AI, but is no longer needed.
 Take control of one of your opponent's crewmembers.
 An old weapon from the surface world below, no one knows how to build them anymore... starts raging fires... if you're lucky, maybe you'll find one...

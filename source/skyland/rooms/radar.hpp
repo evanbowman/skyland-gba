@@ -79,9 +79,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 400.f;
+        return 400.0_atp;
     }
 
 

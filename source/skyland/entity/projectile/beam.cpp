@@ -87,7 +87,7 @@ void Beam::update(Microseconds delta)
 
 
     Island* target;
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         target = APP.opponent_island();
     } else {
         target = &APP.player_island();
@@ -207,7 +207,7 @@ void Beam::record_destroyed()
     };
 
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerBeamDestroyed c;
         timestream_record(c);
         APP.time_stream().push(APP.level_timer(), c);

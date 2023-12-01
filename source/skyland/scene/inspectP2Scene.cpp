@@ -268,7 +268,7 @@ ScenePtr<Scene> InspectP2Scene::update(Microseconds delta)
     if (auto pos = APP.player().tap_released()) {
         auto [x, y, island] = check_island_tapclick(*pos);
 
-        if (island == &APP.player_island()) {
+        if (is_player_island(island)) {
             if (auto scene = player_island_onclick(
                     camera_update_timer_, room_description_, {x, y})) {
                 return scene;
@@ -296,13 +296,13 @@ ScenePtr<Scene> InspectP2Scene::update(Microseconds delta)
         if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
             if (APP.game_mode() == App::GameMode::sandbox or
                 room->non_owner_selectable() or
-                room->owner() == &APP.player_island()) {
+                is_player_island(room->owner())) {
                 return room->select(cursor_loc);
             } else {
                 PLATFORM.speaker().play_sound("beep_error", 2);
             }
         } else if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &APP.player_island()) {
+            if (is_player_island((*drone)->parent())) {
                 return (*drone)->select();
             } else {
                 PLATFORM.speaker().play_sound("beep_error", 2);
@@ -312,7 +312,7 @@ ScenePtr<Scene> InspectP2Scene::update(Microseconds delta)
 
     if (APP.player().key_down(Key::action_2)) {
         if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &APP.player_island()) {
+            if (is_player_island((*drone)->parent())) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
         } else if (APP.game_mode() == App::GameMode::sandbox) {
@@ -389,7 +389,7 @@ void InspectP2Scene::display()
                 room->display_on_hover(PLATFORM.screen(), cursor_loc);
             }
         } else if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &APP.player_island()) {
+            if (is_player_island((*drone)->parent())) {
                 (*drone)->display_on_hover(PLATFORM.screen(), cursor_loc);
             }
         }

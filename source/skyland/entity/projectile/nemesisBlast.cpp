@@ -206,7 +206,7 @@ void NemesisBlast::timestream_record_destroyed()
     };
 
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerNemesisBlastDestroyed e;
         timestream_record(e);
         e.variant_ = variant_;

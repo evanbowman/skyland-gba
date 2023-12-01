@@ -58,9 +58,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 1000.f;
+        return 1000.0_atp;
     }
 
 
@@ -128,9 +128,9 @@ public:
     const char* upgrade_mt_name() const override;
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return Core::atp_value() - 1;
+        return Core::atp_value() - 1.0_atp;
     }
 
 

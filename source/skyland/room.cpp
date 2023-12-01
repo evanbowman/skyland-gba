@@ -512,7 +512,7 @@ ScenePtr<Scene> Room::do_select()
 {
     if (length(characters_)) {
 
-        const bool near = parent() == &APP.player_island();
+        const bool near = is_player_island(parent());
 
         RoomCoord cursor_loc;
 
@@ -678,7 +678,7 @@ void Room::apply_damage(Health damage)
         // one of the non-small RoomDamaged messages to populate a room's actual
         // health.
         if (damage <= 255 and damage < health()) {
-            if (parent_ == &APP.player_island()) {
+            if (is_player_island(parent_)) {
                 time_stream::event::PlayerRoomDamagedSmall e;
                 e.x_ = position().x;
                 e.y_ = position().y;
@@ -692,7 +692,7 @@ void Room::apply_damage(Health damage)
                 APP.time_stream().push(APP.level_timer(), e);
             }
         } else {
-            if (parent_ == &APP.player_island()) {
+            if (is_player_island(parent_)) {
                 time_stream::event::PlayerRoomDamaged e;
                 e.x_ = position().x;
                 e.y_ = position().y;
@@ -745,7 +745,7 @@ void Room::__unsafe__transmute(MetaclassIndex m)
     EntityList<BasicCharacter> chr_list;
     characters_.move_contents(chr_list);
 
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         time_stream::event::PlayerRoomTransmuted e;
         e.prev_type_ = m_prev;
         e.x_ = pos.x;
@@ -845,7 +845,7 @@ void Room::heal(Health amount)
 {
     update_description();
 
-    if (parent_ == &APP.player_island()) {
+    if (is_player_island(parent_)) {
         time_stream::event::PlayerRoomRepaired e;
         e.x_ = position().x;
         e.y_ = position().y;
@@ -970,12 +970,12 @@ void Room::plunder(Health damage)
 
 
 
-Float Room::get_atp() const
+ATP Room::get_atp() const
 {
     if (ai_aware_) {
         return (*metaclass())->atp_value();
     } else {
-        return 2;
+        return 2.0_atp;
     }
 }
 
@@ -1031,7 +1031,7 @@ void Room::set_ai_aware(bool ai_aware)
     update_description();
 
     if (ai_aware_ not_eq ai_aware) {
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             time_stream::event::PlayerRoomAiAwareness e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
@@ -1064,7 +1064,11 @@ public:
     Debris(const Vec2<Fixnum>& position, Fixnum max_y, int tile)
         : Entity({}), max_y_(max_y)
     {
-        sprite_.set_tidx_8x8(30, 3 + tile);
+        if (tile <= 4) {
+            sprite_.set_tidx_8x8(30, 3 + tile);
+        } else {
+            sprite_.set_tidx_8x8(34, 0);
+        }
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w8_h8);
         sprite_.set_origin({4, 4});

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2022  Evan Bowman
+// Copyright (C) 2023  Evan Bowman
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of version 2 of the GNU General Public License as published by the
@@ -22,8 +22,7 @@
 
 #pragma once
 
-#include "skyland/room.hpp"
-
+#include "number/fixnum.hpp"
 
 
 namespace skyland
@@ -31,48 +30,15 @@ namespace skyland
 
 
 
-class Decoration : public Room
+using AttackTargetPriority = FixedPoint<8, s32>;
+using ATP = AttackTargetPriority;
+
+
+
+constexpr ATP operator"" _atp(long double value)
 {
-public:
-    using Room::Room;
-
-
-    void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override
-    {
-    }
-
-
-    void render_scaffolding(TileId buffer[16][16]) override
-    {
-    }
-
-
-    static RoomProperties::Bitmask properties()
-    {
-        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::locked_by_default | RoomProperties::fragile |
-               RoomProperties::multiplayer_unsupported;
-    }
-
-
-    bool description_visible() override
-    {
-        return true;
-    }
-
-
-    static ATP atp_value()
-    {
-        return 1.0_atp;
-    }
-
-
-    static Category category()
-    {
-        return Category::decoration;
-    }
-};
+    return ATP((static_cast<float>(value)));
+}
 
 
 

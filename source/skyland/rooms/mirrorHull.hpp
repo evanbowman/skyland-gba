@@ -88,9 +88,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return -100.f;
+        return ATP::from_integer(-100);
     }
 
 

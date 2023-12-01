@@ -102,7 +102,7 @@ bool Replicator::create_replicant()
             time_stream::event::ReplicantCreated e;
             e.x_ = dst.x;
             e.y_ = dst.y;
-            e.near_ = parent() == &APP.player_island();
+            e.near_ = is_player_island(parent());
             e.owned_by_player_ = found_chr->owner() == &APP.player();
             APP.time_stream().push(APP.level_timer(), e);
 
@@ -148,7 +148,7 @@ ScenePtr<Scene> Replicator::select(const RoomCoord& cursor)
 
         using Next = ReplicatorSelectionScene;
 
-        const bool near = parent() == &APP.player_island();
+        const bool near = is_player_island(parent());
         auto next = scene_pool::make_deferred_scene<Next>(near);
 
         if (APP.game_mode() == App::GameMode::co_op) {

@@ -517,6 +517,10 @@ Island* opponent_island();
 
 
 
+bool is_player_island(Island* isle);
+
+
+
 bool synth_notes_store(Island& island, const char* path);
 
 

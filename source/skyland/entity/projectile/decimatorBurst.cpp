@@ -74,7 +74,7 @@ void DecimatorBurst::update(Microseconds delta)
     timer_ += delta;
 
     Island* target;
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         target = APP.opponent_island();
     } else {
         target = &APP.player_island();
@@ -83,7 +83,7 @@ void DecimatorBurst::update(Microseconds delta)
     if (target) {
         int max_x = 9999999;
         int min_x = -9999999;
-        if (target == &APP.player_island()) {
+        if (is_player_island(target)) {
             // If we're shooting at the player's island, the projectile moves
             // leftwards, and we care about the min bound.
             min_x = target->origin().x.as_integer() - 32;
@@ -161,7 +161,7 @@ void DecimatorBurst::on_collision(Room& room, Vec2<u8> origin)
         };
 
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerDecimatorBurstDestroyed e;
         timestream_record(e);
         APP.time_stream().push(APP.level_timer(), e);

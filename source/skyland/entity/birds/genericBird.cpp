@@ -429,7 +429,7 @@ void GenericBird::spawn(Island& island, int count)
                 auto pos = RoomCoord{column, y};
 
                 if (auto dt = PLATFORM.make_dynamic_texture()) {
-                    bool near = &island == &APP.player_island();
+                    bool near = is_player_island(&island);
                     APP.birds().push(
                         APP.alloc_entity<GenericBird>(*dt, pos, near));
                     break;

@@ -64,7 +64,7 @@ void SparkCannon::on_lightning()
         ++level_;
         schedule_repaint();
     } else {
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
@@ -171,7 +171,7 @@ ScenePtr<Scene> SparkCannon::select(const RoomCoord& cursor)
     // run into the player's own buildings, especially around
     // corners.
     bool right = true;
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         right = false;
         start.x -= 24.0_fixed;
     } else {
@@ -236,7 +236,7 @@ ScenePtr<Scene> SparkCannon::select(const RoomCoord& cursor)
         start.y += 4.0_fixed;
 
         auto target = center();
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             target.x += 100.0_fixed;
         } else {
             target.x -= 100.0_fixed;
@@ -254,7 +254,7 @@ ScenePtr<Scene> SparkCannon::select(const RoomCoord& cursor)
     }
 
     auto record_lv = [&] {
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;

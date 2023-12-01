@@ -230,9 +230,8 @@ void shift_rooms_right(Island& island)
     }
     // Furthermore... all weapons on the players' island need to
     // have their targets adjusted accordingly:
-    Island* other_island = (&island == &APP.player_island())
-                               ? APP.opponent_island()
-                               : &APP.player_island();
+    Island* other_island = (is_player_island(&island)) ? APP.opponent_island()
+                                                       : &APP.player_island();
 
     if (other_island) {
         for (auto& r : other_island->rooms()) {
@@ -813,7 +812,7 @@ ScenePtr<Scene> ConstructionScene::update(Microseconds delta)
 
             time_stream::event::IslandTerrainChanged e;
             e.previous_terrain_size_ = island()->terrain().size();
-            e.near_ = island() == &APP.player_island();
+            e.near_ = is_player_island(island());
             APP.time_stream().push(APP.level_timer(), e);
 
 

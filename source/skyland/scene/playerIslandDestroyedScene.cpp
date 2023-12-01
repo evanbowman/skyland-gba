@@ -670,7 +670,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
             room->unset_target();
         }
 
-        if (island_ == &APP.player_island()) {
+        if (is_player_island(island_)) {
             invoke_hook("on-victory");
 
             for (auto& room : APP.player_island().rooms()) {
@@ -710,7 +710,7 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
             if (APP.game_mode() == App::GameMode::skyland_forever or
                 APP.game_mode() == App::GameMode::co_op) {
 
-                if (island_ == &APP.player_island()) {
+                if (is_player_island(island_)) {
                     anim_state_ = AnimState::fade_out;
                     break;
                 }

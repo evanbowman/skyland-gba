@@ -124,10 +124,10 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    Float atp_value() const override
+    ATP atp_value() const override
     {
         // FIXME!
-        return 2;
+        return 2.0_atp;
     }
 
 

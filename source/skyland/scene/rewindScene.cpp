@@ -232,11 +232,6 @@ void environment_init(int type);
 
 
 
-void restore_boarding_pod_entity(Room& src,
-                                 time_stream::event::BoardingPodLanded& e);
-
-
-
 ScenePtr<Scene> RewindScene::update(Microseconds)
 {
     bool speed_changed = false;
@@ -1580,31 +1575,6 @@ ScenePtr<Scene> RewindScene::update(Microseconds)
                 make_segment(0);
             }
 
-            APP.time_stream().pop(sizeof *e);
-            break;
-        }
-
-
-        case time_stream::event::boarding_pod_landed: {
-            auto e = (time_stream::event::BoardingPodLanded*)end;
-            auto dt = PLATFORM.make_dynamic_texture();
-            RoomCoord c;
-            c.x = e->room_x_;
-            c.y = e->room_y_;
-            Room* room = nullptr;
-            Island* island = nullptr;
-            if (e->source_near_) {
-                island = APP.opponent_island();
-            } else {
-                island = &APP.player_island();
-            }
-            if (island) {
-                room = island->get_room(c);
-            }
-            if (room) {
-                restore_boarding_pod_entity(*room, *e);
-                island->destroy_room(c);
-            }
             APP.time_stream().pop(sizeof *e);
             break;
         }

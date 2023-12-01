@@ -64,7 +64,7 @@ struct RoomMeta
         virtual SystemStringBuffer ui_name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
-        virtual Float atp_value() const = 0;
+        virtual ATP atp_value() const = 0;
         virtual Power consumes_power() const = 0;
         virtual RoomProperties::Bitmask properties() const = 0;
         virtual Room::Icon icon() const = 0;

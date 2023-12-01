@@ -173,7 +173,7 @@ ScenePtr<Scene> PluginRoom::select(const RoomCoord& cursor)
                                                     future_scene);
     }
 
-    if (parent() == &APP.player_island()) {
+    if (is_player_island(parent())) {
         return scene_pool::alloc<WeaponSetTargetScene>(
             position(), true, target_);
     }
@@ -194,7 +194,7 @@ void PluginRoom::set_target(const RoomCoord& target, bool pinned)
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &APP.player_island();
+    e.near_ = is_player_island(parent());
 
     if (target_) {
         e.previous_target_x_ = target_->x;
@@ -224,7 +224,7 @@ void PluginRoom::unset_target()
     e.room_x_ = position().x;
     e.room_y_ = position().y;
 
-    e.near_ = parent() == &APP.player_island();
+    e.near_ = is_player_island(parent());
 
     if (target_) {
         e.previous_target_x_ = target_->x;

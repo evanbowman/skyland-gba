@@ -343,7 +343,7 @@ public:
 
         time_stream::event::BoardingPodLanded e;
         e.timer_.set(timer_);
-        e.source_near_ = source_island_ == &APP.player_island();
+        e.source_near_ = is_player_island(source_island_);
         e.src_x_ = source_.x;
         e.src_y_ = source_.y;
         e.dst_x_ = target_.x;
@@ -554,7 +554,7 @@ void BoardingPod::update(Microseconds delta)
                     e.y_ = c.grid_position().y;
                     e.id_.set(c.id());
                     e.owned_by_player_ = c.owner() == &APP.player();
-                    e.near_ = parent() == &APP.player_island();
+                    e.near_ = is_player_island(parent());
                     e.is_replicant_ = c.is_replicant();
                     e.race_ = c.get_race();
                     e.icon_ = c.get_icon();
@@ -707,7 +707,7 @@ ScenePtr<Scene> BoardingPod::select(const RoomCoord& cursor)
     }
 
 
-    if (parent() == &APP.player_island()) {
+    if (is_player_island(parent())) {
 
         using Next = WeaponSetTargetScene;
 

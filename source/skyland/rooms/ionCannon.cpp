@@ -85,7 +85,7 @@ void IonCannon::fire()
     // This just makes it a bit less likely for cannonballs to
     // run into the player's own buildings, especially around
     // corners.
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         start.x -= 6.0_fixed;
     } else {
         start.x += 6.0_fixed;

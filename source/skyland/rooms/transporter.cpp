@@ -75,7 +75,7 @@ void Transporter::update(Microseconds delta)
 
             update_description();
 
-            if (parent() == &APP.player_island()) {
+            if (is_player_island(parent())) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
@@ -263,7 +263,7 @@ void Transporter::recover_character(const RoomCoord& position)
                 e.id_.set(unlinked->id());
                 e.previous_x_ = unlinked->grid_position().x;
                 e.previous_y_ = unlinked->grid_position().y;
-                e.chr_near_ = unlinked->parent() == &APP.player_island();
+                e.chr_near_ = is_player_island(unlinked->parent());
                 APP.time_stream().push(APP.level_timer(), e);
 
                 // Again, the character is warping to a new location, let's
@@ -435,7 +435,7 @@ ScenePtr<Scene> Transporter::select(const RoomCoord& cursor)
             return null_scene();
         }
 
-        if (parent()->has_radar() and parent() == &APP.player_island()) {
+        if (parent()->has_radar() and is_player_island(parent())) {
             return scene_pool::alloc<TransportCharacterScene>(position());
         } else {
             transport_occupant();
@@ -443,7 +443,7 @@ ScenePtr<Scene> Transporter::select(const RoomCoord& cursor)
 
         return null_scene();
     } else {
-        if (parent() == &APP.player_island()) {
+        if (is_player_island(parent())) {
             return scene_pool::alloc<RecoverCharacterScene>(position());
         } else {
             PLATFORM.speaker().play_sound("beep_error", 3);

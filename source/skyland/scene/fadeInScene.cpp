@@ -21,6 +21,7 @@
 
 
 #include "fadeInScene.hpp"
+#include "constructionScene.hpp"
 #include "platform/color.hpp"
 #include "readyScene.hpp"
 #include "scriptHookScene.hpp"
@@ -35,12 +36,47 @@ namespace skyland
 
 
 
+void generate_snow(Island& isle)
+{
+    for (u8 x = 0; x < (int)isle.terrain().size(); ++x) {
+        bool empty_column = true;
+        u8 y;
+        for (y = construction_zone_min_y; y < 14; ++y) {
+            if (isle.rooms_plot().get(x, y)) {
+                if (auto room = isle.get_room({x, y})) {
+                    if ((*room->metaclass())->category() ==
+                            Room::Category::decoration or
+                        str_eq(room->name(), "drone-bay")) {
+                        empty_column = false;
+                        y -= 1;
+                        break;
+                    }
+                    y -= 1;
+                    break;
+                }
+            }
+        }
+
+        if (empty_column and y > construction_zone_min_y) {
+            require_metaclass("snow")->create(&isle, {x, y});
+        }
+    }
+}
+
+
+
 void FadeInScene::enter(Scene& prev)
 {
     WorldScene::enter(prev);
 
     WorldScene::notransitions();
     WorldScene::disable_ui();
+
+    if (APP.environment().is_cold()) {
+        if (APP.opponent_island()) {
+            // generate_snow(*APP.opponent_island());
+        }
+    }
 
     auto st = calc_screen_tiles();
     for (int i = 1; i < st.x; ++i) {

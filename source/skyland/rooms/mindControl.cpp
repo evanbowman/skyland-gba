@@ -76,7 +76,7 @@ void MindControl::update(Microseconds delta)
                 return;
             }
 
-            if (parent() == &APP.player_island()) {
+            if (is_player_island(parent())) {
                 if (room->parent() == &APP.player_island()) {
                     EnemyAI::assign_local_character(app,
                                                     *chr,

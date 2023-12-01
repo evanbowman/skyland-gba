@@ -190,7 +190,7 @@ void Missile::update(Microseconds delta)
         sprite_.set_position(pos);
 
         Island* target;
-        if (source_ == &APP.player_island()) {
+        if (is_player_island(source_)) {
             target = APP.opponent_island();
         } else {
             target = &APP.player_island();
@@ -227,7 +227,7 @@ void Missile::destroy()
         e.state_ = (u8)state_;
     };
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerMissileDestroyed e;
         setup_event(e);
         APP.time_stream().push(APP.level_timer(), e);
@@ -450,7 +450,7 @@ void RocketBomb::destroy()
         e.state_ = (u8)state_;
     };
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerRocketBombDestroyed e;
         setup_event(e);
         APP.time_stream().push(APP.level_timer(), e);
@@ -587,7 +587,7 @@ void ClumpMissile::destroy()
         e.state_ = (u8)state_;
     };
 
-    if (source_ == &APP.player_island()) {
+    if (is_player_island(source_)) {
         time_stream::event::PlayerClumpMissileDestroyed e;
         setup_event(e);
         APP.time_stream().push(APP.level_timer(), e);

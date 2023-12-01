@@ -50,6 +50,7 @@
 #include "skyland/rooms/gold.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/ice.hpp"
+#include "skyland/rooms/snow.hpp"
 #include "skyland/rooms/incinerator.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
@@ -164,7 +165,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return cost_;
     }
 
-    Float atp_value() const override
+    ATP atp_value() const override
     {
         return T::atp_value();
     }
@@ -371,6 +372,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Masonry,
                                         QrBlock,
                                         Basalt,
+                                        Snow,
                                         PlunderedRoom>;
 
 

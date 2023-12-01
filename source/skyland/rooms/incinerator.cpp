@@ -75,7 +75,7 @@ void Incinerator::fire()
 
     auto start = center();
 
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         start.x -= 16.0_fixed;
     } else {
         start.x += 16.0_fixed;

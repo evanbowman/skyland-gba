@@ -178,7 +178,7 @@ void CargoBay::finalize()
             e.count_ = count_;
             e.x_ = position().x;
             e.y_ = position().y;
-            e.near_ = parent() == &APP.player_island();
+            e.near_ = is_player_island(parent());
 
             APP.time_stream().push(APP.level_timer(), e);
         }

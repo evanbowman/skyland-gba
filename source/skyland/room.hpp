@@ -154,6 +154,18 @@ struct RoomProperties
 
 
 
+using AttackTargetPriority = Fixnum;
+using ATP = AttackTargetPriority;
+
+
+
+constexpr ATP operator"" _atp(long double value)
+{
+    return Fixnum((static_cast<float>(value)));
+}
+
+
+
 class Room : public Block
 {
 public:
@@ -700,7 +712,7 @@ public:
     }
 
 
-    Float get_atp() const;
+    ATP get_atp() const;
 
 
     void set_hidden(bool h)

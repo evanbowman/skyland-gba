@@ -291,6 +291,7 @@ struct Tile
         basket_2,
         basket_3,
         basket_4,
+        snow,
     };
 };
 
@@ -553,6 +554,7 @@ struct InteriorTile
         basket_2,
         basket_3,
         basket_4,
+        snow,
     };
 };
 

@@ -250,7 +250,7 @@ ScenePtr<Scene> PlaceDroneScene::update(Microseconds delta)
                     spawn.deploy_x_ = cursor_loc->x;
                     spawn.deploy_y_ = cursor_loc->y;
 
-                    spawn.destination_near_ = island == &APP.player_island();
+                    spawn.destination_near_ = is_player_island(island);
 
                     spawn.drone_class_ =
                         DroneMeta::index((*drone_class_)->name());

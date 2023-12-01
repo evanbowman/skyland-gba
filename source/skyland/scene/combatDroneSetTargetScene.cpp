@@ -44,7 +44,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Microseconds delta)
     }
 
     auto exit_scene = [&]() -> ScenePtr<Scene> {
-        if (drone_->destination() == &APP.player_island()) {
+        if (is_player_island(drone_->destination())) {
             globals().near_cursor_loc_ = drone_->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -68,7 +68,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Microseconds delta)
         packet.drone_y_ = drone_->position().y;
         packet.target_x_ = cursor_loc_.x;
         packet.target_y_ = cursor_loc_.y;
-        packet.drone_near_ = drone_->destination() == &APP.player_island();
+        packet.drone_near_ = is_player_island(drone_->destination());
         packet.target_near_ = near_;
         network::transmit(packet);
 
@@ -95,7 +95,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Microseconds delta)
     auto loc = target->position();
     cursor_loc_ = loc;
 
-    if (target->destination() == &APP.player_island()) {
+    if (is_player_island(target->destination())) {
         near_camera();
         globals().near_cursor_loc_ = loc;
         near_ = true;
@@ -126,7 +126,7 @@ void CombatDroneSetTargetScene::enter(Scene& prev)
     };
 
 
-    near_ = drone_->destination() == &APP.player_island();
+    near_ = is_player_island(drone_->destination());
     if (not near_) {
         far_camera();
     }

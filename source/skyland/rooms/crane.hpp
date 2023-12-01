@@ -135,9 +135,9 @@ public:
     }
 
 
-    static Float atp_value()
+    static ATP atp_value()
     {
-        return 1.f;
+        return 1.0_atp;
     }
 
 

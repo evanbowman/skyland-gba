@@ -185,8 +185,7 @@ void Explosive::ignite(int range, Health damage, bool spread_fire)
 
             // Hack added for an achievement where you unlock dynamite-ii when
             // destroying invading goblins with dynamite.
-            if (room->parent() == &APP.player_island() and
-                room->health() == 0) {
+            if (is_player_island(room->parent()) and room->health() == 0) {
                 for (auto& chr : room->characters()) {
                     if (chr->owner() == &APP.opponent()) {
                         achievements::raise(achievements::Achievement::triage);

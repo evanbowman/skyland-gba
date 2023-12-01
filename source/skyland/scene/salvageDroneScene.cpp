@@ -101,7 +101,7 @@ ScenePtr<Scene> SalvageDroneScene::update(Microseconds delta)
                 destroyed.drone_x_ = drone_->position().x;
                 destroyed.drone_y_ = drone_->position().y;
                 destroyed.destination_near_ =
-                    drone_->destination() == &APP.player_island();
+                    is_player_island(drone_->destination());
 
                 network::transmit(destroyed);
 

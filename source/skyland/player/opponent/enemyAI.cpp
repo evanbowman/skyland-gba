@@ -61,20 +61,6 @@
 // highest ATP values. I thought about making the AI a bit smarter, but people
 // have said that the game is already too hard, so no need to write a smarter AI
 // I guess.
-//
-// P.S.: I tried converting this code to use fixed point and tested the latency,
-// and speedup was only about 25% or so. I do someday want to replace the code
-// with an implementation that uses fixed point for multiplying attack priority
-// values, but I would need to do so much retesting that I haven't found the
-// time to do it. The issues with using fixed point would only come up in
-// situations where numbers overflow or don't have enough decimal precision, and
-// I would need to carefully review the code in order to test each situation
-// specifically. Due to the limited benefit, and the fact that the AI updates
-// only one block every few frames, it's just not worth the effort until I
-// really run out of other things to improve.
-// --TLDR: you'll see floats in this code. I tested and it's not the
-// bottleneck.
-
 
 
 namespace skyland
@@ -91,7 +77,6 @@ void EnemyAI::update(Microseconds delta)
     if (not APP.opponent_island()) {
         return;
     }
-
     if (ai_island_ == nullptr or target_island_ == nullptr) {
         ai_island_ = opponent_island();
         target_island_ = &player_island();
@@ -432,7 +417,7 @@ void EnemyAI::resolve_insufficient_power()
     // TODO: Make the AI less stupid.
 
     Room* lowest_weighted_room = nullptr;
-    Float lowest_weight = 2000000.f;
+    ATP lowest_weight = 2000000.0_atp;
 
     for (auto& room : ai_island_->rooms()) {
         auto name = (*room->metaclass())->name();
@@ -602,7 +587,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     struct Destination
     {
         RoomCoord coord_;
-        Float ai_weight_;
+        ATP ai_weight_;
     };
 
     Buffer<Destination, 48> slots;
@@ -610,7 +595,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
             if (matrix[x][y] == 2) {
-                slots.push_back({{x, y}, 0.f});
+                slots.push_back({{x, y}, 0.0_atp});
             }
         }
     }
@@ -632,10 +617,11 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             slot.ai_weight_ =
                 base_weight +
                 (base_weight -
-                 base_weight * (Float(room->health()) / room->max_health()));
+                 base_weight * (ATP::from_integer(room->health()) /
+                                ATP::from_integer(room->max_health())));
 
             if (room->owner() not_eq ai_island_) {
-                slot.ai_weight_ += 150;
+                slot.ai_weight_ += 150.0_atp;
             }
 
             if (ai_island_->fire_present(slot.coord_) and
@@ -646,14 +632,15 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                 // first, and then put out the fire.
                 room->health() > 8) {
                 // Yeah, really important to put out any fires!
-                slot.ai_weight_ += 1500.f;
+                slot.ai_weight_ += 1500.0_atp;
             }
 
             if (room->health() not_eq room->max_health()) {
-                slot.ai_weight_ += 500.f;
+                slot.ai_weight_ += 500.0_atp;
             }
 
-            slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
+            slot.ai_weight_ -= ATP::from_integer(
+                3 * manhattan_length(slot.coord_, current_pos));
 
             if (room->metaclass() == infirmary_metac) {
 
@@ -669,12 +656,12 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                         character.health() < 255) {
                         // Character has no rooms to repair and character is
                         // injured.
-                        slot.ai_weight_ += 5000.f;
+                        slot.ai_weight_ += 5000.0_atp;
                     } else if (character.health() < 25) {
-                        slot.ai_weight_ += 2000.f;
+                        slot.ai_weight_ += 2000.0_atp;
                     } else if (character.health() < 200 and
                                not player_characters_local) {
-                        slot.ai_weight_ += 2000.f;
+                        slot.ai_weight_ += 2000.0_atp;
                     } else {
                         if (chr_room and chr_room == room and
                             room->health() == room->max_health()) {
@@ -682,7 +669,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                             // crewmember is fully healed, and the infirmary is
                             // fully healed, then vacate the infirmary to allow
                             // someone else to heal.
-                            slot.ai_weight_ -= 400;
+                            slot.ai_weight_ -= 400.0_atp;
                         }
                     }
                 }
@@ -708,38 +695,40 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                             // Make boarding less likely in co_op mode, as
                             // character combat is sort of difficult without
                             // being able to pause.
-                            slot.ai_weight_ += 100.f * ai_characters_local;
+                            slot.ai_weight_ +=
+                                ATP::from_integer(100 * ai_characters_local);
                         } else {
-                            slot.ai_weight_ += 400.f * ai_characters_local;
+                            slot.ai_weight_ +=
+                                ATP::from_integer(400 * ai_characters_local);
                         }
                     }
                     if (player_characters_local > ai_characters_local) {
-                        slot.ai_weight_ -= 250.f * (player_characters_local -
-                                                    ai_characters_local);
+                        slot.ai_weight_ -= ATP::from_integer(250 * (player_characters_local -
+                                                                    ai_characters_local));
                     }
                     if (weapon_count == 0) {
                         // If we don't have any remaining weapons, potentially
                         // board the player's castle, even if doing so would be
                         // a suicide mission.
-                        slot.ai_weight_ += 1000.f;
+                        slot.ai_weight_ += 1000.0_atp;
                     } else if (missile_count and cannon_count == 0 and
                                player_cannon_count) {
-                        slot.ai_weight_ += 400.f;
+                        slot.ai_weight_ += 400.0_atp;
                     } else if (cannon_count and missile_count == 0 and
                                player_missile_count) {
-                        slot.ai_weight_ += 400.f;
+                        slot.ai_weight_ += 400.0_atp;
                     }
                     if (decimator_count == 0 and player_decimator_count) {
-                        slot.ai_weight_ += 600.f;
+                        slot.ai_weight_ += 600.0_atp;
                     }
                 } else {
-                    slot.ai_weight_ -= 300;
+                    slot.ai_weight_ -= 300.0_atp;
                 }
             }
 
             if (weapon_count < player_weapon_count) {
                 if (room->metaclass() == decimator_mt) {
-                    slot.ai_weight_ += 500.f;
+                    slot.ai_weight_ += 500.0_atp;
                 }
             }
         }
@@ -747,7 +736,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             if (slot.coord_ == exc) {
                 // Don't move into a slot targeted by another one of our ai
                 // characters.
-                slot.ai_weight_ = -2000.f;
+                slot.ai_weight_ = ATP::from_integer(-2000);
             }
         }
     }
@@ -758,7 +747,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                   return lhs.ai_weight_ < rhs.ai_weight_;
               });
 
-    if (slots.back().ai_weight_ == 0.f) {
+    if (slots.back().ai_weight_ == 0.0_atp) {
         // Again, perhaps this is overly defensive coding. But we should never
         // end up in a situation where the weights of the rooms are all
         // uninitialized...
@@ -856,7 +845,7 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
     struct Destination
     {
         RoomCoord coord_;
-        Float ai_weight_;
+        ATP ai_weight_;
     };
 
     Buffer<Destination, 48> slots;
@@ -864,7 +853,7 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
             if (matrix[x][y] == 2) {
-                slots.push_back({{x, y}, 0.f});
+                slots.push_back({{x, y}, 0.0_atp});
             }
         }
     }
@@ -881,25 +870,26 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
     for (auto& slot : slots) {
         if (auto room = (*target_island_).get_room(slot.coord_)) {
             slot.ai_weight_ = room->get_atp();
-            slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
+            slot.ai_weight_ -= ATP::from_integer(
+                3 * manhattan_length(slot.coord_, current_pos));
 
             if ((*target_island_).fire_present(slot.coord_)) {
                 // The slot is already on fire! Maybe we can do more damage
                 // elsewhere...
-                slot.ai_weight_ -= 800.f;
+                slot.ai_weight_ -= 800.0_atp;
             }
 
-            Float player_chr_remove_weight = 0.f;
+            ATP player_chr_remove_weight = 0.0_atp;
             for (auto& chr : room->characters()) {
                 // If the player has a bunch of characters in the room, label it
                 // as "toxic" and resist allocating entities to the room (unless
                 // it's really valuable).
                 if (chr->owner() not_eq owner) {
-                    player_chr_remove_weight += 100.f;
+                    player_chr_remove_weight += 100.0_atp;
 
                     if (character.health() < 50) {
                         // More likely to flee the room if we're badly injured.
-                        player_chr_remove_weight += 100.f;
+                        player_chr_remove_weight += 100.0_atp;
                     }
                 }
             }
@@ -912,13 +902,14 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
             // will still potentially attack the room if we have enough
             // characters to (potentially) overwhelm the occupants.
             slot.ai_weight_ -=
-                player_chr_remove_weight / (0.75f * (exclude_slots.size() + 1));
+                player_chr_remove_weight /
+                (0.75_atp * ATP::from_integer(exclude_slots.size() + 1));
         }
         for (auto& exc : exclude_slots) {
             if (slot.coord_ == exc) {
                 // Don't move into a slot targeted by another one of our ai
                 // characters.
-                slot.ai_weight_ = -2000.f;
+                slot.ai_weight_ = ATP::from_integer(-2000);
             }
         }
     }
@@ -929,7 +920,7 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
                   return lhs.ai_weight_ < rhs.ai_weight_;
               });
 
-    if (slots.back().ai_weight_ == 0.f) {
+    if (slots.back().ai_weight_ == 0.0_atp) {
         // Again, perhaps this is overly defensive coding. But we should never
         // end up in a situation where the weights of the rooms are all
         // uninitialized...
@@ -986,7 +977,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                          Island* target_island)
 {
     Room* highest_weighted_room = nullptr;
-    Float highest_weight = 3E-5;
+    ATP highest_weight = 0.00003_atp;
 
 
 
@@ -999,14 +990,14 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             // ...
         } else if ((ai_island->has_radar() or (*target_island).is_boarded()) and
                    str_cmp((*meta_c)->name(), "reactor") == 0) {
-            w += 3 * manhattan_length_fp(room->origin(), ion_cannon.origin())
-                         .as_float();
+            w += 3.0_atp *
+                 manhattan_length_fp(room->origin(), ion_cannon.origin());
         } else if (not is_forcefield(meta_c) and
                    str_cmp((*meta_c)->name(), "energized-hull") not_eq 0) {
             continue;
         } else {
-            w += 3 * manhattan_length_fp(room->origin(), ion_cannon.origin())
-                         .as_float();
+            w += 3.0_atp *
+                 manhattan_length_fp(room->origin(), ion_cannon.origin());
         }
 
 
@@ -1033,9 +1024,9 @@ static void place_offensive_drone(DroneBay& db,
                                   Island& player_island,
                                   Island& ai_island)
 {
-    Float left_column_weights[16];
+    ATP left_column_weights[16];
     for (auto& val : left_column_weights) {
-        val = 0.f;
+        val = 0.0_atp;
     }
 
     const int right_column = player_island.terrain().size() - 1;
@@ -1048,12 +1039,12 @@ static void place_offensive_drone(DroneBay& db,
         }
     }
 
-    Float top_row_weights[16];
+    ATP top_row_weights[16];
     for (int i = 0; i < 16; ++i) {
         if (restrict_columns[i]) {
-            top_row_weights[i] = -10000.f;
+            top_row_weights[i] = ATP::from_integer(-10000);
         } else {
-            top_row_weights[i] = 0.f;
+            top_row_weights[i] = 0.0_atp;
         }
     }
 
@@ -1079,8 +1070,8 @@ static void place_offensive_drone(DroneBay& db,
                             }
                         }
                     }
-                    if (left_column_weights[y] == 0.f) {
-                        left_column_weights[y] = 0.5f;
+                    if (left_column_weights[y] == 0.0_atp) {
+                        left_column_weights[y] = 0.5_atp;
                     }
                 }
             }
@@ -1098,8 +1089,8 @@ static void place_offensive_drone(DroneBay& db,
                             }
                         }
                     }
-                    if (left_column_weights[y] == 0.f) {
-                        left_column_weights[y] = 0.5f;
+                    if (left_column_weights[y] == 0.0_atp) {
+                        left_column_weights[y] = 0.5_atp;
                     }
                 }
             }
@@ -1122,8 +1113,8 @@ static void place_offensive_drone(DroneBay& db,
                         ++cursor.x;
                         ++cursor.y;
                     }
-                    if (left_column_weights[y] == 0.f) {
-                        left_column_weights[y] = 0.5f;
+                    if (left_column_weights[y] == 0.0_atp) {
+                        left_column_weights[y] = 0.5_atp;
                     }
                 }
             }
@@ -1144,8 +1135,8 @@ static void place_offensive_drone(DroneBay& db,
                         --cursor.x;
                         ++cursor.y;
                     }
-                    if (left_column_weights[y] == 0.f) {
-                        left_column_weights[y] = 0.5f;
+                    if (left_column_weights[y] == 0.0_atp) {
+                        left_column_weights[y] = 0.5_atp;
                     }
                 }
             }
@@ -1167,8 +1158,8 @@ static void place_offensive_drone(DroneBay& db,
                             break;
                         }
                     }
-                    if (top_row_weights[x] == 0.f) {
-                        top_row_weights[x] = 0.5f;
+                    if (top_row_weights[x] == 0.0_atp) {
+                        top_row_weights[x] = 0.5_atp;
                     }
                 }
             }
@@ -1176,7 +1167,7 @@ static void place_offensive_drone(DroneBay& db,
     }
 
     std::optional<RoomCoord> ideal_coord;
-    Float max_weight = 0.f;
+    ATP max_weight = 0.0_atp;
     for (u8 y = construction_zone_min_y; y < 15; ++y) {
         if (left_column_weights[y] > max_weight) {
             if (left_anchor) {
@@ -1235,9 +1226,9 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
     auto [dt, ds] = drone_metatable();
 
     static const int weight_array_size = 32;
-    Float weights[weight_array_size];
+    ATP weights[weight_array_size];
     for (auto& w : weights) {
-        w = 0.f;
+        w = 0.0_atp;
     }
 
     if (weight_array_size < ds) {
@@ -1246,8 +1237,8 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
 
     // We want to ideally place flak-drones with a greater likelihood than
     // cannon drones, unless certain conditions arise (see below).
-    weights[flak_drone_index] = 24.f;
-    weights[cannon_drone_index] = 16.f;
+    weights[flak_drone_index] = 24.0_atp;
+    weights[cannon_drone_index] = 16.0_atp;
 
     bool player_missile_silos[16];
     bool opponent_missile_silos[16];
@@ -1272,19 +1263,19 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
             // If the player has drone bays, he/she may deploy drones, in which
             // case, we might want to think about proactively deploying a combat
             // drone of our own.
-            if (weights[combat_drone_index] == 0.f) {
-                weights[combat_drone_index] = 14.f;
+            if (weights[combat_drone_index] == 0.0_atp) {
+                weights[combat_drone_index] = 14.0_atp;
             } else {
                 // For each DroneBay controlled by the player, it becomes
                 // increasingly likely that the player will be deploying drones,
                 // in which case, we'll want to be able to defend ourself.
-                weights[combat_drone_index] *= 2.f;
+                weights[combat_drone_index] *= 2.0_atp;
             }
         } else if (room->metaclass() == missile_silo_mt) {
             // DroneBay rooms quite are vulnerable to missiles, so we want to
             // preferentially deploy cannon drones rather than flak drones if
             // the player has a lot of missile silos.
-            weights[cannon_drone_index] += 8.f;
+            weights[cannon_drone_index] += 8.0_atp;
 
             // We want to keep track of which of the player's grid coordinates
             // contains a missile silo, as we wouldn't want to place a drone
@@ -1301,23 +1292,23 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
                 // place another one. In fact, if the player has no combat
                 // drones, we should think about potentially dropping our combat
                 // drone.
-                weights[combat_drone_index] -= 48.f;
+                weights[combat_drone_index] -= 48.0_atp;
             } else if (metac == cannon_drone_index) {
-                weights[cannon_drone_index] -= 8.f;
+                weights[cannon_drone_index] -= 8.0_atp;
             }
         } else {
             if (metac == combat_drone_index) {
                 // If the player has a combat drone, any drone that we place
                 // would be particularly vulnerable, so we need to take out the
                 // player's drone first.
-                weights[combat_drone_index] += 32.f;
+                weights[combat_drone_index] += 32.0_atp;
             } else if (metac == cannon_drone_index or
                        metac == flak_drone_index) {
                 // If the player has a couple of offensive drones, we may want
                 // to react defensively.
-                weights[combat_drone_index] += 8.f;
+                weights[combat_drone_index] += 8.0_atp;
                 if (local) {
-                    weights[combat_drone_index] += 16.f;
+                    weights[combat_drone_index] += 16.0_atp;
                 }
             }
         }
@@ -1447,7 +1438,7 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
     // has deployed a lot of drones.
 
     std::optional<RoomCoord> ideal_pos;
-    Float highest_weight = 0.f;
+    ATP highest_weight = 0.0_atp;
 
     const auto drone_pos = drone.position();
 
@@ -1564,7 +1555,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         return;
     }
 
-    Buffer<std::pair<Room*, Float>, 64> visible_rooms;
+    Buffer<std::pair<Room*, ATP>, 64> visible_rooms;
 
 
     for (int x = 0; x < 16; ++x) {
@@ -1585,33 +1576,33 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         auto pos = info.first->position();
 
         if (auto room = (*target_island).get_room({pos.x, u8(pos.y - 1)})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({pos.x, u8(pos.y + 1)})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x + 1), pos.y})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x - 1), pos.y})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
@@ -1621,7 +1612,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         return;
     }
 
-    Float highest_weight = -1.f;
+    ATP highest_weight = ATP::from_integer(-1);
     Room* best_room = nullptr;
 
     for (auto& info : visible_rooms) {
@@ -1652,7 +1643,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         return;
     }
 
-    Buffer<std::pair<Room*, Float>, 64> visible_rooms;
+    Buffer<std::pair<Room*, ATP>, 64> visible_rooms;
 
 
     for (int x = 0; x < 16; ++x) {
@@ -1673,33 +1664,33 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         auto pos = info.first->position();
 
         if (auto room = (*target_island).get_room({pos.x, u8(pos.y - 1)})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({pos.x, u8(pos.y + 1)})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x + 1), pos.y})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
 
         if (auto room = (*target_island).get_room({u8(pos.x - 1), pos.y})) {
-            Float mult = 0.5f;
+            ATP mult = 0.5_atp;
             if (not(*target_island).fire_present(room->position())) {
-                mult = 0.8f;
+                mult = 0.8_atp;
             }
             info.second += mult * room->get_atp();
         }
@@ -1709,7 +1700,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         return;
     }
 
-    Float highest_weight = -1.f;
+    ATP highest_weight = ATP::from_integer(-1);
     Room* best_room = nullptr;
 
     for (auto& info : visible_rooms) {
@@ -1765,7 +1756,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     }
 
     Room* highest_weighted_room = nullptr;
-    Float highest_weight = 3E-5;
+    ATP highest_weight = 0.00003_atp;
 
     auto cannon_metac = load_metaclass("cannon");
 
@@ -1779,7 +1770,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     }
 
     Room* highest_weighted_second_tier = nullptr;
-    Float highest_second_tier_weight = 3E-5;
+    ATP highest_second_tier_weight = 0.00003_atp;
     for (auto& room : second_tier) {
         auto meta_c = room->metaclass();
         auto w = room->get_atp();
@@ -1788,7 +1779,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         // take out some of those cannons with missiles.
         if (room->ai_aware() and meta_c == cannon_metac and
             not cannons_remaining) {
-            w += 200.f;
+            w += 200.0_atp;
         }
 
         if (w > highest_second_tier_weight) {
@@ -1812,20 +1803,20 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                 // realistically have enough weapons to destroy the player's
                 // offensive capabilities, then the only path to victory may be
                 // through destroying rooms containing our own characters.
-                w -= 200.f;
+                w -= 200.0_atp;
             }
         }
 
         // Give the room some extra weight, if firing a missile into it would be
         // really destructive.
-        if (w > 400 and room->health() <= missile_damage) {
-            w += 300.f;
+        if (w > 400.0_atp and room->health() <= missile_damage) {
+            w += 300.0_atp;
         }
 
         // We don't have any cannons left, but the other player does. Try to
         // take out some of those cannons with missiles.
         if (meta_c == cannon_metac and not cannons_remaining) {
-            w += 200.f;
+            w += 200.0_atp;
         }
 
         if (w > highest_weight) {
@@ -1840,7 +1831,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
         if (highest_weighted_second_tier) {
             if (highest_second_tier_weight > highest_weight and
-                highest_weight < 9.f) {
+                highest_weight < 9.0_atp) {
                 // If a second-tier room has a weight significantly higher than
                 // the upper-layer's visible room, use the second tier room
                 // instead. Relevant in cases where the player has covered the
@@ -1874,10 +1865,10 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     struct Target
     {
         RoomCoord position_;
-        Float weight_;
+        ATP weight_;
     };
 
-    using TargetBuffer = Buffer<Target, 200>;
+    using TargetBuffer = Buffer<Target, Island::Rooms::Rooms::capacity()>;
 
     auto buffer = allocate_dynamic<TargetBuffer>("beam-targets");
 
@@ -1887,7 +1878,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         if ((*room->metaclass())->properties() & RoomProperties::habitable) {
             for (auto& chr : room->characters()) {
                 (void)chr;
-                weight -= 250.f;
+                weight -= 250.0_atp;
             }
         }
         buffer->push_back(Target{pos, weight});
@@ -1951,7 +1942,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     }
 
     Room* highest_weighted_room = nullptr;
-    Float highest_weight = 3E-5;
+    ATP highest_weight = 0.00003_atp;
 
     for (auto room_info : visible_rooms) {
         auto w = room_info.room_->get_atp();
@@ -1966,23 +1957,23 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                 }
             }
 
-            return 0.f;
+            return 0.0_atp;
         };
 
         // Yeah, this is pretty bad. Project due in a few hours, though!
-        w += 0.5f * neighbor_weight(1, 0);
-        w += 0.5f * neighbor_weight(-1, 0);
-        w += 0.5f * neighbor_weight(0, 1);
-        w += 0.5f * neighbor_weight(0, -1);
+        w += 0.5_atp * neighbor_weight(1, 0);
+        w += 0.5_atp * neighbor_weight(-1, 0);
+        w += 0.5_atp * neighbor_weight(0, 1);
+        w += 0.5_atp * neighbor_weight(0, -1);
 
-        w += 0.3f * neighbor_weight(2, 0);
-        w += 0.3f * neighbor_weight(1, -1);
-        w += 0.3f * neighbor_weight(0, -2);
-        w += 0.3f * neighbor_weight(-1, -1);
-        w += 0.3f * neighbor_weight(-2, 0);
-        w += 0.3f * neighbor_weight(-1, 1);
-        w += 0.3f * neighbor_weight(0, 2);
-        w += 0.3f * neighbor_weight(1, 1);
+        w += 0.3_atp * neighbor_weight(2, 0);
+        w += 0.3_atp * neighbor_weight(1, -1);
+        w += 0.3_atp * neighbor_weight(0, -2);
+        w += 0.3_atp * neighbor_weight(-1, -1);
+        w += 0.3_atp * neighbor_weight(-2, 0);
+        w += 0.3_atp * neighbor_weight(-1, 1);
+        w += 0.3_atp * neighbor_weight(0, 2);
+        w += 0.3_atp * neighbor_weight(1, 1);
 
 
         if (w > highest_weight) {
@@ -2045,7 +2036,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     }
 
     Room* highest_weighted_room = nullptr;
-    Float highest_weight = 3E-5;
+    ATP highest_weight = 0.00003_atp;
 
     for (auto room : visible_rooms) {
         auto w = room->get_atp();
@@ -2063,10 +2054,10 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                 auto props = (*room->metaclass())->properties();
                 if (props & RoomProperties::habitable and
                     room->position().y <= y) {
-                    w += 200.f;
+                    w += 200.0_atp;
                 }
                 if (props & RoomProperties::highly_flammable) {
-                    w += 300.f;
+                    w += 300.0_atp;
                 }
             }
         };
@@ -2085,7 +2076,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             // The room's already on fire and has flammable neighbors that
             // aren't on fire. If we destroy the room before the fire can
             // spread, well then that's no good!
-            w -= 700.f;
+            w -= 700.0_atp;
         }
 
         if (w > highest_weight) {
@@ -2158,10 +2149,10 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     }
 
     Room* highest_weighted_room = nullptr;
-    Float highest_weight = 3E-5;
+    ATP highest_weight = 0.00003_atp;
 
     Room* highest_weighted_second_tier_room = nullptr;
-    Float highest_second_tier_weight = 3E-5;
+    ATP highest_second_tier_weight = 0.00003_atp;
 
     for (auto& room : second_tier) {
         auto w = room->get_atp();
@@ -2190,7 +2181,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     if (highest_weighted_room) {
         auto target = highest_weighted_room;
-        if (highest_weighted_second_tier_room and highest_weight < 9.f and
+        if (highest_weighted_second_tier_room and highest_weight < 9.0_atp and
             highest_second_tier_weight > highest_weight) {
             target = highest_weighted_second_tier_room;
         }

@@ -83,7 +83,7 @@ void Nemesis::fire()
 
     auto start = center();
 
-    if (island == &APP.player_island()) {
+    if (is_player_island(island)) {
         start.x -= 22.0_fixed;
     } else {
         start.x += 22.0_fixed;

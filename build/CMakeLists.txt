@@ -288,7 +288,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/rocketSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/annihilator.cpp
   ${SOURCE_DIR}/skyland/rooms/incinerator.cpp
-  ${SOURCE_DIR}/skyland/rooms/boardingPod.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/stackedHull.cpp
   ${SOURCE_DIR}/skyland/rooms/sparkCannon.cpp
