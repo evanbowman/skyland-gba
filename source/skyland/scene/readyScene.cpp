@@ -6,7 +6,7 @@
 // purposes. All copies of the software must be distributed along with this
 // license document.
 //
-// 1. DEFINITION OF SOFTWARE: The term "Software" refers to the SKYLAND,
+// 1. DEFINITION OF SOFTWARE: The term "Software" refers to SKYLAND,
 // including any updates, modifications, or associated documentation provided by
 // Licensor.
 //
@@ -674,7 +674,9 @@ ScenePtr<Scene> ReadyScene::update(Microseconds delta)
             return scene;
         }
     } else if (APP.player().key_held(Key::action_1, milliseconds(500))) {
-        return scene_pool::alloc<ConstructionScene>();
+        if (APP.game_mode() not_eq App::GameMode::tutorial) {
+            return scene_pool::alloc<ConstructionScene>();
+        }
     }
 
     if (APP.player().key_down(Key::action_2)) {

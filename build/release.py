@@ -50,3 +50,4 @@ str_version = "{}.{}.{}.{}".format(today.year, today.month, today.day, revision)
 git(["tag", "-a", str_version, '-m', 'release version {}'.format(str_version)])
 
 git(["push", "--follow-tags", "origin", "master"])
+git(["push", "origin2", "master"])
