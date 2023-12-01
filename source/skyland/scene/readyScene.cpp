@@ -661,6 +661,8 @@ ScenePtr<Scene> ReadyScene::update(Microseconds delta)
                 camera_update_timer_, room_description_, cursor_loc)) {
             return scene;
         }
+    } else if (APP.player().key_held(Key::action_1, milliseconds(500))) {
+        return scene_pool::alloc<ConstructionScene>();
     }
 
     if (APP.player().key_down(Key::action_2)) {

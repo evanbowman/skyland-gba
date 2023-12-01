@@ -794,6 +794,14 @@ ScenePtr<Scene> WorldScene::update(Microseconds delta)
                 show_multiplayer_pauses_remaining();
             }
         }
+    } else {
+        if (not disable_gamespeed_icon_) {
+            if (APP.game_speed() == GameSpeed::normal) {
+                set_pause_icon(0);
+            } else {
+                set_pause_icon(gamespeed_icon(APP.game_speed()));
+            }
+        }
     }
 
 
@@ -1009,10 +1017,13 @@ void WorldScene::set_pause_icon(u16 icon)
     auto st = calc_screen_tiles();
 
     if (icon == 0) {
-        PLATFORM.set_tile(Layer::overlay, st.x - 3, 1, 0);
-        PLATFORM.set_tile(Layer::overlay, st.x - 2, 1, 0);
-        PLATFORM.set_tile(Layer::overlay, st.x - 3, 2, 0);
-        PLATFORM.set_tile(Layer::overlay, st.x - 2, 2, 0);
+        auto t = PLATFORM.get_tile(Layer::overlay, st.x - 2, 1);
+        if (t) {
+            PLATFORM.set_tile(Layer::overlay, st.x - 3, 1, 0);
+            PLATFORM.set_tile(Layer::overlay, st.x - 2, 1, 0);
+            PLATFORM.set_tile(Layer::overlay, st.x - 3, 2, 0);
+            PLATFORM.set_tile(Layer::overlay, st.x - 2, 2, 0);
+        }
     } else {
         auto t = PLATFORM.get_tile(Layer::overlay, st.x - 2, 1);
         if (t == icon) {
