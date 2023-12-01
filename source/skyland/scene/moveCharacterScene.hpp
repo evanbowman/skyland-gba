@@ -51,13 +51,9 @@ public:
     void display() override;
 
 
-    bool modify_name_ = false;
-
-
 private:
     DynamicMemory<bool[16][16]> matrix_;
     Microseconds cursor_anim_timer_ = 0;
-    Microseconds chr_name_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
     CharacterId chr_id_;
     const bool near_;

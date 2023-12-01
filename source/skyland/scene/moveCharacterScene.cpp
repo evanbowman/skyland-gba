@@ -297,57 +297,6 @@ ScenePtr<Scene> ModifyCharacterScene::update(Microseconds delta)
         } else {
             return scene_pool::alloc<InspectP2Scene>();
         }
-    } else if ((modify_name_ or
-                PLATFORM.keyboard().pressed<Key::action_1>()) and
-               not PLATFORM.network_peer().is_connected()) {
-        chr_name_timer_ += delta;
-        if (modify_name_ or chr_name_timer_ > milliseconds(800)) {
-            auto id = chr_id_;
-            if (auto chr = BasicCharacter::find_by_id(chr_id_).first) {
-                if (chr->owner() not_eq &APP.player() or chr->is_replicant()) {
-                    PLATFORM.speaker().play_sound("beep_error", 3);
-                    if (near_) {
-                        return scene_pool::alloc<ReadyScene>();
-                    } else {
-                        return scene_pool::alloc<InspectP2Scene>();
-                    }
-                }
-            }
-            auto receiver = [&id](const char* name) {
-                PLATFORM.screen().schedule_fade(0);
-
-                if (str_len(name) == 0) {
-                    return scene_pool::alloc<ReadyScene>();
-                }
-
-                if (auto v = lisp::get_var("chr-names")) {
-                    lisp::Protected names(v);
-                    lisp::Protected namestr(lisp::make_string(name));
-                    names = lisp::make_cons_safe(
-                        lisp::make_cons(lisp::make_integer(id), namestr),
-                        names);
-                    lisp::set_var("chr-names", names);
-                }
-                return scene_pool::alloc<ReadyScene>();
-            };
-
-            const char* existing_name = "";
-            if (auto v = lisp::get_var("chr-names")) {
-                lisp::foreach (v, [&existing_name, id](lisp::Value* val) {
-                    if (existing_name[0] == '\0') {
-                        auto c_id = val->cons().car()->integer().value_;
-                        if (c_id == id) {
-                            existing_name = val->cons().cdr()->string().value();
-                        }
-                    }
-                });
-            }
-
-            return scene_pool::alloc<TextEntryScene>(
-                SYSTR(name_chr)->c_str(), receiver, 0, 7, existing_name);
-        }
-    } else {
-        chr_name_timer_ = 0;
     }
 
     return null_scene();
