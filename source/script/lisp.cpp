@@ -3174,8 +3174,8 @@ BUILTIN_TABLE(
 
                L_EXPECT_OP(1, integer);
                L_EXPECT_OP(0, integer);
-               return make_integer(get_op1()->fp().value_ -
-                                   get_op0()->fp().value_);
+               return make_integer(get_op1()->integer().value_ -
+                                   get_op0()->integer().value_);
            }
        }}},
      {"*",

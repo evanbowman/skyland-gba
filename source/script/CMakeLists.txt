@@ -17,7 +17,7 @@ add_executable(LISP
   vm.cpp
   ../string.cpp # fixme...
   lisp.cpp
-  repl.cpp
+  dofile.cpp
   compiler.cpp
   bootstrap.cpp)
 

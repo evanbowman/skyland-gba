@@ -38,6 +38,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 
 
@@ -234,24 +235,51 @@ int main(int argc, char** argv)
     lisp::BasicCharSequence ut_seq(utilities);
     lisp::dostring(ut_seq, [](lisp::Value& err) {});
 
-    const char* prompt = ">> ";
+    lisp::set_var("newline",
+                  lisp::make_function([](int argc) {
+                                          std::cout << std::endl;
+                                          return L_NIL;
+                                      }));
 
-    std::string line;
-    std::cout << prompt;
-    while (std::getline(std::cin, line)) {
-        if (not line.empty()) {
-            lisp::BasicCharSequence seq(line.c_str());
-            lisp::read(seq);
-            Printer p;
-            auto result = lisp::get_op(0);
-            lisp::pop_op();
-            lisp::eval(result);
-            result = lisp::get_op(0);
-            lisp::pop_op();
-            format(result, p);
-            std::cout << std::endl << prompt;
-        } else {
-            std::cout << prompt;
-        }
+    lisp::set_var("put",
+                  lisp::make_function([](int argc) {
+                                          L_EXPECT_ARGC(argc, 1);
+                                          L_EXPECT_OP(0, string);
+                                          std::cout << L_LOAD_STRING(0);
+                                          return L_NIL;
+                                      }));
+
+    lisp::set_var("print",
+                  lisp::make_function([](int argc) {
+                                          L_EXPECT_ARGC(argc, 1);
+                                          Printer p;
+                                          format(lisp::get_op0(), p);
+                                          return L_NIL;
+                                      }));
+
+    lisp::set_var("getline",
+                  lisp::make_function([](int argc) {
+                                          std::string line;
+                                          if (std::getline(std::cin, line)) {
+                                              return lisp::make_string(line.c_str());
+                                          } else {
+                                              return L_NIL;
+                                          }
+                                      }));
+
+    for (int i = 1; i < argc; ++i) {
+        auto path = argv[i];
+        std::ifstream t(path);
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+        auto str = buffer.str();
+        lisp::BasicCharSequence seq(str.c_str());
+        lisp::dostring(seq, [](lisp::Value& err) {
+                                Printer p;
+                                lisp::format(&err, p);
+                                exit(EXIT_FAILURE);
+                           });
     }
+
+    return EXIT_SUCCESS;
 }
