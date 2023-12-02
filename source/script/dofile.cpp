@@ -277,6 +277,7 @@ int main(int argc, char** argv)
         lisp::dostring(seq, [](lisp::Value& err) {
                                 Printer p;
                                 lisp::format(&err, p);
+                                std::cout << std::endl;
                                 exit(EXIT_FAILURE);
                            });
     }

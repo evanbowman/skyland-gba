@@ -3,7 +3,10 @@
 (setq line (getline))
 
 (while line
-  (print (eval (read line)))
-  (newline)
+  (when (length line)
+    (print (eval (read line)))
+    (newline))
   (put ">> ")
   (setq line (getline)))
+
+(newline)
