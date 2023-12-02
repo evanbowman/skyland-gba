@@ -37,6 +37,7 @@
 #include "selectTutorialScene.hpp"
 #include "skyland/player/autopilotPlayer.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/scene/modules/regressionModule.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
@@ -113,6 +114,11 @@ ScenePtr<Scene> FadeOutScene::update(Microseconds delta)
 
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.screen().fade(1.f);
+
+        if (state_bit_load(StateBit::regression)) {
+            return scene_pool::alloc<RegressionModule>();
+        }
+
         switch (APP.game_mode()) {
         case App::GameMode::tutorial:
             return scene_pool::alloc<SelectTutorialScene>();

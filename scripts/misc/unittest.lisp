@@ -1,6 +1,6 @@
 
-(when (not (bound? put))
-  (setq put log))
+(setq put log)
+(setq newline (lambda nil))
 
 (defn assert-v [1]
   (when (not $0)

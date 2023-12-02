@@ -2946,6 +2946,11 @@ BUILTIN_TABLE(
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::integer);
        }}},
+     {"float?",
+      {1,
+       [](int argc) {
+           return make_boolean(get_op0()->type() == Value::Type::fp);
+      }}},
      {"pair?",
       {1,
        [](int argc) {

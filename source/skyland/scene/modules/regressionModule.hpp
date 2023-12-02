@@ -34,7 +34,8 @@
 
 #pragma once
 
-#include "bitvector.hpp"
+
+#include "skyland/scene/module.hpp"
 
 
 
@@ -43,36 +44,36 @@ namespace skyland
 
 
 
-enum class StateBit {
-    surrender_offered,
-    remote_console_force_newline,
-    easy_mode_rewind_declined,
-    crane_game_got_treasure,
-    disable_autopause,
-    successful_multiplayer_connect,
-    multiboot,
-    gamespeed_help_prompt,
-    move_blocks_help_prompt,
-    sel_menu_help_prompt,
-    regression,
-    count,
+class RegressionModule : public Module<RegressionModule>
+{
+public:
+
+    ScenePtr<Scene> update(Microseconds delta) override;
+
+
+    static SystemString module_name()
+    {
+        return SystemString::module_regression;
+    }
+
+
+    static u16 icon()
+    {
+        return 1192;
+    }
+
+
+    static bool run_scripts()
+    {
+        return true;
+    }
+
+
+private:
+
+
+    static Factory factory_;
 };
-
-
-
-class App;
-
-
-
-void state_bit_store(StateBit state_bit, bool value);
-
-
-
-bool state_bit_load(StateBit state_bit);
-
-
-
-using StateBitvector = Bitvector<(int)StateBit::count>;
 
 
 

@@ -521,6 +521,12 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
         data_->coins_->update(delta);
     }
 
+    auto is_action_key_down = [&] {
+                                  return key_down<Key::action_1>() or
+                                      state_bit_load(StateBit::regression);
+                              };
+
+
     if (ambience_) {
         if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
             PLATFORM.speaker().play_sound(ambience_, 9);
@@ -563,7 +569,7 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
             display_mode_ = DisplayMode::key_released_check1;
         } else {
             if (text_state_.speed_ == 0 and allow_fastforward_ and
-                (key_down<Key::action_2>() or key_down<Key::action_1>())) {
+                (key_down<Key::action_2>() or is_action_key_down())) {
 
                 while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
@@ -581,7 +587,7 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
+        if (key_down<Key::action_2>() or is_action_key_down()) {
 
             text_state_.timer_ = 0;
 
@@ -735,7 +741,7 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
             break;
         }
         animate_moretext_icon();
-        if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
+        if (is_action_key_down() or key_down<Key::action_2>()) {
             invoke_hook("on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
@@ -797,7 +803,7 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
             update_opt_cursor();
         }
 
-        if (key_down<Key::action_1>()) {
+        if (is_action_key_down()) {
             text_state_.timer_ = 0;
 
             if (APP.game_speed() not_eq GameSpeed::stopped) {

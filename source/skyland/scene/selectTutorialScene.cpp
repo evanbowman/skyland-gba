@@ -51,6 +51,23 @@ static const Float default_fade = 0.6f;
 
 
 
+int SelectTutorialScene::tutorial_count()
+{
+    if (auto script = PLATFORM.load_file_contents("scripts",
+                                                  "tutorials/tutorials.lisp")) {
+        lisp::BasicCharSequence seq(script);
+        auto result = lisp::dostring(seq, [](lisp::Value& err) {
+                                              lisp::DefaultPrinter p;
+                                              lisp::format(&err, p);
+                                              PLATFORM.fatal(p.data_.c_str());
+                                          });
+        return lisp::length(result);
+    }
+    return 0;
+}
+
+
+
 void SelectTutorialScene::quick_select(int tutorial_number)
 {
     while (tutorial_number > 5) {

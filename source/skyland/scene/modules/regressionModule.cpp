@@ -31,10 +31,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#pragma once
-
-#include "bitvector.hpp"
+#include "regressionModule.hpp"
+#include "skyland/scene/selectTutorialScene.hpp"
+#include "skyland/skyland.hpp"
+#include "script/lisp.hpp"
+#include "heap_data.hpp"
 
 
 
@@ -43,37 +44,54 @@ namespace skyland
 
 
 
-enum class StateBit {
-    surrender_offered,
-    remote_console_force_newline,
-    easy_mode_rewind_declined,
-    crane_game_got_treasure,
-    disable_autopause,
-    successful_multiplayer_connect,
-    multiboot,
-    gamespeed_help_prompt,
-    move_blocks_help_prompt,
-    sel_menu_help_prompt,
-    regression,
-    count,
-};
+HEAP_DATA s8 test_index = -1;
 
 
 
-class App;
+ScenePtr<Scene> RegressionModule::update(Microseconds delta)
+{
+    state_bit_store(StateBit::regression, true);
+
+    if (test_index == -1) {
+        APP.invoke_script("/scripts/misc/unittest.lisp");
+
+        PLATFORM.screen().schedule_fade(0);
+        PLATFORM.screen().schedule_fade(1);
+        PLATFORM.screen().clear();
+        Text::print("core regression passed!", {1, 1});
+        Text::print("validating tutorials...", {1, 3});
+        PLATFORM.screen().display();
+
+        PLATFORM.sleep(120);
+
+        test_index++;
+
+        BasicCharacter::__reset_ids();
+
+    } else {
+
+        if (test_index > 0) {
+            APP.invoke_script("/scripts/tutorials/test/common.lisp");
+            APP.invoke_script(format("/scripts/tutorials/test/%.lisp",
+                                     test_index - 1).c_str());
+        }
+
+        if (test_index == SelectTutorialScene::tutorial_count()) {
+            PLATFORM.system_call("restart", nullptr);
+        }
+
+        auto ret = scene_pool::alloc<SelectTutorialScene>();
+        ret->quick_select(test_index++);
+        return ret;
+    }
+
+    return null_scene();
+}
 
 
 
-void state_bit_store(StateBit state_bit, bool value);
+RegressionModule::Factory RegressionModule::factory_(true);
 
 
 
-bool state_bit_load(StateBit state_bit);
-
-
-
-using StateBitvector = Bitvector<(int)StateBit::count>;
-
-
-
-} // namespace skyland
+}

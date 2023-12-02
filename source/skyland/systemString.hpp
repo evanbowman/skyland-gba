@@ -249,6 +249,7 @@ enum class SystemString {
     module_bug_report,
     module_cart_viewer,
     module_freebuild,
+    module_regression,
 
     months,
 

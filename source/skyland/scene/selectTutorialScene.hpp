@@ -58,6 +58,9 @@ public:
     void quick_select(int tutorial_number);
 
 
+    static int tutorial_count();
+
+
     ScenePtr<Scene> update(Microseconds delta) override;
 
 
