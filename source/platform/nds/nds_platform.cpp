@@ -840,7 +840,7 @@ const char* Platform::load_file_contents(const char* folder,
 {
     StringBuffer<64> path("/");
 
-    if (str_len(folder) > 0) {
+    if (strlen(folder) > 0) {
         path += folder;
         path += "/";
     }

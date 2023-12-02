@@ -219,7 +219,7 @@ static BloomFilter<512> file_present_filter;
 
 void __path_cache_insert(const char* path)
 {
-    file_present_filter.insert(path, str_len(path));
+    file_present_filter.insert(path, strlen(path));
 }
 
 
@@ -242,7 +242,7 @@ void __path_cache_destroy()
 
 bool __path_cache_file_exists_maybe(const char* file_name)
 {
-    return file_present_filter.exists(file_name, str_len(file_name));
+    return file_present_filter.exists(file_name, strlen(file_name));
 }
 
 
@@ -868,7 +868,7 @@ bool store_file_data(const char* path,
     }
 
 
-    auto path_len = str_len(path);
+    auto path_len = strlen(path);
     u8 path_padding = 0;
     if (path_len % 2 not_eq 0) {
         // Add an extra null byte to the end, to bring total size up to a

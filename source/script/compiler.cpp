@@ -268,7 +268,7 @@ int compile_impl(CompilerContext& ctx,
         }
     } else if (code->type() == Value::Type::string) {
         const auto str = code->string().value();
-        const auto len = str_len(str);
+        const auto len = strlen(str);
         append<instruction::PushString>(buffer, write_pos)->length_ = len + 1;
 
         if (write_pos + len + 1 >= SCRATCH_BUFFER_SIZE) {

@@ -35,8 +35,9 @@
 #pragma once
 
 #include "numeric.hpp"
+#include "platform/libc.hpp"
 #include <bit>
-#include <string.h>
+
 
 // Because most processors are little endian, I am using little endian byte
 // order for binary encoded data.

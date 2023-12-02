@@ -36,7 +36,7 @@
 
 // void __path_cache_insert(const char* path)
 // {
-//     file_present_filter.insert(path, str_len(path));
+//     file_present_filter.insert(path, strlen(path));
 // }
 
 
@@ -59,7 +59,7 @@
 
 // bool __path_cache_file_exists_maybe(const char* file_name)
 // {
-//     return file_present_filter.exists(file_name, str_len(file_name));
+//     return file_present_filter.exists(file_name, strlen(file_name));
 // }
 
 
@@ -513,7 +513,7 @@
 //         return 0;
 //     }
 
-//     const auto path_len = str_len(path);
+//     const auto path_len = strlen(path);
 
 //     with_file(path, [&](FileInfo& info, u16 file, u16 fs_offset) {
 //         FileContents contents;
@@ -525,7 +525,7 @@
 //         auto on_corruption = [&] {
 //             output.clear();
 //             const char* msg = "DISK_CORRUPTION";
-//             const auto msg_len = str_len(msg);
+//             const auto msg_len = strlen(msg);
 //             for (u32 i = 0; i < msg_len; ++i) {
 //                 output.push_back(msg[i]);
 //             }
@@ -583,7 +583,7 @@
 //         return false;
 //     }
 
-//     const u16 path_len = str_len(path);
+//     const u16 path_len = strlen(path);
 
 //     if (path_len > max_path) {
 //         return false;

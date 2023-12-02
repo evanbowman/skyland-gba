@@ -15,8 +15,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../external/)
 
 add_executable(LISP
   vm.cpp
+  ../string.cpp # fixme...
   lisp.cpp
-  unittest.cpp
+  repl.cpp
   compiler.cpp
   bootstrap.cpp)
 

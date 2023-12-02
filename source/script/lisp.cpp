@@ -42,8 +42,7 @@
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include "number/random.hpp"
-#include <complex>
-
+#include "platform/libc.hpp"
 
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
 #error "NON-Constexpr lookup table!"
@@ -735,6 +734,17 @@ Value* make_integer(s32 value)
 }
 
 
+Value* make_float(Float::ValueType value)
+{
+    if (auto val = alloc_value()) {
+        val->hdr_.type_ = Value::Type::fp;
+        val->fp().value_ = value;
+        return val;
+    }
+    return bound_context->oom_;
+}
+
+
 Value* make_list(u32 length)
 {
     if (length == 0) {
@@ -768,11 +778,11 @@ Value* make_error(Error::Code error_code, Value* context)
 Value* make_symbol(const char* name, Symbol::ModeBits mode)
 {
     if (mode == Symbol::ModeBits::small and
-        str_len(name) > Symbol::buffer_size) {
+        strlen(name) > Symbol::buffer_size) {
         Platform::fatal("Symbol ModeBits small with len > internal buffer");
     }
 
-    if (str_len(name) <= Symbol::buffer_size) {
+    if (strlen(name) <= Symbol::buffer_size) {
         mode = Symbol::ModeBits::small;
     }
 
@@ -816,7 +826,7 @@ Value* make_databuffer(const char* sbr_tag)
         run_gc();
     }
 
-    if (str_len(sbr_tag) == 0) {
+    if (strlen(sbr_tag) == 0) {
         sbr_tag = "lisp-databuffer";
     }
 
@@ -848,7 +858,7 @@ Value* make_string_from_literal(const char* str)
 
 Value* make_string(const char* string)
 {
-    auto len = str_len(string);
+    auto len = strlen(string);
 
     if (len == 0) {
         return make_string_from_literal("");
@@ -1329,6 +1339,29 @@ void format_impl(Value* value, Printer& p, int depth)
         p.put_str(value->symbol().name());
         break;
 
+    case lisp::Value::Type::fp: {
+        char buffer[32];
+        const char* str = float_to_string(value->fp().value_, 32, buffer);
+        if (str) {
+            if (value->fp().value_ < 1.f) {
+                p.put_str("0");
+            }
+            p.put_str(str);
+            bool has_decimal = false;
+            while (*str not_eq '\0') {
+                if (*str == '.') {
+                    has_decimal = true;
+                    break;
+                }
+                ++str;
+            }
+            if (not has_decimal) {
+                p.put_str(".0");
+            }
+        }
+        break;
+    }
+
     case lisp::Value::Type::integer: {
         p.put_str(to_string<32>(value->integer().value_).c_str());
         break;
@@ -1605,6 +1638,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         DataBuffer::finalizer,
         String::finalizer,
         Character::finalizer,
+        Float::finalizer,
         __Reserved::finalizer,
 };
 
@@ -1711,7 +1745,7 @@ template <typename F> void foreach_string_intern(F&& fn)
 
         fn(str);
 
-        str += str_len(str) + 1;
+        str += strlen(str) + 1;
     }
 }
 
@@ -1736,16 +1770,20 @@ static u32 read_list(CharSequence& code, int offset)
             break;
 
         case '.':
-            i += 1;
-            if (dotted_pair or result == get_nil()) {
-                push_op(lisp::make_error(Error::Code::mismatched_parentheses,
-                                         L_NIL));
-                return i;
+            if (code[offset + i + 1] >= '0' and code[offset + i + 1] <= '9') {
+                goto DEFAULT;
             } else {
-                dotted_pair = true;
-                i += read(code, offset + i);
-                result->cons().set_cdr(get_op0());
-                pop_op();
+                i += 1;
+                if (dotted_pair or result == get_nil()) {
+                    push_op(lisp::make_error(Error::Code::mismatched_parentheses,
+                                             L_NIL));
+                    return i;
+                } else {
+                    dotted_pair = true;
+                    i += read(code, offset + i);
+                    result->cons().set_cdr(get_op0());
+                    pop_op();
+                }
             }
             break;
 
@@ -1773,6 +1811,7 @@ static u32 read_list(CharSequence& code, int offset)
             break;
 
         default:
+        DEFAULT:
             if (dotted_pair) {
                 push_op(lisp::make_error(Error::Code::mismatched_parentheses,
                                          L_NIL));
@@ -1941,6 +1980,8 @@ static u32 read_number(CharSequence& code, int offset)
 
     StringBuffer<64> num_str;
 
+    bool is_fp = false;
+
     while (true) {
         switch (code[offset + i]) {
         case 'x':
@@ -1963,6 +2004,21 @@ static u32 read_number(CharSequence& code, int offset)
             num_str.push_back(code[offset + i++]);
             break;
 
+        case '.': {
+            if (is_fp) {
+                // Two decimal places don't make sense. Must be a dotted pair...
+                goto FINAL;
+            }
+            auto next = code[offset + i + 1];
+            if (next >= '0' and next <= '9') {
+                is_fp = true;
+                num_str.push_back(code[offset + i++]);
+            } else {
+                goto FINAL;
+            }
+            break;
+        }
+
         default:
             goto FINAL;
         }
@@ -1970,16 +2026,17 @@ static u32 read_number(CharSequence& code, int offset)
 
 FINAL:
 
-    if (num_str.length() > 1 and num_str[1] == 'x') {
-        lisp::push_op(
-            lisp::make_integer(hexdec((const u8*)num_str.begin() + 2)));
+    if (is_fp) {
+        push_op(L_FP(atof(num_str.c_str())));
+    } else if (num_str.length() > 1 and num_str[1] == 'x') {
+        push_op(make_integer(hexdec((const u8*)num_str.begin() + 2)));
     } else {
         s32 result = 0;
         for (u32 i = 0; i < num_str.length(); ++i) {
             result = result * 10 + (num_str[i] - '0');
         }
 
-        lisp::push_op(lisp::make_integer(result));
+        push_op(make_integer(result));
     }
 
     return i;
@@ -2056,7 +2113,7 @@ static void macroexpand()
                     pop_op();
                     push_op(make_error(Error::Code::invalid_syntax,
                                        make_string("invalid arguments "
-                                                   "passed to marcro")));
+                                                   "passed to macro")));
                     return;
                 }
 
@@ -2124,6 +2181,16 @@ static void macroexpand()
 }
 
 
+static void negate_number(Value* v)
+{
+    if (v->type() == Value::Type::fp) {
+        v->fp().value_ *= -1;
+    } else {
+        v->integer().value_ *= -1;
+    }
+}
+
+
 u32 read(CharSequence& code, int offset)
 {
     int i = 0;
@@ -2155,14 +2222,33 @@ u32 read(CharSequence& code, int offset)
             }
             break;
 
+        case '.':
+            if (code[offset + i + 1] >= '0' and code[offset + i + 1] <= '9') {
+                pop_op(); // nil
+                i += read_number(code, offset + i);
+                return i;
+            } else {
+                goto READ_SYMBOL;
+            }
+            break;
+
         case '-':
             if (code[offset + i + 1] >= '0' and code[offset + i + 1] <= '9') {
                 ++i;
                 pop_op(); // nil
                 i += read_number(code, offset + i);
-                get_op0()->integer().value_ *= -1;
+                negate_number(get_op0());
                 return i;
             } else {
+                if (code[offset + i + 1] == '.' and
+                    code[offset + i + 2] >= '0' and
+                    code[offset + i + 2] <= '9') {
+                    ++i;
+                    pop_op(); // nil
+                    i += read_number(code, offset + i);
+                    negate_number(get_op0());
+                    return i;
+                }
                 goto READ_SYMBOL;
             }
             break;
@@ -2194,6 +2280,7 @@ u32 read(CharSequence& code, int offset)
             pop_op(); // nil
             i += read_string(code, offset + i + 1);
             return i + 1;
+
 
         READ_SYMBOL:
         default:
@@ -2587,6 +2674,9 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::integer:
         return lhs->integer().value_ == rhs->integer().value_;
 
+    case Value::Type::fp:
+        return lhs->fp().value_ == rhs->fp().value_;
+
     case Value::Type::cons:
         // FIXME: this is problematic for large lists! Or datastructures with
         // cycles. Mainly intended for comparing single cons-cells.
@@ -2673,7 +2763,7 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
     StringBuffer<16> ident(match);
 
     auto handle_completion = [&ident, &completion_strs](const char* intern) {
-        const auto intern_len = str_len(intern);
+        const auto intern_len = strlen(intern);
         if (intern_len <= ident.length()) {
             // I mean, there's no reason to autocomplete
             // to something shorter or the same length...
@@ -2902,17 +2992,39 @@ BUILTIN_TABLE(
      {"int",
       {1,
        [](int argc) {
-           L_EXPECT_OP(0, string);
+           if (get_op0()->type() == Value::Type::string) {
+               auto str = L_LOAD_STRING(0);
 
-           auto str = L_LOAD_STRING(0);
+               int accum = 0;
+               while (*str not_eq '\0') {
+                   accum = accum * 10 + (*str - '0');
+                   ++str;
+               }
+               return L_INT(accum);
 
-           int accum = 0;
-           while (*str not_eq '\0') {
-               accum += accum * 10 + (*str - '0');
-               ++str;
+           } else if (get_op0()->type() == Value::Type::fp) {
+               return L_INT(L_LOAD_FP(0));
+           } else if (get_op0()->type() == Value::Type::integer) {
+               return get_op0();
+           } else {
+               return lisp::make_error(lisp::Error::Code::invalid_argument_type,
+                                       L_NIL);
            }
-
-           return L_INT(accum);
+       }}},
+     {"float",
+      {1,
+       [](int argc) {
+           if (get_op0()->type() == Value::Type::string) {
+               auto str = L_LOAD_STRING(0);
+               return L_FP(atof(str));
+           } else if (get_op0()->type() == Value::Type::fp) {
+               return get_op0();
+           } else if (get_op0()->type() == Value::Type::integer) {
+               return L_FP(L_LOAD_INT(0));
+           } else {
+               return lisp::make_error(lisp::Error::Code::invalid_argument_type,
+                                       L_NIL);
+           }
        }}},
      {"apropos",
       {1,
@@ -3002,6 +3114,11 @@ BUILTIN_TABLE(
      {"<",
       {2,
        [](int argc) {
+           if (get_op0()->type() == Value::Type::fp) {
+               L_EXPECT_OP(1, fp);
+               return make_integer(get_op1()->fp().value_ <
+                                   get_op0()->fp().value_);
+           }
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return make_integer(get_op1()->integer().value_ <
@@ -3010,6 +3127,11 @@ BUILTIN_TABLE(
      {">",
       {2,
        [](int argc) {
+           if (get_op0()->type() == Value::Type::fp) {
+               L_EXPECT_OP(1, fp);
+               return make_integer(get_op1()->fp().value_ >
+                                   get_op0()->fp().value_);
+           }
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return make_integer(get_op1()->integer().value_ >
@@ -3018,6 +3140,14 @@ BUILTIN_TABLE(
      {"+",
       {0,
        [](int argc) {
+           if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
+               Float::ValueType accum = 0;
+               for (int i = 0; i < argc; ++i) {
+                   L_EXPECT_OP(i, fp);
+                   accum += get_op(i)->fp().value_;
+               }
+               return L_FP(accum);
+           }
            int accum = 0;
            for (int i = 0; i < argc; ++i) {
                L_EXPECT_OP(i, integer);
@@ -3029,19 +3159,36 @@ BUILTIN_TABLE(
       {1,
        [](int argc) {
            if (argc == 1) {
+               if (get_op0()->type() == Value::Type::fp) {
+                   return L_FP(-L_LOAD_FP(0));
+               }
                L_EXPECT_OP(0, integer);
                return make_integer(-get_op0()->integer().value_);
+
            } else {
                L_EXPECT_ARGC(argc, 2);
+               if (get_op0()->type() == Value::Type::fp) {
+                   L_EXPECT_OP(1, fp);
+                   return L_FP(get_op1()->fp().value_ - get_op0()->fp().value_);
+               }
+
                L_EXPECT_OP(1, integer);
                L_EXPECT_OP(0, integer);
-               return make_integer(get_op1()->integer().value_ -
-                                   get_op0()->integer().value_);
+               return make_integer(get_op1()->fp().value_ -
+                                   get_op0()->fp().value_);
            }
        }}},
      {"*",
       {0,
        [](int argc) {
+           if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
+               Float::ValueType accum = 1;
+               for (int i = 0; i < argc; ++i) {
+                   L_EXPECT_OP(i, fp);
+                   accum *= get_op(i)->fp().value_;
+               }
+               return L_FP(accum);
+           }
            int accum = 1;
            for (int i = 0; i < argc; ++i) {
                L_EXPECT_OP(i, integer);
@@ -3052,6 +3199,10 @@ BUILTIN_TABLE(
      {"/",
       {2,
        [](int argc) {
+           if (get_op0()->type() == Value::Type::fp) {
+               L_EXPECT_OP(1, fp);
+               return L_FP(get_op1()->fp().value_ / get_op0()->fp().value_);
+           }
            L_EXPECT_OP(1, integer);
            L_EXPECT_OP(0, integer);
            return make_integer(get_op1()->integer().value_ /
@@ -3211,6 +3362,31 @@ BUILTIN_TABLE(
 
            return make_string(builder->c_str());
        }}},
+     {"substr",
+      {3,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           L_EXPECT_OP(2, string);
+
+           auto inp_str = L_LOAD_STRING(2);
+           auto begin = L_LOAD_INT(1);
+           auto end = L_LOAD_INT(0);
+
+           auto builder = allocate_dynamic<StringBuffer<2000>>("lisp-substr");
+
+           int index = 0;
+           utf8::scan([&](const utf8::Codepoint&, const char* raw, int) {
+                          if (index >= begin and index < end) {
+                              (*builder) += raw;
+                          }
+                          ++index;
+                      },
+               inp_str,
+               strlen(inp_str));
+
+           return make_string(builder->c_str());
+       }}},
      {"string",
       {0,
        [](int argc) {
@@ -3227,6 +3403,12 @@ BUILTIN_TABLE(
            }
 
            return make_string(b.c_str());
+       }}},
+     {"error",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, string);
+           return make_error(Error::Code::custom, get_op0());
        }}},
      {"bound?",
       {1,
@@ -3381,7 +3563,7 @@ BUILTIN_TABLE(
 
            // if (get_op0()->type() == lisp::Value::Type::string) {
            //     auto str_data = L_LOAD_STRING(0);
-           //     auto str_size = str_len(str_data);
+           //     auto str_size = strlen(str_data);
 
            // }
 
@@ -3859,7 +4041,7 @@ void get_env(SymbolCallback callback)
 
 const char* intern(const char* string)
 {
-    const auto len = str_len(string);
+    const auto len = strlen(string);
 
     auto& ctx = bound_context;
 

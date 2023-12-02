@@ -79,8 +79,3 @@
  limited cpu, macroexpanding
  a function each time you call
  it just isn't realistic.
-
- 4) All numbers are 32-bit
- signed integers. No support
- for fractions.
-

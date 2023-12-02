@@ -35,7 +35,6 @@
 #include "qr.hpp"
 #include "../external/qr/qrcodegen.h"
 #include "platform/platform.hpp"
-#include <string.h>
 
 
 

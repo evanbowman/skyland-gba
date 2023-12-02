@@ -65,7 +65,7 @@ FileBrowserModule::FileBrowserModule(UserContext&& user_context,
     path_ = allocate_dynamic<PathBuffer>("fs-path-buffer");
 
     StringBuffer<max_folder_name> temp;
-    u32 path_len = str_len(path);
+    u32 path_len = strlen(path);
 
     for (u32 i = 0; i < path_len; ++i) {
         temp.push_back(path[i]);
@@ -190,7 +190,7 @@ void FileBrowserModule::repaint()
     int skip = line_offset_;
 
     auto walk_fs = [&](const char* path) {
-        auto path_len = str_len(path);
+        auto path_len = strlen(path);
         if (path_len < cwd.length()) {
             return;
         }

@@ -109,7 +109,7 @@ bool FullscreenDialogScene::advance_text(Microseconds delta, bool sfx)
                     }
                 },
                 text_state_.current_word_,
-                str_len(text_state_.current_word_));
+                strlen(text_state_.current_word_));
         }
 
         if (sfx) {

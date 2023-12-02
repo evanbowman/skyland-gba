@@ -293,7 +293,7 @@ bool BoxedDialogScene::advance_text(Microseconds delta, bool sfx)
                     }
                 },
                 text_state_.current_word_,
-                str_len(text_state_.current_word_));
+                strlen(text_state_.current_word_));
 
             if (not seen_char and *text_state_.current_word_ == '\0') {
                 display_mode_ = DisplayMode::key_released_check2;

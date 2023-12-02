@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <string.h>
+
 static void mgba_log(const char* msg)
 {
     *(volatile uint16_t*)(0x4FFF780) = 0xC0DE;

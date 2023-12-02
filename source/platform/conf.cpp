@@ -60,8 +60,8 @@ static int conf_atoi(const char* string)
 
 Conf::String get_conf(const char* data, const char* section, const char* key)
 {
-    const int section_len = str_len(section);
-    const int key_len = str_len(key);
+    const int section_len = strlen(section);
+    const int key_len = strlen(key);
 
     enum State {
         seek_section,

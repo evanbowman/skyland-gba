@@ -40,61 +40,6 @@
 #include <iostream>
 
 
-static lisp::Value* function_test()
-{
-    using namespace lisp;
-
-    set_var("double", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, integer);
-
-                return make_integer(get_op(0)->integer().value_ * 2);
-            }));
-
-    push_op(make_integer(48));
-    funcall(get_var("double"), 1);
-
-    L_EXPECT_OP(0, integer);
-
-    if (get_op(0)->integer().value_ not_eq 48 * 2) {
-        std::cout << "funcall test result check failed!" << std::endl;
-        return L_NIL;
-    }
-
-    // if (bound_context->operand_stack_.size() not_eq 1) {
-    //     std::cout << "operand stack size check failed!" << std::endl;
-    //     return L_NIL;
-    // }
-
-
-    pop_op();
-
-    std::cout << "funcall test passed!" << std::endl;
-
-    return L_NIL;
-}
-
-
-static lisp::Value* arithmetic_test()
-{
-    using namespace lisp;
-
-    push_op(make_integer(48));
-    push_op(make_integer(96));
-    funcall(get_var("-"), 2);
-
-    L_EXPECT_OP(0, integer);
-
-    if (get_op(0)->integer().value_ not_eq 48 - 96) {
-        std::cout << "bad arithmetic!" << std::endl;
-        return L_NIL;
-    }
-
-    std::cout << "arithmetic test passed!" << std::endl;
-
-    return L_NIL;
-}
-
 
 class Printer : public lisp::Printer {
 public:
@@ -104,20 +49,6 @@ public:
     }
 };
 
-
-void do_tests()
-{
-    auto lat = lisp::make_list(9);
-
-    lisp::set_var("L", lat);
-    lisp::set_list(lat, 4, lisp::make_integer(12));
-
-    Printer p;
-    lisp::format(lisp::get_list(lisp::get_var("L"), 4), p);
-
-    function_test();
-    arithmetic_test();
-}
 
 
 const char* utilities =
@@ -313,19 +244,11 @@ int main(int argc, char** argv)
             lisp::read(seq);
             Printer p;
             auto result = lisp::get_op(0);
-            // format(result, p);
-            // std::cout << std::endl;
             lisp::pop_op();
             lisp::eval(result);
             result = lisp::get_op(0);
             lisp::pop_op();
             format(result, p);
-            // std::cout << "stack size: "
-            //           << lisp::bound_context->operand_stack_.size()
-            //           << ", object pool: "
-            //           << lisp::bound_context->memory_.remaining()
-            //           << ", intern mem: " << lisp::bound_context->string_intern_pos_
-            //           << std::endl;
             std::cout << std::endl << prompt;
         } else {
             std::cout << prompt;

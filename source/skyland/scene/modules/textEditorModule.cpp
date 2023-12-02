@@ -1392,7 +1392,7 @@ ScenePtr<Scene> TextEditorModule::update(Microseconds delta)
                     return;
                 }
 
-                const auto intern_len = str_len(word);
+                const auto intern_len = strlen(word);
                 if (intern_len <= state_->current_word_.length()) {
                     return;
                 }

@@ -173,7 +173,11 @@ o----------------------------o
  (length list-or-string)
 
  Return length of a list
- or a string.
+ or a string. For strings,
+ length represents the utf-8
+ length of the text (i.e.
+ characters rather than
+ bytes).
 
 
 o----------------------------o
@@ -276,6 +280,24 @@ o----------------------------o
 
 o----------------------------o
 
+ (float v)
+
+ Convert v into a floating
+ point number. v must be a
+ string, float, or integer.
+
+
+o----------------------------o
+
+ (int v)
+
+ Convert v to an integer, if
+ possible. v must be a string,
+ float, or integer.
+
+
+o----------------------------o
+
  (< a b)
  (> a b)
  (+ ...)
@@ -336,6 +358,14 @@ o----------------------------o
  converting each argument
  to a string and
  concatenating them.
+
+
+o----------------------------o
+
+ (substr string begin end)
+
+ Retrieve a substring from
+ a string.
 
 
 
@@ -481,6 +511,13 @@ o----------------------------o
  or one! Return type is not
  specified, only guaranteed
  to be true or false.
+
+
+o----------------------------o
+
+ (error string)
+
+ Return an error.
 
 
 o----------------------------o

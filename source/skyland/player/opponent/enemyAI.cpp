@@ -715,8 +715,9 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                         }
                     }
                     if (player_characters_local > ai_characters_local) {
-                        slot.ai_weight_ -= ATP::from_integer(250 * (player_characters_local -
-                                                                    ai_characters_local));
+                        slot.ai_weight_ -=
+                            ATP::from_integer(250 * (player_characters_local -
+                                                     ai_characters_local));
                     }
                     if (weapon_count == 0) {
                         // If we don't have any remaining weapons, potentially

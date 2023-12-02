@@ -243,7 +243,7 @@ void CreditsModule::load_page(u32 page)
     auto data = pages_[page].text_lines_;
 
     while (*data not_eq nullptr) {
-        if (str_len(*data) == 0) {
+        if (strlen(*data) == 0) {
             y += 1;
             ++data;
             if (*data == nullptr) {
@@ -251,7 +251,6 @@ void CreditsModule::load_page(u32 page)
             }
         }
         lines_.emplace_back(
-
             *data,
             OverlayCoord{(u8)centered_text_margins(utf8::len(*data)), y});
         y += 2;

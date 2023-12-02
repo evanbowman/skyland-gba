@@ -138,7 +138,7 @@ public:
                 auto path = (*opts_)[sel_].second.c_str();
                 systemstring_bind_file(path);
                 flash_filesystem::store_file_data(
-                    lang_file, path, str_len(path));
+                    lang_file, path, strlen(path));
             }
             auto has_clock = PLATFORM.system_clock().initial_time();
             if (clean_boot_ and has_clock) {
@@ -188,7 +188,7 @@ private:
                 }
             },
             cp,
-            str_len(cp));
+            strlen(cp));
 
         return result;
     }

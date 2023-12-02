@@ -93,6 +93,7 @@ struct ValueHeader {
         data_buffer,
         string,
         character,
+        fp,
         __reserved,
         count,
     };
@@ -220,6 +221,23 @@ struct Integer {
     static ValueHeader::Type type()
     {
         return ValueHeader::Type::integer;
+    }
+
+    static constexpr void finalizer(Value*)
+    {
+    }
+};
+
+
+struct Float {
+    ValueHeader hdr_;
+
+    using ValueType = float;
+    ValueType value_;
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::fp;
     }
 
     static constexpr void finalizer(Value*)
@@ -412,6 +430,7 @@ struct Error {
         set_in_expression_context,
         mismatched_parentheses,
         invalid_syntax,
+        custom,
     } code_;
 
     CompressedPtr context_;
@@ -437,6 +456,8 @@ struct Error {
             return "mismatched parentheses";
         case Code::invalid_syntax:
             return "invalid syntax";
+        case Code::custom:
+            return "";
         }
         return "Unknown error";
     }
@@ -521,6 +542,11 @@ struct Value {
         return *reinterpret_cast<Integer*>(this);
     }
 
+    Float& fp()
+    {
+        return *reinterpret_cast<Float*>(this);
+    }
+
     Cons& cons()
     {
         return *reinterpret_cast<Cons*>(this);
@@ -585,6 +611,7 @@ Value* make_symbol(const char* name,
 Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_character(utf8::Codepoint cp);
+Value* make_float(Float::ValueType v);
 
 
 void apropos(const char* match, Vector<const char*>& out);
@@ -604,6 +631,8 @@ Value* make_cons_safe(Value* car, Value* cdr);
 
 #define L_INT(VALUE) lisp::make_integer(VALUE)
 
+#define L_FP(VALUE) lisp::make_float(VALUE)
+
 #define L_SYM(NAME) lisp::make_symbol(NAME)
 
 #define L_LOAD_INT(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->integer().value_
@@ -612,6 +641,8 @@ Value* make_cons_safe(Value* car, Value* cdr);
     ((u8)lisp::get_op(STACK_OFFSET)->integer().value_)
 
 #define L_LOAD_STRING(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->string().value()
+
+#define L_LOAD_FP(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->fp().value_
 
 
 using SymbolCallback = ::Function<6 * sizeof(void*), void(const char*)>;
@@ -734,7 +765,7 @@ public:
 
 class BasicCharSequence : public CharSequence {
 public:
-    BasicCharSequence(const char* ptr) : ptr_(ptr), len_(str_len(ptr))
+    BasicCharSequence(const char* ptr) : ptr_(ptr), len_(strlen(ptr))
     {
     }
 

@@ -36,6 +36,7 @@
 
 #include "number/endian.hpp"
 #include "number/int.h"
+#include "platform/libc.hpp"
 #include "platform/scratch_buffer.hpp"
 
 

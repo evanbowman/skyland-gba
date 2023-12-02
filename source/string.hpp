@@ -45,10 +45,6 @@ ScratchBufferPtr save_str(const char* str);
 
 
 
-u32 str_len(const char* str);
-
-
-
 void str_reverse(char str[], int length);
 
 
@@ -58,6 +54,10 @@ bool str_eq(const char* p1, const char* p2);
 
 
 int str_cmp(const char* p1, const char* p2);
+
+
+
+char* float_to_string(float x, int buffersize, char* p);
 
 
 

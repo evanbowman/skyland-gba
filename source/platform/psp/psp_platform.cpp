@@ -1048,8 +1048,8 @@ void Platform::Logger::log(Severity severity, const char* msg)
         "[FATAL] ",
     };
 
-    sceIoWrite(fd, snames[(int)severity], str_len(snames[(int)severity]));
-    sceIoWrite(fd, msg, str_len(msg));
+    sceIoWrite(fd, snames[(int)severity], strlen(snames[(int)severity]));
+    sceIoWrite(fd, msg, strlen(msg));
     sceIoWrite(fd, "\n", 1);
 
     sceIoClose(fd);

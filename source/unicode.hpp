@@ -38,8 +38,10 @@
 #include "function.hpp"
 #include "number/endian.hpp"
 #include "number/numeric.hpp"
+#include "platform/libc.hpp"
 #include "string.hpp"
 #include <optional>
+
 
 
 namespace utf8
@@ -122,12 +124,12 @@ inline Codepoint getc(const CharType* data, int* consumed = nullptr)
             if (not front) {
                 front.emplace(cp);
                 if (consumed) {
-                    *consumed = str_len(raw);
+                    *consumed = strlen(raw);
                 }
             }
         },
         reinterpret_cast<const char*>(data),
-        str_len(reinterpret_cast<const char*>(data)));
+        strlen(reinterpret_cast<const char*>(data)));
 
     if (front) {
         return *front;
@@ -142,7 +144,7 @@ inline size_t len(const char* data)
     size_t ret = 0;
     scan([&ret](const Codepoint&, const char*, int) { ++ret; },
          data,
-         str_len(data));
+         strlen(data));
     return ret;
 }
 

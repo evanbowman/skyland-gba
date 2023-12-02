@@ -2682,7 +2682,7 @@ void Platform::fatal(const char* msg)
 
         text2.emplace(OverlayCoord{1, 3});
 
-        const auto msg_len = str_len(msg);
+        const auto msg_len = strlen(msg);
         if (msg_len > 26) {
             StringBuffer<28> temp;
             for (int i = 0; i < 20; ++i) {
@@ -3624,7 +3624,7 @@ void Platform::Logger::log(Severity level, const char* msg)
     }
 
     if (mgba_detect()) {
-        auto len = str_len(msg);
+        auto len = strlen(msg);
         if (len > 0x100) {
             len = 0x100;
         }
@@ -4473,7 +4473,7 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 {
     StringBuffer<64> path("/");
 
-    if (str_len(folder) > 0) {
+    if (strlen(folder) > 0) {
         path += folder;
         path += "/";
     } else if (*filename == '/') {
@@ -6410,7 +6410,7 @@ MASTER_RETRY:
     const char* handshake =
         "lnsk06"; // Link cable program, skyland, 6 byte packet.
 
-    if (str_len(handshake) not_eq Platform::NetworkPeer::max_message_size) {
+    if (strlen(handshake) not_eq Platform::NetworkPeer::max_message_size) {
         ::__platform__->network_peer().disconnect();
         error("handshake string does not equal message size");
         return;

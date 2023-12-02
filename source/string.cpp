@@ -39,7 +39,7 @@
 
 ScratchBufferPtr save_str(const char* str)
 {
-    if (str_len(str) - 1 > SCRATCH_BUFFER_SIZE) {
+    if (strlen(str) - 1 > SCRATCH_BUFFER_SIZE) {
         Platform::fatal("save_str passed excessively long string");
     }
     auto tmp = make_scratch_buffer("cached-str");
@@ -49,17 +49,6 @@ ScratchBufferPtr save_str(const char* str)
     }
     *out = '\0';
     return tmp;
-}
-
-
-
-u32 str_len(const char* str)
-{
-    const char* s;
-
-    for (s = str; *s; ++s)
-        ;
-    return (s - str);
 }
 
 
@@ -90,6 +79,44 @@ bool str_eq(const char* p1, const char* p2)
         ++p1;
         ++p2;
     }
+}
+
+
+
+char* float_to_string(float f_val, int buffersize, char* result)
+{
+    int d_val, dec, i;
+
+    f_val += 0.005f;
+
+    d_val = f_val;
+    dec = (int)(f_val * 100) % 100;
+
+    memset(result, 0, buffersize);
+    result[0] = (dec % 10) + '0';
+    result[1] = (dec / 10) + '0';
+    result[2] = '.';
+
+    i = 3;
+    while (d_val > 0)
+    {
+        result[i] = (d_val % 10) + '0';
+        d_val /= 10;
+        i++;
+    }
+
+    str_reverse(result, strlen(result));
+
+    // trim trailing zeroes
+    for (int i = strlen(result) - 1; i >= 0; ++i) {
+        if (result[i] == '0') {
+            result[i] = '\0';
+        } else {
+            break;
+        }
+    }
+
+    return result;
 }
 
 

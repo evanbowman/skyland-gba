@@ -202,7 +202,7 @@ void LispReplScene::enter(Scene& prev)
     }
 
     const auto vrsn_coord =
-        OverlayCoord{u8((screen_tiles.x - 2) - str_len(version_text)), 0};
+        OverlayCoord{u8((screen_tiles.x - 2) - strlen(version_text)), 0};
 
     version_text_.emplace(vrsn_coord);
 
@@ -277,7 +277,7 @@ void LispReplScene::repaint_completions()
                           {custom_color(0x766df7), ColorConstant::rich_black}});
         }
 
-        const int len = str_len(str);
+        const int len = strlen(str);
         for (; j < len; ++j) {
             tempstr[0] = str[j];
             cpl_->completions_.back().append(tempstr, opts);

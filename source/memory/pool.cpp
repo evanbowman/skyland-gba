@@ -56,7 +56,7 @@ void GenericPool::print_diagnostics()
 
     while (pool) {
         *output += pool->name();
-        auto name_len = str_len(pool->name());
+        auto name_len = strlen(pool->name());
         if (name_len < 20) {
             *output += StringBuffer<20>(' ', 20 - name_len);
         }

@@ -50,28 +50,28 @@ void AdventureModeSettingsScene::enter(Scene& prev)
     difficulty_text_.emplace(
 
         difficulty_str,
-        OverlayCoord{(u8)centered_text_margins(str_len(difficulty_str)), 1});
+        OverlayCoord{(u8)centered_text_margins(strlen(difficulty_str)), 1});
 
 
     auto str1 = SYSTR(sf_casual);
     easy_text_.emplace(
 
         str1->c_str(),
-        OverlayCoord{(u8)centered_text_margins(str_len(str1->c_str())), 4});
+        OverlayCoord{(u8)centered_text_margins(strlen(str1->c_str())), 4});
 
 
     auto str2 = SYSTR(sf_normal);
     normal_text_.emplace(
 
         str2->c_str(),
-        OverlayCoord{(u8)centered_text_margins(str_len(str2->c_str())), 6});
+        OverlayCoord{(u8)centered_text_margins(strlen(str2->c_str())), 6});
 
 
     auto str3 = SYSTR(sf_hard);
     hard_text_.emplace(
 
         str3->c_str(),
-        OverlayCoord{(u8)centered_text_margins(str_len(str3->c_str())), 8});
+        OverlayCoord{(u8)centered_text_margins(strlen(str3->c_str())), 8});
 
     PLATFORM.screen().fade(0.96f);
     PLATFORM.screen().fade(1.f);
