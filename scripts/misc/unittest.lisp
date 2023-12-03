@@ -20,7 +20,7 @@
 
 ;; First, test the functions used in the implementations of the assert
 ;; functions. If they don't work, then the rest is pointless.
-(unless (not 0)
+(unless (and (not 0) (not nil))
   (error "broken not"))
 
 (when (not 1)
