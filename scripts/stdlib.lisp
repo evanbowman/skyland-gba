@@ -36,9 +36,19 @@
 ;; Some useful macros for defining functions
 
 ;; Defines a function.
-(macro defn (NAME REST) `(setq ,NAME (require-args (lambda ,@(cdr REST)) ,(caar REST))))
-;; Defines a bytecode-compiled function.
-(macro defn/c (NAME REST) `(setq ,NAME (require-args (compile (lambda ,@(cdr REST))) ,(caar REST))))
+(macro defn (NAME REST)
+       `(safe-setfn ,(cons $q NAME)
+                    (lambda ,@(cdr REST))
+                    ,(cons $q (car REST))))
+
+;; Defines a bytecode-compiled function.  You should only compile long-lived
+;; functions, because bytecode cannot be deallocated. At the same time, bytecode
+;; takes up less space than non-compiled functions.
+(macro defn/c (NAME REST)
+       `(safe-setfn ,(cons $q NAME)
+                    (compile (lambda ,@(cdr REST)))
+                    ,(cons $q (car REST))))
+
 
 (macro += (NAME VAL)
  `(setq ,NAME (+ ,NAME ,@VAL)))
@@ -47,6 +57,24 @@
 
 (macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
 (macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))
+
+;; NOTE: for historical reasons, lambdas do not include syntax for specifying an
+;; argument count, as this scripting language only supports numbered positional
+;; arguments. Require-args was a safety feature added retrospectively, and I've
+;; hacked it into the function defintion macros.
+(setq safe-setfn
+      (require-args
+       (compile
+        (lambda
+          ;; safe-setfn is responsible for validating the format of data passed
+          ;; to defn, and setting the function in the environment.
+          ;;
+          ;; Make sure that the user remembered to specify an argument count
+          ;; when using one of the defn macros:
+          (when (or (not (pair? $2)) (not (int? (car $2))))
+            (fatal (string $0 ": invalid defn, missing argc")))
+          (set $0 (require-args $1 (car $2)))))
+       3))
 
 
 (macro progn (BODY)

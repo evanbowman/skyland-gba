@@ -38,6 +38,7 @@
 #include "modules/datetimeModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "skyland/latency.hpp"
 #include "skyland/player/coOpTeam.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
@@ -299,6 +300,8 @@ public:
 
     ScenePtr<Scene> update(Microseconds delta)
     {
+        TIMEPOINT(t1);
+
         PLATFORM.load_background_texture(
             APP.environment().background_texture());
 
@@ -322,6 +325,10 @@ public:
 
         message("lisp gc sweep...");
         lisp::gc();
+
+        TIMEPOINT(t2);
+
+        info(format("boot took %", t2 - t1));
 
         PLATFORM.fill_overlay(0);
         PLATFORM.screen().schedule_fade(1.f);

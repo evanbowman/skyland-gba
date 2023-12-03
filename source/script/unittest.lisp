@@ -125,6 +125,13 @@
 (end-test)
 
 
+(begin-test "LAMBDA")
+
+(assert-eq 5 (length ((lambda $V) 2 2 2 2 2)))
+
+(end-test)
+
+
 
 (begin-test "MISC")
 

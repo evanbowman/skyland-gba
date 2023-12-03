@@ -1785,7 +1785,7 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     const bool was_developer_mode = is_developer_mode();
     set_developer_mode(false);
 
-    msg("import lisp stdlib...");
+    msg("compiling LISP libraries...");
 
     auto str = PLATFORM.load_file_contents("scripts", "init.lisp");
     if (str) {
