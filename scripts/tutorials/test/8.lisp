@@ -13,3 +13,5 @@
 (assert-eq
  (groups)
  '((Up) (Left) (Right)))
+
+(assert-eq 2300 (coins))

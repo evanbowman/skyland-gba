@@ -2689,8 +2689,20 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::nil:
     case Value::Type::heap_node:
     case Value::Type::data_buffer:
-    case Value::Type::function:
         return lhs == rhs;
+
+    case Value::Type::function:
+        if (lhs->hdr_.mode_bits_ not_eq rhs->hdr_.mode_bits_) {
+            return false;
+        }
+        switch (lhs->hdr_.mode_bits_) {
+        default:
+            return lhs == rhs;
+
+        case Function::ModeBits::cpp_function:
+            return lhs->function().cpp_impl_ == rhs->function().cpp_impl_;
+        }
+        break;
 
     case Value::Type::error:
         break;

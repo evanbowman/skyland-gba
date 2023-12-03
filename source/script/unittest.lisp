@@ -1,6 +1,8 @@
 
-(when (not (bound? put))
-  (setq put log))
+(when (not (bound? 'put))
+  (setq put log)
+  (setq newline (lambda nil)))
+
 
 (defn assert-v [1]
   (when (not $0)
@@ -13,6 +15,24 @@
     (error (format "failure! expected % not equal %"
                    $0
                    $1))))
+
+(if (not (error? (error "...")))
+    (fatal "unable to raise errors!?"))
+
+;; First, test the functions used in the implementations of the assert
+;; functions. If they don't work, then the rest is pointless.
+(unless (not 0)
+  (error "broken not"))
+
+(when (not 1)
+  (error "broken not"))
+
+(unless (equal '(1 2 ("abc") 3.5) '(1 2 ("abc") 3.5))
+  (error "broken equal"))
+
+(when (equal 0 1)
+  (error "broken equal"))
+
 
 (defn begin-test [1]
   (put (string $0 " test cases...")))
@@ -78,8 +98,6 @@
 
 (assert-eq 3 (length (cons 1 (cons 2 (cons 3 nil)))))
 (assert-eq -2 (apply - (reverse '(3 1))))
-(assert-eq 3 (get '(1 2 3 4 5) 2))
-(assert-eq 190 (apply + (append (range 10) (range 10 20))))
 
 (end-test)
 
@@ -103,8 +121,6 @@
 (assert-eq temp 1)
 
 (assert-eq 135 (apply + (map foo (range 9))))
-
-(assert-eq 35 ((curry + 5 6) 7 8 9))
 
 (end-test)
 
@@ -130,6 +146,39 @@
 (assert-eq '(5 . 6) (cons 5 6)) ;; the builtin function is back
 
 (end-test)
+
+
+(begin-test "LIBRARY FUNCTIONS")
+
+(assert-eq '(b . 6) (assoc 'b (acons 'b 6 '((b . 7) (c . 8)))))
+(assert-eq 190 (apply + (append (range 10) (range 10 20))))
+(assert-eq '(5 6 7 8) (cdr (bisect '(1 2 3 4 5 6 7 8))))
+(assert-eq 8 (caar '((8))))
+(assert-eq 2 (cadr (list 1 2)))
+(assert-v (contains '(1 4.7 sauce "mellow") 'sauce))
+(assert-eq 35 ((curry + 5 6) 7 8 9))
+(assert-eq 45 (apply + (fill 45 1)))
+(assert-eq 12397 (int (apply string (filter string? '(1 2 "123" 4 5 "97")))))
+(assert-eq 3 (get '(1 2 3 4 5) 2))
+(assert-eq 5 (length (range 5)))
+(assert-eq 0 (min (reverse (range 10))))
+(assert-eq 9 (max (range 10)))
+(assert-eq '(1 0 2 0 3 0) (replace '(1 a 2 b 3 c) symbol? 0))
+
+(assert-eq 5 (abs -5))
+(assert-eq "a 12 3.5 '(1 2 3) " (format "% % % % " 'a 12 3.5 '(1 2 3)))
+(assert-eq 20 (apply + (map int (split "0,1,1,2,3,5,8" ","))))
+(assert-eq 'cake (symbol "cake"))
+(assert-v ((equalto? 9) 9))
+(assert-v "bats" ((lambda (arg 1)) "birds" "bats" "iguana"))
+(assert-eq cons (identity cons))
+(assert-v (error? ((require-args (lambda nil) 2) 0)))
+(defn test-this [0]
+  (this))
+(assert-eq test-this (test-this))
+
+(end-test)
+
 
 
 (unbind 'assert-v
