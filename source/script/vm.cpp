@@ -164,6 +164,12 @@ TOP:
             push_op(get_nil());
             break;
 
+        case PushFloat::op(): {
+            auto inst = read<PushFloat>(code, pc);
+            push_op(make_float(inst->f_.get()));
+            break;
+        }
+
         case PushInteger::op(): {
             auto inst = read<PushInteger>(code, pc);
             push_op(make_integer(inst->value_.get()));

@@ -3799,6 +3799,17 @@ BUILTIN_TABLE(
                        i += 2;
                        break;
 
+                   case PushFloat::op(): {
+                       out += "PUSH_FLOAT(";
+                       char buffer[32];
+                       auto f = ((PackedFloat*)(data->data_ + i + 1))->get();
+                       float_to_string(f, 32, buffer);
+                       out += buffer;
+                       out += ")";
+                       i += sizeof(PushFloat);
+                       break;
+                   }
+
                    case JumpIfFalse::op():
                        out += "JUMP_IF_FALSE(";
                        out += to_string<10>(

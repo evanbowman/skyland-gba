@@ -52,21 +52,28 @@ using Opcode = u8;
 namespace instruction {
 
 
-struct UnalignedPtr {
-    const char* get()
+template <typename T>
+struct PackedData {
+    T get()
     {
-        const char* result;
-        memcpy(&result, ptr_, sizeof(ptr_));
+        T result;
+        memcpy(&result, data_, sizeof(data_));
         return result;
     }
 
-    void set(const char* val)
+    void set(T val)
     {
-        memcpy(ptr_, &val, sizeof(ptr_));
+        memcpy(data_, &val, sizeof(data_));
     }
 
-    u8 ptr_[sizeof(const char*)];
+    u8 data_[sizeof(T)];
 };
+
+
+
+using UnalignedPtr = PackedData<const char*>;
+using PackedFloat = PackedData<float>;
+
 
 
 struct Header {
@@ -832,6 +839,22 @@ struct LoadLocal {
 };
 
 
+struct PushFloat {
+    Header header_;
+    PackedFloat f_;
+
+    static const char* name()
+    {
+        return "PUSH_FLOAT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 50;
+    }
+};
+
+
 // Just a utility intended for the compiler, not to be used by the vm.
 inline Header* load_instruction(ScratchBuffer& buffer, int index)
 {
@@ -908,6 +931,7 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(LexicalDefSmall)
             MATCH(LoadVarSmall)
             MATCH(LoadLocal)
+            MATCH(PushFloat)
         }
     }
     return nullptr;

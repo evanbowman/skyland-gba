@@ -266,6 +266,9 @@ int compile_impl(CompilerContext& ctx,
             append<instruction::PushInteger>(buffer, write_pos)
                 ->value_.set(code->integer().value_);
         }
+    } else if (code->type() == Value::Type::fp) {
+        auto f = code->fp().value_;
+        append<instruction::PushFloat>(buffer, write_pos)->f_.set(f);
     } else if (code->type() == Value::Type::string) {
         const auto str = code->string().value();
         const auto len = strlen(str);
