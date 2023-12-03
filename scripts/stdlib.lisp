@@ -71,7 +71,9 @@
           ;;
           ;; Make sure that the user remembered to specify an argument count
           ;; when using one of the defn macros:
-          (when (or (not (pair? $2)) (not (int? (car $2))))
+          (when (or (not (pair? $2))
+                    (not (int? (car $2)))
+                    (cdr $2)) ;; b/c arg count must be a list with one element
             (fatal (string $0 ": invalid defn, missing argc")))
           (set $0 (require-args $1 (car $2)))))
        3))
