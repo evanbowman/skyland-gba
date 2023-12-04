@@ -43,8 +43,7 @@
         (mode $1))
 
     ;; NOTE: conf[5] holds the character count config
-    (repeat (get conf 5)
-
+    (dotimes (get conf 5)
       (let ((slot (chr-slots isle)))
         (if (not slot)
             (let ((s (construction-sites isle '(2 . 2))))

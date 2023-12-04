@@ -29,7 +29,7 @@
        nil)))
 
 
-(macro repeat (N BODY)
+(macro dotimes (N BODY)
  `(map (lambda ,@BODY) (range 0 ,N)))
 
 
@@ -100,6 +100,8 @@
   ;; with unquote-splicing is quite compact.
   `(,@$0 ,@$1))
 
+(defn/c gen [2]
+  (map $0 (range $1)))
 
 (defn/c push [2]
   (set $0 (cons $1 (eval $0))))

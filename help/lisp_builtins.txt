@@ -78,6 +78,7 @@ o----------------------------o
 o----------------------------o
 
  (car pair)
+ (first pair)
 
  Return the first element
  of a pair.
@@ -86,6 +87,8 @@ o----------------------------o
 o----------------------------o
 
  (cdr pair)
+ (second pair)
+ (rest pair)
 
  Return the second element
  of a pair.
@@ -107,6 +110,24 @@ o----------------------------o
  Returns the second element
  of a list.
  i.e.: (car (cdr list))
+
+
+o----------------------------o
+
+ (cddr list)
+
+ Returns the rest of the
+ second element of a list.
+ i.e.: (cdr (cdr list))
+
+
+o----------------------------o
+
+ (collect callback)
+
+ Invoke callback until it
+ returns a false value, and
+ return a list of the results.
 
 
 o----------------------------o

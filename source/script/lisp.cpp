@@ -2859,7 +2859,24 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().car();
        }}},
+     {"first",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           return get_op0()->cons().car();
+       }}},
      {"identity", {1, [](int argc) { return get_op0(); }}},
+     {"cddr",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           auto cdr = get_op0()->cons().cdr();
+           if (cdr->type() not_eq Value::Type::cons) {
+               return lisp::make_error(lisp::Error::Code::invalid_argument_type,
+                                       L_NIL);
+           }
+           return cdr->cons().cdr();
+       }}},
      {"cadr",
       {1,
        [](int argc) {
@@ -2883,6 +2900,18 @@ BUILTIN_TABLE(
            return car->cons().car();
        }}},
      {"cdr",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           return get_op0()->cons().cdr();
+       }}},
+     {"second",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           return get_op0()->cons().cdr();
+       }}},
+     {"rest",
       {1,
        [](int argc) {
            L_EXPECT_OP(0, cons);
@@ -3097,23 +3126,26 @@ BUILTIN_TABLE(
 
            return result;
        }}},
-     {"gen",
-      {2,
+     {"collect",
+      {1,
        [](int argc) {
-           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(0, function);
 
-           auto result = make_list(get_op0()->integer().value_);
-           auto fn = get_op1();
-           const int count = get_op0()->integer().value_;
-           push_op(result);
-           for (int i = 0; i < count; ++i) {
-               push_op(make_integer(i));
-               funcall(fn, 1);
-               set_list(result, i, get_op1());
-               pop_op(); // result from funcall
+           ListBuilder res;
+
+           funcall(get_op0(), 0);
+           Protected c = get_op0();
+           pop_op();
+
+           while (is_boolean_true(c)) {
+               res.push_back(c);
+
+               funcall(get_op0(), 0);
+               c = get_op0();
+               pop_op();
            }
-           pop_op(); // result
-           return result;
+
+           return res.result();
        }}},
      {"length",
       {1,
@@ -4315,8 +4347,6 @@ void init()
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         PLATFORM.fatal("pointer compression test failed 1");
     }
-
-    intern("'");
 }
 
 

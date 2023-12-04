@@ -13,9 +13,9 @@
 
 (let ((id nil))
   (map (lambda
-         (let ((icon (assoc 'icon (cdr (cdr $0)))))
+         (let ((icon (assoc 'icon (cddr $0))))
            (if (and icon (equal (cdr icon) 23))
-               (setq id (cdr (assoc 'id (cdr (cdr $0))))))))
+               (setq id (cdr (assoc 'id (cddr $0)))))))
        (chrs (player)))
 
   (defn on-converge [0]
@@ -53,7 +53,7 @@
                              (room-new (player) (list sym0 $1 $2))
                              (dialog "<c:traveller:23> Goodbye, and good luck!")
                              (map (lambda
-                                    (if (equal id (cdr (assoc 'id (cdr (cdr $0)))))
+                                    (if (equal id (cdr (assoc 'id (cddr $0))))
                                         (chr-del (player) (car $0) (cadr $0))))
                                   (chrs (player)))
                              (defn on-dialog-closed [0]

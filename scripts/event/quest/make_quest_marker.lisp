@@ -37,8 +37,7 @@
                    n))
       (setq n (sort n (lambda (> (cdr $0) (cdr $1)))))
       (let ((n (car (get n (choice 3)))))
-        (wg-node-set
-         (car (cdr n))
-         (cdr (cdr n))
-         10)
+        (wg-node-set (cadr n)
+                     (cddr n)
+                     10)
         n))))

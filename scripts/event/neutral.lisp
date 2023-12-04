@@ -17,7 +17,7 @@
                                  friendlies-seen))))
                        (range
                         ;; number of levels to select from based on current zone
-                        (get '(6 11 7 2) (zone))))))
+                        (get '(6 11 8 2) (zone))))))
 
     (when (equal (length avail-levels) 1)
       (setq friendlies-seen '()))

@@ -176,6 +176,16 @@
   (this))
 (assert-eq test-this (test-this))
 
+(let ((tmp 0))
+  (defn foo [0]
+    (if (< tmp 10)
+        (progn
+          (+= tmp 1)
+          tmp)
+      nil)))
+
+(assert-eq 55 (apply + (collect foo)))
+
 (end-test)
 
 

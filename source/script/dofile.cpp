@@ -84,7 +84,7 @@ const char* utilities =
     "       nil)))\n"
     "\n"
     "\n"
-    "(macro repeat (N BODY)\n"
+    "(macro dotimes (N BODY)\n"
     " `(map (lambda ,@BODY) (range 0 ,N)))\n"
     "\n"
     "\n"

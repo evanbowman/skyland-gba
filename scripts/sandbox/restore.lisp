@@ -23,7 +23,7 @@
                            (type $2))
                        (map
                         (lambda
-                          (let ((plst (cdr (cdr $0))))
+                          (let ((plst (cddr $0)))
                             (let ((chr -1))
                               (setq chr (chr-new isle
                                                  (get $0 0) ;; x

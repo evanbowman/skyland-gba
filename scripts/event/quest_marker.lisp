@@ -12,7 +12,7 @@
       (pos (cdr (wg-pos))))
   (let ((found (filter
                 (lambda
-                  (equal pos (cdr (cdr $0))))
+                  (equal pos (cddr $0)))
                 quests)))
     (if found
         (eval-file (caar found))

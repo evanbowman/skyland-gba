@@ -498,12 +498,17 @@ int compile_impl(CompilerContext& ctx,
                 append<instruction::MakePair>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name(), "car") and argc == 1) {
+                       (str_eq(fn->symbol().name(), "car") or
+                        str_eq(fn->symbol().name(), "first"))
+                       and argc == 1) {
 
                 append<instruction::First>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name(), "cdr") and argc == 1) {
+                       (str_eq(fn->symbol().name(), "cdr") or
+                        str_eq(fn->symbol().name(), "second") or
+                        str_eq(fn->symbol().name(), "rest"))
+                       and argc == 1) {
 
                 append<instruction::Rest>(buffer, write_pos);
 
