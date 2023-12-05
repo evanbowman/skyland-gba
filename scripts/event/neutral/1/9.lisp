@@ -52,8 +52,7 @@
 
     (defn on-dialog-accepted [0]
       ;; place one drone bay
-      (while (not (construction-sites (player) '(2 . 1)))
-        (terrain-set (player) (+ terrain (player)) 1))
+      (alloc-space 'drone-bay)
 
       (sel-input 'drone-bay
                  "Pick a slot (2x1)"
@@ -65,8 +64,8 @@
 
     (defn on-dialog-declined [0]
       ;; place two drone bays
-      (while (not (construction-sites (player) '(2 . 1)))
-        (terrain-set (player) (+ terrain (player)) 1))
+
+      (alloc-space 'drone-bay)
 
       (sel-input 'drone-bay
                  "Pick a slot (2x1) (1 of 2)"

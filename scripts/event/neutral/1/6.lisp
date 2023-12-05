@@ -113,8 +113,7 @@
               (mkch)
               (mkch))
 
-            (while (< (length (construction-sites (player) '(2 . 1))) 2)
-              (terrain-set (player) (+ (terrain (player)) 1)))
+            (alloc-space wpn)
 
             (adventure-log-add 36 (list (rinfo 'name wpn) 3))
 

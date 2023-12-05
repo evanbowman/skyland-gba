@@ -21,15 +21,7 @@
 (flag-show (opponent) 6)
 
 
-(let ((mktr (lambda
-              ;; Generate some terrain! Just to avoid the situation where
-              ;; there's not enough space on the island to actually place the
-              ;; weapon that we just bought. The game would basically soft-lock.
-              (while (not (construction-sites (player) $0))
-                ;; Give the player +1 terrain until a construction site exists.
-                (terrain-set (player) (+ (terrain (player)) 1)))))
-
-      (item (sample '(arc-gun flak-gun fire-charge)))
+(let ((item (sample '(arc-gun flak-gun fire-charge)))
       (skip 1))
 
   (terrain-set (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
@@ -84,7 +76,7 @@
             (progn
               (adventure-log-add 10 (list (rinfo 'name item) 1300))
               (coins-add -1300)
-              (mktr (rinfo 'size item))
+              (alloc-space item)
               (sel-input
                item
                (string
@@ -94,7 +86,7 @@
                (lambda
                  (room-new (player) (list item $1 $2))
                  (sound "build0")
-                 (mktr (rinfo 'size item))
+                 (alloc-space item)
                  (sel-input
                   item
                   (string "place second " (rinfo 'name item) ":")

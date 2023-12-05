@@ -74,8 +74,7 @@
   (defn on-dialog-accepted [0]
     (let ((sl (chr-slots (player))))
       (when (not sl)
-        (while (not (construction-sites (player) '(1 . 2)))
-          (terrain-set (player) (+ (terrain (player)) 1)))
+        (alloc-space 'ladder)
 
         (let ((site (construction-sites (player) '(1 . 2))))
           (sound "build0")

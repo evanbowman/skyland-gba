@@ -65,8 +65,7 @@
               (defn on-dialog-closed [0]
                 (dialog "<c:girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")
                 (defn on-dialog-closed [0]
-                  (while (< (length (construction-sites (player) '(1 . 2))) 1)
-                    (terrain-set (player) (+ (terrain (player)) 1)))
+                  (alloc-space 'cargo-bay)
                   (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
                              (lambda

@@ -87,3 +87,10 @@
 ;; Register a binding for the context menu
 (defn/c push-ctx-opt [2]
   (push 'ctx-opts (cons $0 $1)))
+
+;; Shortcut for making sure enough space on a player's island exists to place a
+;; new block.
+(defn/c alloc-space [1]
+  (let ((size (rinfo 'size $0)))
+    (while (not (construction-sites (player) size))
+      (terrain-set (player) (+ terrain (player) 1)))))

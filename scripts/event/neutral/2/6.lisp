@@ -33,8 +33,7 @@
   (dialog
    "Looks like a terrible battle happened here... the crew seems to have abandoned the burning island, leaving behind a powerful weapon...")
   (setq on-converge nil)
-  (while (not (construction-sites (player) '(2 . 2)))
-    (terrain-set (player) (+ (terrain (player)) 1)))
+  (alloc-space 'incinerator)
   (adventure-log-add 46 '())
   (sel-input 'incinerator
              "Place weapon (2x2)"

@@ -65,8 +65,7 @@
           (adventure-log-add 38 (rinfo 'name pick))
           (defn on-dialog-closed [0]
             (setq on-dialog-closed nil)
-            (while (not (construction-sites (player) (rinfo 'size pick)))
-              (terrain-set (player) (+ (terrain (player)) 1)))
+            (alloc-space pick)
             (sel-input
              pick
              (format "Pick a slot (%x%)"

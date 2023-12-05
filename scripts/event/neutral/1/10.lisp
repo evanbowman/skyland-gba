@@ -45,8 +45,7 @@
         (defn on-dialog-closed [0]
           (dialog "<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...")
           (defn on-dialog-closed [0]
-            (while (< (length (construction-sites (player) '(1 . 2))) 1)
-              (terrain-set (player) (+ (terrain (player)) 1)))
+            (alloc-space 'ladder)
             (sel-input 'ladder
                        "Place ladder (1x2):"
                        (lambda

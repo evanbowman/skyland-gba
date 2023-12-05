@@ -48,8 +48,7 @@
 
 
 (defn on-dialog-accepted [0]
-  (while (not (construction-sites (player) '(1 . 3)))
-    (terrain-set (player) (+ (terrain (player)) 1)))
+  (alloc-space 'rocket-bomb)
   (room-del (opponent) 7 12)
   (sel-input 'rocket-bomb
              "Pick a slot (1x3)"

@@ -44,8 +44,7 @@
             (defn on-dialog-closed [0]
               (coins-add 2000)
               (let ((sym0 (get sel 0)))
-                (while (not (construction-sites (player) (rinfo 'size sym0)))
-                  (terrain-set (player) (+ (terrain (player)) 1)))
+                (alloc-space sym0)
                 (sel-input sym0
                            (string "Place " (rinfo 'name sym0))
                            (lambda
