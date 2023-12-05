@@ -87,6 +87,11 @@ int compile_lambda(CompilerContext& ctx,
     bool first = true;
 
     auto lat = code;
+
+    if (length(lat) == 0) {
+        append<instruction::PushNil>(buffer, write_pos);
+    }
+
     while (lat not_eq get_nil()) {
         if (lat->type() not_eq Value::Type::cons) {
             // error...
