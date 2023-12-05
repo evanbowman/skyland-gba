@@ -49,8 +49,6 @@
 
         (setq quests (load 'quests))
 
-        (setq chr-names (load 'chr-names))
-
         (setq last-zone (load 'last-zone))
 
         (setq qids (load 'qids))

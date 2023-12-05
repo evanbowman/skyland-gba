@@ -13,8 +13,6 @@
 ;; Ids of previously seen quests
 (setq qids nil)
 
-(setq chr-names nil)
-
 
 (setq quests nil)
 (setq enemy-count 0)

@@ -19,7 +19,6 @@
  (cons 'diff (diff))
  (cons 'qids qids)
  (cons 'qvar qvar)
- (cons 'chr-names chr-names)
  (cons 'adventure-log adventure-log)
  (cons 'shop-items shop-items)
  (cons 'groups (groups)))

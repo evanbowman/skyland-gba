@@ -14,8 +14,6 @@
             (island-configure (player) (car (load 'rooms)))
             (island-configure (opponent) (cdr (load 'rooms)))
 
-            (setq chr-names (load 'chr-names))
-
             (let ((setc
                    (lambda
                      (let ((isle $0)

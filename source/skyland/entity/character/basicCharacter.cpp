@@ -999,23 +999,7 @@ std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(CharacterId id)
 
 const char* BasicCharacter::name() const
 {
-    if (is_replicant_) {
-        // Replicants may not be named (would create confusion...)
-        return nullptr;
-    }
-
-    if (auto v = lisp::get_var("chr-names")) {
-        const char* found = nullptr;
-        lisp::foreach (v, [&found, this](lisp::Value* val) {
-            if (not found) {
-                auto c_id = val->cons().car()->integer().value_;
-                if (c_id == id_) {
-                    found = val->cons().cdr()->string().value();
-                }
-            }
-        });
-        return found;
-    }
+    // feature removed...
 
     return nullptr;
 }
