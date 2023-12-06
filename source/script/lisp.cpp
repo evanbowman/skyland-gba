@@ -3196,9 +3196,12 @@ BUILTIN_TABLE(
      {"|",
       {2,
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           L_EXPECT_OP(1, integer);
-           return L_INT(L_LOAD_INT(1) | L_LOAD_INT(0));
+           int accum = 0;
+           for (int i = 0; i < argc; ++i) {
+               L_EXPECT_OP(i, integer);
+               accum |= get_op(i)->integer().value_;
+           }
+           return make_integer(accum);
        }}},
      {"^",
       {2,
@@ -3219,6 +3222,37 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) % L_LOAD_INT(0));
+       }}},
+     {">>",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) >> L_LOAD_INT(0));
+       }}},
+     {"<<",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) << L_LOAD_INT(0));
+       }}},
+     {"hex",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           const char* hex = "0123456789abcdef";
+           auto v = L_LOAD_INT(0);
+           Buffer<char, 8> stack;
+           while (v) {
+               stack.push_back(hex[v & 0xf]);
+               v >>= 4;
+           }
+           StringBuffer<10> result("0x");
+           for (char c : reversed(stack)) {
+               result.push_back(c);
+           }
+           return make_string(result.c_str());
        }}},
      {"+",
       {0,

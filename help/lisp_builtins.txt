@@ -342,9 +342,11 @@ o----------------------------o
 o----------------------------o
 
  (& a b)
- (| a b)
+ (| a b ...)
  (^ a b)
  (~ a)
+ (<< a b)
+ (>> a b)
 
  Bitwise operators. Arguments
  must be integers.
@@ -369,6 +371,14 @@ o----------------------------o
  e.g.:
  (format "nums % %" 1 'cat)
  -> "nums 1 cat"
+
+
+o----------------------------o
+
+ (hex number)
+
+ Format a number as a hex
+ string.
 
 
 o----------------------------o
