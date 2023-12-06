@@ -80,6 +80,13 @@
 (assert-v (int? -22))
 (assert-v (int? -0))
 
+(assert-eq 1 (% 10 3))
+
+(assert-eq 0xffffffff (| 0xff00ff00 0x00ff00ff))
+(assert-eq 0x22222222 (& 0x33333333 0xaaaaaaaa))
+(assert-eq 0xffff0000 (~ 0xffff))
+(assert-eq 0x55555555 (^ 0xaaaaaaaa 0xffffffff))
+
 (end-test)
 
 

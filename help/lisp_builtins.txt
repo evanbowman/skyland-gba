@@ -325,6 +325,7 @@ o----------------------------o
  (- a b)
  (* ...)
  (/ a b)
+ (% a b)
 
  Standard operators.
 
@@ -333,6 +334,20 @@ o----------------------------o
  Note: (-) called with one
  argument flips a number's
  sign.
+
+ Note: the mod operator does
+ not support floats.
+
+
+o----------------------------o
+
+ (& a b)
+ (| a b)
+ (^ a b)
+ (~ a)
+
+ Bitwise operators. Arguments
+ must be integers.
 
 
 

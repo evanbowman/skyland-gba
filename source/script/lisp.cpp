@@ -3186,6 +3186,40 @@ BUILTIN_TABLE(
            return make_integer(get_op1()->integer().value_ >
                                get_op0()->integer().value_);
        }}},
+     {"&",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) & L_LOAD_INT(0));
+       }}},
+     {"|",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) | L_LOAD_INT(0));
+       }}},
+     {"^",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) ^ L_LOAD_INT(0));
+       }}},
+     {"~",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           return L_INT(~L_LOAD_INT(0));
+       }}},
+     {"%",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           return L_INT(L_LOAD_INT(1) % L_LOAD_INT(0));
+       }}},
      {"+",
       {0,
        [](int argc) {
