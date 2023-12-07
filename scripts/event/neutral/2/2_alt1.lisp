@@ -1,9 +1,8 @@
 ;;;
-;;; neutral/2/7.lisp
 ;;;
 
 
-(dialog "An abandoned warship from the surface appears! Though heavily armed, the ship appears to be completely dormant...")
+(dialog "An abandoned warship appears! No crew seems to be aboard; ship appears to be completely dormant...")
 
 
 (opponent-init 11 'neutral)
@@ -55,8 +54,6 @@
 
 (flag-show (opponent) 4)
 
-
-(weather 2)
 
 (defn on-converge [0]
   (setq on-converge nil)

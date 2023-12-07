@@ -9,15 +9,11 @@
 
 (if (and (> (zone) 2) (not (cart-found? 0)) (not (choice 3)))
     (eval-file "scripts/event/neutral/3/dev_cameo.lisp")
-  (let ((avail-levels (filter
-                       (lambda
-                         (let ((cmp $0))
-                           (not (filter
-                                 (lambda (equal cmp $0))
-                                 friendlies-seen))))
-                       (range
-                        ;; number of levels to select from based on current zone
-                        (get '(6 11 8 2) (zone))))))
+  (let ((avail-levels (difference friendlies-seen
+                                  (range
+                                   ;; number of levels to select from based on
+                                   ;; current zone
+                                   (get '(6 11 7 2) (zone))))))
 
     (when (equal (length avail-levels) 1)
       (setq friendlies-seen '()))

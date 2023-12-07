@@ -3,7 +3,7 @@
 ;;;
 
 
-(dialog "A heavily armed pirate fortress approaches. Its captain demands to speak with you.")
+(dialog "A heavily armed marauder fortress approaches. Its captain demands to speak with you.")
 
 
 (opponent-init 5 'neutral)

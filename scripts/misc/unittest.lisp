@@ -108,6 +108,8 @@
 (assert-eq 3 (length (cons 1 (cons 2 (cons 3 nil)))))
 (assert-eq -2 (apply - (reverse '(3 1))))
 (assert-eq 8640 (apply * (flatten '((1 1 2) 3 (5 (1 1 (2 3) 6) 8)))))
+(assert-eq '(10 11 12 13 14 0 1 2 3 4) (difference (range 0 10) (range 5 15)))
+(assert-eq '(2 3) (union (range 10) '(-1 2 2 3 12 12 14)))
 
 (end-test)
 
@@ -163,9 +165,10 @@
 (assert-eq '(b . 6) (assoc 'b (acons 'b 6 '((b . 7) (c . 8)))))
 (assert-eq 190 (apply + (append (range 10) (range 10 20))))
 (assert-eq '(5 6 7 8) (slice '(1 2 3 4 5 6 7 8) 4 8))
+(assert-eq '(2 3 4) (slice '(1 2 3 4) 1))
 (assert-eq 8 (caar '((8))))
 (assert-eq 2 (cadr (list 1 2)))
-(assert-v (contains '(1 4.7 sauce "mellow") 'sauce))
+(assert-v (filter (equalto? 'sauce) '(1 4.7 sauce "mellow")))
 (assert-eq 35 ((curry + 5 6) 7 8 9))
 (assert-eq 45 (apply + (fill 45 1)))
 (assert-eq 12397 (int (apply string (filter string? '(1 2 "123" 4 5 "97")))))

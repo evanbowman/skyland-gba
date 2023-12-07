@@ -79,12 +79,6 @@
   (cdr (assoc $0 (room-meta $1))))
 
 
-(setq ctx-opts nil)
-
-;; Register a binding for the context menu
-(defn/c push-ctx-opt [2]
-  (push 'ctx-opts (cons $0 $1)))
-
 ;; Shortcut for making sure enough space on a player's island exists to place a
 ;; new block.
 (defn/c alloc-space [1]

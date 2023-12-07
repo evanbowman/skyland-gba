@@ -2635,6 +2635,8 @@ static void vblank_isr()
 
 void Platform::fatal(const char* msg)
 {
+    error(msg);
+
     ::__platform__->set_overlay_origin(0, 0);
 
     if (::__platform__ and ::unrecoverrable_error_callback) {

@@ -36,18 +36,20 @@
 
 
 
-(setq on-converge
-      (lambda
-        (setq temp (+ 400 (choice 900)))
+(defn on-converge [0]
+  (setq on-converge nil)
 
-        (setq on-converge nil)
+  (let ((amt (+ 400 (choice 900))))
 
-        (dialog
-         "You explore, and discover " (string temp) "@ amongst the ruins!")
+    (when (equal (zone) 3)
+      (setq amt (+ 800 (choice 900))))
 
-        (adventure-log-add 11 (list temp))
+    (dialog
+     "You explore, and discover " (string amt) "@ amongst the ruins!")
 
-        (coins-add temp)
+    (adventure-log-add 11 (list amt))
 
-        ((eval-file "/scripts/util/pickup_cart.lisp") 1
-         "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")))
+    (coins-add amt)
+
+    ((eval-file "/scripts/util/pickup_cart.lisp") 1
+     "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")))

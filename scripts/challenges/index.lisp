@@ -1,5 +1,5 @@
 
-'(;; ("test" . "event/neutral/1/6.lisp")
+'(;; ("test" . "event/neutral/2/2.lisp")
   ("1: Goliath" . "challenges/goliath.lisp")
   ("2: Goblin Raid" . "challenges/goblin_raid.lisp")
   ("3: Nemesis" . "challenges/backdoor.lisp")

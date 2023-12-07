@@ -2872,6 +2872,20 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
     get_interns(handle_completion);
 }
 
+
+static bool contains(Value* list, Value* val)
+{
+    bool result = false;
+    foreach(list, [&](Value* v2) {
+                      if (is_equal(val, v2)) {
+                          result = true;
+                      }
+                  });
+
+    return result;
+}
+
+
 #ifdef __GBA__
 #define BUILTIN_TABLE                                                          \
     MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =                        \
@@ -2959,6 +2973,17 @@ BUILTIN_TABLE(
            }
            return cdr->cons().car();
        }}},
+     {"cdar",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           auto car = get_op0()->cons().car();
+           if (car->type() not_eq Value::Type::cons) {
+               return lisp::make_error(lisp::Error::Code::invalid_argument_type,
+                                       L_NIL);
+           }
+           return car->cons().cdr();
+       }}},
      {"caar",
       {1,
        [](int argc) {
@@ -2991,15 +3016,15 @@ BUILTIN_TABLE(
      {"list",
       {0,
        [](int argc) {
-           auto lat = make_list(argc);
+           ListBuilder list;
            for (int i = 0; i < argc; ++i) {
                auto val = get_op((argc - 1) - i);
                if (val->type() == Value::Type::error) {
                    return val;
                }
-               set_list(lat, i, val);
+               list.push_back(val);
            }
-           return lat;
+           return list.result();
        }}},
      {"split",
       {2,
@@ -3191,6 +3216,50 @@ BUILTIN_TABLE(
            }
 
            return result;
+       }}},
+     {"difference",
+      {2,
+       [](int argc) {
+
+           ListBuilder list;
+
+           auto find_difference =
+               [&](Value* lat1, Value* lat2) {
+                   foreach(lat1,
+                           [&](Value* v1) {
+                               if (not contains(lat2, v1)) {
+                                   list.push_back(v1);
+                               }
+                           });
+               };
+           find_difference(get_op0(), get_op1());
+           find_difference(get_op1(), get_op0());
+
+           return list.result();
+       }}},
+     {"union",
+      {2,
+       [](int argc) {
+
+           ListBuilder list;
+
+           foreach(get_op0(),
+                   [&](Value* v) {
+                       if (not contains(list.result(), v) and
+                           contains(get_op1(), v)) {
+                           list.push_back(v);
+                       }
+                   });
+
+           foreach(get_op1(),
+                   [&](Value* v) {
+                       if (not contains(list.result(), v) and
+                           contains(get_op0(), v)) {
+                           list.push_back(v);
+                       }
+                   });
+
+           return list.result();
        }}},
      {"collect",
       {1,
@@ -3556,19 +3625,32 @@ BUILTIN_TABLE(
            return L_INT(stop - start);
        }}},
      {"slice",
-      {3,
+      {2,
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           L_EXPECT_OP(1, integer);
 
-           auto begin = L_LOAD_INT(1);
-           auto end = L_LOAD_INT(0);
+           int begin = 0;
+           int end = 0;
+
+           int seq = 2;
+
+           if (argc == 2) {
+               L_EXPECT_OP(0, integer);
+               seq = 1;
+               begin = L_LOAD_INT(0);
+               end = VALUE_POOL_SIZE;
+           } else {
+               L_EXPECT_OP(0, integer);
+               L_EXPECT_OP(1, integer);
+               begin = L_LOAD_INT(1);
+               end = L_LOAD_INT(0);
+           }
+
            int index = 0;
 
-           if (get_op(2)->type() == Value::Type::cons) {
+           if (get_op(seq)->type() == Value::Type::cons) {
                ListBuilder result;
 
-               auto list = get_op(2);
+               auto list = get_op(seq);
 
                while (true) {
                    if (list->type() not_eq Value::Type::cons) {
@@ -3588,14 +3670,13 @@ BUILTIN_TABLE(
 
                return result.result();
 
-           } else if (get_op(2)->type() == Value::Type::string) {
+           } else if (get_op(seq)->type() == Value::Type::string) {
 
                auto inp_str = L_LOAD_STRING(2);
                auto builder = allocate_dynamic<StringBuffer<2000>>("lispslice");
 
                int index = 0;
-               utf8::scan(
-                          [&](const utf8::Codepoint&, const char* raw, int) {
+               utf8::scan([&](const utf8::Codepoint&, const char* raw, int) {
                               if (index >= begin and index < end) {
                                   (*builder) += raw;
                               }

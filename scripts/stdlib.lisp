@@ -93,6 +93,9 @@
                  $1)
          0)))
 
+(defn/c cdr-assoc [2]
+  (let ((kvp (assoc $0 $1)))
+    (if kvp (cdr kvp))))
 
 
 (defn append [2]
@@ -105,6 +108,11 @@
 
 (defn/c push [2]
   (set $0 (cons $1 (eval $0))))
+
+
+(defn/c push-set [2]
+  (let ((tmp (cons $1 (eval $0))))
+    (set $0 (union tmp tmp))))
 
 
 (defn/c merge [3]
@@ -121,7 +129,7 @@
       $0
     (let ((len (length $0)))
       (merge ((this) (slice $0 0 (/ len 2)) $1)
-             ((this) (slice $0 (/ len 2) len) $1)
+             ((this) (slice $0 (/ len 2)) $1)
              $1))))
 
 
@@ -155,6 +163,3 @@
   (let ((v $0))
     (lambda
       (not (equal $0 v)))))
-
-(defn/c contains [2]
-  (filter (equalto? $1) $0))

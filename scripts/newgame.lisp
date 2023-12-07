@@ -33,16 +33,15 @@
  '((power-core 1 13)))
 
 
-(if (equal (diff) 0)
-    (progn
-      (terrain-set (player) 5)
-      (island-configure
-       (player)
-       '((power-core 1 13)
-         (hull 1 12)
-         (hull 2 12)
-         (hull 3 14)
-         (hull 3 13)))))
+(when (equal (diff) 0)
+  (terrain-set (player) 5)
+  (island-configure
+   (player)
+   '((power-core 1 13)
+     (hull 1 12)
+     (hull 2 12)
+     (hull 3 14)
+     (hull 3 13))))
 
 
 (setq shop-items nil)

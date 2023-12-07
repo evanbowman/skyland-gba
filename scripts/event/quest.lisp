@@ -12,7 +12,7 @@
 (let ((lvs
        ;; Collect all quest ids not in the qids (seen) list
        (filter (lambda
-                 (not (contains qids $0)))
+                 (not (filter (equalto? $0) qids)))
                (range 6))))
   (when lvs
     (setq lv (sample lvs))))

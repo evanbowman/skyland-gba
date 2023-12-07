@@ -78,6 +78,4 @@
         (exit)))
 
 
-(setq on-dialog-declined
-      (lambda
-        (exit)))
+(setq on-dialog-declined exit)
