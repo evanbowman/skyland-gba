@@ -522,9 +522,9 @@ ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
     }
 
     auto is_action_key_down = [&] {
-                                  return key_down<Key::action_1>() or
-                                      state_bit_load(StateBit::regression);
-                              };
+        return key_down<Key::action_1>() or
+               state_bit_load(StateBit::regression);
+    };
 
 
     if (ambience_) {

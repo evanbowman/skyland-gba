@@ -98,8 +98,7 @@ char* float_to_string(float f_val, int buffersize, char* result)
     result[2] = '.';
 
     i = 3;
-    while (d_val > 0)
-    {
+    while (d_val > 0) {
         result[i] = (d_val % 10) + '0';
         d_val /= 10;
         i++;

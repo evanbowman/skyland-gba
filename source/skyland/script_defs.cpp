@@ -87,16 +87,6 @@ namespace skyland
 
 
 
-App* __app = nullptr;
-
-
-static App* interp_get_app()
-{
-    return __app;
-}
-
-
-
 extern Sound cannon_sound;
 extern Sound missile_sound;
 
@@ -104,7 +94,7 @@ extern Sound missile_sound;
 
 std::pair<App*, Platform*> interp_get_context()
 {
-    return {interp_get_app(), lisp::interp_get_pfrm()};
+    return {&APP, lisp::interp_get_pfrm()};
 }
 
 
@@ -188,21 +178,16 @@ SYMTAB({{"on-fadein", 0},
 
 BINDING_TABLE({
     {"player",
-     {0,
-      [](int argc) {
-          auto app = interp_get_app();
-          return lisp::make_userdata(&app->player_island());
-      }}},
+     {0, [](int argc) { return lisp::make_userdata(&APP.player_island()); }}},
     {"opponent",
      {0,
       [](int argc) {
-          auto app = interp_get_app();
-          if (not app->opponent_island()) {
+          if (not APP.opponent_island()) {
               if (auto pfrm = lisp::interp_get_pfrm()) {
                   pfrm->fatal("opponent unassigned");
               }
           }
-          return lisp::make_userdata(app->opponent_island());
+          return lisp::make_userdata(APP.opponent_island());
       }}},
     {"lang",
      {0,
@@ -229,7 +214,7 @@ BINDING_TABLE({
           lisp::ListBuilder left;
           lisp::ListBuilder right;
 
-          for (auto& room : interp_get_app()->player_island().rooms()) {
+          for (auto& room : APP.player_island().rooms()) {
               auto pos = room->position();
               switch (room->group()) {
               case Room::Group::count:
@@ -259,7 +244,7 @@ BINDING_TABLE({
     {"groups-reset",
      {0,
       [](int argc) {
-          for (auto& room : interp_get_app()->player_island().rooms()) {
+          for (auto& room : APP.player_island().rooms()) {
               room->set_group(Room::Group::none);
           }
           return L_NIL;
@@ -301,7 +286,7 @@ BINDING_TABLE({
           u8 x = L_LOAD_INT(1);
           u8 y = L_LOAD_INT(0);
 
-          if (auto room = interp_get_app()->player_island().get_room({x, y})) {
+          if (auto room = APP.player_island().get_room({x, y})) {
               auto str = lisp::get_op(2)->symbol().name();
               if (str_eq(str, "Up")) {
                   room->set_group(Room::Group::one);
@@ -323,19 +308,12 @@ BINDING_TABLE({
           lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 1);
           return L_NIL;
       }}},
-    {"diff",
-     {0,
-      [](int argc) {
-          auto app = interp_get_app();
-          return L_INT((int)app->gp_.difficulty_);
-      }}},
+    {"diff", {0, [](int argc) { return L_INT((int)APP.gp_.difficulty_); }}},
     {"diff-set",
      {1,
       [](int argc) {
           L_EXPECT_OP(0, integer);
-          auto app = interp_get_app();
-          app->gp_.difficulty_ =
-              (GlobalPersistentData::Difficulty)L_LOAD_INT(0);
+          APP.gp_.difficulty_ = (GlobalPersistentData::Difficulty)L_LOAD_INT(0);
           return L_NIL;
       }}},
     {"mcr-block-set",
@@ -639,24 +617,22 @@ BINDING_TABLE({
               ++str;
           }
 
-          interp_get_app()->key_callback_processor().push_binding(b);
+          APP.key_callback_processor().push_binding(b);
 
           return L_NIL;
       }}},
     {"key-reset",
      {0,
       [](int argc) {
-          interp_get_app()->key_callback_processor().clear();
+          APP.key_callback_processor().clear();
           return L_NIL;
       }}},
     {"dialog",
      {1,
       [](int argc) {
-          auto app = interp_get_app();
-
           for (int i = argc - 1; i > -1; --i) {
-              if (not app->dialog_buffer()) {
-                  app->dialog_buffer().emplace(
+              if (not APP.dialog_buffer()) {
+                  APP.dialog_buffer().emplace(
                       allocate_dynamic<DialogString>("dialog-buffer"));
               }
 
@@ -669,7 +645,7 @@ BINDING_TABLE({
                   }
               }
 
-              **app->dialog_buffer() += lisp::get_op(i)->string().value();
+              **APP.dialog_buffer() += lisp::get_op(i)->string().value();
           }
 
           return L_NIL;
@@ -1091,9 +1067,6 @@ BINDING_TABLE({
 
           auto island = (Island*)lisp::get_op(4)->user_data().obj_;
 
-          auto app = interp_get_app();
-
-
           auto coord = RoomCoord{
               (u8)lisp::get_op(3)->integer().value_,
               (u8)lisp::get_op(2)->integer().value_,
@@ -1146,9 +1119,9 @@ BINDING_TABLE({
 
           auto conf = lisp::get_op(1);
           if (str_cmp(conf->symbol().name(), "hostile") == 0) {
-              app->swap_opponent<EnemyAI>();
+              APP.swap_opponent<EnemyAI>();
               auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                  island, &app->opponent(), coord, is_replicant);
+                  island, &APP.opponent(), coord, is_replicant);
 
               if (chr) {
                   id = chr->id();
@@ -1160,7 +1133,7 @@ BINDING_TABLE({
 
           } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
               auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                  island, &app->player(), coord, is_replicant);
+                  island, &APP.player(), coord, is_replicant);
 
               if (chr) {
                   chr->set_race(race);
@@ -1199,17 +1172,14 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, user_data);
 
-          if (auto app = interp_get_app()) {
-              RoomCoord& sel = globals().near_cursor_loc_;
+          RoomCoord& sel = globals().near_cursor_loc_;
 
-              if (auto ws = app->scene().cast_world_scene()) {
-                  if (lisp::get_op(2)->user_data().obj_ ==
-                      &app->player_island()) {
-                      sel = globals().far_cursor_loc_;
-                      ws->near_camera();
-                  } else {
-                      ws->far_camera();
-                  }
+          if (auto ws = APP.scene().cast_world_scene()) {
+              if (lisp::get_op(2)->user_data().obj_ == &APP.player_island()) {
+                  sel = globals().far_cursor_loc_;
+                  ws->near_camera();
+              } else {
+                  ws->far_camera();
               }
 
               sel.x = lisp::get_op(1)->integer().value_;
@@ -1223,12 +1193,10 @@ BINDING_TABLE({
           L_EXPECT_OP(0, function);
           L_EXPECT_OP(1, string);
 
-          if (auto app = interp_get_app()) {
-              auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
-              bundle = lisp::make_cons(bundle, lisp::get_op(2));
-              if (bundle->type() == lisp::Value::Type::cons) {
-                  app->setup_input(bundle);
-              }
+          auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+          bundle = lisp::make_cons(bundle, lisp::get_op(2));
+          if (bundle->type() == lisp::Value::Type::cons) {
+              APP.setup_input(bundle);
           }
 
           return L_NIL;
@@ -1276,22 +1244,20 @@ BINDING_TABLE({
       [](int argc) {
           if (argc == 1) {
               L_EXPECT_OP(0, integer);
-              interp_get_app()->exit_condition() =
-                  (App::ExitCondition)L_LOAD_INT(0);
+              APP.exit_condition() = (App::ExitCondition)L_LOAD_INT(0);
           } else {
-              interp_get_app()->exit_condition() = App::ExitCondition::misc;
+              APP.exit_condition() = App::ExitCondition::misc;
           }
           return L_NIL;
       }}},
     {"coins",
      {0,
       [](int argc) {
-          auto app = interp_get_app();
-          if (app->macrocosm()) {
+          if (APP.macrocosm()) {
               // return lisp::make_integer(macrocosm(*app).data_->p().coins_.get());
               return L_NIL;
           } else {
-              return lisp::make_integer(app->coins());
+              return lisp::make_integer(APP.coins());
           }
       }}},
     {"coins-add",
@@ -1299,15 +1265,13 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
 
-          auto app = interp_get_app();
-
-          if (app->macrocosm()) {
+          if (APP.macrocosm()) {
               // auto current = macrocosm(*app).data_->p().coins_.get();
               // current += L_LOAD_INT(0);
               // macrocosm(*app).data_->p().coins_.set(
               //     std::min(std::numeric_limits<macro::Coins>::max(), current));
           } else {
-              app->set_coins(std::max(0, (int)(L_LOAD_INT(0) + app->coins())));
+              APP.set_coins(std::max(0, (int)(L_LOAD_INT(0) + APP.coins())));
           }
 
           return L_NIL;
@@ -1317,35 +1281,26 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
 
-          auto app = interp_get_app();
-          if (app->macrocosm()) {
+          if (APP.macrocosm()) {
               // auto val = L_LOAD_INT(0);
               // macrocosm(*app).data_->p().coins_.set(
               //     std::min(std::numeric_limits<macro::Coins>::max(), val));
           } else {
-              app->set_coins(L_LOAD_INT(0));
+              APP.set_coins(L_LOAD_INT(0));
           }
 
 
           return L_NIL;
       }}},
-    {"coins-victory",
-     {0, [](int argc) { return L_INT(interp_get_app()->victory_coins()); }}},
+    {"coins-victory", {0, [](int argc) { return L_INT(APP.victory_coins()); }}},
     {"eval-file",
      {1,
       [](int argc) {
           L_EXPECT_OP(0, string);
 
-          auto app = interp_get_app();
-          if (app == nullptr) {
-              while (true)
-                  ;
-              return L_NIL;
-          }
-
           auto str = lisp::get_op(0)->string().value();
 
-          return app->invoke_script(str);
+          return APP.invoke_script(str);
       }}},
     {"choice",
      {1,
@@ -1359,7 +1314,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, cons);
 
-          interp_get_app()->swap_player<AutopilotPlayer>(lisp::get_op(0));
+          APP.swap_player<AutopilotPlayer>(lisp::get_op(0));
 
           return L_NIL;
       }}},
@@ -1493,7 +1448,7 @@ BINDING_TABLE({
      {0,
       [](int argc) {
           lisp::ListBuilder builder;
-          for (auto& node : interp_get_app()->world_graph().nodes_) {
+          for (auto& node : APP.world_graph().nodes_) {
               if (node.type_ not_eq WorldGraph::Node::Type::null) {
                   builder.push_back(L_CONS(
                       L_INT((int)node.type_),
@@ -1512,7 +1467,7 @@ BINDING_TABLE({
           const s8 x = L_LOAD_U8(2);
           const s8 y = L_LOAD_U8(1);
 
-          for (auto& node : interp_get_app()->world_graph().nodes_) {
+          for (auto& node : APP.world_graph().nodes_) {
               if (node.coord_ == Vec2<s8>{x, y}) {
                   node.type_ = (WorldGraph::Node::Type)L_LOAD_U8(0);
                   break;
@@ -1524,12 +1479,10 @@ BINDING_TABLE({
     {"wg-pos",
      {0,
       [](int argc) {
-          auto app = interp_get_app();
-
           const auto& node =
-              app->world_graph().nodes_[app->current_world_location()];
+              APP.world_graph().nodes_[APP.current_world_location()];
 
-          return L_CONS(L_INT(app->zone() - 1),
+          return L_CONS(L_INT(APP.zone() - 1),
                         L_CONS(L_INT(node.coord_.x), L_INT(node.coord_.y)));
       }}},
     {"gui-add-node",
@@ -1537,17 +1490,14 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, string);
           L_EXPECT_OP(1, string);
-          auto app = interp_get_app();
-          app->scene().gui_add_node(
-              nullptr, L_LOAD_STRING(1), L_LOAD_STRING(0));
+          APP.scene().gui_add_node(nullptr, L_LOAD_STRING(1), L_LOAD_STRING(0));
           return L_NIL;
       }}},
     {"gui-delete-node",
      {1,
       [](int argc) {
           L_EXPECT_OP(0, string);
-          auto app = interp_get_app();
-          app->scene().gui_delete_node(L_LOAD_STRING(0));
+          APP.scene().gui_delete_node(L_LOAD_STRING(0));
           return L_NIL;
       }}},
     {"fatal",
@@ -1564,8 +1514,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(1, string);
           L_EXPECT_OP(2, string);
-          auto app = interp_get_app();
-          app->scene().gui_set_attr(
+          APP.scene().gui_set_attr(
               L_LOAD_STRING(2), L_LOAD_STRING(1), lisp::get_op0());
           return L_NIL;
       }}},
@@ -1649,8 +1598,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
 
-          auto app = interp_get_app();
-          return L_INT(app->gp_.stateflags_.get(L_LOAD_INT(0)));
+          return L_INT(APP.gp_.stateflags_.get(L_LOAD_INT(0)));
       }}},
     {"save-bit-store",
      {2,
@@ -1658,13 +1606,12 @@ BINDING_TABLE({
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
 
-          auto app = interp_get_app();
-          auto prev = app->gp_.stateflags_.get(L_LOAD_INT(1));
+          auto prev = APP.gp_.stateflags_.get(L_LOAD_INT(1));
 
-          const bool was_set = app->gp_.stateflags_.get(L_LOAD_INT(1));
+          const bool was_set = APP.gp_.stateflags_.get(L_LOAD_INT(1));
           if (not was_set) {
-              app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
-              save::store_global_data(app->gp_);
+              APP.gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
+              save::store_global_data(APP.gp_);
           }
 
           return L_INT(prev);
@@ -1677,16 +1624,14 @@ BINDING_TABLE({
           int challenge = lisp::get_op(0)->integer().value_;
           u64 challenge_bitmask = 1 << challenge;
 
-          auto app = interp_get_app();
-
           const bool was_set =
-              app->gp_.challenge_flags_.get() & challenge_bitmask;
+              APP.gp_.challenge_flags_.get() & challenge_bitmask;
 
           if (not was_set) {
-              app->gp_.challenge_flags_.set(app->gp_.challenge_flags_.get() |
-                                            challenge_bitmask);
+              APP.gp_.challenge_flags_.set(APP.gp_.challenge_flags_.get() |
+                                           challenge_bitmask);
 
-              save::store_global_data(interp_get_app()->gp_);
+              save::store_global_data(APP.gp_);
           }
 
 
@@ -1777,25 +1722,26 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 
     lisp::register_native_interface(ni);
 
-
-    __app = this;
-
     // NOTE: we need to disable custom scripts during startup, otherwise,
     // someone could irreversibly mess up a game.
     const bool was_developer_mode = is_developer_mode();
     set_developer_mode(false);
 
-    msg("compiling LISP libraries...");
+    auto log_cnt = [&] {
+                       msg(format("loading LISP fns... (%)",
+                                  lisp::toplevel_count()).c_str());
+                   };
 
-    auto str = PLATFORM.load_file_contents("scripts", "init.lisp");
-    if (str) {
-        lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            PLATFORM.fatal(p.data_.c_str());
-        });
-    }
+    log_cnt();
+
+    invoke_script("/scripts/stdlib.lisp", true);
+
+    log_cnt();
+
+    invoke_script("/scripts/init.lisp", true);
+
+    log_cnt();
+
 
     set_developer_mode(was_developer_mode);
 }

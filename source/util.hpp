@@ -81,3 +81,14 @@ template <typename T> _detail::reversion_wrapper<T> reversed(T&& iterable)
 {
     return {iterable};
 }
+
+
+template <typename T, typename U> bool contains(const T& t, const U& u)
+{
+    for (auto& v : t) {
+        if (v == u) {
+            return true;
+        }
+    }
+    return false;
+}

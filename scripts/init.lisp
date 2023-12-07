@@ -2,9 +2,6 @@
 ;;; init.lisp
 ;;;
 
-(eval-file "/scripts/stdlib.lisp")
-
-
 ;; Let's define some useful
 ;; builtin functions:
 

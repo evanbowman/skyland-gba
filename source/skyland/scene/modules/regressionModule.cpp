@@ -32,10 +32,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "regressionModule.hpp"
+#include "heap_data.hpp"
+#include "script/lisp.hpp"
 #include "skyland/scene/selectTutorialScene.hpp"
 #include "skyland/skyland.hpp"
-#include "script/lisp.hpp"
-#include "heap_data.hpp"
 
 
 
@@ -72,8 +72,9 @@ ScenePtr<Scene> RegressionModule::update(Microseconds delta)
 
         if (test_index > 0) {
             APP.invoke_script("/scripts/tutorials/test/common.lisp");
-            APP.invoke_script(format("/scripts/tutorials/test/%.lisp",
-                                     test_index - 1).c_str());
+            APP.invoke_script(
+                format("/scripts/tutorials/test/%.lisp", test_index - 1)
+                    .c_str());
         }
 
         if (test_index == SelectTutorialScene::tutorial_count()) {
@@ -94,4 +95,4 @@ RegressionModule::Factory RegressionModule::factory_(true);
 
 
 
-}
+} // namespace skyland

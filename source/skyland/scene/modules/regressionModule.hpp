@@ -47,7 +47,6 @@ namespace skyland
 class RegressionModule : public Module<RegressionModule>
 {
 public:
-
     ScenePtr<Scene> update(Microseconds delta) override;
 
 
@@ -70,8 +69,6 @@ public:
 
 
 private:
-
-
     static Factory factory_;
 };
 

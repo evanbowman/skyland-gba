@@ -62,13 +62,6 @@ o----------------------------o
 
 o----------------------------o
 
- (bisect list)
-
- Split a list in half.
-
-
-o----------------------------o
-
  (cons a b)
 
  Return a pair containing
@@ -165,6 +158,14 @@ o----------------------------o
  containing only elements for
  which function returns a
  non-false value.
+
+
+o----------------------------o
+
+ (flatten list)
+
+ Condense nested lists into
+ one flat list.
 
 
 o----------------------------o
@@ -273,6 +274,14 @@ o----------------------------o
 
  Return list in reverse
  order.
+
+
+o----------------------------o
+
+ (slice list begin end)
+
+ Retrieve a sublist from
+ a list.
 
 
 o----------------------------o
@@ -408,7 +417,7 @@ o----------------------------o
 
 o----------------------------o
 
- (substr string begin end)
+ (slice string begin end)
 
  Retrieve a substring from
  a string.
@@ -495,7 +504,6 @@ o----------------------------o
  (symbol? v)
  (userdata? v)
  (string? v)
- (char? v)
  (odd? v)
 
  Standard predicates.

@@ -60,6 +60,12 @@ void Platform::fatal(const char* msg)
 }
 
 
+Platform::DeltaClock::TimePoint Platform::DeltaClock::sample() const
+{
+    return 0;
+}
+
+
 void arabic__to_string(int num, char* buffer, int base)
 {
     int i = 0;

@@ -81,7 +81,8 @@
 
 (assert-eq 1 (% 10 3))
 
-(assert-eq 0xffffffff (| 0xff00ff00 0x00ff00ff))
+;; FIXME: this test case breaks syntax highlighting in emacs.
+;(assert-eq 0xffffffff (| 0xff00ff00 0x00ff00ff))
 (assert-eq 0x22222222 (& 0x33333333 0xaaaaaaaa))
 (assert-eq 0xffff0000 (~ 0xffff))
 (assert-eq 0x55555555 (^ 0xaaaaaaaa 0xffffffff))
@@ -95,7 +96,7 @@
 (begin-test "STRING")
 
 (assert-eq (length "ありがとうございます") 10)
-(assert-eq (substr "ありがとうございます" 2 7) "がとうござ")
+(assert-eq (slice "ありがとうございます" 2 7) "がとうござ")
 (assert-eq (string 5 12 "foo" 3.5 'nice) "512foo3.5nice")
 
 (end-test)
@@ -106,6 +107,7 @@
 
 (assert-eq 3 (length (cons 1 (cons 2 (cons 3 nil)))))
 (assert-eq -2 (apply - (reverse '(3 1))))
+(assert-eq 8640 (apply * (flatten '((1 1 2) 3 (5 (1 1 (2 3) 6) 8)))))
 
 (end-test)
 
@@ -160,7 +162,7 @@
 
 (assert-eq '(b . 6) (assoc 'b (acons 'b 6 '((b . 7) (c . 8)))))
 (assert-eq 190 (apply + (append (range 10) (range 10 20))))
-(assert-eq '(5 6 7 8) (cdr (bisect '(1 2 3 4 5 6 7 8))))
+(assert-eq '(5 6 7 8) (slice '(1 2 3 4 5 6 7 8) 4 8))
 (assert-eq 8 (caar '((8))))
 (assert-eq 2 (cadr (list 1 2)))
 (assert-v (contains '(1 4.7 sauce "mellow") 'sauce))

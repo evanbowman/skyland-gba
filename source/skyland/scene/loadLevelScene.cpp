@@ -210,6 +210,7 @@ ScenePtr<Scene> LoadLevelScene::update(Microseconds delta)
     } else {
         APP.swap_environment<weather::ClearSkies>();
     }
+    APP.player_island().recalculate_power_usage();
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:

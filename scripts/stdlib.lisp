@@ -107,20 +107,6 @@
   (set $0 (cons $1 (eval $0))))
 
 
-(setq bisect
-     (let ((impl (compile
-                  (lambda
-                    (if (not $1)
-                        (cons (reverse $2) $0)
-                      (if (not (cdr $1))
-                          (cons (reverse $2) $0)
-                        ((this)
-                         (cdr $0)
-                         (cdr (cdr $1))
-                         (cons (car $0) $2))))))))
-       (lambda (impl $0 $0 '()))))
-
-
 (defn/c merge [3]
   (cond
    ((not $0) $1)
@@ -133,9 +119,9 @@
 (defn/c sort [2]
   (if (not (cdr $0))
       $0
-    (let ((temp (bisect $0)))
-      (merge (sort (car temp) $1)
-             (sort (cdr temp) $1)
+    (let ((len (length $0)))
+      (merge ((this) (slice $0 0 (/ len 2)) $1)
+             ((this) (slice $0 (/ len 2) len) $1)
              $1))))
 
 
@@ -164,6 +150,11 @@
 ;; e.g.: ((equalto? 2) 2) -> true
 (defn/c equalto? [1]
   (curry equal $0))
+
+(defn/c notequal? [1]
+  (let ((v $0))
+    (lambda
+      (not (equal $0 v)))))
 
 (defn/c contains [2]
   (filter (equalto? $1) $0))

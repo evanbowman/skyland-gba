@@ -52,8 +52,7 @@ using Opcode = u8;
 namespace instruction {
 
 
-template <typename T>
-struct PackedData {
+template <typename T> struct PackedData {
     T get()
     {
         T result;
@@ -70,10 +69,8 @@ struct PackedData {
 };
 
 
-
 using UnalignedPtr = PackedData<const char*>;
 using PackedFloat = PackedData<float>;
-
 
 
 struct Header {

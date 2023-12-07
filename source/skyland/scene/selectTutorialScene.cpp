@@ -57,10 +57,10 @@ int SelectTutorialScene::tutorial_count()
                                                   "tutorials/tutorials.lisp")) {
         lisp::BasicCharSequence seq(script);
         auto result = lisp::dostring(seq, [](lisp::Value& err) {
-                                              lisp::DefaultPrinter p;
-                                              lisp::format(&err, p);
-                                              PLATFORM.fatal(p.data_.c_str());
-                                          });
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            PLATFORM.fatal(p.data_.c_str());
+        });
         return lisp::length(result);
     }
     return 0;

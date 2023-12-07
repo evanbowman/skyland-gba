@@ -92,7 +92,6 @@ struct ValueHeader {
         user_data,
         data_buffer,
         string,
-        character,
         fp,
         __reserved,
         count,
@@ -246,21 +245,6 @@ struct Float {
 };
 
 
-struct Character {
-    ValueHeader hdr_;
-    utf8::Codepoint cp_;
-
-    static ValueHeader::Type type()
-    {
-        return ValueHeader::Type::character;
-    }
-
-    static constexpr void finalizer(Value*)
-    {
-    }
-};
-
-
 struct CompressedPtr {
 #ifdef USE_COMPRESSED_PTRS
     u16 offset_;
@@ -276,6 +260,9 @@ Value* dcompr(CompressedPtr ptr);
 
 struct Cons {
     ValueHeader hdr_;
+
+    u8 is_definitely_list_ : 1;
+    u8 cached_length_ : 7;
 
     static ValueHeader::Type type()
     {
@@ -298,6 +285,12 @@ struct Cons {
     }
 
     void set_cdr(Value* val)
+    {
+        is_definitely_list_ = false;
+        __set_cdr(val);
+    }
+
+    void __set_cdr(Value* val)
     {
         cdr_ = val;
     }
@@ -582,11 +575,6 @@ struct Value {
         return *reinterpret_cast<String*>(this);
     }
 
-    Character& character()
-    {
-        return *reinterpret_cast<Character*>(this);
-    }
-
     template <typename T> T& expect()
     {
         if (this->type() == T::type()) {
@@ -610,7 +598,6 @@ Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
-Value* make_character(utf8::Codepoint cp);
 Value* make_float(Float::ValueType v);
 
 
@@ -685,6 +672,10 @@ void register_native_interface(NativeInterface ni);
 
 void get_interns(SymbolCallback callback);
 void get_env(SymbolCallback callback);
+
+
+// Number of variables in the toplevel environment, for logging purposes.
+int toplevel_count();
 
 
 Value* get_nil();

@@ -78,7 +78,6 @@ union ValueMemory {
     UserData user_data_;
     DataBuffer data_buffer_;
     String string_;
-    Character character_;
     __Reserved __reserved_;
 };
 
@@ -485,7 +484,7 @@ static Value* globals_tree_find(Value* key)
 }
 
 
-bool is_list(Value* val)
+static bool is_list_slowpath(Value* val)
 {
     while (val not_eq get_nil()) {
         if (val->type() not_eq Value::Type::cons) {
@@ -497,15 +496,21 @@ bool is_list(Value* val)
 }
 
 
-u16 symbol_offset(const char* symbol)
+bool is_list(Value* val)
 {
-    return symbol - symbol_intern_table;
-}
+    if (val->type() == Value::Type::cons and
+        val->cons().is_definitely_list_) {
+        return true;
+    }
 
+    if (is_list_slowpath(val)) {
+        if (val->type() == Value::Type::cons) {
+            val->cons().is_definitely_list_ = true;
+        }
+        return true;
+    }
 
-const char* symbol_from_offset(u16 offset)
-{
-    return symbol_intern_table + offset;
+    return false;
 }
 
 
@@ -590,6 +595,12 @@ int length(Value* lat)
         return 0;
     }
 
+    Value* front = lat;
+
+    if (front->cons().cached_length_) {
+        return front->cons().cached_length_;
+    }
+
     int len = 0;
     while (true) {
         ++len;
@@ -601,6 +612,11 @@ int length(Value* lat)
             break;
         }
     }
+
+    if (len < 127) {
+        front->cons().cached_length_ = len;
+    }
+
     return len;
 }
 
@@ -706,7 +722,9 @@ Value* make_cons(Value* car, Value* cdr)
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::cons;
         val->cons().set_car(car);
-        val->cons().set_cdr(cdr);
+        val->cons().__set_cdr(cdr);
+        val->cons().is_definitely_list_ = false;
+        val->cons().cached_length_ = 0;
         return val;
     }
     return bound_context->oom_;
@@ -928,17 +946,6 @@ Value* make_string(const char* string)
             return bound_context->oom_;
         }
     }
-}
-
-
-Value* make_character(utf8::Codepoint cp)
-{
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::user_data;
-        val->character().cp_ = cp;
-        return val;
-    }
-    return bound_context->oom_;
 }
 
 
@@ -1325,10 +1332,6 @@ void format_impl(Value* value, Printer& p, int depth)
     case lisp::Value::Type::__reserved:
         break;
 
-    case lisp::Value::Type::character:
-        // TODO...
-        break;
-
     case lisp::Value::Type::string:
         p.put_str("\"");
         p.put_str(value->string().value());
@@ -1637,7 +1640,6 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         UserData::finalizer,
         DataBuffer::finalizer,
         String::finalizer,
-        Character::finalizer,
         Float::finalizer,
         __Reserved::finalizer,
 };
@@ -1655,6 +1657,74 @@ void DataBuffer::finalizer(Value* buffer)
 {
     reinterpret_cast<ScratchBufferPtr*>(buffer->data_buffer().sbr_mem_)
         ->~ScratchBufferPtr();
+}
+
+
+int compact_string_memory()
+{
+    // The interpreter uses bump allocation when allocating strings. This can
+    // cause fragmentation, and after collecting lisp objects, we should squeeze
+    // the resulting gaps out of the memory region used for storing strings.
+
+    auto& ctx = *bound_context;
+    for (auto& v : *ctx.operand_stack_) {
+        if (v->type() == Value::Type::string) {
+            // It isn't safe to move internal string pointers around when string
+            // values are currently on the stack, because a library user could
+            // have a raw pointer to the string memory that we want to move.
+            return 0;
+        }
+    }
+
+    auto new_buffer = [] { return make_databuffer("string-memory"); };
+
+    auto db = new_buffer();
+    u32 write_offset = 0;
+    u32 string_bytes_total = 0;
+
+    Vector<Value*> recovered_buffers;
+
+    for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+        Value* val = (Value*)&value_pool_data[i];
+
+        if (val->hdr_.alive_ and val->type() == Value::Type::string and
+            not val->string().is_literal_) {
+
+            const auto len = strlen(val->string().value()) + 1;
+
+            if (write_offset + len >= SCRATCH_BUFFER_SIZE) {
+                write_offset = 0;
+                db = new_buffer();
+            }
+
+            memcpy(db->data_buffer().value()->data_ + write_offset,
+                   val->string().value(),
+                   len);
+
+            auto old_buffer = dcompr(val->string().data_.memory_.data_buffer_);
+            if (not contains(recovered_buffers, old_buffer)) {
+                recovered_buffers.push_back(old_buffer);
+            }
+
+            val->string().data_.memory_.data_buffer_ = compr(db);
+            val->string().data_.memory_.offset_ = write_offset;
+
+            write_offset += len;
+            string_bytes_total += len;
+        }
+    }
+
+    ctx.string_buffer_ = db;
+    ctx.string_buffer_remaining_ = (SCRATCH_BUFFER_SIZE - (write_offset + 1));
+
+    for (auto& b : recovered_buffers) {
+        value_pool_free(b);
+    }
+
+    return recovered_buffers.size();
+
+    // info(::format("compacted string memory, % total in use",
+    //               string_bytes_total));
 }
 
 
@@ -1688,6 +1758,8 @@ static int gc_sweep()
         bound_context->alloc_highwater_ = used_count;
         info(::format("LISP mem %", used_count));
     }
+
+    collect_count += compact_string_memory();
 
     return collect_count;
 }
@@ -1775,8 +1847,8 @@ static u32 read_list(CharSequence& code, int offset)
             } else {
                 i += 1;
                 if (dotted_pair or result == get_nil()) {
-                    push_op(lisp::make_error(Error::Code::mismatched_parentheses,
-                                             L_NIL));
+                    push_op(lisp::make_error(
+                        Error::Code::mismatched_parentheses, L_NIL));
                     return i;
                 } else {
                     dotted_pair = true;
@@ -2685,7 +2757,6 @@ bool is_equal(Value* lhs, Value* rhs)
 
     case Value::Type::count:
     case Value::Type::__reserved:
-    case Value::Type::character:
     case Value::Type::nil:
     case Value::Type::heap_node:
     case Value::Type::data_buffer:
@@ -2991,7 +3062,7 @@ BUILTIN_TABLE(
       {1,
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::fp);
-      }}},
+       }}},
      {"pair?",
       {1,
        [](int argc) {
@@ -3021,11 +3092,6 @@ BUILTIN_TABLE(
       {1,
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::string);
-       }}},
-     {"char?",
-      {1,
-       [](int argc) {
-           return make_boolean(get_op0()->type() == Value::Type::character);
        }}},
      {"odd?",
       {1,
@@ -3479,30 +3545,71 @@ BUILTIN_TABLE(
 
            return make_string(builder->c_str());
        }}},
-     {"substr",
+     {"profile",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, function);
+           auto start = PLATFORM.delta_clock().sample();
+           funcall(get_op0(), 0);
+           auto stop = PLATFORM.delta_clock().sample();
+           pop_op();
+           return L_INT(stop - start);
+       }}},
+     {"slice",
       {3,
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
-           L_EXPECT_OP(2, string);
 
-           auto inp_str = L_LOAD_STRING(2);
            auto begin = L_LOAD_INT(1);
            auto end = L_LOAD_INT(0);
-
-           auto builder = allocate_dynamic<StringBuffer<2000>>("lisp-substr");
-
            int index = 0;
-           utf8::scan([&](const utf8::Codepoint&, const char* raw, int) {
-                          if (index >= begin and index < end) {
-                              (*builder) += raw;
-                          }
-                          ++index;
-                      },
-               inp_str,
-               strlen(inp_str));
 
-           return make_string(builder->c_str());
+           if (get_op(2)->type() == Value::Type::cons) {
+               ListBuilder result;
+
+               auto list = get_op(2);
+
+               while (true) {
+                   if (list->type() not_eq Value::Type::cons) {
+                       break;
+                   } else {
+                       auto v = list->cons().car();
+                       if (index >= begin and index < end) {
+                           result.push_back(v);
+                       } else if (index == end) {
+                           break;
+                       }
+                       ++index;
+                   }
+
+                   list = list->cons().cdr();
+               }
+
+               return result.result();
+
+           } else if (get_op(2)->type() == Value::Type::string) {
+
+               auto inp_str = L_LOAD_STRING(2);
+               auto builder = allocate_dynamic<StringBuffer<2000>>("lispslice");
+
+               int index = 0;
+               utf8::scan(
+                          [&](const utf8::Codepoint&, const char* raw, int) {
+                              if (index >= begin and index < end) {
+                                  (*builder) += raw;
+                              }
+                              ++index;
+                          },
+                          inp_str,
+                          strlen(inp_str));
+
+               return make_string(builder->c_str());
+
+           } else {
+               L_EXPECT_OP(2, cons);
+               return L_NIL;
+           }
        }}},
      {"string",
       {0,
@@ -3622,8 +3729,7 @@ BUILTIN_TABLE(
 
            int index = 0;
 
-           Value* result = make_list(len);
-           push_op(result); // protect from the gc
+           ListBuilder result;
 
            // Because the length function returned a non-zero value, we've
            // already succesfully scanned the list, so we don't need to do any
@@ -3637,15 +3743,35 @@ BUILTIN_TABLE(
                }
                funcall(fn, inp_lats.size());
 
-               set_list(result, index, get_op0());
+               result.push_back(get_op0());
                pop_op();
 
                ++index;
            }
 
-           pop_op(); // the protected result list
+           return result.result();
+       }}},
+     {"flatten",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
 
-           return result;
+           auto inp = get_op0();
+
+           lisp::ListBuilder b;
+
+           ::Function<6 * sizeof(void*), void(Value*)> flatten_impl([](Value*){});
+           flatten_impl = [&](Value* val) {
+                              if (is_list(val)) {
+                                  foreach(val, flatten_impl);
+                              } else {
+                                  b.push_back(val);
+                              }
+                          };
+
+           foreach(inp, flatten_impl);
+
+           return b.result();
        }}},
      {"reverse",
       {1,
@@ -4145,6 +4271,23 @@ BUILTIN_TABLE(
                return get_nil();
            }
        }}}});
+
+
+int toplevel_count()
+{
+    int count = 0;
+
+    auto& ctx = bound_context;
+
+    globals_tree_traverse(ctx->globals_tree_, [&count](Value& val, Value&) {
+        ++count;
+    });
+
+    ctx->native_interface_.get_symbols_([&count](const char*) { ++count; });
+    count += builtin_table.size();
+
+    return count;
+}
 
 
 void get_env(SymbolCallback callback)

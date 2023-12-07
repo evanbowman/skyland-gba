@@ -420,6 +420,9 @@ public:
     }
 
 
+    void recalculate_power_usage();
+
+
 private:
     void repaint_partial();
 
@@ -428,9 +431,6 @@ private:
 
 
     void resolve_cancelled_dispatch();
-
-
-    void recalculate_power_usage();
 
 
     void check_destroyed();

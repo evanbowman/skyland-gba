@@ -41,7 +41,6 @@
 #include <sstream>
 
 
-
 class Printer : public lisp::Printer {
 public:
     void put_str(const char* str) override
@@ -49,7 +48,6 @@ public:
         std::cout << str;
     }
 };
-
 
 
 const char* utilities =
@@ -96,8 +94,10 @@ const char* utilities =
     "                    (lambda ,@(cdr REST))\n"
     "                    ,(cons $q (car REST))))\n"
     "\n"
-    ";; Defines a bytecode-compiled function.  You should only compile long-lived\n"
-    ";; functions, because bytecode cannot be deallocated. At the same time, bytecode\n"
+    ";; Defines a bytecode-compiled function.  You should only compile "
+    "long-lived\n"
+    ";; functions, because bytecode cannot be deallocated. At the same time, "
+    "bytecode\n"
     ";; takes up less space than non-compiled functions.\n"
     "(macro defn/c (NAME REST)\n"
     "       `(safe-setfn ,(cons $q NAME)\n"
@@ -113,22 +113,28 @@ const char* utilities =
     "(macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))\n"
     "(macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))\n"
     "\n"
-    ";; NOTE: for historical reasons, lambdas do not include syntax for specifying an\n"
-    ";; argument count, as this scripting language only supports numbered positional\n"
-    ";; arguments. Require-args was a safety feature added retrospectively, and I've\n"
+    ";; NOTE: for historical reasons, lambdas do not include syntax for "
+    "specifying an\n"
+    ";; argument count, as this scripting language only supports numbered "
+    "positional\n"
+    ";; arguments. Require-args was a safety feature added retrospectively, "
+    "and I've\n"
     ";; hacked it into the function defintion macros.\n"
     "(setq safe-setfn\n"
     "      (require-args\n"
     "       (compile\n"
     "        (lambda\n"
-    "          ;; safe-setfn is responsible for validating the format of data passed\n"
+    "          ;; safe-setfn is responsible for validating the format of data "
+    "passed\n"
     "          ;; to defn, and setting the function in the environment.\n"
     "          ;;\n"
-    "          ;; Make sure that the user remembered to specify an argument count\n"
+    "          ;; Make sure that the user remembered to specify an argument "
+    "count\n"
     "          ;; when using one of the defn macros:\n"
     "          (when (or (not (pair? $2))\n"
     "                    (not (int? (car $2)))\n"
-    "                    (cdr $2)) ;; b/c arg count must be a list with one element\n"
+    "                    (cdr $2)) ;; b/c arg count must be a list with one "
+    "element\n"
     "            (fatal (string $0 \": invalid defn, missing argc\")))\n"
     "          (set $0 (require-args $1 (car $2)))))\n"
     "       3))\n"
@@ -151,7 +157,8 @@ const char* utilities =
     "\n"
     "\n"
     "(defn append [2]\n"
-    "  ;; Not the most efficient way to implement append, but this implementation\n"
+    "  ;; Not the most efficient way to implement append, but this "
+    "implementation\n"
     "  ;; with unquote-splicing is quite compact.\n"
     "  `(,@$0 ,@$1))\n"
     "\n"
@@ -215,14 +222,15 @@ const char* utilities =
     "    (lambda\n"
     "      (apply func (append args $V)))))\n"
     "\n"
-";; Return a predicate that returns true if its argument equals the supplied value.\n"
-";; e.g.: ((equalto? 2) 2) -> true\n"
-"(defn/c equalto? [1]\n"
-"  (curry equal $0))\n"
-"\n"
-"(defn/c contains [2]\n"
-"  (filter (equalto? $1) $0))\n"
-"";
+    ";; Return a predicate that returns true if its argument equals the "
+    "supplied value.\n"
+    ";; e.g.: ((equalto? 2) 2) -> true\n"
+    "(defn/c equalto? [1]\n"
+    "  (curry equal $0))\n"
+    "\n"
+    "(defn/c contains [2]\n"
+    "  (filter (equalto? $1) $0))\n"
+    "";
 
 
 int main(int argc, char** argv)
@@ -234,37 +242,33 @@ int main(int argc, char** argv)
     lisp::BasicCharSequence ut_seq(utilities);
     lisp::dostring(ut_seq, [](lisp::Value& err) {});
 
-    lisp::set_var("newline",
-                  lisp::make_function([](int argc) {
-                                          std::cout << std::endl;
-                                          return L_NIL;
-                                      }));
+    lisp::set_var("newline", lisp::make_function([](int argc) {
+                      std::cout << std::endl;
+                      return L_NIL;
+                  }));
 
-    lisp::set_var("put",
-                  lisp::make_function([](int argc) {
-                                          L_EXPECT_ARGC(argc, 1);
-                                          L_EXPECT_OP(0, string);
-                                          std::cout << L_LOAD_STRING(0);
-                                          return L_NIL;
-                                      }));
+    lisp::set_var("put", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, string);
+                      std::cout << L_LOAD_STRING(0);
+                      return L_NIL;
+                  }));
 
-    lisp::set_var("print",
-                  lisp::make_function([](int argc) {
-                                          L_EXPECT_ARGC(argc, 1);
-                                          Printer p;
-                                          format(lisp::get_op0(), p);
-                                          return L_NIL;
-                                      }));
+    lisp::set_var("print", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      Printer p;
+                      format(lisp::get_op0(), p);
+                      return L_NIL;
+                  }));
 
-    lisp::set_var("getline",
-                  lisp::make_function([](int argc) {
-                                          std::string line;
-                                          if (std::getline(std::cin, line)) {
-                                              return lisp::make_string(line.c_str());
-                                          } else {
-                                              return L_NIL;
-                                          }
-                                      }));
+    lisp::set_var("getline", lisp::make_function([](int argc) {
+                      std::string line;
+                      if (std::getline(std::cin, line)) {
+                          return lisp::make_string(line.c_str());
+                      } else {
+                          return L_NIL;
+                      }
+                  }));
 
     for (int i = 1; i < argc; ++i) {
         auto path = argv[i];
@@ -274,11 +278,11 @@ int main(int argc, char** argv)
         auto str = buffer.str();
         lisp::BasicCharSequence seq(str.c_str());
         lisp::dostring(seq, [](lisp::Value& err) {
-                                Printer p;
-                                lisp::format(&err, p);
-                                std::cout << std::endl;
-                                exit(EXIT_FAILURE);
-                           });
+            Printer p;
+            lisp::format(&err, p);
+            std::cout << std::endl;
+            exit(EXIT_FAILURE);
+        });
     }
 
     return EXIT_SUCCESS;

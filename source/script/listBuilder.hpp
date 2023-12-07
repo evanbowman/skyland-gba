@@ -49,9 +49,12 @@ public:
 
     void push_front(Value* val)
     {
+        ++length_;
+
         Protected protected_val(val);
 
         auto next = make_cons(val, head_);
+        next->cons().is_definitely_list_ = true;
 
         if (tail_ == nullptr) {
             tail_ = next;
@@ -65,10 +68,12 @@ public:
         if (tail_ == nullptr) {
             push_front(val);
         } else {
+            ++length_;
             Protected protected_val(val);
             if (tail_->type() == Value::Type::cons) {
                 auto new_tail = make_cons(val, L_NIL);
-                tail_->cons().set_cdr(new_tail);
+                new_tail->cons().is_definitely_list_ = true;
+                tail_->cons().__set_cdr(new_tail);
                 tail_ = new_tail;
             }
         }
@@ -76,12 +81,16 @@ public:
 
     Value* result()
     {
+        if (length_ < 127) {
+            head_->cons().cached_length_ = length_;
+        }
         return head_;
     }
 
 private:
     Protected head_;
     Value* tail_ = nullptr;
+    int length_ = 0;
 };
 
 
