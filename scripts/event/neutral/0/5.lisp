@@ -82,4 +82,4 @@
         (exit)))
 
 
-(on-dialog-declined exit)
+(setq on-dialog-declined exit)
