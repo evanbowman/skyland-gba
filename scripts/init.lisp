@@ -76,7 +76,7 @@
 
 ;; shortcut accessors for room metadata
 (defn/c rinfo [2]
-  (cdr (assoc $0 (room-meta $1))))
+  (cdr-assoc $0 (room-meta $1)))
 
 
 ;; Shortcut for making sure enough space on a player's island exists to place a

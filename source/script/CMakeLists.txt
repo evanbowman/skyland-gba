@@ -27,6 +27,9 @@ target_compile_options(LISP PRIVATE
   -O3)
 
 
+install(TARGETS LISP DESTINATION bin)
+
+
 # add_executable(LISPC
 #   vm.cpp
 #   lisp.cpp

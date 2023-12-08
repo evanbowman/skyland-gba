@@ -5,7 +5,7 @@
   (flag-show (player) 0)
 
   (let ((data $0))
-    (let ((load (lambda (cdr (assoc $0 data)))))
+    (let ((load (lambda (cdr-assoc $0 data))))
       (if (> (load 'save-protocol) 2)
           (progn
             (terrain-set (player) (car (load 'terrain)))
@@ -29,11 +29,11 @@
                                                  type
                                                  plst))
 
-                              (let ((hp (assoc 'hp plst)))
+                              (let ((hp (cdr-assoc 'hp plst)))
                                 (if hp
-                                    (chr-hp chr (cdr hp))))
+                                    (chr-hp chr hp)))
 
-                              (chr-id chr (cdr (assoc 'id plst))))))
+                              (chr-id chr (cdr-assoc 'id plst)))))
 
                         clst)))))
 

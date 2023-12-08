@@ -1728,9 +1728,8 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     set_developer_mode(false);
 
     auto log_cnt = [&] {
-                       msg(format("loading LISP fns... (%)",
-                                  lisp::toplevel_count()).c_str());
-                   };
+        msg(format("loading LISP fns... (%)", lisp::toplevel_count()).c_str());
+    };
 
     log_cnt();
 

@@ -32,7 +32,7 @@
                        (cargo (player) (car $0) (cdr $0))))
                     c)))
             (if p
-                (let ((sale (+ 1000 (* (cdr (assoc 4 qvar)) 2))))
+                (let ((sale (+ 1000 (* (cdr-assoc 4 qvar) 2))))
                   ;; Clear out cargo
                   (cargo-set
                    (player)

@@ -1,3 +1,4 @@
+(gc)
 
 (setq put log)
 (setq newline (lambda nil))

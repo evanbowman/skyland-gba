@@ -37,6 +37,7 @@
 #include "bytecode.hpp"
 #include "eternal/eternal.hpp"
 #include "heap_data.hpp"
+#include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "localization.hpp"
 #include "memory/buffer.hpp"
@@ -498,8 +499,7 @@ static bool is_list_slowpath(Value* val)
 
 bool is_list(Value* val)
 {
-    if (val->type() == Value::Type::cons and
-        val->cons().is_definitely_list_) {
+    if (val->type() == Value::Type::cons and val->cons().is_definitely_list_) {
         return true;
     }
 
@@ -1199,19 +1199,6 @@ Value* get_var_stable(const char* intern_str)
 }
 
 
-// unsafe! Intended only for executing compiled bytecode.
-Value* _get_local(u8 slot)
-{
-    auto stack = bound_context->lexical_bindings_;
-    auto bindings = stack->cons().car();
-
-    while (slot--) {
-        bindings = bindings->cons().cdr();
-    }
-    return bindings->cons().car()->cons().cdr();
-}
-
-
 bool is_boolean_true(Value* val)
 {
     switch (val->type()) {
@@ -1718,6 +1705,7 @@ int compact_string_memory()
     ctx.string_buffer_remaining_ = (SCRATCH_BUFFER_SIZE - (write_offset + 1));
 
     for (auto& b : recovered_buffers) {
+        invoke_finalizer(b);
         value_pool_free(b);
     }
 
@@ -2876,14 +2864,18 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
 static bool contains(Value* list, Value* val)
 {
     bool result = false;
-    foreach(list, [&](Value* v2) {
-                      if (is_equal(val, v2)) {
-                          result = true;
-                      }
-                  });
+    foreach (list, [&](Value* v2) {
+        if (is_equal(val, v2)) {
+            result = true;
+        }
+    })
+        ;
 
     return result;
 }
+
+
+const char* nameof(Function::CPP_Impl impl);
 
 
 #ifdef __GBA__
@@ -3220,18 +3212,16 @@ BUILTIN_TABLE(
      {"difference",
       {2,
        [](int argc) {
-
            ListBuilder list;
 
-           auto find_difference =
-               [&](Value* lat1, Value* lat2) {
-                   foreach(lat1,
-                           [&](Value* v1) {
-                               if (not contains(lat2, v1)) {
-                                   list.push_back(v1);
-                               }
-                           });
-               };
+           auto find_difference = [&](Value* lat1, Value* lat2) {
+               foreach (lat1, [&](Value* v1) {
+                   if (not contains(lat2, v1)) {
+                       list.push_back(v1);
+                   }
+               })
+                   ;
+           };
            find_difference(get_op0(), get_op1());
            find_difference(get_op1(), get_op0());
 
@@ -3240,24 +3230,21 @@ BUILTIN_TABLE(
      {"union",
       {2,
        [](int argc) {
-
            ListBuilder list;
 
-           foreach(get_op0(),
-                   [&](Value* v) {
-                       if (not contains(list.result(), v) and
-                           contains(get_op1(), v)) {
-                           list.push_back(v);
-                       }
-                   });
+           foreach (get_op0(), [&](Value* v) {
+               if (not contains(list.result(), v) and contains(get_op1(), v)) {
+                   list.push_back(v);
+               }
+           })
+               ;
 
-           foreach(get_op1(),
-                   [&](Value* v) {
-                       if (not contains(list.result(), v) and
-                           contains(get_op0(), v)) {
-                           list.push_back(v);
-                       }
-                   });
+           foreach (get_op1(), [&](Value* v) {
+               if (not contains(list.result(), v) and contains(get_op0(), v)) {
+                   list.push_back(v);
+               }
+           })
+               ;
 
            return list.result();
        }}},
@@ -3627,7 +3614,6 @@ BUILTIN_TABLE(
      {"slice",
       {2,
        [](int argc) {
-
            int begin = 0;
            int end = 0;
 
@@ -3676,14 +3662,15 @@ BUILTIN_TABLE(
                auto builder = allocate_dynamic<StringBuffer<2000>>("lispslice");
 
                int index = 0;
-               utf8::scan([&](const utf8::Codepoint&, const char* raw, int) {
-                              if (index >= begin and index < end) {
-                                  (*builder) += raw;
-                              }
-                              ++index;
-                          },
-                          inp_str,
-                          strlen(inp_str));
+               utf8::scan(
+                   [&](const utf8::Codepoint&, const char* raw, int) {
+                       if (index >= begin and index < end) {
+                           (*builder) += raw;
+                       }
+                       ++index;
+                   },
+                   inp_str,
+                   strlen(inp_str));
 
                return make_string(builder->c_str());
 
@@ -3841,16 +3828,19 @@ BUILTIN_TABLE(
 
            lisp::ListBuilder b;
 
-           ::Function<6 * sizeof(void*), void(Value*)> flatten_impl([](Value*){});
+           ::Function<6 * sizeof(void*), void(Value*)> flatten_impl(
+               [](Value*) {});
            flatten_impl = [&](Value* val) {
-                              if (is_list(val)) {
-                                  foreach(val, flatten_impl);
-                              } else {
-                                  b.push_back(val);
-                              }
-                          };
+               if (is_list(val)) {
+                   foreach (val, flatten_impl)
+                       ;
+               } else {
+                   b.push_back(val);
+               }
+           };
 
-           foreach(inp, flatten_impl);
+           foreach (inp, flatten_impl)
+               ;
 
            return b.result();
        }}},
@@ -3992,13 +3982,29 @@ BUILTIN_TABLE(
                    case Fatal::op():
                        return get_nil();
 
+                   case LoadBuiltin::op(): {
+                       out += LoadBuiltin::name();
+                       out += "(";
+                       auto ptr = ((UnalignedPtr*)(data->data_ + i + 1))->get();
+                       out += nameof((Function::CPP_Impl)ptr);
+                       out += ":";
+                       out += stringify(
+                           *(u8*)(data->data_ + i + 1 + sizeof(UnalignedPtr)));
+                       out += ")";
+                       i += sizeof(LoadBuiltin);
+                       break;
+                   }
+
+                   case load_var_nonlocal:
                    case LoadVar::op():
-                       out += "LOAD_VAR(";
+                       out += LoadVar::name();
+                       out += "(";
                        out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
                        out += ")";
                        i += sizeof(LoadVar);
                        break;
 
+                   case load_var_small_nonlocal:
                    case LoadVarSmall::op(): {
                        i += 1;
                        out += "LOAD_VAR_SMALL(";
@@ -4008,15 +4014,20 @@ BUILTIN_TABLE(
                        }
                        out += name.c_str();
                        out += ")";
-                       i += 4;
+                       i += 5;
                        break;
                    }
 
-                   case LoadLocal::op(): {
+                   case LoadLocalCached::op(): {
                        i += 1;
-                       out += "LOAD_LOCAL(";
-                       out += to_string<10>(*(u8*)(data->data_ + i));
+                       out += "LOAD_LOCAL_CACHED(";
+                       out += stringify((int)*(data->data_ + i));
+                       i += 1;
+                       out += ", ";
+                       out += stringify((int)*(data->data_ + i));
+                       i += 1;
                        out += ")";
+                       i += *(data->data_ + i); // padding
                        i += 1;
                        break;
                    }
@@ -4276,6 +4287,48 @@ BUILTIN_TABLE(
                        i += sizeof(LexicalDef);
                        break;
 
+                   case LexicalDefSmallFromArg0::op(): {
+                       out += LexicalDefSmallFromArg0::name();
+                       out += "(";
+                       i += 1;
+                       StringBuffer<4> name;
+                       for (int j = 0; j < 4; ++j) {
+                           name.push_back(*(data->data_ + i + j));
+                       }
+                       out += name.c_str();
+                       out += ")";
+                       i += 4;
+                       break;
+                   }
+
+                   case LexicalDefSmallFromArg1::op(): {
+                       out += LexicalDefSmallFromArg1::name();
+                       out += "(";
+                       i += 1;
+                       StringBuffer<4> name;
+                       for (int j = 0; j < 4; ++j) {
+                           name.push_back(*(data->data_ + i + j));
+                       }
+                       out += name.c_str();
+                       out += ")";
+                       i += 4;
+                       break;
+                   }
+
+                   case LexicalDefSmallFromArg2::op(): {
+                       out += LexicalDefSmallFromArg2::name();
+                       out += "(";
+                       i += 1;
+                       StringBuffer<4> name;
+                       for (int j = 0; j < 4; ++j) {
+                           name.push_back(*(data->data_ + i + j));
+                       }
+                       out += name.c_str();
+                       out += ")";
+                       i += 4;
+                       break;
+                   }
+
                    case LexicalDefSmall::op(): {
                        out += LexicalDefSmall::name();
                        out += "(";
@@ -4360,9 +4413,8 @@ int toplevel_count()
 
     auto& ctx = bound_context;
 
-    globals_tree_traverse(ctx->globals_tree_, [&count](Value& val, Value&) {
-        ++count;
-    });
+    globals_tree_traverse(ctx->globals_tree_,
+                          [&count](Value& val, Value&) { ++count; });
 
     ctx->native_interface_.get_symbols_([&count](const char*) { ++count; });
     count += builtin_table.size();
@@ -4440,6 +4492,77 @@ const char* intern(const char* string)
 }
 
 
+Value* __get_local(LocalVariableOffset off)
+{
+    auto stack = bound_context->lexical_bindings_;
+
+    while (off.first) {
+        stack = stack->cons().cdr();
+        --off.first;
+    }
+
+    auto bindings = stack->cons().car();
+    while (off.second) {
+        bindings = bindings->cons().cdr();
+        --off.second;
+    }
+
+    auto kvp = bindings->cons().car();
+    return kvp->cons().cdr();
+}
+
+
+std::optional<LocalVariableOffset> __find_local(const char* intern_str)
+{
+    LocalVariableOffset ret{0, 0};
+
+    auto symbol = make_symbol(intern_str, Symbol::ModeBits::stable_pointer);
+
+    if (bound_context->lexical_bindings_ not_eq get_nil()) {
+        auto stack = bound_context->lexical_bindings_;
+
+        while (stack not_eq get_nil()) {
+
+            ret.second = 0;
+
+            auto bindings = stack->cons().car();
+            while (bindings not_eq get_nil()) {
+                auto kvp = bindings->cons().car();
+                if (kvp->cons().car()->symbol().unique_id() ==
+                    symbol->symbol().unique_id()) {
+                    return ret;
+                }
+
+                bindings = bindings->cons().cdr();
+                ++ret.second;
+            }
+
+            stack = stack->cons().cdr();
+            ++ret.first;
+        }
+    }
+
+    return std::nullopt;
+}
+
+
+NativeInterface::LookupResult __load_builtin(const char* name)
+{
+    auto found_builtin = builtin_table.find(name);
+    if (found_builtin not_eq builtin_table.end()) {
+        return found_builtin->second;
+    }
+
+    auto found_ni_fn = bound_context->native_interface_.lookup_function_(name);
+
+    if (found_ni_fn.second) {
+        return found_ni_fn;
+    }
+
+    return {0, nullptr};
+}
+
+
 Value* get_var(Value* symbol)
 {
     if (symbol->symbol().name()[0] == '$') {
@@ -4502,19 +4625,10 @@ Value* get_var(Value* symbol)
     // this does put additional pressure on the gc (because the functions need
     // to be boxed as lisp function each time they're accessed).
     //
-    auto found_builtin = builtin_table.find(symbol_name);
-    if (found_builtin not_eq builtin_table.end()) {
-        auto fn = lisp::make_function(found_builtin->second.second);
-        fn->function().required_args_ = found_builtin->second.first;
-        return fn;
-    }
-
-    auto found_ni_fn =
-        bound_context->native_interface_.lookup_function_(symbol_name);
-
-    if (found_ni_fn.second) {
-        auto fn = lisp::make_function(found_ni_fn.second);
-        fn->function().required_args_ = found_ni_fn.first;
+    auto builtin = __load_builtin(symbol_name);
+    if (builtin.second) {
+        auto fn = lisp::make_function(builtin.second);
+        fn->function().required_args_ = builtin.first;
         return fn;
     }
 
@@ -4556,6 +4670,22 @@ Value* set_var(Value* symbol, Value* val)
 }
 
 
+const char* nameof(Function::CPP_Impl impl)
+{
+    for (auto& entry : builtin_table) {
+        if (impl == entry.second.second) {
+            return entry.first.c_str();
+        }
+    }
+
+    if (auto n = bound_context->native_interface_.lookup_name_(impl)) {
+        return n;
+    }
+
+    return nullptr;
+}
+
+
 const char* nameof(Value* value)
 {
     const char* name = nullptr;
@@ -4578,15 +4708,7 @@ const char* nameof(Value* value)
 
     if (cpp_fn) {
         auto impl = value->function().cpp_impl_;
-        for (auto& entry : builtin_table) {
-            if (impl == entry.second.second) {
-                return entry.first.c_str();
-            }
-        }
-
-        if (auto n = bound_context->native_interface_.lookup_name_(impl)) {
-            return n;
-        }
+        return nameof(impl);
     }
 
     return nullptr;

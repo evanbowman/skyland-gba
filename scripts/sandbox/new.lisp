@@ -81,3 +81,9 @@
 
 
 (unbind 'conf 'mkch)
+
+
+(defn testt [0]
+  (profile
+   (lambda
+     (sort (reverse (range 10)) <))))

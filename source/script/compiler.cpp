@@ -46,8 +46,95 @@ Value* make_bytecode_function(Value* bytecode);
 u16 symbol_offset(const char* symbol);
 
 
+// Just a utility intended for the compiler, not to be used by the vm.
+inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
+{
+    using namespace instruction;
+
+    int offset = 0;
+
+    while (true) {
+        switch (buffer.data_[offset]) {
+        case Fatal::op():
+            return nullptr;
+
+        case PushString::op():
+            if (index == 0) {
+                return (Header*)(buffer.data_ + offset);
+            } else {
+                index--;
+                offset += sizeof(PushString) +
+                          ((PushString*)(buffer.data_ + offset))->length_;
+            }
+            break;
+
+#define MATCH(NAME)                                                            \
+    case NAME::op():                                                           \
+        if (index == 0) {                                                      \
+            return (Header*)(buffer.data_ + offset);                           \
+        } else {                                                               \
+            index--;                                                           \
+            offset += sizeof(NAME);                                            \
+        }                                                                      \
+        break;
+
+            MATCH(LoadVar)
+            MATCH(LoadVarRelocatable)
+            MATCH(PushSymbol)
+            MATCH(PushSymbolRelocatable)
+            MATCH(PushNil)
+            MATCH(Push0)
+            MATCH(Push1)
+            MATCH(Push2)
+            MATCH(PushInteger)
+            MATCH(PushSmallInteger)
+            MATCH(JumpIfFalse)
+            MATCH(Jump)
+            MATCH(SmallJumpIfFalse)
+            MATCH(SmallJump)
+            MATCH(PushLambda)
+            MATCH(TailCall)
+            MATCH(TailCall1)
+            MATCH(TailCall2)
+            MATCH(TailCall3)
+            MATCH(Funcall)
+            MATCH(Funcall1)
+            MATCH(Funcall2)
+            MATCH(Funcall3)
+            MATCH(PushList)
+            MATCH(Pop)
+            MATCH(Ret)
+            MATCH(EarlyRet)
+            MATCH(Dup)
+            MATCH(MakePair)
+            MATCH(First)
+            MATCH(Rest)
+            MATCH(Arg)
+            MATCH(Arg0)
+            MATCH(Arg1)
+            MATCH(Arg2)
+            MATCH(PushThis)
+            MATCH(Not)
+            MATCH(LexicalDef)
+            MATCH(LexicalDefRelocatable)
+            MATCH(LexicalFramePush)
+            MATCH(LexicalFramePop)
+            MATCH(LexicalVarLoad)
+            MATCH(PushSmallSymbol)
+            MATCH(LexicalDefSmall)
+            MATCH(LexicalDefSmallFromArg0)
+            MATCH(LexicalDefSmallFromArg1)
+            MATCH(LexicalDefSmallFromArg2)
+            MATCH(LoadVarSmall)
+            MATCH(PushFloat)
+            MATCH(LoadBuiltin)
+        }
+    }
+    return nullptr;
+}
+
+
 struct CompilerContext {
-    Value* local_bindings_ = nullptr;
 };
 
 
@@ -188,9 +275,6 @@ int compile_let(CompilerContext& ctx,
         append<instruction::LexicalFramePush>(buffer, write_pos);
     }
 
-    auto prev_bindings = ctx.local_bindings_;
-    ctx.local_bindings_ = code->cons().car();
-
     foreach (code->cons().car(), [&](Value* val) {
         if (val->type() == Value::Type::cons) {
             auto sym = val->cons().car();
@@ -198,22 +282,57 @@ int compile_let(CompilerContext& ctx,
             if (sym->type() == Value::Type::symbol and
                 bind->type() == Value::Type::cons) {
 
-                write_pos = compile_impl(ctx,
-                                         buffer,
-                                         write_pos,
-                                         bind->cons().car(),
-                                         jump_offset,
-                                         false);
+                auto bindv = bind->cons().car();
+                bool small_sym =
+                    sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small;
 
-                if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                    auto inst =
-                        append<instruction::LexicalDefSmall>(buffer, write_pos);
+                if (small_sym and bindv->type() == Value::Type::symbol and
+                    str_eq(bindv->symbol().name(), "$0")) {
+
+                    auto inst = append<instruction::LexicalDefSmallFromArg0>(
+                        buffer, write_pos);
+
                     auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
+
+                } else if (small_sym and
+                           bindv->type() == Value::Type::symbol and
+                           str_eq(bindv->symbol().name(), "$1")) {
+
+                    auto inst = append<instruction::LexicalDefSmallFromArg1>(
+                        buffer, write_pos);
+
+                    auto name = sym->symbol().name();
+                    memcpy(inst->name_, name, Symbol::buffer_size);
+
+                } else if (small_sym and
+                           bindv->type() == Value::Type::symbol and
+                           str_eq(bindv->symbol().name(), "$2")) {
+
+                    auto inst = append<instruction::LexicalDefSmallFromArg2>(
+                        buffer, write_pos);
+
+                    auto name = sym->symbol().name();
+                    memcpy(inst->name_, name, Symbol::buffer_size);
+
                 } else {
-                    auto inst =
-                        append<instruction::LexicalDef>(buffer, write_pos);
-                    inst->ptr_.set(sym->symbol().name());
+                    write_pos = compile_impl(ctx,
+                                             buffer,
+                                             write_pos,
+                                             bind->cons().car(),
+                                             jump_offset,
+                                             false);
+
+                    if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+                        auto inst = append<instruction::LexicalDefSmall>(
+                            buffer, write_pos);
+                        auto name = sym->symbol().name();
+                        memcpy(inst->name_, name, Symbol::buffer_size);
+                    } else {
+                        auto inst =
+                            append<instruction::LexicalDef>(buffer, write_pos);
+                        inst->ptr_.set(sym->symbol().name());
+                    }
                 }
             }
         }
@@ -235,8 +354,6 @@ int compile_let(CompilerContext& ctx,
     if (binding_count not_eq 0) {
         append<instruction::LexicalFramePop>(buffer, write_pos);
     }
-
-    ctx.local_bindings_ = prev_bindings;
 
     return write_pos;
 }
@@ -321,26 +438,20 @@ int compile_impl(CompilerContext& ctx,
 
         } else {
 
-            std::optional<int> local_slot;
-            if (ctx.local_bindings_) {
-                int i = 0;
-                foreach (ctx.local_bindings_, [&](Value* val) {
-                    auto sym = val->cons().car();
-                    if (str_eq(sym->symbol().name(), code->symbol().name())) {
-                        local_slot = i;
-                        return;
-                    } else {
-                        ++i;
-                    }
-                })
-                    ;
-            }
+            // It's not worth optimizing variable loading at compile time very
+            // much. Why not optimize in the compiler? Because the compiler then
+            // needs to be more complicated; it'd need to understand stuff like
+            // variable scope. The runtime already has info about local/global
+            // variable scope and can perform the optimization without me
+            // needing to duplicate the variable referencing logic in the
+            // compiler. So we just emit an instruction LOAD_VAR with the
+            // address of the string name of the variable (which is safe,
+            // because the symbol string is internalized), and the bytecode vm
+            // substitutes a different instruction with stack information, or
+            // the address of a builtin function, depending on where the runtime
+            // finds the variable.
 
-            if (false and local_slot) {
-                auto inst = append<instruction::LoadLocal>(buffer, write_pos);
-                inst->var_slot_ = *local_slot;
-            } else if (code->symbol().hdr_.mode_bits_ ==
-                       (u8)Symbol::ModeBits::small) {
+            if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                 auto inst =
                     append<instruction::LoadVarSmall>(buffer, write_pos);
                 auto name = code->symbol().name();

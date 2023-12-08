@@ -10,7 +10,7 @@
   (flag-show (player) 0)
 
   (let ((data $0))
-    (let ((load (lambda (cdr (assoc $0 data)))))
+    (let ((load (lambda (cdr-assoc $0 data))))
 
 
       (setq adventure-log (if (> (load 'save-protocol) 3)
@@ -36,11 +36,11 @@
                                   'neutral
                                   plst))
 
-               (let ((hp (assoc 'hp plst)))
+               (let ((hp (cdr-assoc 'hp plst)))
                  (if hp
-                     (chr-hp chr (cdr hp))))
+                     (chr-hp chr hp)))
 
-               (chr-id chr (cdr (assoc 'id plst))))))
+               (chr-id chr (cdr-assoc 'id plst)))))
 
          (load 'chrs))
 
@@ -60,9 +60,9 @@
                       (lambda (groups-add grp (car $0) (cdr $0)))))))
         (when grp
           (groups-reset)
-          (map (join 'Up) (cdr (assoc 'Up grp)))
-          (map (join 'Left) (cdr (assoc 'Left grp)))
-          (map (join 'Right) (cdr (assoc 'Right grp)))))
+          (map (join 'Up) (cdr-assoc 'Up grp))
+          (map (join 'Left) (cdr-assoc 'Left grp))
+          (map (join 'Right) (cdr-assoc 'Right grp))))
 
       (when (> (load 'save-protocol) 1)
         (diff-set (load 'diff))))))

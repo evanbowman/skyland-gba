@@ -34,28 +34,12 @@
 
 #include "bytecode.hpp"
 #include "lisp.hpp"
+#include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "number/endian.hpp"
 
 
 namespace lisp {
-
-
-bool is_boolean_true(Value* val);
-
-
-const char* symbol_from_offset(u16 offset);
-
-
-Value* make_bytecode_function(Value* bytecode);
-
-
-Value* get_var_stable(const char* intern_str);
-
-
-void lexical_frame_push();
-void lexical_frame_pop();
-void lexical_frame_store(Value* kvp);
 
 
 template <typename Instruction>
@@ -122,13 +106,63 @@ TOP:
             break;
         }
 
-        case LoadVar::op(): {
+
+        case LoadLocalCached::op(): {
+            auto inst = read<LoadLocalCached>(code, pc);
+            push_op(__get_local({inst->stack_offset_, inst->frame_offset_}));
+            pc += inst->pad_;
+            break;
+        }
+
+
+        case load_var_nonlocal: {
             auto inst = read<LoadVar>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));
             break;
         }
 
-        case LoadVarSmall::op(): {
+
+        case LoadBuiltin::op(): {
+            auto inst = read<LoadBuiltin>(code, pc);
+            auto fn = make_function((Function::CPP_Impl)inst->addr_.get());
+            fn->function().required_args_ = inst->argc_;
+            push_op(fn);
+            break;
+        }
+
+
+        case LoadVar::op(): {
+            auto inst = read<LoadVar>(code, pc);
+            push_op(get_var_stable(inst->ptr_.get()));
+
+            if (auto found = __find_local(inst->ptr_.get())) {
+                pc -= sizeof(LoadVar);
+                LoadLocalCached lc;
+                lc.header_.op_ = LoadLocalCached::op();
+                lc.stack_offset_ = found->first;
+                lc.frame_offset_ = found->second;
+                lc.pad_ = sizeof(LoadVar) - sizeof(LoadLocalCached);
+                memcpy(code.data_ + pc, &lc, sizeof lc);
+                pc += sizeof(LoadVar);
+            } else {
+                auto builtin = __load_builtin(inst->ptr_.get());
+                if (builtin.second) {
+                    pc -= sizeof(LoadVar);
+                    LoadBuiltin lb;
+                    lb.header_.op_ = LoadBuiltin::op();
+                    lb.addr_.set((const char*)builtin.second);
+                    lb.argc_ = builtin.first;
+                    memcpy(code.data_ + pc, &lb, sizeof lb);
+                    pc += sizeof(LoadVar);
+                } else {
+                    inst->header_.op_ = load_var_nonlocal;
+                }
+            }
+            break;
+        }
+
+
+        case load_var_small_nonlocal: {
             auto inst = read<LoadVarSmall>(code, pc);
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
@@ -138,10 +172,47 @@ TOP:
             break;
         }
 
-        case LoadLocal::op(): {
-            auto inst = read<LoadLocal>(code, pc);
-            Value* _get_local(u8 slot);
-            push_op(_get_local(inst->var_slot_));
+
+        case LoadVarSmall::op(): {
+            auto inst = read<LoadVarSmall>(code, pc);
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+            push_op(get_var_stable(name.c_str()));
+
+            if (auto found = __find_local(name.c_str())) {
+                pc -= sizeof(LoadVarSmall);
+                LoadLocalCached lc;
+                lc.header_.op_ = LoadLocalCached::op();
+                lc.stack_offset_ = found->first;
+                lc.frame_offset_ = found->second;
+                lc.pad_ = sizeof(LoadVarSmall) - sizeof(LoadLocalCached);
+                memcpy(code.data_ + pc, &lc, sizeof lc);
+                pc += sizeof(LoadVarSmall);
+            } else {
+                auto builtin = __load_builtin(name.c_str());
+#ifdef __GBA__
+                static_assert(sizeof(LoadBuiltin) == sizeof(LoadVarSmall));
+#endif // __GBA__
+
+    // Unfortunately, this optimization can only be done on 32 bit
+    // systems, because a large 64 bit pointer does not fit in the
+    // space allocated for a LoadVarSmall instruction.
+                if (sizeof(LoadBuiltin) == sizeof(LoadVarSmall) and
+                    builtin.second) {
+
+                    pc -= sizeof(LoadVarSmall);
+                    LoadBuiltin lb;
+                    lb.header_.op_ = LoadBuiltin::op();
+                    lb.addr_.set((const char*)builtin.second);
+                    lb.argc_ = builtin.first;
+                    memcpy(code.data_ + pc, &lb, sizeof lb);
+                    pc += sizeof(LoadVarSmall);
+                } else {
+                    inst->header_.op_ = load_var_small_nonlocal;
+                }
+            }
             break;
         }
 
@@ -512,6 +583,60 @@ TOP:
             // pair of (sym . value)
             auto pair = make_cons(sym, get_op0());
             pop_op();      // pop value
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalDefSmallFromArg0::op(): {
+            auto inst = read<LexicalDefSmallFromArg0>(code, pc);
+
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+
+            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_arg(0));
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalDefSmallFromArg1::op(): {
+            auto inst = read<LexicalDefSmallFromArg1>(code, pc);
+
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+
+            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_arg(1));
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalDefSmallFromArg2::op(): {
+            auto inst = read<LexicalDefSmallFromArg2>(code, pc);
+
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+
+            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_arg(2));
             push_op(pair); // store pair
 
             lexical_frame_store(pair);
