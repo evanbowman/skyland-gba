@@ -99,7 +99,7 @@ public:
 
     StringAdapter()
     {
-        mem_.push_back('\0');
+        mem_.push_unsafe('\0');
     }
 
     StringAdapter(const StringAdapter& other)
@@ -165,6 +165,14 @@ public:
     const char& operator[](int pos) const
     {
         return mem_[pos];
+    }
+
+    // Used for cases where you know, contextually, that the buffer has enough
+    // space for the thing being pushed.
+    void __push_unsafe(char c)
+    {
+        mem_.back() = c;
+        mem_.push_unsafe('\0');
     }
 
     void push_back(char c)

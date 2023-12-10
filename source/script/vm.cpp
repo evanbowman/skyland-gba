@@ -166,7 +166,7 @@ TOP:
             auto inst = read<LoadVarSmall>(code, pc);
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
             push_op(get_var_stable(name.c_str()));
             break;
@@ -177,7 +177,7 @@ TOP:
             auto inst = read<LoadVarSmall>(code, pc);
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
             push_op(get_var_stable(name.c_str()));
 
@@ -273,7 +273,7 @@ TOP:
             StringBuffer<4> str;
             auto name = inst->name_;
             for (int i = 0; i < 4; ++i) {
-                str.push_back(name[i]);
+                str.__push_unsafe(name[i]);
             }
             push_op(make_symbol(str.c_str(), Symbol::ModeBits::small));
             break;
@@ -595,7 +595,7 @@ TOP:
 
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
 
             Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
@@ -613,7 +613,7 @@ TOP:
 
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
 
             Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
@@ -631,7 +631,7 @@ TOP:
 
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
 
             Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
@@ -649,7 +649,7 @@ TOP:
 
             StringBuffer<4> name;
             for (int i = 0; i < 4; ++i) {
-                name.push_back(inst->name_[i]);
+                name.__push_unsafe(inst->name_[i]);
             }
 
             Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
