@@ -54,7 +54,7 @@ Lava::Lava(Island* parent, const RoomCoord& position, const char* name)
 
 
 
-void Lava::check_flood_parent(Microseconds delta)
+void Lava::check_flood_parent(Time delta)
 {
     // NOTE: we want to destroy a lava block if its parent lava block no
     // longer exists.
@@ -92,7 +92,7 @@ void Lava::check_flood_parent(Microseconds delta)
 
 
 
-void Lava::update(Microseconds delta)
+void Lava::update(Time delta)
 {
     Room::update(delta);
 
@@ -263,7 +263,7 @@ LavaSource::LavaSource(Island* parent, const RoomCoord& position)
 
 
 
-void LavaSource::update(Microseconds delta)
+void LavaSource::update(Time delta)
 {
     flood_timer_ += delta;
 
@@ -272,7 +272,7 @@ void LavaSource::update(Microseconds delta)
 
 
 
-void LavaSource::check_flood_parent(Microseconds delta)
+void LavaSource::check_flood_parent(Time delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

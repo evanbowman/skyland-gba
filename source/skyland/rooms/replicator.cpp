@@ -56,7 +56,7 @@ Replicator::Replicator(Island* parent, const RoomCoord& position)
 
 
 
-void Replicator::update(Microseconds delta)
+void Replicator::update(Time delta)
 {
     Room::update(delta);
 }

@@ -57,7 +57,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -97,7 +97,7 @@ private:
 
         Buffer<StringBuffer<32>, option_count> disp_queue_;
         u8 disp_count_;
-        Microseconds disp_timer_ = 0;
+        Time disp_timer_ = 0;
 
         struct TransitionInfo
         {
@@ -124,7 +124,7 @@ private:
 
     int fade_direction_ = 0;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int start_y_ = 3;
 
     bool preserve_transparency_ = false;

@@ -690,6 +690,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (stacktrace)
+
+ Returns a list contining
+ functions on the callstack.
+
+
+o----------------------------o
+
  (this)
 
  Return the current

@@ -50,7 +50,7 @@ public:
     CargoBay(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void display(Platform::Screen&) override;

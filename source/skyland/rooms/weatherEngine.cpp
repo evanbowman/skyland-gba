@@ -98,7 +98,7 @@ ScenePtr<Scene> WeatherEngine::select(const RoomCoord& cursor)
 
 
 
-void WeatherEngine::update(Microseconds delta)
+void WeatherEngine::update(Time delta)
 {
     Room::update(delta);
 }

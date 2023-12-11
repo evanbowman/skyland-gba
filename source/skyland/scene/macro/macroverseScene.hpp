@@ -56,7 +56,7 @@ public:
     void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -82,7 +82,7 @@ private:
     void show_layout_text();
 
 
-    Microseconds timer_;
+    Time timer_;
 
     Vec2<s8> selected_ = {};
     Vec2<s8> initial_sector_;

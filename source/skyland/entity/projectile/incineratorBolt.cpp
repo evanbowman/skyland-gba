@@ -81,7 +81,7 @@ IncineratorBolt::IncineratorBolt(const Vec2<Fixnum>& position,
 
 
 
-void IncineratorBolt::update(Microseconds delta)
+void IncineratorBolt::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -108,7 +108,7 @@ void IncineratorBolt::update(Microseconds delta)
 
 
 
-void IncineratorBolt::rewind(Microseconds delta)
+void IncineratorBolt::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

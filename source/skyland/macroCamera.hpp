@@ -15,7 +15,7 @@ class Camera : public ::skyland::Camera
 {
 private:
     u8 ambient_movement_ = 0;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
 public:
     Camera()
@@ -26,8 +26,7 @@ public:
     }
 
 
-    void
-    update(Island&, const RoomCoord&, Microseconds delta, bool checkers_mode)
+    void update(Island&, const RoomCoord&, Time delta, bool checkers_mode)
     {
         if (not APP.macrocosm()) {
             return;

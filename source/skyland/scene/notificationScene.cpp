@@ -42,7 +42,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> NotificationScene::update(Microseconds delta)
+ScenePtr<Scene> NotificationScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

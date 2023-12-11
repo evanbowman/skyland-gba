@@ -8,7 +8,7 @@ namespace skyland
 
 
 
-void SandboxSpectatorPlayer::update(Microseconds delta)
+void SandboxSpectatorPlayer::update(Time delta)
 {
     EnemyAI::update(delta);
 
@@ -49,14 +49,14 @@ bool SandboxSpectatorPlayer::key_pressed(Key k)
 
 
 
-bool SandboxSpectatorPlayer::key_held(Key k, Microseconds duration)
+bool SandboxSpectatorPlayer::key_held(Key k, Time duration)
 {
     return key_held_timers_[static_cast<int>(k)] >= duration;
 }
 
 
 
-void SandboxSpectatorPlayer::key_held_reset(Key k, Microseconds decrement)
+void SandboxSpectatorPlayer::key_held_reset(Key k, Time decrement)
 {
     key_held_timers_[static_cast<int>(k)] -= decrement;
 }

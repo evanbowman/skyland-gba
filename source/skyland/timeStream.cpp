@@ -84,7 +84,7 @@ void TimeStream::pop(u32 bytes)
 
 
 
-void TimeStream::update(Microseconds delta)
+void TimeStream::update(Time delta)
 {
     if (end_) {
         end_->update(delta);
@@ -93,7 +93,7 @@ void TimeStream::update(Microseconds delta)
 
 
 
-void TimeStream::rewind(Microseconds delta)
+void TimeStream::rewind(Time delta)
 {
     if (end_) {
         end_->rewind(delta);

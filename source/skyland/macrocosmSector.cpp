@@ -37,6 +37,7 @@
 #include "compression.hpp"
 #include "macrocosmEngine.hpp"
 #include "rle.hpp"
+#include "script/lisp.hpp"
 #include "skyland/skyland.hpp"
 #define FNL_IMPL
 #include "fastNoiseLite/FastNoiseLite.h"

@@ -71,7 +71,7 @@ public:
         t_.reset();
     }
 
-    ScenePtr<Scene> update(Microseconds) override
+    ScenePtr<Scene> update(Time) override
     {
         if (key_down<Key::start>()) {
             return scene_pool::alloc<MultiplayerConnectScene>();

@@ -101,7 +101,7 @@ Platform::Speaker::Channel Synth::channel() const
 
 
 
-void Synth::update(Microseconds delta)
+void Synth::update(Time delta)
 {
     Room::update(delta);
 

@@ -90,7 +90,7 @@ void Pummeler::fire()
 
 
 
-Microseconds Pummeler::reload() const
+Time Pummeler::reload() const
 {
     return 1000 * milliseconds(3);
 }

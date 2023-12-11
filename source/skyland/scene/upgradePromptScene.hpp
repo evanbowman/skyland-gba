@@ -58,7 +58,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -73,7 +73,7 @@ private:
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
 
-    Microseconds flicker_timer_ = 0;
+    Time flicker_timer_ = 0;
     bool flicker_on_ = false;
 };
 

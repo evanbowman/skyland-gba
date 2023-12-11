@@ -54,8 +54,8 @@ public:
     using Hull::Hull;
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     TileId tile() const;

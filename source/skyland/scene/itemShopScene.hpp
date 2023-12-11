@@ -54,7 +54,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
 private:
@@ -68,7 +68,7 @@ private:
     using ItemsBuffer = Buffer<ShopItem, 4>;
     DynamicMemory<ItemsBuffer> items_;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     Vec2<u8> cursor_;
 

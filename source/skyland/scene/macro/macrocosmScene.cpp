@@ -83,7 +83,7 @@ u8 screenshake = 0;
 
 
 
-ScenePtr<Scene> MacrocosmScene::update(Microseconds delta)
+ScenePtr<Scene> MacrocosmScene::update(Time delta)
 {
     if (not APP.macrocosm()) {
         Platform::fatal("macro state unbound!?");
@@ -226,8 +226,7 @@ ScenePtr<Scene> MacrocosmScene::update(Microseconds delta)
 
 
 
-int MacrocosmScene::current_season(Microseconds year_timer,
-                                   Microseconds secs_per_season)
+int MacrocosmScene::current_season(Time year_timer, Time secs_per_season)
 {
     if (year_timer > secs_per_season * 3) {
         return 3;
@@ -364,7 +363,7 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
 
 
 
-Microseconds MacrocosmScene::year_length(macro::EngineImpl& state)
+Time MacrocosmScene::year_length(macro::EngineImpl& state)
 {
     return 1;
 }

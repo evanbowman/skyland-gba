@@ -56,7 +56,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer)
@@ -145,7 +145,7 @@ public:
 private:
     DynamicMemory<StringBuffer<400>> data_;
     std::optional<Platform::DynamicTexturePtr> hint_img_;
-    Microseconds hint_img_release_timer_ = 0;
+    Time hint_img_release_timer_ = 0;
 };
 
 

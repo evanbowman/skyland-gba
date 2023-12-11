@@ -60,10 +60,10 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta);
+    void rewind(Time delta);
 
 
     static WeaponOrientation weapon_orientation()
@@ -144,7 +144,7 @@ public:
     }
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return reload_;
     }
@@ -157,7 +157,7 @@ private:
     int counter_ = 0;
 
 
-    Microseconds reload_ = 1000 * decimator_reload_ms;
+    Time reload_ = 1000 * decimator_reload_ms;
 };
 
 

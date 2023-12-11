@@ -72,7 +72,7 @@ Transporter::Transporter(Island* parent, const RoomCoord& position)
 
 
 
-void Transporter::update(Microseconds delta)
+void Transporter::update(Time delta)
 {
     Room::update(delta);
 
@@ -108,7 +108,7 @@ void Transporter::update(Microseconds delta)
 
 
 
-void Transporter::rewind(Microseconds delta)
+void Transporter::rewind(Time delta)
 {
     Room::rewind(delta);
 
@@ -167,7 +167,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta;
 
@@ -192,13 +192,13 @@ public:
         sprite_.set_position(pos);
     }
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
 
 private:
-    Microseconds timer_ = milliseconds(16);
+    Time timer_ = milliseconds(16);
     Vec2<Fixnum> position_;
 };
 

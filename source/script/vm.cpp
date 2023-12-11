@@ -196,9 +196,9 @@ TOP:
                 static_assert(sizeof(LoadBuiltin) == sizeof(LoadVarSmall));
 #endif // __GBA__
 
-    // Unfortunately, this optimization can only be done on 32 bit
-    // systems, because a large 64 bit pointer does not fit in the
-    // space allocated for a LoadVarSmall instruction.
+                // Unfortunately, this optimization can only be done on 32 bit
+                // systems, because a large 64 bit pointer does not fit in the
+                // space allocated for a LoadVarSmall instruction.
                 if (sizeof(LoadBuiltin) == sizeof(LoadVarSmall) and
                     builtin.second) {
 

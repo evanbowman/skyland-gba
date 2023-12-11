@@ -185,7 +185,7 @@ void CheckersModule::init()
 
 
 
-ScenePtr<Scene> CheckersModule::update(Microseconds delta)
+ScenePtr<Scene> CheckersModule::update(Time delta)
 {
 
     init();

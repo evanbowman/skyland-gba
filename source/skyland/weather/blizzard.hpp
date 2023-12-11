@@ -65,7 +65,7 @@ public:
     }
 
 
-    void update(Microseconds delta);
+    void update(Time delta);
     void display() override;
 };
 

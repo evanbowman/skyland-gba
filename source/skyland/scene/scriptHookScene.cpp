@@ -44,7 +44,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> ScriptHookScene::update(Microseconds delta)
+ScenePtr<Scene> ScriptHookScene::update(Time delta)
 {
     invoke_hook(invoke_hook_name_.c_str());
 

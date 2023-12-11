@@ -50,7 +50,7 @@ public:
     AnimatedEffect(const Vec2<Fixnum>& position,
                    int begin_tile,
                    int end_tile,
-                   Microseconds rate)
+                   Time rate)
         : Entity({{}, {}}), rate_(rate), begin_tile_(begin_tile),
           end_tile_(end_tile)
     {
@@ -61,7 +61,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta;
         if (timer_ >= rate_) {
@@ -79,7 +79,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         timer_ -= delta;
 
@@ -99,8 +99,8 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
-    Microseconds rate_;
+    Time timer_ = 0;
+    Time rate_;
     u16 begin_tile_;
     u16 end_tile_;
 };

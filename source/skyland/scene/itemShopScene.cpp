@@ -122,7 +122,7 @@ void ItemShopScene::describe_selection()
 
 
 
-ScenePtr<Scene> ItemShopScene::update(Microseconds delta)
+ScenePtr<Scene> ItemShopScene::update(Time delta)
 {
     if (auto scene = WorldScene::update(delta)) {
         return scene;

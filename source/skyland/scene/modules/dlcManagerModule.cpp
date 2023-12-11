@@ -34,6 +34,7 @@
 
 #include "dlcManagerModule.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "script/lisp.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
@@ -207,7 +208,7 @@ void DlcManagerModule::show()
 
 
 
-ScenePtr<Scene> DlcManagerModule::update(Microseconds delta)
+ScenePtr<Scene> DlcManagerModule::update(Time delta)
 {
     APP.player().update(delta);
 

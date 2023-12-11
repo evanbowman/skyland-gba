@@ -267,8 +267,8 @@ public:
     void set_injured();
 
 
-    virtual void update(Microseconds delta);
-    virtual void rewind(Microseconds delta);
+    virtual void update(Time delta);
+    virtual void rewind(Time delta);
 
     virtual void display(Platform::Screen& screen);
 
@@ -344,19 +344,19 @@ public:
     }
 
 
-    virtual Microseconds reload_time_remaining() const
+    virtual Time reload_time_remaining() const
     {
         return 0;
     }
 
 
-    virtual Microseconds reload_interval() const
+    virtual Time reload_interval() const
     {
         return 1;
     }
 
 
-    virtual void override_reload_timer(Microseconds new_time)
+    virtual void override_reload_timer(Time new_time)
     {
         // ...
     }
@@ -445,7 +445,7 @@ public:
     void convert_to_plundered();
 
 
-    void reset_injured_timer(Microseconds value);
+    void reset_injured_timer(Time value);
 
 
     virtual void plot_walkable_zones(bool matrix[16][16],
@@ -781,7 +781,7 @@ private:
 
     Island* parent_;
     EntityList<BasicCharacter> characters_;
-    Microseconds injured_timer_ = 0;
+    Time injured_timer_ = 0;
 
     // Many rooms sit around doing nothing most of the time. Each island
     // maintains a dispatch list of rooms, for which it'll run update code.

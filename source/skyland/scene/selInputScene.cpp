@@ -99,7 +99,7 @@ void SelInputScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SelInputScene::update(Microseconds delta)
+ScenePtr<Scene> SelInputScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;

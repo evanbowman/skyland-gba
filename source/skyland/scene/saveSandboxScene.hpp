@@ -133,7 +133,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         if (player().key_down(Key::action_1)) {
             return on_selected();

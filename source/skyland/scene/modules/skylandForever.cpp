@@ -182,7 +182,7 @@ void SkylandForever::init(u8 difficulty, rng::LinearGenerator seed)
 
 
 
-ScenePtr<Scene> SkylandForever::update(Microseconds delta)
+ScenePtr<Scene> SkylandForever::update(Time delta)
 {
     APP.update_parallax(delta);
 

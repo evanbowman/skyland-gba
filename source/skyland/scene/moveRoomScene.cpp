@@ -41,7 +41,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> MoveRoomScene::update(Microseconds delta)
+ScenePtr<Scene> MoveRoomScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

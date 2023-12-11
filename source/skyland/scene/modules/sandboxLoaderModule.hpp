@@ -75,7 +75,7 @@ public:
     void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -109,7 +109,7 @@ private:
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer parameters_;
 
-    Microseconds long_hold_time_[2] = {0, 0};
+    Time long_hold_time_[2] = {0, 0};
 
     bool cancelled_ = false;
 

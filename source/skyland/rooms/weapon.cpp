@@ -51,7 +51,7 @@ namespace skyland
 Weapon::Weapon(Island* parent,
                const char* name,
                const RoomCoord& position,
-               Microseconds reload_time)
+               Time reload_time)
     : Room(parent, name, position)
 {
     parent->bulk_timer().schedule(this, reload_time);
@@ -119,14 +119,14 @@ void Weapon::timer_expired()
 
 
 
-void Weapon::update(Microseconds delta)
+void Weapon::update(Time delta)
 {
     Room::update(delta);
 }
 
 
 
-void Weapon::rewind(Microseconds delta)
+void Weapon::rewind(Time delta)
 {
     Room::rewind(delta);
 }

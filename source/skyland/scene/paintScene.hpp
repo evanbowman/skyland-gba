@@ -91,7 +91,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         PLATFORM.screen().schedule_fade(0.f);
 

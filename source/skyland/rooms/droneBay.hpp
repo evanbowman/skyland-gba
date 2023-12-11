@@ -58,8 +58,8 @@ public:
     DroneBay(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     void ___rewind___finished_reload() override;
@@ -163,7 +163,7 @@ public:
     }
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return reload_;
     }
@@ -173,7 +173,7 @@ private:
     std::optional<SharedEntityRef<Drone>> drone_;
 
 
-    Microseconds reload_ = 0;
+    Time reload_ = 0;
 
     std::optional<RoomCoord> target_;
 };

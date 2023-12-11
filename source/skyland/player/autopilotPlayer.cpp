@@ -109,7 +109,7 @@ static bool is_key_level_triggered(Key k)
 
 
 
-void AutopilotPlayer::update(Microseconds delta)
+void AutopilotPlayer::update(Time delta)
 {
     next_key_timeout_ -= delta;
 

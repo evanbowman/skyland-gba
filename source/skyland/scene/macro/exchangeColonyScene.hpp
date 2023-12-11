@@ -83,7 +83,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds) override
+    ScenePtr<Scene> update(Time) override
     {
         auto& m = skyland::macrocosm();
 

@@ -171,7 +171,7 @@ Platform::Screen::Shader Blizzard::shader() const
 
 
 
-void Blizzard::update(Microseconds delta)
+void Blizzard::update(Time delta)
 {
     Storm::update(delta);
 }

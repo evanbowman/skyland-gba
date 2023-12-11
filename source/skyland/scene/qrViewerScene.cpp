@@ -23,6 +23,7 @@
 #include "qrViewerScene.hpp"
 #include "platform/platform.hpp"
 #include "qr.hpp"
+#include "script/lisp.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/skyland.hpp"
 
@@ -157,7 +158,7 @@ void QRViewerScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> QRViewerScene::update(Microseconds delta)
+ScenePtr<Scene> QRViewerScene::update(Time delta)
 {
     if (exit_) {
         return next_();

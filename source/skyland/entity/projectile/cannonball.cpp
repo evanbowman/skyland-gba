@@ -79,7 +79,7 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
 
 
 
-void Cannonball::update(Microseconds delta)
+void Cannonball::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -106,7 +106,7 @@ void Cannonball::update(Microseconds delta)
 
 
 
-void Cannonball::rewind(Microseconds delta)
+void Cannonball::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

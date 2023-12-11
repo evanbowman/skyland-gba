@@ -36,6 +36,7 @@
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mycelium.hpp"
+#include "skyland/rooms/targetingComputer.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
@@ -52,7 +53,7 @@ PlayerP1::PlayerP1() : chr_ai_(allocate_dynamic<ChrAIState>("crew-ai-control"))
 
 
 
-void PlayerP1::update(Microseconds delta)
+void PlayerP1::update(Time delta)
 {
     // Really dumb keylogger, for the tutorial levels. Dump lisp code to SRAM.
 
@@ -177,6 +178,12 @@ void PlayerP1::on_room_destroyed(Room& room)
             }
         }
 
+        for (auto& r : APP.player_island().rooms()) {
+            if (auto tc = r->cast<TargetingComputer>()) {
+                tc->rescan();
+            }
+        }
+
         APP.score().set((APP.score().get() +
                          (score_multiplier * (*room.metaclass())->cost())));
     }
@@ -234,14 +241,14 @@ bool PlayerP1::key_pressed(Key k)
 
 
 
-bool PlayerP1::key_held(Key k, Microseconds duration)
+bool PlayerP1::key_held(Key k, Time duration)
 {
     return key_held_timers_[static_cast<int>(k)] >= duration;
 }
 
 
 
-void PlayerP1::key_held_reset(Key k, Microseconds decrement)
+void PlayerP1::key_held_reset(Key k, Time decrement)
 {
     key_held_timers_[static_cast<int>(k)] -= decrement;
 }
@@ -276,14 +283,14 @@ void PlayerP1::key_held_distribute(const Key* include_list)
 
 
 
-void PlayerP1::update_chr_ai(Microseconds delta)
+void PlayerP1::update_chr_ai(Time delta)
 {
     chr_ai_->update(delta);
 }
 
 
 
-void PlayerP1::ChrAIState::update(Microseconds delta)
+void PlayerP1::ChrAIState::update(Time delta)
 {
     if (not APP.opponent_island()) {
         return;

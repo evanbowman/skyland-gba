@@ -58,7 +58,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     bool key_down(Key k) override;
@@ -70,17 +70,17 @@ public:
     bool key_pressed(Key k) override;
 
 
-    bool key_held(Key k, Microseconds duration) override;
+    bool key_held(Key k, Time duration) override;
 
 
-    void key_held_reset(Key k, Microseconds decrement) override;
+    void key_held_reset(Key k, Time decrement) override;
 
 
     void key_held_distribute(const Key* include_list) override;
 
 
 private:
-    Microseconds key_held_timers_[static_cast<int>(Key::count)];
+    Time key_held_timers_[static_cast<int>(Key::count)];
 };
 
 

@@ -61,10 +61,8 @@ public:
     }
 
 
-    virtual void update(Island& target,
-                        const RoomCoord& cursor_loc,
-                        Microseconds delta,
-                        bool near);
+    virtual void
+    update(Island& target, const RoomCoord& cursor_loc, Time delta, bool near);
 
 
 
@@ -111,7 +109,7 @@ protected:
     Vec2<int> target_;
     Vec2<Float> current_;
 
-    Microseconds shake_timer_ = 0;
+    Time shake_timer_ = 0;
     int shake_magnitude_ = 0;
 };
 

@@ -71,7 +71,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
                          const RoomCoord& coord,
                          const Vec2<Fixnum>& position,
                          Float speed,
-                         Microseconds flight_timer,
+                         Time flight_timer,
                          u8 color,
                          bool near,
                          bool flip)
@@ -94,7 +94,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 
 
 
-void GenericBird::roost(Island* island, Microseconds delta)
+void GenericBird::roost(Island* island, Time delta)
 {
     auto o = island->origin();
     o.x += Fixnum::from_integer(position_.x * 16);
@@ -156,7 +156,7 @@ void GenericBird::roost(Island* island, Microseconds delta)
 
 
 
-void GenericBird::update(Microseconds delta)
+void GenericBird::update(Time delta)
 {
     Island* island = nullptr;
 
@@ -282,7 +282,7 @@ void GenericBird::update(Microseconds delta)
 
 
 
-void GenericBird::rewind(Microseconds delta)
+void GenericBird::rewind(Time delta)
 {
     Island* island = nullptr;
 

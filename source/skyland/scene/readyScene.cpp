@@ -159,7 +159,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos)
 
 
 
-ScenePtr<Scene> player_island_onclick(Microseconds& camera_update_timer,
+ScenePtr<Scene> player_island_onclick(Time& camera_update_timer,
                                       std::optional<Text>& room_description,
                                       const RoomCoord& pos)
 {
@@ -245,7 +245,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (auto scene = ActiveWorldScene::update(delta)) {
             return scene;
@@ -318,7 +318,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         if (key_down<Key::up>()) {
             selection_ = true;
@@ -442,7 +442,7 @@ ScenePtr<Scene> process_exit_condition(App::ExitCondition c)
 
 
 
-ScenePtr<Scene> ReadyScene::update(Microseconds delta)
+ScenePtr<Scene> ReadyScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;

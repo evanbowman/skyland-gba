@@ -58,7 +58,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -134,7 +134,7 @@ protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
 
-    Microseconds camera_update_timer_ = 0;
+    Time camera_update_timer_ = 0;
 
     void reset_gamespeed();
 
@@ -142,9 +142,9 @@ protected:
 
 private:
     bool persistent_ui_ = false;
-    Microseconds coin_hide_timer_ = 0;
-    Microseconds power_hide_timer_ = 0;
-    Microseconds set_gamespeed_keyheld_timer_ = 0;
+    Time coin_hide_timer_ = 0;
+    Time power_hide_timer_ = 0;
+    Time set_gamespeed_keyheld_timer_ = 0;
     Coins last_coins_ = 0;
     Power last_power_supplied_ = 0;
     Power last_power_used_ = 0;
@@ -154,7 +154,7 @@ private:
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;
 
-    void multiplayer_vs_timeout_step(Microseconds delta);
+    void multiplayer_vs_timeout_step(Time delta);
 
 protected:
     bool power_fraction_opponent_island_ = false;
@@ -165,7 +165,7 @@ protected:
 class ActiveWorldScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 private:
     ScenePtr<Scene> on_player_island_destroyed();

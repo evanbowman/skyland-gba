@@ -73,7 +73,7 @@ void MacrocosmLoaderModule::enter(Scene& prev)
 
 
 
-ScenePtr<Scene> MacrocosmLoaderModule::update(Microseconds delta)
+ScenePtr<Scene> MacrocosmLoaderModule::update(Time delta)
 {
     if (skip_) {
         skip_ = false;

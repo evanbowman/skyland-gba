@@ -66,7 +66,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta * 2;
 
@@ -99,7 +99,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         timer_ -= delta * 2;
 
@@ -141,7 +141,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Vec2<Fixnum> speed_;
     u8 half_angle_;
     u8 speed_int_;

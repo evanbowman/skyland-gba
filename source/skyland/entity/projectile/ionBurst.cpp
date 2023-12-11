@@ -77,7 +77,7 @@ Sound sound_fizzle("fizzle");
 
 
 
-void IonBurst::update(Microseconds delta)
+void IonBurst::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -116,7 +116,7 @@ void IonBurst::update(Microseconds delta)
 
 
 
-void IonBurst::rewind(Microseconds delta)
+void IonBurst::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

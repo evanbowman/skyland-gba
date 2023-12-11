@@ -34,6 +34,7 @@
 
 #include "configure_island.hpp"
 #include "room_metatable.hpp"
+#include "script/lisp.hpp"
 
 
 

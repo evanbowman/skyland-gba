@@ -104,7 +104,7 @@ void FireBolt::set_direction(u16 rot)
 
 
 
-void FireBolt::update(Microseconds delta)
+void FireBolt::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -137,7 +137,7 @@ void FireBolt::update(Microseconds delta)
 
 
 
-void FireBolt::rewind(Microseconds delta)
+void FireBolt::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

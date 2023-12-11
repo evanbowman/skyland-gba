@@ -36,6 +36,7 @@
 #include "constructionScene.hpp"
 #include "platform/color.hpp"
 #include "readyScene.hpp"
+#include "script/lisp.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -119,7 +120,7 @@ void FadeInScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> FadeInScene::update(Microseconds delta)
+ScenePtr<Scene> FadeInScene::update(Time delta)
 {
     WorldScene::update(delta);
 

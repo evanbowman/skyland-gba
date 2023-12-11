@@ -122,7 +122,7 @@ void Cannon::fire()
 
 
 
-Microseconds Cannon::reload() const
+Time Cannon::reload() const
 {
     return 1000 * cannon_reload_ms;
 }

@@ -67,7 +67,7 @@ Crane::Crane(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Crane::rewind(Microseconds delta)
+void Crane::rewind(Time delta)
 {
     Room::rewind(delta);
     timer_ = 0;
@@ -76,7 +76,7 @@ void Crane::rewind(Microseconds delta)
 
 
 
-void Crane::update(Microseconds delta)
+void Crane::update(Time delta)
 {
     Room::update(delta);
     Room::ready();
@@ -246,7 +246,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (items_.empty()) {
             PLATFORM.speaker().play_sound("beep_error", 3);

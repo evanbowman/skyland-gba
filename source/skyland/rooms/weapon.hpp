@@ -50,7 +50,7 @@ public:
     Weapon(Island* parent,
            const char* name,
            const RoomCoord& position,
-           Microseconds reload_time);
+           Time reload_time);
 
 
     ~Weapon();
@@ -59,25 +59,25 @@ public:
     void timer_expired() override;
 
 
-    Microseconds reload_interval() const override
+    Time reload_interval() const override
     {
         return reload();
     }
 
 
-    virtual Microseconds reload() const = 0;
+    virtual Time reload() const = 0;
 
 
     virtual void fire() = 0;
 
 
-    void override_reload_timer(Microseconds new_time) override
+    void override_reload_timer(Time new_time) override
     {
         Timer::__override_clock(new_time);
     }
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return Timer::remaining();
     }
@@ -100,10 +100,10 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void ___rewind___finished_reload() override;

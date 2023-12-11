@@ -42,7 +42,7 @@ namespace skyland
 
 
 
-void ExploSpawner::update(Microseconds delta)
+void ExploSpawner::update(Time delta)
 {
     timer1_ += delta;
     timer2_ += delta;

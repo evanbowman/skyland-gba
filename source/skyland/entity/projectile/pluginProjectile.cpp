@@ -80,7 +80,7 @@ PluginProjectile::PluginProjectile(const Vec2<Fixnum>& position,
 
 
 
-void PluginProjectile::update(Microseconds delta)
+void PluginProjectile::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -95,7 +95,7 @@ void PluginProjectile::update(Microseconds delta)
 
 
 
-void PluginProjectile::rewind(Microseconds delta)
+void PluginProjectile::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

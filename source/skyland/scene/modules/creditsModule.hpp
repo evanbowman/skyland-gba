@@ -71,7 +71,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     static bool stop_sound()
@@ -100,7 +100,7 @@ private:
 
 
     Buffer<Text, 12> lines_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     int page_ = 0;
 

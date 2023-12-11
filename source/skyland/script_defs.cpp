@@ -92,6 +92,10 @@ extern Sound missile_sound;
 
 
 
+bool is_x_behind_storm_frontier(int x, int storm_offset);
+
+
+
 std::pair<App*, Platform*> interp_get_context()
 {
     return {&APP, lisp::interp_get_pfrm()};
@@ -1085,7 +1089,9 @@ BINDING_TABLE({
           } else {
               // const bool is_replicant = lisp::get_op(0)->integer().value_;
               if (not lisp::is_list(lisp::get_op(0))) {
-                  Platform::fatal("chr-new final arg is not list...");
+                  return lisp::make_error(
+                      lisp::Error::Code::invalid_argument_type,
+                      lisp::make_string("chr-new final arg is not list..."));
               }
 
               lisp::foreach (lisp::get_op(0), [&](lisp::Value* val) {
@@ -1474,6 +1480,31 @@ BINDING_TABLE({
               }
           }
 
+          return L_NIL;
+      }}},
+    {"wg-storm-frontier",
+     {0,
+      [](int argc) {
+          return L_INT(APP.world_graph().storm_depth_);
+      }}},
+    {"wg-is-x-behind-frontier?",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          int x = L_LOAD_INT(0);
+          return lisp::make_boolean(is_x_behind_storm_frontier(x, 0));
+      }}},
+    {"wg-storm-frontier-set",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          for (auto& node : APP.world_graph().nodes_) {
+              if (node.type_ == WorldGraph::Node::Type::corrupted and
+                  is_x_behind_storm_frontier(node.coord_.x, 0)) {
+                  node.type_ = WorldGraph::Node::Type::visited;
+              }
+          }
+          APP.world_graph().storm_depth_ = L_LOAD_INT(0);
           return L_NIL;
       }}},
     {"wg-pos",

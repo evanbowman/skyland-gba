@@ -54,7 +54,7 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -153,7 +153,7 @@ private:
     void emit_radiation();
 
 
-    Microseconds damage_timer_ = 0;
+    Time damage_timer_ = 0;
 };
 
 

@@ -66,7 +66,7 @@ public:
     }
 
 
-    virtual void update(Microseconds delta)
+    virtual void update(Time delta)
     {
     }
 
@@ -111,13 +111,13 @@ public:
 
     // key_held and key_held_reset should implement some sort of timer-based key
     // states.
-    virtual bool key_held(Key k, Microseconds duration)
+    virtual bool key_held(Key k, Time duration)
     {
         return false;
     }
 
 
-    virtual void key_held_reset(Key k, Microseconds decrement)
+    virtual void key_held_reset(Key k, Time decrement)
     {
     }
 
@@ -143,7 +143,7 @@ public:
     }
 
 
-    bool test_key(Key k, Microseconds held_time, Microseconds held_decrement)
+    bool test_key(Key k, Time held_time, Time held_decrement)
     {
         if (key_down(k) or key_held(k, held_time)) {
             key_held_reset(k, held_decrement);
@@ -153,7 +153,7 @@ public:
     }
 
 
-    virtual std::optional<std::tuple<Vec2<u32>, Microseconds>> touch_released()
+    virtual std::optional<std::tuple<Vec2<u32>, Time>> touch_released()
     {
         return {};
     }
@@ -191,7 +191,7 @@ public:
     }
 
 
-    virtual bool touch_held(Microseconds duration)
+    virtual bool touch_held(Time duration)
     {
         return false;
     }

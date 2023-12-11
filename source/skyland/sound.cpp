@@ -53,7 +53,7 @@ Sound::Sound(const char* name) : next_(__sounds), name_(name), last_played_(0)
 
 
 
-void Sound::update_all(Microseconds delta)
+void Sound::update_all(Time delta)
 {
     auto list = __sounds;
 
@@ -65,7 +65,7 @@ void Sound::update_all(Microseconds delta)
 
 
 
-void Sound::play(int priority, Microseconds max_overlap)
+void Sound::play(int priority, Time max_overlap)
 {
     if ((u32)max_overlap < last_played_) {
         PLATFORM.speaker().play_sound(name_, priority);

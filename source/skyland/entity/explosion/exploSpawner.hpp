@@ -53,10 +53,10 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
@@ -66,8 +66,8 @@ public:
 
 
 private:
-    Microseconds timer1_ = 0;
-    Microseconds timer2_ = 0;
+    Time timer1_ = 0;
+    Time timer2_ = 0;
 };
 
 

@@ -69,7 +69,7 @@ public:
     void timer_expired() override;
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -143,7 +143,7 @@ public:
     static constexpr const auto flood_time = seconds(8);
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return Timer::remaining();
     }

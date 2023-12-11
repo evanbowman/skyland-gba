@@ -57,16 +57,16 @@ public:
                 const RoomCoord& coord,
                 const Vec2<Fixnum>& position,
                 Float speed,
-                Microseconds flight_timer,
+                Time flight_timer,
                 u8 color,
                 bool near,
                 bool flip);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void signal() override;
@@ -95,14 +95,14 @@ public:
 
 
 private:
-    void roost(Island* island, Microseconds delta);
+    void roost(Island* island, Time delta);
 
     Platform::DynamicTexturePtr dt_;
     RoomCoord position_;
     bool near_;
     bool alerted_ = false;
 
-    Microseconds flight_timer_ = 0;
+    Time flight_timer_ = 0;
 
     enum class State {
         roost,
@@ -110,7 +110,7 @@ private:
         caw,
     } state_ = State::roost;
 
-    Microseconds anim_timer_ = 0;
+    Time anim_timer_ = 0;
 
     u8 anim_index_ = 0;
     u8 color_ = 0;

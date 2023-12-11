@@ -48,10 +48,10 @@ public:
     PluginRoom(Island* parent, const RoomCoord& position, RoomMeta* metaclass);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]);
@@ -95,7 +95,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     std::optional<RoomCoord> target_;
 };
 

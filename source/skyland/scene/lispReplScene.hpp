@@ -53,7 +53,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
     using Command = StringBuffer<256>;
 
@@ -91,7 +91,7 @@ private:
 
     std::optional<Text> version_text_;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     void reset_history_index()
     {

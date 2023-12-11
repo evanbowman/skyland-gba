@@ -58,7 +58,7 @@ public:
     PlayerP1();
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void on_room_destroyed(Room& room) override;
@@ -79,17 +79,17 @@ public:
     bool key_pressed(Key k) override;
 
 
-    bool key_held(Key k, Microseconds duration) override;
+    bool key_held(Key k, Time duration) override;
 
 
-    void key_held_reset(Key k, Microseconds decrement) override;
+    void key_held_reset(Key k, Time decrement) override;
 
 
     void key_held_distribute(const Key* include_list) override;
 
 
 protected:
-    virtual void update_chr_ai(Microseconds delta);
+    virtual void update_chr_ai(Time delta);
 
 
 private:
@@ -97,7 +97,7 @@ private:
     {
         using IdBuffer = Buffer<CharacterId, 80>;
 
-        Microseconds next_action_timer_ = seconds(1);
+        Time next_action_timer_ = seconds(1);
 
         IdBuffer local_chrs_;
         IdBuffer boarded_chrs_;
@@ -105,17 +105,17 @@ private:
         u32 local_buffer_index_ = 0;
         u32 boarded_buffer_index_ = 0;
 
-        void update(Microseconds delta);
+        void update(Time delta);
     };
 
     DynamicMemory<ChrAIState> chr_ai_;
 
 
-    Microseconds last_key_ = 0;
+    Time last_key_ = 0;
 
-    Microseconds last_touch_held_time_ = 0;
+    Time last_touch_held_time_ = 0;
 
-    Microseconds key_held_timers_[static_cast<int>(Key::count)];
+    Time key_held_timers_[static_cast<int>(Key::count)];
 };
 
 

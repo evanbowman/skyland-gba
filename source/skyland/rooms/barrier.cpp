@@ -48,7 +48,7 @@ Barrier::Barrier(Island* parent, const RoomCoord& position)
 
 
 
-void Barrier::update(Microseconds delta)
+void Barrier::update(Time delta)
 {
     Room::update(delta);
 }

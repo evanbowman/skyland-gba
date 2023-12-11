@@ -61,7 +61,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     static SystemString module_name()
@@ -116,7 +116,7 @@ private:
 
     std::optional<DataCartLibrary> carts_;
 
-    Microseconds wait_time_ = 0;
+    Time wait_time_ = 0;
 
     static Factory factory_;
 };

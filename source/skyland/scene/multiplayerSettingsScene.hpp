@@ -55,11 +55,11 @@ public:
     void exit(Scene& next) override;
 
 
-    static Microseconds timeout_frequency();
-    static Microseconds timeout_duration();
+    static Time timeout_frequency();
+    static Time timeout_duration();
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -91,7 +91,7 @@ private:
     std::optional<rng::LinearGenerator> co_op_rng_;
 
 
-    Microseconds parameter_sync_timer_ = seconds(1);
+    Time parameter_sync_timer_ = seconds(1);
 
 
     int game_mode_ = 0;
@@ -124,7 +124,7 @@ private:
         int upper_limit_;
     };
 
-    Microseconds key_held_timers_[4] = {0, 0, 0, 0};
+    Time key_held_timers_[4] = {0, 0, 0, 0};
 
     static const ParameterInfo param_info[decltype(vs_parameters_)::capacity()];
 };

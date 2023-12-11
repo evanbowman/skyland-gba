@@ -74,7 +74,7 @@ extern Sound sound_fizzle;
 
 
 
-void Antimatter::update(Microseconds delta)
+void Antimatter::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -113,7 +113,7 @@ void Antimatter::update(Microseconds delta)
 
 
 
-void Antimatter::rewind(Microseconds delta)
+void Antimatter::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

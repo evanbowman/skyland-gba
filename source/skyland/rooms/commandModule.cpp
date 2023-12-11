@@ -66,7 +66,7 @@ void CommandModule::format_description(StringBuffer<512>& buffer)
 
 
 
-void CommandModule::update(Microseconds delta)
+void CommandModule::update(Time delta)
 {
     Room::update(delta);
 

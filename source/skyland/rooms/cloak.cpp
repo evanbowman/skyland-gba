@@ -58,7 +58,7 @@ Cloak::Cloak(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Cloak::update(Microseconds delta)
+void Cloak::update(Time delta)
 {
     Room::update(delta);
 
@@ -83,7 +83,7 @@ void Cloak::update(Microseconds delta)
 
 
 
-void Cloak::rewind(Microseconds delta)
+void Cloak::rewind(Time delta)
 {
     Room::rewind(delta);
 }

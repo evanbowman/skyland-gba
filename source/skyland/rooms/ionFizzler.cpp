@@ -57,7 +57,7 @@ IonFizzler::IonFizzler(Island* parent, const RoomCoord& position)
 
 
 
-void IonFizzler::update(Microseconds delta)
+void IonFizzler::update(Time delta)
 {
     Room::update(delta);
 }

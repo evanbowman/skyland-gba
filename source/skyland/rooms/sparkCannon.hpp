@@ -157,7 +157,7 @@ public:
 
     ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return seconds(level_) - 1;
     }

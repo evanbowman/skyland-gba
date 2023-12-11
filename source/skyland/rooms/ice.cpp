@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-void Ice::update(Microseconds delta)
+void Ice::update(Time delta)
 {
     Room::update(delta);
 

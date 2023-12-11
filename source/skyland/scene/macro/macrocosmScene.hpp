@@ -61,7 +61,7 @@ public:
     virtual void exit(macro::EngineImpl&, Scene& next);
 
 
-    ScenePtr<Scene> update(Microseconds delta) override final;
+    ScenePtr<Scene> update(Time delta) override final;
 
 
     void display() override final;
@@ -106,10 +106,10 @@ public:
     void draw_year(macro::EngineImpl& state);
 
 private:
-    int current_season(Microseconds year_timer, Microseconds secs_per_season);
+    int current_season(Time year_timer, Time secs_per_season);
 
 
-    Microseconds year_length(macro::EngineImpl& state);
+    Time year_length(macro::EngineImpl& state);
 
 
     struct UIObjects

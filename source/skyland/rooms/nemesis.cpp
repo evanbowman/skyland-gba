@@ -128,7 +128,7 @@ void Nemesis::fire()
 
 
 
-Microseconds Nemesis::reload() const
+Time Nemesis::reload() const
 {
     return 1000 * nemesis_reload_ms;
 }

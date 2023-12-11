@@ -54,7 +54,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -72,9 +72,9 @@ public:
 private:
     bool wait_ = true;
     std::optional<Text> text_;
-    Microseconds timer_ = 0;
-    Microseconds hover_timer_ = 0;
-    Microseconds selector_timer_ = 0;
+    Time timer_ = 0;
+    Time hover_timer_ = 0;
+    Time selector_timer_ = 0;
     Float ambient_movement_ = 0.f;
     bool selector_shaded_ = false;
     bool flower_effect_ = false;
@@ -158,11 +158,11 @@ private:
     bool repeat_right_ = false;
     bool repeat_action1_ = false;
 
-    Microseconds island_mov_timer_ = 0;
+    Time island_mov_timer_ = 0;
     int island_offset_ = 0;
-    Microseconds bird_timer_ = seconds(7);
-    Microseconds note_timer_ = milliseconds(600);
-    Microseconds furnace_timer_ = 0;
+    Time bird_timer_ = seconds(7);
+    Time note_timer_ = milliseconds(600);
+    Time furnace_timer_ = 0;
 };
 
 

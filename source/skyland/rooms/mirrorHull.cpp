@@ -49,7 +49,7 @@ MirrorHull::MirrorHull(Island* parent, const RoomCoord& position)
 
 
 
-void MirrorHull::update(Microseconds delta)
+void MirrorHull::update(Time delta)
 {
     Room::update(delta);
 
@@ -60,7 +60,7 @@ void MirrorHull::update(Microseconds delta)
 
 
 
-void MirrorHull::rewind(Microseconds delta)
+void MirrorHull::rewind(Time delta)
 {
     Room::rewind(delta);
 

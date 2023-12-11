@@ -133,7 +133,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup()
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::update(Microseconds delta)
+ScenePtr<Scene> MultiplayerConnectScene::update(Time delta)
 {
     if (not ready_) {
         ready_ = true;

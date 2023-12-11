@@ -199,7 +199,7 @@ void Platform::blit_t1_erase(u16 index)
 }
 
 
-Microseconds Platform::DeltaClock::sample() const
+Time Platform::DeltaClock::sample() const
 {
     return 1;
 }

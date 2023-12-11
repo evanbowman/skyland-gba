@@ -61,7 +61,7 @@ public:
     static int tutorial_count();
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -105,7 +105,7 @@ private:
 
     int page_count_ = 0;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     bool exit_ = false;
 

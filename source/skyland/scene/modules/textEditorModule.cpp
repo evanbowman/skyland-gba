@@ -720,7 +720,7 @@ void TextEditorModule::exit(Scene& next)
 // particular is a cluttered mess of copy-pasted code, mainly due to related but
 // slightly differing behavior in all of the different keyboard shortcuts and
 // editing modes.
-ScenePtr<Scene> TextEditorModule::update(Microseconds delta)
+ScenePtr<Scene> TextEditorModule::update(Time delta)
 {
     APP.player().update(delta);
 

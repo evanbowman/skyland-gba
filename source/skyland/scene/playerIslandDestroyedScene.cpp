@@ -223,7 +223,7 @@ void PlayerIslandDestroyedScene::display()
 
 
 
-void update_confetti(ConfettiBuffer& confetti, Microseconds delta)
+void update_confetti(ConfettiBuffer& confetti, Time delta)
 {
     const auto view = PLATFORM.screen().get_view().get_center();
 
@@ -289,7 +289,7 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
-ScenePtr<Scene> PlayerIslandDestroyedScene::update(Microseconds delta)
+ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
 {
     WorldScene::update(delta);
 
@@ -1104,7 +1104,7 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
 
     auto lv_score = APP.score().get() - APP.level_begin_score();
     auto score_time_penalty =
-        0.5f * (lv_score - (lv_score / (std::max(1, level_seconds_ / 15))));
+        0.5f * (lv_score - (lv_score / (std::max(1, level_seconds_ / 60))));
     APP.score().set(APP.score().get() - score_time_penalty);
 
     if (lv_score < 0) {

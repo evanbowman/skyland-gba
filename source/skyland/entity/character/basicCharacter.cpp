@@ -50,7 +50,7 @@ namespace skyland
 
 
 
-static Microseconds movement_step_duration(int race)
+static Time movement_step_duration(int race)
 {
     if (race == 2) {
         return milliseconds(100);
@@ -232,7 +232,7 @@ void BasicCharacter::transported()
 
 
 
-void BasicCharacter::rewind(Microseconds delta)
+void BasicCharacter::rewind(Time delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -338,7 +338,7 @@ bool BasicCharacter::has_opponent(Room* room)
 
 
 
-void BasicCharacter::update(Microseconds delta)
+void BasicCharacter::update(Time delta)
 {
     Platform::fatal("BasicCharacter::update() called... "
                     "Use other update method instead.");
@@ -353,7 +353,7 @@ bool BasicCharacter::ai_automated() const
 
 
 
-void BasicCharacter::update(Microseconds delta, Room* room)
+void BasicCharacter::update(Time delta, Room* room)
 {
     // const auto t1 = PLATFORM.delta_clock().sample();
 
@@ -696,7 +696,7 @@ Sprite BasicCharacter::prepare_sprite() const
 
 
 
-void BasicCharacter::update_attack(Microseconds delta)
+void BasicCharacter::update_attack(Time delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -746,7 +746,7 @@ void BasicCharacter::update_attack(Microseconds delta)
 
 
 
-void BasicCharacter::movement_step(Microseconds delta)
+void BasicCharacter::movement_step(Time delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);

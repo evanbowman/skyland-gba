@@ -80,7 +80,7 @@ Flak::Flak(const Vec2<Fixnum>& position,
 
 
 
-void Flak::update(Microseconds delta)
+void Flak::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -190,7 +190,7 @@ void Flak::explode()
 
 
 
-void Flak::rewind(Microseconds delta)
+void Flak::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

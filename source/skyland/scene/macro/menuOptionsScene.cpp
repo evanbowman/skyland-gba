@@ -71,7 +71,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -95,7 +95,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int circ_radius_ = 0;
 };
 

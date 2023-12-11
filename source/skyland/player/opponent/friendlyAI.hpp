@@ -52,7 +52,7 @@ class MissileSilo;
 class FriendlyAI : public Opponent
 {
 public:
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // TODO...
     }

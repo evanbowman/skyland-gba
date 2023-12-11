@@ -50,7 +50,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 private:
     u32 hint_index_ = 0;
@@ -64,7 +64,7 @@ private:
         idle,
     } state_ = State::scene_intro;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     std::optional<Text> heading_;
     std::optional<TextView> body_;

@@ -68,7 +68,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -152,18 +152,18 @@ public:
     }
 
 
-    virtual void check_flood_parent(Microseconds delta);
+    virtual void check_flood_parent(Time delta);
 
 
 protected:
-    Microseconds decay_ = 0;
+    Time decay_ = 0;
 
-    Microseconds damage_timer_ = 0;
+    Time damage_timer_ = 0;
 
     RoomCoord flood_parent_;
     bool has_flood_parent_ = true;
 
-    Microseconds flood_timer_ = 0;
+    Time flood_timer_ = 0;
 };
 
 
@@ -174,10 +174,10 @@ public:
     LavaSource(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void check_flood_parent(Microseconds delta) override;
+    void check_flood_parent(Time delta) override;
 
 
 

@@ -55,7 +55,7 @@ public:
         sprite_.set_size(Sprite::Size::w16_h32);
     }
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta;
 
@@ -91,13 +91,13 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int cycles_ = 0;
 };
 

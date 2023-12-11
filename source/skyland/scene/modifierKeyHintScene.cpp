@@ -51,7 +51,7 @@ ScenePtr<Scene> update_modifier_keys();
 
 
 
-ScenePtr<Scene> ModifierKeyHintScene::update(Microseconds delta)
+ScenePtr<Scene> ModifierKeyHintScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

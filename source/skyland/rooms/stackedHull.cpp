@@ -49,7 +49,7 @@ StackedHull::StackedHull(Island* parent, const RoomCoord& position)
 
 
 
-void StackedHull::update(Microseconds delta)
+void StackedHull::update(Time delta)
 {
     Room::update(delta);
 
@@ -60,7 +60,7 @@ void StackedHull::update(Microseconds delta)
 
 
 
-void StackedHull::rewind(Microseconds delta)
+void StackedHull::rewind(Time delta)
 {
     Room::rewind(delta);
 

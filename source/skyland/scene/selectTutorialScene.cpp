@@ -263,7 +263,7 @@ void SelectTutorialScene::display()
 
 
 
-ScenePtr<Scene> SelectTutorialScene::update(Microseconds delta)
+ScenePtr<Scene> SelectTutorialScene::update(Time delta)
 {
     if (exit_) {
         return scene_pool::alloc<TitleScreenScene>(3);

@@ -48,7 +48,7 @@ HEAP_DATA s8 test_index = -1;
 
 
 
-ScenePtr<Scene> RegressionModule::update(Microseconds delta)
+ScenePtr<Scene> RegressionModule::update(Time delta)
 {
     state_bit_store(StateBit::regression, true);
 

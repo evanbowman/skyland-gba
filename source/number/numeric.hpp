@@ -291,19 +291,22 @@ using Microseconds = s32; // Therefore, a maximum of ~2147.5 seconds will fit in
                           // this data type.
 
 
-constexpr Microseconds seconds(u32 count)
+using Time = Microseconds;
+
+
+constexpr Time seconds(u32 count)
 {
     return count * 1000000;
 }
 
 
-constexpr Microseconds minutes(u8 count)
+constexpr Time minutes(u8 count)
 {
     return count * seconds(60);
 }
 
 
-constexpr Microseconds milliseconds(u32 count)
+constexpr Time milliseconds(u32 count)
 {
     return count * 1000;
 }

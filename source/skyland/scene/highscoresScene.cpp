@@ -37,6 +37,7 @@
 #include "base32.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "qrViewerScene.hpp"
+#include "script/lisp.hpp"
 #include "skyland/loginToken.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/save.hpp"
@@ -490,7 +491,7 @@ static Vector<char> encode_highscore_data()
 
 
 
-ScenePtr<Scene> HighscoresScene::update(Microseconds)
+ScenePtr<Scene> HighscoresScene::update(Time)
 {
     if (APP.player().key_pressed(Key::select)) {
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(

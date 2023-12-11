@@ -68,7 +68,7 @@ u8 FullscreenDialogScene::y_start() const
 
 
 
-bool FullscreenDialogScene::advance_text(Microseconds delta, bool sfx)
+bool FullscreenDialogScene::advance_text(Time delta, bool sfx)
 {
     const auto delay = milliseconds(80);
 
@@ -247,7 +247,7 @@ void FullscreenDialogScene::exit(Scene& prev)
 
 
 
-ScenePtr<Scene> FullscreenDialogScene::update(Microseconds delta)
+ScenePtr<Scene> FullscreenDialogScene::update(Time delta)
 {
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);

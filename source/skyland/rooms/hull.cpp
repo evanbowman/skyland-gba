@@ -73,7 +73,7 @@ TileId Hull::tile() const
 
 
 
-void Hull::update(Microseconds delta)
+void Hull::update(Time delta)
 {
     Room::update(delta);
 
@@ -84,7 +84,7 @@ void Hull::update(Microseconds delta)
 
 
 
-void Hull::rewind(Microseconds delta)
+void Hull::rewind(Time delta)
 {
     Room::rewind(delta);
 

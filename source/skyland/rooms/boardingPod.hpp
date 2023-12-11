@@ -51,8 +51,8 @@ public:
     BoardingPod(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);
@@ -157,8 +157,8 @@ public:
 
 private:
     std::optional<RoomCoord> target_;
-    Microseconds launch_timer_ = 0;
-    Microseconds heal_timer_ = 0;
+    Time launch_timer_ = 0;
+    Time heal_timer_ = 0;
 };
 
 

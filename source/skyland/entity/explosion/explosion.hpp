@@ -60,7 +60,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta * 2;
 
@@ -77,7 +77,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         timer_ -= delta * 2;
 
@@ -102,7 +102,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

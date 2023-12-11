@@ -377,6 +377,79 @@ o----------------------------o
 
  Section5:
 
+ World Map
+
+##############################
+
+
+ (wg-nodes)
+
+ Get a list of all world
+ graph nodes, i.e. nodes
+ associated with the sky
+ chart in adventure mode.
+
+ Result in format:
+
+ '((type x . y) ...)
+
+
+o----------------------------o
+
+ (wg-node-set x y type)
+
+ Assign a world graph node.
+ x y must be a valid existing
+ node (see wg-nodes).
+
+
+o----------------------------o
+
+ (wg-node-move x1 y1 x2 y2)
+
+ Relocate a world graph node
+ to a new coordinate.
+
+ Calling this function on the
+ player's currently inhabited
+ node is undefined behavior.
+
+
+o----------------------------o
+
+ (wg-pos)
+
+ Return info about the
+ player's position in the
+ world graph:
+
+ '(zone x . y)
+
+
+o----------------------------o
+
+ (wg-storm-frontier)
+
+ Return the position of the
+ storm boundary.
+
+
+o----------------------------o
+
+ (wg-storm-frontier-set v)
+
+ Set the position of the
+ storm boundary to v.
+
+
+o----------------------------o
+
+
+
+##############################
+
+ Section6:
+
  Miscellaneous
 
 ##############################
@@ -758,52 +831,6 @@ o----------------------------o
  as a list:
 
  '(major minor subminor patch)
-
-
-o----------------------------o
-
- (wg-nodes)
-
- Get a list of all world
- graph nodes, i.e. nodes
- associated with the sky
- chart in adventure mode.
-
- Result in format:
-
- '((type x . y) ...)
-
-
-o----------------------------o
-
- (wg-node-set x y type)
-
- Assign a world graph node.
- x y must be a valid existing
- node (see wg-nodes).
-
-
-o----------------------------o
-
- (wg-node-move x1 y1 x2 y2)
-
- Relocate a world graph node
- to a new coordinate.
-
- Calling this function on the
- player's currently inhabited
- node is undefined behavior.
-
-
-o----------------------------o
-
- (wg-pos)
-
- Return info about the
- player's position in the
- world graph:
-
- '(zone x . y)
 
 
 o----------------------------o

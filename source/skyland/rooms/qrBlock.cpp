@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-void QrBlock::update(Microseconds delta)
+void QrBlock::update(Time delta)
 {
     Room::update(delta);
 

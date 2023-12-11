@@ -42,7 +42,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> Scene::update(Microseconds delta)
+ScenePtr<Scene> Scene::update(Time delta)
 {
     return null_scene();
 }

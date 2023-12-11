@@ -363,7 +363,7 @@ void GlossaryViewerModule::show_category_image(int img)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Microseconds delta)
+ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Time delta)
 {
     auto test_key = [&](Key k) {
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
@@ -425,7 +425,7 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Microseconds delta)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::update(Microseconds delta)
+ScenePtr<Scene> GlossaryViewerModule::update(Time delta)
 {
     auto [mt, ms] = room_metatable();
 

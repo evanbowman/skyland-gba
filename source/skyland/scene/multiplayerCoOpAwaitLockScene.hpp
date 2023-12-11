@@ -55,7 +55,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void signal_result(bool result)
@@ -75,7 +75,7 @@ private:
     RoomCoord coord_;
     std::optional<bool> result_;
 
-    Microseconds timeout_ = milliseconds(500);
+    Time timeout_ = milliseconds(500);
 };
 
 
@@ -89,7 +89,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void signal_result(bool result)
@@ -109,7 +109,7 @@ private:
     CharacterId id_;
     std::optional<bool> result_;
 
-    Microseconds timeout_ = milliseconds(500);
+    Time timeout_ = milliseconds(500);
 };
 
 

@@ -56,7 +56,7 @@ public:
     Speaker(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);
@@ -204,7 +204,7 @@ private:
     // Index into the list of notes, 0->16
     s8 index_ = -1;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

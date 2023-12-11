@@ -106,7 +106,7 @@ void UpgradePromptScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> UpgradePromptScene::update(Microseconds delta)
+ScenePtr<Scene> UpgradePromptScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

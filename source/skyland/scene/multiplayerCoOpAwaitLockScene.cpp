@@ -41,7 +41,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Microseconds delta)
+ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Time delta)
 {
     auto on_failure = [&] {
         if (auto room = player_island().get_room(coord_)) {
@@ -76,7 +76,7 @@ ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Microseconds delta)
 
 
 
-ScenePtr<Scene> MultiplayerCoOpAwaitChrLockScene::update(Microseconds delta)
+ScenePtr<Scene> MultiplayerCoOpAwaitChrLockScene::update(Time delta)
 {
     auto on_failure = [&] {
         if (auto chr = BasicCharacter::find_by_id(id_).first) {

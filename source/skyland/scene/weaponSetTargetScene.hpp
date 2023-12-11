@@ -54,7 +54,7 @@ public:
                          std::optional<RoomCoord> initial_pos = {});
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -86,16 +86,16 @@ private:
 
     int selector_ = 0;
 
-    Microseconds describe_room_timer_ = milliseconds(400);
+    Time describe_room_timer_ = milliseconds(400);
     std::optional<Text> room_description_;
 
     u16 last_player_checksum_ = 0;
     u16 last_opponent_checksum_ = 0;
 
-    Microseconds minimap_repaint_timer_ = 0;
+    Time minimap_repaint_timer_ = 0;
 
     int cursor_tics_ = 0;
-    Microseconds tic_timer_ = milliseconds(100);
+    Time tic_timer_ = milliseconds(100);
 
     struct MinimapFramebufferCache
     {

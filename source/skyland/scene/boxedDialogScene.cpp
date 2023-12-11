@@ -231,7 +231,7 @@ void BoxedDialogScene::process_command()
 
 
 
-bool BoxedDialogScene::advance_text(Microseconds delta, bool sfx)
+bool BoxedDialogScene::advance_text(Time delta, bool sfx)
 {
     const auto delay = [&] {
         switch (text_state_.speed_) {
@@ -515,7 +515,7 @@ static lisp::Value* get_dialog_opt_list()
 
 
 
-ScenePtr<Scene> BoxedDialogScene::update(Microseconds delta)
+ScenePtr<Scene> BoxedDialogScene::update(Time delta)
 {
     if (data_->coins_) {
         data_->coins_->update(delta);

@@ -111,10 +111,10 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void plot_walkable_zones(bool matrix[16][16],

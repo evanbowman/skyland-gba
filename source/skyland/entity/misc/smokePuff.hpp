@@ -78,7 +78,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta)
+    void rewind(Time delta)
     {
         // In some older code I was accidentally updating effects twice per
         // frame. Multiply delta x2 until I get around to fixing all the timers.
@@ -112,7 +112,7 @@ public:
     }
 
 
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -140,7 +140,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Fixnum shrink_amount_ = Fixnum::from_integer(-24);
 };
 

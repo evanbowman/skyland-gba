@@ -89,7 +89,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (auto next = ActiveWorldScene::update(delta)) {
             return next;

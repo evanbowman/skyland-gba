@@ -52,7 +52,7 @@ public:
     ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void generate_level();

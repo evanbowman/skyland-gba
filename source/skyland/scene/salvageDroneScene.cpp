@@ -93,7 +93,7 @@ void SalvageDroneScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SalvageDroneScene::update(Microseconds delta)
+ScenePtr<Scene> SalvageDroneScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

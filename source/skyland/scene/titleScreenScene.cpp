@@ -81,7 +81,7 @@ public:
     }
 
 
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -110,7 +110,7 @@ public:
 
 private:
     TitleScreenScene* parent_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Fixnum y_pos_ = 0.0_fixed;
 };
 
@@ -596,7 +596,7 @@ static const int faded_music_volume = 2;
 
 
 
-ScenePtr<Scene> TitleScreenScene::update(Microseconds delta)
+ScenePtr<Scene> TitleScreenScene::update(Time delta)
 {
     APP.update_parallax(delta);
 

@@ -54,7 +54,7 @@
 #include "rumble.hpp"
 #include "save.hpp"
 #include "scene.hpp"
-#include "script/lisp.hpp"
+#include "script/protected.hpp"
 #include "stateBit.hpp"
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
@@ -78,7 +78,7 @@ class App
 public:
     App(bool clean_boot);
 
-    void update(Microseconds delta);
+    void update(Time delta);
     void render();
 
 
@@ -88,7 +88,7 @@ public:
     }
 
 
-    void update_parallax(Microseconds delta);
+    void update_parallax(Time delta);
 
 
 
@@ -215,7 +215,7 @@ public:
     using DeferredCallback = Function<4 * sizeof(void*), void()>;
 
 
-    bool on_timeout(Microseconds expire_time, const DeferredCallback& callback)
+    bool on_timeout(Time expire_time, const DeferredCallback& callback)
     {
         if (not deferred_callbacks_.emplace_back(callback, expire_time)) {
             warning("failed to enq timeout");
@@ -509,7 +509,7 @@ private:
     EntityList<Entity> effects_;
     EntityList<Bird> birds_;
 
-    Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
+    Buffer<std::pair<DeferredCallback, Time>, 20> deferred_callbacks_;
 
 
     Boxed<Player, Player, 26 * sizeof(void*)> player_;

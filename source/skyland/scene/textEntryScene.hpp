@@ -60,7 +60,7 @@ public:
                    const char* default_text = "");
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;

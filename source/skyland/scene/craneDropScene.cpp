@@ -78,7 +78,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -176,7 +176,7 @@ public:
     }
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
@@ -353,7 +353,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         APP.stat_timer().count_up(delta);
 
@@ -553,7 +553,7 @@ private:
     Fixnum descent_speed_ = Fixnum(0.00006f);
     bool got_treasure_ = false;
     bool got_bomb_ = false;
-    Microseconds bomb_timer_ = 0;
+    Time bomb_timer_ = 0;
     bool exit_ = false;
 
     struct Level
@@ -629,7 +629,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (APP.player().key_pressed(Key::action_2)) {
             delta *= 2;
@@ -790,9 +790,9 @@ public:
 
 
 private:
-    Microseconds fadein_timer_ = 0;
-    Microseconds timer_ = 0;
-    Microseconds cloud_respawn_ = milliseconds(30);
+    Time fadein_timer_ = 0;
+    Time timer_ = 0;
+    Time cloud_respawn_ = milliseconds(30);
     Fixnum crane_offset_ = 20.0_fixed;
     Fixnum crane_x_ = 120.0_fixed;
     Fixnum x_speed_ = 0.0_fixed;
@@ -810,12 +810,12 @@ private:
     DynamicMemory<Data> data_;
     RoomCoord crane_pos_;
 
-    Microseconds cloud_timer_;
+    Time cloud_timer_;
 };
 
 
 
-ScenePtr<Scene> CraneDropScene::update(Microseconds delta)
+ScenePtr<Scene> CraneDropScene::update(Time delta)
 {
     WorldScene::update(delta);
 

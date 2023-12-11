@@ -73,7 +73,7 @@ DecimatorBurst::DecimatorBurst(const Vec2<Fixnum>& position,
 
 
 
-void DecimatorBurst::update(Microseconds delta)
+void DecimatorBurst::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -117,7 +117,7 @@ void DecimatorBurst::update(Microseconds delta)
 
 
 
-void DecimatorBurst::rewind(Microseconds delta)
+void DecimatorBurst::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

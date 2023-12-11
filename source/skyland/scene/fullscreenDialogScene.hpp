@@ -57,11 +57,11 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
 private:
-    bool advance_text(Microseconds delta, bool sfx);
+    bool advance_text(Time delta, bool sfx);
 
     void clear_textbox();
 
@@ -72,7 +72,7 @@ private:
     struct TextWriterState
     {
         const char* current_word_;
-        Microseconds timer_;
+        Time timer_;
         u8 line_;
         u8 pos_;
         u8 current_word_remaining_;

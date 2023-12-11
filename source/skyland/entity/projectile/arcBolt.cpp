@@ -92,7 +92,7 @@ ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
 
 
 
-void ArcBolt::rewind(Microseconds delta)
+void ArcBolt::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;
@@ -122,7 +122,7 @@ void ArcBolt::rewind(Microseconds delta)
 
 
 
-void ArcBolt::update(Microseconds delta)
+void ArcBolt::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;

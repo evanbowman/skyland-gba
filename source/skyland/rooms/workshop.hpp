@@ -51,7 +51,7 @@ public:
     Workshop(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

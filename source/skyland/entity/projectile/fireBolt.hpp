@@ -63,16 +63,16 @@ public:
     void set_direction(u16 rot);
 
 
-    void set_timer(Microseconds value)
+    void set_timer(Time value)
     {
         timer_ = value;
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void on_collision(Room&, Vec2<u8> origin) override;
@@ -85,7 +85,7 @@ private:
     void record_destroyed();
     void destroy(bool explosion);
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
 

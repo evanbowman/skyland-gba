@@ -48,7 +48,7 @@ namespace skyland
 class AssignWeaponGroupScene : public ActiveWorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;

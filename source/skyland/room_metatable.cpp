@@ -34,6 +34,8 @@
 
 #include "room_metatable.hpp"
 
+#include "script/lisp.hpp"
+
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"

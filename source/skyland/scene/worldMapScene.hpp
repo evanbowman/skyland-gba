@@ -53,7 +53,7 @@ class WorldMap;
 class WorldMapScene : public Scene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev_scene) override;
@@ -111,15 +111,15 @@ private:
     int prev_world_loc_ = 0;
     int cursor_ = 0;
     u8 cursor_keyframe_ = 0;
-    Microseconds cursor_anim_timer_ = 0;
-    Microseconds timer_ = 0;
+    Time cursor_anim_timer_ = 0;
+    Time timer_ = 0;
     ColorMix cmix_;
 
     int movement_cursor_ = 0;
     Buffer<Vec2<s8>, 10> movement_targets_;
     Buffer<Vec2<s8>, 10> dead_nodes_;
 
-    Microseconds storm_scroll_timer_ = 0;
+    Time storm_scroll_timer_ = 0;
 
     void render_map_key();
 
@@ -128,7 +128,7 @@ private:
     bool fast_ = false;
     bool has_radar_ = false;
 
-    Microseconds tier_2_timer_ = 0;
+    Time tier_2_timer_ = 0;
 
     std::optional<Text> heading_;
     std::optional<Text> warning_;

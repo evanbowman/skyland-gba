@@ -59,7 +59,7 @@ void Radiator::format_description(StringBuffer<512>& buffer)
 
 
 
-void Radiator::update(Microseconds delta)
+void Radiator::update(Time delta)
 {
     Room::update(delta);
 
@@ -122,7 +122,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
@@ -143,7 +143,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
@@ -155,7 +155,7 @@ public:
     }
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

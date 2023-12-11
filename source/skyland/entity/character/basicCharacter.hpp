@@ -66,13 +66,13 @@ public:
     void finalize();
 
 
-    void update(Microseconds delta, Room* room);
+    void update(Time delta, Room* room);
 
 
-    void update(Microseconds delta) override final;
+    void update(Time delta) override final;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     const RoomCoord& grid_position() const
@@ -324,8 +324,8 @@ private:
     Island* parent_;
     Player* owner_;
     RoomCoord grid_position_;
-    Microseconds timer_ = 0;
-    Microseconds anim_timer_ = 0;
+    Time timer_ = 0;
+    Time anim_timer_ = 0;
 
     CharacterId id_;
     u16 idle_count_ = 0;
@@ -358,9 +358,9 @@ private:
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
-    void movement_step(Microseconds delta);
+    void movement_step(Time delta);
 
-    void update_attack(Microseconds delta);
+    void update_attack(Time delta);
 };
 
 

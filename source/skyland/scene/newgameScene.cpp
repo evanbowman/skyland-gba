@@ -57,7 +57,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> NewgameScene::update(Microseconds delta)
+ScenePtr<Scene> NewgameScene::update(Time delta)
 {
     show_island_exterior(&APP.player_island());
     show_island_exterior(APP.opponent_island());

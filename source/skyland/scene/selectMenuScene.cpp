@@ -254,7 +254,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         if (auto next = ActiveWorldScene::update(delta)) {
             return next;
@@ -568,7 +568,7 @@ void SelectMenuScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SelectMenuScene::update(Microseconds delta)
+ScenePtr<Scene> SelectMenuScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;

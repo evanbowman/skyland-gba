@@ -37,7 +37,7 @@
 #include "function.hpp"
 #include "memory/uniquePtr.hpp"
 #include "number/numeric.hpp"
-#include "script/lisp.hpp"
+#include "script/value.hpp"
 
 
 
@@ -77,7 +77,7 @@ public:
     virtual ~Scene(){};
 
 
-    virtual ScenePtr<Scene> update(Microseconds delta);
+    virtual ScenePtr<Scene> update(Time delta);
 
 
     virtual void display();

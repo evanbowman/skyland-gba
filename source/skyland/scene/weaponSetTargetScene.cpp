@@ -92,7 +92,7 @@ u8 minimap_width()
 
 
 
-ScenePtr<Scene> WeaponSetTargetScene::update(Microseconds delta)
+ScenePtr<Scene> WeaponSetTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
@@ -295,7 +295,7 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Microseconds delta)
                 }
 
                 case 2: { // salvo
-                    Microseconds max_reload = 0;
+                    Time max_reload = 0;
 
                     auto cb = [&max_reload](Room& r) {
                         auto rem = r.reload_time_remaining();

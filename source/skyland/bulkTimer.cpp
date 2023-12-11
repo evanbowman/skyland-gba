@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-void BulkTimer::rewind(Microseconds elapsed_delta)
+void BulkTimer::rewind(Time elapsed_delta)
 {
     if (elapsed_delta == 0) {
         return;
@@ -61,7 +61,7 @@ void BulkTimer::rewind(Microseconds elapsed_delta)
 
 
 
-void BulkTimer::update(Microseconds elapsed_delta)
+void BulkTimer::update(Time elapsed_delta)
 {
     if (elapsed_delta == 0) {
         return;
@@ -89,7 +89,7 @@ void BulkTimer::update(Microseconds elapsed_delta)
 
 
 
-void BulkTimer::schedule(Timer* subscriber, Microseconds timeout)
+void BulkTimer::schedule(Timer* subscriber, Time timeout)
 {
     subscriber->next_ = scheduled_;
     subscriber->clock_ += timeout;

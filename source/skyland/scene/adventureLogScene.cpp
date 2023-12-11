@@ -208,7 +208,7 @@ int AdventureLogScene::logentry_count()
 
 
 
-ScenePtr<Scene> AdventureLogScene::update(Microseconds delta)
+ScenePtr<Scene> AdventureLogScene::update(Time delta)
 {
     if (logbook_missing_) {
         return (*next_)();

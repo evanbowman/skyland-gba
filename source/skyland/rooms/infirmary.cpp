@@ -50,7 +50,7 @@ Infirmary::Infirmary(Island* parent, const RoomCoord& position)
 }
 
 
-void Infirmary::update(Microseconds delta)
+void Infirmary::update(Time delta)
 {
     Room::update(delta);
 

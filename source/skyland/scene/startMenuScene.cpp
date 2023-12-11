@@ -219,7 +219,7 @@ private:
 
 
 
-ScenePtr<Scene> StartMenuScene::update(Microseconds delta)
+ScenePtr<Scene> StartMenuScene::update(Time delta)
 {
     player().update(delta);
 

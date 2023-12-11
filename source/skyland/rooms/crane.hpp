@@ -100,7 +100,7 @@ public:
     Crane(Island* parent, const RoomCoord& position, const char* n = name());
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
     void display(Platform::Screen& screen) override;
 
 
@@ -109,7 +109,7 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
 
@@ -209,7 +209,7 @@ public:
 
 
 private:
-    Microseconds timer_;
+    Time timer_;
 
     enum class State {
         idle,

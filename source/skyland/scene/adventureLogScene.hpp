@@ -52,7 +52,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
     lisp::Value* load_logentry(int entry);
     int logentry_count();
@@ -82,7 +82,7 @@ private:
     } state_ = State::ready;
 
     int page_ = 0;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     bool logbook_missing_ = false;
 

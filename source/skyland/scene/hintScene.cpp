@@ -104,7 +104,7 @@ void HintScene::exit(Scene& next)
 }
 
 
-ScenePtr<Scene> HintScene::update(Microseconds delta)
+ScenePtr<Scene> HintScene::update(Time delta)
 {
     switch (state_) {
     case State::scene_intro: {

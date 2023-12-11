@@ -69,7 +69,7 @@ void DroneBay::format_description(StringBuffer<512>& buffer)
 
 
 
-void DroneBay::update(Microseconds delta)
+void DroneBay::update(Time delta)
 {
     Room::update(delta);
 
@@ -105,7 +105,7 @@ void DroneBay::update(Microseconds delta)
 
 
 
-void DroneBay::rewind(Microseconds delta)
+void DroneBay::rewind(Time delta)
 {
     if (drone_ and not(*drone_)->alive()) {
         ___rewind___ability_used();

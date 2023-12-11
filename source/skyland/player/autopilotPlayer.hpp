@@ -51,7 +51,7 @@ public:
     AutopilotPlayer(lisp::Value* keys_list);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     bool key_down(Key k) override;
@@ -69,12 +69,12 @@ public:
 private:
     lisp::Protected keys_list_;
 
-    Microseconds next_key_timeout_ = 0;
+    Time next_key_timeout_ = 0;
     std::optional<Key> next_timeout_key_;
     bool next_timeout_release_ = false;
 
 
-    Microseconds key_tap_timeout_ = 0;
+    Time key_tap_timeout_ = 0;
 
 
     Platform::Keyboard::KeyStates prev_;

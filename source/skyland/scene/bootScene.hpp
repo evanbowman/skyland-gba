@@ -38,6 +38,7 @@
 #include "modules/datetimeModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "script/lisp.hpp"
 #include "skyland/latency.hpp"
 #include "skyland/player/coOpTeam.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
@@ -112,7 +113,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         auto show_cursor = [&] {
             for (int y = 0; y < 20; ++y) {
@@ -298,7 +299,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         TIMEPOINT(t1);
 

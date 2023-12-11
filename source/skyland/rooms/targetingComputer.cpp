@@ -65,7 +65,7 @@ void TargetingComputer::format_description(StringBuffer<512>& buffer)
 
 
 
-void TargetingComputer::update(Microseconds delta)
+void TargetingComputer::update(Time delta)
 {
     Room::update(delta);
 
@@ -142,6 +142,46 @@ void TargetingComputer::update(Microseconds delta)
             }
             next_action_timer_ = milliseconds(32);
         }
+    }
+
+    // A block was destroyed. Attempt to re-assign some weapon targets, for
+    // weapons that no longer have a valid target block.
+    if (rescan_) {
+
+        ATP highest_weight = 0.0_atp;
+        std::optional<RoomCoord> highest_weighted_target;
+
+        // Find the highest-weighted target still in existence.
+        for (auto& room : APP.player_island().rooms()) {
+            const auto category = (*room->metaclass())->category();
+            if (category == Room::Category::weapon) {
+                if (auto target = room->get_target()) {
+                    if (auto o = APP.opponent_island()->get_room(*target)) {
+                        if (o->get_atp() > highest_weight) {
+                            highest_weight = o->get_atp();
+                            highest_weighted_target = target;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Assign the highest weighted extant target to all rooms that no longer
+        // have a valid target block.
+        if (highest_weighted_target) {
+            for (auto& room : APP.player_island().rooms()) {
+                const auto category = (*room->metaclass())->category();
+                if (category == Room::Category::weapon) {
+                    if (auto target = room->get_target()) {
+                        if (not APP.opponent_island()->get_room(*target)) {
+                            room->set_target(*highest_weighted_target, false);
+                        }
+                    }
+                }
+            }
+        }
+
+        rescan_ = false;
     }
 }
 

@@ -61,11 +61,11 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 private:
     RoomCoord crane_pos_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

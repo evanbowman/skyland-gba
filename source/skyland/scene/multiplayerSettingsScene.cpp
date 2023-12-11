@@ -260,14 +260,14 @@ void MultiplayerSettingsScene::setup_co_op_game()
 
 
 
-Microseconds MultiplayerSettingsScene::timeout_frequency()
+Time MultiplayerSettingsScene::timeout_frequency()
 {
     return seconds(vs_parameters_[5]);
 }
 
 
 
-Microseconds MultiplayerSettingsScene::timeout_duration()
+Time MultiplayerSettingsScene::timeout_duration()
 {
     return seconds(vs_parameters_[6]);
 }
@@ -304,8 +304,8 @@ void MultiplayerSettingsScene::setup_vs_game()
     // can create and position the two islands.
     APP.create_opponent_island(vs_parameters_[4]);
 
-    APP.opponent_island()->set_float_timer(
-        std::numeric_limits<Microseconds>::max() / 2);
+    APP.opponent_island()->set_float_timer(std::numeric_limits<Time>::max() /
+                                           2);
 
     set_island_positions(APP.player_island(), *APP.opponent_island());
 
@@ -420,7 +420,7 @@ void MultiplayerSettingsScene::sync_parameters()
 
 
 
-ScenePtr<Scene> MultiplayerSettingsScene::update(Microseconds delta)
+ScenePtr<Scene> MultiplayerSettingsScene::update(Time delta)
 {
     APP.update_parallax(delta);
 

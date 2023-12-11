@@ -107,10 +107,10 @@ struct EngineImpl : public Engine
         bool checkers_mode_ = false;
         bool checkers_ai_moved_ = false;
 
-        Microseconds year_timer_ = 0;
+        Time year_timer_ = 0;
 
         // For palette animations.
-        Microseconds fluid_anim_timer_ = 0;
+        Time fluid_anim_timer_ = 0;
         u16 realtime_update_index_ = 0;
         u8 water_anim_index_ = 0;
         u8 lava_anim_index_ = 128;

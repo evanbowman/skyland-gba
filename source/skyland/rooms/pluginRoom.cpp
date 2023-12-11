@@ -33,6 +33,7 @@
 
 
 #include "pluginRoom.hpp"
+#include "script/lisp.hpp"
 #include "skyland/roomPluginInfo.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/notificationScene.hpp"
@@ -103,7 +104,7 @@ void PluginRoom::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void PluginRoom::update(Microseconds delta)
+void PluginRoom::update(Time delta)
 {
     Room::update(delta);
 
@@ -153,7 +154,7 @@ void PluginRoom::update(Microseconds delta)
 
 
 
-void PluginRoom::rewind(Microseconds delta)
+void PluginRoom::rewind(Time delta)
 {
     Room::rewind(delta);
 

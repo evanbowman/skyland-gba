@@ -43,7 +43,7 @@ namespace skyland::macro
 
 
 
-void MacrocosmEntity::update(Microseconds delta)
+void MacrocosmEntity::update(Time delta)
 {
     update(macrocosm(), delta);
 }

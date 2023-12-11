@@ -146,7 +146,7 @@ void HelpScene::exit(Scene&)
 
 
 
-ScenePtr<Scene> HelpScene::update(Microseconds delta)
+ScenePtr<Scene> HelpScene::update(Time delta)
 {
     player().update(delta);
 

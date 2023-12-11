@@ -107,7 +107,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     struct ParserState
@@ -207,7 +207,7 @@ private:
     Vec2<int> keyboard_cursor_;
     int selected_completion_ = 0;
 
-    Microseconds cursor_flicker_timer_ = 0;
+    Time cursor_flicker_timer_ = 0;
     bool cursor_shaded_ = false;
 
 

@@ -52,11 +52,11 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     enum class State {
         fade_in,

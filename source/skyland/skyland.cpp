@@ -353,7 +353,7 @@ static int scratch_buffer_highwater = 0;
 
 
 
-void App::update(Microseconds delta)
+void App::update(Time delta)
 {
     TIMEPOINT(t1);
 
@@ -510,7 +510,7 @@ void App::record_score_diff(int diff)
 
 
 
-void App::update_parallax(Microseconds delta)
+void App::update_parallax(Time delta)
 {
     cloud_scroll_1fp_ += 0.00002_fixed * Fixnum::from_integer(delta);
     cloud_scroll_2fp_ += 0.00004_fixed * Fixnum::from_integer(delta);

@@ -36,8 +36,8 @@
 #include "memory/rc.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 
 // This file should contain the minimal subset of platform code necessary for
@@ -65,7 +65,9 @@ Platform::DeltaClock::TimePoint Platform::DeltaClock::sample() const
 {
     using namespace std::chrono;
 
-    return time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
+    return time_point_cast<nanoseconds>(system_clock::now())
+        .time_since_epoch()
+        .count();
 }
 
 

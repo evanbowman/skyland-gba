@@ -71,7 +71,7 @@ public:
         kill();
     }
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
     }
 };

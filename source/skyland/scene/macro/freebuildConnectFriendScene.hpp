@@ -70,7 +70,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         player().update(delta);
 
@@ -122,7 +122,7 @@ private:
 
     enum class State { show, connect, sync, failure } state_ = State::show;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

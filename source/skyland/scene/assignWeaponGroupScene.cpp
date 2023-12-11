@@ -47,7 +47,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AssignWeaponGroupScene::update(Microseconds delta)
+ScenePtr<Scene> AssignWeaponGroupScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

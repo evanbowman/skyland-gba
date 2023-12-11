@@ -58,7 +58,7 @@ Explosive::Explosive(Island* parent,
 
 
 
-void Explosive::update(Microseconds delta)
+void Explosive::update(Time delta)
 {
     Room::update(delta);
 
@@ -366,7 +366,7 @@ void TNT::display_on_hover(Platform::Screen& screen,
 
 
 
-void Cesium::update(Microseconds delta)
+void Cesium::update(Time delta)
 {
     Room::update(delta);
     Room::ready();

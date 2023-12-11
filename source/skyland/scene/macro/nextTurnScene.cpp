@@ -65,7 +65,7 @@ public:
 
 
 
-ScenePtr<Scene> NextTurnScene::update(Microseconds delta)
+ScenePtr<Scene> NextTurnScene::update(Time delta)
 {
     auto& m = macrocosm();
 

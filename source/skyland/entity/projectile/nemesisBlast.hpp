@@ -60,7 +60,7 @@ public:
     }
 
 
-    void set_timer(Microseconds value)
+    void set_timer(Time value)
     {
         timer_ = value;
     }
@@ -78,10 +78,10 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void on_collision(Room&, Vec2<u8>) override;
@@ -96,7 +96,7 @@ private:
 
     void timestream_record_destroyed();
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
 

@@ -52,7 +52,7 @@ public:
     Manufactory(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta);
+    void update(Time delta);
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

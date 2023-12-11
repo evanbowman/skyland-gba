@@ -89,7 +89,7 @@ Beam::Beam(const Vec2<Fixnum>& position,
 
 
 
-void Beam::update(Microseconds delta)
+void Beam::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -116,7 +116,7 @@ void Beam::update(Microseconds delta)
 
 
 
-void Beam::rewind(Microseconds delta)
+void Beam::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

@@ -86,10 +86,10 @@ public:
     }
 
 
-    virtual void update(Microseconds delta) = 0;
+    virtual void update(Time delta) = 0;
 
 
-    virtual void rewind(Microseconds delta)
+    virtual void rewind(Time delta)
     {
         Platform::fatal("rewind unimplemented for this entity!");
     }
@@ -234,7 +234,7 @@ using SharedEntityList =
 
 
 
-template <typename T> void update_entities(Microseconds dt, EntityList<T>& lat)
+template <typename T> void update_entities(Time dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {
@@ -248,7 +248,7 @@ template <typename T> void update_entities(Microseconds dt, EntityList<T>& lat)
 
 
 
-template <typename T> void rewind_entities(Microseconds dt, EntityList<T>& lat)
+template <typename T> void rewind_entities(Time dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {

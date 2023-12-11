@@ -209,7 +209,7 @@ void PlaceDroneScene::display()
 
 
 
-ScenePtr<Scene> PlaceDroneScene::update(Microseconds delta)
+ScenePtr<Scene> PlaceDroneScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

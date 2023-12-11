@@ -54,7 +54,7 @@ RecoverCharacterScene::RecoverCharacterScene(const RoomCoord& transporter_loc)
 
 
 
-ScenePtr<Scene> RecoverCharacterScene::update(Microseconds delta)
+ScenePtr<Scene> RecoverCharacterScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

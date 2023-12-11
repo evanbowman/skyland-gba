@@ -88,7 +88,7 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
 
 
 
-void CargoBay::update(Microseconds delta)
+void CargoBay::update(Time delta)
 {
     Room::update(delta);
 

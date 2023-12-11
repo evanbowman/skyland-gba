@@ -85,7 +85,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         timer_ -= delta;
         if (timer_ < 0) {
@@ -97,7 +97,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta;
         if (timer_ > milliseconds(32)) {
@@ -126,7 +126,7 @@ private:
     const Vec2<Fixnum> position_;
     const Vec2<Fixnum> target_;
     Island* source_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int beam_count_ = 0;
     RoomCoord origin_tile_;
 };
@@ -172,7 +172,7 @@ void BeamGun::fire()
 
 
 
-Microseconds BeamGun::reload() const
+Time BeamGun::reload() const
 {
     return 1000 * beam_reload_ms;
 }

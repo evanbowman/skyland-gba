@@ -49,7 +49,7 @@ static const Float partial_fade_amt = 0.76f;
 
 
 
-void update_confetti(ConfettiBuffer& confetti, Microseconds delta);
+void update_confetti(ConfettiBuffer& confetti, Time delta);
 
 
 
@@ -70,7 +70,7 @@ void LevelCompleteOptionsScene::show_cursor()
 
 
 
-ScenePtr<Scene> LevelCompleteOptionsScene::update(Microseconds delta)
+ScenePtr<Scene> LevelCompleteOptionsScene::update(Time delta)
 {
     WorldScene::update(delta);
 

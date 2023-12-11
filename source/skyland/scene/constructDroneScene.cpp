@@ -179,7 +179,7 @@ void ConstructDroneScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ConstructDroneScene::update(Microseconds delta)
+ScenePtr<Scene> ConstructDroneScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;

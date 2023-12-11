@@ -67,7 +67,7 @@ Stairwell::Stairwell(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Stairwell::update(Microseconds delta)
+void Stairwell::update(Time delta)
 {
     Room::update(delta);
 }

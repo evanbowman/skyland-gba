@@ -51,7 +51,7 @@ namespace skyland
 class MultiplayerReadyScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         WorldScene::update(delta);
 
@@ -96,7 +96,7 @@ private:
         wait,
     } state_ = State::fade_out;
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

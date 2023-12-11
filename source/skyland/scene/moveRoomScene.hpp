@@ -104,7 +104,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -122,7 +122,7 @@ private:
 
     Vec2<u8> move_diff_;
     u8 cursor_anim_frame_ = 0;
-    Microseconds cursor_anim_timer_ = 0;
+    Time cursor_anim_timer_ = 0;
 
     std::optional<Text> text_;
     std::optional<Text> yes_text_;

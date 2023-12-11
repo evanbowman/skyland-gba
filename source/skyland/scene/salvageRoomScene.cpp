@@ -182,7 +182,7 @@ void SalvageRoomScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SalvageRoomScene::update(Microseconds delta)
+ScenePtr<Scene> SalvageRoomScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

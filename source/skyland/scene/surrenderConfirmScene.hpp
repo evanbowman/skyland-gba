@@ -54,7 +54,7 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (APP.player().key_down(Key::up)) {
             selection_ = false;

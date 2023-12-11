@@ -64,7 +64,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void set_origin_overworld()
@@ -81,7 +81,7 @@ protected:
     std::optional<TextView> tv_;
     std::optional<Text> next_text_;
     ColorConstant exit_color_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     bool exit_ = false;
     bool overworld_ = false;
     std::optional<DynamicMemory<TextBuffer>> text_;

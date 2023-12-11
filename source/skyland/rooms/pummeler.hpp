@@ -54,7 +54,7 @@ public:
 
 
     void fire() override;
-    Microseconds reload() const override;
+    Time reload() const override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;

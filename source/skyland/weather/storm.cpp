@@ -109,7 +109,7 @@ static uint8_t rand8(void)
 
 
 
-void Storm::update(Microseconds delta)
+void Storm::update(Time delta)
 {
     if (PLATFORM.screen().fade_active()) {
         return;
@@ -205,7 +205,7 @@ void Storm::update(Microseconds delta)
 
 
 
-void Storm::rewind(Microseconds delta)
+void Storm::rewind(Time delta)
 {
     const auto scale = rain_pos_scale;
 

@@ -44,7 +44,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AchievementNotificationScene::update(Microseconds delta)
+ScenePtr<Scene> AchievementNotificationScene::update(Time delta)
 {
     // NOTE: do not call WorldScene::update, the game should be considered
     // paused.

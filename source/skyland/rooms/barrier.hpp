@@ -51,7 +51,7 @@ public:
     Barrier(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void apply_damage(Health damage) override;

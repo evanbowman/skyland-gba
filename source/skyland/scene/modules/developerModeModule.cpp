@@ -130,7 +130,7 @@ void DeveloperModeModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> DeveloperModeModule::update(Microseconds delta)
+ScenePtr<Scene> DeveloperModeModule::update(Time delta)
 {
     if (exit_) {
         PLATFORM.screen().schedule_fade(1.f);

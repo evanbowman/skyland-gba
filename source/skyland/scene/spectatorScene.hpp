@@ -88,7 +88,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (auto scene = ActiveWorldScene::update(delta)) {
             APP.swap_player<PlayerP1>();
@@ -224,8 +224,8 @@ public:
 
 
 private:
-    Microseconds cursor_anim_timer_;
-    Microseconds describe_room_timer_ = seconds(1);
+    Time cursor_anim_timer_;
+    Time describe_room_timer_ = seconds(1);
     u8 cursor_anim_frame_;
     std::optional<Text> room_description_;
 

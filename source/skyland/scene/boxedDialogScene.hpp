@@ -82,7 +82,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     enum class DisplayMode {
@@ -113,14 +113,14 @@ public:
 private:
     void process_command();
 
-    bool advance_text(Microseconds delta, bool sfx);
+    bool advance_text(Time delta, bool sfx);
 
     void clear_textbox();
 
     struct TextWriterState
     {
         const char* current_word_;
-        Microseconds timer_;
+        Time timer_;
         u8 line_;
         u8 pos_;
         u8 current_word_remaining_;
@@ -236,7 +236,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override final
+    ScenePtr<Scene> update(Time delta) override final
     {
         if (APP.game_mode() not_eq App::GameMode::tutorial) {
             if (auto scene = WorldScene::update(delta)) {
@@ -254,7 +254,7 @@ public:
             // we need to ask the platform implementation directly what the
             // keystates are, rather than asking the player class, which may be
             // pulling keystates from a data file.
-            auto key_held = [&](Key k, int timer_slot, Microseconds held_time) {
+            auto key_held = [&](Key k, int timer_slot, Time held_time) {
                 if (PLATFORM.keyboard().pressed(k)) {
                     hold_timers_[timer_slot] += delta;
                 } else {
@@ -263,7 +263,7 @@ public:
                 return hold_timers_[timer_slot] >= held_time;
             };
 
-            auto key_held_reset = [&](int timer_slot, Microseconds decr) {
+            auto key_held_reset = [&](int timer_slot, Time decr) {
                 if (hold_timers_[timer_slot] >= decr) {
                     hold_timers_[timer_slot] -= decr;
                 }
@@ -360,8 +360,8 @@ public:
     }
 
 
-    Microseconds hold_timers_[4] = {0};
-    Microseconds cursor_anim_timer_ = 0;
+    Time hold_timers_[4] = {0};
+    Time cursor_anim_timer_ = 0;
 
     bool pause_if_hostile_ = true;
     bool autorestore_music_volume_ = false;

@@ -59,7 +59,7 @@ public:
     Synth(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     static RoomProperties::Bitmask properties()

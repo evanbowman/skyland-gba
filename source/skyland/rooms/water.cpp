@@ -54,7 +54,7 @@ Water::Water(Island* parent, const RoomCoord& position, const char* name)
 
 
 
-void Water::check_flood_parent(Microseconds delta)
+void Water::check_flood_parent(Time delta)
 {
     // NOTE: we want to destroy a water block if its parent water block no
     // longer exists.
@@ -92,7 +92,7 @@ void Water::check_flood_parent(Microseconds delta)
 
 
 
-void Water::update(Microseconds delta)
+void Water::update(Time delta)
 {
     Room::update(delta);
 
@@ -243,7 +243,7 @@ WaterSource::WaterSource(Island* parent, const RoomCoord& position)
 
 
 
-void WaterSource::update(Microseconds delta)
+void WaterSource::update(Time delta)
 {
     flood_timer_ += delta;
 
@@ -252,7 +252,7 @@ void WaterSource::update(Microseconds delta)
 
 
 
-void WaterSource::check_flood_parent(Microseconds delta)
+void WaterSource::check_flood_parent(Time delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

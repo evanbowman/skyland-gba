@@ -118,7 +118,7 @@ void FireCharge::fire()
 
 
 
-Microseconds FireCharge::reload() const
+Time FireCharge::reload() const
 {
     return 1000 * fire_charge_reload_ms;
 }

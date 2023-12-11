@@ -82,7 +82,7 @@ public:
         }
     }
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         network::poll_messages(*this);
 
@@ -130,7 +130,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     bool syncd_ = false;
 };
 

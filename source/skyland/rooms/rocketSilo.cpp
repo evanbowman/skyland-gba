@@ -132,7 +132,7 @@ void RocketSilo::fire()
 
 
 
-Microseconds RocketSilo::reload() const
+Time RocketSilo::reload() const
 {
     return reload_time();
 }

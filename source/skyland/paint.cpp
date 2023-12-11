@@ -120,7 +120,7 @@ void Paint::show()
 
 
 
-ScenePtr<Scene> Paint::update(Microseconds delta)
+ScenePtr<Scene> Paint::update(Time delta)
 {
     if (APP.player().key_down(Key::alt_1)) {
         color_--;

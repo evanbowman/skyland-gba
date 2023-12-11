@@ -155,7 +155,7 @@ void Mycelium::timer_expired()
 
 
 
-void Mycelium::update(Microseconds delta)
+void Mycelium::update(Time delta)
 {
     Room::update(delta);
 }

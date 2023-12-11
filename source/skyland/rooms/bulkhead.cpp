@@ -74,7 +74,7 @@ Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
 
 
 
-void Bulkhead::update(Microseconds delta)
+void Bulkhead::update(Time delta)
 {
     Room::update(delta);
 

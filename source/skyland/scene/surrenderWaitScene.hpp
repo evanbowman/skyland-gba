@@ -48,7 +48,7 @@ namespace skyland
 class SurrenderWaitScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (auto next = WorldScene::update(delta)) {
             return next;
@@ -70,7 +70,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

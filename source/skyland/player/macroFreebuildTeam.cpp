@@ -42,7 +42,7 @@ namespace skyland::macro
 
 
 
-void FreebuildTeam::update(Microseconds delta)
+void FreebuildTeam::update(Time delta)
 {
     PlayerP1::update(delta);
 

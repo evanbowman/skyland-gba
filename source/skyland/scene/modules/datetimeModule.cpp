@@ -256,7 +256,7 @@ void DatetimeModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> DatetimeModule::update(Microseconds delta)
+ScenePtr<Scene> DatetimeModule::update(Time delta)
 {
     auto& p = player();
     p.update(delta);

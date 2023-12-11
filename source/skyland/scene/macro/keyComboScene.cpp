@@ -71,7 +71,7 @@ void KeyComboScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(Microseconds delta)
+ScenePtr<Scene> KeyComboScene::update(Time delta)
 {
     if (APP.player().key_down(Key::start) or
         APP.key_callback_processor().seek_state() ==

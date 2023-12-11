@@ -73,7 +73,7 @@ Ladder::Ladder(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Ladder::update(Microseconds delta)
+void Ladder::update(Time delta)
 {
     Room::update(delta);
 }

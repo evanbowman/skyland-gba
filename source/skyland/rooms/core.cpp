@@ -67,7 +67,7 @@ Core::Core(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void Core::update(Microseconds delta)
+void Core::update(Time delta)
 {
     Room::update(delta);
 }
@@ -138,7 +138,7 @@ const char* BackupCore::upgrade_mt_name() const
 
 
 
-void BackupCore::update(Microseconds delta)
+void BackupCore::update(Time delta)
 {
     Room::update(delta);
 

@@ -132,13 +132,13 @@ void Dynamic::compute_palettes(u8 scale)
 
 
 
-void Dynamic::update(Microseconds delta)
+void Dynamic::update(Time delta)
 {
 }
 
 
 
-void Dynamic::rewind(Microseconds delta)
+void Dynamic::rewind(Time delta)
 {
 }
 

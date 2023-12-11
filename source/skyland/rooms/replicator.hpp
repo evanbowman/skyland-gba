@@ -52,7 +52,7 @@ public:
     Replicator(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -120,7 +120,7 @@ public:
 private:
     static const auto recharge_time = seconds(5);
 
-    Microseconds recharge_timer_ = 0;
+    Time recharge_timer_ = 0;
 };
 
 

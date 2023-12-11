@@ -56,12 +56,12 @@ public:
     }
 
 
-    virtual void update(macro::Engine& s, Microseconds delta)
+    virtual void update(macro::Engine& s, Time delta)
     {
     }
 
 
-    void update(Microseconds delta) override final;
+    void update(Time delta) override final;
 
 
 private:

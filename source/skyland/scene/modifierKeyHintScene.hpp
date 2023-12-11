@@ -46,7 +46,7 @@ namespace skyland
 class ModifierKeyHintScene : public ActiveWorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;

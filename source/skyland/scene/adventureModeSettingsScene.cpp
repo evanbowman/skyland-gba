@@ -91,7 +91,7 @@ void AdventureModeSettingsScene::exit(Scene& prev)
 
 
 
-ScenePtr<Scene> AdventureModeSettingsScene::update(Microseconds delta)
+ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
 {
     if (APP.player().key_down(Key::up)) {
         auto& diff = APP.gp_.difficulty_;

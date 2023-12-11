@@ -51,7 +51,7 @@ ColorConstant Typhoon::fadein_colorize_tone() const
 
 
 
-void Typhoon::rewind(Microseconds delta)
+void Typhoon::rewind(Time delta)
 {
     Storm::rewind(delta);
 
@@ -159,7 +159,7 @@ void Typhoon::rewind(Microseconds delta)
 
 
 
-void Typhoon::update(Microseconds delta)
+void Typhoon::update(Time delta)
 {
     Storm::update(delta);
 

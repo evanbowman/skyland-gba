@@ -232,7 +232,7 @@ void ScriptedMenuScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ScriptedMenuScene::update(Microseconds delta)
+ScenePtr<Scene> ScriptedMenuScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

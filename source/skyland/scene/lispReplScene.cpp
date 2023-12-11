@@ -291,7 +291,7 @@ void LispReplScene::repaint_completions()
 }
 
 
-ScenePtr<Scene> LispReplScene::update(Microseconds delta)
+ScenePtr<Scene> LispReplScene::update(Time delta)
 {
 TOP:
     constexpr auto fade_duration = milliseconds(700);

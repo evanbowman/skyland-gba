@@ -78,7 +78,7 @@ void Decimator::unset_target()
 
 
 
-void Decimator::update(Microseconds delta)
+void Decimator::update(Time delta)
 {
     Room::update(delta);
 
@@ -177,7 +177,7 @@ void Decimator::update(Microseconds delta)
 
 
 
-void Decimator::rewind(Microseconds delta)
+void Decimator::rewind(Time delta)
 {
     Room::rewind(delta);
 

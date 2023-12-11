@@ -142,7 +142,7 @@ void HideRoomsScene::repaint()
 
 
 
-ScenePtr<Scene> HideRoomsScene::update(Microseconds delta)
+ScenePtr<Scene> HideRoomsScene::update(Time delta)
 {
     player().update(delta);
 

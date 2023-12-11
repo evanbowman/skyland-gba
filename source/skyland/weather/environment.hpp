@@ -75,8 +75,8 @@ public:
         return false;
     }
 
-    virtual void update(Microseconds delta) = 0;
-    virtual void rewind(Microseconds delta) = 0;
+    virtual void update(Time delta) = 0;
+    virtual void rewind(Time delta) = 0;
 
     virtual void display() = 0;
 
@@ -119,13 +119,13 @@ public:
 class CleanEnvironment : public Environment
 {
 public:
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // Nothing...
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         // Nothing...
     }
@@ -190,7 +190,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void display() override;
@@ -200,7 +200,7 @@ public:
 
 
 private:
-    Microseconds timer_;
+    Time timer_;
 };
 
 

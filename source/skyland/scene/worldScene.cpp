@@ -61,7 +61,7 @@ namespace skyland
 
 
 
-static void apply_gamespeed(Microseconds& delta)
+static void apply_gamespeed(Time& delta)
 {
     switch (APP.game_speed()) {
     case GameSpeed::normal:
@@ -278,7 +278,7 @@ void WorldScene::reset_gamespeed()
 
 
 
-ScenePtr<Scene> ActiveWorldScene::update(Microseconds delta)
+ScenePtr<Scene> ActiveWorldScene::update(Time delta)
 {
     APP.player().update(delta);
 
@@ -445,7 +445,7 @@ ScenePtr<Scene> WorldScene::make_dialog()
 
 
 
-void WorldScene::multiplayer_vs_timeout_step(Microseconds delta)
+void WorldScene::multiplayer_vs_timeout_step(Time delta)
 {
     if (MultiplayerSettingsScene::timeout_frequency() == 0) {
         return;
@@ -509,7 +509,7 @@ void WorldScene::multiplayer_vs_timeout_step(Microseconds delta)
 
 
 
-ScenePtr<Scene> WorldScene::update(Microseconds delta)
+ScenePtr<Scene> WorldScene::update(Time delta)
 {
     auto& g = globals();
 
@@ -524,7 +524,7 @@ ScenePtr<Scene> WorldScene::update(Microseconds delta)
     }
 
 
-    Microseconds world_delta = delta;
+    Time world_delta = delta;
 
     if (not PLATFORM.network_peer().is_connected()) {
         // NOTE: we can't clamp the clock delta in multiplayer modes of course!

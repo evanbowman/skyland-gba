@@ -140,7 +140,7 @@ void ZoneImageScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ZoneImageScene::update(Microseconds delta)
+ScenePtr<Scene> ZoneImageScene::update(Time delta)
 {
     if (not APP.current_world_location() == 0) {
         return scene_pool::alloc<WorldMapScene>();

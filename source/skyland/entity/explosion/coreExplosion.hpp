@@ -83,7 +83,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer_ += delta * 2;
 
@@ -118,7 +118,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         timer_ -= delta * 2;
 
@@ -139,7 +139,7 @@ public:
 
 private:
     Platform::DynamicTexturePtr dt_;
-    Microseconds timer_;
+    Time timer_;
     int quarter_;
     int keyframe_ = 0;
 };

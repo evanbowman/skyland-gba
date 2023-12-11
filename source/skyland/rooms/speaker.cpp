@@ -83,7 +83,7 @@ static const auto time_interval = milliseconds(100);
 
 
 
-void Speaker::update(Microseconds delta)
+void Speaker::update(Time delta)
 {
     Room::update(delta);
 

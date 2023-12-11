@@ -50,10 +50,10 @@ public:
     EscapeBeacon(Island* parent, const RoomCoord& position);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -131,7 +131,7 @@ public:
     ScenePtr<Scene> select(const RoomCoord& cursor) override;
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         if (not activated_) {
             return 0;
@@ -150,7 +150,7 @@ public:
 
 private:
     bool activated_ = false;
-    Microseconds timer_;
+    Time timer_;
 };
 
 

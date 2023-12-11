@@ -47,7 +47,7 @@ namespace skyland
 class FadeOutScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -58,7 +58,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     u16 circ_effect_radius_ = 0;
 };
 

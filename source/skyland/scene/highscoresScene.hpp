@@ -55,7 +55,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Microseconds) override;
+    ScenePtr<Scene> update(Time) override;
 
 
     static SystemString module_name()

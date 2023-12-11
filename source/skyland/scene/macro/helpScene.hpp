@@ -53,7 +53,7 @@ public:
     void exit(Scene&) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void show_page(int pg);

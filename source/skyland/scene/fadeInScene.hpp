@@ -50,12 +50,12 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
     void display() override;
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int scroll_amount_ = 0;
 };
 

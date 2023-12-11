@@ -64,7 +64,7 @@ TileId BronzeHull::tile() const
 
 
 
-void BronzeHull::update(Microseconds delta)
+void BronzeHull::update(Time delta)
 {
     Room::update(delta);
 
@@ -75,7 +75,7 @@ void BronzeHull::update(Microseconds delta)
 
 
 
-void BronzeHull::rewind(Microseconds delta)
+void BronzeHull::rewind(Time delta)
 {
     Room::rewind(delta);
 

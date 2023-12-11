@@ -47,22 +47,22 @@ namespace skyland::macro
 class FreebuildTeam : public PlayerP1, public network::Listener
 {
 public:
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void receive(const network::packet::MacroSetBlock& p) override;
 
 
 protected:
-    void update_chr_ai(Microseconds delta) override
+    void update_chr_ai(Time delta) override
     {
     }
 
 
 private:
     static const auto heartbeat_interval = seconds(5);
-    Microseconds heartbeat_send_counter_ = 0;
-    Microseconds heartbeat_recv_counter_ = 0;
+    Time heartbeat_send_counter_ = 0;
+    Time heartbeat_recv_counter_ = 0;
 };
 
 

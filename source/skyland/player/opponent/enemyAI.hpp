@@ -78,7 +78,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void on_room_damaged(Room&) override;
@@ -188,23 +188,23 @@ private:
 
     static const auto next_action_timeout = seconds(1);
 
-    Microseconds next_action_timer_ = next_action_timeout;
+    Time next_action_timer_ = next_action_timeout;
 
     static const auto character_reassign_timeout = seconds(6);
 
-    Microseconds character_reassign_timer_ = character_reassign_timeout;
-    Microseconds local_character_reassign_timer_ = character_reassign_timeout;
+    Time character_reassign_timer_ = character_reassign_timeout;
+    Time local_character_reassign_timer_ = character_reassign_timeout;
 
     Coins coins_ = 0;
 
     static const auto insufficent_power_resolve_timeout = (milliseconds(100));
 
-    Microseconds insufficent_power_resolve_timer_ = 0;
+    Time insufficent_power_resolve_timer_ = 0;
 
     static const auto drone_update_timeout_ = seconds(1);
-    Microseconds drone_update_timer_ = 0;
+    Time drone_update_timer_ = 0;
 
-    Microseconds total_time_ = 0;
+    Time total_time_ = 0;
 
     u32 room_update_index_ = 0;
 };

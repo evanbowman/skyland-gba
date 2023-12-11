@@ -396,7 +396,7 @@ struct BasicProjectileDestroyed
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
     host_s64 x_speed__data_;
@@ -466,7 +466,7 @@ struct BeamDestroyed
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
     host_s64 x_speed__data_;
@@ -558,7 +558,7 @@ struct NemesisBlastDestroyed
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
     host_s64 x_speed__data_;
@@ -587,7 +587,7 @@ struct PluginProjectileDestroyed
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
     host_s64 x_speed__data_;
@@ -618,7 +618,7 @@ struct MissileDestroyed
 {
     Header header_;
 
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
 
     host_s16 x_pos_;
     host_s16 y_pos_;
@@ -948,7 +948,7 @@ struct DroneDeployed
     u8 y_pos_ : 4;
     u8 parent_near_ : 1;
     u8 destination_near_ : 1;
-    HostInteger<Microseconds> duration_;
+    HostInteger<Time> duration_;
 
     static constexpr const auto t = Type::drone_deployed;
 };
@@ -979,8 +979,8 @@ struct DroneDestroyed
     u8 db_y_pos_ : 4;
     u8 type_;
     u8 state_;
-    HostInteger<Microseconds> timer_;
-    HostInteger<Microseconds> duration_;
+    HostInteger<Time> timer_;
+    HostInteger<Time> duration_;
 
     static constexpr const auto t = Type::drone_destroyed;
 };
@@ -1086,7 +1086,7 @@ struct BirdLeftMap
     host_s16 x_pos_;
     host_s16 y_pos_;
     u8 speed_[sizeof(Float)];
-    HostInteger<Microseconds> flight_timer_;
+    HostInteger<Time> flight_timer_;
     u8 color_ : 1;
     u8 flip_ : 1;
     u8 near_ : 1;
@@ -1213,7 +1213,7 @@ struct CoreExplosion
 struct BoardingPodLanded
 {
     Header header_;
-    HostInteger<Microseconds> timer_;
+    HostInteger<Time> timer_;
     bool source_near_;
     u8 src_x_ : 4;
     u8 src_y_ : 4;

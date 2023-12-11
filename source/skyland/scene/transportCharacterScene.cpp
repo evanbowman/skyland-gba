@@ -127,7 +127,7 @@ void TransportCharacterScene::display()
 
 
 
-ScenePtr<Scene> TransportCharacterScene::update(Microseconds delta)
+ScenePtr<Scene> TransportCharacterScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

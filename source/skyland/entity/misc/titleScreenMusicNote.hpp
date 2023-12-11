@@ -62,14 +62,14 @@ public:
     }
 
 
-    void rewind(Microseconds delta)
+    void rewind(Time delta)
     {
         // Rewind unimplemented!
         kill();
     }
 
 
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         delta *= 2;
         timer_ += delta;
@@ -100,7 +100,7 @@ public:
 
 private:
     Fixnum x_anchor_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     bool wave_flip_;
 };
 

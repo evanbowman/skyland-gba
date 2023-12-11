@@ -57,7 +57,7 @@ Manufactory::Manufactory(Island* parent, const RoomCoord& position)
 
 
 
-void Manufactory::update(Microseconds delta)
+void Manufactory::update(Time delta)
 {
     Room::update(delta);
 }

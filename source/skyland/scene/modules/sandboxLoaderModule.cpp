@@ -253,7 +253,7 @@ void SandboxLoaderModule::display()
 
 
 
-ScenePtr<Scene> SandboxLoaderModule::update(Microseconds delta)
+ScenePtr<Scene> SandboxLoaderModule::update(Time delta)
 {
     APP.update_parallax(delta);
 

@@ -66,27 +66,27 @@ public:
     virtual void timer_expired() = 0;
 
 
-    Microseconds remaining() const
+    Time remaining() const
     {
         return clock_;
     }
 
 
-    void __override_clock(Microseconds value)
+    void __override_clock(Time value)
     {
         clock_ = value;
     }
 
 
-    Microseconds interval() const
+    Time interval() const
     {
         return interval_;
     }
 
 
 private:
-    Microseconds clock_ = 0;
-    Microseconds interval_ = 0;
+    Time clock_ = 0;
+    Time interval_ = 0;
     Timer* next_ = nullptr;
 
     friend class BulkTimer;
@@ -97,11 +97,11 @@ private:
 class BulkTimer
 {
 public:
-    void update(Microseconds elapsed_delta);
-    void rewind(Microseconds elapsed_delta);
+    void update(Time elapsed_delta);
+    void rewind(Time elapsed_delta);
 
 
-    void schedule(Timer* subscriber, Microseconds timeout);
+    void schedule(Timer* subscriber, Time timeout);
 
 
     void deschedule(Timer* subscriber);

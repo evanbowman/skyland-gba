@@ -71,7 +71,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // The game manipulates the time delta for slow motion stuff, etc. But
         // we always want this UI effect to play at the same rate.
@@ -92,7 +92,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
@@ -104,7 +104,7 @@ public:
     }
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
@@ -257,7 +257,7 @@ void shift_rooms_right(Island& island)
 
 
 
-ScenePtr<Scene> ConstructionScene::update(Microseconds delta)
+ScenePtr<Scene> ConstructionScene::update(Time delta)
 {
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;

@@ -87,7 +87,7 @@ Fixnum Missile::fall_speed()
 
 
 
-void Missile::rewind(Microseconds delta)
+void Missile::rewind(Time delta)
 {
     if (sprite_.get_position().y < 450.0_fixed) {
         sprite_.set_alpha(Sprite::Alpha::transparent);
@@ -144,7 +144,7 @@ void Missile::rewind(Microseconds delta)
 
 
 
-void Missile::update(Microseconds delta)
+void Missile::update(Time delta)
 {
     timer_ += delta;
 
@@ -321,7 +321,7 @@ public:
     }
 
 
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         if (delta == 0) {
             return;
@@ -348,7 +348,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }

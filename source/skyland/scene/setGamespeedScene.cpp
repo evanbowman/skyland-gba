@@ -69,7 +69,7 @@ static const SystemStringBuffer gamespeed_text(GameSpeed speed)
 
 
 
-ScenePtr<Scene> SetGamespeedScene::update(Microseconds delta)
+ScenePtr<Scene> SetGamespeedScene::update(Time delta)
 {
     APP.player().update(delta);
 

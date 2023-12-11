@@ -59,7 +59,7 @@ PoweredHull::PoweredHull(Island* parent, const RoomCoord& position)
 
 
 
-void PoweredHull::update(Microseconds delta)
+void PoweredHull::update(Time delta)
 {
     Room::update(delta);
 
@@ -70,7 +70,7 @@ void PoweredHull::update(Microseconds delta)
 
 
 
-void PoweredHull::rewind(Microseconds delta)
+void PoweredHull::rewind(Time delta)
 {
     Room::rewind(delta);
 

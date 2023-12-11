@@ -407,7 +407,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -432,13 +432,13 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     int circ_radius_ = 0;
 };
 
 
 
-ScenePtr<Scene> MacroverseScene::update(Microseconds delta)
+ScenePtr<Scene> MacroverseScene::update(Time delta)
 {
     if (not APP.macrocosm()) {
         Platform::fatal(format("% %", __FILE__, __LINE__).c_str());

@@ -49,7 +49,7 @@ static const auto sel_colors =
 
 
 
-ScenePtr<Scene> SandboxResetScene::update(Microseconds delta)
+ScenePtr<Scene> SandboxResetScene::update(Time delta)
 {
     if (APP.player().key_down(Key::up)) {
         selection_ = true;

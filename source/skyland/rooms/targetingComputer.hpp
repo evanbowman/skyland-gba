@@ -53,7 +53,7 @@ public:
                       const char* n = name());
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -134,11 +134,18 @@ public:
     void unset_target() override;
 
 
+    void rescan()
+    {
+        rescan_ = true;
+    }
+
+
 private:
-    Microseconds next_action_timer_ = seconds(1);
+    Time next_action_timer_ = seconds(1);
     u32 room_update_index_ = 0;
 
     bool enabled_ = true;
+    bool rescan_ = false;
 };
 
 

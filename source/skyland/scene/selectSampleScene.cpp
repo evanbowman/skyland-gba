@@ -175,7 +175,7 @@ void SelectSampleScene::display()
 
 
 
-ScenePtr<Scene> SelectSampleScene::update(Microseconds delta)
+ScenePtr<Scene> SelectSampleScene::update(Time delta)
 {
     if (exit_) {
         page_ = 0;

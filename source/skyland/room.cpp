@@ -126,7 +126,7 @@ static const auto injured_anim_time = milliseconds(250);
 
 
 
-void Room::reset_injured_timer(Microseconds value)
+void Room::reset_injured_timer(Time value)
 {
     injured_timer_ = value;
 }
@@ -263,13 +263,13 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         if (delta == 0) {
             return;
@@ -311,12 +311,12 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
 
-void Room::update(Microseconds delta)
+void Room::update(Time delta)
 {
     dispatch_queued_ = false;
 
@@ -384,7 +384,7 @@ void Room::update(Microseconds delta)
 
 
 
-void Room::rewind(Microseconds delta)
+void Room::rewind(Time delta)
 {
     if (injured_timer_) {
         if (injured_timer_ < injured_anim_time) {
@@ -1087,7 +1087,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -1119,7 +1119,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
@@ -1129,8 +1129,8 @@ public:
     Fixnum gravity_;
 
 private:
-    Microseconds timer_ = 0;
-    Microseconds remainder_ = 0;
+    Time timer_ = 0;
+    Time remainder_ = 0;
     Fixnum max_y_;
 };
 
@@ -1139,7 +1139,7 @@ private:
 class OffscreenWarning : public Entity
 {
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     RoomCoord coord_;
     bool countdown_ = false;
     Island* island_;
@@ -1168,7 +1168,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         if (not APP.opponent_island()) {
             kill();
@@ -1215,7 +1215,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }

@@ -72,12 +72,12 @@ public:
         }
 
 
-        void update(Microseconds delta) override
+        void update(Time delta) override
         {
         }
 
 
-        void rewind(Microseconds delta) override
+        void rewind(Time delta) override
         {
         }
 
@@ -108,11 +108,11 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         auto pos = sprite_.get_position();
 
-        auto spawn_flames = [&](Microseconds timeout) {
+        auto spawn_flames = [&](Time timeout) {
             flame_spawn_count_ += delta;
             if (flame_spawn_count_ > timeout) {
                 flame_spawn_count_ -= timeout;
@@ -203,7 +203,7 @@ public:
 
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         auto pos = sprite_.get_position();
 
@@ -418,8 +418,8 @@ public:
     Island* source_island_ = nullptr;
     Upper* upper_ = nullptr;
 
-    Microseconds flame_spawn_count_ = 0;
-    Microseconds timer_ = 0;
+    Time flame_spawn_count_ = 0;
+    Time timer_ = 0;
 
     RoomCoord source_;
     RoomCoord target_;
@@ -472,7 +472,7 @@ BoardingPod::BoardingPod(Island* parent, const RoomCoord& position)
 
 
 
-void BoardingPod::rewind(Microseconds delta)
+void BoardingPod::rewind(Time delta)
 {
     Room::rewind(delta);
 
@@ -497,7 +497,7 @@ void BoardingPod::apply_damage(Health damage, Island* source)
 
 
 
-void BoardingPod::update(Microseconds delta)
+void BoardingPod::update(Time delta)
 {
     Room::update(delta);
 

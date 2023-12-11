@@ -75,7 +75,7 @@ Forcefield::Forcefield(Island* parent,
 
 
 
-void Forcefield::update(Microseconds delta)
+void Forcefield::update(Time delta)
 {
     Room::update(delta);
 
@@ -86,7 +86,7 @@ void Forcefield::update(Microseconds delta)
 
 
 
-void Forcefield::rewind(Microseconds delta)
+void Forcefield::rewind(Time delta)
 {
     Room::rewind(delta);
 
@@ -151,7 +151,7 @@ void Forcefield::finalize()
 
 
 
-void Forcefield2::update(Microseconds delta)
+void Forcefield2::update(Time delta)
 {
     Room::update(delta);
 
@@ -162,7 +162,7 @@ void Forcefield2::update(Microseconds delta)
 
 
 
-void Forcefield2::rewind(Microseconds delta)
+void Forcefield2::rewind(Time delta)
 {
     Room::rewind(delta);
 

@@ -59,10 +59,10 @@ public:
           const RoomCoord& grid_pos);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
 
@@ -96,8 +96,7 @@ public:
 
 
     // Intended for the rewind logic, nothing more. Generally, do not call.
-    void
-    __override_state(State state, Microseconds duration, Microseconds timer)
+    void __override_state(State state, Time duration, Time timer)
     {
         state_ = state;
         duration_ = duration;
@@ -145,7 +144,7 @@ public:
     virtual ScenePtr<Scene> select() = 0;
 
 
-    virtual Microseconds reload_time_remaining() const = 0;
+    virtual Time reload_time_remaining() const = 0;
 
 
     u8 metaclass_index() const
@@ -157,13 +156,13 @@ public:
     void apply_damage(Health amount) override;
 
 
-    Microseconds timer() const
+    Time timer() const
     {
         return timer_;
     }
 
 
-    Microseconds duration() const
+    Time duration() const
     {
         return duration_;
     }
@@ -182,8 +181,8 @@ public:
 protected:
     u8 state_ = State::launch;
 
-    Microseconds timer_ = 0;
-    Microseconds duration_ = 0;
+    Time timer_ = 0;
+    Time duration_ = 0;
 
     void update_sprite();
 

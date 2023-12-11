@@ -50,7 +50,7 @@ static const int view_y_min = -80;
 
 void Camera::update(Island& target,
                     const RoomCoord& cursor_loc,
-                    Microseconds delta,
+                    Time delta,
                     bool near)
 {
     auto view = PLATFORM.screen().get_view();

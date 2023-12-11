@@ -53,7 +53,7 @@ public:
               const char* n = name());
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);

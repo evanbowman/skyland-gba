@@ -133,7 +133,7 @@ void Drone::update_sprite()
 
 
 
-void Drone::rewind(Microseconds delta)
+void Drone::rewind(Time delta)
 {
     switch (state_) {
     case State::launch: {
@@ -225,7 +225,7 @@ void Drone::apply_damage(Health amount)
 
 
 
-void Drone::update(Microseconds delta)
+void Drone::update(Time delta)
 {
     switch (state_) {
     case State::launch: {

@@ -69,7 +69,7 @@ public:
     static const auto reload_time = milliseconds(3000);
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         if (state_ == Drone::State::launch) {
             return reload_time;
@@ -86,7 +86,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         if (parent() == APP.opponent_island()) {
             sprite_.set_texture_index(68);

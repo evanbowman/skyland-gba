@@ -78,7 +78,7 @@ void IntroCreditsScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> IntroCreditsScene::update(Microseconds delta)
+ScenePtr<Scene> IntroCreditsScene::update(Time delta)
 {
     timer_ += delta;
 

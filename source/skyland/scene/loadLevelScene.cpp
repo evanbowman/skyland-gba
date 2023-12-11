@@ -154,7 +154,7 @@ void prep_level()
         APP.player_island().set_float_timer(0);
 
         APP.opponent_island()->set_float_timer(
-            std::numeric_limits<Microseconds>::max() / 2);
+            std::numeric_limits<Time>::max() / 2);
 
         for (auto& room : APP.opponent_island()->rooms()) {
             if (str_eq(room->name(), "mycelium")) {
@@ -192,7 +192,7 @@ void prep_level()
 
 
 
-ScenePtr<Scene> LoadLevelScene::update(Microseconds delta)
+ScenePtr<Scene> LoadLevelScene::update(Time delta)
 {
     const auto loc = APP.current_world_location();
     info(format("%", loc));

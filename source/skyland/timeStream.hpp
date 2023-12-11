@@ -57,7 +57,7 @@ struct TimeBuffer
 {
 
     u64 time_window_begin_;
-    Microseconds elapsed_ = 0;
+    Time elapsed_ = 0;
 
 
     TimeBuffer(TimeTracker& begin) : time_window_begin_(begin.total())
@@ -65,13 +65,13 @@ struct TimeBuffer
     }
 
 
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         elapsed_ += delta;
     }
 
 
-    void rewind(Microseconds delta)
+    void rewind(Time delta)
     {
         elapsed_ -= delta;
     }
@@ -192,10 +192,10 @@ public:
     void pop(u32 bytes);
 
 
-    void update(Microseconds delta);
+    void update(Time delta);
 
 
-    void rewind(Microseconds delta);
+    void rewind(Time delta);
 
 
     void clear();

@@ -244,7 +244,7 @@ void environment_init(int type);
 
 
 
-ScenePtr<Scene> RewindScene::update(Microseconds)
+ScenePtr<Scene> RewindScene::update(Time)
 {
     bool speed_changed = false;
 
@@ -286,7 +286,7 @@ ScenePtr<Scene> RewindScene::update(Microseconds)
     }
 
     // Playback history at a fixed delta.
-    Microseconds delta = 2 * (seconds(1) / 60);
+    Time delta = 2 * (seconds(1) / 60);
     if (speed_ == 1) {
         delta *= 2;
     } else if (speed_ == 2) {

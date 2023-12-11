@@ -65,7 +65,7 @@ Workshop::Workshop(Island* parent, const RoomCoord& position)
 
 
 
-void Workshop::update(Microseconds delta)
+void Workshop::update(Time delta)
 {
     Room::update(delta);
 }

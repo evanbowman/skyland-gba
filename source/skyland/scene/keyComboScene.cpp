@@ -80,7 +80,7 @@ void KeyComboScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(Microseconds delta)
+ScenePtr<Scene> KeyComboScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

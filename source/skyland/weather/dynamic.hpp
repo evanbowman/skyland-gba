@@ -51,10 +51,10 @@ public:
     Dynamic();
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     Platform::Screen::Shader shader() const override;

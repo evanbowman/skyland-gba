@@ -56,7 +56,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;
@@ -89,7 +89,7 @@ private:
     bool skip_fade_;
 
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

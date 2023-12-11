@@ -126,7 +126,7 @@ void DataCartModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> DataCartModule::update(Microseconds delta)
+ScenePtr<Scene> DataCartModule::update(Time delta)
 {
     auto prompt_flag = GlobalPersistentData::datacarts_prompt;
 
@@ -345,7 +345,7 @@ ScenePtr<Scene> DataCartModule::update(Microseconds delta)
 
     case State::booting:
         timer_ += delta;
-        if (timer_ > milliseconds(1500)) {
+        if (test_key(Key::action_2) or timer_ > milliseconds(1500)) {
             PLATFORM.fill_overlay(0);
             state_ = State::boot;
         }
@@ -394,7 +394,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds) override
+    ScenePtr<Scene> update(Time) override
     {
         if (APP.player().key_down(Key::action_2)) {
             PLATFORM.fill_overlay(0);

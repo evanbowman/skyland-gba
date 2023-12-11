@@ -62,16 +62,16 @@ public:
     }
 
 
-    void set_timer(Microseconds value)
+    void set_timer(Time value)
     {
         timer_ = value;
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void on_collision(Room&) override;
@@ -84,8 +84,8 @@ private:
     void destroy(bool explosion);
 
     Float y_base_ = 0;
-    Microseconds timer_ = 0;
-    Microseconds time_to_target_ = 0;
+    Time timer_ = 0;
+    Time time_to_target_ = 0;
     Vec2<Float> step_vector_;
     Island* source_;
 

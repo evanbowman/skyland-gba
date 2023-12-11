@@ -120,11 +120,11 @@ public:
     void clear();
 
 
-    void update(Microseconds delta);
-    void update_simple(Microseconds delta);
+    void update(Time delta);
+    void update_simple(Time delta);
 
 
-    void rewind(Microseconds delta);
+    void rewind(Time delta);
 
 
     void display();
@@ -219,7 +219,7 @@ public:
     void render_terrain();
 
 
-    void set_float_timer(Microseconds value);
+    void set_float_timer(Time value);
 
 
     void show_flag(bool show)
@@ -449,9 +449,9 @@ private:
     Room* drawfirst_ = nullptr;
     const Layer layer_;
     Terrain terrain_;
-    Microseconds chimney_spawn_timer_ = 0;
-    Microseconds flag_anim_timer_ = 0;
-    Microseconds timer_;
+    Time chimney_spawn_timer_ = 0;
+    Time flag_anim_timer_ = 0;
+    Time timer_;
     Vec2<Fixnum> position_;
     Fixnum drift_ = 0.0_fixed;
 
@@ -459,14 +459,14 @@ private:
     {
         Bitmatrix<16, 16> positions_;
         std::optional<Platform::DynamicTexturePtr> texture_;
-        Microseconds spread_timer_ = 0;
-        Microseconds damage_timer_ = 0;
-        Microseconds anim_timer_ = 0;
+        Time spread_timer_ = 0;
+        Time damage_timer_ = 0;
+        Time anim_timer_ = 0;
         s8 anim_index_ = 0;
 
-        void update(Island& island, Microseconds delta);
+        void update(Island& island, Time delta);
 
-        void rewind(Island& island, Microseconds delta);
+        void rewind(Island& island, Time delta);
 
         void display(Island& island);
 

@@ -61,7 +61,7 @@ public:
                            UserContext&& user_context);
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;

@@ -54,7 +54,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         WorldScene::update(delta);
 
@@ -82,7 +82,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     bool player_escaped_ = false;
     bool island_hidden_ = false;
 };

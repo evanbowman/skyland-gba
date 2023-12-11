@@ -210,7 +210,7 @@ void SelectChallengeScene::display()
 
 
 
-ScenePtr<Scene> SelectChallengeScene::update(Microseconds delta)
+ScenePtr<Scene> SelectChallengeScene::update(Time delta)
 {
     if (exit_) {
         page_ = 0;

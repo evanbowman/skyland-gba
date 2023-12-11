@@ -50,7 +50,7 @@ namespace skyland
 
 
 
-void MultiplayerPeer::update(Microseconds delta)
+void MultiplayerPeer::update(Time delta)
 {
     if (PLATFORM.network_peer().is_connected()) {
         network::poll_messages(*this);

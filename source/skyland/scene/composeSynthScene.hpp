@@ -56,7 +56,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
 private:
@@ -92,7 +92,7 @@ private:
     u8 resume_y_ = 0;
     u8 demo_index_ = 0;
 
-    Microseconds note_demo_timer_ = 0;
+    Time note_demo_timer_ = 0;
 
 
     Platform::Speaker::Channel channel_;

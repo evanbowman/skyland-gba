@@ -78,7 +78,7 @@ StringBuffer<16> get_extension(const StringBuffer<200>& cwd);
 
 
 
-ScenePtr<Scene> CreateFileScene::update(Microseconds delta)
+ScenePtr<Scene> CreateFileScene::update(Time delta)
 {
     if (APP.player().key_down(Key::left)) {
         if (keyboard_cursor_.x > 0) {

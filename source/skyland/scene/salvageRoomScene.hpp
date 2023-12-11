@@ -64,7 +64,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void set_next_scene(DeferredScene next)
@@ -83,7 +83,7 @@ private:
     std::optional<Text> text_;
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
-    Microseconds exit_countdown_ = 0;
+    Time exit_countdown_ = 0;
     bool near_;
 };
 

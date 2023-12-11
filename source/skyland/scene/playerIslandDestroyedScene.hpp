@@ -102,7 +102,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
     void display() override;
 
 
@@ -111,7 +111,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Fixnum sink_speed_;
     Island* island_;
 
@@ -127,7 +127,7 @@ private:
 
     void show_stats();
 
-    Microseconds stat_timer_ = 0;
+    Time stat_timer_ = 0;
 
     AnimState anim_state_ = AnimState::init;
 
@@ -142,8 +142,8 @@ private:
 
     u16 circ_effect_radius_ = 0;
     u16 last_radius_ = 0;
-    Microseconds confetti_timer_ = 0;
-    Microseconds music_fadeback_timer_ = 0;
+    Time confetti_timer_ = 0;
+    Time music_fadeback_timer_ = 0;
     bool restore_volume_ = true;
     bool forced_defeat_ = false;
 

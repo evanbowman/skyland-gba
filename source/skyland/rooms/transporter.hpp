@@ -59,8 +59,8 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
     void ___rewind___finished_reload() override;
 
@@ -136,7 +136,7 @@ public:
     bool ready() const;
 
 
-    Microseconds reload_time_remaining() const override
+    Time reload_time_remaining() const override
     {
         return recharge_;
     }
@@ -152,7 +152,7 @@ public:
 
 
 private:
-    Microseconds recharge_ = 1000 * transporter_reload_ms;
+    Time recharge_ = 1000 * transporter_reload_ms;
 };
 
 

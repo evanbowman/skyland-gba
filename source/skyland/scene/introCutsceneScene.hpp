@@ -69,7 +69,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         PLATFORM.fill_overlay(0);
         return scene_pool::alloc<IntroCreditsScene>();
@@ -109,7 +109,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -161,7 +161,7 @@ public:
     }
 
     std::optional<TextView> text_;
-    Microseconds timer_;
+    Time timer_;
     bool fade_out_ = false;
 };
 
@@ -257,7 +257,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -309,7 +309,7 @@ public:
 
 private:
     Buffer<Vec2<Float>, 16> snow_particles_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
@@ -343,7 +343,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -367,7 +367,7 @@ public:
     }
 
     std::optional<TextView> text_;
-    Microseconds timer_;
+    Time timer_;
 };
 
 
@@ -404,7 +404,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -480,7 +480,7 @@ public:
 
 private:
     Buffer<Vec2<Float>, 16> snow_particles_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     bool fade_out_ = false;
 };
 
@@ -508,7 +508,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -531,7 +531,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
@@ -585,7 +585,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -608,7 +608,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 
@@ -625,7 +625,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition<Key::action_2>() or
             PLATFORM.keyboard().down_transition<Key::action_1>()) {
@@ -646,7 +646,7 @@ public:
     }
 
     std::optional<TextView> text_;
-    Microseconds timer_;
+    Time timer_;
 };
 
 
@@ -675,7 +675,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         timer_ += delta;
 
@@ -689,7 +689,7 @@ public:
         return null_scene();
     }
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

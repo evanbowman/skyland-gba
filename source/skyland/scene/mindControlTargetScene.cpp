@@ -54,7 +54,7 @@ MindControlTargetScene::MindControlTargetScene(const RoomCoord& controller_loc)
 
 
 
-ScenePtr<Scene> MindControlTargetScene::update(Microseconds delta)
+ScenePtr<Scene> MindControlTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

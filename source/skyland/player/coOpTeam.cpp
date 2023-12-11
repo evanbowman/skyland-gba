@@ -49,7 +49,7 @@ namespace skyland
 
 
 
-void CoOpTeam::update(Microseconds delta)
+void CoOpTeam::update(Time delta)
 {
     PlayerP1::update(delta);
 

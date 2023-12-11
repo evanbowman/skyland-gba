@@ -149,8 +149,6 @@ struct Context {
 
     DynamicMemory<OperandStack> operand_stack_;
 
-    Value* this_ = nullptr;
-
     Value* nil_ = nullptr;
     Value* oom_ = nullptr;
     Value* string_buffer_ = nullptr;
@@ -159,6 +157,8 @@ struct Context {
 
     Value* lexical_bindings_ = nullptr;
     Value* macros_ = nullptr;
+
+    Value* callstack_ = nullptr;
 
     NativeInterface native_interface_;
 
@@ -185,6 +185,18 @@ struct Context {
 
 
 static std::optional<Context> bound_context;
+
+
+static void push_callstack(Value* function)
+{
+    bound_context->callstack_ = make_cons(function, bound_context->callstack_);
+}
+
+
+static void pop_callstack()
+{
+    bound_context->callstack_ = bound_context->callstack_->cons().cdr();
+}
 
 
 const char* native_interface_resolve_intern_default(const char*)
@@ -485,15 +497,26 @@ static Value* globals_tree_find(Value* key)
 }
 
 
-static bool is_list_slowpath(Value* val)
+static bool is_error(Value* val)
 {
+    return val->type() == Value::Type::error;
+}
+
+
+static int is_list_slowpath(Value* val)
+{
+    // If we're iterating over a whole list, we might as well calculate the
+    // length too.
+    int len = 0;
+
     while (val not_eq get_nil()) {
         if (val->type() not_eq Value::Type::cons) {
-            return false;
+            return 0;
         }
+        ++len;
         val = val->cons().cdr();
     }
-    return true;
+    return len;
 }
 
 
@@ -503,9 +526,17 @@ bool is_list(Value* val)
         return true;
     }
 
-    if (is_list_slowpath(val)) {
+    if (val == get_nil()) {
+        return true;
+    }
+
+    if (auto len = is_list_slowpath(val)) {
         if (val->type() == Value::Type::cons) {
             val->cons().is_definitely_list_ = true;
+
+            if (len < 127) {
+                val->cons().cached_length_ = len;
+            }
         }
         return true;
     }
@@ -787,6 +818,7 @@ Value* make_error(Error::Code error_code, Value* context)
         val->hdr_.type_ = Value::Type::error;
         val->error().code_ = error_code;
         val->error().context_ = compr(context);
+        val->error().stacktrace_ = compr(stacktrace());
         return val;
     }
     return bound_context->oom_;
@@ -874,17 +906,10 @@ Value* make_string_from_literal(const char* str)
 }
 
 
-Value* make_string(const char* string)
+std::pair<Value*, int> store_string(const char* string, u32 len)
 {
-    auto len = strlen(string);
-
-    if (len == 0) {
-        return make_string_from_literal("");
-    }
-
     Value* existing_buffer = nullptr;
     auto free = bound_context->string_buffer_remaining_;
-
 
     if (bound_context->string_buffer_ not_eq L_NIL) {
         if (free > len + 1) { // +1 for null term, > for other null term
@@ -896,7 +921,6 @@ Value* make_string(const char* string)
         }
     }
 
-
     if (existing_buffer) {
         const auto offset = (SCRATCH_BUFFER_SIZE - free) + 1;
 
@@ -904,16 +928,10 @@ Value* make_string(const char* string)
 
         memcpy(write_ptr, string, len);
 
-        if (auto val = alloc_value()) {
-            val->hdr_.type_ = Value::Type::string;
-            val->string().data_.memory_.data_buffer_ = compr(existing_buffer);
-            val->string().data_.memory_.offset_ = offset;
-            val->string().is_literal_ = false;
-            return val;
-        } else {
-            return bound_context->oom_;
-        }
+        return {existing_buffer, offset};
+
     } else {
+
         // Because we're allocating a fresh buffer, as the prior one was full.
         bound_context->string_buffer_remaining_ =
             SCRATCH_BUFFER_SIZE - (len + 1);
@@ -921,7 +939,7 @@ Value* make_string(const char* string)
         auto buffer = make_databuffer("lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
-            return bound_context->oom_;
+            Platform::fatal("oom");
         }
 
         Protected p(buffer);
@@ -936,15 +954,30 @@ Value* make_string(const char* string)
             *write_ptr++ = *string++;
         }
 
-        if (auto val = alloc_value()) {
-            val->hdr_.type_ = Value::Type::string;
-            val->string().data_.memory_.data_buffer_ = compr(buffer);
-            val->string().data_.memory_.offset_ = 0;
-            val->string().is_literal_ = false;
-            return val;
-        } else {
-            return bound_context->oom_;
-        }
+        return {buffer, 0};
+    }
+}
+
+
+Value* make_string(const char* string)
+{
+    auto len = strlen(string);
+
+    if (len == 0) {
+        return make_string_from_literal("");
+    }
+
+
+    auto [buffer, offset] = store_string(string, len);
+
+    if (auto val = alloc_value()) {
+        val->hdr_.type_ = Value::Type::string;
+        val->string().data_.memory_.data_buffer_ = compr(buffer);
+        val->string().data_.memory_.offset_ = offset;
+        val->string().is_literal_ = false;
+        return val;
+    } else {
+        return bound_context->oom_;
     }
 }
 
@@ -1071,12 +1104,13 @@ void funcall(Value* obj, u8 argc)
 
     // NOTE: The callee must be somewhere on the operand stack, so it's safe
     // to store this unprotected var here.
-    Value* prev_this = get_this();
     Value* prev_bindings = bound_context->lexical_bindings_;
 
     auto& ctx = *bound_context;
     auto prev_arguments_break_loc = ctx.arguments_break_loc_;
     auto prev_argc = ctx.current_fn_argc_;
+
+    push_callstack(obj);
 
     switch (obj->type()) {
     case Value::Type::function: {
@@ -1110,8 +1144,10 @@ void funcall(Value* obj, u8 argc)
                 pop_op(); // result
                 ctx.arguments_break_loc_ = break_loc;
                 ctx.current_fn_argc_ = argc;
-                ctx.this_ = obj;
                 eval(expression_list->cons().car()); // new result
+                if (is_error(get_op0())) {
+                    break;
+                }
                 expression_list = expression_list->cons().cdr();
             }
             result = get_op0();
@@ -1127,7 +1163,6 @@ void funcall(Value* obj, u8 argc)
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
             ctx.current_fn_argc_ = argc;
-            ctx.this_ = obj;
 
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
@@ -1153,7 +1188,7 @@ void funcall(Value* obj, u8 argc)
         break;
     }
 
-    bound_context->this_ = prev_this;
+    pop_callstack();
     bound_context->lexical_bindings_ = prev_bindings;
     ctx.arguments_break_loc_ = prev_arguments_break_loc;
     ctx.current_fn_argc_ = prev_argc;
@@ -1172,7 +1207,8 @@ void safecall(Value* fn, u8 argc)
 
     lisp::funcall(fn, argc);
     auto result = lisp::get_op(0);
-    if (result->type() == lisp::Value::Type::error) {
+
+    if (is_error(result)) {
         const char* tag = "lisp-fmt-buffer";
         auto p = allocate_dynamic<DefaultPrinter>(tag);
         format(result, *p);
@@ -1189,7 +1225,7 @@ u8 get_argc()
 
 Value* get_this()
 {
-    return bound_context->this_;
+    return bound_context->callstack_->cons().car();
 }
 
 
@@ -1280,7 +1316,7 @@ Value* dostring(CharSequence& code,
         pop_op(); // expression result
         pop_op(); // reader result
 
-        if (expr_result->type() == Value::Type::error) {
+        if (is_error(expr_result)) {
             push_op(expr_result);
             on_error(*expr_result);
             pop_op();
@@ -1413,6 +1449,8 @@ void format_impl(Value* value, Printer& p, int depth)
         p.put_str(lisp::Error::get_string(value->error().code_));
         p.put_str(" : ");
         format_impl(dcompr(value->error().context_), p, 0);
+        p.put_str(" ");
+        format_impl(dcompr(value->error().stacktrace_), p, 0);
         p.put_str("]");
         break;
 
@@ -1594,7 +1632,7 @@ static void gc_mark()
         gc_mark_value(&car);
     });
 
-    gc_mark_value(ctx->this_);
+    gc_mark_value(ctx->callstack_);
 
     auto p_list = __protected_values;
     while (p_list) {
@@ -1638,7 +1676,6 @@ static void invoke_finalizer(Value* value)
 
     fin_table[value->type()].fn_(value);
 }
-
 
 void DataBuffer::finalizer(Value* buffer)
 {
@@ -2463,7 +2500,7 @@ static void eval_let(Value* code)
             auto new_binding_list = make_cons(binding_list_builder.result(),
                                               bound_context->lexical_bindings_);
 
-            if (new_binding_list->type() == Value::Type::error) {
+            if (is_error(new_binding_list)) {
                 push_op(new_binding_list);
                 return;
             } else {
@@ -2878,6 +2915,12 @@ static bool contains(Value* list, Value* val)
 const char* nameof(Function::CPP_Impl impl);
 
 
+Value* stacktrace()
+{
+    return bound_context->callstack_->cons().cdr();
+}
+
+
 #ifdef __GBA__
 #define BUILTIN_TABLE                                                          \
     MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =                        \
@@ -2896,6 +2939,10 @@ BUILTIN_TABLE(
       {2,
        [](int argc) {
            L_EXPECT_OP(1, symbol);
+
+           if (is_error(get_op0())) {
+               return get_op0();
+           }
 
            lisp::set_var(get_op1(), get_op0());
 
@@ -3618,12 +3665,14 @@ BUILTIN_TABLE(
            int end = 0;
 
            int seq = 2;
+           bool until_end = false;
 
            if (argc == 2) {
                L_EXPECT_OP(0, integer);
                seq = 1;
                begin = L_LOAD_INT(0);
                end = VALUE_POOL_SIZE;
+               until_end = true;
            } else {
                L_EXPECT_OP(0, integer);
                L_EXPECT_OP(1, integer);
@@ -3634,6 +3683,28 @@ BUILTIN_TABLE(
            int index = 0;
 
            if (get_op(seq)->type() == Value::Type::cons) {
+
+               if (until_end) {
+                   // In this case, we want nodes up to and including the end
+                   // node, therefore, we don't need to copy any of the old
+                   // list, we just need to iterate until the begin index and
+                   // return the cdr.
+
+                   auto list = get_op(seq);
+                   while (true) {
+                       if (list->type() not_eq Value::Type::cons) {
+                           break;
+                       } else {
+                           if (index >= begin) {
+                               return list;
+                           }
+                           ++index;
+                       }
+                       list = list->cons().cdr();
+                   }
+                   return list;
+               }
+
                ListBuilder result;
 
                auto list = get_op(seq);
@@ -3810,9 +3881,11 @@ BUILTIN_TABLE(
                    lat = lat->cons().cdr();
                }
                funcall(fn, inp_lats.size());
+               auto fc_result = get_op0();
 
-               result.push_back(get_op0());
+               result.push_back(fc_result);
                pop_op();
+
 
                ++index;
            }
@@ -3904,7 +3977,12 @@ BUILTIN_TABLE(
 
            return result;
        }}},
-     {"this", {0, [](int argc) { return bound_context->this_; }}},
+     {"stacktrace", {0, [](int argc) { return stacktrace(); }}},
+     {"this",
+      {0,
+       [](int argc) {
+           return bound_context->callstack_->cons().cdr()->cons().car();
+       }}},
      {"env",
       {0,
        [](int argc) {
@@ -4738,7 +4816,7 @@ void init()
     bound_context->nil_->hdr_.type_ = Value::Type::nil;
     bound_context->nil_->hdr_.mode_bits_ = 0;
     bound_context->globals_tree_ = bound_context->nil_;
-    bound_context->this_ = bound_context->nil_;
+    bound_context->callstack_ = bound_context->nil_;
     bound_context->lexical_bindings_ = bound_context->nil_;
 
     bound_context->oom_ = alloc_value();
@@ -4761,6 +4839,8 @@ void init()
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         PLATFORM.fatal("pointer compression test failed 1");
     }
+
+    push_callstack(make_string("toplevel"));
 }
 
 

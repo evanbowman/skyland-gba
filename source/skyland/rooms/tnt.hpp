@@ -57,7 +57,7 @@ public:
     void finalize() override;
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -150,7 +150,7 @@ public:
 
 protected:
     bool ignition_ = false;
-    Microseconds damage_timer_ = 0;
+    Time damage_timer_ = 0;
 };
 
 
@@ -270,7 +270,7 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
     void display_on_hover(Platform::Screen& screen,

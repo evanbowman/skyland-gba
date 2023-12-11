@@ -343,6 +343,14 @@ static const int map_start_y = 3;
 
 
 
+bool is_x_behind_storm_frontier(int x, int storm_offset)
+{
+    return (map_start_x + x) * 8 <
+        (APP.world_graph().storm_depth_ + 1 + storm_offset) * 16;
+}
+
+
+
 void WorldMapScene::redraw_icons()
 {
     save_icon_.emplace(126, OverlayCoord{27, 17});
@@ -443,7 +451,7 @@ bool WorldMapScene::can_abort_move() const
 
 
 
-ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
+ScenePtr<Scene> WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
     if (cursor_anim_timer_ > milliseconds(200)) {
@@ -673,7 +681,7 @@ ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
 
             prev_world_loc_ = APP.current_world_location();
             APP.current_world_location() = cursor_;
-            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            show_map(APP.world_graph(), 0);
             cmix_ = {};
             map_key_.reset();
             redraw_icons();
@@ -696,7 +704,7 @@ ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
             map_key_.reset();
             redraw_icons();
             update_storm_frontier(APP.world_graph(), 0);
-            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            show_map(APP.world_graph(), 0);
             cmix_ = {};
         }
         // auto current = movement_targets_[movement_cursor_];
@@ -1017,7 +1025,7 @@ ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
             state_ = State::show_node_death_icons;
             fast_ = false;
             timer_ = 0;
-            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            show_map(APP.world_graph(), 0);
             update_storm_frontier(APP.world_graph(), 0);
         } else {
             const auto amount =
@@ -1035,7 +1043,7 @@ ScenePtr<Scene> WorldMapScene::update(Microseconds delta)
             storm_scroll_timer_ = 0;
             state_ = State::show_node_death_icons;
             timer_ = 0;
-            show_map(APP.world_graph(), APP.world_graph().storm_depth_);
+            show_map(APP.world_graph(), 0);
             update_storm_frontier(APP.world_graph(), 0);
         } else {
             const auto amount =
@@ -1278,9 +1286,10 @@ void WorldMapScene::display()
 
         for (auto& t : APP.world_graph().nodes_) {
             if (t.type_ not_eq WorldGraph::Node::Type::null and
+                t.type_ not_eq WorldGraph::Node::Type::exit and
                 t.type_ not_eq WorldGraph::Node::Type::corrupted and
-                (map_start_x + t.coord_.x) * 8 <
-                    (APP.world_graph().storm_depth_ + 2) * 16) {
+                is_x_behind_storm_frontier(t.coord_.x, 1)) {
+
                 cursor.set_texture_index(111);
                 cursor.set_position(
                     {Fixnum((t.coord_.x + map_start_x) * Float(8) - 3),
@@ -1496,7 +1505,7 @@ void WorldMapScene::enter(Scene& prev_scene)
     warning_.emplace(OverlayCoord{1, 18});
     warning_->assign(SYSTR(wg_storm_label)->c_str());
 
-    show_map(APP.world_graph(), APP.world_graph().storm_depth_ - 1);
+    show_map(APP.world_graph(), -1);
 
     save_icon_.emplace(126, OverlayCoord{27, 17});
     help_icon_.emplace(134, OverlayCoord{24, 17});
@@ -1518,7 +1527,7 @@ void WorldMapScene::enter(Scene& prev_scene)
 
 
 
-void WorldMapScene::show_map(WorldGraph& map, int storm_depth)
+void WorldMapScene::show_map(WorldGraph& map, int storm_depth_offset)
 {
     dead_nodes_.clear();
 
@@ -1526,7 +1535,7 @@ void WorldMapScene::show_map(WorldGraph& map, int storm_depth)
         if (node.type_ == WorldGraph::Node::Type::null) {
             continue;
         }
-        if ((map_start_x + node.coord_.x) * 8 < (storm_depth + 1) * 16) {
+        if (is_x_behind_storm_frontier(node.coord_.x, storm_depth_offset)) {
 
             if (node.type_ == WorldGraph::Node::Type::exit) {
                 exit_label_.reset();

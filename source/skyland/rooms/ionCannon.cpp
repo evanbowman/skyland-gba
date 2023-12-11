@@ -123,7 +123,7 @@ void IonCannon::fire()
 
 
 
-Microseconds IonCannon::reload() const
+Time IonCannon::reload() const
 {
     return 1000 * ion_cannon_reload_ms;
 }

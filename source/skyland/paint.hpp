@@ -66,7 +66,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta);
+    ScenePtr<Scene> update(Time delta);
 
 
     void display();
@@ -96,7 +96,7 @@ public:
 
 
 protected:
-    Microseconds cursor_move_tic_ = 0;
+    Time cursor_move_tic_ = 0;
 
     bool ready_ = false;
 

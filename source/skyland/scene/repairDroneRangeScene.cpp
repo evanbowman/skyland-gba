@@ -46,7 +46,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> RepairDroneRangeScene::update(Microseconds delta)
+ScenePtr<Scene> RepairDroneRangeScene::update(Time delta)
 {
     if (drone_->destination() not_eq &APP.player_island()) {
         far_camera();

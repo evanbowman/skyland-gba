@@ -58,7 +58,7 @@ class SurfaceFlagsScene : public Scene
 private:
     int page_ = 0;
     Vec2<int> cursor_;
-    Microseconds cursor_timer_ = seconds(1);
+    Time cursor_timer_ = seconds(1);
     bool cursor_flip_ = false;
 
 public:
@@ -116,7 +116,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Microseconds delta);
+    ScenePtr<Scene> update(Time delta);
 
 
 
@@ -185,7 +185,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta)
+    ScenePtr<Scene> update(Time delta)
     {
         player().update(delta);
 
@@ -277,7 +277,7 @@ private:
 
 
 
-ScenePtr<Scene> SurfaceFlagsScene::update(Microseconds delta)
+ScenePtr<Scene> SurfaceFlagsScene::update(Time delta)
 {
     player().update(delta);
 
@@ -548,7 +548,7 @@ void FlagDesignerModule::show()
 
 
 
-ScenePtr<Scene> FlagDesignerModule::update(Microseconds delta)
+ScenePtr<Scene> FlagDesignerModule::update(Time delta)
 {
     if (APP.player().key_down(Key::select)) {
         auto next = scene_pool::alloc<FlagTemplateScene>();

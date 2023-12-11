@@ -48,7 +48,7 @@ namespace skyland
 class SandboxResetScene : public Scene
 {
 public:
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
     void enter(Scene& prev) override;
     void exit(Scene& next) override;

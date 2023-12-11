@@ -169,7 +169,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         network::poll_messages(*this);
 
@@ -322,7 +322,7 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 
     State state_ = State::wait;
     DynamicMemory<Context> ctx_;

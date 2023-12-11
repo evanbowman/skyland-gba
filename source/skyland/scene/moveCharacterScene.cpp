@@ -177,7 +177,7 @@ void ModifyCharacterScene::enter(Scene& prev)
 
 
 
-ScenePtr<Scene> ModifyCharacterScene::update(Microseconds delta)
+ScenePtr<Scene> ModifyCharacterScene::update(Time delta)
 {
     if (APP.player().key_down(Key::select)) {
         return null_scene();

@@ -121,7 +121,7 @@ void ReplicatorSelectionScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ReplicatorSelectionScene::update(Microseconds delta)
+ScenePtr<Scene> ReplicatorSelectionScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;

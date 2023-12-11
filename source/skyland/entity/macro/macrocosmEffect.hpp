@@ -50,7 +50,7 @@ public:
     MacrocosmEffect(const Vec2<Fixnum>& position,
                     int begin_tile,
                     int end_tile,
-                    Microseconds rate)
+                    Time rate)
         : rate_(rate), begin_tile_(begin_tile), end_tile_(end_tile)
     {
         sprite_.set_size(Sprite::Size::w32_h32);
@@ -60,7 +60,7 @@ public:
     }
 
 
-    void update(macro::Engine& s, Microseconds delta) override
+    void update(macro::Engine& s, Time delta) override
     {
         timer_ += delta;
         if (timer_ >= rate_) {
@@ -79,8 +79,8 @@ public:
 
 
 private:
-    Microseconds timer_ = 0;
-    Microseconds rate_;
+    Time timer_ = 0;
+    Time rate_;
     u16 begin_tile_;
     u16 end_tile_;
 };

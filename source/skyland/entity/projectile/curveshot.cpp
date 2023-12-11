@@ -82,7 +82,7 @@ Curveshot::Curveshot(const Vec2<Float>& position,
 
 
 
-void Curveshot::update(Microseconds delta)
+void Curveshot::update(Time delta)
 {
     Vec2<Float> pos = {sprite_.get_position().x, y_base_};
     pos = pos + APP.float_delta() * step_vector_;
@@ -133,7 +133,7 @@ void Curveshot::update(Microseconds delta)
 
 
 
-void Curveshot::rewind(Microseconds delta)
+void Curveshot::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - Float(delta) * step_vector_;

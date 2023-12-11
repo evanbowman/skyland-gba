@@ -66,7 +66,7 @@ void MindControl::format_description(StringBuffer<512>& buffer)
 
 
 
-void MindControl::update(Microseconds delta)
+void MindControl::update(Time delta)
 {
     Room::update(delta);
 

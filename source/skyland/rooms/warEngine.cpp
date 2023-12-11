@@ -60,7 +60,7 @@ WarEngine::WarEngine(Island* parent, const RoomCoord& position, const char* n)
 
 
 
-void WarEngine::update(Microseconds delta)
+void WarEngine::update(Time delta)
 {
     Room::update(delta);
 }

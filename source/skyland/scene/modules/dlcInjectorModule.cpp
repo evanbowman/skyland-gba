@@ -105,7 +105,7 @@ static void store_dlc(Vector<char>& data)
 
 
 
-ScenePtr<Scene> DlcInjectorModule::update(Microseconds delta)
+ScenePtr<Scene> DlcInjectorModule::update(Time delta)
 {
     if (not begin_load_) {
         auto future_scene = [] {

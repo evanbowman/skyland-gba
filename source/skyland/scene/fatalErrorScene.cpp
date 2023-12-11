@@ -77,7 +77,7 @@ void FatalErrorScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> FatalErrorScene::update(Microseconds dt)
+ScenePtr<Scene> FatalErrorScene::update(Time dt)
 {
     APP.player().update(dt);
 

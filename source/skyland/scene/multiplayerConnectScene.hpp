@@ -52,7 +52,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     static ScenePtr<Scene> setup();
@@ -61,7 +61,7 @@ public:
 private:
     bool ready_ = false;
     std::optional<Text> text_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

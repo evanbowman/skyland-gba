@@ -79,7 +79,7 @@ ComposeSynthScene::ComposeSynthScene(Synth& synth)
 
 
 
-ScenePtr<Scene> ComposeSynthScene::update(Microseconds delta)
+ScenePtr<Scene> ComposeSynthScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;

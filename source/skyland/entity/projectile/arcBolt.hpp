@@ -64,10 +64,10 @@ public:
             const RoomCoord& origin_tile);
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void on_collision(Room&, Vec2<u8> origin) override;
@@ -79,7 +79,7 @@ public:
     }
 
 
-    void set_timer(Microseconds value)
+    void set_timer(Time value)
     {
         timer_ = value;
     }
@@ -89,8 +89,8 @@ private:
     void record_destroyed();
     void destroy(bool explosion) override;
 
-    Microseconds timer_ = 0;
-    Microseconds anim_timer_ = 0;
+    Time timer_ = 0;
+    Time anim_timer_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
 

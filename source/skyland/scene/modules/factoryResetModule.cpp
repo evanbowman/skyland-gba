@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> FactoryResetModule::update(Microseconds delta)
+ScenePtr<Scene> FactoryResetModule::update(Time delta)
 {
     if (not text_) {
         PLATFORM.screen().fade(0.9f);

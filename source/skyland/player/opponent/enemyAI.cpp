@@ -80,7 +80,7 @@ namespace skyland
 
 
 
-void EnemyAI::update(Microseconds delta)
+void EnemyAI::update(Time delta)
 {
     if (APP.player_island().is_destroyed()) {
         return;

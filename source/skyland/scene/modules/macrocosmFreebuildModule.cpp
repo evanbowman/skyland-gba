@@ -162,7 +162,7 @@ void MacrocosmFreebuildModule::init()
 
 
 
-ScenePtr<Scene> MacrocosmFreebuildModule::update(Microseconds delta)
+ScenePtr<Scene> MacrocosmFreebuildModule::update(Time delta)
 {
     // if (not APP.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
     //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");

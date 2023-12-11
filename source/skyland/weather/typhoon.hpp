@@ -51,8 +51,8 @@ public:
     Platform::Screen::Shader shader() const override;
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     void on_lightning() override;
@@ -77,7 +77,7 @@ private:
         fade,
     } ls_ = LightningState::none;
 
-    Microseconds lightning_timer_ = 0;
+    Time lightning_timer_ = 0;
 };
 
 

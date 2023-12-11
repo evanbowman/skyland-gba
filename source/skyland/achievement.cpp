@@ -35,6 +35,7 @@
 #include "achievement.hpp"
 #include "room_metatable.hpp"
 #include "save.hpp"
+#include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "timeStreamEvent.hpp"
 

@@ -73,7 +73,7 @@ public:
     void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;

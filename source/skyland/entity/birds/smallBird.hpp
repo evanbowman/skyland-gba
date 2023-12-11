@@ -58,7 +58,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         timer1_ += delta;
         timer2_ += delta;
@@ -98,8 +98,8 @@ public:
 
 
 private:
-    Microseconds timer1_;
-    Microseconds timer2_;
+    Time timer1_;
+    Time timer2_;
     Float speed_;
 };
 

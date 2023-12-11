@@ -69,7 +69,7 @@ ProcgenEnemyAI::ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty)
 
 
 
-void ProcgenEnemyAI::update(Microseconds delta)
+void ProcgenEnemyAI::update(Time delta)
 {
     if (not APP.opponent_island()) {
         generate_level();

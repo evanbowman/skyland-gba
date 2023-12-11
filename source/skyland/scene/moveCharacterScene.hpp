@@ -57,7 +57,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -65,7 +65,7 @@ public:
 
 private:
     DynamicMemory<bool[16][16]> matrix_;
-    Microseconds cursor_anim_timer_ = 0;
+    Time cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
     CharacterId chr_id_;
     const bool near_;

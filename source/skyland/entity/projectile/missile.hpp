@@ -72,16 +72,16 @@ public:
     }
 
 
-    void set_timer(Microseconds value)
+    void set_timer(Time value)
     {
         timer_ = value;
     }
 
 
-    void update(Microseconds delta) override;
+    void update(Time delta) override;
 
 
-    void rewind(Microseconds delta) override;
+    void rewind(Time delta) override;
 
 
     void on_collision(Room&, Vec2<u8>) override;
@@ -96,7 +96,7 @@ public:
 protected:
     virtual void destroy();
 
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
     Fixnum target_x_;
 
     Island* source_;

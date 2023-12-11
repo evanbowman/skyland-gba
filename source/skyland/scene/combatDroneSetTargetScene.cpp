@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> CombatDroneSetTargetScene::update(Microseconds delta)
+ScenePtr<Scene> CombatDroneSetTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;

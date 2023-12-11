@@ -58,7 +58,7 @@ Reactor::Reactor(Island* parent, const RoomCoord& position)
 
 
 
-void Reactor::update(Microseconds delta)
+void Reactor::update(Time delta)
 {
     Room::update(delta);
 }

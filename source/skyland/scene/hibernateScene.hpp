@@ -64,7 +64,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (key_down<Key::action_1>()) {
             text_.reset();

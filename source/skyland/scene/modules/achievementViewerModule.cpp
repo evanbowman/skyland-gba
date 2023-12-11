@@ -195,7 +195,7 @@ void AchievementViewerModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> AchievementViewerModule::update(Microseconds delta)
+ScenePtr<Scene> AchievementViewerModule::update(Time delta)
 {
 
     APP.player().update(delta);

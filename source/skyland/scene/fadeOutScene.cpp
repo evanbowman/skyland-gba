@@ -64,7 +64,7 @@ void FadeOutScene::exit(Scene& prev)
 
 
 
-ScenePtr<Scene> FadeOutScene::update(Microseconds delta)
+ScenePtr<Scene> FadeOutScene::update(Time delta)
 {
     WorldScene::update(delta);
 

@@ -44,7 +44,7 @@ namespace skyland::time_stream
 
 
 
-using Timestamp = Microseconds;
+using Timestamp = Time;
 
 
 

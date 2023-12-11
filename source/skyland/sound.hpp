@@ -60,13 +60,13 @@ public:
     ~Sound();
 
 
-    void play(int priority, Microseconds max_overlap = milliseconds(200));
+    void play(int priority, Time max_overlap = milliseconds(200));
 
 
-    static void update_all(Microseconds delta);
+    static void update_all(Time delta);
 
 
-    Microseconds last_played() const
+    Time last_played() const
     {
         return last_played_;
     }
@@ -79,7 +79,7 @@ public:
 
 
 private:
-    void update(Microseconds delta)
+    void update(Time delta)
     {
         last_played_ += delta;
     }

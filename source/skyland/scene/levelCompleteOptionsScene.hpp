@@ -61,7 +61,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void enter(Scene& prev) override;
@@ -87,7 +87,7 @@ private:
     std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
     Buffer<Text, 3> options_;
-    Microseconds timer_ = 0;
+    Time timer_ = 0;
 };
 
 

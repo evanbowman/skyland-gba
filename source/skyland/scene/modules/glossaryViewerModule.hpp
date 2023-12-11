@@ -83,7 +83,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void set_next_scene(DeferredScene next)
@@ -110,7 +110,7 @@ private:
     void load_filters();
 
 
-    ScenePtr<Scene> show_categories_impl(Microseconds);
+    ScenePtr<Scene> show_categories_impl(Time);
 
 
     std::optional<Text> item_name_;
@@ -146,8 +146,8 @@ private:
     int filter_end_ = 0;
 
     int cover_img_ = 0;
-    Microseconds unfade_timer_ = 0;
-    Microseconds timer_ = 0;
+    Time unfade_timer_ = 0;
+    Time timer_ = 0;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
     std::optional<DynamicMemory<FilterBuf>> filter_buf_;

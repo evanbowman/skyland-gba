@@ -16,7 +16,7 @@ ColorConstant ClearSkies::fadein_colorize_tone() const
 
 
 
-void ClearSkies::update(Microseconds delta)
+void ClearSkies::update(Time delta)
 {
     timer_ -= delta;
     if (timer_ <= 0) {

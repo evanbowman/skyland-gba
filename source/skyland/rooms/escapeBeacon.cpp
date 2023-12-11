@@ -58,7 +58,7 @@ void EscapeBeacon::format_description(StringBuffer<512>& buffer)
 
 
 
-void EscapeBeacon::update(Microseconds delta)
+void EscapeBeacon::update(Time delta)
 {
     Room::update(delta);
 
@@ -90,7 +90,7 @@ static const auto escape_beacon_countdown = seconds(60);
 
 
 
-void EscapeBeacon::rewind(Microseconds delta)
+void EscapeBeacon::rewind(Time delta)
 {
     Room::rewind(delta);
 

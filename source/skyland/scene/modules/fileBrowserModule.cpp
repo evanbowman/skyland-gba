@@ -386,7 +386,7 @@ void FileBrowserModule::show_opts()
 
 
 
-ScenePtr<Scene> FileBrowserModule::update(Microseconds delta)
+ScenePtr<Scene> FileBrowserModule::update(Time delta)
 {
     if (faded_) {
         faded_ = false;

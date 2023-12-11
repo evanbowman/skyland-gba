@@ -54,8 +54,8 @@ public:
                const char* n = name());
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     const char* upgrade_mt_name() const override;
@@ -185,8 +185,8 @@ public:
     const char* upgrade_mt_name() const override;
 
 
-    void update(Microseconds delta) override;
-    void rewind(Microseconds delta) override;
+    void update(Time delta) override;
+    void rewind(Time delta) override;
 
 
     static void format_description(StringBuffer<512>& buffer);

@@ -261,7 +261,7 @@ public:
     }
 
 
-    void update(Microseconds delta) override
+    void update(Time delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
         // time. But debris has gravity applied, so we run multiple update steps
@@ -293,7 +293,7 @@ public:
     }
 
 
-    void rewind(Microseconds delta) override
+    void rewind(Time delta) override
     {
         kill();
     }
@@ -303,8 +303,8 @@ public:
     Fixnum gravity_;
 
 private:
-    Microseconds timer_ = 0;
-    Microseconds remainder_ = 0;
+    Time timer_ = 0;
+    Time remainder_ = 0;
     Fixnum max_y_;
 };
 
@@ -344,7 +344,7 @@ void Windmill::finalize()
 
 
 
-void Windmill::update(Microseconds delta)
+void Windmill::update(Time delta)
 {
     TIMEPOINT(t1);
 
@@ -385,7 +385,7 @@ void Windmill::update(Microseconds delta)
 
 
 
-void Windmill::rewind(Microseconds delta)
+void Windmill::rewind(Time delta)
 {
     Room::rewind(delta);
 

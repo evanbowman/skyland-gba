@@ -75,7 +75,7 @@ NemesisBlast::NemesisBlast(const Vec2<Fixnum>& position,
 
 
 
-void NemesisBlast::update(Microseconds delta)
+void NemesisBlast::update(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + APP.delta_fp() * step_vector_;
@@ -92,7 +92,7 @@ void NemesisBlast::update(Microseconds delta)
 
 
 
-void NemesisBlast::rewind(Microseconds delta)
+void NemesisBlast::rewind(Time delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - APP.delta_fp() * step_vector_;

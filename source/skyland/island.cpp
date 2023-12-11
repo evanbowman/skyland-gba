@@ -45,6 +45,7 @@
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
+#include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
 #include "skyland/rooms/speaker.hpp"
@@ -198,7 +199,7 @@ static const auto fire_spread_time = seconds(9);
 
 
 
-void Island::FireState::rewind(Island& island, Microseconds delta)
+void Island::FireState::rewind(Island& island, Time delta)
 {
     if (spread_timer_ > 0) {
         spread_timer_ -= delta;
@@ -251,7 +252,7 @@ void Island::FireState::rewind(Island& island, Microseconds delta)
 
 
 
-void Island::rewind(Microseconds delta)
+void Island::rewind(Time delta)
 {
     timer_ -= delta;
 
@@ -463,7 +464,7 @@ void Island::fire_create(const RoomCoord& coord)
 
 
 
-void Island::FireState::update(Island& island, Microseconds delta)
+void Island::FireState::update(Island& island, Time delta)
 {
     damage_timer_ += delta;
     spread_timer_ += delta;
@@ -672,7 +673,7 @@ void Island::FireState::display(Island& island)
 
 
 
-void Island::update_simple(Microseconds dt)
+void Island::update_simple(Time dt)
 {
     timer_ += dt;
 
@@ -718,7 +719,7 @@ void Island::update_simple(Microseconds dt)
 
 
 
-void Island::update(Microseconds dt)
+void Island::update(Time dt)
 {
     TIMEPOINT(t1);
 
@@ -2114,7 +2115,7 @@ void Island::clear_rooms()
 
 
 
-void Island::set_float_timer(Microseconds value)
+void Island::set_float_timer(Time value)
 {
     timer_ = value;
 }

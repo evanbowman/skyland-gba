@@ -69,7 +69,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override
+    ScenePtr<Scene> update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition(Key::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);

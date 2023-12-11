@@ -199,7 +199,7 @@ static const char* const page_end_lines3[] = {"-- Postscript --",
 
 
 
-static const std::array<Microseconds, 11> page_times_ = {
+static const std::array<Time, 11> page_times_ = {
     milliseconds(3000),
     milliseconds(3000),
     milliseconds(3000),
@@ -281,7 +281,7 @@ void CreditsModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> CreditsModule::update(Microseconds delta)
+ScenePtr<Scene> CreditsModule::update(Time delta)
 {
     constexpr auto fade_duration = milliseconds(650);
 

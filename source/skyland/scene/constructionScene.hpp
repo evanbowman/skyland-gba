@@ -67,7 +67,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Microseconds delta) override;
+    ScenePtr<Scene> update(Time delta) override;
 
 
     void display() override;
@@ -148,7 +148,7 @@ private:
     int touchscroll_ = 0;
     int last_touch_x_ = 0;
 
-    Microseconds flicker_timer_ = 0;
+    Time flicker_timer_ = 0;
 
     Island::BlockChecksum checksum_;
 
