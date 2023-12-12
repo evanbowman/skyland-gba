@@ -3125,6 +3125,11 @@ BUILTIN_TABLE(
      {"equal",
       {2,
        [](int argc) { return make_integer(is_equal(get_op0(), get_op1())); }}},
+     {"list?",
+      {1,
+       [](int argc) {
+           return make_boolean(is_list(get_op0()));
+       }}},
      {"nil?",
       {1,
        [](int argc) {
@@ -3763,6 +3768,42 @@ BUILTIN_TABLE(
                return L_NIL;
            }
        }}},
+     {"string-explode",
+      {0,
+       [](int argc) {
+           L_EXPECT_OP(0, string);
+           ListBuilder list;
+
+           auto str = L_LOAD_STRING(0);
+           utf8::scan(
+                   [&](const utf8::Codepoint& cp, const char*, int) {
+                       list.push_back(L_INT(cp));
+                   },
+                   str,
+                   strlen(str));
+
+           return list.result();
+       }}},
+     {"string-assemble",
+      {0,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+
+           auto str = allocate_dynamic<StringBuffer<2000>>("tempstr");
+
+           foreach (get_op0(),
+                    [&](Value* val) {
+                        auto v = val->integer().value_;
+                        auto cp = (const char*)&v;
+                        for (int i = 0; i < 4; ++i) {
+                            if (cp[i]) {
+                                str->push_back(cp[i]);
+                            }
+                        }
+                    });
+
+           return make_string(str->c_str());
+       }}},
      {"string",
       {0,
        [](int argc) {
@@ -3904,6 +3945,31 @@ BUILTIN_TABLE(
            }
 
            return result.result();
+       }}},
+     {"find",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+
+           std::optional<int> index;
+
+           int i = 0;
+           foreach(get_op0(),
+                   [&](Value* v) {
+                       if (index) {
+                           return;
+                       }
+                       if (is_equal(get_op1(), v)) {
+                           index = i;
+                       }
+                       ++i;
+                   });
+
+           if (index) {
+               return L_INT(*index);
+           }
+
+           return L_NIL;
        }}},
      {"flatten",
       {1,

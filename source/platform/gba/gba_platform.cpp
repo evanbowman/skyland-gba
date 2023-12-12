@@ -3124,9 +3124,8 @@ void Platform::load_tile0_texture(const char* name)
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-            memcpy16(
-                (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0], data, data_len);
         }
+        memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0], data, data_len);
         return;
     }
 
@@ -3187,9 +3186,8 @@ void Platform::load_tile1_texture(const char* name)
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-            memcpy16(
-                (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0], data, data_len);
         }
+        memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0], data, data_len);
         return;
     }
 

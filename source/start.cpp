@@ -62,43 +62,6 @@ static inline int boot_init()
 {
     systemstring_bind_file("strings.txt");
 
-    {
-        Conf conf;
-        if (conf.expect<Conf::String>("profile", "beta") == "yes") {
-            if (auto f =
-                    PLATFORM.load_file_contents("", "/licenses/user.txt")) {
-                PLATFORM.fill_overlay(112);
-                enable_text_icon_glyphs(false);
-                PLATFORM.load_overlay_texture("overlay");
-                PLATFORM.enable_glyph_mode(true);
-                StringBuffer<256> msg;
-                msg = "This beta test rom was issued to ";
-                StringBuffer<27> fmt;
-                while (*f not_eq '\0' and *f not_eq '\n') {
-                    if (fmt.full()) {
-                        msg += fmt;
-                        fmt.clear();
-                        msg += " ";
-                    }
-                    fmt.push_back(rot13(*f));
-                    ++f;
-                }
-                msg += fmt;
-                msg += ". Please do not distribute!";
-
-                TextView tv;
-                tv.assign(msg.c_str(), {1, 1}, {28, 18});
-
-                for (int i = 0; i < 200; ++i) {
-                    PLATFORM.screen().clear();
-                    PLATFORM.screen().display();
-                }
-                enable_text_icon_glyphs(true);
-                PLATFORM.fill_overlay(0);
-            }
-        }
-    }
-
     BootScene::init();
 
     BootScene::message("mount flash filesystem...");

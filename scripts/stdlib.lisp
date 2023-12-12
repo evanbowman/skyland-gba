@@ -93,7 +93,7 @@
                  $1)
          0)))
 
-(defn/c cdr-assoc [2]
+(defn/c lookup [2]
   (let ((kvp (assoc $0 $1)))
     (if kvp (cdr kvp))))
 

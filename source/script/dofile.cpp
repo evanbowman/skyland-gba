@@ -154,7 +154,7 @@ const char* utilities =
     "                 $1)\n"
     "         0)))\n"
     "\n"
-    "(defn/c cdr-assoc [2]\n"
+    "(defn/c lookup [2]\n"
     "  (let ((kvp (assoc $0 $1)))\n"
     "    (if kvp (cdr kvp))))\n"
     "\n"

@@ -52,37 +52,35 @@
    (forcefield* 8 9)))
 
 
-(let ((id (cdr-assoc 6 qvar))
+(let ((id (lookup 6 qvar))
       (boy nil))
 
   (map (lambda
-         (if (equal id (cdr-assoc 'id (cddr $0)))
+         (if (equal id (lookup 'id (cddr $0)))
              (setq boy true)))
        (chrs (player)))
 
   (if boy
       (defn on-converge [0]
-        (dialog "<c:eowyn:21> Hello, traveller... <B:0> It's been quite a long while since we've seen humans. You are very lost indeed...")
+        (dialog "<c:sky sprite:21> Hello, traveller... <B:0> It's been quite a long while since we've seen humans. You are very lost indeed...")
 
         (defn on-dialog-closed [0]
           (dialog "<c:orphan boy:26> " (rot13 "Oh!!! I'm home at last!"))
 
           (defn on-dialog-closed [0]
-            (dialog "<c:eowyn:21>Uryyb! Why, who's this!? He's one of us, you know. <B:0> We're very grateful to you for binging him to us. Normally we stay out of the affairs of you humans... but just this once, we'll help you to show our graditude.")
+            (dialog "<c:sky sprite:21>Uryyb! Why, who's this!? He's one of us, you know. <B:0> We're very grateful to you for binging him to us. Normally we try not to intervene... but just this once, we'll help you out…")
 
             (defn on-dialog-closed [0]
               (map (lambda
-                     (if (equal id (cdr-assoc 'id (cddr $0)))
+                     (if (equal id (lookup 'id (cddr $0)))
                          (chr-del (player) (car $0) (cadr $0))))
                    (chrs (player)))
               (coins-add 3000)
               (adventure-log-add 55 nil)
+              (sound "bell")
+              (wg-storm-frontier-set 1)
               (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
-
-              (defn on-dialog-closed [0]
-                (wg-storm-frontier-set 1)
-                (dialog "<c:eowyn:21> We've pushed back the storm for you. Travel carefully... and good luck!")
-                (setq on-dialog-closed exit))))))
+              (setq on-dialog-closed exit)))))
 
     (defn on-converge [0]
       (dialog "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about...")

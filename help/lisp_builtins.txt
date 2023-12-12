@@ -171,6 +171,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (find value list)
+
+ If value exists in list,
+ return index. Otherwise,
+ return nil.
+
+
+o----------------------------o
+
  (flatten list)
 
  Condense nested lists into
@@ -446,6 +455,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (slice string begin end)
+
+ Retrieve a substring from
+ a string.
+
+
+o----------------------------o
+
  (split string delim)
 
  Does what you'd expect.
@@ -460,13 +477,21 @@ o----------------------------o
  to a string and
  concatenating them.
 
+o----------------------------o
+
+ (string-explode str)
+
+ Disassemble a string into a
+ list of integer codepoints.
+
 
 o----------------------------o
 
- (slice string begin end)
+ (string-assemble list)
 
- Retrieve a substring from
- a string.
+ Assemble a list of integer
+ codepoints back into a
+ string.
 
 
 
@@ -551,6 +576,7 @@ o----------------------------o
  (userdata? v)
  (string? v)
  (odd? v)
+ (list? v)
 
  Standard predicates.
 

@@ -99,6 +99,7 @@
 (assert-eq (length "ありがとうございます") 10)
 (assert-eq (slice "ありがとうございます" 2 7) "がとうござ")
 (assert-eq (string 5 12 "foo" 3.5 'nice) "512foo3.5nice")
+(assert-eq "你好" (string-assemble (string-explode "你好")))
 
 (end-test)
 
