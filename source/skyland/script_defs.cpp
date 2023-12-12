@@ -309,7 +309,7 @@ BINDING_TABLE({
      {1,
       [](int argc) {
           L_EXPECT_OP(0, string);
-          lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 1);
+          lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 6);
           return L_NIL;
       }}},
     {"diff", {0, [](int argc) { return L_INT((int)APP.gp_.difficulty_); }}},
