@@ -1,6 +1,7 @@
 
 (dialog "You arrive at the location that the orphan boy marked on your map. <B:0> "
-        " As you approach, an ornately-decorated city emerges from the clouds...")
+        "<b:/scripts/misc/img/ornate.skg>"
+        " As you approach, an ornate walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with an otherworldly light...")
 
 
 (opponent-init 9 'neutral)
