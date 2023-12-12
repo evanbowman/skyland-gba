@@ -1,5 +1,7 @@
 
-(dialog "You discover the ruins of an ancient civilization. The island appears deserted, but just as you are about to leave, someone signals for help...")
+(dialog "<b:/scripts/misc/img/ruins.skg>"
+        "You discover the ruins of an ancient civilization. "
+        "The island appears deserted, but just as you are about to leave, someone signals for help...")
 
 
 (opponent-init 9 'neutral)
@@ -14,7 +16,8 @@
   (dialog "A small injured boy begins speaking softly in an archaic language...")
 
   (defn on-dialog-closed [0]
-    (dialog "<c:injured boy:26>V nz gur bayl fheivibe! Pna lbh uryc zr trg onpx ubzr?")
+    (dialog "<c:injured boy:26> "
+            (rot13 "I am the only survivor! Can you help me get back home?"))
 
     (defn on-dialog-closed [0]
       (dialog "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")
@@ -42,6 +45,7 @@
             (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
               (if m
                   (progn
+                    (adventure-log-add 54 nil)
                     (push 'qids 6)
                     (push 'quests (cons "/scripts/event/quest_marker/civ.lisp" m))
                     (push 'qvar (cons 6 id))

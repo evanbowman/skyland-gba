@@ -51,3 +51,5 @@ purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
+Accepted quest from orphan boy!
+Returned orphan boy to eowyn!

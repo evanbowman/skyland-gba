@@ -44,6 +44,7 @@
 #include "memory/pool.hpp"
 #include "number/random.hpp"
 #include "platform/libc.hpp"
+#include "rot13.hpp"
 
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
 #error "NON-Constexpr lookup table!"
@@ -2961,6 +2962,18 @@ BUILTIN_TABLE(
 
            return (Value*)result;
        }}},
+     {"rot13",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          auto str = L_LOAD_STRING(0);
+          auto rotstr = allocate_dynamic<StringBuffer<1000>>("rot13");
+          while (*str not_eq '\0') {
+              rotstr->push_back(rot13(*str));
+              ++str;
+          }
+          return lisp::make_string(rotstr->c_str());
+      }}},
      {"cons",
       {2,
        [](int argc) {

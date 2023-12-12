@@ -444,6 +444,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (wg-is-x-behind-frontier? n)
+
+ Check if a node x coord is
+ behind the storm boundary.
+
+
+o----------------------------o
+
 
 
 ##############################

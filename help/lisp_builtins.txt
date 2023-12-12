@@ -438,6 +438,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (rot13 string)
+
+ Encrypt/decrypt a string
+ using a rot13 cypher.
+
+
+o----------------------------o
+
  (split string delim)
 
  Does what you'd expect.
