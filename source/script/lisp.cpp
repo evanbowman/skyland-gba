@@ -2947,7 +2947,7 @@ BUILTIN_TABLE(
 
            lisp::set_var(get_op1(), get_op0());
 
-           return L_NIL;
+           return get_op0();
        }}},
      {"require-args",
       {2,

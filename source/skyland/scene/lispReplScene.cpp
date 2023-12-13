@@ -195,7 +195,7 @@ void LispReplScene::enter(Scene& prev)
 
     entry_.emplace(OverlayCoord{0, u8(screen_tiles.y - 1)});
 
-    const char* version_text = "Skyland LISP v03";
+    const char* version_text = "Skyland LISP v04";
 
     for (int i = 0; i < 31; ++i) {
         PLATFORM.set_tile(Layer::overlay, i, 0, 112);

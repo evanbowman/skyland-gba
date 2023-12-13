@@ -34,11 +34,10 @@
             (if p
                 (let ((sale (+ 1000 (* (lookup 4 qvar) 2))))
                   ;; Clear out cargo
-                  (cargo-set
-                   (player)
-                   (caar p)
-                   (cdr (car p))
-                   "")
+                  (cargo-set (player)
+                             (caar p)
+                             (cdr (car p))
+                             "")
 
                   (dialog
                    (format
