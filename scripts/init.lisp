@@ -2,6 +2,11 @@
 ;;; init.lisp
 ;;;
 
+;; Define some common global
+;; variables.
+
+(eval-file "/scripts/globals.lisp")
+
 ;; Let's define some useful
 ;; builtin functions:
 
@@ -47,6 +52,8 @@
   ;; args: event-code parameters
   (setq adventure-log (cons (cons $0 $1) adventure-log)))
 
+
+(global 'dialog-opts)
 
 (defn/c dialog-opts-reset [0]
   (setq dialog-opts nil))

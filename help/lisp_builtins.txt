@@ -210,6 +210,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (insert value list index)
+
+ Insert value into list at
+ index.
+
+
+o----------------------------o
+
  (length list-or-string)
 
  Return length of a list
@@ -712,6 +720,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (global 'symbol ...)
+
+ Define global variables for
+ symbols.
+
+
+o----------------------------o
+
  (set symbol value)
 
  Set a global variable or
@@ -728,6 +744,18 @@ o----------------------------o
 
  Returns a list contining
  functions on the callstack.
+
+
+o----------------------------o
+
+ (strict enabled)
+
+ In strict mode, the
+ interpreter will raise an
+ error when evaluating a set
+ expression for which a
+ variable binding does not
+ exist.
 
 
 o----------------------------o

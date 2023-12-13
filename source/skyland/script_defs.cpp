@@ -1483,10 +1483,7 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"wg-storm-frontier",
-     {0,
-      [](int argc) {
-          return L_INT(APP.world_graph().storm_depth_);
-      }}},
+     {0, [](int argc) { return L_INT(APP.world_graph().storm_depth_); }}},
     {"wg-is-x-behind-frontier?",
      {1,
       [](int argc) {
@@ -1752,6 +1749,10 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     ni.get_symbols_ = binding_name_getter;
 
     lisp::register_native_interface(ni);
+
+    if (is_developer_mode()) {
+        lisp::dostring("(strict true)");
+    }
 
     // NOTE: we need to disable custom scripts during startup, otherwise,
     // someone could irreversibly mess up a game.

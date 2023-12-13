@@ -53,20 +53,19 @@
                    (room-del (opponent) (get $0 1) (get $0 2))))
              (rooms (opponent)))
 
-            ;; In case some player decides to farm coins by building his/her own
-            ;; lemon trees and passing them off as Farmer Meyer's trees.
-            (setq lemon-quest-max-reward 0)
-
             (push 'qids 2)
             (push 'quests (cons "/scripts/event/quest_marker/lemons.lisp" m))
 
-            (map
-             (lambda
-               ((room-new
-                 (player)
-                 (list 'lemon-tree (car $0) (cdr $0)))
-                (+= lemon-quest-max-reward 1400)))
-             (construction-sites (player) '(1 . 2)))
+            (let ((reward 0))
+              (map
+               (lambda
+                 ((room-new
+                   (player)
+                   (list 'lemon-tree (car $0) (cdr $0)))
+                  (+= reward 1400)))
+               (construction-sites (player) '(1 . 2)))
+
+              (push 'qvar (cons 2 reward)))
 
             (adventure-log-add 18 (list (rcnt (player) 'lemon-tree)))
 

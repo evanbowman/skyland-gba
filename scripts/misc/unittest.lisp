@@ -1,5 +1,9 @@
 (gc)
 
+(strict true)
+
+(global 'put 'newline 'temp)
+
 (setq put log)
 (setq newline (lambda nil))
 
@@ -42,13 +46,16 @@
   (newline))
 
 
+(assert-v (error? (let ((foo 2)) (global 'foo))))
+(assert-v (error? ((lambda (setq a 5) 8))))
+
+
 (begin-test "READER")
 
 (assert-eq 1 (read "1"))
 (assert-eq (cons 1 2) (read "(1 . 2)"))
 
 (end-test)
-
 
 
 (begin-test "MATH")

@@ -50,13 +50,12 @@
         (dialog "<c:merchant:7> Sorry, that's not enough! Want a chance to salvage some stuff to come up with the funds? I'll check back in 15 seconds?")
         (dialog-await-y/n)
         (let ((f (this)))
-          (setq fut
-                (lambda
-                  (if (> (coins 1999))
-                      (progn
-                        (dialog "<c:merchant:7> Seems like you have enough now!")
-                        (setq on-dialog-closed f))
-                    (f)))))
+          (defn fut
+            (if (> (coins 1999))
+                (progn
+                  (dialog "<c:merchant:7> Seems like you have enough now!")
+                  (setq on-dialog-closed f))
+              (f))))
         (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
         (setq on-dialog-declined (lambda (unbind 'fut) (exit))))
     (progn
@@ -110,13 +109,12 @@
   (setq on-dialog-accepted
         (if (< (coins) 2000)
             (let ((f fut))
-              (setq fut
-                    (lambda
-                      (if (> (coins) 1999)
-                          (progn
-                            (dialog "<c:merchant:7> Seems like you have enough now!")
-                            (setq on-dialog-closed f))
-                        (f))))
+              (defn fut
+                (if (> (coins) 1999)
+                    (progn
+                      (dialog "<c:merchant:7> Seems like you have enough now!")
+                      (setq on-dialog-closed f))
+                  (f)))
               (lambda (on-timeout 15000 'fut)))
           fut))
 

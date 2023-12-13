@@ -32,10 +32,7 @@
 
 (setq on-converge
       (lambda
-        (if (not (bound? 'lemon-quest-max-reward))
-            (setq lemon-quest-max-reward 99999))
-
-        (let ((c (min (list lemon-quest-max-reward
+        (let ((c (min (list (lookup 2 qvar)
                             (* 1400
                                (length (filter
                                         (lambda (equal (car $0) 'lemon-tree))
@@ -55,7 +52,6 @@
 
               (coins-add c)
 
-              (unbind 'lemon-quest-max-reward)
               (setq quests '())
 
               (map

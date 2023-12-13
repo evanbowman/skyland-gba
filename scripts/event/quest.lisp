@@ -7,19 +7,16 @@
 
 (gc)
 
-(setq lv 0)
-
-(let ((lvs
+(let ((lv 0)
+      (lvs
        ;; Collect all quest ids not in the qids (seen) list
        (filter (lambda
                  (not (filter (equalto? $0) qids)))
                (range 7))))
   (when lvs
-    (setq lv (sample lvs))))
+    (setq lv (sample lvs)))
 
-(eval-file
- (format "/scripts/event/quest/%.lisp" lv))
-
-(unbind 'lv)
+  (eval-file
+   (format "/scripts/event/quest/%.lisp" lv)))
 
 (gc)

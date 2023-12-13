@@ -15,7 +15,6 @@
 
 
 (setq quests nil)
-(setq enemy-count 0)
 
 (setq adventure-log nil)
 

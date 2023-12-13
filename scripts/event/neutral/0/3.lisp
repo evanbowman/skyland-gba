@@ -56,13 +56,12 @@
               (progn
                 ;; Capture the current executing function, reinvoke after n seconds...
                 (let ((f (this)))
-                  (setq fut
-                        (lambda
-                          (if (> (coins) 1299)
-                              (progn
-                                (dialog "<c:merchant:7> Seems like you have enough now!")
-                                (setq on-dialog-closed f))
-                            (f)))))
+                  (defn fut
+                    (if (> (coins) 1299)
+                        (progn
+                          (dialog "<c:merchant:7> Seems like you have enough now!")
+                          (setq on-dialog-closed f))
+                      (f))))
 
                 (if skip
                     (progn

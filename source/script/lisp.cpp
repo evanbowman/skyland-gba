@@ -171,6 +171,7 @@ struct Context {
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
+    bool strict_ = false;
 
     struct GensymState {
         u8 char_1_ : 6;
@@ -340,11 +341,15 @@ Value* globals_tree_splay(Value* t, Value* key)
 }
 
 
-static void globals_tree_insert(Value* key, Value* value)
+static bool globals_tree_insert(Value* key, Value* value, bool define_var)
 {
     auto& ctx = *bound_context;
 
     if (ctx.globals_tree_ == get_nil()) {
+
+        if (not define_var) {
+            return false;
+        }
 
         Protected new_kvp(make_cons(key, value));
 
@@ -355,6 +360,8 @@ static void globals_tree_insert(Value* key, Value* value)
         pop_op();
 
         ctx.globals_tree_ = new_tree;
+
+        return true;
 
     } else {
         auto& ctx = *bound_context;
@@ -367,6 +374,9 @@ static void globals_tree_insert(Value* key, Value* value)
             SRST(node, pt);
             SLST(pt, get_nil());
             ctx.globals_tree_ = node;
+            if (not define_var) {
+                return false;
+            }
         } else if (key->symbol().unique_id() > TKEY(pt)) {
             Protected new_kvp(make_cons(key, value));
             auto node = make_cons(new_kvp, make_cons(get_nil(), get_nil()));
@@ -374,10 +384,14 @@ static void globals_tree_insert(Value* key, Value* value)
             SLST(node, pt);
             SRST(pt, get_nil());
             ctx.globals_tree_ = node;
+            if (not define_var) {
+                return false;
+            }
         } else {
             pt->cons().car()->cons().set_cdr(value);
             ctx.globals_tree_ = pt;
         }
+        return true;
     }
 }
 
@@ -450,7 +464,7 @@ static void globals_tree_erase(Value* key)
             }
 
             auto reattach_child = [](Value& kvp, Value&) {
-                globals_tree_insert(kvp.cons().car(), kvp.cons().cdr());
+                globals_tree_insert(kvp.cons().car(), kvp.cons().cdr(), true);
             };
 
             auto left_child = erased->cons().cdr()->cons().car();
@@ -2945,9 +2959,34 @@ BUILTIN_TABLE(
                return get_op0();
            }
 
-           lisp::set_var(get_op1(), get_op0());
+           bool define_if_missing = not bound_context->strict_;
 
+           return lisp::set_var(get_op1(), get_op0(), define_if_missing);
+       }}},
+     {"global",
+      {1,
+       [](int argc) {
+           for (int i = 0; i < argc; ++i) {
+               L_EXPECT_OP(i, symbol);
+               if (__find_local(get_op(i)->symbol().name())) {
+                   Protected str(make_string(
+                       ::format("cannot declare global % due to existing local",
+                                get_op(i)->symbol().name())
+                           .c_str()));
+                   return make_error(Error::Code::invalid_syntax, str);
+               }
+               if (not globals_tree_find(get_op(i))) {
+                   set_var(get_op(i), L_NIL, true);
+               }
+           }
            return get_op0();
+       }}},
+     {"strict",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           bound_context->strict_ = L_LOAD_INT(0);
+           return L_NIL;
        }}},
      {"require-args",
       {2,
@@ -2963,17 +3002,17 @@ BUILTIN_TABLE(
            return (Value*)result;
        }}},
      {"rot13",
-     {1,
-      [](int argc) {
-          L_EXPECT_OP(0, string);
-          auto str = L_LOAD_STRING(0);
-          auto rotstr = allocate_dynamic<StringBuffer<1000>>("rot13");
-          while (*str not_eq '\0') {
-              rotstr->push_back(rot13(*str));
-              ++str;
-          }
-          return lisp::make_string(rotstr->c_str());
-      }}},
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, string);
+           auto str = L_LOAD_STRING(0);
+           auto rotstr = allocate_dynamic<StringBuffer<1000>>("rot13");
+           while (*str not_eq '\0') {
+               rotstr->push_back(rot13(*str));
+               ++str;
+           }
+           return lisp::make_string(rotstr->c_str());
+       }}},
      {"cons",
       {2,
        [](int argc) {
@@ -3125,11 +3164,7 @@ BUILTIN_TABLE(
      {"equal",
       {2,
        [](int argc) { return make_integer(is_equal(get_op0(), get_op1())); }}},
-     {"list?",
-      {1,
-       [](int argc) {
-           return make_boolean(is_list(get_op0()));
-       }}},
+     {"list?", {1, [](int argc) { return make_boolean(is_list(get_op0())); }}},
      {"nil?",
       {1,
        [](int argc) {
@@ -3624,7 +3659,7 @@ BUILTIN_TABLE(
                    auto err = lisp::Error::Code::invalid_argument_type;
                    return lisp::make_error(err, L_NIL);
                }
-               set_var(sym, L_NIL);
+               set_var(sym, L_NIL, true);
                globals_tree_erase(sym);
            }
 
@@ -3775,12 +3810,11 @@ BUILTIN_TABLE(
            ListBuilder list;
 
            auto str = L_LOAD_STRING(0);
-           utf8::scan(
-                   [&](const utf8::Codepoint& cp, const char*, int) {
-                       list.push_back(L_INT(cp));
-                   },
-                   str,
-                   strlen(str));
+           utf8::scan([&](const utf8::Codepoint& cp,
+                          const char*,
+                          int) { list.push_back(L_INT(cp)); },
+                      str,
+                      strlen(str));
 
            return list.result();
        }}},
@@ -3791,16 +3825,16 @@ BUILTIN_TABLE(
 
            auto str = allocate_dynamic<StringBuffer<2000>>("tempstr");
 
-           foreach (get_op0(),
-                    [&](Value* val) {
-                        auto v = val->integer().value_;
-                        auto cp = (const char*)&v;
-                        for (int i = 0; i < 4; ++i) {
-                            if (cp[i]) {
-                                str->push_back(cp[i]);
-                            }
-                        }
-                    });
+           foreach (get_op0(), [&](Value* val) {
+               auto v = val->integer().value_;
+               auto cp = (const char*)&v;
+               for (int i = 0; i < 4; ++i) {
+                   if (cp[i]) {
+                       str->push_back(cp[i]);
+                   }
+               }
+           })
+               ;
 
            return make_string(str->c_str());
        }}},
@@ -3954,16 +3988,16 @@ BUILTIN_TABLE(
            std::optional<int> index;
 
            int i = 0;
-           foreach(get_op0(),
-                   [&](Value* v) {
-                       if (index) {
-                           return;
-                       }
-                       if (is_equal(get_op1(), v)) {
-                           index = i;
-                       }
-                       ++i;
-                   });
+           foreach (get_op0(), [&](Value* v) {
+               if (index) {
+                   return;
+               }
+               if (is_equal(get_op1(), v)) {
+                   index = i;
+               }
+               ++i;
+           })
+               ;
 
            if (index) {
                return L_INT(*index);
@@ -4798,7 +4832,7 @@ Value* get_var(Value* symbol)
 }
 
 
-Value* set_var(Value* symbol, Value* val)
+Value* set_var(Value* symbol, Value* val, bool define_var)
 {
     if (bound_context->lexical_bindings_ not_eq get_nil()) {
         auto stack = bound_context->lexical_bindings_;
@@ -4822,8 +4856,10 @@ Value* set_var(Value* symbol, Value* val)
         }
     }
 
-    globals_tree_insert(symbol, val);
-    return get_nil();
+    if (not globals_tree_insert(symbol, val, define_var)) {
+        return make_error(Error::Code::undefined_variable_access, symbol);
+    }
+    return val;
 }
 
 

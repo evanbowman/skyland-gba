@@ -62,6 +62,7 @@
 ;; argument count, as this scripting language only supports numbered positional
 ;; arguments. Require-args was a safety feature added retrospectively, and I've
 ;; hacked it into the function defintion macros.
+(global 'safe-setfn)
 (setq safe-setfn
       (require-args
        (compile
@@ -75,6 +76,8 @@
                     (not (int? (car $2)))
                     (cdr $2)) ;; b/c arg count must be a list with one element
             (fatal (string $0 ": invalid defn, missing argc")))
+          ;; Define the symbol as global.
+          (global $0)
           (set $0 (require-args $1 (car $2)))))
        3))
 
@@ -97,6 +100,8 @@
   (let ((kvp (assoc $0 $1)))
     (if kvp (cdr kvp))))
 
+(defn/c insert [3]
+  (append (slice $1 0 $2) (cons $0 (slice $1 $2))))
 
 (defn append [2]
   ;; Not the most efficient way to implement append, but this implementation

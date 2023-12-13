@@ -66,15 +66,7 @@
  arguments.
 
 
- 2) (setq ...) assigns global
- variables, or overwrites
- lexical (let) bindings. If a
- let binding does not exist
- for a symbol passed to set,
- you will set/create a global
- variable.
-
- 3) The reader (read) performs
+ 2) The reader (read) performs
  macro expansion. With very
  limited cpu, macroexpanding
  a function each time you call

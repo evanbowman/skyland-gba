@@ -724,7 +724,7 @@ void gc();
 void funcall(Value* fn, u8 argc);
 
 
-Value* set_var(Value* sym, Value* value);
+Value* set_var(Value* sym, Value* value, bool define_var);
 Value* get_var(Value* sym);
 
 
@@ -736,7 +736,7 @@ inline Value* set_var(const char* name, Value* value)
         return var_sym;
     }
 
-    return set_var(var_sym, value);
+    return set_var(var_sym, value, true);
 }
 
 

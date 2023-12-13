@@ -346,7 +346,7 @@ static const int map_start_y = 3;
 bool is_x_behind_storm_frontier(int x, int storm_offset)
 {
     return (map_start_x + x) * 8 <
-        (APP.world_graph().storm_depth_ + 1 + storm_offset) * 16;
+           (APP.world_graph().storm_depth_ + 1 + storm_offset) * 16;
 }
 
 
