@@ -7,16 +7,23 @@
 
 (gc)
 
-(let ((lv 0)
-      (lvs
-       ;; Collect all quest ids not in the qids (seen) list
-       (filter (lambda
-                 (not (filter (equalto? $0) qids)))
-               (range 7))))
-  (when lvs
-    (setq lv (sample lvs)))
+(let ((opts (range 6)))
 
-  (eval-file
-   (format "/scripts/event/quest/%.lisp" lv)))
+  (when (choice 2)
+    ;; Make this quest a bit rarer
+    (push 'opts 6))
+
+  (let ((lv 0)
+        (lvs
+         ;; Collect all quest ids not in the qids (seen) list
+         (filter (lambda
+                   (not (filter (equalto? $0) qids)))
+                 opts)))
+    (when lvs
+      (setq lv (sample lvs)))
+
+    (eval-file
+     (format "/scripts/event/quest/%.lisp" lv))))
+
 
 (gc)
