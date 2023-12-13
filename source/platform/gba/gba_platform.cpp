@@ -142,10 +142,29 @@ static inline bool canary_check()
 
 
 
-static bool mgba_detect()
+extern "C" {
+
+
+int mgba_detect()
 {
     *REG_DEBUG_ENABLE = 0xC0DE;
     return *REG_DEBUG_ENABLE == 0x1DEA;
+}
+
+
+void mgba_log(const char* str)
+{
+    auto len = strlen(str);
+    if (len > 0x100) {
+        len = 0x100;
+    }
+    for (u32 i = 0; i < len; ++i) {
+        (REG_DEBUG_STRING)[i] = str[i];
+    }
+    *REG_DEBUG_FLAGS = MGBA_LOG_INFO | 0x100;
+}
+
+
 }
 
 
@@ -3624,14 +3643,7 @@ void Platform::Logger::log(Severity level, const char* msg)
     }
 
     if (mgba_detect()) {
-        auto len = strlen(msg);
-        if (len > 0x100) {
-            len = 0x100;
-        }
-        for (u32 i = 0; i < len; ++i) {
-            (REG_DEBUG_STRING)[i] = msg[i];
-        }
-        *REG_DEBUG_FLAGS = MGBA_LOG_INFO | 0x100;
+        mgba_log(msg);
     }
 
     while (*msg not_eq '\0') {

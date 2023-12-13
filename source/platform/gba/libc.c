@@ -1,17 +1,23 @@
 #include <stddef.h>
 #include <string.h>
+#include "mgba.h"
 
 
 
 // NOTE: for GBA, the arm compiler drags in junk code from newlib. And I really
 // mean junk. No offense to the people who wrote the newlib libc implementation,
-// but it's really not a good fit for gbadev. The functions below aren't
-// particularly optimized for gba, but speed isn't my gripe with newlib. The
-// library does all sorts of stuff for reentrancy, which isn't applicable to the
-// gba console and dumps several kilobytes of junk into iwram. Whenever I see a
-// function from libc in the game's linker map file, I copy-paste an
-// implementation of the function here, to protect my code against newlib's
-// stupid decisions.
+// but it's really not a good fit for a lot of embedded systems. The functions
+// below aren't particularly optimized for gba, but speed isn't my gripe with
+// newlib. The library does all sorts of stuff for reentrancy, which isn't
+// applicable to the gba console and dumps several kilobytes of junk into
+// iwram. Whenever I see a function from libc in the game's linker map file, I
+// replace the implementation of the function with my own version, to protect my
+// code against newlib's stupid decisions. But the culprit isn't just newlib!
+// It's easy enough for me not to include C headers and not use the C standard
+// library. libstdc++ keeps invoking stuff from libc, which dumps junk that I
+// didn't want into iwram. What can I do though? I'm just a lowly hobby
+// programmer, subject to the whims of the clueless people in charge of
+// maintaining this toolchain.
 
 
 
@@ -129,4 +135,36 @@ double atof(const char *s)
         e++;
     }
     return a;
+}
+
+
+static void try_mgba_log(const char* str)
+{
+    if (mgba_detect()) {
+        mgba_log(str);
+    }
+}
+
+
+char* getenv(const char *name)
+{
+    // Once again, libstdc++ causing problems. I don't know if they are trying
+    // to cause trouble for people or simply don't care.
+
+    try_mgba_log("getenv called!");
+    try_mgba_log(name);
+
+    return NULL;
+}
+
+
+unsigned long
+strtoul(const char *nptr, char **endptr, register int base)
+{
+    // I'm not using much of libc. If someone called strtoul, it wasn't me, and
+    // it isn't my responsiblilty to maintain a working implementation.
+
+    try_mgba_log("strtoul called!");
+
+    while (1) ;
 }
