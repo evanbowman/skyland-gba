@@ -78,7 +78,7 @@
               (coins-add 3000)
               (adventure-log-add 55 nil)
               (sound "bell")
-              (wg-storm-frontier-set 1)
+              (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
               (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
               (setq on-dialog-closed exit)))))
 
