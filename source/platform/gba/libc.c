@@ -164,6 +164,9 @@ strtoul(const char *nptr, char **endptr, register int base)
     // I'm not using much of libc. If someone called strtoul, it wasn't me, and
     // it isn't my responsiblilty to maintain a working implementation.
 
+    // libstdc++ calls strtoul, but only after getting a non-null ptr from
+    // getenv, which I have rigged to return NULL.
+
     try_mgba_log("strtoul called!");
 
     while (1) ;
