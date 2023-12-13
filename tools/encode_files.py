@@ -86,11 +86,19 @@ def encode_file(path, real_name, out):
         if path.split('.')[-1] == 'lisp':
             file_contents = minify_lisp(data.decode('utf-8')).encode('utf-8')
 
-        pad = 4 - (len(file_contents) + 1) % 4
-        bytes_encoded += len(file_contents) + 1 + pad
+        null_padding = 1
+
+        if len(file_contents) == 0:
+            raise Exception("empty file " + path)
+
+        if file_contents[-1] == '\0':
+            null_padding = 0
+
+        pad = 4 - (len(file_contents) + null_padding) % 4
+        bytes_encoded += len(file_contents) + null_padding + pad
 
         # +1 for null terminator
-        out.write((len(file_contents) + 1 + pad).to_bytes(4, 'little'))
+        out.write((len(file_contents) + null_padding + pad).to_bytes(4, 'little'))
 
         out.write(file_contents)
         out.write('\0'.encode('utf-8'))
