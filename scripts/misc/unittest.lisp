@@ -43,6 +43,7 @@
 
 (defn end-test [0]
   (put " passed!")
+  (gc)
   (newline))
 
 
