@@ -42,31 +42,28 @@
         (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
-
-        (setq temp (chr-slots (player)))
-
-        (if (> (* 400 (zone)) (coins))
-            (progn
-              (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
+(defn on-dialog-accepted [0]
+  (let ((dest (chr-slots (player))))
+    (if (> (* 400 (zone)) (coins))
+        (progn
+          (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
+          (exit))
+      (if dest
+          (progn
+            (coins-add (* -400 (zone)))
+            (setq dest (sample dest))
+            (chr-new (player) (car dest) (cdr dest) 'neutral nil)
+            (chr-del (opponent) 0 14)
+            (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")
+            (defn on-dialog-closed [0]
+              (setq on-dialog-closed nil)
+              (dialog "The mercenary joined your crew!")
               (exit))
-          (if temp
-              (progn
-                (coins-add (* -400 (zone)))
-                (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral nil)
-                (chr-del (opponent) 0 14)
-                (unbind 'temp)
-                (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")
-                (defn on-dialog-closed [0]
-                  (setq on-dialog-closed nil)
-                  (dialog "The mercenary joined your crew!")
-                  (exit))
-                (adventure-log-add 27 (list (* 400 (zone)))))
-            (progn
-              (dialog "Sadly, there's no room...")
-              (exit))))))
+            (adventure-log-add 27 (list (* 400 (zone)))))
+        (progn
+          (dialog "Sadly, there's no room...")
+          (exit))))))
+
 
 
 (setq on-dialog-declined

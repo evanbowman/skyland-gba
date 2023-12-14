@@ -39,6 +39,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/blizzard.hpp"
+#include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/storm.hpp"
 #include "skyland/weather/typhoon.hpp"
 
@@ -63,7 +64,7 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
         {SystemString::sandbox_building_dependencies, 1, 0, 1},
-        {SystemString::sandbox_weather, 1, 1, 4},
+        {SystemString::sandbox_weather, 1, 1, 5},
         {SystemString::sandbox_characters, 1, 1, 6}};
 
 
@@ -86,14 +87,18 @@ void environment_init(int type)
         break;
 
     case 2:
-        APP.swap_environment<weather::Storm>();
+        APP.swap_environment<weather::SlightlyOvercast>();
         break;
 
     case 3:
-        APP.swap_environment<weather::Typhoon>();
+        APP.swap_environment<weather::Storm>();
         break;
 
     case 4:
+        APP.swap_environment<weather::Typhoon>();
+        break;
+
+    case 5:
         APP.swap_environment<weather::Blizzard>();
         break;
     }

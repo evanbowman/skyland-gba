@@ -35,7 +35,7 @@
 #pragma once
 
 #include "environment.hpp"
-#include "skyland/island.hpp"
+#include "storm.hpp"
 
 
 
@@ -44,76 +44,29 @@ namespace skyland::weather
 
 
 
-struct State
-{
-    static const int particle_max = 12;
-
-    Vec2<s16> raindrops_[particle_max];
-    Time thunder_timer_;
-    Time lightning_timer_;
-
-    int particle_count_ = 6;
-
-    struct ColorTable
-    {
-        ColorConstant values_[16];
-    };
-
-    ColorTable t0_palette_;
-    ColorTable t1_palette_;
-    ColorTable background_palette_;
-    ColorTable sprite_palette_;
-    u16 spr_ = 89 * 8;
-
-    Vec2<s16> last_camera_;
-
-    void update(Time delta);
-    void rewind(Time delta);
-    void display();
-};
-
-
-
-class Storm : public CleanEnvironment
+class SlightlyOvercast : public ClearSkies
 {
 protected:
-
     ScratchMemory<State> state_;
 
 public:
-    Storm(int particle_count = 6);
 
-
-    bool is_overcast() const override
-    {
-        return true;
-    }
-
-
-    void update(Time delta);
-
-
-    void rewind(Time delta);
-
-
-    void display() override;
-
-
-    const char* music() const override;
-
-
-    virtual void on_lightning()
-    {
-        // ...
-    }
+    SlightlyOvercast();
 
 
     Platform::Screen::Shader shader() const override;
 
 
-    ColorConstant fadein_colorize_tone() const override;
+    void update(Time delta) override;
+
+
+    void rewind(Time delta) override;
+
+
+    void display() override;
+
 };
 
 
 
-} // namespace skyland::weather
+}

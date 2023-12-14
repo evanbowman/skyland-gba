@@ -45,6 +45,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/blizzard.hpp"
+#include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/typhoon.hpp"
 
 
@@ -207,6 +208,8 @@ ScenePtr<Scene> LoadLevelScene::update(Time delta)
         APP.swap_environment<weather::Blizzard>();
     } else if (APP.zone() > 2) {
         APP.swap_environment<weather::Storm>();
+    } else if (APP.zone() > 1) {
+        APP.swap_environment<weather::SlightlyOvercast>();
     } else {
         APP.swap_environment<weather::ClearSkies>();
     }

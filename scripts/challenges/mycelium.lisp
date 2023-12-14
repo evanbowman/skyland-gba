@@ -122,4 +122,4 @@
    (mycelium 8 12)))
 
 
-(weather 2)
+(weather 3)

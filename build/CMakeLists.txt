@@ -128,6 +128,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/weather/dynamic.cpp
   ${SOURCE_DIR}/skyland/weather/blizzard.cpp
   ${SOURCE_DIR}/skyland/weather/clearSkies.cpp
+  ${SOURCE_DIR}/skyland/weather/slightlyOvercast.cpp
   ${SOURCE_DIR}/skyland/scene.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp

@@ -96,4 +96,4 @@
   (challenge-complete 5))
 
 
-(weather 2)
+(weather 3)

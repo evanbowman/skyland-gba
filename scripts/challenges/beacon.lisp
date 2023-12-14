@@ -115,7 +115,7 @@
 
 (click (opponent) 4 12)
 
-(weather 2)
+(weather 3)
 
 
 (map

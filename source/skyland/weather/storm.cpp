@@ -109,46 +109,65 @@ static uint8_t rand8(void)
 
 
 
-void Storm::update(Time delta)
+void State::display()
+{
+    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
+
+    constexpr auto scale = rain_pos_scale;
+
+    for (int i = 0; i < particle_count_; ++i) {
+        auto& rd = raindrops_[i];
+        batch->push_back({rd.x / scale, rd.y / scale});
+    }
+
+    Platform::Screen::SpriteBatchOptions opts;
+    opts.position_absolute_ = true;
+    opts.sz_ = Sprite::Size::w8_h8;
+
+    PLATFORM.screen().draw_batch(spr_, *batch, opts);
+}
+
+
+
+void State::rewind(Time delta)
+{
+    const auto scale = rain_pos_scale;
+
+    auto& gen = rng::utility_state;
+
+
+    for (int i = 0; i < particle_count_; ++i) {
+        auto& rd = raindrops_[i];
+        if ((rd.x / scale) > (s16)PLATFORM.screen().size().x or
+            (rd.y / scale) < 0) {
+            if (rng::choice<2>(rng::utility_state)) {
+                rd.x = 0;
+                rd.y = rng::choice(PLATFORM.screen().size().y * scale, gen);
+            } else {
+                rd.x = rng::choice(PLATFORM.screen().size().x * scale, gen);
+                rd.y = PLATFORM.screen().size().y * scale;
+            }
+        } else {
+            rd.x += (delta >> 6) + (delta >> 8);
+            rd.y -= (delta >> 6) + (delta >> 8);
+        }
+    }
+}
+
+
+
+void State::update(Time delta)
 {
     if (PLATFORM.screen().fade_active()) {
         return;
     }
 
-    TIMEPOINT(t1);
-
-
     static constexpr const auto scale = rain_pos_scale;
     static_assert(scale % 2 == 0);
-
-    auto& gen = rng::utility_state;
 
     auto camera = APP.camera()->center().cast<s16>();
     auto camera_diff_x = camera.x - last_camera_.x;
     auto camera_diff_y = camera.y - last_camera_.y;
-
-    auto& s = *state_;
-
-    s.thunder_timer_ -= delta;
-    if (s.thunder_timer_ <= 0) {
-        s.thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
-        if (rng::choice<2>(gen)) {
-            PLATFORM.speaker().play_sound("thunder_1", 0);
-        } else {
-            PLATFORM.speaker().play_sound("thunder_2", 0);
-        }
-    }
-
-    s.lightning_timer_ -= delta;
-    if (s.lightning_timer_ <= 0) {
-        s.lightning_timer_ = seconds(4) + rng::choice(13, gen) * seconds(1);
-
-        if (APP.opponent_island() and
-            not APP.opponent_island()->is_destroyed() and
-            not APP.player_island().is_destroyed()) {
-            on_lightning();
-        }
-    }
 
     const u16 sd = delta;
 #ifdef __GBA__
@@ -161,8 +180,8 @@ void Storm::update(Time delta)
 
     int fixup = 0;
 
-    for (int i = 0; i < s.particle_count_; ++i) {
-        auto& rd = s.raindrops_[i];
+    for (int i = 0; i < particle_count_; ++i) {
+        auto& rd = raindrops_[i];
         if ((rd.x / scale) < 0 or (rd.y / scale) > sy or (rd.x / scale) > sx or
             (rd.y / scale) < -24) {
 
@@ -205,30 +224,49 @@ void Storm::update(Time delta)
 
 
 
-void Storm::rewind(Time delta)
+void Storm::update(Time delta)
 {
-    const auto scale = rain_pos_scale;
+    if (PLATFORM.screen().fade_active()) {
+        return;
+    }
+
+    TIMEPOINT(t1);
 
     auto& gen = rng::utility_state;
 
     auto& s = *state_;
 
-    for (int i = 0; i < s.particle_count_; ++i) {
-        auto& rd = s.raindrops_[i];
-        if ((rd.x / scale) > (s16)PLATFORM.screen().size().x or
-            (rd.y / scale) < 0) {
-            if (rng::choice<2>(rng::utility_state)) {
-                rd.x = 0;
-                rd.y = rng::choice(PLATFORM.screen().size().y * scale, gen);
-            } else {
-                rd.x = rng::choice(PLATFORM.screen().size().x * scale, gen);
-                rd.y = PLATFORM.screen().size().y * scale;
-            }
+    s.thunder_timer_ -= delta;
+    if (s.thunder_timer_ <= 0) {
+        s.thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
+        if (rng::choice<2>(gen)) {
+            PLATFORM.speaker().play_sound("thunder_1", 0);
         } else {
-            rd.x += (delta >> 6) + (delta >> 8);
-            rd.y -= (delta >> 6) + (delta >> 8);
+            PLATFORM.speaker().play_sound("thunder_2", 0);
         }
     }
+
+    s.lightning_timer_ -= delta;
+    if (s.lightning_timer_ <= 0) {
+        s.lightning_timer_ = seconds(4) + rng::choice(13, gen) * seconds(1);
+
+        if (APP.opponent_island() and
+            not APP.opponent_island()->is_destroyed() and
+            not APP.player_island().is_destroyed()) {
+            on_lightning();
+        }
+    }
+
+    s.update(delta);
+}
+
+
+
+void Storm::rewind(Time delta)
+{
+    auto& s = *state_;
+
+    s.rewind(delta);
 }
 
 
@@ -239,22 +277,8 @@ void Storm::display()
         return;
     }
 
-    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
-
-    constexpr auto scale = rain_pos_scale;
-
     auto& s = *state_;
-
-    for (int i = 0; i < s.particle_count_; ++i) {
-        auto& rd = s.raindrops_[i];
-        batch->push_back({rd.x / scale, rd.y / scale});
-    }
-
-    Platform::Screen::SpriteBatchOptions opts;
-    opts.position_absolute_ = true;
-    opts.sz_ = Sprite::Size::w8_h8;
-
-    PLATFORM.screen().draw_batch(89 * 8, *batch, opts);
+    s.display();
 }
 
 

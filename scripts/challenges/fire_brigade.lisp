@@ -36,4 +36,4 @@
 (chr-new (opponent) 5 14 'hostile 0)
 
 
-(weather 4)
+(weather 5)
