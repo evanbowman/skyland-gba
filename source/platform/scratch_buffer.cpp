@@ -79,10 +79,6 @@ void set_scratch_buffer_oom_handler(
 
 
 
-int sbr_bytes_allocated = 0;
-
-
-
 ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     if (not scratch_buffers_remaining()) {
@@ -109,7 +105,6 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
         ++scratch_buffers_in_use_;
 
         (*maybe_buffer)->tag_ = tag;
-        sbr_bytes_allocated += SCRATCH_BUFFER_SIZE;
 
         return *maybe_buffer;
     } else {
@@ -148,8 +143,6 @@ void scratch_buffer_memory_diagnostics()
                       free_sbr,
                       free_sbr * 2)
                    .c_str();
-
-    *output += format("% bytes allocated\r\n", sbr_bytes_allocated);
 
     PLATFORM.remote_console().printline(output->c_str(), "sc> ");
 }
