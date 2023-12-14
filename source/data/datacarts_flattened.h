@@ -7,9 +7,9 @@
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
 //	+ 421 tiles lz77 compressed
-//	Total size: 32 + 2864 = 2896
+//	Total size: 32 + 2744 = 2776
 //
-//	Time-stamp: 2023-11-28, 14:25:16
+//	Time-stamp: 2023-12-14, 18:37:20
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_DATACARTS_FLATTENED_H
 #define GRIT_DATACARTS_FLATTENED_H
 
-#define datacarts_flattenedTilesLen 2864
-extern const unsigned int datacarts_flattenedTiles[716];
+#define datacarts_flattenedTilesLen 2744
+extern const unsigned int datacarts_flattenedTiles[686];
 
 #define datacarts_flattenedPalLen 32
 extern const unsigned short datacarts_flattenedPal[16];

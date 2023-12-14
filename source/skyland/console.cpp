@@ -152,7 +152,7 @@ public:
             // clang-format on
             PLATFORM.remote_console().printline(msg, "sc> ");
         } else if (line == "sbr annotate") {
-            PLATFORM.system_call("print-memory-diagnostics", nullptr);
+            scratch_buffer_memory_diagnostics();
         } else if (parsed.size() == 3 and parsed[0] == "sbr" and
                    parsed[1] == "dump") {
             auto num = parsed[2].c_str();

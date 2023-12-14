@@ -517,7 +517,7 @@ Beginner mode: auto-rewind:
 Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.
 Welcome! <b:datacarts_flattened> Here you'll find your collection of data cartridges from your adventures! Cartridges are the main way of storing information across Skyland! See how many you can find...
-Welcome back! <b:datacarts_flattened> Don't see too many visitors way down in the archives. So much data to sort through, I've been too busy! Find any new cartridges lately?
+Beep... collating... Welcome back! <B:0><b:datacarts_flattened> Don't see too many visitors way down in the archives. <B:0> So much data to sort through, I've been too busy! <B:0> Find any new cartridges lately?
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
 The Storm King's stronghold disintigrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
 session connecting...
