@@ -7,12 +7,7 @@
 
 (gc)
 
-(let ((opts (range 6)))
-
-  (when (choice 2)
-    ;; Make this quest a bit rarer
-    (push 'opts 6))
-
+(let ((opts (range 7)))
   (let ((lv 0)
         (lvs
          ;; Collect all quest ids not in the qids (seen) list

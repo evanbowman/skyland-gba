@@ -137,6 +137,12 @@ o----------------------------o
  opponent-mode for
  description of mode-sym.
 
+o----------------------------o
+
+ (opponent-reset)
+
+ Clear the opponent island.
+
 
 o----------------------------o
 
