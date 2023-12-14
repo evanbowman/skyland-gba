@@ -120,6 +120,11 @@ void BoxedDialogScene::process_command()
     case '\0':
         PLATFORM.fatal("Invalid null byte in command sequence!");
 
+    case 'S': {
+        conlang_ = parse_command_int();
+        break;
+    }
+
     case 'c': {
         data_->character_.name_ = parse_command_str();
         data_->character_.image_ = parse_command_int();
@@ -231,6 +236,13 @@ void BoxedDialogScene::process_command()
 
 
 
+static bool punctuation_or_whitespace(char c)
+{
+    return (c == '!' or c == '\'' or c == ' ' or c == ',' or c == '?' or c == '.');
+}
+
+
+
 bool BoxedDialogScene::advance_text(Time delta, bool sfx)
 {
     const auto delay = [&] {
@@ -268,7 +280,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
                     text_state_.pos_ += 1;
                 }
             }
-            if (*text_state_.current_word_ == '<') {
+            while (*text_state_.current_word_ == '<') {
                 process_command();
             }
             if (halt_text_) {
@@ -334,7 +346,12 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         u16 t = 495; // bad glyph, FIXME: add a constant
 
         if (mapping_info) {
-            t = PLATFORM.map_glyph(cp, *mapping_info);
+            auto current_char = *text_state_.current_word_;
+            if (conlang_ and not punctuation_or_whitespace(current_char)) {
+                t = (current_char - 'a') + 150;
+            } else {
+                t = PLATFORM.map_glyph(cp, *mapping_info);
+            }
         }
 
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;

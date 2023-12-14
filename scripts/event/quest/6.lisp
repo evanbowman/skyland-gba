@@ -17,7 +17,7 @@
 
   (defn on-dialog-closed [0]
     (dialog "<c:injured boy:26> "
-            (rot13 "I am the only survivor! Can you help me get back home?"))
+            "<S:1>i am the only survivor! can you help me get back home?")
 
     (defn on-dialog-closed [0]
       (dialog "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")

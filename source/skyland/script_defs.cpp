@@ -63,6 +63,7 @@
 #include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
+#include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
@@ -833,6 +834,19 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"effect",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          auto str = L_LOAD_STRING(0);
+
+          if (str_eq(str, "lightning")) {
+              if (auto l = APP.alloc_entity<LightningStrike>()) {
+                  APP.effects().push(std::move(l));
+              }
+          }
+          return L_NIL;
+      }}},
     {"weather",
      {1,
       [](int argc) {
@@ -849,6 +863,20 @@ BINDING_TABLE({
               PLATFORM.speaker().play_music(APP.environment().music(), 0);
           }
 
+          return L_NIL;
+      }}},
+    {"opponent-reset",
+     {0,
+      [](int argc) {
+          if (not APP.opponent_island()) {
+              return L_NIL;
+          }
+          for (int x = 0; x < 16; ++x) {
+              for (int y = 0; y < 16; ++y) {
+                  PLATFORM.set_tile(APP.opponent_island()->layer(), x, y, 0);
+              }
+          }
+          APP.reset_opponent_island();
           return L_NIL;
       }}},
     {"opponent-generate",

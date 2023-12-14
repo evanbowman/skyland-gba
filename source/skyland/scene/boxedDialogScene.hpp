@@ -137,6 +137,7 @@ private:
     u8 goto_tutorial_ : 6;
     u8 allow_fastforward_ : 1;
     u8 wait_ = 0;
+    bool conlang_ = false;
 
     int choice_sel_ = 0;
     bool img_view_ = false;
@@ -194,6 +195,8 @@ public:
 
     void enter(Scene& prev) override final
     {
+        disable_gamespeed_icon();
+
         WorldScene::enter(prev);
 
         WorldScene::notransitions();

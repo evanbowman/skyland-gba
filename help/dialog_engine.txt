@@ -76,3 +76,14 @@ o----------------------------o
 
 
 o----------------------------o
+
+ <S:INTEGER>
+
+ Enable/disable text printing
+ via skyland conlang symbols.
+
+ (Certain characters speak in
+ an invented language)
+
+
+o----------------------------o

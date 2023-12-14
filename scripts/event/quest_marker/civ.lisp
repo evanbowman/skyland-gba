@@ -1,7 +1,7 @@
 
 (dialog "You arrive at the location that the orphan boy marked on your map. <B:0> "
         "<b:/scripts/misc/img/ornate.skg>"
-        " As you approach, an ornate walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with an otherworldly light...")
+        " As you approach, an ornate walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with an ethereal light...")
 
 
 (opponent-init 9 'neutral)
@@ -62,13 +62,13 @@
 
   (if boy
       (defn on-converge [0]
-        (dialog "<c:sky sprite:21> Hello, traveller... <B:0> It's been quite a long while since we've seen humans. You are very lost indeed...")
+        (dialog "<c:sky sprite:21><S:1> hello, traveller...")
 
         (defn on-dialog-closed [0]
-          (dialog "<c:orphan boy:26> " (rot13 "Oh!!! I'm home at last!"))
+          (dialog "<c:orphan boy:26><S:1>oh!!! i'm home at last!")
 
           (defn on-dialog-closed [0]
-            (dialog "<c:sky sprite:21>Uryyb! Why, who's this!? He's one of us, you know. <B:0> We're very grateful to you for binging him to us. Normally we try not to intervene... but just this once, we'll help you out…")
+            (dialog "<c:sky sprite:21><S:1>oh! what have we here?!")
 
             (defn on-dialog-closed [0]
               (map (lambda
@@ -77,10 +77,24 @@
                    (chrs (player)))
               (coins-add 3000)
               (adventure-log-add 55 nil)
-              (sound "bell")
-              (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
-              (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
-              (setq on-dialog-closed exit)))))
+              (dialog "The orphan boy returned to his home!")
+              (defn on-dialog-closed [0]
+                (dialog "<c:sky sprite:21>hello, traveller...<B:0> We are very grateful to you for bringing him to us...")
+                (setq on-dialog-closed (lambda
+                                         (on-timeout 500 'fut)
+                                         (setq on-dialog-closed nil)))
+                (defn fut [0]
+                  (sound "bell")
+                  (effect "lightning")
+                  (opponent-reset)
+                  (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
+
+                  (on-timeout 1000 'fut)
+
+                  (defn fut[0]
+                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
+                    (unbind 'fut)
+                    (setq on-dialog-closed exit))))))))
 
     (defn on-converge [0]
       (dialog "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about...")

@@ -87,12 +87,14 @@ ScenePtr<Scene> FadeOutScene::update(Time delta)
             room->detach_drone(true);
         }
 
-        for (auto& room : APP.opponent_island()->rooms()) {
-            room->detach_drone(true);
+        if (APP.opponent_island()) {
+            for (auto& room : APP.opponent_island()->rooms()) {
+                room->detach_drone(true);
+            }
+            APP.opponent_island()->drones().clear();
         }
 
         APP.player_island().drones().clear();
-        APP.opponent_island()->drones().clear();
 
         for (auto& room : APP.player_island().rooms()) {
             room->unset_target();
