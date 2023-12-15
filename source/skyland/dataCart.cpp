@@ -45,7 +45,7 @@ DataCart::LabelString DataCart::get_label_string(const char* field) const
     Conf c;
     auto result = c.get(f, "label", field);
     if (auto val = std::get_if<Conf::String>(&result)) {
-        return *val;
+        return (*val)->c_str();
     } else {
         Platform::fatal(
             format("key % missing from label in cart% ini", field, id_)
@@ -55,17 +55,29 @@ DataCart::LabelString DataCart::get_label_string(const char* field) const
 
 
 
-DataCart::ContentString DataCart::get_content_string(const char* field) const
+DataCart::ContentString DataCart::expect_content_string(const char* field) const
+{
+    if (auto result = get_content_string(field)) {
+        return std::move(*result);
+    } else {
+        Platform::fatal(
+            format("key % missing from content in cart% ini", field, id_)
+                .c_str());
+    }
+}
+
+
+
+std::optional<DataCart::ContentString>
+DataCart::get_content_string(const char* field) const
 {
     auto f = config();
     Conf c;
     auto result = c.get(f, "contents", field);
     if (auto val = std::get_if<Conf::String>(&result)) {
-        return *val;
+        return std::move(*val);
     } else {
-        Platform::fatal(
-            format("key % missing from contents cart% ini", field, id_)
-                .c_str());
+        return std::nullopt;
     }
 }
 

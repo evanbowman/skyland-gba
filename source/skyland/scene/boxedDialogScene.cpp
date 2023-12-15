@@ -238,7 +238,8 @@ void BoxedDialogScene::process_command()
 
 static bool punctuation_or_whitespace(char c)
 {
-    return (c == '!' or c == '\'' or c == ' ' or c == ',' or c == '?' or c == '.');
+    return (c == '!' or c == '\'' or c == ' ' or c == ',' or c == '?' or
+            c == '.');
 }
 
 

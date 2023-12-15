@@ -92,3 +92,9 @@
   (let ((size (rinfo 'size $0)))
     (while (not (construction-sites (player) size))
       (terrain-set (player) (+ terrain (player) 1)))))
+
+(defn/c run-util-script [1]
+  (let ((file $0)
+        (varg (cdr $V)))
+    (apply (eval-file (string "/scripts/util/" file))
+           varg)))

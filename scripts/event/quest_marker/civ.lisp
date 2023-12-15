@@ -1,7 +1,7 @@
 
 (dialog "You arrive at the location that the orphan boy marked on your map. <B:0> "
         "<b:/scripts/misc/img/ornate.skg>"
-        " As you approach, an ornate walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with an ethereal light...")
+        " As you approach, an advanced walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with a brilliant light...")
 
 
 (opponent-init 9 'neutral)
@@ -51,6 +51,8 @@
    (bronze-hull 8 14)
    (forcefield* 8 9)))
 
+(secret 4 14 "Because they're highly reclusive and technologically advanced, many myths exist about the Sylph. But they're only human...")
+
 
 (let ((id (lookup 6 qvar))
       (boy nil))
@@ -62,13 +64,13 @@
 
   (if boy
       (defn on-converge [0]
-        (dialog "<c:sky sprite:21><S:1> hello, traveller...")
+        (dialog "<c:sylph:21><S:1> hello, traveller...")
 
         (defn on-dialog-closed [0]
           (dialog "<c:orphan boy:26><S:1>oh!!! i'm home at last!")
 
           (defn on-dialog-closed [0]
-            (dialog "<c:sky sprite:21><S:1>oh! what have we here?!")
+            (dialog "<c:sylph:21><S:1>oh! what have we here?!")
 
             (defn on-dialog-closed [0]
               (map (lambda
@@ -79,12 +81,13 @@
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
               (defn on-dialog-closed [0]
-                (dialog "<c:sky sprite:21>hello, traveller...<B:0> We are very grateful to you for bringing him to us...")
+                (dialog "<c:sylph:21>hello, traveller...<B:0> We are very grateful to you for bringing him to us...")
                 (setq on-dialog-closed (lambda
                                          (on-timeout 500 'fut)
                                          (setq on-dialog-closed nil)))
                 (defn fut [0]
                   (sound "bell")
+                  (sound "thunder_close_1")
                   (effect "lightning")
                   (opponent-reset)
                   (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))

@@ -163,8 +163,6 @@ void mgba_log(const char* str)
     }
     *REG_DEBUG_FLAGS = MGBA_LOG_INFO | 0x100;
 }
-
-
 }
 
 
@@ -7543,7 +7541,8 @@ Platform::Platform()
     static const char* conf_section = "hardware.gameboy_advance";
 
 #define CONF_BOOL(NAME)                                                        \
-    const bool NAME = conf.expect<Conf::String>(conf_section, #NAME) == "yes";
+    const bool NAME = *conf.expect<Conf::String>(conf_section, #NAME) == "ye"  \
+                                                                         "s";
 
     CONF_BOOL(detect_repro_flash);
 

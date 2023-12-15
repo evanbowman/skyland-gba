@@ -107,9 +107,13 @@
 //;
 #include "data/photo_disaster_flattened.h"
 //;
+#include "data/photo_incinerator_flattened.h"
+//;
 #include "data/overlay_datacart.h"
 //;
 #include "data/overlay_adventurelog.h"
+//;
+#include "data/overlay_textview.h"
 //;
 #include "data/stack_overflow_flattened.h"
 //;
@@ -265,9 +269,13 @@ static const TextureData overlay_textures[] = {
 //;
     TEXTURE_INFO(photo_disaster_flattened, true),
 //;
+    TEXTURE_INFO(photo_incinerator_flattened, true),
+//;
     TEXTURE_INFO(overlay_datacart, true),
 //;
     TEXTURE_INFO(overlay_adventurelog, true),
+//;
+    TEXTURE_INFO(overlay_textview, true),
 //;
     TEXTURE_INFO(stack_overflow_flattened, true),
 //;

@@ -77,7 +77,6 @@ struct State
 class Storm : public CleanEnvironment
 {
 protected:
-
     ScratchMemory<State> state_;
 
 public:

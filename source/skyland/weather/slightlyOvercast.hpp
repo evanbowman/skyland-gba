@@ -50,7 +50,6 @@ protected:
     ScratchMemory<State> state_;
 
 public:
-
     SlightlyOvercast();
 
 
@@ -64,9 +63,8 @@ public:
 
 
     void display() override;
-
 };
 
 
 
-}
+} // namespace skyland::weather

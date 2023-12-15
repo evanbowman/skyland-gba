@@ -70,7 +70,7 @@ Conf::String get_conf(const char* data, const char* section, const char* key)
         read_value
     } state = State::seek_section;
 
-    Conf::String result;
+    Conf::String result = allocate_dynamic<StringBuffer<2000>>("conf-string");
 
 #define EAT_LINE()                                                             \
     while (true) {                                                             \
@@ -190,19 +190,23 @@ Conf::String get_conf(const char* data, const char* section, const char* key)
         }
 
         case State::read_value: {
+            bool within_quotes = false;
             while (true) {
-                if (*data == ' ') {
+                if (*data == ' ' and not within_quotes) {
                     ++data;
                     continue;
                 }
                 if (*data == '\0' or *data == '#') {
                     return result;
                 }
-                if (is_whitespace(*data)) {
+                if (is_whitespace(*data) and not within_quotes) {
                     return result;
                 }
+                if (*data == '"') {
+                    within_quotes = not within_quotes;
+                }
                 if (*data not_eq '"') {
-                    result.push_back(*data);
+                    result->push_back(*data);
                 }
                 ++data;
             }
@@ -223,12 +227,12 @@ Conf::Value Conf::get(const char* f, const char* section, const char* key)
 
     auto buf = get_conf(f, section, key);
 
-    if (buf.empty()) {
+    if (buf->empty()) {
         return {};
     }
 
     const bool is_numeric = [&buf] {
-        for (char c : buf) {
+        for (char c : *buf) {
             if (not is_ascii_num(c)) {
                 return false;
             }
@@ -237,7 +241,7 @@ Conf::Value Conf::get(const char* f, const char* section, const char* key)
     }();
 
     if (is_numeric) {
-        return conf_atoi(buf.c_str());
+        return conf_atoi(buf->c_str());
     } else {
         return buf;
     }

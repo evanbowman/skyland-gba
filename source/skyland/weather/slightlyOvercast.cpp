@@ -195,4 +195,4 @@ Platform::Screen::Shader SlightlyOvercast::shader() const
 
 
 
-}
+} // namespace skyland::weather

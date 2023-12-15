@@ -200,6 +200,10 @@
   (this))
 (assert-eq test-this (test-this))
 
+(assert-eq "image" (read-ini "/scripts/misc/cart/cart7.ini"
+                             "contents"
+                             "type"))
+
 (let ((tmp 0))
   (defn foo [0]
     (if (< tmp 10)

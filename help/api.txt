@@ -36,6 +36,39 @@ o----------------------------o
  completed.
 
 
+o----------------------------o
+
+ (cart-add integer)
+
+ Add cart N to your datacart
+ library.
+
+
+o----------------------------o
+
+ (cart-found? integer)
+
+ True if you have unlocked
+ cart N.
+
+
+o----------------------------o
+
+ (cart-info integer)
+
+ Return a cart's name and
+ label.
+
+
+o----------------------------o
+
+ (cart-read integer
+            string-field)
+
+ Read the contents of a field
+ from a data cart.
+
+
 
 ##############################
 
@@ -790,22 +823,26 @@ o----------------------------o
 
 o----------------------------o
 
+ (read-ini ini-file-path
+           section
+           value)
+
+ A special function for
+ reading values out of an ini
+ file.
+
+ Maybe someday I'll use this
+ for localization...
+
+
+o----------------------------o
+
  (get-line-of-file path line)
 
  Retrieve a string containing
  a line of a file given by
  integer line, and path to
  file given by path.
-
- Added for localization
- purposes, currently unused.
-
- for example:
-
- (setq lang "/strings/english.txt")
-
- (defn locale-string [1]
-   (get-line-of-file (lang) $0))
 
 
 o----------------------------o

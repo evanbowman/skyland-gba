@@ -59,11 +59,11 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
-#include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
@@ -560,6 +560,20 @@ BINDING_TABLE({
           }
 
           return L_NIL;
+      }}},
+    {"cart-read",
+     {2,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          L_EXPECT_OP(1, integer);
+
+          DataCart cart(L_LOAD_INT(1));
+
+          if (auto str = (cart.get_content_string(L_LOAD_STRING(0)))) {
+              return lisp::make_string((*str)->c_str());
+          } else {
+              return L_NIL;
+          }
       }}},
     {"cart-info",
      {1,
@@ -1349,6 +1363,24 @@ BINDING_TABLE({
           L_EXPECT_OP(0, cons);
 
           APP.swap_player<AutopilotPlayer>(lisp::get_op(0));
+
+          return L_NIL;
+      }}},
+    {"read-ini",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          L_EXPECT_OP(1, string);
+          L_EXPECT_OP(2, string);
+
+          auto f = PLATFORM.load_file_contents("", L_LOAD_STRING(2));
+          if (f) {
+              Conf c;
+              auto res = c.get(f, L_LOAD_STRING(1), L_LOAD_STRING(0));
+              if (auto val = std::get_if<Conf::String>(&res)) {
+                  return lisp::make_string((*val)->c_str());
+              }
+          }
 
           return L_NIL;
       }}},

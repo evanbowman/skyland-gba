@@ -34,82 +34,79 @@
 
 #pragma once
 
-#include "platform/conf.hpp"
-#include "string.hpp"
-#include <optional>
+#include "value.hpp"
 
 
-
-class Platform;
-
+namespace lisp {
 
 
-namespace skyland
-{
-
-
-
-class DataCart
-{
+// Protected objects will not be collected until the Protected wrapper goes out
+// of scope.
+class ProtectedBase {
 public:
-    DataCart(int num) : id_(num)
+    ProtectedBase();
+
+    ProtectedBase(const ProtectedBase&) = delete;
+
+    ProtectedBase(ProtectedBase&&) = delete;
+
+    virtual ~ProtectedBase();
+
+    virtual void gc_mark() = 0;
+
+    ProtectedBase* next() const
     {
+        return next_;
     }
 
-
-    using LabelString = StringBuffer<32>;
-    using Name = LabelString;
-    using Subheading = LabelString;
-    using ContentString = Conf::String;
-
-
-    LabelString get_label_string(const char* field) const;
-    std::optional<ContentString> get_content_string(const char* field) const;
-    ContentString expect_content_string(const char* field) const;
-
-
-    Name name() const;
-
-    Subheading subheading() const;
-
-
-    int id() const
+    ProtectedBase* prev() const
     {
-        return id_;
+        return prev_;
     }
 
-
-private:
-    const char* config() const;
-
-    int id_;
+protected:
+    ProtectedBase* prev_;
+    ProtectedBase* next_;
 };
 
 
-
-class DataCartLibrary
-{
+class Protected : public ProtectedBase {
 public:
-    DataCartLibrary();
-
-
-    void store(DataCart cart);
-
-
-    std::optional<DataCart> load(int id) const;
-
-
-    int max_carts() const
+    Protected(Value* val) : val_(val)
     {
-        return max_carts_;
     }
 
+    void gc_mark() override;
 
-private:
-    u32 carts_;
-    u32 max_carts_;
+    Protected& operator=(Value* val)
+    {
+        val_ = val;
+        return *this;
+    }
+
+    void set(Value* val)
+    {
+        val_ = val;
+    }
+
+    operator Value*()
+    {
+        return val_;
+    }
+
+    Value* get() const
+    {
+        return val_;
+    }
+
+    Value* operator->()
+    {
+        return val_;
+    }
+
+protected:
+    Value* val_;
 };
 
 
-
-} // namespace skyland
+} // namespace lisp

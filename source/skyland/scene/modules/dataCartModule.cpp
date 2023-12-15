@@ -1,6 +1,7 @@
 #include "dataCartModule.hpp"
 #include "checkersModule.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
+#include "skyland/scene/textviewScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 
@@ -332,8 +333,11 @@ ScenePtr<Scene> DataCartModule::update(Time delta)
         if (timer_ > wait_time_) {
             if (auto cart = carts_->load(cart_index_)) {
                 auto str = format("booting %...", cart->name().c_str());
-                if (cart->get_content_string("type") == "image") {
+                auto tp = cart->expect_content_string("type");
+                if (*tp == "image") {
                     str = "developing photos...";
+                } else if (*tp == "textview") {
+                    str = "printing booklet...";
                 }
                 auto margin = centered_text_margins(utf8::len(str.c_str()));
                 Text::print(str.c_str(), {(u8)margin, 9});
@@ -345,7 +349,7 @@ ScenePtr<Scene> DataCartModule::update(Time delta)
 
     case State::booting:
         timer_ += delta;
-        if (test_key(Key::action_2) or timer_ > milliseconds(1500)) {
+        if (test_key(Key::action_2) or timer_ > milliseconds(900)) {
             PLATFORM.fill_overlay(0);
             state_ = State::boot;
         }
@@ -374,7 +378,7 @@ public:
         PLATFORM.enable_glyph_mode(false);
         PLATFORM.fill_overlay(0);
         PLATFORM.load_overlay_texture(
-            DataCart(cart_id_).get_content_string("img").c_str());
+            DataCart(cart_id_).expect_content_string("img")->c_str());
         draw_image(1, 4, 1, 22, 17, Layer::overlay);
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.screen().schedule_fade(1);
@@ -404,6 +408,38 @@ public:
             return next;
         }
 
+        if (APP.player().key_down(Key::action_1)) {
+            DataCart cart(cart_id_);
+            if (auto c = cart.get_content_string("inscription")) {
+                for (int x = 4; x < 26; ++x) {
+                    for (int y = 1; y < 18; ++y) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 309);
+                    }
+                }
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
+
+                if (not flipped_) {
+                    PLATFORM.load_overlay_texture("overlay_textview");
+                    PLATFORM.enable_glyph_mode(true);
+                    text_.emplace();
+                    text_->assign((*c)->c_str(), {5, 2}, {20, 16});
+                    PLATFORM.speaker().play_sound("page_flip", 3);
+
+                } else {
+                    PLATFORM.enable_glyph_mode(false);
+                    PLATFORM.fill_overlay(0);
+                    PLATFORM.load_overlay_texture(
+                        DataCart(cart_id_)
+                            .expect_content_string("img")
+                            ->c_str());
+                    draw_image(1, 4, 1, 22, 17, Layer::overlay);
+                    PLATFORM.speaker().play_sound("page_flip", 3);
+                }
+                flipped_ = not flipped_;
+            }
+        }
+
         if (not PLATFORM.speaker().is_sound_playing("archivist")) {
             PLATFORM.speaker().play_sound("archivist", 9);
         }
@@ -412,7 +448,9 @@ public:
     }
 
 private:
+    std::optional<TextView> text_;
     int cart_id_;
+    bool flipped_ = false;
 };
 
 
@@ -421,15 +459,26 @@ ScenePtr<Scene> DataCartModule::boot_cart(int cart_index)
 {
     DataCart cart(cart_index);
 
-    auto type = cart.get_content_string("type");
+    auto type = cart.expect_content_string("type");
 
-    if (type == "reboot") {
+    if (*type == "reboot") {
         PLATFORM.system_call("restart", nullptr);
-    } else if (type == "checkers") {
+    } else if (*type == "checkers") {
         return scene_pool::alloc<CheckersModule>();
-    } else if (type == "image") {
+    } else if (*type == "image") {
         PLATFORM.speaker().play_sound("tw_bell", 2);
         return scene_pool::alloc<CartPhotoViewScene>(cart_index);
+    } else if (*type == "textview") {
+        PLATFORM.speaker().play_sound("tw_bell", 2);
+        auto tv = scene_pool::alloc<TextviewScene>(
+            cart.expect_content_string("text")->c_str());
+        tv->next_ = [cart_index]() {
+            auto ret = scene_pool::alloc<DataCartModule>();
+            ret->skip_dialog_ = true;
+            ret->set_index(cart_index);
+            return ret;
+        };
+        return tv;
     }
 
     return scene_pool::alloc<TitleScreenScene>(3);
