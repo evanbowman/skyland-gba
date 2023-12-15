@@ -373,6 +373,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/photo_market_flattened.s
     ${DATA_DIR}/photo_disaster_flattened.s
     ${DATA_DIR}/photo_incinerator_flattened.s
+    ${DATA_DIR}/photo_goblin_stronghold_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
     ${DATA_DIR}/tilesheet_fishing.s
     ${DATA_DIR}/overlay_large_numeral.s
@@ -783,6 +784,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(character_art 4 4 NO NO)
     add_overlay(traded_core 0 0 YES YES)
     add_overlay(photo_village 0 0 YES YES)
+    add_overlay(photo_goblin_stronghold 0 0 YES YES)
     add_overlay(photo_surface 0 0 YES YES)
     add_overlay(photo_market 0 0 YES YES)
     add_overlay(photo_disaster 0 0 YES YES)

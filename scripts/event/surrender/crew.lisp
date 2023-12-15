@@ -36,7 +36,11 @@
                                    (cdr s)
                                    'neutral
                                    '((race . 1)))
-                          (adventure-log-add 51 '()))))
+                          (adventure-log-add 51 '())
+                          (dialog "The goblin joined your crew!")
+                          (run-util-script "pickup_cart.lisp"
+                                           8
+                                           "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."))))
                   (exit 2)))
 
           (setq on-dialog-declined '()))))
