@@ -60,7 +60,7 @@ namespace skyland
 
 static inline int boot_init()
 {
-    systemstring_bind_file("strings.txt");
+    systemstring_bind_file("english.txt");
 
     BootScene::init();
 

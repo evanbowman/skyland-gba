@@ -671,7 +671,17 @@ o----------------------------o
  Return the bound language
  file. e.g.:
 
- "/strings/strings.txt"
+ "english.txt"
+
+
+o----------------------------o
+
+ (lang-set)
+
+ Bind a different language
+ file. e.g.:
+
+ (lang-set "english.txt")
 
 
 o----------------------------o

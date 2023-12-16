@@ -194,6 +194,13 @@ BINDING_TABLE({
           }
           return lisp::make_userdata(APP.opponent_island());
       }}},
+    {"lang-set",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          systemstring_bind_file(L_LOAD_STRING(0));
+          return L_NIL;
+      }}},
     {"lang",
      {0,
       [](int argc) { return lisp::make_string(systemstring_bound_file()); }}},

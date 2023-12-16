@@ -29,7 +29,7 @@ format.
 
 Create a file containing
 the translated text, by
-copy-pasting strings.txt
+copy-pasting english.txt
 and translating each line.
 The entry you created in
 lang.txt should of course
