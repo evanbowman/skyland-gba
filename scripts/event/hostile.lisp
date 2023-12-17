@@ -22,17 +22,19 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
-(when (and (equal (choice 16) 0)       ; somewhat rare event.
-           (equal (wg-current-type) 8) ; uncharted hostile node.
-           (not (has-dialog?))         ; sanity check.
-           (> (zone) 0)
-           (> (difficulty) 0))
-  (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
-          "Heavy particles and radioactive ash blow through the air, periodically damaging "
-          "all exposed areas of your castle. <B:0>"
-          "Just when things couldn't seem to get any worse, an enemy raiding ship, "
-          "also forced below the clouds, emerges from the murk...")
-  (weather 6))
+(let ((prob (get '(32 14 9) (difficulty))))
+  (when (and (equal (choice prob) 0)     ; 1/prob chance.
+             (equal (wg-current-type) 8) ; uncharted hostile node.
+             (not (has-dialog?))         ; sanity check.
+             (< ash-storm-count (get '(1 1 2) (difficulty)))) ; not too many...
+    (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
+            "Heavy particles and radioactive ash blow through the air, periodically damaging "
+            "all exposed areas of your castle. <B:0>"
+            "Just when things couldn't seem to get any worse, an enemy raiding ship, "
+            "also forced below the clouds, emerges from the murk...")
+    (weather 6)
+    (+= ash-storm-count 1)))
+
 
 
 (let ((vfn on-victory) ; save cached copy of on-victory hook in case already set

@@ -51,5 +51,6 @@
 
 (chr-new (player) 2 14 'neutral nil)
 
+(setq ash-storm-count 0)
 
 (eval-file "/scripts/reset_hooks.lisp")

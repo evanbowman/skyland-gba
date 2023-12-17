@@ -9,6 +9,8 @@
 
   (flag-show (player) 0)
 
+  (setq ash-storm-count 0) ; TODO: put this in save data...
+
   (let ((data $0))
     (let ((load (lambda (lookup $0 data))))
 

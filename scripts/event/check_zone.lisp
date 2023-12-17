@@ -3,6 +3,7 @@
   (setq friendlies-seen nil)
   (setq enemies-seen nil)
   (setq shop-items nil)
+  (setq ash-storm-count 0)
   (when (> (zone) 0)
     (adventure-log-add 26 (list (+ (zone) 1)))))
 

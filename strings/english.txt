@@ -375,7 +375,7 @@ cloudy
 rain
 snow
 storm
-ash
+radioactive ash
 rearrange blocks? %@
 pick a block to move:
 pick destination:

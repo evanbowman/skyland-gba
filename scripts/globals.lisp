@@ -19,4 +19,5 @@
  'quests
  'adventure-log
  'shop-items
- 'qvar)
+ 'qvar
+ 'ash-storm-count)
