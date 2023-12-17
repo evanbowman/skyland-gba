@@ -70,7 +70,6 @@ void environment_init(int type);
 class SetWeatherScene : public ActiveWorldScene
 {
 public:
-
     SetWeatherScene()
     {
     }
@@ -102,8 +101,9 @@ public:
     void set_str()
     {
         text_->assign(" ");
-        text_->append(loadstr((SystemString)((int)SystemString::weather_clear
-                                             + index_))->c_str());
+        text_->append(
+            loadstr((SystemString)((int)SystemString::weather_clear + index_))
+                ->c_str());
     }
 
 
@@ -141,7 +141,8 @@ public:
             PLATFORM.screen().set_shader(APP.environment().shader());
             PLATFORM.screen().set_shader_argument(0);
 
-            if (not PLATFORM.speaker().is_music_playing(APP.environment().music())) {
+            if (not PLATFORM.speaker().is_music_playing(
+                    APP.environment().music())) {
                 PLATFORM.speaker().play_music(APP.environment().music(), 0);
             }
 

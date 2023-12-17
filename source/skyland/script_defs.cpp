@@ -320,7 +320,8 @@ BINDING_TABLE({
           lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 6);
           return L_NIL;
       }}},
-    {"difficulty", {0, [](int argc) { return L_INT((int)APP.gp_.difficulty_); }}},
+    {"difficulty",
+     {0, [](int argc) { return L_INT((int)APP.gp_.difficulty_); }}},
     {"difficulty-set",
      {1,
       [](int argc) {
@@ -655,9 +656,7 @@ BINDING_TABLE({
       }}},
     {"has-dialog?",
      {0,
-      [](int argc) {
-          return lisp::make_boolean((bool)APP.dialog_buffer());
-      }}},
+      [](int argc) { return lisp::make_boolean((bool)APP.dialog_buffer()); }}},
     {"dialog",
      {1,
       [](int argc) {

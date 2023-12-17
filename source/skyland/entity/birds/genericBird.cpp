@@ -38,6 +38,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/weather/dustStorm.hpp"
 
 
 
@@ -380,6 +381,10 @@ Island* GenericBird::island()
 
 void GenericBird::generate()
 {
+    if (APP.environment().id() == weather::DustStorm::id_) {
+        return;
+    }
+
     for (auto it = APP.birds().begin(); it not_eq APP.birds().end();) {
         if ((*it)->island() == opponent_island()) {
             it = APP.birds().erase(it);

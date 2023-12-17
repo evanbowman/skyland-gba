@@ -51,7 +51,6 @@ protected:
     Time damage_timer_ = 0;
 
 public:
-
     DustStorm();
     DustStorm(const DustStorm&) = delete;
     ~DustStorm();
@@ -75,8 +74,10 @@ public:
     void display() override;
 
 
-    int id() const override;
+    static const int id_ = 6;
 
+
+    int id() const override;
 };
 
 

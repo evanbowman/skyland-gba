@@ -33,9 +33,9 @@
 
 
 #include "dustStorm.hpp"
+#include "containers/vector.hpp"
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
-#include "containers/vector.hpp"
 
 
 
@@ -59,7 +59,7 @@ namespace skyland::weather
 
 int DustStorm::id() const
 {
-    return 6;
+    return id_;
 }
 
 
@@ -118,8 +118,7 @@ void DustStorm::update(Time delta)
         if (PLATFORM.screen().fade_active()) {
             return;
         }
-        if (APP.opponent_island() and
-            APP.opponent().is_friendly()) {
+        if (APP.opponent_island() and APP.opponent().is_friendly()) {
             // Yeah, we don't want to damage islands associated with neutral
             // events...
             return;
@@ -128,54 +127,53 @@ void DustStorm::update(Time delta)
         Vector<Room*> tmp;
 
         auto add_set = [&](auto& isle, u8 x, u8 y) {
-                           auto room = isle.get_room({x, y});
-                           if (not room) {
-                               return;
-                           }
-                           for (auto& r : tmp) {
-                               if (r == room) {
-                                   return;
-                               }
-                           }
-                           tmp.push_back(room);
-                       };
+            auto room = isle.get_room({x, y});
+            if (not room) {
+                return;
+            }
+            for (auto& r : tmp) {
+                if (r == room) {
+                    return;
+                }
+            }
+            tmp.push_back(room);
+        };
 
-        auto collect_outer_rooms =
-            [&](auto& isle) {
-                u8 matrix[16][16];
-                isle.plot_rooms(matrix);
+        auto collect_outer_rooms = [&](auto& isle) {
+            u8 matrix[16][16];
+            isle.plot_rooms(matrix);
 
-                for (u8 x = 0; x < isle.terrain().size(); ++x) {
-                    for (u8 y = 0; y < 16; ++y) {
-                        if (matrix[x][y]) {
-                            if (y == 0 or x == 0 or x == isle.terrain().size()) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
-                            if (matrix[x][y - 1] == 0) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
-                            if (matrix[x - 1][y] == 0) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
-                            if (matrix[x + 1][y] == 0) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
-                            if (y < 14 and matrix[x][y + 1] == 0) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
-                            if (matrix[x][y - 1] == 0) {
-                                add_set(isle, x, y);
-                                continue;
-                            }
+            for (u8 x = 0; x < isle.terrain().size(); ++x) {
+                for (u8 y = 0; y < 16; ++y) {
+                    if (matrix[x][y]) {
+                        if (y == 0 or x == 0 or x == isle.terrain().size()) {
+                            add_set(isle, x, y);
+                            continue;
+                        }
+                        if (matrix[x][y - 1] == 0) {
+                            add_set(isle, x, y);
+                            continue;
+                        }
+                        if (matrix[x - 1][y] == 0) {
+                            add_set(isle, x, y);
+                            continue;
+                        }
+                        if (matrix[x + 1][y] == 0) {
+                            add_set(isle, x, y);
+                            continue;
+                        }
+                        if (y < 14 and matrix[x][y + 1] == 0) {
+                            add_set(isle, x, y);
+                            continue;
+                        }
+                        if (matrix[x][y - 1] == 0) {
+                            add_set(isle, x, y);
+                            continue;
                         }
                     }
                 }
-            };
+            }
+        };
 
         collect_outer_rooms(APP.player_island());
 

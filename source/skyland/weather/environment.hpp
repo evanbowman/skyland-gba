@@ -60,7 +60,6 @@ namespace skyland::weather
 class Environment
 {
 public:
-
     Environment();
 
 
