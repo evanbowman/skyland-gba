@@ -255,6 +255,12 @@ void Room::schedule_repaint()
 class UIDamageNumber : public Entity
 {
 public:
+
+    static int total_count_;
+
+    static const int throttle_count_ = 20;
+
+
     UIDamageNumber(const Vec2<Fixnum>& position, int value) : Entity({})
     {
         sprite_.set_tidx_8x8(29, value);
@@ -313,6 +319,10 @@ public:
 private:
     Time timer_ = 0;
 };
+
+
+
+int UIDamageNumber::total_count_ = 0;
 
 
 
@@ -375,8 +385,25 @@ void Room::update(Time delta)
 
     if (accumulated_damage_) {
         if (--show_damage_delay_frames_ == 0) {
-            UIDamageNumber::create(accumulated_damage_, center());
-            accumulated_damage_ = 0;
+            if (UIDamageNumber::total_count_ >= UIDamageNumber::throttle_count_) {
+                // Retry later. Too many objects onscreen.
+                ++show_damage_delay_frames_;
+            } else {
+
+                bool is_offscreen =
+                    (visual_center().x.as_integer() <
+                     PLATFORM.screen().get_view().int_center().x + 8 -
+                     (size().x * 16) / 2) or
+                    (visual_center().x.as_integer() - (size().x * 16) / 2 >
+                     (int)(PLATFORM.screen().get_view().int_center().x +
+                           PLATFORM.screen().size().x));
+
+                if (not is_offscreen) {
+                    UIDamageNumber::create(accumulated_damage_, center());
+                }
+
+                accumulated_damage_ = 0;
+            }
         }
         ready();
     }
