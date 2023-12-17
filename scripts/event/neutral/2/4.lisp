@@ -91,7 +91,7 @@
 
 
 
-(let ((val (if (equal (diff) 0)
+(let ((val (if (equal (difficulty) 0)
                (+ 900 (choice 500))
              (max (list (+ 900 (choice 500))
                         (/ (coins) 2))))))

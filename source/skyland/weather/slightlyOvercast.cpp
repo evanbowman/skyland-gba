@@ -60,6 +60,13 @@ SlightlyOvercast::SlightlyOvercast()
 
 
 
+int SlightlyOvercast::id() const
+{
+    return 2;
+}
+
+
+
 void SlightlyOvercast::display()
 {
     if (not PLATFORM.screen().fade_active()) {
@@ -73,6 +80,7 @@ void SlightlyOvercast::display()
 
 void SlightlyOvercast::update(Time delta)
 {
+    ClearSkies::update(delta);
     (*state_).update(delta);
 }
 

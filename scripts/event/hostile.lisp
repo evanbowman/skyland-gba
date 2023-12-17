@@ -22,6 +22,18 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
+(when (and ;(equal (choice 14) 0)       ; somewhat rare event.
+           (equal (wg-current-type) 8) ; uncharted hostile node.
+           (not (has-dialog?))         ; sanity check.
+           ;(> (zone) 0)
+           (> (difficulty) 0))
+  (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
+          "Heavy particles and radioactive ash blow through the air, periodically damaging "
+          "all exposed areas of your castle. <B:0>"
+          "Just when things couldn't seem to get any worse, an enemy raiding ship, "
+          "also forced below the clouds, emerges from the murk...")
+  (weather 6))
+
 
 (let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
       (c (coins))

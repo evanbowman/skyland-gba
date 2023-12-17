@@ -370,6 +370,12 @@ B:  no
 cannot salvage populated room!
 this block cannot be salvaged!
 scuttle drone?
+clear
+cloudy
+rain
+snow
+storm
+ash
 rearrange blocks? %@
 pick a block to move:
 pick destination:

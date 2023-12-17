@@ -42,6 +42,7 @@
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/blizzard.hpp"
@@ -204,7 +205,17 @@ ScenePtr<Scene> LoadLevelScene::update(Time delta)
     }
     APP.player_island().drones().clear();
 
-    if (APP.zone() > 3) {
+    bool has_weather_engine = false;
+    for (auto& r : APP.player_island().rooms()) {
+        if (r->cast<WeatherEngine>()) {
+            has_weather_engine = true;
+            break;
+        }
+    }
+
+    if (has_weather_engine) {
+        // Maintain current weather
+    } else if (APP.zone() > 3) {
         APP.swap_environment<weather::Blizzard>();
     } else if (APP.zone() > 2) {
         APP.swap_environment<weather::Storm>();

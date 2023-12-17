@@ -38,6 +38,7 @@
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/weather/dustStorm.hpp"
 #include "skyland/weather/blizzard.hpp"
 #include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/storm.hpp"
@@ -64,7 +65,7 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
         {SystemString::sandbox_building_dependencies, 1, 0, 1},
-        {SystemString::sandbox_weather, 1, 1, 5},
+        {SystemString::sandbox_weather, 1, 1, 6},
         {SystemString::sandbox_characters, 1, 1, 6}};
 
 
@@ -95,11 +96,15 @@ void environment_init(int type)
         break;
 
     case 4:
-        APP.swap_environment<weather::Typhoon>();
+        APP.swap_environment<weather::Blizzard>();
         break;
 
     case 5:
-        APP.swap_environment<weather::Blizzard>();
+        APP.swap_environment<weather::Typhoon>();
+        break;
+
+    case 6:
+        APP.swap_environment<weather::DustStorm>();
         break;
     }
 }
@@ -294,6 +299,7 @@ ScenePtr<Scene> SandboxLoaderModule::update(Time delta)
 
     auto update_env = [&] {
         environment_init(parameters_[4]);
+        PLATFORM.system_call("v-parallax", (void*)false);
 
         PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);

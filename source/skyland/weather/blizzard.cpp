@@ -164,6 +164,14 @@ Platform::Screen::Shader Blizzard::get_shader()
 }
 
 
+
+int Blizzard::id() const
+{
+    return 4;
+}
+
+
+
 Platform::Screen::Shader Blizzard::shader() const
 {
     return get_shader();

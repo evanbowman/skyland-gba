@@ -268,6 +268,13 @@ void Typhoon::update(Time delta)
 
 
 
+int Typhoon::id() const
+{
+    return 5;
+}
+
+
+
 Platform::Screen::Shader Typhoon::shader() const
 {
     return [](ShaderPalette palette, ColorConstant k, int arg, int index) {

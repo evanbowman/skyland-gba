@@ -105,6 +105,8 @@ private:
         u32 local_buffer_index_ = 0;
         u32 boarded_buffer_index_ = 0;
 
+        bool any_chr_moved_ = false;
+
         void update(Time delta);
     };
 

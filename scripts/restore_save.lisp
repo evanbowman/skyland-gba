@@ -65,4 +65,4 @@
           (map (join 'Right) (lookup 'Right grp))))
 
       (when (> (load 'save-protocol) 1)
-        (diff-set (load 'diff))))))
+        (difficulty-set (load 'diff))))))

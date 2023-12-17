@@ -16,7 +16,10 @@
  (cons 'last-zone last-zone)
  (cons 'quests quests)
  (cons 'terrain (terrain (player)))
- (cons 'diff (diff))
+ ;; NOTE: I changed the function name from diff to difficulty, but need to
+ ;; preserve the old symbol for backwards compatibility with people's save
+ ;; files.
+ (cons 'diff (difficulty))
  (cons 'qids qids)
  (cons 'qvar qvar)
  (cons 'adventure-log adventure-log)

@@ -34,6 +34,8 @@
 
 #include "weatherEngine.hpp"
 #include "platform/platform.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/worldScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -65,35 +67,111 @@ void environment_init(int type);
 
 
 
+class SetWeatherScene : public ActiveWorldScene
+{
+public:
+
+    SetWeatherScene()
+    {
+    }
+
+
+    void enter(Scene& prev)
+    {
+        ActiveWorldScene::enter(prev);
+
+        const auto st = calc_screen_tiles();
+
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 1, 398);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 1, 399);
+
+        text_.emplace(OverlayCoord{2, u8(st.y - 1)});
+        set_str();
+    }
+
+
+    void exit(Scene& next)
+    {
+        ActiveWorldScene::exit(next);
+
+        text_.reset();
+        PLATFORM.fill_overlay(0);
+    }
+
+
+    void set_str()
+    {
+        text_->assign(" ");
+        text_->append(loadstr((SystemString)((int)SystemString::weather_clear
+                                             + index_))->c_str());
+    }
+
+
+    ScenePtr<Scene> update(Time delta)
+    {
+        ActiveWorldScene::update(delta);
+
+        if (APP.player().key_down(Key::down)) {
+            if (index_ == 5) {
+                index_ = 0;
+            } else {
+                ++index_;
+            }
+            set_str();
+        }
+
+        if (APP.player().key_down(Key::up)) {
+            if (index_ == 0) {
+                index_ = 5;
+            } else {
+                --index_;
+            }
+            set_str();
+        }
+
+        if (APP.player().key_down(Key::action_1)) {
+
+            time_stream::event::WeatherChanged e;
+
+            e.prev_weather_ = APP.environment().id();
+            APP.time_stream().push(APP.level_timer(), e);
+
+            environment_init(index_ + 1);
+
+            PLATFORM.screen().set_shader(APP.environment().shader());
+            PLATFORM.screen().set_shader_argument(0);
+
+            if (not PLATFORM.speaker().is_music_playing(APP.environment().music())) {
+                PLATFORM.speaker().play_music(APP.environment().music(), 0);
+            }
+
+            PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
+            PLATFORM.sleep(4);
+            PLATFORM.screen().schedule_fade(0.f);
+
+            PLATFORM.speaker().play_sound("bell", 3);
+
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        if (APP.player().key_down(Key::action_2)) {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        return null_scene();
+    }
+
+    std::optional<Text> text_;
+    int index_ = 0;
+};
+
+
+
 ScenePtr<Scene> WeatherEngine::select(const RoomCoord& cursor)
 {
-    time_stream::event::WeatherChanged e;
-
-    if (APP.environment().is_overcast()) {
-        e.prev_weather_ = 3; // FIXME!
-        environment_init(1);
-    } else {
-        e.prev_weather_ = 1;
-        environment_init(3);
-    }
-    APP.time_stream().push(APP.level_timer(), e);
-
-    PLATFORM.screen().set_shader(APP.environment().shader());
-    PLATFORM.screen().set_shader_argument(0);
-
-    if (not PLATFORM.speaker().is_music_playing(APP.environment().music())) {
-        PLATFORM.speaker().play_music(APP.environment().music(), 0);
-    }
-
-    PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
-    PLATFORM.screen().clear();
-    PLATFORM.screen().display();
-    PLATFORM.sleep(4);
-    PLATFORM.screen().schedule_fade(0.f);
-
-    PLATFORM.speaker().play_sound("bell", 3);
-
-    return null_scene();
+    return scene_pool::alloc<SetWeatherScene>();
 }
 
 

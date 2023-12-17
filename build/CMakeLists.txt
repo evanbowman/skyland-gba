@@ -126,8 +126,10 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/weather/typhoon.cpp
   ${SOURCE_DIR}/skyland/weather/dynamic.cpp
+  ${SOURCE_DIR}/skyland/weather/dustStorm.cpp
   ${SOURCE_DIR}/skyland/weather/blizzard.cpp
   ${SOURCE_DIR}/skyland/weather/clearSkies.cpp
+  ${SOURCE_DIR}/skyland/weather/environment.cpp
   ${SOURCE_DIR}/skyland/weather/slightlyOvercast.cpp
   ${SOURCE_DIR}/skyland/scene.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp

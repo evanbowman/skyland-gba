@@ -469,6 +469,13 @@ enum class SystemString {
     salvage_error_disallowed,
     salvage_drone,
 
+    weather_clear,
+    weather_overcast,
+    weather_rain,
+    weather_snow,
+    weather_storm,
+    weather_dust,
+
     move_room_prompt,
     move_room_1,
     move_room_2,

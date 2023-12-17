@@ -407,4 +407,11 @@ ColorConstant Storm::fadein_colorize_tone() const
 
 
 
+int Storm::id() const
+{
+    return 3;
+}
+
+
+
 } // namespace skyland::weather

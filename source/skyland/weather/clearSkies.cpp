@@ -45,6 +45,13 @@ void ClearSkies::update(Time delta)
 
 
 
+int ClearSkies::id() const
+{
+    return 1;
+}
+
+
+
 void ClearSkies::display()
 {
     bool disable_lensflare = false;

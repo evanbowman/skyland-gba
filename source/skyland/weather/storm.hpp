@@ -101,6 +101,9 @@ public:
     const char* music() const override;
 
 
+    int id() const override;
+
+
     virtual void on_lightning()
     {
         // ...

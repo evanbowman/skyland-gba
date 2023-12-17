@@ -21,7 +21,7 @@
 
 (flag-show (player) 0)
 
-(coins-set (if (equal (diff) 0) 4000 2500))
+(coins-set (if (equal (difficulty) 0) 4000 2500))
 
 
 (terrain-set (player) 4)
@@ -32,7 +32,7 @@
  '((power-core 1 13)))
 
 
-(when (equal (diff) 0)
+(when (equal (difficulty) 0)
   (terrain-set (player) 5)
   (island-configure
    (player)

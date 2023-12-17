@@ -65,6 +65,9 @@ public:
     }
 
 
+    int id() const override;
+
+
     void update(Time delta);
     void display() override;
 };

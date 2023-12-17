@@ -90,11 +90,11 @@
    (hull 12 7)))
 
 
-(when (> (diff) 1)
+(when (> (difficulty) 1)
   (eval-file "/scripts/event/storm_king_hard.lisp"))
 
 
-(if (> (diff) 1)
+(if (> (difficulty) 1)
     (let ((s (filter
               (lambda
                 (> (cdr $0) 10))

@@ -51,7 +51,7 @@
  '((forcefield 0 13) (forcefield 0 12) (forcefield 0 14) (forcefield 1 11) (forcefield* 1 13) (forcefield 1 12) (forcefield 1 14) (forcefield 2 13) (hull 2 10) (forcefield* 2 12) (forcefield* 2 14) (forcefield 2 11) (hull 3 9) (hull 3 10) (flak-gun 3 13) (forcefield 3 12) (hull 3 11) (flak-gun 3 14) (hull 4 11) (hull 4 10) (hull 4 9) (hull 4 12) (power-core 5 11) (hull 5 10) (power-core 5 13) (hull 5 9) (hull 6 10) (hull 6 9) (hull 7 10) (hull 7 11) (hull 7 12) (power-core 7 13) (hull 7 9) (hull 8 10) (power-core 8 11) (hull 8 9) (hull 9 10) (ladder 9 13) (hull 9 9)))
 
 
-(weather 5)
+(weather 4)
 
 
 (map

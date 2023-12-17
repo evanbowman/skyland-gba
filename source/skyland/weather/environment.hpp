@@ -60,6 +60,10 @@ namespace skyland::weather
 class Environment
 {
 public:
+
+    Environment();
+
+
     virtual ~Environment()
     {
     }
@@ -94,6 +98,9 @@ public:
     {
         return ColorConstant::rich_black;
     }
+
+
+    virtual int id() const = 0;
 
 
     virtual void on_pause();
@@ -188,6 +195,9 @@ public:
     {
         timer_ = seconds(rng::choice<7>(rng::utility_state));
     }
+
+
+    virtual int id() const override;
 
 
     void update(Time delta) override;

@@ -435,6 +435,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (wg-current-type)
+
+ Returns the type enumeration
+ of the currently visited
+ world graph node.
+
+
+o----------------------------o
+
  (wg-node-set x y type)
 
  Assign a world graph node.
@@ -553,6 +562,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (has-dialog?)
+
+ True if any dialog text has
+ been pushed to the engine
+ with the dialog function.
+
+
+o----------------------------o
+
  (dialog strings ...)
 
  Composes a dialog message
@@ -566,7 +584,7 @@ o----------------------------o
 
 o----------------------------o
 
- (diff)
+ (difficulty)
 
  Return an int representing
  the difficulty.
@@ -574,7 +592,7 @@ o----------------------------o
 
 o----------------------------o
 
- (diff-set integer)
+ (difficulty-set integer)
 
  Set the difficulty.
 

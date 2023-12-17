@@ -35,7 +35,6 @@
 #pragma once
 
 #include "environment.hpp"
-#include "skyland/island.hpp"
 #include "storm.hpp"
 
 
@@ -45,42 +44,39 @@ namespace skyland::weather
 
 
 
-class Typhoon : public Storm
+class DustStorm : public ClearSkies
 {
+protected:
+    ScratchMemory<State> state_;
+    Time damage_timer_ = 0;
+
 public:
+
+    DustStorm();
+    DustStorm(const DustStorm&) = delete;
+    ~DustStorm();
+
+
     Platform::Screen::Shader shader() const override;
 
 
-    void update(Time delta) override;
-    void rewind(Time delta) override;
-
-
-    void on_lightning() override;
-
-
-    void rewind_lightning() override
+    const char* music() const override
     {
-        ls_ = LightningState::fade;
-        lightning_timer_ = 0;
+        return "solecism";
     }
 
 
-    ColorConstant fadein_colorize_tone() const override;
+    void update(Time delta) override;
+
+
+    void rewind(Time delta) override;
+
+
+    void display() override;
 
 
     int id() const override;
 
-
-private:
-    enum class LightningState : u8 {
-        none,
-        begin1,
-        begin2,
-        hold,
-        fade,
-    } ls_ = LightningState::none;
-
-    Time lightning_timer_ = 0;
 };
 
 
