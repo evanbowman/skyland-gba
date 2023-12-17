@@ -118,6 +118,12 @@ void DustStorm::update(Time delta)
         if (PLATFORM.screen().fade_active()) {
             return;
         }
+        if (APP.opponent_island() and
+            APP.opponent().is_friendly()) {
+            // Yeah, we don't want to damage islands associated with neutral
+            // events...
+            return;
+        }
 
         Vector<Room*> tmp;
 
