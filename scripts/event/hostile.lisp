@@ -22,10 +22,10 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
-(when (and ;(equal (choice 14) 0)       ; somewhat rare event.
+(when (and (equal (choice 16) 0)       ; somewhat rare event.
            (equal (wg-current-type) 8) ; uncharted hostile node.
            (not (has-dialog?))         ; sanity check.
-           ;(> (zone) 0)
+           (> (zone) 0)
            (> (difficulty) 0))
   (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
           "Heavy particles and radioactive ash blow through the air, periodically damaging "
