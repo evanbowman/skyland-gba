@@ -371,7 +371,7 @@ cannot salvage populated room!
 this block cannot be salvaged!
 scuttle drone?
 clear
-cloudy
+sunshower
 rain
 snow
 storm
