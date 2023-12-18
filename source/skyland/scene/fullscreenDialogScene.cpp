@@ -441,6 +441,18 @@ void FullscreenDialogScene::process_command()
     }
 
     case 'b': {
+        if (img_view_) {
+            // We're already viewing an image. Fade it out before swapping the
+            // texture.
+            int frames = 25;
+            for (int i = 0; i < frames; ++i) {
+                PLATFORM.screen().schedule_fade(Float(i) / frames);
+                PLATFORM.keyboard().poll();
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
+            }
+        }
+
         const auto bkg_name = parse_command_str();
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.screen().set_view(View{});

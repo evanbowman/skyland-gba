@@ -22,14 +22,16 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
-(let ((prob (get '(32 14 9) (difficulty))))
+(let ((prob (get '(32 13 7) (difficulty))))
   (when (and (equal (choice prob) 0)     ; 1/prob chance.
              (equal (wg-current-type) 8) ; uncharted hostile node.
              (not (has-dialog?))         ; sanity check.
              (< ash-storm-count (get '(1 1 2) (difficulty)))) ; not too many...
     (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
+            "<b:/scripts/misc/img/radiation_warning.skg>"
             "Heavy particles and radioactive ash blow through the air, periodically damaging "
             "all exposed areas of your castle. <B:0>"
+            "<b:/scripts/misc/img/murk.skg>"
             "Just when things couldn't seem to get any worse, an enemy raiding ship, "
             "also forced below the clouds, emerges from the murk...")
     (weather 6)
