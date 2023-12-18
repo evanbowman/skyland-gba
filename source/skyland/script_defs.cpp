@@ -59,6 +59,7 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/scene/itemShopScene.hpp"
@@ -860,15 +861,25 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"effect",
-     {1,
+     {3,
       [](int argc) {
-          L_EXPECT_OP(0, string);
-          auto str = L_LOAD_STRING(0);
+          L_EXPECT_OP(2, string);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(0, integer);
+
+          auto str = L_LOAD_STRING(2);
+          auto x = L_LOAD_INT(1);
+          auto y = L_LOAD_INT(0);
 
           if (str_eq(str, "lightning")) {
               if (auto l = APP.alloc_entity<LightningStrike>()) {
                   APP.effects().push(std::move(l));
               }
+          } else if (str_eq(str, "explosion")) {
+              medium_explosion(
+                  {Fixnum::from_integer(x), Fixnum::from_integer(y)});
+          } else if (str_eq(str, "big-explosion")) {
+              big_explosion({Fixnum::from_integer(x), Fixnum::from_integer(y)});
           }
           return L_NIL;
       }}},
@@ -1259,6 +1270,14 @@ BINDING_TABLE({
           }
 
           return L_NIL;
+      }}},
+    {"island-pos",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, user_data);
+          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          return L_CONS(L_INT(island->visual_origin().x.as_integer()),
+                        L_INT(island->visual_origin().y.as_integer()));
       }}},
     {"island-configure",
      {2,

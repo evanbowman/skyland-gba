@@ -103,6 +103,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (construction-sites
+  island
+  room-size-x/y-pair)
+
+ List all coordinates on
+ island where room of size
+ '(x . y) may be constructed.
+
+
+o----------------------------o
+
  (flag-show island variant)
 
  Display a flag. For opponent
@@ -148,6 +159,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (island-pos)
+
+ The real x,y coord of an
+ island in the game world.
+
+
+o----------------------------o
+
  (opponent) -> island
 
  Returns a reference to the
@@ -169,6 +188,22 @@ o----------------------------o
  terrain-size. See
  opponent-mode for
  description of mode-sym.
+
+
+o----------------------------o
+
+ (opponent-generate integer)
+
+ Allow the engine to
+ generate a level. You lose
+ the handcrafted feel, but
+ still, it keeps the game
+ feeling fresh.
+
+ Integer argument
+ undocumented. A sort of
+ difficulty rating.
+
 
 o----------------------------o
 
@@ -551,17 +586,6 @@ o----------------------------o
 
 o----------------------------o
 
- (construction-sites
-  island
-  room-size-x/y-pair)
-
- List all coordinates on
- island where room of size
- '(x . y) may be constructed.
-
-
-o----------------------------o
-
  (has-dialog?)
 
  True if any dialog text has
@@ -595,6 +619,18 @@ o----------------------------o
  (difficulty-set integer)
 
  Set the difficulty.
+
+
+o----------------------------o
+
+ (effect "name" x y)
+
+ Create a special effect.
+ Choose from a selection of
+ available effects:
+
+ lightning,explosion,
+ big-explosion,
 
 
 o----------------------------o
@@ -719,21 +755,6 @@ o----------------------------o
  Invoke function bound to
  callback-sym after integer
  milliseconds have passed.
-
-
-o----------------------------o
-
- (opponent-generate integer)
-
- Allow the engine to
- generate a level. You lose
- the handcrafted feel, but
- still, it keeps the game
- feeling fresh.
-
- Integer argument
- undocumented. A sort of
- difficulty rating.
 
 
 o----------------------------o
@@ -879,6 +900,7 @@ o----------------------------o
 
  Retrieve a SKYLAND engine
  variable.
+
 
 o----------------------------o
 

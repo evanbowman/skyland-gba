@@ -88,7 +88,7 @@
                 (defn fut [0]
                   (sound "bell")
                   (sound "thunder_close_1")
-                  (effect "lightning")
+                  (effect "lightning" 0 0)
                   (opponent-reset)
                   (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
 
