@@ -35,6 +35,7 @@
             "Just when things couldn't seem to get any worse, an enemy raiding ship, "
             "also forced below the clouds, emerges from the murk...")
     (weather 6)
+    (adventure-log-add 56 nil)
     (+= ash-storm-count 1)))
 
 

@@ -51,5 +51,6 @@ purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
-Accepted quest from orphan boy!
-Returned lost child to the Sylph...
+accepted quest from orphan boy!
+returned lost child to the Sylph...
+dropped below the clouds to avoid bad weather
