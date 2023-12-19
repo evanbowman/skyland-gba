@@ -23,11 +23,7 @@
 //;
 #include "data/spritesheet_macroverse.h"
 //;
-#include "data/spritesheet_fishing.h"
-//;
 #include "data/tilesheet.h"
-//;
-#include "data/tilesheet_fishing.h"
 //;
 #include "data/tilesheet_enemy_0.h"
 //;
@@ -184,8 +180,6 @@ static const TextureData sprite_textures[] = {
     TEXTURE_INFO(spritesheet_macro, false),
 //;
     TEXTURE_INFO(spritesheet_macroverse, false),
-//;
-    TEXTURE_INFO(spritesheet_fishing, false),
 //
 };
 
@@ -193,8 +187,6 @@ static const TextureData sprite_textures[] = {
 static const TextureData tile_textures[] = {
 
     TEXTURE_INFO(tilesheet, false),
-//;
-    TEXTURE_INFO(tilesheet_fishing, false),
 //;
     TEXTURE_INFO(tilesheet_enemy_0, false),
 //;

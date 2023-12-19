@@ -158,7 +158,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/selInputScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
-  ${SOURCE_DIR}/skyland/scene/craneDropScene.cpp
   ${SOURCE_DIR}/skyland/scene/hideRoomsScene.cpp
   ${SOURCE_DIR}/skyland/scene/keyComboScene.cpp
   ${SOURCE_DIR}/skyland/scene/textEntryScene.cpp
@@ -377,7 +376,6 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/photo_incinerator_flattened.s
     ${DATA_DIR}/photo_goblin_stronghold_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
-    ${DATA_DIR}/tilesheet_fishing.s
     ${DATA_DIR}/overlay_large_numeral.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
@@ -429,7 +427,6 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/glossary_misc_cg_flattened.s
     ${DATA_DIR}/glossary_decoration_cg_flattened.s
     ${DATA_DIR}/spritesheet.s
-    ${DATA_DIR}/spritesheet_fishing.s
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_macro.s
     ${DATA_DIR}/background_macro_night.s
@@ -747,9 +744,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet_intro 2 4 NO)
     add_spritesheet(spritesheet_macro 2 4 NO)
     add_spritesheet(spritesheet_macroverse 2 4 NO)
-    add_spritesheet(spritesheet_fishing 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
-    add_tilesheet(tilesheet_fishing 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)

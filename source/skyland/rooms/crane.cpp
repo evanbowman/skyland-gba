@@ -38,7 +38,6 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
-#include "skyland/scene/craneDropScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/worldScene.hpp"
@@ -310,28 +309,7 @@ private:
 
 ScenePtr<Scene> Crane::select(const RoomCoord& cursor)
 {
-    auto& env = APP.environment();
-    auto clear_skies = not env.is_overcast();
-
-    auto pos = position();
-    if (cursor.x == pos.x + 2) {
-        if (not clear_skies) {
-            PLATFORM.speaker().play_sound("beep_error", 3);
-        }
-
-        if (state_bit_load(StateBit::crane_game_got_treasure)) {
-            PLATFORM.speaker().play_sound("beep_error", 3);
-        }
-    } else {
-        return scene_pool::alloc<CraneItemScene>();
-    }
-
-    if (state_ == State::idle) {
-        state_ = State::drop;
-        timer_ = 0;
-    }
-
-    return scene_pool::alloc<CraneDropScene>(position());
+    return null_scene();
 }
 
 
