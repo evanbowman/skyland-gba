@@ -65,8 +65,10 @@ private:
     std::optional<Text> easy_text_;
     std::optional<Text> normal_text_;
     std::optional<Text> hard_text_;
+    std::optional<TextView> desc_;
     bool newgame_;
     u8 original_;
+    bool init_ = true;
 };
 
 

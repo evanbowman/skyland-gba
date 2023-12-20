@@ -190,13 +190,11 @@ public:
 
         p.data_.push_back('\0');
 
-        // For debugging purposes: don't compress sandbox data if select key
-        // pressed.
-        const bool compress_output =
-            not PLATFORM.keyboard().pressed<Key::select>();
+        // For debugging purposes: don't compress sandbox data in developer
+        // mode.
+        const bool compress_output = not APP.is_developer_mode();
 
         flash_filesystem::store_file_data_text(
-
             format("/save/sb%.lisp", cursor_).c_str(),
             p.data_,
             {.use_compression_ = compress_output});

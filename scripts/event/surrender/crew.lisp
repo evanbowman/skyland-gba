@@ -5,7 +5,7 @@
 (setq on-dialog-closed
       (lambda
         (setq on-dialog-closed '())
-        (let ((c (/ (coins-victory) 2)))
+        (let ((c (+ (/ (coins-victory) 2) (/ (coins-victory) 6))))
           (dialog
            "One of the goblins offers to join your crew, and pay a sum of "
            (string c)

@@ -45,38 +45,37 @@ namespace skyland
 
 void AdventureModeSettingsScene::enter(Scene& prev)
 {
-    const char* difficulty_str = "difficulty:";
+    auto title = SYSTR(sf_difficulty);
 
     difficulty_text_.emplace(
-
-        difficulty_str,
-        OverlayCoord{(u8)centered_text_margins(strlen(difficulty_str)), 1});
+        title->c_str(),
+        OverlayCoord{(u8)centered_text_margins(strlen(title->c_str())), 1});
 
 
     auto str1 = SYSTR(sf_casual);
     easy_text_.emplace(
-
         str1->c_str(),
         OverlayCoord{(u8)centered_text_margins(strlen(str1->c_str())), 4});
 
 
     auto str2 = SYSTR(sf_normal);
     normal_text_.emplace(
-
         str2->c_str(),
         OverlayCoord{(u8)centered_text_margins(strlen(str2->c_str())), 6});
 
 
     auto str3 = SYSTR(sf_hard);
     hard_text_.emplace(
-
         str3->c_str(),
         OverlayCoord{(u8)centered_text_margins(strlen(str3->c_str())), 8});
+
 
     PLATFORM.screen().fade(0.96f);
     PLATFORM.screen().fade(1.f);
 
     original_ = (u8)APP.gp_.difficulty_;
+
+    desc_.emplace();
 }
 
 
@@ -87,22 +86,37 @@ void AdventureModeSettingsScene::exit(Scene& prev)
     easy_text_.reset();
     normal_text_.reset();
     hard_text_.reset();
+    desc_.reset();
 }
 
 
 
 ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
 {
+    bool repaint = false;
+
+    if (init_) {
+        init_ = false;
+        repaint = true;
+    }
+
     if (APP.player().key_down(Key::up)) {
         auto& diff = APP.gp_.difficulty_;
-        diff = (GlobalPersistentData::Difficulty)(((u8)diff - 1) % 3);
+        if ((int)diff == 0) {
+            diff = GlobalPersistentData::Difficulty::expert;
+        } else {
+            diff = (GlobalPersistentData::Difficulty)(((u8)diff - 1) % 3);
+        }
+
         PLATFORM.speaker().play_sound("click_wooden", 2);
+        repaint = true;
     }
 
     if (APP.player().key_down(Key::down)) {
         auto& diff = APP.gp_.difficulty_;
         diff = (GlobalPersistentData::Difficulty)(((u8)diff + 1) % 3);
         PLATFORM.speaker().play_sound("click_wooden", 2);
+        repaint = true;
     }
 
     auto sel = [](auto& text, int tile) {
@@ -110,25 +124,47 @@ ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
             Layer::overlay, text->coord().x - 2, text->coord().y, tile);
     };
 
-    switch (APP.gp_.difficulty_) {
-    case GlobalPersistentData::Difficulty::beginner:
-        sel(easy_text_, 396);
-        sel(normal_text_, 0);
-        sel(hard_text_, 0);
-        break;
+    if (repaint) {
 
-    case GlobalPersistentData::Difficulty::experienced:
-        sel(easy_text_, 0);
-        sel(normal_text_, 396);
-        sel(hard_text_, 0);
-        break;
+        auto hint_colors = Text::OptColors{
+            {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
 
-    case GlobalPersistentData::Difficulty::expert:
-        sel(easy_text_, 0);
-        sel(normal_text_, 0);
-        sel(hard_text_, 396);
-        break;
+        switch (APP.gp_.difficulty_) {
+        case GlobalPersistentData::Difficulty::beginner:
+            sel(easy_text_, 396);
+            sel(normal_text_, 0);
+            sel(hard_text_, 0);
+            desc_->assign(SYS_CSTR(difficulty_hint_easy),
+                          {1, 14},
+                          {28, 6},
+                          0,
+                          hint_colors);
+            break;
+
+        case GlobalPersistentData::Difficulty::experienced:
+            sel(easy_text_, 0);
+            sel(normal_text_, 396);
+            sel(hard_text_, 0);
+            desc_->assign(SYS_CSTR(difficulty_hint_normal),
+                          {1, 14},
+                          {28, 6},
+                          0,
+                          hint_colors);
+            break;
+
+        case GlobalPersistentData::Difficulty::expert:
+            sel(easy_text_, 0);
+            sel(normal_text_, 0);
+            sel(hard_text_, 396);
+            desc_->assign(SYS_CSTR(difficulty_hint_hard),
+                          {1, 14},
+                          {28, 6},
+                          0,
+                          hint_colors);
+            break;
+        }
     }
+
 
     if (APP.player().key_down(Key::action_1)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);

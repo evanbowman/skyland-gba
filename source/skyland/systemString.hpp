@@ -568,6 +568,12 @@ enum class SystemString {
     sf_casual,
     sf_normal,
     sf_hard,
+    sf_annihilation,
+
+    difficulty_hint_easy,
+    difficulty_hint_normal,
+    difficulty_hint_hard,
+    difficulty_hint_annihilation,
 
     exit_tutorial,
 

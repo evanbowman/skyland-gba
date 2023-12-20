@@ -7,13 +7,14 @@
 
 (gc)
 
-(let ((opts (range 7)))
+(let ((opts (range 8)))
   (let ((lv 0)
         (lvs
          ;; Collect all quest ids not in the qids (seen) list
          (filter (lambda
                    (not (filter (equalto? $0) qids)))
                  opts)))
+
     (when lvs
       (setq lv (sample lvs)))
 

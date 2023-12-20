@@ -22,7 +22,7 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
-(let ((prob (get '(32 13 7) (difficulty))))
+(let ((prob (get '(32 14 7) (difficulty))))
   (when (and (equal (choice prob) 0)     ; 1/prob chance.
              (equal (wg-current-type) 8) ; uncharted hostile node.
              (not (has-dialog?))         ; sanity check.

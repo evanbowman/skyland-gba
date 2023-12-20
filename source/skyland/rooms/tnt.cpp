@@ -38,6 +38,7 @@
 #include "skyland/entity/projectile/fireBolt.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/readyScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
@@ -76,22 +77,118 @@ void Explosive::update(Time delta)
 
 
 
+class IgniteExplosiveScene : public ActiveWorldScene
+{
+public:
+    IgniteExplosiveScene(RoomCoord c) : coord_(c)
+    {
+    }
+
+
+    void enter(Scene& prev) override
+    {
+        WorldScene::enter(prev);
+        auto st = calc_screen_tiles();
+
+        text_.emplace("ignite?", OverlayCoord{0, u8(st.y - 1)});
+
+        const int count = st.x - text_->len();
+        for (int i = 0; i < count; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+        }
+
+        for (int i = 0; i < st.x; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
+        }
+        yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+        no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+
+        yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+        no_text_->assign(SYSTR(salvage_option_B)->c_str());
+
+        for (int i = 23; i < st.x; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
+        }
+
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+        PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 160);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 161);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 162);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 163);
+
+        PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
+        PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
+        PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
+        PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
+    }
+
+
+    void exit(Scene& next) override
+    {
+        WorldScene::exit(next);
+
+        text_.reset();
+        yes_text_.reset();
+        no_text_.reset();
+
+        PLATFORM.fill_overlay(0);
+    }
+
+
+    void display() override
+    {
+        if (auto r = APP.player_island().get_room(coord_)) {
+            r->display_on_hover(PLATFORM.screen(), coord_);
+        }
+
+        ActiveWorldScene::display();
+    }
+
+
+    ScenePtr<Scene> update(Time delta) override
+    {
+        if (auto s = ActiveWorldScene::update(delta)) {
+            return s;
+        }
+
+        if (APP.player().key_down(Key::action_1)) {
+            if (auto r = APP.player_island().get_room(coord_)) {
+                r->apply_damage(1);
+
+                network::packet::DynamiteActivated packet;
+                packet.x_ = r->position().x;
+                packet.y_ = r->position().y;
+                network::transmit(packet);
+            }
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        if (APP.player().key_down(Key::action_2)) {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    std::optional<Text> text_;
+    std::optional<Text> yes_text_;
+    std::optional<Text> no_text_;
+    RoomCoord coord_;
+};
+
+
+
 ScenePtr<Scene> Explosive::select(const RoomCoord& cursor)
 {
     if (parent() not_eq &APP.player_island()) {
         return null_scene();
     }
 
-    Room::apply_damage(1);
-
-    network::packet::DynamiteActivated packet;
-    packet.x_ = position().x;
-    packet.y_ = position().y;
-    network::transmit(packet);
-
-    ignition_ = true;
-
-    return null_scene();
+    return scene_pool::alloc<IgniteExplosiveScene>(position());
 }
 
 
@@ -180,8 +277,12 @@ void Explosive::ignite(int range, Health damage, bool spread_fire)
 
     for (auto& room : *targets) {
 
-        room->apply_damage(damage);
-
+        if (room->cast<TNT>()) {
+            auto d = clamp((int)damage, 0, (int)tnt_damage);
+            room->apply_damage(std::min(room->health() + 1, d));
+        } else {
+            room->apply_damage(damage);
+        }
 
         if (spread_fire and not((*room->metaclass())->properties() &
                                 RoomProperties::fireproof)) {
