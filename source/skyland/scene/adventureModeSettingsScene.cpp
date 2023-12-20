@@ -70,6 +70,10 @@ void AdventureModeSettingsScene::enter(Scene& prev)
         OverlayCoord{(u8)centered_text_margins(strlen(str3->c_str())), 8});
 
 
+    for (int x = 1; x < 29; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 13, 377);
+    }
+
     PLATFORM.screen().fade(0.96f);
     PLATFORM.screen().fade(1.f);
 
@@ -100,7 +104,13 @@ ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
         repaint = true;
     }
 
-    if (APP.player().key_down(Key::up)) {
+    APP.player().update(delta);
+
+    auto test_key = [&](Key k) {
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    };
+
+    if (test_key(Key::up)) {
         auto& diff = APP.gp_.difficulty_;
         if ((int)diff == 0) {
             diff = GlobalPersistentData::Difficulty::expert;
@@ -112,7 +122,7 @@ ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
         repaint = true;
     }
 
-    if (APP.player().key_down(Key::down)) {
+    if (test_key(Key::down)) {
         auto& diff = APP.gp_.difficulty_;
         diff = (GlobalPersistentData::Difficulty)(((u8)diff + 1) % 3);
         PLATFORM.speaker().play_sound("click_wooden", 2);

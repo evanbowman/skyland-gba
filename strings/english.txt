@@ -448,7 +448,7 @@ beginner
 normal
 hard
 maniac
-The easiest mode, but still challenging.
+The easiest mode, but still challenging. Extra tries if you die.
 Enemies give you less resources. Score x2. Harder level patterns.
 Enemies give you even less resources. Score x4. Even harder level patterns.
 No pausing. Score x6.
