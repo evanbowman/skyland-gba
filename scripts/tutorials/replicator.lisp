@@ -6,7 +6,7 @@
 (island-configure
  (player)
  '((power-core 1 13)
-   (replicator 3 11)
+   (replicator 3 12)
    (stairwell 5 11)))
 
 

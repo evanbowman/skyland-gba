@@ -40,7 +40,7 @@
   (manufactory  80  2500 30)
   (radar        30  300  80)
   (transporter  100 999  40)
-  (replicator   80  2500 80)
+  (replicator   80  2000 60)
   (drone-bay    200 2100 36)
   (cargo-bay    60  300  5)
   (arc-gun      240 1700 40)

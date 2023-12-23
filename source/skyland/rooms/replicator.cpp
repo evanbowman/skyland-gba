@@ -180,17 +180,14 @@ void Replicator::render_interior(App* app, TileId buffer[16][16])
     auto x = position().x;
     auto y = position().y;
 
-    buffer[x][y] = InteriorTile::empty;
-    buffer[x + 1][y] = InteriorTile::empty;
+    buffer[x][y] = InteriorTile::replicator_1;
+    buffer[x][y + 1] = InteriorTile::replicator_3;
 
-    buffer[x][y + 1] = InteriorTile::replicator_1;
-    buffer[x][y + 2] = InteriorTile::replicator_3;
+    buffer[x + 1][y] = InteriorTile::replicator_2;
+    buffer[x + 1][y + 1] = InteriorTile::replicator_4;
 
-    buffer[x + 1][y + 1] = InteriorTile::replicator_2;
-    buffer[x + 1][y + 2] = InteriorTile::replicator_4;
-
-    buffer[x][y + 3] = InteriorTile::plain_floor;
-    buffer[x + 1][y + 3] = InteriorTile::plain_floor;
+    buffer[x][y + 2] = InteriorTile::plain_floor;
+    buffer[x + 1][y + 2] = InteriorTile::plain_floor;
 }
 
 
@@ -202,13 +199,11 @@ void Replicator::render_exterior(App* app, TileId buffer[16][16])
 
     buffer[x][y] = Tile::wall_window_1;
     buffer[x][y + 1] = Tile::wall_window_middle_2;
-    buffer[x][y + 2] = Tile::wall_window_middle_1;
-    buffer[x][y + 3] = Tile::wall_window_2;
+    buffer[x][y + 2] = Tile::wall_plain_2;
 
     buffer[x + 1][y] = Tile::wall_window_1;
     buffer[x + 1][y + 1] = Tile::wall_window_middle_2;
-    buffer[x + 1][y + 2] = Tile::wall_window_middle_1;
-    buffer[x + 1][y + 3] = Tile::wall_window_2;
+    buffer[x + 1][y + 2] = Tile::wall_plain_2;
 }
 
 

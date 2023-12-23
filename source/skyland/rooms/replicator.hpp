@@ -61,7 +61,7 @@ public:
 
     static Vec2<u8> size()
     {
-        return {2, 4};
+        return {2, 3};
     }
 
 
