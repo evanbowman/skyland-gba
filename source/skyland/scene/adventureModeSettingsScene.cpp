@@ -91,6 +91,8 @@ void AdventureModeSettingsScene::exit(Scene& prev)
     normal_text_.reset();
     hard_text_.reset();
     desc_.reset();
+
+    PLATFORM.fill_overlay(0);
 }
 
 
