@@ -118,6 +118,8 @@ private:
     bool circ_effect_ = false;
 
     Buffer<Text, 5> lines_;
+    Coins v_coins_ = 0;
+    std::optional<Text> add_coins_;
 
     bool options_allowed_ = true;
 
