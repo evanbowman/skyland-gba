@@ -436,6 +436,26 @@ ScenePtr<Scene> RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::player_room_powerchange: {
+            auto e = (time_stream::event::PlayerRoomPowerchange*)end;
+            if (auto room = APP.player_island().get_room({e->x_, e->y_})) {
+                room->set_powerdown(e->status_);
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_powerchange: {
+            auto e = (time_stream::event::OpponentRoomPowerchange*)end;
+            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
+                room->set_powerdown(e->status_);
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::player_room_transmuted: {
             auto e = (time_stream::event::PlayerRoomTransmuted*)end;
 

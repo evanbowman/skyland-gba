@@ -39,7 +39,6 @@
 #include "loadLevelScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/player/playerP1.hpp"
-#include "skyland/rooms/radar.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -492,15 +491,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
             }
         };
 
-        has_radar_ = false;
-        for (auto& room : APP.player_island().rooms()) {
-            if (room->cast<Radar>()) {
-                has_radar_ = true;
-                break;
-            }
-        }
-
-        if (has_radar_) {
+        if (APP.player_island().has_radar()) {
             collect_targets(6, 6);
         } else {
             collect_targets(5, 5);

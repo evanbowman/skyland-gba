@@ -170,7 +170,7 @@ public:
 
 
 
-ScenePtr<Scene> WeatherEngine::select(const RoomCoord& cursor)
+ScenePtr<Scene> WeatherEngine::select_impl(const RoomCoord& cursor)
 {
     return scene_pool::alloc<SetWeatherScene>();
 }

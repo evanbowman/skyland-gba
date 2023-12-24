@@ -420,14 +420,14 @@ void SelectMenuScene::enter(Scene& scene)
                  APP.game_mode() == App::GameMode::sandbox) and
                 APP.game_mode() not_eq App::GameMode::co_op) {
                 if ((*room->metaclass())->category() ==
-                    Room::Category::weapon) {
+                    Room::Category::weapon and
+                    room->get_target()) {
 
                     if (not PLATFORM.network_peer().is_connected()) {
                         add_line(SystemString::sel_menu_weapon_halt,
                                  true,
-                                 [this, cursor]() {
-                                     if (auto room =
-                                             island()->get_room(cursor)) {
+                                 [this, c = cursor]() {
+                                     if (auto room = island()->get_room(c)) {
                                          room->unset_target();
                                      }
                                      return null_scene();
@@ -459,26 +459,6 @@ void SelectMenuScene::enter(Scene& scene)
 
         if (not PLATFORM.network_peer().is_connected()) {
             auto room = island()->get_room(cursor);
-            if (is_player_island(island()) and room) {
-                if (room->upgrade_mt_name()) {
-                    add_line(
-                        SystemString::sel_menu_upgrade_block,
-                        true,
-                        [this, cursor]() -> ScenePtr<Scene> {
-                            auto room = island()->get_room(cursor);
-                            if (not room) {
-                                return null_scene();
-                            }
-                            auto up = room->upgrade_mt_name();
-                            if (not up) {
-                                return null_scene();
-                            }
-                            auto to = metaclass_index(up);
-                            return scene_pool::alloc<UpgradePromptScene>(
-                                room->position(), room->metaclass_index(), to);
-                        });
-                }
-            }
             if (room and (room->description_visible() or
                           is_player_island(room->parent()))) {
                 add_line(
@@ -505,6 +485,53 @@ void SelectMenuScene::enter(Scene& scene)
                         }
                         return null_scene();
                     });
+            }
+            if (is_player_island(island()) and room) {
+                if (room->upgrade_mt_name()) {
+                    add_line(
+                        SystemString::sel_menu_upgrade_block,
+                        true,
+                        [this, cursor]() -> ScenePtr<Scene> {
+                            auto room = island()->get_room(cursor);
+                            if (not room) {
+                                return null_scene();
+                            }
+                            auto up = room->upgrade_mt_name();
+                            if (not up) {
+                                return null_scene();
+                            }
+                            auto to = metaclass_index(up);
+                            return scene_pool::alloc<UpgradePromptScene>(
+                                room->position(), room->metaclass_index(), to);
+                        });
+                }
+            }
+            if (room and
+                is_player_island(isle) and
+                (*room->metaclass())->category() not_eq Room::Category::wall) {
+
+                if (room->is_powered_down()) {
+                    add_line(SystemString::sel_menu_poweron,
+                             true,
+                             [this, c = cursor]() {
+                                 if (auto room = island()->get_room(c)) {
+                                     room->set_powerdown(false);
+                                     island()->schedule_repaint();
+                                 }
+                                 return null_scene();
+                             });
+                } else if (room->power_usage() > 0 and
+                           not str_eq(room->name(), "mycelium")) {
+                    add_line(SystemString::sel_menu_powerdown,
+                             true,
+                             [this, c = cursor]() {
+                                 if (auto room = island()->get_room(c)) {
+                                     room->set_powerdown(true);
+                                     island()->schedule_repaint();
+                                 }
+                                 return null_scene();
+                             });
+                }
             }
         }
     }

@@ -64,7 +64,7 @@ void QrBlock::update(Time delta)
 
 
 
-ScenePtr<Scene> QrBlock::select(const RoomCoord& cursor)
+ScenePtr<Scene> QrBlock::select_impl(const RoomCoord& cursor)
 {
     PLATFORM.speaker().play_sound("button_wooden", 3);
 

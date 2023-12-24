@@ -172,7 +172,7 @@ void PluginRoom::rewind(Time delta)
 
 
 
-ScenePtr<Scene> PluginRoom::select(const RoomCoord& cursor)
+ScenePtr<Scene> PluginRoom::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 

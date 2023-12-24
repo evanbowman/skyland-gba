@@ -577,6 +577,8 @@ crewmember icon
 upgrade block
 pin crewmember
 unpin crewmember
+power-on
+power-off
 choose flag:
 colonial
 old empire

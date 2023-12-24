@@ -49,6 +49,13 @@ namespace skyland
 void Bulkhead::plot_walkable_zones(bool matrix[16][16],
                                    BasicCharacter* for_character)
 {
+    if (is_powered_down()) {
+        if (open_) {
+            Room::plot_walkable_zones(matrix, for_character);
+        }
+        return;
+    }
+
     // If the door belongs to the character's home island or the door is
     // currently open, then a character can walk through it.
     if (for_character and for_character->owner() == &parent()->owner()) {
@@ -79,6 +86,10 @@ void Bulkhead::update(Time delta)
     Room::update(delta);
 
     Room::ready();
+
+    if (is_powered_down()) {
+        return;
+    }
 
     if (length(characters())) {
         set_open(true);

@@ -193,7 +193,8 @@ void IonBurst::on_collision(Room& room, Vec2<u8> origin)
     destroy(true);
 
     if ((*room.metaclass())->properties() &
-        RoomProperties::cancels_ion_damage) {
+        RoomProperties::cancels_ion_damage and
+        not room.is_powered_down()) {
         sound_fizzle.play(1);
     } else {
         room.apply_damage(ion_burst_damage);

@@ -120,7 +120,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(const RoomCoord& cursor) override;
+    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
 
 
     void display_on_hover(Platform::Screen& screen,

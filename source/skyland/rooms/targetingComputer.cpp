@@ -73,6 +73,10 @@ void TargetingComputer::update(Time delta)
         return;
     }
 
+    if (is_powered_down()) {
+        return;
+    }
+
     Room::ready();
 
     if (&parent()->owner() == &APP.opponent()) {
@@ -196,7 +200,7 @@ void TargetingComputer::unset_target()
 
 
 
-ScenePtr<Scene> TargetingComputer::select(const RoomCoord& cursor)
+ScenePtr<Scene> TargetingComputer::select_impl(const RoomCoord& cursor)
 {
     if (parent() == &player_island()) {
         // I repurposed the ReloadComplete event because it's already looped
