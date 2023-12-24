@@ -637,7 +637,6 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
             timer_ = 0;
             anim_state_ = AnimState::show_coins;
             APP.set_coins(APP.coins() + APP.victory_coins());
-            v_coins_ = APP.victory_coins();
         }
         break;
     }
@@ -715,21 +714,10 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
 
         auto time = milliseconds(2000);
 
-        if (timer_ > milliseconds(500) and not add_coins_) {
-            // const u8 x = 2 + integer_text_length(APP.coins());
-            auto clr = Text::OptColors{{ColorConstant::med_blue_gray,
-                                         ColorConstant::rich_black}};
-            add_coins_.emplace(OverlayCoord{1, 3});
-            add_coins_->assign("+", clr);
-            add_coins_->append(v_coins_, clr);
-            add_coins_->append("", clr);
-        }
-
         if (timer_ > time) {
             timer_ = 0;
             coins_.reset();
             power_.reset();
-            add_coins_.reset();
 
             if (APP.game_mode() == App::GameMode::skyland_forever or
                 APP.game_mode() == App::GameMode::co_op) {
