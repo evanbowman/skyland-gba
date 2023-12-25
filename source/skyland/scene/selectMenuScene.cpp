@@ -420,7 +420,7 @@ void SelectMenuScene::enter(Scene& scene)
                  APP.game_mode() == App::GameMode::sandbox) and
                 APP.game_mode() not_eq App::GameMode::co_op) {
                 if ((*room->metaclass())->category() ==
-                    Room::Category::weapon and
+                        Room::Category::weapon and
                     room->get_target()) {
 
                     if (not PLATFORM.network_peer().is_connected()) {
@@ -506,8 +506,10 @@ void SelectMenuScene::enter(Scene& scene)
                         });
                 }
             }
-            if (room and
-                is_player_island(isle) and
+            if (room and is_player_island(isle) and
+                // NOTE: walls cannot be powered down. A wall's main purpose is
+                // to absorb damange, if a wall consumes power, what would a
+                // powered down wall even mean, logically speaking...
                 (*room->metaclass())->category() not_eq Room::Category::wall) {
 
                 if (room->is_powered_down()) {
@@ -520,8 +522,7 @@ void SelectMenuScene::enter(Scene& scene)
                                  }
                                  return null_scene();
                              });
-                } else if (room->power_usage() > 0 and
-                           not str_eq(room->name(), "mycelium")) {
+                } else if (room->power_usage() > 0) {
                     add_line(SystemString::sel_menu_powerdown,
                              true,
                              [this, c = cursor]() {
