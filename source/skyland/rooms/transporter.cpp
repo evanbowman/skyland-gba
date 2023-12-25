@@ -425,7 +425,7 @@ void Transporter::transport_occupant(std::optional<RoomCoord> destination)
 
 ScenePtr<Scene> Transporter::select_impl(const RoomCoord& cursor)
 {
-    if (auto new_scene = Room::select(cursor)) {
+    if (auto new_scene = Room::select_impl(cursor)) {
         return new_scene;
     }
 

@@ -136,7 +136,7 @@ bool Replicator::create_replicant()
 
 ScenePtr<Scene> Replicator::select_impl(const RoomCoord& cursor)
 {
-    if (auto next = Room::select(cursor)) {
+    if (auto next = Room::select_impl(cursor)) {
         return next;
     }
 

@@ -688,7 +688,7 @@ void BoardingPod::unset_target()
 ScenePtr<Scene> BoardingPod::select(const RoomCoord& cursor)
 {
     if (parent()->interior_visible()) {
-        if (auto scn = Room::select(cursor)) {
+        if (auto scn = Room::select_impl(cursor)) {
             return scn;
         }
     }

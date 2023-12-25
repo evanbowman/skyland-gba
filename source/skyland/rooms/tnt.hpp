@@ -264,7 +264,7 @@ public:
 
     ScenePtr<Scene> select_impl(const RoomCoord& cursor) override
     {
-        return Room::select(cursor);
+        return Room::select_impl(cursor);
     }
 
 
