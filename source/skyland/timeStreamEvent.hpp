@@ -219,6 +219,9 @@ enum Type : u8 {
     mind_control_stopped,
 
     cargo_bay_contents,
+
+    player_room_powerchange,
+    opponent_room_powerchange,
 };
 
 
@@ -275,6 +278,30 @@ struct PlayerRoomDestroyedWithGroup
     u8 group_;
 
     static constexpr const auto t = Type::player_room_destroyed_with_group;
+};
+
+
+
+struct PlayerRoomPowerchange
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    bool status_;
+
+    static constexpr const auto t = Type::player_room_powerchange;
+};
+
+
+
+struct OpponentRoomPowerchange
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    bool status_;
+
+    static constexpr const auto t = Type::opponent_room_powerchange;
 };
 
 

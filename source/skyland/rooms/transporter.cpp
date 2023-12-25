@@ -80,6 +80,10 @@ void Transporter::update(Time delta)
 
         Room::ready();
 
+        if (is_powered_down()) {
+            return;
+        }
+
         recharge_ -= delta;
 
         if (recharge_ < 0) {
@@ -111,6 +115,10 @@ void Transporter::update(Time delta)
 void Transporter::rewind(Time delta)
 {
     Room::rewind(delta);
+
+    if (is_powered_down()) {
+        return;
+    }
 
     if (recharge_ <= 0) {
         // Fully recharged.
@@ -415,7 +423,7 @@ void Transporter::transport_occupant(std::optional<RoomCoord> destination)
 
 
 
-ScenePtr<Scene> Transporter::select(const RoomCoord& cursor)
+ScenePtr<Scene> Transporter::select_impl(const RoomCoord& cursor)
 {
     if (auto new_scene = Room::select(cursor)) {
         return new_scene;

@@ -137,10 +137,15 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    ScenePtr<Scene> select(const RoomCoord& cursor) override;
+    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
 
 
 protected:
+
+
+    void on_powerchange() override;
+
+
     std::optional<RoomCoord> target_;
     bool target_pinned_ = false;
 };

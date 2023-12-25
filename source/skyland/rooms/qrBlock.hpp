@@ -125,7 +125,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(const RoomCoord& cursor) override;
+    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
 
 
     void set_message(const char* msg)

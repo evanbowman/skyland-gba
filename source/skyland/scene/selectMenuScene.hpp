@@ -89,6 +89,7 @@ private:
 
     DynamicMemory<Options> opts_;
     int sel_ = 0;
+    bool show_power_on_exit_ = false;
 };
 
 

@@ -59,7 +59,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
       x_position_(position.x), y_position_(position.y), ai_aware_(true),
       cloaked_(false), init_awareness_upon_unpause_(false),
-      show_damage_delay_frames_(0), has_static_(0)
+      show_damage_delay_frames_(0), powerdown_(0)
 {
 
     if (name == nullptr) {
@@ -176,6 +176,9 @@ MetaclassIndex Room::metaclass_index() const
 
 Power Room::power_usage() const
 {
+    if (powerdown_) {
+        return 0;
+    }
     return (*metaclass())->consumes_power();
 }
 
@@ -547,6 +550,38 @@ ScenePtr<Scene> Room::reject_if_friendly()
 
 
 
+void Room::set_powerdown(bool powerdown)
+{
+    if (powerdown == powerdown_) {
+        return;
+    }
+
+    powerdown_ = powerdown;
+    unset_target();
+    detach_drone(false);
+
+    on_powerchange();
+
+    if (is_player_island(parent())) {
+        time_stream::event::PlayerRoomPowerchange e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.status_ = not powerdown_;
+        APP.time_stream().push(APP.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRoomPowerchange e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.status_ = not powerdown_;
+        APP.time_stream().push(APP.level_timer(), e);
+    }
+
+    parent_->recalculate_power_usage();
+    parent_->schedule_repaint();
+}
+
+
+
 ScenePtr<Scene> Room::do_select()
 {
     if (length(characters_)) {
@@ -632,6 +667,20 @@ ScenePtr<Scene> Room::setup()
 
 
 ScenePtr<Scene> Room::select(const RoomCoord& cursor)
+{
+    if (is_powered_down()) {
+        if (auto scn = do_select()) {
+            return scn;
+        }
+        return null_scene();
+    }
+
+    return select_impl(cursor);
+}
+
+
+
+ScenePtr<Scene> Room::select_impl(const RoomCoord& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {

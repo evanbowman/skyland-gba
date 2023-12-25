@@ -182,7 +182,7 @@ private:
 
 
 
-ScenePtr<Scene> Explosive::select(const RoomCoord& cursor)
+ScenePtr<Scene> Explosive::select_impl(const RoomCoord& cursor)
 {
     if (parent() not_eq &APP.player_island()) {
         return null_scene();

@@ -59,6 +59,19 @@ Weapon::Weapon(Island* parent,
 
 
 
+void Weapon::on_powerchange()
+{
+    if (is_powered_down()) {
+        parent()->bulk_timer().deschedule(this);
+    } else {
+        auto rem = Timer::remaining();
+        Timer::__override_clock(0);
+        parent()->bulk_timer().schedule(this, rem);
+    }
+}
+
+
+
 Weapon::~Weapon()
 {
     parent()->bulk_timer().deschedule(this);
@@ -90,6 +103,13 @@ void Weapon::timer_expired()
     }
 
     if (target_) {
+
+        if (is_powered_down()) {
+            unset_target();
+            parent()->bulk_timer().schedule(this, reload() - 1);
+            Timer::__override_clock(0);
+            return;
+        }
 
         if (parent()->power_supply() < parent()->power_drain()) {
             parent()->bulk_timer().schedule(this, reload() - 1);
@@ -194,6 +214,10 @@ bool Weapon::target_pinned() const
 
 void Weapon::set_target(const RoomCoord& target, bool pinned)
 {
+    if (is_powered_down()) {
+        return;
+    }
+
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
         // change.
@@ -258,9 +282,13 @@ void Weapon::unset_target()
 
 
 
-ScenePtr<Scene> Weapon::select(const RoomCoord& cursor)
+ScenePtr<Scene> Weapon::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
+
+    if (is_powered_down()) {
+        return null_scene();
+    }
 
     if (mt_prep_seconds) {
         return null_scene();

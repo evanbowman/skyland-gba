@@ -975,6 +975,11 @@ void Island::update(Time dt)
             room->finalize();
 
             if (&owner() == &APP.player()) {
+                if (room->is_powered_down()) {
+                    // To trigger the recording of the room's powered-down state
+                    // in rewinding logic.
+                    room->set_powerdown(false);
+                }
                 if (had_target) {
                     time_stream::event::WeaponSetTarget e;
                     e.room_x_ = pos.x;
@@ -1714,6 +1719,16 @@ void Island::repaint_partial()
             }
         }
     }
+
+    for (auto& room : rooms_) {
+        if (room->is_powered_down()) {
+            const auto tile = (6 * 4 - 1) + 4;
+            if (layer_ == Layer::map_0_ext) {
+                auto [x, y] = room->position();
+                PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
+            }
+        }
+    }
 }
 
 
@@ -1773,6 +1788,9 @@ void Island::repaint()
     core_count_ = 0;
     offensive_capabilities_ = 0;
     for (auto& room : rooms_) {
+        if (room->is_powered_down()) {
+            continue;
+        }
         if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
             chimney_locs.push_back(room->position());
         }
@@ -1961,6 +1979,13 @@ void Island::repaint()
                     PLATFORM.set_raw_tile(
                         Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
                 }
+            }
+        }
+        if (room->is_powered_down()) {
+            const auto tile = (6 * 4 - 1) + 4;
+            if (layer_ == Layer::map_0_ext) {
+                auto [x, y] = room->position();
+                PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
             }
         }
     }

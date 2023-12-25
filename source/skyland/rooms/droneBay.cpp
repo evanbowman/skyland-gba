@@ -79,6 +79,10 @@ void DroneBay::update(Time delta)
         detach_drone(false);
     }
 
+    if (is_powered_down()) {
+        return;
+    }
+
     if (parent()->power_supply() < parent()->power_drain()) {
         if (drone_) {
             (*drone_)->kill();
@@ -160,7 +164,7 @@ void DroneBay::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> DroneBay::select(const RoomCoord& cursor)
+ScenePtr<Scene> DroneBay::select_impl(const RoomCoord& cursor)
 {
     if (reload_ > 0) {
         return null_scene();

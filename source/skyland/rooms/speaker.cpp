@@ -243,7 +243,7 @@ void Speaker::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Speaker::select(const RoomCoord& cursor)
+ScenePtr<Scene> Speaker::select_impl(const RoomCoord& cursor)
 {
     play();
 

@@ -632,6 +632,10 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                  base_weight * (ATP::from_integer(room->health()) /
                                 ATP::from_integer(room->max_health())));
 
+            if (room->is_powered_down()) {
+                slot.ai_weight_ /= 2.0_atp;
+            }
+
             if (room->owner() not_eq ai_island_) {
                 slot.ai_weight_ += 150.0_atp;
             }
@@ -885,6 +889,10 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
             slot.ai_weight_ = room->get_atp();
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
+
+            if (room->is_powered_down()) {
+                slot.ai_weight_ /= 2.0_atp;
+            }
 
             if ((*target_island_).fire_present(slot.coord_)) {
                 // The slot is already on fire! Maybe we can do more damage

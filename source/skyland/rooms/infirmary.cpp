@@ -54,6 +54,10 @@ void Infirmary::update(Time delta)
 {
     Room::update(delta);
 
+    if (is_powered_down()) {
+        return;
+    }
+
     // Optimization: room has no inhabitants, don't schedule for updates.
     if (characters().empty()) {
         return;

@@ -162,7 +162,7 @@ void SparkCannon::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> SparkCannon::select(const RoomCoord& cursor)
+ScenePtr<Scene> SparkCannon::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 

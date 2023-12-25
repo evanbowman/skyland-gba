@@ -319,7 +319,7 @@ public:
     virtual bool non_owner_selectable() const;
 
 
-    virtual ScenePtr<Scene> select(const RoomCoord& cursor);
+    ScenePtr<Scene> select(const RoomCoord& cursor);
 
 
     ScenePtr<Scene> reject_if_friendly();
@@ -761,8 +761,22 @@ public:
     virtual const char* upgrade_mt_name() const;
 
 
+    bool is_powered_down() const
+    {
+        return powerdown_;
+    }
+
+
+    void set_powerdown(bool powerdown);
+
+
 protected:
     ScenePtr<Scene> do_select();
+
+    virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor);
+
+
+    virtual void on_powerchange() {}
 
 
 private:
@@ -843,7 +857,7 @@ private:
     u8 accumulated_damage_ = 0;
     u8 show_damage_delay_frames_ : 6;
 
-    u8 has_static_ : 1;
+    u8 powerdown_ : 1;
     u8 unused_ : 1;
 };
 

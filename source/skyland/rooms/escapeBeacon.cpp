@@ -62,6 +62,10 @@ void EscapeBeacon::update(Time delta)
 {
     Room::update(delta);
 
+    if (is_powered_down()) {
+        return;
+    }
+
     if (activated_) {
 
         Room::ready();
@@ -94,6 +98,10 @@ void EscapeBeacon::rewind(Time delta)
 {
     Room::rewind(delta);
 
+    if (is_powered_down()) {
+        return;
+    }
+
     if (timer_ > 0) {
         timer_ += delta;
         if (timer_ > escape_beacon_countdown) {
@@ -106,7 +114,7 @@ void EscapeBeacon::rewind(Time delta)
 
 
 
-ScenePtr<Scene> EscapeBeacon::select(const RoomCoord& cursor)
+ScenePtr<Scene> EscapeBeacon::select_impl(const RoomCoord& cursor)
 {
     if (APP.game_mode() == App::GameMode::adventure) {
         if (APP.world_graph().nodes_[APP.current_world_location()].type_ ==

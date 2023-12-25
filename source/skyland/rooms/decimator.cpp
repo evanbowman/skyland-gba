@@ -86,6 +86,10 @@ void Decimator::update(Time delta)
 
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
+    if (is_powered_down()) {
+        return;
+    }
+
     if (mt_prep_seconds) {
         return;
     }
@@ -180,6 +184,10 @@ void Decimator::update(Time delta)
 void Decimator::rewind(Time delta)
 {
     Room::rewind(delta);
+
+    if (is_powered_down()) {
+        return;
+    }
 
     if (reload_ <= 0) {
         // Reloaded.
