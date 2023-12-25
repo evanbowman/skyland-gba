@@ -53,7 +53,8 @@ class WorldScene : public Scene
 public:
     WorldScene()
         : far_camera_(false), birds_drawn_(false), noreturn_(false),
-          disable_ui_(false), disable_gamespeed_icon_(false)
+          disable_ui_(false), disable_gamespeed_icon_(false),
+          force_show_power_usage_(false)
     {
     }
 
@@ -130,6 +131,12 @@ public:
     ScenePtr<Scene> make_dialog();
 
 
+    void force_show_power_usage()
+    {
+        force_show_power_usage_ = true;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
@@ -153,6 +160,7 @@ private:
     bool noreturn_ : 1;
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;
+    bool force_show_power_usage_ : 1;
 
     void multiplayer_vs_timeout_step(Time delta);
 

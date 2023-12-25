@@ -141,6 +141,11 @@ public:
 
 
 protected:
+
+
+    void on_powerchange() override;
+
+
     std::optional<RoomCoord> target_;
     bool target_pinned_ = false;
 };

@@ -560,6 +560,8 @@ void Room::set_powerdown(bool powerdown)
     unset_target();
     detach_drone(false);
 
+    on_powerchange();
+
     if (is_player_island(parent())) {
         time_stream::event::PlayerRoomPowerchange e;
         e.x_ = position().x;

@@ -3750,6 +3750,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/music_struttin.hpp"
 #include "data/sound_archivist.hpp"
 #include "data/sound_beep_error.hpp"
+#include "data/sound_powerdown.hpp"
+#include "data/sound_poweron.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
@@ -3845,6 +3847,8 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(msg, sound_msg),
     DEF_SOUND(door, sound_door),
     DEF_SOUND(insert_cart, sound_insert_cart),
+    DEF_SOUND(powerdown, sound_powerdown),
+    DEF_SOUND(poweron, sound_poweron),
     DEF_SOUND(page_flip, sound_page_flip)};
 
 

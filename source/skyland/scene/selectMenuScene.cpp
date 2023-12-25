@@ -459,6 +459,28 @@ void SelectMenuScene::enter(Scene& scene)
 
         if (not PLATFORM.network_peer().is_connected()) {
             auto room = island()->get_room(cursor);
+
+            if (is_player_island(island()) and room) {
+                if (room->upgrade_mt_name()) {
+                    add_line(
+                        SystemString::sel_menu_upgrade_block,
+                        true,
+                        [this, cursor]() -> ScenePtr<Scene> {
+                            auto room = island()->get_room(cursor);
+                            if (not room) {
+                                return null_scene();
+                            }
+                            auto up = room->upgrade_mt_name();
+                            if (not up) {
+                                return null_scene();
+                            }
+                            auto to = metaclass_index(up);
+                            return scene_pool::alloc<UpgradePromptScene>(
+                                room->position(), room->metaclass_index(), to);
+                        });
+                }
+            }
+
             if (room and (room->description_visible() or
                           is_player_island(room->parent()))) {
                 add_line(
@@ -486,26 +508,6 @@ void SelectMenuScene::enter(Scene& scene)
                         return null_scene();
                     });
             }
-            if (is_player_island(island()) and room) {
-                if (room->upgrade_mt_name()) {
-                    add_line(
-                        SystemString::sel_menu_upgrade_block,
-                        true,
-                        [this, cursor]() -> ScenePtr<Scene> {
-                            auto room = island()->get_room(cursor);
-                            if (not room) {
-                                return null_scene();
-                            }
-                            auto up = room->upgrade_mt_name();
-                            if (not up) {
-                                return null_scene();
-                            }
-                            auto to = metaclass_index(up);
-                            return scene_pool::alloc<UpgradePromptScene>(
-                                room->position(), room->metaclass_index(), to);
-                        });
-                }
-            }
             if (room and is_player_island(isle) and
                 // NOTE: walls cannot be powered down. A wall's main purpose is
                 // to absorb damange, if a wall consumes power, what would a
@@ -518,8 +520,10 @@ void SelectMenuScene::enter(Scene& scene)
                              [this, c = cursor]() {
                                  if (auto room = island()->get_room(c)) {
                                      room->set_powerdown(false);
+                                     PLATFORM.speaker().play_sound("poweron", 4);
                                      island()->schedule_repaint();
                                  }
+                                 show_power_on_exit_ = true;
                                  return null_scene();
                              });
                 } else if (room->power_usage() > 0) {
@@ -528,8 +532,10 @@ void SelectMenuScene::enter(Scene& scene)
                              [this, c = cursor]() {
                                  if (auto room = island()->get_room(c)) {
                                      room->set_powerdown(true);
+                                     PLATFORM.speaker().play_sound("powerdown", 4);
                                      island()->schedule_repaint();
                                  }
+                                 show_power_on_exit_ = true;
                                  return null_scene();
                              });
                 }
@@ -592,6 +598,12 @@ void SelectMenuScene::exit(Scene& next)
     PLATFORM.screen().display();
 
     opts_->lines_.clear();
+
+    if (auto ws = next.cast_world_scene()) {
+        if (show_power_on_exit_) {
+            ws->force_show_power_usage();
+        }
+    }
 }
 
 

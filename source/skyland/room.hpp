@@ -776,6 +776,9 @@ protected:
     virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor);
 
 
+    virtual void on_powerchange() {}
+
+
 private:
     // NOTE: All of these parameters are arranged carefully to use minimal
     // space. Do not go re-arranging things unless you understand how struct

@@ -824,6 +824,18 @@ ScenePtr<Scene> WorldScene::update(Time delta)
                                          : &APP.player_island())
                 : &APP.player_island();
 
+
+        if (force_show_power_usage_) {
+            force_show_power_usage_ = false;
+
+            power_.emplace(OverlayCoord{1, 1},
+                           147,
+                           format_power_fraction(disp_power->power_supply(),
+                                                 disp_power->power_drain()),
+                           UIMetric::Align::left,
+                           UIMetric::Format::fraction);
+        }
+
         if (last_power_supplied_ not_eq disp_power->power_supply() or
             last_power_used_ not_eq disp_power->power_drain()) {
 
