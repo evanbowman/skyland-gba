@@ -524,6 +524,7 @@ hold A to erase!
 power outage!
 castle may be friendly!
 out of pauses!
+block is powered off!
 Beginner mode: auto-rewind:
 Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.

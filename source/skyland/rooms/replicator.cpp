@@ -36,6 +36,8 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/notificationScene.hpp"
+#include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/replicatorSelectionScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -123,6 +125,8 @@ bool Replicator::create_replicant()
             chr->transported();
             edit_characters().push(std::move(chr));
             update_description();
+
+            PLATFORM.speaker().play_sound("transporter", 4);
         }
 
     } else {
@@ -138,6 +142,13 @@ ScenePtr<Scene> Replicator::select_impl(const RoomCoord& cursor)
 {
     if (auto next = Room::select_impl(cursor)) {
         return next;
+    }
+
+    if (parent()->power_supply() < parent()->power_drain()) {
+        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        PLATFORM.speaker().play_sound("beep_error", 2);
+        auto str = SYSTR(error_power_out);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
 
     if (parent() == APP.opponent_island() and

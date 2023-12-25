@@ -672,7 +672,11 @@ ScenePtr<Scene> Room::select(const RoomCoord& cursor)
         if (auto scn = do_select()) {
             return scn;
         }
-        return null_scene();
+
+        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        PLATFORM.speaker().play_sound("beep_error", 2);
+        auto str = SYSTR(error_powered_off);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
 
     return select_impl(cursor);

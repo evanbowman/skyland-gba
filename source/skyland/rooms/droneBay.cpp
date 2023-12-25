@@ -245,6 +245,12 @@ void DroneBay::detach_drone(bool quiet)
         e.db_x_pos_ = position().x;
         e.db_y_pos_ = position().y;
         APP.time_stream().push(APP.level_timer(), e);
+
+        if (not PLATFORM.screen().fade_active()) {
+            PLATFORM.speaker().play_sound("explosion1", 0);
+            APP.camera()->shake(6);
+        }
+
     }
 
     drone_.reset();
