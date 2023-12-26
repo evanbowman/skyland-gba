@@ -6,6 +6,8 @@ licenses/* linguist-documentation
 external/** linguist-vendored
 
 source/data/* linguist-generated
+source/platform/psp/glib2d.c linguist-vendored
+source/platform/psp/glib2d.h linguist-vendored
 
 *.lisp linguist-language=lisp
 *.s linguist-language=Assembly
