@@ -250,7 +250,6 @@ void DroneBay::detach_drone(bool quiet)
             PLATFORM.speaker().play_sound("explosion1", 0);
             APP.camera()->shake(6);
         }
-
     }
 
     drone_.reset();

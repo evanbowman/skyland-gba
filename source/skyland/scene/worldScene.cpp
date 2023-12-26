@@ -154,7 +154,7 @@ static void hide_multiplayer_pauses_remaining()
 
 
 
-void WorldScene::set_gamespeed(GameSpeed speed)
+void set_gamespeed(GameSpeed speed)
 {
     if (APP.game_speed() == GameSpeed::stopped and
         speed not_eq GameSpeed::stopped) {
@@ -203,6 +203,14 @@ void WorldScene::set_gamespeed(GameSpeed speed)
     }
 
     APP.game_speed() = speed;
+}
+
+
+
+void WorldScene::set_gamespeed(GameSpeed speed)
+{
+    skyland::set_gamespeed(speed);
+
     if (not disable_gamespeed_icon_) {
         if (speed == GameSpeed::normal) {
             set_pause_icon(0);

@@ -729,6 +729,7 @@ enum class SystemString {
     sel_menu_unpin_crewmember,
     sel_menu_poweron,
     sel_menu_powerdown,
+    sel_menu_adjust_power,
 
     choose_flag,
     flag_default,

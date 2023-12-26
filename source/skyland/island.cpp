@@ -1722,6 +1722,15 @@ void Island::repaint_partial()
 
     for (auto& room : rooms_) {
         if (room->is_powered_down()) {
+
+            // std::optional<u16> pal = 9;
+            auto p = room->position();
+            for (int x = 0; x < room->size().x; ++x) {
+                for (int y = 0; y < room->size().y; ++y) {
+                    PLATFORM.set_palette(Layer::map_0_ext, p.x + x, p.y + y, 9);
+                }
+            }
+
             const auto tile = (6 * 4 - 1) + 4;
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
@@ -1982,6 +1991,14 @@ void Island::repaint()
             }
         }
         if (room->is_powered_down()) {
+
+            auto p = room->position();
+            for (int x = 0; x < room->size().x; ++x) {
+                for (int y = 0; y < room->size().y; ++y) {
+                    PLATFORM.set_palette(Layer::map_0_ext, p.x + x, p.y + y, 9);
+                }
+            }
+
             const auto tile = (6 * 4 - 1) + 4;
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();

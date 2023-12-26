@@ -185,6 +185,10 @@ void GlossaryViewerModule::enter(Scene& prev)
 
 
 
+void set_gamespeed(GameSpeed speed);
+
+
+
 void GlossaryViewerModule::exit(Scene& next)
 {
     if (state_ not_eq State::quickview) {
@@ -204,6 +208,10 @@ void GlossaryViewerModule::exit(Scene& next)
     }
 
     PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+
+    if (APP.game_speed() not_eq GameSpeed::normal) {
+        set_gamespeed(APP.game_speed());
+    }
 }
 
 

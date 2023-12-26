@@ -580,6 +580,7 @@ pin crewmember
 unpin crewmember
 power-on
 power-off
+divert power
 choose flag:
 colonial
 old empire

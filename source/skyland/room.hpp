@@ -776,7 +776,9 @@ protected:
     virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor);
 
 
-    virtual void on_powerchange() {}
+    virtual void on_powerchange()
+    {
+    }
 
 
 private:

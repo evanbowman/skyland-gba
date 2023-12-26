@@ -1109,6 +1109,10 @@ void ReadyScene::display()
 void ReadyScene::exit(Scene& next)
 {
     clear_room_description(room_description_);
+
+    if (not next.cast_world_scene()) {
+        ActiveWorldScene::exit(next);
+    }
 }
 
 

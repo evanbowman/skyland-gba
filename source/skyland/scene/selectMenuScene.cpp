@@ -44,6 +44,7 @@
 #include "salvageRoomScene.hpp"
 #include "setGamespeedScene.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/scene/adjustPowerScene.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -520,7 +521,8 @@ void SelectMenuScene::enter(Scene& scene)
                              [this, c = cursor]() {
                                  if (auto room = island()->get_room(c)) {
                                      room->set_powerdown(false);
-                                     PLATFORM.speaker().play_sound("poweron", 4);
+                                     PLATFORM.speaker().play_sound("poweron",
+                                                                   4);
                                      island()->schedule_repaint();
                                  }
                                  show_power_on_exit_ = true;
@@ -532,7 +534,8 @@ void SelectMenuScene::enter(Scene& scene)
                              [this, c = cursor]() {
                                  if (auto room = island()->get_room(c)) {
                                      room->set_powerdown(true);
-                                     PLATFORM.speaker().play_sound("powerdown", 4);
+                                     PLATFORM.speaker().play_sound("powerdown",
+                                                                   4);
                                      island()->schedule_repaint();
                                  }
                                  show_power_on_exit_ = true;
@@ -552,6 +555,14 @@ void SelectMenuScene::enter(Scene& scene)
                 return ret;
             });
         }
+
+        if (is_player_island(island())) {
+            add_line(
+                SystemString::sel_menu_adjust_power, false, [this, cursor]() {
+                    return scene_pool::alloc<AdjustPowerScene>();
+                });
+        }
+
 
         add_line(SystemString::sel_menu_pause, false, [this, cursor]() {
             return set_gamespeed_setup();

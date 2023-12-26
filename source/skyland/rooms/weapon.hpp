@@ -141,8 +141,6 @@ public:
 
 
 protected:
-
-
     void on_powerchange() override;
 
 

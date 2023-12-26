@@ -458,13 +458,14 @@ void BasicCharacter::update(Time delta, Room* room)
                             state_ = State::repair_room;
                             anim_timer_ = 0;
                         } else {
-                            if (not ai_automated_ and
-                                (not room->cast<Infirmary>() or
-                                 health() == max_health) and
-                                not room->cast<Replicator>() and
-                                not room->cast<Decimator>() and
-                                (not room->cast<Transporter>() or
-                                 (room->cast<Transporter>()->ready()))) {
+                            if (room->is_powered_down() or
+                                (not ai_automated_ and
+                                 (not room->cast<Infirmary>() or
+                                  health() == max_health) and
+                                 not room->cast<Replicator>() and
+                                 not room->cast<Decimator>() and
+                                 (not room->cast<Transporter>() or
+                                  (room->cast<Transporter>()->ready())))) {
                                 // At this point, the character has absolutely
                                 // nothing to do at its current location.
                                 ai_automated_ = true;

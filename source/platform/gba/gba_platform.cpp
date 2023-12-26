@@ -1117,6 +1117,7 @@ EWRAM_DATA u16 tilesheet_0_palette[16];
 EWRAM_DATA u16 tilesheet_1_palette[16];
 EWRAM_DATA u16 overlay_palette[16];
 EWRAM_DATA u16 background_palette[16];
+EWRAM_DATA u16 tilesheet_0_darkened_palette[16];
 
 
 
@@ -1129,6 +1130,10 @@ init_palette(const u16* palette_input, u16* palette, ShaderPalette p)
                 .bgr_hex_555();
     }
 }
+
+
+
+void init_darkened_palette();
 
 
 
@@ -1151,6 +1156,8 @@ void Platform::Screen::set_shader_argument(int arg)
     init_palette(current_background->palette_data_,
                  background_palette,
                  ShaderPalette::background);
+
+    init_darkened_palette();
 }
 
 
@@ -2841,6 +2848,12 @@ void Platform::Screen::fade(float amount,
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, amt);
         }
+        // Tile0 darkened palette
+        for (int i = 0; i < 16; ++i) {
+            auto from =
+                Color::from_bgr_hex_555(tilesheet_0_darkened_palette[i]);
+            MEM_BG_PALETTE[(9 * 16) + i] = blend(from, c, amt);
+        }
         // Custom flag palette?
         for (int i = 0; i < 16; ++i) {
             auto from =
@@ -2934,6 +2947,12 @@ void Platform::Screen::schedule_fade(Float amount,
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             bg_palette_back_buffer[i] = blend(from, c, include_tiles ? amt : 0);
+        }
+        // Tile0 darkened palette
+        for (int i = 0; i < 16; ++i) {
+            auto from =
+                Color::from_bgr_hex_555(tilesheet_0_darkened_palette[i]);
+            MEM_BG_PALETTE[(9 * 16) + i] = blend(from, c, amt);
         }
     }
 
@@ -3087,6 +3106,23 @@ void Platform::load_sprite_texture(const char* name)
 }
 
 
+
+void init_darkened_palette()
+{
+    auto darken_c = Color::from_bgr_hex_555(tilesheet_0_palette[1]).hex();
+
+    const auto c = invoke_shader(darken_c, ShaderPalette::tile0, 0);
+
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+        auto r = blend(from, c, 90);
+        MEM_BG_PALETTE[(9 * 16) + i] = r;
+        tilesheet_0_darkened_palette[i] = r;
+    }
+}
+
+
+
 void Platform::load_tile0_texture(const char* name)
 {
     for (auto& info : tile_textures) {
@@ -3099,6 +3135,7 @@ void Platform::load_tile0_texture(const char* name)
                          tilesheet_0_palette,
                          ShaderPalette::tile0);
 
+            init_darkened_palette();
 
             // We don't want to load the whole palette into memory, we might
             // overwrite palettes used by someone else, e.g. the overlay...
@@ -3750,8 +3787,6 @@ static const AudioTrack* find_music(const char* name)
 #include "data/music_struttin.hpp"
 #include "data/sound_archivist.hpp"
 #include "data/sound_beep_error.hpp"
-#include "data/sound_powerdown.hpp"
-#include "data/sound_poweron.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
@@ -3788,6 +3823,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_page_flip.hpp"
 #include "data/sound_pong_blip1.hpp"
 #include "data/sound_pong_blip2.hpp"
+#include "data/sound_powerdown.hpp"
+#include "data/sound_poweron.hpp"
 #include "data/sound_scroll.hpp"
 #include "data/sound_seagull_1.hpp"
 #include "data/sound_seagull_2.hpp"

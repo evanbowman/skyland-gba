@@ -238,7 +238,9 @@ void Room::display_on_hover(Platform::Screen& screen,
 
 u8 Room::default_palette()
 {
-    if ((*metaclass())->properties() & RoomProperties::plugin) {
+    if (is_powered_down()) {
+        return 9;
+    } else if ((*metaclass())->properties() & RoomProperties::plugin) {
         return 12;
     } else {
         return parent_->layer() == Layer::map_0_ext ? 0 : 2;
@@ -381,6 +383,10 @@ void Room::update(Time delta)
                                              default_palette());
                     }
                 }
+
+                if (is_powered_down()) {
+                    schedule_repaint();
+                }
             }
         }
     }
@@ -469,6 +475,10 @@ void Room::rewind(Time delta)
                                              y_position_ + y,
                                              default_palette());
                     }
+                }
+
+                if (is_powered_down()) {
+                    schedule_repaint();
                 }
             }
         }
