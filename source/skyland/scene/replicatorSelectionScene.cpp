@@ -47,7 +47,7 @@ namespace skyland
 
 
 
-static const auto replicator_fee = 900;
+static const auto replicator_fee = 700;
 
 
 

@@ -515,33 +515,33 @@ void SelectMenuScene::enter(Scene& scene)
                 // powered down wall even mean, logically speaking...
                 (*room->metaclass())->category() not_eq Room::Category::wall) {
 
-                if (room->is_powered_down()) {
-                    add_line(SystemString::sel_menu_poweron,
-                             true,
-                             [this, c = cursor]() {
-                                 if (auto room = island()->get_room(c)) {
-                                     room->set_powerdown(false);
-                                     PLATFORM.speaker().play_sound("poweron",
-                                                                   4);
-                                     island()->schedule_repaint();
-                                 }
-                                 show_power_on_exit_ = true;
-                                 return null_scene();
-                             });
-                } else if (room->power_usage() > 0) {
-                    add_line(SystemString::sel_menu_powerdown,
-                             true,
-                             [this, c = cursor]() {
-                                 if (auto room = island()->get_room(c)) {
-                                     room->set_powerdown(true);
-                                     PLATFORM.speaker().play_sound("powerdown",
-                                                                   4);
-                                     island()->schedule_repaint();
-                                 }
-                                 show_power_on_exit_ = true;
-                                 return null_scene();
-                             });
-                }
+                // if (room->is_powered_down()) {
+                //     add_line(SystemString::sel_menu_poweron,
+                //              true,
+                //              [this, c = cursor]() {
+                //                  if (auto room = island()->get_room(c)) {
+                //                      room->set_powerdown(false);
+                //                      PLATFORM.speaker().play_sound("poweron",
+                //                                                    4);
+                //                      island()->schedule_repaint();
+                //                  }
+                //                  show_power_on_exit_ = true;
+                //                  return null_scene();
+                //              });
+                // } else if (room->power_usage() > 0) {
+                //     add_line(SystemString::sel_menu_powerdown,
+                //              true,
+                //              [this, c = cursor]() {
+                //                  if (auto room = island()->get_room(c)) {
+                //                      room->set_powerdown(true);
+                //                      PLATFORM.speaker().play_sound("powerdown",
+                //                                                    4);
+                //                      island()->schedule_repaint();
+                //                  }
+                //                  show_power_on_exit_ = true;
+                //                  return null_scene();
+                //              });
+                // }
             }
         }
     }
@@ -557,10 +557,10 @@ void SelectMenuScene::enter(Scene& scene)
         }
 
         if (is_player_island(island())) {
-            add_line(
-                SystemString::sel_menu_adjust_power, false, [this, cursor]() {
-                    return scene_pool::alloc<AdjustPowerScene>();
-                });
+            // add_line(
+            //     SystemString::sel_menu_adjust_power, false, [this, cursor]() {
+            //         return scene_pool::alloc<AdjustPowerScene>();
+            //     });
         }
 
 
