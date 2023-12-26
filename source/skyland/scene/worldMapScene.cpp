@@ -493,6 +493,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
 
         if (APP.player_island().has_radar()) {
             collect_targets(6, 6);
+            has_radar_ = true;
         } else {
             collect_targets(5, 5);
         }
