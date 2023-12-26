@@ -64,6 +64,7 @@ public:
     {
         ActiveWorldScene::exit(next);
         text_.reset();
+        PLATFORM.fill_overlay(0);
     }
 
 
@@ -86,6 +87,9 @@ public:
 
         auto desc_block =
             [&] {
+                for (int x = 0; x < calc_screen_tiles().x; ++x) {
+                    PLATFORM.set_tile(Layer::overlay, x, calc_screen_tiles().y - 2, 0);
+                }
                 if (auto room = APP.player_island().get_room(cursor_loc)) {
                     text_.emplace(OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
                     text_->assign("(");
@@ -101,6 +105,13 @@ public:
                         text_->append(room->power_usage());
                     }
                     text_->append("`");
+
+                    for (int i = 0; i < text_->len(); ++i) {
+                        PLATFORM.set_tile(Layer::overlay, i,
+                                          calc_screen_tiles().y - 2,
+                                          425);
+                    }
+
                 } else {
                     text_.reset();
                 }
