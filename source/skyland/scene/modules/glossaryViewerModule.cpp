@@ -88,11 +88,11 @@ void GlossaryViewerModule::load_page(int page)
 
     const auto cond = mt[page]->properties();
     if (cond & RoomProperties::workshop_required) {
-        dependency_text_->assign("(requires workshop)",
+        dependency_text_->assign(SYS_CSTR(glossary_workshop_required),
                                  FontColors{ColorConstant::med_blue_gray,
                                             ColorConstant::rich_black});
     } else if (cond & RoomProperties::manufactory_required) {
-        dependency_text_->assign("(requires manufactory)",
+        dependency_text_->assign(SYS_CSTR(glossary_manufactory_required),
                                  FontColors{ColorConstant::med_blue_gray,
                                             ColorConstant::rich_black});
     } else {

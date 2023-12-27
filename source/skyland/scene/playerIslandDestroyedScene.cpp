@@ -1066,6 +1066,8 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
     rooms_built_ = APP.player().rooms_built_;
     rooms_lost_ = APP.player().rooms_lost_;
 
+    disable_gamespeed_icon();
+
     for (auto& bird : APP.birds()) {
         bird->signal();
     }

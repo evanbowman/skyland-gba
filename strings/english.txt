@@ -521,6 +521,9 @@ highly flammable
 not constructible
 You don't have any DLC installed!
 hold A to erase!
+(requires workshop)
+(requires manufactory)
+(not constructible)
 power outage!
 castle may be friendly!
 out of pauses!

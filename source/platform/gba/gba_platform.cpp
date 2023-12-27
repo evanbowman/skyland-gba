@@ -3123,6 +3123,54 @@ void init_darkened_palette()
 
 
 
+static bool load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
+{
+    auto file = filesystem::load(path);
+    if (file.second) {
+
+        StringBuffer<84> name_str(path);
+
+        if (ends_with(StringBuffer<10>(".img.bin"), name_str)) {
+            StringBuffer<68> pf;
+            for (char c : name_str) {
+                if (c == '.') {
+                    break;
+                } else {
+                    pf.push_back(c);
+                }
+            }
+            pf += ".pal.bin";
+            auto pal_file = filesystem::load(pf.c_str());
+            if (not pal_file.second) {
+                Platform::fatal(format("% missing palette", pf.c_str()));
+            }
+            init_palette((u16*)pal_file.first, pd, pal);
+            LZ77UnCompVram(file.first, (void*)&MEM_SCREENBLOCKS[sbb][0]);
+            return true;
+
+        } else if (ends_with(StringBuffer<10>(".skg"), name_str)) {
+            auto data = (const u16*)file.first;
+            init_palette(data, pd, pal);
+            const auto c = invoke_shader(real_color(last_color), pal, 0);
+
+            // Skip the palette section of the file...
+            data += 16;
+            int data_len = file.second - 16 * 2;
+
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(pd[i]);
+                MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
+            }
+            memcpy16((void*)&MEM_SCREENBLOCKS[sbb][0], data, data_len);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+
 void Platform::load_tile0_texture(const char* name)
 {
     for (auto& info : tile_textures) {
@@ -3164,27 +3212,16 @@ void Platform::load_tile0_texture(const char* name)
         }
     }
 
-    auto file = filesystem::load(name);
-    if (file.second) {
-        auto data = (const u16*)file.first;
-        init_palette(data, tilesheet_0_palette, ShaderPalette::tile0);
-        const auto c =
-            invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
-
-        // Skip the palette section of the file...
-        data += 16;
-        int data_len = file.second - 16 * 2;
-
-        for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-            MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-        }
-        memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0], data, data_len);
+    if (load_img_from_file(name,
+                           ShaderPalette::tile0,
+                           sbb_t0_texture,
+                           tilesheet_0_palette)) {
         return;
     }
 
     fatal(name);
 }
+
 
 
 void Platform::load_tile1_texture(const char* name)
@@ -3226,22 +3263,10 @@ void Platform::load_tile1_texture(const char* name)
         }
     }
 
-    auto file = filesystem::load(name);
-    if (file.second) {
-        auto data = (const u16*)file.first;
-        init_palette(data, tilesheet_1_palette, ShaderPalette::tile1);
-        const auto c =
-            invoke_shader(real_color(last_color), ShaderPalette::tile1, 2);
-
-        // Skip the palette section of the file...
-        data += 16;
-        int data_len = file.second - 16 * 2;
-
-        for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
-            MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
-        }
-        memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0], data, data_len);
+    if (load_img_from_file(name,
+                           ShaderPalette::tile1,
+                           sbb_t1_texture,
+                           tilesheet_1_palette)) {
         return;
     }
 

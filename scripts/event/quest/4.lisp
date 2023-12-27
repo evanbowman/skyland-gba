@@ -1,6 +1,6 @@
 
 (dialog
- "<b:/scripts/misc/img/ceramics.skg>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
+ "<b:/scripts/misc/img/ceramics.img.bin>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
 
 
 (opponent-init 13 'neutral)

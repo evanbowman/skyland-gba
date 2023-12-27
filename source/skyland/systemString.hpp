@@ -654,6 +654,10 @@ enum class SystemString {
     no_dlc_prompt = filter_end,
     dlc_erase_hint,
 
+    glossary_workshop_required,
+    glossary_manufactory_required,
+    glossary_not_constructible,
+
     error_power_out,
     error_friendly,
     error_no_more_pauses,

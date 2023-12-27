@@ -21,7 +21,10 @@
     (let ((lv (get avail-levels (choice (length avail-levels)))))
       (setq friendlies-seen (cons lv friendlies-seen))
 
-      (eval-file (format "scripts/event/neutral/%/%.lisp" (zone) lv)))))
+      (eval-file
+       "scripts/event/neutral/0/1_1.lisp"
+       ;(format "scripts/event/neutral/%/%.lisp" (zone) lv)
+       ))))
 
 
 (gc)

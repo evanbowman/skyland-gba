@@ -1,7 +1,7 @@
 
 (dialog
  "A distress call sounds over your radio! <B:0> "
- "<b:/scripts/misc/img/destroyed_town.skg>"
+ "<b:/scripts/misc/img/destroyed_town.img.bin>"
  "The remnants of a town appear, wrecked by war..")
 
 (opponent-init 8 'neutral)

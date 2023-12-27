@@ -1,0 +1,10 @@
+To create image files:
+
+Either use the grit utility with the following commands:
+grit <file> -ftb -gzl -gB4 -pe16
+
+Or use the img_enc.lua script provided in the tools directory.
+
+Grit will produce smaller images, because it supports compression.  But I can't
+ship the grit program with the rom because it's too big, so if you don't have
+access to grit, try the lua script.

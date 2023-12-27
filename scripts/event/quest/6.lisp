@@ -1,5 +1,5 @@
 
-(dialog "<b:/scripts/misc/img/ruins.skg>"
+(dialog "<b:/scripts/misc/img/ruins.img.bin>"
         "You discover the ruins of an ancient civilization. "
         "The island appears deserted, but just as you are about to leave, someone signals for help...")
 
@@ -33,7 +33,7 @@
             (alloc-space 'ladder)
             (let ((site (construction-sites (player) '(1 . 2))))
               (sound "build0")
-              (room (player) `(ladder ,(caar site) ,(cdar site)))))
+              (room-new (player) `(ladder ,(caar site) ,(cdar site)))))
 
           (setq sl (chr-slots (player)))
           (let ((id (chr-new (player)
