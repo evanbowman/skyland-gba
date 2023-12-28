@@ -1,5 +1,6 @@
 
 (dialog
+ "<b:/scripts/misc/img/wanderer_town.img.bin>"
  "While out on reconnaissance, your crew discovers an overcrowded transit hub, full of refugees departing the storm... <B:0> "
  "<b:/scripts/misc/img/wanderer.img.bin> In the local cantina, a mysterious traveller offers you a deal... <B:0> You change course to dock with the station...")
 

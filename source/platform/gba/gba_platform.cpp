@@ -5513,6 +5513,13 @@ bool Platform::load_overlay_texture(const char* name)
         }
     }
 
+    if (load_img_from_file(name,
+                           ShaderPalette::overlay,
+                           sbb_overlay_texture,
+                           overlay_palette)) {
+        return true;
+    }
+
     return false;
 }
 
