@@ -20,4 +20,5 @@
  'adventure-log
  'shop-items
  'qvar
+ 'mercenary-event
  'ash-storm-count)

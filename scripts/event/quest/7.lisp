@@ -64,6 +64,7 @@
 
 
 (defn on-converge [0]
+  (setq on-converge nil)
   (dialog "<c:mining cheif:20>Hey there! One of our other mining platforms nearby is running low on blasting equipment. <B:0> Can you do us a favor and transport some explosives for us?")
   (defn on-dialog-closed [0]
     (dialog "Sounds extremely dangerous... but the miners offer to pay you quite well. Accept task?")

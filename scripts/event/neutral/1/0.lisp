@@ -3,7 +3,12 @@
 ;;;
 
 
-(dialog "You discover a fortress inhabited by some mercenaries...")
+(dialog
+ ;; The first time this event happens, show a cover image
+ (if (not mercenary-event)
+     "<b:/scripts/misc/img/marauder.img.bin> "
+   "")
+ "You discover a fortress inhabited by some mercenaries...")
 
 
 (opponent-init 5 'neutral)
@@ -11,19 +16,54 @@
 
 (island-configure
  (opponent)
- '((workshop 1 9)
-   (hull 1 8)
-   (cannon 1 7)
-   (hull 1 6)
-   (windmill 2 11)
-   (masonry 2 14 3)
-   (power-core 2 12)
-   (power-core 2 7)
-   (workshop 3 10)
-   (masonry 3 9 3)
-   (masonry 4 9 3)
-   (masonry 4 8 3)
-   (shrubbery 4 7)))
+ (if (not mercenary-event)
+     '((cannon 1 13)
+       (hull 2 14)
+       (hull 2 13)
+       (cannon 2 12)
+       (power-core 3 13)
+       (hull 3 12)
+       (hull 4 12)
+       (hull 4 11))
+   (sample
+    '(((cannon 1 13)
+       (hull 2 14)
+       (hull 2 13)
+       (cannon 2 12)
+       (power-core 3 13)
+       (hull 3 12)
+       (hull 4 12)
+       (hull 4 11))
+      ((hull 0 8)
+       (hull 0 11)
+       (cannon 0 10)
+       (cannon 0 9)
+       (power-core 1 9)
+       (hull 1 12)
+       (hull 1 11)
+       (masonry 2 14 3)
+       (power-core 2 11)
+       (masonry 2 13 3)
+       (masonry 3 14 3)
+       (bronze-hull 3 13)
+       (power-core 3 9)
+       (hull 3 8)
+       (hull 4 14)
+       (hull 4 8)
+       (windmill 4 7))
+      ((workshop 1 9)
+       (hull 1 8)
+       (cannon 1 7)
+       (hull 1 6)
+       (windmill 2 11)
+       (masonry 2 14 3)
+       (power-core 2 12)
+       (power-core 2 7)
+       (workshop 3 10)
+       (masonry 3 9 3)
+       (masonry 4 9 3)
+       (masonry 4 8 3)
+       (shrubbery 4 7))))))
 
 (flag-show (opponent) 1)
 
@@ -71,3 +111,6 @@
         (dialog "The mercenaries became angry, and cut the transmission.")
         (adventure-log-add 28 '())
         (exit)))
+
+
+(setq mercenary-event true)
