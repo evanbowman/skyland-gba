@@ -33,6 +33,7 @@
 
 
 #include "globals.hpp"
+#include "heap_data.hpp"
 #include "localization.hpp"
 #include "memory/malloc.hpp"
 #include "platform/conf.hpp"
@@ -104,8 +105,55 @@ static inline int boot_init()
 
 
 
-static inline void main_loop()
+HEAP_DATA u8 frame_count = 0;
+HEAP_DATA u8 last_fps1 = 0;
+HEAP_DATA u8 last_fps2 = 0;
+HEAP_DATA Time frame_total = 0;
+
+
+
+void draw_approx_fps(Time delta)
 {
+    frame_total += delta;
+
+    ++frame_count;
+
+    if (frame_total >= seconds(1)) {
+        frame_total -= seconds(1);
+
+        last_fps1 = frame_count / 10;
+        last_fps2 = frame_count % 10;
+
+        frame_count = 0;
+    }
+
+    auto c = PLATFORM.screen().get_view().int_center();
+    auto cx = Fixnum::from_integer(c.x);
+    auto cy = Fixnum::from_integer(c.y);
+
+    Sprite spr;
+    spr.set_size(Sprite::Size::w8_h8);
+    spr.set_priority(0);
+    spr.set_tidx_8x8(29, last_fps1);
+    spr.set_position({cx + 2.0_fixed, cy + 2.0_fixed});
+    PLATFORM.screen().draw(spr);
+
+    spr.set_tidx_8x8(29, last_fps2);
+    spr.set_position({cx + 6.0_fixed, cy + 2.0_fixed});
+    PLATFORM.screen().draw(spr);
+}
+
+
+
+} // namespace skyland
+
+
+
+void start(Platform& pfrm)
+{
+    using namespace skyland;
+
+
     malloc_compat::Heap heap;
 
     const bool clean_boot = boot_init();
@@ -119,20 +167,15 @@ static inline void main_loop()
 
         PLATFORM.system_call("feed-watchdog", nullptr);
 
-        app->update(PLATFORM.delta_clock().reset());
+        auto dt = PLATFORM.delta_clock().reset();
+        app->update(dt);
         PLATFORM.screen().clear();
+
+        if (state_bit_load(StateBit::show_fps)) {
+            draw_approx_fps(dt);
+        }
+
         app->render();
         PLATFORM.screen().display();
     }
-}
-
-
-
-} // namespace skyland
-
-
-
-void start(Platform& pfrm)
-{
-    return skyland::main_loop();
 }

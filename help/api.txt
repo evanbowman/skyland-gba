@@ -863,6 +863,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (show-fps bool)
+
+ Display fps in the top left
+ corner.
+
+
+o----------------------------o
+
  (fatal value)
 
  Terminate the game, and

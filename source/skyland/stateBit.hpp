@@ -55,6 +55,7 @@ enum class StateBit {
     move_blocks_help_prompt,
     sel_menu_help_prompt,
     regression,
+    show_fps,
     count,
 };
 

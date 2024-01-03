@@ -591,6 +591,9 @@ struct Value {
 };
 
 
+bool is_boolean_true(Value* val);
+
+
 Value* make_boolean(bool is_true);
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);

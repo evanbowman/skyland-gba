@@ -597,6 +597,13 @@ BINDING_TABLE({
 
           return list.result();
       }}},
+    {"show-fps",
+     {1,
+      [](int argc) {
+          state_bit_store(StateBit::show_fps,
+                          lisp::is_boolean_true(lisp::get_op0()));
+          return L_NIL;
+      }}},
     {"key-bind",
      {2,
       [](int argc) {
