@@ -221,7 +221,7 @@ void EnemyAI::update(Time delta)
                 }
             DONE:
                 if (reassigned) {
-                    local_character_reassign_timer_ = milliseconds(30);
+                    local_character_reassign_timer_ = milliseconds(200);
                 } else {
                     for (auto& room : ai_island_->rooms()) {
                         for (auto& character : room->characters()) {
@@ -627,8 +627,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             slot.ai_weight_ =
                 base_weight +
                 (base_weight -
-                 base_weight * (ATP::from_integer(room->health()) /
-                                ATP::from_integer(room->max_health())));
+                 base_weight * ATP(float(room->health()) /
+                                   (room->max_health())));
 
             if (room->is_powered_down()) {
                 slot.ai_weight_ /= 2.0_atp;

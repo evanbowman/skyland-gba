@@ -64,7 +64,7 @@ class BasicCharacter;
 class EnemyAI : public Opponent
 {
 public:
-    EnemyAI() : ai_state_(allocate_dynamic<AIState>("hostile-ai-control"))
+    EnemyAI()
     {
         ai_island_ = nullptr;
         target_island_ = nullptr;
@@ -72,7 +72,6 @@ public:
 
 
     EnemyAI(Island* ai_island, Island* target_island)
-         : ai_state_(allocate_dynamic<AIState>("spectator-ai-control"))
     {
         ai_island_ = ai_island;
         target_island_ = target_island;
@@ -191,7 +190,7 @@ private:
 
     static const auto next_action_timeout = seconds(1);
     static const auto insufficent_power_resolve_timeout = (milliseconds(100));
-    static const auto character_reassign_timeout = milliseconds(1200);
+    static const auto character_reassign_timeout = milliseconds(6000);
     static const auto drone_update_timeout_ = seconds(1);
 
 
@@ -206,21 +205,6 @@ private:
     Time drone_update_timer_ = 0;
 
     u32 room_update_index_ = 0;
-
-
-    struct AIState
-    {
-        using IdBuffer = Buffer<CharacterId, 30>;
-        IdBuffer local_chrs_;
-        IdBuffer boarded_chrs_;
-
-        u32 local_buffer_index_ = 0;
-        u32 boarded_buffer_index_ = 0;
-
-        Time next_chr_timer_ = 0;
-    };
-
-    DynamicMemory<AIState> ai_state_;
 };
 
 
