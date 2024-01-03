@@ -97,6 +97,11 @@ public:
     }
 
 
+    virtual void update_ai(int arg)
+    {
+    }
+
+
     virtual bool key_down(Key k)
     {
         return false;

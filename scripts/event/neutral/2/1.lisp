@@ -5,7 +5,9 @@
   (eval-file "/scripts/event/neutral/2/1_alt0.lisp"))
  ((equal (difficulty) 1)
   ;; randomly use a harder level
-  (eval-file (format "/scripts/event/neutral/2/1_alt%.lisp" (choice 2))))
+  (if (equal (choice 3) 0)
+      (eval-file "/scripts/event/neutral/2/1_alt1.lisp")
+    (eval-file "/scripts/event/neutral/2/1_alt0.lisp")))
  (true
   ;; harder variant only
   (eval-file "/scripts/event/neutral/2/1_alt1.lisp")))

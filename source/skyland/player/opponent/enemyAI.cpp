@@ -94,8 +94,6 @@ void EnemyAI::update(Time delta)
         target_island_ = &player_island();
     }
 
-    total_time_ += delta;
-
     if (ai_island_->power_supply() < ai_island_->power_drain()) {
 
         // The AI will destroy the least important power-consuming rooms
@@ -191,62 +189,63 @@ void EnemyAI::update(Time delta)
     if (character_reassign_timer_ <= 0) {
         character_reassign_timer_ = character_reassign_timeout;
 
-        for (auto& room : (*target_island_).rooms()) {
-            for (auto& character : room->characters()) {
-                if (character->owner() == this) {
-                    assign_boarded_character(
-                        *character, this, ai_island_, target_island_);
+        if (ai_state_->boarded_buffer_index_ >= ai_state_->boarded_chrs_.size()) {
+            ai_state_->boarded_buffer_index_ = 0;
+
+            ai_state_->boarded_chrs_.clear();
+
+            for (auto& room : (*target_island_).rooms()) {
+                for (auto& character : room->characters()) {
+                    if (character->owner() == this) {
+                        ai_state_->boarded_chrs_.push_back(character->id());
+                    }
                 }
             }
+        }
+
+        if (not ai_state_->boarded_chrs_.empty()) {
+            auto idx = ai_state_->boarded_buffer_index_++;
+            auto id = ai_state_->boarded_chrs_[idx];
+            auto info = BasicCharacter::find_by_id(id);
+
+            if (info.first) {
+                assign_boarded_character(*info.first,
+                                         this,
+                                         ai_island_,
+                                         target_island_);
+            }
+
         }
     }
 
     if (local_character_reassign_timer_ <= 0) {
 
-        if (ai_island_) {
-            if (ai_island_->character_count() > 4) {
-                bool reassigned = false;
-                for (auto& room : ai_island_->rooms()) {
-                    for (auto& character : room->characters()) {
-                        if (character->owner() == this) {
-                            if (not character->ai_marked()) {
-                                assign_local_character(*character,
-                                                       this,
-                                                       ai_island_,
-                                                       target_island_);
-                                character->ai_mark();
-                                reassigned = true;
-                                goto DONE;
-                            }
-                        }
+        local_character_reassign_timer_ = character_reassign_timeout;
+
+        if (ai_state_->local_buffer_index_ >= ai_state_->local_chrs_.size()) {
+            ai_state_->local_buffer_index_ = 0;
+
+            ai_state_->local_chrs_.clear();
+
+            for (auto& room : (*ai_island_).rooms()) {
+                for (auto& character : room->characters()) {
+                    if (character->owner() == this) {
+                        ai_state_->local_chrs_.push_back(character->id());
                     }
                 }
-            DONE:
-                if (reassigned) {
-                    local_character_reassign_timer_ = milliseconds(30);
-                } else {
-                    for (auto& room : ai_island_->rooms()) {
-                        for (auto& character : room->characters()) {
-                            if (character->owner() == this) {
-                                if (character->ai_marked()) {
-                                    character->ai_unmark();
-                                }
-                            }
-                        }
-                    }
-                    local_character_reassign_timer_ =
-                        character_reassign_timeout - seconds(3);
-                }
-            } else {
-                local_character_reassign_timer_ = character_reassign_timeout;
-                for (auto& room : ai_island_->rooms()) {
-                    for (auto& character : room->characters()) {
-                        if (character->owner() == this) {
-                            assign_local_character(
-                                *character, this, ai_island_, target_island_);
-                        }
-                    }
-                }
+            }
+        }
+
+        if (not ai_state_->local_chrs_.empty()) {
+            auto idx = ai_state_->local_buffer_index_++;
+            auto id = ai_state_->local_chrs_[idx];
+            auto info = BasicCharacter::find_by_id(id);
+
+            if (info.first) {
+                assign_local_character(*info.first,
+                                       this,
+                                       ai_island_,
+                                       target_island_);
             }
         }
     }

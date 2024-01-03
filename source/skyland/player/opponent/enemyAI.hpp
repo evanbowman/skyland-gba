@@ -64,7 +64,7 @@ class BasicCharacter;
 class EnemyAI : public Opponent
 {
 public:
-    EnemyAI()
+    EnemyAI() : ai_state_(allocate_dynamic<AIState>("hostile-ai-control"))
     {
         ai_island_ = nullptr;
         target_island_ = nullptr;
@@ -72,6 +72,7 @@ public:
 
 
     EnemyAI(Island* ai_island, Island* target_island)
+         : ai_state_(allocate_dynamic<AIState>("spectator-ai-control"))
     {
         ai_island_ = ai_island;
         target_island_ = target_island;
@@ -82,12 +83,6 @@ public:
 
 
     void on_room_damaged(Room&) override;
-
-
-    void add_coins(Coins value)
-    {
-        coins_ += value;
-    }
 
 
     static void assign_boarded_character(BasicCharacter& character,
@@ -110,6 +105,14 @@ public:
                             Island* target_island);
 
 private:
+
+
+    void update_drone_ai();
+    void update_local_chr_ai();
+    void update_boarded_chr_ai();
+    void update_weapon_ai();
+
+
     static void set_target(const Bitmatrix<16, 16>& matrix,
                            Room& generic_gun,
                            Player* owner,
@@ -187,26 +190,37 @@ private:
 
 
     static const auto next_action_timeout = seconds(1);
+    static const auto insufficent_power_resolve_timeout = (milliseconds(100));
+    static const auto character_reassign_timeout = milliseconds(1200);
+    static const auto drone_update_timeout_ = seconds(1);
+
 
     Time next_action_timer_ = next_action_timeout;
 
-    static const auto character_reassign_timeout = seconds(6);
-
-    Time character_reassign_timer_ = character_reassign_timeout;
+    Time character_reassign_timer_ = character_reassign_timeout + milliseconds(500);
     Time local_character_reassign_timer_ = character_reassign_timeout;
 
-    Coins coins_ = 0;
-
-    static const auto insufficent_power_resolve_timeout = (milliseconds(100));
 
     Time insufficent_power_resolve_timer_ = 0;
 
-    static const auto drone_update_timeout_ = seconds(1);
     Time drone_update_timer_ = 0;
 
-    Time total_time_ = 0;
-
     u32 room_update_index_ = 0;
+
+
+    struct AIState
+    {
+        using IdBuffer = Buffer<CharacterId, 30>;
+        IdBuffer local_chrs_;
+        IdBuffer boarded_chrs_;
+
+        u32 local_buffer_index_ = 0;
+        u32 boarded_buffer_index_ = 0;
+
+        Time next_chr_timer_ = 0;
+    };
+
+    DynamicMemory<AIState> ai_state_;
 };
 
 

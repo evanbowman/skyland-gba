@@ -108,6 +108,8 @@ private:
         bool any_chr_moved_ = false;
 
         void update(Time delta);
+
+        void run();
     };
 
     DynamicMemory<ChrAIState> chr_ai_;
