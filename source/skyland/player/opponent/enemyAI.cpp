@@ -36,6 +36,7 @@
 #include "number/random.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/projectile/missile.hpp"
+#include "skyland/latency.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/arcGun.hpp"
@@ -481,6 +482,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     // reachable slots by the assigned weights, and run an implementation of
     // Dijkstra's algorithm to find a path.
 
+    TIMEPOINT(t1);
+
     if (character.has_movement_path()) {
         return;
     }
@@ -574,14 +577,21 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
         }
     }
 
+    TIMEPOINT(t2);
+
+
     DynamicMemory<bool[16][16]> matrix_ =
         allocate_dynamic<bool[16][16]>("ai-rooms-plot");
 
     ai_island_->plot_walkable_zones(*matrix_, &character);
 
+
+    TIMEPOINT(t3);
+
+
     u8 matrix[16][16];
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
+    for (u32 x = 0; x < ai_island_->terrain().size(); ++x) {
+        for (int y = construction_zone_min_y; y < 15; ++y) {
             if ((*matrix_)[x][y]) {
                 matrix[x][y] = 1;
             } else {
@@ -602,8 +612,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
     Buffer<Destination, 48> slots;
 
-    for (u8 x = 0; x < 16; ++x) {
-        for (u8 y = 0; y < 16; ++y) {
+    for (u8 x = 0; x < ai_island_->terrain().size(); ++x) {
+        for (u8 y = construction_zone_min_y; y < 15; ++y) {
             if (matrix[x][y] == 2) {
                 slots.push_back({{x, y}, 0.0_atp});
             }
@@ -616,19 +626,37 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
 
     const auto infirmary_metac = load_metaclass("infirmary");
+    const auto transporter_metac = load_metaclass("transporter");
 
 
     for (auto& slot : slots) {
+
+        bool excluded = false;
+        for (auto& exc : exclude_slots) {
+            if (slot.coord_ == exc) {
+                // Don't move into a slot targeted by another one of our ai
+                // characters.
+                slot.ai_weight_ = ATP::from_integer(-2000);
+                excluded = true;
+            }
+        }
+
+        if (excluded) {
+            continue;
+        }
+
         if (auto room = ai_island_->get_room(slot.coord_)) {
 
             const auto base_weight = room->get_atp();
 
-            // Increase room weight if damaged.
-            slot.ai_weight_ =
-                base_weight +
-                (base_weight -
-                 base_weight * ATP(float(room->health()) /
-                                   (room->max_health())));
+            slot.ai_weight_ = base_weight;
+
+            if (room->health() not_eq room->max_health()) {
+                // Increase room weight if damaged.
+                slot.ai_weight_ += (base_weight -
+                                    base_weight * ATP(float(room->health()) /
+                                                      (room->max_health())));
+            }
 
             if (room->is_powered_down()) {
                 slot.ai_weight_ /= 2.0_atp;
@@ -687,7 +715,10 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                         }
                     }
                 }
-            } else if (auto transporter = room->cast<Transporter>()) {
+            } else if (room->metaclass() == transporter_metac) {
+
+                auto transporter = room->cast<Transporter>();
+
                 // Now, let's see. We want to raid the player's island if we
                 // have more characters, but also...
                 //
@@ -746,13 +777,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                     slot.ai_weight_ += 500.0_atp;
                 }
             }
-        }
-        for (auto& exc : exclude_slots) {
-            if (slot.coord_ == exc) {
-                // Don't move into a slot targeted by another one of our ai
-                // characters.
-                slot.ai_weight_ = ATP::from_integer(-2000);
-            }
+
+
         }
     }
 
@@ -768,6 +794,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
         // uninitialized...
         return;
     }
+
 
     auto target = slots.back();
 
@@ -793,6 +820,18 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             network::transmit(packet);
         }
     }
+
+
+    TIMEPOINT(t4);
+
+    //#define PROFILE_LATENCY
+#ifdef PROFILE_LATENCY
+    Platform::fatal(format("% % %",
+                           t2 - t1,
+                           t3 - t2,
+                           t4 - t3)
+                    .c_str());
+#endif
 }
 
 
