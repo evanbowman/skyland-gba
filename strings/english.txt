@@ -134,6 +134,7 @@ dynamite-ii
 torch
 transporter
 soil
+atomic-missile
 water
 water*
 weather-engine
@@ -329,6 +330,7 @@ Like a ladder, but one block taller. (Upgrade a ladder via the select menu)
 Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
+A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
 paused
 slow
 regular

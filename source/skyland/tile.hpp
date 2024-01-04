@@ -304,6 +304,19 @@ struct Tile
         basket_3,
         basket_4,
         snow,
+        reserved_e1,
+        reserved_e2,
+        reserved_e3,
+        reserved_e4,
+        reserved_e5,
+        reserved_e6,
+        reserved_e7,
+        reserved_e8,
+        reserved_e9,
+        reserved_e10,
+        reserved_e11,
+        warhead_1,
+        warhead_2,
     };
 };
 
@@ -567,6 +580,19 @@ struct InteriorTile
         basket_3,
         basket_4,
         snow,
+        reserved_e1,
+        reserved_e2,
+        reserved_e3,
+        reserved_e4,
+        reserved_e5,
+        reserved_e6,
+        reserved_e7,
+        reserved_e8,
+        reserved_e9,
+        reserved_e10,
+        reserved_e11,
+        warhead_1,
+        warhead_2,
     };
 };
 

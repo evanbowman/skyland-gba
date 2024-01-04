@@ -269,6 +269,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
   ${SOURCE_DIR}/skyland/rooms/beamGun.cpp
+  ${SOURCE_DIR}/skyland/rooms/warhead.cpp
   ${SOURCE_DIR}/skyland/rooms/mycelium.cpp
   ${SOURCE_DIR}/skyland/rooms/radiator.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp

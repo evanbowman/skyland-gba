@@ -3123,7 +3123,8 @@ void init_darkened_palette()
 
 
 
-static bool load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
+static bool
+load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
 {
     auto file = filesystem::load(path);
     if (file.second) {
@@ -3212,10 +3213,8 @@ void Platform::load_tile0_texture(const char* name)
         }
     }
 
-    if (load_img_from_file(name,
-                           ShaderPalette::tile0,
-                           sbb_t0_texture,
-                           tilesheet_0_palette)) {
+    if (load_img_from_file(
+            name, ShaderPalette::tile0, sbb_t0_texture, tilesheet_0_palette)) {
         return;
     }
 
@@ -3263,10 +3262,8 @@ void Platform::load_tile1_texture(const char* name)
         }
     }
 
-    if (load_img_from_file(name,
-                           ShaderPalette::tile1,
-                           sbb_t1_texture,
-                           tilesheet_1_palette)) {
+    if (load_img_from_file(
+            name, ShaderPalette::tile1, sbb_t1_texture, tilesheet_1_palette)) {
         return;
     }
 

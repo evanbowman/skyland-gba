@@ -174,4 +174,33 @@ protected:
 
 
 
+class AtomicMissile : public Missile
+{
+public:
+    AtomicMissile(const Vec2<Fixnum>& position,
+                  const Vec2<Fixnum>& target,
+                  u8 source_x,
+                  u8 source_y,
+                  Island* source)
+        : Missile(position, target, source_x, source_y, source)
+    {
+        sprite_.set_texture_index(94);
+    }
+
+
+
+    void on_collision(Room&, Vec2<u8>) override;
+
+
+
+    void burst(const Vec2<Fixnum>& position, Room& origin_room);
+
+
+
+protected:
+    void destroy() override;
+};
+
+
+
 } // namespace skyland

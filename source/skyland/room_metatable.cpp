@@ -105,6 +105,7 @@
 #include "skyland/rooms/torch.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/warEngine.hpp"
+#include "skyland/rooms/warhead.hpp"
 #include "skyland/rooms/water.hpp"
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/windmill.hpp"
@@ -329,10 +330,10 @@ using RoomMetatableType = RoomMetatable<15,
                                         SparkCannon,
                                         Incinerator,
                                         BeamGun,
-                                        // Pummeler,
                                         MissileSilo,
                                         RocketSilo,
                                         ClumpBomb,
+                                        Warhead,
                                         // factories
                                         Workshop,
                                         Manufactory,

@@ -113,6 +113,9 @@ enum Type : u8 {
     player_clumpmissile_destroyed,
     opponent_clumpmissile_destroyed,
 
+    player_atomic_destroyed,
+    opponent_atomic_destroyed,
+
     player_decimator_burst_destroyed,
     opponent_decimator_burst_destroyed,
 
@@ -697,6 +700,20 @@ struct PlayerClumpMissileDestroyed : MissileDestroyed
 struct OpponentClumpMissileDestroyed : MissileDestroyed
 {
     static constexpr const auto t = Type::opponent_clumpmissile_destroyed;
+};
+
+
+
+struct PlayerAtomicDestroyed : MissileDestroyed
+{
+    static constexpr const auto t = Type::player_atomic_destroyed;
+};
+
+
+
+struct OpponentAtomicDestroyed : MissileDestroyed
+{
+    static constexpr const auto t = Type::opponent_atomic_destroyed;
 };
 
 

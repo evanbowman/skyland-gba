@@ -37,6 +37,7 @@
 #include "skyland/island.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/warhead.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStream.hpp"
@@ -136,7 +137,7 @@ void TargetingComputer::update(Time delta)
                     room.target_pinned() and room.get_target() and
                     APP.opponent_island()->get_room(*room.get_target());
 
-                if (not has_pinned_target) {
+                if (not has_pinned_target and not room.cast<Warhead>()) {
                     EnemyAI::update_room(room,
                                          APP.opponent_island()->rooms_plot(),
                                          &APP.player(),

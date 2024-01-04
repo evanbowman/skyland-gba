@@ -35,10 +35,10 @@
 #pragma once
 
 
-#include "worldScene.hpp"
 #include "constructionScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -50,8 +50,6 @@ namespace skyland
 class AdjustPowerScene : public ActiveWorldScene
 {
 public:
-
-
     void enter(Scene& prev) override
     {
         ActiveWorldScene::enter(prev);
@@ -80,42 +78,42 @@ public:
         auto& cursor_loc = globals().near_cursor_loc_;
 
         auto test_key = [&](Key k) {
-            return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+            return APP.player().test_key(
+                k, milliseconds(500), milliseconds(100));
         };
 
         APP.player().key_held_distribute();
 
-        auto desc_block =
-            [&] {
-                for (int x = 0; x < calc_screen_tiles().x; ++x) {
-                    PLATFORM.set_tile(Layer::overlay, x, calc_screen_tiles().y - 2, 0);
-                }
-                if (auto room = APP.player_island().get_room(cursor_loc)) {
-                    text_.emplace(OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
-                    text_->assign("(");
-                    auto metac = room->metaclass();
-                    text_->append((*metac)->ui_name()->c_str());
-                    text_->append("): ");
-                    if (room->is_powered_down()) {
-                        text_->append("0/");
-                        text_->append((*metac)->consumes_power());
-                    } else {
-                        text_->append(room->power_usage());
-                        text_->append("/");
-                        text_->append(room->power_usage());
-                    }
-                    text_->append("`");
-
-                    for (int i = 0; i < text_->len(); ++i) {
-                        PLATFORM.set_tile(Layer::overlay, i,
-                                          calc_screen_tiles().y - 2,
-                                          425);
-                    }
-
+        auto desc_block = [&] {
+            for (int x = 0; x < calc_screen_tiles().x; ++x) {
+                PLATFORM.set_tile(
+                    Layer::overlay, x, calc_screen_tiles().y - 2, 0);
+            }
+            if (auto room = APP.player_island().get_room(cursor_loc)) {
+                text_.emplace(OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
+                text_->assign("(");
+                auto metac = room->metaclass();
+                text_->append((*metac)->ui_name()->c_str());
+                text_->append("): ");
+                if (room->is_powered_down()) {
+                    text_->append("0/");
+                    text_->append((*metac)->consumes_power());
                 } else {
-                    text_.reset();
+                    text_->append(room->power_usage());
+                    text_->append("/");
+                    text_->append(room->power_usage());
                 }
-            };
+                text_->append("`");
+
+                for (int i = 0; i < text_->len(); ++i) {
+                    PLATFORM.set_tile(
+                        Layer::overlay, i, calc_screen_tiles().y - 2, 425);
+                }
+
+            } else {
+                text_.reset();
+            }
+        };
 
 
         if (not text_) {
@@ -202,9 +200,8 @@ public:
 
         PLATFORM.screen().draw(sprite);
     }
-
 };
 
 
 
-}
+} // namespace skyland

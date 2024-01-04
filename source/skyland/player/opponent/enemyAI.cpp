@@ -57,6 +57,7 @@
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/sparkCannon.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/warhead.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 
@@ -306,8 +307,8 @@ void EnemyAI::update_room(Room& room,
         // Do nothing.
     } else if (auto silo = room.cast<ClumpBomb>()) {
         set_target(matrix, *silo, owner, ai_island, target_island);
-    } else if (auto silo = room.cast<RocketSilo>()) {
-        set_target(matrix, *silo, owner, ai_island, target_island);
+    } else if (room.cast<RocketSilo>() or room.cast<Warhead>()) {
+        set_target_rocketsilo(matrix, room, owner, ai_island, target_island);
     } else if (auto silo = room.cast<MissileSilo>()) {
         set_target(matrix, *silo, owner, ai_island, target_island);
     } else if (auto beam = room.cast<BeamGun>()) {
@@ -653,9 +654,9 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
             if (room->health() not_eq room->max_health()) {
                 // Increase room weight if damaged.
-                slot.ai_weight_ += (base_weight -
-                                    base_weight * ATP(float(room->health()) /
-                                                      (room->max_health())));
+                slot.ai_weight_ +=
+                    (base_weight - base_weight * ATP(float(room->health()) /
+                                                     (room->max_health())));
             }
 
             if (room->is_powered_down()) {
@@ -777,8 +778,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                     slot.ai_weight_ += 500.0_atp;
                 }
             }
-
-
         }
     }
 
@@ -826,11 +825,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
     //#define PROFILE_LATENCY
 #ifdef PROFILE_LATENCY
-    Platform::fatal(format("% % %",
-                           t2 - t1,
-                           t3 - t2,
-                           t4 - t3)
-                    .c_str());
+    Platform::fatal(format("% % %", t2 - t1, t3 - t2, t4 - t3).c_str());
 #endif
 }
 
@@ -1690,11 +1685,11 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
-                         RocketSilo& silo,
-                         Player* owner,
-                         Island* ai_island,
-                         Island* target_island)
+void EnemyAI::set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
+                                    Room& silo,
+                                    Player* owner,
+                                    Island* ai_island,
+                                    Island* target_island)
 {
     if (silo.parent()->get_drift() not_eq 0.0_fixed) {
         // Wait until we've stopped moving

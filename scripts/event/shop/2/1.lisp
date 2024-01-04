@@ -1,4 +1,4 @@
 '((incinerator . 1)
-  (transporter . 3)
+  (warhead . 1)
   (arc-gun . 3)
   (mirror-hull . 6))

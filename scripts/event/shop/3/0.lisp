@@ -1,4 +1,4 @@
 '((incinerator . 1)
-  (flak-gun . 2)
+  (warhead . 1)
   (war-engine . 1)
   (mirror-hull . 6))

@@ -22,6 +22,7 @@
   (flak-gun     125 2000 34)
   (rocket-bomb  200 2600 30)
   (missile-silo 200 1400 30)
+  (warhead      100 4500 10)
   (decimator    140 3300 160)
   (stairwell    60  500  0)
   (stairwell+   75  550  0)

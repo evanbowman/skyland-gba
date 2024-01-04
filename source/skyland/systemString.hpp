@@ -197,6 +197,7 @@ enum class SystemString {
     block_torch,
     block_transporter,
     block_volcanic_soil,
+    block_warhead,
     block_water,
     block_water_source,
     block_weather_engine,
@@ -421,6 +422,7 @@ enum class SystemString {
     description_stairwell_plus,
     description_stairwell_plus_plus,
     description_balloon,
+    description_warhead,
 
     gs_paused,
     gs_slow,

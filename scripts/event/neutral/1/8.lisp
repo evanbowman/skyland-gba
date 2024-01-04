@@ -55,6 +55,7 @@
                     infirmary
                     manufactory
                     incinerator
+                    warhead
                     beam-gun
                     splitter)))
         (let ((pick (sample opts)))

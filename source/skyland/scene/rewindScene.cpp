@@ -202,6 +202,32 @@ void respawn_clumpmissile(Island* parent,
 
 
 
+void respawn_atomic(Island* parent, time_stream::event::MissileDestroyed& e)
+{
+    auto m = APP.alloc_entity<AtomicMissile>(
+
+        Vec2<Fixnum>{Fixnum::from_integer(e.x_pos_.get()),
+                     Fixnum::from_integer(e.y_pos_.get())},
+        Vec2<Fixnum>{
+            Fixnum::from_integer(e.target_x_.get()),
+            0.0_fixed // TODO: change target parameter to simple float, y unused.
+        },
+        (u8)e.source_x_,
+        (u8)e.source_y_,
+        parent);
+
+    if (m) {
+        m->set_timer(e.timer_.get());
+        m->set_state((Missile::State)e.state_);
+
+        medium_explosion_inv(m->sprite().get_position());
+
+        parent->projectiles().push(std::move(m));
+    }
+}
+
+
+
 void RewindScene::print_timestamp()
 {
     if (not text_) {
@@ -933,6 +959,22 @@ ScenePtr<Scene> RewindScene::update(Time)
         case time_stream::event::Type::opponent_clumpmissile_destroyed: {
             auto e = (time_stream::event::OpponentClumpMissileDestroyed*)end;
             respawn_clumpmissile(APP.opponent_island(), *e);
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_atomic_destroyed: {
+            auto e = (time_stream::event::PlayerAtomicDestroyed*)end;
+            respawn_atomic(&APP.player_island(), *e);
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_atomic_destroyed: {
+            auto e = (time_stream::event::OpponentAtomicDestroyed*)end;
+            respawn_atomic(APP.opponent_island(), *e);
             APP.time_stream().pop(sizeof *e);
             break;
         }

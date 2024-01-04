@@ -33,6 +33,7 @@
 
 
 #include "missile.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/room.hpp"
@@ -40,6 +41,7 @@
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
+#include "skyland/rooms/warhead.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -623,6 +625,116 @@ void ClumpMissile::destroy()
 
     kill();
     APP.camera()->shake(18);
+    big_explosion(sprite_.get_position());
+}
+
+
+
+void AtomicMissile::burst(const Vec2<Fixnum>& position, Room& origin_room)
+{
+    int grid_x_start = origin_room.position().x;
+    int grid_y_start = origin_room.position().y;
+
+    auto apply_damage = [&](int x_off, int y_off, Health damage) {
+        auto island = origin_room.parent();
+        const int x = grid_x_start + x_off;
+        const int y = grid_y_start + y_off;
+        if (x >= 0 and x < 16 and y >= 0 and y < 16) {
+            if (auto room = island->get_room({u8(x), u8(y)})) {
+                if ((*room->metaclass())->properties() &
+                    RoomProperties::habitable) {
+                    room->apply_damage(12);
+                } else {
+                    room->apply_damage(damage);
+                }
+                origin_room.parent()->fire_create(Vec2<u8>{(u8)x, (u8)y});
+            }
+            if (auto chr = island->character_at_location({(u8)x, (u8)y})) {
+                chr->apply_radiation_damage(50);
+            }
+        }
+    };
+
+    apply_damage(0, 0, 500);
+
+    apply_damage(1, 0, 150);
+    apply_damage(-1, 0, 150);
+    apply_damage(0, 1, 150);
+    apply_damage(0, -1, 150);
+
+    for (int x = -5; x < 6; ++x) {
+        for (int y = -5; y < 6; ++y) {
+            apply_damage(x, y, 32);
+        }
+    }
+
+    PLATFORM.speaker().play_sound("explosion2", 8);
+}
+
+
+
+void AtomicMissile::on_collision(Room& room, Vec2<u8> origin)
+{
+    if (source_ == room.parent() and str_eq(room.name(), Warhead::name())) {
+        return;
+    }
+
+    if (source_ == room.parent() and is_forcefield(room.metaclass())) {
+        return;
+    }
+
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
+        room.max_health() < missile_damage) {
+        room.apply_damage(Room::health_upper_limit());
+        return;
+    }
+
+    auto pos = sprite_.get_position();
+    pos.y += 4.0_fixed;
+    ExploSpawner::create(pos);
+
+    ExploSpawner::create(rng::sample<48>(pos, rng::utility_state));
+    ExploSpawner::create(rng::sample<48>(pos, rng::utility_state));
+
+
+
+    burst(sprite_.get_position(), room);
+
+    destroy();
+
+
+    if (room.health()) {
+        sound_impact.play(1);
+    }
+}
+
+
+
+void AtomicMissile::destroy()
+{
+    auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
+        e.timer_.set(timer_);
+        e.x_pos_.set(sprite_.get_position().x.as_integer());
+        e.y_pos_.set(sprite_.get_position().y.as_integer());
+        e.target_x_.set(target_x_.as_integer());
+        e.source_x_ = source_x_;
+        e.source_y_ = source_y_;
+        e.state_ = (u8)state_;
+    };
+
+    if (is_player_island(source_)) {
+        time_stream::event::PlayerAtomicDestroyed e;
+        setup_event(e);
+        APP.time_stream().push(APP.level_timer(), e);
+    } else {
+        time_stream::event::OpponentAtomicDestroyed e;
+        setup_event(e);
+        APP.time_stream().push(APP.level_timer(), e);
+    }
+
+
+    kill();
+    APP.camera()->shake(32);
     big_explosion(sprite_.get_position());
 }
 

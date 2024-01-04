@@ -104,8 +104,6 @@ public:
                             Island* target_island);
 
 private:
-
-
     void update_drone_ai();
     void update_local_chr_ai();
     void update_boarded_chr_ai();
@@ -130,11 +128,11 @@ private:
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
-                           RocketSilo& silo,
-                           Player* owner,
-                           Island* ai_island,
-                           Island* target_island);
+    static void set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
+                                      Room& silo,
+                                      Player* owner,
+                                      Island* ai_island,
+                                      Island* target_island);
 
     static void set_target(const Bitmatrix<16, 16>& matrix,
                            ClumpBomb& silo,
@@ -196,7 +194,8 @@ private:
 
     Time next_action_timer_ = next_action_timeout;
 
-    Time character_reassign_timer_ = character_reassign_timeout + milliseconds(500);
+    Time character_reassign_timer_ =
+        character_reassign_timeout + milliseconds(500);
     Time local_character_reassign_timer_ = character_reassign_timeout;
 
 
