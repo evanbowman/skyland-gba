@@ -130,7 +130,7 @@ public:
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         } else if (key_down<Key::down>()) {
-            if (sel_ < (int)opts_->size()) {
+            if (sel_ < (int)opts_->size() - 1) {
                 ++sel_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }

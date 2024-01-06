@@ -101,10 +101,9 @@
 
 ;; Higher level dialog API (for future localization purposes)
 (defn/c get-dialog [2] ; (ini-sector ini-key)
-  (let ((l (car (split (lang) "."))))
-    (read-ini (string "/strings/dialog/" l ".ini")
-              $0
-              $1)))
+  (read-ini (string "/strings/dialog/" (lang) ".ini")
+            $0
+            $1))
 
 (defn/c load-dialog [2] ; (ini-sector ini-key substitution-args...)
   (let ((str (get-dialog $0 $1))

@@ -41,29 +41,17 @@ namespace skyland
 
 
 
-// The code below scans the whole file each time in search of a SystemString. We
-// speed up the loading by caching the results.
-struct IndexCache
-{
-    using FileOffset = u16;
-
-    FileOffset file_offset_[(int)SystemString::count] = {0};
-};
-
-
-
-static std::optional<DynamicMemory<IndexCache>> index_cache;
-
-
-
 static StringBuffer<32> lang_file;
+static bool lang_file_changed = true;
+const char* idf_file = nullptr;
+const char* idx_file = nullptr;
 
 
 
 void systemstring_bind_file(const char* path)
 {
     lang_file = path;
-    systemstring_drop_index_cache();
+    lang_file_changed = true;
 }
 
 
@@ -75,87 +63,40 @@ const char* systemstring_bound_file()
 
 
 
-void systemstring_drop_index_cache()
-{
-    index_cache.reset();
-}
-
-
-
-static void systemstring_get_index_cache()
-{
-    if (not index_cache) {
-        index_cache = allocate_dynamic<IndexCache>("locale-string-index-cache");
-    }
-}
-
-
-
 SystemStringBuffer loadstr(SystemString str)
 {
-    systemstring_get_index_cache();
-
     auto result = allocate_dynamic<StringBuffer<1900>>("system-string");
 
-    if (auto data = PLATFORM.load_file_contents("strings", lang_file.c_str())) {
-        const char* const data_start = data;
+    if (lang_file_changed) {
+        auto path = lang_file;
+        auto index = lang_file;
+        path += ".idf";
+        index += ".idx";
+        idf_file = PLATFORM.load_file_contents("strings", path.c_str());
+        idx_file = PLATFORM.load_file_contents("strings", index.c_str());
 
-        if ((*index_cache)->file_offset_[(int)str]) {
-            data += (*index_cache)->file_offset_[(int)str];
-
-            while (*data not_eq '\0' and *data not_eq '\n') {
-                result->push_back(*data);
-                ++data;
-            }
-
-            return result;
+        if (not idf_file or not idx_file) {
+            PLATFORM.fatal("system strings file missing!");
         }
 
-        const int target_line = static_cast<int>(str);
-
-        // Scan upwards in the cache until we find a previously-cached line,
-        // speeding up lookup in many cases. If we're loading a system string
-        // near the end of the file, we can waste a lot of cpu time if we start
-        // at the beginning and count newlines.
-        int index = target_line - 1;
-        while (index > 0) {
-            const auto off = (*index_cache)->file_offset_[index];
-            if (off) {
-                data += off;
-                break;
-            }
-            --index;
-        }
-
-        if (index < 0) {
-            index = 0;
-        }
-
-        while (index not_eq target_line) {
-            while (*data not_eq '\n') {
-                if (*data == '\0') {
-                    PLATFORM.fatal("null byte in localized text");
-                }
-                ++data;
-            }
-            ++data;
-
-            ++index;
-        }
-
-        (*index_cache)->file_offset_[(int)str] = data - data_start;
-
-        while (*data not_eq '\0' and *data not_eq '\n' and *data not_eq '\r') {
-            result->push_back(*data);
-            ++data;
-        }
-
-        return result;
-
-    } else {
-        Platform::fatal(
-            format("missing language file %", lang_file.c_str()).c_str());
+        lang_file_changed = false;
     }
+
+    auto data = idf_file;
+    auto idx = idx_file;
+
+    if ((int)str == 0) {
+        // ...
+    } else {
+        data += *(((u32*)idx) + ((int)str - 1));
+    }
+
+    while (*data not_eq '\0' and *data not_eq '\n' and *data not_eq '\r') {
+        result->push_back(*data);
+        ++data;
+    }
+
+    return result;
 }
 
 

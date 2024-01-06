@@ -55,7 +55,27 @@ def minify_lisp(codestring):
     return result2
 
 
+
+def extension(path):
+    return path.split('.')[-1]
+
+
+
+def make_index_file(path):
+    index = 0
+    with open(path.split('.')[0] + ".idx", 'wb') as index_file:
+        with open(path, 'rb') as test_file:
+            b = test_file.read(1)
+            while b != b"":
+                index = index + 1
+                if b == "\n".encode():
+                    index_file.write(index.to_bytes(4, 'little'))
+                b = test_file.read(1)
+
+
+
 def encode_file(path, real_name, out):
+
     with open(path, 'rb') as test_file:
 
         global bytes_encoded
@@ -83,7 +103,7 @@ def encode_file(path, real_name, out):
         data = test_file.read()
         file_contents = data
 
-        if path.split('.')[-1] == 'lisp':
+        if extension(path) == 'lisp':
             file_contents = minify_lisp(data.decode('utf-8')).encode('utf-8')
 
         null_padding = 1
@@ -143,6 +163,10 @@ with open('fs.bin', 'wb') as filesystem:
 
     files_list.append(["/readme.txt", os.path.join(project_root_path, "readme.txt")])
     files_list.append(["/boot.ini", os.path.join(project_root_path, "boot.ini")])
+
+    for info in files_list:
+        if extension(info[0]) == "idf":
+            make_index_file(info[1])
 
     fs_count = len(files_list)
     print("encoding %d files..." % fs_count)

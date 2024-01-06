@@ -1,1 +1,1 @@
-english=english.txt
+english=english

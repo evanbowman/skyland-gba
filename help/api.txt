@@ -735,7 +735,7 @@ o----------------------------o
  Bind a different language
  file. e.g.:
 
- (lang-set "english.txt")
+ (lang-set "english")
 
 
 o----------------------------o
