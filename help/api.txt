@@ -725,7 +725,7 @@ o----------------------------o
  Return the bound language
  file. e.g.:
 
- "english.txt"
+ "english"
 
 
 o----------------------------o
