@@ -54,7 +54,7 @@
         (setq last-zone (load 'last-zone))
 
         (setq qids (load 'qids))
-        (setq shop-items (load 'shop-items)))
+        (setq zone-shop-items (load 'zone-shop-items)))
 
       (let ((grp (load 'groups))
             (join (lambda

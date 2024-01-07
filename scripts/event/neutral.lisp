@@ -22,7 +22,7 @@
       (setq friendlies-seen (cons lv friendlies-seen))
 
       (eval-file
-       ;"scripts/event/neutral/0/1_0.lisp"
+       ;"scripts/event/neutral/2/5.lisp"
        (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))
 

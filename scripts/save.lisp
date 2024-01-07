@@ -23,5 +23,5 @@
  (cons 'qids qids)
  (cons 'qvar qvar)
  (cons 'adventure-log adventure-log)
- (cons 'shop-items shop-items)
+ (cons 'zone-shop-items zone-shop-items)
  (cons 'groups (groups)))

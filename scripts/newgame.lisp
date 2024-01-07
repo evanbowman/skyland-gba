@@ -43,7 +43,7 @@
      (hull 3 13))))
 
 
-(setq shop-items nil)
+(setq zone-shop-items nil)
 
 ;; Variables associated with quests
 (setq qvar nil)

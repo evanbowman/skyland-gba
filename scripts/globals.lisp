@@ -19,6 +19,7 @@
  'quests
  'adventure-log
  'shop-items
+ 'zone-shop-items
  'qvar
  'mercenary-event
  'ash-storm-count)

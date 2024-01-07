@@ -13,8 +13,15 @@
 (adventure-log-add 49 '())
 
 
-(if (not shop-items)
-    (setq shop-items (eval-file "/scripts/event/shop/shop_items.lisp")))
+;; The engine only knows how to process a global variable called shop-items, but
+;; later, I wanted to be able to support multiple shops per zone. So we have a
+;; larger list that associates map coordinates with shop items.
+(if (not (lookup (wg-pos) zone-shop-items))
+    (push 'zone-shop-items (cons (wg-pos)
+                                 (eval-file "/scripts/event/shop/shop_items.lisp"))))
+
+;; Bind shop items for the current world map location
+(setq shop-items (lookup (wg-pos) zone-shop-items))
 
 
 (defn on-shop-item-sel [0]
@@ -56,6 +63,14 @@
                                                 (get info 1)
                                                 (- (get info 2) 1)
                                                 (get info 2)))))
+
+                          ;; Writeback the modified inner list
+                          (setq zone-shop-items
+                                (map (lambda
+                                       (if (equal (car $0) (wg-pos))
+                                           (cons (wg-pos) shop-items)
+                                         $0))
+                                     zone-shop-items))
 
                           (if shop-items
                               (push-menu "item-shop" '())
