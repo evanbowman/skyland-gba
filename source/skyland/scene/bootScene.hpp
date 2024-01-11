@@ -203,6 +203,12 @@ class BootScene : public Scene
 public:
     bool clean_boot_;
 
+    static constexpr const auto amber_color = custom_color(0xfce165);
+    static constexpr const auto back_color = custom_color(0x00210f);
+
+
+    bool diagnostic_ = false;
+
 
     BootScene(bool clean_boot) : clean_boot_(clean_boot)
     {
@@ -220,7 +226,7 @@ public:
         PLATFORM.system_call("vsync", 0);
         PLATFORM.enable_glyph_mode(true);
         PLATFORM.load_overlay_texture("overlay");
-        PLATFORM.load_tile1_texture("boot_img_flattened");
+        //PLATFORM.load_tile1_texture("boot_img_flattened");
 
 
         __draw_image(1, 0, 3, 30, 12, Layer::map_1);
@@ -229,30 +235,37 @@ public:
 
         const auto st = calc_screen_tiles();
 
-        for (int x = 0; x < st.x; ++x) {
-            PLATFORM.set_tile(Layer::overlay, x, 0, 112);
-            PLATFORM.set_tile(Layer::overlay, x, 1, 112);
-            PLATFORM.set_tile(Layer::overlay, x, 2, 112);
-
-            PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 112);
-            PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 112);
-            PLATFORM.set_tile(Layer::overlay, x, st.y - 3, 112);
-            PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 112);
-            PLATFORM.set_tile(Layer::overlay, x, st.y - 5, 112);
-        }
-
         __draw_image(1, 0, 3, 30, 12, Layer::map_1);
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
 
 
-        PLATFORM.screen().schedule_fade(0.f);
+        PLATFORM.screen().schedule_fade(1.f, back_color);
 
-        Text text({4, 1});
-        text.append(
-            "_\\\\ SKYLAND engine //_",
-            FontColors{ColorConstant::silver_white, ColorConstant::rich_black});
-        text.__detach();
+        auto fc = FontColors{amber_color, back_color};
+
+        const char* lines[] = {
+             "     _\\\\ SKYLAND COS //_",
+             "",
+             " .__________________________.",
+             "                             ",
+             "                             ",
+             "                             ",
+             "                             ",
+             "                             ",
+             "                             ",
+             "                             ",
+             "                             ",
+             " .__________________________.",
+             "                             ",
+             " Cartridge Operating System ",
+        };
+
+        int i = 0;
+        for (auto& l : lines) {
+            Text::print(l, {0, u8(1 + i)}, fc);
+            ++i;
+        }
 
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
@@ -268,7 +281,8 @@ public:
                          PROGRAM_VERSION_REVISION);
 
         PLATFORM.sleep(2);
-        Text version(vn.c_str(), {1, u8(st.y - 4)});
+        Text version({1, u8(st.y - 4)});
+        version.append(vn.c_str(), FontColors{amber_color, back_color});
         version.__detach();
 
         PLATFORM.screen().clear();
@@ -283,10 +297,11 @@ public:
         const auto st = calc_screen_tiles();
 
         PLATFORM.system_call("vsync", 0);
-        Text msg(text, {1, u8(st.y - 2)});
+        Text msg({1, u8(st.y - 2)});
+        msg.append(text, FontColors{amber_color, back_color});
         auto len = msg.len();
         for (int x = 0; x < st.x - len; ++x) {
-            msg.append(" ");
+            msg.append(" ", FontColors{amber_color, back_color});
         }
         msg.__detach();
 
@@ -306,17 +321,7 @@ public:
         PLATFORM.load_background_texture(
             APP.environment().background_texture());
 
-        const auto st = calc_screen_tiles();
-
-        auto vn = format("version %.%.%.%",
-                         PROGRAM_MAJOR_VERSION,
-                         PROGRAM_MINOR_VERSION,
-                         PROGRAM_SUBMINOR_VERSION,
-                         PROGRAM_VERSION_REVISION);
-
-        Text boot("booting...", {1, u8(st.y - 2)});
-        PLATFORM.screen().clear();
-        PLATFORM.screen().display();
+        message("booting...", false);
 
 
         APP.init_scripts([&](const char* text) { message(text); });
@@ -326,6 +331,8 @@ public:
 
         message("lisp gc sweep...");
         lisp::gc();
+
+        message("ready!", false);
 
         TIMEPOINT(t2);
 
