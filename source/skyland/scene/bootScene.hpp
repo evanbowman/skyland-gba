@@ -226,10 +226,21 @@ public:
         PLATFORM.system_call("vsync", 0);
         PLATFORM.enable_glyph_mode(true);
         PLATFORM.load_overlay_texture("overlay");
-        //PLATFORM.load_tile1_texture("boot_img_flattened");
+        PLATFORM.load_tile1_texture("boot_img_flattened");
+
+        auto fc = FontColors{amber_color, back_color};
+
+        for (u8 x = 0; x < 30; ++x) {
+            for (u8 y = 0; y < 3; ++y) {
+                Text::print(" ", {x, y}, fc);
+            }
+            for (u8 y = 15; y < 20; ++y) {
+                Text::print(" ", {x, y}, fc);
+            }
+        }
 
 
-        __draw_image(1, 0, 3, 30, 12, Layer::map_1);
+        __draw_image(1, 0, 0, 30, 12, Layer::map_1);
 
         PLATFORM.screen().schedule_fade(0.f);
 
@@ -240,25 +251,28 @@ public:
         PLATFORM.screen().display();
 
 
-        PLATFORM.screen().schedule_fade(1.f, back_color);
+        PLATFORM.screen().schedule_fade(
+            1.f, back_color, true, false, true, false);
 
-        auto fc = FontColors{amber_color, back_color};
+        Text::print("(R)", {19, 5}, fc);
+
+
 
         const char* lines[] = {
-             "     _\\\\ SKYLAND COS //_",
-             "",
-             " .__________________________.",
-             "                             ",
-             "                             ",
-             "                             ",
-             "                             ",
-             "                             ",
-             "                             ",
-             "                             ",
-             "                             ",
-             " .__________________________.",
-             "                             ",
-             " Cartridge Operating System ",
+            "     ",
+            " .__________________________.",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            " .__________________________.",
+            "                             ",
+            " Cartridge Operating System ",
         };
 
         int i = 0;
@@ -322,7 +336,6 @@ public:
             APP.environment().background_texture());
 
         message("booting...", false);
-
 
         APP.init_scripts([&](const char* text) { message(text); });
 

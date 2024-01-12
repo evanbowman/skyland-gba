@@ -45,6 +45,8 @@
 //;
 #include "data/skyland_title_0_flattened.h"
 //;
+#include "data/boot_img_flattened.h"
+//;
 #include "data/savegame_flattened.h"
 //;
 #include "data/ending_img_flattened.h"
@@ -205,6 +207,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(skyland_title_1_flattened, true),
 //;
     TEXTURE_INFO(skyland_title_0_flattened, true),
+//;
+    TEXTURE_INFO(boot_img_flattened, true),
 //;
     TEXTURE_INFO(savegame_flattened, true),
 //;

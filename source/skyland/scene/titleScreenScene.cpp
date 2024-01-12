@@ -1809,6 +1809,33 @@ void TitleScreenScene::Pong::update(bool sound_effects)
         pad2_.speed_ *= -1;
     }
 
+    pad_trail_timer_ += milliseconds(16);
+    if (pad_trail_timer_ > milliseconds(50)) {
+        pad_trail_timer_ -= milliseconds(50);
+
+        if (pad1_trail_.full()) {
+            pad1_trail_.erase(pad1_trail_.begin());
+        }
+
+        if (pad2_trail_.full()) {
+            pad2_trail_.erase(pad2_trail_.begin());
+        }
+
+        pad1_trail_.push_back(pad1_.pos_);
+        pad2_trail_.push_back(pad2_.pos_);
+    }
+
+    trail_timer_ += milliseconds(16);
+    if (trail_timer_ > milliseconds(30)) {
+        trail_timer_ -= milliseconds(30);
+
+        if (ball_trail_.full()) {
+            ball_trail_.erase(ball_trail_.begin());
+        }
+        ball_trail_.push_back(ball_);
+    }
+
+
     ball_.x += ball_speed_.x;
     ball_.y += ball_speed_.y;
 
@@ -1833,6 +1860,8 @@ void TitleScreenScene::Pong::display(int x_scroll)
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_texture_index(26);
     sprite.set_origin({1, 2});
+
+
     sprite.set_position(
         Vec2<Fixnum>{
             Fixnum((anchor.x) - Fixnum::from_integer(480 + x_scroll)),
@@ -1840,9 +1869,27 @@ void TitleScreenScene::Pong::display(int x_scroll)
                    Fixnum::from_integer(clamp(
                        interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                        0.f,
-                       19.f)))} +
+                       18.f)))} +
         scl);
     PLATFORM.screen().draw(sprite);
+
+    u8 blend = 0;
+    for (auto& p : reversed(pad1_trail_)) {
+        blend += 48;
+        sprite.set_position(
+            Vec2<Fixnum>{
+                Fixnum((anchor.x) - Fixnum::from_integer(480 + x_scroll)),
+                Fixnum(anchor.y +
+                       Fixnum::from_integer(
+                           clamp(interpolate(ball_.y, p, 1.f - ball_.x / 22),
+                                 0.f,
+                                 18.f)))} +
+            scl);
+        sprite.set_mix({custom_color(0x236f5b), blend});
+        PLATFORM.screen().draw(sprite);
+    }
+
+    sprite.set_mix({});
 
     sprite.set_position(
         Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) -
@@ -1853,6 +1900,22 @@ void TitleScreenScene::Pong::display(int x_scroll)
 
     PLATFORM.screen().draw(sprite);
 
+    blend = 0;
+    for (auto& p : reversed(pad2_trail_)) {
+        blend += 48;
+        sprite.set_position(
+            Vec2<Fixnum>{Fixnum((anchor.x + 24.0_fixed) -
+                                Fixnum::from_integer(480 + x_scroll)),
+                         anchor.y + Fixnum::from_integer(interpolate(
+                                        ball_.y, p, ball_.x / 22))} +
+            scl);
+
+        sprite.set_mix({custom_color(0x236f5b), blend});
+        PLATFORM.screen().draw(sprite);
+    }
+
+    sprite.set_mix({});
+
     sprite.set_origin({});
     sprite.set_texture_index(27);
     sprite.set_position(
@@ -1861,6 +1924,18 @@ void TitleScreenScene::Pong::display(int x_scroll)
                      Fixnum::from_integer(ball_.y) + anchor.y} +
         scl);
     PLATFORM.screen().draw(sprite);
+
+    blend = 0;
+    for (auto& b : reversed(ball_trail_)) {
+        blend += 48;
+        sprite.set_position(
+            Vec2<Fixnum>{(Fixnum::from_integer(b.x) + anchor.x) -
+                             Fixnum::from_integer(480 + x_scroll),
+                         Fixnum::from_integer(b.y) + anchor.y} +
+            scl);
+        sprite.set_mix({custom_color(0x236f5b), blend});
+        PLATFORM.screen().draw(sprite);
+    }
 }
 
 

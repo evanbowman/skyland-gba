@@ -54,14 +54,20 @@ class RemoteConsoleLispPrinter : public lisp::Printer
 public:
     RemoteConsoleLispPrinter()
     {
+        lines_.emplace_back();
     }
 
     void put_str(const char* str) override
     {
-        fmt_ += str;
+        while (*str not_eq '\0') {
+            if (lines_.back().full()) {
+                lines_.emplace_back();
+            }
+            lines_.back().push_back(*(str++));
+        }
     }
 
-    Platform::RemoteConsole::Line fmt_;
+    Vector<Platform::RemoteConsole::Line> lines_;
 };
 
 
@@ -112,7 +118,7 @@ public:
             lisp::eval(lisp::get_op(0));
 
             if (lisp::get_op(0)->type() == lisp::Value::Type::error) {
-                printer.fmt_.push_back('\a');
+                printer.lines_.back().push_back('\a');
             }
 
             format(lisp::get_op(0), printer);
@@ -120,7 +126,16 @@ public:
             lisp::pop_op();
             lisp::pop_op();
 
-            PLATFORM.remote_console().printline(printer.fmt_.c_str(), "lisp> ");
+            if (printer.lines_.size() == 1) {
+                PLATFORM.remote_console().printline(printer.lines_[0].c_str(),
+                                                    "lisp> ");
+            } else {
+                for (auto& l : printer.lines_) {
+                    PLATFORM.remote_console().printline(l.c_str(), "\n");
+                    PLATFORM.sleep(120);
+                }
+                PLATFORM.remote_console().printline("", "lisp> ");
+            }
         }
     }
 };
@@ -147,7 +162,6 @@ public:
                 "rom dump               | dump entire rom as hex (slow)\r\n"
                 "download <path>        | dump file to console, base32 encoded\r\n"
                 "quit                   | select a different console mode\r\n"
-                "call <path>            | invoke a lisp script\r\n"
                 "ls <path>              | list files in a directory\r\n";
             // clang-format on
             PLATFORM.remote_console().printline(msg, "sc> ");
@@ -202,11 +216,6 @@ public:
             PLATFORM.sleep(1);
             PLATFORM.remote_console().printline("\r\n", "sc> ");
 
-        } else if (parsed.size() == 2 and parsed[0] == "call") {
-            auto result = APP.invoke_script(parsed[1].c_str());
-            RemoteConsoleLispPrinter printer;
-            format(result, printer);
-            PLATFORM.remote_console().printline(printer.fmt_.c_str(), "sc> ");
         } else {
             PLATFORM.remote_console().printline("error: type help for options",
                                                 "sc> ");

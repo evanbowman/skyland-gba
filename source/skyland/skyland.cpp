@@ -307,7 +307,7 @@ void write_custom_graphics()
 static constexpr const char* console_header =
 "\r\n"
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
-"|  Skyland Console                                                             |\r\n"
+"|  Skyland OS                                                                  |\r\n"
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
 "Options: (s: simple console, l: lisp repl)\r\n";
 // clang-format on

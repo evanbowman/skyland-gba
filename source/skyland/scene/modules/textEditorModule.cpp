@@ -58,11 +58,11 @@ static int y_max()
 
 
 static const auto status_colors =
-    FontColors{custom_color(0xeceff4), custom_color(0x4c566a)};
+    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
 
 
 static const auto highlight_colors =
-    FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
+    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
 
 
 
@@ -116,8 +116,8 @@ void TextEditorModule::render_keyboard()
 
             auto colors = status_colors;
             if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
-                colors = FontColors{custom_color(0xffffff),
-                                    ColorConstant::aerospace_orange};
+                colors = FontColors{custom_color(0xffe763),
+                                    custom_color(0x00210f)};
             }
 
             PLATFORM.set_tile((calc_screen_tiles().x - 8) + x,
@@ -140,8 +140,8 @@ void TextEditorModule::render_completions()
 
         auto colors = status_colors;
         if (line - 13 == selected_completion_) {
-            colors = FontColors{custom_color(0xffffff),
-                                ColorConstant::aerospace_orange};
+            colors = FontColors{custom_color(0xffe763),
+                                custom_color(0x00210f)};
         }
 
         u32 x;
@@ -410,13 +410,13 @@ void TextEditorModule::render(int start_line)
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0x8FBCBB), custom_color(0x2E3440)});
+                    FontColors{custom_color(0xe6a45a), custom_color(0x00210f)});
             } else if (ps.keyword and c not_eq '(') {
                 PLATFORM.set_tile(
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0x5E81AC), custom_color(0x2E3440)});
+                    FontColors{custom_color(0xe6a45a), custom_color(0x00210f)});
             } else {
                 PLATFORM.set_tile(Layer::overlay, x, y, t);
             }
@@ -684,7 +684,7 @@ void TextEditorModule::enter(Scene& prev)
     }
     temp += "    ";
     header_->assign(temp.c_str(),
-                    FontColors{custom_color(0x000010), custom_color(0xffffff)});
+                    status_colors);
 
 
     status_.emplace(OverlayCoord{0, u8((calc_screen_tiles().y - 1))});

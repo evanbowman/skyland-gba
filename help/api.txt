@@ -541,6 +541,84 @@ o----------------------------o
 
  Section6:
 
+ Filesystem
+
+##############################
+
+ Be careful with these
+ filesystem calls!
+
+ You wouldn't want to write
+ too frequently to save
+ media, particularly on
+ platforms where save data is
+ backed by flash storage.
+
+ NOTE: all path strings must
+ begin with a /!
+
+
+o----------------------------o
+
+ (fs-file-size path)
+
+ Returns the size of a file,
+ zero if the file does not
+ exist.
+
+
+o----------------------------o
+
+ (fs-file-read path)
+
+ Returns a list of strings
+ containing file data.
+
+ The interpreter doesn't
+ support strings larger than
+ 2Kb, requiring us to return
+ a file broken into if it
+ exceeds the maximum string
+ length.
+
+
+o----------------------------o
+
+ (fs-file-write path data)
+
+ Data should be a list of
+ strings containing data to
+ write back to a file.
+
+
+o----------------------------o
+
+ (fs-readdir path)
+
+ Return a list of strings
+ representing directory
+ contents.
+
+ To being, try
+ (fs-readdir "/")
+
+
+o----------------------------o
+
+ (fs-avail)
+
+ Return the space available
+ in the storage medium.
+
+
+o----------------------------o
+
+
+
+##############################
+
+ Section7:
+
  Miscellaneous
 
 ##############################

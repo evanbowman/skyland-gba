@@ -53,7 +53,7 @@ namespace skyland
 
 
 static const auto highlight_colors =
-    FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
+    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
 
 
 
@@ -96,7 +96,7 @@ void FileBrowserModule::enter(Scene& prev)
         (*path_)->push_back("/");
     }
 
-    PLATFORM.screen().schedule_fade(0.95f, custom_color(0x2e3440));
+    PLATFORM.screen().schedule_fade(0.95f, custom_color(0x00210f));
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
@@ -136,7 +136,7 @@ StringBuffer<200> FileBrowserModule::cwd() const
 void FileBrowserModule::repaint()
 {
     // Cover text with black during transition
-    PLATFORM.screen().fade(1.f, custom_color(0x2e3440), {}, true, true);
+    PLATFORM.screen().fade(1.f, custom_color(0x00210f), {}, true, true);
     faded_ = true;
 
     // If we clear all the lines, the engine will deallocate all of the tile
@@ -292,7 +292,7 @@ void FileBrowserModule::repaint()
             i + 1,
             0,
             t,
-            FontColors{custom_color(0x000010), custom_color(0xffffff)});
+            highlight_colors);
     }
 
     PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
@@ -392,10 +392,10 @@ ScenePtr<Scene> FileBrowserModule::update(Time delta)
         faded_ = false;
         PLATFORM.screen().fade(
             0.95f,
-            custom_color(0x2e3440)); // Reset the fade parameters
+            custom_color(0x00210f)); // Reset the fade parameters
 
         // Black background behind the text.
-        PLATFORM.screen().fade(1.f, custom_color(0x2e3440));
+        PLATFORM.screen().fade(1.f, custom_color(0x00210f));
     }
 
     auto on_dir_changed = [&] {

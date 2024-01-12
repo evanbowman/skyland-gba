@@ -102,6 +102,13 @@ private:
         Pad pad1_ = {0.2f, 0};
         Pad pad2_ = {0.2f, 10};
 
+        Buffer<Float, 3> pad1_trail_;
+        Buffer<Float, 3> pad2_trail_;
+
+        Buffer<Vec2<Float>, 3> ball_trail_;
+        Time trail_timer_ = 0;
+        Time pad_trail_timer_ = 0;
+
         Vec2<Float> ball_ = {3, 3};
         Vec2<Float> ball_speed_ = {0.35f, 0.35f};
 
