@@ -34,6 +34,7 @@
 
 #include "worldMapScene.hpp"
 #include "adventureLogScene.hpp"
+#include "fadeInScene.hpp"
 #include "graphics/overlay.hpp"
 #include "hintScene.hpp"
 #include "loadLevelScene.hpp"
@@ -355,6 +356,7 @@ void WorldMapScene::redraw_icons()
     save_icon_.emplace(126, OverlayCoord{27, 17});
     help_icon_.emplace(134, OverlayCoord{24, 17});
     logbook_icon_.emplace(150, OverlayCoord{21, 17});
+    edit_icon_.emplace(158, OverlayCoord{18, 17});
 }
 
 
@@ -591,12 +593,49 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
         break;
 
 
+    case State::edit_selected:
+        if (APP.player().key_down(Key::up) or
+            APP.player().key_down(Key::action_2)) {
+            state_ = State::selected;
+        } else if (APP.player().key_down(Key::right)) {
+            state_ = State::logbook_selected;
+        }
+
+        if (APP.player().key_down(Key::action_1)) {
+            state_ = State::edit_button_depressed;
+            edit_icon_.emplace(162, OverlayCoord{18, 17});
+            timer_ = 0;
+        }
+        break;
+
+
+    case State::edit_button_depressed:
+        timer_ += delta;
+        if (timer_ > milliseconds(100)) {
+            timer_ = 0;
+            state_ = State::edit_button_released_wait;
+            edit_icon_.emplace(158, OverlayCoord{18, 17});
+        }
+        break;
+
+
+    case State::edit_button_released_wait:
+        timer_ += delta;
+        if (timer_ > milliseconds(60)) {
+            timer_ = 0;
+            state_ = State::fade_out_edit;
+        }
+        break;
+
+
     case State::logbook_selected:
         if (APP.player().key_down(Key::up) or
             APP.player().key_down(Key::action_2)) {
             state_ = State::selected;
         } else if (APP.player().key_down(Key::right)) {
             state_ = State::help_selected;
+        } else if (APP.player().key_down(Key::left)) {
+            state_ = State::edit_selected;
         }
 
         if (APP.player().key_down(Key::action_1)) {
@@ -1096,6 +1135,38 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
     }
 
 
+    case State::fade_out_edit: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(1200);
+        if (timer_ > fade_duration) {
+            timer_ = 0;
+            PLATFORM.fill_overlay(0);
+            APP.reset_opponent_island();
+            APP.player_island().set_position(
+                {Fixnum::from_integer(10), Fixnum::from_integer(374)});
+            APP.level_timer().reset(0);
+            show_island_interior(&APP.player_island());
+            for (int x = 0; x < 16; ++x) {
+                for (int y = 0; y < 16; ++y) {
+                    PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
+                }
+            }
+            PLATFORM.speaker().play_music(APP.environment().ambiance(), 0);
+            auto maxvol = Platform::Speaker::music_volume_max;
+            PLATFORM.speaker().set_music_volume(maxvol);
+            return scene_pool::alloc<FadeInScene>();
+        } else {
+            const auto amount = smoothstep(0.f, fade_duration, timer_);
+            auto max_vol = Platform::Speaker::music_volume_max;
+            u8 vol = max_vol * (1.f - amount);
+            PLATFORM.speaker().set_music_volume(clamp(vol, (u8)2, max_vol));
+            PLATFORM.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
+        }
+        break;
+    }
+
+
     case State::print_saved_text: {
         PLATFORM.load_overlay_texture("overlay");
         const auto screen_tiles = calc_screen_tiles();
@@ -1415,6 +1486,15 @@ void WorldMapScene::display()
         cursor.set_position(
             {Fixnum::from_integer(160), Fixnum::from_integer(128)});
         PLATFORM.screen().draw(cursor);
+    } else if (state_ == State::edit_selected//  or
+               // state_ == State::edit_button_depressed or
+               // state_ == State::edit_button_released_wait
+               ) {
+        cursor.set_size(Sprite::Size::w32_h32);
+        cursor.set_texture_index(26 + cursor_keyframe_);
+        cursor.set_position(
+            {Fixnum::from_integer(136), Fixnum::from_integer(128)});
+        PLATFORM.screen().draw(cursor);
     } else if (state_ == State::help_selected or
                state_ == State::help_button_depressed or
                state_ == State::help_button_released_wait) {
@@ -1499,9 +1579,7 @@ void WorldMapScene::enter(Scene& prev_scene)
 
     show_map(APP.world_graph(), -1);
 
-    save_icon_.emplace(126, OverlayCoord{27, 17});
-    help_icon_.emplace(134, OverlayCoord{24, 17});
-    logbook_icon_.emplace(150, OverlayCoord{21, 17});
+    redraw_icons();
 
     for (auto& node : APP.world_graph().nodes_) {
         if (node.type_ == WorldGraph::Node::Type::exit) {
@@ -1564,6 +1642,7 @@ void WorldMapScene::exit(Scene& next_scene)
     help_icon_.reset();
     logbook_icon_.reset();
     exit_label_.reset();
+    edit_icon_.reset();
     heading_.reset();
     warning_.reset();
 

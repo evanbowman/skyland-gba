@@ -3751,6 +3751,7 @@ void Platform::Logger::flush()
 #include "data/music_life_in_silco.hpp"
 #include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
+#include "data/music_rain.hpp"
 #include "data/shadows.hpp"
 
 
@@ -3785,6 +3786,7 @@ static const struct AudioTrack
     DEF_MUSIC(box, music_box),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
+    DEF_MUSIC(rain, music_rain),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
     DEF_MUSIC(solecism, music_sb_solecism),
 };
@@ -7493,21 +7495,16 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
-    } else if (str_eq(feature_name, "dump-rom")) {
-
-        uart_blocking_output_mode();
-
-        irqDisable(IRQ_VBLANK);
+    } else if (str_eq(feature_name, "rom-checksum")) {
 
         auto rom = (const u8*)&__text_start;
 
+        irqDisable(IRQ_VBLANK);
+
+        u32 checksum = 0;
+
         while (rom not_eq (const u8*) & __rom_end__) {
-            const char* hex = "0123456789ABCDEF";
-
-            uart_blocking_write(hex[(*rom & 0xf0) >> 4]);
-            uart_blocking_write(hex[(*rom & 0x0f)]);
-
-            ++rom;
+            checksum += *(rom++);
         }
 
         uart_blocking_send_sync();
@@ -7516,8 +7513,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         irqEnable(IRQ_VBLANK);
 
-        // Re-enable the async non-blocking console.
-        remote_console_start();
     } else if (str_eq(feature_name, "watchdog-on")) {
         set_gflag(GlobalFlag::watchdog_disabled, false);
     } else if (str_eq(feature_name, "watchdog-off")) {

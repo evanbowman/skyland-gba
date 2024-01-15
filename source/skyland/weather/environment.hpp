@@ -118,6 +118,7 @@ public:
 
 
     virtual const char* music() const = 0;
+    virtual const char* ambiance() const = 0;
 };
 
 
@@ -187,6 +188,12 @@ public:
     const char* music() const override
     {
         return "life_in_silco";
+    }
+
+
+    const char* ambiance() const override
+    {
+        return "unaccompanied_wind";
     }
 
 

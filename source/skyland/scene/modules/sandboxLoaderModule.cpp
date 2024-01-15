@@ -220,6 +220,8 @@ void SandboxLoaderModule::exit(Scene& next)
 
         if (parameters_[2]) {
             PLATFORM.speaker().play_music(APP.environment().music(), 0);
+        } else {
+            PLATFORM.speaker().play_music(APP.environment().ambiance(), 0);
         }
 
         lisp::ListBuilder list;

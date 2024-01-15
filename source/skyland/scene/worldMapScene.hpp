@@ -92,10 +92,14 @@ private:
         logbook_selected,
         logbook_button_depressed,
         logbook_button_released_wait,
+        edit_selected,
+        edit_button_depressed,
+        edit_button_released_wait,
         fade_out,
         fade_out_saved,
         fade_out_help,
         fade_out_logbook,
+        fade_out_edit,
         print_saved_text,
         show_saved_text,
         show_node_death_icons,
@@ -138,6 +142,7 @@ private:
     std::optional<MediumIcon> save_icon_;
     std::optional<MediumIcon> help_icon_;
     std::optional<MediumIcon> logbook_icon_;
+    std::optional<MediumIcon> edit_icon_;
 };
 
 

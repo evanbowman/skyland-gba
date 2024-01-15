@@ -101,6 +101,9 @@ public:
     const char* music() const override;
 
 
+    const char* ambiance() const override;
+
+
     int id() const override;
 
 

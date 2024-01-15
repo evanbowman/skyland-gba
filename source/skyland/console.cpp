@@ -159,7 +159,6 @@ public:
                 "pools annotate         | show memory pool statistics\r\n"
                 "sbr annotate           | show memory buffers in use\r\n"
                 "sbr dump @<buffer id>  | dump memory buffer as hex\r\n"
-                "rom dump               | dump entire rom as hex (slow)\r\n"
                 "download <path>        | dump file to console, base32 encoded\r\n"
                 "quit                   | select a different console mode\r\n"
                 "ls <path>              | list files in a directory\r\n";
@@ -181,14 +180,6 @@ public:
             PLATFORM.remote_console().printline(console_usage);
             self.emplace<ConsoleState::Impl>();
             return;
-        } else if (line == "rom dump") {
-            PLATFORM.remote_console().printline(
-                "Dumping the entire rom as hex. "
-                "This will take a couple hours...",
-                "");
-            PLATFORM.sleep(180);
-            PLATFORM.system_call("dump-rom", nullptr);
-            PLATFORM.remote_console().printline("\r\nDone!", "sc> ");
         } else if (parsed.size() == 2 and parsed[0] == "download") {
             Vector<char> data;
             if (flash_filesystem::read_file_data_binary(parsed[1].c_str(),

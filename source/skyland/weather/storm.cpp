@@ -290,6 +290,13 @@ const char* Storm::music() const
 
 
 
+const char* Storm::ambiance() const
+{
+    return "rain";
+}
+
+
+
 Platform::Screen::Shader Storm::shader() const
 {
     return [](ShaderPalette palette, ColorConstant k, int arg, int index) {
