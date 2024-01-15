@@ -36,6 +36,7 @@
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/forcefield.hpp"
@@ -474,17 +475,8 @@ void RocketBomb::destroy()
         APP.time_stream().push(APP.level_timer(), e);
     }
 
-    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-        auto e = APP.alloc_entity<SmokePuff>(
-            rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            APP.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(sprite_.get_position());
-    flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
 
     kill();
     APP.camera()->shake(18);
@@ -611,17 +603,8 @@ void ClumpMissile::destroy()
         APP.time_stream().push(APP.level_timer(), e);
     }
 
-    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-        auto e = APP.alloc_entity<SmokePuff>(
-            rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            APP.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(sprite_.get_position());
-    flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
 
     kill();
     APP.camera()->shake(18);

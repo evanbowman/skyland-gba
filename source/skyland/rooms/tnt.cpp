@@ -36,6 +36,7 @@
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/entity/projectile/fireBolt.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/readyScene.hpp"
@@ -223,27 +224,18 @@ void Explosive::apply_damage(Health damage)
 
 void Explosive::ignite(int range, Health damage, bool spread_fire)
 {
-    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-        auto e = APP.alloc_entity<SmokePuff>(
-            rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            APP.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(center());
-    flak_smoke(center());
+    make_flak_smoke(center());
+    make_flak_smoke(center());
 
     Vec2<s32> pos;
     pos.x = center().x.as_integer();
     pos.y = center().y.as_integer();
 
-    APP.on_timeout(milliseconds(190), [pos, flak_smoke]() {
+    APP.on_timeout(milliseconds(190), [pos]() {
         Vec2<Fixnum> p;
         p.x = Fixnum::from_integer(pos.x);
         p.y = Fixnum::from_integer(pos.y);
-        flak_smoke(p);
+        make_flak_smoke(p);
     });
 
     auto targets =

@@ -159,32 +159,40 @@ void Flak::destroy(bool explosion)
 
 
 
+void make_flak_smoke(const Vec2<Fixnum>& pos)
+{
+    if (SmokePuff::get_instance_count() >= 9) {
+        // For better framerate, don't create too many of these.
+        return;
+    }
+
+    auto e = APP.alloc_entity<SmokePuff>(
+        rng::sample<48>(pos, rng::utility_state), 61);
+
+    if (e) {
+        APP.effects().push(std::move(e));
+    }
+}
+
+
+
 void Flak::explode()
 {
     big_explosion(sprite_.get_position());
 
-    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-        auto e = APP.alloc_entity<SmokePuff>(
-            rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            APP.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(sprite_.get_position());
-    flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
 
 
     Vec2<s32> pos;
     pos.x = sprite_.get_position().x.as_integer();
     pos.y = sprite_.get_position().y.as_integer();
 
-    APP.on_timeout(milliseconds(190), [pos, flak_smoke]() {
+    APP.on_timeout(milliseconds(190), [pos]() {
         Vec2<Fixnum> p;
         p.x = Fixnum::from_integer(pos.x);
         p.y = Fixnum::from_integer(pos.y);
-        flak_smoke(p);
+        make_flak_smoke(p);
     });
 }
 

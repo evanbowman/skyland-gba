@@ -3749,9 +3749,9 @@ void Platform::Logger::flush()
 
 #include "data/music_box.hpp"
 #include "data/music_life_in_silco.hpp"
+#include "data/music_rain.hpp"
 #include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
-#include "data/music_rain.hpp"
 #include "data/shadows.hpp"
 
 

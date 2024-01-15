@@ -1486,10 +1486,10 @@ void WorldMapScene::display()
         cursor.set_position(
             {Fixnum::from_integer(160), Fixnum::from_integer(128)});
         PLATFORM.screen().draw(cursor);
-    } else if (state_ == State::edit_selected//  or
+    } else if (state_ == State::edit_selected //  or
                // state_ == State::edit_button_depressed or
                // state_ == State::edit_button_released_wait
-               ) {
+    ) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position(

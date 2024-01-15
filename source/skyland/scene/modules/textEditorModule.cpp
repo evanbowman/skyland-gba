@@ -116,8 +116,8 @@ void TextEditorModule::render_keyboard()
 
             auto colors = status_colors;
             if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
-                colors = FontColors{custom_color(0xffe763),
-                                    custom_color(0x00210f)};
+                colors =
+                    FontColors{custom_color(0xffe763), custom_color(0x00210f)};
             }
 
             PLATFORM.set_tile((calc_screen_tiles().x - 8) + x,
@@ -140,8 +140,7 @@ void TextEditorModule::render_completions()
 
         auto colors = status_colors;
         if (line - 13 == selected_completion_) {
-            colors = FontColors{custom_color(0xffe763),
-                                custom_color(0x00210f)};
+            colors = FontColors{custom_color(0xffe763), custom_color(0x00210f)};
         }
 
         u32 x;
@@ -683,8 +682,7 @@ void TextEditorModule::enter(Scene& prev)
         break;
     }
     temp += "    ";
-    header_->assign(temp.c_str(),
-                    status_colors);
+    header_->assign(temp.c_str(), status_colors);
 
 
     status_.emplace(OverlayCoord{0, u8((calc_screen_tiles().y - 1))});

@@ -36,6 +36,7 @@
 
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -197,28 +198,18 @@ void Antimatter::on_collision(Room& room, Vec2<u8> origin)
             room.apply_damage(9999);
         }
 
-
-        auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-            auto e = APP.alloc_entity<SmokePuff>(
-                rng::sample<48>(pos, rng::utility_state), 61);
-
-            if (e) {
-                APP.effects().push(std::move(e));
-            }
-        };
-
-        flak_smoke(sprite_.get_position());
-        flak_smoke(sprite_.get_position());
+        make_flak_smoke(sprite_.get_position());
+        make_flak_smoke(sprite_.get_position());
 
         big_explosion(sprite_.get_position());
 
         const auto pos = ivec(sprite_.get_position());
 
-        APP.on_timeout(milliseconds(190), [pos, flak_smoke]() {
+        APP.on_timeout(milliseconds(190), [pos]() {
             Vec2<Fixnum> p;
             p.x = pos.x;
             p.y = pos.y;
-            flak_smoke(p);
+            make_flak_smoke(p);
         });
 
         auto targets =

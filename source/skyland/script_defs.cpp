@@ -770,19 +770,17 @@ BINDING_TABLE({
           L_EXPECT_OP(1, string);
 
           Vector<char> data;
-          lisp::foreach(lisp::get_op0(),
-                        [&](lisp::Value* v) {
-                            if (v->type() == lisp::Value::Type::string) {
-                                auto str = v->string().value();
-                                while (*str not_eq '\0') {
-                                    data.push_back(*(str++));
-                                }
-                            }
-                        });
+          lisp::foreach (lisp::get_op0(), [&](lisp::Value* v) {
+              if (v->type() == lisp::Value::Type::string) {
+                  auto str = v->string().value();
+                  while (*str not_eq '\0') {
+                      data.push_back(*(str++));
+                  }
+              }
+          });
 
           auto written =
-              flash_filesystem::store_file_data_binary(L_LOAD_STRING(1),
-                                                       data);
+              flash_filesystem::store_file_data_binary(L_LOAD_STRING(1), data);
           return lisp::make_boolean(written);
       }}},
     {"fs-readdir",
@@ -793,16 +791,16 @@ BINDING_TABLE({
           lisp::ListBuilder list;
 
           flash_filesystem::walk_directory(
-                L_LOAD_STRING(0), [&](const char* path) {
-                    list.push_back(lisp::make_string(path));
-                });
+              L_LOAD_STRING(0), [&](const char* path) {
+                  list.push_back(lisp::make_string(path));
+              });
 
-            PLATFORM.walk_filesystem([&](const char* path) {
-                StringBuffer<64> prefix(L_LOAD_STRING(0));
-                if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
-                    list.push_back(lisp::make_string(path));
-                }
-            });
+          PLATFORM.walk_filesystem([&](const char* path) {
+              StringBuffer<64> prefix(L_LOAD_STRING(0));
+              if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
+                  list.push_back(lisp::make_string(path));
+              }
+          });
 
           return list.result();
       }}},

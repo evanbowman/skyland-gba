@@ -101,6 +101,10 @@ private:
 
 
 
+void make_flak_smoke(const Vec2<Fixnum>& pos);
+
+
+
 extern SharedVariable flak_r1_damage;
 extern SharedVariable flak_r2_damage;
 extern SharedVariable flak_r3_damage;

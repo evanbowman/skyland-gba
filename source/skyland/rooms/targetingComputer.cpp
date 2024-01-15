@@ -146,7 +146,7 @@ void TargetingComputer::update(Time delta)
                 }
                 next_action_timer_ = milliseconds(64);
             } else {
-                next_action_timer_ = milliseconds(16);
+                next_action_timer_ = milliseconds(32);
             }
         }
     }

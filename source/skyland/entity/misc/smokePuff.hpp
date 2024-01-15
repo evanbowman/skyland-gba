@@ -48,14 +48,13 @@ namespace skyland
 class SmokePuff : public Entity
 {
 public:
-    SmokePuff(const Vec2<Fixnum>& position, u16 tile = 27) : Entity({{}, {}})
-    {
-        sprite_.set_size(Sprite::Size::w16_h32);
-        sprite_.set_texture_index(tile);
-        sprite_.set_position(position);
-        sprite_.set_alpha(Sprite::Alpha::translucent);
-        sprite_.set_origin({8, 8});
-    }
+    SmokePuff(const Vec2<Fixnum>& position, u16 tile = 27);
+
+
+    ~SmokePuff();
+
+
+    static u8 get_instance_count();
 
 
     // Used during rewind. It's simply wasteful to store data for effects like

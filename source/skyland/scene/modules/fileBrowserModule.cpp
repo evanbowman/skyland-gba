@@ -288,11 +288,7 @@ void FileBrowserModule::repaint()
         auto mapping_info = locale_texture_map()(*str);
         const u16 t = PLATFORM.map_glyph(*str, *mapping_info);
 
-        PLATFORM.set_tile(
-            i + 1,
-            0,
-            t,
-            highlight_colors);
+        PLATFORM.set_tile(i + 1, 0, t, highlight_colors);
     }
 
     PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);

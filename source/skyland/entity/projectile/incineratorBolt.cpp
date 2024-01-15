@@ -41,6 +41,7 @@
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
@@ -187,17 +188,8 @@ void IncineratorBolt::on_collision(Room& room, Vec2<u8> origin)
     damage(1, -1);
     damage(1, 1);
 
-    auto flak_smoke = [](const Vec2<Fixnum>& pos) {
-        auto e = APP.alloc_entity<SmokePuff>(
-            rng::sample<32>(pos, rng::utility_state), 61);
-
-        if (e) {
-            APP.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(sprite_.get_position());
-    flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
+    make_flak_smoke(sprite_.get_position());
 
 
     if (str_eq(room.name(), "mirror-hull")) {

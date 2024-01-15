@@ -168,14 +168,16 @@ void EnemyAI::update(Time delta)
                 APP.game_mode() == App::GameMode::co_op) {
                 if (room_update_index_ >= ai_island_->rooms().size()) {
                     room_update_index_ = 0;
+                    next_action_timer_ = milliseconds(500);
                 } else {
                     update_room(*ai_island_->rooms()[room_update_index_++],
                                 (*target_island_).rooms_plot(),
                                 this,
                                 ai_island_,
                                 target_island_);
+                    next_action_timer_ = milliseconds(32);
                 }
-                next_action_timer_ = milliseconds(32);
+
             } else {
                 for (auto& room : ai_island_->rooms()) {
                     update_room(*room,
