@@ -310,12 +310,39 @@ public:
     {
         const auto st = calc_screen_tiles();
 
+        if (__app__) {
+            PLATFORM.keyboard().poll();
+            if (PLATFORM.keyboard().pressed<Key::down>()) {
+                state_bit_store(StateBit::verbose_boot, true);
+            }
+        }
+
+        auto fc = FontColors{amber_color, back_color};
+
+        // if (state_bit_load(StateBit::verbose_boot)) {
+        Text::print(format("Mem: [%/%]",
+                           scratch_buffers_in_use() * 2,
+                           scratch_buffer_count * 2)
+                        .c_str(),
+                    {2, 8},
+                    fc);
+
+        auto stat = flash_filesystem::statistics();
+
+        Text::print(format("Disk: [%/%]",
+                           stat.bytes_used_ / 1024,
+                           (stat.bytes_used_ + stat.bytes_available_) / 1024)
+                        .c_str(),
+                    {16, 8},
+                    fc);
+        // }
+
         PLATFORM.system_call("vsync", 0);
         Text msg({1, u8(st.y - 2)});
-        msg.append(text, FontColors{amber_color, back_color});
+        msg.append(text, fc);
         auto len = msg.len();
         for (int x = 0; x < st.x - len; ++x) {
-            msg.append(" ", FontColors{amber_color, back_color});
+            msg.append(" ", fc);
         }
         msg.__detach();
 

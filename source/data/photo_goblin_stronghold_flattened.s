@@ -9,7 +9,7 @@
 @	+ 375 tiles lz77 compressed
 @	Total size: 32 + 2056 = 2088
 @
-@	Time-stamp: 2024-01-14, 18:57:39
+@	Time-stamp: 2024-01-17, 18:06:05
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @

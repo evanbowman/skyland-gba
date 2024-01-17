@@ -77,6 +77,11 @@ public:
             buffer[position().x][position().y] = InteriorTile::statue_7;
             buffer[position().x][position().y + 1] = InteriorTile::statue_8;
             break;
+
+        case 4:
+            buffer[position().x][position().y] = InteriorTile::statue_9;
+            buffer[position().x][position().y + 1] = InteriorTile::statue_10;
+            break;
         }
     }
 
@@ -100,6 +105,10 @@ public:
 
         case 3:
             result += SYSTR(troll_suffix)->c_str();
+            break;
+
+        case 4:
+            result += SYSTR(sonic_suffix)->c_str();
             break;
         }
         return;
@@ -175,9 +184,10 @@ public:
 
     virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor) override
     {
+        PLATFORM.speaker().play_sound("cling", 2);
         schedule_repaint();
         gfx_ += 1;
-        gfx_ %= 4;
+        gfx_ %= 5;
         update_description();
         return null_scene();
     }

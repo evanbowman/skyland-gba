@@ -56,6 +56,7 @@ enum class StateBit {
     sel_menu_help_prompt,
     regression,
     show_fps,
+    verbose_boot,
     count,
 };
 

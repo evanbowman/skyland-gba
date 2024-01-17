@@ -213,6 +213,7 @@ enum class SystemString {
     goodboy_suffix,
     pkmn_suffix,
     troll_suffix,
+    sonic_suffix,
 
     red,
     black,
@@ -640,6 +641,7 @@ enum class SystemString {
     hint_damaged_core,
     hint_tutorials,
     hint_boss,
+    hint_radar,
 
     glossary_filters,
     filter_begin,

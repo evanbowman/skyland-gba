@@ -89,6 +89,12 @@ void __cxa_pure_virtual()
 
 
 extern char __iwram_overlay_end;
+extern char __text_start;
+extern char __iwram_start__;
+extern char __data_end__;
+extern char __ewram_start;
+extern char __eheap_start;
+extern char __rom_end__;
 
 
 
@@ -99,23 +105,58 @@ static const char* stack_canary_value = "（・θ・）";
 
 
 
+inline void* stack_end()
+{
+    return &__iwram_overlay_end;
+}
+
+
+
+inline u32 stack_reserved_size()
+{
+    constexpr u32 iwram_size = 32768;
+    return iwram_size - (&__data_end__ - &__iwram_start__);
+}
+
+
+
+inline u32 max_stack_usage()
+{
+    // We use the fact that the crt0 initializes iwram to zero to estimate
+    // maximum stack usage (how much still-zeroed memory remains?). Obviously
+    // this breaks down if variables written to the stack are subsequently
+    // zeroed...
+
+    u32 stack_rem = 0;
+
+    auto addr = (char*)stack_end() + 16; // add stack canary size
+    char dummy = 0;
+
+    while (addr < &dummy) {
+        if (*addr == 0) {
+            ++stack_rem;
+        } else {
+            break;
+        }
+        ++addr;
+    }
+
+    return stack_reserved_size() - stack_rem;
+}
+
+
+
 static void canary_init()
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-    __builtin_memcpy(&__iwram_overlay_end, stack_canary_value, 16);
+    __builtin_memcpy(stack_end(), stack_canary_value, 16);
 
 #pragma GCC diagnostic pop
 }
 
-
-
-void* stack_end()
-{
-    return &__iwram_overlay_end;
-}
 
 
 static inline bool canary_check()
@@ -124,7 +165,7 @@ static inline bool canary_check()
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-    return __builtin_memcmp(&__iwram_overlay_end, stack_canary_value, 16) == 0;
+    return __builtin_memcmp(stack_end(), stack_canary_value, 16) == 0;
 
 #pragma GCC diagnostic pop
 }
@@ -5233,14 +5274,6 @@ static std::optional<DateTime> start_time;
 static void remote_console_start();
 
 
-extern char __text_start;
-extern char __iwram_start__;
-extern char __data_end__;
-extern char __ewram_start;
-extern char __eheap_start;
-extern char __rom_end__;
-
-
 
 namespace
 {
@@ -7495,30 +7528,14 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
-    } else if (str_eq(feature_name, "rom-checksum")) {
-
-        auto rom = (const u8*)&__text_start;
-
-        irqDisable(IRQ_VBLANK);
-
-        u32 checksum = 0;
-
-        while (rom not_eq (const u8*) & __rom_end__) {
-            checksum += *(rom++);
-        }
-
-        uart_blocking_send_sync();
-        REG_SIOCNT = 0;
-        REG_SIODATA8 = '\n';
-
-        irqEnable(IRQ_VBLANK);
-
     } else if (str_eq(feature_name, "watchdog-on")) {
         set_gflag(GlobalFlag::watchdog_disabled, false);
     } else if (str_eq(feature_name, "watchdog-off")) {
         set_gflag(GlobalFlag::watchdog_disabled, true);
     } else if (str_eq(feature_name, "restart")) {
         restart();
+    } else if (str_eq(feature_name, "stack_usage")) {
+        *((u32*)arg) = max_stack_usage();
     }
 
     return nullptr;
@@ -7678,8 +7695,6 @@ Platform::Platform()
             conf.expect<Conf::Integer>(conf_section, "sram_capacity");
     }
 
-    const auto stk_size = 32000 - (&__data_end__ - &__iwram_start__);
-
 
     {
         StringBuffer<32> used("iwram used: ");
@@ -7691,7 +7706,7 @@ Platform::Platform()
         info(used.c_str());
 
         used = "estimated stack size: ";
-        used += stringify(stk_size);
+        used += stringify(stack_reserved_size());
         info(used.c_str());
     }
 
@@ -7900,11 +7915,11 @@ Platform::Platform()
     }
 
     const auto stk_size_min = 11000;
-    if (stk_size < stk_size_min) {
+    if (stack_reserved_size() < stk_size_min) {
         Platform::fatal(format("stack size % smaller than suggested %. "
                                "Not a strict requirement, just that I tested "
                                "the game with a stack of this size.",
-                               stk_size,
+                               stack_reserved_size(),
                                stk_size_min)
                             .c_str());
     }

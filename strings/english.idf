@@ -148,6 +148,7 @@ workshop
 /a-good-boy
 /pocket-monster
 /friendly-troll
+/gotta-go-fast
 red
 black
 (bird)
@@ -514,6 +515,7 @@ Raid and plunder castles for extra coins!
 If you lose a power-core, systems may shut down til you rebalance power.
 For more help, scroll right on the title screen and open the tutorial viewer!
 Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
+Stuck on the world map? Storm catching up to you? You can increase your movement range by building a radar...
 filters
 requires workshop
 requires manufactory

@@ -317,6 +317,8 @@ struct Tile
         reserved_e11,
         warhead_1,
         warhead_2,
+        statue_9,
+        statue_10,
     };
 };
 
@@ -593,6 +595,8 @@ struct InteriorTile
         reserved_e11,
         warhead_1,
         warhead_2,
+        statue_9,
+        statue_10,
     };
 };
 

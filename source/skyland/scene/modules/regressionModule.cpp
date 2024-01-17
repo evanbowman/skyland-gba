@@ -78,7 +78,33 @@ ScenePtr<Scene> RegressionModule::update(Time delta)
         }
 
         if (test_index == SelectTutorialScene::tutorial_count()) {
-            PLATFORM.system_call("restart", nullptr);
+            PLATFORM.fill_overlay(0);
+            PLATFORM.screen().schedule_fade(0);
+            PLATFORM.screen().schedule_fade(1);
+            PLATFORM.screen().clear();
+            Text::print("all regression passed!", {1, 1});
+            u32 mstack = 0;
+            PLATFORM.system_call("stack_usage", &mstack);
+            Text::print(format("max stack used %", mstack).c_str(), {1, 3});
+            Text::print("press any key to reset...", {1, 5});
+
+            while (1) {
+                PLATFORM.keyboard().poll();
+                PLATFORM.system_call("feed-watchdog", nullptr);
+
+                if (PLATFORM.keyboard()
+                        .down_transition<Key::action_1,
+                                         Key::action_2,
+                                         Key::down,
+                                         Key::up,
+                                         Key::left,
+                                         Key::right>()) {
+                    PLATFORM.system_call("restart", nullptr);
+                }
+
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
+            }
         }
 
         auto ret = scene_pool::alloc<SelectTutorialScene>();
