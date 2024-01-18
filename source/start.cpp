@@ -162,6 +162,11 @@ void start(Platform& pfrm)
 
     auto app = allocate_dynamic<App>("app-data", clean_boot);
 
+    if (app->is_developer_mode()) {
+        state_bit_store(StateBit::verbose_boot, true);
+    }
+
+
     while (PLATFORM.is_running()) {
         PLATFORM.keyboard().poll();
 

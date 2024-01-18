@@ -99,6 +99,19 @@ static HEAP_DATA char symbol_intern_table[string_intern_table_size];
 const char* intern(const char* string);
 
 
+std::pair<ValuePoolUsed, ValuePoolFree> value_pool_info()
+{
+    int values_remaining = 0;
+    Value* current = value_pool;
+    while (current) {
+        ++values_remaining;
+        current = current->heap_node().next_;
+    }
+
+    return {VALUE_POOL_SIZE - values_remaining, values_remaining};
+}
+
+
 void value_pool_init()
 {
     for (int i = 0; i < VALUE_POOL_SIZE; ++i) {

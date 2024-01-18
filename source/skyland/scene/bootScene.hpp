@@ -312,21 +312,37 @@ public:
 
         auto fc = FontColors{amber_color, back_color};
 
-        Text::print(format("Mem: [%/%]",
-                           scratch_buffers_in_use() * 2,
-                           scratch_buffer_count * 2)
-                        .c_str(),
-                    {2, 8},
-                    fc);
+        if (state_bit_load(StateBit::verbose_boot)) {
+            Text::print(format("Mem: [%/%]",
+                               scratch_buffers_in_use() * 2,
+                               scratch_buffer_count * 2)
+                            .c_str(),
+                        {2, 8},
+                        fc);
 
-        auto stat = flash_filesystem::statistics();
+            auto stat = flash_filesystem::statistics();
 
-        Text::print(format("Disk: [%/%]",
-                           stat.bytes_used_ / 1024,
-                           (stat.bytes_used_ + stat.bytes_available_) / 1024)
-                        .c_str(),
-                    {16, 8},
-                    fc);
+            Text::print(
+                format("Disk: [%/%]",
+                       stat.bytes_used_ / 1024,
+                       (stat.bytes_used_ + stat.bytes_available_) / 1024)
+                    .c_str(),
+                {16, 8},
+                fc);
+
+            u32 mstack = 0;
+            PLATFORM.system_call("stack_usage", &mstack);
+
+            Text::print(format("Stk: [%]", mstack).c_str(), {2, 10}, fc);
+
+            for (int i = 16; i < 30; ++i) {
+                PLATFORM.set_tile(Layer::overlay, i, 10, 0);
+            }
+            Text::print(
+                format("Lisp: [%]", lisp::value_pool_info().first).c_str(),
+                {16, 10},
+                fc);
+        }
 
         PLATFORM.system_call("vsync", 0);
         Text msg({1, u8(st.y - 2)});

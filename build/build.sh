@@ -1,3 +1,3 @@
 
-make -j8
+ninja
 ./bundle.sh

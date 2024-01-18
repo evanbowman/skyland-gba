@@ -688,6 +688,11 @@ void get_env(SymbolCallback callback);
 int toplevel_count();
 
 
+using ValuePoolUsed = u32;
+using ValuePoolFree = u32;
+std::pair<ValuePoolUsed, ValuePoolFree> value_pool_info();
+
+
 Value* get_nil();
 #define L_NIL lisp::get_nil()
 
