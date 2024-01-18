@@ -89,8 +89,9 @@ void Decimator::display(Platform::Screen& screen)
     pos.y -= 16.0_fixed;
 
     if (reload_ < seconds(7) and not counter_) {
-        flicker_ = not flicker_;
-        if (not flicker_) {
+        ++flicker_cyc_;
+        flicker_cyc_ %= 4;
+        if (flicker_cyc_ < 2) {
             return;
         }
         spr.set_texture_index(103);
@@ -285,7 +286,7 @@ void Decimator::update(Time delta)
             } else {
                 reload_ += 1000 * decimator_reload_ms;
                 counter_ = 0;
-                flicker_ = false;
+                flicker_cyc_ = 0;
             }
         }
     }

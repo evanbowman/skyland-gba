@@ -161,7 +161,7 @@ private:
 
 
     Time reload_ = 1000 * decimator_reload_ms;
-    bool flicker_ = false;
+    u8 flicker_cyc_ = 0;
 };
 
 
