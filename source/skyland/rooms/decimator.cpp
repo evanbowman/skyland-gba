@@ -78,6 +78,117 @@ void Decimator::unset_target()
 
 
 
+void Decimator::display(Platform::Screen& screen)
+{
+    Room::display(screen);
+
+    Sprite spr;
+    auto pos = visual_center();
+    spr.set_size(Sprite::Size::w16_h32);
+
+    pos.y -= 16.0_fixed;
+
+    if (reload_ < seconds(7) and not counter_) {
+        flicker_ = not flicker_;
+        if (not flicker_) {
+            return;
+        }
+        spr.set_texture_index(103);
+    } else {
+        return;
+    }
+
+    if (is_player_island(parent())) {
+
+        Fixnum dist;
+
+        auto cy = position().y;
+        bool found_any = false;
+
+        for (u8 x = 0; x < APP.opponent_island()->terrain().size(); ++x) {
+            for (u8 y = 0; y < 2; ++y) {
+                RoomCoord c;
+                c.x = x;
+                c.y += cy + y;
+                if (APP.opponent_island()->get_room(c)) {
+                    found_any = true;
+                    goto NEXT;
+                }
+            }
+            dist += 16.0_fixed;
+        }
+    NEXT:
+        if (not found_any) {
+            dist += 48.0_fixed;
+        }
+
+        pos.x += 15.0_fixed;
+
+        // Add dist between islands:
+        dist += APP.opponent_island()->get_position().x - pos.x;
+
+        while (dist >= 16.0_fixed) {
+            spr.set_position(pos);
+            screen.draw(spr);
+            pos.x += 16.0_fixed;
+            dist -= 16.0_fixed;
+        }
+
+        if (dist >= 0.0_fixed) {
+            pos.x -= (16.0_fixed - dist);
+            spr.set_position(pos);
+            screen.draw(spr);
+        }
+
+
+    } else {
+        Fixnum dist;
+
+        auto cy = position().y;
+        bool found_any = false;
+
+        s8 x = APP.player_island().terrain().size() - 1;
+        for (; x > -1; --x) {
+            for (u8 y = 0; y < 2; ++y) {
+                RoomCoord c;
+                c.x = x;
+                c.y += cy + y;
+                if (APP.player_island().get_room(c)) {
+                    found_any = true;
+                    goto NEXT2;
+                }
+            }
+            dist += 16.0_fixed;
+        }
+    NEXT2:
+        if (not found_any) {
+            dist += 48.0_fixed;
+        }
+
+        pos.x -= 31.0_fixed;
+
+        // Add dist between islands:
+        dist += pos.x - (APP.player_island().get_position().x +
+                         Fixnum::from_integer(
+                             (APP.player_island().terrain().size() - 1) * 16));
+
+        while (dist >= 16.0_fixed) {
+            spr.set_position(pos);
+            screen.draw(spr);
+            pos.x -= 16.0_fixed;
+            dist -= 16.0_fixed;
+        }
+
+        if (dist >= 0.0_fixed) {
+            pos.x += (16.0_fixed - dist);
+            spr.set_position(pos);
+            screen.draw(spr);
+        }
+    }
+}
+
+
+
 void Decimator::update(Time delta)
 {
     Room::update(delta);
@@ -174,6 +285,9 @@ void Decimator::update(Time delta)
             } else {
                 reload_ += 1000 * decimator_reload_ms;
                 counter_ = 0;
+                flicker_ = false;
+                anim_ = 0;
+                drawdown_ = seconds(1);
             }
         }
     }
@@ -188,6 +302,8 @@ void Decimator::rewind(Time delta)
     if (is_powered_down()) {
         return;
     }
+
+    drawdown_ = 0;
 
     if (reload_ <= 0) {
         // Reloaded.

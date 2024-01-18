@@ -88,6 +88,9 @@ public:
                              BasicCharacter* for_character) override;
 
 
+    void display(Platform::Screen& screen) override;
+
+
     static Category category()
     {
         return Category::weapon;
@@ -158,6 +161,9 @@ private:
 
 
     Time reload_ = 1000 * decimator_reload_ms;
+    Time anim_ = 0;
+    Time drawdown_ = 0;
+    bool flicker_ = false;
 };
 
 
