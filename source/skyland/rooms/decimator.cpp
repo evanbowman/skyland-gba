@@ -286,8 +286,6 @@ void Decimator::update(Time delta)
                 reload_ += 1000 * decimator_reload_ms;
                 counter_ = 0;
                 flicker_ = false;
-                anim_ = 0;
-                drawdown_ = seconds(1);
             }
         }
     }
@@ -302,8 +300,6 @@ void Decimator::rewind(Time delta)
     if (is_powered_down()) {
         return;
     }
-
-    drawdown_ = 0;
 
     if (reload_ <= 0) {
         // Reloaded.

@@ -161,8 +161,6 @@ private:
 
 
     Time reload_ = 1000 * decimator_reload_ms;
-    Time anim_ = 0;
-    Time drawdown_ = 0;
     bool flicker_ = false;
 };
 
