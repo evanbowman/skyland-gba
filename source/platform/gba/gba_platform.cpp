@@ -70,6 +70,7 @@
 #include <algorithm>
 #include <limits>
 #include <setjmp.h>
+#include "skyland_mgba.hpp"
 
 
 extern "C" {
@@ -268,6 +269,7 @@ enum class GlobalFlag {
     watchdog_disabled,
     effect_window_mode,
     iris_effect_mode,
+    skyland_custom_mgba,
     count
 };
 
@@ -7615,6 +7617,11 @@ Platform::Platform()
     const auto tm1 = system_clock_.now();
 
     logger().set_threshold(Severity::fatal);
+
+    if (skyland_mgba_invoke_command(Command::identify, "HELLO.") == "ACKNOWLEDGED.") {
+        info("skyland-mgba detected!");
+    }
+
 
     keyboard().poll();
 
