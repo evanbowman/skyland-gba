@@ -117,6 +117,10 @@ void store(const PersistentData& d);
 
 
 
+bool exists();
+
+
+
 bool load(PersistentData& d);
 
 

@@ -63,10 +63,6 @@ WeatherEngine::WeatherEngine(Island* parent,
 
 
 
-void environment_init(int type);
-
-
-
 class SetWeatherScene : public ActiveWorldScene
 {
 public:

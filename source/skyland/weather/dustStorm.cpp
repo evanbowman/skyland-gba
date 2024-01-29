@@ -57,7 +57,7 @@ namespace skyland::weather
 
 
 
-int DustStorm::id() const
+EnvironmentId DustStorm::id() const
 {
     return id_;
 }

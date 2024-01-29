@@ -104,7 +104,7 @@ public:
     const char* ambiance() const override;
 
 
-    int id() const override;
+    EnvironmentId id() const override;
 
 
     virtual void on_lightning()

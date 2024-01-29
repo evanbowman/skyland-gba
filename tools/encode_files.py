@@ -127,6 +127,9 @@ def encode_file(path, real_name, out):
             out.write('\0'.encode('utf-8'))
 
 
+def is_emacs_backup_file(name):
+    return '~' in name or '#' in name
+
 
 def collect_paths(paths_list, subdir):
     for root, dirs, files in os.walk(os.path.join(project_root_path, subdir), topdown=False):
@@ -141,7 +144,7 @@ def collect_paths(paths_list, subdir):
         for name in files:
             if os.path.basename(root) == subdir.split('/')[-1]:
                 full = os.path.join('/' + subdir, name)
-                if not '~' in full:
+                if not is_emacs_backup_file(full):
                     paths_list.append(['/' + subdir + '/' + name, os.path.join(root, name)])
 
 

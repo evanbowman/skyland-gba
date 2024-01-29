@@ -46,7 +46,6 @@ namespace skyland
 
 
 void prep_level();
-void environment_init(int type);
 
 
 

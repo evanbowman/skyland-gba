@@ -45,7 +45,7 @@ void ClearSkies::update(Time delta)
 
 
 
-int ClearSkies::id() const
+EnvironmentId ClearSkies::id() const
 {
     return 1;
 }

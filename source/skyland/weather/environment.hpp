@@ -48,6 +48,17 @@ class Platform;
 namespace skyland
 {
 class App;
+
+
+
+using EnvironmentId = int;
+
+
+
+void environment_init(EnvironmentId type);
+
+
+
 }
 
 
@@ -99,7 +110,7 @@ public:
     }
 
 
-    virtual int id() const = 0;
+    virtual EnvironmentId id() const = 0;
 
 
     virtual void on_pause();
@@ -203,7 +214,7 @@ public:
     }
 
 
-    virtual int id() const override;
+    virtual EnvironmentId id() const override;
 
 
     void update(Time delta) override;

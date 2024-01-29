@@ -752,3 +752,10 @@ bool state_bit_load(StateBit state_bit)
 
 
 } // namespace skyland
+
+
+
+void logic_error(const char* file, int line)
+{
+    Platform::fatal(format("logic error, line %, file %", line, file));
+}

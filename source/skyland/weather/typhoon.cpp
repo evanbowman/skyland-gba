@@ -268,7 +268,7 @@ void Typhoon::update(Time delta)
 
 
 
-int Typhoon::id() const
+EnvironmentId Typhoon::id() const
 {
     return 5;
 }

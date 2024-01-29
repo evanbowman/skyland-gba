@@ -68,7 +68,7 @@ public:
     ColorConstant fadein_colorize_tone() const override;
 
 
-    int id() const override;
+    EnvironmentId id() const override;
 
 
 private:

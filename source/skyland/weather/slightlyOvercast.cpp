@@ -60,7 +60,7 @@ SlightlyOvercast::SlightlyOvercast()
 
 
 
-int SlightlyOvercast::id() const
+EnvironmentId SlightlyOvercast::id() const
 {
     return 2;
 }

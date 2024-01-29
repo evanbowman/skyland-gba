@@ -77,7 +77,7 @@ public:
     static const int id_ = 6;
 
 
-    int id() const override;
+    EnvironmentId id() const override;
 };
 
 

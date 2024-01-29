@@ -452,6 +452,10 @@ bool WorldMapScene::can_abort_move() const
 
 
 
+void update_weather_onload();
+
+
+
 ScenePtr<Scene> WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
@@ -1154,6 +1158,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
             PLATFORM.speaker().play_music(APP.environment().ambiance(), 0);
             auto maxvol = Platform::Speaker::music_volume_max;
             PLATFORM.speaker().set_music_volume(maxvol);
+            update_weather_onload();
             return scene_pool::alloc<FadeInScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

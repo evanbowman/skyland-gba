@@ -266,10 +266,6 @@ void RewindScene::print_timestamp()
 
 
 
-void environment_init(int type);
-
-
-
 ScenePtr<Scene> RewindScene::update(Time)
 {
     bool speed_changed = false;

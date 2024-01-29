@@ -56,7 +56,7 @@ public:
     Platform::Screen::Shader shader() const override;
 
 
-    int id() const override;
+    EnvironmentId id() const override;
 
 
     void update(Time delta) override;

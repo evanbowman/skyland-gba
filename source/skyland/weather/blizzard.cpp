@@ -165,7 +165,7 @@ Platform::Screen::Shader Blizzard::get_shader()
 
 
 
-int Blizzard::id() const
+EnvironmentId Blizzard::id() const
 {
     return 4;
 }

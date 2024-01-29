@@ -194,17 +194,8 @@ void prep_level()
 
 
 
-ScenePtr<Scene> LoadLevelScene::update(Time delta)
+void update_weather_onload()
 {
-    const auto loc = APP.current_world_location();
-    info(format("%", loc));
-    auto& node = APP.world_graph().nodes_[loc];
-
-    for (auto& room : APP.player_island().rooms()) {
-        room->detach_drone(true);
-    }
-    APP.player_island().drones().clear();
-
     bool has_weather_engine = false;
     for (auto& r : APP.player_island().rooms()) {
         if (r->cast<WeatherEngine>()) {
@@ -224,7 +215,24 @@ ScenePtr<Scene> LoadLevelScene::update(Time delta)
     } else {
         APP.swap_environment<weather::ClearSkies>();
     }
+
     APP.player_island().recalculate_power_usage();
+}
+
+
+
+ScenePtr<Scene> LoadLevelScene::update(Time delta)
+{
+    const auto loc = APP.current_world_location();
+    info(format("%", loc));
+    auto& node = APP.world_graph().nodes_[loc];
+
+    for (auto& room : APP.player_island().rooms()) {
+        room->detach_drone(true);
+    }
+    APP.player_island().drones().clear();
+
+    update_weather_onload();
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:

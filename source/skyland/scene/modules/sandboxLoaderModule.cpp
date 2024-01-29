@@ -38,11 +38,6 @@
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/weather/blizzard.hpp"
-#include "skyland/weather/dustStorm.hpp"
-#include "skyland/weather/slightlyOvercast.hpp"
-#include "skyland/weather/storm.hpp"
-#include "skyland/weather/typhoon.hpp"
 
 
 
@@ -76,37 +71,6 @@ int SandboxLoaderModule::get_setting(u8 slot)
         return 0;
     }
     return parameters_[slot];
-}
-
-
-
-void environment_init(int type)
-{
-    switch (type) {
-    case 1:
-        APP.swap_environment<weather::ClearSkies>();
-        break;
-
-    case 2:
-        APP.swap_environment<weather::SlightlyOvercast>();
-        break;
-
-    case 3:
-        APP.swap_environment<weather::Storm>();
-        break;
-
-    case 4:
-        APP.swap_environment<weather::Blizzard>();
-        break;
-
-    case 5:
-        APP.swap_environment<weather::Typhoon>();
-        break;
-
-    case 6:
-        APP.swap_environment<weather::DustStorm>();
-        break;
-    }
 }
 
 

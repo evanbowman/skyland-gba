@@ -92,3 +92,8 @@ template <typename T, typename U> bool contains(const T& t, const U& u)
     }
     return false;
 }
+
+
+
+void logic_error(const char* file, int line);
+#define LOGIC_ERROR() logic_error(__FILE__, __LINE__)

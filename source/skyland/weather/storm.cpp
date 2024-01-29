@@ -414,7 +414,7 @@ ColorConstant Storm::fadein_colorize_tone() const
 
 
 
-int Storm::id() const
+EnvironmentId Storm::id() const
 {
     return 3;
 }
