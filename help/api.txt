@@ -276,6 +276,25 @@ o----------------------------o
  Remove room room at x y from
  island.
 
+
+o----------------------------o
+
+ (room-load island x y)
+
+ Retrieve info about a room
+ at x,y, if any.
+
+
+o----------------------------o
+
+ (room-is-critical island x y)
+
+ Return true if a room cannot
+ be safely removed from an
+ island without sinking it
+ (e.g. last power source).
+
+
 o----------------------------o
 
  (room-mut island x y type-sym)
@@ -922,6 +941,18 @@ o----------------------------o
         $0
         $1
         $2))))
+
+
+o----------------------------o
+
+ (sel-input-opponent
+  room-sym
+  msg
+  callback)
+
+ Like the sel-input prompt,
+ but for the opponent's
+ island.
 
 
 o----------------------------o

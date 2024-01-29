@@ -539,12 +539,10 @@ BINDING_TABLE({
           auto sz = (*mt)->size();
 
           b.push_back(L_CONS(L_SYM("size"), L_CONS(L_INT(sz.x), L_INT(sz.y))));
-
           b.push_back(L_CONS(L_SYM("ico1"), L_INT((*mt)->icon())));
-
           b.push_back(L_CONS(L_SYM("ico2"), L_INT((*mt)->unsel_icon())));
-
           b.push_back(L_CONS(L_SYM("pwr"), L_INT((*mt)->consumes_power())));
+          b.push_back(L_CONS(L_SYM("cost"), L_INT((*mt)->cost())));
 
           return b.result();
       }}},
@@ -974,8 +972,6 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
 
-          void environment_init(int type);
-
           environment_init(L_LOAD_INT(0));
           PLATFORM.screen().set_shader(APP.environment().shader());
           PLATFORM.screen().set_shader_argument(0);
@@ -1102,6 +1098,54 @@ BINDING_TABLE({
           island->destroy_room(coord);
 
           return L_NIL;
+      }}},
+    {"room-load",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, user_data);
+
+          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+          auto coord = RoomCoord{
+              (u8)lisp::get_op(1)->integer().value_,
+              (u8)lisp::get_op(0)->integer().value_,
+          };
+
+          if (auto room = island->get_room(coord)) {
+              return room->serialize();
+          }
+          return L_NIL;
+      }}},
+    {"room-is-critical",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, user_data);
+
+          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+          auto coord = RoomCoord{
+              (u8)lisp::get_op(1)->integer().value_,
+              (u8)lisp::get_op(0)->integer().value_,
+          };
+
+          if (auto room = island->get_room(coord)) {
+              if ((*room->metaclass())->category() == Room::Category::power) {
+                  int pwr_cnt = 0;
+                  for (auto& o : island->rooms()) {
+                      if ((*o->metaclass())->category() == Room::Category::power) {
+                          ++pwr_cnt;
+                      }
+                  }
+                  if (pwr_cnt == 1) {
+                      return lisp::make_boolean(true);
+                  }
+              }
+          }
+          return lisp::make_boolean(false);
       }}},
     {"room-mut",
      {4,
@@ -1343,6 +1387,21 @@ BINDING_TABLE({
           }
           return L_NIL;
       }}},
+    {"sel-input-opponent",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, function);
+          L_EXPECT_OP(1, string);
+
+          auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+          bundle = lisp::make_cons(bundle, lisp::get_op(2));
+          bundle = lisp::make_cons(L_INT(0), bundle);
+          if (bundle->type() == lisp::Value::Type::cons) {
+              APP.setup_input(bundle);
+          }
+
+          return L_NIL;
+      }}},
     {"sel-input",
      {3,
       [](int argc) {
@@ -1351,6 +1410,7 @@ BINDING_TABLE({
 
           auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
           bundle = lisp::make_cons(bundle, lisp::get_op(2));
+          bundle = lisp::make_cons(L_INT(1), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {
               APP.setup_input(bundle);
           }

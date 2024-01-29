@@ -59,3 +59,4 @@ completed miners quest! (+%@)
 unable to make payment to imperial missile station!
 made payment to imperial missile station
 refused to pay imperial missile station
+accepted goblin surrender, salvaged blocks...

@@ -51,20 +51,30 @@
               (format "Take block: (%/%)" (- tot cnt) tot)
               (lambda
                 (let ((took (car (room-load (opponent) $1 $2))))
-                  (room-del (opponent) $1 $2)
-                  (alloc-space took)
-                  (sel-input
-                   took
-                   (format "Place block: (%/%)" (- tot cnt) tot)
-                   (lambda
-                     (room-new (player) (list took $1 $2))
-                     (sound "build0")
-                     (setq cnt (- cnt 1))
-                     (if (equal cnt 0)
-                         (progn
-                           (dialog (format "Accepted surrender and gained % blocks!" tot))
-                           (setq on-dialog-closed exit))
-                       (rtry))))))))))))
+                  (if (room-is-critical (opponent) $1 $2)
+                      (progn
+                        (dialog "You shouldn't remove the island's only power source! We're accepting their surrender, not trying to sink them!")
+                        (if (equal 1 (length (rooms (opponent))))
+                            (exit)
+                            (setq on-dialog-closed rtry)))
+                      (progn
+                        (room-del (opponent) $1 $2)
+                        (sound "gravel")
+                        (alloc-space took)
+                        (sel-input
+                         took
+                         (format "Place block: (%/%)" (- tot cnt) tot)
+                         (lambda
+                           (room-new (player) (list took $1 $2))
+                           (sound "build0")
+                           (setq cnt (- cnt 1))
+                           (if (equal cnt 0)
+                               (progn
+                                 (dialog (format "Accepted surrender and gained % blocks!" tot))
+                                 (adventure-log-add 62 '())
+                                 (setq on-dialog-closed exit))
+                               (rtry))))))))))))))
+
 
     (let ((rtry (this)))
       (dialog-opts-push "(help me decide!)"

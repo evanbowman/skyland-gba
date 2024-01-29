@@ -145,11 +145,6 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
                 ++cursor_loc.x;
-            } else {
-                // std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
-                // std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
-                //     cursor_loc.y;
-                // near_ = false;
             }
         }
 
@@ -172,8 +167,7 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
     } else {
 
         if (not APP.opponent_island()) {
-            near_ = true;
-            return null_scene();
+            return scene_pool::alloc<ReadyScene>();
         }
 
         far_camera();
@@ -183,11 +177,6 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-            } else {
-                globals().near_cursor_loc_.x =
-                    APP.player_island().terrain().size();
-                globals().near_cursor_loc_.y = cursor_loc.y;
-                near_ = true;
             }
         }
 
@@ -220,7 +209,6 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
 
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
-
 
         if (required_space_) {
             for (u8 x = cursor_loc.x; x < cursor_loc.x + required_space_->x;

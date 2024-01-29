@@ -302,8 +302,10 @@ ScenePtr<Scene> ActiveWorldScene::update(Time delta)
         APP.game_mode() not_eq App::GameMode::multiplayer and
         APP.input_setup_info()) {
 
-        auto next = scene_pool::alloc<SelInputScene>(*APP.input_setup_info(),
-                                                     not is_far_camera());
+        bool near = (*APP.input_setup_info())->cons().car()->integer().value_;
+
+        auto next = scene_pool::alloc<SelInputScene>((*APP.input_setup_info())->cons().cdr(),
+                                                     near);
 
         APP.input_setup_info().reset();
 
