@@ -166,6 +166,10 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
 
     } else {
 
+        if (APP.game_speed() not_eq GameSpeed::stopped) {
+            set_gamespeed(GameSpeed::stopped);
+        }
+
         if (not APP.opponent_island()) {
             return scene_pool::alloc<ReadyScene>();
         }

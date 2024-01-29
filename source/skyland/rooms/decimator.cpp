@@ -82,6 +82,10 @@ void Decimator::display(Platform::Screen& screen)
 {
     Room::display(screen);
 
+    if (not APP.opponent_island()) {
+        return;
+    }
+
     Sprite spr;
     auto pos = visual_center();
     spr.set_size(Sprite::Size::w16_h32);

@@ -180,32 +180,56 @@ static constexpr int vram_tile_size()
 
 
 // Accepts two vectors of four colors (indexed 4bpp).
-static inline u16 blit(u16 current_color, u16 add_color)
+static inline u32 blit(u32 current_color, u32 add_color)
 {
-    u16 result = 0;
+    u32 result = 0;
 
-    if (add_color & 0xf000) {
-        result |= add_color & 0xf000;
+    if (add_color & 0xf0000000) {
+        result |= add_color & 0xf0000000;
     } else {
-        result |= current_color & 0xf000;
+        result |= current_color & 0xf0000000;
     }
 
-    if (add_color & 0x0f00) {
-        result |= add_color & 0x0f00;
+    if (add_color & 0x0f000000) {
+        result |= add_color & 0x0f000000;
     } else {
-        result |= current_color & 0x0f00;
+        result |= current_color & 0x0f000000;
     }
 
-    if (add_color & 0x00f0) {
-        result |= add_color & 0x00f0;
+    if (add_color & 0x00f00000) {
+        result |= add_color & 0x00f00000;
     } else {
-        result |= current_color & 0x00f0;
+        result |= current_color & 0x00f00000;
     }
 
-    if (add_color & 0x000f) {
-        result |= add_color & 0x000f;
+    if (add_color & 0x000f0000) {
+        result |= add_color & 0x000f0000;
     } else {
-        result |= current_color & 0x000f;
+        result |= current_color & 0x000f0000;
+    }
+
+    if (add_color & 0x0000f000) {
+        result |= add_color & 0x0000f000;
+    } else {
+        result |= current_color & 0x0000f000;
+    }
+
+    if (add_color & 0x00000f00) {
+        result |= add_color & 0x00000f00;
+    } else {
+        result |= current_color & 0x00000f00;
+    }
+
+    if (add_color & 0x000000f0) {
+        result |= add_color & 0x000000f0;
+    } else {
+        result |= current_color & 0x000000f0;
+    }
+
+    if (add_color & 0x0000000f) {
+        result |= add_color & 0x0000000f;
+    } else {
+        result |= current_color & 0x0000000f;
     }
 
     return result;
@@ -216,15 +240,18 @@ static inline u16 blit(u16 current_color, u16 add_color)
 IWRAM_CODE
 void blit_tile(u16* out, u16* in)
 {
-    for (int i = 0; i < vram_tile_size() / 2; ++i) {
+    auto out32 = (u32*)out;
+    auto in32 = (u32*)in;
 
-        auto val = *in;
-        auto prev = *out;
+    for (int i = 0; i < vram_tile_size() / 4; ++i) {
 
-        *out = blit(prev, val);
+        auto val = *in32;
+        auto prev = *out32;
 
-        ++out;
-        ++in;
+        *out32 = blit(prev, val);
+
+        ++out32;
+        ++in32;
     }
 }
 

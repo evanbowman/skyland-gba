@@ -8,7 +8,7 @@
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
-    (dialog-opts-push (format "+1 crew +%@" c)
+    (dialog-opts-push (format "+1 crew, +%@" c)
                       (lambda
                           (coins-add c)
                         (let ((g (chrs (opponent)))
@@ -39,7 +39,7 @@
                         (exit 2)))
 
     (let ((cnt 0)
-          (tot (/ (length (rooms (opponent))) 8)))
+          (tot (/ (length (rooms (opponent))) 6)))
       (setq cnt tot)
       (when cnt
         (dialog-opts-push
@@ -70,7 +70,7 @@
                            (setq cnt (- cnt 1))
                            (if (equal cnt 0)
                                (progn
-                                 (dialog (format "Accepted surrender and gained % blocks!" tot))
+                                 (dialog (format "Accepted surrender, and acquired % blocks!" tot))
                                  (adventure-log-add 62 '())
                                  (setq on-dialog-closed exit))
                                (rtry))))))))))))))
@@ -84,7 +84,8 @@
                              "Your crew values the resources in the goblin ship at "
                              (format "%@" (coins-victory))
                              ". <B:0>Or you may end the fight and accept the terms of the "
-                             "goblins' surrender...")
+                             "goblins' surrender. <B:0>"
+                             "Goblins may offer you crewmembers, blocks, and/or money in their surrender options.")
 
                           (setq on-dialog-closed rtry))))
 
