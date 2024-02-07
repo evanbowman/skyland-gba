@@ -3,21 +3,23 @@
 ;;;
 
 
-(dialog "A nearby island seems to be transmitting an unusual distress signal...")
+(dialog
+ "<b:/scripts/misc/img/overgrown_isle.img.bin>"
+ "A nearby island seems to be transmitting an unusual distress signal...")
 
 
 (opponent-init 7 'neutral)
 
 (island-configure
  (opponent)
- '((hull 0 14)
-   (hull 0 13)
+ '((masonry 0 14)
+   (masonry 0 13)
    (mycelium 0 12)
    (mycelium 0 11)
    (power-core 1 13)
-   (hull 1 12)
+   (masonry 1 12)
    (mycelium 1 11)
-   (hull 2 12)
+   (masonry 2 12)
    (mycelium 2 11)
    (mycelium 3 12)
    (mycelium 3 7)
@@ -34,7 +36,7 @@
    (mycelium 5 8)
    (mycelium 5 9)
    (mycelium 5 12)
-   (hull 6 14)
+   (masonry 6 14)
    (mycelium 6 12)
    (mycelium 6 13)
    (mycelium 6 11)
