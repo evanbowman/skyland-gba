@@ -59,6 +59,7 @@
 #include "spectatorScene.hpp"
 #include "surrenderConfirmScene.hpp"
 #include "titleScreenScene.hpp"
+#include "worldMapScene.hpp"
 #include "zoneImageScene.hpp"
 
 
@@ -685,7 +686,13 @@ AGAIN:
                 APP.world_graph().nodes_[APP.current_world_location()].type_ ==
                     WorldGraph::Node::Type::shop) {
                 add_option(SYSTR(start_menu_sky_map)->c_str(),
-                           scene_pool::make_deferred_scene<ZoneImageScene>(),
+                           []() -> ScenePtr<Scene> {
+                               if (APP.current_world_location() == 0) {
+                                   return scene_pool::alloc<WorldMapScene>();
+                               } else {
+                                   return scene_pool::alloc<ZoneImageScene>();
+                               }
+                           },
                            cut);
             } else {
                 if (not APP.opponent().is_friendly()) {
