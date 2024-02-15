@@ -39,7 +39,7 @@
                         (exit 2)))
 
     (let ((cnt 0)
-          (tot (/ (length (rooms (opponent))) 6)))
+          (tot (/ (length (rooms (opponent))) 5)))
       (setq cnt tot)
       (when cnt
         (dialog-opts-push
