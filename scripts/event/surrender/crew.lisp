@@ -55,7 +55,7 @@
                       (progn
                         (dialog "You shouldn't remove the island's only power source! We're accepting their surrender, not trying to sink them!")
                         (if (equal 1 (length (rooms (opponent))))
-                            (exit)
+                            (exit 2)
                             (setq on-dialog-closed rtry)))
                       (progn
                         (room-del (opponent) $1 $2)
@@ -72,7 +72,7 @@
                                (progn
                                  (dialog (format "Accepted surrender, and acquired % blocks!" tot))
                                  (adventure-log-add 62 '())
-                                 (setq on-dialog-closed exit))
+                                 (setq on-dialog-closed (curry exit 2)))
                                (rtry))))))))))))))
 
 
