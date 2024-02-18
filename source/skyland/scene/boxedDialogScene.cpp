@@ -296,7 +296,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             utf8::scan(
                 [&](const utf8::Codepoint& cp, const char*, int) {
                     if (done) {
-                        return;
+                        return false;
                     }
                     if (cp == ' ' or cp == '<' or cp == '\0') {
                         done = true;
@@ -304,6 +304,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
                         seen_char = true;
                         text_state_.current_word_remaining_++;
                     }
+                    return true;
                 },
                 text_state_.current_word_,
                 strlen(text_state_.current_word_));

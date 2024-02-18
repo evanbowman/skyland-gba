@@ -3805,6 +3805,7 @@ BUILTIN_TABLE(
                            (*builder) += raw;
                        }
                        ++index;
+                       return true;
                    },
                    inp_str,
                    strlen(inp_str));
@@ -3825,7 +3826,7 @@ BUILTIN_TABLE(
            auto str = L_LOAD_STRING(0);
            utf8::scan([&](const utf8::Codepoint& cp,
                           const char*,
-                          int) { list.push_back(L_INT(cp)); },
+                          int) { list.push_back(L_INT(cp)); return true; },
                       str,
                       strlen(str));
 

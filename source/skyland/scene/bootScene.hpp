@@ -188,6 +188,7 @@ private:
                         current.second += raw;
                     }
                 }
+                return true;
             },
             cp,
             strlen(cp));

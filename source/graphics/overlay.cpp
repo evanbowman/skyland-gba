@@ -453,6 +453,7 @@ void Text::append(const char* str, const OptColors& colors)
                 print_double_char(cp, {write_pos, coord_.y}, colors);
                 write_pos += 2;
                 ++len_;
+                return true;
             },
             str,
             strlen(str));
@@ -465,6 +466,7 @@ void Text::append(const char* str, const OptColors& colors)
                 print_char(cp, {write_pos, coord_.y}, colors);
                 ++write_pos;
                 ++len_;
+                return true;
             },
             str,
             strlen(str));

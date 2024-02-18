@@ -71,25 +71,31 @@ inline bool scan(Callback&& callback, const char* data, size_t len)
             if (not is_little_endian()) {
                 *cp = __bswap_constant_32(*cp);
             }
-            callback(*cp, raw, index);
+            return callback(*cp, raw, index);
         };
 
         const Bitvector<8> parsed(data[index]);
         if (parsed[7] == 0) {
             raw[0] = data[index];
-            do_callback();
+            if (not do_callback()) {
+                return true;
+            }
             index += 1;
         } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 0) {
             raw[0] = data[index];
             raw[1] = data[index + 1];
-            do_callback();
+            if (not do_callback()) {
+                return true;
+            }
             index += 2;
         } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
                    parsed[4] == 0) {
             raw[0] = data[index];
             raw[1] = data[index + 1];
             raw[2] = data[index + 2];
-            do_callback();
+            if (not do_callback()) {
+                return true;
+            }
             index += 3;
         } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
                    parsed[4] == 1 and parsed[3] == 0) {
@@ -97,7 +103,9 @@ inline bool scan(Callback&& callback, const char* data, size_t len)
             raw[1] = data[index + 1];
             raw[2] = data[index + 2];
             raw[3] = data[index + 3];
-            do_callback();
+            if (not do_callback()) {
+                return true;
+            }
             index += 4;
         } else {
             return false;
@@ -127,6 +135,7 @@ inline Codepoint getc(const CharType* data, int* consumed = nullptr)
                     *consumed = strlen(raw);
                 }
             }
+            return true;
         },
         reinterpret_cast<const char*>(data),
         strlen(reinterpret_cast<const char*>(data)));
@@ -142,7 +151,7 @@ inline Codepoint getc(const CharType* data, int* consumed = nullptr)
 inline size_t len(const char* data)
 {
     size_t ret = 0;
-    scan([&ret](const Codepoint&, const char*, int) { ++ret; },
+    scan([&ret](const Codepoint&, const char*, int) { ++ret; return true; },
          data,
          strlen(data));
     return ret;
@@ -177,6 +186,7 @@ private:
                     data_[i - index] = cp;
                 }
                 i++;
+                return true;
             },
             str_,
             stop_offset);
