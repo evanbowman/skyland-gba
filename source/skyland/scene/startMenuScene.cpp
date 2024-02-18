@@ -312,18 +312,9 @@ AGAIN:
                             },
                             ColorConstant::rich_black);
                     };
-                    if (qr->size() > 76) {
-                        PLATFORM.screen().schedule_fade(0.f);
-                        auto dialog =
-                            allocate_dynamic<DialogString>("dialog-buffer");
-                        *dialog = SYS_CSTR(qr_code_size_warning);
-                        auto next = scene_pool::alloc<BoxedDialogScene>(
-                            std::move(dialog));
-                        next->set_next_scene(show_qr);
-                        return next;
-                    } else {
-                        return show_qr();
-                    }
+
+                    return show_qr();
+
                 } else {
                     PLATFORM.screen().schedule_fade(0.f);
                     PLATFORM.screen().pixelate(0);

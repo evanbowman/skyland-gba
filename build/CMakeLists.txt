@@ -1079,6 +1079,35 @@ endif()
 
 
 
+target_precompile_headers(${EXECUTABLE_NAME}
+  PRIVATE
+  <limits>
+  <utility>
+  <new>
+  <tuple>
+  <variant>
+  <type_traits>
+  <initializer_list>
+  <ciso646>
+  <stddef.h>
+  <optional>
+  ../source/unicode.hpp
+  ../source/allocator.hpp
+  ../source/containers/vector.hpp
+  ../source/graphics/overlay.hpp
+  ../source/globals.hpp
+  ../source/memory/buffer.hpp
+  ../source/number/numeric.hpp
+  ../source/number/fixnum.hpp
+  ../source/skyland/room.hpp
+  ../source/skyland/island.hpp
+  ../source/skyland/entity.hpp
+  ../source/skyland/timeStreamEvent.hpp
+  ../source/platform/platform.hpp
+  ../source/skyland/skyland.hpp)
+
+
+
 target_compile_options(${EXECUTABLE_NAME} PRIVATE
   ${SHARED_COMPILE_OPTIONS})
 
