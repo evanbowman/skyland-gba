@@ -215,7 +215,7 @@ void Missile::update(Time delta)
             auto max_y = target->origin().y;
             max_y += Fixnum::from_integer(16 * 16 + 32);
             if (pos.y > max_y) {
-                this->destroy();
+                this->on_destroy();
                 PLATFORM.speaker().play_sound("explosion1", 2);
             }
         }
@@ -230,7 +230,7 @@ extern Sound sound_impact;
 
 
 
-void Missile::destroy()
+void Missile::on_destroy()
 {
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
@@ -275,7 +275,7 @@ void Missile::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    destroy();
+    on_destroy();
 
     auto metac = room.metaclass();
 
@@ -443,7 +443,7 @@ void RocketBomb::on_collision(Room& room, Vec2<u8> origin)
 
     burst(sprite_.get_position(), room);
 
-    destroy();
+    on_destroy();
 
 
     if (room.health()) {
@@ -453,7 +453,7 @@ void RocketBomb::on_collision(Room& room, Vec2<u8> origin)
 
 
 
-void RocketBomb::destroy()
+void RocketBomb::on_destroy()
 {
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
@@ -571,7 +571,7 @@ void ClumpMissile::on_collision(Room& room, Vec2<u8> origin)
 
     burst(sprite_.get_position(), room);
 
-    destroy();
+    on_destroy();
 
 
     if (room.health()) {
@@ -581,7 +581,7 @@ void ClumpMissile::on_collision(Room& room, Vec2<u8> origin)
 
 
 
-void ClumpMissile::destroy()
+void ClumpMissile::on_destroy()
 {
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
@@ -683,7 +683,7 @@ void AtomicMissile::on_collision(Room& room, Vec2<u8> origin)
 
     burst(sprite_.get_position(), room);
 
-    destroy();
+    on_destroy();
 
 
     if (room.health()) {
@@ -693,7 +693,7 @@ void AtomicMissile::on_collision(Room& room, Vec2<u8> origin)
 
 
 
-void AtomicMissile::destroy()
+void AtomicMissile::on_destroy()
 {
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);

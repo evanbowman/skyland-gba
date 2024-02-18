@@ -94,7 +94,7 @@ public:
 
 
 protected:
-    virtual void destroy();
+    virtual void on_destroy();
 
     Time timer_ = 0;
     Fixnum target_x_;
@@ -136,7 +136,7 @@ public:
 
 
 protected:
-    void destroy() override;
+    void on_destroy() override;
 };
 
 
@@ -169,7 +169,7 @@ protected:
     void spawn_bomblets(Island* source, Vec2<Fixnum> origin);
 
 
-    void destroy() override;
+    void on_destroy() override;
 };
 
 
@@ -198,7 +198,7 @@ public:
 
 
 protected:
-    void destroy() override;
+    void on_destroy() override;
 };
 
 
