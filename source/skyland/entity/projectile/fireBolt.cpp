@@ -51,6 +51,7 @@ namespace skyland
 
 
 
+SHARED_VARIABLE(firebolt_damage);
 extern Sound cannon_sound;
 
 
@@ -188,7 +189,7 @@ void FireBolt::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    room.apply_damage(30, source_);
+    room.apply_damage(firebolt_damage, source_);
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);
