@@ -2,10 +2,11 @@
 ;;;
 
 
-(dialog "An abandoned warship appears! No crew seems to be aboard; ship appears to be completely dormant...")
+(dialog "<b:/scripts/misc/img/warship.img.bin> An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant...")
 
+(weather 3)
 
-(opponent-init 11 'neutral)
+(opponent-init 13 'neutral)
 
 (island-configure
  (opponent)
@@ -17,17 +18,17 @@
    (incinerator 2 10)
    (beam-gun 2 13)
    (arc-gun 2 7)
-   (bronze-hull 2 9)
+   (hull 2 9)
    (arc-gun 2 8)
    (hull 2 6)
-   (bronze-hull 2 14)
-   (bronze-hull 3 14)
+   (hull 2 14)
+   (hull 3 14)
    (splitter 3 8)
-   (bronze-hull 3 12)
+   (hull 3 12)
    (masonry 4 14 3)
-   (bronze-hull 4 10)
-   (bronze-hull 4 12)
-   (bronze-hull 4 11)
+   (hull 4 10)
+   (hull 4 12)
+   (hull 4 11)
    (masonry 5 14 3)
    (masonry 5 7 3)
    (shrubbery 5 5)
@@ -48,7 +49,13 @@
    (hull 10 13)
    (hull 10 11)
    (plundered-room 10 9)
-   (windmill 10 12)))
+   (windmill 10 12)
+   (hull 11 14)
+   (hull 11 13)
+   (hull 11 12)
+   (hull 12 14)
+   (hull 12 13)
+   (hull 12 12)))
 
 
 
