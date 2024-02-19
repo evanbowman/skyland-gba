@@ -4,8 +4,6 @@
 
 (dialog "<b:/scripts/misc/img/warship.img.bin> An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant...")
 
-(weather 3)
-
 (opponent-init 13 'neutral)
 
 (island-configure
