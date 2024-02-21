@@ -1,14 +1,25 @@
 
 (dialog
- "While passing by a small ship, a the owner frantically signals you with his radio...")
+ "You arrive at a bustling port city... <B:0> "
+ "<b:/scripts/misc/img/city.img.bin>"
+ "During your approach, you meet the captain of a small airship, who seems desperate for help...")
 
 
-
-(opponent-init 3 'neutral)
+(opponent-init 6 'neutral)
 
 (island-configure
  (opponent)
- '((power-core 0 13)))
+ '((balloon 0 7)
+   (bronze-hull 0 12)
+   (infirmary 0 13)
+   (bronze-hull 1 12)
+   (bronze-hull 2 12)
+   (bridge 2 14)
+   (balloon 3 7)
+   (bronze-hull 3 12)
+   (bronze-hull 4 12)
+   (workshop 4 13)
+   (bronze-hull 5 12)))
 
 
 (defn on-converge [0]
