@@ -37,7 +37,6 @@
 #include "adventureLogScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "coOpSyncScene.hpp"
-#include "endingScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "linkScene.hpp"
@@ -859,19 +858,12 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                         }
 
                         next->set_next_scene([] {
-                            auto next = scene_pool::alloc<EndingScene>();
+                            auto next = scene_pool::alloc<AdventureLogScene>();
 
-                            next->next_ = [] {
-                                auto next =
-                                    scene_pool::alloc<AdventureLogScene>();
-
-                                next->set_next_scene([] {
-                                    return scene_pool::alloc<HighscoresScene>(
-                                        true, 1);
-                                });
-                                return next;
-                            };
-
+                            next->set_next_scene([] {
+                                return scene_pool::alloc<HighscoresScene>(true,
+                                                                          1);
+                            });
                             return next;
                         });
 
