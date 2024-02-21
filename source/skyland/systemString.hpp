@@ -756,6 +756,8 @@ enum class SystemString {
     flag_designer_presets,
     flag_designer_flood,
 
+    the_end,
+
     flag,
     flag_fmt,
 

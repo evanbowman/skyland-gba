@@ -57,6 +57,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "endingScene.hpp"
 
 
 
@@ -858,12 +859,18 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                         }
 
                         next->set_next_scene([] {
-                            auto next = scene_pool::alloc<AdventureLogScene>();
+                            auto next = scene_pool::alloc<EndingScene>();
 
-                            next->set_next_scene([] {
-                                return scene_pool::alloc<HighscoresScene>(true,
-                                                                          1);
-                            });
+                            next->next_ = [] {
+                                auto next = scene_pool::alloc<AdventureLogScene>();
+
+                                next->set_next_scene([] {
+                                    return scene_pool::alloc<HighscoresScene>(true,
+                                                                              1);
+                                });
+                                return next;
+                            };
+
                             return next;
                         });
 

@@ -123,6 +123,8 @@
 //;
 #include "data/overlay_editor.h"
 //;
+#include "data/overlay_ending.h"
+//;
 #include "data/overlay_dialog.h"
 //;
 #include "data/overlay_dialog_fullscreen.h"
@@ -282,6 +284,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_gamespeed, true),
 //;
     TEXTURE_INFO(overlay_editor, true),
+//;
+    TEXTURE_INFO(overlay_ending, true),
 //;
     TEXTURE_INFO(overlay_dialog, false),
 //;

@@ -68,8 +68,10 @@ def rgb_to_bgr(file_name):
     # For some reason, to be determined, images in linux do not need to be
     # bgr-swapped as newly-saved images do on my macbook.
     if os_name != 'Linux':
-        r, g, b, a = im.split()
-        im = Image.merge('RGBA', (b, g, r, a))
+        clrs = im.split()
+        if len(clrs) == 4:
+            im = Image.merge('RGBA', (b, g, r, a))
+
 
     im.save('tmp/' + file_name)
 

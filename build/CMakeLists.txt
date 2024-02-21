@@ -362,6 +362,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     # all of the sounds and images need to be compiled into the ROM.
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_qr.s
+    ${DATA_DIR}/overlay_ending.s
     ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_datacart.s
     ${DATA_DIR}/overlay_textview.s
@@ -800,6 +801,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_qr 0 0 NO YES)
     add_overlay(overlay_gamespeed 0 0 NO YES)
     add_overlay(overlay_editor 0 0 NO YES)
+    add_overlay(overlay_ending 0 0 NO YES)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(overlay_dialog_fullscreen 0 0 NO YES)
     add_overlay(overlay_skyland_title 0 0 NO YES)
