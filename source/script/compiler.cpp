@@ -37,7 +37,8 @@
 #include "number/endian.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 Value* make_bytecode_function(Value* bytecode);
@@ -134,7 +135,8 @@ inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
 }
 
 
-struct CompilerContext {
+struct CompilerContext
+{
 };
 
 
@@ -697,7 +699,8 @@ int compile_impl(CompilerContext& ctx,
 void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 
-class PeepholeOptimizer {
+class PeepholeOptimizer
+{
 public:
     template <typename U, typename T>
     void replace(ScratchBuffer& code_buffer, U& dest, T& source, u32& code_size)
@@ -897,7 +900,8 @@ public:
         int index = 0;
         int depth = 0;
 
-        struct LambdaInfo {
+        struct LambdaInfo
+        {
             int start_ = 0;
         };
 

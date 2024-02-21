@@ -50,8 +50,8 @@ public:
                 }
             }
 
-            PLATFORM.screen().schedule_fade(1, ColorConstant::rich_black,
-                                            true, true);
+            PLATFORM.screen().schedule_fade(
+                1, ColorConstant::rich_black, true, true);
 
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -77,9 +77,10 @@ public:
                 state_ = 2;
                 timer_ = milliseconds(750);
             } else {
-                const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-                PLATFORM.screen().schedule_fade(amount, ColorConstant::rich_black,
-                                                true, true);
+                const auto amount =
+                    1.f - smoothstep(0.f, fade_duration, timer_);
+                PLATFORM.screen().schedule_fade(
+                    amount, ColorConstant::rich_black, true, true);
             }
 
             break;
@@ -142,9 +143,8 @@ public:
                 state_ = 5;
             } else {
                 const auto amount = smoothstep(0.f, fade_duration, timer_);
-                PLATFORM.screen().schedule_fade(amount,
-                                                custom_color(0xf9f8f0),
-                                                true, true);
+                PLATFORM.screen().schedule_fade(
+                    amount, custom_color(0xf9f8f0), true, true);
             }
 
             break;
@@ -152,9 +152,8 @@ public:
 
         case 5: {
             if (next_) {
-                PLATFORM.screen().schedule_fade(1,
-                                                custom_color(0xf9f8f0),
-                                                true, true);
+                PLATFORM.screen().schedule_fade(
+                    1, custom_color(0xf9f8f0), true, true);
                 PLATFORM.fill_overlay(0);
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
@@ -172,4 +171,4 @@ public:
 
 
 
-}
+} // namespace skyland

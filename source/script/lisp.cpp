@@ -51,7 +51,8 @@
 #endif
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 static int run_gc();
@@ -68,7 +69,8 @@ static const u32 string_intern_table_size = 2900;
 #define VALUE_POOL_SIZE 200000
 #endif
 
-union ValueMemory {
+union ValueMemory
+{
     Value value_;
     HeapNode heap_node_;
     Nil nil_;
@@ -149,7 +151,8 @@ void value_pool_free(Value* value)
 }
 
 
-struct Context {
+struct Context
+{
     using OperandStack = Buffer<Value*, 497>;
 
 
@@ -186,7 +189,8 @@ struct Context {
     u8 current_fn_argc_ = 0;
     bool strict_ = false;
 
-    struct GensymState {
+    struct GensymState
+    {
         u8 char_1_ : 6;
         u8 char_2_ : 6;
         u8 char_3_ : 6;
@@ -1672,7 +1676,8 @@ static void gc_mark()
 
 using Finalizer = void (*)(Value*);
 
-struct FinalizerTableEntry {
+struct FinalizerTableEntry
+{
     constexpr FinalizerTableEntry(Finalizer fn) : fn_(fn)
     {
     }
@@ -1840,8 +1845,10 @@ static int run_gc()
 using EvalBuffer = StringBuffer<900>;
 
 
-namespace {
-class EvalPrinter : public Printer {
+namespace
+{
+class EvalPrinter : public Printer
+{
 public:
     EvalPrinter(EvalBuffer& buffer) : buffer_(buffer)
     {
@@ -3824,11 +3831,13 @@ BUILTIN_TABLE(
            ListBuilder list;
 
            auto str = L_LOAD_STRING(0);
-           utf8::scan([&](const utf8::Codepoint& cp,
-                          const char*,
-                          int) { list.push_back(L_INT(cp)); return true; },
-                      str,
-                      strlen(str));
+           utf8::scan(
+               [&](const utf8::Codepoint& cp, const char*, int) {
+                   list.push_back(L_INT(cp));
+                   return true;
+               },
+               str,
+               strlen(str));
 
            return list.result();
        }}},

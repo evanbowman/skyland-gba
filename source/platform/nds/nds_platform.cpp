@@ -1591,12 +1591,12 @@ Platform::Screen::Screen()
     }
 
 #define BLD_BUILD(top, bot, mode)                                              \
-    ((((bot)&63) << 8) | (((mode)&3) << 6) | ((top)&63))
+    ((((bot) & 63) << 8) | (((mode) & 3) << 6) | ((top) & 63))
 #define BLD_OBJ 0x0010
 #define BLD_BG0 0x0001
 #define BLD_BG1 0x0002
 #define BLD_BG3 0x0008
-#define BLDA_BUILD(eva, evb) (((eva)&31) | (((evb)&31) << 8))
+#define BLDA_BUILD(eva, evb) (((eva) & 31) | (((evb) & 31) << 8))
 
     REG_BLDCNT = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
     REG_BLDALPHA = BLDA_BUILD(0x40 / 8, 0x40 / 8);

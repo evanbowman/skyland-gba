@@ -37,12 +37,14 @@
 #include "value.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 // Protected objects will not be collected until the Protected wrapper goes out
 // of scope.
-class ProtectedBase {
+class ProtectedBase
+{
 public:
     ProtectedBase();
 
@@ -70,7 +72,8 @@ protected:
 };
 
 
-class Protected : public ProtectedBase {
+class Protected : public ProtectedBase
+{
 public:
     Protected(Value* val) : val_(val)
     {

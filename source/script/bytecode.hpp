@@ -43,16 +43,19 @@
 // NOTE: Bytecode is not portable, nor is it intended to be.
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 using Opcode = u8;
 
 
-namespace instruction {
+namespace instruction
+{
 
 
-template <typename T> struct PackedData {
+template <typename T> struct PackedData
+{
     T get()
     {
         T result;
@@ -73,12 +76,14 @@ using UnalignedPtr = PackedData<const char*>;
 using PackedFloat = PackedData<float>;
 
 
-struct Header {
+struct Header
+{
     Opcode op_;
 };
 
 
-struct Fatal {
+struct Fatal
+{
     Header header_;
 
     static const char* name()
@@ -96,7 +101,8 @@ struct Fatal {
 };
 
 
-struct LoadVar {
+struct LoadVar
+{
     Header header_;
     UnalignedPtr ptr_;
     u8 pad_;
@@ -113,7 +119,8 @@ struct LoadVar {
 };
 
 
-struct PushNil {
+struct PushNil
+{
     Header header_;
 
     static const char* name()
@@ -128,7 +135,8 @@ struct PushNil {
 };
 
 
-struct PushInteger {
+struct PushInteger
+{
     Header header_;
     host_u32 value_;
 
@@ -144,7 +152,8 @@ struct PushInteger {
 };
 
 
-struct PushSmallInteger {
+struct PushSmallInteger
+{
     Header header_;
     s8 value_;
 
@@ -160,7 +169,8 @@ struct PushSmallInteger {
 };
 
 
-struct Push0 {
+struct Push0
+{
     Header header_;
 
     static const char* name()
@@ -175,7 +185,8 @@ struct Push0 {
 };
 
 
-struct Push1 {
+struct Push1
+{
     Header header_;
 
     static const char* name()
@@ -190,7 +201,8 @@ struct Push1 {
 };
 
 
-struct Push2 {
+struct Push2
+{
     Header header_;
 
     static const char* name()
@@ -205,7 +217,8 @@ struct Push2 {
 };
 
 
-struct PushSymbol {
+struct PushSymbol
+{
     Header header_;
     UnalignedPtr ptr_;
 
@@ -221,7 +234,8 @@ struct PushSymbol {
 };
 
 
-struct PushList {
+struct PushList
+{
     Header header_;
     u8 element_count_;
 
@@ -237,7 +251,8 @@ struct PushList {
 };
 
 
-struct Funcall {
+struct Funcall
+{
     Header header_;
     u8 argc_;
 
@@ -253,7 +268,8 @@ struct Funcall {
 };
 
 
-struct Funcall1 {
+struct Funcall1
+{
     Header header_;
 
     static const char* name()
@@ -268,7 +284,8 @@ struct Funcall1 {
 };
 
 
-struct Funcall2 {
+struct Funcall2
+{
     Header header_;
 
     static const char* name()
@@ -283,7 +300,8 @@ struct Funcall2 {
 };
 
 
-struct Funcall3 {
+struct Funcall3
+{
     Header header_;
 
     static const char* name()
@@ -298,7 +316,8 @@ struct Funcall3 {
 };
 
 
-struct Jump {
+struct Jump
+{
     Header header_;
     host_s16 offset_;
 
@@ -314,7 +333,8 @@ struct Jump {
 };
 
 
-struct SmallJump {
+struct SmallJump
+{
     Header header_;
     s8 offset_;
 
@@ -330,7 +350,8 @@ struct SmallJump {
 };
 
 
-struct JumpIfFalse {
+struct JumpIfFalse
+{
     Header header_;
     host_s16 offset_;
 
@@ -346,7 +367,8 @@ struct JumpIfFalse {
 };
 
 
-struct SmallJumpIfFalse {
+struct SmallJumpIfFalse
+{
     Header header_;
     s8 offset_;
 
@@ -362,7 +384,8 @@ struct SmallJumpIfFalse {
 };
 
 
-struct PushLambda {
+struct PushLambda
+{
     Header header_;
     host_u16 lambda_end_;
 
@@ -378,7 +401,8 @@ struct PushLambda {
 };
 
 
-struct Pop {
+struct Pop
+{
     Header header_;
 
     static const char* name()
@@ -393,7 +417,8 @@ struct Pop {
 };
 
 
-struct Dup {
+struct Dup
+{
     Header header_;
 
     static const char* name()
@@ -408,7 +433,8 @@ struct Dup {
 };
 
 
-struct Ret {
+struct Ret
+{
     Header header_;
 
     static const char* name()
@@ -423,7 +449,8 @@ struct Ret {
 };
 
 
-struct MakePair {
+struct MakePair
+{
     Header header_;
 
     static const char* name()
@@ -438,7 +465,8 @@ struct MakePair {
 };
 
 
-struct First {
+struct First
+{
     Header header_;
 
     static const char* name()
@@ -453,7 +481,8 @@ struct First {
 };
 
 
-struct Rest {
+struct Rest
+{
     Header header_;
 
     static const char* name()
@@ -468,7 +497,8 @@ struct Rest {
 };
 
 
-struct Arg {
+struct Arg
+{
     Header header_;
 
     static const char* name()
@@ -483,7 +513,8 @@ struct Arg {
 };
 
 
-struct TailCall {
+struct TailCall
+{
     Header header_;
     u8 argc_;
 
@@ -499,7 +530,8 @@ struct TailCall {
 };
 
 
-struct TailCall1 {
+struct TailCall1
+{
     Header header_;
 
     static const char* name()
@@ -514,7 +546,8 @@ struct TailCall1 {
 };
 
 
-struct TailCall2 {
+struct TailCall2
+{
     Header header_;
 
     static const char* name()
@@ -529,7 +562,8 @@ struct TailCall2 {
 };
 
 
-struct TailCall3 {
+struct TailCall3
+{
     Header header_;
 
     static const char* name()
@@ -544,7 +578,8 @@ struct TailCall3 {
 };
 
 
-struct PushThis {
+struct PushThis
+{
     Header header_;
 
     static const char* name()
@@ -559,7 +594,8 @@ struct PushThis {
 };
 
 
-struct Arg0 {
+struct Arg0
+{
     Header header_;
 
     static const char* name()
@@ -574,7 +610,8 @@ struct Arg0 {
 };
 
 
-struct Arg1 {
+struct Arg1
+{
     Header header_;
 
     static const char* name()
@@ -589,7 +626,8 @@ struct Arg1 {
 };
 
 
-struct Arg2 {
+struct Arg2
+{
     Header header_;
 
     static const char* name()
@@ -610,7 +648,8 @@ struct Arg2 {
 // unique terminating opcode at the very end of a function makes the
 // disassembler easier to write, otherwise, we'd need to store the bytecode
 // length.
-struct EarlyRet {
+struct EarlyRet
+{
     Header header_;
 
     static const char* name()
@@ -625,7 +664,8 @@ struct EarlyRet {
 };
 
 
-struct Not {
+struct Not
+{
     Header header_;
 
     static const char* name()
@@ -640,7 +680,8 @@ struct Not {
 };
 
 
-struct LexicalDef {
+struct LexicalDef
+{
     Header header_;
     UnalignedPtr ptr_;
 
@@ -656,7 +697,8 @@ struct LexicalDef {
 };
 
 
-struct LexicalFramePush {
+struct LexicalFramePush
+{
     Header header_;
 
     static const char* name()
@@ -671,7 +713,8 @@ struct LexicalFramePush {
 };
 
 
-struct LexicalFramePop {
+struct LexicalFramePop
+{
     Header header_;
 
     static const char* name()
@@ -686,7 +729,8 @@ struct LexicalFramePop {
 };
 
 
-struct LexicalVarLoad {
+struct LexicalVarLoad
+{
     Header header_;
     u8 frame_;
     u8 slot_;
@@ -703,7 +747,8 @@ struct LexicalVarLoad {
 };
 
 
-struct PushString {
+struct PushString
+{
     Header header_;
     u8 length_;
     // u8 bytes_[length_];
@@ -731,7 +776,8 @@ struct PushString {
 // for the non-relocatable version, using the symbol offset into the host symbol
 // table. Loading relocatable symbols is a bit slow the first time, but
 // optimized out after the first load.
-struct LoadVarRelocatable : public LoadVar {
+struct LoadVarRelocatable : public LoadVar
+{
     static const char* name()
     {
         return "LOAD_VAR_RELOCATABLE";
@@ -745,7 +791,8 @@ struct LoadVarRelocatable : public LoadVar {
 static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVar));
 
 
-struct PushSymbolRelocatable : public PushSymbol {
+struct PushSymbolRelocatable : public PushSymbol
+{
     static const char* name()
     {
         return "PUSH_SYMBOL_RELOCATABLE";
@@ -759,7 +806,8 @@ struct PushSymbolRelocatable : public PushSymbol {
 static_assert(sizeof(PushSymbolRelocatable) == sizeof(PushSymbol));
 
 
-struct LexicalDefRelocatable : public LexicalDef {
+struct LexicalDefRelocatable : public LexicalDef
+{
     static const char* name()
     {
         return "LEXICAL_DEF_RELOCATABLE";
@@ -773,7 +821,8 @@ struct LexicalDefRelocatable : public LexicalDef {
 static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
 
 
-struct PushSmallSymbol {
+struct PushSmallSymbol
+{
     Header header_;
     u8 name_[4];
 
@@ -789,7 +838,8 @@ struct PushSmallSymbol {
 };
 
 
-struct LexicalDefSmall {
+struct LexicalDefSmall
+{
     Header header_;
     u8 name_[4];
 
@@ -805,7 +855,8 @@ struct LexicalDefSmall {
 };
 
 
-struct LoadVarSmall {
+struct LoadVarSmall
+{
     Header header_;
     u8 name_[4];
     u8 pad_; // Makes LoadVarSmall large enough to swap the instruction with
@@ -823,7 +874,8 @@ struct LoadVarSmall {
 };
 
 
-struct PushFloat {
+struct PushFloat
+{
     Header header_;
     PackedFloat f_;
 
@@ -842,7 +894,8 @@ struct PushFloat {
 // This instruction is not generated by the compiler. The runtime replaces
 // LoadVar instructions with cached stack offsets upon the first access to a
 // local variable.
-struct LoadLocalCached {
+struct LoadLocalCached
+{
     Header header_;
     u8 stack_offset_;
     u8 frame_offset_;
@@ -866,7 +919,8 @@ static const Opcode load_var_small_nonlocal = 52;
 static const Opcode load_var_nonlocal = 53;
 
 
-struct LexicalDefSmallFromArg0 {
+struct LexicalDefSmallFromArg0
+{
     Header header_;
     u8 name_[4];
 
@@ -882,7 +936,8 @@ struct LexicalDefSmallFromArg0 {
 };
 
 
-struct LexicalDefSmallFromArg1 {
+struct LexicalDefSmallFromArg1
+{
     Header header_;
     u8 name_[4];
 
@@ -898,7 +953,8 @@ struct LexicalDefSmallFromArg1 {
 };
 
 
-struct LexicalDefSmallFromArg2 {
+struct LexicalDefSmallFromArg2
+{
     Header header_;
     u8 name_[4];
 
@@ -914,7 +970,8 @@ struct LexicalDefSmallFromArg2 {
 };
 
 
-struct LoadBuiltin {
+struct LoadBuiltin
+{
     Header header_;
     UnalignedPtr addr_;
     u8 argc_;

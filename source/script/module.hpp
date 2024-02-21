@@ -37,11 +37,14 @@
 #include "number/endian.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
-struct Module {
-    struct Header {
+struct Module
+{
+    struct Header
+    {
         host_u16 symbol_count_;
         host_u16 bytecode_length_;
     } header_;

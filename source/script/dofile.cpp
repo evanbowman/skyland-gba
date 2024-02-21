@@ -41,7 +41,8 @@
 #include <sstream>
 
 
-class Printer : public lisp::Printer {
+class Printer : public lisp::Printer
+{
 public:
     void put_str(const char* str) override
     {

@@ -70,4 +70,4 @@ u8 SmokePuff::get_instance_count()
 
 
 
-}
+} // namespace skyland

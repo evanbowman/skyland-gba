@@ -66,7 +66,8 @@
 class Platform;
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 // Call this function to initialize the interpreter, must be done at startup,
@@ -77,7 +78,8 @@ void init();
 struct Value;
 
 
-struct ValueHeader {
+struct ValueHeader
+{
     enum Type {
         // When a Value is deallocated, it is converted into a HeapNode, and
         // inserted into a freelist. Therefore, we need no extra space to
@@ -119,7 +121,8 @@ struct ValueHeader {
 };
 
 
-struct Nil {
+struct Nil
+{
     ValueHeader hdr_;
 
     static ValueHeader::Type type()
@@ -133,12 +136,14 @@ struct Nil {
 };
 
 
-struct Symbol {
+struct Symbol
+{
     ValueHeader hdr_;
 
     static constexpr const u32 buffer_size = 4;
 
-    union Data {
+    union Data
+    {
         // NOTE: We want to pack data into a six byte space, but buffer size + 1
         // (5) bumps up the aligned size of the union to eight bytes, so we
         // store the pointer value as bytes and memcpy it. Really annoying that
@@ -214,7 +219,8 @@ struct Symbol {
 };
 
 
-struct Integer {
+struct Integer
+{
     ValueHeader hdr_;
     s32 value_;
 
@@ -229,7 +235,8 @@ struct Integer {
 };
 
 
-struct Float {
+struct Float
+{
     ValueHeader hdr_;
 
     using ValueType = float;
@@ -246,7 +253,8 @@ struct Float {
 };
 
 
-struct CompressedPtr {
+struct CompressedPtr
+{
 #ifdef USE_COMPRESSED_PTRS
     u16 offset_;
 #else
@@ -259,7 +267,8 @@ CompressedPtr compr(Value* value);
 Value* dcompr(CompressedPtr ptr);
 
 
-struct Cons {
+struct Cons
+{
     ValueHeader hdr_;
 
     u8 is_definitely_list_ : 1;
@@ -311,7 +320,8 @@ private:
 };
 
 
-struct Function {
+struct Function
+{
     ValueHeader hdr_;
     u8 required_args_;
     u16 unused_;
@@ -323,7 +333,8 @@ struct Function {
 
     using CPP_Impl = Value* (*)(int);
 
-    struct Bytecode {
+    struct Bytecode
+    {
         CompressedPtr bytecode_; // (integeroffset . databuffer)
         CompressedPtr lexical_bindings_;
 
@@ -331,12 +342,14 @@ struct Function {
         Value* databuffer() const;
     };
 
-    struct LispFunction {
+    struct LispFunction
+    {
         CompressedPtr code_;
         CompressedPtr lexical_bindings_;
     };
 
-    union {
+    union
+    {
         CPP_Impl cpp_impl_;
         LispFunction lisp_impl_;
         Bytecode bytecode_impl_;
@@ -354,7 +367,8 @@ struct Function {
 };
 
 
-struct DataBuffer {
+struct DataBuffer
+{
     ValueHeader hdr_;
 
     static ValueHeader::Type type()
@@ -373,22 +387,26 @@ struct DataBuffer {
 };
 
 
-struct String {
+struct String
+{
 
     ValueHeader hdr_;
     bool is_literal_;
 
-    struct MemoryString {
+    struct MemoryString
+    {
         CompressedPtr data_buffer_;
         u16 offset_;
     };
 
-    struct LiteralString {
+    struct LiteralString
+    {
         const char* value_;
     };
 
 
-    union Data {
+    union Data
+    {
         MemoryString memory_;
         LiteralString literal_;
     } data_;
@@ -407,7 +425,8 @@ struct String {
 };
 
 
-struct Error {
+struct Error
+{
     ValueHeader hdr_;
 
     static ValueHeader::Type type()
@@ -465,7 +484,8 @@ struct Error {
 };
 
 
-struct UserData {
+struct UserData
+{
     ValueHeader hdr_;
     void* obj_;
 
@@ -480,7 +500,8 @@ struct UserData {
 };
 
 
-struct __Reserved {
+struct __Reserved
+{
     ValueHeader hdr_;
 
     static ValueHeader::Type type()
@@ -496,7 +517,8 @@ struct __Reserved {
 };
 
 
-struct HeapNode {
+struct HeapNode
+{
     ValueHeader hdr_;
     Value* next_;
 
@@ -514,7 +536,8 @@ struct HeapNode {
 };
 
 
-struct Value {
+struct Value
+{
     ValueHeader hdr_;
 
     using Type = ValueHeader::Type;
@@ -645,7 +668,8 @@ Value* make_cons_safe(Value* car, Value* cdr);
 using SymbolCallback = ::Function<6 * sizeof(void*), void(const char*)>;
 
 
-struct NativeInterface {
+struct NativeInterface
+{
     NativeInterface();
 
     using Function = lisp::Function::CPP_Impl;
@@ -759,7 +783,8 @@ inline Value* get_var(const char* name)
 }
 
 
-class CharSequence {
+class CharSequence
+{
 public:
     virtual ~CharSequence()
     {
@@ -769,7 +794,8 @@ public:
 };
 
 
-class BasicCharSequence : public CharSequence {
+class BasicCharSequence : public CharSequence
+{
 public:
     BasicCharSequence(const char* ptr) : ptr_(ptr), len_(strlen(ptr))
     {
@@ -789,7 +815,8 @@ private:
 };
 
 
-class VectorCharSequence : public CharSequence {
+class VectorCharSequence : public CharSequence
+{
 public:
     VectorCharSequence(Vector<char>& v) : v_(v)
     {
@@ -853,7 +880,8 @@ bool is_executing();
         return lisp::make_error(lisp::Error::Code::invalid_argc, L_NIL);
 
 
-class Printer {
+class Printer
+{
 public:
     virtual void put_str(const char* c) = 0;
     virtual ~Printer()
@@ -862,7 +890,8 @@ public:
 };
 
 
-template <typename Container> class _Printer : public Printer {
+template <typename Container> class _Printer : public Printer
+{
 public:
     void put_str(const char* str) override
     {

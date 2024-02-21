@@ -65,12 +65,12 @@
 #include "rumble.h"
 #include "script/lisp.hpp"
 #include "send_multiboot.h"
+#include "skyland_mgba.hpp"
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <limits>
 #include <setjmp.h>
-#include "skyland_mgba.hpp"
 
 
 extern "C" {
@@ -805,12 +805,12 @@ static bool last_fade_include_sprites;
 #define REG_BLENDALPHA (*((volatile u16*)0x04000052))
 
 #define BLD_BUILD(top, bot, mode)                                              \
-    ((((bot)&63) << 8) | (((mode)&3) << 6) | ((top)&63))
+    ((((bot) & 63) << 8) | (((mode) & 3) << 6) | ((top) & 63))
 #define BLD_OBJ 0x0010
 #define BLD_BG0 0x0001
 #define BLD_BG1 0x0002
 #define BLD_BG3 0x0008
-#define BLDA_BUILD(eva, evb) (((eva)&31) | (((evb)&31) << 8))
+#define BLDA_BUILD(eva, evb) (((eva) & 31) | (((evb) & 31) << 8))
 
 
 static auto blend(const Color& c1, const Color& c2, u8 amt)
@@ -7618,7 +7618,8 @@ Platform::Platform()
 
     logger().set_threshold(Severity::fatal);
 
-    if (skyland_mgba_invoke_command(Command::identify, "HELLO.") == "ACKNOWLEDGED.") {
+    if (skyland_mgba_invoke_command(Command::identify, "HELLO.") ==
+        "ACKNOWLEDGED.") {
         info("skyland-mgba detected!");
     }
 

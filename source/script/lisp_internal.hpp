@@ -37,7 +37,8 @@
 #include "lisp.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 using LocalVariableOffset = std::pair<u8, u8>;

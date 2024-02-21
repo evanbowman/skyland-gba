@@ -304,8 +304,8 @@ ScenePtr<Scene> ActiveWorldScene::update(Time delta)
 
         bool near = (*APP.input_setup_info())->cons().car()->integer().value_;
 
-        auto next = scene_pool::alloc<SelInputScene>((*APP.input_setup_info())->cons().cdr(),
-                                                     near);
+        auto next = scene_pool::alloc<SelInputScene>(
+            (*APP.input_setup_info())->cons().cdr(), near);
 
         APP.input_setup_info().reset();
 

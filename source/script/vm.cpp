@@ -39,7 +39,8 @@
 #include "number/endian.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 template <typename Instruction>

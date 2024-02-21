@@ -685,15 +685,16 @@ AGAIN:
             if (APP.opponent_island() == nullptr or
                 APP.world_graph().nodes_[APP.current_world_location()].type_ ==
                     WorldGraph::Node::Type::shop) {
-                add_option(SYSTR(start_menu_sky_map)->c_str(),
-                           []() -> ScenePtr<Scene> {
-                               if (APP.current_world_location() == 0) {
-                                   return scene_pool::alloc<WorldMapScene>();
-                               } else {
-                                   return scene_pool::alloc<ZoneImageScene>();
-                               }
-                           },
-                           cut);
+                add_option(
+                    SYSTR(start_menu_sky_map)->c_str(),
+                    []() -> ScenePtr<Scene> {
+                        if (APP.current_world_location() == 0) {
+                            return scene_pool::alloc<WorldMapScene>();
+                        } else {
+                            return scene_pool::alloc<ZoneImageScene>();
+                        }
+                    },
+                    cut);
             } else {
                 if (not APP.opponent().is_friendly()) {
                     add_option(SYSTR(start_menu_end_run)->c_str(),

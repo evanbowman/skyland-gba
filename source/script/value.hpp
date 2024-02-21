@@ -35,7 +35,8 @@
 #pragma once
 
 
-namespace lisp {
+namespace lisp
+{
 
 
 struct Value;

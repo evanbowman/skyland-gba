@@ -1136,7 +1136,8 @@ BINDING_TABLE({
               if ((*room->metaclass())->category() == Room::Category::power) {
                   int pwr_cnt = 0;
                   for (auto& o : island->rooms()) {
-                      if ((*o->metaclass())->category() == Room::Category::power) {
+                      if ((*o->metaclass())->category() ==
+                          Room::Category::power) {
                           ++pwr_cnt;
                       }
                   }

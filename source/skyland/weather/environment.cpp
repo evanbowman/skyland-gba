@@ -63,4 +63,4 @@ void environment_init(EnvironmentId type)
 
 
 
-}
+} // namespace skyland

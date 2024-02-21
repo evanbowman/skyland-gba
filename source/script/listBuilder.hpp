@@ -38,10 +38,12 @@
 #include "lisp.hpp"
 
 
-namespace lisp {
+namespace lisp
+{
 
 
-class ListBuilder {
+class ListBuilder
+{
 public:
     ListBuilder() : head_(get_nil())
     {

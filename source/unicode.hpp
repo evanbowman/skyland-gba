@@ -151,9 +151,13 @@ inline Codepoint getc(const CharType* data, int* consumed = nullptr)
 inline size_t len(const char* data)
 {
     size_t ret = 0;
-    scan([&ret](const Codepoint&, const char*, int) { ++ret; return true; },
-         data,
-         strlen(data));
+    scan(
+        [&ret](const Codepoint&, const char*, int) {
+            ++ret;
+            return true;
+        },
+        data,
+        strlen(data));
     return ret;
 }
 

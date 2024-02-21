@@ -52,7 +52,8 @@
 // table, and export the bytecode to a file.
 
 
-class Printer : public lisp::Printer {
+class Printer : public lisp::Printer
+{
 public:
     void put_str(const char* str) override
     {
@@ -61,7 +62,8 @@ public:
 };
 
 
-namespace lisp {
+namespace lisp
+{
 const char* symbol_from_offset(u16 offset);
 }
 
