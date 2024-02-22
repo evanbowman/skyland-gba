@@ -1,5 +1,5 @@
 
-(dialog "An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time...")
+(dialog "<b:/scripts/misc/img/drone_carrier.img.bin> An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time...")
 
 
 (opponent-init 7 'neutral)
