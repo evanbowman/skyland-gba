@@ -1,8 +1,6 @@
 
 (dialog
- "You arrive at a bustling port city... <B:0> "
- "<b:/scripts/misc/img/city.img.bin>"
- "During your approach, you meet the captain of a small airship, who seems desperate for help...")
+ "While passing by a small airship, a the owner frantically signals you with his radio...")
 
 
 (opponent-init 6 'neutral)

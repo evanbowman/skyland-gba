@@ -212,10 +212,8 @@ void EnemyAI::update(Time delta)
                     for (auto& character : room->characters()) {
                         if (character->owner() == this) {
                             if (not character->ai_marked()) {
-                                assign_local_character(*character,
-                                                       this,
-                                                       ai_island_,
-                                                       target_island_);
+                                assign_local_character(
+                                    *character, this, ai_island_);
                                 character->ai_mark();
                                 reassigned = true;
                                 goto DONE;
@@ -245,7 +243,7 @@ void EnemyAI::update(Time delta)
                     for (auto& character : room->characters()) {
                         if (character->owner() == this) {
                             assign_local_character(
-                                *character, this, ai_island_, target_island_);
+                                *character, this, ai_island_);
                         }
                     }
                 }
@@ -472,7 +470,6 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 void EnemyAI::assign_local_character(BasicCharacter& character,
                                      Player* owner,
                                      Island* ai_island_,
-                                     Island* target_island_,
                                      bool repair_priority)
 {
     // This code is so cluttered and sprawling. I had to write an AI and only

@@ -3,7 +3,9 @@
 ;;;
 
 
-(dialog "<b:/scripts/misc/img/burning_isle.img.bin> An acrid plume of smoke rises from a fortress on the horizon...")
+(dialog
+ ;<b:/scripts/misc/img/burning_isle.img.bin>
+ "An acrid plume of smoke rises from a fortress on the horizon...")
 
 
 (opponent-init 7 'neutral)

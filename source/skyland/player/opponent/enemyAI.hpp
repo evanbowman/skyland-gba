@@ -93,7 +93,6 @@ public:
     static void assign_local_character(BasicCharacter& character,
                                        Player* owner,
                                        Island* ai_island,
-                                       Island* target_island,
                                        bool repair_priority = false);
 
 

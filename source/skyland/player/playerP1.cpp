@@ -292,10 +292,6 @@ void PlayerP1::update_chr_ai(Time delta)
 
 void PlayerP1::ChrAIState::update(Time delta)
 {
-    if (not APP.opponent_island()) {
-        return;
-    }
-
     if (PLATFORM.screen().fade_active()) {
         return;
     }
@@ -327,11 +323,8 @@ void PlayerP1::ChrAIState::update(Time delta)
             auto info = APP.player_island().find_character_by_id(chr_id);
             if (info.first and info.first->ai_automated() and
                 not info.first->is_superpinned()) {
-                EnemyAI::assign_local_character(*info.first,
-                                                &APP.player(),
-                                                &APP.player_island(),
-                                                APP.opponent_island(),
-                                                true);
+                EnemyAI::assign_local_character(
+                    *info.first, &APP.player(), &APP.player_island(), true);
             }
         }
 

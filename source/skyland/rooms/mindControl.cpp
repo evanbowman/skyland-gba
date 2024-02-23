@@ -90,12 +90,8 @@ void MindControl::update(Time delta)
 
             if (is_player_island(parent())) {
                 if (room->parent() == &APP.player_island()) {
-                    EnemyAI::assign_local_character(app,
-                                                    *chr,
-                                                    &APP.player(),
-                                                    &APP.player_island(),
-                                                    APP.opponent_island(),
-                                                    true);
+                    EnemyAI::assign_local_character(
+                        app, *chr, &APP.player(), &APP.player_island(), true);
                 } else {
                     EnemyAI::assign_boarded_character(app,
                                                       *chr,
@@ -111,11 +107,8 @@ void MindControl::update(Time delta)
                                                       APP.opponent_island(),
                                                       &APP.player_island());
                 } else {
-                    EnemyAI::assign_local_character(app,
-                                                    *chr,
-                                                    &APP.opponent(),
-                                                    APP.opponent_island(),
-                                                    &APP.player_island());
+                    EnemyAI::assign_local_character(
+                        app, *chr, &APP.opponent(), APP.opponent_island());
                 }
             }
         }

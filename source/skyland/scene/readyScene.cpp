@@ -261,10 +261,8 @@ public:
 
             auto info = APP.player_island().find_character_by_id(current);
             if (info.first) {
-                EnemyAI::assign_local_character(*info.first,
-                                                &APP.player(),
-                                                &APP.player_island(),
-                                                APP.opponent_island());
+                EnemyAI::assign_local_character(
+                    *info.first, &APP.player(), &APP.player_island());
             }
         } else if (not boarded_chrs_.empty()) {
             auto current = boarded_chrs_.back();
