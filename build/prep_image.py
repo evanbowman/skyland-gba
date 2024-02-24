@@ -70,6 +70,7 @@ def rgb_to_bgr(file_name):
     if os_name != 'Linux':
         clrs = im.split()
         if len(clrs) == 4:
+            r, g, b, a = clrs
             im = Image.merge('RGBA', (b, g, r, a))
 
 

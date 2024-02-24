@@ -69,7 +69,7 @@ private:
     {
         struct Header
         {
-            std::optional<ScratchBufferPtr> next_;
+            Optional<ScratchBufferPtr> next_;
             Chunk* prev_;
         };
 
