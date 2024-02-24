@@ -588,7 +588,7 @@ void TitleScreenScene::play_gust_sound()
 
 
 u8 TitleScreenScene::module_page_;
-std::optional<Vec2<u8>> TitleScreenScene::module_cursor_;
+Optional<Vec2<u8>> TitleScreenScene::module_cursor_;
 
 
 

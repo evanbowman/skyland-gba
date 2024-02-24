@@ -112,7 +112,7 @@ public:
 
 
 
-    std::optional<RoomCoord> destination() const
+    Optional<RoomCoord> destination() const
     {
         if (has_movement_path()) {
             if (not(*movement_path_)->empty()) {
@@ -353,7 +353,7 @@ private:
 
     bool has_opponent(Room* room);
 
-    std::optional<Path> movement_path_;
+    Optional<Path> movement_path_;
 
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 

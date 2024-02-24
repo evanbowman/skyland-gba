@@ -72,11 +72,11 @@ namespace skyland
 
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
-                   std::optional<Text>& room_description);
+                   Optional<Text>& room_description);
 
 
 
-void clear_room_description(std::optional<Text>& room_description)
+void clear_room_description(Optional<Text>& room_description)
 {
     if (not room_description) {
         return;
@@ -160,7 +160,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos)
 
 
 ScenePtr<Scene> player_island_onclick(Time& camera_update_timer,
-                                      std::optional<Text>& room_description,
+                                      Optional<Text>& room_description,
                                       const RoomCoord& pos)
 {
     if (auto room = APP.player_island().get_room(pos)) {
@@ -345,9 +345,9 @@ public:
 private:
     bool selection_ = true;
 
-    std::optional<Text> msg_;
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
+    Optional<Text> msg_;
+    Optional<Text> yes_text_;
+    Optional<Text> no_text_;
 };
 
 
@@ -737,7 +737,7 @@ ScenePtr<Scene> ReadyScene::update(Time delta)
 
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
-                   std::optional<Text>& room_description)
+                   Optional<Text>& room_description)
 {
     if (auto room = island->get_room(cursor_loc)) {
         if (not room_description) {

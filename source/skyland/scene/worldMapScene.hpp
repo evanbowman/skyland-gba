@@ -134,15 +134,15 @@ private:
 
     Time tier_2_timer_ = 0;
 
-    std::optional<Text> heading_;
-    std::optional<Text> warning_;
-    std::optional<Text> exit_label_;
-    std::optional<Text> map_key_;
-    // std::optional<Text> key_[3];
-    std::optional<MediumIcon> save_icon_;
-    std::optional<MediumIcon> help_icon_;
-    std::optional<MediumIcon> logbook_icon_;
-    std::optional<MediumIcon> edit_icon_;
+    Optional<Text> heading_;
+    Optional<Text> warning_;
+    Optional<Text> exit_label_;
+    Optional<Text> map_key_;
+    // Optional<Text> key_[3];
+    Optional<MediumIcon> save_icon_;
+    Optional<MediumIcon> help_icon_;
+    Optional<MediumIcon> logbook_icon_;
+    Optional<MediumIcon> edit_icon_;
 };
 
 

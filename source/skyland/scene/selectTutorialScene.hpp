@@ -97,7 +97,7 @@ private:
     } state_ = State::idle;
 
 
-    std::optional<lisp::Protected> tutorials_;
+    Optional<lisp::Protected> tutorials_;
     Buffer<Text, 5> text_;
 
     int page_ = 0;

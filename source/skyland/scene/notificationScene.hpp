@@ -62,7 +62,7 @@ public:
 
 
 public:
-    std::optional<Text> description_;
+    Optional<Text> description_;
     DeferredScene next_scene_;
     StringBuffer<80> msg_;
 };

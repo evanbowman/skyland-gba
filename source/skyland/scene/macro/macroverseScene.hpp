@@ -87,7 +87,7 @@ private:
     Vec2<s8> selected_ = {};
     Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
-    std::optional<Vec2<s8>> selected_colony_;
+    Optional<Vec2<s8>> selected_colony_;
 
     terrain::Sector::Shape shape_ = terrain::Sector::Shape::cube;
 

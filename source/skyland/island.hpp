@@ -139,7 +139,7 @@ public:
     Room* get_room(const RoomCoord& coord);
 
 
-    std::optional<SharedEntityRef<Drone>> get_drone(const RoomCoord& coord);
+    Optional<SharedEntityRef<Drone>> get_drone(const RoomCoord& coord);
 
 
     void destroy_room(const RoomCoord& coord);
@@ -276,7 +276,7 @@ public:
     }
 
 
-    std::optional<RoomCoord> chimney_loc() const
+    Optional<RoomCoord> chimney_loc() const
     {
         return chimney_loc_;
     }
@@ -325,7 +325,7 @@ public:
     HitBox hitbox() const;
 
 
-    std::optional<RoomCoord> flag_pos()
+    Optional<RoomCoord> flag_pos()
     {
         return flag_pos_;
     }
@@ -368,7 +368,7 @@ public:
     }
 
 
-    std::optional<Platform::DynamicTexturePtr> fire_texture();
+    Optional<Platform::DynamicTexturePtr> fire_texture();
 
 
     bool fire_present(const RoomCoord& coord) const;
@@ -458,7 +458,7 @@ private:
     struct FireState
     {
         Bitmatrix<16, 16> positions_;
-        std::optional<Platform::DynamicTexturePtr> texture_;
+        Optional<Platform::DynamicTexturePtr> texture_;
         Time spread_timer_ = 0;
         Time damage_timer_ = 0;
         Time anim_timer_ = 0;
@@ -512,9 +512,9 @@ private:
     // matrix of bitflags. We use the result to speed up collision checking.
     Bitmatrix<16, 16> rooms_plot_;
 
-    std::optional<RoomCoord> flag_pos_;
+    Optional<RoomCoord> flag_pos_;
 
-    std::optional<RoomCoord> chimney_loc_;
+    Optional<RoomCoord> chimney_loc_;
 };
 
 

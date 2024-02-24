@@ -114,7 +114,7 @@ public:
     }
 
 
-    std::optional<Stats> base_stats_cache_load() const override
+    Optional<Stats> base_stats_cache_load() const override
     {
         if (not base_stats_cache_) {
             return {};
@@ -135,7 +135,7 @@ public:
     }
 
 
-    std::optional<Coins> coin_yield_cache_load() const override
+    Optional<Coins> coin_yield_cache_load() const override
     {
         return coin_yield_cache_;
     }
@@ -153,8 +153,8 @@ private:
         Commodity commodities_[commodities_max];
     };
 
-    mutable std::optional<SmallStats> base_stats_cache_;
-    mutable std::optional<Coins> coin_yield_cache_;
+    mutable Optional<SmallStats> base_stats_cache_;
+    mutable Optional<Coins> coin_yield_cache_;
 };
 
 

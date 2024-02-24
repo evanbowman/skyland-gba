@@ -160,7 +160,7 @@ public:
         return null_scene();
     }
 
-    std::optional<TextView> text_;
+    Optional<TextView> text_;
     Time timer_;
     bool fade_out_ = false;
 };
@@ -366,7 +366,7 @@ public:
         return null_scene();
     }
 
-    std::optional<TextView> text_;
+    Optional<TextView> text_;
     Time timer_;
 };
 
@@ -645,7 +645,7 @@ public:
         return null_scene();
     }
 
-    std::optional<TextView> text_;
+    Optional<TextView> text_;
     Time timer_;
 };
 

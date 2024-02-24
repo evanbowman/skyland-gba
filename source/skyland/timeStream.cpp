@@ -134,7 +134,7 @@ event::Header* TimeStream::end()
 
 
 
-std::optional<u64> TimeStream::end_timestamp()
+Optional<u64> TimeStream::end_timestamp()
 {
     if (end_) {
         if (end_->end()) {

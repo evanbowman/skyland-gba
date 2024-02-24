@@ -46,8 +46,8 @@ namespace skyland
 
 struct UserContext
 {
-    std::optional<Vector<char>> yank_buffer_;
-    std::optional<DeferredScene> browser_exit_scene_;
+    Optional<Vector<char>> yank_buffer_;
+    Optional<DeferredScene> browser_exit_scene_;
 };
 
 

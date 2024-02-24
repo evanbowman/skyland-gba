@@ -89,9 +89,9 @@ public:
 
     static Factory factory_;
 
-    std::optional<TextView> message_;
-    std::optional<TextView> message_overflow_;
-    std::optional<Text> option_text_;
+    Optional<TextView> message_;
+    Optional<TextView> message_overflow_;
+    Optional<Text> option_text_;
     bool was_developer_mode_ = false;
 
     bool exit_ = false;

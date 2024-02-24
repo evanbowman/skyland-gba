@@ -126,14 +126,14 @@ private:
 
     u32 selector_ = 0;
 
-    std::optional<Text> text_;
-    std::optional<Text> category_label_;
+    Optional<Text> text_;
+    Optional<Text> category_label_;
 
     struct Data
     {
         Buffer<Coord, 48> construction_sites_;
         Buffer<MetaclassIndex, 100> available_buildings_;
-        std::optional<MetaclassIndex> last_constructed_building_;
+        Optional<MetaclassIndex> last_constructed_building_;
     };
 
     DynamicMemory<Data> data_;
@@ -157,7 +157,7 @@ private:
     bool near_;
     u8 stack_ = 0;
 
-    std::optional<u8> jump_to_selection_;
+    Optional<u8> jump_to_selection_;
 
     static bool constrain_;
 };

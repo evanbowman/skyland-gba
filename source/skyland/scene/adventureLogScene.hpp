@@ -71,7 +71,7 @@ public:
 
 
 private:
-    std::optional<DeferredScene> next_;
+    Optional<DeferredScene> next_;
 
     enum class State {
         ready,

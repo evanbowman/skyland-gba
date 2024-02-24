@@ -156,7 +156,7 @@ void TargetingComputer::update(Time delta)
     if (rescan_) {
 
         ATP highest_weight = 0.0_atp;
-        std::optional<RoomCoord> highest_weighted_target;
+        Optional<RoomCoord> highest_weighted_target;
 
         // Find the highest-weighted target still in existence.
         for (auto& room : APP.player_island().rooms()) {

@@ -68,7 +68,7 @@ DataCart::ContentString DataCart::expect_content_string(const char* field) const
 
 
 
-std::optional<DataCart::ContentString>
+Optional<DataCart::ContentString>
 DataCart::get_content_string(const char* field) const
 {
     auto f = config();
@@ -147,7 +147,7 @@ void DataCartLibrary::store(DataCart cart)
 
 
 
-std::optional<DataCart> DataCartLibrary::load(int id) const
+Optional<DataCart> DataCartLibrary::load(int id) const
 {
     if (carts_ & (1 << id)) {
         return DataCart(id);

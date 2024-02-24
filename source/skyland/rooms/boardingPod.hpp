@@ -137,7 +137,7 @@ public:
     }
 
 
-    std::optional<RoomCoord> get_target() const override
+    Optional<RoomCoord> get_target() const override
     {
         return target_;
     }
@@ -156,7 +156,7 @@ public:
 
 
 private:
-    std::optional<RoomCoord> target_;
+    Optional<RoomCoord> target_;
     Time launch_timer_ = 0;
     Time heal_timer_ = 0;
 };

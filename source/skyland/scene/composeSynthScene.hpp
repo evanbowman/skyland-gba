@@ -68,7 +68,7 @@ private:
 
     Vec2<u8> cursor_;
 
-    std::optional<Text> heading_;
+    Optional<Text> heading_;
 
 
     Synth::Note notes_[16];

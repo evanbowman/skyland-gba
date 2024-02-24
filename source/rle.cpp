@@ -13,7 +13,7 @@ Vector<u8> encode(Vector<u8>& data)
 
     auto it = data.begin();
 
-    std::optional<u8> last_val;
+    Optional<u8> last_val;
     int count = 0;
 
 

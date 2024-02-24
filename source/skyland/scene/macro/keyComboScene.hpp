@@ -64,7 +64,7 @@ public:
 private:
     bool near_;
     StringBuffer<32> text_data_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

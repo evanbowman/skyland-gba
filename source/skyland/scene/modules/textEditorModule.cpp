@@ -1515,7 +1515,7 @@ Vector<char>::Iterator TextEditorModule::insert_pos()
 
 
 
-void TextEditorModule::erase_char(std::optional<Vector<char>::Iterator> hint)
+void TextEditorModule::erase_char(Optional<Vector<char>::Iterator> hint)
 {
     if (cursor_.x == 0 and cursor_.y == 0) {
         // Nothing left to delete.
@@ -1632,7 +1632,7 @@ void TextEditorModule::save_selection(Vector<char>& output)
 
 
 void TextEditorModule::insert_char(char c,
-                                   std::optional<Vector<char>::Iterator> hint)
+                                   Optional<Vector<char>::Iterator> hint)
 {
     state_->modified_ = true;
 

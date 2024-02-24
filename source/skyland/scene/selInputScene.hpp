@@ -78,9 +78,9 @@ private:
     bool near_;
     bool started_near_;
 
-    std::optional<Vec2<u8>> required_space_;
+    Optional<Vec2<u8>> required_space_;
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
     RoomCoord cached_near_cursor_;
     RoomCoord cached_far_cursor_;
     Time cursor_anim_timer_ = 0;

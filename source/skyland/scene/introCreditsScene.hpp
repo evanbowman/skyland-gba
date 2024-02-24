@@ -67,8 +67,8 @@ public:
 private:
     bool wait_ = true;
     bool exit_ = false;
-    std::optional<Text> text_;
-    std::optional<Text> copyright_text_;
+    Optional<Text> text_;
+    Optional<Text> copyright_text_;
     Time timer_ = 0;
     Time flower_effect_timer_ = 0;
 

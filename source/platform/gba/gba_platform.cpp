@@ -465,7 +465,7 @@ static inline void on_stack_overflow();
 
 
 EWRAM_DATA
-static std::optional<Platform::UnrecoverrableErrorCallback>
+static Optional<Platform::UnrecoverrableErrorCallback>
     unrecoverrable_error_callback;
 
 
@@ -500,7 +500,7 @@ int main(int argc, char** argv)
 
 void print_char(utf8::Codepoint c,
                 const OverlayCoord& coord,
-                const std::optional<FontColors>& colors = {});
+                const Optional<FontColors>& colors = {});
 
 
 
@@ -627,7 +627,7 @@ Platform::DeltaClock::~DeltaClock()
 
 
 
-std::optional<Bitvector<int(Key::count)>> missed_keys;
+Optional<Bitvector<int(Key::count)>> missed_keys;
 
 
 
@@ -1328,7 +1328,7 @@ u16 find_dynamic_mapping(u16 virtual_index)
 
 
 
-static std::optional<Vec2<s32>> cached_view_center;
+static Optional<Vec2<s32>> cached_view_center;
 
 
 
@@ -2118,7 +2118,7 @@ const Platform::Screen::Touch* Platform::Screen::touch() const
 
 
 using OptDmaBufferData = std::array<u16, 161>;
-EWRAM_DATA std::optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
+EWRAM_DATA Optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
 EWRAM_DATA int dma_effect_params[3];
 
 
@@ -2731,12 +2731,12 @@ void Platform::fatal(const char* msg)
     Text text({1, 1});
     text.append("fatal error:", text_colors_inv);
 
-    std::optional<Text> text2;
+    Optional<Text> text2;
 
 
     Buffer<Text, 6> line_buffer;
 
-    std::optional<TextView> verbose_error;
+    Optional<TextView> verbose_error;
 
 
     auto show_default_scrn = [&] {
@@ -2857,7 +2857,7 @@ static bool overlay_was_faded = false;
 // Screen::display() call...
 void Platform::Screen::fade(float amount,
                             ColorConstant k,
-                            std::optional<ColorConstant> base,
+                            Optional<ColorConstant> base,
                             bool include_sprites,
                             bool include_overlay)
 {
@@ -3085,7 +3085,7 @@ void Platform::DynamicTexture::remap(u16 spritesheet_offset)
 }
 
 
-std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
+Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     auto finalizer =
         [](PooledRcControlBlock<DynamicTexture, dynamic_texture_count>* ctrl) {
@@ -3715,7 +3715,7 @@ void Platform::Logger::set_threshold(Severity severity)
 
 
 
-std::optional<Vector<char>> log_data_;
+Optional<Vector<char>> log_data_;
 
 
 
@@ -4038,7 +4038,7 @@ static constexpr std::array<VolumeScaleLUT, 20> volume_scale_LUTs = {
 
 
 
-static std::optional<ActiveSoundInfo> make_sound(const char* name)
+static Optional<ActiveSoundInfo> make_sound(const char* name)
 {
     if (auto sound = get_sound(name)) {
         return ActiveSoundInfo{
@@ -4466,7 +4466,7 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
-                                   std::optional<Vec2<Float>> position)
+                                   Optional<Vec2<Float>> position)
 {
     (void)position; // We're not using position data, because on the gameboy
                     // advance, we aren't supporting spatial audio.
@@ -5251,7 +5251,7 @@ void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
 // We want our code to be resiliant to cartridges lacking an RTC chip. Run the
 // timer-based delta clock for a while, and make sure that the RTC also counted
 // up.
-static bool rtc_verify_operability(std::optional<DateTime> tm1)
+static bool rtc_verify_operability(Optional<DateTime> tm1)
 {
     if (get_gflag(GlobalFlag::rtc_faulty)) {
         return false;
@@ -5269,7 +5269,7 @@ static bool rtc_verify_operability(std::optional<DateTime> tm1)
 }
 
 
-static std::optional<DateTime> start_time;
+static Optional<DateTime> start_time;
 
 
 
@@ -5836,7 +5836,7 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
         invoke_shader(real_color(colors.background_), ShaderPalette::overlay, 0)
             .bgr_hex_555();
 
-    auto existing_mapping = [&]() -> std::optional<PaletteBank> {
+    auto existing_mapping = [&]() -> Optional<PaletteBank> {
         for (auto i = custom_text_palette_begin; i < custom_text_palette_end;
              ++i) {
             if (MEM_BG_PALETTE[i * 16 + default_colors.fg_] == fg_color_hash and
@@ -5986,7 +5986,7 @@ void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
                         u16 val,
-                        std::optional<u16> palette)
+                        Optional<u16> palette)
 {
     switch (layer) {
     case Layer::overlay:
@@ -6429,8 +6429,7 @@ static void multiplayer_serial_isr()
 }
 
 
-std::optional<Platform::NetworkPeer::Message>
-Platform::NetworkPeer::poll_message()
+Optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
 {
     auto& mc = multiplayer_comms;
 
@@ -6885,7 +6884,7 @@ void critical_section_exit(IrqState state)
 
 
 
-std::optional<DateTime> Platform::SystemClock::initial_time()
+Optional<DateTime> Platform::SystemClock::initial_time()
 {
     return start_time;
 }
@@ -6922,7 +6921,7 @@ void Platform::SystemClock::configure(DateTime dt)
 
 
 
-std::optional<DateTime> Platform::SystemClock::now()
+Optional<DateTime> Platform::SystemClock::now()
 {
     if (get_gflag(GlobalFlag::rtc_faulty)) {
         return {};
@@ -6985,14 +6984,14 @@ struct RemoteConsoleState
     // dealing with keystrokes, which happen on a human timescale, the
     // probability of anything getting messed up is pretty small.
 
-    std::optional<DynamicMemory<ConsoleLine>> rx_in_progress_;
+    Optional<DynamicMemory<ConsoleLine>> rx_in_progress_;
     Buffer<DynamicMemory<ConsoleLine>, 4> rx_full_lines_;
 
-    std::optional<DynamicMemory<ConsoleLine>> tx_msg_;
+    Optional<DynamicMemory<ConsoleLine>> tx_msg_;
 };
 
 
-static EWRAM_DATA std::optional<RemoteConsoleState> remote_console_state;
+static EWRAM_DATA Optional<RemoteConsoleState> remote_console_state;
 
 
 
@@ -7154,7 +7153,7 @@ auto Platform::RemoteConsole::peek_buffer() -> Line*
 
 
 
-auto Platform::RemoteConsole::readline() -> std::optional<Line>
+auto Platform::RemoteConsole::readline() -> Optional<Line>
 {
     auto& state = *::remote_console_state;
 
@@ -7181,7 +7180,7 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 
     state.tx_msg_ = allocate_dynamic<ConsoleLine>("uart-console-output");
 
-    std::optional<char> first_char;
+    Optional<char> first_char;
 
     if (*text not_eq '\0') {
         first_char = *text;

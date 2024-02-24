@@ -663,7 +663,7 @@ static struct DynamicTextureMapping
 
 
 
-std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
+Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     auto finalizer =
         [](PooledRcControlBlock<DynamicTexture, dynamic_texture_count>* ctrl) {
@@ -1043,7 +1043,7 @@ static bool fade_is_active = false;
 
 void Platform::Screen::fade(Float amount,
                             ColorConstant k,
-                            std::optional<ColorConstant> base,
+                            Optional<ColorConstant> base,
                             bool include_sprites,
                             bool include_overlay)
 {
@@ -1284,7 +1284,7 @@ void Platform::Speaker::stop_music()
 
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
-                                   std::optional<Vec2<Float>> position)
+                                   Optional<Vec2<Float>> position)
 {
     (void)priority; // We are not using the priority variable, because we're a
                     // powerful desktop pc, we can play lots of sounds at once,
@@ -1347,7 +1347,7 @@ void Platform::RemoteConsole::start()
 
 
 
-auto Platform::RemoteConsole::readline() -> std::optional<Line>
+auto Platform::RemoteConsole::readline() -> Optional<Line>
 {
     // TODO...
     return {};
@@ -1372,7 +1372,7 @@ static std::ofstream logfile_out(logfile_name);
 static Severity log_threshold;
 
 
-std::optional<Vector<char>> log_data_;
+Optional<Vector<char>> log_data_;
 
 
 void Platform::Logger::clear()
@@ -1506,10 +1506,10 @@ static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
 
 
 
-static std::optional<DateTime> start_time;
+static Optional<DateTime> start_time;
 
 
-std::optional<DateTime> Platform::SystemClock::initial_time()
+Optional<DateTime> Platform::SystemClock::initial_time()
 {
     // return ::start_time;
     return std::nullopt;
@@ -1761,7 +1761,7 @@ void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
                         TileDesc val,
-                        std::optional<u16> palette)
+                        Optional<u16> palette)
 {
     tile_layers_[layer][{x, y}] = val;
 
@@ -2078,8 +2078,7 @@ void Platform::NetworkPeer::update()
 }
 
 
-std::optional<Platform::NetworkPeer::Message>
-Platform::NetworkPeer::poll_message()
+Optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
 {
     auto impl = (NetworkPeerImpl*)impl_;
 
@@ -2126,7 +2125,7 @@ int Platform::NetworkPeer::send_queue_size() const
 ////////////////////////////////////////////////////////////////////////////////
 
 
-std::optional<DateTime> Platform::SystemClock::now()
+Optional<DateTime> Platform::SystemClock::now()
 {
     const auto t = std::chrono::system_clock::now();
 

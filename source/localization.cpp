@@ -153,15 +153,15 @@ void set_font_image(const char* font_image_name)
 
 
 
-std::optional<Platform::TextureMapping>
+Optional<Platform::TextureMapping>
 extended_charset_map(const utf8::Codepoint& cp);
 
 
 
-std::optional<Platform::TextureMapping>
+Optional<Platform::TextureMapping>
 standard_charset_map(const utf8::Codepoint& cp)
 {
-    auto mapping = [&]() -> std::optional<u16> {
+    auto mapping = [&]() -> Optional<u16> {
         switch (cp) {
 
             // clang-format off
@@ -506,14 +506,14 @@ standard_charset_map(const utf8::Codepoint& cp)
 }
 
 
-std::optional<Platform::TextureMapping>
+Optional<Platform::TextureMapping>
 doublesize_texture_map(const utf8::Codepoint& cp)
 {
     return {};
 }
 
 
-std::optional<Platform::TextureMapping> null_texture_map(const utf8::Codepoint&)
+Optional<Platform::TextureMapping> null_texture_map(const utf8::Codepoint&)
 {
     return {};
 }

@@ -102,8 +102,8 @@ public:
 
 private:
     bool selection_ = false;
-    std::optional<Text> no_text_;
-    std::optional<Text> yes_text_;
+    Optional<Text> no_text_;
+    Optional<Text> yes_text_;
 };
 
 

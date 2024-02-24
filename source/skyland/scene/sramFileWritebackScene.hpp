@@ -75,7 +75,7 @@ private:
     UserContext user_context_;
 
 
-    std::optional<TextView> menu_text_;
+    Optional<TextView> menu_text_;
 };
 
 

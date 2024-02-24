@@ -73,7 +73,7 @@ public:
 private:
     DeferredScene next_;
     RoomCoord coord_;
-    std::optional<bool> result_;
+    Optional<bool> result_;
 
     Time timeout_ = milliseconds(500);
 };
@@ -107,7 +107,7 @@ public:
 private:
     DeferredScene next_;
     CharacterId id_;
-    std::optional<bool> result_;
+    Optional<bool> result_;
 
     Time timeout_ = milliseconds(500);
 };

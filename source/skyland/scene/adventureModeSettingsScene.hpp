@@ -61,11 +61,11 @@ public:
 
 
 private:
-    std::optional<Text> difficulty_text_;
-    std::optional<Text> easy_text_;
-    std::optional<Text> normal_text_;
-    std::optional<Text> hard_text_;
-    std::optional<TextView> desc_;
+    Optional<Text> difficulty_text_;
+    Optional<Text> easy_text_;
+    Optional<Text> normal_text_;
+    Optional<Text> hard_text_;
+    Optional<TextView> desc_;
     bool newgame_;
     u8 original_;
     bool init_ = true;

@@ -171,7 +171,7 @@ void DatetimeModule::repaint()
     u8 row = 5;
 
     int k = 0;
-    std::optional<Text> t_;
+    Optional<Text> t_;
     t_.emplace(OverlayCoord{1, row});
 
 

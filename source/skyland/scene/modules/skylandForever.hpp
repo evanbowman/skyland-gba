@@ -107,10 +107,10 @@ private:
     bool unveil_ = false;
     u8 cursor_ = 0;
 
-    std::optional<Text> title_;
-    std::optional<Text> help_;
+    Optional<Text> title_;
+    Optional<Text> help_;
 
-    std::optional<TextView> msg_;
+    Optional<TextView> msg_;
 
     static Factory factory_;
 };

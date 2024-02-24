@@ -112,10 +112,10 @@ public:
 
 
 
-std::optional<Platform::TextureMapping>
+Optional<Platform::TextureMapping>
 extended_charset_map(const utf8::Codepoint& cp)
 {
-    auto mapping = [&]() -> std::optional<u16> {
+    auto mapping = [&]() -> Optional<u16> {
         switch (cp) {
         case UTF8_GETCHR(u8"届"):
             return 187;

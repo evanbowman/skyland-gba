@@ -66,7 +66,7 @@ public:
     }
 
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
 
 
     ScenePtr<Scene> update(Time delta) override

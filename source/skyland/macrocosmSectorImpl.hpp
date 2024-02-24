@@ -859,7 +859,7 @@ protected:
         bool bottom_edge_visible_[sz][sx][sy];
     };
 
-    std::optional<DynamicMemory<OcclusionTable>> occlusion_;
+    Optional<DynamicMemory<OcclusionTable>> occlusion_;
 
     void setup_occlusion()
     {

@@ -67,7 +67,7 @@ void InspectP2Scene::enter(Scene& prev)
 
 
 
-void clear_room_description(std::optional<Text>& room_description);
+void clear_room_description(Optional<Text>& room_description);
 
 
 
@@ -86,7 +86,7 @@ ScenePtr<Scene> update_modifier_keys();
 
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
-                   std::optional<Text>& room_description);
+                   Optional<Text>& room_description);
 
 
 
@@ -95,7 +95,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 
 
 ScenePtr<Scene> player_island_onclick(Time& camera_update_timer,
-                                      std::optional<Text>& room_description,
+                                      Optional<Text>& room_description,
                                       const RoomCoord& pos);
 
 

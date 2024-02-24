@@ -85,7 +85,7 @@ void render_cost(macro::EngineImpl& state,
                  Text& text,
                  bool harvest,
                  Text::OptColors text_colors = {},
-                 std::optional<terrain::Cost> inp_c = {});
+                 Optional<terrain::Cost> inp_c = {});
 
 
 

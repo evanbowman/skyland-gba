@@ -117,8 +117,8 @@ public:
 
 
 private:
-    std::optional<Text> text_;
-    std::optional<TextView> failure_text_;
+    Optional<Text> text_;
+    Optional<TextView> failure_text_;
 
     enum class State { show, connect, sync, failure } state_ = State::show;
 

@@ -61,7 +61,7 @@ struct DroneMeta
         {
         }
 
-        virtual std::optional<SharedEntityRef<Drone>>
+        virtual Optional<SharedEntityRef<Drone>>
         create(Island* parent,
                Island* destination,
                const RoomCoord& grid_pos) const = 0;
@@ -116,7 +116,7 @@ struct DroneMeta
         }
 
 
-        std::optional<SharedEntityRef<Drone>>
+        Optional<SharedEntityRef<Drone>>
         create(Island* parent,
                Island* destination,
                const RoomCoord& grid_pos) const override

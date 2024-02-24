@@ -98,7 +98,7 @@ private:
 
     int core_count_ = 0;
 
-    std::optional<Text> level_text_;
+    Optional<Text> level_text_;
 };
 
 

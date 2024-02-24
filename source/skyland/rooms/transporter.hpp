@@ -84,7 +84,7 @@ public:
     void transport_occupant(
         // NOTE: if you do not pass a destination, the
         // transporter logic will select a random one.
-        std::optional<RoomCoord> destination = {});
+        Optional<RoomCoord> destination = {});
 
 
     void recover_character(const RoomCoord& pos);

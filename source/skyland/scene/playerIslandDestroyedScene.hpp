@@ -123,7 +123,7 @@ private:
 
     bool fastforward_ = false;
 
-    std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
+    Optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
     void show_stats();
 

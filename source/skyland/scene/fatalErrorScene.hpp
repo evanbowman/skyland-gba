@@ -62,7 +62,7 @@ public:
 
 private:
     StringBuffer<96> message_;
-    std::optional<TextView> verbose_error_;
+    Optional<TextView> verbose_error_;
 };
 
 

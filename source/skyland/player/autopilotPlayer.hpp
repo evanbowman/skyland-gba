@@ -70,7 +70,7 @@ private:
     lisp::Protected keys_list_;
 
     Time next_key_timeout_ = 0;
-    std::optional<Key> next_timeout_key_;
+    Optional<Key> next_timeout_key_;
     bool next_timeout_release_ = false;
 
 

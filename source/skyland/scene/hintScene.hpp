@@ -66,8 +66,8 @@ private:
 
     Time timer_ = 0;
 
-    std::optional<Text> heading_;
-    std::optional<TextView> body_;
+    Optional<Text> heading_;
+    Optional<TextView> body_;
 
     Buffer<u8, 24> index_sequence_;
 };

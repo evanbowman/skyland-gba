@@ -106,7 +106,7 @@ public:
 
 private:
     Buffer<Text, 15> lines_;
-    std::optional<Text> info_;
+    Optional<Text> info_;
 
     int line_offset_ = 0;
 
@@ -121,7 +121,7 @@ private:
     static const int max_display_files_per_folder = 62;
 
     using CwdNames = Buffer<StringBuffer<20>, max_display_files_per_folder>;
-    std::optional<DynamicMemory<CwdNames>> cwd_names_;
+    Optional<DynamicMemory<CwdNames>> cwd_names_;
 
     enum SelectedFilesystem {
         none,
@@ -147,7 +147,7 @@ private:
     static const int max_path_nesting = 12;
 
     using PathBuffer = Buffer<StringBuffer<max_folder_name>, max_path_nesting>;
-    std::optional<DynamicMemory<PathBuffer>> path_;
+    Optional<DynamicMemory<PathBuffer>> path_;
 
     static Factory factory_;
 };

@@ -196,8 +196,7 @@ bool tapped_topleft_corner();
 
 
 
-std::optional<RoomCoord> get_local_tapclick(Island* island,
-                                            const Vec2<u32>& pos)
+Optional<RoomCoord> get_local_tapclick(Island* island, const Vec2<u32>& pos)
 {
     const auto view_offset = PLATFORM.screen().get_view().int_center();
 

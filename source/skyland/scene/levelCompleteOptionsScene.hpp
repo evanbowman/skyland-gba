@@ -52,7 +52,7 @@ class LevelCompleteOptionsScene : public WorldScene
 public:
     LevelCompleteOptionsScene(
         bool fade_in = false,
-        std::optional<DynamicMemory<ConfettiBuffer>> confetti = {})
+        Optional<DynamicMemory<ConfettiBuffer>> confetti = {})
         : confetti_(std::move(confetti))
     {
         if (fade_in) {
@@ -84,7 +84,7 @@ private:
 
     int cursor_ = 0;
 
-    std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
+    Optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
     Buffer<Text, 3> options_;
     Time timer_ = 0;

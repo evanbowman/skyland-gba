@@ -51,7 +51,7 @@ namespace skyland
 class LinkScene : public Scene
 {
 public:
-    std::optional<Text> t_;
+    Optional<Text> t_;
 
     void enter(Scene&) override
     {

@@ -131,7 +131,7 @@ public:
 
 private:
     DeferredScene cancel_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

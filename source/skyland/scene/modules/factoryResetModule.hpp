@@ -69,7 +69,7 @@ public:
     ScenePtr<Scene> update(Time delta) override;
 
 
-    std::optional<TextView> text_;
+    Optional<TextView> text_;
     int key_count_ = 0;
 
     static Factory factory_;

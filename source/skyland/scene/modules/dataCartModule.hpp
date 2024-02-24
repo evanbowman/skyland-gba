@@ -114,7 +114,7 @@ private:
     int timer_ = 0;
     Float cart_scroll_down_ = 0;
 
-    std::optional<DataCartLibrary> carts_;
+    Optional<DataCartLibrary> carts_;
 
     Time wait_time_ = 0;
 

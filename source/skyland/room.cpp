@@ -1424,7 +1424,7 @@ void Room::detach_drone(bool quiet)
 
 
 
-std::optional<SharedEntityRef<Drone>> Room::drone() const
+Optional<SharedEntityRef<Drone>> Room::drone() const
 {
     // Unimplemented.
     // TODO: raise fatal error?

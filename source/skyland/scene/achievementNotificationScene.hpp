@@ -76,12 +76,12 @@ private:
 
     achievements::Achievement achievement_;
 
-    std::optional<Text> achievement_text_;
-    std::optional<Text> achievement_name_;
-    std::optional<Text> item_name_;
-    std::optional<Text> item_details_;
+    Optional<Text> achievement_text_;
+    Optional<Text> achievement_name_;
+    Optional<Text> item_name_;
+    Optional<Text> item_details_;
 
-    std::optional<Text> unlocked_text_;
+    Optional<Text> unlocked_text_;
 
 
     DeferredScene next_scene_;

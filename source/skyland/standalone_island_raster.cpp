@@ -97,7 +97,7 @@ void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
                         u16 val,
-                        std::optional<u16> palette)
+                        Optional<u16> palette)
 {
     // ...
 }
@@ -285,7 +285,7 @@ Platform::~Platform()
 
 
 
-std::optional<DateTime> Platform::SystemClock::now()
+Optional<DateTime> Platform::SystemClock::now()
 {
     return std::nullopt;
 }

@@ -922,7 +922,7 @@ bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
 
     if (auto room = parent_->get_room(old_coord)) {
 
-        std::optional<EntityRef<BasicCharacter>> self;
+        Optional<EntityRef<BasicCharacter>> self;
 
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {

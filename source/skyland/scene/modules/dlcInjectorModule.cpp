@@ -47,7 +47,7 @@ namespace skyland
 
 
 template <typename T>
-std::optional<T> read_dlc_struct(Vector<char>& data, Vector<char>::Iterator& it)
+Optional<T> read_dlc_struct(Vector<char>& data, Vector<char>::Iterator& it)
 {
     alignas(T) u8 buffer[sizeof(T)];
 

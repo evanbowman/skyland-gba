@@ -51,7 +51,7 @@ class WeaponSetTargetScene : public ActiveWorldScene
 public:
     WeaponSetTargetScene(const RoomCoord& weapon_loc,
                          bool near = true,
-                         std::optional<RoomCoord> initial_pos = {});
+                         Optional<RoomCoord> initial_pos = {});
 
 
     ScenePtr<Scene> update(Time delta) override;
@@ -87,7 +87,7 @@ private:
     int selector_ = 0;
 
     Time describe_room_timer_ = milliseconds(400);
-    std::optional<Text> room_description_;
+    Optional<Text> room_description_;
 
     u16 last_player_checksum_ = 0;
     u16 last_opponent_checksum_ = 0;
@@ -114,7 +114,7 @@ private:
     bool minimap_visible_ = false;
     u8 minimap_x_anchor_ = 1;
 
-    std::optional<RoomCoord> initial_pos_;
+    Optional<RoomCoord> initial_pos_;
 };
 
 

@@ -94,8 +94,8 @@ private:
 
     bool unveil_ = false;
 
-    std::optional<Text> title_;
-    std::optional<Text> help_;
+    Optional<Text> title_;
+    Optional<Text> help_;
 
     struct ParameterInfo
     {

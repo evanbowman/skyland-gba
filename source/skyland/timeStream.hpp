@@ -122,7 +122,7 @@ struct TimeBuffer
     }
 
 
-    std::optional<DynamicMemory<TimeBuffer>> next_;
+    Optional<DynamicMemory<TimeBuffer>> next_;
 };
 
 
@@ -183,7 +183,7 @@ public:
     u64 begin_timestamp();
 
 
-    std::optional<u64> end_timestamp();
+    Optional<u64> end_timestamp();
 
 
     // NOTE: this function rolls back elapsed_ time on the end_ block to that of
@@ -214,7 +214,7 @@ public:
 
 
 private:
-    std::optional<DynamicMemory<TimeBuffer>> buffers_;
+    Optional<DynamicMemory<TimeBuffer>> buffers_;
     TimeBuffer* end_ = nullptr;
     u8 buffer_count_ = 0;
     bool enabled_pushes_ = false;

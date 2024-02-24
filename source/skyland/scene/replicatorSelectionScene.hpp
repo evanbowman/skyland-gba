@@ -64,9 +64,9 @@ public:
 
 
 private:
-    std::optional<Text> text_;
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
+    Optional<Text> text_;
+    Optional<Text> yes_text_;
+    Optional<Text> no_text_;
     Time exit_countdown_ = 0;
     bool near_ = true;
 };

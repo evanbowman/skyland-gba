@@ -96,7 +96,7 @@ public:
 
 private:
     Time timer_ = 0;
-    std::optional<RoomCoord> target_;
+    Optional<RoomCoord> target_;
 };
 
 

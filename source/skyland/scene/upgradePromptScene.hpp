@@ -69,9 +69,9 @@ private:
     MetaclassIndex upgrade_to_;
     Vec2<u8> target_coord_;
 
-    std::optional<Text> text_;
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
+    Optional<Text> text_;
+    Optional<Text> yes_text_;
+    Optional<Text> no_text_;
 
     Time flicker_timer_ = 0;
     bool flicker_on_ = false;

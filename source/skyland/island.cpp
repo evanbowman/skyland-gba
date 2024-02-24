@@ -172,7 +172,7 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 static auto fire_alloc_texture(Island& island)
 {
-    std::optional<Platform::DynamicTexturePtr> result;
+    Optional<Platform::DynamicTexturePtr> result;
 
     // Check to see if the other island already has a texture allocated
     // for the fire effect. If so, share the texture.
@@ -387,7 +387,7 @@ void Island::set_hidden(bool hidden)
 
 
 
-std::optional<Platform::DynamicTexturePtr> Island::fire_texture()
+Optional<Platform::DynamicTexturePtr> Island::fire_texture()
 {
     return fire_.texture_;
 }
@@ -1220,7 +1220,7 @@ void Island::display()
 
     if (flag_pos_ and show_flag_) {
 
-        std::optional<u16> palette;
+        Optional<u16> palette;
 
         if (layer_ == Layer::map_0_ext) {
             // NOTE: the player can design his/her own flag, so we reserve a
@@ -1723,7 +1723,7 @@ void Island::repaint_partial()
     for (auto& room : rooms_) {
         if (room->is_powered_down()) {
 
-            // std::optional<u16> pal = 9;
+            // Optional<u16> pal = 9;
             auto p = room->position();
             for (int x = 0; x < room->size().x; ++x) {
                 for (int y = 0; y < room->size().y; ++y) {
@@ -1831,7 +1831,7 @@ void Island::repaint()
     bool placed_flag = false;
     bool placed_chimney = false;
 
-    std::optional<RoomCoord> flag_loc;
+    Optional<RoomCoord> flag_loc;
 
     rooms_plot_.clear();
 
@@ -2043,7 +2043,7 @@ Vec2<Fixnum> Island::visual_origin() const
 
 
 
-std::optional<SharedEntityRef<Drone>> Island::get_drone(const RoomCoord& coord)
+Optional<SharedEntityRef<Drone>> Island::get_drone(const RoomCoord& coord)
 {
     for (auto& drone_sp : drones()) {
         if (drone_sp->position() == coord) {

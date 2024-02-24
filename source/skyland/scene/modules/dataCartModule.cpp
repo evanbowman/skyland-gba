@@ -448,7 +448,7 @@ public:
     }
 
 private:
-    std::optional<TextView> text_;
+    Optional<TextView> text_;
     int cart_id_;
     bool flipped_ = false;
 };

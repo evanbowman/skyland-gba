@@ -160,7 +160,7 @@ public:
         return null_scene();
     }
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
     int index_ = 0;
 };
 

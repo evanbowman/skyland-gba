@@ -69,7 +69,7 @@ public:
 
 private:
     RoomCoord transporter_loc_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

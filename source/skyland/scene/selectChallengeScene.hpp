@@ -69,7 +69,7 @@ private:
     } state_ = State::fade_in;
 
 
-    std::optional<lisp::Protected> challenges_;
+    Optional<lisp::Protected> challenges_;
     Buffer<Text, 5> text_;
 
     static u8 page_;

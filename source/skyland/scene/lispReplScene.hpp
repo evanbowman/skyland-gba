@@ -85,11 +85,11 @@ private:
     DynamicMemory<Completions> cpl_;
     Vector<Command> history_;
 
-    std::optional<Text> keyboard_top_;
-    std::optional<Text> keyboard_bottom_;
+    Optional<Text> keyboard_top_;
+    Optional<Text> keyboard_bottom_;
     Buffer<Text, 7> keyboard_;
 
-    std::optional<Text> version_text_;
+    Optional<Text> version_text_;
 
     Time timer_ = 0;
 
@@ -99,7 +99,7 @@ private:
         history_insert_pos_ = -1;
     }
 
-    std::optional<Text> entry_;
+    Optional<Text> entry_;
     s16 history_insert_pos_ = -1;
     u8 history_index_ = 0;
     bool alt_ = false;

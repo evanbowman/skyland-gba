@@ -60,7 +60,7 @@ namespace save
 struct EmergencyBackup
 {
     PersistentData persistent_data_;
-    std::optional<Vector<char>> lisp_data_;
+    Optional<Vector<char>> lisp_data_;
     rng::LinearGenerator rng_state_;
 
     bool valid_ = false;

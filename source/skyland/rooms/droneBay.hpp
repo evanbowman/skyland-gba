@@ -145,7 +145,7 @@ public:
     }
 
 
-    std::optional<SharedEntityRef<Drone>> drone() const override
+    Optional<SharedEntityRef<Drone>> drone() const override
     {
         return drone_;
     }
@@ -170,12 +170,12 @@ public:
 
 
 private:
-    std::optional<SharedEntityRef<Drone>> drone_;
+    Optional<SharedEntityRef<Drone>> drone_;
 
 
     Time reload_ = 0;
 
-    std::optional<RoomCoord> target_;
+    Optional<RoomCoord> target_;
 };
 
 

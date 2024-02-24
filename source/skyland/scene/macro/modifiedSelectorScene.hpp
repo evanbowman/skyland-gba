@@ -56,10 +56,10 @@ public:
 
 
 private:
-    std::optional<Text> rotate_text_;
-    std::optional<Text> layers_text_;
-    std::optional<Text> cursor_text_;
-    std::optional<Text> visible_layers_text_;
+    Optional<Text> rotate_text_;
+    Optional<Text> layers_text_;
+    Optional<Text> cursor_text_;
+    Optional<Text> visible_layers_text_;
 };
 
 

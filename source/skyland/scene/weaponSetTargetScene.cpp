@@ -54,11 +54,11 @@ namespace skyland
 
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
-                   std::optional<Text>& room_description);
+                   Optional<Text>& room_description);
 
 
 
-void clear_room_description(std::optional<Text>& room_description);
+void clear_room_description(Optional<Text>& room_description);
 
 
 
@@ -68,7 +68,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 
 WeaponSetTargetScene::WeaponSetTargetScene(const RoomCoord& weapon_loc,
                                            bool near,
-                                           std::optional<RoomCoord> initial_pos)
+                                           Optional<RoomCoord> initial_pos)
     : weapon_loc_(weapon_loc), near_(near), initial_pos_(initial_pos)
 {
 }

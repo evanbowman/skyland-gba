@@ -65,8 +65,8 @@ private:
     StringBuffer<64> file_path_;
     Vec2<int> keyboard_cursor_;
 
-    std::optional<Text> title_text_;
-    std::optional<Text> entry_;
+    Optional<Text> title_text_;
+    Optional<Text> entry_;
 
     StringBuffer<28> path_;
 };

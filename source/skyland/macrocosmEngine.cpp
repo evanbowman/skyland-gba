@@ -64,7 +64,7 @@ namespace raster
 
 
 
-std::optional<DynamicMemory<raster::DepthBuffer>> _db;
+Optional<DynamicMemory<raster::DepthBuffer>> _db;
 
 
 

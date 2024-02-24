@@ -239,7 +239,7 @@ public:
     // Supplied with a unicode codepoint, this function should provide an offset
     // into a texture image from which to load a glyph image.
     using TextureCpMapper =
-        std::optional<TextureMapping> (*)(const utf8::Codepoint&);
+        Optional<TextureMapping> (*)(const utf8::Codepoint&);
 
     // Map a glyph into the vram space reserved for the overlay tile layer.
     TileDesc map_glyph(const utf8::Codepoint& glyph,
@@ -296,7 +296,7 @@ public:
            PooledRcControlBlock<DynamicTexture, dynamic_texture_count>>;
 
 
-    std::optional<DynamicTexturePtr> make_dynamic_texture();
+    Optional<DynamicTexturePtr> make_dynamic_texture();
 
 
     // In glyph mode, the platform will automatically unmap glyphs when their
@@ -312,7 +312,7 @@ public:
                   u16 x,
                   u16 y,
                   TileDesc val,
-                  std::optional<u16> palette = {});
+                  Optional<u16> palette = {});
 
 
     void set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val);
@@ -436,8 +436,8 @@ public:
     class SystemClock
     {
     public:
-        std::optional<DateTime> now();
-        std::optional<DateTime> initial_time();
+        Optional<DateTime> now();
+        Optional<DateTime> initial_time();
 
         void configure(DateTime dt);
 
@@ -465,13 +465,13 @@ public:
         class Touch
         {
         public:
-            std::optional<Vec2<u32>> read() const
+            Optional<Vec2<u32>> read() const
             {
                 return current_;
             }
 
 
-            std::optional<Vec2<u32>> up_transition() const
+            Optional<Vec2<u32>> up_transition() const
             {
                 if (not current_ and previous_) {
                     return previous_;
@@ -483,8 +483,8 @@ public:
 
         private:
             friend class Screen;
-            std::optional<Vec2<u32>> current_;
-            std::optional<Vec2<u32>> previous_;
+            Optional<Vec2<u32>> current_;
+            Optional<Vec2<u32>> previous_;
         };
 
 
@@ -561,7 +561,7 @@ public:
         // function, I'm retiring this one.
         void fade(float amount,
                   ColorConstant color = ColorConstant::rich_black,
-                  std::optional<ColorConstant> base = {},
+                  Optional<ColorConstant> base = {},
                   bool include_sprites = true,
                   bool include_overlay = false);
 
@@ -848,7 +848,7 @@ public:
         // camera center);
         void play_sound(const char* name,
                         int priority,
-                        std::optional<Vec2<Float>> position = {});
+                        Optional<Vec2<Float>> position = {});
         bool is_sound_playing(const char* name);
 
 
@@ -935,7 +935,7 @@ public:
         // data in the network-peer's buffer. If the space in the buffer is
         // insufficient to frame a message, exit polling, and do not call
         // poll_consume() until there's enough space to fill an entire message.
-        std::optional<Message> poll_message();
+        Optional<Message> poll_message();
         void poll_consume(u32 length);
 
     private:
@@ -960,7 +960,7 @@ public:
         void start();
 
 
-        std::optional<Line> readline();
+        Optional<Line> readline();
 
         Line* peek_buffer();
 

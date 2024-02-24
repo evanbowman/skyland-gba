@@ -62,7 +62,7 @@ public:
 
 public:
     SharedEntityRef<Drone> drone_;
-    std::optional<Text> description_;
+    Optional<Text> description_;
 };
 
 

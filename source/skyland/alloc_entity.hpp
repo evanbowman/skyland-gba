@@ -103,7 +103,7 @@ EntityRef<T> alloc_entity(Args&&... args)
 // access to an Rc<Derived>; doing everything through the base class pointer is
 // sufficent for our purposes.
 template <typename T, typename Base, typename... Args>
-std::optional<SharedEntityRef<Base>> alloc_shared_entity(Args&&... args)
+Optional<SharedEntityRef<Base>> alloc_shared_entity(Args&&... args)
 {
     auto& pool = globals().entity_pools_;
 

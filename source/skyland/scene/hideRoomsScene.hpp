@@ -71,7 +71,7 @@ private:
     };
 
 
-    std::optional<DynamicMemory<Data>> data_;
+    Optional<DynamicMemory<Data>> data_;
 
 
     Buffer<Text, 3> names_;

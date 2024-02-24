@@ -309,7 +309,7 @@ public:
     }
 
 
-    std::optional<DialogBuffer>& dialog_buffer()
+    Optional<DialogBuffer>& dialog_buffer()
     {
         return dialog_buffer_;
     }
@@ -422,7 +422,7 @@ public:
     }
 
 
-    std::optional<lisp::Protected>& input_setup_info()
+    Optional<lisp::Protected>& input_setup_info()
     {
         return input_setup_info_;
     }
@@ -449,7 +449,7 @@ public:
 
     using MacrocosmEngine =
         Boxed<macro::Engine, macro::Engine, 4 * sizeof(void*)>;
-    std::optional<MacrocosmEngine>& macrocosm()
+    Optional<MacrocosmEngine>& macrocosm()
     {
         return macrocosm_;
     }
@@ -472,7 +472,7 @@ private:
         }
 
         Island player_;
-        std::optional<Island> opponent_;
+        Optional<Island> opponent_;
         rng::LinearGenerator crane_game_rng_;
     };
 
@@ -496,7 +496,7 @@ private:
     Boxed<Camera, Camera, 9 * sizeof(void*)> camera_;
     Rumble rumble_;
 
-    std::optional<lisp::Protected> input_setup_info_;
+    Optional<lisp::Protected> input_setup_info_;
 
 
     KeyCallbackProcessor key_callback_processor_;
@@ -504,7 +504,7 @@ private:
     Boxed<weather::Environment, weather::ClearSkies, 8 * sizeof(void*)>
         environment_;
 
-    std::optional<DialogBuffer> dialog_buffer_;
+    Optional<DialogBuffer> dialog_buffer_;
 
     EntityList<Entity> effects_;
     EntityList<Bird> birds_;
@@ -522,12 +522,12 @@ private:
 
     time_stream::TimeStream time_stream_;
 
-    std::optional<MacrocosmEngine> macrocosm_;
+    Optional<MacrocosmEngine> macrocosm_;
 
     s32 level_begin_score_ = 0;
 
 
-    std::optional<DynamicMemory<ConsoleState>> console_state_;
+    Optional<DynamicMemory<ConsoleState>> console_state_;
 
 
     ////////////////////////////////////////////////////////////////////////////

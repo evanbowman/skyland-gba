@@ -138,8 +138,8 @@ public:
 
 
 protected:
-    std::optional<UIMetric> coins_;
-    std::optional<UIMetric> power_;
+    Optional<UIMetric> coins_;
+    Optional<UIMetric> power_;
 
     Time camera_update_timer_ = 0;
 

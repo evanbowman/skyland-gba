@@ -380,7 +380,7 @@ TOP:
 
             if (not command_->empty() and
                 not is_delimiter((*command_)[command_->length() - 1])) {
-                std::optional<int> ident_start;
+                Optional<int> ident_start;
 
                 for (int i = command_->length() - 1; i >= 0; --i) {
                     if (is_delimiter((*command_)[i])) {

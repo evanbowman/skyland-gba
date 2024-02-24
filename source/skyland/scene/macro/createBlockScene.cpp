@@ -186,7 +186,7 @@ void render_cost(macro::EngineImpl& state,
                  Text& text,
                  bool harvest,
                  Text::OptColors text_colors = {},
-                 std::optional<terrain::Cost> inp_c = {})
+                 Optional<terrain::Cost> inp_c = {})
 {
     auto st = calc_screen_tiles();
 
@@ -567,7 +567,7 @@ public:
 
 private:
     terrain::Cost deficit_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

@@ -75,7 +75,7 @@ private:
 
     int selector_ = 0;
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

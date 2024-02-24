@@ -46,7 +46,7 @@ namespace skyland
 class QRCode
 {
 public:
-    static std::optional<QRCode> create(const char* text);
+    static Optional<QRCode> create(const char* text);
 
 
     bool get_module(const Vec2<int>& position) const;

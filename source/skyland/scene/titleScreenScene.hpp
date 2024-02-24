@@ -71,7 +71,7 @@ public:
 
 private:
     bool wait_ = true;
-    std::optional<Text> text_;
+    Optional<Text> text_;
     Time timer_ = 0;
     Time hover_timer_ = 0;
     Time selector_timer_ = 0;
@@ -85,7 +85,7 @@ private:
     void show_module_icons(int page);
 
     static u8 module_page_;
-    static std::optional<Vec2<u8>> module_cursor_;
+    static Optional<Vec2<u8>> module_cursor_;
 
 
     void play_gust_sound();

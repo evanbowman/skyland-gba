@@ -88,7 +88,7 @@ private:
     void setup_co_op_game();
 
 
-    std::optional<rng::LinearGenerator> co_op_rng_;
+    Optional<rng::LinearGenerator> co_op_rng_;
 
 
     Time parameter_sync_timer_ = seconds(1);
@@ -103,9 +103,9 @@ private:
     } state_ = State::edit_settings;
 
 
-    std::optional<Text> title_;
+    Optional<Text> title_;
 
-    std::optional<Text> msg_;
+    Optional<Text> msg_;
 
     u8 player_cursor_ = 0;
     u8 opponent_cursor_ = 0;

@@ -26,7 +26,7 @@ public:
     }
 
 
-    std::optional<DeferredScene> next_;
+    Optional<DeferredScene> next_;
 
 
     void enter(Scene& prev) override
@@ -209,8 +209,8 @@ private:
         after_transition,
     } display_mode_ = DisplayMode::transition;
 
-    std::optional<TextView> text_;
-    std::optional<Text> page_number_;
+    Optional<TextView> text_;
+    Optional<Text> page_number_;
     DynamicMemory<StringBuffer<2000>> str_;
     int page_;
     bool dir_ = false;

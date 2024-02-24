@@ -50,7 +50,7 @@ namespace skyland
 struct RoomPluginInfo : public RoomMeta::Info
 {
     RoomMeta* mt_;
-    mutable std::optional<lisp::Protected> info_;
+    mutable Optional<lisp::Protected> info_;
 
     s16 health_ = 10;
     s16 cost_ = 10;

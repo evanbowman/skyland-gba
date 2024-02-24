@@ -65,7 +65,7 @@ struct FontConfiguration
 };
 
 
-using OptColors = std::optional<FontColors>;
+using OptColors = Optional<FontColors>;
 
 
 class Text
@@ -489,8 +489,8 @@ private:
     void display();
 
     const int icon_tile_;
-    std::optional<SmallIcon> icon_;
-    std::optional<Text> text_;
+    Optional<SmallIcon> icon_;
+    Optional<Text> text_;
     u32 value_;
     HorizontalFlashAnimation anim_;
     const Align align_;
@@ -505,7 +505,7 @@ template <typename F> void instrument(F&& callback)
     static int index;
     constexpr int sample_count = 32;
     static int buffer[32];
-    static std::optional<Text> text;
+    static Optional<Text> text;
 
     const auto before = PLATFORM.delta_clock().sample();
 

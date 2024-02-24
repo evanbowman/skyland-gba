@@ -138,9 +138,8 @@ private:
 
 
     Vector<char>::Iterator insert_pos();
-    void insert_char(char c,
-                     std::optional<Vector<char>::Iterator> insert_hint = {});
-    void erase_char(std::optional<Vector<char>::Iterator> erase_hint = {});
+    void insert_char(char c, Optional<Vector<char>::Iterator> insert_hint = {});
+    void erase_char(Optional<Vector<char>::Iterator> erase_hint = {});
 
 
     void delete_selection();
@@ -178,9 +177,9 @@ private:
         StringBuffer<24> current_word_;
         Buffer<StringBuffer<20>, 6> completions_;
 
-        std::optional<Vector<char>::Iterator> sel_begin_;
-        std::optional<Vector<char>::Iterator> sel_end_;
-        std::optional<Vector<char>::Iterator> sel_center_;
+        Optional<Vector<char>::Iterator> sel_begin_;
+        Optional<Vector<char>::Iterator> sel_end_;
+        Optional<Vector<char>::Iterator> sel_center_;
     };
 
     DynamicMemory<State> state_;
@@ -211,8 +210,8 @@ private:
     bool cursor_shaded_ = false;
 
 
-    std::optional<Text> header_;
-    std::optional<Text> status_;
+    Optional<Text> header_;
+    Optional<Text> status_;
 
 
     static Factory factory_;

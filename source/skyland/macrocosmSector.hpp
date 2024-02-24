@@ -129,7 +129,7 @@ public:
 
     // The qrcode will hold binary data in the form:
     // first byte: island layout, rest: rle-encoded data.
-    std::optional<QRCode>
+    Optional<QRCode>
     qr_encode(Function<4 * sizeof(void*), void(const char*)> msg) const;
 
 

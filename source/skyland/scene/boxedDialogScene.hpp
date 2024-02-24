@@ -155,8 +155,8 @@ private:
 
         Buffer<Text, 14> text_opts_;
 
-        std::optional<UIMetric> coins_;
-        std::optional<Text> character_name_text_;
+        Optional<UIMetric> coins_;
+        Optional<Text> character_name_text_;
 
         DeferredScene next_scene_ = []() { return null_scene(); };
     };

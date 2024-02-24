@@ -325,7 +325,7 @@ public:
     ScenePtr<Scene> reject_if_friendly();
 
 
-    virtual std::optional<RoomCoord> get_target() const
+    virtual Optional<RoomCoord> get_target() const
     {
         return {};
     }
@@ -557,7 +557,7 @@ public:
 
     virtual bool attach_drone(SharedEntityRef<Drone>);
     virtual void detach_drone(bool quiet);
-    virtual std::optional<SharedEntityRef<Drone>> drone() const;
+    virtual Optional<SharedEntityRef<Drone>> drone() const;
 
 
     virtual bool create_replicant()

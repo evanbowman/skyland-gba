@@ -64,7 +64,7 @@ private:
         fade_out,
     } state_ = State::fade_in;
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

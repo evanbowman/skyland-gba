@@ -83,7 +83,7 @@ public:
     bool autoadvance_ = false;
 
 
-    std::optional<DeferredScene> next_scene_;
+    Optional<DeferredScene> next_scene_;
 
 
 private:

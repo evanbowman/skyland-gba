@@ -68,7 +68,7 @@ private:
 
     u8 group_cursor_;
 
-    std::optional<Text> msg_;
+    Optional<Text> msg_;
 };
 
 

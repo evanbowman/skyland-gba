@@ -69,7 +69,7 @@ private:
     } state_ = State::fade_in;
 
 
-    std::optional<lisp::Protected> samples_;
+    Optional<lisp::Protected> samples_;
     Buffer<Text, 5> text_;
 
     u8 page_ = 0;

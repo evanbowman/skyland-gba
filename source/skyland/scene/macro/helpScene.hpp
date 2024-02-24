@@ -64,8 +64,8 @@ private:
 
     static const int page_count = 8;
 
-    std::optional<Text> heading_;
-    std::optional<TextView> tv_;
+    Optional<Text> heading_;
+    Optional<TextView> tv_;
 };
 
 

@@ -143,13 +143,13 @@ void Platform::DynamicTexture::remap(u16 spritesheet_offset)
 }
 
 
-std::optional<DateTime> Platform::SystemClock::initial_time()
+Optional<DateTime> Platform::SystemClock::initial_time()
 {
     return {};
 }
 
 
-std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
+Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     return {};
 }
@@ -210,7 +210,7 @@ void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
                         u16 val,
-                        std::optional<u16> palette)
+                        Optional<u16> palette)
 {
 }
 
@@ -307,7 +307,7 @@ Platform::SystemClock::SystemClock()
 }
 
 
-std::optional<DateTime> Platform::SystemClock::now()
+Optional<DateTime> Platform::SystemClock::now()
 {
     return {};
 }
@@ -374,7 +374,7 @@ void Platform::NetworkPeer::update()
 }
 
 
-auto Platform::NetworkPeer::poll_message() -> std::optional<Message>
+auto Platform::NetworkPeer::poll_message() -> Optional<Message>
 {
     // TODO
     return {};
@@ -484,7 +484,7 @@ alignas(16) g2dColor fade_rect[fade_rect_side_length * fade_rect_side_length];
 
 void Platform::Screen::fade(Float amount,
                             ColorConstant k,
-                            std::optional<ColorConstant> base,
+                            Optional<ColorConstant> base,
                             bool include_sprites,
                             bool include_overlay)
 {
@@ -736,7 +736,7 @@ static void display_overlay()
     //     for (int y = 0; y < 32; ++y) {
     //         auto tile = overlay_tiles[x][y];
     //         bool is_glyph = false;
-    //         std::optional<int> ext_palette;
+    //         Optional<int> ext_palette;
 
     //         if (tile & (1 << 15)) {
     //             tile = tile & (~(1 << 15));
@@ -978,7 +978,7 @@ Platform::Speaker::Speaker()
 
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
-                                   std::optional<Vec2<Float>> position)
+                                   Optional<Vec2<Float>> position)
 {
     // TODO
 }
@@ -1066,7 +1066,7 @@ Platform::Logger::Logger()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-auto Platform::RemoteConsole::readline() -> std::optional<Line>
+auto Platform::RemoteConsole::readline() -> Optional<Line>
 {
     // TODO
     return {};
@@ -1078,7 +1078,7 @@ auto Platform::RemoteConsole::readline() -> std::optional<Line>
 ////////////////////////////////////////////////////////////////////////////////
 
 
-std::optional<Bitvector<int(Key::count)>> missed_keys;
+Optional<Bitvector<int(Key::count)>> missed_keys;
 
 
 void Platform::Keyboard::rumble(bool)

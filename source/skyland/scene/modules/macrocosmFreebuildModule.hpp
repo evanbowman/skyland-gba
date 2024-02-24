@@ -84,10 +84,10 @@ public:
     Vec3<u8> cursor_;
 
 
-    std::optional<Text> prompt_;
-    std::optional<Text> t1_;
-    std::optional<Text> t2_;
-    std::optional<Text> t3_;
+    Optional<Text> prompt_;
+    Optional<Text> t1_;
+    Optional<Text> t2_;
+    Optional<Text> t3_;
     int size_sel_ = 0;
 };
 

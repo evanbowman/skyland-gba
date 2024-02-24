@@ -62,7 +62,7 @@ public:
 
 
 private:
-    std::optional<DynamicMemory<bool[16][16]>> matrix_;
+    Optional<DynamicMemory<bool[16][16]>> matrix_;
 
     Time cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;

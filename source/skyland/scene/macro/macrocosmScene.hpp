@@ -114,20 +114,20 @@ private:
 
     struct UIObjects
     {
-        std::optional<UIMetric> food_;
-        std::optional<UIMetric> population_;
-        std::optional<UIMetric> productivity_;
+        Optional<UIMetric> food_;
+        Optional<UIMetric> population_;
+        Optional<UIMetric> productivity_;
 
-        std::optional<UIMetric> lumber_;
-        std::optional<UIMetric> stone_;
-        std::optional<UIMetric> crystal_;
-        std::optional<UIMetric> water_;
-        std::optional<UIMetric> clay_;
+        Optional<UIMetric> lumber_;
+        Optional<UIMetric> stone_;
+        Optional<UIMetric> crystal_;
+        Optional<UIMetric> water_;
+        Optional<UIMetric> clay_;
     };
 
     u8 last_season_ = 255;
     bool update_ui_on_exit_ = false;
-    std::optional<DynamicMemory<UIObjects>> ui_;
+    Optional<DynamicMemory<UIObjects>> ui_;
 };
 
 

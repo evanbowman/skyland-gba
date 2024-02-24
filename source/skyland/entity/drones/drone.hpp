@@ -193,7 +193,7 @@ private:
     Vec2<s16> anchor_;
 
 protected:
-    std::optional<RoomCoord> target_;
+    Optional<RoomCoord> target_;
     u8 target_near_ : 1;
 
 private:

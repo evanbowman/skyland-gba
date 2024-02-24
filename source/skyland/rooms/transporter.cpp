@@ -312,7 +312,7 @@ void Transporter::recover_character(const RoomCoord& position)
 
 
 
-void Transporter::transport_occupant(std::optional<RoomCoord> destination)
+void Transporter::transport_occupant(Optional<RoomCoord> destination)
 {
     begin_recharge();
 
@@ -334,7 +334,7 @@ void Transporter::transport_occupant(std::optional<RoomCoord> destination)
         return;
     }
 
-    std::optional<RoomCoord> dest;
+    Optional<RoomCoord> dest;
 
     if (not destination) {
         bool matrix[16][16];

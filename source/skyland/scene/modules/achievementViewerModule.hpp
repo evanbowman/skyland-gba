@@ -84,13 +84,13 @@ private:
     void load_page(int page);
 
 
-    std::optional<Text> achievements_heading_;
-    std::optional<Text> count_text_;
-    std::optional<Text> item_name_;
-    std::optional<Text> item_details_;
-    std::optional<TextView> achievement_description_;
-    std::optional<Text> achievement_name_;
-    std::optional<Text> unlocks_text_;
+    Optional<Text> achievements_heading_;
+    Optional<Text> count_text_;
+    Optional<Text> item_name_;
+    Optional<Text> item_details_;
+    Optional<TextView> achievement_description_;
+    Optional<Text> achievement_name_;
+    Optional<Text> unlocks_text_;
 
 
     int page_ = 0;

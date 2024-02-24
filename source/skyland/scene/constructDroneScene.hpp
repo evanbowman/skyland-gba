@@ -65,7 +65,7 @@ public:
 
 private:
     RoomCoord position_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
     int selector_ = 0;
 };
 

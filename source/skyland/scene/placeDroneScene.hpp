@@ -72,7 +72,7 @@ private:
     RoomCoord origin_;
     bool near_;
 
-    std::optional<Text> message_;
+    Optional<Text> message_;
     const DroneMeta* drone_class_;
 };
 

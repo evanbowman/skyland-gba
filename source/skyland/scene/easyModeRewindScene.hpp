@@ -143,11 +143,11 @@ public:
     }
 
 private:
-    std::optional<Text> title_;
-    std::optional<Text> text_;
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
-    std::optional<Text> lives_;
+    Optional<Text> title_;
+    Optional<Text> text_;
+    Optional<Text> yes_text_;
+    Optional<Text> no_text_;
+    Optional<Text> lives_;
 
     int selected_ = 0;
 };

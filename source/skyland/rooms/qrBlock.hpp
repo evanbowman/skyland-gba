@@ -144,7 +144,7 @@ public:
 
 private:
     DynamicMemory<StringBuffer<400>> data_;
-    std::optional<Platform::DynamicTexturePtr> hint_img_;
+    Optional<Platform::DynamicTexturePtr> hint_img_;
     Time hint_img_release_timer_ = 0;
 };
 

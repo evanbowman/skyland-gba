@@ -205,7 +205,7 @@ struct DepthBuffer
 
 
 
-extern std::optional<DynamicMemory<raster::DepthBuffer>> _db;
+extern Optional<DynamicMemory<raster::DepthBuffer>> _db;
 
 
 

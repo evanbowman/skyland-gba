@@ -79,7 +79,7 @@ public:
 
     Vec3<u8> cursor_;
 
-    std::optional<Text> loading_text_;
+    Optional<Text> loading_text_;
     bool skip_ = true;
 };
 

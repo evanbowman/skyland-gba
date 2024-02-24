@@ -113,14 +113,14 @@ private:
     ScenePtr<Scene> show_categories_impl(Time);
 
 
-    std::optional<Text> item_name_;
-    std::optional<Text> item_details_;
-    std::optional<TextView> item_description_;
-    std::optional<Text> dependency_text_;
+    Optional<Text> item_name_;
+    Optional<Text> item_details_;
+    Optional<TextView> item_description_;
+    Optional<Text> dependency_text_;
 
     void show_category_image(int img);
 
-    std::optional<DeferredScene> next_scene_;
+    Optional<DeferredScene> next_scene_;
 
     void draw_category_line(int line, Text::OptColors = {});
 
@@ -150,7 +150,7 @@ private:
     Time timer_ = 0;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
-    std::optional<DynamicMemory<FilterBuf>> filter_buf_;
+    Optional<DynamicMemory<FilterBuf>> filter_buf_;
 
     static Factory factory_;
 };

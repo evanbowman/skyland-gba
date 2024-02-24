@@ -144,9 +144,9 @@ private:
     SystemString opt_1_;
     SystemString opt_2_;
 
-    std::optional<TextView> text_;
-    std::optional<Text> t1_;
-    std::optional<Text> t2_;
+    Optional<TextView> text_;
+    Optional<Text> t1_;
+    Optional<Text> t2_;
 
     int cursor_ = 0;
 

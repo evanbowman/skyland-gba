@@ -379,7 +379,7 @@ void EnemyAI::update_room(Room& room,
             }
 
             if (found_infirmary) {
-                auto recover_pos = [&]() -> std::optional<RoomCoord> {
+                auto recover_pos = [&]() -> Optional<RoomCoord> {
                     for (auto it = boarded_ai_characters.begin();
                          it not_eq boarded_ai_characters.end();) {
                         if ((*it).first->health() < 25 and
@@ -1218,7 +1218,7 @@ static void place_offensive_drone(DroneBay& db,
         }
     }
 
-    std::optional<RoomCoord> ideal_coord;
+    Optional<RoomCoord> ideal_coord;
     ATP max_weight = 0.0_atp;
     for (u8 y = construction_zone_min_y; y < 15; ++y) {
         if (left_column_weights[y] > max_weight) {
@@ -1489,7 +1489,7 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
     // without potentially affecting performance on the gameboy, if the enemy
     // has deployed a lot of drones.
 
-    std::optional<RoomCoord> ideal_pos;
+    Optional<RoomCoord> ideal_pos;
     ATP highest_weight = 0.0_atp;
 
     const auto drone_pos = drone.position();

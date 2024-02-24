@@ -77,7 +77,7 @@ public:
 private:
     StringBuffer<32> menu_name_;
 
-    std::optional<lisp::Protected> model_;
+    Optional<lisp::Protected> model_;
 
     bool needs_repaint_ = false;
 

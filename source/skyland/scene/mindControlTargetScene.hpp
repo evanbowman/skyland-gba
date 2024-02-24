@@ -69,7 +69,7 @@ public:
 
 private:
     RoomCoord controller_loc_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
     bool near_ = false;
 };
 

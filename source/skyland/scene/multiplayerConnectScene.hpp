@@ -60,7 +60,7 @@ public:
 
 private:
     bool ready_ = false;
-    std::optional<Text> text_;
+    Optional<Text> text_;
     Time timer_ = 0;
 };
 

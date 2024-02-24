@@ -212,7 +212,7 @@ inline bool checker_has_jumps(const CheckerBoard& board, const Vec2<u8>& pos)
 
 
 
-inline std::optional<std::pair<CheckerBoard::Checker, Vec2<u8>>>
+inline Optional<std::pair<CheckerBoard::Checker, Vec2<u8>>>
 checker_move(CheckerBoard& board, const Vec2<u8>& from, const Vec2<u8>& to)
 {
     const auto type = board.data_[from.x][from.y];
@@ -415,7 +415,7 @@ DONE:
 inline std::pair<Vec2<u8>, Vec2<u8>>
 checkers_opponent_move(CheckerBoard& board,
                        bool first_move,
-                       std::optional<Vec2<u8>> piece = {})
+                       Optional<Vec2<u8>> piece = {})
 {
     struct Move
     {
@@ -593,7 +593,7 @@ public:
     }
 
     bool player_won_;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 
@@ -601,9 +601,9 @@ public:
 class OpponentMoveCheckerScene : public MacrocosmScene
 {
 public:
-    std::optional<Vec2<u8>> piece_;
+    Optional<Vec2<u8>> piece_;
 
-    OpponentMoveCheckerScene(std::optional<Vec2<u8>> piece = {}) : piece_(piece)
+    OpponentMoveCheckerScene(Optional<Vec2<u8>> piece = {}) : piece_(piece)
     {
     }
 
@@ -678,7 +678,7 @@ public:
     }
 
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
 
 
     void enter(macro::EngineImpl& state, Scene& prev) override

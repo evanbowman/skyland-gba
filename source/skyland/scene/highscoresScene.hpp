@@ -82,8 +82,8 @@ private:
     bool disable_writeback_;
     int title_screen_page_;
 
-    std::optional<Text> upload_hint_;
-    std::optional<Text> leaderboard_text_;
+    Optional<Text> upload_hint_;
+    Optional<Text> leaderboard_text_;
 
     int page_ = 0;
 

@@ -124,9 +124,9 @@ private:
     u8 cursor_anim_frame_ = 0;
     Time cursor_anim_timer_ = 0;
 
-    std::optional<Text> text_;
-    std::optional<Text> yes_text_;
-    std::optional<Text> no_text_;
+    Optional<Text> text_;
+    Optional<Text> yes_text_;
+    Optional<Text> no_text_;
 
     RoomCoord move_src_;
     Vec2<u8> mv_size_;
@@ -144,7 +144,7 @@ private:
         Buffer<RoomCoord, 90> rooms_;
     };
 
-    std::optional<DynamicMemory<GroupSelection>> group_selection_;
+    Optional<DynamicMemory<GroupSelection>> group_selection_;
 
     Island* island_;
 };

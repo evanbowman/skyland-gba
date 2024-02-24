@@ -61,7 +61,7 @@ public:
 public:
     Time cursor_anim_timer_;
     Time describe_room_timer_ = seconds(1);
-    std::optional<Text> room_description_;
+    Optional<Text> room_description_;
     u8 cursor_anim_frame_;
     bool await_start_key_ = false;
     bool await_b_key_ = false;

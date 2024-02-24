@@ -50,11 +50,11 @@ namespace skyland
 
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
-                   std::optional<Text>& room_description);
+                   Optional<Text>& room_description);
 
 
 
-void clear_room_description(std::optional<Text>& room_description);
+void clear_room_description(Optional<Text>& room_description);
 
 
 
@@ -227,9 +227,9 @@ private:
     Time cursor_anim_timer_;
     Time describe_room_timer_ = seconds(1);
     u8 cursor_anim_frame_;
-    std::optional<Text> room_description_;
+    Optional<Text> room_description_;
 
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

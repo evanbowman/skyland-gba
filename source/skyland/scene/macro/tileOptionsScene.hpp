@@ -74,7 +74,7 @@ private:
 
     static const OptionInfo* last_option_;
     u8 selector_ = 0;
-    std::optional<Text> text_;
+    Optional<Text> text_;
 };
 
 

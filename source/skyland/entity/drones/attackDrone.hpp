@@ -92,7 +92,7 @@ public:
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
 
-        std::optional<RoomCoord> initial_pos;
+        Optional<RoomCoord> initial_pos;
         if (target_near_ == (is_player_island(destination()))) {
             initial_pos = target_;
         }

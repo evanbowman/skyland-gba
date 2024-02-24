@@ -279,7 +279,7 @@ Platform::TextureCpMapper locale_texture_map_transparent();
 
 void print_double_char(utf8::Codepoint c,
                        const OverlayCoord& coord,
-                       const std::optional<FontColors>& colors = {})
+                       const Optional<FontColors>& colors = {})
 {
     if (c not_eq 0) {
         const auto mapping_info = locale_doublesize_texture_map()(c);
@@ -361,7 +361,7 @@ void enable_text_icon_glyphs(bool enable)
 
 void print_char(utf8::Codepoint c,
                 const OverlayCoord& coord,
-                const std::optional<FontColors>& colors = {})
+                const Optional<FontColors>& colors = {})
 {
     if (text_icon_glyphs_enabled) {
         if (c == '@') {

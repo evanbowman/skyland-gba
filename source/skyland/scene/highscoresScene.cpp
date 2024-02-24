@@ -114,7 +114,7 @@ const char* highscore_island_file = "/save/hs_isle.dat";
 
 
 
-std::optional<HighscoreIslandInfo> highscore_island_info_load()
+Optional<HighscoreIslandInfo> highscore_island_info_load()
 {
     HighscoreIslandInfo result;
 

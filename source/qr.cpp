@@ -43,7 +43,7 @@ namespace skyland
 
 
 
-std::optional<QRCode> QRCode::create(const char* text)
+Optional<QRCode> QRCode::create(const char* text)
 {
     auto qr_data = make_scratch_buffer("qrcode-data-buffer");
 

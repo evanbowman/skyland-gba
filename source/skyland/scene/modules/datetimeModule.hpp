@@ -82,7 +82,7 @@ public:
     void repaint();
 
 
-    std::optional<DeferredScene> next_scene_;
+    Optional<DeferredScene> next_scene_;
 
 
     static bool requires_developer_mode()

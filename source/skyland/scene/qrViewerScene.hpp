@@ -73,18 +73,18 @@ public:
     }
 
 protected:
-    std::optional<QRCode> qr_;
+    Optional<QRCode> qr_;
     u32 binary_data_size_ = 0;
     using TextBuffer = StringBuffer<600>;
     StringBuffer<70> message_;
     DeferredScene next_;
-    std::optional<TextView> tv_;
-    std::optional<Text> next_text_;
+    Optional<TextView> tv_;
+    Optional<Text> next_text_;
     ColorConstant exit_color_;
     Time timer_ = 0;
     bool exit_ = false;
     bool overworld_ = false;
-    std::optional<DynamicMemory<TextBuffer>> text_;
+    Optional<DynamicMemory<TextBuffer>> text_;
 
 public:
     u8 format_ = 0;

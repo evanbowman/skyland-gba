@@ -67,7 +67,7 @@ int scratch_buffers_in_use()
 
 
 
-std::optional<Function<4 * sizeof(void*), void()>> scratch_buffer_oom_handler;
+Optional<Function<4 * sizeof(void*), void()>> scratch_buffer_oom_handler;
 
 
 

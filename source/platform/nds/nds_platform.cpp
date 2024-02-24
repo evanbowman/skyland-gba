@@ -406,7 +406,7 @@ void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
 
 
 
-std::optional<DateTime> Platform::startup_time() const
+Optional<DateTime> Platform::startup_time() const
 {
     return {};
 }
@@ -642,7 +642,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
 
 
-std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
+Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     return {};
 }
@@ -1341,7 +1341,7 @@ void Platform::Screen::set_shader_argument(int arg)
 
 void Platform::Screen::fade(float amount,
                             ColorConstant k,
-                            std::optional<ColorConstant> base,
+                            Optional<ColorConstant> base,
                             bool include_sprites,
                             bool include_overlay)
 {
@@ -1779,7 +1779,7 @@ void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
                         TileDesc val,
-                        std::optional<u16> palette)
+                        Optional<u16> palette)
 {
     switch (layer) {
     case Layer::overlay:
@@ -1842,7 +1842,7 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
     const auto bg_color_hash =
         invoke_shader(Color(colors.background_), 1).bgr_hex_555();
 
-    auto existing_mapping = [&]() -> std::optional<PaletteBank> {
+    auto existing_mapping = [&]() -> Optional<PaletteBank> {
         for (auto i = custom_text_palette_begin; i < custom_text_palette_end;
              ++i) {
             if (BG_PALETTE[i * 16 + default_colors.fg_] == fg_color_hash and
@@ -2248,7 +2248,7 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
-                                   std::optional<Vec2<Float>> position)
+                                   Optional<Vec2<Float>> position)
 {
 }
 
@@ -2352,8 +2352,7 @@ void Platform::NetworkPeer::update()
 
 
 
-std::optional<Platform::NetworkPeer::Message>
-Platform::NetworkPeer::poll_message()
+Optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
 {
     return {};
 }
@@ -2380,7 +2379,7 @@ bool Platform::NetworkPeer::supported_by_device()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-std::optional<Platform::RemoteConsole::Line> Platform::RemoteConsole::readline()
+Optional<Platform::RemoteConsole::Line> Platform::RemoteConsole::readline()
 {
     return {};
 }
