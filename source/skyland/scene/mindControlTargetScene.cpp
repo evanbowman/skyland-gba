@@ -54,14 +54,14 @@ MindControlTargetScene::MindControlTargetScene(const RoomCoord& controller_loc)
 
 
 
-ScenePtr<Scene> MindControlTargetScene::update(Time delta)
+ScenePtr MindControlTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
     if (not APP.opponent_island()) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     auto& cursor_loc =
@@ -144,7 +144,7 @@ ScenePtr<Scene> MindControlTargetScene::update(Time delta)
                             ch->start_mind_control(
                                 app, &APP.player(), controller);
                             globals().near_cursor_loc_ = room->position();
-                            return scene_pool::alloc<ReadyScene>();
+                            return make_scene<ReadyScene>();
                         }
                     }
                 }
@@ -153,7 +153,7 @@ ScenePtr<Scene> MindControlTargetScene::update(Time delta)
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     return null_scene();

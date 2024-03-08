@@ -116,7 +116,7 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     void plot_walkable_zones(bool matrix[16][16],

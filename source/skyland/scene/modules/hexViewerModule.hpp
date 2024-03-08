@@ -180,7 +180,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         player().update(delta);
 
@@ -211,7 +211,7 @@ public:
 
         if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             PLATFORM.fill_overlay(0);
-            return scene_pool::alloc<FileBrowserModule>(
+            return make_scene<FileBrowserModule>(
                 std::move(user_context_), path_.c_str(), false);
         }
 

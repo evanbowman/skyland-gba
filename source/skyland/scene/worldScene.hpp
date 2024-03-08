@@ -59,7 +59,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;
@@ -128,7 +128,7 @@ public:
     }
 
 
-    ScenePtr<Scene> make_dialog();
+    ScenePtr make_dialog();
 
 
     void force_show_power_usage()
@@ -173,11 +173,11 @@ protected:
 class ActiveWorldScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 private:
-    ScenePtr<Scene> on_player_island_destroyed();
-    ScenePtr<Scene> try_surrender();
+    ScenePtr on_player_island_destroyed();
+    ScenePtr try_surrender();
 };
 
 

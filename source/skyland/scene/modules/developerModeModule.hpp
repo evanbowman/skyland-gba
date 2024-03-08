@@ -81,7 +81,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void set_opt(bool value);

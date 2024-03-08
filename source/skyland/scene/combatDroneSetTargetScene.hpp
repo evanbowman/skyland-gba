@@ -53,7 +53,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;

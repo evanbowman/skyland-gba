@@ -199,8 +199,6 @@ namespace save
 static const char* path = "/save/macro2.dat";
 static const char* timestamp_path = "/save/mt.dat";
 
-static const char version = 'a';
-
 
 struct Header
 {

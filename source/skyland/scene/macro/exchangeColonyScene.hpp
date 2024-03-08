@@ -83,7 +83,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time) override
+    ScenePtr update(Time) override
     {
         auto& m = skyland::macrocosm();
 
@@ -100,7 +100,7 @@ public:
 
             PLATFORM.network_peer().listen();
             if (not PLATFORM.network_peer().is_connected()) {
-                return scene_pool::alloc<MacroverseScene>(true);
+                return make_scene<MacroverseScene>(true);
             }
 
             data_out_->payload_.orientation_ = s->orientation();
@@ -182,7 +182,7 @@ public:
             if (result_status_ == 1) {
                 state_ = State::done;
             } else if (result_status_ == 0) {
-                return scene_pool::alloc<MacroverseScene>(true);
+                return make_scene<MacroverseScene>(true);
             }
             break;
         }
@@ -226,7 +226,7 @@ public:
 
             // TODO: m.save();
 
-            return scene_pool::alloc<MacroverseScene>(true);
+            return make_scene<MacroverseScene>(true);
         }
         }
 
@@ -280,7 +280,6 @@ private:
     u8* const input_ptr_;
     u8* output_ptr_;
 
-    u32 input_size_ = 0;
     u32 output_size_ = 0;
     int output_sequence_ = 0;
 

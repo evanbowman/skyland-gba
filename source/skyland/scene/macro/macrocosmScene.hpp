@@ -61,7 +61,7 @@ public:
     virtual void exit(macro::EngineImpl&, Scene& next);
 
 
-    ScenePtr<Scene> update(Time delta) override final;
+    ScenePtr update(Time delta) override final;
 
 
     void display() override final;
@@ -73,7 +73,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> update(Player& player, macro::EngineImpl& state);
+    virtual ScenePtr update(Player& player, macro::EngineImpl& state);
 
     virtual void display(macro::EngineImpl& state);
 

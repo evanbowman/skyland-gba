@@ -82,7 +82,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     enum class DisplayMode {
@@ -166,9 +166,9 @@ private:
 
 
 
-ScenePtr<Scene> dialog_prompt(SystemString systr,
-                              DeferredScene next,
-                              const char* ambience = nullptr);
+ScenePtr dialog_prompt(SystemString systr,
+                       DeferredScene next,
+                       const char* ambience = nullptr);
 
 
 class BoxedDialogSceneWS : public WorldScene
@@ -217,11 +217,9 @@ public:
         }
 
         if (is_far_camera()) {
-            dialog_scene_.set_next_scene(
-                scene_pool::make_deferred_scene<InspectP2Scene>());
+            dialog_scene_.set_next_scene(make_deferred_scene<InspectP2Scene>());
         } else {
-            dialog_scene_.set_next_scene(
-                scene_pool::make_deferred_scene<ReadyScene>());
+            dialog_scene_.set_next_scene(make_deferred_scene<ReadyScene>());
         }
     }
 
@@ -239,7 +237,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override final
+    ScenePtr update(Time delta) override final
     {
         if (APP.game_mode() not_eq App::GameMode::tutorial) {
             if (auto scene = WorldScene::update(delta)) {

@@ -90,10 +90,10 @@ void Switch::display_on_hover(Platform::Screen& screen,
 
 
 
-ScenePtr<Scene> Switch::select(const RoomCoord& cursor)
+ScenePtr Switch::select(const RoomCoord& cursor)
 {
     if (not setup_) {
-        return scene_pool::alloc<SetupSwitchScene>(position());
+        return make_scene<SetupSwitchScene>(position());
     }
 
     if (RoomCoord{u8(cursor.x - 1), cursor.y} == position()) {

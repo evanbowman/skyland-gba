@@ -46,7 +46,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> process_script_menu_request();
+ScenePtr process_script_menu_request();
 
 
 

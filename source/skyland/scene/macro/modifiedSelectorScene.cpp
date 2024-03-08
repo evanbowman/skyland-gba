@@ -91,8 +91,7 @@ void ModifiedSelectorScene::exit(macro::EngineImpl& state, Scene& next)
 
 
 
-ScenePtr<Scene> ModifiedSelectorScene::update(Player& player,
-                                              macro::EngineImpl& state)
+ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
 {
     if (auto scene = MacrocosmScene::update(player, state)) {
         return scene;
@@ -184,7 +183,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Player& player,
         }
 
     } else {
-        return scene_pool::alloc<SelectorScene>();
+        return make_scene<SelectorScene>();
     }
 
     return null_scene();

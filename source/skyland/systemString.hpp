@@ -130,6 +130,7 @@ enum class SystemString {
     block_harbor,
     block_hematite,
     block_hematite_pillar,
+    block_homing_missile,
     block_honey,
     block_hull,
     block_ice,
@@ -261,6 +262,8 @@ enum class SystemString {
     cargo,
 
     none,
+
+    draw_path,
 
     construction_build,
     construction_add_terrain,
@@ -424,6 +427,7 @@ enum class SystemString {
     description_stairwell_plus_plus,
     description_balloon,
     description_warhead,
+    description_homing_missile,
 
     gs_paused,
     gs_slow,

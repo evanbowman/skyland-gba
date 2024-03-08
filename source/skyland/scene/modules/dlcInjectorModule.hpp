@@ -70,7 +70,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     bool begin_load_ = false;

@@ -72,7 +72,7 @@ void ZoneImageScene::enter(Scene& prev)
     PLATFORM.set_scroll(Layer::map_1_ext, 0, 8);
     PLATFORM.set_scroll(Layer::map_0_ext, 0, 0);
 
-    if (not APP.current_world_location() == 0) {
+    if (APP.current_world_location() not_eq 0) {
         return;
     }
 
@@ -140,12 +140,12 @@ void ZoneImageScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ZoneImageScene::update(Time delta)
+ScenePtr ZoneImageScene::update(Time delta)
 {
-    if (not APP.current_world_location() == 0) {
-        return scene_pool::alloc<WorldMapScene>();
+    if (APP.current_world_location() not_eq 0) {
+        return make_scene<WorldMapScene>();
     } else if (APP.zone() == 5) {
-        return scene_pool::alloc<HighscoresScene>(true, 1);
+        return make_scene<HighscoresScene>(true, 1);
     }
 
     switch (state_) {
@@ -182,10 +182,10 @@ ScenePtr<Scene> ZoneImageScene::update(Time delta)
                 1.f, ColorConstant::rich_black, {}, true, true);
 
             if (APP.zone() == 1) {
-                return scene_pool::alloc<AdventureModeSettingsScene>(true);
+                return make_scene<AdventureModeSettingsScene>(true);
             }
 
-            return scene_pool::alloc<WorldMapScene>();
+            return make_scene<WorldMapScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(

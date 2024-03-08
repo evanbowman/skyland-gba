@@ -116,7 +116,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Time delta);
+    ScenePtr update(Time delta) override;
 
 
 
@@ -185,7 +185,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta)
+    ScenePtr update(Time delta) override
     {
         player().update(delta);
 
@@ -195,14 +195,14 @@ public:
 
         if (player().key_down(Key::action_2) or
             player().key_down(Key::select)) {
-            auto next = scene_pool::alloc<FlagDesignerModule>();
+            auto next = make_scene<FlagDesignerModule>();
             next->editing_ingame_ = editing_ingame_;
             return next;
         }
 
         if (player().key_down(Key::right)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
-            auto next = scene_pool::alloc<SurfaceFlagsScene>();
+            auto next = make_scene<SurfaceFlagsScene>();
             next->editing_ingame_ = editing_ingame_;
             return next;
         }
@@ -259,7 +259,7 @@ public:
                 load_flag(380);
                 break;
             }
-            auto next = scene_pool::alloc<FlagDesignerModule>();
+            auto next = make_scene<FlagDesignerModule>();
             next->editing_ingame_ = editing_ingame_;
             next->changed_ = true;
             return next;
@@ -277,7 +277,7 @@ private:
 
 
 
-ScenePtr<Scene> SurfaceFlagsScene::update(Time delta)
+ScenePtr SurfaceFlagsScene::update(Time delta)
 {
     player().update(delta);
 
@@ -345,7 +345,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Time delta)
         }
 
 
-        auto next = scene_pool::alloc<FlagDesignerModule>();
+        auto next = make_scene<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
         next->changed_ = true;
         PLATFORM.fill_overlay(0);
@@ -355,7 +355,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Time delta)
     }
 
     if (player().key_down(Key::action_2) or player().key_down(Key::select)) {
-        auto next = scene_pool::alloc<FlagDesignerModule>();
+        auto next = make_scene<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
         PLATFORM.fill_overlay(0);
         PLATFORM.screen().clear();
@@ -407,7 +407,7 @@ ScenePtr<Scene> SurfaceFlagsScene::update(Time delta)
                 PLATFORM.fill_overlay(0);
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
-                auto next = scene_pool::alloc<FlagTemplateScene>();
+                auto next = make_scene<FlagTemplateScene>();
                 next->editing_ingame_ = editing_ingame_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
                 return next;
@@ -548,10 +548,10 @@ void FlagDesignerModule::show()
 
 
 
-ScenePtr<Scene> FlagDesignerModule::update(Time delta)
+ScenePtr FlagDesignerModule::update(Time delta)
 {
     if (APP.player().key_down(Key::select)) {
-        auto next = scene_pool::alloc<FlagTemplateScene>();
+        auto next = make_scene<FlagTemplateScene>();
         next->editing_ingame_ = editing_ingame_;
         return next;
     }
@@ -561,9 +561,9 @@ ScenePtr<Scene> FlagDesignerModule::update(Time delta)
             APP.custom_flag_image_.save();
         }
         if (editing_ingame_) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
-            return scene_pool::alloc<TitleScreenScene>(3);
+            return make_scene<TitleScreenScene>(3);
         }
     }
 

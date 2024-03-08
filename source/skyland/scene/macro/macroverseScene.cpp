@@ -407,14 +407,14 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         timer_ += delta;
 
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
             PLATFORM.screen().fade(0.f);
-            auto next = scene_pool::alloc<SelectorScene>();
+            auto next = make_scene<SelectorScene>();
             next->show_island_size();
             circ_radius_ = 0;
             return next;
@@ -438,7 +438,7 @@ private:
 
 
 
-ScenePtr<Scene> MacroverseScene::update(Time delta)
+ScenePtr MacroverseScene::update(Time delta)
 {
     if (not APP.macrocosm()) {
         Platform::fatal(format("% %", __FILE__, __LINE__).c_str());
@@ -452,13 +452,12 @@ ScenePtr<Scene> MacroverseScene::update(Time delta)
         if (abandon_) {
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_started)->c_str();
-            auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
-            next->set_next_scene(
-                scene_pool::make_deferred_scene<AbandonColonyScene>());
+            auto next = make_scene<BoxedDialogScene>(std::move(buffer));
+            next->set_next_scene(make_deferred_scene<AbandonColonyScene>());
             m.sector().render();
             return next;
         } else {
-            auto next = scene_pool::alloc<EnterIslandScene>();
+            auto next = make_scene<EnterIslandScene>();
             return next;
         }
     }
@@ -708,7 +707,7 @@ ScenePtr<Scene> MacroverseScene::update(Time delta)
 
             case 2:
                 text_objs_.clear();
-                return scene_pool::alloc<ExchangeColonyScene>(selected_);
+                return make_scene<ExchangeColonyScene>(selected_);
 
             case 1: {
                 exit_ = true;
@@ -902,12 +901,12 @@ ScenePtr<Scene> MacroverseScene::update(Time delta)
 
         auto receive = [&m](const char* text) {
             m.sector().set_name(text);
-            return scene_pool::alloc<MacroverseScene>(true);
+            return make_scene<MacroverseScene>(true);
         };
 
         const auto prompt = SYSTR(macro_rename_island);
 
-        return scene_pool::alloc<TextEntryScene>(
+        return make_scene<TextEntryScene>(
             prompt->c_str(), receive, 1, 12, m.sector().name().c_str());
         break;
     }

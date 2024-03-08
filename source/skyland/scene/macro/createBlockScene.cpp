@@ -461,8 +461,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
 
 
 
-ScenePtr<Scene> CreateBlockScene::update(Player& player,
-                                         macro::EngineImpl& state)
+ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
 {
     if (auto next = MacrocosmScene::update(player, state)) {
         return next;
@@ -501,7 +500,7 @@ ScenePtr<Scene> CreateBlockScene::update(Player& player,
     }
 
     if (player.key_down(Key::action_2)) {
-        return scene_pool::alloc<SelectorScene>();
+        return make_scene<SelectorScene>();
     }
 
     return null_scene();
@@ -555,10 +554,10 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
+    ScenePtr update(Player& player, macro::EngineImpl& state) override
     {
         if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
         }
 
         return null_scene();
@@ -572,7 +571,7 @@ private:
 
 
 
-ScenePtr<Scene> CreateBlockScene::onclick(macro::EngineImpl& state)
+ScenePtr CreateBlockScene::onclick(macro::EngineImpl& state)
 {
     auto cursor = state.sector().cursor();
     if (not check_z() or cursor.z < state.sector().size().z - 1) {
@@ -586,7 +585,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(macro::EngineImpl& state)
              cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
              cost.productivity_ > state.sector().productivity())) {
             PLATFORM.speaker().play_sound("beep_error", 2);
-            return scene_pool::alloc<InsufficentResourcesScene>(state, cost);
+            return make_scene<InsufficentResourcesScene>(state, cost);
         } else if (not state.data_->freebuild_mode_) {
             auto prod = state.sector().productivity();
             prod -= cost.productivity_;
@@ -606,7 +605,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(macro::EngineImpl& state)
         if (options_[selector_] not_eq terrain::Type::air) {
             PLATFORM.speaker().play_sound("build0", 4);
 
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
 
         } else {
             PLATFORM.speaker().play_sound("cursor_tick", 0);

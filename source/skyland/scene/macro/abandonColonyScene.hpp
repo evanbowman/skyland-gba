@@ -15,13 +15,13 @@ namespace skyland::macro
 class AbandonColonyScene : public MacrocosmScene
 {
 public:
-    void enter(macro::EngineImpl&, Scene& prev)
+    void enter(macro::EngineImpl&, Scene& prev) override
     {
     }
 
 
 
-    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override
+    ScenePtr update(Player& player, macro::EngineImpl& state) override
     {
         if (auto scene = MacrocosmScene::update(player, state)) {
             return scene;
@@ -44,7 +44,7 @@ public:
 
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_ended)->c_str();
-            auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
+            auto next = make_scene<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene([&state] {
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 PLATFORM.fill_overlay(0);
@@ -57,7 +57,7 @@ public:
                 PLATFORM.speaker().set_music_volume(
                     Platform::Speaker::music_volume_max);
 
-                return scene_pool::alloc<MacroverseScene>(true);
+                return make_scene<MacroverseScene>(true);
             });
 
             return next;

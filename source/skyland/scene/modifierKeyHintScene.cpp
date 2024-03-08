@@ -47,18 +47,18 @@ namespace skyland
 
 
 
-ScenePtr<Scene> update_modifier_keys();
+ScenePtr update_modifier_keys();
 
 
 
-ScenePtr<Scene> ModifierKeyHintScene::update(Time delta)
+ScenePtr ModifierKeyHintScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
     if (not player().key_pressed(Key::start)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     if (auto scene = update_modifier_keys()) {

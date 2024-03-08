@@ -291,7 +291,7 @@ void LispReplScene::repaint_completions()
 }
 
 
-ScenePtr<Scene> LispReplScene::update(Time delta)
+ScenePtr LispReplScene::update(Time delta)
 {
 TOP:
     constexpr auto fade_duration = milliseconds(700);
@@ -357,9 +357,9 @@ TOP:
         if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             if (command_->empty()) {
                 if (APP.macrocosm()) {
-                    return scene_pool::alloc<macro::SelectorScene>();
+                    return make_scene<macro::SelectorScene>();
                 } else {
-                    return scene_pool::alloc<ReadyScene>();
+                    return make_scene<ReadyScene>();
                 }
             }
             command_->pop_back();

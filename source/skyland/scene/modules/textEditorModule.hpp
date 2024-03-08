@@ -52,10 +52,6 @@ namespace skyland
 class TextEditorModule : public Module<TextEditorModule>
 {
 public:
-    TextEditorModule() = default;
-
-
-
     enum class FileMode { create, update, readonly };
 
 
@@ -107,7 +103,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     struct ParserState

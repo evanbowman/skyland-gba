@@ -155,7 +155,7 @@ public:
         return 3656;
     }
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
     Time reload_time_remaining() const override
     {

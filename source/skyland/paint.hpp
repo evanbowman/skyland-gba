@@ -66,7 +66,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta);
+    ScenePtr update(Time delta);
 
 
     void display();

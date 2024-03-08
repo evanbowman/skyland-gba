@@ -64,15 +64,14 @@ void QrBlock::update(Time delta)
 
 
 
-ScenePtr<Scene> QrBlock::select_impl(const RoomCoord& cursor)
+ScenePtr QrBlock::select_impl(const RoomCoord& cursor)
 {
     PLATFORM.speaker().play_sound("button_wooden", 3);
 
-    auto next = scene_pool::alloc<QRViewerScene>(
-        data_->c_str(),
-        "",
-        scene_pool::make_deferred_scene<InspectP2Scene>(),
-        ColorConstant::rich_black);
+    auto next = make_scene<QRViewerScene>(data_->c_str(),
+                                          "",
+                                          make_deferred_scene<InspectP2Scene>(),
+                                          ColorConstant::rich_black);
 
     next->set_origin_overworld();
 

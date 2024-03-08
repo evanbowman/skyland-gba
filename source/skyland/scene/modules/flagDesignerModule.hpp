@@ -66,7 +66,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;

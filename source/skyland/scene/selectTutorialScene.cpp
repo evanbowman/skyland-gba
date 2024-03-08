@@ -263,10 +263,10 @@ void SelectTutorialScene::display()
 
 
 
-ScenePtr<Scene> SelectTutorialScene::update(Time delta)
+ScenePtr SelectTutorialScene::update(Time delta)
 {
     if (exit_) {
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
     }
 
     timer_ += delta;
@@ -313,7 +313,7 @@ ScenePtr<Scene> SelectTutorialScene::update(Time delta)
             time_stream::event::Initial e;
             APP.time_stream().push(APP.level_timer(), e);
 
-            return scene_pool::alloc<FadeInScene>();
+            return make_scene<FadeInScene>();
         } else {
             StringBuffer<32> err("file ");
             err += file_name->string().value();

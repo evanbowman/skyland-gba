@@ -86,7 +86,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     bool description_visible() override

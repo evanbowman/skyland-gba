@@ -62,9 +62,9 @@ namespace skyland
 class App;
 class Entity;
 class Island;
-class RoomMeta;
 class BasicCharacter;
 class Drone;
+struct RoomMeta;
 
 
 
@@ -312,17 +312,17 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> setup();
+    virtual ScenePtr setup();
 
 
     // Block may be selected and activated even by the other player.
     virtual bool non_owner_selectable() const;
 
 
-    ScenePtr<Scene> select(const RoomCoord& cursor);
+    ScenePtr select(const RoomCoord& cursor);
 
 
-    ScenePtr<Scene> reject_if_friendly();
+    ScenePtr reject_if_friendly();
 
 
     virtual Optional<RoomCoord> get_target() const
@@ -635,7 +635,7 @@ public:
     // need to make sure that the exit method of the deferred scene passed into
     // the function correctly releases the lock with co_op_release_lock()!
 
-    ScenePtr<Scene> co_op_acquire_lock(DeferredScene next);
+    ScenePtr co_op_acquire_lock(DeferredScene next);
 
     void co_op_release_lock();
 
@@ -771,9 +771,9 @@ public:
 
 
 protected:
-    ScenePtr<Scene> do_select();
+    ScenePtr do_select();
 
-    virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor);
+    virtual ScenePtr select_impl(const RoomCoord& cursor);
 
 
     virtual void on_powerchange()
@@ -836,7 +836,7 @@ private:
     u8 size_x_ : 4;
     u8 size_y_ : 4;
 
-    u8 unused___ : 4;
+    [[maybe_unused]] u8 unused___ : 4;
 
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;
@@ -860,7 +860,8 @@ private:
     u8 show_damage_delay_frames_ : 6;
 
     u8 powerdown_ : 1;
-    u8 unused_ : 1;
+
+    [[maybe_unused]] u8 unused_ : 1;
 };
 
 

@@ -182,7 +182,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor) override
+    virtual ScenePtr select_impl(const RoomCoord& cursor) override
     {
         PLATFORM.speaker().play_sound("cling", 2);
         schedule_repaint();

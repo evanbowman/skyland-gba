@@ -92,27 +92,27 @@ u8 minimap_width()
 
 
 
-ScenePtr<Scene> WeaponSetTargetScene::update(Time delta)
+ScenePtr WeaponSetTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    auto player_weapon_exit_scene = [&]() -> ScenePtr<Scene> {
+    auto player_weapon_exit_scene = [&]() -> ScenePtr {
         if (resume_far_) {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         } else {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
     };
 
-    auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
+    auto drone_exit_scene = [&](Drone* drone) -> ScenePtr {
         if (is_player_island(drone->destination())) {
             globals().near_cursor_loc_ = drone->position();
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
             globals().far_cursor_loc_ = drone->position();
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     };
 
@@ -227,7 +227,7 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Time delta)
         }
     }
 
-    auto onclick = [&](RoomCoord cursor_loc) -> ScenePtr<Scene> {
+    auto onclick = [&](RoomCoord cursor_loc) -> ScenePtr {
         if (APP.opponent_island()->get_room(cursor_loc)) {
 
             auto do_set_target = [cursor_loc](Room& room) {
@@ -325,7 +325,7 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Time delta)
                 if (near_) {
                     return player_weapon_exit_scene();
                 } else {
-                    return scene_pool::alloc<InspectP2Scene>();
+                    return make_scene<InspectP2Scene>();
                 }
             } else {
 
@@ -378,10 +378,10 @@ ScenePtr<Scene> WeaponSetTargetScene::update(Time delta)
             if (auto scene = onclick({x, y})) {
                 return scene;
             } else {
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
             }
         } else {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
     }
 

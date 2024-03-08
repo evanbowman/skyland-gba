@@ -201,7 +201,7 @@ void TargetingComputer::unset_target()
 
 
 
-ScenePtr<Scene> TargetingComputer::select_impl(const RoomCoord& cursor)
+ScenePtr TargetingComputer::select_impl(const RoomCoord& cursor)
 {
     if (parent() == &player_island()) {
         // I repurposed the ReloadComplete event because it's already looped

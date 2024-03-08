@@ -89,10 +89,10 @@ public:
     }
 
 
-    void update(Time delta);
+    void update(Time delta) override;
 
 
-    void rewind(Time delta);
+    void rewind(Time delta) override;
 
 
     void display() override;

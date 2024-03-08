@@ -202,7 +202,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select_impl(const RoomCoord& cursor) override
+    virtual ScenePtr select_impl(const RoomCoord& cursor) override
     {
         schedule_repaint();
         update_description();

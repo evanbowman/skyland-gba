@@ -122,7 +122,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select()
+    ScenePtr select()
     {
         // Unlike most rooms, the bridge shows inhabitants while viewing a
         // castle's exterior. If selecting a character, we want to show the

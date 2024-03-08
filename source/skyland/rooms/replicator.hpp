@@ -104,7 +104,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     bool create_replicant() override;
@@ -119,8 +119,6 @@ public:
 
 private:
     static const auto recharge_time = seconds(5);
-
-    Time recharge_timer_ = 0;
 };
 
 

@@ -208,16 +208,15 @@ void DlcManagerModule::show()
 
 
 
-ScenePtr<Scene> DlcManagerModule::update(Time delta)
+ScenePtr DlcManagerModule::update(Time delta)
 {
     APP.player().update(delta);
 
     if ((*patches_)->list_.empty()) {
         auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
         *buffer = SYSTR(no_dlc_prompt)->c_str();
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
-            return scene_pool::alloc<TitleScreenScene>(3);
-        });
+        return make_scene<FullscreenDialogScene>(
+            std::move(buffer), [] { return make_scene<TitleScreenScene>(3); });
     }
 
     if (APP.player().key_down(Key::right) and
@@ -271,11 +270,11 @@ ScenePtr<Scene> DlcManagerModule::update(Time delta)
 
         APP.player().key_held_reset(Key::action_1, seconds(2));
 
-        return scene_pool::alloc<DlcManagerModule>();
+        return make_scene<DlcManagerModule>();
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
     }
 
     return null_scene();

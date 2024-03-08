@@ -71,7 +71,7 @@ void KeyComboScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(Time delta)
+ScenePtr KeyComboScene::update(Time delta)
 {
     if (APP.player().key_down(Key::start) or
         APP.key_callback_processor().seek_state() ==
@@ -85,7 +85,7 @@ ScenePtr<Scene> KeyComboScene::update(Time delta)
         APP.key_callback_processor().reset();
 
 
-        return scene_pool::alloc<SelectorScene>();
+        return make_scene<SelectorScene>();
     }
 
     APP.key_callback_processor().update();

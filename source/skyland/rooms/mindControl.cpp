@@ -136,7 +136,7 @@ void MindControl::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> MindControl::select(const RoomCoord& cursor)
+ScenePtr MindControl::select(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -145,15 +145,15 @@ ScenePtr<Scene> MindControl::select(const RoomCoord& cursor)
     }
 
     if (APP.opponent_island() and controlled_character_ == 0) {
-        return scene_pool::alloc<MindControlTargetScene>(position());
+        return make_scene<MindControlTargetScene>(position());
     } else if (controlled_character_) {
         auto [chr, room] = BasicCharacter::find_by_id(controlled_character_);
         if (not chr) {
-            return scene_pool::alloc<MindControlTargetScene>(position());
+            return make_scene<MindControlTargetScene>(position());
         }
         if (room->parent() == APP.opponent_island()) {
             globals().far_cursor_loc_ = chr->grid_position();
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         } else {
             globals().near_cursor_loc_ = chr->grid_position();
         }

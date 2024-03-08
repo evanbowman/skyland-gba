@@ -57,7 +57,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time dt) override;
+    ScenePtr update(Time dt) override;
 
 
 private:

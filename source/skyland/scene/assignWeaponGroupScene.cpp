@@ -47,7 +47,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> AssignWeaponGroupScene::update(Time delta)
+ScenePtr AssignWeaponGroupScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
@@ -64,14 +64,14 @@ ScenePtr<Scene> AssignWeaponGroupScene::update(Time delta)
     switch (state_) {
     case State::select_group:
         if (APP.player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
         break;
 
     case State::assign_rooms:
 
         if (APP.player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
 

@@ -65,7 +65,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition(Key::action_2)) {
             PLATFORM.screen().clear();

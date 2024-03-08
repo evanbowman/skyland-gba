@@ -52,7 +52,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;
@@ -66,7 +66,6 @@ public:
 
 private:
     bool wait_ = true;
-    bool exit_ = false;
     Optional<Text> text_;
     Optional<Text> copyright_text_;
     Time timer_ = 0;
@@ -77,7 +76,6 @@ private:
     Time bird_seq_timer2_ = 0;
     Time bird_seq_timer3_ = 0;
     u8 bird_anim_ = 1;
-    u8 bird_state_ = 0;
 };
 
 

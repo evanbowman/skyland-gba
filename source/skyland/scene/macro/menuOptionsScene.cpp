@@ -71,7 +71,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         timer_ += delta;
 
@@ -80,7 +80,7 @@ public:
             PLATFORM.screen().schedule_fade(1);
             circ_radius_ = 0;
             PLATFORM.fill_overlay(0);
-            return scene_pool::alloc<MacroverseScene>(true);
+            return make_scene<MacroverseScene>(true);
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
             circ_radius_ = 144 - int(144 * amount);
@@ -141,8 +141,7 @@ void MenuOptionsScene::exit(macro::EngineImpl& state, Scene& next)
 
 
 
-ScenePtr<Scene> MenuOptionsScene::update(Player& player,
-                                         macro::EngineImpl& state)
+ScenePtr MenuOptionsScene::update(Player& player, macro::EngineImpl& state)
 {
     if (auto scene = MacrocosmScene::update(player, state)) {
         return scene;
@@ -155,7 +154,7 @@ ScenePtr<Scene> MenuOptionsScene::update(Player& player,
         // that they need to hold down the button.
         ++exit_timer_;
         if (exit_timer_ > 6) {
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
         } else {
             return null_scene();
         }
@@ -183,7 +182,7 @@ ScenePtr<Scene> MenuOptionsScene::update(Player& player,
                             }
                             s.set_cursor({x, y, u8(z + 1)});
                             PLATFORM.speaker().play_sound("click_digital_1", 3);
-                            return scene_pool::alloc<SelectorScene>();
+                            return make_scene<SelectorScene>();
                         }
                     }
                 }
@@ -195,18 +194,18 @@ ScenePtr<Scene> MenuOptionsScene::update(Player& player,
 
         if (player.key_down(Key::right)) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-            return scene_pool::alloc<NextTurnScene>();
+            return make_scene<NextTurnScene>();
         }
 
         if (player.key_down(Key::up)) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             PLATFORM.fill_overlay(0);
-            return scene_pool::alloc<ExitIslandScene>();
+            return make_scene<ExitIslandScene>();
         }
 
     } else {
         if (frames_ > 15) {
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
         } else {
             exit_timer_ = 1;
         }

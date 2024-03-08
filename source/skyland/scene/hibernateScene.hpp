@@ -64,7 +64,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (key_down<Key::action_1>()) {
             text_.reset();
@@ -72,7 +72,7 @@ public:
             info("enter hibernate...");
             PLATFORM.system_call("hibernate", nullptr);
             info("resume!");
-            return scene_pool::alloc<StartMenuScene>(1);
+            return make_scene<StartMenuScene>(1);
         }
 
         return null_scene();

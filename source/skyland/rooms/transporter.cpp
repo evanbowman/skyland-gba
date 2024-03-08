@@ -423,7 +423,7 @@ void Transporter::transport_occupant(Optional<RoomCoord> destination)
 
 
 
-ScenePtr<Scene> Transporter::select_impl(const RoomCoord& cursor)
+ScenePtr Transporter::select_impl(const RoomCoord& cursor)
 {
     if (auto new_scene = Room::select_impl(cursor)) {
         return new_scene;
@@ -456,7 +456,7 @@ ScenePtr<Scene> Transporter::select_impl(const RoomCoord& cursor)
         }
 
         if (parent()->has_radar() and is_player_island(parent())) {
-            return scene_pool::alloc<TransportCharacterScene>(position());
+            return make_scene<TransportCharacterScene>(position());
         } else {
             transport_occupant();
         }
@@ -464,7 +464,7 @@ ScenePtr<Scene> Transporter::select_impl(const RoomCoord& cursor)
         return null_scene();
     } else {
         if (is_player_island(parent())) {
-            return scene_pool::alloc<RecoverCharacterScene>(position());
+            return make_scene<RecoverCharacterScene>(position());
         } else {
             PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();

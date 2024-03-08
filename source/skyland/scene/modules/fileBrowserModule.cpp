@@ -382,7 +382,7 @@ void FileBrowserModule::show_opts()
 
 
 
-ScenePtr<Scene> FileBrowserModule::update(Time delta)
+ScenePtr FileBrowserModule::update(Time delta)
 {
     if (faded_) {
         faded_ = false;
@@ -460,7 +460,7 @@ ScenePtr<Scene> FileBrowserModule::update(Time delta)
         } else if (APP.player().key_down(Key::action_1)) {
             switch (opt_index_) {
             case 0: // create
-                return scene_pool::alloc<CreateFileScene>(cwd().c_str());
+                return make_scene<CreateFileScene>(cwd().c_str());
                 break;
 
             case 1: // delete
@@ -510,14 +510,13 @@ ScenePtr<Scene> FileBrowserModule::update(Time delta)
                 break;
 
             case 2:
-                return scene_pool::alloc<TextEditorModule>(
-                    std::move(user_context_));
+                return make_scene<TextEditorModule>(std::move(user_context_));
             }
         } else if (APP.player().key_down(Key::action_2)) {
             if (user_context_.browser_exit_scene_) {
                 return (*user_context_.browser_exit_scene_)();
             }
-            return scene_pool::alloc<TitleScreenScene>(3);
+            return make_scene<TitleScreenScene>(3);
         }
         break;
 
@@ -549,14 +548,13 @@ ScenePtr<Scene> FileBrowserModule::update(Time delta)
                     path += selected;
 
                     if (get_extension(path) == ".dat") {
-                        return scene_pool::alloc<HexViewerModule>(
+                        return make_scene<HexViewerModule>(
 
                             std::move(user_context_), path.c_str(), false);
                     } else if (get_extension(path) == ".img") {
-                        return scene_pool::alloc<PaintScene>(path.c_str(),
-                                                             false);
+                        return make_scene<PaintScene>(path.c_str(), false);
                     } else {
-                        return scene_pool::alloc<TextEditorModule>(
+                        return make_scene<TextEditorModule>(
 
                             std::move(user_context_),
                             path.c_str(),
@@ -599,7 +597,7 @@ ScenePtr<Scene> FileBrowserModule::update(Time delta)
                     auto path = this->cwd();
                     path += selected;
 
-                    return scene_pool::alloc<TextEditorModule>(
+                    return make_scene<TextEditorModule>(
 
                         std::move(user_context_),
                         path.c_str(),

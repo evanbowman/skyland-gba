@@ -77,7 +77,7 @@ void FatalErrorScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> FatalErrorScene::update(Time dt)
+ScenePtr FatalErrorScene::update(Time dt)
 {
     APP.player().update(dt);
 
@@ -85,7 +85,7 @@ ScenePtr<Scene> FatalErrorScene::update(Time dt)
         PLATFORM.fill_overlay(0);
         APP.restore_backup();
         PLATFORM.speaker().clear_sounds();
-        return scene_pool::alloc<LoadLevelScene>();
+        return make_scene<LoadLevelScene>();
     }
     return null_scene();
 }

@@ -158,7 +158,7 @@ void QRViewerScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> QRViewerScene::update(Time delta)
+ScenePtr QRViewerScene::update(Time delta)
 {
     if (exit_) {
         return next_();

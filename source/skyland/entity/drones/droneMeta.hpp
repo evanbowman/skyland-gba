@@ -92,7 +92,7 @@ struct DroneMeta
         }
 
 
-        const char* name() const
+        const char* name() const override
         {
             return T::get_name();
         }

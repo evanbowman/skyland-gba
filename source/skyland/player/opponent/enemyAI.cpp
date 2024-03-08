@@ -1296,7 +1296,7 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
     bool opponent_missile_silos[16];
     for (int i = 0; i < 16; ++i) {
         player_missile_silos[i] = 0;
-        opponent_missile_silos[16] = 0;
+        opponent_missile_silos[i] = 0;
     }
 
 

@@ -67,6 +67,7 @@ granary
 port
 hematite
 hematite-pillar
+swerve-missile
 honey
 hull
 ice
@@ -187,6 +188,7 @@ Enable developer mode? Lets you run custom code, but highscores will not be reco
 Developer mode successfully disabled!
 cargo: 
 none
+draw path (%/%):
 :build
 :build :add-terrain 
 insufficient funds!
@@ -332,6 +334,7 @@ Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
 A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
+...
 paused
 slow
 regular

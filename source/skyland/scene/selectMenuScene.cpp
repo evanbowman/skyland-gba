@@ -92,7 +92,7 @@ void SelectMenuScene::redraw_line(int line, bool highlight)
 
 
 
-static ScenePtr<Scene> select_menu_help(bool far)
+static ScenePtr select_menu_help(bool far)
 {
     const auto flag = GlobalPersistentData::sel_menu_help_prompt_dont_remind_me;
 
@@ -105,7 +105,7 @@ static ScenePtr<Scene> select_menu_help(bool far)
     };
 
     auto next = [far] {
-        auto ret = scene_pool::alloc<SelectMenuScene>();
+        auto ret = make_scene<SelectMenuScene>();
         if (far) {
             ret->far_camera();
         }
@@ -114,7 +114,7 @@ static ScenePtr<Scene> select_menu_help(bool far)
 
     if (not skip_prompt) {
         state_bit_store(StateBit::sel_menu_help_prompt, true);
-        return scene_pool::alloc<MenuPromptScene>(
+        return make_scene<MenuPromptScene>(
             SystemString::sel_menu_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
@@ -128,7 +128,7 @@ static ScenePtr<Scene> select_menu_help(bool far)
 
 
 
-static ScenePtr<Scene> move_blocks_setup(bool far)
+static ScenePtr move_blocks_setup(bool far)
 {
     const auto flag =
         GlobalPersistentData::move_blocks_help_prompt_dont_remind_me;
@@ -143,11 +143,11 @@ static ScenePtr<Scene> move_blocks_setup(bool far)
         save::store_global_data(APP.gp_);
     };
 
-    auto next = [far] { return scene_pool::alloc<MoveRoomScene>(not far); };
+    auto next = [far] { return make_scene<MoveRoomScene>(not far); };
 
     if (not skip_prompt) {
         state_bit_store(StateBit::move_blocks_help_prompt, true);
-        return scene_pool::alloc<MenuPromptScene>(
+        return make_scene<MenuPromptScene>(
             SystemString::move_blocks_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
@@ -161,7 +161,7 @@ static ScenePtr<Scene> move_blocks_setup(bool far)
 
 
 
-static ScenePtr<Scene> set_gamespeed_setup()
+static ScenePtr set_gamespeed_setup()
 {
     const auto flag =
         GlobalPersistentData::gamespeed_help_prompt_dont_remind_me;
@@ -176,14 +176,14 @@ static ScenePtr<Scene> set_gamespeed_setup()
     };
 
     auto next = [] {
-        auto ret = scene_pool::alloc<SetGamespeedScene>();
+        auto ret = make_scene<SetGamespeedScene>();
         ret->button_mode_ = 1;
         return ret;
     };
 
     if (not skip_prompt) {
         state_bit_store(StateBit::gamespeed_help_prompt, true);
-        return scene_pool::alloc<MenuPromptScene>(
+        return make_scene<MenuPromptScene>(
             SystemString::gamespeed_prompt,
             SystemString::ok,
             SystemString::do_not_show_again,
@@ -255,7 +255,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta)
+    ScenePtr update(Time delta) override
     {
         if (auto next = ActiveWorldScene::update(delta)) {
             return next;
@@ -287,7 +287,7 @@ public:
         }
 
         if (test_key(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         if (test_key(Key::action_1)) {
@@ -301,7 +301,7 @@ public:
                     found.first->set_icon(icn);
                 }
             }
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         return null_scene();
@@ -361,14 +361,14 @@ void SelectMenuScene::enter(Scene& scene)
             if (isle->interior_visible()) {
                 add_line(SystemString::sel_menu_view_exterior,
                          false,
-                         []() -> ScenePtr<Scene> {
+                         []() -> ScenePtr {
                              show_island_exterior(&APP.player_island());
                              return null_scene();
                          });
             } else {
                 add_line(SystemString::sel_menu_view_interior,
                          false,
-                         []() -> ScenePtr<Scene> {
+                         []() -> ScenePtr {
                              show_island_interior(&APP.player_island());
                              return null_scene();
                          });
@@ -413,7 +413,7 @@ void SelectMenuScene::enter(Scene& scene)
             add_line(SystemString::sel_menu_crewmember_icon,
                      true,
                      [id = chr->id()]() {
-                         return scene_pool::alloc<SetCharacterIconScene>(id);
+                         return make_scene<SetCharacterIconScene>(id);
                      });
 
         } else if (auto room = isle->get_room(cursor)) {
@@ -466,7 +466,7 @@ void SelectMenuScene::enter(Scene& scene)
                     add_line(
                         SystemString::sel_menu_upgrade_block,
                         true,
-                        [this, cursor]() -> ScenePtr<Scene> {
+                        [this, cursor]() -> ScenePtr {
                             auto room = island()->get_room(cursor);
                             if (not room) {
                                 return null_scene();
@@ -476,7 +476,7 @@ void SelectMenuScene::enter(Scene& scene)
                                 return null_scene();
                             }
                             auto to = metaclass_index(up);
-                            return scene_pool::alloc<UpgradePromptScene>(
+                            return make_scene<UpgradePromptScene>(
                                 room->position(), room->metaclass_index(), to);
                         });
                 }
@@ -487,23 +487,22 @@ void SelectMenuScene::enter(Scene& scene)
                 add_line(
                     SystemString::sel_menu_describe_block,
                     true,
-                    [this, cursor]() -> ScenePtr<Scene> {
+                    [this, cursor]() -> ScenePtr {
                         if (auto room = island()->get_room(cursor)) {
                             auto mt = room->metaclass_index();
-                            auto next =
-                                scene_pool::alloc<GlossaryViewerModule>(mt);
+                            auto next = make_scene<GlossaryViewerModule>(mt);
                             next->inspect_ = true;
                             next->skip_categories();
-                            next->set_next_scene([far = is_far_camera()]()
-                                                     -> ScenePtr<Scene> {
-                                PLATFORM.screen().schedule_fade(0);
-                                if (far) {
-                                    return scene_pool::alloc<InspectP2Scene>();
-                                } else {
-                                    return scene_pool::alloc<ReadyScene>();
-                                }
-                                return null_scene();
-                            });
+                            next->set_next_scene(
+                                [far = is_far_camera()]() -> ScenePtr {
+                                    PLATFORM.screen().schedule_fade(0);
+                                    if (far) {
+                                        return make_scene<InspectP2Scene>();
+                                    } else {
+                                        return make_scene<ReadyScene>();
+                                    }
+                                    return null_scene();
+                                });
                             return next;
                         }
                         return null_scene();
@@ -549,8 +548,8 @@ void SelectMenuScene::enter(Scene& scene)
     if (not PLATFORM.network_peer().is_connected()) {
 
         if (not is_far_camera() and cursor == *APP.player_island().flag_pos()) {
-            add_line(SystemString::sel_menu_edit_flag, true, [this, cursor]() {
-                auto ret = scene_pool::alloc<FlagDesignerModule>();
+            add_line(SystemString::sel_menu_edit_flag, true, []() {
+                auto ret = make_scene<FlagDesignerModule>();
                 ret->editing_ingame_ = true;
                 return ret;
             });
@@ -559,19 +558,17 @@ void SelectMenuScene::enter(Scene& scene)
         if (is_player_island(island())) {
             // add_line(
             //     SystemString::sel_menu_adjust_power, false, [this, cursor]() {
-            //         return scene_pool::alloc<AdjustPowerScene>();
+            //         return make_scene<AdjustPowerScene>();
             //     });
         }
 
 
-        add_line(SystemString::sel_menu_pause, false, [this, cursor]() {
+        add_line(SystemString::sel_menu_pause, false, []() {
             return set_gamespeed_setup();
         });
     }
 
-    add_line(SystemString::sel_menu_back, false, [this, cursor]() {
-        return null_scene();
-    });
+    add_line(SystemString::sel_menu_back, false, []() { return null_scene(); });
 
     for (int i = 0; i < opts_->longest_line_ + 1; ++i) {
         PLATFORM.set_tile(Layer::overlay, i, 0, 425);
@@ -619,7 +616,7 @@ void SelectMenuScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SelectMenuScene::update(Time delta)
+ScenePtr SelectMenuScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
@@ -644,9 +641,9 @@ ScenePtr<Scene> SelectMenuScene::update(Time delta)
     if ((is_far_camera() and not APP.opponent_island()) or
         player().key_down(Key::action_2)) {
         if (is_far_camera()) {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         } else {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
     }
 
@@ -715,9 +712,9 @@ ScenePtr<Scene> SelectMenuScene::update(Time delta)
             return next;
         } else {
             if (is_far_camera()) {
-                return scene_pool::alloc<InspectP2Scene>();
+                return make_scene<InspectP2Scene>();
             } else {
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
             }
         }
     }

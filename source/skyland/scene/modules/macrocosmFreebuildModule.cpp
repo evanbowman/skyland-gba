@@ -162,13 +162,13 @@ void MacrocosmFreebuildModule::init()
 
 
 
-ScenePtr<Scene> MacrocosmFreebuildModule::update(Time delta)
+ScenePtr MacrocosmFreebuildModule::update(Time delta)
 {
     // if (not APP.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
     //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
     //     *buffer = SYSTR(freebuild_locked_text)->c_str();
-    //     return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
-    //         return scene_pool::alloc<TitleScreenScene>(3);
+    //     return make_scene<FullscreenDialogScene>(std::move(buffer), [] {
+    //         return make_scene<TitleScreenScene>(3);
     //     });
     // }
 
@@ -183,7 +183,7 @@ ScenePtr<Scene> MacrocosmFreebuildModule::update(Time delta)
 
         init();
 
-        auto next = scene_pool::alloc<macro::SelectorScene>();
+        auto next = make_scene<macro::SelectorScene>();
         next->show_island_size();
         return next;
     }

@@ -41,7 +41,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> MoveRoomScene::update(Time delta)
+ScenePtr MoveRoomScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;
@@ -99,21 +99,20 @@ ScenePtr<Scene> MoveRoomScene::update(Time delta)
     case State::prompt: {
         if (player().key_down(Key::action_2)) {
             if (is_far_camera()) {
-                return scene_pool::alloc<InspectP2Scene>();
+                return make_scene<InspectP2Scene>();
             }
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         const bool skip = not APP.opponent_island();
 
         if (skip or player().key_down(Key::action_1)) {
             if (not skip and APP.coins() < 800) {
-                auto future_scene =
-                    scene_pool::make_deferred_scene<ReadyScene>();
+                auto future_scene = make_deferred_scene<ReadyScene>();
                 auto str = SYSTR(construction_insufficient_funds);
                 PLATFORM.speaker().play_sound("beep_error", 2);
-                return scene_pool::alloc<NotificationScene>(str->c_str(),
-                                                            future_scene);
+                return make_scene<NotificationScene>(str->c_str(),
+                                                     future_scene);
             }
             unpersist_ui();
             if (not skip) {
@@ -156,7 +155,7 @@ ScenePtr<Scene> MoveRoomScene::update(Time delta)
         }
 
         if (player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
         if (player().key_down(Key::action_1)) {
             auto cursor_loc = cursor();

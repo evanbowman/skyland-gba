@@ -54,14 +54,14 @@ RecoverCharacterScene::RecoverCharacterScene(const RoomCoord& transporter_loc)
 
 
 
-ScenePtr<Scene> RecoverCharacterScene::update(Time delta)
+ScenePtr RecoverCharacterScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
     if (not APP.opponent_island()) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     auto& cursor_loc = globals().far_cursor_loc_;
@@ -109,7 +109,7 @@ ScenePtr<Scene> RecoverCharacterScene::update(Time delta)
 
                     if (auto transporter = origin->cast<Transporter>()) {
                         transporter->recover_character(cursor_loc);
-                        return scene_pool::alloc<ReadyScene>();
+                        return make_scene<ReadyScene>();
                     }
                 }
             }
@@ -117,7 +117,7 @@ ScenePtr<Scene> RecoverCharacterScene::update(Time delta)
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
 

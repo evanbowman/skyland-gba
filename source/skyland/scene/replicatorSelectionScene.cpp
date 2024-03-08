@@ -121,20 +121,20 @@ void ReplicatorSelectionScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ReplicatorSelectionScene::update(Time delta)
+ScenePtr ReplicatorSelectionScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
     if (APP.coins() < replicator_fee) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     if (exit_countdown_) {
         exit_countdown_ -= delta;
         if (exit_countdown_ <= 0) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
     } else {
         auto& cursor_loc =
@@ -148,13 +148,13 @@ ScenePtr<Scene> ReplicatorSelectionScene::update(Time delta)
                 if (room->create_replicant()) {
                     APP.set_coins(APP.coins() - replicator_fee);
                 }
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
             }
         }
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     return null_scene();

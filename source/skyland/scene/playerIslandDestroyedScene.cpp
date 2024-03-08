@@ -289,7 +289,7 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
-ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
+ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 {
     WorldScene::update(delta);
 
@@ -656,10 +656,9 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
 
                 PLATFORM.screen().fade(1.f);
 
-                auto next =
-                    scene_pool::make_deferred_scene<PlayerIslandDestroyedScene>(
-                        island_, true);
-                return scene_pool::alloc<AchievementNotificationScene>(
+                auto next = make_deferred_scene<PlayerIslandDestroyedScene>(
+                    island_, true);
+                return make_scene<AchievementNotificationScene>(
                     achievement, next, true);
             }
         }
@@ -748,10 +747,10 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                         }
                     }
 
-                    return scene_pool::alloc<CoOpSyncScene>();
+                    return make_scene<CoOpSyncScene>();
                 }
 
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
 
             } else {
                 anim_state_ = AnimState::fade_out;
@@ -828,12 +827,12 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                 if (APP.game_mode() == App::GameMode::multiplayer and
                     PLATFORM.network_peer().is_connected()) {
                     PLATFORM.network_peer().disconnect();
-                    return scene_pool::alloc<LinkScene>();
+                    return make_scene<LinkScene>();
                 }
 
                 switch (APP.game_mode()) {
                 case App::GameMode::challenge:
-                    return scene_pool::alloc<SelectChallengeScene>();
+                    return make_scene<SelectChallengeScene>();
 
                 case App::GameMode::adventure: {
                     if (APP.world_graph()
@@ -847,8 +846,8 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(adventure_completed_message);
-                        auto next = scene_pool::alloc<BoxedDialogScene>(
-                            std::move(dialog));
+                        auto next =
+                            make_scene<BoxedDialogScene>(std::move(dialog));
 
                         next->disallow_fastforward();
 
@@ -858,35 +857,34 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
                         }
 
                         next->set_next_scene([] {
-                            auto next = scene_pool::alloc<AdventureLogScene>();
+                            auto next = make_scene<AdventureLogScene>();
 
                             next->set_next_scene([] {
-                                return scene_pool::alloc<HighscoresScene>(true,
-                                                                          1);
+                                return make_scene<HighscoresScene>(true, 1);
                             });
                             return next;
                         });
 
                         return next;
                     } else {
-                        return scene_pool::alloc<ZoneImageScene>();
+                        return make_scene<ZoneImageScene>();
                     }
                 }
 
                 case App::GameMode::sandbox:
-                    return scene_pool::alloc<SandboxResetScene>();
+                    return make_scene<SandboxResetScene>();
 
                 case App::GameMode::co_op:
                     Platform::fatal("logic error: co_op 111");
 
                 case App::GameMode::skyland_forever:
-                    return scene_pool::alloc<ReadyScene>();
+                    return make_scene<ReadyScene>();
 
                 case App::GameMode::multiplayer:
-                    return scene_pool::alloc<LinkScene>();
+                    return make_scene<LinkScene>();
 
                 default:
-                    return scene_pool::alloc<TitleScreenScene>(3);
+                    return make_scene<TitleScreenScene>(3);
                 }
                 Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
@@ -898,30 +896,30 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
 
                 if (PLATFORM.network_peer().is_connected()) {
                     PLATFORM.network_peer().disconnect();
-                    return scene_pool::alloc<LinkScene>();
+                    return make_scene<LinkScene>();
                 }
 
                 switch (APP.game_mode()) {
                 case App::GameMode::challenge:
-                    return scene_pool::alloc<SelectChallengeScene>();
+                    return make_scene<SelectChallengeScene>();
 
                 case App::GameMode::adventure: {
                     lisp::dostring("(adventure-log-add 5 '())");
-                    return scene_pool::alloc<HighscoresScene>(true, 1);
+                    return make_scene<HighscoresScene>(true, 1);
                 }
 
                 case App::GameMode::sandbox:
-                    return scene_pool::alloc<SandboxResetScene>();
+                    return make_scene<SandboxResetScene>();
 
                 case App::GameMode::multiplayer:
-                    return scene_pool::alloc<LinkScene>();
+                    return make_scene<LinkScene>();
 
                 case App::GameMode::co_op:
                 case App::GameMode::skyland_forever:
-                    return scene_pool::alloc<HighscoresScene>(true, 3);
+                    return make_scene<HighscoresScene>(true, 3);
 
                 default:
-                    return scene_pool::alloc<TitleScreenScene>(3);
+                    return make_scene<TitleScreenScene>(3);
                 }
             }
         } else {
@@ -965,8 +963,8 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Time delta)
 
 
     case AnimState::show_options:
-        return scene_pool::alloc<LevelCompleteOptionsScene>(
-            false, std::move(confetti_));
+        return make_scene<LevelCompleteOptionsScene>(false,
+                                                     std::move(confetti_));
     }
 
     switch (confetti_state_) {

@@ -51,16 +51,16 @@ _Pool* pool_ = nullptr;
 }
 
 
-ScenePtr<Scene> null_scene()
+ScenePtr null_scene()
 {
     return {nullptr, scene_pool::deleter};
 }
 
 
 
-ScenePtr<Scene> initial_scene(bool clean_boot)
+ScenePtr initial_scene(bool clean_boot)
 {
-    return scene_pool::alloc<BootScene>(clean_boot);
+    return make_scene<BootScene>(clean_boot);
 }
 
 

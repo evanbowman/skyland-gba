@@ -98,42 +98,40 @@ void MultiplayerConnectScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::setup()
+ScenePtr MultiplayerConnectScene::setup()
 {
     auto buffer = allocate_dynamic<DialogString>("dialog-string");
 
     if (PLATFORM.device_name() == "GameboyAdvance" and
         PLATFORM.model_name() == "NDS") {
 
-        auto future_scene = [] {
-            return scene_pool::alloc<TitleScreenScene>();
-        };
+        auto future_scene = [] { return make_scene<TitleScreenScene>(); };
 
         *buffer = SYSTR(error_link_nds)->c_str();
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
-                                                        future_scene);
+        return make_scene<FullscreenDialogScene>(std::move(buffer),
+                                                 future_scene);
     } else if (PLATFORM.device_name() == "GameboyAdvance") {
 
-        auto future_scene = [] { return scene_pool::alloc<LinkScene>(); };
+        auto future_scene = [] { return make_scene<LinkScene>(); };
 
         if (not state_bit_load(StateBit::successful_multiplayer_connect)) {
             *buffer = SYSTR(link_gba_setup)->c_str();
 
 
-            return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
-                                                            future_scene);
+            return make_scene<FullscreenDialogScene>(std::move(buffer),
+                                                     future_scene);
         } else {
             return future_scene();
         }
 
     } else {
-        return scene_pool::alloc<TitleScreenScene>();
+        return make_scene<TitleScreenScene>();
     }
 }
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::update(Time delta)
+ScenePtr MultiplayerConnectScene::update(Time delta)
 {
     if (not ready_) {
         ready_ = true;
@@ -141,7 +139,7 @@ ScenePtr<Scene> MultiplayerConnectScene::update(Time delta)
     }
 
 
-    auto future_scene = [] { return scene_pool::alloc<TitleScreenScene>(); };
+    auto future_scene = [] { return make_scene<TitleScreenScene>(); };
 
 
     PLATFORM.network_peer().listen();
@@ -152,8 +150,8 @@ ScenePtr<Scene> MultiplayerConnectScene::update(Time delta)
 
         auto buffer = allocate_dynamic<DialogString>("dialog-string");
         *buffer = SYSTR(multi_connection_failure)->c_str();
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
-                                                        future_scene);
+        return make_scene<FullscreenDialogScene>(std::move(buffer),
+                                                 future_scene);
     } else {
 
         state_bit_store(StateBit::successful_multiplayer_connect, true);
@@ -171,7 +169,7 @@ ScenePtr<Scene> MultiplayerConnectScene::update(Time delta)
 
         APP.game_mode() = App::GameMode::multiplayer;
 
-        return scene_pool::alloc<MultiplayerSettingsScene>();
+        return make_scene<MultiplayerSettingsScene>();
     }
 
     return null_scene();

@@ -51,7 +51,7 @@ namespace skyland
 class MultiplayerReadyScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         WorldScene::update(delta);
 
@@ -82,7 +82,7 @@ public:
             APP.opponent_island()->set_position(
                 {Fixnum::from_integer(10 + 16 * 14),
                  Fixnum::from_integer(374)});
-            return scene_pool::alloc<FadeInScene>();
+            return make_scene<FadeInScene>();
             break;
         }
 

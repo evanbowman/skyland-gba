@@ -530,8 +530,6 @@ struct HeapNode
     static constexpr void finalizer(Value*)
     {
         // Should be unreachable.
-        while (true)
-            ;
     }
 };
 

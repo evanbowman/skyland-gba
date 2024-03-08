@@ -146,7 +146,7 @@ void HelpScene::exit(Scene&)
 
 
 
-ScenePtr<Scene> HelpScene::update(Time delta)
+ScenePtr HelpScene::update(Time delta)
 {
     player().update(delta);
 
@@ -156,7 +156,7 @@ ScenePtr<Scene> HelpScene::update(Time delta)
 
     if (player().key_down(Key::action_1) or player().key_down(Key::action_2)) {
 
-        return scene_pool::alloc<SelectorScene>();
+        return make_scene<SelectorScene>();
     }
 
     if (test_key(Key::right)) {

@@ -113,7 +113,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         auto show_cursor = [&] {
             for (int y = 0; y < 20; ++y) {
@@ -144,18 +144,17 @@ public:
             }
             auto has_clock = PLATFORM.system_clock().initial_time();
             if (clean_boot_ and has_clock) {
-                auto next = scene_pool::alloc<DatetimeModule>();
-                next->next_scene_ =
-                    scene_pool::make_deferred_scene<IntroCreditsScene>();
+                auto next = make_scene<DatetimeModule>();
+                next->next_scene_ = make_deferred_scene<IntroCreditsScene>();
                 return next;
             } else {
                 if (PLATFORM.device_name() == "MacroDesktopDemo") {
                     APP.gp_.stateflags_.set(
                         GlobalPersistentData::freebuild_unlocked, true);
-                    return scene_pool::alloc<MacrocosmFreebuildModule>();
+                    return make_scene<MacrocosmFreebuildModule>();
                 }
 
-                return scene_pool::alloc<IntroCreditsScene>();
+                return make_scene<IntroCreditsScene>();
             }
         }
 
@@ -363,7 +362,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta)
+    ScenePtr update(Time delta)
     {
         TIMEPOINT(t1);
 
@@ -426,12 +425,12 @@ public:
                 network::transmit(packet);
             }
 
-            return scene_pool::alloc<FadeInScene>();
+            return make_scene<FadeInScene>();
         }
 
         if (not flash_filesystem::file_exists(lang_file) or clean_boot_) {
             info("lang selection...");
-            return scene_pool::alloc<LanguageSelectScene>(clean_boot_);
+            return make_scene<LanguageSelectScene>(clean_boot_);
         } else {
             message("bind strings file...");
             Vector<char> data;
@@ -442,7 +441,8 @@ public:
                 }
                 systemstring_bind_file(path.c_str());
             }
-            return scene_pool::alloc<IntroCreditsScene>();
+
+            return make_scene<IntroCreditsScene>();
         }
     }
 };

@@ -746,6 +746,9 @@ void state_bit_store(StateBit state_bit, bool value)
 
 bool state_bit_load(StateBit state_bit)
 {
+    if (not __app__) {
+        return false;
+    }
     return APP.state_bits().get((int)state_bit);
 }
 

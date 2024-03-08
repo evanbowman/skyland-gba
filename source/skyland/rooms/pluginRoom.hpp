@@ -54,10 +54,10 @@ public:
     void rewind(Time delta) override;
 
 
-    void render_interior(App* app, TileId buffer[16][16]);
+    void render_interior(App* app, TileId buffer[16][16]) override;
 
 
-    void render_exterior(App* app, TileId buffer[16][16]);
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
     void plot_walkable_zones(bool matrix[16][16],
@@ -73,7 +73,7 @@ public:
     void unset_target() override;
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     bool description_visible() override

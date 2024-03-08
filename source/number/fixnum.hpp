@@ -40,7 +40,7 @@
 
 
 
-template <s32 precision, typename T> class FixedPoint
+template <s32 precision, typename T> class FixedPointT
 {
 public:
     using ValueType = T;
@@ -60,9 +60,9 @@ public:
     }
 
 
-    static constexpr FixedPoint create(ValueType data)
+    static constexpr FixedPointT create(ValueType data)
     {
-        FixedPoint value;
+        FixedPointT value;
         value.data_ = data;
 
         return value;
@@ -71,7 +71,7 @@ public:
 
 
     template <s32 other_precision, typename U>
-    constexpr static FixedPoint from_fp(FixedPoint<other_precision, U> other)
+    constexpr static FixedPointT from_fp(FixedPointT<other_precision, U> other)
     {
         return create(precision < other_precision
                           ? other.data() / (other.scale() / scale())
@@ -80,42 +80,42 @@ public:
 
 
 
-    constexpr FixedPoint() : data_(0)
+    constexpr FixedPointT() : data_(0)
     {
     }
 
 
-    constexpr explicit FixedPoint(float value)
+    constexpr explicit FixedPointT(float value)
         : data_(static_cast<ValueType>(value * scale()))
     {
     }
 
 
-    FixedPoint(const FixedPoint& other) : data_(other.data_)
+    FixedPointT(const FixedPointT& other) : data_(other.data_)
     {
     }
 
 
-    FixedPoint(FixedPoint&& other) : data_(std::move(other.data_))
+    FixedPointT(FixedPointT&& other) : data_(std::move(other.data_))
     {
     }
 
 
-    FixedPoint& operator=(const FixedPoint& other)
-    {
-        data_ = other.data_;
-        return *this;
-    }
-
-
-    FixedPoint& operator=(FixedPoint&& other)
+    FixedPointT& operator=(const FixedPointT& other)
     {
         data_ = other.data_;
         return *this;
     }
 
 
-    FixedPoint& operator=(s32 value)
+    FixedPointT& operator=(FixedPointT&& other)
+    {
+        data_ = other.data_;
+        return *this;
+    }
+
+
+    FixedPointT& operator=(s32 value)
     {
         data_ = value * scale();
         return *this;
@@ -134,94 +134,94 @@ public:
     }
 
 
-    static constexpr FixedPoint from_integer(s32 value)
+    static constexpr FixedPointT from_integer(s32 value)
     {
         return create(value * scale());
     }
 
 
-    friend bool operator<(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator<(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ < rhs.data_;
     }
 
 
-    friend bool operator>(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator>(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ > rhs.data_;
     }
 
 
-    friend bool operator>=(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator>=(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ >= rhs.data_;
     }
 
 
-    friend bool operator<=(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator<=(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ <= rhs.data_;
     }
 
 
-    friend bool operator==(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator==(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ == rhs.data_;
     }
 
 
-    friend bool operator not_eq(FixedPoint lhs, FixedPoint rhs)
+    friend bool operator not_eq(FixedPointT lhs, FixedPointT rhs)
     {
         return lhs.data_ not_eq rhs.data_;
     }
 
 
-    friend FixedPoint operator*(FixedPoint lhs, FixedPoint rhs)
+    friend FixedPointT operator*(FixedPointT lhs, FixedPointT rhs)
     {
         return mul(lhs, rhs);
     }
 
 
-    friend FixedPoint operator/(FixedPoint lhs, FixedPoint rhs)
+    friend FixedPointT operator/(FixedPointT lhs, FixedPointT rhs)
     {
         return div(lhs, rhs);
     }
 
 
-    friend FixedPoint operator+(FixedPoint lhs, FixedPoint rhs)
+    friend FixedPointT operator+(FixedPointT lhs, FixedPointT rhs)
     {
         return create(lhs.data_ + rhs.data_);
     }
 
 
-    friend FixedPoint operator-(FixedPoint lhs, FixedPoint rhs)
+    friend FixedPointT operator-(FixedPointT lhs, FixedPointT rhs)
     {
         return create(lhs.data_ - rhs.data_);
     }
 
 
-    FixedPoint& operator*=(FixedPoint other)
+    FixedPointT& operator*=(FixedPointT other)
     {
         *this = (*this * other);
         return *this;
     }
 
 
-    FixedPoint& operator/=(FixedPoint other)
+    FixedPointT& operator/=(FixedPointT other)
     {
         *this = (*this / other);
         return *this;
     }
 
 
-    FixedPoint& operator+=(FixedPoint other)
+    FixedPointT& operator+=(FixedPointT other)
     {
         *this = (*this + other);
         return *this;
     }
 
 
-    FixedPoint& operator-=(FixedPoint other)
+    FixedPointT& operator-=(FixedPointT other)
     {
         *this = (*this - other);
         return *this;
@@ -247,7 +247,7 @@ public:
 
 
 private:
-    static FixedPoint mul(FixedPoint lhs, FixedPoint rhs)
+    static FixedPointT mul(FixedPointT lhs, FixedPointT rhs)
     {
         ValueType data = lhs.data_ / half_scale();
         ValueType rhs_data = rhs.data_ / half_scale();
@@ -255,7 +255,7 @@ private:
     }
 
 
-    static FixedPoint div(FixedPoint lhs, FixedPoint rhs)
+    static FixedPointT div(FixedPointT lhs, FixedPointT rhs)
     {
         ValueType data = lhs.data_ * half_scale();
         ValueType rhs_data = rhs.data_ / half_scale();
@@ -267,7 +267,7 @@ private:
 };
 
 
-using Fixnum = FixedPoint<40, s64>;
+using Fixnum = FixedPointT<40, s64>;
 
 
 constexpr Fixnum operator"" _fixed(long double value)

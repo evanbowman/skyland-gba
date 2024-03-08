@@ -281,7 +281,7 @@ void CreditsModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> CreditsModule::update(Time delta)
+ScenePtr CreditsModule::update(Time delta)
 {
     constexpr auto fade_duration = milliseconds(650);
 
@@ -334,7 +334,7 @@ ScenePtr<Scene> CreditsModule::update(Time delta)
             if (next_scene_) {
                 return (*next_scene_)();
             }
-            return scene_pool::alloc<TitleScreenScene>(3);
+            return make_scene<TitleScreenScene>(3);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(

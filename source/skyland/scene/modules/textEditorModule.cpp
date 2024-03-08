@@ -718,7 +718,7 @@ void TextEditorModule::exit(Scene& next)
 // particular is a cluttered mess of copy-pasted code, mainly due to related but
 // slightly differing behavior in all of the different keyboard shortcuts and
 // editing modes.
-ScenePtr<Scene> TextEditorModule::update(Time delta)
+ScenePtr TextEditorModule::update(Time delta)
 {
     APP.player().update(delta);
 
@@ -1273,19 +1273,19 @@ ScenePtr<Scene> TextEditorModule::update(Time delta)
 
                             state_->file_path_.c_str(), text_buffer_, opts);
                     } else {
-                        return scene_pool::alloc<SramFileWritebackScene>(
+                        return make_scene<SramFileWritebackScene>(
                             state_->file_path_.c_str(),
                             std::move(text_buffer_),
                             std::move(user_context_));
                     }
                 }
                 if (filesystem_ == FileSystem::device) {
-                    return scene_pool::alloc<FileBrowserModule>();
+                    return make_scene<FileBrowserModule>();
                 }
-                return scene_pool::alloc<FileBrowserModule>(
-                    std::move(user_context_),
-                    state_->file_path_.c_str(),
-                    filesystem_ == FileSystem::rom);
+                return make_scene<FileBrowserModule>(std::move(user_context_),
+                                                     state_->file_path_.c_str(),
+                                                     filesystem_ ==
+                                                         FileSystem::rom);
             }
         } else if (APP.player().key_down(Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));

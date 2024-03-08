@@ -47,7 +47,7 @@ namespace skyland
 class RegressionModule : public Module<RegressionModule>
 {
 public:
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     static SystemString module_name()

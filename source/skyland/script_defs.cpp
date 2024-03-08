@@ -144,7 +144,7 @@ static HEAP_DATA Buffer<DeferredScene, 8> push_menu_queue;
 
 
 
-ScenePtr<Scene> process_script_menu_request()
+ScenePtr process_script_menu_request()
 {
     if (not push_menu_queue.empty()) {
         auto req = std::move(*push_menu_queue.begin());
@@ -356,13 +356,11 @@ BINDING_TABLE({
     {"help",
      {0,
       [](int argc) {
-          using scene_pool::make_deferred_scene;
-
           if (argc == 0) {
               push_menu_queue.emplace_back([] {
                   UserContext ctx;
                   ctx.browser_exit_scene_ = make_deferred_scene<ReadyScene>();
-                  return scene_pool::alloc<FileBrowserModule>(
+                  return make_scene<FileBrowserModule>(
                       std::move(ctx), "/help/", true);
               });
           }
@@ -376,8 +374,6 @@ BINDING_TABLE({
           auto menu_name = L_LOAD_STRING(1);
           auto param_list = lisp::get_op(0);
 
-          using scene_pool::make_deferred_scene;
-
           if (str_eq(menu_name, "ready")) {
               push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
           } else if (str_eq(menu_name, "item-shop")) {
@@ -386,7 +382,7 @@ BINDING_TABLE({
               auto sym = param_list->cons().car()->symbol().name();
               push_menu_queue.push_back([sym]() {
                   auto idx = metaclass_index(sym);
-                  auto ret = scene_pool::alloc<GlossaryViewerModule>(idx);
+                  auto ret = make_scene<GlossaryViewerModule>(idx);
                   ret->set_next_scene(make_deferred_scene<ReadyScene>());
                   ret->skip_categories();
                   ret->disable_fade_on_exit_ = true;
@@ -400,7 +396,7 @@ BINDING_TABLE({
           } else if (str_eq(menu_name, "qrcode")) {
               auto tmp = save_str(param_list->cons().car()->string().value());
               push_menu_queue.emplace_back([tmp]() mutable {
-                  auto next = scene_pool::alloc<QRViewerScene>(
+                  auto next = make_scene<QRViewerScene>(
                       tmp->data_,
                       "",
                       make_deferred_scene<ReadyScene>(),
@@ -414,7 +410,7 @@ BINDING_TABLE({
               // to hide a pure lisp string from the garbage collector when
               // passed through a lambda capture clause.
               push_menu_queue.push_back([tmp]() {
-                  return scene_pool::alloc<ScriptedMenuScene>(tmp->data_);
+                  return make_scene<ScriptedMenuScene>(tmp->data_);
               });
           }
           return L_NIL;

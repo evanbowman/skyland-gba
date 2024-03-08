@@ -80,7 +80,7 @@ void KeyComboScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(Time delta)
+ScenePtr KeyComboScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;
@@ -98,9 +98,9 @@ ScenePtr<Scene> KeyComboScene::update(Time delta)
         APP.key_callback_processor().reset();
 
         if (is_far_camera()) {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         } else {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
     }
 

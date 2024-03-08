@@ -53,12 +53,12 @@ SramFileWritebackScene::SramFileWritebackScene(const char* path,
 
 
 
-ScenePtr<Scene> SramFileWritebackScene::update(Time delta)
+ScenePtr SramFileWritebackScene::update(Time delta)
 {
     flash_filesystem::store_file_data_text(
         path_.c_str(), text_buffer_, {.use_compression_ = true});
 
-    return scene_pool::alloc<FileBrowserModule>(
+    return make_scene<FileBrowserModule>(
         std::move(user_context_), path_.c_str(), true);
 }
 

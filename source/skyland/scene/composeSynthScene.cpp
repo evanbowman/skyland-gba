@@ -79,14 +79,14 @@ ComposeSynthScene::ComposeSynthScene(Synth& synth)
 
 
 
-ScenePtr<Scene> ComposeSynthScene::update(Time delta)
+ScenePtr ComposeSynthScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
     }
 
     if (player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     auto test_key = [&](Key k) {
@@ -870,6 +870,7 @@ void ComposeSynthScene::repaint()
                     return "12";
                 case 1:
                     return "25";
+                default:
                 case 2:
                     return "50";
                 case 3:

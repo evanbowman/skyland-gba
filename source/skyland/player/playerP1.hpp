@@ -64,7 +64,7 @@ public:
     void on_room_destroyed(Room& room) override;
 
 
-    void on_room_damaged(Room& room);
+    void on_room_damaged(Room& room) override;
 
 
     void on_room_plundered(Room& room) override;

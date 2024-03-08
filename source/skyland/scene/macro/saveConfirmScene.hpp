@@ -69,16 +69,16 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (PLATFORM.keyboard().down_transition(Key::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             if (selection_) {
                 macrocosm().save();
                 PLATFORM.screen().schedule_fade(0.f);
-                return scene_pool::alloc<SelectorScene>();
+                return make_scene<SelectorScene>();
             } else {
-                return scene_pool::alloc<StartMenuScene>(1);
+                return make_scene<StartMenuScene>(1);
             }
         }
 

@@ -164,7 +164,7 @@ void DroneBay::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> DroneBay::select_impl(const RoomCoord& cursor)
+ScenePtr DroneBay::select_impl(const RoomCoord& cursor)
 {
     if (reload_ > 0) {
         return null_scene();
@@ -200,14 +200,12 @@ ScenePtr<Scene> DroneBay::select_impl(const RoomCoord& cursor)
             }
         }
         if (not free[0] or not free[1]) {
-            auto future_scene = []() {
-                return scene_pool::alloc<ReadyScene>();
-            };
+            auto future_scene = []() { return make_scene<ReadyScene>(); };
             PLATFORM.speaker().play_sound("beep_error", 2);
-            return scene_pool::alloc<NotificationScene>("drone-bay covered!",
-                                                        future_scene);
+            return make_scene<NotificationScene>("drone-bay covered!",
+                                                 future_scene);
         }
-        return scene_pool::alloc<ConstructDroneScene>(position());
+        return make_scene<ConstructDroneScene>(position());
     }
     return null_scene();
 }

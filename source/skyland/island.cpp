@@ -870,7 +870,7 @@ void Island::update(Time dt)
 
     TIMEPOINT(t3);
 
-    int dispatch_count = 0;
+    [[maybe_unused]] int dispatch_count = 0;
     int dispatch_max_lat = 0;
     int dispatch_min_lat = std::numeric_limits<int>::max();
     [[maybe_unused]] RoomMeta* max_mt = nullptr;
@@ -1789,7 +1789,7 @@ void Island::repaint()
 
     plot_rooms(mem->mat);
 
-    Buffer<RoomCoord, terrain_.capacity()> chimney_locs;
+    Buffer<RoomCoord, decltype(terrain_)::capacity()> chimney_locs;
 
     has_radar_ = false;
     manufactory_count_ = 0;
@@ -1830,8 +1830,6 @@ void Island::repaint()
 
     bool placed_flag = false;
     bool placed_chimney = false;
-
-    Optional<RoomCoord> flag_loc;
 
     rooms_plot_.clear();
 
@@ -2258,7 +2256,7 @@ bool speaker_data_store(Island& island, const char* path)
         }
     }
 
-    if (not data.size() == 0) {
+    if (data.size() not_eq 0) {
         return flash_filesystem::store_file_data_binary(path, data);
     } else {
         flash_filesystem::unlink_file(path);
@@ -2361,7 +2359,7 @@ bool synth_notes_store(Island& island, const char* path)
         }
     }
 
-    if (not data.size() == 0) {
+    if (data.size() not_eq 0) {
         return flash_filesystem::store_file_data_binary(path, data);
     } else {
         flash_filesystem::unlink_file(path);

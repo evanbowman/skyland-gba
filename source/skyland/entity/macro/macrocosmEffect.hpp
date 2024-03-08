@@ -54,7 +54,7 @@ public:
         : rate_(rate), begin_tile_(begin_tile), end_tile_(end_tile)
     {
         sprite_.set_size(Sprite::Size::w32_h32);
-        sprite_.set_texture_index(begin_tile);
+        sprite_.set_texture_index(begin_tile_);
         sprite_.set_position(position);
         sprite_.set_origin({8, 8});
     }

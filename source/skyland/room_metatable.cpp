@@ -99,6 +99,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/sunflower.hpp"
+#include "skyland/rooms/swerveMissileSilo.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/targetingComputer.hpp"
 #include "skyland/rooms/tnt.hpp"
@@ -332,6 +333,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         BeamGun,
                                         MissileSilo,
                                         RocketSilo,
+                                        // SwerveMissileSilo,
                                         ClumpBomb,
                                         Warhead,
                                         // factories

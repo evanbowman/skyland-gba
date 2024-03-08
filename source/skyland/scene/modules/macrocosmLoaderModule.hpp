@@ -70,7 +70,7 @@ public:
     void enter(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     static Factory factory_;

@@ -196,7 +196,7 @@ void Crane::display(Platform::Screen& screen)
 
 
 
-ScenePtr<Scene> Crane::select_impl(const RoomCoord& cursor)
+ScenePtr Crane::select_impl(const RoomCoord& cursor)
 {
     return null_scene();
 }

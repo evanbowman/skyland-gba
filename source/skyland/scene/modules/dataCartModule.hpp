@@ -61,7 +61,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     static SystemString module_name()
@@ -85,7 +85,7 @@ public:
     void show_cart(int index);
 
 
-    ScenePtr<Scene> boot_cart(int cart_index);
+    ScenePtr boot_cart(int cart_index);
 
 
     void set_index(int index)

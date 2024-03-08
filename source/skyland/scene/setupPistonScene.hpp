@@ -52,7 +52,7 @@ class SetupPistonScene : public NotificationScene
 public:
     SetupPistonScene(RoomCoord piston_loc, bool near)
         : NotificationScene(SYSTR(piston_setup)->c_str(),
-                            scene_pool::make_deferred_scene<ReadyScene>()),
+                            make_deferred_scene<ReadyScene>()),
           piston_loc_(piston_loc)
     {
         if (not near) {
@@ -61,7 +61,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (auto scene = ActiveWorldScene::update(delta)) {
             return scene;
@@ -83,9 +83,9 @@ public:
 
         if (not piston or player().key_down(Key::action_1)) {
             if (is_far_camera()) {
-                return scene_pool::alloc<InspectP2Scene>();
+                return make_scene<InspectP2Scene>();
             } else {
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
             }
         } else if (player().key_down(Key::left)) {
             dir_ = Piston::Direction::left;

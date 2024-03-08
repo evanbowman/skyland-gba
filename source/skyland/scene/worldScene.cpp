@@ -222,7 +222,7 @@ void WorldScene::set_gamespeed(GameSpeed speed)
 
 
 
-ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed()
+ScenePtr ActiveWorldScene::on_player_island_destroyed()
 {
     if ((APP.game_mode() == App::GameMode::adventure or
          APP.game_mode() == App::GameMode::sandbox or
@@ -232,7 +232,7 @@ ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed()
         APP.persistent_data().lives_ > 0) {
         --APP.persistent_data().lives_;
 
-        return scene_pool::alloc<EasyModeRewindScene>();
+        return make_scene<EasyModeRewindScene>();
     }
 
     state_bit_store(StateBit::easy_mode_rewind_declined, false);
@@ -251,12 +251,12 @@ ScenePtr<Scene> ActiveWorldScene::on_player_island_destroyed()
     }
 
     APP.effects().clear();
-    return scene_pool::alloc<PlayerIslandDestroyedScene>(&APP.player_island());
+    return make_scene<PlayerIslandDestroyedScene>(&APP.player_island());
 }
 
 
 
-ScenePtr<Scene> ActiveWorldScene::try_surrender()
+ScenePtr ActiveWorldScene::try_surrender()
 {
     auto o = APP.opponent_island();
 
@@ -270,7 +270,7 @@ ScenePtr<Scene> ActiveWorldScene::try_surrender()
         if (APP.world_graph().nodes_[APP.current_world_location()].type_ not_eq
             WorldGraph::Node::Type::corrupted) {
 
-            return scene_pool::alloc<SurrenderWaitScene>();
+            return make_scene<SurrenderWaitScene>();
         }
     }
 
@@ -286,7 +286,7 @@ void WorldScene::reset_gamespeed()
 
 
 
-ScenePtr<Scene> ActiveWorldScene::update(Time delta)
+ScenePtr ActiveWorldScene::update(Time delta)
 {
     APP.player().update(delta);
 
@@ -304,7 +304,7 @@ ScenePtr<Scene> ActiveWorldScene::update(Time delta)
 
         bool near = (*APP.input_setup_info())->cons().car()->integer().value_;
 
-        auto next = scene_pool::alloc<SelInputScene>(
+        auto next = make_scene<SelInputScene>(
             (*APP.input_setup_info())->cons().cdr(), near);
 
         APP.input_setup_info().reset();
@@ -342,7 +342,7 @@ ScenePtr<Scene> ActiveWorldScene::update(Time delta)
             cursor_loc.x = 0;
 
             APP.effects().clear();
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(
+            return make_scene<PlayerIslandDestroyedScene>(
                 APP.opponent_island());
         }
     }
@@ -443,12 +443,12 @@ bool WorldScene::camera_update_check_key()
 
 
 
-ScenePtr<Scene> WorldScene::make_dialog()
+ScenePtr WorldScene::make_dialog()
 {
     if (APP.dialog_buffer()) {
         auto buffer = std::move(*APP.dialog_buffer());
         APP.dialog_buffer().reset();
-        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer));
+        return make_scene<BoxedDialogSceneWS>(std::move(buffer));
     }
     return null_scene();
 }
@@ -519,7 +519,7 @@ void WorldScene::multiplayer_vs_timeout_step(Time delta)
 
 
 
-ScenePtr<Scene> WorldScene::update(Time delta)
+ScenePtr WorldScene::update(Time delta)
 {
     auto& g = globals();
 
@@ -579,7 +579,7 @@ ScenePtr<Scene> WorldScene::update(Time delta)
 
                     if (mt_prep_seconds == 0 and
                         APP.game_mode() not_eq App::GameMode::co_op) {
-                        return scene_pool::alloc<MultiplayerReadyScene>();
+                        return make_scene<MultiplayerReadyScene>();
                     }
 
                     StringBuffer<30> msg = "get ready! 0";
@@ -636,11 +636,11 @@ ScenePtr<Scene> WorldScene::update(Time delta)
                     PLATFORM.speaker().play_sound("beep_error", 3);
                     set_gamespeed(GameSpeed::normal);
                     auto future_scene = []() {
-                        return scene_pool::alloc<ReadyScene>();
+                        return make_scene<ReadyScene>();
                     };
                     auto str = SYSTR(error_no_more_pauses);
-                    ret = scene_pool::alloc<NotificationScene>(str->c_str(),
-                                                               future_scene);
+                    ret = make_scene<NotificationScene>(str->c_str(),
+                                                        future_scene);
                 } else {
                     g.multiplayer_pause_owner_ = true;
                     g.multiplayer_pauses_remaining_--;
@@ -686,7 +686,7 @@ ScenePtr<Scene> WorldScene::update(Time delta)
                not PLATFORM.network_peer().is_connected()) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
-            return scene_pool::alloc<SetGamespeedScene>();
+            return make_scene<SetGamespeedScene>();
         }
     } else {
         set_gamespeed_keyheld_timer_ = 0;

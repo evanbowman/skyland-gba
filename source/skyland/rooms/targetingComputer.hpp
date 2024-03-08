@@ -119,7 +119,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     void ___rewind___finished_reload() override;

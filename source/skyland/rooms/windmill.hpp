@@ -176,7 +176,6 @@ private:
     Fixnum rot_;
 
     int dup_check_ = 0;
-    bool parity_ = false;
 };
 
 

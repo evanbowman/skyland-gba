@@ -248,7 +248,7 @@ void FullscreenDialogScene::exit(Scene& prev)
 
 
 
-ScenePtr<Scene> FullscreenDialogScene::update(Time delta)
+ScenePtr FullscreenDialogScene::update(Time delta)
 {
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);

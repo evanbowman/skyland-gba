@@ -375,7 +375,7 @@ inline const char* stringify(const char* arg)
 
 
 template <s32 precision, typename T, s32 buffer_size = 24>
-StringBuffer<buffer_size> stringify(const FixedPoint<precision, T>& fp)
+StringBuffer<buffer_size> stringify(const FixedPointT<precision, T>& fp)
 {
     StringBuffer<buffer_size> result;
 

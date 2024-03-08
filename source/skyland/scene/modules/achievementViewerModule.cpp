@@ -195,7 +195,7 @@ void AchievementViewerModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> AchievementViewerModule::update(Time delta)
+ScenePtr AchievementViewerModule::update(Time delta)
 {
 
     APP.player().update(delta);
@@ -215,7 +215,7 @@ ScenePtr<Scene> AchievementViewerModule::update(Time delta)
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
     }
 
 

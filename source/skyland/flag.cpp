@@ -48,7 +48,7 @@ namespace skyland
 // Generate a wavy animation for the flag, and copy the tiles into vram.
 void vram_write_flag(const FlagPixels& px, Layer layer)
 {
-    u8 tile_data[16][16] = {0};
+    u8 tile_data[16][16] = {};
 
 
     for (int i = 0; i < FlagPixels::width; ++i) {

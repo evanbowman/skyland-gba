@@ -55,7 +55,7 @@ public:
     RecoverCharacterScene(const RoomCoord& transporter_loc);
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;

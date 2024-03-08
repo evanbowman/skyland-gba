@@ -97,7 +97,7 @@ void AdventureModeSettingsScene::exit(Scene& prev)
 
 
 
-ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
+ScenePtr AdventureModeSettingsScene::update(Time delta)
 {
     bool repaint = false;
 
@@ -202,7 +202,7 @@ ScenePtr<Scene> AdventureModeSettingsScene::update(Time delta)
             APP.invoke_script("/scripts/newgame.lisp");
         }
 
-        return scene_pool::alloc<WorldMapScene>();
+        return make_scene<WorldMapScene>();
     }
 
 

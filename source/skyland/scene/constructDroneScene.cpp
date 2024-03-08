@@ -179,7 +179,7 @@ void ConstructDroneScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> ConstructDroneScene::update(Time delta)
+ScenePtr ConstructDroneScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
@@ -190,8 +190,8 @@ ScenePtr<Scene> ConstructDroneScene::update(Time delta)
     if (APP.player().key_down(Key::action_1)) {
         const auto cost = templates[selector_]->cost();
         if (APP.coins() >= cost) {
-            return scene_pool::alloc<PlaceDroneScene>(position_,
-                                                      &templates[selector_]);
+            return make_scene<PlaceDroneScene>(position_,
+                                               &templates[selector_]);
         }
     }
 
@@ -222,7 +222,7 @@ ScenePtr<Scene> ConstructDroneScene::update(Time delta)
     }
 
     if (APP.player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     return null_scene();

@@ -148,7 +148,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (auto s = ActiveWorldScene::update(delta)) {
             return s;
@@ -163,11 +163,11 @@ public:
                 packet.y_ = r->position().y;
                 network::transmit(packet);
             }
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         if (APP.player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         return null_scene();
@@ -183,13 +183,13 @@ private:
 
 
 
-ScenePtr<Scene> Explosive::select_impl(const RoomCoord& cursor)
+ScenePtr Explosive::select_impl(const RoomCoord& cursor)
 {
     if (parent() not_eq &APP.player_island()) {
         return null_scene();
     }
 
-    return scene_pool::alloc<IgniteExplosiveScene>(position());
+    return make_scene<IgniteExplosiveScene>(position());
 }
 
 

@@ -105,12 +105,10 @@ static void store_dlc(Vector<char>& data)
 
 
 
-ScenePtr<Scene> DlcInjectorModule::update(Time delta)
+ScenePtr DlcInjectorModule::update(Time delta)
 {
     if (not begin_load_) {
-        auto future_scene = [] {
-            return scene_pool::alloc<DlcInjectorModule>(true);
-        };
+        auto future_scene = [] { return make_scene<DlcInjectorModule>(true); };
 
         auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
 
@@ -118,11 +116,11 @@ ScenePtr<Scene> DlcInjectorModule::update(Time delta)
             *buffer = SYSTR(misc_dlc_message)->c_str();
         } else {
             Platform::fatal(stringify(PLATFORM.device_name().length()).c_str());
-            return scene_pool::alloc<TitleScreenScene>(3);
+            return make_scene<TitleScreenScene>(3);
         }
 
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
-                                                        future_scene);
+        return make_scene<FullscreenDialogScene>(std::move(buffer),
+                                                 future_scene);
     }
 
     Module::update(delta);
@@ -135,7 +133,7 @@ ScenePtr<Scene> DlcInjectorModule::update(Time delta)
         store_dlc(result);
     }
 
-    return scene_pool::alloc<TitleScreenScene>(3);
+    return make_scene<TitleScreenScene>(3);
 }
 
 

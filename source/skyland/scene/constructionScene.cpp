@@ -256,7 +256,7 @@ void shift_rooms_right(Island& island)
 
 
 
-ScenePtr<Scene> ConstructionScene::update(Time delta)
+ScenePtr ConstructionScene::update(Time delta)
 {
     auto& cursor_loc =
         near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
@@ -270,12 +270,12 @@ ScenePtr<Scene> ConstructionScene::update(Time delta)
         }
     };
 
-    auto exit_scene = [this, fixup_cursor]() -> ScenePtr<Scene> {
+    auto exit_scene = [this, fixup_cursor]() -> ScenePtr {
         fixup_cursor();
         if (near_) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     };
 
@@ -285,7 +285,7 @@ ScenePtr<Scene> ConstructionScene::update(Time delta)
     }
 
     if (APP.player().key_down(Key::select)) {
-        return scene_pool::alloc<SelectMenuScene>();
+        return make_scene<SelectMenuScene>();
     }
 
     if (not island()) {
@@ -356,7 +356,7 @@ ScenePtr<Scene> ConstructionScene::update(Time delta)
 
                 cursor_loc.x = 0;
                 cursor_loc.y = globals().near_cursor_loc_.y;
-                return scene_pool::alloc<ConstructionScene>(false);
+                return make_scene<ConstructionScene>(false);
             }
         } else if (test_key(Key::left)) {
             stack_ = 0;
@@ -375,7 +375,7 @@ ScenePtr<Scene> ConstructionScene::update(Time delta)
                 cursor_loc.y = globals().far_cursor_loc_.y;
 
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
-                return scene_pool::alloc<ConstructionScene>(true);
+                return make_scene<ConstructionScene>(true);
             }
         } else if (test_key(Key::up)) {
             stack_ = 0;
@@ -502,14 +502,14 @@ ScenePtr<Scene> ConstructionScene::update(Time delta)
     case State::choose_building: {
         if (APP.player().key_down(Key::start)) {
             auto mt = data_->available_buildings_[building_selector_];
-            auto next = scene_pool::alloc<GlossaryViewerModule>(mt);
+            auto next = make_scene<GlossaryViewerModule>(mt);
             category_label_.reset();
             next->skip_categories();
             if (next) {
                 const bool near = near_;
                 const u8 mti_8 = mt;
                 next->set_next_scene([near, mti_8]() {
-                    auto s = scene_pool::alloc<ConstructionScene>(near);
+                    auto s = make_scene<ConstructionScene>(near);
                     s->open_prompt_at(mti_8);
                     return s;
                 });

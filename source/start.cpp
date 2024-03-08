@@ -166,7 +166,6 @@ void start(Platform& pfrm)
         state_bit_store(StateBit::verbose_boot, true);
     }
 
-
     while (PLATFORM.is_running()) {
         PLATFORM.keyboard().poll();
 

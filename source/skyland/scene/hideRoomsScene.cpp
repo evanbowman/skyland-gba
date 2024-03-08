@@ -78,6 +78,7 @@ void HideRoomsScene::exit(Scene& prev)
 void HideRoomsScene::repaint()
 {
     auto [mt, ms] = room_metatable();
+    auto& mt2 = mt; // idiotic clang bug.
 
     if (index_ >= ms or index_ >= (int)(*data_)->room_classes_.size()) {
         Platform::fatal("glossary: invalid index");
@@ -91,7 +92,7 @@ void HideRoomsScene::repaint()
 
         auto& m = (index >= (int)(*data_)->room_classes_.size())
                       ? require_metaclass("plundered-room")
-                      : mt[(*data_)->room_classes_[index]];
+                      : mt2[(*data_)->room_classes_[index]];
 
         auto icon = shade ? m->icon() : m->unsel_icon();
         draw_image(vram, 1, y, 4, 4, Layer::overlay);
@@ -142,7 +143,7 @@ void HideRoomsScene::repaint()
 
 
 
-ScenePtr<Scene> HideRoomsScene::update(Time delta)
+ScenePtr HideRoomsScene::update(Time delta)
 {
     player().update(delta);
 

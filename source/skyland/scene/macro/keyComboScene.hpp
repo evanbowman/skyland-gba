@@ -47,7 +47,7 @@ namespace skyland::macro
 class KeyComboScene : public Scene
 {
 public:
-    KeyComboScene(bool near) : near_(near)
+    KeyComboScene(bool near)
     {
     }
 
@@ -58,11 +58,10 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
 private:
-    bool near_;
     StringBuffer<32> text_data_;
     Optional<Text> text_;
 };

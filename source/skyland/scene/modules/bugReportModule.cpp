@@ -44,7 +44,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> BugReportModule::update(Time delta)
+ScenePtr BugReportModule::update(Time delta)
 {
     StringBuffer<64> hash("Build hash: ");
 
@@ -62,11 +62,11 @@ ScenePtr<Scene> BugReportModule::update(Time delta)
                    PROGRAM_SUBMINOR_VERSION,
                    PROGRAM_VERSION_REVISION);
 
-    auto next = scene_pool::alloc<ConfiguredURLQRViewerScene>(
+    auto next = make_scene<ConfiguredURLQRViewerScene>(
         "/scripts/config/bug_report.lisp",
         "",
         hash.c_str(),
-        scene_pool::make_deferred_scene<TitleScreenScene>(3));
+        make_deferred_scene<TitleScreenScene>(3));
 
     next->format_ = 2;
 

@@ -53,7 +53,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
     using Command = StringBuffer<256>;
 

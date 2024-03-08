@@ -127,23 +127,23 @@ void DataCartModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> DataCartModule::update(Time delta)
+ScenePtr DataCartModule::update(Time delta)
 {
     auto prompt_flag = GlobalPersistentData::datacarts_prompt;
 
     if (not APP.gp_.stateflags_.get(prompt_flag)) {
         APP.gp_.stateflags_.set(prompt_flag, true);
         save::store_global_data(APP.gp_);
-        auto next = []() -> ScenePtr<Scene> {
-            auto ret = scene_pool::alloc<DataCartModule>(true);
+        auto next = []() -> ScenePtr {
+            auto ret = make_scene<DataCartModule>(true);
             ret->skip_dialog_ = true;
             return ret;
         };
         return dialog_prompt(
             SystemString::dialog_datacarts_prompt, next, "archivist");
     } else if (not skip_dialog_) {
-        auto next = []() -> ScenePtr<Scene> {
-            auto ret = scene_pool::alloc<DataCartModule>(true);
+        auto next = []() -> ScenePtr {
+            auto ret = make_scene<DataCartModule>(true);
             ret->skip_dialog_ = true;
             return ret;
         };
@@ -294,7 +294,7 @@ ScenePtr<Scene> DataCartModule::update(Time delta)
         break;
 
     case State::exit:
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
 
     case State::anim_out: {
         timer_ += delta;
@@ -398,11 +398,11 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time) override
+    ScenePtr update(Time) override
     {
         if (APP.player().key_down(Key::action_2)) {
             PLATFORM.fill_overlay(0);
-            auto next = scene_pool::alloc<DataCartModule>();
+            auto next = make_scene<DataCartModule>();
             next->skip_dialog_ = true;
             next->set_index(cart_id_);
             return next;
@@ -455,7 +455,7 @@ private:
 
 
 
-ScenePtr<Scene> DataCartModule::boot_cart(int cart_index)
+ScenePtr DataCartModule::boot_cart(int cart_index)
 {
     DataCart cart(cart_index);
 
@@ -464,16 +464,16 @@ ScenePtr<Scene> DataCartModule::boot_cart(int cart_index)
     if (*type == "reboot") {
         PLATFORM.system_call("restart", nullptr);
     } else if (*type == "checkers") {
-        return scene_pool::alloc<CheckersModule>();
+        return make_scene<CheckersModule>();
     } else if (*type == "image") {
         PLATFORM.speaker().play_sound("tw_bell", 2);
-        return scene_pool::alloc<CartPhotoViewScene>(cart_index);
+        return make_scene<CartPhotoViewScene>(cart_index);
     } else if (*type == "textview") {
         PLATFORM.speaker().play_sound("tw_bell", 2);
-        auto tv = scene_pool::alloc<TextviewScene>(
+        auto tv = make_scene<TextviewScene>(
             cart.expect_content_string("text")->c_str());
         tv->next_ = [cart_index]() {
-            auto ret = scene_pool::alloc<DataCartModule>();
+            auto ret = make_scene<DataCartModule>();
             ret->skip_dialog_ = true;
             ret->set_index(cart_index);
             return ret;
@@ -481,7 +481,7 @@ ScenePtr<Scene> DataCartModule::boot_cart(int cart_index)
         return tv;
     }
 
-    return scene_pool::alloc<TitleScreenScene>(3);
+    return make_scene<TitleScreenScene>(3);
 }
 
 

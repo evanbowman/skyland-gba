@@ -55,7 +55,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void signal_result(bool result)
@@ -89,7 +89,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void signal_result(bool result)

@@ -456,7 +456,7 @@ void update_weather_onload();
 
 
 
-ScenePtr<Scene> WorldMapScene::update(Time delta)
+ScenePtr WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
     if (cursor_anim_timer_ > milliseconds(200)) {
@@ -969,7 +969,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
         PLATFORM.speaker().play_sound("cancel", 5);
         PLATFORM.sleep(30);
         APP.current_world_location() = prev_world_loc_;
-        auto next = scene_pool::alloc<WorldMapScene>();
+        auto next = make_scene<WorldMapScene>();
         APP.world_graph().storm_depth_--;
         return next;
     }
@@ -1002,7 +1002,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
         constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
             PLATFORM.speaker().clear_sounds();
-            return scene_pool::alloc<LoadLevelScene>();
+            return make_scene<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().fade(
@@ -1111,9 +1111,8 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             PLATFORM.fill_overlay(0);
-            auto next = scene_pool::alloc<AdventureLogScene>();
-            next->set_next_scene(
-                [] { return scene_pool::alloc<WorldMapScene>(); });
+            auto next = make_scene<AdventureLogScene>();
+            next->set_next_scene([] { return make_scene<WorldMapScene>(); });
             return next;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -1129,7 +1128,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             PLATFORM.fill_overlay(0);
-            return scene_pool::alloc<HintScene>();
+            return make_scene<HintScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().fade(
@@ -1159,7 +1158,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
             auto maxvol = Platform::Speaker::music_volume_max;
             PLATFORM.speaker().set_music_volume(maxvol);
             update_weather_onload();
-            return scene_pool::alloc<FadeInScene>();
+            return make_scene<FadeInScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             auto max_vol = Platform::Speaker::music_volume_max;
@@ -1298,7 +1297,7 @@ ScenePtr<Scene> WorldMapScene::update(Time delta)
     case State::save_exit:
         timer_ += delta;
         if (timer_ > milliseconds(350)) {
-            return scene_pool::alloc<TitleScreenScene>();
+            return make_scene<TitleScreenScene>();
         }
         break;
     }

@@ -169,7 +169,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         network::poll_messages(*this);
 
@@ -246,7 +246,7 @@ public:
             break;
 
         case State::done:
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         return null_scene();

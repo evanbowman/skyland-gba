@@ -61,7 +61,7 @@ void clear_room_description(Optional<Text>& room_description);
 class SpectatorScene : public ActiveWorldScene
 {
 public:
-    void enter(Scene& prev)
+    void enter(Scene& prev) override
     {
         ActiveWorldScene::enter(prev);
 
@@ -79,7 +79,7 @@ public:
     }
 
 
-    void exit(Scene& next)
+    void exit(Scene& next) override
     {
         ActiveWorldScene::exit(next);
         clear_room_description(room_description_);
@@ -88,7 +88,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (auto scene = ActiveWorldScene::update(delta)) {
             APP.swap_player<PlayerP1>();
@@ -126,7 +126,7 @@ public:
 
         if (player().key_down(Key::start)) {
             APP.swap_player<PlayerP1>();
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else if (player().key_down(Key::action_1) or
                    player().key_down(Key::action_2) or
                    player().key_down(Key::alt_2)) {
@@ -190,7 +190,7 @@ public:
     }
 
 
-    void display()
+    void display() override
     {
         auto& cursor_loc = is_far_camera() ? globals().far_cursor_loc_
                                            : globals().near_cursor_loc_;

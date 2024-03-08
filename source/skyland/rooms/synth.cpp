@@ -126,9 +126,9 @@ void Synth::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select_impl(const RoomCoord& cursor)
+ScenePtr Synth::select_impl(const RoomCoord& cursor)
 {
-    return scene_pool::alloc<ComposeSynthScene>(*this);
+    return make_scene<ComposeSynthScene>(*this);
 }
 
 

@@ -83,7 +83,7 @@ u8 screenshake = 0;
 
 
 
-ScenePtr<Scene> MacrocosmScene::update(Time delta)
+ScenePtr MacrocosmScene::update(Time delta)
 {
     if (not APP.macrocosm()) {
         Platform::fatal("macro state unbound!?");
@@ -97,14 +97,14 @@ ScenePtr<Scene> MacrocosmScene::update(Time delta)
     const auto exit_cond = APP.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
         APP.exit_condition() = App::ExitCondition::none;
-        return scene_pool::alloc<MacroverseScene>();
+        return make_scene<MacroverseScene>();
     }
 
     if (APP.dialog_buffer()) {
         auto buffer = std::move(*APP.dialog_buffer());
         APP.dialog_buffer().reset();
-        auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer));
-        next->set_next_scene(scene_pool::make_deferred_scene<SelectorScene>());
+        auto next = make_scene<BoxedDialogScene>(std::move(buffer));
+        next->set_next_scene(make_deferred_scene<SelectorScene>());
         return next;
     }
 
@@ -288,7 +288,7 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 
 
-ScenePtr<Scene> MacrocosmScene::update(Player& player, macro::EngineImpl& state)
+ScenePtr MacrocosmScene::update(Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
 

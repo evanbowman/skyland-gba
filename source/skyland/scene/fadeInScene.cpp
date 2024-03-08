@@ -120,7 +120,7 @@ void FadeInScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> FadeInScene::update(Time delta)
+ScenePtr FadeInScene::update(Time delta)
 {
     WorldScene::update(delta);
 
@@ -154,7 +154,7 @@ ScenePtr<Scene> FadeInScene::update(Time delta)
 
         PLATFORM.screen().fade(0.f);
         auto future_scene = []() {
-            auto next = scene_pool::alloc<ReadyScene>();
+            auto next = make_scene<ReadyScene>();
             if (APP.game_mode() not_eq App::GameMode::tutorial and
                 not PLATFORM.network_peer().is_connected()) {
 
@@ -190,7 +190,7 @@ ScenePtr<Scene> FadeInScene::update(Time delta)
             });
         }
 
-        return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);
+        return make_scene<ScriptHookScene>("on-fadein", future_scene);
     } else {
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
         // const auto amount2 = 1.f - smoothstep(0.f, (fade_duration / 4) * 3, timer_);

@@ -49,8 +49,7 @@ namespace skyland
 class TextEntryScene : public Scene
 {
 public:
-    using Receiver =
-        Function<4 * sizeof(void*), ScenePtr<Scene>(const char* text)>;
+    using Receiver = Function<4 * sizeof(void*), ScenePtr(const char* text)>;
 
 
     TextEntryScene(const char* prompt,
@@ -60,7 +59,7 @@ public:
                    const char* default_text = "");
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void enter(Scene& prev) override;

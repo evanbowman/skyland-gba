@@ -54,7 +54,7 @@ public:
 
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         WorldScene::update(delta);
 
@@ -71,7 +71,7 @@ public:
 
         timer_ += delta;
         if (timer_ > fade_duration + milliseconds(300)) {
-            return scene_pool::alloc<FadeOutScene>();
+            return make_scene<FadeOutScene>();
         }
 
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);

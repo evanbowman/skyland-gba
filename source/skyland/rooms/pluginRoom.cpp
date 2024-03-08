@@ -172,7 +172,7 @@ void PluginRoom::rewind(Time delta)
 
 
 
-ScenePtr<Scene> PluginRoom::select_impl(const RoomCoord& cursor)
+ScenePtr PluginRoom::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -181,14 +181,12 @@ ScenePtr<Scene> PluginRoom::select_impl(const RoomCoord& cursor)
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
-        return scene_pool::alloc<NotificationScene>("power outage!",
-                                                    future_scene);
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
+        return make_scene<NotificationScene>("power outage!", future_scene);
     }
 
     if (is_player_island(parent())) {
-        return scene_pool::alloc<WeaponSetTargetScene>(
-            position(), true, target_);
+        return make_scene<WeaponSetTargetScene>(position(), true, target_);
     }
     return null_scene();
 }

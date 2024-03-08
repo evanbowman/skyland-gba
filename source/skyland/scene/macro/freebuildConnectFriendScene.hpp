@@ -70,7 +70,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         player().update(delta);
 
@@ -99,7 +99,7 @@ public:
         case State::failure:
             if (PLATFORM.keyboard().down_transition(Key::action_1) or
                 PLATFORM.keyboard().down_transition(Key::action_2)) {
-                return scene_pool::alloc<SelectorScene>();
+                return make_scene<SelectorScene>();
             }
             break;
 
@@ -109,7 +109,7 @@ public:
                 s->reset();
             }
             PLATFORM.speaker().play_music(APP.environment().music(), 0);
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
         }
 
         return null_scene();
@@ -121,8 +121,6 @@ private:
     Optional<TextView> failure_text_;
 
     enum class State { show, connect, sync, failure } state_ = State::show;
-
-    Time timer_ = 0;
 };
 
 

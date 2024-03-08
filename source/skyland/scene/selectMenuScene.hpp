@@ -61,7 +61,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;
@@ -77,7 +77,7 @@ private:
 
         Buffer<Text, cap> lines_;
         Buffer<SystemString, cap> strings_;
-        Buffer<Function<16, ScenePtr<Scene>()>, cap> callbacks_;
+        Buffer<Function<16, ScenePtr()>, cap> callbacks_;
         u8 longest_line_;
 
         Bitvector<cap> specific_;

@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> FactoryResetModule::update(Time delta)
+ScenePtr FactoryResetModule::update(Time delta)
 {
     if (not text_) {
         PLATFORM.screen().fade(0.9f);
@@ -56,7 +56,7 @@ ScenePtr<Scene> FactoryResetModule::update(Time delta)
 
     if (APP.player().key_down(Key::action_2)) {
         text_.reset();
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
     }
 
     if (APP.player().key_pressed(Key::select) and

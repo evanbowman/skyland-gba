@@ -498,36 +498,3 @@ private:
     OverlayCoord pos_;
     bool large_numerator_ = false;
 };
-
-
-template <typename F> void instrument(F&& callback)
-{
-    static int index;
-    constexpr int sample_count = 32;
-    static int buffer[32];
-    static Optional<Text> text;
-
-    const auto before = PLATFORM.delta_clock().sample();
-
-    callback();
-
-    const auto after = PLATFORM.delta_clock().sample();
-
-    if (index < sample_count) {
-        buffer[index++] = after - before;
-
-    } else {
-        index = 0;
-
-        int accum = 0;
-        for (int i = 0; i < sample_count; ++i) {
-            accum += buffer[i];
-        }
-
-        accum /= 32;
-
-        text.emplace(OverlayCoord{1, 1});
-        text->assign(Platform::DeltaClock::duration(before, after));
-        text->append(" micros");
-    }
-}

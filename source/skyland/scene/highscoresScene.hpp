@@ -55,7 +55,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Time) override;
+    ScenePtr update(Time) override;
 
 
     static SystemString module_name()
@@ -84,8 +84,6 @@ private:
 
     Optional<Text> upload_hint_;
     Optional<Text> leaderboard_text_;
-
-    int page_ = 0;
 
     static Factory factory_;
 };

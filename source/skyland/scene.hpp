@@ -52,10 +52,11 @@ class App;
 class Scene;
 
 
-template <typename T> using ScenePtr = UniquePtr<T, void (*)(Scene*)>;
+template <typename T> using UniqueScenePtr = UniquePtr<T, void (*)(Scene*)>;
+using ScenePtr = UniqueScenePtr<Scene>;
 
 
-ScenePtr<Scene> null_scene();
+ScenePtr null_scene();
 
 
 
@@ -77,7 +78,7 @@ public:
     virtual ~Scene(){};
 
 
-    virtual ScenePtr<Scene> update(Time delta);
+    virtual ScenePtr update(Time delta);
 
 
     virtual void display();
@@ -122,10 +123,10 @@ public:
 };
 
 
-ScenePtr<Scene> initial_scene(bool clean_boot);
+ScenePtr initial_scene(bool clean_boot);
 
 
-using DeferredScene = Function<sizeof(void*) * 4, ScenePtr<Scene>()>;
+using DeferredScene = Function<sizeof(void*) * 4, ScenePtr()>;
 
 
 

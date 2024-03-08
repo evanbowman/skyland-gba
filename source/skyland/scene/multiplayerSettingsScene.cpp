@@ -420,7 +420,7 @@ void MultiplayerSettingsScene::sync_parameters()
 
 
 
-ScenePtr<Scene> MultiplayerSettingsScene::update(Time delta)
+ScenePtr MultiplayerSettingsScene::update(Time delta)
 {
     APP.update_parallax(delta);
 
@@ -454,7 +454,7 @@ ScenePtr<Scene> MultiplayerSettingsScene::update(Time delta)
 
     if (state_ == State::ready) {
         if (opponent_ready_) {
-            return scene_pool::alloc<FadeInScene>();
+            return make_scene<FadeInScene>();
         }
         return null_scene();
     }

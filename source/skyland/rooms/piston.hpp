@@ -104,7 +104,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     static Icon icon()
@@ -128,7 +128,7 @@ public:
     virtual bool is_sticky() const;
 
 
-    ScenePtr<Scene> setup() override;
+    ScenePtr setup() override;
 
 
     void set_direction(Direction dir)

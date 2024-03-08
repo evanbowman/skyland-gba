@@ -48,7 +48,7 @@ namespace skyland
 class AssignWeaponGroupScene : public ActiveWorldScene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void enter(Scene& prev) override;
@@ -63,10 +63,6 @@ private:
         select_group,
         assign_rooms,
     } state_ = State::assign_rooms;
-
-    Room::Group current_group_ = Room::Group::one;
-
-    u8 group_cursor_;
 
     Optional<Text> msg_;
 };

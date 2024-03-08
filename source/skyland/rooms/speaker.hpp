@@ -110,7 +110,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     // If signal, the speaker will select the next block below it when finished.

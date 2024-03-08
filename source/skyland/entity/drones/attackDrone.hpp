@@ -88,7 +88,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select() override
+    ScenePtr select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
 
@@ -97,7 +97,7 @@ public:
             initial_pos = target_;
         }
 
-        return scene_pool::alloc<WeaponSetTargetScene>(
+        return make_scene<WeaponSetTargetScene>(
             position(), is_player_island(destination()), initial_pos);
     }
 
@@ -200,8 +200,7 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-
-                          const RoomCoord& cursor)
+                          const RoomCoord& cursor) override
     {
         if (not target_) {
             return;

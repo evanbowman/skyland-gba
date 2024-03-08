@@ -371,7 +371,7 @@ void GlossaryViewerModule::show_category_image(int img)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Time delta)
+ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
 {
     auto test_key = [&](Key k) {
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
@@ -433,7 +433,7 @@ ScenePtr<Scene> GlossaryViewerModule::show_categories_impl(Time delta)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::update(Time delta)
+ScenePtr GlossaryViewerModule::update(Time delta)
 {
     auto [mt, ms] = room_metatable();
 
@@ -659,7 +659,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(Time delta)
         if (next_scene_) {
             return (*next_scene_)();
         }
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
         break;
 
     case State::view_filtered:
@@ -709,7 +709,7 @@ ScenePtr<Scene> GlossaryViewerModule::update(Time delta)
                 if (next_scene_) {
                     return (*next_scene_)();
                 }
-                return scene_pool::alloc<TitleScreenScene>(3);
+                return make_scene<TitleScreenScene>(3);
             } else {
                 state_ = State::category_transition_in;
                 PLATFORM.fill_overlay(112);

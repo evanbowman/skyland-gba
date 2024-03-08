@@ -47,7 +47,7 @@ namespace skyland
 class SetGamespeedScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
     void enter(Scene&) override;
     void exit(Scene&) override;
@@ -62,7 +62,6 @@ private:
     Optional<Text> speed_text_;
 
     int selection_ = 0;
-    bool cleared = false;
 };
 
 

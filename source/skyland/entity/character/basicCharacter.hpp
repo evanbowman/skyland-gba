@@ -147,7 +147,7 @@ public:
     void heal(int amount);
 
 
-    void apply_damage(Health damage);
+    void apply_damage(Health damage) override;
 
 
     void __set_health(Health amount)

@@ -120,7 +120,7 @@ public:
         }
 
 
-        virtual ScenePtr<Scene> create() = 0;
+        virtual ScenePtr create() = 0;
 
         Factory* next_;
     };
@@ -198,9 +198,9 @@ public:
         }
 
 
-        ScenePtr<Scene> create() override
+        ScenePtr create() override
         {
-            return scene_pool::alloc<T>();
+            return make_scene<T>();
         }
     };
 };

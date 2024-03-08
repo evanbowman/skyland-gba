@@ -83,7 +83,7 @@ public:
 
 private:
     void record_destroyed();
-    void destroy(bool explosion);
+    void destroy(bool explosion) override;
 
     Time timer_ = 0;
     Vec2<Fixnum> step_vector_;

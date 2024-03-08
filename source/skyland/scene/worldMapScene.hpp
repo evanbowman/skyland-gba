@@ -53,7 +53,7 @@ class WorldMap;
 class WorldMapScene : public Scene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void enter(Scene& prev_scene) override;
@@ -107,8 +107,6 @@ private:
         save_exit,
         abort_move,
     } state_ = State::fade_in;
-
-    bool move_arrow_sel_[3] = {false, true, false};
 
     void redraw_icons();
 

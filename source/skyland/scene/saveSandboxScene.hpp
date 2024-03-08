@@ -133,14 +133,14 @@ public:
 
 
 
-    ScenePtr<Scene> update(Time delta)
+    ScenePtr update(Time delta) override
     {
         if (player().key_down(Key::action_1)) {
             return on_selected();
         }
 
         if (player().key_down(Key::action_2)) {
-            return scene_pool::alloc<StartMenuScene>(1);
+            return make_scene<StartMenuScene>(1);
         }
 
         if (player().key_down(Key::down)) {
@@ -182,7 +182,7 @@ public:
 
 
 
-    virtual ScenePtr<Scene> on_selected()
+    virtual ScenePtr on_selected()
     {
         VectorPrinter p;
         auto val = APP.invoke_script("/scripts/sandbox/save.lisp");
@@ -215,7 +215,7 @@ public:
 
         PLATFORM.fill_overlay(0);
 
-        return scene_pool::alloc<FadeInScene>();
+        return make_scene<FadeInScene>();
     }
 
 
@@ -234,7 +234,7 @@ void set_island_positions(Island& left_island, Island& right_island);
 class LoadSandboxScene : public SaveSandboxScene
 {
 public:
-    ScenePtr<Scene> on_selected() override
+    ScenePtr on_selected() override
     {
         Vector<char> data;
 
@@ -285,7 +285,7 @@ public:
 
         APP.time_stream().clear();
 
-        return scene_pool::alloc<FadeInScene>();
+        return make_scene<FadeInScene>();
     }
 };
 

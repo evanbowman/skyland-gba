@@ -114,7 +114,7 @@ void EscapeBeacon::rewind(Time delta)
 
 
 
-ScenePtr<Scene> EscapeBeacon::select_impl(const RoomCoord& cursor)
+ScenePtr EscapeBeacon::select_impl(const RoomCoord& cursor)
 {
     if (APP.game_mode() == App::GameMode::adventure) {
         if (APP.world_graph().nodes_[APP.current_world_location()].type_ ==

@@ -48,7 +48,7 @@ HEAP_DATA s8 test_index = -1;
 
 
 
-ScenePtr<Scene> RegressionModule::update(Time delta)
+ScenePtr RegressionModule::update(Time delta)
 {
     state_bit_store(StateBit::regression, true);
 
@@ -107,7 +107,7 @@ ScenePtr<Scene> RegressionModule::update(Time delta)
             }
         }
 
-        auto ret = scene_pool::alloc<SelectTutorialScene>();
+        auto ret = make_scene<SelectTutorialScene>();
         ret->quick_select(test_index++);
         return ret;
     }

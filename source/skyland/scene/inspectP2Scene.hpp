@@ -52,7 +52,7 @@ public:
     void exit(Scene& prev) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;

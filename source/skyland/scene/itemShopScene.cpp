@@ -122,7 +122,7 @@ void ItemShopScene::describe_selection()
 
 
 
-ScenePtr<Scene> ItemShopScene::update(Time delta)
+ScenePtr ItemShopScene::update(Time delta)
 {
     if (auto scene = WorldScene::update(delta)) {
         return scene;
@@ -198,7 +198,7 @@ ScenePtr<Scene> ItemShopScene::update(Time delta)
 
     case State::ready:
         if (player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
         if (player().key_down(Key::action_1)) {
 

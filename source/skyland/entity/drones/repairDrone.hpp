@@ -153,10 +153,10 @@ public:
     }
 
 
-    ScenePtr<Scene> select() override
+    ScenePtr select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
-        return scene_pool::alloc<RepairDroneRangeScene>(shared_from_this());
+        return make_scene<RepairDroneRangeScene>(shared_from_this());
     }
 
 

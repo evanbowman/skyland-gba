@@ -177,7 +177,7 @@ void ModifyCharacterScene::enter(Scene& prev)
 
 
 
-ScenePtr<Scene> ModifyCharacterScene::update(Time delta)
+ScenePtr ModifyCharacterScene::update(Time delta)
 {
     if (APP.player().key_down(Key::select)) {
         return null_scene();
@@ -246,9 +246,9 @@ ScenePtr<Scene> ModifyCharacterScene::update(Time delta)
 
     if (APP.player().key_down(Key::action_2)) {
         if (near_) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     }
 
@@ -305,9 +305,9 @@ ScenePtr<Scene> ModifyCharacterScene::update(Time delta)
         }
 
         if (near_) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     }
 

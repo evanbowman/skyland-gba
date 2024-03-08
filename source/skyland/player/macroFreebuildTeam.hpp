@@ -61,8 +61,6 @@ protected:
 
 private:
     static const auto heartbeat_interval = seconds(5);
-    Time heartbeat_send_counter_ = 0;
-    Time heartbeat_recv_counter_ = 0;
 };
 
 

@@ -451,11 +451,6 @@ public:
             t_start += shift;
             t_start -= c.z * 30;
 
-            int texture = (block.type_ - 1) * 12;
-            if (block.shadowed_) {
-                texture += 6;
-            }
-
             auto blit = [&](int t_start) {
                 if (t_start < 0 or
                     not raster::globalstate::_recalc_depth_test.get(t_start)) {

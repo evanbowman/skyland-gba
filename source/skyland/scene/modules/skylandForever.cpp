@@ -181,7 +181,7 @@ void SkylandForever::init(u8 difficulty, rng::LinearGenerator seed)
 
 
 
-ScenePtr<Scene> SkylandForever::update(Time delta)
+ScenePtr SkylandForever::update(Time delta)
 {
     APP.update_parallax(delta);
 
@@ -241,10 +241,10 @@ ScenePtr<Scene> SkylandForever::update(Time delta)
 
     if (APP.player().key_down(Key::action_1) or APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-        return scene_pool::alloc<FadeInScene>();
+        return make_scene<FadeInScene>();
     } else if (APP.player().key_down(Key::action_2)) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-        return scene_pool::alloc<TitleScreenScene>(3);
+        return make_scene<TitleScreenScene>(3);
     }
 
     return null_scene();

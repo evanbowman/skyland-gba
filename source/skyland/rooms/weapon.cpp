@@ -282,7 +282,7 @@ void Weapon::unset_target()
 
 
 
-ScenePtr<Scene> Weapon::select_impl(const RoomCoord& cursor)
+ScenePtr Weapon::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
@@ -299,10 +299,10 @@ ScenePtr<Scene> Weapon::select_impl(const RoomCoord& cursor)
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
 
@@ -310,8 +310,7 @@ ScenePtr<Scene> Weapon::select_impl(const RoomCoord& cursor)
 
         using Next = WeaponSetTargetScene;
 
-        auto next =
-            scene_pool::make_deferred_scene<Next>(position(), true, target_);
+        auto next = make_deferred_scene<Next>(position(), true, target_);
 
         if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);

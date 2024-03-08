@@ -141,7 +141,7 @@ public:
     virtual const char* name() const = 0;
 
 
-    virtual ScenePtr<Scene> select() = 0;
+    virtual ScenePtr select() = 0;
 
 
     virtual Time reload_time_remaining() const = 0;

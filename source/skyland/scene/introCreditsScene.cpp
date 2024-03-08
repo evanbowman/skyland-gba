@@ -74,11 +74,15 @@ void IntroCreditsScene::exit(Scene& next)
     PLATFORM.set_overlay_origin(0, 0);
 
     text_.reset();
+
+    if (PLATFORM.device_name() == "PC") {
+        APP.start_console();
+    }
 }
 
 
 
-ScenePtr<Scene> IntroCreditsScene::update(Time delta)
+ScenePtr IntroCreditsScene::update(Time delta)
 {
     timer_ += delta;
 
@@ -161,7 +165,7 @@ ScenePtr<Scene> IntroCreditsScene::update(Time delta)
     } else {
         if (timer_ > milliseconds(400)) {
             PLATFORM.set_overlay_origin(0, 0);
-            return scene_pool::alloc<TitleScreenScene>();
+            return make_scene<TitleScreenScene>();
         }
     }
 

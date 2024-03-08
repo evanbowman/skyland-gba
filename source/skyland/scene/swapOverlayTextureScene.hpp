@@ -52,7 +52,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         auto next = ActiveWorldScene::update(delta);
 

@@ -82,7 +82,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
     static Category category()
@@ -165,7 +165,7 @@ public:
     }
 
 
-    void finalize();
+    void finalize() override;
 
 
     static RoomProperties::Bitmask properties()
@@ -262,7 +262,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override
+    ScenePtr select_impl(const RoomCoord& cursor) override
     {
         return Room::select_impl(cursor);
     }

@@ -137,7 +137,7 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    ScenePtr<Scene> select_impl(const RoomCoord& cursor) override;
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
 protected:

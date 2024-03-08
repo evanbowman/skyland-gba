@@ -53,7 +53,7 @@ public:
     void exit(macro::EngineImpl& state, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override;
+    ScenePtr update(Player& player, macro::EngineImpl& state) override;
 
 
     void show_options(macro::EngineImpl& state);

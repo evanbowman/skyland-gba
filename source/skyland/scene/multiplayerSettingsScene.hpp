@@ -59,7 +59,7 @@ public:
     static Time timeout_duration();
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;
@@ -92,9 +92,6 @@ private:
 
 
     Time parameter_sync_timer_ = seconds(1);
-
-
-    int game_mode_ = 0;
 
 
     enum class State {

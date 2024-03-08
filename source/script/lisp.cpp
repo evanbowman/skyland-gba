@@ -1737,7 +1737,6 @@ int compact_string_memory()
 
     auto db = new_buffer();
     u32 write_offset = 0;
-    u32 string_bytes_total = 0;
 
     Vector<Value*> recovered_buffers;
 
@@ -1767,7 +1766,6 @@ int compact_string_memory()
             val->string().data_.memory_.offset_ = write_offset;
 
             write_offset += len;
-            string_bytes_total += len;
         }
     }
 
@@ -2956,7 +2954,7 @@ Value* stacktrace()
 }
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__APPLE__)
 #define BUILTIN_TABLE                                                          \
     MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =                        \
         mapbox::eternal::hash_map<mapbox::eternal::string, Builtin>
@@ -4122,14 +4120,12 @@ BUILTIN_TABLE(
      {"env",
       {0,
        [](int argc) {
-           auto pfrm = interp_get_pfrm();
-
            Value* result = make_cons(get_nil(), get_nil());
            push_op(result); // protect from the gc
 
            Value* current = result;
 
-           get_env([&current, pfrm](const char* str) {
+           get_env([&current](const char* str) {
                current->cons().set_car(intern_to_symbol(str));
                auto next = make_cons(get_nil(), get_nil());
                if (next not_eq bound_context->oom_) {

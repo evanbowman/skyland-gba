@@ -104,7 +104,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta)
+    ScenePtr update(Time delta) override
     {
         if (player().key_down(Key::action_1)) {
             if (cursor_ == 0) {

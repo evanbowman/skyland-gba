@@ -304,6 +304,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
   ${SOURCE_DIR}/skyland/rooms/weatherEngine.cpp
   ${SOURCE_DIR}/skyland/rooms/targetingComputer.cpp
+  # ${SOURCE_DIR}/skyland/rooms/swerveMissileSilo.cpp
   ${SOURCE_DIR}/skyland/macrocosmSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmCubeSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmPillarSector.cpp
@@ -312,6 +313,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/entity/projectile/beam.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
+  # ${SOURCE_DIR}/skyland/entity/projectile/swerveMissile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/incineratorBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/projectile.cpp
@@ -534,7 +536,7 @@ set(SOURCES
 else()
   set(SOURCES
     ${SOURCES}
-    ${SOURCE_DIR}/platform/desktop/desktop_platform.cpp
+    ${SOURCE_DIR}/platform/sdl/sdl_platform.cpp
     ${SOURCE_DIR}/platform/desktop/resource_path.cpp)
 endif()
 
@@ -1000,12 +1002,18 @@ elseif(GAMEBOY_ADVANCE)
     COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSKYLAND -cSKLD -r0 -mEB ${EXECUTABLE_NAME}.gba)
 
 elseif(APPLE)
-  target_link_libraries(${EXECUTABLE_NAME}
-    "-framework sfml-window -framework sfml-graphics -framework sfml-system -framework sfml-audio -framework sfml-network -framework Cocoa")
+
+  target_link_libraries(${EXECUTABLE_NAME} PRIVATE
+    "-framework Cocoa -framework SDL2")
+
   set_target_properties(${EXECUTABLE_NAME}
     PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
   include_directories("/usr/local/include/")
+
+  # Doesn't work!
+  # target_compile_options(${EXECUTABLE_NAME} PRIVATE
+  #   -I/Library/Frameworks/SDL2.framework/Headers)
 
   add_custom_target(pkg ALL mkdir -p ${EXECUTABLE_NAME}.app/Contents/Resources
     COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Frameworks
@@ -1016,6 +1024,7 @@ elseif(APPLE)
     COMMAND cp -r ${ROOT_DIR}/strings/ ${EXECUTABLE_NAME}.app/Contents/strings/
     # COMMAND cp macOS/icon.icns ${EXECUTABLE_NAME}.app/Contents/Resources
     # COMMAND cp -r ${SFML_DIR}/lib/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
+    COMMAND cp -r /Library/Frameworks/SDL2.framework ${EXECUTABLE_NAME}.app/Contents/Frameworks
     # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
     )
 
@@ -1068,11 +1077,6 @@ elseif(UNIX)
 
   target_link_libraries(Skyland PRIVATE
     -lpthread
-    -lsfml-window
-    -lsfml-graphics
-    -lsfml-system
-    -lsfml-audio
-    -lsfml-network
     QR)
 
 endif()

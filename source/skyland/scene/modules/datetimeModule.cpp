@@ -256,7 +256,7 @@ void DatetimeModule::exit(Scene& next)
 
 
 
-ScenePtr<Scene> DatetimeModule::update(Time delta)
+ScenePtr DatetimeModule::update(Time delta)
 {
     auto& p = player();
     p.update(delta);
@@ -288,7 +288,7 @@ ScenePtr<Scene> DatetimeModule::update(Time delta)
             repaint();
         } else if (key_down<Key::action_2>()) {
             if (not next_scene_) {
-                return scene_pool::alloc<TitleScreenScene>(3);
+                return make_scene<TitleScreenScene>(3);
             }
         }
         break;
@@ -400,7 +400,7 @@ ScenePtr<Scene> DatetimeModule::update(Time delta)
             // cheat.
             // flash_filesystem::unlink_file("/save/mt.dat");
             if (not next_scene_) {
-                return scene_pool::alloc<TitleScreenScene>(3);
+                return make_scene<TitleScreenScene>(3);
             } else {
                 return (*next_scene_)();
             }

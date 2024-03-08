@@ -54,7 +54,7 @@ public:
         FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (APP.player().key_down(Key::up)) {
             selection_ = false;
@@ -79,7 +79,7 @@ public:
                 APP.exit_condition() = App::ExitCondition::defeat;
                 PLATFORM.speaker().stop_music();
             }
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         return null_scene();

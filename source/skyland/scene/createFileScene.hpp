@@ -51,7 +51,7 @@ public:
     CreateFileScene(const char* ram_file_path);
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void enter(Scene& prev) override;

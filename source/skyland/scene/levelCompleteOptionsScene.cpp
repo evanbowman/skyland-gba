@@ -70,7 +70,7 @@ void LevelCompleteOptionsScene::show_cursor()
 
 
 
-ScenePtr<Scene> LevelCompleteOptionsScene::update(Time delta)
+ScenePtr LevelCompleteOptionsScene::update(Time delta)
 {
     WorldScene::update(delta);
 
@@ -122,7 +122,7 @@ ScenePtr<Scene> LevelCompleteOptionsScene::update(Time delta)
             PLATFORM.screen().schedule_fade(0.f);
             PLATFORM.screen().pixelate(0, false);
             APP.reset_opponent_island();
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().pixelate(amount * 28, false);
@@ -138,7 +138,7 @@ ScenePtr<Scene> LevelCompleteOptionsScene::update(Time delta)
         if (timer_ > fade_duration) {
             PLATFORM.load_overlay_texture("overlay");
 
-            return scene_pool::alloc<ZoneImageScene>();
+            return make_scene<ZoneImageScene>();
         } else {
             const auto amount =
                 partial_fade_amt + (1.f - partial_fade_amt) *

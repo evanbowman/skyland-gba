@@ -491,22 +491,21 @@ static Vector<char> encode_highscore_data()
 
 
 
-ScenePtr<Scene> HighscoresScene::update(Time)
+ScenePtr HighscoresScene::update(Time)
 {
     if (APP.player().key_pressed(Key::select)) {
-        return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+        return make_scene<ConfiguredURLQRViewerScene>(
             "/scripts/config/leaderboard.lisp",
             "",
             SYSTR(highscores_scan_qr_leaderboard)->c_str(),
-            scene_pool::make_deferred_scene<HighscoresScene>());
+            make_deferred_scene<HighscoresScene>());
     }
 
     if (APP.player().key_pressed(Key::alt_1) and
         APP.player().key_pressed(Key::alt_2)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
-        auto p = title_screen_page_;
 
-        auto next = [p]() {
+        auto next = []() {
             auto encoded = encode_highscore_data();
 
             auto temp = allocate_dynamic<StringBuffer<700>>("temp-buf");
@@ -517,11 +516,11 @@ ScenePtr<Scene> HighscoresScene::update(Time)
 
             make_format(*fmt_buf, "?d=%", temp->c_str());
 
-            return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+            return make_scene<ConfiguredURLQRViewerScene>(
                 "/scripts/config/uploadscore.lisp",
                 fmt_buf->c_str(),
                 SYSTR(score_upload_prompt_3)->c_str(),
-                scene_pool::make_deferred_scene<HighscoresScene>(),
+                make_deferred_scene<HighscoresScene>(),
                 ColorConstant::rich_black);
         };
 
@@ -542,11 +541,10 @@ ScenePtr<Scene> HighscoresScene::update(Time)
                 return next();
             };
             auto prompt = SYSTR(score_upload_enter_token);
-            return scene_pool::alloc<TextEntryScene>(
-                prompt->c_str(), receive, 8, 8);
+            return make_scene<TextEntryScene>(prompt->c_str(), receive, 8, 8);
         };
 
-        return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+        return make_scene<ConfiguredURLQRViewerScene>(
             "/scripts/config/login.lisp",
             "",
             SYSTR(score_upload_prompt_1)->c_str(),
@@ -565,14 +563,13 @@ ScenePtr<Scene> HighscoresScene::update(Time)
 
                 const auto pg = title_screen_page_;
 
-                auto next =
-                    scene_pool::make_deferred_scene<TitleScreenScene>(pg);
-                return scene_pool::alloc<AchievementNotificationScene>(
+                auto next = make_deferred_scene<TitleScreenScene>(pg);
+                return make_scene<AchievementNotificationScene>(
                     achievement, next, true);
             }
         }
 
-        return scene_pool::alloc<TitleScreenScene>(title_screen_page_);
+        return make_scene<TitleScreenScene>(title_screen_page_);
     }
     return null_scene();
 }

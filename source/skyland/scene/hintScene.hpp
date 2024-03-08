@@ -50,7 +50,7 @@ public:
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 private:
     u32 hint_index_ = 0;

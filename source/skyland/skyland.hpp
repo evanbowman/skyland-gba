@@ -435,7 +435,7 @@ public:
     }
 
 
-    ScenePtr<Scene>& next_scene()
+    ScenePtr& next_scene()
     {
         return next_scene_;
     }
@@ -489,8 +489,8 @@ private:
     DynamicMemory<WorldState> world_state_;
     Fixnum cloud_scroll_1fp_;
     Fixnum cloud_scroll_2fp_;
-    ScenePtr<Scene> current_scene_;
-    ScenePtr<Scene> next_scene_;
+    ScenePtr current_scene_;
+    ScenePtr next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
     Boxed<Camera, Camera, 9 * sizeof(void*)> camera_;

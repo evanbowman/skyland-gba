@@ -54,7 +54,7 @@ public:
                          Optional<RoomCoord> initial_pos = {});
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;
@@ -83,8 +83,6 @@ private:
 
     void snap();
 
-
-    int selector_ = 0;
 
     Time describe_room_timer_ = milliseconds(400);
     Optional<Text> room_description_;

@@ -33,7 +33,7 @@
 
 
 #include "qr.hpp"
-#include "../external/qr/qrcodegen.h"
+#include "../external/qr/qrcodegen.c"
 #include "platform/platform.hpp"
 
 

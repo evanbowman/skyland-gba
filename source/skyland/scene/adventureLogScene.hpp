@@ -52,7 +52,7 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
     lisp::Value* load_logentry(int entry);
     int logentry_count();

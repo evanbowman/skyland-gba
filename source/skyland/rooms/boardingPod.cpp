@@ -685,7 +685,7 @@ void BoardingPod::unset_target()
 
 
 
-ScenePtr<Scene> BoardingPod::select(const RoomCoord& cursor)
+ScenePtr BoardingPod::select(const RoomCoord& cursor)
 {
     if (parent()->interior_visible()) {
         if (auto scn = Room::select_impl(cursor)) {
@@ -705,17 +705,17 @@ ScenePtr<Scene> BoardingPod::select(const RoomCoord& cursor)
         // always be bound to the opponent island.
         (static_cast<Opponent&>(APP.opponent_island()->owner()))
             .is_friendly()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
 
@@ -723,8 +723,7 @@ ScenePtr<Scene> BoardingPod::select(const RoomCoord& cursor)
 
         using Next = WeaponSetTargetScene;
 
-        auto next =
-            scene_pool::make_deferred_scene<Next>(position(), true, target_);
+        auto next = make_deferred_scene<Next>(position(), true, target_);
 
         if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);

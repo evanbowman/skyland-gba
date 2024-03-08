@@ -106,7 +106,7 @@ void UpgradePromptScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> UpgradePromptScene::update(Time delta)
+ScenePtr UpgradePromptScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;
@@ -120,23 +120,23 @@ ScenePtr<Scene> UpgradePromptScene::update(Time delta)
 
     if (PLATFORM.network_peer().is_connected()) {
         // Upgrades unsupported in networked multiplayer.
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     if (player().key_down(Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     if (player().key_down(Key::action_1)) {
         if (auto room = APP.player_island().get_room(target_coord_)) {
 
-            auto next = scene_pool::make_deferred_scene<ReadyScene>();
+            auto next = make_deferred_scene<ReadyScene>();
 
             StringBuffer<80> err;
 
             auto notify_err = [&]() {
                 PLATFORM.speaker().play_sound("beep_error", 3);
-                return scene_pool::alloc<NotificationScene>(err, next);
+                return make_scene<NotificationScene>(err, next);
             };
 
             if (room->metaclass_index() == upgrade_from_) {
@@ -192,8 +192,7 @@ ScenePtr<Scene> UpgradePromptScene::update(Time delta)
                             if (APP.player_island().get_room({x, y})) {
                                 PLATFORM.speaker().play_sound("beep_error", 3);
                                 err = SYS_CSTR(construction_not_enough_space);
-                                return scene_pool::alloc<NotificationScene>(
-                                    err, next);
+                                return make_scene<NotificationScene>(err, next);
                             }
                         }
                     }
@@ -205,7 +204,7 @@ ScenePtr<Scene> UpgradePromptScene::update(Time delta)
                 if (APP.coins() < cost) {
                     PLATFORM.speaker().play_sound("beep_error", 3);
                     err = SYS_CSTR(construction_insufficient_funds);
-                    return scene_pool::alloc<NotificationScene>(err, next);
+                    return make_scene<NotificationScene>(err, next);
                 }
 
                 room->__unsafe__transmute(upgrade_to_);
@@ -217,7 +216,7 @@ ScenePtr<Scene> UpgradePromptScene::update(Time delta)
         } else {
             PLATFORM.speaker().play_sound("beep_error", 3);
         }
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
     return null_scene();

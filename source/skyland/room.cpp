@@ -542,17 +542,17 @@ bool Room::description_visible()
 
 
 
-ScenePtr<Scene> Room::reject_if_friendly()
+ScenePtr Room::reject_if_friendly()
 {
     if (APP.opponent_island() and
         // NOTE: cast should be safe, as a derived instance of Opponent should
         // always be bound to the opponent island.
         (static_cast<Opponent&>(APP.opponent_island()->owner()))
             .is_friendly()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
     return null_scene();
@@ -592,7 +592,7 @@ void Room::set_powerdown(bool powerdown)
 
 
 
-ScenePtr<Scene> Room::do_select()
+ScenePtr Room::do_select()
 {
     if (length(characters_)) {
 
@@ -608,7 +608,7 @@ ScenePtr<Scene> Room::do_select()
 
         const bool is_co_op = APP.game_mode() == App::GameMode::co_op;
 
-        auto try_move = [&](auto cond) -> ScenePtr<Scene> {
+        auto try_move = [&](auto cond) -> ScenePtr {
             for (auto& character : characters_) {
                 if (character->grid_position() == cursor_loc) {
 
@@ -624,8 +624,7 @@ ScenePtr<Scene> Room::do_select()
 
                         using Next = ModifyCharacterScene;
                         using Await = MultiplayerCoOpAwaitChrLockScene;
-                        auto n =
-                            scene_pool::make_deferred_scene<Next>(ch_id, near);
+                        auto n = make_deferred_scene<Next>(ch_id, near);
 
                         if (is_co_op) {
                             // NOTE: in co-op mode, we do not allow a player to
@@ -637,8 +636,7 @@ ScenePtr<Scene> Room::do_select()
                                 pkt.chr_id_.set(character->id());
                                 network::transmit(pkt);
 
-                                return scene_pool::alloc<Await>(
-                                    n, character->id());
+                                return make_scene<Await>(n, character->id());
                             }
                         } else {
                             return n();
@@ -668,7 +666,7 @@ ScenePtr<Scene> Room::do_select()
 
 
 
-ScenePtr<Scene> Room::setup()
+ScenePtr Room::setup()
 {
     // ...
     return null_scene();
@@ -676,17 +674,17 @@ ScenePtr<Scene> Room::setup()
 
 
 
-ScenePtr<Scene> Room::select(const RoomCoord& cursor)
+ScenePtr Room::select(const RoomCoord& cursor)
 {
     if (is_powered_down()) {
         if (auto scn = do_select()) {
             return scn;
         }
 
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_powered_off);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
     return select_impl(cursor);
@@ -694,7 +692,7 @@ ScenePtr<Scene> Room::select(const RoomCoord& cursor)
 
 
 
-ScenePtr<Scene> Room::select_impl(const RoomCoord& cursor)
+ScenePtr Room::select_impl(const RoomCoord& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {
@@ -1540,7 +1538,7 @@ void Room::render_scaffolding(TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Room::co_op_acquire_lock(DeferredScene next)
+ScenePtr Room::co_op_acquire_lock(DeferredScene next)
 {
     if (co_op_locked_) {
         return null_scene();
@@ -1555,7 +1553,7 @@ ScenePtr<Scene> Room::co_op_acquire_lock(DeferredScene next)
     pkt.y_ = position().y;
     network::transmit(pkt);
 
-    return scene_pool::alloc<MultiplayerCoOpAwaitLockScene>(next, position());
+    return make_scene<MultiplayerCoOpAwaitLockScene>(next, position());
 }
 
 

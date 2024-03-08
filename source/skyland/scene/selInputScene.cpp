@@ -99,7 +99,7 @@ void SelInputScene::exit(Scene& next)
 
 
 
-ScenePtr<Scene> SelInputScene::update(Time delta)
+ScenePtr SelInputScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
@@ -171,7 +171,7 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
         }
 
         if (not APP.opponent_island()) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         far_camera();
@@ -205,9 +205,9 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
 
 
     if (near_ and APP.player().key_down(Key::action_2)) {
-        auto next = scene_pool::alloc<SalvageRoomScene>();
-        next->set_next_scene(scene_pool::make_deferred_scene<SelInputScene>(
-            parameters_.get(), near_));
+        auto next = make_scene<SalvageRoomScene>();
+        next->set_next_scene(
+            make_deferred_scene<SelInputScene>(parameters_.get(), near_));
         return next;
     } else if (APP.player().key_down(Key::action_1)) {
 
@@ -244,9 +244,9 @@ ScenePtr<Scene> SelInputScene::update(Time delta)
         lisp::pop_op();
 
         if (started_near_) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     }
 

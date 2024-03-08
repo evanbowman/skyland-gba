@@ -138,17 +138,17 @@ bool Replicator::create_replicant()
 
 
 
-ScenePtr<Scene> Replicator::select_impl(const RoomCoord& cursor)
+ScenePtr Replicator::select_impl(const RoomCoord& cursor)
 {
     if (auto next = Room::select_impl(cursor)) {
         return next;
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
-        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
-        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
     if (parent() == APP.opponent_island() and
@@ -156,13 +156,10 @@ ScenePtr<Scene> Replicator::select_impl(const RoomCoord& cursor)
         return null_scene();
     }
 
-    int character_count = 0;
-
     BasicCharacter* found_chr = nullptr;
 
     for (auto& chr : characters()) {
         if (chr->owner() == &parent()->owner()) {
-            character_count++;
             found_chr = chr.get();
         }
     }
@@ -172,7 +169,7 @@ ScenePtr<Scene> Replicator::select_impl(const RoomCoord& cursor)
         using Next = ReplicatorSelectionScene;
 
         const bool near = is_player_island(parent());
-        auto next = scene_pool::make_deferred_scene<Next>(near);
+        auto next = make_deferred_scene<Next>(near);
 
         if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);

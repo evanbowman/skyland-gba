@@ -102,7 +102,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
     void display() override;
 
 
@@ -120,8 +120,6 @@ private:
     Buffer<Text, 5> lines_;
 
     bool options_allowed_ = true;
-
-    bool fastforward_ = false;
 
     Optional<DynamicMemory<ConfettiBuffer>> confetti_;
 

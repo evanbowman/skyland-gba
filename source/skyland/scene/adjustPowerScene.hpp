@@ -69,7 +69,7 @@ public:
     Optional<Text> text_;
 
 
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (auto new_scene = ActiveWorldScene::update(delta)) {
             return new_scene;
@@ -173,7 +173,7 @@ public:
         }
 
         if (APP.player().key_down(Key::action_2)) {
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         }
 
         return null_scene();

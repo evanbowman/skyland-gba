@@ -126,7 +126,7 @@ void Piston::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Piston::select(const RoomCoord& cursor)
+ScenePtr Piston::select(const RoomCoord& cursor)
 {
     if ((dir_ == down and position().y == 14) or
         (dir_ == left and position().x == 0) or
@@ -266,11 +266,11 @@ void Piston::___rewind___finished_reload()
 
 
 
-ScenePtr<Scene> Piston::setup()
+ScenePtr Piston::setup()
 {
     const bool near = parent() == &player_island();
 
-    return scene_pool::alloc<SetupPistonScene>(position(), near);
+    return make_scene<SetupPistonScene>(position(), near);
 }
 
 

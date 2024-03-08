@@ -52,16 +52,15 @@ public:
     void exit(Scene& next) override;
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
-    static ScenePtr<Scene> setup();
+    static ScenePtr setup();
 
 
 private:
     bool ready_ = false;
     Optional<Text> text_;
-    Time timer_ = 0;
 };
 
 

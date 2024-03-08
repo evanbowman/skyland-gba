@@ -175,12 +175,12 @@ void SelectSampleScene::display()
 
 
 
-ScenePtr<Scene> SelectSampleScene::update(Time delta)
+ScenePtr SelectSampleScene::update(Time delta)
 {
     if (exit_) {
         page_ = 0;
         cursor_ = 0;
-        return scene_pool::alloc<StartMenuScene>(-1, 3);
+        return make_scene<StartMenuScene>(-1, 3);
     }
 
     timer_ += delta;
@@ -311,7 +311,7 @@ ScenePtr<Scene> SelectSampleScene::update(Time delta)
         PLATFORM.screen().schedule_fade(1.f);
         PLATFORM.screen().schedule_fade(0.f);
 
-        auto next = scene_pool::alloc<macro::SelectorScene>();
+        auto next = make_scene<macro::SelectorScene>();
         next->show_island_size();
         return next;
     }

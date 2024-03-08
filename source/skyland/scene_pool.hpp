@@ -73,22 +73,27 @@ inline void deleter(Scene* scene)
 
 
 
-template <typename T, typename... Args> ScenePtr<T> alloc(Args&&... args)
-{
-    static_assert(sizeof(T) <= max_scene_size);
-    static_assert(alignof(T) <= pool_->alignment());
+} // namespace scene_pool
 
-    if (pool_ == nullptr) {
-        return {nullptr, deleter};
+
+
+template <typename T, typename... Args>
+UniqueScenePtr<T> make_scene(Args&&... args)
+{
+    static_assert(sizeof(T) <= scene_pool::max_scene_size);
+    static_assert(alignof(T) <= scene_pool::_Pool::alignment());
+
+    if (scene_pool::pool_ == nullptr) {
+        return {nullptr, scene_pool::deleter};
     }
 
-    if (auto mem = pool_->alloc()) {
+    if (auto mem = scene_pool::pool_->alloc()) {
         new (mem) T(std::forward<Args>(args)...);
 
-        return {reinterpret_cast<T*>(mem), deleter};
+        return {reinterpret_cast<T*>(mem), scene_pool::deleter};
     }
 
-    return {nullptr, deleter};
+    return {nullptr, scene_pool::deleter};
 }
 
 
@@ -97,14 +102,10 @@ template <typename S, typename... Args>
 DeferredScene make_deferred_scene(Args&&... args)
 {
     return [args = std::make_tuple(std::forward<Args>(args)...)] {
-        return std::apply([](auto&&... args) { return alloc<S>(args...); },
+        return std::apply([](auto&&... args) { return make_scene<S>(args...); },
                           std::move(args));
     };
 }
-
-
-
-} // namespace scene_pool
 
 
 

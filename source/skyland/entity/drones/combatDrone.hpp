@@ -186,10 +186,10 @@ public:
     }
 
 
-    ScenePtr<Scene> select() override
+    ScenePtr select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);
-        return scene_pool::alloc<CombatDroneSetTargetScene>(shared_from_this());
+        return make_scene<CombatDroneSetTargetScene>(shared_from_this());
     }
 
     enum State : u8 {

@@ -372,7 +372,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
     int arc_count = 0;
     int forcefield_count = 0;
     int misc_cannon_count = 0;
-    int ion_cannon_count = 0;
+    [[maybe_unused]] int ion_cannon_count = 0;
     int mycelium_count = 0;
 
     for (auto& room : APP.player_island().rooms()) {
@@ -411,7 +411,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
     int generic_cannon_count =
         cannon_count + flak_count + arc_count + misc_cannon_count;
 
-    int player_avg_roof_hull_thickness = 0;
+    [[maybe_unused]] int player_avg_roof_hull_thickness = 0;
 
     for (u8 x = 0; x < (int)APP.player_island().terrain().size(); ++x) {
         for (u8 y = construction_zone_min_y; y < 15; ++y) {
@@ -688,7 +688,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
         }
     };
 
-    int place_missile_count = 0;
+    [[maybe_unused]] int place_missile_count = 0;
     int placed_ion_cannons = 0;
     int fails = 0;
 
@@ -842,7 +842,7 @@ void ProcgenEnemyAI::generate_forcefields()
 
         int player_missile_count = 0;
         int player_cannon_count = 0;
-        int player_ion_cannon_count = 0;
+        [[maybe_unused]] int player_ion_cannon_count = 0;
         int player_annihilator_count = 0;
         for (auto& room : APP.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::weapon) {

@@ -67,7 +67,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(const RoomCoord& cursor) override;
+    ScenePtr select(const RoomCoord& cursor) override;
 
 
     virtual lisp::Value* serialize() override;

@@ -52,13 +52,13 @@ public:
     void exit(macro::EngineImpl& state, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state) override;
+    ScenePtr update(Player& player, macro::EngineImpl& state) override;
 
 
     void show_options(macro::EngineImpl& state);
 
 
-    virtual ScenePtr<Scene> onclick(macro::EngineImpl&);
+    virtual ScenePtr onclick(macro::EngineImpl&);
     virtual void adjust_cursor_z(Player& player, macro::EngineImpl&);
 
 

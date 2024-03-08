@@ -61,7 +61,7 @@ public:
     static int tutorial_count();
 
 
-    ScenePtr<Scene> update(Time delta) override;
+    ScenePtr update(Time delta) override;
 
 
     void display() override;

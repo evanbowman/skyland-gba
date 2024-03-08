@@ -117,15 +117,6 @@ template <> struct Vec2<Fixnum>
 
 
 
-template <typename T, typename U = T> struct Rect
-{
-    T x_off = 0;
-    T y_off = 0;
-    U w = 0;
-    U h = 0;
-};
-
-
 template <typename T> T abs(const T& val)
 {
     return (val > 0) ? val : val * -1;
@@ -265,6 +256,11 @@ inline Float smoothstep(Float edge0, Float edge1, Float x)
 template <typename T> T interpolate(const T& a, const T& b, Float t)
 {
     return a * t + (1 - t) * b;
+}
+
+template <typename T> T interpolate_fp(const T& a, const T& b, Fixnum t)
+{
+    return a * t + (1.0_fixed - t) * b;
 }
 
 

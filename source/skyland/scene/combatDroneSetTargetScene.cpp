@@ -45,23 +45,23 @@ namespace skyland
 
 
 
-ScenePtr<Scene> CombatDroneSetTargetScene::update(Time delta)
+ScenePtr CombatDroneSetTargetScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
     if (not APP.opponent_island()) {
-        return scene_pool::alloc<ReadyScene>();
+        return make_scene<ReadyScene>();
     }
 
-    auto exit_scene = [&]() -> ScenePtr<Scene> {
+    auto exit_scene = [&]() -> ScenePtr {
         if (is_player_island(drone_->destination())) {
             globals().near_cursor_loc_ = drone_->position();
-            return scene_pool::alloc<ReadyScene>();
+            return make_scene<ReadyScene>();
         } else {
             globals().far_cursor_loc_ = drone_->position();
-            return scene_pool::alloc<InspectP2Scene>();
+            return make_scene<InspectP2Scene>();
         }
     };
 

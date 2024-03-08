@@ -48,7 +48,7 @@ namespace skyland
 class SurrenderWaitScene : public WorldScene
 {
 public:
-    ScenePtr<Scene> update(Time delta) override
+    ScenePtr update(Time delta) override
     {
         if (auto next = WorldScene::update(delta)) {
             return next;
@@ -61,7 +61,7 @@ public:
             }
         } else {
             if (not APP.dialog_buffer()) {
-                return scene_pool::alloc<ReadyScene>();
+                return make_scene<ReadyScene>();
             }
         }
 

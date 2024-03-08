@@ -47,7 +47,7 @@ namespace skyland::macro
 class DayTransitionScene : public MacrocosmScene
 {
 public:
-    ScenePtr<Scene> update(Player& player, macro::EngineImpl& state)
+    ScenePtr update(Player& player, macro::EngineImpl& state)
     {
         MacrocosmScene::update(player, state);
 
@@ -56,7 +56,7 @@ public:
 
         if (not raster::globalstate::is_night and
             abs(state.data_->p().day_night_cyc_.get() - 256) < 10) {
-            return scene_pool::alloc<SelectorScene>();
+            return make_scene<SelectorScene>();
         }
 
         return null_scene();
@@ -65,18 +65,18 @@ public:
 
 
 
-ScenePtr<Scene> NextTurnScene::update(Time delta)
+ScenePtr NextTurnScene::update(Time delta)
 {
     auto& m = macrocosm();
 
     if (raster::globalstate::is_night) {
-        return scene_pool::alloc<SelectorScene>();
+        return make_scene<SelectorScene>();
     }
 
     int current = m.data_->p().day_night_cyc_.get();
     m.data_->p().day_night_cyc_.set(std::max(current, day_frames - 256));
 
-    return scene_pool::alloc<DayTransitionScene>();
+    return make_scene<DayTransitionScene>();
 }
 
 

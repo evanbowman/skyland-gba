@@ -64,7 +64,7 @@ public:
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
-    void render_scaffolding(TileId buffer[16][16])
+    void render_scaffolding(TileId buffer[16][16]) override
     {
         // Forcefields float; no scaffolding.
     }
