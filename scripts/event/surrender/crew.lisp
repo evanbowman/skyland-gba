@@ -53,7 +53,7 @@
                 (let ((took (car (room-load (opponent) $1 $2))))
                   (if (room-is-critical (opponent) $1 $2)
                       (progn
-                        (dialog "This will remove the island's only power source, causing it to sink, are you sure?")
+                        (dialog "This will remove the island's only power source, causing it to become unstable (you won't be able to take any more blocks), are you sure?")
                         (dialog-await-y/n)
                         (setq on-dialog-declined rtry)
                         (let ((tx $1)
