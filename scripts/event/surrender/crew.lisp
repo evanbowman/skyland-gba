@@ -53,10 +53,24 @@
                 (let ((took (car (room-load (opponent) $1 $2))))
                   (if (room-is-critical (opponent) $1 $2)
                       (progn
-                        (dialog "You shouldn't remove the island's only power source! We're accepting their surrender, not trying to sink them!")
-                        (if (equal 1 (length (rooms (opponent))))
-                            (exit 2)
-                            (setq on-dialog-closed rtry)))
+                        (dialog "This will remove the island's only power source, causing it to sink, are you sure?")
+                        (dialog-await-y/n)
+                        (setq on-dialog-declined rtry)
+                        (let ((tx $1)
+                              (ty $2))
+                          (defn on-dialog-accepted [0]
+                            (sound "gravel")
+                            (alloc-space took)
+                            (sel-input
+                             took
+                             "Place block:"
+                             (lambda
+                               (room-new (player) (list took $1 $2))
+                               (sound "build0")
+                               (room-del (opponent) tx ty)
+                               (dialog (format "Accepted surrender, and acquired % blocks!" (- tot (- cnt 1))))
+                               (adventure-log-add 62 '())
+                               (setq on-dialog-closed (curry exit 2)))))))
                       (progn
                         (room-del (opponent) $1 $2)
                         (sound "gravel")
