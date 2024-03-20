@@ -3902,6 +3902,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
 #include "data/sound_weapon_target.hpp"
+#include "data/sound_tonal_flutter.hpp"
+
 
 
 static const AudioTrack sounds[] = {
@@ -3951,6 +3953,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(msg, sound_msg),
     DEF_SOUND(door, sound_door),
     DEF_SOUND(insert_cart, sound_insert_cart),
+    DEF_SOUND(tonal_flutter, sound_tonal_flutter),
     DEF_SOUND(powerdown, sound_powerdown),
     DEF_SOUND(poweron, sound_poweron),
     DEF_SOUND(page_flip, sound_page_flip)};
