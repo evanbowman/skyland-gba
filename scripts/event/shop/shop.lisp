@@ -47,6 +47,8 @@
              (coins-add (* -1 (get info 1)))
              (adventure-log-add 50 (list name (get info 1)))
 
+             (alloc-space (get info 0))
+
              (sel-input (get info 0)
                         "pick a slot:"
                         (lambda
