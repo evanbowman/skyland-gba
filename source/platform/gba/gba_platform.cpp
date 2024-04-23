@@ -3898,11 +3898,11 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
 #include "data/sound_thunder_close_1.hpp"
+#include "data/sound_tonal_flutter.hpp"
 #include "data/sound_transporter.hpp"
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
 #include "data/sound_weapon_target.hpp"
-#include "data/sound_tonal_flutter.hpp"
 
 
 
@@ -7771,6 +7771,7 @@ Platform::Platform()
         info("gameboy player unlocked!");
 
         set_gflag(GlobalFlag::gbp_unlocked, true);
+        set_gflag(GlobalFlag::rtc_faulty, true);
 
         RumbleGBPConfig conf{[](void (*rumble_isr)(void)) {
             irqEnable(IRQ_SERIAL);
