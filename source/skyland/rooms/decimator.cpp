@@ -212,7 +212,7 @@ void Decimator::update(Time delta)
 
     bool has_pilot = false;
     for (auto& chr : characters()) {
-        if (chr->parent() == parent()) {
+        if (chr->owner() == &parent()->owner()) {
             has_pilot = true;
         }
     }
