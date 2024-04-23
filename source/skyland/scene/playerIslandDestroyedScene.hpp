@@ -129,6 +129,8 @@ private:
 
     AnimState anim_state_ = AnimState::init;
 
+    void handle_zone_exit();
+
     enum class ConfettiState {
         dormant,
         wait_1,

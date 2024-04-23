@@ -699,6 +699,8 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         if (not endgame) {
             PLATFORM.speaker().set_music_volume(12);
         }
+
+        handle_zone_exit();
         break;
 
     case AnimState::show_coins: {
@@ -802,25 +804,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
             if (opponent_defeated) {
 
-                if (APP.world_graph()
-                        .nodes_[APP.current_world_location()]
-                        .type_ == WorldGraph::Node::Type::exit) {
-                    // We're at the exit node. Let's adjust stuff, so that we're at
-                    // the beginning of the next zone.
-                    APP.current_world_location() = 0;
-                    APP.world_graph().generate();
-                    APP.zone() += 1;
-
-                    if (APP.zone() == 4) {
-                        // No exit in the final zone, you have to fight the
-                        // storm king.
-                        for (auto& node : APP.world_graph().nodes_) {
-                            if (node.type_ == WorldGraph::Node::Type::exit) {
-                                node.type_ = WorldGraph::Node::Type::hostile;
-                            }
-                        }
-                    }
-                }
+                handle_zone_exit();
 
                 APP.reset_opponent_island();
 
@@ -1044,6 +1028,32 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
     }
 
     return null_scene();
+}
+
+
+
+void PlayerIslandDestroyedScene::handle_zone_exit()
+{
+    if (APP.game_mode() == App::GameMode::adventure and
+        APP.world_graph()
+        .nodes_[APP.current_world_location()]
+        .type_ == WorldGraph::Node::Type::exit) {
+        // We're at the exit node. Let's adjust stuff, so that we're at
+        // the beginning of the next zone.
+        APP.current_world_location() = 0;
+        APP.world_graph().generate();
+        APP.zone() += 1;
+
+        if (APP.zone() == 4) {
+            // No exit in the final zone, you have to fight the
+            // storm king.
+            for (auto& node : APP.world_graph().nodes_) {
+                if (node.type_ == WorldGraph::Node::Type::exit) {
+                    node.type_ = WorldGraph::Node::Type::hostile;
+                }
+            }
+        }
+    }
 }
 
 
