@@ -56,7 +56,7 @@
               (progn
                 ;; Capture the current executing function, reinvoke after n seconds...
                 (let ((f (this)))
-                  (defn fut
+                  (defn fut [0]
                     (if (> (coins) 1299)
                         (progn
                           (dialog "<c:merchant:7> Seems like you have enough now!")
