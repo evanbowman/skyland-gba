@@ -48,4 +48,4 @@
 (defn on-converge [0]
   (dialog
    "<c:passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
-  (coins-add 1500))
+  (scrap-add 1500))

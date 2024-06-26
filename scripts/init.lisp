@@ -111,3 +111,9 @@
     (if (> (length va) 2)
         (setq str (apply format (cons str (cddr va)))))
     (dialog str)))
+
+;; The scrap variable was renamed to scrap.
+(defn/c scrap [0] (coins))
+(defn/c scrap-add [0] (coins-add $0))
+(defn/c scrap-victory [0] (coins-victory))
+(defn/c scrap-set [0] (coins-set $0))

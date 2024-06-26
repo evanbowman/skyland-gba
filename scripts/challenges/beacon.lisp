@@ -32,7 +32,7 @@
 (chr-new (player) 2 14 'neutral 0)
 
 
-(coins-add 3000)
+(scrap-add 3000)
 
 
 (flag-show (player) 0)

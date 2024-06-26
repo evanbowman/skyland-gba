@@ -71,5 +71,5 @@
                         (setq on-dialog-closed
                               (lambda
                                 (achieve 11)
-                                (coins-add 2000)
+                                (scrap-add 2000)
                                 (exit 2)))))))))

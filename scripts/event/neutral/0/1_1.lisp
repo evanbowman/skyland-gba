@@ -57,13 +57,13 @@
          (opponent-mode 'hostile))))
   (setq on-dialog-accepted
         (lambda
-          (if (< (coins) 600)
+          (if (< (scrap) 600)
               (progn
                 (adventure-log-add 59 '())
                 (scr "Insufficient funds! The station begins charging its weapons!"))
             (progn
               (adventure-log-add 60 (list 600))
-              (coins-add -600)
+              (scrap-add -600)
               (dialog "The station deactivates and allows you to pass.")
               (exit)))))
 

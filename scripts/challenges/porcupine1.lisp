@@ -3,7 +3,7 @@
 ;;
 
 
-(coins-set 10000)
+(scrap-set 10000)
 
 
 (terrain-set (player) 6)

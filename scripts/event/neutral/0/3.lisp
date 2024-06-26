@@ -40,7 +40,7 @@
           (dialog "<c:merchant:7> We ordered too many "
                   (rinfo 'name item)
                   "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, "
-                  (if (< (coins) 1300)
+                  (if (< (scrap) 1300)
                       "...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
                     "what do you say?"))
           (dialog-await-y/n)
@@ -52,12 +52,12 @@
         (lambda
           (if (bound? 'fut) (unbind 'fut))
 
-          (if (< (coins) 1300)
+          (if (< (scrap) 1300)
               (progn
                 ;; Capture the current executing function, reinvoke after n seconds...
                 (let ((f (this)))
                   (defn fut [0]
-                    (if (> (coins) 1299)
+                    (if (> (scrap) 1299)
                         (progn
                           (dialog "<c:merchant:7> Seems like you have enough now!")
                           (setq on-dialog-closed f))
@@ -68,13 +68,13 @@
                       (setq skip 0)
                       (on-timeout 15000 'fut))
                   (progn
-                    (dialog "<c:merchant:7> Sorry, that's not enough money! Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
+                    (dialog "<c:merchant:7> Sorry, that's not enough scrap! Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
                     (dialog-await-y/n)
                     (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
                     (setq on-dialog-declined (lambda (unbind 'fut) (exit))))))
             (progn
               (adventure-log-add 10 (list (rinfo 'name item) 1300))
-              (coins-add -1300)
+              (scrap-add -1300)
               (alloc-space item)
               (sel-input
                item

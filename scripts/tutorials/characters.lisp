@@ -14,7 +14,7 @@
 (chr-hp (chr-new (player) 1 14 'neutral nil) 50)
 
 
-(coins-add 20000)
+(scrap-add 20000)
 
 
 (opponent-init 4 'hostile)

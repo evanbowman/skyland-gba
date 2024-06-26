@@ -651,25 +651,25 @@ o----------------------------o
 
 o----------------------------o
 
- (coins)
+ (scrap)
 
- Return the player's coin
+ Return the player's scrap
  count.
 
 
 o----------------------------o
 
- (coins-add integer)
+ (scrap-add integer)
 
- Add integer coins to the
+ Add integer scrap to the
  player's coint count.
 
 
 o----------------------------o
 
- (coins-set integer)
+ (scrap-set integer)
 
- Override coin count.
+ Override scrap count.
 
 
 o----------------------------o

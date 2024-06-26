@@ -32,7 +32,7 @@
         (if (not trap)
             (let ((val (+ 600 (choice 300))))
               (dialog "You explore, and salvage " (string val) "@ from the ruins.")
-              (coins-add val)
+              (scrap-add val)
               (adventure-log-add 29 (list val))
               (exit))
           (progn

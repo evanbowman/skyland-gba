@@ -4,13 +4,13 @@
 
 (defn on-dialog-closed [0]
     (setq on-dialog-closed '())
-  (let ((c (+ (/ (coins-victory) 2) (/ (coins-victory) 6))))
+  (let ((c (+ (/ (scrap-victory) 2) (/ (scrap-victory) 6))))
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
     (dialog-opts-push (format "+1 crew, +%@" c)
                       (lambda
-                        (coins-add c)
+                        (scrap-add c)
                         (let ((g (chrs (opponent)))
                               (ss (chr-slots (player))))
 
@@ -96,10 +96,10 @@
                             (dialog
                              "<s:3>. . . . . <s:0> "
                              "Your crew values the resources in the goblin ship at "
-                             (format "%@" (coins-victory))
+                             (format "%@" (scrap-victory))
                              ". <B:0>Or you may end the fight and accept the terms of the "
                              "goblins' surrender. <B:0>"
-                             "Goblins may offer you crewmembers, blocks, and/or money in their surrender options.")
+                             "Goblins may offer you crewmembers, blocks, and/or scrap in their surrender options.")
 
                           (setq on-dialog-closed rtry))))
 

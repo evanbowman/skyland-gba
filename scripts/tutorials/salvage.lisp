@@ -3,7 +3,7 @@
 ;;;
 
 
-(coins-add 200)
+(scrap-add 200)
 
 
 (terrain-set (player) 6)
@@ -49,7 +49,7 @@
    (2333 B)
    (1351 B)
    (100 nil)
-   (100 "<c:Milo:5> We need to build some hull, but looks like we don't have enough coins! Not to worry, we can just salvage some rooms to recover some resources. You can access the salvage menu by hovering over a room and pressing B!")
+   (100 "<c:Milo:5> We need to build some hull, but looks like we don't have enough scrap! Not to worry, we can just salvage some rooms to recover some resources. You can access the salvage menu by hovering over a room and pressing B!")
    (2701 Down)
    (466 Down)
    (416 Down)

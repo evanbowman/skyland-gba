@@ -21,4 +21,4 @@
  (groups)
  '((Up) (Left) (Right)))
 
-(assert-eq 2300 (coins))
+(assert-eq 2300 (scrap))

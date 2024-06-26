@@ -44,7 +44,7 @@
                     "<c:the collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!"
                     sale))
 
-                  (coins-add sale)
+                  (scrap-add sale)
 
                   (adventure-log-add 21 (list sale))
 

@@ -27,7 +27,7 @@
 (defn on-converge [0]
   (dialog "<c:captain:7> I managed to steal this decimator from some goblins, but they're catching up to me! I know... I could sell you the weapon! I'll install it on your island for @1500...")
   (setq on-converge nil)
-  (dialog-await-binary-q "Here's the money…" "no thanks"))
+  (dialog-await-binary-q "Here's the scrap…" "no thanks"))
 
 
 (setq on-dialog-declined exit)
@@ -36,13 +36,13 @@
 (defn on-dialog-accepted [0]
   (if (bound? 'fut) (unbind 'fut))
 
-  (if (< (coins) 1500)
+  (if (< (scrap) 1500)
       (progn
         (dialog "<c:captain:7> Sorry, I went to all this trouble, I really can't sell you this tech for less than @1500. Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
         (dialog-await-y/n)
         (let ((f (this)))
           (defn fut [0]
-            (if (> (coins) 1499)
+            (if (> (scrap) 1499)
                 (progn
                   (dialog "<c:captain:7> Seems like you have enough now!")
                   (setq on-dialog-closed f))
@@ -50,7 +50,7 @@
         (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
         (setq on-dialog-declined (lambda (unbind 'fut) (exit))))
     (progn
-      (coins-add -1500)
+      (scrap-add -1500)
 
       ;; We wouldn't want the player to get into a position where there isn't
       ;; enough terrain to place the weapon! The game would get locked up. Just

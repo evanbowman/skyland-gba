@@ -3,7 +3,7 @@
 ;;;
 
 
-(coins-add 8000)
+(scrap-add 8000)
 
 (terrain-set (player) 4)
 (island-configure

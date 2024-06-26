@@ -3,7 +3,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(coins-set 1000)
+(scrap-set 1000)
 
 
 

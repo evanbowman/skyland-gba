@@ -3,7 +3,7 @@
 ;;;
 
 
-(coins-add 6000)
+(scrap-add 6000)
 
 
 (defn on-victory [0]

@@ -43,7 +43,7 @@
     (cond
      ((equal c 0)
       (let ((amt (+ 200 (choice 400))))
-        (coins-add amt)
+        (scrap-add amt)
         (dialog
          (format
           "Looks like someone already got here first. You collect %@."

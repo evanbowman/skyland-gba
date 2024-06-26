@@ -12,7 +12,7 @@
 
 (flag-show (player) 0)
 
-(coins-add 4300)
+(scrap-add 4300)
 
 
 

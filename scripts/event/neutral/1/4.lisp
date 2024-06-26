@@ -66,7 +66,7 @@
           (end))
       (let ((temp (+ 1000 (choice 1000))))
         (dialog "You explore, and find cargo worth " (string temp) "@!")
-        (coins-add temp)
+        (scrap-add temp)
         (adventure-log-add 35 (list temp))
         (end)))))
 

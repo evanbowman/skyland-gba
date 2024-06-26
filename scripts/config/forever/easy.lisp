@@ -2,7 +2,7 @@
 ;; Coin yeild percentage settings for SKYLAND Forever
 ;;
 
-(coins-add 4000)
+(scrap-add 4000)
 
 (map (lambda (setvar (cdr $0) (car $0)))
  '((40 . "sf_p1_coin_yield")

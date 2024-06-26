@@ -9,7 +9,7 @@ vs
 game mode
 prep seconds
 unhide prep
-coins
+scrap
 terrain size
 Waiting for other player...
 timeout freq (sec)
@@ -191,7 +191,7 @@ none
 draw path (%/%):
 :build
 :build :add-terrain 
-insufficient funds!
+insufficient scrap!
 insufficient power supply!
 too many blocks
 not enough space!
@@ -411,7 +411,7 @@ SEL auto assign crew
 shortcut: 
 time
 pauses used
-coins spent
+scrap spent
 blocks built/lost
 select a destination:
 recover character?
@@ -438,7 +438,7 @@ come back soon!
 sky map - zone %
 storm >>
 exit
-coins
+scrap
 terrain size
 music
 dependencies
@@ -514,7 +514,7 @@ Use bulkhead doors to protect your power-cores against goblins!
 Overwhelmed by goblins? Try building some repair drones!
 You can assign groups of weapons to hotkeys! Press and hold start for more options!
 The Glossary, found on the title screen extras menu, describes all structures in the game!
-Raid and plunder castles for extra coins!
+Raid and plunder castles for extra scrap!
 If you lose a power-core, systems may shut down til you rebalance power.
 For more help, scroll right on the title screen and open the tutorial viewer!
 Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!

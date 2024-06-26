@@ -37,7 +37,7 @@
 
 
 
-(coins-add 300)
+(scrap-add 300)
 
 
 (flag-show (player) 0)

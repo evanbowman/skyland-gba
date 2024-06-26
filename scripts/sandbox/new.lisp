@@ -9,12 +9,12 @@
 ;; variable called conf.
 
 
-(coins-set (get conf 0))
+(scrap-set (get conf 0))
 (terrain-set (player) (get conf 1))
 
 
 (defn sb-help [0]
-  (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
+  (dialog "Sandbox mode gives you nearly unlimited scrap, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
 (if (not (save-bit-load 3))
