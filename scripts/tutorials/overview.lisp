@@ -41,7 +41,7 @@
    (516 Left)
    (516 Left)
    (300 nil)
-   (100 "<c:Milo:5>The R button opens the construction menu, where you can build all sorts of stuff. At the bottom of the screen, you'll see the name and cost of each structure. In the top left, you'll see your current resource count (@) and power usage! <B:0> Each time you build a structure, you will spend some scrap (@), depleting your resources, and your power usage may also increase. <B:0> Err... <d:1000> they've got missiles, so I guess we should build some hull.")
+   (100 "<c:Milo:5>The R button opens the construction menu, where you can build all sorts of stuff. At the bottom of the screen, you'll see the name and cost of each structure. In the top left, you'll see your current resource count (@) and power usage (`)! <B:0> Each time you build a structure, you will spend some scrap (@), depleting your resources, and your power usage (`) may also increase. <B:0> Err... <d:1000> they've got missiles, so I guess we should build some hull.")
    (400 R)
    (1800 A)
    (1550 A)
