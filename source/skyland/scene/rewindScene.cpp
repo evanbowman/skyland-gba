@@ -673,6 +673,7 @@ ScenePtr RewindScene::update(Time)
             } else {
                 auto err = "rewind salvage: attempt to re-attach character"
                            " to non-existent room.";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1057,6 +1058,7 @@ ScenePtr RewindScene::update(Time)
                 chr->drop_movement_path();
             } else {
                 auto err = "rewind chr mv path asgn: invalid chr id!";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1092,6 +1094,7 @@ ScenePtr RewindScene::update(Time)
                 }
             } else {
                 auto err = "rewind chr mv path asgn: invalid chr id! (2)";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1111,14 +1114,37 @@ ScenePtr RewindScene::update(Time)
 
             const bool is_replicant = e->is_replicant_;
 
-            auto chr = APP.alloc_entity<BasicCharacter>(
-                island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
+            auto alloc_chr = [&] {
+                return APP.alloc_entity<BasicCharacter>(
+                    island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
+                ;
+            };
 
-            chr->__assign_id(e->id_.get());
-            chr->set_race(e->race_);
-            chr->set_icon(e->icon_);
+            auto chr = alloc_chr();
 
-            island->add_character(std::move(chr));
+            if (not chr) {
+                // A playable character is more essential than a projectile. We
+                // should never fail to allocate a character because the screen
+                // is full of effects and projectiles.
+                if (not APP.player_island().projectiles().pop_last()) {
+                    if (APP.opponent_island()) {
+                        APP.opponent_island()->projectiles().pop_last();
+                    }
+                }
+
+                chr = alloc_chr();
+            }
+
+
+            if (chr) {
+                chr->__assign_id(e->id_.get());
+                chr->set_race(e->race_);
+                chr->set_icon(e->icon_);
+
+                island->add_character(std::move(chr));
+            }
+
+
 
             APP.time_stream().pop(sizeof *e);
             break;
@@ -1142,6 +1168,7 @@ ScenePtr RewindScene::update(Time)
                         } else {
                             auto err = "rewind error: rewind replicant"
                                        "is not replicant?!";
+                            APP.time_stream().enable_pushes(true);
                             return make_scene<FatalErrorScene>(err);
                         }
                         break;
@@ -1165,6 +1192,7 @@ ScenePtr RewindScene::update(Time)
                 chr->__set_health(e->previous_health_);
             } else {
                 auto err = "rewind chr health changed: invalid chr id!";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1189,6 +1217,7 @@ ScenePtr RewindScene::update(Time)
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
                 auto err = "rewind chr_transported: Invalid character id!";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1216,6 +1245,7 @@ ScenePtr RewindScene::update(Time)
                         } else {
                             auto err = "fatal error when rewinding "
                                        "transport: source room missing.";
+                            APP.time_stream().enable_pushes(true);
                             return make_scene<FatalErrorScene>(err);
                         }
                         break;
@@ -1225,6 +1255,7 @@ ScenePtr RewindScene::update(Time)
                 }
             } else {
                 auto err = "error rewinding transport: dest room missing.";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1245,6 +1276,7 @@ ScenePtr RewindScene::update(Time)
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
                 auto err = "rewind chr_disembark: Invalid character id!";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1273,6 +1305,7 @@ ScenePtr RewindScene::update(Time)
                         } else {
                             auto err = "fatal error when rewinding "
                                        "disembark: source room missing";
+                            APP.time_stream().enable_pushes(true);
                             return make_scene<FatalErrorScene>(err);
                         }
                         break;
@@ -1282,6 +1315,7 @@ ScenePtr RewindScene::update(Time)
                 }
             } else {
                 auto err = "error rewinding disembark: dest room missing";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1485,6 +1519,7 @@ ScenePtr RewindScene::update(Time)
                     } else {
                         auto err = "rewind: attempt to attach drone to non"
                                    " drone-bay";
+                        APP.time_stream().enable_pushes(true);
                         return make_scene<FatalErrorScene>(err);
                     }
                 } else {
@@ -1497,6 +1532,7 @@ ScenePtr RewindScene::update(Time)
                 }
             } else {
                 auto err = "rewind: failed to alloc drone";
+                APP.time_stream().enable_pushes(true);
                 return make_scene<FatalErrorScene>(err);
             }
 
@@ -1797,6 +1833,7 @@ ScenePtr RewindScene::update(Time)
 
         default:
             auto err = "invalid event from time stream";
+            APP.time_stream().enable_pushes(true);
             return make_scene<FatalErrorScene>(err);
         }
 
@@ -1871,7 +1908,9 @@ void RewindScene::exit(Scene& next)
     if (auto p = next.cast_world_scene()) {
         p->set_gamespeed(GameSpeed::stopped);
     } else {
-        Platform::fatal("exiting rewind scene into non-overworld scene");
+        if (APP.is_developer_mode()) {
+            Platform::fatal("exiting rewind scene into non-overworld scene");
+        }
     }
 
     // Reset update dispatch when coming out of a rewind. Perhaps unnecessary.

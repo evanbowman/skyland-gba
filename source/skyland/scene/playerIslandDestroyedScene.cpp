@@ -1035,9 +1035,8 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 void PlayerIslandDestroyedScene::handle_zone_exit()
 {
     if (APP.game_mode() == App::GameMode::adventure and
-        APP.world_graph()
-        .nodes_[APP.current_world_location()]
-        .type_ == WorldGraph::Node::Type::exit) {
+        APP.world_graph().nodes_[APP.current_world_location()].type_ ==
+            WorldGraph::Node::Type::exit) {
         // We're at the exit node. Let's adjust stuff, so that we're at
         // the beginning of the next zone.
         APP.current_world_location() = 0;

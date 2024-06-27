@@ -46,17 +46,29 @@ namespace skyland
 
 void medium_explosion(const Vec2<Fixnum>& position)
 {
-    APP.effects().push(APP.alloc_entity<Explosion>(
-        rng::sample<18>(position, rng::utility_state)));
+    auto first = APP.alloc_entity<Explosion>(
+        rng::sample<18>(position, rng::utility_state));
+
+    if (first) {
+        APP.effects().push(std::move(first));
+    }
 
     APP.on_timeout(milliseconds(60), [pos = position]() {
         APP.rumble().activate(milliseconds(200));
-        APP.effects().push(APP.alloc_entity<Explosion>(
-            rng::sample<18>(pos, rng::utility_state)));
+
+        auto second = APP.alloc_entity<Explosion>(
+            rng::sample<18>(pos, rng::utility_state));
+        if (second) {
+            APP.effects().push(std::move(second));
+        }
 
         APP.on_timeout(milliseconds(120), [pos = pos]() {
-            APP.effects().push(APP.alloc_entity<Explosion>(
-                rng::sample<18>(pos, rng::utility_state)));
+            auto third = APP.alloc_entity<Explosion>(
+                rng::sample<18>(pos, rng::utility_state));
+
+            if (third) {
+                APP.effects().push(std::move(third));
+            }
         });
     });
 }
@@ -67,21 +79,31 @@ void medium_explosion_inv(const Vec2<Fixnum>& position)
 {
     auto first = APP.alloc_entity<Explosion>(
         rng::sample<18>(position, rng::utility_state));
-    first->seek_end();
-    APP.effects().push(std::move(first));
+
+    if (first) {
+        first->seek_end();
+        APP.effects().push(std::move(first));
+    }
 
     APP.on_timeout(milliseconds(60), [pos = position]() {
         APP.rumble().activate(milliseconds(200));
         auto exp = APP.alloc_entity<Explosion>(
             rng::sample<18>(pos, rng::utility_state));
-        exp->seek_end();
-        APP.effects().push(std::move(exp));
+
+        if (exp) {
+            exp->seek_end();
+            APP.effects().push(std::move(exp));
+        }
+
 
         APP.on_timeout(milliseconds(120), [pos = pos]() {
             auto exp = APP.alloc_entity<Explosion>(
                 rng::sample<18>(pos, rng::utility_state));
-            exp->seek_end();
-            APP.effects().push(std::move(exp));
+
+            if (exp) {
+                exp->seek_end();
+                APP.effects().push(std::move(exp));
+            }
         });
     });
 }
@@ -91,8 +113,11 @@ void medium_explosion_inv(const Vec2<Fixnum>& position)
 void big_explosion(const Vec2<Fixnum>& position, int draw_priority)
 {
     for (int i = 0; i < 4; ++i) {
-        APP.effects().push(APP.alloc_entity<Explosion>(
-            rng::sample<18>(position, rng::utility_state), draw_priority));
+        auto ent = APP.alloc_entity<Explosion>(
+            rng::sample<18>(position, rng::utility_state), draw_priority);
+        if (ent) {
+            APP.effects().push(std::move(ent));
+        }
     }
 
     int p = draw_priority;
@@ -102,20 +127,28 @@ void big_explosion(const Vec2<Fixnum>& position, int draw_priority)
         APP.rumble().activate(milliseconds(390));
 
         for (int i = 0; i < 3; ++i) {
-            APP.effects().push(APP.alloc_entity<Explosion>(
-                rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state), p));
+            auto ent = APP.alloc_entity<Explosion>(
+                rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state), p);
+            if (ent) {
+                APP.effects().push(std::move(ent));
+            }
         }
         APP.on_timeout(milliseconds(90), [pos, p]() {
             for (int i = 0; i < 2; ++i) {
-                APP.effects().push(APP.alloc_entity<Explosion>(
-                    rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state),
-                    p));
+                auto ent = APP.alloc_entity<Explosion>(
+                    rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state), p);
+                if (ent) {
+                    APP.effects().push(std::move(ent));
+                }
             }
             APP.on_timeout(milliseconds(90), [pos, p]() {
                 for (int i = 0; i < 1; ++i) {
-                    APP.effects().push(APP.alloc_entity<Explosion>(
+                    auto ent = APP.alloc_entity<Explosion>(
                         rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state),
-                        p));
+                        p);
+                    if (ent) {
+                        APP.effects().push(std::move(ent));
+                    }
                 }
             });
         });
@@ -131,8 +164,11 @@ void big_explosion_inv(const Vec2<Fixnum>& position)
     for (int i = 0; i < 1; ++i) {
         auto exp = APP.alloc_entity<Explosion>(
             rng::sample<48>(position, rng::utility_state));
-        exp->seek_end();
-        APP.effects().push(std::move(exp));
+
+        if (exp) {
+            exp->seek_end();
+            APP.effects().push(std::move(exp));
+        }
     }
 
     APP.on_timeout(milliseconds(90), [pos = position]() {
@@ -141,22 +177,28 @@ void big_explosion_inv(const Vec2<Fixnum>& position)
         for (int i = 0; i < 2; ++i) {
             auto exp = APP.alloc_entity<Explosion>(
                 rng::sample<48>(pos, rng::utility_state));
-            exp->seek_end();
-            APP.effects().push(std::move(exp));
+            if (exp) {
+                exp->seek_end();
+                APP.effects().push(std::move(exp));
+            }
         }
         APP.on_timeout(milliseconds(90), [pos]() {
             for (int i = 0; i < 3; ++i) {
                 auto exp = APP.alloc_entity<Explosion>(
                     rng::sample<32>(pos, rng::utility_state));
-                exp->seek_end();
-                APP.effects().push(std::move(exp));
+                if (exp) {
+                    exp->seek_end();
+                    APP.effects().push(std::move(exp));
+                }
             }
             APP.on_timeout(milliseconds(90), [pos]() {
                 for (int i = 0; i < 4; ++i) {
                     auto exp = APP.alloc_entity<Explosion>(
                         rng::sample<18>(pos, rng::utility_state));
-                    exp->seek_end();
-                    APP.effects().push(std::move(exp));
+                    if (exp) {
+                        exp->seek_end();
+                        APP.effects().push(std::move(exp));
+                    }
                 }
             });
         });
