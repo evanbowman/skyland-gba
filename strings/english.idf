@@ -191,7 +191,7 @@ none
 draw path (%/%):
 :build
 :build :add-terrain 
-insufficient scrap!
+insufficient scrap @!
 insufficient power supply!
 too many blocks
 not enough space!
@@ -438,7 +438,7 @@ come back soon!
 sky map - zone %
 storm >>
 exit
-scrap
+scrap@
 terrain size
 music
 dependencies

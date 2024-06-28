@@ -7,9 +7,9 @@
 @	Transparent color : FF,00,FF
 @	+ palette 16 entries, not compressed
 @	+ 150 tiles lz77 compressed
-@	Total size: 32 + 776 = 808
+@	Total size: 32 + 764 = 796
 @
-@	Time-stamp: 2024-06-26, 14:38:32
+@	Time-stamp: 2024-06-27, 13:38:59
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -17,7 +17,7 @@
 
 	.section .rodata
 	.align	2
-	.global overlay_dialog_fullscreenTiles		@ 776 unsigned chars
+	.global overlay_dialog_fullscreenTiles		@ 764 unsigned chars
 	.hidden overlay_dialog_fullscreenTiles
 overlay_dialog_fullscreenTiles:
 	.word 0x0012C010,0xF000003F,0xF001F001,0xF001F001,0xFF01F001,0x01F001F0,0x01F001F0,0x01F001F0
@@ -45,9 +45,7 @@ overlay_dialog_fullscreenTiles:
 	.word 0xF001F0FF,0xF001F001,0xF001F001,0xF001F001,0x01F0FF01,0x01F001F0,0x01F001F0,0x01F001F0
 	.word 0xF0FF01F0,0xF001F001,0xF001F001,0xF001F001,0xFF01F001,0x01F001F0,0x01F001F0,0x01F001F0
 	.word 0x01F001F0,0xF001F0FF,0xF001F001,0xF001F001,0xF001F001,0x01F0FF01,0x01F001F0,0x01F001F0
-	.word 0x01F001F0,0x1424DF56,0x44030041,0x11083011,0x14443F14,0x08000300,0x01F07FF4,0x01F001F0
-
-	.word 0x8001F0C0,0x00000001
+	.word 0x01F001F0,0x141FDF96,0x07F01111,0x01F07FF4,0x01F001F0,0x6001F0C0,0xE6DED901
 
 	.section .rodata
 	.align	2
