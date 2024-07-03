@@ -28,7 +28,7 @@
   (let ((name $0)
         (item $1))
     (let ((info (get shop-items item)))
-      (if (< (scrap) (get info 1))
+      (if (< (coins) (get info 1))
           (progn
             (dialog "Hah! You can't afford that!")
             (defn on-dialog-closed [0]
@@ -44,7 +44,7 @@
           (dialog-opts-push
            "I'll buy it!"
            (lambda
-             (scrap-add (* -1 (get info 1)))
+             (coins-add (* -1 (get info 1)))
              (adventure-log-add 50 (list name (get info 1)))
 
              (alloc-space (get info 0))

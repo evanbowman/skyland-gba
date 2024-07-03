@@ -21,7 +21,7 @@
 
 (flag-show (player) 0)
 
-(scrap-set (if (equal (difficulty) 0) 4000 2500))
+(coins-set (if (equal (difficulty) 0) 4000 2500))
 
 
 (terrain-set (player) 4)

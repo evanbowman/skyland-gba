@@ -77,7 +77,7 @@
                      (if (equal id (lookup 'id (cddr $0)))
                          (chr-del (player) (car $0) (cadr $0))))
                    (chrs (player)))
-              (scrap-add 3000)
+              (coins-add 3000)
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
               (defn on-dialog-closed [0]

@@ -56,8 +56,8 @@
 
 
 (let ((fee (cond
-            ((< (scrap) 1000) (scrap))
-            ((< (scrap) 8000) (/ (scrap) 2))
+            ((< (coins) 1000) (coins))
+            ((< (coins) 8000) (/ (coins) 2))
             (true 8000)))
       (qid 4))
   (defn on-converge [0]
@@ -79,7 +79,7 @@
               (push 'qids qid)
               (push 'quests (cons "/scripts/event/quest_marker/ceramics.lisp" m))
               (push 'qvar (cons qid fee))
-              (scrap-set (- (scrap) fee))
+              (coins-set (- (coins) fee))
               (cargo-set (player) (car c) (cdr c) "ceramic tiles")
               (dialog "<c:merchant:7>Great, here are your tiles!")
               (defn on-dialog-closed [0]

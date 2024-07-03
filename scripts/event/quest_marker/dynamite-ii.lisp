@@ -56,7 +56,7 @@
                   (string c)
                   "@ for your trouble!")
 
-          (scrap-add c)
+          (coins-add c)
 
           (setq quests '())
 

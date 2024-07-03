@@ -36,7 +36,7 @@
                    (string temp)
                    "@ for your trouble!")
 
-                  (scrap-add temp)
+                  (coins-add temp)
                   (adventure-log-add 22 (list temp))
 
                   (setq on-dialog-closed exit))

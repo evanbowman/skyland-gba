@@ -30,13 +30,13 @@
 
   (setq on-dialog-accepted
         (lambda
-          (if (> 500 (scrap))
+          (if (> 500 (coins))
               (progn
                 (opponent-mode 'hostile)
                 (adventure-log-add 42 '())
                 (dialog "You cannot afford to pay. Prepare for heavy damage..."))
             (progn
-              (scrap-add (- val))
+              (coins-add (- val))
               (dialog "The pirates accept your bribe and move on.")
               (adventure-log-add 43 '())
               (exit))))))

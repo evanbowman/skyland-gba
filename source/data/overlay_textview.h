@@ -7,9 +7,9 @@
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
 //	+ 375 tiles lz77 compressed
-//	Total size: 32 + 1572 = 1604
+//	Total size: 32 + 1580 = 1612
 //
-//	Time-stamp: 2024-06-27, 13:38:59
+//	Time-stamp: 2024-01-17, 18:06:02
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_OVERLAY_TEXTVIEW_H
 #define GRIT_OVERLAY_TEXTVIEW_H
 
-#define overlay_textviewTilesLen 1572
-extern const unsigned int overlay_textviewTiles[393];
+#define overlay_textviewTilesLen 1580
+extern const unsigned int overlay_textviewTiles[395];
 
 #define overlay_textviewPalLen 32
 extern const unsigned short overlay_textviewPal[16];

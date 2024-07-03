@@ -35,10 +35,10 @@
           (setq temp (get temp (choice (length temp))))
           (chr-new (player) (car temp) (cdr temp) 'neutral nil)
           (chr-del (opponent) 1 14)
-          (if (or (equal (choice 2) 1) (< (scrap) 600))
+          (if (or (equal (choice 2) 1) (< (coins) 600))
               (join "The explorer joined your crew!")
             (progn
-              (scrap-set (- (scrap) 600))
+              (coins-set (- (coins) 600))
               (join "The explorer joined your crew. Hungry, he ate 600@ of your food supplies!"))))
       (progn
         (dialog "Sadly, there's no room...")

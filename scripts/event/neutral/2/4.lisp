@@ -94,7 +94,7 @@
 (let ((val (if (equal (difficulty) 0)
                (+ 900 (choice 500))
              (max (list (+ 900 (choice 500))
-                        (/ (scrap) 2))))))
+                        (/ (coins) 2))))))
   (defn on-converge [0]
     (dialog
      "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
@@ -106,13 +106,13 @@
 
 
   (defn on-dialog-accepted [0]
-    (if (> val (scrap))
+    (if (> val (coins))
         (progn
           (opponent-mode 'hostile)
           (adventure-log-add 32 '())
           (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
       (progn
-        (scrap-add (- val))
+        (coins-add (- val))
         (adventure-log-add 31 (list val))
         (dialog "The goblin king rejoices, having successfully extorted "
                 (string val)

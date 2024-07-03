@@ -49,7 +49,7 @@
 
     (adventure-log-add 11 (list amt))
 
-    (scrap-add amt)
+    (coins-add amt)
 
     ((eval-file "/scripts/util/pickup_cart.lisp") 1
      "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")))

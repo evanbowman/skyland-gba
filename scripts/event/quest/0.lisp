@@ -61,7 +61,7 @@
                       (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
                   (if (and m c)
                       (progn
-                        (scrap-add 500)
+                        (coins-add 500)
                         (push 'qids 0)
                         (adventure-log-add 16 '())
                         (push 'quests (cons "/scripts/event/quest_marker/delivery.lisp"
@@ -77,7 +77,7 @@
                        "she had to relocate to flee the storm. Here's 400@ for your trouble.")
                       (setq on-dialog-closed
                             (lambda
-                              (scrap-add 400)
+                              (coins-add 400)
                               (exit))))))))
 
         (setq on-dialog-declined

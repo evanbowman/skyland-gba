@@ -369,8 +369,6 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
         } else if (cp == '*') {
             PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 149);
-        } else if (cp == '`') {
-            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 147);
         } else {
             PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
         }

@@ -48,7 +48,7 @@
 (flag-show (player) 0)
 
 
-(scrap-add 9000)
+(coins-add 9000)
 
 
 (opponent-init 13 'hostile)

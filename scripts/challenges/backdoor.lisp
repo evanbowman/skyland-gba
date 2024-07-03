@@ -3,7 +3,7 @@
 ;;;
 
 
-(scrap-add 5300)
+(coins-add 5300)
 
 (defn on-victory [0]
   (challenge-complete 2))

@@ -34,7 +34,7 @@
    (hull 4 13)
    (hull 4 14)))
 
-(scrap-set 800)
+(coins-set 800)
 
 
 (flag-show (player) 0)

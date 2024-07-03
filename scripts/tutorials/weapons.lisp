@@ -15,7 +15,7 @@
 
 
 
-(scrap-add 20000)
+(coins-add 20000)
 
 
 (opponent-init 7 'hostile)

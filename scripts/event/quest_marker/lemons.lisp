@@ -50,7 +50,7 @@
 
               (adventure-log-add 23 (list c (rcnt (player) 'lemon-tree)))
 
-              (scrap-add c)
+              (coins-add c)
 
               (setq quests '())
 

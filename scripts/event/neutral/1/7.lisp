@@ -45,12 +45,12 @@
                     "@, you interested?")
             (dialog-await-y/n)
             (defn on-dialog-accepted [0]
-              (if (< (scrap) cost)
+              (if (< (coins) cost)
                   (progn
-                    (dialog "<c:engineer:15>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (scrap) " " cost))
+                    (dialog "<c:engineer:15>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (coins) " " cost))
                     (exit))
                 (progn
-                  (scrap-add (* -1 cost))
+                  (coins-add (* -1 cost))
                   (sound "build0")
                   (map
                    (lambda

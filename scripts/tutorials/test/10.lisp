@@ -7,5 +7,5 @@
  '((4 12 (id . 8)) (3 12 (id . 9))))
 
 (assert-eq
- (scrap)
+ (coins)
  1230)

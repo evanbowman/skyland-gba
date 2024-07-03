@@ -42,7 +42,7 @@
 
             (dialog "<c:traveller:23> We've arrived! Unfortunately, it's time we parted ways; I need to start repairs and move my island out of the way of this storm. I'm grateful for your help, here're a few things that you may find useful (2000@ and one random block) ")
             (defn on-dialog-closed [0]
-              (scrap-add 2000)
+              (coins-add 2000)
               (let ((sym0 (get sel 0)))
                 (alloc-space sym0)
                 (sel-input sym0

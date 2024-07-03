@@ -17,7 +17,7 @@
 (let ((val (if (equal (difficulty) 0)
                (+ 900 (choice 500))
              (max (list (+ 500 (choice 500))
-                        (/ (scrap) 3))))))
+                        (/ (coins) 3))))))
   (setq on-converge
         (lambda
           (dialog
@@ -31,13 +31,13 @@
 
   (setq on-dialog-accepted
         (lambda
-          (if (> val (scrap))
+          (if (> val (coins))
               (progn
                 (opponent-mode 'hostile)
                 (adventure-log-add 32 '())
                 (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
             (progn
-              (scrap-add (- val))
+              (coins-add (- val))
               (dialog "The goblin king rejoices, having successfully extorted "
                       (string val)
                       "@.")

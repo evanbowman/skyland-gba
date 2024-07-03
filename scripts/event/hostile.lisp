@@ -41,7 +41,7 @@
 
 
 (let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
-      (c (scrap))
+      (c (coins))
       (crew (length (chrs (player)))))
   (defn on-victory [0]
 
@@ -51,7 +51,7 @@
       (when (< rem crew)
         (adventure-log-add 4 (list (- crew rem)))))
 
-    (adventure-log-add 2 (list (- c (scrap)) (scrap-victory)))
+    (adventure-log-add 2 (list (- c (coins)) (coins-victory)))
 
     (when vfn
       (vfn))))

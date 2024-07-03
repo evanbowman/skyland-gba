@@ -84,13 +84,13 @@
 
 (defn on-dialog-accepted [0]
   (let ((dest (chr-slots (player))))
-    (if (> (* 400 (zone)) (scrap))
+    (if (> (* 400 (zone)) (coins))
         (progn
           (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
           (exit))
       (if dest
           (progn
-            (scrap-add (* -400 (zone)))
+            (coins-add (* -400 (zone)))
             (setq dest (sample dest))
             (chr-new (player) (car dest) (cdr dest) 'neutral nil)
             (chr-del (opponent) 0 14)
