@@ -65,7 +65,7 @@
    (233 L-p)
    (50 L-np)
    (50 nil)
-   (100 "<c:Milo:5>Alright, we've boarded! Your crew already knows what to do, just tell them where to go! They'll plunder any rooms (except for stairwells) for coins, and fight enemy goblins! Transporters can also return characters back to your island, but we have to wait for them to recharge...")
+   (100 "<c:Milo:5>Alright, we've boarded! Your crew already knows what to do, just tell them where to go! They'll plunder any rooms (except for stairwells) for resources, and fight enemy goblins! Transporters can also return characters back to your island, but we have to wait for them to recharge...")
    (233 Right)
    (250 Right)
    (200 Right)

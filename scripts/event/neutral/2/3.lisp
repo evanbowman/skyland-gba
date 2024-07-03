@@ -27,7 +27,7 @@
 (defn on-converge [0]
   (dialog "<c:captain:7> I managed to steal this decimator from some goblins, but they're catching up to me! I know... I could sell you the weapon! I'll install it on your island for @1500...")
   (setq on-converge nil)
-  (dialog-await-binary-q "Here's the money…" "no thanks"))
+  (dialog-await-binary-q "Here's 1500@…" "no thanks"))
 
 
 (setq on-dialog-declined exit)

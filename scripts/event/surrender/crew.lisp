@@ -99,7 +99,7 @@
                              (format "%@" (coins-victory))
                              ". <B:0>Or you may end the fight and accept the terms of the "
                              "goblins' surrender. <B:0>"
-                             "Goblins may offer you crewmembers, blocks, and/or money in their surrender options.")
+                             "Goblins may offer you crewmembers, blocks, and/or resources (@) in their surrender options.")
 
                           (setq on-dialog-closed rtry))))
 

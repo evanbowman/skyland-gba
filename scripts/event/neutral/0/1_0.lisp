@@ -29,7 +29,7 @@
 (defn on-converge [0]
   (dialog "<c:redbeard:12>Aarrrgh!! You're tresspassing in my domain. Gimme 600@ or I'll blast your island to bits!")
   (dialog-opts-reset)
-  (dialog-opts-push "here's the money…" on-dialog-accepted)
+  (dialog-opts-push "here's 600@…" on-dialog-accepted)
 
   (dialog-opts-push "you're bluffing!"
                     (lambda

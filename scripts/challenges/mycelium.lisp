@@ -27,7 +27,7 @@
          "Hint: you can incapacitate the cannon by destroying the two forcefields in front of it, allowing the mycelium to grow over the cannon.")
         ((equal cnt 2)
          (setq cnt 0)
-         "Ok, one final hint: After building anything that you need from the manufactory, scrap it for coins."))))
+         "Ok, one final hint: After building anything that you need from the manufactory, salvage it for resources."))))
 
 
     (setq on-dialog-declined (lambda '()))))

@@ -68,7 +68,7 @@
                       (setq skip 0)
                       (on-timeout 15000 'fut))
                   (progn
-                    (dialog "<c:merchant:7> Sorry, that's not enough money! Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
+                    (dialog "<c:merchant:7> Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?")
                     (dialog-await-y/n)
                     (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
                     (setq on-dialog-declined (lambda (unbind 'fut) (exit))))))

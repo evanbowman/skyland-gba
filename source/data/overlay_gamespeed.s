@@ -9,7 +9,7 @@
 @	+ 504 tiles lz77 compressed
 @	Total size: 32 + 2884 = 2916
 @
-@	Time-stamp: 2024-01-17, 18:06:05
+@	Time-stamp: 2024-07-03, 06:01:43
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -121,7 +121,7 @@ overlay_gamespeedTiles:
 
 	.word 0x059001F0,0xB011FACC,0xF0CCCC03,0x88059001,0x01F0CC88,0xEEEE0590,0x059001F0,0xF0FF3333
 	.word 0xFA059001,0xF103B0F1,0xF303B091,0xCF03B0B2,0x1EB59DF4,0x01F06666,0xFF210590,0x608001F0
-	.word 0x0E0E0E08
+	.word 0x9BD1ED08
 
 	.section .rodata
 	.align	2
