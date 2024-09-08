@@ -5,18 +5,18 @@
 
 (coins-add 5300)
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 2))
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (dialog "Hint: You may need to use a repair-drone in an unconventional way. Also: read the description for nemesis in the game's glossary."))
 
-  (setq on-dialog-declined (lambda '())))
+  (setq on-dialog-declined (lambda ())))
 
 
 (terrain-set (player) 6)

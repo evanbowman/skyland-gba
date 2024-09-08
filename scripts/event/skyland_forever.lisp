@@ -15,8 +15,8 @@
    (hull 0 12)))
 
 
-(map (lambda
-       (chr-new (player) $0 14 'neutral 0))
+(map (lambda (x)
+       (chr-new (player) x 14 'neutral 0))
      (range 0 3))
 
 (flag-show (player) 0)

@@ -60,7 +60,7 @@
 (flag-show (opponent) 4)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (setq on-converge nil)
   (dialog
    "The ship's weapons seem to be more-or-less intact! Attempt to remove one?")
@@ -69,25 +69,25 @@
   (apply dialog-opts-push (take 'beam-gun))
   (apply dialog-opts-push (take 'incinerator))
   (apply dialog-opts-push (take 'splitter))
-  (dialog-opts-push "nope" (lambda
+  (dialog-opts-push "nope" (lambda ()
                              (unbind 'take)
                              (exit))))
 
 
-(defn take [1]
-  (let ((wpn $0))
+(defn take (w)
+  (let ((wpn w))
     (list
      (string "take " (rinfo 'name wpn) "…")
-     (lambda
+     (lambda ()
        (sel-input
         wpn
         "Place where?"
-        (lambda
-          (room-new (player) `(,wpn ,$1 ,$2))
+        (lambda (isle x y)
+          (room-new (player) `(,wpn ,x ,y))
 
-          (map (lambda
-                 (when (equal (car $0) wpn)
-                   (room-del (opponent) (get $0 1) (get $0 2))))
+          (map (lambda (room)
+                 (when (equal (car room) wpn)
+                   (room-del (opponent) (get room 1) (get room 2))))
                (rooms (opponent)))
 
 
@@ -96,12 +96,12 @@
 
           (let ((opts '(beam-gun incinerator splitter))
                 (wake
-                 (lambda
+                 (lambda ()
                    (opponent-mode 'hostile)
                    (dialog "<c:abandoned ship ai:25> .<d:500>.<d:500>.<d:500>.<d:500> "
                            "PROCESSING INTERRUPT... <B:0> BLOCK DETECTED MISSING! "
                            "<B:0> HOSTILE THREAT DETECTED")
-                   (defn on-dialog-closed [0]
+                   (defn on-dialog-closed ()
                      (map (curry room-new (opponent))
                           '((forcefield* 0 10)
                             (forcefield* 0 11)
@@ -121,7 +121,7 @@
                      (dialog "The vessel begins charging its weapons...")
                      (setq on-dialog-closed nil)))))
 
-            (setq opts (filter (lambda (not (equal $0 wpn))) opts))
+            (setq opts (filter (notequal? wpn) opts))
             (dialog-opts-reset)
             (dialog-opts-push (string "take " (rinfo 'name (get opts 0)) "…") wake)
             (dialog-opts-push (string "take " (rinfo 'name (get opts 1)) "…") wake)

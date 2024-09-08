@@ -14,14 +14,12 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (let ((c (cargo-bays (player))))
-          (let ((p (filter
-                    (lambda
-                      (equal
-                       "parcel"
-                       (cargo (player) (car $0) (cdr $0))))
-                    c)))
+          (let ((p (filter (lambda (xy)
+                             (equal "parcel"
+                                    (cargo (player) (car xy) (cdr xy))))
+                           c)))
             (if p
                 (let ((temp (+ 2500 (choice 2000))))
                   ;; Clear out cargo

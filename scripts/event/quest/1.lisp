@@ -46,13 +46,13 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog
          "<c:banana man:8>Waaa! My precious b'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?")
         (dialog-await-binary-q "of course!" "I'm kind of busy…")
 
         (setq on-dialog-accepted
-              (lambda
+              (lambda ()
                 (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
                   (setq on-dialog-closed exit)
                   (if m
@@ -66,6 +66,6 @@
                       (dialog "Without warning, banana man became distracted by something and cut the transmission. Such a shame, he was interesting!"))))))
 
         (setq on-dialog-declined
-              (lambda
+              (lambda ()
                 (dialog "<c:banana man:8>You won't help me!? _sigh_ Nobody helps banana man these days...")
                 (setq on-dialog-closed exit)))))

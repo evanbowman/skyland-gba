@@ -73,7 +73,7 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog "One of the mercenaries offers to join you crew, for a cost of "
                 (string (* 400 (zone)))
                 "@. Accept offer?")
@@ -82,7 +82,7 @@
         (setq on-converge nil)))
 
 
-(defn on-dialog-accepted [0]
+(defn on-dialog-accepted ()
   (let ((dest (chr-slots (player))))
     (if (> (* 400 (zone)) (coins))
         (progn
@@ -95,7 +95,7 @@
             (chr-new (player) (car dest) (cdr dest) 'neutral nil)
             (chr-del (opponent) 0 14)
             (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")
-            (defn on-dialog-closed [0]
+            (defn on-dialog-closed ()
               (setq on-dialog-closed nil)
               (dialog "The mercenary joined your crew!")
               (exit))
@@ -107,7 +107,7 @@
 
 
 (setq on-dialog-declined
-      (lambda
+      (lambda ()
         (dialog "The mercenaries became angry, and cut the transmission.")
         (adventure-log-add 28 '())
         (exit)))

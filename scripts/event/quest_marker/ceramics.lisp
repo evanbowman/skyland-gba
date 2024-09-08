@@ -23,13 +23,13 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (let ((c (cargo-bays (player))))
           (let ((p (filter
-                    (lambda
+                    (lambda (xy)
                       (equal
                        "ceramic tiles"
-                       (cargo (player) (car $0) (cdr $0))))
+                       (cargo (player) (car xy) (cdr xy))))
                     c)))
             (if p
                 (let ((sale (+ 1000 (* (lookup 4 qvar) 2))))

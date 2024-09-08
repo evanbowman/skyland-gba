@@ -2,6 +2,6 @@
 ;; then executes each tutorial, checking the tutorial results with the numbered
 ;; scripts in this directory.
 
-(defn assert-eq [2]
-  (when (not (equal $0 $1))
-    (error (format "failure! expected % not equal %" $0 $1))))
+(defn assert-eq (lhs rhs)
+  (when (not (equal lhs rhs))
+    (error (format "failure! expected % not equal %" lhs rhs))))

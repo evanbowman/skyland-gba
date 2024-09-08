@@ -46,27 +46,39 @@
  listed below result from
  gba hardware limitations.
 
- 1) The language uses
- positional arguments for
- functions (e.g. $0 $1 $2...)
- I do this to reduce
- stress on the string intern
- table. The defn macros allow
- you to specify a required
- argument count. While
- positional arguments are
- less readable than named
- arguments, most lisp
- functions should be small
- anyway...
+ 1) While the language does
+ support named arguments for
+ functions, the older version
+ of the interpreter only
+ featured unnamed arguments,
+ referenced by the $ symbol
+ followed by the argument
+ number. The interpreter
+ does now support lambdas
+ with named arguments, but
+ the older (fn ...) syntax
+ still exists in many
+ scripts. I am slowly
+ replacing it.
 
- Furthermore, the fn macro
- allows you to declare
- functions with named
- arguments.
+ Furthermore, the named
+ argument syntax is built
+ on top of the numbered
+ positional argument syntax,
+ so you may notice $ symbols
+ in place of argument variable
+ names in error messages.
 
+ 2) The language does not
+ allow you to capture a
+ function argument as part of
+ a closure, you have to
+ manually create a let
+ binding. Mostly for reasons
+ hinted at in 1). I'll fix
+ this someday.
 
- 2) The reader (read) performs
+ 3) The reader (read) performs
  macro expansion. With very
  limited cpu, macroexpanding
  a function each time you call

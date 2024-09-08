@@ -19,7 +19,7 @@
              (max (list (+ 500 (choice 500))
                         (/ (coins) 3))))))
   (setq on-converge
-        (lambda
+        (lambda ()
           (dialog
            "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
            (string val)
@@ -30,7 +30,7 @@
 
 
   (setq on-dialog-accepted
-        (lambda
+        (lambda ()
           (if (> val (coins))
               (progn
                 (opponent-mode 'hostile)
@@ -48,7 +48,7 @@
 
 
 (setq on-dialog-declined
-      (lambda
+      (lambda ()
         (opponent-mode 'hostile)
         (adventure-log-add 33 '())
         (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))

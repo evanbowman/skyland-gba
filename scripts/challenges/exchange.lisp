@@ -4,22 +4,22 @@
 
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Sorry, no hints..."))
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 10))
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (dialog "Hint: Transporters can remove crewmembers from enemy castles..."))
 
-  (setq on-dialog-declined (lambda '())))
+  (setq on-dialog-declined (lambda ())))
 
 
 
@@ -30,8 +30,8 @@
 
 
 (map
- (lambda
-   (chr-new (player) (car $0) (cdr $0) 'neutral nil))
+ (lambda (xy)
+   (chr-new (player) (car xy) (cdr xy) 'neutral nil))
  '((3 . 13)
    (2 . 13)))
 
@@ -55,7 +55,7 @@
 
 
 (map
- (lambda
-   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
+ (lambda (xy)
+   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
  '((6 . 14)
    (5 . 14)))

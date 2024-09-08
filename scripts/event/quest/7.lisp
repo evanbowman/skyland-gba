@@ -63,14 +63,14 @@
    (hull 11 13)))
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (setq on-converge nil)
   (dialog "<c:mining cheif:20>Hey there! One of our other mining platforms nearby is running low on blasting equipment. <B:0> Can you do us a favor and transport some explosives for us?")
-  (defn on-dialog-closed [0]
+  (defn on-dialog-closed ()
     (dialog "Sounds extremely dangerous... but the miners offer to pay you quite well. Accept task?")
     (dialog-await-y/n))
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
           (bloc (if (equal (difficulty) 0)
                     'dynamite
@@ -83,17 +83,17 @@
             (dialog "<c:mining cheif:20>Great! Let's move some of this cargo over to your island...")
             (adventure-log-add 57 nil)
 
-            (defn on-dialog-closed [0]
+            (defn on-dialog-closed ()
               (let ((cnt 0)) ; closure
-                ((lambda
+                ((lambda ()
                    (let ((t (this))
                          (del 0))
                      (alloc-space bloc)
                      (sel-input
                       bloc
                       (string "place explosive " (+ cnt 1) "/7:")
-                      (lambda
-                        (room-new (player) (list bloc $1 $2))
+                      (lambda (isle x y)
+                        (room-new (player) (list bloc x y))
                         (sound "build0")
 
                         (room-del (opponent) (+ cnt 2) 12)

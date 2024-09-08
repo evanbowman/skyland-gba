@@ -15,14 +15,14 @@
 (chr-new (player) 2 14 'neutral nil)
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (dialog "Build a rocket-bomb, defend it well..."))
 
-  (setq on-dialog-declined (lambda '())))
+  (setq on-dialog-declined (lambda ())))
 
 
 (flag-show (player) 0)
@@ -87,7 +87,7 @@
    (missile-silo 11 9)))
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 6))
 
 

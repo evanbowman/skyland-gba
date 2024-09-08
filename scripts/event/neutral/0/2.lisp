@@ -36,7 +36,7 @@
 
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (setq on-converge nil)
 
   (let ((amt (+ 400 (choice 900))))

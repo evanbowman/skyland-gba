@@ -1,6 +1,6 @@
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Sorry, no hints for this one."))
 
 
@@ -71,8 +71,8 @@
 
 
 (map
- (lambda
-   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
+ (lambda (xy)
+   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
  '((4 . 6)
    (4 . 14)
    (5 . 14)
@@ -84,5 +84,5 @@
 (weather 3)
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 7))

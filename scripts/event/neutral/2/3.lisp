@@ -24,7 +24,7 @@
 (chr-new (opponent) 2 14 'neutral 0)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog "<c:captain:7> I managed to steal this decimator from some goblins, but they're catching up to me! I know... I could sell you the weapon! I'll install it on your island for @1500...")
   (setq on-converge nil)
   (dialog-await-binary-q "Here's 1500@…" "no thanks"))
@@ -33,7 +33,7 @@
 (setq on-dialog-declined exit)
 
 
-(defn on-dialog-accepted [0]
+(defn on-dialog-accepted ()
   (if (bound? 'fut) (unbind 'fut))
 
   (if (< (coins) 1500)
@@ -41,14 +41,14 @@
         (dialog "<c:captain:7> Sorry, I went to all this trouble, I really can't sell you this tech for less than @1500. Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
         (dialog-await-y/n)
         (let ((f (this)))
-          (defn fut [0]
+          (defn fut ()
             (if (> (coins) 1499)
                 (progn
                   (dialog "<c:captain:7> Seems like you have enough now!")
                   (setq on-dialog-closed f))
               (f))))
-        (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
-        (setq on-dialog-declined (lambda (unbind 'fut) (exit))))
+        (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
+        (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))
     (progn
       (coins-add -1500)
 
@@ -62,8 +62,8 @@
       (sel-input
        'decimator
        "Place weapon where? (2x2)"
-       (lambda
-         (room-new (player) (list 'decimator $1 $2))
+       (lambda (isle x y)
+         (room-new (player) (list 'decimator x y))
          (room-del (opponent) 0 13)
          (dialog "<c:captain:7> Ok, all finished! The weapon recharges quite slowly, but nothing's more destructive! You need to move one of your crew into the weapon, though, or it won't recharge.")
          (adventure-log-add 44 '())

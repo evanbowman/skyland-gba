@@ -47,7 +47,7 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog
          "<c:merchant:7>We promised to deliver some cargo to our customers, but with "
          "this storm approaching, we don't think we can make the delivery. "
@@ -56,7 +56,7 @@
         (dialog-await-binary-q "I accept!" "sorry, but no.")
 
         (setq on-dialog-accepted
-              (lambda
+              (lambda ()
                 (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
                       (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
                   (if (and m c)
@@ -76,11 +76,11 @@
                        "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
                        "she had to relocate to flee the storm. Here's 400@ for your trouble.")
                       (setq on-dialog-closed
-                            (lambda
+                            (lambda ()
                               (coins-add 400)
                               (exit))))))))
 
         (setq on-dialog-declined
-              (lambda
+              (lambda ()
                 (dialog "<c:merchant:7>I understand... I guess we'll try to find someone else...")
                 (setq on-dialog-closed exit)))))

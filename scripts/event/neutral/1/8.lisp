@@ -35,9 +35,9 @@
 (flag-show (opponent) 7)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (let ((c (choice 5))
-        (end (lambda
+        (end (lambda ()
                ((eval-file "/scripts/util/pickup_cart.lisp") 4
          "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
     (cond
@@ -64,7 +64,7 @@
            (rinfo 'name pick)
            ". Your crew asks you where to install it...")
           (adventure-log-add 38 (rinfo 'name pick))
-          (defn on-dialog-closed [0]
+          (defn on-dialog-closed ()
             (setq on-dialog-closed nil)
             (alloc-space pick)
             (sel-input
@@ -72,8 +72,8 @@
              (format "Pick a slot (%x%)"
                      (car (rinfo 'size pick))
                      (cdr (rinfo 'size pick)))
-             (lambda
-               (room-new (player) `(,pick ,$1 ,$2))
+             (lambda (isle x y)
+               (room-new (player) `(,pick ,x ,y))
                (sound "build0")
                (dialog "All done!")
                (end))))))))))

@@ -48,8 +48,8 @@
 
 
 (map
- (lambda
-   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
+ (lambda (xy)
+   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
  '((4 . 14)
    (5 . 14)
    (4 . 12)

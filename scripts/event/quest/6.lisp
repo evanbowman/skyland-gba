@@ -12,21 +12,21 @@
 
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog "A small injured boy begins speaking softly in an archaic language...")
 
-  (defn on-dialog-closed [0]
+  (defn on-dialog-closed ()
     (dialog "<c:injured boy:26> "
             "<S:1>i am the only survivor! can you help me get back home?")
 
-    (defn on-dialog-closed [0]
+    (defn on-dialog-closed ()
       (dialog "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")
 
       (setq on-dialog-closed nil)
 
       (dialog-await-y/n)
 
-      (defn on-dialog-accepted [0]
+      (defn on-dialog-accepted ()
 
         (let ((sl (chr-slots (player))))
           (when (not sl)

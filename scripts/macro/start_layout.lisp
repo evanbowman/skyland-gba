@@ -2,11 +2,11 @@
 (mcr-sector 0 0)
 
 (map
- (lambda
+ (lambda (xyz)
    (mcr-block-set
-    (get $0 0)
-    (get $0 1)
-    (get $0 2)
+    (get xyz 0)
+    (get xyz 1)
+    (get xyz 2)
     4))
  '((3 3 0)
    (3 2 0)

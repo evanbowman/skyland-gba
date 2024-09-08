@@ -37,11 +37,11 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (let ((info (cart-info 0)))
           (dialog "Looks like no one's home! The sign on the door reads: 'Away on holiday --Evan'. Amongst the clutter, you find a data cartridge!")
           (setq on-dialog-closed
-                (lambda
+                (lambda ()
                   (sound "click_digital_1")
                   (cart-add 0)
                   (dialog "You pick up a cart labled "

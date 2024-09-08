@@ -4,46 +4,46 @@
 
 
 
-(defn on-fadein [0]
+(defn on-fadein ()
   (dialog "<c:goblin king:3>This whole island needs to be demolissshed! That'sss right, every ssingle block! Not one block can remain!")
-  (defn on-dialog-closed [0]
+  (defn on-dialog-closed ()
     (dialog
      "<c:goblin:2>Hey King, we've finished wiring the island with explossivesss!")
-    (defn on-dialog-closed [0]
+    (defn on-dialog-closed ()
       (dialog
        "<c:goblin king:3>Heh. Well this complicates things... hahahahaha")
       (setq on-dialog-closed nil))))
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (dialog "Hint: Check which blocks are vulnerable to ion cannons. "
             "The glossary has a search filter for this..."))
 
-  (setq on-dialog-declined (lambda '())))
+  (setq on-dialog-declined (lambda ())))
 
 
 (let ((skip nil))
-  (defn on-victory [0]
+  (defn on-victory ()
     (let ((cnt (+ (rcnt (opponent) 'power-core)
                   (rcnt (opponent) 'reactor))))
       (if (> (length (rooms (opponent))) cnt)
           (progn
             (let ((rem nil)
                   (hint '(")")))
-              (map (lambda
-                     (if (not (assoc (car $0) rem))
-                         (setq rem (cons (cons (car $0) (rcnt (opponent) (car $0))) rem))))
+              (map (lambda (room)
+                     (if (not (assoc (car room) rem))
+                         (setq rem (cons (cons (car room) (rcnt (opponent) (car room))) rem))))
                    (rooms (opponent)))
-              (map (lambda
+              (map (lambda (kvp)
                      (setq hint
                            (cons (string
-                                  (string (cdr $0))
+                                  (string (cdr kvp))
                                   " "
-                                  (rinfo 'name (car $0))
+                                  (rinfo 'name (car kvp))
                                   ",")
                                  hint)))
                    rem)

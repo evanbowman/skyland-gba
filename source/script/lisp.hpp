@@ -389,7 +389,6 @@ struct DataBuffer
 
 struct String
 {
-
     ValueHeader hdr_;
     bool is_literal_;
 

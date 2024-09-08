@@ -31,11 +31,12 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (let ((c (min (list (lookup 2 qvar)
                             (* 1400
                                (length (filter
-                                        (lambda (equal (car $0) 'lemon-tree))
+                                        (lambda (room)
+                                          (equal (car room) 'lemon-tree))
                                         (rooms (player)))))))))
           (if (equal c 0)
               (progn
@@ -54,18 +55,16 @@
 
               (setq quests '())
 
-              (map
-               (lambda
-                 (if (equal (car $0) 'lemon-tree)
-                     (room-del (player) (get $0 1) (get $0 2))))
-               (rooms (player)))
+              (map (lambda (room)
+                    (if (equal (car room) 'lemon-tree)
+                        (room-del (player) (get room 1) (get room 2))))
+                   (rooms (player)))
 
-              (map
-               (lambda
-                 (room-new
-                  (opponent)
-                  (list 'lemon-tree (car $0) (cdr $0))))
-               (construction-sites (opponent) '(1 . 2)))
+              (map (lambda (xy)
+                     (room-new
+                      (opponent)
+                      (list 'lemon-tree (car xy) (cdr xy))))
+                   (construction-sites (opponent) '(1 . 2)))
 
               ;; For the lemon-tree achievement
               (achieve 14)

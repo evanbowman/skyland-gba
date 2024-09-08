@@ -6,21 +6,21 @@
 (coins-add 8500)
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 1))
 
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Sorry, no hints for this one."))
 
 
 (setq on-fadein
-      (lambda
+      (lambda ()
         (dialog "<c:goblin:2>Hey King, we've found a defensselesss cassstle!")
 
         (setq on-dialog-closed
-              (lambda
+              (lambda ()
                 (dialog "<c:goblin king:3>#cackle# minionsss, pepare for boarding!")
                 (setq on-dialog-closed nil)))))
 
@@ -103,8 +103,8 @@
 
 
 (map
- (lambda
-   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
+ (lambda (xy)
+   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
  '((3 . 14)
    (4 . 14)
    (5 . 14)

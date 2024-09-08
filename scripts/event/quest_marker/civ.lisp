@@ -57,35 +57,35 @@
 (let ((id (lookup 6 qvar))
       (boy nil))
 
-  (map (lambda
-         (if (equal id (lookup 'id (cddr $0)))
+  (map (lambda (chr)
+         (if (equal id (lookup 'id (cddr chr)))
              (setq boy true)))
        (chrs (player)))
 
   (if boy
-      (defn on-converge [0]
+      (defn on-converge ()
         (dialog "<c:sylph:21><S:1> hello, traveller...")
 
-        (defn on-dialog-closed [0]
+        (defn on-dialog-closed ()
           (dialog "<c:orphan boy:26><S:1>oh!!! i'm home at last!")
 
-          (defn on-dialog-closed [0]
+          (defn on-dialog-closed ()
             (dialog "<c:sylph:21><S:1>oh! what have we here?!")
 
-            (defn on-dialog-closed [0]
-              (map (lambda
-                     (if (equal id (lookup 'id (cddr $0)))
-                         (chr-del (player) (car $0) (cadr $0))))
+            (defn on-dialog-closed ()
+              (map (lambda (chr)
+                     (if (equal id (lookup 'id (cddr chr)))
+                         (chr-del (player) (car chr) (cadr chr))))
                    (chrs (player)))
               (coins-add 3000)
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
-              (defn on-dialog-closed [0]
+              (defn on-dialog-closed ()
                 (dialog "<c:sylph:21>hello, traveller...<B:0> We are very grateful to you for bringing him to us...")
-                (setq on-dialog-closed (lambda
+                (setq on-dialog-closed (lambda ()
                                          (on-timeout 500 'fut)
                                          (setq on-dialog-closed nil)))
-                (defn fut [0]
+                (defn fut ()
                   (sound "bell")
                   (sound "thunder_close_1")
                   (effect "lightning" 0 0)
@@ -94,11 +94,11 @@
 
                   (on-timeout 1000 'fut)
 
-                  (defn fut[0]
+                  (defn fut ()
                     (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
                     (unbind 'fut)
                     (setq on-dialog-closed exit))))))))
 
-    (defn on-converge [0]
+    (defn on-converge ()
       (dialog "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about...")
       (exit))))

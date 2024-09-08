@@ -15,7 +15,7 @@
 
 
 (setq on-fadein
-      (lambda
+      (lambda ()
         (dialog "<c:storm king:4> . . .")))
 
 
@@ -96,11 +96,11 @@
 
 (if (> (difficulty) 1)
     (let ((s (filter
-              (lambda
-                (> (cdr $0) 10))
+              (lambda (xy)
+                (> (cdr xy) 10))
               (chr-slots (opponent)))))
       (map
-       (lambda
+       (lambda () ;; fix args
          (let ((sl (get s $0)))
            (chr-new (opponent) (car sl) (cdr sl) 'hostile 0)))
        (range 2 9))

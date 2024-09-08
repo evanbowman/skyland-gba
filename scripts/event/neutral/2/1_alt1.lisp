@@ -36,11 +36,14 @@
    (hull 7 8)))
 
 
-(map (lambda (chr-new (opponent) (car $0) (cdr $0) 'neutral 0))
-     '((0 . 10) (1 . 10) (6 . 7)))
+(map (lambda (xy)
+       (chr-new (opponent) (car xy) (cdr xy) 'neutral 0))
+     '((0 . 10)
+       (1 . 10)
+       (6 . 7)))
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog "The island's radio appears to be broken. <B:0> Three survivors signal to you that they'd like to come aboard, but it's not clear whether they can be trusted.<B:0> Invite survivors aboard?")
 
   (dialog-await-y/n)
@@ -48,20 +51,20 @@
 
 
 (let ((bad (choice 2))
-      (move (lambda
+      (move (lambda (type)
               (let ((ch '((0 . 10) (1 . 10) (6 . 7))))
                 (while (and ch (chr-slots (player)))
                   (let ((sl (chr-slots (player))))
                     (chr-del (opponent) (caar ch) (cdar ch))
                     (setq ch (cdr ch))
-                    (chr-new (player) (caar sl) (cdar sl) $0 0)))
+                    (chr-new (player) (caar sl) (cdar sl) type 0)))
                 (while (and ch (chr-slots (opponent)))
                   (let ((sl (chr-slots (opponent))))
                     (chr-del (opponent) (caar ch) (cdar ch))
                     (setq ch (cdr ch))
-                    (chr-new (opponent) (caar sl) (cdar sl) $0 0)))))))
+                    (chr-new (opponent) (caar sl) (cdar sl) type 0)))))))
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (cond
      (bad
       (move 'hostile)
@@ -71,12 +74,12 @@
       (room-new (opponent) '(mycelium 6 9))
       (room-mut (opponent) 0 12 'arc-gun)
       (room-mut (opponent) 0 14 'arc-gun)
-      (map (lambda
-             (if (equal (car $0) 'hull)
-                 (room-mut (opponent) (get $0 1) (get $0 2) 'mirror-hull)))
+      (map (lambda (room)
+             (if (equal (car room) 'hull)
+                 (room-mut (opponent) (get room 1) (get room 2) 'mirror-hull)))
            (rooms (opponent)))
       (dialog "The survivors turned out to be vicious goblins, and their island is not as defensless as it initially appeared...")
-      (defn on-dialog-closed [0]
+      (defn on-dialog-closed ()
         (dialog "<c:goblin:2>Die humansss!")
         (setq on-dialog-closed nil))
       (opponent-mode 'hostile))
@@ -85,7 +88,7 @@
       (if (chrs (opponent))
           (dialog "Some of the survivors joined your crew!")
         (dialog "The survivors joined your crew!"))
-      (defn on-dialog-closed [0]
+      (defn on-dialog-closed ()
         (dialog "...")
         (setq on-dialog-closed exit))))))
 

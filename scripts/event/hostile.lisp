@@ -43,7 +43,7 @@
 (let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
       (c (coins))
       (crew (length (chrs (player)))))
-  (defn on-victory [0]
+  (defn on-victory ()
 
     ;; For each crew member at the start of the level, check if crewmember still
     ;; exists. if not, record death in the adventure log.

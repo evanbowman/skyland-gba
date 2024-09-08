@@ -28,18 +28,18 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog
          "<c:banana man:8>MY BANANAS!!! HAND THEM OVER!!!")
 
         (setq on-converge nil)
 
         (setq on-dialog-closed
-              (lambda
+              (lambda ()
                 (dialog
                  "<c:goblins:2>Argh, he's sstill chasing us! This guy is relentlessss! Alright, it's not worth the trouble, we'll just give you the bananas back.")
                 (setq on-dialog-closed
-                      (lambda
+                      (lambda ()
                         (island-configure
                          (opponent)
                          '((hull 0 12)
@@ -57,19 +57,18 @@
                            (missile-silo 9 13)
                            (missile-silo 10 13)))
 
-                        (map
-                         (lambda
-                           (room-new
-                            (player)
-                            (list 'banana-plant (car $0) (cdr $0))))
-                         (construction-sites (player) '(1 . 1)))
+                        (map (lambda (xy)
+                               (room-new
+                                (player)
+                                (list 'banana-plant (car xy) (cdr xy))))
+                             (construction-sites (player) '(1 . 1)))
 
                         (adventure-log-add 24 '())
 
                         (dialog
                          "<c:banana man:8>Hooray! My bananas! Time for Banana Breakfast!")
                         (setq on-dialog-closed
-                              (lambda
+                              (lambda ()
                                 (achieve 11)
                                 (coins-add 2000)
                                 (exit 2)))))))))

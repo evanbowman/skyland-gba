@@ -18,7 +18,7 @@
 
 (let ((val (+ 1000 (choice 800))))
   (setq on-converge
-        (lambda
+        (lambda ()
           (dialog
            "The pirates seem to have stolen a powerful imperial assault vessel. They demand "
            (string val)
@@ -29,7 +29,7 @@
 
 
   (setq on-dialog-accepted
-        (lambda
+        (lambda ()
           (if (> 500 (coins))
               (progn
                 (opponent-mode 'hostile)
@@ -43,7 +43,7 @@
 
 
 (setq on-dialog-declined
-      (lambda
+      (lambda ()
         (opponent-mode 'hostile)
         (adventure-log-add 42 '())
         (dialog "Prepare for attack!")))

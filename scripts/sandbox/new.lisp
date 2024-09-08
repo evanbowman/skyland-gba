@@ -13,13 +13,13 @@
 (terrain-set (player) (get conf 1))
 
 
-(defn sb-help [0]
+(defn sb-help ()
   (dialog "Sandbox mode gives you nearly unlimited resources, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
 (if (not (save-bit-load 3))
     (setq on-fadein
-          (lambda
+          (lambda ()
             (setq on-fadein nil)
             (save-bit-store 3 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
@@ -34,11 +34,11 @@
 ;; NOTE: in case I haven't explained elsewhere, the interpreter does a small
 ;; symbol optimization to save space in the string intern table, hence all of
 ;; the four-character variable names.
-(defn mkch [2]
+(defn mkch (i m)
   ;; Arg 0: island
   ;; Arg 1: 'hostile or 'neutral symbol
-  (let ((isle $0)
-        (mode $1))
+  (let ((isle i)
+        (mode m))
 
     ;; NOTE: conf[5] holds the character count config
     (dotimes (get conf 5)
@@ -62,7 +62,7 @@
  '((power-core 1 13)))
 
 
-(mkch (player) 'neutral (lambda (sample '(1 5 10 11 16 14))))
+(mkch (player) 'neutral)
 (flag-show (player) 0)
 
 
@@ -77,7 +77,7 @@
  (opponent)
  `((power-core ,(- (get conf 1) 3) 13)))
 
-(mkch (opponent) 'hostile (lambda 2))
+(mkch (opponent) 'hostile)
 
 
 (unbind 'conf 'mkch)

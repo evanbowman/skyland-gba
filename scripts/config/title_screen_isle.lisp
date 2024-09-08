@@ -5,10 +5,10 @@
 ;; below.
 
 (map
- (lambda
+ (lambda (vxyz)
    (mcr-block-set
-    (get $0 1)
-    (get $0 2)
-    (get $0 3)
-    (get $0 0)))
+    (get vxyz 1)
+    (get vxyz 2)
+    (get vxyz 3)
+    (get vxyz 0)))
  (eval-file (format "/scripts/config/title/%.lisp" (choice 4))))

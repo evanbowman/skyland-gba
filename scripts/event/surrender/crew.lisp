@@ -2,14 +2,14 @@
 (dialog
  "<c:goblin pirates:2>We surrender! Honesst, we promise not to pillage any other cassstles!")
 
-(defn on-dialog-closed [0]
+(defn on-dialog-closed ()
     (setq on-dialog-closed '())
   (let ((c (+ (/ (coins-victory) 2) (/ (coins-victory) 6))))
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
     (dialog-opts-push (format "+1 crew, +%@" c)
-                      (lambda
+                      (lambda ()
                         (coins-add c)
                         (let ((g (chrs (opponent)))
                               (ss (chr-slots (player))))
@@ -44,42 +44,42 @@
       (when cnt
         (dialog-opts-push
          (format "salvage rights: % blocks" cnt)
-         (lambda
+         (lambda ()
            (let ((rtry (this)))
              (sel-input-opponent
               nil
               (format "Take block: (%/%)" (- tot cnt) tot)
-              (lambda
-                (let ((took (car (room-load (opponent) $1 $2))))
-                  (if (room-is-critical (opponent) $1 $2)
+              (lambda (isle x y)
+                (let ((took (car (room-load (opponent) x y))))
+                  (if (room-is-critical (opponent) x y)
                       (progn
                         (dialog "This will remove the island's only power source, causing it to become unstable (you won't be able to take any more blocks), are you sure?")
                         (dialog-await-y/n)
                         (setq on-dialog-declined rtry)
-                        (let ((tx $1)
-                              (ty $2))
-                          (defn on-dialog-accepted [0]
+                        (let ((tx x)
+                              (ty y))
+                          (defn on-dialog-accepted ()
                             (sound "gravel")
                             (alloc-space took)
                             (sel-input
                              took
                              "Place block:"
-                             (lambda
-                               (room-new (player) (list took $1 $2))
+                             (lambda (isle x y)
+                               (room-new (player) (list took x y))
                                (sound "build0")
                                (room-del (opponent) tx ty)
                                (dialog (format "Accepted surrender, and acquired % blocks!" (- tot (- cnt 1))))
                                (adventure-log-add 62 '())
                                (setq on-dialog-closed (curry exit 2)))))))
                       (progn
-                        (room-del (opponent) $1 $2)
+                        (room-del (opponent) x y)
                         (sound "gravel")
                         (alloc-space took)
                         (sel-input
                          took
                          (format "Place block: (%/%)" (- tot cnt) tot)
-                         (lambda
-                           (room-new (player) (list took $1 $2))
+                         (lambda (isle x y)
+                           (room-new (player) (list took x y))
                            (sound "build0")
                            (setq cnt (- cnt 1))
                            (if (equal cnt 0)
@@ -92,7 +92,7 @@
 
     (let ((rtry (this)))
       (dialog-opts-push "(help me decide!)"
-                        (lambda
+                        (lambda ()
                             (dialog
                              "<s:3>. . . . . <s:0> "
                              "Your crew values the resources in the goblin ship at "
@@ -104,6 +104,6 @@
                           (setq on-dialog-closed rtry))))
 
 
-    (dialog-opts-push "unacceptable!" (lambda nil))))
+    (dialog-opts-push "unacceptable!" (lambda ()))))
 
 (gc)

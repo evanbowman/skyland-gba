@@ -6,11 +6,11 @@
 (coins-add 6000)
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 0))
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Sorry, no hints for this one."))
 
 

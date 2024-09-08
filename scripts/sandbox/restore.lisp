@@ -1,11 +1,11 @@
 
-(lambda
+(lambda (d)
   (eval-file "/scripts/reset_hooks.lisp")
 
   (flag-show (player) 0)
 
-  (let ((data $0))
-    (let ((load (lambda (lookup $0 data))))
+  (let ((data d))
+    (let ((load (lambda (key) (lookup key data))))
       (if (> (load 'save-protocol) 2)
           (progn
             (terrain-set (player) (car (load 'terrain)))
@@ -15,17 +15,17 @@
             (island-configure (opponent) (cdr (load 'rooms)))
 
             (let ((setc
-                   (lambda
-                     (let ((isle $0)
-                           (clst $1)
-                           (type $2))
+                   (lambda (i c t)
+                     (let ((isle i)
+                           (clst c)
+                           (type t))
                        (map
-                        (lambda
-                          (let ((plst (cddr $0)))
+                        (lambda (c)
+                          (let ((plst (cddr c)))
                             (let ((chr -1))
                               (setq chr (chr-new isle
-                                                 (get $0 0) ;; x
-                                                 (get $0 1) ;; y
+                                                 (get c 0) ;; x
+                                                 (get c 1) ;; y
                                                  type
                                                  plst))
 

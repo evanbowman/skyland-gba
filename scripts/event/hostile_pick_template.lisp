@@ -1,8 +1,10 @@
 
 (let ((avail-levels (filter
-                     (lambda
-                       (let ((cmp $0))
-                         (not (filter (lambda (equal cmp $0)) enemies-seen))))
+                     (lambda (enmy)
+                       (let ((cmp enmy))
+                         (not (filter (lambda (lv)
+                                        (equal cmp lv))
+                                      enemies-seen))))
                      (range
                       ;; number of levels to select from based on current zone
                       (get '(8 8 7 3) (zone))))))
@@ -22,7 +24,7 @@
 
         (push 'enemies-seen lv)
 
-        (lambda
+        (lambda ()
           (eval-file (format "/scripts/event/hostile/%/%.lisp" (zone) lv))))
     ;; We've run out of level templates! Use procedural generation instead.
     procgen))

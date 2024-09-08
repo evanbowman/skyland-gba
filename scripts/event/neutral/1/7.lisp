@@ -32,10 +32,10 @@
    (stacked-hull 6 11)))
 
 
-(defn on-converge [0]
-  (let ((r (filter (lambda
-                     (or (equal (get $0 0) 'hull)
-                         (equal (get $0 0) 'bronze-hull)))
+(defn on-converge ()
+  (let ((r (filter (lambda (room)
+                     (or (equal (get room 0) 'hull)
+                         (equal (get room 0) 'bronze-hull)))
                    (rooms (player)))))
     (let ((cost (* (length r) 160)))
       (if (length r)
@@ -44,7 +44,7 @@
                     (string cost)
                     "@, you interested?")
             (dialog-await-y/n)
-            (defn on-dialog-accepted [0]
+            (defn on-dialog-accepted ()
               (if (< (coins) cost)
                   (progn
                     (dialog "<c:engineer:15>Sorry! you don't have enough resources, and I can't afford to upgrade your castle." (string (coins) " " cost))
@@ -53,8 +53,8 @@
                   (coins-add (* -1 cost))
                   (sound "build0")
                   (map
-                   (lambda
-                     (room-mut (player) (get $0 1) (get $0 2) 'stacked-hull))
+                   (lambda (room)
+                     (room-mut (player) (get room 1) (get room 2) 'stacked-hull))
                    r)
                   (adventure-log-add 37 '())
                   (dialog "<c:engineer:15> All finished! Your new hull blocks will take 75% less damage from missiles!")
@@ -65,6 +65,6 @@
         (setq on-converge nil)))))
 
 
-(defn on-dialog-declined [0]
+(defn on-dialog-declined ()
   (dialog "<c:engineer:15>That's ok, I understand! Personally, I feel very safe from missiles with all the stacked-hull that I've built up...")
   (exit))

@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (setvar (cdr $0) (car $0)))
+(map (lambda (kvp) (setvar (cdr kvp) (car kvp)))
  '((25000 . "decimator_reload_ms")
    (25000 . "drone_bay_reload_ms")
    (18000 . "transporter_reload_ms")

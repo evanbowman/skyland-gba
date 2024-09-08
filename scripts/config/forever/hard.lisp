@@ -4,7 +4,7 @@
 
 (coins-add 2500)
 
-(map (lambda (setvar (cdr $0) (car $0)))
+(map (lambda (kvp) (setvar (cdr kvp) (car kvp)))
  '((17 . "sf_p1_coin_yield")
    (14 . "sf_p2_coin_yield")
    (7 . "sf_p3_coin_yield")

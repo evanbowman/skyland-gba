@@ -28,7 +28,7 @@
 (let ((trap (choice 2)))
 
   (setq on-dialog-accepted
-      (lambda
+      (lambda ()
         (if (not trap)
             (let ((val (+ 600 (choice 300))))
               (dialog "You explore, and salvage " (string val) "@ from the ruins.")
@@ -52,13 +52,13 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
         (setq on-converge '())
         (dialog-await-y/n)))
 
 
 (setq on-dialog-declined
-      (lambda
+      (lambda ()
         (dialog "The fortress sinks back into the clouds, its contents remain an unresolved mystery.")
         (exit)))

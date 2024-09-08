@@ -43,13 +43,13 @@
   (room-new (opponent) (list wpn (car pos) (cdr pos)))
 
 
-  (defn on-fadein [0]
+  (defn on-fadein ()
     (fire-new (opponent) 0 11)
     (fire-new (opponent) 2 10)
     (setq on-fadein nil))
 
 
-  (defn on-converge [0]
+  (defn on-converge ()
     (dialog
      "The island seems thoroughly ransacked... but the pirates inexplicably "
      "left behind a weapon. Haul it aboard?")
@@ -57,13 +57,13 @@
     (setq on-converge nil))
 
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (alloc-space wpn)
     (room-del (opponent) (car pos) (cdr pos))
     (sel-input wpn
                (format "Pick a slot (%x%)" (car (rinfo 'size wpn)) (cdr (rinfo 'size wpn)))
-               (lambda
-                 (room-new (player) (list wpn $1 $2))
+               (lambda (isle x y)
+                 (room-new (player) (list wpn x y))
                  (sound "build0")
                  (cond
                   ((equal wpn 'rocket-bomb)
@@ -76,7 +76,7 @@
                  (setq on-dialog-closed exit)))
     (adventure-log-add 9 '()))
 
-  (defn on-dialog-declined [0]
+  (defn on-dialog-declined ()
     (dialog "Huh!? Who doesn't want free stuff? Suit yourself...")
     (adventure-log-add 8 '())
     (setq on-dialog-closed exit)))

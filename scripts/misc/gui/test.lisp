@@ -1,28 +1,28 @@
 
 
-(defn on-A [0]
+(defn on-A ()
   (gui-set-attr "t2" "val" "hello, world"))
 
 
-(defn on-B [0]
+(defn on-B ()
   (push-menu "ready" '()))
 
 
-(defn on-L [0]
+(defn on-L ()
   nil)
 
 
-(defn on-R [0]
+(defn on-R ()
   nil)
 
 
-(defn on-U [0]
+(defn on-U ()
   nil)
 
 
-(defn on-D [0]
+(defn on-D ()
   nil)
 
 
-(defn on-menu-exit [0]
+(defn on-menu-exit ()
   (unbind 'on-A 'on-B 'on-L 'on-R 'on-U 'on-D))

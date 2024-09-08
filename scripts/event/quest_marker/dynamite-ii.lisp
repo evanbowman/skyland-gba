@@ -36,7 +36,7 @@
    (hull 11 13)))
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (let ((bloc (if (equal (difficulty) 0)
                   'dynamite
                 'dynamite-ii)))
@@ -44,7 +44,8 @@
           (c (min (list (* 7 1600)
                         (* 1600
                            (length (filter
-                                    (lambda (equal (car $0) bloc))
+                                    (lambda (room)
+                                      (equal (car room) bloc))
                                     (rooms (player)))))))))
       (if (equal c 0)
           (progn
@@ -62,13 +63,12 @@
 
           (adventure-log-add 58 (list c))
 
-          (map
-           (lambda
-             (when (equal (car $0) bloc)
-               (room-del (player) (get $0 1) (get $0 2))
-               (room-new (opponent) (list bloc pos 14))
-               (+= pos 1)))
-           (rooms (player)))
+          (map (lambda (room)
+                (when (equal (car room) bloc)
+                  (room-del (player) (get room 1) (get room 2))
+                  (room-new (opponent) (list bloc pos 14))
+                  (+= pos 1)))
+               (rooms (player)))
 
           (setq on-dialog-closed exit)
           (setq on-converge nil))))))

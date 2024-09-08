@@ -167,11 +167,11 @@ static Instruction* append(ScratchBuffer& buffer, int& write_pos)
 }
 
 
-int compile_lambda(CompilerContext& ctx,
-                   ScratchBuffer& buffer,
-                   int write_pos,
-                   Value* code,
-                   int jump_offset)
+int compile_fn(CompilerContext& ctx,
+               ScratchBuffer& buffer,
+               int write_pos,
+               Value* code,
+               int jump_offset)
 {
     bool first = true;
 
@@ -361,6 +361,9 @@ int compile_let(CompilerContext& ctx,
 }
 
 
+void perform_argument_substitution(Value* impl);
+
+
 int compile_impl(CompilerContext& ctx,
                  ScratchBuffer& buffer,
                  int write_pos,
@@ -520,13 +523,24 @@ int compile_impl(CompilerContext& ctx,
             jmp->offset_.set(write_pos - jump_offset);
 
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name(), "lambda")) {
+                   (str_eq(fn->symbol().name(), "fn"))) {
 
             lat = lat->cons().cdr();
 
             if (lat->type() not_eq Value::Type::cons) {
                 while (true)
                     ; // TODO: raise error!
+            }
+
+            if (str_eq(fn->symbol().name(), "lambda")) {
+                while (1)
+                    ;   // Wait a second... argument substitution should have
+                        // already happened, i.e. the lambda should be
+                        // converted to a fn already. So the code in this
+                        // block is technically unreachable?
+                perform_argument_substitution(lat);
+                lat = lat->cons().cdr(); // Skip over the argument list, now
+                                         // that we've performed substitution.
             }
 
             auto lambda = append<instruction::PushLambda>(buffer, write_pos);
@@ -1003,7 +1017,7 @@ void compile(Value* code)
     int write_pos = 0;
 
     CompilerContext ctx;
-    write_pos = compile_lambda(ctx, *buffer, write_pos, code, 0);
+    write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
 
     write_pos = PeepholeOptimizer().run(
         *fn->function().bytecode_impl_.databuffer()->data_buffer().value(),

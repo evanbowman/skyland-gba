@@ -22,7 +22,7 @@
    (masonry 4 14)
    (power-core 5 13)))
 
-(defn on-fadein [0]
+(defn on-fadein ()
   (fire-new (opponent) 3 9)
   (fire-new (opponent) 0 10)
   (setq on-fadein nil))
@@ -33,12 +33,12 @@
 (chr-new (opponent) 1 12 'neutral 0)
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog
          "<c:girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!")
 
         (setq on-dialog-closed
-              (lambda
+              (lambda ()
                 (dialog "She seems harmless, invite her aboard?")
                 (dialog-await-y/n)
                 (setq on-dialog-closed '())))
@@ -47,9 +47,9 @@
 
 
 (setq on-dialog-accepted
-      (lambda
+      (lambda ()
         (let ((temp (chr-slots (player)))
-              (end (lambda
+              (end (lambda ()
                      ((eval-file "/scripts/util/pickup_cart.lisp") 2
                       "<c:girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"))))
           (if temp
@@ -62,19 +62,19 @@
                 (end))
             (progn
               (dialog "Sadly, there's no room...")
-              (defn on-dialog-closed [0]
+              (defn on-dialog-closed ()
                 (dialog "<c:girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")
-                (defn on-dialog-closed [0]
+                (defn on-dialog-closed ()
                   (alloc-space 'cargo-bay)
                   (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
-                             (lambda
+                             (lambda (isle x y)
                                (sound "build0")
-                               (room-new (player) `(cargo-bay ,$1 ,$2))
+                               (room-new (player) `(cargo-bay ,x ,y))
                                (chr-del (opponent) 1 12)
-                               (chr-new (player) $1 (+ 1 $2) 'neutral nil)
+                               (chr-new (player) x (+ 1 y) 'neutral nil)
                                (dialog "<c:girl:14>Wait, you're serious! I guess I asked for it haha...")
-                               (defn on-dialog-closed [0]
+                               (defn on-dialog-closed ()
                                  (adventure-log-add 15 '())
                                  (dialog "The villager girl joined your crew!")
                                  (end)))))))))

@@ -41,7 +41,7 @@
 (flag-show (opponent) 4)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog
    "While the old empire is now fragmented and most of its weapons systems are offline, "
    "this automated vessel seems to still be functioning. <B:0>"
@@ -52,11 +52,11 @@
 
 
 (let ((scr
-       (lambda
-         (dialog $0)
+       (lambda (txt)
+         (dialog txt)
          (opponent-mode 'hostile))))
   (setq on-dialog-accepted
-        (lambda
+        (lambda ()
           (if (< (coins) 600)
               (progn
                 (adventure-log-add 59 '())
@@ -69,6 +69,6 @@
 
 
   (setq on-dialog-declined
-        (lambda
+        (lambda ()
           (adventure-log-add 61 '())
           (scr "The station begins charging its weapons!"))))

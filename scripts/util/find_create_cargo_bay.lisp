@@ -1,7 +1,8 @@
 
 (let ((c (cargo-bays (player))))
   (setq c (filter
-           (lambda (not (cargo (player) (car $0) (cdr $0))))
+           (lambda (xy)
+             (not (cargo (player) (car xy) (cdr xy))))
            c))
   (cond
    ((equal (length c) 1)
@@ -15,7 +16,8 @@
     (setq c (construction-sites (player) '(1 . 2)))
     (if c
         (progn
-          (setq c (car (sort c (lambda (< (car $0) (car $1))))))
+          (setq c (car (sort c (lambda (xy1 xy2)
+                                 (< (car xy1) (car xy2))))))
           (sound "build0")
           (room-new
            (player)

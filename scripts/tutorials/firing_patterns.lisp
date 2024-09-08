@@ -27,11 +27,11 @@
  '((power-core 5 13)))
 
 (map
- (lambda
-   (let ((x $0))
+ (lambda (x)
+   (let ((xx x))
      (map
-      (lambda
-        (room-new (opponent) (list 'hull x $0)))
+      (lambda (y)
+        (room-new (opponent) (list 'hull xx y)))
       (range 8 15))))
  (range 0 4))
 

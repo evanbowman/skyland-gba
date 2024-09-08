@@ -19,7 +19,7 @@
 
 
 (setq on-converge
-      (lambda
+      (lambda ()
         (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
                 " survivor is trustworthy. Invite survivor aboard?")
 
@@ -38,7 +38,7 @@
 
 
   (setq on-dialog-accepted
-        (lambda
+        (lambda ()
 
           (let ((temp (chr-slots (player))))
             (setq temp (get temp (choice (length temp))))
@@ -57,7 +57,7 @@
                       (dialog "The survivor turned out to be a vicious goblin!")
                       (adventure-log-add 41 '())
                       (setq on-dialog-closed
-                            (lambda
+                            (lambda ()
                               (dialog "<c:goblin:2>Die humansss!")
                               (setq on-dialog-closed '()))))))
               (progn
@@ -67,6 +67,6 @@
 
 
 (setq on-dialog-declined
-      (lambda
+      (lambda ()
         ;; TODO...
         (exit)))

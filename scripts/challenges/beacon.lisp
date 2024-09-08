@@ -5,21 +5,21 @@
 
 
 (setq on-fadein
-      (lambda
+      (lambda ()
         (dialog "<c:crew:5>Those goblins noticed us and are about to jump away to bring help! Destroy them before they can get away!")))
 
 
-(defn challenge-hint [0]
+(defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
   (dialog-await-y/n)
 
-  (defn on-dialog-accepted [0]
+  (defn on-dialog-accepted ()
     (dialog "Cannons and missiles aren't going to work here. You'll need to find a way to punch a hole inside the enemy's walls and deploy a drone..."))
 
-  (setq on-dialog-declined (lambda '())))
+  (setq on-dialog-declined (lambda ())))
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 9))
 
 
@@ -119,7 +119,7 @@
 
 
 (map
- (lambda
-   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
+ (lambda (xy)
+   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
  '((7 . 12)
    (8 . 12)))

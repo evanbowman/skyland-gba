@@ -4,19 +4,19 @@
 
 
 
-(defn on-victory [0]
+(defn on-victory ()
   (challenge-complete 4)
   (achieve 18))
 
 
 (let ((cnt 0))
-  (defn challenge-hint [0]
+  (defn challenge-hint ()
     (dialog (if (equal cnt 0)
                 "Are you sure you want a hint?"
               "Need another hint?"))
     (dialog-await-y/n)
 
-    (defn on-dialog-accepted [0]
+    (defn on-dialog-accepted ()
       (dialog
        (cond
         ((equal cnt 0)
@@ -30,7 +30,7 @@
          "Ok, one final hint: After building anything that you need from the manufactory, salvage it for resources."))))
 
 
-    (setq on-dialog-declined (lambda '()))))
+    (setq on-dialog-declined (lambda ()))))
 
 
 (terrain-set (player) 7)

@@ -5,20 +5,20 @@
 (global 'put 'newline 'temp)
 
 (setq put log)
-(setq newline (lambda nil))
+(setq newline (lambda () nil))
 
 
-(defn assert-v [1]
-  (when (not $0)
+(defn assert-v (v)
+  (when (not v)
     (newline)
-    (error (format "assert failed! %" $0))))
+    (error (format "assert failed! %" v))))
 
-(defn assert-eq [2]
-  (when (not (equal $0 $1))
+(defn assert-eq (lhs rhs)
+  (when (not (equal lhs rhs))
     (newline)
     (error (format "failure! expected % not equal %"
-                   $0
-                   $1))))
+                   lhs
+                   rhs))))
 
 (if (not (error? (error "...")))
     (fatal "unable to raise errors!?"))
@@ -38,17 +38,17 @@
   (error "broken equal"))
 
 
-(defn begin-test [1]
-  (put (string $0 " test cases...")))
+(defn begin-test (name)
+  (put (string name " test cases...")))
 
-(defn end-test [0]
+(defn end-test ()
   (put " passed!")
   (gc)
   (newline))
 
 
 (assert-v (error? (let ((foo 2)) (global 'foo))))
-(assert-v (error? ((lambda (setq a 5) 8))))
+(assert-v (error? ((lambda () (setq a 5) 8))))
 
 
 (begin-test "READER")
@@ -120,6 +120,7 @@
 (assert-eq 8640 (apply * (flatten '((1 1 2) 3 (5 (1 1 (2 3) 6) 8)))))
 (assert-eq '(10 11 12 13 14 0 1 2 3 4) (difference (range 0 10) (range 5 15)))
 (assert-eq '(2 3) (union (range 10) '(-1 2 2 3 12 12 14)))
+(assert-v ((pos-equalto? 1 5) '(1 5 7)))
 
 (end-test)
 
@@ -130,7 +131,7 @@
 (setq temp 1)
 
 (let ((temp 4))
-  (defn foo [0]
+  (defn foo ()
     (setq temp (+ temp 1))
     temp))
 
@@ -158,8 +159,8 @@
 
 (assert-eq 10100 (apply + (map (curry * 2) (range 0 101))))
 
-(defn cons [2]
-  (list $0 $1))
+(defn cons (a b)
+  (list a b))
 (assert-eq '(5 6) (cons 5 6)) ;; you may override builtins
 (unbind 'cons)
 (assert-v (not (error? cons))) ;; the builtin still exits when deleting the override value
@@ -193,10 +194,10 @@
 (assert-eq 20 (apply + (map int (split "0,1,1,2,3,5,8" ","))))
 (assert-eq 'cake (symbol "cake"))
 (assert-v ((equalto? 9) 9))
-(assert-v "bats" ((lambda (arg 1)) "birds" "bats" "iguana"))
+(assert-v "bats" ((lambda () (arg 1)) "birds" "bats" "iguana"))
 (assert-eq cons (identity cons))
-(assert-v (error? ((require-args (lambda nil) 2) 0)))
-(defn test-this [0]
+(assert-v (error? ((require-args (lambda () nil) 2) 0)))
+(defn test-this ()
   (this))
 (assert-eq test-this (test-this))
 
@@ -205,7 +206,7 @@
                              "type"))
 
 (let ((tmp 0))
-  (defn foo [0]
+  (defn foo ()
     (if (< tmp 10)
         (progn
           (+= tmp 1)

@@ -46,13 +46,13 @@
 (flag-show (opponent) 4)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?")
   (dialog-await-y/n))
 
 
-(defn on-dialog-accepted [0]
-  (let ((end (lambda
+(defn on-dialog-accepted ()
+  (let ((end (lambda ()
                ((eval-file "/scripts/util/pickup_cart.lisp") 6
                 "One of your crewmembers finds a data cartridge tangled in the fungal roots..."))))
     (if (choice 3)

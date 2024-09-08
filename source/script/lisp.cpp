@@ -750,6 +750,237 @@ static Value* make_lisp_function(Value* impl)
 }
 
 
+Value* clone(Value* value)
+{
+    // TODO!!!!!
+    return value;
+}
+
+
+static int examine_argument_list(Value* function_impl)
+{
+    auto arg_lat = function_impl->cons().car();
+    if (not is_list(arg_lat)) {
+        PLATFORM.fatal("incorrectly formatted argument list!");
+    }
+
+    int argc = 0;
+    foreach (arg_lat, [&](Value* val) {
+        ++argc;
+
+        if (val->type() not_eq lisp::Value::Type::symbol) {
+            auto p = allocate_dynamic<DefaultPrinter>("...");
+            auto p2 = allocate_dynamic<DefaultPrinter>("...");
+            format(val, *p);
+            format(arg_lat, *p2);
+            PLATFORM.fatal(
+                ::format("value \'%\' in argument list \'%\' is non-symbol!",
+                         p->data_.c_str(),
+                         p2->data_.c_str()));
+        }
+
+        if (val->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
+            auto p = allocate_dynamic<DefaultPrinter>("...");
+            format(arg_lat, *p);
+            PLATFORM.fatal(::format(
+                "symbol name \'%\' in argument list \'%\' is too long! "
+                "(4 char limit)",
+                val->symbol().name(),
+                p->data_.c_str()));
+        }
+    })
+        ;
+
+    return argc;
+}
+
+
+struct ArgBinding
+{
+    // FIXME! These should be gc roots!!!!!
+    Symbol* sym_;
+    Symbol* replacement_;
+};
+
+
+struct ArgBindings
+{
+    Buffer<ArgBinding, 16> bindings_;
+    const ArgBindings* parent_ = nullptr;
+};
+
+
+ArgBindings make_arg_bindings(Value* arg_lat, const ArgBindings* parent)
+{
+    ArgBindings bindings;
+    bindings.parent_ = parent;
+
+    int arg = 0;
+    foreach (arg_lat, [&](Value* val) {
+        auto replacement =
+            &make_symbol(::format("$%", arg++).c_str())->symbol();
+
+        push_op((Value*)replacement); // protect from gc
+
+        bindings.bindings_.push_back(ArgBinding{&val->symbol(), replacement});
+    })
+        ;
+
+    for (int i = 0; i < arg; ++i) {
+        pop_op(); // pop protected gc vals
+    }
+
+    return bindings;
+}
+
+
+static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
+{
+    while (true) {
+        if (impl->type() not_eq Value::Type::cons) {
+            break;
+        } else {
+            auto val = impl->cons().car();
+
+            if (is_list(val)) {
+                auto first = val->cons().car();
+                if (first->type() == Value::Type::symbol) {
+                    if (str_eq(first->symbol().name(), "let")) {
+                        [[maybe_unused]] auto let_bindings =
+                            val->cons().cdr()->cons().car();
+
+                        foreach (let_bindings, [&](Value* val) {
+                            auto sym = val->cons().car();
+                            for (auto& binding : bindings.bindings_) {
+                                if (sym->symbol().unique_id() == binding.sym_->unique_id()) {
+
+                                    PLATFORM.fatal(::format(
+                                        "let binding % shadows argument %",
+                                        binding.sym_->name(),
+                                        sym->symbol().name()));
+                                }
+                            }
+
+                            auto current = bindings.parent_;
+                            while (current) {
+                                for (auto& b : current->bindings_) {
+                                    if (b.sym_->unique_id() == sym->symbol().unique_id()) {
+                                        PLATFORM.fatal(::format("let binding shadows "
+                                                                "captured parent arg '%' ",
+                                                                sym->symbol().name()));
+                                    }
+                                }
+                                current = current->parent_;
+                            }
+                        })
+                            ;
+
+                        arg_substitution_impl(let_bindings, bindings);
+                        arg_substitution_impl(val, bindings);
+                    } else if (str_eq(first->symbol().name(), "lambda")) {
+                        // Now this one's a bit tricky. We need to switch
+                        // context and fetch this nested lambda's argument list,
+                        // and continue recursion with that list instead.
+
+                        auto lambda = val->cons().cdr();
+
+                        auto arg_lat = lambda->cons().car();
+                        auto fn_impl = lambda->cons().cdr();
+
+                        auto nested_bindings = make_arg_bindings(arg_lat, &bindings);
+
+                        arg_substitution_impl(fn_impl, nested_bindings);
+
+                        val->cons().set_car(make_symbol("fn")); //
+                        val->cons().set_cdr(fn_impl);           // very naughty!
+
+                    } else if (str_eq(first->symbol().name(), "fn")) {
+                        // Do nothing... cannot substitute a function argument
+                        // within a lambda implementation.
+                    } else {
+                        arg_substitution_impl(val, bindings);
+                    }
+                } else {
+                    // Most lists begin with a symbol, but other things, like a
+                    // function call result, can begin a list.
+                    arg_substitution_impl(val, bindings);
+                }
+            } else if (val->type() == Value::Type::symbol) {
+                bool replaced = false;
+                for (auto& binding : bindings.bindings_) {
+                    if (binding.sym_->unique_id() == val->symbol().unique_id()) {
+                        impl->cons().set_car(
+                            (lisp::Value*)binding.replacement_);
+                        replaced = true;
+                    }
+                }
+
+                auto current = bindings.parent_;
+                while (current and not replaced) {
+                    for (auto& b : current->bindings_) {
+                        if (b.sym_->unique_id() == val->symbol().unique_id()) {
+                            PLATFORM.fatal(::format("parent argument capture "
+                                                    "unsupported in closure, "
+                                                    "var: '%'",
+                                                    val->symbol().name()));
+                        }
+                    }
+                    current = current->parent_;
+                }
+            }
+        }
+
+        impl = impl->cons().cdr();
+    }
+}
+
+
+void perform_argument_substitution(Value* impl)
+{
+    Protected gc_root(impl);
+
+    auto arg_lat = impl->cons().car();
+    auto fn_impl = impl->cons().cdr();
+
+    auto arguments = make_arg_bindings(arg_lat, nullptr);
+
+    if (arguments.bindings_.size() > 0) { // Don't bother with no-arg functions
+        arg_substitution_impl(fn_impl, arguments);
+    }
+}
+
+
+static Value* make_lisp_argumented_function(Value* impl)
+{
+    if (auto val = alloc_value()) {
+
+        // Now, the complicated part...
+        // We need to clone the existing source code input, then we will alter
+        // the contents to substitute the input arguments with positional
+        // values.
+        // If an enclosed lambda captures an input argument, then we need to
+        // raise an error.
+        Protected new_impl(impl);
+        // new_impl = clone(impl); TODO... can anything bad happen if we mutate
+        // a list representing source code? I'm not certain.
+
+        int argc = examine_argument_list(new_impl);
+        perform_argument_substitution(new_impl);
+
+        val->hdr_.type_ = Value::Type::function;
+        val->function().lisp_impl_.code_ = compr(new_impl->cons().cdr());
+        val->function().required_args_ = argc;
+        val->function().lisp_impl_.lexical_bindings_ =
+            compr(bound_context->lexical_bindings_);
+
+        val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
+
+        return val;
+    }
+    return bound_context->oom_;
+}
+
+
 Value* make_bytecode_function(Value* bytecode)
 {
     if (auto val = alloc_value()) {
@@ -2612,6 +2843,12 @@ static void eval_lambda(Value* code)
 }
 
 
+static void eval_argumented_function(Value* code)
+{
+    push_op(make_lisp_argumented_function(code));
+}
+
+
 static void eval_quasiquote(Value* code)
 {
     ListBuilder builder;
@@ -2697,6 +2934,14 @@ void eval(Value* code)
                 --bound_context->interp_entry_count_;
                 return;
             } else if (str_eq(form->symbol().name(), "lambda")) {
+                eval_argumented_function(code->cons().cdr());
+                auto result = get_op0();
+                pop_op(); // result
+                pop_op(); // code
+                push_op(result);
+                --bound_context->interp_entry_count_;
+                return;
+            } else if (str_eq(form->symbol().name(), "fn")) {
                 eval_lambda(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -4607,7 +4852,7 @@ BUILTIN_TABLE(
                auto expression_list =
                    dcompr(get_op0()->function().lisp_impl_.code_);
 
-               Protected sym(make_symbol("lambda"));
+               Protected sym(make_symbol("fn"));
 
                return make_cons(sym, expression_list);
 

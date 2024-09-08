@@ -12,24 +12,23 @@
 (chr-new (opponent) 1 14 'neutral 0)
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog
    "<c:explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?")
 
   (setq on-dialog-closed
-        (lambda
+        (lambda ()
           (dialog "He seems harmless, invite him aboard?")
           (dialog-await-y/n)
           (setq on-dialog-closed '())))
   (setq on-converge nil))
 
 
-(defn on-dialog-accepted [0]
-
+(defn on-dialog-accepted ()
   (let ((temp (chr-slots (player)))
-        (join (lambda
+        (join (lambda (txt)
                 (adventure-log-add 53 '())
-                (dialog $0))))
+                (dialog txt))))
     (if temp
         (progn
           (setq temp (get temp (choice (length temp))))
@@ -42,24 +41,24 @@
               (join "The explorer joined your crew. Hungry, he ate 600@ of your food supplies!"))))
       (progn
         (dialog "Sadly, there's no room...")
-        (defn on-dialog-closed [0]
+        (defn on-dialog-closed ()
           (dialog "<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...")
-          (defn on-dialog-closed [0]
+          (defn on-dialog-closed ()
             (alloc-space 'ladder)
             (sel-input 'ladder
                        "Place ladder (1x2):"
-                       (lambda
+                       (lambda (isle x y)
                          (sound "build0")
-                         (room-new (player) `(ladder ,$1 ,$2))
+                         (room-new (player) `(ladder ,x ,y))
                          (chr-del (opponent) 1 14)
-                         (chr-new (player) $1 (+ 1 $2) 'neutral nil)
+                         (chr-new (player) x (+ 1 y) 'neutral nil)
                          (dialog "<c:explorer:22> Thanks! I'll try to help out however I can!")
-                         (defn on-dialog-closed [0]
+                         (defn on-dialog-closed ()
                            (join "The explorer joined your crew!")
                            (setq on-dialog-closed nil)
                            (exit)))))))))
   (exit))
 
 
-(defn on-dialog-declined [0]
+(defn on-dialog-declined ()
   (exit))

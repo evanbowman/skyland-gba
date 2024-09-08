@@ -11,8 +11,8 @@
 (let ((z (zone))
       (pos (cdr (wg-pos))))
   (let ((found (filter
-                (lambda
-                  (equal pos (cddr $0)))
+                (lambda (q)
+                  (equal pos (cddr q)))
                 quests)))
     (if found
         (eval-file (caar found))

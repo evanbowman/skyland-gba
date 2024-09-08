@@ -30,24 +30,18 @@
 
 
 (macro dotimes (N BODY)
- `(map (lambda ,@BODY) (range 0 ,N)))
+ `(map (fn ,@BODY) (range 0 ,N)))
 
 
 ;; Some useful macros for defining functions
 
-;; Defines a function.
-(macro defn (NAME REST)
-       `(safe-setfn ,(cons $q NAME)
-                    (lambda ,@(cdr REST))
-                    ,(cons $q (car REST))))
+;; The new defn macros, to replace the old ones using positional args.
+(macro defn (NAME REST) `(setfn ,(cons $q NAME) (lambda ,@REST)))
 
 ;; Defines a bytecode-compiled function.  You should only compile long-lived
 ;; functions, because bytecode cannot be deallocated. At the same time, bytecode
 ;; takes up less space than non-compiled functions.
-(macro defn/c (NAME REST)
-       `(safe-setfn ,(cons $q NAME)
-                    (compile (lambda ,@(cdr REST)))
-                    ,(cons $q (car REST))))
+(macro defn/c (NAME REST) `(setfn ,(cons $q NAME) (compile (lambda ,@REST))))
 
 
 (macro += (NAME VAL)
@@ -58,113 +52,108 @@
 (macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
 (macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))
 
-;; NOTE: for historical reasons, lambdas do not include syntax for specifying an
-;; argument count, as this scripting language only supports numbered positional
-;; arguments. Require-args was a safety feature added retrospectively, and I've
-;; hacked it into the function defintion macros.
-(global 'safe-setfn)
-(setq safe-setfn
-      (require-args
-       (compile
-        (lambda
-          ;; safe-setfn is responsible for validating the format of data passed
-          ;; to defn, and setting the function in the environment.
-          ;;
-          ;; Make sure that the user remembered to specify an argument count
-          ;; when using one of the defn macros:
-          (when (or (not (pair? $2))
-                    (not (int? (car $2)))
-                    (cdr $2)) ;; b/c arg count must be a list with one element
-            (fatal (string $0 ": invalid defn, missing argc")))
-          ;; Define the symbol as global.
-          (global $0)
-          (set $0 (require-args $1 (car $2)))))
-       3))
+(global 'setfn)
+(setq setfn
+      (compile
+       (lambda (sym fn)
+         (global sym)
+         (set sym fn))))
 
 
 (macro progn (BODY)
  `(let () ,@BODY))
 
 
-(defn/c acons [3]
-  (cons (cons $0 $1) $2))
+(defn/c acons (key val alat)
+  (cons (cons key val) alat))
 
 
-(defn/c assoc [2]
-  (let ((temp $0))
-    (get (filter (lambda (equal (car $0) temp))
-                 $1)
+(defn/c assoc (k alat)
+  (let ((temp k))
+    (get (filter (lambda (v)
+                   (equal (car v) temp))
+                 alat)
          0)))
 
-(defn/c lookup [2]
-  (let ((kvp (assoc $0 $1)))
+(defn/c lookup (key alat)
+  (let ((kvp (assoc key alat)))
     (if kvp (cdr kvp))))
 
-(defn/c insert [3]
-  (append (slice $1 0 $2) (cons $0 (slice $1 $2))))
+(defn/c insert (elem lat pos)
+  (append (slice lat 0 pos) (cons elem (slice lat pos))))
 
-(defn append [2]
+(defn append (lat1 lat2)
   ;; Not the most efficient way to implement append, but this implementation
   ;; with unquote-splicing is quite compact.
-  `(,@$0 ,@$1))
+  `(,@lat1 ,@lat2))
 
-(defn/c gen [2]
-  (map $0 (range $1)))
+(defn/c gen (func n)
+  (map func (range n)))
 
-(defn/c push [2]
-  (set $0 (cons $1 (eval $0))))
-
-
-(defn/c push-set [2]
-  (let ((tmp (cons $1 (eval $0))))
-    (set $0 (union tmp tmp))))
+(defn/c push (sym val)
+  (set sym (cons val (eval sym))))
 
 
-(defn/c merge [3]
+(defn/c push-set (sym val)
+  (let ((tmp (cons val (eval sym))))
+    (set sym (union tmp tmp))))
+
+
+(defn/c merge (l1 l2 comp)
   (cond
-   ((not $0) $1)
-   ((not $1) $0)
-   (($2 (car $0) (car $1))
-    (cons (car $0) ((this) (cdr $0) $1 $2)))
-   (true (cons (car $1) ((this) $0 (cdr $1) $2)))))
+   ((not l1) l2)
+   ((not l2) l1)
+   ((comp (car l1) (car l2))
+    (cons (car l1) ((this) (cdr l1) l2 comp)))
+   (true (cons (car l2) ((this) l1 (cdr l2) comp)))))
 
 
-(defn/c sort [2]
-  (if (not (cdr $0))
-      $0
-    (let ((len (length $0)))
-      (merge ((this) (slice $0 0 (/ len 2)) $1)
-             ((this) (slice $0 (/ len 2)) $1)
-             $1))))
-
+(defn/c sort (lat comp)
+  (if (not (cdr lat))
+      lat
+    (let ((len (length lat)))
+      (merge ((this) (slice lat 0 (/ len 2)) comp)
+             ((this) (slice lat (/ len 2)) comp)
+             comp))))
 
 ;; While suboptimal, these functions have the benefit of being small.
-(defn/c min [1] (car (sort $0 <)))
-(defn/c max [1] (car (sort $0 >)))
+(defn/c min (lat) (car (sort lat <)))
+(defn/c max (lat) (car (sort lat >)))
 
-(defn/c replace [3]
+(defn/c replace (lat p n)
   ;; (lat predicate new-value)
-  (let ((pred $1)
-        (newv $2))
-    (map
-     (lambda
-       (if (pred $0)
-           newv
-         $0))
-     $0)))
+  (let ((pred p)
+        (newv n))
+    (map (fn
+          (if (pred $0)
+              newv
+              $0))
+         lat)))
 
-(defn/c curry [1]
-  (let ((func $0)
+(defn/c curry (fn)
+  (let ((func fn)
         (args (cdr $V)))
-    (lambda
+    (fn
       (apply func (append args $V)))))
 
 ;; Return a predicate that returns true if its argument equals the supplied value.
 ;; e.g.: ((equalto? 2) 2) -> true
-(defn/c equalto? [1]
-  (curry equal $0))
+(defn/c equalto? (pred)
+  (curry equal pred))
 
-(defn/c notequal? [1]
-  (let ((v $0))
-    (lambda
-      (not (equal $0 v)))))
+;; As useful as an equalto? predicate is, often you want to know if an element
+;; of a sublist is equalto a value.
+(defn/c pos-equalto? (pos pred)
+  (let ((p pred)
+        (n pos))
+    (lambda (lat)
+      (equal p (get lat n)))))
+
+(defn/c car-equalto? (v)
+  (let ((val v))
+    (pos-equalto? 0 v)))
+
+(defn/c notequal? (pred)
+  (let ((p pred))
+    (fn
+      (not (equal $0 p)))))

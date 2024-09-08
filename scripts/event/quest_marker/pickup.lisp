@@ -15,10 +15,10 @@
 (chr-new (opponent) 3 14 'neutral 0)
 
 
-(defn on-dialog-closed [0]
+(defn on-dialog-closed ()
   (setq on-dialog-closed exit)
   (map
-   (lambda
+   (lambda (xy)
      (let ((slot (chr-slots (player))))
        (if (not slot)
            (let ((s (construction-sites (player) '(1 . 2))))
@@ -33,8 +33,8 @@
                       (cdr (car slot))
                       'neutral
                       nil)
-             (chr-del (opponent) (get $0 0) (get $0 1))))))
-   '((1 14 10) (2 14 16) (3 14 5)))
+             (chr-del (opponent) (get xy 0) (get xy 1))))))
+   '((1 14) (2 14) (3 14)))
 
   (adventure-log-add 25 '())
 
@@ -45,7 +45,7 @@
       (dialog "You'd like to invite them aboard, but there seems to be no room..."))))
 
 
-(defn on-converge [0]
+(defn on-converge ()
   (dialog
    "<c:passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
   (coins-add 1500))
