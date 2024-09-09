@@ -47,7 +47,7 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
 {
     island.clear_rooms();
 
-    lisp::foreach (island_desc_lat, [&](lisp::Value* val) {
+    lisp::l_foreach(island_desc_lat, [&](lisp::Value* val) {
         auto name_symb = lisp::get_list(val, 0);
         if (name_symb->type() not_eq lisp::Value::Type::symbol) {
             return;

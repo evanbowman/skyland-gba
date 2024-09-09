@@ -907,7 +907,7 @@ using DefaultPrinter = _Printer<StringBuffer<1024>>;
 void format(Value* value, Printer& p);
 
 
-template <typename F> void foreach (Value* list, F && fn)
+template <typename F> void l_foreach(Value* list, F&& fn)
 {
     Protected p(list);
 

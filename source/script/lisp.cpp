@@ -765,7 +765,7 @@ static int examine_argument_list(Value* function_impl)
     }
 
     int argc = 0;
-    foreach (arg_lat, [&](Value* val) {
+    l_foreach(arg_lat, [&](Value* val) {
         ++argc;
 
         if (val->type() not_eq lisp::Value::Type::symbol) {
@@ -788,8 +788,7 @@ static int examine_argument_list(Value* function_impl)
                 val->symbol().name(),
                 p->data_.c_str()));
         }
-    })
-        ;
+    });
 
     return argc;
 }
@@ -816,15 +815,14 @@ ArgBindings make_arg_bindings(Value* arg_lat, const ArgBindings* parent)
     bindings.parent_ = parent;
 
     int arg = 0;
-    foreach (arg_lat, [&](Value* val) {
+    l_foreach(arg_lat, [&](Value* val) {
         auto replacement =
             &make_symbol(::format("$%", arg++).c_str())->symbol();
 
         push_op((Value*)replacement); // protect from gc
 
         bindings.bindings_.push_back(ArgBinding{&val->symbol(), replacement});
-    })
-        ;
+    });
 
     for (int i = 0; i < arg; ++i) {
         pop_op(); // pop protected gc vals
@@ -846,13 +844,13 @@ static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
                 auto first = val->cons().car();
                 if (first->type() == Value::Type::symbol) {
                     if (str_eq(first->symbol().name(), "let")) {
-                        [[maybe_unused]] auto let_bindings =
-                            val->cons().cdr()->cons().car();
+                        auto let_bindings = val->cons().cdr()->cons().car();
 
-                        foreach (let_bindings, [&](Value* val) {
+                        l_foreach(let_bindings, [&](Value* val) {
                             auto sym = val->cons().car();
                             for (auto& binding : bindings.bindings_) {
-                                if (sym->symbol().unique_id() == binding.sym_->unique_id()) {
+                                if (sym->symbol().unique_id() ==
+                                    binding.sym_->unique_id()) {
 
                                     PLATFORM.fatal(::format(
                                         "let binding % shadows argument %",
@@ -864,16 +862,17 @@ static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
                             auto current = bindings.parent_;
                             while (current) {
                                 for (auto& b : current->bindings_) {
-                                    if (b.sym_->unique_id() == sym->symbol().unique_id()) {
-                                        PLATFORM.fatal(::format("let binding shadows "
-                                                                "captured parent arg '%' ",
-                                                                sym->symbol().name()));
+                                    if (b.sym_->unique_id() ==
+                                        sym->symbol().unique_id()) {
+                                        PLATFORM.fatal(
+                                            ::format("let binding shadows "
+                                                     "captured parent arg '%' ",
+                                                     sym->symbol().name()));
                                     }
                                 }
                                 current = current->parent_;
                             }
-                        })
-                            ;
+                        });
 
                         arg_substitution_impl(let_bindings, bindings);
                         arg_substitution_impl(val, bindings);
@@ -887,7 +886,8 @@ static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
                         auto arg_lat = lambda->cons().car();
                         auto fn_impl = lambda->cons().cdr();
 
-                        auto nested_bindings = make_arg_bindings(arg_lat, &bindings);
+                        auto nested_bindings =
+                            make_arg_bindings(arg_lat, &bindings);
 
                         arg_substitution_impl(fn_impl, nested_bindings);
 
@@ -908,7 +908,8 @@ static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
             } else if (val->type() == Value::Type::symbol) {
                 bool replaced = false;
                 for (auto& binding : bindings.bindings_) {
-                    if (binding.sym_->unique_id() == val->symbol().unique_id()) {
+                    if (binding.sym_->unique_id() ==
+                        val->symbol().unique_id()) {
                         impl->cons().set_car(
                             (lisp::Value*)binding.replacement_);
                         replaced = true;
@@ -2693,12 +2694,11 @@ static void eval_while(Value* code)
             break;
         }
 
-        foreach (code->cons().cdr(), [&](Value* val) {
+        l_foreach(code->cons().cdr(), [&](Value* val) {
             eval(val);
             result.set(get_op0());
             pop_op();
-        })
-            ;
+        });
     }
 
     push_op(result);
@@ -2727,7 +2727,7 @@ static void eval_let(Value* code)
     {
         ListBuilder binding_list_builder;
 
-        foreach (bindings, [&](Value* val) {
+        l_foreach(bindings, [&](Value* val) {
             if (result not_eq get_nil()) {
                 return;
             }
@@ -2752,8 +2752,7 @@ static void eval_let(Value* code)
                 result = lisp::make_error(Error::Code::mismatched_parentheses,
                                           L_NIL);
             }
-        })
-            ;
+        });
 
         if (result not_eq get_nil()) {
             push_op(result);
@@ -2773,12 +2772,11 @@ static void eval_let(Value* code)
         }
     }
 
-    foreach (code->cons().cdr(), [&](Value* val) {
+    l_foreach(code->cons().cdr(), [&](Value* val) {
         eval(val);
         result.set(get_op0());
         pop_op();
-    })
-        ;
+    });
 
     if (has_bindings) {
         bound_context->lexical_bindings_ =
@@ -3179,12 +3177,11 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
 static bool contains(Value* list, Value* val)
 {
     bool result = false;
-    foreach (list, [&](Value* v2) {
+    l_foreach(list, [&](Value* v2) {
         if (is_equal(val, v2)) {
             result = true;
         }
-    })
-        ;
+    });
 
     return result;
 }
@@ -3578,12 +3575,11 @@ BUILTIN_TABLE(
            ListBuilder list;
 
            auto find_difference = [&](Value* lat1, Value* lat2) {
-               foreach (lat1, [&](Value* v1) {
+               l_foreach(lat1, [&](Value* v1) {
                    if (not contains(lat2, v1)) {
                        list.push_back(v1);
                    }
-               })
-                   ;
+               });
            };
            find_difference(get_op0(), get_op1());
            find_difference(get_op1(), get_op0());
@@ -3595,19 +3591,17 @@ BUILTIN_TABLE(
        [](int argc) {
            ListBuilder list;
 
-           foreach (get_op0(), [&](Value* v) {
+           l_foreach(get_op0(), [&](Value* v) {
                if (not contains(list.result(), v) and contains(get_op1(), v)) {
                    list.push_back(v);
                }
-           })
-               ;
+           });
 
-           foreach (get_op1(), [&](Value* v) {
+           l_foreach(get_op1(), [&](Value* v) {
                if (not contains(list.result(), v) and contains(get_op0(), v)) {
                    list.push_back(v);
                }
-           })
-               ;
+           });
 
            return list.result();
        }}},
@@ -4091,7 +4085,7 @@ BUILTIN_TABLE(
 
            auto str = allocate_dynamic<StringBuffer<2000>>("tempstr");
 
-           foreach (get_op0(), [&](Value* val) {
+           l_foreach(get_op0(), [&](Value* val) {
                auto v = val->integer().value_;
                auto cp = (const char*)&v;
                for (int i = 0; i < 4; ++i) {
@@ -4099,8 +4093,7 @@ BUILTIN_TABLE(
                        str->push_back(cp[i]);
                    }
                }
-           })
-               ;
+           });
 
            return make_string(str->c_str());
        }}},
@@ -4146,7 +4139,7 @@ BUILTIN_TABLE(
            auto prev = result;
            auto current = result;
 
-           foreach (get_op0(), [&](Value* val) {
+           l_foreach(get_op0(), [&](Value* val) {
                push_op(result); // gc protect
 
                push_op(val);
@@ -4167,8 +4160,7 @@ BUILTIN_TABLE(
                pop_op(); // funcall result
 
                pop_op(); // gc unprotect
-           })
-               ;
+           });
 
            if (current == result) {
                return L_NIL;
@@ -4254,7 +4246,7 @@ BUILTIN_TABLE(
            Optional<int> index;
 
            int i = 0;
-           foreach (get_op0(), [&](Value* v) {
+           l_foreach(get_op0(), [&](Value* v) {
                if (index) {
                    return;
                }
@@ -4262,8 +4254,7 @@ BUILTIN_TABLE(
                    index = i;
                }
                ++i;
-           })
-               ;
+           });
 
            if (index) {
                return L_INT(*index);
@@ -4284,15 +4275,13 @@ BUILTIN_TABLE(
                [](Value*) {});
            flatten_impl = [&](Value* val) {
                if (is_list(val)) {
-                   foreach (val, flatten_impl)
-                       ;
+                   l_foreach(val, flatten_impl);
                } else {
                    b.push_back(val);
                }
            };
 
-           foreach (inp, flatten_impl)
-               ;
+           l_foreach(inp, flatten_impl);
 
            return b.result();
        }}},
@@ -4306,12 +4295,11 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, cons);
 
            Value* result = get_nil();
-           foreach (get_op0(), [&](Value* car) {
+           l_foreach(get_op0(), [&](Value* car) {
                push_op(result);
                result = make_cons(car, result);
                pop_op();
-           })
-               ;
+           });
 
            return result;
        }}},
@@ -4892,9 +4880,8 @@ void get_env(SymbolCallback callback)
         callback((const char*)val.cons().car()->symbol().name());
     });
 
-    foreach (ctx->macros_,
-             [&](Value* v) { callback(v->cons().car()->symbol().name()); })
-        ;
+    l_foreach(ctx->macros_,
+              [&](Value* v) { callback(v->cons().car()->symbol().name()); });
 }
 
 

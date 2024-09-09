@@ -635,7 +635,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             u32 max_text_len = 0;
             int opt_count = lisp::length(opts);
 
-            lisp::foreach (opts, [&](lisp::Value* elem) {
+            lisp::l_foreach(opts, [&](lisp::Value* elem) {
                 auto text = elem->cons().car()->string().value();
                 auto t_len = utf8::len(text);
 
@@ -655,7 +655,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
 
 
-            lisp::foreach (opts, [&](lisp::Value* elem) {
+            lisp::l_foreach(opts, [&](lisp::Value* elem) {
                 auto text = elem->cons().car()->string().value();
 
                 const u8 t_y = y;

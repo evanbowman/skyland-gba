@@ -62,7 +62,7 @@ void ItemShopScene::enter(Scene& prev)
     PLATFORM.speaker().play_sound("openbag", 3);
 
     auto items = lisp::get_var("shop-items");
-    lisp::foreach (items, [this](lisp::Value* item) {
+    lisp::l_foreach(items, [this](lisp::Value* item) {
         auto mt = metaclass_index(lisp::get_list(item, 0)->symbol().name());
         u16 price = lisp::get_list(item, 1)->integer().value_;
         u16 qty = lisp::get_list(item, 2)->integer().value_;

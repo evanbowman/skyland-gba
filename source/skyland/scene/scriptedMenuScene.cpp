@@ -56,7 +56,7 @@ static void set_attr(lisp::Value* lat, const char* key, lisp::Value* v)
 {
     bool found = false;
 
-    lisp::foreach (lat->cons().cdr(), [&](lisp::Value* val) {
+    lisp::l_foreach(lat->cons().cdr(), [&](lisp::Value* val) {
         if (str_eq(val->cons().car()->symbol().name(), key)) {
             val->cons().set_cdr(v);
             found = true;
@@ -75,7 +75,7 @@ static lisp::Value* get_attr(lisp::Value* lat, const char* key)
 {
     lisp::Value* ret = nullptr;
 
-    lisp::foreach (lat->cons().cdr(), [&](lisp::Value* val) {
+    lisp::l_foreach(lat->cons().cdr(), [&](lisp::Value* val) {
         if (ret) {
             return;
         }
@@ -109,7 +109,7 @@ static const char* get_str_attr(lisp::Value* lat, const char* key)
 static lisp::Value* get_elem_by_id(lisp::Value* root, const char* id)
 {
     lisp::Value* elem = nullptr;
-    foreach (root, [&](lisp::Value* v) {
+    l_foreach(root, [&](lisp::Value* v) {
         if (elem) {
             return;
         }
@@ -145,7 +145,7 @@ void ScriptedMenuScene::enter(Scene& prev)
         model_ = lisp::get_op0();
         lisp::pop_op();
 
-        lisp::foreach (*model_, [&](lisp::Value* v) {
+        lisp::l_foreach(*model_, [&](lisp::Value* v) {
             auto front = v->cons().car()->symbol().name();
             if (str_eq(front, "code")) {
                 auto src = get_str_attr(v, "src");
@@ -168,8 +168,8 @@ void ScriptedMenuScene::repaint_model()
     }
 
     if (model_) {
-        using lisp::foreach;
-        foreach (*model_, [&](lisp::Value* v) {
+        using lisp::l_foreach;
+        l_foreach(*model_, [&](lisp::Value* v) {
             auto front = v->cons().car()->symbol().name();
             if (str_eq(front, "text")) {
                 u8 x = get_int_attr(v, "x");
@@ -215,8 +215,7 @@ void ScriptedMenuScene::repaint_model()
                     PLATFORM.set_tile(Layer::overlay, x, i, t);
                 }
             }
-        })
-            ;
+        });
     }
 }
 

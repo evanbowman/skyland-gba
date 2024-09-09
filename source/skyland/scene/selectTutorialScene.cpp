@@ -182,7 +182,7 @@ void SelectTutorialScene::show_options()
     int index = 0;
     int start_index = page_ * 5;
 
-    lisp::foreach (*tutorials_, [&](lisp::Value* val) {
+    lisp::l_foreach(*tutorials_, [&](lisp::Value* val) {
         if (val->type() not_eq lisp::Value::Type::cons) {
             PLATFORM.fatal("tutorial list format invalid");
         }

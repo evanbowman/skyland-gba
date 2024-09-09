@@ -764,7 +764,7 @@ BINDING_TABLE({
           L_EXPECT_OP(1, string);
 
           Vector<char> data;
-          lisp::foreach (lisp::get_op0(), [&](lisp::Value* v) {
+          lisp::l_foreach(lisp::get_op0(), [&](lisp::Value* v) {
               if (v->type() == lisp::Value::Type::string) {
                   auto str = v->string().value();
                   while (*str not_eq '\0') {
@@ -1285,7 +1285,7 @@ BINDING_TABLE({
                       lisp::make_string("chr-new final arg is not list..."));
               }
 
-              lisp::foreach (lisp::get_op(0), [&](lisp::Value* val) {
+              lisp::l_foreach(lisp::get_op(0), [&](lisp::Value* val) {
                   if (val->type() == lisp::Value::Type::cons) {
                       auto car = val->cons().car();
                       if (car->type() == lisp::Value::Type::symbol) {
@@ -1578,7 +1578,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, cons);
 
-          lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
+          lisp::l_foreach(lisp::get_op(0), [](lisp::Value* val) {
               if (val->type() not_eq lisp::Value::Type::cons) {
                   return;
               }

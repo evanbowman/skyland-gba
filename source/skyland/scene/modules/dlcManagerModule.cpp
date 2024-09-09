@@ -73,7 +73,7 @@ void DlcManagerModule::enter(Scene& prev)
 
         auto v = APP.invoke_ram_script(patch_info_path.c_str());
         if (v->type() == lisp::Value::Type::cons) {
-            lisp::foreach (v, [&](lisp::Value* kvp) {
+            lisp::l_foreach(v, [&](lisp::Value* kvp) {
                 if (kvp->type() not_eq lisp::Value::Type::cons) {
                     return;
                 }

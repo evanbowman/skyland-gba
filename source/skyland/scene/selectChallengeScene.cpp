@@ -123,7 +123,7 @@ void SelectChallengeScene::show_options()
     int index = 0;
     int start_index = page_ * 5;
 
-    lisp::foreach (*challenges_, [&](lisp::Value* val) {
+    lisp::l_foreach(*challenges_, [&](lisp::Value* val) {
         if (val->type() not_eq lisp::Value::Type::cons) {
             PLATFORM.fatal("challenge list format invalid");
         }

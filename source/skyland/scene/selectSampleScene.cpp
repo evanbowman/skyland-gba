@@ -100,7 +100,7 @@ void SelectSampleScene::show_options()
     int index = 0;
     int start_index = page_ * 5;
 
-    lisp::foreach (*samples_, [&](lisp::Value* val) {
+    lisp::l_foreach(*samples_, [&](lisp::Value* val) {
         if (val->type() not_eq lisp::Value::Type::cons) {
             PLATFORM.fatal("sample list format invalid");
         }

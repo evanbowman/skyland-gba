@@ -167,7 +167,7 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
         auto str = get_line_from_file("/strings/adventure_log.txt", line);
 
         Buffer<StringBuffer<20>, 8> args;
-        lisp::foreach (v->cons().cdr(), [&](lisp::Value* val) {
+        lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
             lisp::DefaultPrinter p;
             lisp::format(val, p);
             args.push_back(p.data_.c_str());

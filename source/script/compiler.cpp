@@ -277,7 +277,7 @@ int compile_let(CompilerContext& ctx,
         append<instruction::LexicalFramePush>(buffer, write_pos);
     }
 
-    foreach (code->cons().car(), [&](Value* val) {
+    l_foreach(code->cons().car(), [&](Value* val) {
         if (val->type() == Value::Type::cons) {
             auto sym = val->cons().car();
             auto bind = val->cons().cdr();
@@ -338,8 +338,7 @@ int compile_let(CompilerContext& ctx,
                 }
             }
         }
-    })
-        ;
+    });
 
     code = code->cons().cdr();
 

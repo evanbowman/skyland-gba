@@ -168,10 +168,10 @@ void highscore_island_info_store()
         read(seq); // result at stack top
 
         // NOTE: see scripts/save.lisp for format. It's an association list.
-        foreach (get_op0(), [&](Value* val) {
+        l_foreach(get_op0(), [&](Value* val) {
             if (str_eq(val->cons().car()->symbol().name(), "rooms")) {
                 auto lat = val->cons().cdr();
-                foreach (lat, [&](Value* val) {
+                l_foreach(lat, [&](Value* val) {
                     if (blockdata_iter == HighscoreIslandInfo::max_blocks) {
                         return;
                     }
@@ -185,12 +185,11 @@ void highscore_island_info_store()
                     bd.set_xpos(rx.value_);
                     bd.set_ypos(ry.value_);
                     info.blocks_[blockdata_iter++] = bd;
-                })
-                    ;
+                });
             }
             if (str_eq(val->cons().car()->symbol().name(), "chrs")) {
                 auto lat = val->cons().cdr();
-                foreach (lat, [&](Value* val) {
+                l_foreach(lat, [&](Value* val) {
                     if (chr_iter == 16) {
                         return;
                     }
@@ -203,11 +202,9 @@ void highscore_island_info_store()
                     chr_pos |= (ry.value_ & 0x0f) << 4;
 
                     info.chrs_[chr_iter++] = chr_pos;
-                })
-                    ;
+                });
             }
-        })
-            ;
+        });
 
         pop_op(); // result of read(seq)
 
