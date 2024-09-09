@@ -31,7 +31,7 @@
 
 (map
  (lambda (xy)
-   (chr-new (player) (car xy) (cdr xy) 'neutral nil))
+   (chr-new (player) (first xy) (second xy) 'neutral nil))
  '((3 . 13)
    (2 . 13)))
 
@@ -56,6 +56,6 @@
 
 (map
  (lambda (xy)
-   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
+   (chr-new (opponent) (first xy) (second xy) 'hostile 0))
  '((6 . 14)
    (5 . 14)))

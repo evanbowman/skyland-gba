@@ -104,7 +104,7 @@
 
 (map
  (lambda (xy)
-   (chr-new (opponent) (car xy) (cdr xy) 'hostile 0))
+   (chr-new (opponent) (first xy) (second xy) 'hostile 0))
  '((3 . 14)
    (4 . 14)
    (5 . 14)

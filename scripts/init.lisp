@@ -12,10 +12,9 @@
 
 (defn/c cargo-bays (isle)
   (let ((rooms (rooms isle)))
-    (map (lambda ()
-           (cons
-            (cadr $0)
-            (cadr (cdr $0))))
+    (map (lambda (room)
+           (cons (cadr room)
+                 (cadr (cdr room))))
          (filter (car-equalto? 'cargo-bay) rooms))))
 
 (defn/c clamp (v low high)

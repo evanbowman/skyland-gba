@@ -64,19 +64,19 @@
  `(let () ,@BODY))
 
 
-(defn/c acons (key val alat)
-  (cons (cons key val) alat))
+(defn/c acons (key val alst)
+  (cons (cons key val) alst))
 
 
-(defn/c assoc (k alat)
+(defn/c assoc (k alst)
   (let ((temp k))
     (get (filter (lambda (v)
                    (equal (car v) temp))
-                 alat)
+                 alst)
          0)))
 
-(defn/c lookup (key alat)
-  (let ((kvp (assoc key alat)))
+(defn/c lookup (key alst)
+  (let ((kvp (assoc key alst)))
     (if kvp (cdr kvp))))
 
 (defn/c insert (elem lat pos)
@@ -124,10 +124,10 @@
   ;; (lat predicate new-value)
   (let ((pred p)
         (newv n))
-    (map (fn
-          (if (pred $0)
+    (map (lambda (v)
+          (if (pred v)
               newv
-              $0))
+              v))
          lat)))
 
 (defn/c curry (fn)
@@ -153,7 +153,7 @@
   (let ((val v))
     (pos-equalto? 0 v)))
 
-(defn/c notequal? (pred)
-  (let ((p pred))
-    (fn
-      (not (equal $0 p)))))
+(defn/c notequal? (val)
+  (let ((v val))
+    (lambda (o)
+      (not (equal o v)))))

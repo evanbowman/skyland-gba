@@ -1,9 +1,9 @@
 
 ;; args: (cart-id dialog-string)
 ;; sets on-dialog-closed, beginning a dialog chain
-(lambda ()
-  (let ((n $0)
-        (str $1))
+(lambda (cart text)
+  (let ((n cart)
+        (str text))
     (setq on-dialog-closed
           (if (cart-found? n)
               exit

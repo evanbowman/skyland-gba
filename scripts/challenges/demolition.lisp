@@ -41,9 +41,9 @@
               (map (lambda (kvp)
                      (setq hint
                            (cons (string
-                                  (string (cdr kvp))
+                                  (string (second kvp))
                                   " "
-                                  (rinfo 'name (car kvp))
+                                  (rinfo 'name (first kvp))
                                   ",")
                                  hint)))
                    rem)

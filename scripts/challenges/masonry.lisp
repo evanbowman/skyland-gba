@@ -18,9 +18,9 @@
 
 
 (setq on-room-destroyed
-      (lambda ()
-        (if (equal $0 (opponent))
-            (if (not (equal $1 'masonry))
+      (lambda (isle sym)
+        (if (equal isle (opponent))
+            (if (not (equal sym 'masonry))
                 (progn
                   (dialog "<c:goblin king:3>Gaahh, I ssaid only masssonry!")
                   (setq on-room-destroyed nil)

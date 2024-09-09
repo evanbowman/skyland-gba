@@ -37,7 +37,7 @@
 
 
 (map (lambda (xy)
-       (chr-new (opponent) (car xy) (cdr xy) 'neutral 0))
+       (chr-new (opponent) (first xy) (second xy) 'neutral 0))
      '((0 . 10)
        (1 . 10)
        (6 . 7)))

@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (kvp) (setvar (cdr kvp) (car kvp)))
+(map (lambda (kvp) (setvar (second kvp) (first kvp)))
  '((190 . "decimator_burst_damage")
    (25  . "nemesis_blast_damage")
    (40  . "cannonball_damage")

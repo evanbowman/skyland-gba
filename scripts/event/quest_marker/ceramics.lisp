@@ -29,7 +29,7 @@
                     (lambda (xy)
                       (equal
                        "ceramic tiles"
-                       (cargo (player) (car xy) (cdr xy))))
+                       (cargo (player) (first xy) (second xy))))
                     c)))
             (if p
                 (let ((sale (+ 1000 (* (lookup 4 qvar) 2))))

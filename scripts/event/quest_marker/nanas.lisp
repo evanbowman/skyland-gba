@@ -58,9 +58,8 @@
                            (missile-silo 10 13)))
 
                         (map (lambda (xy)
-                               (room-new
-                                (player)
-                                (list 'banana-plant (car xy) (cdr xy))))
+                               (room-new (player)
+                                         (list 'banana-plant (first xy) (second xy))))
                              (construction-sites (player) '(1 . 1)))
 
                         (adventure-log-add 24 '())

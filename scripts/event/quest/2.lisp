@@ -60,7 +60,7 @@
                (lambda (xy)
                  ((room-new
                    (player)
-                   (list 'lemon-tree (car xy) (cdr xy)))
+                   (list 'lemon-tree (first xy) (second xy)))
                   (+= reward 1400)))
                (construction-sites (player) '(1 . 2)))
 

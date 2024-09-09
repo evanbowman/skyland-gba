@@ -58,7 +58,7 @@
     (let ((grp (load 'groups))
           (join (lambda (g)
                   (let ((grp g))
-                    (lambda (xy) (groups-add grp (car xy) (cdr xy)))))))
+                    (lambda (xy) (groups-add grp (first xy) (second xy)))))))
       (when grp
         (groups-reset)
         (map (join 'Up) (lookup 'Up grp))

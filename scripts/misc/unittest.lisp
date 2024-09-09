@@ -205,6 +205,14 @@
                              "contents"
                              "type"))
 
+(assert-v ((notequal? 5) 7))
+(assert-v (not ((notequal? 6) 6)))
+
+(assert-v ((car-equalto? 11) '(11 10 9 8)))
+(assert-v ((pos-equalto? 1 15) '(3 15 7)))
+(assert-v (not ((pos-equalto? 1 8) '(3 15 7))))
+
+
 (let ((tmp 0))
   (defn foo ()
     (if (< tmp 10)

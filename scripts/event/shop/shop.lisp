@@ -24,9 +24,8 @@
 (setq shop-items (lookup (wg-pos) zone-shop-items))
 
 
-(defn on-shop-item-sel ()
-  (let ((name $0)
-        (item $1))
+(defn on-shop-item-sel (nm item)
+  (let ((name nm))
     (let ((info (get shop-items item)))
       (if (< (coins) (get info 1))
           (progn

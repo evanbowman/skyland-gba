@@ -31,10 +31,10 @@
       (setq n (map (lambda (node)
                      (cons node
                            ;; Append manhattan length
-                           (+ (abs (- (cadr $0) (cadr pos)))
-                              (abs (- (cadr $0) (cadr pos))))))
+                           (+ (abs (- (cadr node) (cadr pos)))
+                              (abs (- (cadr node) (cadr pos))))))
                    n))
-      (setq n (sort n (lambda (kvp1 kvp2) (> (cdr kvp1) (cdr kvp2)))))
+      (setq n (sort n (lambda (kvp1 kvp2) (> (second kvp1) (second kvp2)))))
       (let ((n (car (get n (choice 3)))))
         (wg-node-set (cadr n)
                      (cddr n)

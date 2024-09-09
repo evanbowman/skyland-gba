@@ -27,7 +27,7 @@
                            ret)))))
 
         (map (lambda (kvp)
-               (push (car kvp) (cdr kvp) (rinfo 'size (car kvp))))
+               (push (first kvp) (second kvp) (rinfo 'size (first kvp))))
              opts)
 
         ret))))

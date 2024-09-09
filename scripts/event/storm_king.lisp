@@ -95,15 +95,13 @@
 
 
 (if (> (difficulty) 1)
-    (let ((s (filter
-              (lambda (xy)
-                (> (cdr xy) 10))
-              (chr-slots (opponent)))))
-      (map
-       (lambda () ;; fix args
-         (let ((sl (get s $0)))
-           (chr-new (opponent) (car sl) (cdr sl) 'hostile 0)))
-       (range 2 9))
+    (let ((s (filter (lambda (xy)
+                       (> (second xy) 10))
+                     (chr-slots (opponent)))))
+      (map (lambda (x)
+             (let ((sl (get s x)))
+               (chr-new (opponent) (car sl) (cdr sl) 'hostile 0)))
+           (range 2 9))
       (chr-new (opponent) 4 14 'hostile 0))
   (progn
     (chr-new (opponent) 3 14 'hostile 0)

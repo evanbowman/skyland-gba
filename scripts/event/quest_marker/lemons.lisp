@@ -61,9 +61,8 @@
                    (rooms (player)))
 
               (map (lambda (xy)
-                     (room-new
-                      (opponent)
-                      (list 'lemon-tree (car xy) (cdr xy))))
+                     (room-new (opponent)
+                               (list 'lemon-tree (first xy) (second xy))))
                    (construction-sites (opponent) '(1 . 2)))
 
               ;; For the lemon-tree achievement

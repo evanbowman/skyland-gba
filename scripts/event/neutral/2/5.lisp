@@ -15,7 +15,7 @@
 
 (let ((xy (cdr (wg-pos))))
   ;; switch the current map node to a shop node type
-  (wg-node-set (car xy) (cdr xy) 7))
+  (wg-node-set (first xy) (second xy) 7))
 
 
 (eval-file "/scripts/event/shop/shop.lisp")

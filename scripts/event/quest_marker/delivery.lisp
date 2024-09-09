@@ -18,7 +18,7 @@
         (let ((c (cargo-bays (player))))
           (let ((p (filter (lambda (xy)
                              (equal "parcel"
-                                    (cargo (player) (car xy) (cdr xy))))
+                                    (cargo (player) (first xy) (second xy))))
                            c)))
             (if p
                 (let ((temp (+ 2500 (choice 2000))))
