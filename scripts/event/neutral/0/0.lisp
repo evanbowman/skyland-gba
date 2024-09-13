@@ -46,7 +46,7 @@
                 (dialog txt))))
     (if temp
         (progn
-          (setq temp (get temp (choice (length temp))))
+          (setq temp (sample temp))
           (chr-new (player) (car temp) (cdr temp) 'neutral nil)
           (chr-del (opponent) 1 14)
           (if (or (equal (choice 2) 1) (< (coins) 300))

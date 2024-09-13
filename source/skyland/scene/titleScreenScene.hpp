@@ -36,6 +36,7 @@
 
 
 #include "graphics/overlay.hpp"
+#include "platform/conf.hpp"
 #include "skyland/scene.hpp"
 
 
@@ -67,6 +68,9 @@ public:
 
 
     void macro_gen_sample_island();
+
+
+    static Conf::String music_track();
 
 
 private:

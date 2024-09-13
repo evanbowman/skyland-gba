@@ -25,15 +25,11 @@
       (skip 1))
 
   (terrain-set (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
-  (room-new (opponent) (list item 5 14))
-  (room-new (opponent) (list item 5 13))
-  (room-new (opponent) (list item 5 12))
-  (room-new (opponent) (list item 5 11))
 
-  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 14))
-  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 13))
-  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 12))
-  (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) 11))
+  (map (lambda (y)
+         (room-new (opponent) (list item 5 y))
+         (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) y)))
+       '(11 12 13 14))
 
   (setq on-converge
         (lambda ()

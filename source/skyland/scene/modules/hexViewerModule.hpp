@@ -63,7 +63,9 @@ public:
     {
         if (rom_file) {
             // In practice, I'll never bundle binary blobs with the game in the
-            // rom filesystem. There's no reason, really.
+            // rom filesystem. There's no reason, really.  P.S.: Hah! This is no
+            // longer true. Oh well. But I also have no reason to look at a
+            // large binary blob from within a GBA game.
         } else {
             flash_filesystem::read_file_data_binary(file_path, data_);
         }

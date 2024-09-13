@@ -23,7 +23,7 @@ Conf::String Environment::read_conf(const char* field) const
 {
     auto fd = PLATFORM.load_file("scripts/misc", "environment.ini");
     if (not fd.second) {
-        PLATFORM.fatal("missing music config file!");
+        PLATFORM.fatal("missing env config file!");
     }
 
     Conf c;

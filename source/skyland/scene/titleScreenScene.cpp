@@ -269,9 +269,13 @@ void TitleScreenScene::enter(Scene& prev)
         PLATFORM.load_sprite_texture("spritesheet_title_screen");
     }
 
-    if (not PLATFORM.speaker().is_music_playing("shadows.raw")) {
-        PLATFORM.speaker().stream_music("shadows.raw", true);
+    {
+        auto track = music_track();
+        if (not PLATFORM.speaker().is_music_playing(track->c_str())) {
+            PLATFORM.speaker().stream_music(track->c_str(), true);
+        }
     }
+
 
     PLATFORM.fill_overlay(0);
 
@@ -1936,6 +1940,21 @@ void TitleScreenScene::Pong::display(int x_scroll)
         sprite.set_mix({custom_color(0x236f5b), blend});
         PLATFORM.screen().draw(sprite);
     }
+}
+
+
+
+Conf::String TitleScreenScene::music_track()
+{
+    auto fd = PLATFORM.load_file("scripts/misc", "environment.ini");
+    if (not fd.second) {
+        PLATFORM.fatal("missing music config file!");
+    }
+
+    Conf c;
+    auto v = c.get(fd.first, "title_screen", "music");
+
+    return std::move(*std::get_if<Conf::String>(&v));
 }
 
 
