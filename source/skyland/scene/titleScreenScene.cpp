@@ -269,8 +269,8 @@ void TitleScreenScene::enter(Scene& prev)
         PLATFORM.load_sprite_texture("spritesheet_title_screen");
     }
 
-    if (not PLATFORM.speaker().is_music_playing("shadows")) {
-        PLATFORM.speaker().stream_music("shadows", true);
+    if (not PLATFORM.speaker().is_music_playing("shadows.raw")) {
+        PLATFORM.speaker().stream_music("shadows.raw", true);
     }
 
     PLATFORM.fill_overlay(0);

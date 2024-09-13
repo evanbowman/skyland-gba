@@ -50,7 +50,7 @@ namespace skyland
 
 void IntroCreditsScene::enter(Scene& prev)
 {
-    PLATFORM.speaker().stream_music("shadows", true);
+    PLATFORM.speaker().stream_music("shadows.raw", true);
     PLATFORM.speaker().play_sound("creaking", 9);
 
     PLATFORM.load_overlay_texture("overlay_skyland_title");

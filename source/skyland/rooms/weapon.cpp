@@ -194,9 +194,11 @@ void Weapon::display_on_hover(Platform::Screen& screen,
         pos.x += Fixnum::from_integer(target_->x * 16);
         pos.y += Fixnum::from_integer(target_->y * 16);
 
+        static const int reticule_spr_idx = 45;
+
         Sprite spr;
         spr.set_position(pos);
-        spr.set_texture_index(45);
+        spr.set_texture_index(reticule_spr_idx);
         spr.set_size(Sprite::Size::w16_h32);
 
         screen.draw(spr);
