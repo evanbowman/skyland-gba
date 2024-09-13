@@ -3790,9 +3790,7 @@ void Platform::Logger::flush()
 
 
 
-#include "data/music_life_in_silco.hpp"
 #include "data/music_unaccompanied_wind.hpp"
-#include "data/shadows.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -3823,9 +3821,7 @@ static const struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
-    DEF_MUSIC(life_in_silco, music_life_in_silco),
 };
 
 
@@ -4528,7 +4524,7 @@ bool Platform::Speaker::stream_music(const char* filename, Microseconds offset)
     modify_audio([&] {
         static const int wordsize = 4;
 
-        snd_ctx.music_track_length = found.second / wordsize;
+        snd_ctx.music_track_length = found.second / wordsize - 4;
         snd_ctx.music_track = (AudioSample*)found.first;
 
         snd_ctx.music_track_pos =

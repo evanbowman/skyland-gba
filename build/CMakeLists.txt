@@ -440,9 +440,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet_macro.s
     ${DATA_DIR}/spritesheet_macroverse.s
     ${DATA_DIR}/music_unaccompanied_wind.s
-    ${DATA_DIR}/music_life_in_silco.s
     ${DATA_DIR}/music_struttin.s
-    ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_archivist.s
     ${DATA_DIR}/sound_tonal_flutter.s
     ${DATA_DIR}/sound_powerdown.s
