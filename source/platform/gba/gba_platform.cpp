@@ -3790,10 +3790,7 @@ void Platform::Logger::flush()
 
 
 
-#include "data/music_box.hpp"
 #include "data/music_life_in_silco.hpp"
-#include "data/music_rain.hpp"
-#include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
 
@@ -3826,12 +3823,9 @@ static const struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    DEF_MUSIC(box, music_box),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
-    DEF_MUSIC(rain, music_rain),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
-    DEF_MUSIC(solecism, music_sb_solecism),
 };
 
 
@@ -4085,6 +4079,10 @@ bool Platform::Speaker::is_music_playing(const char* name)
 {
     bool playing = false;
 
+    if (snd_ctx.music_track_name == name) {
+        return true;
+    }
+
     if (auto track = find_music(name)) {
         modify_audio([&] {
             if (track->data_ == snd_ctx.music_track) {
@@ -4100,14 +4098,18 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 Buffer<const char*, 4> completed_sounds_buffer;
 volatile bool completed_sounds_lock = false;
-const char* completed_music;
+EWRAM_DATA StringBuffer<48> completed_music;
 
 
 
-const char* Platform::Speaker::completed_music()
+Optional<StringBuffer<48>> Platform::Speaker::completed_music()
 {
+    if (::completed_music.empty()) {
+        return {};
+    }
+
     auto ret = ::completed_music;
-    ::completed_music = nullptr;
+    ::completed_music.clear();
     return ret;
 }
 
@@ -4504,6 +4506,37 @@ static void stop_music()
 void Platform::Speaker::stop_music()
 {
     ::stop_music();
+}
+
+
+
+bool Platform::Speaker::stream_music(const char* filename, Microseconds offset)
+{
+    play_music(filename, offset); // In case it's a builtin track
+    if (is_music_playing(filename)) {
+        return true;
+    }
+
+    auto found = PLATFORM.load_file("scripts/misc/music", filename);
+
+    if (not found.second) {
+        return false;
+    }
+
+    const Microseconds sample_offset = offset * 0.016f; // NOTE: because 16kHz
+
+    modify_audio([&] {
+        static const int wordsize = 4;
+
+        snd_ctx.music_track_length = found.second / wordsize;
+        snd_ctx.music_track = (AudioSample*)found.first;
+
+        snd_ctx.music_track_pos =
+            (sample_offset / wordsize) % found.second / wordsize;
+        snd_ctx.music_track_name = filename;
+    });
+
+    return true;
 }
 
 

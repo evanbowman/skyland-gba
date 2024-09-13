@@ -1154,7 +1154,8 @@ ScenePtr WorldMapScene::update(Time delta)
                     PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
                 }
             }
-            PLATFORM.speaker().play_music(APP.environment().ambiance(), 0);
+            PLATFORM.speaker().stream_music(
+                APP.environment().ambiance()->c_str(), 0);
             auto maxvol = Platform::Speaker::music_volume_max;
             PLATFORM.speaker().set_music_volume(maxvol);
             update_weather_onload();

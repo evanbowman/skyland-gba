@@ -86,7 +86,7 @@ void SelectTutorialScene::enter(Scene& prev)
 {
     PLATFORM.screen().set_shader(passthrough_shader);
 
-    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
 
     APP.set_coins(0);
 
@@ -305,7 +305,8 @@ ScenePtr SelectTutorialScene::update(Time delta)
 
             rng::critical_state = 42;
 
-            PLATFORM.speaker().play_music(APP.environment().music(), 0);
+            PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
+                                            0);
 
             APP.time_stream().enable_pushes(true);
             APP.time_stream().clear();

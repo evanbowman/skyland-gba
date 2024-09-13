@@ -183,9 +183,11 @@ void SandboxLoaderModule::exit(Scene& next)
         environment_init(parameters_[4]);
 
         if (parameters_[2]) {
-            PLATFORM.speaker().play_music(APP.environment().music(), 0);
+            PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
+                                            0);
         } else {
-            PLATFORM.speaker().play_music(APP.environment().ambiance(), 0);
+            PLATFORM.speaker().stream_music(
+                APP.environment().ambiance()->c_str(), 0);
         }
 
         lisp::ListBuilder list;

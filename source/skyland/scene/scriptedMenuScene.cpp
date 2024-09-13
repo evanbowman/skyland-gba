@@ -117,8 +117,7 @@ static lisp::Value* get_elem_by_id(lisp::Value* root, const char* id)
             elem = v;
             return;
         }
-    })
-        ;
+    });
 
     if (not elem) {
         Platform::fatal(format("id lookup failed for %", id));

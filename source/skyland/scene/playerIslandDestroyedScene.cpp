@@ -418,7 +418,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         if (((APP.game_mode() not_eq App::GameMode::adventure or endgame) and
              APP.game_mode() not_eq App::GameMode::skyland_forever and
              APP.game_mode() not_eq App::GameMode::co_op)) {
-            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
         }
 
         PLATFORM.speaker().play_sound("explosion1", 3);
@@ -603,7 +603,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
         if (prev_timer < seconds(1) and timer_ >= seconds(1)) {
             if (endgame) {
-                PLATFORM.speaker().play_music("box", 0);
+                PLATFORM.speaker().stream_music("music_box.raw", 0);
             }
         }
 
@@ -646,7 +646,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         timer_ = 0;
 
         if (endgame) {
-            PLATFORM.speaker().play_music("box", 0);
+            PLATFORM.speaker().stream_music("music_box.raw", 0);
         }
 
         for (int i = 0; i < 64; ++i) {

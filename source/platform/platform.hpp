@@ -815,6 +815,9 @@ public:
         void play_music(const char* name, Microseconds offset);
         void stop_music();
 
+        bool stream_music(const char* filename, Microseconds offset);
+
+
         // By convention, volume ranges from zero to nineteen (twenty volume
         // levels). Maximum performance when volume is zero or nineteen.
 
@@ -864,7 +867,7 @@ public:
         // Return a buffer containing any sounds that finished playing.
         Buffer<const char*, 4> completed_sounds();
 
-        const char* completed_music();
+        Optional<StringBuffer<48>> completed_music();
 
         void clear_sounds();
         void stop_sound(const char* name);

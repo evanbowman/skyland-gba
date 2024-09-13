@@ -108,7 +108,8 @@ public:
             if (auto s = macrocosm().sector().cast_freebuild_sector()) {
                 s->reset();
             }
-            PLATFORM.speaker().play_music(APP.environment().music(), 0);
+            PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
+                                            0);
             return make_scene<SelectorScene>();
         }
 

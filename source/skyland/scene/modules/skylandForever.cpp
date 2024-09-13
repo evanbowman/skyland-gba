@@ -163,7 +163,7 @@ void SkylandForever::init(u8 difficulty, rng::LinearGenerator seed)
 
     APP.persistent_data().score_.set(0);
 
-    PLATFORM.speaker().play_music(APP.environment().music(), 0);
+    PLATFORM.speaker().stream_music(APP.environment().music()->c_str(), 0);
 
     APP.invoke_script("/scripts/event/skyland_forever.lisp");
 

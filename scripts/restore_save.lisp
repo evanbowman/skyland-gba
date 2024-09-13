@@ -9,7 +9,7 @@
 
   (flag-show (player) 0)
 
-  (setq ash-storm-count 0) ; TODO: put this in save data...
+  (eval-file "/scripts/adventure_vars.lisp")
 
   (let ((load (let ((d data))
                 (lambda (key) (lookup key d)))))

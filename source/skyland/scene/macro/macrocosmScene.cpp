@@ -293,13 +293,13 @@ ScenePtr MacrocosmScene::update(Player& player, macro::EngineImpl& state)
     state.sector().update();
 
     if (auto music = PLATFORM.speaker().completed_music()) {
-        if (str_eq(music, "life_in_silco")) {
-            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+        if (music == "life_in_silco") {
+            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
         } else {
             if (state.data_->frames_since_music_ > 6 and
                 rng::choice<6>(rng::utility_state) == 0) {
                 state.data_->frames_since_music_ = 0;
-                PLATFORM.speaker().play_music("life_in_silco", 0);
+                PLATFORM.speaker().stream_music("life_in_silco", 0);
             } else {
                 state.data_->frames_since_music_++;
             }

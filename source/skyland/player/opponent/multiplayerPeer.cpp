@@ -468,7 +468,7 @@ void MultiplayerPeer::receive(const network::packet::DynamiteActivated& packet)
 
 void MultiplayerPeer::receive(const network::packet::PlayMusic& packet)
 {
-    PLATFORM.speaker().play_music("life_in_silco", 0);
+    PLATFORM.speaker().stream_music("life_in_silco", 0);
 }
 
 

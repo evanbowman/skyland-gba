@@ -21,5 +21,4 @@
  'shop-items
  'zone-shop-items
  'qvar
- 'mercenary-event
- 'ash-storm-count)
+ 'adventure-vars)

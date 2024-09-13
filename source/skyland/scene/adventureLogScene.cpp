@@ -122,7 +122,7 @@ void AdventureLogScene::show_page(int page_num)
 void AdventureLogScene::enter(Scene& prev)
 {
     if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind") and
-        not PLATFORM.speaker().is_music_playing("box")) {
+        not PLATFORM.speaker().is_music_playing("music_box.raw")) {
         PLATFORM.speaker().set_music_volume(8);
     } else {
         PLATFORM.speaker().set_music_volume(16);

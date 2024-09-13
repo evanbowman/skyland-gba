@@ -121,7 +121,9 @@
 (defn/c max (lat) (car (sort lat >)))
 
 (defn/c replace (lat p n)
-  ;; (lat predicate new-value)
+  ;; Note: the interpreter doesn't support capturing an enclosing function's
+  ;; arguments, hence the let binding. Obviously, this is inconvenient in some
+  ;; cases, but it's not that bad.
   (let ((pred p)
         (newv n))
     (map (lambda (v)
@@ -133,7 +135,7 @@
 (defn/c curry (fn)
   (let ((func fn)
         (args (cdr $V)))
-    (fn
+    (lambda ()
       (apply func (append args $V)))))
 
 ;; Return a predicate that returns true if its argument equals the supplied value.

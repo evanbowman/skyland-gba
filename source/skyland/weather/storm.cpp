@@ -283,20 +283,6 @@ void Storm::display()
 
 
 
-const char* Storm::music() const
-{
-    return "solecism";
-}
-
-
-
-const char* Storm::ambiance() const
-{
-    return "rain";
-}
-
-
-
 Platform::Screen::Shader Storm::shader() const
 {
     return [](ShaderPalette palette, ColorConstant k, int arg, int index) {

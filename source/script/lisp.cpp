@@ -562,13 +562,9 @@ bool is_list(Value* val)
         return true;
     }
 
-    if (auto len = is_list_slowpath(val)) {
+    if (is_list_slowpath(val)) {
         if (val->type() == Value::Type::cons) {
             val->cons().is_definitely_list_ = true;
-
-            if (len < 127) {
-                val->cons().cached_length_ = len;
-            }
         }
         return true;
     }
@@ -658,12 +654,6 @@ int length(Value* lat)
         return 0;
     }
 
-    Value* front = lat;
-
-    if (front->cons().cached_length_) {
-        return front->cons().cached_length_;
-    }
-
     int len = 0;
     while (true) {
         ++len;
@@ -674,10 +664,6 @@ int length(Value* lat)
             }
             break;
         }
-    }
-
-    if (len < 127) {
-        front->cons().cached_length_ = len;
     }
 
     return len;
@@ -769,24 +755,18 @@ static int examine_argument_list(Value* function_impl)
         ++argc;
 
         if (val->type() not_eq lisp::Value::Type::symbol) {
-            auto p = allocate_dynamic<DefaultPrinter>("...");
-            auto p2 = allocate_dynamic<DefaultPrinter>("...");
-            format(val, *p);
-            format(arg_lat, *p2);
             PLATFORM.fatal(
                 ::format("value \'%\' in argument list \'%\' is non-symbol!",
-                         p->data_.c_str(),
-                         p2->data_.c_str()));
+                         val_to_string<64>(val).c_str(),
+                         val_to_string<128>(arg_lat).c_str()));
         }
 
         if (val->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
-            auto p = allocate_dynamic<DefaultPrinter>("...");
-            format(arg_lat, *p);
             PLATFORM.fatal(::format(
                 "symbol name \'%\' in argument list \'%\' is too long! "
                 "(4 char limit)",
                 val->symbol().name(),
-                p->data_.c_str()));
+                val_to_string<128>(arg_lat).c_str()));
         }
     });
 
@@ -805,34 +785,34 @@ struct ArgBinding
 struct ArgBindings
 {
     Buffer<ArgBinding, 16> bindings_;
-    const ArgBindings* parent_ = nullptr;
+    ArgBindings* parent_ = nullptr;
 };
 
 
-ArgBindings make_arg_bindings(Value* arg_lat, const ArgBindings* parent)
+ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 {
-    ArgBindings bindings;
-    bindings.parent_ = parent;
+    ArgBindings b;
+    b.parent_ = parent;
 
     int arg = 0;
     l_foreach(arg_lat, [&](Value* val) {
-        auto replacement =
-            &make_symbol(::format("$%", arg++).c_str())->symbol();
+        auto replace = &make_symbol(::format("$%", arg++).c_str())->symbol();
 
-        push_op((Value*)replacement); // protect from gc
+        push_op((Value*)replace); // protect from gc
 
-        bindings.bindings_.push_back(ArgBinding{&val->symbol(), replacement});
+        if (not b.bindings_.push_back(ArgBinding{&val->symbol(), replace})) {
+        }
     });
 
     for (int i = 0; i < arg; ++i) {
         pop_op(); // pop protected gc vals
     }
 
-    return bindings;
+    return b;
 }
 
 
-static void arg_substitution_impl(Value* impl, const ArgBindings& bindings)
+static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 {
     while (true) {
         if (impl->type() not_eq Value::Type::cons) {
@@ -1019,7 +999,6 @@ Value* make_cons(Value* car, Value* cdr)
         val->cons().set_car(car);
         val->cons().__set_cdr(cdr);
         val->cons().is_definitely_list_ = false;
-        val->cons().cached_length_ = 0;
         return val;
     }
     return bound_context->oom_;
@@ -2432,14 +2411,15 @@ static void macroexpand_macro()
 
     auto lat = get_op0();
     for (; lat not_eq get_nil(); lat = lat->cons().cdr()) {
-        if (is_list(lat->cons().car())) {
-            push_op(lat->cons().car());
+        auto car_val = lat->cons().car();
+        if (is_list(car_val)) {
+            push_op(car_val);
             macroexpand_macro();
             macroexpand();
             result.push_back(get_op0());
             pop_op();
         } else {
-            result.push_back(lat->cons().car());
+            result.push_back(car_val);
         }
     }
 

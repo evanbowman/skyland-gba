@@ -671,7 +671,7 @@ public:
             PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
         }
 
-        PLATFORM.speaker().play_music("isle_of_the_dead", 0);
+        PLATFORM.speaker().stream_music("isle_of_the_dead", 0);
     }
 
 

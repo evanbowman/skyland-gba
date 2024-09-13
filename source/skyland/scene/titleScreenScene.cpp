@@ -270,7 +270,7 @@ void TitleScreenScene::enter(Scene& prev)
     }
 
     if (not PLATFORM.speaker().is_music_playing("shadows")) {
-        PLATFORM.speaker().play_music("shadows", true);
+        PLATFORM.speaker().stream_music("shadows", true);
     }
 
     PLATFORM.fill_overlay(0);
@@ -773,7 +773,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
             PLATFORM.speaker().play_sound("button_wooden", 3);
 
             const auto amount =
@@ -836,7 +836,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
@@ -984,7 +984,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 state_ = State::fade_modules_1;
             } else {
                 if (not repeat_action1_) {
-                    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
                 }
                 module_cursor_.reset();
@@ -1482,7 +1482,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
                     PLATFORM.speaker().clear_sounds();
-                    PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
 
                     if (f->name() == SystemString::module_cart_viewer) {

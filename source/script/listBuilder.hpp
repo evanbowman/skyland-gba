@@ -83,9 +83,6 @@ public:
 
     Value* result()
     {
-        if (length_ < 127) {
-            head_->cons().cached_length_ = length_;
-        }
         return head_;
     }
 

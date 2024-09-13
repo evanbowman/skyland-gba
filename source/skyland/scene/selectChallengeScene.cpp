@@ -89,7 +89,7 @@ void SelectChallengeScene::enter(Scene& prev)
         default_fade, ColorConstant::rich_black, {}, false);
 
     if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind")) {
-        PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+        PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
     }
 }
 
@@ -316,8 +316,9 @@ ScenePtr SelectChallengeScene::update(Time delta)
             show_island_exterior(&APP.player_island());
 
             if (not PLATFORM.speaker().is_music_playing(
-                    APP.environment().music())) {
-                PLATFORM.speaker().play_music(APP.environment().music(), 0);
+                    APP.environment().music()->c_str())) {
+                PLATFORM.speaker().stream_music(
+                    APP.environment().music()->c_str(), 0);
             }
 
             return make_scene<FadeInScene>();

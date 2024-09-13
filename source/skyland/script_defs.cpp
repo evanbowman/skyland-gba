@@ -973,8 +973,9 @@ BINDING_TABLE({
           PLATFORM.screen().set_shader_argument(0);
 
           if (not PLATFORM.speaker().is_music_playing(
-                  APP.environment().music())) {
-              PLATFORM.speaker().play_music(APP.environment().music(), 0);
+                  APP.environment().music()->c_str())) {
+              PLATFORM.speaker().stream_music(
+                  APP.environment().music()->c_str(), 0);
           }
 
           return L_NIL;

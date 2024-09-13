@@ -266,12 +266,13 @@ ScenePtr LoadLevelScene::update(Time delta)
     }
 
     if (node.type_ == WorldGraph::Node::Type::corrupted) {
-        PLATFORM.speaker().play_music("unaccompanied_wind", 0);
+        PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
 
     } else {
         if (not PLATFORM.speaker().is_music_playing(
-                APP.environment().music())) {
-            PLATFORM.speaker().play_music(APP.environment().music(), 0);
+                APP.environment().music()->c_str())) {
+            PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
+                                            0);
         }
     }
 

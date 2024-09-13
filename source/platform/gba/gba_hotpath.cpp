@@ -97,7 +97,7 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
 
 extern Buffer<const char*, 4> completed_sounds_buffer;
 extern volatile bool completed_sounds_lock;
-extern const char* completed_music;
+extern StringBuffer<48> completed_music;
 
 
 

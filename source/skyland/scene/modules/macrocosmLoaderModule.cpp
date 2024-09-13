@@ -64,7 +64,7 @@ void background_init()
 
 void MacrocosmLoaderModule::enter(Scene& prev)
 {
-    PLATFORM.speaker().play_music(APP.environment().music(), 0);
+    PLATFORM.speaker().stream_music(APP.environment().music()->c_str(), 0);
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 

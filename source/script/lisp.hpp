@@ -272,7 +272,7 @@ struct Cons
     ValueHeader hdr_;
 
     u8 is_definitely_list_ : 1;
-    u8 cached_length_ : 7;
+    u8 unused_ : 7;
 
     static ValueHeader::Type type()
     {
@@ -402,7 +402,6 @@ struct String
     {
         const char* value_;
     };
-
 
     union Data
     {
@@ -905,6 +904,16 @@ using DefaultPrinter = _Printer<StringBuffer<1024>>;
 
 
 void format(Value* value, Printer& p);
+
+
+template <int len> StringBuffer<len> val_to_string(Value* value)
+{
+    auto p = allocate_dynamic<DefaultPrinter>("...");
+    format(value, *p);
+
+    StringBuffer<len> out = p->data_.c_str();
+    return out;
+}
 
 
 template <typename F> void l_foreach(Value* list, F&& fn)

@@ -98,12 +98,6 @@ public:
     void display() override;
 
 
-    const char* music() const override;
-
-
-    const char* ambiance() const override;
-
-
     EnvironmentId id() const override;
 
 

@@ -37,6 +37,7 @@
 #include "graphics/color.hpp"
 #include "number/numeric.hpp"
 #include "number/random.hpp"
+#include "platform/conf.hpp"
 #include "platform/platform.hpp"
 
 
@@ -128,8 +129,9 @@ public:
     }
 
 
-    virtual const char* music() const = 0;
-    virtual const char* ambiance() const = 0;
+    Conf::String read_conf(const char* field) const;
+    Conf::String music() const;
+    Conf::String ambiance() const;
 };
 
 
@@ -196,18 +198,6 @@ public:
 class ClearSkies : public CleanEnvironment
 {
 public:
-    const char* music() const override
-    {
-        return "life_in_silco";
-    }
-
-
-    const char* ambiance() const override
-    {
-        return "unaccompanied_wind";
-    }
-
-
     ClearSkies()
     {
         timer_ = seconds(rng::choice<7>(rng::utility_state));

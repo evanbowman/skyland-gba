@@ -19,6 +19,35 @@ Environment::Environment()
 
 
 
+Conf::String Environment::read_conf(const char* field) const
+{
+    auto fd = PLATFORM.load_file("scripts/misc", "environment.ini");
+    if (not fd.second) {
+        PLATFORM.fatal("missing music config file!");
+    }
+
+    Conf c;
+    auto v = c.get(fd.first, format("environment_%", id()).c_str(), field);
+
+    return std::move(*std::get_if<Conf::String>(&v));
+}
+
+
+
+Conf::String Environment::music() const
+{
+    return read_conf("music");
+}
+
+
+
+Conf::String Environment::ambiance() const
+{
+    return read_conf("ambiance");
+}
+
+
+
 } // namespace skyland::weather
 
 

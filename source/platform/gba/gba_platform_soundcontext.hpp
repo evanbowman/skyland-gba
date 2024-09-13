@@ -36,6 +36,7 @@
 
 
 #include "memory/buffer.hpp"
+#include "string.hpp"
 
 
 using VolumeScaleLUT = std::array<s8, 256>;
@@ -60,7 +61,7 @@ struct SoundContext
     Buffer<ActiveSoundInfo, 3> active_sounds;
 
     const AudioSample* music_track = nullptr;
-    const char* music_track_name;
+    StringBuffer<48> music_track_name;
     s32 music_track_length = 0;
     s32 music_track_pos = 0;
 };

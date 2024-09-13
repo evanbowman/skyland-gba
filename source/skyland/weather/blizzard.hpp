@@ -53,12 +53,6 @@ public:
     }
 
 
-    const char* ambiance() const override
-    {
-        return "unaccompanied_wind";
-    }
-
-
     Platform::Screen::Shader shader() const override;
 
 

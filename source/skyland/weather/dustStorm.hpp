@@ -59,12 +59,6 @@ public:
     Platform::Screen::Shader shader() const override;
 
 
-    const char* music() const override
-    {
-        return "solecism";
-    }
-
-
     void update(Time delta) override;
 
 
