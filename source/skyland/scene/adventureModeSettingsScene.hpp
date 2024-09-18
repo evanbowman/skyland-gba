@@ -60,14 +60,28 @@ public:
     ScenePtr update(Time delta) override;
 
 
+    void render_line(int linenum,
+                     SystemString text,
+                     SystemString desc,
+                     bool selected);
+
+    void update_field(bool inc);
+
 private:
-    Optional<Text> difficulty_text_;
-    Optional<Text> easy_text_;
-    Optional<Text> normal_text_;
-    Optional<Text> hard_text_;
+    void repaint_difficulty(int difficulty, bool selected);
+    void repaint_autofire(bool on, bool selected);
+
+    void repaint();
+
+    Optional<Text> title_;
+    Buffer<Text, 2> lines_;
+
+    int sel_ = 0;
+
     Optional<TextView> desc_;
     bool newgame_;
     u8 original_;
+    Bitvector<64> stateflags_cached_;
     bool init_ = true;
 };
 

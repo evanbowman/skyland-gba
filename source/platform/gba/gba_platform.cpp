@@ -2169,7 +2169,33 @@ static void vblank_horizontal_transfer_scroll_isr()
 
 
 
+void no_op_task()
+{
+}
+
+
+
 void (*vblank_dma_callback)() = vblank_full_transfer_scroll_isr;
+void (*vblank_task)() = no_op_task;
+
+
+
+Platform::TaskPointer Platform::set_background_task(Platform::TaskPointer task)
+{
+    TaskPointer ret = vblank_task;
+
+    if (task == nullptr) {
+        vblank_task = no_op_task;
+    } else {
+        vblank_task = task;
+    }
+
+    if (ret == no_op_task) {
+        return nullptr;
+    }
+
+    return ret;
+}
 
 
 
@@ -2650,6 +2676,7 @@ static int watchdog_counter;
 static void vblank_isr()
 {
     vblank_dma_callback();
+    vblank_task();
 
     watchdog_counter += 1;
 

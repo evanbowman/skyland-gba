@@ -1569,9 +1569,12 @@ void TitleScreenScene::macro_gen_sample_island()
     m.bind_sector({0, 1});
     auto& s = m.sector();
 
-    APP.invoke_script("/scripts/config/title_screen_isle.lisp");
+    PLATFORM.set_background_task(parallax_background_task);
 
+    APP.invoke_script("/scripts/config/title_screen_isle.lisp");
     s.render();
+
+    PLATFORM.set_background_task(nullptr);
 
     macro::raster::globalstate::_upper_half_only = false;
 
@@ -1679,6 +1682,55 @@ void TitleScreenScene::display()
         PLATFORM.screen().draw(sprite);
     } else if (x_scroll_ < -240) {
         pong_.display(x_scroll_);
+
+        Sprite dog_spr;
+        auto view = PLATFORM.screen().get_view();
+        auto c = view.get_center();
+        Vec2<Fixnum> anchor = {Fixnum(163.f), Fixnum((c.y - 55) + 177)};
+        anchor.x -= Fixnum::from_integer(480 + x_scroll_);
+        anchor.y += Fixnum::from_integer(x_scroll_ / 16);
+
+        if (++dog_anim_cnt_ == 6) {
+            dog_anim_cnt_ = 0;
+            ++dog_head_frame_;
+            ++dog_tail_frame_;
+
+            if (dog_head_frame_ > 1) {
+                dog_head_frame_ = 0;
+            }
+
+            if (dog_tail_frame_ > 5) {
+                dog_tail_frame_ = 0;
+            }
+        }
+
+        if (dog_) {
+            dog_spr.set_position(anchor);
+            dog_spr.set_size(Sprite::Size::w32_h32);
+            dog_spr.set_texture_index(32 + dog_head_frame_);
+            PLATFORM.screen().draw(dog_spr);
+
+            anchor.x += 32.0_fixed;
+            dog_spr.set_texture_index(34);
+            dog_spr.set_position(anchor);
+            PLATFORM.screen().draw(dog_spr);
+
+            anchor.y += 32.0_fixed;
+            dog_spr.set_texture_index(36);
+            dog_spr.set_position(anchor);
+            PLATFORM.screen().draw(dog_spr);
+
+            anchor.x -= 32.0_fixed;
+            dog_spr.set_texture_index(35);
+            dog_spr.set_position(anchor);
+            PLATFORM.screen().draw(dog_spr);
+
+            anchor.y -= 28.0_fixed;
+            anchor.x += 42.0_fixed;
+            dog_spr.set_texture_index(37 + dog_tail_frame_);
+            dog_spr.set_position(anchor);
+            PLATFORM.screen().draw(dog_spr);
+        }
     }
     for (auto& effect : APP.effects()) {
         auto spr = effect->sprite();

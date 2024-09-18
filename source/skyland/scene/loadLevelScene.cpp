@@ -139,6 +139,8 @@ void prep_level()
         APP.player().rooms_lost_ = 0;
     }
 
+    APP.player().on_level_start();
+
     APP.persistent_data().score_.set(
         std::max((s32)0, APP.persistent_data().score_.get()));
 

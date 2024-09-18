@@ -37,6 +37,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/targetingComputer.hpp"
+#include "skyland/rooms/warhead.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
@@ -47,7 +48,7 @@ namespace skyland
 
 
 
-PlayerP1::PlayerP1() : chr_ai_(allocate_dynamic<ChrAIState>("crew-ai-control"))
+PlayerP1::PlayerP1() : ai_state_(allocate_dynamic<AIState>("island-ai-control"))
 {
 }
 
@@ -143,7 +144,7 @@ void PlayerP1::update(Time delta)
             }
         }
 
-        update_chr_ai(delta);
+        update_ai(delta);
 
         if (PLATFORM.keyboard()
                 .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
@@ -178,11 +179,7 @@ void PlayerP1::on_room_destroyed(Room& room)
             }
         }
 
-        for (auto& r : APP.player_island().rooms()) {
-            if (auto tc = r->cast<TargetingComputer>()) {
-                tc->rescan();
-            }
-        }
+        ai_state_->rescan_ = true;
 
         APP.score().set((APP.score().get() +
                          (score_multiplier * (*room.metaclass())->cost())));
@@ -283,14 +280,122 @@ void PlayerP1::key_held_distribute(const Key* include_list)
 
 
 
-void PlayerP1::update_chr_ai(Time delta)
+void PlayerP1::update_ai(Time delta)
 {
-    chr_ai_->update(delta);
+    ai_state_->update(delta);
 }
 
 
 
-void PlayerP1::ChrAIState::update(Time delta)
+void PlayerP1::AIState::update_weapon_targets(Time delta)
+{
+    if (APP.opponent().is_friendly()) {
+        for (auto& r : APP.player_island().rooms()) {
+            r->unset_target();
+        }
+        return;
+    }
+
+    if (PLATFORM.screen().fade_active()) {
+        return;
+    }
+
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
+
+    if (mt_prep_seconds) {
+        // Bugfix: If stuff is even slightly de-syncd upon level entry, one game
+        // can jump ahead of another. Add in an additional seconds buffer to
+        // increase the liklihood that the targeting computer assigns weapon
+        // targets at the same time.
+        next_weapon_action_timer_ = seconds(4);
+        return;
+    }
+
+    if (next_weapon_action_timer_ > 0) {
+        next_weapon_action_timer_ -= delta;
+    } else {
+        if (weapon_update_index_ >= player_island().rooms().size()) {
+            weapon_update_index_ = 0;
+            next_weapon_action_timer_ = seconds(3);
+        } else {
+            auto& room = *player_island().rooms()[weapon_update_index_++];
+
+            const auto category = (*room.metaclass())->category();
+            if (category == Room::Category::weapon) {
+
+                // Even when the targeting AI is active, the game allows you to
+                // pin targets manually, and the AI won't try to assign them
+                // again until the block to which the target is pinned is
+                // destroyed.
+                const bool has_pinned_target =
+                    room.target_pinned() and room.get_target() and
+                    APP.opponent_island()->get_room(*room.get_target());
+
+                if (not has_pinned_target and not room.cast<Warhead>()) {
+                    EnemyAI::update_room(room,
+                                         APP.opponent_island()->rooms_plot(),
+                                         &APP.player(),
+                                         &APP.player_island(),
+                                         APP.opponent_island());
+                }
+                next_weapon_action_timer_ = milliseconds(64);
+            } else {
+                next_weapon_action_timer_ = milliseconds(32);
+            }
+        }
+    }
+
+    // A block was destroyed. Attempt to re-assign some weapon targets, for
+    // weapons that no longer have a valid target block.
+    if (rescan_) {
+
+        ATP highest_weight = 0.0_atp;
+        Optional<RoomCoord> highest_weighted_target;
+
+        // Find the highest-weighted target still in existence.
+        for (auto& room : APP.player_island().rooms()) {
+            const auto category = (*room->metaclass())->category();
+            if (category == Room::Category::weapon) {
+                if (auto target = room->get_target()) {
+                    if (auto o = APP.opponent_island()->get_room(*target)) {
+                        if (o->get_atp() > highest_weight) {
+                            highest_weight = o->get_atp();
+                            highest_weighted_target = target;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Assign the highest weighted extant target to all rooms that no longer
+        // have a valid target block.
+        if (highest_weighted_target) {
+            for (auto& room : APP.player_island().rooms()) {
+                const auto category = (*room->metaclass())->category();
+                if (category == Room::Category::weapon) {
+                    if (auto target = room->get_target()) {
+                        if (not APP.opponent_island()->get_room(*target)) {
+                            room->set_target(*highest_weighted_target, false);
+                        }
+                    }
+                }
+            }
+        }
+
+        rescan_ = false;
+    }
+}
+
+
+
+void PlayerP1::update_weapon_targets()
+{
+    ai_state_->update_weapon_targets(APP.delta_fp().as_integer());
+}
+
+
+
+void PlayerP1::AIState::update(Time delta)
 {
     if (PLATFORM.screen().fade_active()) {
         return;
@@ -298,6 +403,10 @@ void PlayerP1::ChrAIState::update(Time delta)
 
     if (APP.game_speed() == GameSpeed::stopped) {
         return;
+    }
+
+    if (APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
+        update_weapon_targets(APP.delta_fp().as_integer());
     }
 
     next_action_timer_ -= delta;
@@ -359,6 +468,22 @@ void PlayerP1::ChrAIState::update(Time delta)
             }
         }
     }
+}
+
+
+
+void PlayerP1::on_level_start()
+{
+    ai_state_->next_weapon_action_timer_ = seconds(3);
+    ai_state_->rescan_ = false;
+}
+
+
+
+void PlayerP1::delay_autofire(Time duration)
+{
+    ai_state_->next_weapon_action_timer_ = duration;
+    ai_state_->rescan_ = false;
 }
 
 

@@ -59,6 +59,16 @@ public:
 
     using Data = std::array<u8, (bits / 8) + ((bits % 8) ? 1 : 0)>;
 
+    bool operator==(const Bitvector& other) const
+    {
+        return data_ == other.data_;
+    }
+
+    bool operator not_eq(const Bitvector& other) const
+    {
+        return data_ not_eq other.data_;
+    }
+
     Bitvector(const Data& data)
     {
         data_ = data;

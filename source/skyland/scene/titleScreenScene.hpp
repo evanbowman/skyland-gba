@@ -174,6 +174,11 @@ private:
     Time bird_timer_ = seconds(7);
     Time note_timer_ = milliseconds(600);
     Time furnace_timer_ = 0;
+
+    u8 dog_head_frame_ = 0;
+    u8 dog_tail_frame_ = 0;
+    u8 dog_anim_cnt_ = 0;
+    bool dog_ = false;
 };
 
 

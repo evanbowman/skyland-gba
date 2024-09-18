@@ -518,13 +518,20 @@ void App::update_parallax(Time delta)
 
 
 
+void App::_render_update_scroll()
+{
+    PLATFORM.system_call("_prlx7",
+                         (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
+    PLATFORM.system_call("_prlx8",
+                         (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
+}
+
+
+
 void App::render()
 {
     if (not macrocosm()) {
-        PLATFORM.system_call(
-            "_prlx7", (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
-        PLATFORM.system_call(
-            "_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
+        _render_update_scroll();
     }
 
     current_scene_->display();
@@ -750,6 +757,16 @@ bool state_bit_load(StateBit state_bit)
         return false;
     }
     return APP.state_bits().get((int)state_bit);
+}
+
+
+
+void parallax_background_task()
+{
+    if (APP.game_speed() not_eq GameSpeed::stopped) {
+        APP.update_parallax(milliseconds(16));
+        APP._render_update_scroll();
+    }
 }
 
 

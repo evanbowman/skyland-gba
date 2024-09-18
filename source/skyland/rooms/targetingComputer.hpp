@@ -134,18 +134,12 @@ public:
     void unset_target() override;
 
 
-    void rescan()
-    {
-        rescan_ = true;
-    }
+    void display_on_hover(Platform::Screen& screen,
+                          const RoomCoord& cursor) override;
 
 
 private:
-    Time next_action_timer_ = seconds(1);
-    u32 room_update_index_ = 0;
-
     bool enabled_ = true;
-    bool rescan_ = false;
 };
 
 

@@ -540,6 +540,9 @@ enum class SystemString {
     switch_connect_on,
     switch_connect_off,
 
+    on,
+    off,
+
     zone_text,
 
     loading,
@@ -577,10 +580,17 @@ enum class SystemString {
     sf_hard,
     sf_annihilation,
 
+    setup,
+    setup_instructions,
+
     difficulty_hint_easy,
     difficulty_hint_normal,
     difficulty_hint_hard,
     difficulty_hint_annihilation,
+
+    autofire_setting,
+    autofire_hint_on,
+    autofire_hint_off,
 
     exit_tutorial,
 

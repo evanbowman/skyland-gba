@@ -37,7 +37,6 @@
 #include "skyland/island.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/rooms/warhead.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStream.hpp"
@@ -71,6 +70,11 @@ void TargetingComputer::update(Time delta)
     Room::update(delta);
 
     if (not enabled_) {
+        // As long as the targeting computer is turned off, delay autofire, if
+        // enabled, indefinitely, until the computer is destroyed or turned back
+        // on.
+        Room::ready();
+        APP.player().delay_autofire(seconds(1));
         return;
     }
 
@@ -88,107 +92,20 @@ void TargetingComputer::update(Time delta)
         return;
     }
 
-    if (APP.opponent().is_friendly()) {
-        for (auto& r : parent()->rooms()) {
-            r->unset_target();
+    if (not APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
+        APP.player().update_weapon_targets();
+    }
+}
+
+
+
+void TargetingComputer::display_on_hover(Platform::Screen& screen,
+                                         const RoomCoord& cursor)
+{
+    for (auto& room : parent()->rooms()) {
+        if ((*room->metaclass())->category() == Room::Category::weapon) {
+            room->display_on_hover(screen, room->position());
         }
-        return;
-    }
-
-    if (PLATFORM.screen().fade_active()) {
-        return;
-    }
-
-    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
-
-    if (mt_prep_seconds) {
-        // Bugfix: If stuff is even slightly de-syncd upon level entry, one game
-        // can jump ahead of another. Add in an additional seconds buffer to
-        // increase the liklihood that the targeting computer assigns weapon
-        // targets at the same time.
-        next_action_timer_ = seconds(4);
-        return;
-    }
-
-    if (parent()->power_supply() < parent()->power_drain()) {
-        return;
-    }
-
-    if (next_action_timer_ > 0) {
-        next_action_timer_ -= delta;
-    } else {
-        if (room_update_index_ >= player_island().rooms().size()) {
-            room_update_index_ = 0;
-            next_action_timer_ = seconds(3);
-        } else {
-            auto& room = *player_island().rooms()[room_update_index_++];
-            if (&room not_eq this and room.metaclass() == this->metaclass()) {
-                // Player built two targeting computers.
-                room.apply_damage(Room::health_upper_limit());
-            }
-            const auto category = (*room.metaclass())->category();
-            if (category == Room::Category::weapon) {
-
-                // Even when the targeting AI is active, the game allows you to
-                // pin targets manually, and the AI won't try to assign them
-                // again until the block to which the target is pinned is
-                // destroyed.
-                const bool has_pinned_target =
-                    room.target_pinned() and room.get_target() and
-                    APP.opponent_island()->get_room(*room.get_target());
-
-                if (not has_pinned_target and not room.cast<Warhead>()) {
-                    EnemyAI::update_room(room,
-                                         APP.opponent_island()->rooms_plot(),
-                                         &APP.player(),
-                                         &APP.player_island(),
-                                         APP.opponent_island());
-                }
-                next_action_timer_ = milliseconds(64);
-            } else {
-                next_action_timer_ = milliseconds(32);
-            }
-        }
-    }
-
-    // A block was destroyed. Attempt to re-assign some weapon targets, for
-    // weapons that no longer have a valid target block.
-    if (rescan_) {
-
-        ATP highest_weight = 0.0_atp;
-        Optional<RoomCoord> highest_weighted_target;
-
-        // Find the highest-weighted target still in existence.
-        for (auto& room : APP.player_island().rooms()) {
-            const auto category = (*room->metaclass())->category();
-            if (category == Room::Category::weapon) {
-                if (auto target = room->get_target()) {
-                    if (auto o = APP.opponent_island()->get_room(*target)) {
-                        if (o->get_atp() > highest_weight) {
-                            highest_weight = o->get_atp();
-                            highest_weighted_target = target;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Assign the highest weighted extant target to all rooms that no longer
-        // have a valid target block.
-        if (highest_weighted_target) {
-            for (auto& room : APP.player_island().rooms()) {
-                const auto category = (*room->metaclass())->category();
-                if (category == Room::Category::weapon) {
-                    if (auto target = room->get_target()) {
-                        if (not APP.opponent_island()->get_room(*target)) {
-                            room->set_target(*highest_weighted_target, false);
-                        }
-                    }
-                }
-            }
-        }
-
-        rescan_ = false;
     }
 }
 
@@ -196,7 +113,6 @@ void TargetingComputer::update(Time delta)
 
 void TargetingComputer::unset_target()
 {
-    next_action_timer_ = seconds(2);
 }
 
 

@@ -88,16 +88,28 @@ public:
     void key_held_distribute(const Key* include_list) override;
 
 
+    void on_level_start() override;
+
+
+    void update_weapon_targets() override;
+
+
+    void delay_autofire(Time duration) override;
+
+
 protected:
-    virtual void update_chr_ai(Time delta);
+    virtual void update_ai(Time delta);
 
 
 private:
-    struct ChrAIState
+    struct AIState
     {
         using IdBuffer = Buffer<CharacterId, 80>;
 
         Time next_action_timer_ = seconds(1);
+        Time next_weapon_action_timer_ = seconds(1) + milliseconds(500);
+        bool rescan_ = false;
+        u32 weapon_update_index_ = 0;
 
         IdBuffer local_chrs_;
         IdBuffer boarded_chrs_;
@@ -108,11 +120,12 @@ private:
         bool any_chr_moved_ = false;
 
         void update(Time delta);
+        void update_weapon_targets(Time delta);
 
         void run();
     };
 
-    DynamicMemory<ChrAIState> chr_ai_;
+    DynamicMemory<AIState> ai_state_;
 
 
     Time last_key_ = 0;

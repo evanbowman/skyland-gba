@@ -366,6 +366,12 @@ public:
     using UnrecoverrableErrorCallback = Function<4 * sizeof(void*), void()>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
+    using TaskPointer = void (*)();
+    using OldTask = TaskPointer;
+    using NewTask = TaskPointer;
+
+    OldTask set_background_task(NewTask task);
+
 
     bool write_save_data(const void* data, u32 length, u32 offset);
     bool read_save_data(void* buffer, u32 data_length, u32 offset);

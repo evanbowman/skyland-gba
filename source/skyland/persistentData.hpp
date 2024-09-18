@@ -68,6 +68,7 @@ struct GlobalPersistentData
         gamespeed_help_prompt_dont_remind_me,
         move_blocks_help_prompt_dont_remind_me,
         sel_menu_help_prompt_dont_remind_me,
+        autofire_on,
     };
 
     enum class Difficulty : u8 {
@@ -117,6 +118,11 @@ struct PersistentData
     void set_flag(StateFlag flag)
     {
         state_flags_.set(state_flags_.get() | flag);
+    }
+
+    void clear_flag(StateFlag flag)
+    {
+        state_flags_.set(state_flags_.get() & ~flag);
     }
 };
 

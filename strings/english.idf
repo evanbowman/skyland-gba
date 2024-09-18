@@ -422,6 +422,8 @@ Reset sandbox?
 exit
 setup switch: connect ON:
 setup switch: connect OFF:
+on
+off
 -- zone % --
 loading...
 visited
@@ -454,10 +456,15 @@ beginner
 normal
 hard
 maniac
+Setup
+(press A to start)
 The easiest mode, but still challenging. Extra tries if you die.
 Enemies give you less resources. Score x2. Harder level patterns.
 Enemies give you even less resources. Score x4. Even harder level patterns.
 No pausing. Score x6.
+autofire
+Autofire enabled! (You can still pick targets manually, though)
+Fire weapons automatically? Currently turned off.
 Exit tutorial?
 Builder
 Build an island with more than ten structures!

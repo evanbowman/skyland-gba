@@ -54,7 +54,7 @@ public:
 
 
 protected:
-    void update_chr_ai(Time delta) override
+    void update_ai(Time delta) override
     {
     }
 

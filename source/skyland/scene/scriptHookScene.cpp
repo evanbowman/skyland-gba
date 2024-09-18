@@ -64,6 +64,7 @@ void invoke_hook(const char* lisp_hook_name, const InvokeHookConfig& config)
     }
 
     if (fn->type() == lisp::Value::Type::function) {
+
         lisp::safecall(fn, 0);
 
         // Not worth trying to roll back lisp code, do not allow rewind if we've
@@ -82,6 +83,8 @@ void invoke_hook(const char* lisp_hook_name, const InvokeHookConfig& config)
         err += " is not lambda";
         PLATFORM.fatal(err.c_str());
     }
+
+
 }
 
 

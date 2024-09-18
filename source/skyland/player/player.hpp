@@ -71,6 +71,11 @@ public:
     }
 
 
+    virtual void on_level_start()
+    {
+    }
+
+
     virtual void on_layout_changed(Island& island)
     {
     }
@@ -204,6 +209,16 @@ public:
 
     virtual void
     network_sync_cursor(const RoomCoord& cursor, u8 cursor_icon, bool near)
+    {
+    }
+
+
+    virtual void update_weapon_targets()
+    {
+    }
+
+
+    virtual void delay_autofire(Time duration)
     {
     }
 

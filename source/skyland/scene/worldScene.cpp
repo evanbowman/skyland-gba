@@ -715,31 +715,34 @@ ScenePtr WorldScene::update(Time delta)
             show_island_exterior(APP.opponent_island());
         }
 
+        auto opp_isle = APP.opponent_island();
+        auto opp_drift = opp_isle->get_drift();
+        auto opp_pos = opp_isle->get_position();
+
+        auto pl_terrain = (int)APP.player_island().terrain().size();
+
         // Hey, I threw this code together in a panic for a game jam, I know
         // this is illegible. Drift opponent island toward the player, until
         // a certain distance. If the player extends the terrain on his own
         // island, drift the opponent island away to maintain the ideal
         // distance between the two.
-        if ((APP.opponent_island()->get_drift() < 0.0_fixed and
-             APP.opponent_island()->get_position().x.as_integer() <=
-                 (int)APP.player_island().terrain().size() * 16 + 48) or
-            (APP.opponent_island()->get_drift() > 0.0_fixed and
-             APP.opponent_island()->get_position().x.as_integer() >
-                 (int)APP.player_island().terrain().size() * 16 + 48)) {
+        if ((opp_drift < 0.0_fixed and
+             opp_pos.x.as_integer() <= pl_terrain * 16 + 48) or
+            (opp_drift > 0.0_fixed and
+             opp_pos.x.as_integer() > (int)pl_terrain * 16 + 48)) {
 
-            APP.opponent_island()->set_position(
-                {Fixnum((Float)APP.player_island().terrain().size() * 16 + 48),
-                 Fixnum(APP.opponent_island()->get_position().y)});
-            APP.opponent_island()->set_drift(0.0_fixed);
+            opp_isle->set_position(
+                {Fixnum(pl_terrain * 16 + 48), Fixnum(opp_pos.y)});
+            opp_isle->set_drift(0.0_fixed);
 
             APP.on_timeout(milliseconds(500),
                            []() { invoke_hook("on-converge"); });
         }
 
-        if (APP.opponent_island()->get_drift() == 0.0_fixed) {
-            if (APP.opponent_island()->get_position().x.as_integer() <
+        if (opp_drift == 0.0_fixed) {
+            if (opp_pos.x.as_integer() <
                 (int)APP.player_island().terrain().size() * 16 + 48) {
-                APP.opponent_island()->set_drift(0.00003_fixed);
+                opp_isle->set_drift(0.00003_fixed);
             }
         }
     }

@@ -141,6 +141,8 @@ void audio_update_fast_isr()
                 completed_sounds_buffer.push_back(it->name_);
             }
             it = snd_ctx.active_sounds.erase(it);
+            if (snd_ctx.active_sounds.empty()) {
+            }
         } else {
             // Manually unrolled loop below. Better performance during testing,
             // uses more iwram of course.

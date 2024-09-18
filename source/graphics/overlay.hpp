@@ -108,6 +108,12 @@ public:
         return coord_;
     }
 
+    void set_coord(const OverlayCoord& coord)
+    {
+        erase();
+        coord_ = coord;
+    }
+
     const FontConfiguration& config() const
     {
         return config_;
@@ -124,7 +130,7 @@ public:
 private:
     void resize(u32 len);
 
-    const OverlayCoord coord_;
+    OverlayCoord coord_;
     Length len_;
     const FontConfiguration config_;
 };

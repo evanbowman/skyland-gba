@@ -82,6 +82,9 @@ public:
     void render();
 
 
+    void _render_update_scroll();
+
+
     Island& player_island()
     {
         return world_state_->player_;
@@ -563,6 +566,10 @@ void write_custom_graphics();
 
 using FileLine = StringBuffer<1980>;
 DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line);
+
+
+
+void parallax_background_task();
 
 
 
