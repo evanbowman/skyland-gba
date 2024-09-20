@@ -36,6 +36,7 @@
 
 
 #include "containers/vector.hpp"
+#include "groupSelection.hpp"
 #include "skyland/room.hpp"
 #include "worldScene.hpp"
 
@@ -49,6 +50,10 @@ namespace skyland
 class WeaponSetTargetScene : public ActiveWorldScene
 {
 public:
+
+    WeaponSetTargetScene(GroupSelection& group);
+
+
     WeaponSetTargetScene(const RoomCoord& weapon_loc,
                          bool near = true,
                          Optional<RoomCoord> initial_pos = {});
@@ -83,6 +88,7 @@ private:
 
     void snap();
 
+    Optional<DynamicMemory<GroupSelection>> selection_;
 
     Time describe_room_timer_ = milliseconds(400);
     Optional<Text> room_description_;

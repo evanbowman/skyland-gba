@@ -66,6 +66,15 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 
 
 
+WeaponSetTargetScene::WeaponSetTargetScene(GroupSelection& sel) :
+    weapon_loc_({}), near_(true)
+{
+    selection_ = allocate_dynamic<GroupSelection>("selgroup");
+    **selection_ = sel;
+}
+
+
+
 WeaponSetTargetScene::WeaponSetTargetScene(const RoomCoord& weapon_loc,
                                            bool near,
                                            Optional<RoomCoord> initial_pos)
@@ -244,7 +253,14 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
 
             auto room = APP.player_island().get_room(weapon_loc_);
 
-            if (group_ not_eq Room::Group::none) {
+            if (selection_) {
+                for (auto& c : (*selection_)->rooms_) {
+                    if (auto r = APP.player_island().get_room(c)) {
+                        do_set_target(*r);
+                    }
+                }
+                return player_weapon_exit_scene();
+            } else if (group_ not_eq Room::Group::none) {
 
                 auto with_group = [&](auto& callback) {
                     for (auto& r : APP.player_island().rooms()) {
@@ -626,6 +642,18 @@ void WeaponSetTargetScene::minimap_repaint()
 
     Buffer<Room*, 32> weapons;
 
+    auto is_selected = [&](RoomCoord c)
+    {
+        if (selection_) {
+            for (auto& oc : (*selection_)->rooms_) {
+                if (c == oc) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
     if (fb_cache_.player_island_checksum_ == APP.player_island().checksum() and
         fb_cache_.opponent_island_checksum_ ==
             APP.opponent_island()->checksum()) {
@@ -637,7 +665,8 @@ void WeaponSetTargetScene::minimap_repaint()
                             Room::Category::weapon and
                         (weapon_loc_ == Vec2<u8>{x, y} or
                          (room->group() not_eq Room::Group::none and
-                          room->group() == group_))) {
+                          room->group() == group_) or
+                         is_selected({x, y}))) {
                         bool found = false;
                         for (auto& wpn : weapons) {
                             if (wpn == room) {
@@ -684,7 +713,8 @@ void WeaponSetTargetScene::minimap_repaint()
                             Room::Category::weapon and
                         (weapon_loc_ == Vec2<u8>{x, y} or
                          (room->group() not_eq Room::Group::none and
-                          room->group() == group_))) {
+                          room->group() == group_) or
+                         is_selected({x, y}))) {
                         bool found = false;
                         for (auto& wpn : weapons) {
                             if (wpn == room) {

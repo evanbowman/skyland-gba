@@ -40,6 +40,7 @@
 #include "escapeBeaconFadeScene.hpp"
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
+#include "groupSelectionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "keyComboScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
@@ -496,6 +497,26 @@ ScenePtr ReadyScene::update(Time delta)
         }
 
         bool cursor_moved = false;
+
+        if (APP.player().key_held(Key::action_1, milliseconds(64))) {
+            if (test_key(Key::left)) {
+                auto grp = make_scene<GroupSelectionScene>();
+                grp->left_qd_ = true;
+                return grp;
+            } else if (test_key(Key::right)) {
+                auto grp = make_scene<GroupSelectionScene>();
+                grp->right_qd_ = true;
+                return grp;
+            } else if (test_key(Key::up)) {
+                auto grp = make_scene<GroupSelectionScene>();
+                grp->up_qd_ = true;
+                return grp;
+            } else if (test_key(Key::down)) {
+                auto grp = make_scene<GroupSelectionScene>();
+                grp->down_qd_ = true;
+                return grp;
+            }
+        }
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {

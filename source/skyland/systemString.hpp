@@ -487,6 +487,8 @@ enum class SystemString {
     move_room_1,
     move_room_2,
 
+    select_rooms_prompt,
+
     achievement_msg_title,
     achievement_msg_unlocked,
 
