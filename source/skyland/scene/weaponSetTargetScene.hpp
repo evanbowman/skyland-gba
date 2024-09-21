@@ -50,7 +50,6 @@ namespace skyland
 class WeaponSetTargetScene : public ActiveWorldScene
 {
 public:
-
     WeaponSetTargetScene(GroupSelection& group);
 
 

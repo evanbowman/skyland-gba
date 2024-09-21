@@ -66,8 +66,8 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 
 
 
-WeaponSetTargetScene::WeaponSetTargetScene(GroupSelection& sel) :
-    weapon_loc_({}), near_(true)
+WeaponSetTargetScene::WeaponSetTargetScene(GroupSelection& sel)
+    : weapon_loc_({}), near_(true)
 {
     selection_ = allocate_dynamic<GroupSelection>("selgroup");
     **selection_ = sel;
@@ -642,8 +642,7 @@ void WeaponSetTargetScene::minimap_repaint()
 
     Buffer<Room*, 32> weapons;
 
-    auto is_selected = [&](RoomCoord c)
-    {
+    auto is_selected = [&](RoomCoord c) {
         if (selection_) {
             for (auto& oc : (*selection_)->rooms_) {
                 if (c == oc) {

@@ -96,6 +96,16 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
         int_text_len = utf8::len(boolean_field_str->c_str());
     }
 
+    auto get_weather_str = [&] {
+        return loadstr((SystemString)((int)SystemString::weather_clear + (parameters_[line_num] - 1)));
+    };
+
+    bool is_weather_field = false;
+    if (param_info[line_num].name_ == SystemString::sandbox_weather) {
+        is_weather_field = true;
+        int_text_len = utf8::len(get_weather_str()->c_str());
+    }
+
     for (u32 i = temp.length(); i < 28 - int_text_len - 2; ++i) {
         if (i % 2 == 0) {
             temp.push_back('.');
@@ -106,6 +116,8 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
 
     if (is_boolean_field) {
         temp += boolean_field_str->c_str();
+    } else if (is_weather_field) {
+        temp += get_weather_str()->c_str();
     } else {
         temp += stringify(parameters_[line_num]);
     }

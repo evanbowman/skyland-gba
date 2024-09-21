@@ -289,13 +289,6 @@ void PlayerP1::update_ai(Time delta)
 
 void PlayerP1::AIState::update_weapon_targets(Time delta)
 {
-    if (APP.opponent().is_friendly()) {
-        for (auto& r : APP.player_island().rooms()) {
-            r->unset_target();
-        }
-        return;
-    }
-
     if (PLATFORM.screen().fade_active()) {
         return;
     }
@@ -308,6 +301,17 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
         // increase the liklihood that the targeting computer assigns weapon
         // targets at the same time.
         next_weapon_action_timer_ = seconds(4);
+        return;
+    }
+
+    if (APP.opponent().is_friendly() or APP.level_timer().total() < seconds(2)) {
+        // Don't start selecting targets when playing the level entry animation
+        // and stuff.
+        for (auto& r : APP.player_island().rooms()) {
+            if (not r->target_pinned()) {
+                r->unset_target();
+            }
+        }
         return;
     }
 

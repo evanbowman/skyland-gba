@@ -35,8 +35,8 @@
 #pragma once
 
 
-#include "worldScene.hpp"
 #include "groupSelection.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -48,8 +48,6 @@ namespace skyland
 class GroupSelectionScene : public ActiveWorldScene
 {
 public:
-
-
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
@@ -67,6 +65,15 @@ public:
 
 private:
 
+    void show_action_list();
+
+    enum class State {
+        draw_selection,
+        list_actions,
+        pick_group,
+    } state_ = State::draw_selection;
+
+    u8 action_list_index_ = 0;
     u8 cursor_anim_frame_ = 0;
     Time cursor_anim_timer_ = 0;
 
@@ -77,4 +84,4 @@ private:
 
 
 
-}
+} // namespace skyland

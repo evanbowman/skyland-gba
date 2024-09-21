@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "skyland/coord.hpp"
 #include "memory/buffer.hpp"
+#include "skyland/coord.hpp"
 
 
 
@@ -57,4 +57,4 @@ struct GroupSelection
 
 
 
-}
+} // namespace skyland

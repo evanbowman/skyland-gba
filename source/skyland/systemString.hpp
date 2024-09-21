@@ -494,6 +494,10 @@ enum class SystemString {
 
     weapon_group_prompt,
 
+    group_weapon_target,
+    group_weapon_group,
+    group_pick_group,
+
     deploy_drone_prompt,
     drone_position_prompt,
 

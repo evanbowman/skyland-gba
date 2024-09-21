@@ -83,8 +83,6 @@ void invoke_hook(const char* lisp_hook_name, const InvokeHookConfig& config)
         err += " is not lambda";
         PLATFORM.fatal(err.c_str());
     }
-
-
 }
 
 

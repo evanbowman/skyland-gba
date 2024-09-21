@@ -389,6 +389,9 @@ select weapons:
 Achievement:
 Unlocked:
 assign weapon groups:
+set weapon targets
+set weapon group
+pick weapon group: 
 deploy:
 launch drone: select position
 -- highscores --

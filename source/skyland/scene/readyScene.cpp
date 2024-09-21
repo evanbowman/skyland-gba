@@ -691,10 +691,6 @@ ScenePtr ReadyScene::update(Time delta)
                 camera_update_timer_, room_description_, cursor_loc)) {
             return scene;
         }
-    } else if (APP.player().key_held(Key::action_1, milliseconds(500))) {
-        if (APP.game_mode() not_eq App::GameMode::tutorial) {
-            return make_scene<ConstructionScene>();
-        }
     }
 
     if (APP.player().key_down(Key::action_2)) {

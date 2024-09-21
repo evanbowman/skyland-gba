@@ -66,5 +66,7 @@
    (3000 nil)
    (100 "<c:Milo:5>By assigning weapon groups to hotkeys, you can quickly reassign a weapon target without needing to scroll to a weapon and click on it! Super useful!")
    (400 nil)
-   (100 "<c:Milo:5>There is one thing that I should mention, though... to put it bluntly... pressing the START button and the d-pad at the same time is easy on the Gameboy Advance SP and the Nintendo DS, but uncomfortable on a classic GBA. So you can also hold START and press B to assign weapon groups, or hold START and press A to select a weapon group. Hold START by itself for a few seconds for some suggestions!")
+   (100 "<c:Milo:5>Weapon groups have a few different button mappings to make it possible to use them with different GBA button layouts. Hold START during the game for hints.")
+   (300 nil)
+   (100 "<c:Milo:5>And, finally, you may hold the A button and drag to create a rectangular selection and set the target for batches of weapons. Any weapon targets set by rectangular selection will take priority over a weapon's group. How useful!")
    (1000 nil)))

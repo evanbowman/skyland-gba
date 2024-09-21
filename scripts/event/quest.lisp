@@ -7,11 +7,7 @@
 
 (gc)
 
-(let ((opts '(0 1 2 3 4 5 7)))
-
-  ;; some quests are rarer than others...
-  (when (equal (choice 2) 0)
-    (push 'opts 6))
+(let ((opts '(0 1 2 3 4 5 6 7)))
 
   (let ((lv 0)
         (lvs
