@@ -7,7 +7,7 @@
 
 (gc)
 
-(let ((opts '(0 1 2 3 4 5 6 7)))
+(let ((opts (range 8)))
 
   (let ((lv 0)
         (lvs
