@@ -71,11 +71,17 @@ private:
         draw_selection,
         list_actions,
         pick_group,
+        animate_out,
     } state_ = State::draw_selection;
 
     u8 action_list_index_ = 0;
     u8 cursor_anim_frame_ = 0;
     Time cursor_anim_timer_ = 0;
+
+    Time anim_out_timer_ = seconds(0);
+    Fixnum anim_out_interval_ = 0.0_fixed;
+
+    Vec2<Fixnum> last_draw_pos_[4];
 
     Optional<DynamicMemory<GroupSelection>> group_selection_;
 

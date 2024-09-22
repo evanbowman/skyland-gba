@@ -78,6 +78,9 @@ void GroupSelectionScene::enter(Scene& prev)
 
 
 
+static const auto anim_out_time = milliseconds(200);
+
+
 ScenePtr GroupSelectionScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
@@ -95,7 +98,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
     case State::draw_selection: {
         if (not APP.player().key_pressed(Key::action_1)) {
             if ((**group_selection_).rooms_.empty()) {
-                return make_scene<ReadyScene>();
+                state_ = State::animate_out;
+                break;
             } else {
                 state_ = State::list_actions;
                 text_.reset();
@@ -234,9 +238,41 @@ ScenePtr GroupSelectionScene::update(Time delta)
         break;
     }
 
+    case State::animate_out: {
+        anim_out_timer_ += milliseconds(16);
+        if (anim_out_timer_ > anim_out_time) {
+            return make_scene<ReadyScene>();
+        }
+
+        if (test_key(Key::left)) {
+            if (cursor_loc.x > 0) {
+                --cursor_loc.x;
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
+        } else if (test_key(Key::right)) {
+            if (cursor_loc.x < APP.player_island().terrain().size()) {
+                ++cursor_loc.x;
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
+        }
+        if (test_key(Key::up)) {
+            if (cursor_loc.y > construction_zone_min_y) {
+                --cursor_loc.y;
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
+        } else if (test_key(Key::down)) {
+            if (cursor_loc.y < 14) {
+                ++cursor_loc.y;
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
+        }
+        break;
+    }
+
     case State::list_actions: {
         if (test_key(Key::action_2)) {
-            return make_scene<ReadyScene>();
+            state_ = State::animate_out;
+            break;
         }
 
         if (test_key(Key::down)) {
@@ -288,7 +324,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
 
     case State::pick_group: {
         if (test_key(Key::action_2)) {
-            return make_scene<ReadyScene>();
+            state_ = State::animate_out;
+            break;
         }
 
         Optional<Room::Group> group;
@@ -318,7 +355,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
                     }
                 }
             }
-            return make_scene<ReadyScene>();
+            state_ = State::animate_out;
+            break;
         }
 
         break;
@@ -362,41 +400,90 @@ void GroupSelectionScene::display()
 {
     Sprite cursor;
 
-    auto draw_cursor = [&](auto cursor_loc, int x_off, int y_off) {
-        auto origin = APP.player_island().visual_origin();
+    if (state_ == State::animate_out) {
 
-        origin.x += Fixnum::from_integer(cursor_loc.x * 16 + x_off);
-        origin.y += Fixnum::from_integer(cursor_loc.y * 16 + y_off);
+        auto anchor = globals().near_cursor_loc_;
 
-        cursor.set_position(origin);
+        Fixnum interval(Float(anim_out_timer_) / anim_out_time);
+
+        auto draw_cursor = [&](auto cursor_loc, int x_off, int y_off, Vec2<Fixnum>& last) {
+            auto origin = APP.player_island().visual_origin();
+            auto anchor_origin = origin;
+
+            origin.x += Fixnum::from_integer(cursor_loc.x * 16 + x_off);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16 + y_off);
+
+            anchor_origin.x += Fixnum::from_integer(anchor.x * 16 + x_off);
+            anchor_origin.y += Fixnum::from_integer(anchor.y * 16 + y_off);
+
+            if (last.x == 0.0_fixed or last.y == 0.0_fixed) {
+                last.x = origin.x;
+                last.y = origin.y;
+            }
+
+            auto result = origin;
+            result.x = interpolate_fp(anchor_origin.x, last.x, interval);
+            result.y = interpolate_fp(anchor_origin.y, last.y, interval);
+
+            last.x = result.x;
+            last.y = result.y;
+
+            cursor.set_position(result);
+
+            PLATFORM.screen().draw(cursor);
+        };
+
+        cursor.set_size(Sprite::Size::w16_h16);
+        cursor.set_texture_index((52 * 2) + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_tl_, -4, -4, last_draw_pos_[0]);
+
+        cursor.set_texture_index((52 * 2) + 1 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_bl_, -4, 4, last_draw_pos_[1]);
+
+        cursor.set_texture_index((52 * 2) + 2 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_tr_, 4, -4, last_draw_pos_[2]);
+
+        cursor.set_texture_index((52 * 2) + 3 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_br_, 4, 4, last_draw_pos_[3]);
+
+    } else {
+
+        auto draw_cursor = [&](auto cursor_loc, int x_off, int y_off) {
+            auto origin = APP.player_island().visual_origin();
+
+            origin.x += Fixnum::from_integer(cursor_loc.x * 16 + x_off);
+            origin.y += Fixnum::from_integer(cursor_loc.y * 16 + y_off);
+
+            cursor.set_position(origin);
 
 
-        PLATFORM.screen().draw(cursor);
-    };
+            PLATFORM.screen().draw(cursor);
+        };
 
-    cursor.set_size(Sprite::Size::w16_h16);
-    cursor.set_texture_index((52 * 2) + cursor_anim_frame_ * 4);
-    draw_cursor((*group_selection_)->sel_tl_, -4, -4);
-    cursor.set_texture_index((52 * 2) + 1 + cursor_anim_frame_ * 4);
-    draw_cursor((*group_selection_)->sel_bl_, -4, 4);
-    cursor.set_texture_index((52 * 2) + 2 + cursor_anim_frame_ * 4);
-    draw_cursor((*group_selection_)->sel_tr_, 4, -4);
-    cursor.set_texture_index((52 * 2) + 3 + cursor_anim_frame_ * 4);
-    draw_cursor((*group_selection_)->sel_br_, 4, 4);
+        cursor.set_size(Sprite::Size::w16_h16);
+        cursor.set_texture_index((52 * 2) + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_tl_, -4, -4);
+        cursor.set_texture_index((52 * 2) + 1 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_bl_, -4, 4);
+        cursor.set_texture_index((52 * 2) + 2 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_tr_, 4, -4);
+        cursor.set_texture_index((52 * 2) + 3 + cursor_anim_frame_ * 4);
+        draw_cursor((*group_selection_)->sel_br_, 4, 4);
 
-    Sprite sel;
-    sel.set_size(Sprite::Size::w16_h16);
-    sel.set_tidx_16x16(13, 0);
+        Sprite sel;
+        sel.set_size(Sprite::Size::w16_h16);
+        sel.set_tidx_16x16(13, 0);
 
-    for (auto& c : (*group_selection_)->rooms_) {
-        auto origin = APP.player_island().visual_origin();
+        for (auto& c : (*group_selection_)->rooms_) {
+            auto origin = APP.player_island().visual_origin();
 
-        origin.x += Fixnum::from_integer(c.x * 16);
-        origin.y += Fixnum::from_integer(c.y * 16);
+            origin.x += Fixnum::from_integer(c.x * 16);
+            origin.y += Fixnum::from_integer(c.y * 16);
 
-        sel.set_position(origin);
+            sel.set_position(origin);
 
-        PLATFORM.screen().draw(sel);
+            PLATFORM.screen().draw(sel);
+        }
     }
 
     ActiveWorldScene::display();
