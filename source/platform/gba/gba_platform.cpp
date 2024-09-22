@@ -3196,7 +3196,7 @@ void init_darkened_palette()
 static bool
 load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
 {
-    auto file = filesystem::load(path);
+    auto file = filesystem::load(path, nullopt());
     if (file.second) {
 
         StringBuffer<84> name_str(path);
@@ -3211,7 +3211,7 @@ load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
                 }
             }
             pf += ".pal.bin";
-            auto pal_file = filesystem::load(pf.c_str());
+            auto pal_file = filesystem::load(pf.c_str(), nullopt());
             if (not pal_file.second) {
                 Platform::fatal(format("% missing palette", pf.c_str()));
             }
@@ -4660,7 +4660,7 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     path += filename;
 
-    return filesystem::load(path.c_str());
+    return filesystem::load(path.c_str(), nullopt());
 }
 
 

@@ -132,7 +132,7 @@ void walk(Function<8 * sizeof(void*), void(const char* path)> callback)
 
 
 
-std::pair<FileContents, FileSize> load(FilePath path)
+Optional<DirectoryCache> find_directory(const char* prefix)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);
@@ -140,12 +140,49 @@ std::pair<FileContents, FileSize> load(FilePath path)
     const auto root = get_root();
 
     u32 files_remaining = root->file_count_.get();
-
+    const u32 prefix_len = strlen(prefix);
 
     while (files_remaining) {
         auto hdr = (FileHeader*)current;
 
-        if (str_eq(hdr->path_, path)) {
+        bool match = true;
+
+        for (u32 i = 0; i < prefix_len; ++i) {
+            if (hdr->path_[i] not_eq prefix[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if (match) {
+            return root->file_count_.get() - files_remaining;
+        }
+
+        --files_remaining;
+        current += sizeof(FileHeader) + hdr->size_.get();
+    }
+
+    return nullopt();
+}
+
+
+
+std::pair<FileContents, FileSize> load(FilePath path, Optional<DirectoryCache> dir)
+{
+    const char* current = &__rom_end__;
+    current += sizeof(Root);
+
+    const auto root = get_root();
+
+    u32 files_remaining = root->file_count_.get();
+    FileNumber file_no = 0;
+
+    while (files_remaining) {
+        auto hdr = (FileHeader*)current;
+
+        if (dir and *dir < file_no) {
+            // Keep incrementing until we reach the desired seek position.
+        } else if (str_eq(hdr->path_, path)) {
             if ((u32)(intptr_t)(current + sizeof(FileHeader)) % 4 not_eq 0) {
                 Platform::fatal("unaligned file");
             }
@@ -153,6 +190,7 @@ std::pair<FileContents, FileSize> load(FilePath path)
         }
 
         --files_remaining;
+        ++file_no;
         current += sizeof(FileHeader) + hdr->size_.get();
     }
 

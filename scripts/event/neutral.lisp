@@ -23,7 +23,7 @@
 
       (eval-file
        ;"scripts/event/neutral/2/5.lisp"
-       (format "scripts/event/neutral/%/%.lisp" 1 7)
+       (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))
 
 
