@@ -3,7 +3,9 @@
 ;;;
 
 
-(dialog "An island inhabited by an old engineer signals you. He says he's designed a new type of hull and may be able to upgrade your castle...")
+(dialog
+"<b:/scripts/data/img/engineer.img.bin>"
+ "On a nearby island, an old engineer signals you from his workshop. He says he's designed something new and is excited to share it with someone!")
 
 
 (opponent-init 7 'neutral)

@@ -1,6 +1,6 @@
 
 (dialog
- "<b:/scripts/misc/img/airship.img.bin>"
+ "<b:/scripts/data/img/airship.img.bin>"
  "While passing by a small airship, a the owner frantically signals you with his radio...")
 
 

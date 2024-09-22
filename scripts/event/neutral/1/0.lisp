@@ -6,7 +6,7 @@
 (dialog
  ;; The first time this event happens, show a cover image
  (if (not (adv-var-load "mercenary-event"))
-     "<b:/scripts/misc/img/marauder.img.bin> "
+     "<b:/scripts/data/img/marauder.img.bin> "
    "")
  "You discover a fortress inhabited by some mercenaries...")
 

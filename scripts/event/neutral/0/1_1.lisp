@@ -4,7 +4,7 @@
 
 
 (dialog
- "<b:/scripts/misc/img/toll_station.img.bin> "
+ "<b:/scripts/data/img/toll_station.img.bin> "
  "An ancient imperial missile platform contacts you and demands payment...")
 
 

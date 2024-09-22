@@ -53,7 +53,7 @@ ScenePtr RegressionModule::update(Time delta)
     state_bit_store(StateBit::regression, true);
 
     if (test_index == -1) {
-        APP.invoke_script("/scripts/misc/unittest.lisp");
+        APP.invoke_script("/scripts/data/unittest.lisp");
 
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.screen().schedule_fade(1);

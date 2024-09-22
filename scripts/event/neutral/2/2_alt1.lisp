@@ -2,7 +2,7 @@
 ;;;
 
 
-(dialog "<b:/scripts/misc/img/warship.img.bin> An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant...")
+(dialog "<b:/scripts/data/img/warship.img.bin> An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant...")
 
 (opponent-init 13 'neutral)
 

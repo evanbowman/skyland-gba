@@ -1,7 +1,7 @@
 
 
 (dialog
- "<b:/scripts/misc/img/market_quest.img.bin>"
+ "<b:/scripts/data/img/market_quest.img.bin>"
  "You arrive at a busy trading outpost. "
  "Some merchants broadcast a message asking for assistance...")
 

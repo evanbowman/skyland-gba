@@ -1,5 +1,5 @@
 
-(dialog "<b:/scripts/misc/img/farm_colony.img.bin>A nearby farming colony requests assistance...")
+(dialog "<b:/scripts/data/img/farm_colony.img.bin>A nearby farming colony requests assistance...")
 
 
 (opponent-init 8 'neutral)

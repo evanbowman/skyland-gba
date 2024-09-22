@@ -1,5 +1,5 @@
 
-(dialog "<b:/scripts/misc/img/ruins.img.bin>"
+(dialog "<b:/scripts/data/img/ruins.img.bin>"
         "You discover the ruins of an ancient civilization. "
         "The island appears deserted, but just as you are about to leave, someone signals for help...")
 

@@ -1,7 +1,7 @@
 ;; to open this menu: (push-menu "test" nil)
 
 ((code (id . "c1")
-       (src . "/scripts/misc/gui/test.lisp"))
+       (src . "/scripts/data/gui/test.lisp"))
 
  (rect (id . "r1")
        (x . 1)

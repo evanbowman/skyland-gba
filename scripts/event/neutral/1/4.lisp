@@ -4,7 +4,7 @@
 
 
 (dialog
- "<b:/scripts/misc/img/overgrown_isle.img.bin>"
+ "<b:/scripts/data/img/overgrown_isle.img.bin>"
  "A nearby island seems to be transmitting an unusual distress signal...")
 
 

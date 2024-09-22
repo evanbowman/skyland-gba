@@ -11,8 +11,8 @@ expected by the engine when
 loading image files.
 For organizational purposes,
 you may put your images in
-/scripts/misc/img/, and by
-searching /scripts/misc/img/
+/scripts/data/img/, and by
+searching /scripts/data/img/
 in the scripts direction, you
 will see how I've attached
 images to the existing level

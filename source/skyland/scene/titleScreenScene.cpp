@@ -1998,7 +1998,7 @@ void TitleScreenScene::Pong::display(int x_scroll)
 
 Conf::String TitleScreenScene::music_track()
 {
-    auto fd = PLATFORM.load_file("scripts/misc", "environment.ini");
+    auto fd = PLATFORM.load_file("scripts/data", "environment.ini");
     if (not fd.second) {
         PLATFORM.fatal("missing music config file!");
     }

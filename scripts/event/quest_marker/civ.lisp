@@ -1,6 +1,6 @@
 
 (dialog "You arrive at the location that the orphan boy marked on your map. <B:0> "
-        "<b:/scripts/misc/img/ornate.img.bin>"
+        "<b:/scripts/data/img/ornate.img.bin>"
         " As you approach, an advanced walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with a brilliant light...")
 
 

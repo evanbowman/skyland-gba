@@ -1,7 +1,7 @@
 
 (dialog
  "In the distance, you hear the metallic clang of gears and winches... <B:0>"
- "<b:/scripts/misc/img/mining.img.bin>"
+ "<b:/scripts/data/img/mining.img.bin>"
  "A mining rig appears! <B:0> "
  "Steam billows from its engines as cranes dredge heavy ore from the surface...")
 

@@ -21,7 +21,7 @@ Environment::Environment()
 
 Conf::String Environment::read_conf(const char* field) const
 {
-    auto fd = PLATFORM.load_file("scripts/misc", "environment.ini");
+    auto fd = PLATFORM.load_file("scripts/data", "environment.ini");
     if (not fd.second) {
         PLATFORM.fatal("missing env config file!");
     }

@@ -133,7 +133,7 @@ void ScriptedMenuScene::enter(Scene& prev)
     ActiveWorldScene::enter(prev);
 
     StringBuffer<96> path;
-    path = "/scripts/misc/gui/";
+    path = "/scripts/data/gui/";
     path += menu_name_;
     path += ".menu.lisp";
 

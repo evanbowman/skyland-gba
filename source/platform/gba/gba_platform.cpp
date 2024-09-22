@@ -4540,7 +4540,7 @@ bool Platform::Speaker::stream_music(const char* filename, Microseconds offset)
         return true;
     }
 
-    auto found = PLATFORM.load_file("scripts/misc/music", filename);
+    auto found = PLATFORM.load_file("scripts/data/music", filename);
 
     if (not found.second) {
         return false;

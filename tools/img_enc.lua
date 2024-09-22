@@ -11,7 +11,7 @@
 -- to contain palette data in the first 32 bytes, followed by image data.
 --
 -- Remove later:
--- lua ../tools/img_enc.lua /home/evan/skyland/images/wreckage.bmp /home/evan/skyland/scripts/misc/img/wreckage.skg
+-- lua ../tools/img_enc.lua /home/evan/skyland/images/wreckage.bmp /home/evan/skyland/scripts/data/img/wreckage.skg
 
 
 

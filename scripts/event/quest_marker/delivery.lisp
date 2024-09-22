@@ -1,6 +1,6 @@
 
 (dialog
- "<b:/scripts/misc/img/castaway.img.bin>"
+ "<b:/scripts/data/img/castaway.img.bin>"
  "You arrive at the delivery address...")
 
 

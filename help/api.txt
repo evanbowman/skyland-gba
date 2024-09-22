@@ -898,7 +898,7 @@ o----------------------------o
 
  You may also script custom
  menus. See
- /scripts/misc/gui/
+ /scripts/data/gui/
 
 
 o----------------------------o
