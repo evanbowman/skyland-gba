@@ -13,7 +13,7 @@
                                   (range
                                    ;; number of levels to select from based on
                                    ;; current zone
-                                   (get '(6 11 7 2) (zone))))))
+                                   (get '(6 12 7 2) (zone))))))
 
     (when (equal (length avail-levels) 1)
       (setq friendlies-seen '()))
@@ -22,7 +22,7 @@
       (setq friendlies-seen (cons lv friendlies-seen))
 
       (eval-file
-       ;"scripts/event/neutral/2/5.lisp"
+       ;"scripts/event/neutral/0/0.lisp"
        (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))
 

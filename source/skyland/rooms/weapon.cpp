@@ -120,7 +120,13 @@ void Weapon::timer_expired()
         auto island = other_island();
 
         if (island and not island->is_destroyed()) {
-            fire();
+
+            // This check for friendly status is partly just a sanity check. It
+            // shouldn't be possible to set a weapon target if the opposing
+            // island is friendly. But, just in case...
+            if (not APP.opponent().is_friendly()) {
+                fire();
+            }
 
             // If we emit a projectile, the AI player pretty much knows what
             // block we are, even if we're concealed by cloaking.
