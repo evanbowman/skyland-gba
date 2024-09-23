@@ -35,9 +35,6 @@
    (masonry 8 13)
    (bronze-hull 8 12)))
 
-(secret
- 4 11
- "Farms in Skyland grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island core...")
 
 (defn on-converge ()
   (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -69,7 +66,23 @@
             (adventure-log-add 18 (list (rcnt (player) 'lemon-tree)))
 
             (dialog "<c:Farmer Meyer:9>Please take good care of them! I marked my brother's address on your sky chart with an *!")
-            (setq on-dialog-closed exit)))
+            (defn on-dialog-closed ()
+              (dialog "<c:Farmer Meyer:9>Anything else you'd like to discuss?")
+
+              (let ((t (this)))
+                (let ((chat (lambda (str)
+                              (let ((s str))
+                                (lambda ()
+                                  (dialog s)
+                                  (setq on-dialog-closed t))))))
+                  (dialog-opts-push "farming?"
+                                    (chat "<c:Farmer Meyer:9>Farms up here grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island reactor core..."))
+
+                  (dialog-opts-push "nope" (lambda ()
+                                             (dialog "<c:Farmer Meyer:9>Good luck!")
+                                             (exit)))))
+
+              )))
       (progn
         (dialog "<c:Farmer Meyer:9>I was going to ask you to help relocate some of these lemon trees, but the storm's getting closer and I need to move out! Maybe we'll meet again, someday...")
         (setq on-dialog-closed exit)))))

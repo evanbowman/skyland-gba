@@ -25,7 +25,9 @@
   (dialog
    "<c:chauffeur:11>Hey man, I was supposed to pick up a whole bunch of people and give em a lift outa here, but the skies've been crawling with goblins ever since these storm clouds started rollin' in, I don't think I can make it there in time. You've got a big, powerful fortress, wanna help a fella out?")
 
-  (dialog-await-binary-q "I accept!" "I'm kind of busy…"))
+  (dialog-await-binary-q-w/lore "I accept!" "I'm kind of busy…"
+                                '(("explain transit more…" .
+                                   "<c:chauffeur:11>Ah! I thought you would already know, but I can explain that more. Most medium distance transit takes place using transporters. But over long distances, warp transit can be a bit unreliable. <B:0> (You wouldn't want to end up inside a wall, or worse) <B:0> So long distance transport takes place using airships. Many isles are propelled by powerful atomic reactors, but it doesn't make sense to use that much energy for passenger transit, so my airship is slower and powered by balloon. <B:0> Anyway, can you help pick up these people?"))))
 
 
 (defn on-dialog-accepted ()

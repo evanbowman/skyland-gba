@@ -74,6 +74,34 @@
   (dialog-opts-push txt1 (lambda () (if on-dialog-accepted (on-dialog-accepted))))
   (dialog-opts-push txt2 (lambda () (if on-dialog-declined (on-dialog-declined)))))
 
+
+;; This fairly niche function opens a box of options. The first option being the
+;; yes option, the last option being the no option. Sandwitched in between, will
+;; be a bunch of worldbuilding questions. If you select a middle option, the
+;; game will show the text, and then re-display the query box of options, with
+;; the previously selected one removed.
+(defn/c dialog-await-binary-q-w/lore (txty txtn lore)
+  (dialog-opts-reset)
+  (dialog-opts-push txty (lambda () (if on-dialog-accepted (on-dialog-accepted))))
+
+  (let ((lr lore)
+        (ty txty)
+        (tn txtn)
+        (t (this))) ; note: re-invoke current function.
+    (map (lambda (kvp)
+           (let ((k kvp))
+             (dialog-opts-push (first kvp)
+                               (let ((str (second kvp)))
+                                 (lambda ()
+                                   (progn ;; Why is this progn needed? There seems
+                                          ;; to be a bug in the interpreter...
+                                     (t ty tn (remove lr k))
+                                     (dialog str)))))))
+         lore))
+
+  (dialog-opts-push txtn (lambda () (if on-dialog-declined (on-dialog-declined)))))
+
+
 ;; For backwards compatibility...
 (defn/c repl () (push-menu "repl" '()))
 

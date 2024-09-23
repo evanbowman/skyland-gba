@@ -25,7 +25,13 @@
            (string val)
            "@! Pay!")
 
-          (dialog-await-binary-q "I'll pay…" "no way!")
+          (dialog-await-binary-q-w/lore
+           "I'll pay…"
+           "no way!"
+           '(("Who made you king?" .
+              "<c:goblin king:3>I ate the lasst goblin king, obviousssly... <B:0> So you gonna pay or what?")
+             ))
+
           (setq on-converge nil)))
 
 

@@ -34,7 +34,11 @@
   (setq on-dialog-closed
         (lambda ()
             (dialog "He seems harmless, invite him aboard?")
-          (dialog-await-y/n)
+
+          (dialog-await-binary-q-w/lore "welcome aboard!" "not today"
+                                        '(("how'd you get here?" .
+                                           "<c:castaway:1>I was travelling on an airship that got boarded by goblins. I panicked and jumped in a transporter. I guess things could have turned out much worse, heh. <B:0> Wanna join up?")))
+
           (setq on-dialog-closed '())))
 
   (setq on-converge nil))

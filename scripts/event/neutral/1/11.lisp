@@ -5,7 +5,7 @@
 
 (dialog
  "<b:/scripts/data/img/battle_scene.img.bin> "
- "You come upon the scene of a heated battle. <B:0> A goblin harvester vessel is attacking an unarmed village, its beams slicing through the town. <B:0> Noticing you, the goblins briefly stop attacking…")
+ "You come upon the scene of a heated battle. <B:0> A goblin resource harvester vessel is attacking an unarmed village, its beams slicing through the town. <B:0> Noticing you, the goblins briefly stop attacking…")
 
 
 (opponent-generate 5)

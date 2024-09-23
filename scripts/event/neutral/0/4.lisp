@@ -53,7 +53,11 @@
     (dialog
      "The island seems thoroughly ransacked... but the pirates inexplicably "
      "left behind a weapon. Haul it aboard?")
-    (dialog-await-y/n)
+
+    (dialog-await-binary-q-w/lore "yeah!" "no"
+                                  '(("what's a goblin raid?" .
+                                     "Looks like goblins from the surface world ransacked this island for scrap metal and fuel. It's unclear why they left a weapon lying around, perhaps they left in a hurry. <B:0> Anway, pick up the weapon?")))
+
     (setq on-converge nil))
 
 

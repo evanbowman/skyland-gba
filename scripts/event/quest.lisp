@@ -20,7 +20,10 @@
       (setq lv (sample lvs)))
 
     (eval-file
-     (format "/scripts/event/quest/%.lisp" lv))))
+     (format "/scripts/event/quest/%.lisp"
+             ;2
+             lv
+             ))))
 
 
 (gc)
