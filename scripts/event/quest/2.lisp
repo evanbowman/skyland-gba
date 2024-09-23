@@ -80,6 +80,7 @@
 
                   (dialog-opts-push "nope" (lambda ()
                                              (dialog "<c:Farmer Meyer:9>Good luck!")
+                                             (setq on-dialog-closed exit)
                                              (exit)))))
 
               )))
