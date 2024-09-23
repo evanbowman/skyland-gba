@@ -542,24 +542,6 @@ bool Room::description_visible()
 
 
 
-ScenePtr Room::reject_if_friendly()
-{
-    if (APP.opponent_island() and
-        // NOTE: cast should be safe, as a derived instance of Opponent should
-        // always be bound to the opponent island.
-        (static_cast<Opponent&>(APP.opponent_island()->owner()))
-            .is_friendly()) {
-        auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error", 3);
-        auto str = SYSTR(error_friendly);
-        return make_scene<NotificationScene>(str->c_str(), future_scene);
-    }
-
-    return null_scene();
-}
-
-
-
 void Room::set_powerdown(bool powerdown)
 {
     if (powerdown == powerdown_) {

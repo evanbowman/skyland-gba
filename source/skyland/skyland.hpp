@@ -564,6 +564,10 @@ void write_custom_graphics();
 
 
 
+ScenePtr reject_if_friendly();
+
+
+
 using FileLine = StringBuffer<1980>;
 DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line);
 

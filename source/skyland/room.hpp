@@ -322,9 +322,6 @@ public:
     ScenePtr select(const RoomCoord& cursor);
 
 
-    ScenePtr reject_if_friendly();
-
-
     virtual Optional<RoomCoord> get_target() const
     {
         return {};

@@ -43,6 +43,8 @@
 #include "player/playerP1.hpp"
 #include "room_metatable.hpp"
 #include "save.hpp"
+#include "scene/notificationScene.hpp"
+#include "scene/readyScene.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
 #include "sound.hpp"
@@ -767,6 +769,24 @@ void parallax_background_task()
         APP.update_parallax(milliseconds(16));
         APP._render_update_scroll();
     }
+}
+
+
+
+ScenePtr reject_if_friendly()
+{
+    if (APP.opponent_island() and
+        // NOTE: cast should be safe, as a derived instance of Opponent should
+        // always be bound to the opponent island.
+        (static_cast<Opponent&>(APP.opponent_island()->owner()))
+            .is_friendly()) {
+        auto future_scene = []() { return make_scene<ReadyScene>(); };
+        PLATFORM.speaker().play_sound("beep_error", 3);
+        auto str = SYSTR(error_friendly);
+        return make_scene<NotificationScene>(str->c_str(), future_scene);
+    }
+
+    return null_scene();
 }
 
 

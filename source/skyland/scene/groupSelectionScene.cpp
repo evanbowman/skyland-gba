@@ -294,6 +294,9 @@ ScenePtr GroupSelectionScene::update(Time delta)
         if (test_key(Key::action_1)) {
             switch (action_list_index_) {
             case 0:
+                if (auto err = reject_if_friendly()) {
+                    return err;
+                }
                 return make_scene<WeaponSetTargetScene>(**group_selection_);
 
             case 1: {
@@ -355,6 +358,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
                     }
                 }
             }
+            PLATFORM.speaker().play_sound("button_wooden", 3);
             state_ = State::animate_out;
             break;
         }
