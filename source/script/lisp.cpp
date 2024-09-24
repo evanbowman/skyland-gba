@@ -4168,7 +4168,7 @@ BUILTIN_TABLE(
 
            l_foreach(get_op1(), [&](Value* val) {
                push_op(val);
-               funcall(fn);
+               funcall(fn, 1);
                pop_op(); // result
            });
 
