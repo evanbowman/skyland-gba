@@ -4,7 +4,7 @@
 
 (coins-add 4000)
 
-(map (lambda (kvp) (setvar (second kvp) (first kvp)))
+(foreach (lambda (kvp) (setvar (second kvp) (first kvp)))
  '((40 . "sf_p1_coin_yield")
    (36 . "sf_p2_coin_yield")
    (29 . "sf_p3_coin_yield")

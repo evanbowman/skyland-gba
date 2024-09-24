@@ -88,16 +88,16 @@
         (ty txty)
         (tn txtn)
         (t (this))) ; note: re-invoke current function.
-    (map (lambda (kvp)
-           (let ((k kvp))
-             (dialog-opts-push (first kvp)
-                               (let ((str (second kvp)))
-                                 (lambda ()
-                                   (progn ;; Why is this progn needed? There seems
-                                          ;; to be a bug in the interpreter...
-                                     (t ty tn (remove lr k))
-                                     (dialog str)))))))
-         lore))
+    (foreach (lambda (kvp)
+               (let ((k kvp))
+                 (dialog-opts-push (first kvp)
+                                   (let ((str (second kvp)))
+                                     (lambda ()
+                                       (progn ;; Why is this progn needed? There seems
+                                         ;; to be a bug in the interpreter...
+                                         (t ty tn (remove lr k))
+                                         (dialog str)))))))
+             lore))
 
   (dialog-opts-push txtn (lambda () (if on-dialog-declined (on-dialog-declined)))))
 

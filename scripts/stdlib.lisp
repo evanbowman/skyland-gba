@@ -67,11 +67,14 @@
 (defn/c acons (key val alst)
   (cons (cons key val) alst))
 
-(defn/c remove (lat elem)
-  (let ((e2 elem))
+(defn/c remove-if (lat pred)
+  (let ((p pred))
     (filter (lambda (e)
-              (not (equal e e2)))
+              (not (p e)))
             lat)))
+
+(defn/c remove (lat elem)
+  (remove-if lat (equalto? elem)))
 
 (defn/c assoc (k alst)
   (let ((temp k))

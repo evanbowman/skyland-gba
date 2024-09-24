@@ -118,7 +118,7 @@
 (weather 3)
 
 
-(map
+(foreach
  (lambda (xy)
    (chr-new (opponent) (first xy) (second xy) 'hostile 0))
  '((7 . 12)

@@ -4158,6 +4158,22 @@ BUILTIN_TABLE(
            }
            return L_NIL;
        }}},
+     {"foreach",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, function);
+           L_EXPECT_OP(1, cons);
+
+           auto fn = get_op0();
+
+           l_foreach(get_op1(), [&](Value* val) {
+               push_op(val);
+               funcall(fn);
+               pop_op(); // result
+           });
+
+           return L_NIL;
+       }}},
      {"map",
       {2,
        [](int argc) {

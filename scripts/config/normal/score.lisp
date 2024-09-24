@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (kvp) (setvar (second kvp) (first kvp)))
+(foreach (lambda (kvp) (setvar (second kvp) (first kvp)))
  ;; Percentage of the value
  ;; of the enemy castle
  ;; granted to the player

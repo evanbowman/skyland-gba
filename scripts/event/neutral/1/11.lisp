@@ -75,6 +75,6 @@
                         (dialog-opts-push "of course!" opty)
                         (dialog-opts-push "sorry, but no." optn)))
 
-    (dialog-opts-push "sorry, I can't help :(" optn)
+    (dialog-opts-push "sorry, I can't help" optn)
 
     (setq on-converge nil)))

@@ -4,7 +4,7 @@
 ;; the title/ subdirectory. When adding new islands, modify the choice count
 ;; below.
 
-(map
+(foreach
  (lambda (vxyz)
    (mcr-block-set
     (get vxyz 1)
