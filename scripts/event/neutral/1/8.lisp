@@ -3,7 +3,9 @@
 ;;;
 
 
-(dialog "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources...")
+(dialog
+ "<b:/scripts/data/img/ruins_isle.img.bin>"
+ "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources...")
 
 
 

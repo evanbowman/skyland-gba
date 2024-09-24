@@ -4,7 +4,7 @@
 
 
 (dialog
- ;<b:/scripts/data/img/burning_isle.img.bin>
+ ;"<b:/scripts/data/img/burning_isle.img.bin> "
  "An acrid plume of smoke rises from a fortress on the horizon...")
 
 

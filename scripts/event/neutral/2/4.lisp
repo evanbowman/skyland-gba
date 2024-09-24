@@ -75,7 +75,7 @@
 (flag-show (opponent) 0)
 
 
-(map
+(foreach
  (lambda (xy)
    (chr-new (opponent) (first xy) (second xy) 'hostile 0))
  '((6 . 14)

@@ -24,7 +24,9 @@
 
       (setq on-dialog-closed nil)
 
-      (dialog-await-y/n)
+      (dialog-await-binary-q-w/lore "yes" "I'll pass"
+                                    '(("who might he be?" .
+                                       "He looks like he might be a Sylph child. The Sylph are a civilization of technologically advanced people, supposedly they arrived up here a long time before the rest of us. No one knows much about them, though, they're a bit reclusive. <B:0> Invite him aboard?")))
 
       (defn on-dialog-accepted ()
 
