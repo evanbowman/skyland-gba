@@ -4161,12 +4161,12 @@ BUILTIN_TABLE(
      {"foreach",
       {2,
        [](int argc) {
-           L_EXPECT_OP(0, function);
-           L_EXPECT_OP(1, cons);
+           L_EXPECT_OP(1, function);
+           L_EXPECT_OP(0, cons);
 
-           auto fn = get_op0();
+           auto fn = get_op1();
 
-           l_foreach(get_op1(), [&](Value* val) {
+           l_foreach(get_op0(), [&](Value* val) {
                push_op(val);
                funcall(fn, 1);
                pop_op(); // result
