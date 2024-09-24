@@ -19,7 +19,11 @@
   (setq on-dialog-closed
         (lambda ()
           (dialog "He seems harmless, invite him aboard?")
-          (dialog-await-y/n)
+
+          (dialog-await-binary-q-w/lore "welcome aboard!" "sorry, but no"
+                                        '(("let's chat…" .
+                                           "<c:explorer:22> I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?")))
+
           (setq on-dialog-closed '())))
   (setq on-converge nil))
 
