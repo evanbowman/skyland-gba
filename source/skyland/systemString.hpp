@@ -482,6 +482,7 @@ enum class SystemString {
     weather_snow,
     weather_storm,
     weather_dust,
+    weather_night,
 
     move_room_prompt,
     move_room_1,

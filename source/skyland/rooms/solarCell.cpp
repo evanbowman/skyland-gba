@@ -35,6 +35,7 @@
 #include "solarCell.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/weather/night.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -51,6 +52,10 @@ Power SolarCell::power_usage() const
 
     if (APP.environment().is_overcast()) {
         power /= 2;
+    } else {
+        if (APP.environment().id() == weather::Night::id_) {
+            power = 0;
+        }
     }
 
     return power;

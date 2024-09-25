@@ -51,6 +51,7 @@
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "weather/night.hpp"
 #include "tile.hpp"
 
 
@@ -1934,6 +1935,51 @@ void Island::repaint()
                     } else if (t2 == Tile::wall_plain_1) {
                         mem->tiles[x][y] = Tile::wall_plain_middle;
                         mem->tiles[x][y + 1] = Tile::wall_plain_middle;
+                    }
+                }
+            }
+        }
+
+        if (APP.environment().id() == weather::Night::id_) {
+            for (int x = 0; x < 16; ++x) {
+                for (int y = 0; y < 15; ++y) {
+                    switch (mem->tiles[x][y]) {
+                    case Tile::wall_window_middle_1:
+                        mem->tiles[x][y] = Tile::window_lit_1;
+                        break;
+                    case Tile::wall_window_middle_2:
+                        mem->tiles[x][y] = Tile::window_lit_2;
+                        break;
+                    case Tile::wall_window_1:
+                        mem->tiles[x][y] = Tile::wall_window_lit_1;
+                        break;
+                    case Tile::wall_window_2:
+                        mem->tiles[x][y] = Tile::wall_window_lit_2;
+                        break;
+
+                        // NOTE: these roof tiles need dedicated slots for the
+                        // nighttime scenes because I wanted to have the windows
+                        // lit, but didn't have enough color palette indices for
+                        // the opponent island exterior, so I used the dark
+                        // color index for the roof and used the roof color
+                        // index to color the window panes. What are the odds
+                        // that I forget that I did this and break stuff later?
+                        // Very possible...
+                    case Tile::roof_plain:
+                        mem->tiles[x][y] = Tile::roof_plain_night;
+                        break;
+                    case Tile::roof_chimney:
+                        mem->tiles[x][y] = Tile::roof_chimney_night;
+                        break;
+                    case Tile::roof_flag:
+                        mem->tiles[x][y] = Tile::roof_flag_night;
+                        break;
+                    case Tile::roof_strut:
+                        mem->tiles[x][y] = Tile::roof_strut_night;
+                        break;
+                    case Tile::roof_strut_joined:
+                        mem->tiles[x][y] = Tile::roof_strut_joined_night;
+                        break;
                     }
                 }
             }

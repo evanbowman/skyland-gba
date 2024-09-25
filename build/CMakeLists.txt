@@ -123,6 +123,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/player/opponent/friendlyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/procgenEnemyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/multiplayerPeer.cpp
+  ${SOURCE_DIR}/skyland/weather/night.cpp
   ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/weather/typhoon.cpp
   ${SOURCE_DIR}/skyland/weather/dynamic.cpp

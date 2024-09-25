@@ -2,6 +2,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/weather/blizzard.hpp"
 #include "skyland/weather/dustStorm.hpp"
+#include "skyland/weather/night.hpp"
 #include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/storm.hpp"
 #include "skyland/weather/typhoon.hpp"
@@ -82,6 +83,10 @@ void environment_init(EnvironmentId type)
 
     case 6:
         APP.swap_environment<weather::DustStorm>();
+        break;
+
+    case 7:
+        APP.swap_environment<weather::Night>();
         break;
     }
 
