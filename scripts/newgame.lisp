@@ -9,6 +9,7 @@
 
 (setq enemies-seen nil)
 (setq friendlies-seen nil)
+(setq surprises-seen nil)
 
 ;; Ids of previously seen quests
 (setq qids nil)

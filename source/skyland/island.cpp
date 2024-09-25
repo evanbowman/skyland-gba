@@ -51,7 +51,6 @@
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "weather/night.hpp"
 #include "tile.hpp"
 
 
@@ -1940,7 +1939,7 @@ void Island::repaint()
             }
         }
 
-        if (APP.environment().id() == weather::Night::id_) {
+        if (APP.environment().is_night()) {
             for (int x = 0; x < 16; ++x) {
                 for (int y = 0; y < 15; ++y) {
                     switch (mem->tiles[x][y]) {

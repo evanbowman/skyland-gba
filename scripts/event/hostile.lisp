@@ -22,15 +22,6 @@
     ((eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
-(let ((prob (get '(32 14 7) (difficulty)))
-      (sc (adv-var-load "ash-storm-count")))
-  (when (and (equal (choice prob) 0)     ; 1/prob chance.
-             (equal (wg-current-type) 8) ; uncharted hostile node.
-             (not (has-dialog?))         ; sanity check.
-             (< sc (get '(1 1 2) (difficulty)))) ; not too many...
-    (eval-file "/scripts/event/ash_storm.lisp")))
-
-
 (let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
       (c (coins))
       (crew (length (chrs (player)))))

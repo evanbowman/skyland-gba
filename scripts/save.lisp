@@ -13,6 +13,7 @@
  (cons 'chrs (chrs (player)))
  (cons 'enemies-seen enemies-seen)
  (cons 'friendlies-seen friendlies-seen)
+ (cons 'surprises-seen surprises-seen)
  (cons 'last-zone last-zone)
  (cons 'quests quests)
  (cons 'terrain (terrain (player)))

@@ -256,9 +256,13 @@ ScenePtr LoadLevelScene::update(Time delta)
         APP.invoke_script("/scripts/event/quest_marker.lisp");
         break;
 
-    case WorldGraph::Node::Type::exit:
-    case WorldGraph::Node::Type::hostile:
     case WorldGraph::Node::Type::hostile_hidden: {
+        APP.invoke_script("/scripts/event/uncharted.lisp");
+        break;
+    }
+
+    case WorldGraph::Node::Type::exit:
+    case WorldGraph::Node::Type::hostile: {
         APP.invoke_script("/scripts/event/hostile.lisp");
         break;
     }

@@ -47,6 +47,7 @@
 
       (setq enemies-seen (load 'enemies-seen))
       (setq friendlies-seen (load 'friendlies-seen))
+      (setq surprises-seen (load 'surprises-seen))
 
       (setq quests (load 'quests))
 

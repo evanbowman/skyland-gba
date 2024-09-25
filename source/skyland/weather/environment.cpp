@@ -20,6 +20,13 @@ Environment::Environment()
 
 
 
+bool Environment::is_night() const
+{
+    return id() == Night::id_;
+}
+
+
+
 Conf::String Environment::read_conf(const char* field) const
 {
     auto fd = PLATFORM.load_file("scripts/data", "environment.ini");

@@ -3,8 +3,7 @@
 ;;
 
 (setq adventure-vars
-      '(("ash-storm-count" . 0)
-        ("mercenary-event" . nil)))
+      '(("mercenary-event" . nil)))
 
 (defn/c adv-var-load (name)
   (lookup name adventure-vars))

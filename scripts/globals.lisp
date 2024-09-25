@@ -15,6 +15,7 @@
  'last-zone
  'enemies-seen
  'friendlies-seen
+ 'surprises-seen
  'qids
  'quests
  'adventure-log

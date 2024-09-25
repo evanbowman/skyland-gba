@@ -46,7 +46,6 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/weather/night.hpp"
 
 
 
@@ -77,7 +76,7 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
     auto step = direction(fvec(position), fvec(target)) * speed;
     step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 
-    if (APP.environment().id() == weather::Night::id_) {
+    if (APP.environment().is_night()) {
         // The normal cannonball texture is hard to see at night
         sprite_.set_tidx_16x16(96, 0);
     }

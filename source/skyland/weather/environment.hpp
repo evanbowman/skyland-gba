@@ -111,6 +111,9 @@ public:
     }
 
 
+    bool is_night() const;
+
+
     virtual EnvironmentId id() const = 0;
 
 

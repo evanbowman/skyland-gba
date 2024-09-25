@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2023  Evan Bowman. Some rights reserved.
+// Copyright (C) 2024  Evan Bowman. Some rights reserved.
 //
 // This program is source-available; the source code is provided for educational
 // purposes. All copies of the software must be distributed along with this
@@ -32,57 +32,46 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "solarCell.hpp"
+
+#pragma once
+
+#include "environment.hpp"
 #include "skyland/island.hpp"
-#include "skyland/room_metatable.hpp"
-#include "skyland/skyland.hpp"
+#include "storm.hpp"
 
 
 
-namespace skyland
+namespace skyland::weather
 {
 
 
 
-Power SolarCell::power_usage() const
+class Night : public CleanEnvironment
 {
-    const auto base_power = (*metaclass())->consumes_power();
-    auto power = base_power;
+public:
 
-    if (APP.environment().is_overcast()) {
-        power /= 2;
-    } else {
-        if (APP.environment().is_night()) {
-            power = 0;
-        }
+    Night()
+    {
     }
 
-    return power;
+
+    static constexpr const EnvironmentId id_ = 7;
+
+
+    virtual EnvironmentId id() const override;
+
+
+    void display() override;
+
+
+    Platform::Screen::Shader shader() const override;
+
+
+    static Platform::Screen::Shader get_shader();
+
+
+};
+
+
+
 }
-
-
-
-void SolarCell::format_description(StringBuffer<512>& buffer)
-{
-    buffer += SYSTR(description_solar_cell)->c_str();
-}
-
-
-
-void SolarCell::render_interior(App* app, TileId buffer[16][16])
-{
-    buffer[position().x][position().y] = InteriorTile::solar_cell;
-    buffer[position().x + 1][position().y] = InteriorTile::solar_cell;
-}
-
-
-
-void SolarCell::render_exterior(App* app, TileId buffer[16][16])
-{
-    buffer[position().x][position().y] = Tile::solar_cell;
-    buffer[position().x + 1][position().y] = Tile::solar_cell;
-}
-
-
-
-} // namespace skyland

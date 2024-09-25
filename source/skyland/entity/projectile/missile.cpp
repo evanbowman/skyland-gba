@@ -184,6 +184,9 @@ void Missile::update(Time delta)
             if (not PLATFORM.network_peer().is_connected() and
                 APP.game_mode() not_eq App::GameMode::tutorial) {
                 pos.x = rng::sample<3>(pos.x, rng::critical_state);
+                if (APP.environment().is_night()) {
+                    pos.x = rng::sample<8>(pos.x, rng::critical_state);
+                }
             }
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});

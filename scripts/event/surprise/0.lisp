@@ -1,3 +1,6 @@
+;;;
+;;; Ash storm event
+;;;
 
 (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
         "<b:/scripts/data/img/radiation_warning.img.bin>"
@@ -5,8 +8,8 @@
         "all exposed areas of your castle. <B:0>"
         "<b:/scripts/data/img/murk.img.bin>"
         "Just when things couldn't seem to get any worse, an enemy raiding ship, "
-        "also forced below the clouds, emerges from the murk...")
+        "also sheltering from the storm, "
+        "emerges from the murk...")
 
 (weather 6)
 (adventure-log-add 56 nil)
-(adv-var-store "ash-storm-count" (+ sc 1))
