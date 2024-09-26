@@ -108,7 +108,6 @@ void ZoneImageScene::enter(Scene& prev)
     }
     auto margin = centered_text_margins(buffer.length());
     text_.emplace(
-
         buffer.c_str(),
         OverlayCoord{u8(screen_tiles.x - (buffer.length() + margin + 1)),
                      u8(screen_tiles.y - 2)});

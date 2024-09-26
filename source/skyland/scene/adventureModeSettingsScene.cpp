@@ -54,6 +54,7 @@ struct DifficultyInfo
 static const SystemString titles[] = {
     SystemString::sf_difficulty,
     SystemString::autofire_setting,
+    SystemString::permadeath_setting,
 };
 
 
@@ -81,6 +82,17 @@ void AdventureModeSettingsScene::repaint_autofire(bool on, bool selected)
                 on ? SystemString::on : SystemString::off,
                 on ? SystemString::autofire_hint_on
                    : SystemString::autofire_hint_off,
+                selected);
+}
+
+
+
+void AdventureModeSettingsScene::repaint_permadeath(bool on, bool selected)
+{
+    render_line(2,
+                on ? SystemString::on : SystemString::off,
+                on ? SystemString::permadeath_hint_on
+                   : SystemString::permadeath_hint_off,
                 selected);
 }
 
@@ -155,12 +167,24 @@ void AdventureModeSettingsScene::repaint()
         repaint_difficulty((int)APP.gp_.difficulty_, true);
         repaint_autofire(
             APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+        repaint_permadeath(
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
         break;
 
     case 1:
         repaint_difficulty((int)APP.gp_.difficulty_, false);
         repaint_autofire(
             APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), true);
+        repaint_permadeath(
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
+        break;
+
+    case 2:
+        repaint_difficulty((int)APP.gp_.difficulty_, false);
+        repaint_autofire(
+            APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+        repaint_permadeath(
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
         break;
     }
 }
@@ -234,6 +258,14 @@ void AdventureModeSettingsScene::update_field(bool inc)
         APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
         break;
     }
+
+    case 2: {
+        bool pd = APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on);
+        pd = not pd;
+        APP.gp_.stateflags_.set(GlobalPersistentData::permadeath_on, pd);
+        break;
+    }
+
     }
 }
 
@@ -251,7 +283,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    static const int sel_max = 1;
+    static const int sel_max = 2;
 
     if (test_key(Key::up)) {
         if (sel_ > 0) {

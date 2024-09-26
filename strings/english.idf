@@ -470,6 +470,9 @@ No pausing. Score x6.
 autofire
 Autofire enabled! (You can still pick targets manually, though)
 Fire weapons automatically? Currently turned off.
+permadeath
+Saves can only be loaded once! Turned on.
+Saves can only be loaded once! Turned off.
 Exit tutorial?
 Builder
 Build an island with more than ten structures!
@@ -573,13 +576,15 @@ if you can jump, you must!
 jump again!
 Name crewmember:
 ENTER: submit
-You've just loaded a saved game. Each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
+You've just loaded a saved game. With permadeath enabled, each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
 Tip: you can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
 Tip: you may also change gamespeed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
 Tip: the SELECT menu lists extra features not always available elsewhere. Try SELECTing different things to access more options!
 ok
 don't show again
 retry
+newgame
+continue
 generate again?
 view interior
 view exterior

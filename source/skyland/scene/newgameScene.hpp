@@ -47,7 +47,18 @@ namespace skyland
 class NewgameScene : public Scene
 {
 public:
+
+    void enter(Scene& prev) override;
+
+
     ScenePtr update(Time delta) override;
+
+
+    void reset_state();
+
+
+    bool loaded_ = false;
+    int continue_opt_sel_ = 0;
 };
 
 

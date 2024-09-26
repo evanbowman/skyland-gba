@@ -599,6 +599,10 @@ enum class SystemString {
     autofire_hint_on,
     autofire_hint_off,
 
+    permadeath_setting,
+    permadeath_hint_on,
+    permadeath_hint_off,
+
     exit_tutorial,
 
     achievement_builder_name,
@@ -734,6 +738,9 @@ enum class SystemString {
     do_not_show_again,
 
     retry,
+
+    newgame,
+    continue_game,
 
     repeat_query,
 

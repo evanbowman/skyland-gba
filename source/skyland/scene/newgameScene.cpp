@@ -57,7 +57,7 @@ namespace skyland
 
 
 
-ScenePtr NewgameScene::update(Time delta)
+void NewgameScene::enter(Scene& prev)
 {
     show_island_exterior(&APP.player_island());
     show_island_exterior(APP.opponent_island());
@@ -78,33 +78,65 @@ ScenePtr NewgameScene::update(Time delta)
         break;
     }
 
-    bool loaded = false;
-
     if (save::load(APP.persistent_data())) {
-        save::erase();
-        loaded = true;
-    } else {
-        APP.set_coins(0);
-
-        BasicCharacter::__reset_ids();
-
-        APP.current_world_location() = 0;
-        APP.world_graph().generate();
-        APP.persistent_data().lives_ = 2;
-
-        APP.zone() = 1;
-
-        APP.persistent_data().total_pauses_.set(0);
-        APP.persistent_data().total_seconds_.set(0);
-        APP.persistent_data().score_.set(0);
-        APP.persistent_data().state_flags_.set(0);
-
-        if (APP.is_developer_mode()) {
-            APP.persistent_data().set_flag(
-                PersistentData::StateFlag::dev_mode_active);
+        if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
+            save::erase();
         }
 
-        lisp::set_var("adventure-log", L_NIL);
+        loaded_ = true;
+
+    } else {
+        reset_state();
+    }
+
+    if (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on) and
+        loaded_) {
+
+        PLATFORM.screen().schedule_fade(0, ColorConstant::rich_black);
+        PLATFORM.screen().schedule_fade(1.f, ColorConstant::rich_black);
+
+        Text::print(SYSTR(newgame)->c_str(), {3, 4});
+        Text::print(SYSTR(continue_game)->c_str(), {3, 2});
+    }
+}
+
+
+
+ScenePtr NewgameScene::update(Time delta)
+{
+    if (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on) and
+        loaded_) {
+
+        if (continue_opt_sel_ == 0) {
+            PLATFORM.set_tile(Layer::overlay, 1, 2, 475);
+            PLATFORM.set_tile(Layer::overlay, 1, 4, 112);
+        } else {
+            PLATFORM.set_tile(Layer::overlay, 1, 2, 112);
+            PLATFORM.set_tile(Layer::overlay, 1, 4, 475);
+        }
+
+        if (key_down<Key::up>()) {
+            if (continue_opt_sel_ == 1) {
+                continue_opt_sel_ = 0;
+                PLATFORM.speaker().play_sound("click_wooden", 2);
+            }
+        }
+        if (key_down<Key::down>()) {
+            if (continue_opt_sel_ == 0) {
+                continue_opt_sel_ = 1;
+                PLATFORM.speaker().play_sound("click_wooden", 2);
+            }
+        }
+
+        if (key_down<Key::action_1>()) {
+            PLATFORM.speaker().play_sound("button_wooden", 3);
+            if (continue_opt_sel_ == 1) {
+                loaded_ = false;
+                reset_state();
+            }
+        } else {
+            return null_scene();
+        }
     }
 
     auto& cursor_loc = globals().near_cursor_loc_;
@@ -116,7 +148,8 @@ ScenePtr NewgameScene::update(Time delta)
 
     const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
 
-    const bool skip_save_prompt = APP.gp_.stateflags_.get(sv_flag);
+    const bool skip_save_prompt = APP.gp_.stateflags_.get(sv_flag) or
+        (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on));
 
     auto dont_remind = []() {
         APP.gp_.stateflags_.set(sv_flag, true);
@@ -130,7 +163,7 @@ ScenePtr NewgameScene::update(Time delta)
     });
 
 
-    if (loaded and not skip_save_prompt) {
+    if (loaded_ and not skip_save_prompt) {
 
         auto ret = make_scene<MenuPromptScene>(
             SystemString::save_prompt,
@@ -147,6 +180,33 @@ ScenePtr NewgameScene::update(Time delta)
     } else {
         return next();
     }
+}
+
+
+
+void NewgameScene::reset_state()
+{
+    APP.set_coins(0);
+
+    BasicCharacter::__reset_ids();
+
+    APP.current_world_location() = 0;
+    APP.world_graph().generate();
+    APP.persistent_data().lives_ = 2;
+
+    APP.zone() = 1;
+
+    APP.persistent_data().total_pauses_.set(0);
+    APP.persistent_data().total_seconds_.set(0);
+    APP.persistent_data().score_.set(0);
+    APP.persistent_data().state_flags_.set(0);
+
+    if (APP.is_developer_mode()) {
+        APP.persistent_data().set_flag(PersistentData::StateFlag::dev_mode_active);
+    }
+
+    lisp::set_var("adventure-log", L_NIL);
+
 }
 
 

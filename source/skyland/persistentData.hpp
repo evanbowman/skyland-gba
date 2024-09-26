@@ -69,6 +69,7 @@ struct GlobalPersistentData
         move_blocks_help_prompt_dont_remind_me,
         sel_menu_help_prompt_dont_remind_me,
         autofire_on,
+        permadeath_on,
     };
 
     enum class Difficulty : u8 {
