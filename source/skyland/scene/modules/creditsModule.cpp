@@ -123,10 +123,9 @@ static const char* const page_3_lines[] = {"-- Music (Contd.) --",
                                            "",
                                            "\x12 At The End Of All Things \x12",
                                            "Scott Buckley",
-                                           // "-- Sounds --",
-                                           // "",
-                                           // "\x12 Interface Sounds \x12",
-                                           // "The Boom Library",
+                                           "",
+                                           "\x12 Ignis \x12",
+                                           "Scott Buckley",
                                            nullptr};
 
 static const char* const page_4_lines[] = {"-- Sounds (Contd.) --",

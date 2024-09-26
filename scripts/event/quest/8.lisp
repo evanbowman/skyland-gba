@@ -20,7 +20,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:king:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> We wouldn't want them to fall into the wrong hands. <B:0> We've heard good news about your battles with the goblin horde! Can you go retrieve our stash of deactivated atomics and keep them safe?")
+   "<c:king:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
 
    (dialog-await-binary-q-w/lore "okay..." "sorry, but no"
                                  '(("atomics?" .
