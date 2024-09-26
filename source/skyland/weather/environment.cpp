@@ -44,7 +44,12 @@ Conf::String Environment::read_conf(const char* field) const
 
 Conf::String Environment::music() const
 {
-    return read_conf("music");
+    auto str = read_conf("music");
+    if (*str == "[none]") {
+        *str = PLATFORM.speaker().current_music();
+    }
+
+    return str;
 }
 
 

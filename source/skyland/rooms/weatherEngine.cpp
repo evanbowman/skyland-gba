@@ -137,6 +137,12 @@ public:
             PLATFORM.screen().set_shader(APP.environment().shader());
             PLATFORM.screen().set_shader_argument(0);
 
+            APP.player_island().schedule_repaint();
+
+            if (APP.opponent_island()) {
+                APP.opponent_island()->schedule_repaint();
+            }
+
             if (not PLATFORM.speaker().is_music_playing(
                     APP.environment().music()->c_str())) {
                 PLATFORM.speaker().stream_music(

@@ -7,7 +7,7 @@
 
 (gc)
 
-(let ((opts (range 8)))
+(let ((opts (range 9)))
 
   (let ((lv 0)
         (lvs
@@ -21,7 +21,7 @@
 
     (eval-file
      (format "/scripts/event/quest/%.lisp"
-             ;2
+             ;8
              lv
              ))))
 

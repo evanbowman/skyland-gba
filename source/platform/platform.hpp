@@ -243,7 +243,7 @@ public:
 
     // Map a glyph into the vram space reserved for the overlay tile layer.
     TileDesc map_glyph(const utf8::Codepoint& glyph,
-                       const TextureMapping& mapping);
+                        const TextureMapping& mapping);
 
 
     // Copy a chunk of the overlay texture into another chunk of the
@@ -874,6 +874,7 @@ public:
         Buffer<const char*, 4> completed_sounds();
 
         Optional<StringBuffer<48>> completed_music();
+        StringBuffer<48> current_music();
 
         void clear_sounds();
         void stop_sound(const char* name);

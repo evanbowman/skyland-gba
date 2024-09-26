@@ -4098,6 +4098,13 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 
 
 
+StringBuffer<48> Platform::Speaker::current_music()
+{
+    return snd_ctx.music_track_name;
+}
+
+
+
 bool Platform::Speaker::is_music_playing(const char* name)
 {
     bool playing = false;

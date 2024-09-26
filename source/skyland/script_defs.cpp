@@ -978,6 +978,12 @@ BINDING_TABLE({
                   APP.environment().music()->c_str(), 0);
           }
 
+          APP.player_island().schedule_repaint();
+
+          if (APP.opponent_island()) {
+              APP.opponent_island()->schedule_repaint();
+          }
+
           return L_NIL;
       }}},
     {"opponent-reset",
