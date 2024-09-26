@@ -13,9 +13,9 @@
   (dialog "Just as you arrive, you receive an emergency transmission...")
 
   (defn on-dialog-closed ()
-    (dialog "<c:king:27> There's been a change in plans. We're being overrun by goblins! Do not bring the weapon back here! <B:0> My son has been sending me reports, and believes that you really are trustworthy. <B:0> Here are the activation codes:")
+    (dialog "<c:king:27> There's been a change in plans. We're being overrun by goblins! Do not bring the weapon back here! <B:0> My son has been sending me reports, and believes that you really are trustworthy. <B:0> Here are the missile activation codes:")
     (defn on-dialog-closed ()
-      (dialog "[You write down the missile launch codes...]")
+      (dialog "[You write down the launch codes...]")
       (defn on-dialog-closed ()
         (dialog "<c:king:27> Now, be very careful with this:")
         (defn on-dialog-closed ()
@@ -37,5 +37,5 @@
                        (sound "build0")
                        (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
                        (defn on-dialog-closed ()
-                         (dialog "<c:king:27> We can't hang on much longer; the thing in the storm is truely horrible! Please help put an end to this fighting...")
+                         (dialog "<c:king:27> I've got to focus on the situation here; the thing inside this storm is truely horrible! Best of luck to you!")
                          (setq on-dialog-closed exit)))))))))

@@ -1,81 +1,68 @@
-;;;
-;;; neutral/1/8.lisp
-;;;
 
+(dialog "<b:/scripts/data/img/explorer.img.bin>You come across an explorer's balloon, floating gently in the breeze. You adjust your engines to keep pace with it...")
 
-(dialog
- "<b:/scripts/data/img/ruins_isle.img.bin>"
- "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources...")
-
-
-
-(opponent-init 9 'neutral)
-
+(opponent-init -3 'neutral)
 
 (island-configure
  (opponent)
- '((power-core 0 13)
-   (manufactory 0 11)
-   (masonry 2 14 0)
-   (masonry 2 13 0)
-   (water-source 3 14)
-   (bridge 3 12)
-   (masonry 4 14 0)
-   (masonry 4 13 0)
-   (bridge 5 12)
-   (water-source 5 14)
-   (power-core 6 9)
-   (bronze-hull 6 11)
-   (masonry 6 13 0)
-   (masonry 6 14 0)
-   (workshop 7 11)
-   (masonry 7 13 0)
-   (water-source 7 14)
-   (masonry 8 13 0)
-   (masonry 8 14 0)))
+ '((balloon 0 10)))
 
-(flag-show (opponent) 7)
+(terrain-set (opponent) -3)
+
+(chr-new (opponent) 1 14 'neutral 0)
 
 
 (defn on-converge ()
-  (let ((c (choice 5))
-        (end (lambda ()
-               ((eval-file "/scripts/util/pickup_cart.lisp") 4
-         "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
-    (cond
-     ((equal c 0)
-      (let ((amt (+ 200 (choice 400))))
-        (coins-add amt)
-        (dialog
-         (format
-          "Looks like someone already got here first. You collect %@."
-          amt))
-        (adventure-log-add 38 (list amt))
-        (end)))
-     (true
-      (let ((opts '(power-core
-                    infirmary
-                    manufactory
-                    incinerator
-                    warhead
-                    beam-gun
-                    splitter)))
-        (let ((pick (sample opts)))
-          (dialog
-           "After boarding, you find a completely intact "
-           (rinfo 'name pick)
-           ". Your crew asks you where to install it...")
-          (adventure-log-add 38 (rinfo 'name pick))
+  (dialog
+   "<c:explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?")
+
+  (setq on-dialog-closed
+        (lambda ()
+          (dialog "He seems harmless, invite him aboard?")
+
+          (dialog-await-binary-q-w/lore "welcome aboard!" "sorry, but no"
+                                        '(("let's chat…" .
+                                           "<c:explorer:22> I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?")))
+
+          (setq on-dialog-closed '())))
+  (setq on-converge nil))
+
+
+(defn on-dialog-accepted ()
+  (let ((temp (chr-slots (player)))
+        (join (lambda (txt)
+                (adventure-log-add 53 '())
+                (dialog txt))))
+    (if temp
+        (progn
+          (setq temp (get temp (choice (length temp))))
+          (chr-new (player) (car temp) (cdr temp) 'neutral nil)
+          (chr-del (opponent) 1 14)
+          (if (or (equal (choice 2) 1) (< (coins) 600))
+              (join "The explorer joined your crew!")
+            (progn
+              (coins-set (- (coins) 600))
+              (join "The explorer joined your crew. Hungry, he ate 600@ of your food supplies!"))))
+      (progn
+        (dialog "Sadly, there's no room...")
+        (defn on-dialog-closed ()
+          (dialog "<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...")
           (defn on-dialog-closed ()
-            (setq on-dialog-closed nil)
-            (alloc-space pick)
-            (sel-input
-             pick
-             (format "Pick a slot (%x%)"
-                     (car (rinfo 'size pick))
-                     (cdr (rinfo 'size pick)))
-             (lambda (isle x y)
-               (room-new (player) `(,pick ,x ,y))
-               (sound "build0")
-               (dialog "All done!")
-               (end))))))))))
+            (alloc-space 'ladder)
+            (sel-input 'ladder
+                       "Place ladder (1x2):"
+                       (lambda (isle x y)
+                         (sound "build0")
+                         (room-new (player) `(ladder ,x ,y))
+                         (chr-del (opponent) 1 14)
+                         (chr-new (player) x (+ 1 y) 'neutral nil)
+                         (dialog "<c:explorer:22> Thanks! I'll try to help out however I can!")
+                         (defn on-dialog-closed ()
+                           (join "The explorer joined your crew!")
+                           (setq on-dialog-closed nil)
+                           (exit)))))))))
+  (exit))
+
+
+(defn on-dialog-declined ()
+  (exit))

@@ -1,68 +1,80 @@
+;;;
+;;; neutral/1/3_1.lisp
+;;;
 
-(dialog "<b:/scripts/data/img/explorer.img.bin>You come across an explorer's balloon, floating gently in the breeze. You adjust your engines to keep pace with it...")
 
-(opponent-init -3 'neutral)
+(dialog
+ "<b:/scripts/data/img/battle_scene.img.bin> "
+ "You come upon the scene of a heated battle. <B:0> A goblin resource harvester vessel is attacking an unarmed village, its beams slicing through the town. <B:0> Noticing you, the goblins briefly stop attacking…")
 
-(island-configure
- (opponent)
- '((balloon 0 10)))
 
-(terrain-set (opponent) -3)
+(opponent-generate 5)
+(let ((r (rooms (opponent))))
+  ;; Shift all block's y coord up by 1
+  (setq r (map (lambda (rm)
+                 (list (get rm 0)
+                       (get rm 1)
+                       (- (get rm 2) 1)))
+               r))
 
-(chr-new (opponent) 1 14 'neutral 0)
+  ;; remove anything cropped off the top of the map
+  (setq r (filter (lambda (rm)
+                    (> (get rm 2) 4))
+                  r))
+
+  (island-configure (opponent)
+                    ;; Attach a beam gun and hull block
+                    (append r
+                            '((hull 0 14)
+                              (beam-gun 1 14)))))
+
+
+;; fill in the rest of the empty space with stuff
+(map (lambda (x)
+       (room-new (opponent) `(masonry ,x 14)))
+     (range 4 (terrain (opponent))))
+
+(opponent-mode 'neutral)
+
+(flag-show (opponent) 0)
 
 
 (defn on-converge ()
-  (dialog
-   "<c:explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?")
+  (dialog "<c:villager:5> Oh! Just in time! Can you help us!? That goblin ship over there is very strong, but there's a chance you could defeat them...")
 
-  (setq on-dialog-closed
-        (lambda ()
-          (dialog "He seems harmless, invite him aboard?")
+  (dialog-opts-reset)
 
-          (dialog-await-binary-q-w/lore "welcome aboard!" "sorry, but no"
-                                        '(("let's chat…" .
-                                           "<c:explorer:22> I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?")))
+  (let ((opty (lambda ()
+                (opponent-mode 'hostile)
+                (dialog "<c:goblin:2> You think you can fight usss?! Hah!!")
+                (defn on-dialog-closed ()
+                  (dialog "One of the villagers came aboard to help out!")
+                  (when (not (chr-slots (player)))
+                    (alloc-space 'ladder)
+                    (let ((s (construction-sites (player) '(1 . 2))))
+                      (if s
+                          (room-new (player) (list 'ladder (caar s) (cdr (car s)))))))
+                  (let ((slot (chr-slots (player))))
+                    (if slot
+                        (chr-new (player)
+                                 (caar slot)
+                                 (cdr (car slot))
+                                 'neutral
+                                 nil)))
+                  (setq on-dialog-closed nil))))
+        (optn (lambda ()
+                (dialog "The goblins resume their attack. <B:0> Maybe you weren't strong enough to face them anyway…")
+                (exit))))
 
-          (setq on-dialog-closed '())))
-  (setq on-converge nil))
+    (dialog-opts-push "of course!" opty)
 
+    (dialog-opts-push "what's going on here?"
+                      (lambda ()
+                        (dialog-opts-reset)
+                        (dialog "<c:villager:5> That goblin harvester is slicing chunks off of our town! They just let the scrap fall to the ruined world below, where their friends collect the fallen resources. Anyway, can you help??")
+                        (dialog-opts-push "of course!" opty)
+                        (dialog-opts-push "sorry, but no." optn)))
 
-(defn on-dialog-accepted ()
-  (let ((temp (chr-slots (player)))
-        (join (lambda (txt)
-                (adventure-log-add 53 '())
-                (dialog txt))))
-    (if temp
-        (progn
-          (setq temp (get temp (choice (length temp))))
-          (chr-new (player) (car temp) (cdr temp) 'neutral nil)
-          (chr-del (opponent) 1 14)
-          (if (or (equal (choice 2) 1) (< (coins) 600))
-              (join "The explorer joined your crew!")
-            (progn
-              (coins-set (- (coins) 600))
-              (join "The explorer joined your crew. Hungry, he ate 600@ of your food supplies!"))))
-      (progn
-        (dialog "Sadly, there's no room...")
-        (defn on-dialog-closed ()
-          (dialog "<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...")
-          (defn on-dialog-closed ()
-            (alloc-space 'ladder)
-            (sel-input 'ladder
-                       "Place ladder (1x2):"
-                       (lambda (isle x y)
-                         (sound "build0")
-                         (room-new (player) `(ladder ,x ,y))
-                         (chr-del (opponent) 1 14)
-                         (chr-new (player) x (+ 1 y) 'neutral nil)
-                         (dialog "<c:explorer:22> Thanks! I'll try to help out however I can!")
-                         (defn on-dialog-closed ()
-                           (join "The explorer joined your crew!")
-                           (setq on-dialog-closed nil)
-                           (exit)))))))))
-  (exit))
+    (dialog-opts-push "sorry, I can't help" optn)
 
-
-(defn on-dialog-declined ()
-  (exit))
+    (setq on-converge nil)))
