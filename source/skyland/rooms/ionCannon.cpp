@@ -106,10 +106,6 @@ void IonCannon::fire()
     if (not PLATFORM.network_peer().is_connected() and
         APP.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
-
-        if (APP.environment().is_night()) {
-            target = rng::sample<24>(target, rng::critical_state);
-        }
     }
 
     ion_cannon_sound.play(3);
