@@ -196,7 +196,6 @@ void NewgameScene::reset_state()
 
     APP.zone() = 1;
 
-    APP.persistent_data().total_pauses_.set(0);
     APP.persistent_data().total_seconds_.set(0);
     APP.persistent_data().score_.set(0);
     APP.persistent_data().state_flags_.set(0);

@@ -135,8 +135,6 @@ void PlayerIslandDestroyedScene::show_stats()
     case 1:
         if (APP.game_mode() == App::GameMode::skyland_forever or
             APP.game_mode() == App::GameMode::co_op) {
-            print_metric(SYSTR(level_complete_pauses)->c_str(),
-                         APP.persistent_data().total_pauses_.get());
         } else {
             print_metric(SYSTR(level_complete_pauses)->c_str(),
                          APP.pause_count());
@@ -1119,9 +1117,6 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
     if (lv_score < 0) {
         APP.score().set(APP.level_begin_score());
     }
-
-    APP.persistent_data().total_pauses_.set(
-        APP.persistent_data().total_pauses_.get() + APP.pause_count());
 
     for (auto& room : island_->rooms()) {
         if (room->position().y < 7) {

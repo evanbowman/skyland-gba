@@ -105,7 +105,7 @@ struct PersistentData
     int zone_ = 0;
 
     HostInteger<u32> total_seconds_;
-    HostInteger<u32> total_pauses_;
+    HostInteger<u32> rng_;
     HostInteger<s32> score_;
     HostInteger<s32> state_flags_;
 

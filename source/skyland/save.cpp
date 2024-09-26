@@ -200,6 +200,8 @@ void store(const PersistentData& d)
     save_data.script_length_.set(0);
 
     memcpy(&save_data.data_, &d, sizeof d);
+    save_data.data_.rng_.set(rng::critical_state);
+
     if (APP.is_developer_mode()) {
         save_data.data_.set_flag(PersistentData::StateFlag::dev_mode_active);
     }
@@ -239,6 +241,7 @@ bool load(PersistentData& d)
         }
 
         memcpy(&d, &save_data.data_, sizeof d);
+        rng::critical_state = d.rng_.get();
 
         if (APP.is_developer_mode()) {
             d.set_flag(PersistentData::StateFlag::dev_mode_active);
