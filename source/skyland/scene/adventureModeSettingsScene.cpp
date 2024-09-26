@@ -341,6 +341,9 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
         if (newgame_) {
             APP.invoke_script("/scripts/newgame.lisp");
+            if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
+                APP.persistent_data().set_flag(PersistentData::permadeath_on);
+            }
         }
 
         return make_scene<WorldMapScene>();

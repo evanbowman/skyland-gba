@@ -79,7 +79,7 @@ void NewgameScene::enter(Scene& prev)
     }
 
     if (save::load(APP.persistent_data())) {
-        if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
+        if (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) {
             save::erase();
         }
 
@@ -89,7 +89,7 @@ void NewgameScene::enter(Scene& prev)
         reset_state();
     }
 
-    if (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on) and
+    if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) and
         loaded_) {
 
         PLATFORM.screen().schedule_fade(0, ColorConstant::rich_black);
@@ -104,7 +104,7 @@ void NewgameScene::enter(Scene& prev)
 
 ScenePtr NewgameScene::update(Time delta)
 {
-    if (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on) and
+    if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) and
         loaded_) {
 
         if (continue_opt_sel_ == 0) {
@@ -149,7 +149,7 @@ ScenePtr NewgameScene::update(Time delta)
     const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
 
     const bool skip_save_prompt = APP.gp_.stateflags_.get(sv_flag) or
-        (not APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on));
+        (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on));
 
     auto dont_remind = []() {
         APP.gp_.stateflags_.set(sv_flag, true);
