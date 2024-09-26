@@ -1,0 +1,3 @@
+
+;; TODO...
+(eval-file "scripts/event/neutral/2/6_0.lisp")

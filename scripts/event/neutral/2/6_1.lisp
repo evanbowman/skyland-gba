@@ -28,5 +28,5 @@
              (lambda (isle x y)
                (room-new (player) (list 'warhead x y))
                (sound "build0")
-               (dialog "<c:king:27> Hopefully you will never need to use this weapon. If you do, remember that it's single use!")
+               (dialog "<c:king:27> Hopefully you will never need to use this weapon. If you do, remember that it can only be fired once!")
                (setq on-dialog-closed exit))))
