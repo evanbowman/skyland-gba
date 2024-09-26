@@ -471,8 +471,8 @@ autofire
 Autofire enabled! (You can still pick targets manually, though)
 Fire weapons automatically? Currently turned off.
 permadeath
-Saves can only be loaded once! Turned on.
-Saves can only be loaded once! Turned off.
+Turned on. Saves can currently only be loaded once! 
+Turned off. Saves can currently be loaded repeatedly!
 Exit tutorial?
 Builder
 Build an island with more than ten structures!
