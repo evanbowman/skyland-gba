@@ -568,6 +568,8 @@ enum class SystemString {
     wg_title,
     wg_storm_label,
     wg_exit,
+    wg_save_and_quit,
+    wg_save_and_continue,
 
     sandbox_coins,
     sandbox_terrain_size,

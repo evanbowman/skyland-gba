@@ -683,9 +683,73 @@ ScenePtr WorldMapScene::update(Time delta)
         timer_ += delta;
         if (timer_ > milliseconds(60)) {
             timer_ = 0;
-            state_ = State::fade_out_saved;
+
+            if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on)) {
+                state_ = State::save_options;
+                auto opt1 = SYSTR(wg_save_and_continue);
+                auto opt2 = SYSTR(wg_save_and_quit);
+                save_opt_len_ = std::max(utf8::len(opt1->c_str()), utf8::len(opt2->c_str()));
+
+                save_icon_.reset();
+                help_icon_.reset();
+                logbook_icon_.reset();
+                edit_icon_.reset();
+
+                u8 x = 31 - (save_opt_len_ + 2);
+                Text::print(opt1->c_str(), OverlayCoord{x, 17});
+                Text::print(opt2->c_str(), OverlayCoord{x, 18});
+
+            } else {
+                state_ = State::fade_out_saved;
+            }
         }
         break;
+
+
+    case State::save_options: {
+        const u8 x = 31 - (save_opt_len_ + 2);
+
+        auto clr_txt = [&] {
+            for (int i = -1; i < save_opt_len_; ++i) {
+                PLATFORM.set_tile(Layer::overlay, x + i, 17, 0);
+                PLATFORM.set_tile(Layer::overlay, x + i, 18, 0);
+            }
+        };
+
+        if (save_opt_sel_) {
+            PLATFORM.set_tile(Layer::overlay, x - 1, 17, 167);
+            PLATFORM.set_tile(Layer::overlay, x - 1, 18, 166);
+        } else {
+            PLATFORM.set_tile(Layer::overlay, x - 1, 17, 166);
+            PLATFORM.set_tile(Layer::overlay, x - 1, 18, 167);
+        }
+
+        if (APP.player().key_down(Key::down)) {
+            save_opt_sel_ = 1;
+        }
+        if (APP.player().key_down(Key::up)) {
+            save_opt_sel_ = 0;
+        }
+
+        if (APP.player().key_down(Key::action_2)) {
+            clr_txt();
+            redraw_icons();
+            state_ = State::save_selected;
+        } else if (APP.player().key_down(Key::action_1)) {
+            if (save_opt_sel_ == 0) {
+                clr_txt();
+                redraw_icons();
+                save::store(APP.persistent_data());
+                PLATFORM.speaker().play_sound("button_wooden", 3);
+                state_ = State::save_selected;
+            } else {
+                clr_txt();
+                redraw_icons();
+                state_ = State::fade_out_saved;
+            }
+        }
+        break;
+    }
 
 
     case State::move: {

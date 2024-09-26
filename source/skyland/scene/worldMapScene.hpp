@@ -86,6 +86,7 @@ private:
         save_selected,
         save_button_depressed,
         save_button_released_wait,
+        save_options,
         help_selected,
         help_button_depressed,
         help_button_released_wait,
@@ -129,6 +130,8 @@ private:
     bool tier_2_visible_ = false;
     bool fast_ = false;
     bool has_radar_ = false;
+    u8 save_opt_sel_ = 0;
+    u8 save_opt_len_ = 0;
 
     Time tier_2_timer_ = 0;
 
