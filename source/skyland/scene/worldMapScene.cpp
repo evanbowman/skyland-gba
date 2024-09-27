@@ -456,6 +456,14 @@ void update_weather_onload();
 
 
 
+void show_saved_indicator()
+{
+    PLATFORM.set_tile(Layer::overlay, 27, 1, 168);
+    PLATFORM.set_tile(Layer::overlay, 28, 1, 169);
+}
+
+
+
 ScenePtr WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
@@ -742,6 +750,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 save::store(APP.persistent_data());
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 state_ = State::save_selected;
+                show_saved_indicator();
             } else {
                 clr_txt();
                 redraw_icons();
