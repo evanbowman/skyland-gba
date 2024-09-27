@@ -117,8 +117,8 @@ public:
         }
 
         if (APP.player().key_down(Key::up)) {
-            if (index_ == 6) {
-                index_ = 5;
+            if (index_ == 0) {
+                index_ = 6;
             } else {
                 --index_;
             }
