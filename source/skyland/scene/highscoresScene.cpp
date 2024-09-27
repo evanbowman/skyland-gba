@@ -291,7 +291,7 @@ void HighscoresScene::enter(Scene& prev)
     if (not APP.is_developer_mode() and
         not(APP.persistent_data().state_flags_.get() &
             PersistentData::StateFlag::dev_mode_active) and
-        not(APP.persistent_data().state_flags_.get() &
+        (APP.persistent_data().state_flags_.get() &
             PersistentData::StateFlag::permadeath_on)) {
 
         if (score > (int)highscores.values_[0].get()) {
