@@ -60,7 +60,10 @@ namespace skyland
 void NewgameScene::enter(Scene& prev)
 {
     show_island_exterior(&APP.player_island());
-    show_island_exterior(APP.opponent_island());
+
+    APP.with_opponent_island([](auto& isle) {
+        show_island_exterior(&isle);
+    });
 
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 

@@ -293,6 +293,10 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
         return;
     }
 
+    if (not opponent_island()) {
+        return;
+    }
+
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {

@@ -91,6 +91,7 @@ struct GlobalPersistentData
         stateflags_.set(developer_mode, false);
         achievement_flags_.set(0);
         challenge_flags_.set(0);
+        stateflags_.set(permadeath_on, true);
     }
 };
 

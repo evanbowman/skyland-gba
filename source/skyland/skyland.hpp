@@ -135,6 +135,15 @@ public:
     }
 
 
+    template <typename F>
+    void with_opponent_island(F&& cb)
+    {
+        if (opponent_island()) {
+            cb(*opponent_island());
+        }
+    }
+
+
     void start_console();
 
 

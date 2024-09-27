@@ -147,6 +147,8 @@ void prep_level()
 
     APP.level_begin_score() = APP.persistent_data().score_.get();
 
+    APP.persistent_data().lives_ = 2;
+
     APP.player_island().init_ai_awareness();
 
 
