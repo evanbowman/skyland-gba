@@ -1104,8 +1104,15 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
         APP.score().set(APP.score().get() + APP.coins() * mult);
 
         if (island_ not_eq &APP.player_island()) {
+
+            auto add_score = 300000;
+
+            if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on)) {
+                add_score /= 2;
+            }
+
             APP.persistent_data().score_.set(
-                300000 + APP.persistent_data().score_.get());
+                add_score + APP.persistent_data().score_.get());
         }
     }
 

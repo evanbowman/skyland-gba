@@ -181,8 +181,13 @@ void PlayerP1::on_room_destroyed(Room& room)
 
         ai_state_->rescan_ = true;
 
-        APP.score().set((APP.score().get() +
-                         (score_multiplier * (*room.metaclass())->cost())));
+        auto add_score = score_multiplier * (*room.metaclass())->cost();
+
+        if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on)) {
+            add_score /= 2;
+        }
+
+        APP.score().set(APP.score().get() + add_score);
     }
 }
 
