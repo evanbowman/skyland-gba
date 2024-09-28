@@ -75,7 +75,7 @@ private:
     void repaint();
 
     Optional<Text> title_;
-    Buffer<Text, 3> lines_;
+    Buffer<Text, 2> lines_;
 
     int sel_ = 0;
 

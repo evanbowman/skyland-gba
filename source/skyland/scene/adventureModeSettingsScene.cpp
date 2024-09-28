@@ -53,7 +53,6 @@ struct DifficultyInfo
 
 static const SystemString titles[] = {
     SystemString::sf_difficulty,
-    SystemString::autofire_setting,
     SystemString::permadeath_setting,
 };
 
@@ -89,7 +88,7 @@ void AdventureModeSettingsScene::repaint_autofire(bool on, bool selected)
 
 void AdventureModeSettingsScene::repaint_permadeath(bool on, bool selected)
 {
-    render_line(2,
+    render_line(1,
                 on ? SystemString::on : SystemString::off,
                 on ? SystemString::permadeath_hint_on
                    : SystemString::permadeath_hint_off,
@@ -165,27 +164,27 @@ void AdventureModeSettingsScene::repaint()
     switch (sel_) {
     case 0:
         repaint_difficulty((int)APP.gp_.difficulty_, true);
-        repaint_autofire(
-            APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+        // repaint_autofire(
+        //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
         break;
 
     case 1:
         repaint_difficulty((int)APP.gp_.difficulty_, false);
-        repaint_autofire(
-            APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), true);
-        repaint_permadeath(
-            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
-        break;
-
-    case 2:
-        repaint_difficulty((int)APP.gp_.difficulty_, false);
-        repaint_autofire(
-            APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+        // repaint_autofire(
+        //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), true);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
         break;
+
+    // case 2:
+    //     repaint_difficulty((int)APP.gp_.difficulty_, false);
+    //     // repaint_autofire(
+    //     //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+    //     repaint_permadeath(
+    //         APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
+    //     break;
     }
 }
 
@@ -252,14 +251,14 @@ void AdventureModeSettingsScene::update_field(bool inc)
         break;
     }
 
-    case 1: {
-        bool af = APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on);
-        af = not af;
-        APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
-        break;
-    }
+    // case 1: {
+    //     bool af = APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on);
+    //     af = not af;
+    //     APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
+    //     break;
+    // }
 
-    case 2: {
+    case 1: {
         bool pd = APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on);
         pd = not pd;
         APP.gp_.stateflags_.set(GlobalPersistentData::permadeath_on, pd);
@@ -283,7 +282,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    static const int sel_max = 2;
+    static const int sel_max = 1;
 
     if (test_key(Key::up)) {
         if (sel_ > 0) {
