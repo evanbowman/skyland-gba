@@ -213,7 +213,12 @@ public:
     }
 
 
-    virtual void update_weapon_targets()
+    virtual void update_weapon_targets(Time delta)
+    {
+    }
+
+
+    virtual void reassign_all_weapon_targets()
     {
     }
 

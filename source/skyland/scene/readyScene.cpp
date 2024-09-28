@@ -211,81 +211,6 @@ bool tapped_topleft_corner()
 
 
 
-class AutoassignCharactersScene : public ActiveWorldScene
-{
-public:
-    Buffer<CharacterId, 40> local_chrs_;
-    Buffer<CharacterId, 40> boarded_chrs_;
-
-
-    void enter(Scene& prev) override
-    {
-        ActiveWorldScene::enter(prev);
-
-        PLATFORM.speaker().play_sound("drone_beep", 1);
-
-        if (not APP.opponent_island()) {
-            return;
-        }
-
-        for (auto& room : APP.player_island().rooms()) {
-            for (auto& chr : room->characters()) {
-                if (chr->owner() == &APP.player() and not chr->co_op_locked()) {
-                    local_chrs_.push_back(chr->id());
-                }
-            }
-        }
-
-        for (auto& room : APP.opponent_island()->rooms()) {
-            for (auto& chr : room->characters()) {
-                if (chr->owner() == &APP.player() and not chr->co_op_locked()) {
-                    boarded_chrs_.push_back(chr->id());
-                }
-            }
-        }
-    }
-
-
-    ScenePtr update(Time delta) override
-    {
-        if (auto scene = ActiveWorldScene::update(delta)) {
-            return scene;
-        }
-
-        if (not APP.opponent_island()) {
-            return make_scene<ReadyScene>();
-        }
-
-        if (not local_chrs_.empty()) {
-            auto current = local_chrs_.back();
-            local_chrs_.pop_back();
-
-            auto info = APP.player_island().find_character_by_id(current);
-            if (info.first) {
-                EnemyAI::assign_local_character(
-                    *info.first, &APP.player(), &APP.player_island());
-            }
-        } else if (not boarded_chrs_.empty()) {
-            auto current = boarded_chrs_.back();
-            boarded_chrs_.pop_back();
-
-            auto info = APP.opponent_island()->find_character_by_id(current);
-            if (info.first) {
-                EnemyAI::assign_boarded_character(*info.first,
-                                                  &APP.player(),
-                                                  &APP.player_island(),
-                                                  APP.opponent_island());
-            }
-        } else {
-            return make_scene<ReadyScene>();
-        }
-
-        return null_scene();
-    }
-};
-
-
-
 class SkipTutorialScene : public Scene
 {
 public:
@@ -389,7 +314,12 @@ ScenePtr update_modifier_keys()
         return make_scene<SelectWeaponGroupScene>(resume);
     } else if (APP.player().key_down(Key::select)) {
         if (not PLATFORM.network_peer().is_connected()) {
-            return make_scene<AutoassignCharactersScene>();
+
+            APP.player().reassign_all_weapon_targets();
+
+            PLATFORM.speaker().play_sound("drone_beep", 1);
+
+            return make_scene<ReadyScene>();
         }
     }
 

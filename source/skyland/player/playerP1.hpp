@@ -91,10 +91,14 @@ public:
     void on_level_start() override;
 
 
-    void update_weapon_targets() override;
+    void update_weapon_targets(Time delta) override;
+    void reassign_all_weapon_targets() override;
 
 
     void delay_autofire(Time duration) override;
+
+
+    static void autoassign_weapon_target(Room& r);
 
 
 protected:

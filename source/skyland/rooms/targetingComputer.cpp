@@ -93,7 +93,7 @@ void TargetingComputer::update(Time delta)
     }
 
     if (not APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
-        APP.player().update_weapon_targets();
+        APP.player().update_weapon_targets(delta);
     }
 }
 

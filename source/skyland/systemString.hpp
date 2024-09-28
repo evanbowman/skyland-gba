@@ -124,6 +124,7 @@ enum class SystemString {
     block_food,
     block_forcefield,
     block_forcefield2,
+    block_deflector,
     block_fountain,
     block_gold,
     block_granary,

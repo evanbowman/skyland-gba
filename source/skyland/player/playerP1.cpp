@@ -313,7 +313,7 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
         return;
     }
 
-    if (APP.opponent().is_friendly() or APP.level_timer().total() < seconds(2)) {
+    if (APP.opponent().is_friendly()) {
         // Don't start selecting targets when playing the level entry animation
         // and stuff.
         for (auto& r : APP.player_island().rooms()) {
@@ -335,22 +335,7 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
 
             const auto category = (*room.metaclass())->category();
             if (category == Room::Category::weapon) {
-
-                // Even when the targeting AI is active, the game allows you to
-                // pin targets manually, and the AI won't try to assign them
-                // again until the block to which the target is pinned is
-                // destroyed.
-                const bool has_pinned_target =
-                    room.target_pinned() and room.get_target() and
-                    APP.opponent_island()->get_room(*room.get_target());
-
-                if (not has_pinned_target and not room.cast<Warhead>()) {
-                    EnemyAI::update_room(room,
-                                         APP.opponent_island()->rooms_plot(),
-                                         &APP.player(),
-                                         &APP.player_island(),
-                                         APP.opponent_island());
-                }
+                PlayerP1::autoassign_weapon_target(room);
                 next_weapon_action_timer_ = milliseconds(64);
             } else {
                 next_weapon_action_timer_ = milliseconds(32);
@@ -401,9 +386,43 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
 
 
 
-void PlayerP1::update_weapon_targets()
+void PlayerP1::autoassign_weapon_target(Room& room)
 {
-    ai_state_->update_weapon_targets(APP.delta_fp().as_integer());
+    // Even when the targeting AI is active, the game allows you to
+    // pin targets manually, and the AI won't try to assign them
+    // again until the block to which the target is pinned is
+    // destroyed.
+
+    const bool has_pinned_target =
+        room.target_pinned() and room.get_target() and
+        APP.opponent_island()->get_room(*room.get_target());
+
+    if (not has_pinned_target and not room.cast<Warhead>()) {
+        EnemyAI::update_room(room,
+                             APP.opponent_island()->rooms_plot(),
+                             &APP.player(),
+                             &APP.player_island(),
+                             APP.opponent_island());
+    }
+}
+
+
+
+void PlayerP1::reassign_all_weapon_targets()
+{
+    for (auto& room : APP.player_island().rooms()) {
+        const auto category = (*(*room).metaclass())->category();
+        if (category == Room::Category::weapon) {
+            autoassign_weapon_target(*room);
+        }
+    }
+}
+
+
+
+void PlayerP1::update_weapon_targets(Time delta)
+{
+    ai_state_->update_weapon_targets(delta);
 }
 
 
