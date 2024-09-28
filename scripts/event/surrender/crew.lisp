@@ -3,8 +3,8 @@
  "<c:goblin pirates:2>We surrender! Honesst, we promise not to pillage any other cassstles!")
 
 (defn on-dialog-closed ()
-    (setq on-dialog-closed '())
-  (let ((c (+ (/ (coins-victory) 2) (/ (coins-victory) 6))))
+  (setq on-dialog-closed '())
+  (let ((c (int (* 0.72 (float (coins-victory))))))
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
