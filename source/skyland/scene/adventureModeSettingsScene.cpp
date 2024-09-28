@@ -343,6 +343,8 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             APP.invoke_script("/scripts/newgame.lisp");
             if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
                 APP.persistent_data().set_flag(PersistentData::permadeath_on);
+            } else {
+                APP.persistent_data().clear_flag(PersistentData::permadeath_on);
             }
         }
 
