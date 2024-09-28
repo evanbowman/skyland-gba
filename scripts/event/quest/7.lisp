@@ -79,7 +79,7 @@
           (progn
             ;; push adventure log
             (push 'qids 7)
-            (push 'quests (cons "/scripts/event/quest_marker/dynamite-ii.lisp" m))
+            (push 'quests (cons "dynamite-ii.lisp" m))
             (dialog "<c:mining cheif:20>Great! Let's move some of this cargo over to your island...")
             (adventure-log-add 57 nil)
 

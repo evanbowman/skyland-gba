@@ -59,8 +59,7 @@
                       (progn
                         (adventure-log-add 17 '())
                         (push 'qids 1)
-                        (push 'quests (cons "/scripts/event/quest_marker/nanas.lisp"
-                                            m))
+                        (push 'quests (cons "nanas.lisp" m))
                         (dialog "<c:banana man:8>No time to waste! I know exactly where they've taken my bananas, and I marked the location on your sky chart with an *!"))
                     (progn
                       (dialog "Without warning, banana man became distracted by something and cut the transmission. Such a shame, he was interesting!"))))))

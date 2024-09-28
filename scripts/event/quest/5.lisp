@@ -93,7 +93,7 @@
               (progn
                 (push 'qids 5)
                 (adventure-log-add 52 '())
-                (push 'quests (cons "/scripts/event/quest_marker/traveller.lisp" m))
+                (push 'quests (cons "traveller.lisp" m))
                 (dialog "<c:traveller:23> Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *...")
                 (defn on-dialog-closed ()
                   (dialog "The mysterious traveller joined your crew!")

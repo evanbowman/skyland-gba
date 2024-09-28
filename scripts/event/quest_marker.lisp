@@ -15,7 +15,7 @@
                   (equal pos (cddr q)))
                 quests)))
     (if found
-        (eval-file (caar found))
+        (eval-file (string "/scripts/event/quest_marker/" (caar found)))
       (fatal "invalid quest marker!"))))
 
 (gc)

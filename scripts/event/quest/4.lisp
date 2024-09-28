@@ -77,7 +77,7 @@
             (progn
               (adventure-log-add 20 (list fee))
               (push 'qids qid)
-              (push 'quests (cons "/scripts/event/quest_marker/ceramics.lisp" m))
+              (push 'quests (cons "ceramics.lisp" m))
               (push 'qvar (cons qid fee))
               (coins-set (- (coins) fee))
               (cargo-set (player) (car c) (cdr c) "ceramic tiles")

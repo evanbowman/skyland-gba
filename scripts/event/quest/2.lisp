@@ -50,7 +50,7 @@
                  (rooms (opponent)))
 
             (push 'qids 2)
-            (push 'quests (cons "/scripts/event/quest_marker/lemons.lisp" m))
+            (push 'quests (cons "lemons.lisp" m))
 
             (let ((reward 0))
               (map

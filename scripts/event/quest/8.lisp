@@ -33,7 +33,7 @@
            (progn
              ;(adventure-log-add 17 '())
              (push 'qids 8)
-             (push 'quests (cons "/scripts/event/quest_marker/atomics.lisp" m))
+             (push 'quests (cons "atomics.lisp" m))
              (dialog "<c:king:27> Great! I've marked the location on your sky chart with an *! <B:0> My son will go along to oversee things...")
              (defn on-dialog-closed ()
                (dialog "The king's son joined your crew!")

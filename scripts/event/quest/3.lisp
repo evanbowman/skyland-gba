@@ -36,7 +36,7 @@
     (if m
         (progn
           (push 'qids 3)
-          (push 'quests (cons "/scripts/event/quest_marker/pickup.lisp" m))
+          (push 'quests (cons "pickup.lisp" m))
           (adventure-log-add 19 '())
           (dialog "<c:chauffeur:11>Thanks a lot! I just marked the location your sky chart with an *!"))
       (progn
