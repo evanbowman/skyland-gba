@@ -10,6 +10,7 @@
  'on-room-destroyed
  'on-crew-died
  'on-shop-item-sel
+ 'on-shop-enter
  'on-dialog-accepted
  'on-dialog-declined
  'last-zone

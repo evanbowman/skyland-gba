@@ -37,7 +37,6 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/infirmary.hpp"
-#include "skyland/rooms/mindControl.hpp"
 #include "skyland/rooms/replicator.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"

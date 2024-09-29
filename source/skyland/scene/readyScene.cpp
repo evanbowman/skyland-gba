@@ -56,7 +56,7 @@
 #include "selectWeaponGroupScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
-#include "skyland/scene/itemShopScene.hpp"
+#include "skyland/scene/scriptHookScene.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/script_defs.hpp"
@@ -475,7 +475,8 @@ ScenePtr ReadyScene::update(Time delta)
                 if (APP.world_graph()
                         .nodes_[APP.current_world_location()]
                         .type_ == WorldGraph::Node::Type::shop) {
-                    return make_scene<ItemShopScene>();
+                    invoke_hook("on-shop-enter");
+                    return null_scene();
                 }
 
                 auto& cursor_loc = globals().far_cursor_loc_;

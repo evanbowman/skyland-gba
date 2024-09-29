@@ -93,19 +93,48 @@
                               (push-menu "item-shop" '()))))))))
 
 
+
+;; NOTE: increment the integer passed to choice when adding lines to chat.txt
+(let ((txt (get-line-of-file "/scripts/event/shop/chat.txt" (+ 1 (choice 4)))))
+  (defn on-shop-enter ()
+    (let ((ret (this)))
+
+      (dialog "<c:shopkeeper:7>What would you like to do?")
+      (setq on-dialog-closed nil)
+
+      (dialog-opts-reset)
+
+      (dialog-opts-push "shop"
+                        (lambda ()
+                          (push-menu "item-shop" '())))
+
+      (dialog-opts-push "chat"
+                        (lambda ()
+                          (dialog "<c:shopkeeper:7> One piece of news that I learned today is: "
+                                  txt
+                                  "<B:0> Interesting, huh?")
+                          (setq on-dialog-closed ret)))
+
+      (dialog-opts-push "back" (lambda () nil)))))
+
+
 (defn on-fadein ()
   (dialog
    "<c:shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
    "(when done, use the start menu to return to your sky chart)")
 
-  (defn on-dialog-closed ()
-    (push-menu "item-shop" '())))
+  (setq on-dialog-closed on-shop-enter))
 
 
 (island-configure
  (opponent)
- '((power-core 3 13)
+ '((market-stall 0 13)
+   (hull 2 12)
+   (power-core 3 13)
+   (hull 3 12)
    (coconut-palm 5 12)
-   (hull 5 14)))
+   (hull 5 14)
+   (solar-cell 4 11)
+   (lemon-tree 1 11)))
 
 (flag-show (opponent) 6)

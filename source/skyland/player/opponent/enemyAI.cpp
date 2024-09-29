@@ -52,7 +52,6 @@
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/masonry.hpp"
-#include "skyland/rooms/mindControl.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/sparkCannon.hpp"

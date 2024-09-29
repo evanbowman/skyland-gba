@@ -319,6 +319,12 @@ struct Tile
         warhead_2,
         statue_9,
         statue_10,
+        market_stall_1,
+        market_stall_2,
+        market_stall_3,
+        market_stall_4,
+        market_stall_5,
+        market_stall_6,
     };
 };
 
@@ -597,6 +603,12 @@ struct InteriorTile
         warhead_2,
         statue_9,
         statue_10,
+        market_stall_1,
+        market_stall_2,
+        market_stall_3,
+        market_stall_4,
+        market_stall_5,
+        market_stall_6,
     };
 };
 
