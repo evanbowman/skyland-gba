@@ -1010,6 +1010,11 @@ o----------------------------o
  integer line, and path to
  file given by path.
 
+ Note: file lines start from
+ 1. As they do in virtually
+ all text editors. Passing 0
+ will give you an empty
+ string.
 
 o----------------------------o
 

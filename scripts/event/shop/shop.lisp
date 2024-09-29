@@ -7,10 +7,16 @@
 (eval-file "/scripts/event/check_zone.lisp")
 
 
-(opponent-init 6 'neutral)
-
-
 (adventure-log-add 49 '())
+
+
+(let ((str (get-line-of-file "/scripts/event/shop/layouts.lisp" (+ 1 (choice 4)))))
+  (let ((kvp (eval (read str))))
+    (opponent-init (first kvp) 'neutral)
+    (island-configure (opponent) (second kvp))))
+
+
+(flag-show (opponent) 6)
 
 
 ;; The engine only knows how to process a global variable called shop-items, but
@@ -124,17 +130,3 @@
    "(when done, use the start menu to return to your sky chart)")
 
   (setq on-dialog-closed on-shop-enter))
-
-
-(island-configure
- (opponent)
- '((market-stall 0 13)
-   (hull 2 12)
-   (power-core 3 13)
-   (hull 3 12)
-   (coconut-palm 5 12)
-   (hull 5 14)
-   (solar-cell 4 11)
-   (lemon-tree 1 11)))
-
-(flag-show (opponent) 6)

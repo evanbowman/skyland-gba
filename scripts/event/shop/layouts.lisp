@@ -1,0 +1,4 @@
+'(9 . ((market-stall 0 13) (lemon-tree 1 11) (hull 2 12) (power-core 3 13) (hull 3 12) (masonry 4 12 3) (windmill 5 10) (hull 5 14) (bridge 5 12) (masonry 5 11 3) (masonry 6 11 3) (masonry 6 10 3) (shrubbery 6 9) (masonry 7 14 0) (masonry 7 13 3) (workshop 7 11) (masonry 7 10 3) (masonry 8 14 0) (masonry 8 13 0)))
+'(6 . ((market-stall 0 13) (hull 2 12) (power-core 3 13) (hull 3 12) (coconut-palm 5 12) (hull 5 14) (solar-cell 4 11) (lemon-tree 1 11)))
+'(7 . ((market-stall 0 13) (energized-hull 2 12) (power-core 3 13) (hull 3 12) (shrubbery 4 10) (masonry 4 12 3) (masonry 4 11 3) (windmill 5 11) (masonry 5 13 3) (hull 5 14) (masonry 5 12 3) (lemon-tree 6 13)))
+'(7 . ((market-stall 0 13) (shrubbery 1 12) (hull 2 12) (shrubbery 2 11) (power-core 3 13) (hull 3 12) (masonry 4 12 3) (crane 4 10) (masonry 5 13 3) (hull 5 14) (masonry 5 12 3) (lemon-tree 6 13)))
