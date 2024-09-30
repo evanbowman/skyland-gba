@@ -344,8 +344,9 @@ ScenePtr GroupSelectionScene::update(Time delta)
         if (group) {
             for (auto& c : (*group_selection_)->rooms_) {
                 if (auto r = APP.player_island().get_room(c)) {
-                    if ((*r->metaclass())->category() == Room::Category::weapon) {
-                        auto prev =  r->group();
+                    if ((*r->metaclass())->category() ==
+                        Room::Category::weapon) {
+                        auto prev = r->group();
 
                         time_stream::event::WeaponSetGroup e;
                         e.room_x_ = cursor_loc.x;
@@ -410,32 +411,33 @@ void GroupSelectionScene::display()
 
         Fixnum interval(Float(anim_out_timer_) / anim_out_time);
 
-        auto draw_cursor = [&](auto cursor_loc, int x_off, int y_off, Vec2<Fixnum>& last) {
-            auto origin = APP.player_island().visual_origin();
-            auto anchor_origin = origin;
+        auto draw_cursor =
+            [&](auto cursor_loc, int x_off, int y_off, Vec2<Fixnum>& last) {
+                auto origin = APP.player_island().visual_origin();
+                auto anchor_origin = origin;
 
-            origin.x += Fixnum::from_integer(cursor_loc.x * 16 + x_off);
-            origin.y += Fixnum::from_integer(cursor_loc.y * 16 + y_off);
+                origin.x += Fixnum::from_integer(cursor_loc.x * 16 + x_off);
+                origin.y += Fixnum::from_integer(cursor_loc.y * 16 + y_off);
 
-            anchor_origin.x += Fixnum::from_integer(anchor.x * 16 + x_off);
-            anchor_origin.y += Fixnum::from_integer(anchor.y * 16 + y_off);
+                anchor_origin.x += Fixnum::from_integer(anchor.x * 16 + x_off);
+                anchor_origin.y += Fixnum::from_integer(anchor.y * 16 + y_off);
 
-            if (last.x == 0.0_fixed or last.y == 0.0_fixed) {
-                last.x = origin.x;
-                last.y = origin.y;
-            }
+                if (last.x == 0.0_fixed or last.y == 0.0_fixed) {
+                    last.x = origin.x;
+                    last.y = origin.y;
+                }
 
-            auto result = origin;
-            result.x = interpolate_fp(anchor_origin.x, last.x, interval);
-            result.y = interpolate_fp(anchor_origin.y, last.y, interval);
+                auto result = origin;
+                result.x = interpolate_fp(anchor_origin.x, last.x, interval);
+                result.y = interpolate_fp(anchor_origin.y, last.y, interval);
 
-            last.x = result.x;
-            last.y = result.y;
+                last.x = result.x;
+                last.y = result.y;
 
-            cursor.set_position(result);
+                cursor.set_position(result);
 
-            PLATFORM.screen().draw(cursor);
-        };
+                PLATFORM.screen().draw(cursor);
+            };
 
         cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_texture_index((52 * 2) + cursor_anim_frame_ * 4);

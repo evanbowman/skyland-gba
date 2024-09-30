@@ -10,10 +10,12 @@
 (adventure-log-add 49 '())
 
 
-(let ((str (get-line-of-file "/scripts/event/shop/layouts.lisp" (+ 1 (choice 4)))))
-  (let ((kvp (eval (read str))))
-    (opponent-init (first kvp) 'neutral)
-    (island-configure (opponent) (second kvp))))
+(let ((file "/scripts/event/shop/layouts.lisp"))
+  (let ((str (file-get-line file (+ 1 (choice (file-line-count file))))))
+    (let ((kvp (eval (read str))))
+      (opponent-init (first kvp) 'neutral)
+      (island-configure (opponent) (second kvp)))))
+
 
 
 (flag-show (opponent) 6)
@@ -100,28 +102,29 @@
 
 
 
-;; NOTE: increment the integer passed to choice when adding lines to chat.txt
-(let ((txt (get-line-of-file "/scripts/event/shop/chat.txt" (+ 1 (choice 4)))))
-  (defn on-shop-enter ()
-    (let ((ret (this)))
+(let ((file "/scripts/event/shop/chat.txt"))
+  (let ((txt (file-get-line file (+ 1 (choice (file-line-count file))))))
+    (defn on-shop-enter ()
+      (let ((ret (this)))
 
-      (dialog "<c:shopkeeper:7>What would you like to do?")
-      (setq on-dialog-closed nil)
+        (dialog "<c:shopkeeper:7>What would you like to do?")
+        (setq on-dialog-closed nil)
 
-      (dialog-opts-reset)
+        (dialog-opts-reset)
 
-      (dialog-opts-push "shop"
-                        (lambda ()
-                          (push-menu "item-shop" '())))
+        (dialog-opts-push "shop"
+                          (lambda ()
+                            (push-menu "item-shop" '())))
 
-      (dialog-opts-push "chat"
-                        (lambda ()
-                          (dialog "<c:shopkeeper:7> One piece of news that I learned today is: "
-                                  txt
-                                  "<B:0> Interesting, huh?")
-                          (setq on-dialog-closed ret)))
+        (dialog-opts-push "chat"
+                          (lambda ()
+                            (dialog "<c:shopkeeper:7> One piece of news that I learned today is: "
+                                    txt
+                                    "<B:0> Interesting, huh?")
+                            (setq on-dialog-closed ret)))
 
-      (dialog-opts-push "back" (lambda () nil)))))
+        (dialog-opts-push "back" (lambda () nil))))))
+
 
 
 (defn on-fadein ()

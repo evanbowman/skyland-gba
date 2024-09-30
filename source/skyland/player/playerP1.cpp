@@ -183,7 +183,8 @@ void PlayerP1::on_room_destroyed(Room& room)
 
         auto add_score = score_multiplier * (*room.metaclass())->cost();
 
-        if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on)) {
+        if (not(APP.persistent_data().state_flags_.get() &
+                PersistentData::permadeath_on)) {
             add_score /= 2;
         }
 

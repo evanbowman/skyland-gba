@@ -167,7 +167,8 @@ Optional<DirectoryCache> find_directory(const char* prefix)
 
 
 
-std::pair<FileContents, FileSize> load(FilePath path, Optional<DirectoryCache> dir)
+std::pair<FileContents, FileSize> load(FilePath path,
+                                       Optional<DirectoryCache> dir)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);

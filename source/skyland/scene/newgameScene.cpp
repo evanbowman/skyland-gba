@@ -61,9 +61,7 @@ void NewgameScene::enter(Scene& prev)
 {
     show_island_exterior(&APP.player_island());
 
-    APP.with_opponent_island([](auto& isle) {
-        show_island_exterior(&isle);
-    });
+    APP.with_opponent_island([](auto& isle) { show_island_exterior(&isle); });
 
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -82,7 +80,8 @@ void NewgameScene::enter(Scene& prev)
     }
 
     if (save::load(APP.persistent_data())) {
-        if (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) {
+        if (APP.persistent_data().state_flags_.get() &
+            PersistentData::permadeath_on) {
             save::erase();
         }
 
@@ -92,7 +91,8 @@ void NewgameScene::enter(Scene& prev)
         reset_state();
     }
 
-    if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) and
+    if (not(APP.persistent_data().state_flags_.get() &
+            PersistentData::permadeath_on) and
         loaded_) {
 
         PLATFORM.screen().schedule_fade(0, ColorConstant::rich_black);
@@ -107,7 +107,8 @@ void NewgameScene::enter(Scene& prev)
 
 ScenePtr NewgameScene::update(Time delta)
 {
-    if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on) and
+    if (not(APP.persistent_data().state_flags_.get() &
+            PersistentData::permadeath_on) and
         loaded_) {
 
         if (continue_opt_sel_ == 0) {
@@ -151,8 +152,10 @@ ScenePtr NewgameScene::update(Time delta)
 
     const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
 
-    const bool skip_save_prompt = APP.gp_.stateflags_.get(sv_flag) or
-        (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on));
+    const bool skip_save_prompt =
+        APP.gp_.stateflags_.get(sv_flag) or
+        (not(APP.persistent_data().state_flags_.get() &
+             PersistentData::permadeath_on));
 
     auto dont_remind = []() {
         APP.gp_.stateflags_.set(sv_flag, true);
@@ -204,11 +207,11 @@ void NewgameScene::reset_state()
     APP.persistent_data().state_flags_.set(0);
 
     if (APP.is_developer_mode()) {
-        APP.persistent_data().set_flag(PersistentData::StateFlag::dev_mode_active);
+        APP.persistent_data().set_flag(
+            PersistentData::StateFlag::dev_mode_active);
     }
 
     lisp::set_var("adventure-log", L_NIL);
-
 }
 
 

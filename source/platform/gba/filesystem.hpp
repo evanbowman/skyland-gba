@@ -78,7 +78,8 @@ using DirectoryCache = FileNumber;
 Optional<DirectoryCache> find_directory(const char* prefix);
 
 
-std::pair<FileContents, FileSize> load(FilePath path, Optional<DirectoryCache> dir);
+std::pair<FileContents, FileSize> load(FilePath path,
+                                       Optional<DirectoryCache> dir);
 
 
 void walk(Function<8 * sizeof(void*), void(const char* path)> callback);

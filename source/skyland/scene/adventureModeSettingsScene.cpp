@@ -167,7 +167,8 @@ void AdventureModeSettingsScene::repaint()
         // repaint_autofire(
         //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
         repaint_permadeath(
-            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on),
+            false);
         break;
 
     case 1:
@@ -178,13 +179,13 @@ void AdventureModeSettingsScene::repaint()
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
         break;
 
-    // case 2:
-    //     repaint_difficulty((int)APP.gp_.difficulty_, false);
-    //     // repaint_autofire(
-    //     //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
-    //     repaint_permadeath(
-    //         APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
-    //     break;
+        // case 2:
+        //     repaint_difficulty((int)APP.gp_.difficulty_, false);
+        //     // repaint_autofire(
+        //     //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
+        //     repaint_permadeath(
+        //         APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
+        //     break;
     }
 }
 
@@ -251,12 +252,12 @@ void AdventureModeSettingsScene::update_field(bool inc)
         break;
     }
 
-    // case 1: {
-    //     bool af = APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on);
-    //     af = not af;
-    //     APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
-    //     break;
-    // }
+        // case 1: {
+        //     bool af = APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on);
+        //     af = not af;
+        //     APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
+        //     break;
+        // }
 
     case 1: {
         bool pd = APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on);
@@ -264,7 +265,6 @@ void AdventureModeSettingsScene::update_field(bool inc)
         APP.gp_.stateflags_.set(GlobalPersistentData::permadeath_on, pd);
         break;
     }
-
     }
 }
 

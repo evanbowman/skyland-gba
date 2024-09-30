@@ -725,85 +725,6 @@ BINDING_TABLE({
 
           return result.result();
       }}},
-    {"fs-file-size",
-     {1,
-      [](int argc) {
-          L_EXPECT_OP(0, string);
-          Vector<char> data;
-          if (APP.load_file(L_LOAD_STRING(0), data)) {
-              return L_INT(data.size());
-          }
-          return L_INT(0);
-      }}},
-    {"fs-file-read",
-     {1,
-      [](int argc) {
-          L_EXPECT_OP(0, string);
-          Vector<char> data;
-          if (APP.load_file(L_LOAD_STRING(0), data)) {
-              lisp::ListBuilder list;
-              auto temp = allocate_dynamic<StringBuffer<2000>>("str-buf");
-              for (char c : data) {
-                  if (temp->full()) {
-                      list.push_back(lisp::make_string(temp->c_str()));
-                      temp->clear();
-                  }
-                  temp->push_back(c);
-              }
-              if (not temp->empty()) {
-                  list.push_back(lisp::make_string(temp->c_str()));
-              }
-              return list.result();
-          }
-          return L_NIL;
-      }}},
-    {"fs-file-write",
-     {2,
-      [](int argc) {
-          L_EXPECT_OP(0, cons);
-          L_EXPECT_OP(1, string);
-
-          Vector<char> data;
-          lisp::l_foreach(lisp::get_op0(), [&](lisp::Value* v) {
-              if (v->type() == lisp::Value::Type::string) {
-                  auto str = v->string().value();
-                  while (*str not_eq '\0') {
-                      data.push_back(*(str++));
-                  }
-              }
-          });
-
-          auto written =
-              flash_filesystem::store_file_data_binary(L_LOAD_STRING(1), data);
-          return lisp::make_boolean(written);
-      }}},
-    {"fs-readdir",
-     {1,
-      [](int argc) {
-          L_EXPECT_OP(0, string);
-
-          lisp::ListBuilder list;
-
-          flash_filesystem::walk_directory(
-              L_LOAD_STRING(0), [&](const char* path) {
-                  list.push_back(lisp::make_string(path));
-              });
-
-          PLATFORM.walk_filesystem([&](const char* path) {
-              StringBuffer<64> prefix(L_LOAD_STRING(0));
-              if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
-                  list.push_back(lisp::make_string(path));
-              }
-          });
-
-          return list.result();
-      }}},
-    {"fs-avail",
-     {0,
-      [](int argc) {
-          auto stat = flash_filesystem::statistics();
-          return L_INT(stat.bytes_available_);
-      }}},
     {"chrs",
      {1,
       [](int argc) {
@@ -1564,7 +1485,23 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
-    {"get-line-of-file",
+    {"file-line-count",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          auto fname = lisp::get_op(0)->string().value();
+          int lcnt = 0;
+          if (auto contents = PLATFORM.load_file_contents("", fname)) {
+              while (*contents not_eq '\0') {
+                  if (*contents == '\n') {
+                      ++lcnt;
+                  }
+                  ++contents;
+              }
+          }
+          return L_INT(lcnt);
+      }}},
+    {"file-get-line",
      {2,
       [](int argc) {
           L_EXPECT_OP(1, string);

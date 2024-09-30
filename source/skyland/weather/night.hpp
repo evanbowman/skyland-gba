@@ -49,7 +49,6 @@ namespace skyland::weather
 class Night : public CleanEnvironment
 {
 public:
-
     Night()
     {
     }
@@ -68,10 +67,8 @@ public:
 
 
     static Platform::Screen::Shader get_shader();
-
-
 };
 
 
 
-}
+} // namespace skyland::weather

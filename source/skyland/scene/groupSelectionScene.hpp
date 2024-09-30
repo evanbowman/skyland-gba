@@ -64,7 +64,6 @@ public:
     bool right_qd_ = false;
 
 private:
-
     void show_action_list();
 
     enum class State {

@@ -97,7 +97,8 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
     }
 
     auto get_weather_str = [&] {
-        return loadstr((SystemString)((int)SystemString::weather_clear + (parameters_[line_num] - 1)));
+        return loadstr((SystemString)((int)SystemString::weather_clear +
+                                      (parameters_[line_num] - 1)));
     };
 
     bool is_weather_field = false;

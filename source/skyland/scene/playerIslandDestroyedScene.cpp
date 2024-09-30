@@ -1107,7 +1107,8 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
 
             auto add_score = 300000;
 
-            if (not (APP.persistent_data().state_flags_.get() & PersistentData::permadeath_on)) {
+            if (not(APP.persistent_data().state_flags_.get() &
+                    PersistentData::permadeath_on)) {
                 add_score /= 2;
             }
 
