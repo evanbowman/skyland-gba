@@ -188,10 +188,10 @@ void WorldGraph::generate()
                 break;
             }
         }
-        // if (tries == 255 or i == 19 or // only place one store actually
-        //     APP.zone() < 2) {
-        //     nodes_[i].type_ = WorldGraph::Node::Type::null;
-        // }
+        if (tries == 255 or i == 19 or // only place one store actually
+            APP.zone() < 1) {
+            nodes_[i].type_ = WorldGraph::Node::Type::null;
+        }
     }
 
 

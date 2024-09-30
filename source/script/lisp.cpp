@@ -3675,7 +3675,7 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, integer);
            return L_INT(~L_LOAD_INT(0));
        }}},
-     {"%",
+     {"mod",
       {2,
        [](int argc) {
            L_EXPECT_OP(0, integer);
@@ -4474,7 +4474,7 @@ BUILTIN_TABLE(
                    case LoadVarRelocatable::op():
                        i += 1;
                        out += "LOAD_VAR_RELOCATABLE(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<s16>*)(data->data_ + i))->get());
                        out += ")";
                        i += 2;
@@ -4503,7 +4503,7 @@ BUILTIN_TABLE(
                    case PushSymbolRelocatable::op():
                        i += 1;
                        out += "PUSH_SYMBOL_RELOCATABLE(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<s16>*)(data->data_ + i))->get());
                        out += ")";
                        i += 2;
@@ -4543,7 +4543,7 @@ BUILTIN_TABLE(
                    case PushInteger::op():
                        i += 1;
                        out += "PUSH_INTEGER(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<s32>*)(data->data_ + i))->get());
                        out += ")";
                        i += 4;
@@ -4551,7 +4551,7 @@ BUILTIN_TABLE(
 
                    case PushSmallInteger::op():
                        out += "PUSH_SMALL_INTEGER(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
@@ -4569,7 +4569,7 @@ BUILTIN_TABLE(
 
                    case JumpIfFalse::op():
                        out += "JUMP_IF_FALSE(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                        out += ")";
                        i += 3;
@@ -4577,7 +4577,7 @@ BUILTIN_TABLE(
 
                    case Jump::op():
                        out += "JUMP(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                        out += ")";
                        i += 3;
@@ -4585,21 +4585,21 @@ BUILTIN_TABLE(
 
                    case SmallJumpIfFalse::op():
                        out += "SMALL_JUMP_IF_FALSE(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
 
                    case SmallJump::op():
                        out += "SMALL_JUMP(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
 
                    case PushLambda::op():
                        out += "PUSH_LAMBDA(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                        out += ")";
                        i += 3;
@@ -4634,7 +4634,7 @@ BUILTIN_TABLE(
                    case TailCall::op():
                        out += TailCall::name();
                        out += "(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
@@ -4656,14 +4656,14 @@ BUILTIN_TABLE(
 
                    case Funcall::op():
                        out += "FUNCALL(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
 
                    case PushList::op():
                        out += "PUSH_LIST(";
-                       out += to_string<10>(*(data->data_ + i + 1));
+                       out += to_string<32>(*(data->data_ + i + 1));
                        out += ")";
                        i += 2;
                        break;
@@ -4785,7 +4785,7 @@ BUILTIN_TABLE(
                    case LexicalDefRelocatable::op():
                        out += LexicalDefRelocatable::name();
                        out += "(";
-                       out += to_string<10>(
+                       out += to_string<32>(
                            ((HostInteger<s16>*)(data->data_ + i + 1))->get());
                        out += ")";
                        i += sizeof(LexicalDefRelocatable);

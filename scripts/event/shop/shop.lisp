@@ -10,8 +10,15 @@
 (adventure-log-add 49 '())
 
 
-(let ((file "/scripts/event/shop/layouts.lisp"))
-  (let ((str (file-get-line file (+ 1 (choice (file-line-count file))))))
+(let ((file "/scripts/event/shop/layouts.lisp")
+      (xy (cdr (wg-pos))))
+
+  ;; We want to pick a random layout from the layouts file, but pick the same
+  ;; layout if the player returns to this map coordinate, without having to
+  ;; store the layout index that we picked. So we sort of want to use the map
+  ;; coordinates as a seed...
+
+  (let ((str (file-get-line file (+ (mod (hash xy) (file-line-count file)) 1))))
     (let ((kvp (eval (read str))))
       (opponent-init (first kvp) 'neutral)
       (island-configure (opponent) (second kvp)))))

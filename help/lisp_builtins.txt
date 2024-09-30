@@ -389,7 +389,7 @@ o----------------------------o
  (- a b)
  (* ...)
  (/ a b)
- (% a b)
+ (mod a b)
 
  Standard operators.
 

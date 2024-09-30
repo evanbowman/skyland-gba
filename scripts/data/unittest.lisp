@@ -88,7 +88,7 @@
 (assert-v (int? -22))
 (assert-v (int? -0))
 
-(assert-eq 1 (% 10 3))
+(assert-eq 1 (mod 10 3))
 
 ;; FIXME: this test case breaks syntax highlighting in emacs.
 ;(assert-eq 0xffffffff (| 0xff00ff00 0x00ff00ff))

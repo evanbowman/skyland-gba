@@ -121,3 +121,9 @@
   (let ((varg (cdr $V)))
     (apply (eval-file (string "/scripts/util/" file))
            varg)))
+
+
+;; Hash function for an xy coordinate pair
+(defn/c hash (xy)
+  (let ((h (+ (* (first xy) 374761393) (* (second xy) 668265263))))
+    (abs (* (^ h (>> h 13)) 1274126177))))
