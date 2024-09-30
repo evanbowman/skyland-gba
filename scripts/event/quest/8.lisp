@@ -20,11 +20,11 @@
 
 (defn on-converge ()
   (dialog
-   "<c:king:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
+   "<c:king of Emsshaw Cay:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
 
    (dialog-await-binary-q-w/lore "okay..." "sorry, but no"
                                  '(("atomics?" .
-                                    "<c:king:27> During the surface wars, ancient civilizations fought each other with powerful atomic weapons. <B:0> The fighting left the world scarred and irradiated, and those who remained down below were mutated into vicious goblins. <B:0> When our ancestors moved up here, they stashed their arsenal in a hidden place for safe keeping. <B:0> Can you go retrieve them?")))
+                                    "<c:king of Emsshaw Cay:27> During the surface wars, ancient civilizations fought each other with powerful atomic weapons. <B:0> When our ancestors moved up here, they stashed their arsenal in a hidden place for safe keeping. <B:0> Can you go retrieve them?")))
 
    (defn on-dialog-accepted ()
      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -34,9 +34,9 @@
              ;(adventure-log-add 17 '())
              (push 'qids 8)
              (push 'quests (cons "atomics.lisp" m))
-             (dialog "<c:king:27> Great! I've marked the location on your sky chart with an *! <B:0> My son will go along to oversee things...")
+             (dialog "<c:king of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
              (defn on-dialog-closed ()
-               (dialog "The king's son joined your crew!")
+               (dialog "<c:warrior princess of E. Cay:28> I'm going too! Better than sitting around here doing nothing... <B:0> Don't worry, I can pull my own weight!")
                (let ((vec (chr-slots (player)))
                      (slot nil))
                  (when (not vec)
@@ -45,10 +45,13 @@
                      (room-new (player) `(ladder ,(caar s) ,(cdr (car s))))
                      (setq vec (chr-slots (player)))))
                  (setq slot (car vec))
-                 (chr-new (player) (car slot) (cdr slot) 'neutral nil))
-               (setq on-dialog-closed exit)))
+                 (chr-new (player) (car slot) (cdr slot) 'neutral '((icon . 28))))
+               (setq on-dialog-closed
+                     (lambda ()
+                       (dialog "The princess joined your crew!")
+                       (setq on-dialog-closed exit)))))
            (progn
-             (dialog "<c:king:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
+             (dialog "<c:king of Emsshaw Cay:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
 
 
    (setq on-dialog-declined exit))

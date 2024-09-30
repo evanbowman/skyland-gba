@@ -1,5 +1,5 @@
 
-(dialog "You arrive at the coordinates of the hidden stash of atomics!")
+(dialog "You arrive at the coordinates of the hidden stash of atomics...")
 
 
 (opponent-init 9 'neutral)
@@ -10,14 +10,14 @@
 
 
 (defn on-converge ()
-  (dialog "Just as you arrive, you receive an emergency transmission...")
+  (dialog "You arrive, but the princess looks troubled...")
 
   (defn on-dialog-closed ()
-    (dialog "<c:king:27> There's been a change in plans. We're being overrun by goblins! Do not bring the weapon back here! <B:0> My son has been sending me reports, and believes that you really are trustworthy. <B:0> Here are the missile activation codes:")
+    (dialog "<c:warrior princess of E. Cay:28> Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:")
     (defn on-dialog-closed ()
       (dialog "[You write down the launch codes...]")
       (defn on-dialog-closed ()
-        (dialog "<c:king:27> Now, be very careful with this:")
+        (dialog "<c:warrior princess of E. Cay:28> Now, be very careful when moving them...")
         (defn on-dialog-closed ()
           (foreach (lambda (r)
                      (when (equal (car r) 'cloak)
@@ -37,5 +37,5 @@
                        (sound "build0")
                        (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
                        (defn on-dialog-closed ()
-                         (dialog "<c:king:27> I've got to focus on the situation here; the thing inside this storm is truely horrible! Best of luck to you!")
+                         (dialog "<c:warrior princess of E. Cay:28> Those goblins will be sorry they crossed us!")
                          (setq on-dialog-closed exit)))))))))
