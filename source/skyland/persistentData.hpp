@@ -116,7 +116,6 @@ struct PersistentData
         dev_mode_active = (1 << 1),
         opponent_crew_died = (1 << 2),
         permadeath_on = (1 << 3),
-        entering_level = (1 << 4),
     };
 
     void set_flag(StateFlag flag)
@@ -127,11 +126,6 @@ struct PersistentData
     void clear_flag(StateFlag flag)
     {
         state_flags_.set(state_flags_.get() & ~flag);
-    }
-
-    s32 check_flag(StateFlag flag)
-    {
-        return state_flags_.get() & flag;
     }
 };
 

@@ -228,6 +228,7 @@ void update_weather_onload()
 ScenePtr LoadLevelScene::update(Time delta)
 {
     const auto loc = APP.current_world_location();
+    info(format("%", loc));
     auto& node = APP.world_graph().nodes_[loc];
 
     for (auto& room : APP.player_island().rooms()) {

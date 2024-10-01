@@ -58,8 +58,6 @@ public:
 
     bool loaded_ = false;
     int continue_opt_sel_ = 0;
-
-    rng::LinearGenerator cached_rng_;
 };
 
 
