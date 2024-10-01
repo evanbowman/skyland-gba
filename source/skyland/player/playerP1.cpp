@@ -438,9 +438,9 @@ void PlayerP1::AIState::update(Time delta)
         return;
     }
 
-    if (APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
-        update_weapon_targets(APP.delta_fp().as_integer());
-    }
+    // if (APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
+    //     update_weapon_targets(APP.delta_fp().as_integer());
+    // }
 
     next_action_timer_ -= delta;
     if (next_action_timer_ <= 0) {
