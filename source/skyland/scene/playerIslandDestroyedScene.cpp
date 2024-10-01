@@ -419,6 +419,16 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
         }
 
+        if (APP.game_mode() == App::GameMode::adventure) {
+            if (APP.persistent_data().check_flag(
+                    PersistentData::permadeath_on)) {
+                if (not opponent_defeated) {
+                    // If you die in permadeath mode, you lose your save.
+                    save::erase();
+                }
+            }
+        }
+
         PLATFORM.speaker().play_sound("explosion1", 3);
 
         big_explosion(origin, 0);
@@ -774,6 +784,10 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 draw_image(259, x_start, 1, 22, 8, Layer::overlay);
             }
             stat_timer_ = milliseconds(145);
+
+            if (not saved_already_) {
+                try_autosave();
+            }
         }
 
         constexpr auto fade_duration = milliseconds(2800);
@@ -824,6 +838,12 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         achievements::raise(achievements::Achievement::hero);
 
                         lisp::dostring("(adventure-log-add 6 '())");
+
+                        if (APP.persistent_data().check_flag(
+                                PersistentData::permadeath_on)) {
+                            // Erase the player's save file when winning the game in permadeath mode.
+                            save::erase();
+                        }
 
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
@@ -1050,6 +1070,8 @@ void PlayerIslandDestroyedScene::handle_zone_exit()
                 }
             }
         }
+
+        try_autosave();
     }
 }
 
@@ -1107,7 +1129,7 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
 
             auto add_score = 300000;
 
-            if (not(APP.persistent_data().state_flags_.get() &
+            if (not APP.persistent_data().check_flag(
                     PersistentData::permadeath_on)) {
                 add_score /= 2;
             }
@@ -1163,6 +1185,24 @@ void PlayerIslandDestroyedScene::exit(Scene& next)
     }
 
     PLATFORM.screen().set_shader(APP.environment().shader());
+}
+
+
+
+void PlayerIslandDestroyedScene::try_autosave()
+{
+    const bool opponent_defeated =
+        island_ not_eq &APP.player_island() and not forced_defeat_;
+
+    if (APP.game_mode() == App::GameMode::adventure) {
+        if (APP.persistent_data().check_flag(PersistentData::permadeath_on)) {
+            if (opponent_defeated) {
+                save::store(APP.persistent_data());
+            }
+        }
+    }
+
+    saved_already_ = true;
 }
 
 

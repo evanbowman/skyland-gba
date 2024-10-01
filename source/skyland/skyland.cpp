@@ -168,9 +168,6 @@ App::App(bool clean_boot)
     // On unrecoverrable errors: try to store a backup, and flush the system log
     // to sram.
     PLATFORM.on_unrecoverrable_error([this]() {
-        if (backup_->valid_) {
-            backup_->store();
-        }
         if (is_developer_mode()) {
             PLATFORM.logger().flush();
         }

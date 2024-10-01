@@ -692,7 +692,7 @@ ScenePtr WorldMapScene::update(Time delta)
         if (timer_ > milliseconds(60)) {
             timer_ = 0;
 
-            if (not(APP.persistent_data().state_flags_.get() &
+            if (not APP.persistent_data().check_flag(
                     PersistentData::permadeath_on)) {
                 state_ = State::save_options;
                 auto opt1 = SYSTR(wg_save_and_continue);
@@ -1077,6 +1077,15 @@ ScenePtr WorldMapScene::update(Time delta)
         constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
             PLATFORM.speaker().clear_sounds();
+
+            if (APP.persistent_data().check_flag(
+                    PersistentData::permadeath_on)) {
+                APP.persistent_data().set_flag(PersistentData::entering_level);
+                save::store(APP.persistent_data());
+                APP.persistent_data().clear_flag(
+                    PersistentData::entering_level);
+            }
+
             return make_scene<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

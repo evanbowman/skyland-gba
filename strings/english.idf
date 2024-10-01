@@ -473,7 +473,7 @@ autofire
 Autofire enabled! (You can still pick targets manually, though)
 Fire weapons automatically? Currently turned off.
 permadeath
-Turned on. Saves can currently only be loaded once!
+Turned on. Saves will be erased when you die. The game will also autosave.
 Turned off. Saves can now be loaded repeatedly! SCORE REDUCED BY 50%.
 Exit tutorial?
 Builder

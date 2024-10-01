@@ -1,6 +1,6 @@
 (gc)
 
-(strict true)
+(strict-mode true)
 
 (global 'put 'newline 'temp)
 

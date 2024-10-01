@@ -35,6 +35,7 @@
 #include "newgameScene.hpp"
 #include "adventureLogScene.hpp"
 #include "globals.hpp"
+#include "loadLevelScene.hpp"
 #include "menuPromptScene.hpp"
 #include "readyScene.hpp"
 #include "script/lisp.hpp"
@@ -79,11 +80,9 @@ void NewgameScene::enter(Scene& prev)
         break;
     }
 
+    cached_rng_ = rng::critical_state;
+
     if (save::load(APP.persistent_data())) {
-        if (APP.persistent_data().state_flags_.get() &
-            PersistentData::permadeath_on) {
-            save::erase();
-        }
 
         loaded_ = true;
 
@@ -91,9 +90,7 @@ void NewgameScene::enter(Scene& prev)
         reset_state();
     }
 
-    if (not(APP.persistent_data().state_flags_.get() &
-            PersistentData::permadeath_on) and
-        loaded_) {
+    if (loaded_) {
 
         PLATFORM.screen().schedule_fade(0, ColorConstant::rich_black);
         PLATFORM.screen().schedule_fade(1.f, ColorConstant::rich_black);
@@ -107,9 +104,7 @@ void NewgameScene::enter(Scene& prev)
 
 ScenePtr NewgameScene::update(Time delta)
 {
-    if (not(APP.persistent_data().state_flags_.get() &
-            PersistentData::permadeath_on) and
-        loaded_) {
+    if (loaded_) {
 
         if (continue_opt_sel_ == 0) {
             PLATFORM.set_tile(Layer::overlay, 1, 2, 475);
@@ -150,48 +145,30 @@ ScenePtr NewgameScene::update(Time delta)
     APP.player_island().set_position(
         {Fixnum::from_integer(10), Fixnum::from_integer(374)});
 
-    const auto sv_flag = GlobalPersistentData::save_prompt_dont_remind_me;
-
-    const bool skip_save_prompt =
-        APP.gp_.stateflags_.get(sv_flag) or
-        (not(APP.persistent_data().state_flags_.get() &
-             PersistentData::permadeath_on));
-
-    auto dont_remind = []() {
-        APP.gp_.stateflags_.set(sv_flag, true);
-        save::store_global_data(APP.gp_);
-    };
-
     DeferredScene next([] {
         auto ret = make_scene<AdventureLogScene>();
-        ret->set_next_scene([] { return make_scene<ZoneImageScene>(); });
+        ret->set_next_scene([]() -> ScenePtr {
+            if (APP.persistent_data().state_flags_.get() &
+                PersistentData::entering_level) {
+                APP.persistent_data().clear_flag(
+                    PersistentData::entering_level);
+                return make_scene<LoadLevelScene>();
+            } else {
+                return make_scene<ZoneImageScene>();
+            }
+        });
         return ret;
     });
 
-
-    if (loaded_ and not skip_save_prompt) {
-
-        auto ret = make_scene<MenuPromptScene>(
-            SystemString::save_prompt,
-            SystemString::ok,
-            SystemString::do_not_show_again,
-            next,
-            []() {},
-            dont_remind);
-
-        ret->play_alert_sfx_ = false;
-        ret->skip_unfade_ = true;
-        return ret;
-
-    } else {
-        return next();
-    }
+    return next();
 }
 
 
 
 void NewgameScene::reset_state()
 {
+    rng::critical_state = cached_rng_;
+
     APP.set_coins(0);
 
     BasicCharacter::__reset_ids();

@@ -126,6 +126,12 @@ ScenePtr FadeOutScene::update(Time delta)
             return make_scene<SelectTutorialScene>();
 
         case App::GameMode::adventure:
+            if (APP.game_mode() == App::GameMode::adventure) {
+                if (APP.persistent_data().check_flag(
+                        PersistentData::permadeath_on)) {
+                    save::store(APP.persistent_data());
+                }
+            }
             return make_scene<ZoneImageScene>();
 
         case App::GameMode::challenge:

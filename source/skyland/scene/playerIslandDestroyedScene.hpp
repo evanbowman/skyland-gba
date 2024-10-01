@@ -116,6 +116,7 @@ private:
     Island* island_;
 
     bool circ_effect_ = false;
+    bool saved_already_ = false;
 
     Buffer<Text, 5> lines_;
 
@@ -130,6 +131,8 @@ private:
     AnimState anim_state_ = AnimState::init;
 
     void handle_zone_exit();
+
+    void try_autosave();
 
     enum class ConfettiState {
         dormant,
