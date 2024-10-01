@@ -748,7 +748,7 @@ o----------------------------o
 
 o----------------------------o
 
- (strict enabled)
+ (strict-mode enabled)
 
  In strict mode, the
  interpreter will raise an

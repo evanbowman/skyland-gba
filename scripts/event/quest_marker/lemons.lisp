@@ -49,7 +49,7 @@
                (string c)
                "@ for your trouble!")
 
-              (adventure-log-add 23 (list c (rcnt (player) 'lemon-tree)))
+              (adventure-log-add 23 (list c (room-count (player) 'lemon-tree)))
 
               (coins-add c)
 

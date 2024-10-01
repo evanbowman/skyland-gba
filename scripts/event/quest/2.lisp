@@ -63,7 +63,7 @@
 
               (push 'qvar (cons 2 reward)))
 
-            (adventure-log-add 18 (list (rcnt (player) 'lemon-tree)))
+            (adventure-log-add 18 (list (room-count (player) 'lemon-tree)))
 
             (dialog "<c:Farmer Meyer:9>Please take good care of them! I marked my brother's address on your sky chart with an *!")
             (defn on-dialog-closed ()

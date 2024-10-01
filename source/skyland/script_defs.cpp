@@ -504,7 +504,36 @@ BINDING_TABLE({
 
           return result.result();
       }}},
-    {"rcnt",
+    {"room-hp-set",
+     {4,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, integer);
+          L_EXPECT_OP(3, user_data);
+
+          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+
+          auto coord = RoomCoord{
+              (u8)lisp::get_op(2)->integer().value_,
+              (u8)lisp::get_op(1)->integer().value_,
+          };
+
+          if (auto room = island->get_room(coord)) {
+              auto hp = room->health();
+              auto newhp = lisp::get_op(0)->integer().value_;
+
+              auto diff = newhp - hp;
+              if (diff < 0) {
+                  room->apply_damage(abs(diff));
+              } else {
+                  room->heal(diff);
+              }
+          }
+
+          return L_NIL;
+      }}},
+    {"room-count",
      {2,
       [](int argc) {
           L_EXPECT_OP(0, symbol);
@@ -1827,6 +1856,8 @@ BINDING_TABLE({
 
           return L_INT(prev);
       }}},
+    {"is-developer-mode",
+     {0, [](int argc) { return lisp::make_boolean(APP.is_developer_mode()); }}},
     {"challenge-complete",
      {1,
       [](int argc) {
@@ -1932,10 +1963,6 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     ni.get_symbols_ = binding_name_getter;
 
     lisp::register_native_interface(ni);
-
-    if (is_developer_mode()) {
-        lisp::dostring("(strict true)");
-    }
 
     // NOTE: we need to disable custom scripts during startup, otherwise,
     // someone could irreversibly mess up a game.

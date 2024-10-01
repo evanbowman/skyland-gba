@@ -28,15 +28,15 @@
 
 (let ((skip nil))
   (defn on-victory ()
-    (let ((cnt (+ (rcnt (opponent) 'power-core)
-                  (rcnt (opponent) 'reactor))))
+    (let ((cnt (+ (room-count (opponent) 'power-core)
+                  (room-count (opponent) 'reactor))))
       (if (> (length (rooms (opponent))) cnt)
           (progn
             (let ((rem nil)
                   (hint '(")")))
               (map (lambda (room)
                      (if (not (assoc (car room) rem))
-                         (setq rem (cons (cons (car room) (rcnt (opponent) (car room))) rem))))
+                         (setq rem (cons (cons (car room) (room-count (opponent) (car room))) rem))))
                    (rooms (opponent)))
               (map (lambda (kvp)
                      (setq hint

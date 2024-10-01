@@ -3221,7 +3221,7 @@ BUILTIN_TABLE(
            }
            return get_op0();
        }}},
-     {"strict",
+     {"strict-mode",
       {1,
        [](int argc) {
            L_EXPECT_OP(0, integer);

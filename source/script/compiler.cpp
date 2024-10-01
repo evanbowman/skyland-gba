@@ -35,6 +35,9 @@
 #include "bytecode.hpp"
 #include "lisp.hpp"
 #include "number/endian.hpp"
+#ifndef __GBA__
+#include <iostream>
+#endif
 
 
 namespace lisp
@@ -544,13 +547,35 @@ int compile_impl(CompilerContext& ctx,
 
             auto lambda = append<instruction::PushLambda>(buffer, write_pos);
 
-            // TODO: compile multiple nested expressions! FIXME... pretty broken.
-            write_pos = compile_impl(ctx,
-                                     buffer,
-                                     write_pos,
-                                     lat->cons().car(),
-                                     jump_offset + write_pos,
-                                     false);
+            bool first = true;
+
+            if (length(lat) == 0) {
+                append<instruction::PushNil>(buffer, write_pos);
+            }
+
+            while (lat not_eq get_nil()) {
+                if (lat->type() not_eq Value::Type::cons) {
+                    // error...
+                    break;
+                }
+
+                if (not first) {
+                    append<instruction::Pop>(buffer, write_pos);
+                } else {
+                    first = false;
+                }
+
+                bool tail_expr = lat->cons().cdr() == get_nil();
+
+                write_pos = compile_impl(ctx,
+                                         buffer,
+                                         write_pos,
+                                         lat->cons().car(),
+                                         jump_offset + write_pos,
+                                         tail_expr);
+
+                lat = lat->cons().cdr();
+            }
 
             append<instruction::Ret>(buffer, write_pos);
 

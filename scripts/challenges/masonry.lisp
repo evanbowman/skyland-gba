@@ -29,7 +29,7 @@
                           (exit 3))))
               ;; NOTE: equal 1 because the room is in the process of being
               ;; destroyed, it still exists on the island.
-              (if (equal 1 (rcnt (opponent) 'masonry))
+              (if (equal 1 (room-count (opponent) 'masonry))
                   (progn
                     (dialog "<c:goblin king:3>Wowowow! Beautiful! Ssspectacular!")
                     (challenge-complete 3)

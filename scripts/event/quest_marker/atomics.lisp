@@ -34,6 +34,7 @@
                                     (room-del (opponent) (get r 1) (get r 2))))
                                 (rooms (opponent)))
                        (room-new (player) (list 'warhead x y))
+                       (adventure-log-add 64 '())
                        (sound "build0")
                        (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
                        (defn on-dialog-closed ()

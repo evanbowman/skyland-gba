@@ -2,6 +2,10 @@
 ;;; init.lisp
 ;;;
 
+(when (is-developer-mode)
+  (strict-mode true))
+
+
 ;; Define some common global
 ;; variables.
 
@@ -93,10 +97,8 @@
                  (dialog-opts-push (first kvp)
                                    (let ((str (second kvp)))
                                      (lambda ()
-                                       (progn ;; Why is this progn needed? There seems
-                                         ;; to be a bug in the interpreter...
-                                         (t ty tn (remove lr k))
-                                         (dialog str)))))))
+                                       (t ty tn (remove lr k))
+                                       (dialog str))))))
              lore))
 
   (dialog-opts-push txtn (lambda () (if on-dialog-declined (on-dialog-declined)))))

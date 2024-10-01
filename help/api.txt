@@ -243,7 +243,7 @@ o----------------------------o
 
 o----------------------------o
 
- (rcnt island name-sym)
+ (room-count island name-sym)
 
  Return the number of room
  instances matching name-sym
@@ -316,6 +316,13 @@ o----------------------------o
 
  Accessor for metadata
  describing a type of room.
+
+
+o----------------------------o
+
+ (room-set-hp isle x y new-hp)
+
+ Set a room's health.
 
 
 o----------------------------o
@@ -695,6 +702,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (is-developer-mode)
+
+ Returns true if the game is
+ set to developer mode.
+
+
+o----------------------------o
+
  (key-bind str symbol)
 
  While the game does not
@@ -854,12 +869,12 @@ o----------------------------o
  For example:
 
 (sel-input 'hull "pick a coord:"
- (lambda
+ (lambda (isle x y)
   (log (string
         "user entered "
-        $0
-        $1
-        $2))))
+        isle
+        x
+        y))))
 
 
 o----------------------------o
@@ -985,4 +1000,3 @@ o----------------------------o
 
 
 o----------------------------o
-

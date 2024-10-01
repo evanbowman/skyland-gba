@@ -31,7 +31,7 @@
        (setq on-dialog-closed exit)
        (if m
            (progn
-             ;(adventure-log-add 17 '())
+             (adventure-log-add 63 '())
              (push 'qids 8)
              (push 'quests (cons "atomics.lisp" m))
              (dialog "<c:king of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
