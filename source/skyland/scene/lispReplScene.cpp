@@ -530,10 +530,8 @@ TOP:
                     --scroll_counter_;
                     repaint_entry();
                 }
-            } else if (test_key(Key::up) or
-                       test_key(Key::down) or
-                       test_key(Key::start) or
-                       test_key(Key::action_1) or
+            } else if (test_key(Key::up) or test_key(Key::down) or
+                       test_key(Key::start) or test_key(Key::action_1) or
                        test_key(Key::action_2)) {
                 display_mode_ = DisplayMode::entry;
                 command_->clear();
