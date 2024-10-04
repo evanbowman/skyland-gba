@@ -74,7 +74,9 @@ void TargetingComputer::update(Time delta)
         // enabled, indefinitely, until the computer is destroyed or turned back
         // on.
         Room::ready();
-        APP.player().delay_autofire(seconds(1));
+        if (APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
+            APP.player().delay_autofire(seconds(1));
+        }
         return;
     }
 
@@ -92,9 +94,7 @@ void TargetingComputer::update(Time delta)
         return;
     }
 
-    if (not APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on)) {
-        APP.player().update_weapon_targets(delta);
-    }
+    APP.player().update_weapon_targets(delta);
 }
 
 
