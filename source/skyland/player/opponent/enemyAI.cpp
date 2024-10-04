@@ -293,6 +293,11 @@ void EnemyAI::update_room(Room& room,
     // pathfinding for all of those entities. Of course, the game _can_
     // handle that many entities, but doing so would result in periodic long
     // pauses.
+    //
+    // -> P.S. This comment is not accurate at all, but still, there are no
+    // rooms that have the capacity to hold 8 characters. The game used to run
+    // all character movement logic at once, and it did periodically pause, but
+    // the crew movement is more spaced out now.
     Buffer<std::pair<BasicCharacter*, Room*>, 8> boarded_ai_characters;
     for (auto& room : (*target_island).rooms()) {
         for (auto& character : room->characters()) {
@@ -316,6 +321,8 @@ void EnemyAI::update_room(Room& room,
         set_target(matrix, *flak_gun, owner, ai_island, target_island);
     } else if (auto ion_cannon = room.cast<IonCannon>()) {
         set_target(matrix, *ion_cannon, owner, ai_island, target_island);
+    } else if (auto arc_gun = room.cast<ArcGun>()) {
+        set_target(matrix, *arc_gun, owner, ai_island, target_island);
     } else if (auto spark_cannon = room.cast<SparkCannon>()) {
         if (spark_cannon->level() == 2) {
             spark_cannon->select({});
@@ -655,6 +662,13 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                 slot.ai_weight_ +=
                     (base_weight - base_weight * ATP(float(room->health()) /
                                                      (room->max_health())));
+            } else {
+                // FIXME: this causes crewmembers to cycle back and forth
+                // between rooms.
+
+                // if (length(room->characters()) > 3) {
+                //     slot.ai_weight_ -= 100.0_atp;
+                // }
             }
 
             if (room->is_powered_down()) {
@@ -2139,6 +2153,126 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     if (highest_weighted_room) {
         auto target = highest_weighted_room;
         assign_weapon_target(fire_charge, target->position(), ai_island);
+    }
+}
+
+
+
+void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+                         ArcGun& arc_gun,
+                         Player* owner,
+                         Island* ai_island,
+                         Island* target_island)
+{
+    Buffer<Room*, 32> visible_rooms;
+    Buffer<Room*, 32> second_tier;
+
+    for (u8 y = 0; y < 16; ++y) {
+        if (ai_island == APP.opponent_island()) {
+            for (int x = target_island->terrain().size(); x > -1; --x) {
+                if (matrix.get(x, y)) {
+                    if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
+                        visible_rooms.push_back(room);
+
+                        if (x > 0 and matrix.get(x - 1, y)) {
+                            if (auto st_room =
+                                    (*target_island).get_room({u8(x - 1), y})) {
+                                second_tier.push_back(st_room);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        } else {
+            for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
+                if (matrix.get(x, y)) {
+                    if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
+                        visible_rooms.push_back(room);
+
+                        if (x < 15 and matrix.get(x + 1, y)) {
+                            if (auto st_room =
+                                    (*target_island).get_room({u8(x + 1), y})) {
+                                second_tier.push_back(st_room);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    Room* highest_weighted_room = nullptr;
+    ATP highest_weight = 0.00003_atp;
+
+    for (auto room : visible_rooms) {
+        auto w = room->get_atp();
+
+        auto mti = room->metaclass_index();
+        auto p = room->position();
+
+        if (p.x > 0) {
+            if (auto left = target_island->get_room({(u8)(p.x - 1), p.y})) {
+                // NOTE: check left not_eq room because many blocks span
+                // multiple coordinates.
+                if (left not_eq room and left->metaclass_index() == mti) {
+                    w += 200.0_atp;
+                }
+            }
+        }
+
+        if (p.x < 15) {
+            if (auto right = target_island->get_room({(u8)(p.x + 1), p.y})) {
+                if (right not_eq room and right->metaclass_index() == mti) {
+                    w += 200.0_atp;
+                }
+            }
+        }
+
+        if (p.y > 0) {
+            if (auto up = target_island->get_room({p.x, (u8)(p.y - 1)})) {
+                if (up not_eq room and up->metaclass_index() == mti) {
+                    w += 200.0_atp;
+                }
+            }
+        }
+
+        if (p.y < 15) {
+            if (auto down = target_island->get_room({p.x, (u8)(p.y + 1)})) {
+                if (down not_eq room and down->metaclass_index() == mti) {
+                    w += 200.0_atp;
+                }
+            }
+        }
+
+        if (w > highest_weight) {
+            highest_weighted_room = room;
+            highest_weight = w;
+        }
+    }
+
+    // Potentially attack the second highest weighted visible room, just to keep
+    // things interesting.
+    if (APP.game_mode() not_eq App::GameMode::tutorial and
+        visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
+        highest_weighted_room = visible_rooms[1];
+    }
+
+    if (highest_weighted_room) {
+        auto target = highest_weighted_room;
+
+        assign_weapon_target(arc_gun, target->position(), ai_island);
     }
 }
 

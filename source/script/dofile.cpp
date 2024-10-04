@@ -236,7 +236,7 @@ int main(int argc, char** argv)
 {
     Platform pfrm;
 
-    lisp::init();
+    lisp::init({});
 
     lisp::BasicCharSequence ut_seq(utilities);
     lisp::dostring(ut_seq, [](lisp::Value& err) {});

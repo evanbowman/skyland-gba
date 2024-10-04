@@ -7,6 +7,51 @@ project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0
 bytes_encoded = 0
 
 
+lisp_symbol_tab = {}
+
+
+# This is just an optimization allowing us to minimize the size of the lisp string
+# intern table. Otherwise, the interpreter we would need to store variable names
+# permanently in memory.
+def build_lisp_symtab(codestring):
+    newstr = ""
+    inquotes = False
+    incomment = False
+    for c in codestring:
+        if incomment:
+            if c == '\n':
+                incomment = False
+                newstr = newstr + c
+        elif inquotes:
+            if c == '"':
+                inquotes = False
+        else:
+            if c == ';':
+                incomment = True
+            elif c == '"':
+                inquotes = True
+            else:
+                newstr = newstr + c
+
+    newstr = newstr.replace('(', ' ')
+    newstr = newstr.replace(')', ' ')
+    newstr = newstr.replace("'", ' ')
+    newstr = newstr.replace(',', ' ')
+    newstr = newstr.replace('@', ' ')
+    newstr = newstr.replace("\n", ' ')
+    parsed = newstr.split(' ')
+    for string in parsed:
+        if ';' in string:
+            break
+        if not string.lstrip('-').isnumeric() and not '"' in string and string and not string.startswith("0x"):
+            if len(string) > 4: # The interpreter does a small string optimization already
+                if string in lisp_symbol_tab:
+                    lisp_symbol_tab[string] = lisp_symbol_tab[string] + 1
+                else:
+                    lisp_symbol_tab[string] = 1
+
+
+
 def minify_lisp(codestring):
     # originally I was actually minifying the sources.
     # But spaces to tabs alone saves a lot of space... without the
@@ -104,7 +149,9 @@ def encode_file(path, real_name, out):
         file_contents = data
 
         if extension(path) == 'lisp':
-            file_contents = minify_lisp(data.decode('utf-8')).encode('utf-8')
+            src_contents = data.decode('utf-8')
+            build_lisp_symtab(src_contents)
+            file_contents = minify_lisp(src_contents).encode('utf-8')
 
         null_padding = 1
 
@@ -171,13 +218,28 @@ with open('fs.bin', 'wb') as filesystem:
         if extension(info[0]) == "idf":
             make_index_file(info[1])
 
-    fs_count = len(files_list)
+    fs_count = len(files_list) + 1 # +1 for symtab file
     print("encoding %d files..." % fs_count)
 
     filesystem.write(fs_count.to_bytes(4, 'little'))
 
     for info in files_list:
         encode_file(info[1], info[0], filesystem)
+
+    symtab_fname = "lisp_symtab.dat"
+    symtab_path = os.path.join(project_root_path, symtab_fname)
+    with open(symtab_path, 'wb') as sym_file:
+        for sym, v in reversed(sorted(lisp_symbol_tab.items(), key=lambda item: item[1])):
+            enc_sym = sym.encode('utf-8')
+            if len(enc_sym) > 30:
+                raise Error("symbol " + sym + " too long!")
+            sym_file.write(sym.encode('utf-8'))
+            for i in range(len(enc_sym), 31):
+                sym_file.write('\0'.encode('utf-8'))
+            sym_file.write('\n'.encode('utf-8')) # This is just to make the file easier to read in an editor. Yes, it wastes space.
+
+    encode_file(symtab_path, "/" + symtab_fname, filesystem)
+
 
     print("encoded {} bytes".format(bytes_encoded))
 

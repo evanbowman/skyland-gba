@@ -49,6 +49,7 @@ namespace skyland
 
 class Drone;
 class Cannon;
+class ArcGun;
 class BeamGun;
 class FlakGun;
 class DroneBay;
@@ -111,6 +112,12 @@ private:
 
     static void set_target(const Bitmatrix<16, 16>& matrix,
                            Room& generic_gun,
+                           Player* owner,
+                           Island* ai_island,
+                           Island* target_island);
+
+    static void set_target(const Bitmatrix<16, 16>& matrix,
+                           ArcGun& generic_gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);

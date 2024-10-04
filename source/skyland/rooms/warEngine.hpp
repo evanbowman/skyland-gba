@@ -78,7 +78,7 @@ public:
 
     static ATP atp_value()
     {
-        return 1300.0_atp;
+        return 1210.0_atp;
     }
 
 

@@ -72,7 +72,7 @@ namespace lisp
 
 // Call this function to initialize the interpreter, must be done at startup,
 // prior to calling any of the library routines below.
-void init();
+void init(Optional<std::pair<const char*, u32>> external_symtab);
 
 
 struct Value;

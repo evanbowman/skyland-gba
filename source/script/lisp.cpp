@@ -58,7 +58,7 @@ namespace lisp
 static int run_gc();
 
 
-static const u32 string_intern_table_size = 2900;
+static const u32 string_intern_table_size = 2000;
 
 
 #if defined(__NDS__)
@@ -95,7 +95,10 @@ static HEAP_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
 
 
-static HEAP_DATA char symbol_intern_table[string_intern_table_size];
+struct StringInternTable
+{
+    char data_[string_intern_table_size];
+};
 
 
 const char* intern(const char* string);
@@ -166,6 +169,10 @@ struct Context
 
     DynamicMemory<OperandStack> operand_stack_;
 
+    // If the game was built with a correctly formatted symbol lookup table,
+    // then this in-memory table should never be needed...
+    Optional<DynamicMemory<StringInternTable>> string_intern_table_;
+
     Value* nil_ = nullptr;
     Value* oom_ = nullptr;
     Value* string_buffer_ = nullptr;
@@ -176,6 +183,9 @@ struct Context
     Value* macros_ = nullptr;
 
     Value* callstack_ = nullptr;
+
+    const char* external_symtab_contents_ = nullptr;
+    u32 external_symtab_size_;
 
     NativeInterface native_interface_;
 
@@ -257,6 +267,13 @@ void register_native_interface(NativeInterface ni)
         PLATFORM.fatal("only one NativeInterface may be registered at a time!");
     }
     bound_context->native_interface_ = ni;
+}
+
+
+void register_external_symtab(const char* data, u32 len)
+{
+    bound_context->external_symtab_contents_ = data;
+    bound_context->external_symtab_size_ = len;
 }
 
 
@@ -583,13 +600,15 @@ void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
-    const char* search = symbol_intern_table;
-    for (int i = 0; i < ctx->string_intern_pos_;) {
-        callback(search + i);
-        while (search[i] not_eq '\0') {
+    if (ctx->string_intern_table_) {
+        const char* search = (*ctx->string_intern_table_)->data_;
+        for (int i = 0; i < ctx->string_intern_pos_;) {
+            callback(search + i);
+            while (search[i] not_eq '\0') {
+                ++i;
+            }
             ++i;
         }
-        ++i;
     }
 }
 
@@ -2074,19 +2093,31 @@ private:
 } // namespace
 
 
+
 template <typename F> void foreach_string_intern(F&& fn)
 {
-    char* const interns = symbol_intern_table;
-    char* str = interns;
+    auto& ctx = bound_context;
 
-    while (static_cast<u32>(str - interns) < string_intern_table_size and
-           static_cast<s32>(str - interns) <
-               bound_context->string_intern_pos_ and
-           *str not_eq '\0') {
+    if (ctx->external_symtab_contents_) {
+        const char* search = ctx->external_symtab_contents_;
+        for (u32 i = 0; i < ctx->external_symtab_size_;) {
+            fn(search + i);
+            i += 32;
+        }
+    }
 
-        fn(str);
+    if (ctx->string_intern_table_) {
+        char* const interns = (*ctx->string_intern_table_)->data_;
+        char* str = interns;
 
-        str += strlen(str) + 1;
+        while (static_cast<u32>(str - interns) < string_intern_table_size and
+               static_cast<s32>(str - interns) < ctx->string_intern_pos_ and
+               *str not_eq '\0') {
+
+            fn(str);
+
+            str += strlen(str) + 1;
+        }
     }
 }
 
@@ -2248,8 +2279,10 @@ static u32 read_symbol(CharSequence& code, int offset)
                 ((u8*)&id)[i] = symbol[i];
             }
 
-            if (id >= symbol_intern_table and
-                id < symbol_intern_table + string_intern_table_size) {
+            if (bound_context->string_intern_table_ and
+                id >= bound_context->string_intern_table_.data_ and
+                id < bound_context->string_intern_table_.data_ +
+                         string_intern_table_size) {
                 // Do not perform small symbol optimization, because the name,
                 // when interpreted as a pointer, falls in the range of the
                 // symbol intern table.
@@ -3806,8 +3839,7 @@ BUILTIN_TABLE(
                }
                push_op(c); // gc protect
 
-               c->cons().set_car(
-                   make_symbol(name, Symbol::ModeBits::stable_pointer));
+               c->cons().set_car(make_string(name));
                c->cons().set_cdr(make_integer(value));
 
                pop_op(); // gc unprotect
@@ -4881,6 +4913,7 @@ void get_env(SymbolCallback callback)
 }
 
 
+
 const char* intern(const char* string)
 {
     const auto len = strlen(string);
@@ -4898,6 +4931,17 @@ const char* intern(const char* string)
         return ni_sym;
     }
 
+    if (ctx->external_symtab_contents_) {
+        const char* search = ctx->external_symtab_contents_;
+        for (u32 i = 0; i < ctx->external_symtab_size_;) {
+            if (str_eq(search + i, string)) {
+                return search + i;
+            } else {
+                i += 32;
+            }
+        }
+    }
+
     // Ok, no stable pointer to the string exists anywhere, so we'll have to
     // preserve the string contents in intern memory.
 
@@ -4907,7 +4951,13 @@ const char* intern(const char* string)
         PLATFORM.fatal("string intern table full");
     }
 
-    const char* search = symbol_intern_table;
+    if (not ctx->string_intern_table_) {
+        ctx->string_intern_table_ =
+            allocate_dynamic<StringInternTable>("string-intern-table");
+        info("allocating string intern table...");
+    }
+
+    const char* search = (*ctx->string_intern_table_)->data_;
     for (int i = 0; i < ctx->string_intern_pos_;) {
         if (str_eq(search + i, string)) {
             return search + i;
@@ -4919,12 +4969,13 @@ const char* intern(const char* string)
         }
     }
 
-    auto result = symbol_intern_table + ctx->string_intern_pos_;
+    auto result = (*ctx->string_intern_table_)->data_ + ctx->string_intern_pos_;
 
     for (u32 i = 0; i < len; ++i) {
-        (symbol_intern_table)[ctx->string_intern_pos_++] = string[i];
+        ((*ctx->string_intern_table_)->data_)[ctx->string_intern_pos_++] =
+            string[i];
     }
-    (symbol_intern_table)[ctx->string_intern_pos_++] = '\0';
+    ((*ctx->string_intern_table_)->data_)[ctx->string_intern_pos_++] = '\0';
 
     return result;
 }
@@ -5165,13 +5216,18 @@ void gc()
 }
 
 
-void init()
+void init(Optional<std::pair<const char*, u32>> external_symtab)
 {
     if (bound_context) {
         return;
     }
 
     bound_context.emplace();
+
+    if (external_symtab and external_symtab->second) {
+        bound_context->external_symtab_contents_ = external_symtab->first;
+        bound_context->external_symtab_size_ = external_symtab->second;
+    }
 
     value_pool_init();
     bound_context->nil_ = alloc_value();

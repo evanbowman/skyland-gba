@@ -1127,9 +1127,9 @@ void ProcgenEnemyAI::generate_hull()
                         if (max_identical >= 6 and not place_mhull) {
                             place_mhull = true;
                         }
-                        if (max_identical >= 5 and not place_mhull) {
+                        if (max_identical >= 6 and not place_mhull) {
                             place_mhull = rng::choice<2>(rng_source_) == 0;
-                        } else if (max_identical >= 4 and not place_mhull) {
+                        } else if (max_identical >= 5 and not place_mhull) {
                             place_mhull = rng::choice<2>(rng_source_) == 0;
                         } else if (max_identical > 3 and not place_mhull) {
                             place_mhull = rng::choice<4>(rng_source_) == 0;
