@@ -13,6 +13,7 @@
  'on-shop-enter
  'on-dialog-accepted
  'on-dialog-declined
+ 'on-level-exit
  'last-zone
  'enemies-seen
  'friendlies-seen
