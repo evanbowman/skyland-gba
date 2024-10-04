@@ -146,7 +146,20 @@ private:
 
 
 
-inline void core_explosion(Island* parent, const Vec2<Fixnum>& pos)
+struct CoreExplosionConfig
+{
+    bool clear_effects_ = true;
+    bool ripple_effect_ = true;
+    u8 screenshake_ = 28;
+    int arms_ = 4;
+    int rot_ = 0;
+};
+
+
+
+inline void core_explosion(Island* parent,
+                           const Vec2<Fixnum>& pos,
+                           const CoreExplosionConfig& conf = {})
 {
     if (parent->core_count() == 1) {
         // There's a special death sequence animation for the final destroyed
@@ -166,11 +179,15 @@ inline void core_explosion(Island* parent, const Vec2<Fixnum>& pos)
         pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
         // Don't create the explosion effect if way outside of the camera range.
     } else {
-        APP.effects().clear();
+        if (conf.clear_effects_) {
+            APP.effects().clear();
+        }
+
+        int pitch = 360 / conf.arms_;
 
         for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                const int angle = j * 90 + 45 + i * 3;
+            for (int j = 0; j < conf.arms_; ++j) {
+                const int angle = j * pitch + 45 + i * 3 + conf.rot_;
                 const u8 half_angle = angle / 2;
                 if (auto exp =
                         APP.alloc_entity<Explosion2>(pos, half_angle, (u8)i)) {
@@ -186,23 +203,24 @@ inline void core_explosion(Island* parent, const Vec2<Fixnum>& pos)
         }
     }
 
-
-    auto dt = PLATFORM.make_dynamic_texture();
-    if (dt) {
-        auto p = pos;
-        p.x -= 32.0_fixed;
-        p.y -= 32.0_fixed;
-        auto make_segment = [&](int q) {
-            return APP.effects().push(
-                APP.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
-        };
-        make_segment(3);
-        make_segment(2);
-        make_segment(1);
-        make_segment(0);
+    if (conf.ripple_effect_) {
+        auto dt = PLATFORM.make_dynamic_texture();
+        if (dt) {
+            auto p = pos;
+            p.x -= 32.0_fixed;
+            p.y -= 32.0_fixed;
+            auto make_segment = [&](int q) {
+                return APP.effects().push(
+                                          APP.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
+            };
+            make_segment(3);
+            make_segment(2);
+            make_segment(1);
+            make_segment(0);
+        }
     }
 
-    APP.camera()->shake(28);
+    APP.camera()->shake(conf.screenshake_);
 }
 
 

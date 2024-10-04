@@ -62,7 +62,13 @@ public:
     }
 
 
-    static void create(const Vec2<Fixnum>& pos);
+    static ExploSpawner* create(const Vec2<Fixnum>& pos);
+
+
+    void set_offset(Time delta)
+    {
+        timer2_ += delta;
+    }
 
 
 private:

@@ -98,6 +98,10 @@ void Workshop::finalize()
 
     if (health() <= 0) {
         ExploSpawner::create(center());
+
+        if (auto sp = ExploSpawner::create(center())) {
+            sp->set_offset(-milliseconds(100));
+        }
     }
 }
 

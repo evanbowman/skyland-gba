@@ -70,11 +70,14 @@ void ExploSpawner::update(Time delta)
 
 
 
-void ExploSpawner::create(const Vec2<Fixnum>& pos)
+ExploSpawner* ExploSpawner::create(const Vec2<Fixnum>& pos)
 {
     if (auto ent = APP.alloc_entity<ExploSpawner>(pos)) {
+        auto ret = ent.get();
         APP.effects().push(std::move(ent));
+        return ret;
     }
+    return nullptr;
 }
 
 
