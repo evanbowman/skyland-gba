@@ -1540,7 +1540,6 @@ BINDING_TABLE({
                                          lisp::get_op(0)->integer().value_);
 
           if (line) {
-              info(line->c_str());
               return lisp::make_string(line->c_str());
           }
 
@@ -1833,6 +1832,48 @@ BINDING_TABLE({
 
           Platform::fatal(error.c_str());
       }}},
+    {"mem-sbr-used",
+     {0, [](int argc) { return L_INT(scratch_buffers_in_use()); }}},
+    {"mem-sbr-free",
+     {0, [](int argc) { return L_INT(scratch_buffers_remaining()); }}},
+    {"mem-pools",
+     {0,
+      [](int argc) {
+          lisp::ListBuilder list;
+          auto p = GenericPool::instances();
+          while (p) {
+              list.push_back(lisp::make_string(p->name()));
+              p = p->next();
+          }
+          return list.result();
+      }}},
+    {"mem-pool-info",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          lisp::ListBuilder list;
+          auto p = GenericPool::instances();
+          int i = 0;
+          while (p) {
+              if (i == L_LOAD_INT(0)) {
+                  auto stat = [&](const char* l, int v) {
+                      list.push_back(
+                          lisp::make_cons_safe(lisp::make_string(l), L_INT(v)));
+                  };
+
+                  list.push_back(lisp::make_string(p->name()));
+                  stat("size", p->pooled_element_size());
+                  stat("count", p->pooled_element_count());
+                  stat("used",
+                       p->pooled_element_count() -
+                           p->pooled_element_remaining());
+                  return list.result();
+              }
+              p = p->next();
+              ++i;
+          }
+          return L_NIL;
+      }}},
     {"save-bit-load",
      {1,
       [](int argc) {
@@ -1952,7 +1993,7 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 {
     msg("lisp init...");
 
-    lisp::init();
+    lisp::init(PLATFORM.load_file("", "/lisp_symtab.dat"));
 
     msg("export api...");
 

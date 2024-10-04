@@ -779,6 +779,38 @@ o----------------------------o
 
 o----------------------------o
 
+ (mem-sbr-free)
+
+ Return the number of memory
+ buffers free.
+
+
+o----------------------------o
+
+ (mem-sbr-used)
+
+ Return the number of memory
+ buffers currently in use.
+
+
+o----------------------------o
+
+ (mem-pools)
+
+ Return a list of names of
+ memory pools managed by the
+ engine.
+
+
+o----------------------------o
+
+ (mem-pool-info pool-num)
+
+ Info about a memory pool.
+
+
+o----------------------------o
+
  (on-timeout
   milliseconds
   callback-sym)
