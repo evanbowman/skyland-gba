@@ -89,21 +89,6 @@
                                  (setq on-dialog-closed (curry exit 2)))
                                (rtry))))))))))))))
 
-
-    (let ((rtry (this)))
-      (dialog-opts-push "(help me decide!)"
-                        (lambda ()
-                            (dialog
-                             "<s:1>. . . . . <s:0> "
-                             "Your crew values the resources in the goblin ship at "
-                             (format "%@" (coins-victory))
-                             ". <B:0>Or you may end the fight and accept the terms of the "
-                             "goblins' surrender. <B:0>"
-                             "Goblins may offer you crewmembers, blocks, and/or resources (@) in their surrender options.")
-
-                          (setq on-dialog-closed rtry))))
-
-
-    (dialog-opts-push (format "unacceptable! +%@" (coins-victory)) (lambda ()))))
+    (dialog-opts-push (format "unacceptable! (+%@)" (coins-victory)) (lambda ()))))
 
 (gc)
