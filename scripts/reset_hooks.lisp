@@ -11,6 +11,8 @@
 (setq on-room-destroyed '())   ; A block was destroyed. [island, type, x, y]
 (setq on-crew-died '())        ; Crewmember died. Parameters: [chr-id]
 (setq on-shop-item-sel '())    ; Shop item selected
+(setq on-shop-enter '())       ; Shop entry dialog
+(setq on-level-exit '())       ; Hook invoked when leaving a level
 (dialog-opts-reset)
 
 ;; legacy callbacks, no longer invoked by the engine, but still used in various
