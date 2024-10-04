@@ -70,7 +70,7 @@
                         (cargo-set (player) (car c) (cdr c) "parcel")
                         (dialog "<c:merchant:7>Wonderful! I'll mark the address "
                                 "with an * on your sky chart!")
-                        ((eval-file "/scripts/util/pickup_cart.lisp") 5
+                        (run-util-script "pickup-cart" 5
                          "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."))
                     (progn
                       (dialog

@@ -33,7 +33,7 @@
                                          '((race . 1)))
                                 (adventure-log-add 51 '())
                                 (dialog "One of the goblins joined your crew!")
-                                (run-util-script "hostile_pickup_cart.lisp"
+                                (run-util-script "hostile-pickup-cart"
                                                  8
                                                  "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."))))
                         (exit 2)))

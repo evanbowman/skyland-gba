@@ -40,7 +40,7 @@
 (defn on-converge ()
   (let ((c (choice 5))
         (end (lambda ()
-               ((eval-file "/scripts/util/pickup_cart.lisp") 4
+               (run-util-script "pickup-cart" 4
          "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
     (cond
      ((equal c 0)

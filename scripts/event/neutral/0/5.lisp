@@ -52,7 +52,7 @@
       (lambda ()
         (let ((temp (chr-slots (player)))
               (end (lambda ()
-                     ((eval-file "/scripts/util/pickup_cart.lisp") 2
+                     (run-util-script "pickup-cart" 2
                       "<c:girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"))))
           (if temp
               (progn

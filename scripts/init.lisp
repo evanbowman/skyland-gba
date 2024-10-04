@@ -121,7 +121,7 @@
 
 (defn/c run-util-script (file)
   (let ((varg (cdr $V)))
-    (apply (eval-file (string "/scripts/util/" file))
+    (apply (eval-file (string "/scripts/util/" file ".lisp"))
            varg)))
 
 

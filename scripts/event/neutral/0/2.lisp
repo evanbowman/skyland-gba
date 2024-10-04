@@ -51,5 +51,5 @@
 
     (coins-add amt)
 
-    ((eval-file "/scripts/util/pickup_cart.lisp") 1
+    (run-util-script "pickup-cart" 1
      "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")))

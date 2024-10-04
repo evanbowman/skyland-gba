@@ -57,7 +57,7 @@
 
 (defn on-dialog-accepted ()
   (let ((end (lambda ()
-               ((eval-file "/scripts/util/pickup_cart.lisp") 6
+               (run-util-script "pickup-cart" 6
                 "One of your crewmembers finds a data cartridge tangled in the fungal roots..."))))
     (if (choice 3)
         (progn

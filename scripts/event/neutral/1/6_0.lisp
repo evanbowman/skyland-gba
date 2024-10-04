@@ -136,5 +136,5 @@
                     (impl
                      (lambda ()
                       (dialog "<c:mayor:10>Thanks so much for the help!")
-                      ((eval-file "/scripts/util/pickup_cart.lisp") 3
+                      (run-util-script "pickup-cart" 3
                        "<c:mayor:10>Oh, I almost forgot! I took a picture while we were installing the new core! I saved the photo on a cartridge for you!"))))))))))))

@@ -40,6 +40,6 @@
                  (room-del (opponent) 0 13)
                (sound "build0")
                (dialog "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")
-               (run-util-script "pickup_cart.lisp"
+               (run-util-script "pickup-cart"
                                 7
                                 "Oh! You notice something else..."))))
