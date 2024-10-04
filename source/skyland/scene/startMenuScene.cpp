@@ -443,7 +443,6 @@ AGAIN:
             add_offset_ = 0;
 
             add_option(
-
                 SYSTR(start_menu_repl)->c_str(),
                 []() { return make_scene<LispReplScene>(); },
                 cut);
@@ -457,7 +456,6 @@ AGAIN:
                        fade_sweep);
 
             add_option(
-
                 SYSTR(start_menu_spectate)->c_str(),
                 []() -> ScenePtr {
                     APP.swap_player<SandboxSpectatorPlayer>();
@@ -467,7 +465,6 @@ AGAIN:
                 cut);
 
             add_option(
-
                 SYSTR(start_menu_sandbox_help)->c_str(),
                 [] {
                     auto hint = lisp::get_var("sb-help");
@@ -680,6 +677,12 @@ AGAIN:
             break;
 
         case App::GameMode::adventure:
+            if (APP.is_developer_mode()) {
+                add_option(
+                    SYSTR(start_menu_repl)->c_str(),
+                    []() { return make_scene<LispReplScene>(); },
+                    cut);
+            }
             if (APP.opponent_island() == nullptr or
                 APP.world_graph().nodes_[APP.current_world_location()].type_ ==
                     WorldGraph::Node::Type::shop) {
