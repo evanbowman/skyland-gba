@@ -125,9 +125,13 @@ void LispReplScene::repaint_entry(bool show_cursor)
             return {{ColorConstant::med_blue_gray, ColorConstant::rich_black}};
         }
     }();
-    const int scroll =
-        std::max(0, (int)command_->length() - (screen_tiles.x - 1));
 
+    int scroll;
+    if (display_mode_ == DisplayMode::show_result) {
+        scroll = scroll_counter_;
+    } else {
+        scroll = std::max(0, (int)command_->length() - (screen_tiles.x - 1));
+    }
 
     const int balance = paren_balance(command_->c_str());
     if (balance < 0 and command_->length() and
@@ -278,10 +282,19 @@ void LispReplScene::repaint_completions()
         }
 
         const int len = strlen(str);
-        for (; j < len; ++j) {
-            tempstr[0] = str[j];
-            cpl_->completions_.back().append(tempstr, opts);
+        if (len > 20) {
+            for (; j < len and j < 19; ++j) {
+                tempstr[0] = str[j];
+                cpl_->completions_.back().append(tempstr, opts);
+            }
+            cpl_->completions_.back().append("…", opts);
+        } else {
+            for (; j < len; ++j) {
+                tempstr[0] = str[j];
+                cpl_->completions_.back().append(tempstr, opts);
+            }
         }
+
 
         tempstr[0] = ' ';
         for (; j < 20; ++j) {
@@ -294,7 +307,7 @@ void LispReplScene::repaint_completions()
 ScenePtr LispReplScene::update(Time delta)
 {
 TOP:
-    constexpr auto fade_duration = milliseconds(700);
+    constexpr auto fade_duration = milliseconds(500);
     if (timer_ < fade_duration) {
         if (timer_ + delta > fade_duration) {
             PLATFORM.screen().fade(0.34f);
@@ -307,6 +320,12 @@ TOP:
             PLATFORM.screen().fade(amount);
         }
     }
+
+    player().update(delta);
+
+    auto test_key = [&](Key k) {
+        return player().test_key(k, milliseconds(500), milliseconds(100));
+    };
 
     if (auto next = process_script_menu_request()) {
         return next;
@@ -443,6 +462,7 @@ TOP:
             lisp::pop_op();
 
             display_mode_ = DisplayMode::show_result;
+            scroll_counter_ = 0;
 
             repaint_entry();
             reset_history_index();
@@ -500,6 +520,30 @@ TOP:
         break;
 
     case DisplayMode::show_result:
+
+        if ((int)command_->length() > calc_screen_tiles().x) {
+            if (test_key(Key::right)) {
+                ++scroll_counter_;
+                repaint_entry();
+            } else if (test_key(Key::left)) {
+                if (scroll_counter_ > 0) {
+                    --scroll_counter_;
+                    repaint_entry();
+                }
+            } else if (test_key(Key::up) or
+                       test_key(Key::down) or
+                       test_key(Key::start) or
+                       test_key(Key::action_1) or
+                       test_key(Key::action_2)) {
+                display_mode_ = DisplayMode::entry;
+                command_->clear();
+                repaint_entry();
+                goto TOP;
+                return null_scene();
+            }
+            return null_scene();
+        }
+
         if (PLATFORM.keyboard()
                 .down_transition<Key::action_2,
                                  Key::action_1,

@@ -46,6 +46,3 @@
    (266 Right)
    (935 B)
    (300 B)))
-
-
-;;(print (string (interp-stat)))

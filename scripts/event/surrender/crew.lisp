@@ -94,7 +94,7 @@
       (dialog-opts-push "(help me decide!)"
                         (lambda ()
                             (dialog
-                             "<s:3>. . . . . <s:0> "
+                             "<s:1>. . . . . <s:0> "
                              "Your crew values the resources in the goblin ship at "
                              (format "%@" (coins-victory))
                              ". <B:0>Or you may end the fight and accept the terms of the "
@@ -104,6 +104,6 @@
                           (setq on-dialog-closed rtry))))
 
 
-    (dialog-opts-push "unacceptable!" (lambda ()))))
+    (dialog-opts-push (format "unacceptable! +%@" (coins-victory)) (lambda ()))))
 
 (gc)

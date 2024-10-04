@@ -8,7 +8,7 @@
 (eval-file "scripts/event/hostile.lisp")
 
 
-(let ((prob (get '(30 14 8) (difficulty)))          ; chance of surprise event occuring
+(let ((prob (get '(30 15 8) (difficulty)))          ; chance of surprise event occuring
       (lvs (difference surprises-seen (range 2))))  ; list of avail surprise events
 
   (if (and lvs

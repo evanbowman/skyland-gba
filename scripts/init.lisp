@@ -129,3 +129,14 @@
 (defn/c hash (xy)
   (let ((h (+ (* (first xy) 374761393) (* (second xy) 668265263))))
     (abs (* (^ h (>> h 13)) 1274126177))))
+
+
+;; Hooks are global callbacks invoked by the engine. This helper function allows
+;; multiple callbacks to be bound to the same hook.
+(defn/c push-hook (sym callback)
+  (let ((prev (eval var-name-sym))
+        (func callback))
+    (lambda ()
+      (func)
+      (when prev
+        (prev)))))

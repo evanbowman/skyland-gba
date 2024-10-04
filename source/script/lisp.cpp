@@ -780,7 +780,8 @@ static int examine_argument_list(Value* function_impl)
                          val_to_string<128>(arg_lat).c_str()));
         }
 
-        if (val->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
+        if (not bound_context->external_symtab_contents_ and
+            val->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
             PLATFORM.fatal(::format(
                 "symbol name \'%\' in argument list \'%\' is too long! "
                 "(4 char limit)",
@@ -3818,11 +3819,9 @@ BUILTIN_TABLE(
                                get_op0()->integer().value_);
        }}},
      {"gensym", {0, [](int) { return gensym(); }}},
-     {"interp-stat",
+     {"lisp-mem-vals-remaining",
       {0,
        [](int) {
-           auto& ctx = bound_context;
-
            int values_remaining = 0;
            Value* current = value_pool;
            while (current) {
@@ -3830,36 +3829,29 @@ BUILTIN_TABLE(
                current = current->heap_node().next_;
            }
 
-           ListBuilder lat;
+           return L_INT(values_remaining);
+       }}},
+     {"lisp-mem-global-count",
+      {0,
+       [](int argc) {
+           auto& ctx = bound_context;
+           int globals_used = 0;
+           globals_tree_traverse(
+               ctx->globals_tree_,
+               [&globals_used](Value&, Value&) { ++globals_used; });
 
-           auto make_stat = [&](const char* name, int value) {
-               auto c = make_cons(get_nil(), get_nil());
-               if (c == bound_context->oom_) {
-                   return c;
-               }
-               push_op(c); // gc protect
-
-               c->cons().set_car(make_string(name));
-               c->cons().set_cdr(make_integer(value));
-
-               pop_op(); // gc unprotect
-               return c;
-           };
-
-           lat.push_front(make_stat("vars", [&] {
-               int symb_tab_used = 0;
-               globals_tree_traverse(
-                   ctx->globals_tree_,
-                   [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
-               return symb_tab_used;
-           }()));
-
-           lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
-           lat.push_front(make_stat("internb", ctx->string_intern_pos_));
-           lat.push_front(make_stat("free", values_remaining));
-
+           return L_INT(globals_used);
+       }}},
+     {"lisp-mem-string-internb",
+      {0,
+       [](int argc) {
+           auto& ctx = bound_context;
+           return L_INT(ctx->string_intern_pos_);
+       }}},
+     {"lisp-mem-sbr-used",
+      {0,
+       [](int argc) {
            int databuffers = 0;
-
            for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
                Value* val = (Value*)&value_pool_data[i];
                if (val->hdr_.alive_ and
@@ -3867,10 +3859,7 @@ BUILTIN_TABLE(
                    ++databuffers;
                }
            }
-
-           lat.push_front(make_stat("sbr", databuffers));
-
-           return lat.result();
+           return L_INT(databuffers);
        }}},
      {"range",
       {1,
