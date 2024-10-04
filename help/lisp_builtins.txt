@@ -679,15 +679,24 @@ o----------------------------o
 
 o----------------------------o
 
- (interp-stat)
+ (lisp-mem-...)
 
- Return a list representing
- statistics about the
- lisp interpreter's internal
- state, e.g. heap avialable,
- stack slots used, string
- intern table size, variable
- binding count.
+ * vals-remaining:
+ remaining unallocated
+ lisp values.
+
+ * global-count:
+ global vars allocated
+
+ * string-internb:
+ Bytes in memory internalized
+ for symbol storage at
+ runtime.
+
+ * sbr-used:
+ Number of additional memory
+ pages allocated by the
+ interpreter.
 
 
 o----------------------------o
