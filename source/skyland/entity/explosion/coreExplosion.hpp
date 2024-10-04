@@ -211,7 +211,7 @@ inline void core_explosion(Island* parent,
             p.y -= 32.0_fixed;
             auto make_segment = [&](int q) {
                 return APP.effects().push(
-                                          APP.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
+                    APP.alloc_entity<CoreExplosionQuarter>(*dt, p, q));
             };
             make_segment(3);
             make_segment(2);

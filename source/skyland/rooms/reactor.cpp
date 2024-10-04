@@ -75,10 +75,12 @@ void Reactor::finalize()
 
     if (health() == 0) {
         core_destroyed.play(4, milliseconds(600));
-        core_explosion(parent(), center(), CoreExplosionConfig {
-                .arms_ = 5,
-                .rot_ = rng::choice<45>(rng::utility_state),
-            });
+        core_explosion(parent(),
+                       center(),
+                       CoreExplosionConfig{
+                           .arms_ = 5,
+                           .rot_ = rng::choice<45>(rng::utility_state),
+                       });
     }
 }
 

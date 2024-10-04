@@ -77,9 +77,7 @@ void WarEngine::finalize()
 
     if (health() == 0) {
         core_destroyed.play(4, milliseconds(600));
-        core_explosion(parent(), center(), CoreExplosionConfig {
-                .arms_ = 6
-            });
+        core_explosion(parent(), center(), CoreExplosionConfig{.arms_ = 6});
     }
 }
 
