@@ -10,7 +10,7 @@
 '((hull         240 300  0)
   (code         240 300  0)
   (bronze-hull  240 300  0)
-  (mirror-hull  240 500  0)
+  (mirror-hull  240 700  0)
   (stacked-hull 200 600  0)
   (barrier      1   300  0)
   (forcefield   240 300  40)
