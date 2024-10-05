@@ -246,7 +246,7 @@ void IncineratorBolt::destroy(bool explosion)
     APP.camera()->shake(14);
 
     if (explosion) {
-        big_explosion(sprite_.get_position());
+        big_explosion(sprite_.get_position(), 1, false);
         ExploSpawner::create(sprite_.get_position());
     }
 }

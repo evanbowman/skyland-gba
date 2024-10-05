@@ -44,37 +44,41 @@ namespace skyland
 
 
 
+class ExpFlash : public Entity
+{
+public:
+
+    static const int start_index = 52;
+
+
+    ExpFlash(const Vec2<Fixnum>& position);
+
+
+    void update(Time delta) override;
+
+
+    void rewind(Time delta) override
+    {
+        kill(); // TODO...
+    }
+
+
+private:
+    Time timer_ = 0;
+};
+
+
+
 class Explosion : public Entity
 {
 public:
     static const int start_index = 19 * 2;
 
 
-    Explosion(const Vec2<Fixnum>& position, int priority = 1) : Entity({{}, {}})
-    {
-        sprite_.set_position(position);
-        sprite_.set_size(Sprite::Size::w16_h16);
-        sprite_.set_texture_index(start_index);
-        sprite_.set_origin({8, 8});
-        sprite_.set_priority(priority);
-    }
+    Explosion(const Vec2<Fixnum>& position, int priority = 1);
 
 
-    void update(Time delta) override
-    {
-        timer_ += delta * 2;
-
-        if (timer_ > milliseconds(55)) {
-            timer_ = 0;
-
-            auto index = sprite_.get_texture_index();
-            if (index < start_index + 5) {
-                sprite_.set_texture_index(index + 1);
-            } else {
-                kill();
-            }
-        }
-    }
+    void update(Time delta) override;
 
 
     void rewind(Time delta) override
@@ -111,7 +115,7 @@ void medium_explosion(const Vec2<Fixnum>& position);
 void medium_explosion_inv(const Vec2<Fixnum>& position);
 
 
-void big_explosion(const Vec2<Fixnum>& position, int draw_priority = 1);
+void big_explosion(const Vec2<Fixnum>& position, int draw_priority = 1, bool centerflash = true);
 
 void big_explosion_inv(const Vec2<Fixnum>& position);
 

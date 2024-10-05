@@ -44,6 +44,63 @@ namespace skyland
 
 
 
+Explosion::Explosion(const Vec2<Fixnum>& position, int priority) : Entity({{}, {}})
+{
+    sprite_.set_position(position);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_texture_index(start_index);
+    sprite_.set_origin({8, 8});
+    sprite_.set_priority(priority);
+}
+
+
+
+void Explosion::update(Time delta)
+{
+    timer_ += delta * 2;
+
+    if (timer_ > milliseconds(55)) {
+        timer_ = 0;
+
+        auto index = sprite_.get_texture_index();
+        if (index < start_index + 5) {
+            sprite_.set_texture_index(index + 1);
+        } else {
+            kill();
+        }
+    }
+}
+
+
+
+ExpFlash::ExpFlash(const Vec2<Fixnum>& position) : Entity({{}, {}})
+{
+    sprite_.set_position(position);
+    sprite_.set_size(Sprite::Size::w32_h32);
+    sprite_.set_texture_index(52);
+    sprite_.set_origin({16, 16});
+}
+
+
+
+void ExpFlash::update(Time delta)
+{
+    timer_ += delta * 2;
+
+    if (timer_ > milliseconds(85)) {
+        timer_ = 0;
+
+        auto index = sprite_.get_texture_index();
+        if (index < start_index + 1) {
+            sprite_.set_texture_index(index + 1);
+        } else {
+            kill();
+        }
+    }
+}
+
+
+
 void medium_explosion(const Vec2<Fixnum>& position)
 {
     auto first = APP.alloc_entity<Explosion>(
@@ -110,8 +167,14 @@ void medium_explosion_inv(const Vec2<Fixnum>& position)
 
 
 
-void big_explosion(const Vec2<Fixnum>& position, int draw_priority)
+void big_explosion(const Vec2<Fixnum>& position, int draw_priority, bool centerflash)
 {
+    if (centerflash) {
+        if (auto ent = APP.alloc_entity<ExpFlash>(position)) {
+            APP.effects().push(std::move(ent));
+        }
+    }
+
     for (int i = 0; i < 4; ++i) {
         auto ent = APP.alloc_entity<Explosion>(
             rng::sample<18>(position, rng::utility_state), draw_priority);
