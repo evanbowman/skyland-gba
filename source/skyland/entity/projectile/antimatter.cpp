@@ -201,7 +201,7 @@ void Antimatter::on_collision(Room& room, Vec2<u8> origin)
         make_flak_smoke(sprite_.get_position());
         make_flak_smoke(sprite_.get_position());
 
-        big_explosion(sprite_.get_position());
+        big_explosion(sprite_.get_position(), 1, false);
 
         const auto pos = ivec(sprite_.get_position());
 

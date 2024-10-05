@@ -173,7 +173,7 @@ void SwerveMissile::on_destroy()
 
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position());
+    big_explosion(sprite_.get_position(), 1, false);
 }
 
 

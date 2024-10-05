@@ -178,7 +178,7 @@ void make_flak_smoke(const Vec2<Fixnum>& pos)
 
 void Flak::explode()
 {
-    big_explosion(sprite_.get_position());
+    big_explosion(sprite_.get_position(), 1, false);
 
     make_flak_smoke(sprite_.get_position());
 
