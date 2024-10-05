@@ -897,6 +897,7 @@ void Island::update(Time dt)
                 big_explosion(
                     room->center(),
                     BigExplosionConfig{.centerflash_ =
+                                           not quiet and
                                            cg not_eq Room::Category::wall});
             }
 
