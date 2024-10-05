@@ -227,7 +227,9 @@ void big_explosion(const Vec2<Fixnum>& position, int draw_priority, bool centerf
         }
     }
 
-    for (int i = 0; i < 4; ++i) {
+    int init_iters = centerflash ? 3 : 4;
+
+    for (int i = 0; i < init_iters; ++i) {
         auto ent = APP.alloc_entity<Explosion>(
             rng::sample<18>(position, rng::utility_state), draw_priority);
         if (ent) {
