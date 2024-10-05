@@ -181,7 +181,6 @@ void Flak::explode()
     big_explosion(sprite_.get_position());
 
     make_flak_smoke(sprite_.get_position());
-    make_flak_smoke(sprite_.get_position());
 
 
     Vec2<s32> pos;

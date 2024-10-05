@@ -33,6 +33,7 @@
 
 #include "exploSpawner.hpp"
 
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/explosion/explosion3.hpp"
 
 
@@ -58,8 +59,22 @@ void ExploSpawner::update(Time delta)
         }
         auto pos = sprite_.get_position();
         pos = rng::sample<16>(pos, rng::utility_state);
-        if (auto ent = APP.alloc_entity<Explosion3>(pos, 90 / 2, 0)) {
 
+
+        bool is_offscreen =
+            (pos.x.as_integer() <
+             PLATFORM.screen().get_view().int_center().x + 8 -
+             (1 * 16) / 2) or
+            (pos.x.as_integer() - (1 * 16) / 2 >
+             (int)(PLATFORM.screen().get_view().int_center().x +
+                   PLATFORM.screen().size().x));
+
+        if (is_offscreen) {
+            kill();
+            return;
+        }
+
+        if (auto ent = APP.alloc_entity<Explosion3>(pos, 90 / 2, 0)) {
             ent->set_speed(
                 {0.0_fixed, Fixnum::from_integer(-1) * 0.0001_fixed});
 

@@ -43,6 +43,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/explosion/exploTrail.hpp"
 
 
 
@@ -226,6 +227,15 @@ void Explosive::ignite(int range, Health damage, bool spread_fire)
 {
     make_flak_smoke(center());
     make_flak_smoke(center());
+
+    for (int i = 0; i < 2; ++i) {
+        if (auto e = alloc_entity<ExploTrail>(center(),
+                                              rng::choice<360>(rng::utility_state),
+                                              1.25_fixed,
+                                              seconds(2))) {
+            APP.effects().push(std::move(e));
+        }
+    }
 
     Vec2<s32> pos;
     pos.x = center().x.as_integer();

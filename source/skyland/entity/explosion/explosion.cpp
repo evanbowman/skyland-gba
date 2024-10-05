@@ -44,6 +44,33 @@ namespace skyland
 
 
 
+TeenyExplosion::TeenyExplosion(const Vec2<Fixnum>& position) : Entity({{}, {}})
+{
+    sprite_.set_position(position);
+    sprite_.set_size(Sprite::Size::w8_h8);
+    sprite_.set_tidx_8x8(start_index, 0);
+    sprite_.set_origin({4, 4});
+}
+
+
+
+void TeenyExplosion::update(Time delta)
+{
+    timer_ += delta * 2;
+
+    if (timer_ > milliseconds(55)) {
+        timer_ = 0;
+
+        if (anim_index_ < 5) {
+            sprite_.set_tidx_8x8(start_index, anim_index_++);
+        } else {
+            kill();
+        }
+    }
+}
+
+
+
 Explosion::Explosion(const Vec2<Fixnum>& position, int priority) : Entity({{}, {}})
 {
     sprite_.set_position(position);
@@ -51,6 +78,20 @@ Explosion::Explosion(const Vec2<Fixnum>& position, int priority) : Entity({{}, {
     sprite_.set_texture_index(start_index);
     sprite_.set_origin({8, 8});
     sprite_.set_priority(priority);
+
+
+    bool is_offscreen =
+        (position.x.as_integer() <
+         PLATFORM.screen().get_view().int_center().x + 8 -
+         (1 * 16) / 2) or
+        (position.x.as_integer() - (1 * 16) / 2 >
+         (int)(PLATFORM.screen().get_view().int_center().x +
+               PLATFORM.screen().size().x));
+
+    if (is_offscreen) {
+        kill();
+        return;
+    }
 }
 
 
@@ -73,12 +114,24 @@ void Explosion::update(Time delta)
 
 
 
+static const int exp_flash_index_seq[] = {
+    52, 53, 54, 55, 56, 50, 24
+};
+
+
+
 ExpFlash::ExpFlash(const Vec2<Fixnum>& position) : Entity({{}, {}})
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w32_h32);
-    sprite_.set_texture_index(52);
+    sprite_.set_texture_index(exp_flash_index_seq[anim_index_]);
     sprite_.set_origin({16, 16});
+
+    sprite_.set_flip({
+            (bool)rng::choice<2>(rng::utility_state),
+            (bool)rng::choice<2>(rng::utility_state)
+        });
+
 }
 
 
@@ -87,12 +140,11 @@ void ExpFlash::update(Time delta)
 {
     timer_ += delta * 2;
 
-    if (timer_ > milliseconds(85)) {
+    if (timer_ > milliseconds(75)) {
         timer_ = 0;
 
-        auto index = sprite_.get_texture_index();
-        if (index < start_index + 1) {
-            sprite_.set_texture_index(index + 1);
+        if (anim_index_ < 6) {
+            sprite_.set_texture_index(exp_flash_index_seq[++anim_index_]);
         } else {
             kill();
         }

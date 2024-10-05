@@ -49,6 +49,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/entity/explosion/exploTrail.hpp"
 
 
 
@@ -248,6 +249,15 @@ void IncineratorBolt::destroy(bool explosion)
     if (explosion) {
         big_explosion(sprite_.get_position(), 1, false);
         ExploSpawner::create(sprite_.get_position());
+
+        for (int i = 0; i < 2; ++i) {
+            if (auto e = alloc_entity<ExploTrail>(sprite_.get_position(),
+                                                  rng::choice<360>(rng::utility_state),
+                                                  1.25_fixed,
+                                                  seconds(2))) {
+                APP.effects().push(std::move(e));
+            }
+        }
     }
 }
 

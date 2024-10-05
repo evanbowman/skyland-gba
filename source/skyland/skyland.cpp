@@ -512,6 +512,23 @@ void App::record_score_diff(int diff)
 
 
 
+void App::clear_effects_lowpriority()
+{
+    EntityList<Entity> temp;
+
+    while (auto e = effects().pop_last()) {
+        if (not (*e)->entity_oom_deletable()) {
+            temp.push(std::move(*e));
+        }
+    }
+
+    while (auto e = temp.pop_last()) {
+        effects().push(std::move(*e));
+    }
+}
+
+
+
 void App::update_parallax(Time delta)
 {
     cloud_scroll_1fp_ += 0.00002_fixed * Fixnum::from_integer(delta);

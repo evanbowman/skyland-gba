@@ -179,8 +179,9 @@ inline void core_explosion(Island* parent,
         pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
         // Don't create the explosion effect if way outside of the camera range.
     } else {
+
         if (conf.clear_effects_) {
-            APP.effects().clear();
+            APP.clear_effects_lowpriority();
         }
 
         int pitch = 360 / conf.arms_;

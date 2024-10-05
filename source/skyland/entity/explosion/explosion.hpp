@@ -65,6 +65,7 @@ public:
 
 private:
     Time timer_ = 0;
+    int anim_index_ = 0;
 };
 
 
@@ -107,6 +108,32 @@ public:
 
 private:
     Time timer_ = 0;
+};
+
+
+
+class TeenyExplosion : public Entity
+{
+public:
+
+    static const int start_index = 50;
+
+
+    TeenyExplosion(const Vec2<Fixnum>& position);
+
+
+    void update(Time delta) override;
+
+
+    void rewind(Time delta) override
+    {
+        kill();
+    }
+
+
+private:
+    Time timer_ = 0;
+    int anim_index_ = 0;
 };
 
 

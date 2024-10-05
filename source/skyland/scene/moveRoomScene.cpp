@@ -543,7 +543,8 @@ void MoveRoomScene::display()
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
         if (state_ == State::move_block) {
-            cursor.set_texture_index(110);
+            cursor.set_size(Sprite::Size::w16_h16);
+            cursor.set_tidx_16x16(99, 0);
         } else {
             cursor.set_size(Sprite::Size::w16_h16);
             cursor.set_texture_index((15 * 2) + cursor_anim_frame_);
@@ -577,7 +578,7 @@ void MoveRoomScene::display()
                 draw_cursor((*group_selection_)->sel_br_, 4, 4);
             }
             if (state_ == State::move_group) {
-                cursor.set_texture_index(110 * 2);
+                cursor.set_tidx_16x16(99, 0);
                 draw_cursor(cursor_loc, 0, 0);
 
                 auto offset_x =

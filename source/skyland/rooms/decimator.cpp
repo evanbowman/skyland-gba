@@ -88,7 +88,7 @@ void Decimator::display(Platform::Screen& screen)
 
     Sprite spr;
     auto pos = visual_center();
-    spr.set_size(Sprite::Size::w16_h32);
+    spr.set_size(Sprite::Size::w16_h16);
 
     pos.y -= 16.0_fixed;
 
@@ -98,7 +98,7 @@ void Decimator::display(Platform::Screen& screen)
         if (flicker_cyc_ < 2) {
             return;
         }
-        spr.set_texture_index(103);
+        spr.set_tidx_16x16(103, 1);
     } else {
         return;
     }

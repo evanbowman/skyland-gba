@@ -1195,8 +1195,9 @@ void ConstructionScene::display()
                     Fixnum::from_integer((island()->terrain().size()) * 16);
                 origin.y += 15.0_fixed * 16.0_fixed;
 
+                sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_position(origin);
-                sprite.set_texture_index(101);
+                sprite.set_tidx_16x16(103, 0);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 PLATFORM.screen().draw(sprite);
             }
@@ -1206,9 +1207,10 @@ void ConstructionScene::display()
                 origin.x -= 16.0_fixed;
                 origin.y += 15.0_fixed * 16.0_fixed;
 
+                sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_position(origin);
                 sprite.set_flip({true, false});
-                sprite.set_texture_index(101);
+                sprite.set_tidx_16x16(103, 0);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 PLATFORM.screen().draw(sprite);
             }

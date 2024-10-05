@@ -466,8 +466,16 @@ void WeaponSetTargetScene::display()
     PLATFORM.screen().draw(sprite);
 
     if (firing_mode_) {
-        sprite.set_size(Sprite::Size::w16_h32);
-        sprite.set_texture_index(111 + firing_mode_);
+        sprite.set_size(Sprite::Size::w16_h16);
+        sprite.set_tidx_16x16(58, [&] {
+            switch (firing_mode_) {
+            default:
+            case 1:
+                return 0;
+            case 2:
+                return 1;
+            }
+        }());
         origin.x += 12.0_fixed;
         origin.y += 10.0_fixed;
         sprite.set_position(origin);

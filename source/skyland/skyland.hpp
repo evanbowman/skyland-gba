@@ -188,6 +188,9 @@ public:
     }
 
 
+    void clear_effects_lowpriority();
+
+
     template <typename T, typename... Args>
     EntityRef<T> alloc_entity(Args&&... args)
     {

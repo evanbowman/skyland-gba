@@ -1433,13 +1433,13 @@ void WorldMapScene::display()
                 t.type_ not_eq WorldGraph::Node::Type::corrupted and
                 is_x_behind_storm_frontier(t.coord_.x, 1)) {
 
-                cursor.set_texture_index(111);
+                cursor.set_size(Sprite::Size::w16_h16);
+                cursor.set_tidx_16x16(99, 1);
                 cursor.set_position(
                     {Fixnum((t.coord_.x + map_start_x) * Float(8) - 3),
                      Fixnum((t.coord_.y + map_start_y) * Float(8) - (12))});
                 cursor.set_mix({});
                 cursor.set_priority(0);
-                cursor.set_size(Sprite::Size::w16_h32);
                 cursor.set_alpha(Sprite::Alpha::opaque);
                 PLATFORM.screen().draw(cursor);
             }
