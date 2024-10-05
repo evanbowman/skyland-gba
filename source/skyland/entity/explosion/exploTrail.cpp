@@ -49,9 +49,8 @@ u8 ExploTrail::s_count_ = 0;
 ExploTrail::ExploTrail(const Vec2<Fixnum>& pos,
                        int angle,
                        Fixnum speed,
-                       Time duration) :
-    Entity({}),
-    duration_(duration)
+                       Time duration)
+    : Entity({}), duration_(duration)
 {
     ++s_count_;
 

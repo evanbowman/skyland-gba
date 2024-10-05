@@ -186,7 +186,8 @@ void DecimatorBurst::on_collision(Room& room, Vec2<u8> origin)
 
     kill();
     APP.camera()->shake(26);
-    big_explosion(sprite_.get_position());
+    big_explosion(sprite_.get_position(),
+                  BigExplosionConfig{.centerflash_ = true});
 
     room.apply_damage(decimator_burst_damage, source_);
 }

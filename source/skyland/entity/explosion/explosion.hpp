@@ -47,7 +47,6 @@ namespace skyland
 class ExpFlash : public Entity
 {
 public:
-
     static const int start_index = 52;
 
 
@@ -115,7 +114,6 @@ private:
 class TeenyExplosion : public Entity
 {
 public:
-
     static const int start_index = 50;
 
 
@@ -142,7 +140,15 @@ void medium_explosion(const Vec2<Fixnum>& position);
 void medium_explosion_inv(const Vec2<Fixnum>& position);
 
 
-void big_explosion(const Vec2<Fixnum>& position, int draw_priority = 1, bool centerflash = true);
+struct BigExplosionConfig
+{
+    int draw_priority_ = 1;
+    bool centerflash_ = false;
+};
+
+
+void big_explosion(const Vec2<Fixnum>& position,
+                   const BigExplosionConfig& conf = {});
 
 void big_explosion_inv(const Vec2<Fixnum>& position);
 

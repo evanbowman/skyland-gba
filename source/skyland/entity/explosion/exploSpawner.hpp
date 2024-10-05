@@ -46,7 +46,6 @@ namespace skyland
 class ExploSpawner : public Entity
 {
 public:
-
     ExploSpawner(const Vec2<Fixnum>& pos) : Entity({})
     {
         sprite_.set_position(pos);

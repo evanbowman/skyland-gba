@@ -165,7 +165,8 @@ void NemesisBlast::on_collision(Room& room, Vec2<u8> origin)
         if (variant_ < 2) {
             medium_explosion(sprite_.get_position());
         } else {
-            big_explosion(sprite_.get_position());
+            big_explosion(sprite_.get_position(),
+                          BigExplosionConfig{.centerflash_ = true});
         }
         if (room.health()) {
             sound_impact.play(1);

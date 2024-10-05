@@ -254,7 +254,7 @@ void Missile::on_destroy()
 
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position(), 1, false);
+    big_explosion(sprite_.get_position());
 }
 
 
@@ -298,7 +298,7 @@ void Missile::on_collision(Entity& entity)
 {
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position(), 1, false);
+    big_explosion(sprite_.get_position());
 
     entity.apply_damage(missile_damage);
 }
@@ -480,7 +480,7 @@ void RocketBomb::on_destroy()
 
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position(), 1, false);
+    big_explosion(sprite_.get_position());
 }
 
 
@@ -543,7 +543,7 @@ void ClumpMissile::on_collision(Entity& entity)
 {
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position(), 1, false);
+    big_explosion(sprite_.get_position());
 
     entity.apply_damage(missile_damage);
 
@@ -608,7 +608,7 @@ void ClumpMissile::on_destroy()
 
     kill();
     APP.camera()->shake(18);
-    big_explosion(sprite_.get_position(), 1, false);
+    big_explosion(sprite_.get_position());
 }
 
 
@@ -718,7 +718,8 @@ void AtomicMissile::on_destroy()
 
     kill();
     APP.camera()->shake(32);
-    big_explosion(sprite_.get_position());
+    big_explosion(sprite_.get_position(),
+                  BigExplosionConfig{.centerflash_ = true});
 }
 
 

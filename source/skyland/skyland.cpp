@@ -517,7 +517,7 @@ void App::clear_effects_lowpriority()
     EntityList<Entity> temp;
 
     while (auto e = effects().pop_last()) {
-        if (not (*e)->entity_oom_deletable()) {
+        if (not(*e)->entity_oom_deletable()) {
             temp.push(std::move(*e));
         }
     }

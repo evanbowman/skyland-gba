@@ -46,11 +46,7 @@ namespace skyland
 class ExploTrail : public Entity
 {
 public:
-
-    ExploTrail(const Vec2<Fixnum>& pos,
-               int angle,
-               Fixnum speed,
-               Time duration);
+    ExploTrail(const Vec2<Fixnum>& pos, int angle, Fixnum speed, Time duration);
 
 
     void update(Time delta) override;

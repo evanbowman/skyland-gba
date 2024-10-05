@@ -63,8 +63,7 @@ void ExploSpawner::update(Time delta)
 
         bool is_offscreen =
             (pos.x.as_integer() <
-             PLATFORM.screen().get_view().int_center().x + 8 -
-             (1 * 16) / 2) or
+             PLATFORM.screen().get_view().int_center().x + 8 - (1 * 16) / 2) or
             (pos.x.as_integer() - (1 * 16) / 2 >
              (int)(PLATFORM.screen().get_view().int_center().x +
                    PLATFORM.screen().size().x));

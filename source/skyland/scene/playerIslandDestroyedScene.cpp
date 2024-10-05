@@ -421,7 +421,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
         PLATFORM.speaker().play_sound("explosion1", 3);
 
-        big_explosion(origin, 0, false);
+        big_explosion(origin, BigExplosionConfig{.draw_priority_ = 0});
 
         const auto off = 50.0_fixed;
 
@@ -433,8 +433,12 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             APP.swap_player<PlayerP1>();
         }
 
-        big_explosion({origin.x - off, origin.y - off}, 0, false);
-        big_explosion({origin.x + off, origin.y + off}, 0, false);
+        big_explosion({origin.x - off, origin.y - off},
+                      BigExplosionConfig{.draw_priority_ = 0});
+
+        big_explosion({origin.x + off, origin.y + off},
+                      BigExplosionConfig{.draw_priority_ = 0});
+
         timer_ = 0;
 
         for (auto& room : APP.player_island().rooms()) {
@@ -451,11 +455,14 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
             PLATFORM.speaker().play_sound("explosion1", 3);
 
-            big_explosion(origin, 0, false);
+            big_explosion(origin, BigExplosionConfig{.draw_priority_ = 0});
             const auto off = Fixnum::from_integer(-50);
 
-            big_explosion({origin.x - off, origin.y + off}, 0, false);
-            big_explosion({origin.x + off, origin.y - off}, 0, false);
+            big_explosion({origin.x - off, origin.y + off},
+                          BigExplosionConfig{.draw_priority_ = 0});
+
+            big_explosion({origin.x + off, origin.y - off},
+                          BigExplosionConfig{.draw_priority_ = 0});
 
             anim_state_ = AnimState::explosion_wait2;
 

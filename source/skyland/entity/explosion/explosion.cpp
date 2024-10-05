@@ -71,7 +71,8 @@ void TeenyExplosion::update(Time delta)
 
 
 
-Explosion::Explosion(const Vec2<Fixnum>& position, int priority) : Entity({{}, {}})
+Explosion::Explosion(const Vec2<Fixnum>& position, int priority)
+    : Entity({{}, {}})
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h16);
@@ -82,8 +83,7 @@ Explosion::Explosion(const Vec2<Fixnum>& position, int priority) : Entity({{}, {
 
     bool is_offscreen =
         (position.x.as_integer() <
-         PLATFORM.screen().get_view().int_center().x + 8 -
-         (1 * 16) / 2) or
+         PLATFORM.screen().get_view().int_center().x + 8 - (1 * 16) / 2) or
         (position.x.as_integer() - (1 * 16) / 2 >
          (int)(PLATFORM.screen().get_view().int_center().x +
                PLATFORM.screen().size().x));
@@ -114,9 +114,7 @@ void Explosion::update(Time delta)
 
 
 
-static const int exp_flash_index_seq[] = {
-    52, 53, 54, 55, 56, 50, 24
-};
+static const int exp_flash_index_seq[] = {52, 53, 54, 55, 56, 50, 24};
 
 
 
@@ -127,11 +125,8 @@ ExpFlash::ExpFlash(const Vec2<Fixnum>& position) : Entity({{}, {}})
     sprite_.set_texture_index(exp_flash_index_seq[anim_index_]);
     sprite_.set_origin({16, 16});
 
-    sprite_.set_flip({
-            (bool)rng::choice<2>(rng::utility_state),
-            (bool)rng::choice<2>(rng::utility_state)
-        });
-
+    sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state),
+                      (bool)rng::choice<2>(rng::utility_state)});
 }
 
 
@@ -219,25 +214,25 @@ void medium_explosion_inv(const Vec2<Fixnum>& position)
 
 
 
-void big_explosion(const Vec2<Fixnum>& position, int draw_priority, bool centerflash)
+void big_explosion(const Vec2<Fixnum>& position, const BigExplosionConfig& conf)
 {
-    if (centerflash) {
+    if (conf.centerflash_) {
         if (auto ent = APP.alloc_entity<ExpFlash>(position)) {
             APP.effects().push(std::move(ent));
         }
     }
 
-    int init_iters = centerflash ? 3 : 4;
+    int init_iters = conf.centerflash_ ? 3 : 4;
 
     for (int i = 0; i < init_iters; ++i) {
         auto ent = APP.alloc_entity<Explosion>(
-            rng::sample<18>(position, rng::utility_state), draw_priority);
+            rng::sample<18>(position, rng::utility_state), conf.draw_priority_);
         if (ent) {
             APP.effects().push(std::move(ent));
         }
     }
 
-    int p = draw_priority;
+    int p = conf.draw_priority_;
     auto ipos = ivec(position);
 
     APP.on_timeout(milliseconds(90), [pos = ipos, p]() {

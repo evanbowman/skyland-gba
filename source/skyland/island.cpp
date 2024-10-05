@@ -888,11 +888,16 @@ void Island::update(Time dt)
             const bool quiet = (*room->metaclass())->properties() &
                                RoomProperties::destroy_quietly;
 
+            auto cg = (*room->metaclass())->category();
+
             if (++destroyed_count < 5 and not quiet) {
                 // Five rooms destroyed on the same island in the same frame! If
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
-                big_explosion(room->center());
+                big_explosion(
+                    room->center(),
+                    BigExplosionConfig{.centerflash_ =
+                                           cg not_eq Room::Category::wall});
             }
 
             if (str_eq(room->name(), "power-core") or
