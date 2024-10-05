@@ -25,4 +25,6 @@
                  (room-mut (opponent) (get room 1) (get room 2) 'missile-silo)))
            (rooms (opponent))))
 
-(achieve 13)
+
+(defn on-victory ()
+  (achieve 13))
