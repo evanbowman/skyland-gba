@@ -37,6 +37,3 @@
 
     (when vfn
       (vfn))))
-
-
-(gc)

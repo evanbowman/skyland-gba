@@ -34,6 +34,9 @@
 (unless (equal '(1 2 ("abc") 3.5) '(1 2 ("abc") 3.5))
   (error "broken equal"))
 
+(when (equal '(1 2 ("abc") 3.5) '(1 2 ("def") 3.5))
+  (error "broken equal"))
+
 (when (equal 0 1)
   (error "broken equal"))
 

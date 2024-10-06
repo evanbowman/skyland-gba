@@ -679,6 +679,38 @@ o----------------------------o
 
 o----------------------------o
 
+ (lisp-mem-crit-gc-alert on)
+
+ When turned on, the
+ interpreter will raise a
+ fatal error if the program
+ triggers a garbage
+ collection cycle due to
+ running out of memory.
+ I try to avoid getting into
+ situations like that,
+ because the gc is a bit
+ buggy in cases where it
+ runs in the middle of
+ allocating new values
+ inside builtin functions,
+ perhaps I failed to
+ declare somethign as a gc
+ root.
+
+
+o----------------------------o
+
+ (lisp-mem-set-gc-thresh n)
+
+ Run the gc more frequently
+ than strictly needed, when
+ the number of remaining
+ values drops below n.
+
+
+o----------------------------o
+
  (lisp-mem-...)
 
  * vals-remaining:

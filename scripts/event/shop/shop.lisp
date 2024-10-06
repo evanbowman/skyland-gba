@@ -112,6 +112,7 @@
 (let ((file "/scripts/event/shop/chat.txt"))
   (let ((txt (file-get-line file (+ 1 (choice (file-line-count file))))))
     (defn on-shop-enter ()
+
       (let ((ret (this)))
 
         (dialog "<c:shopkeeper:7>What would you like to do?")
@@ -122,6 +123,14 @@
         (dialog-opts-push "shop"
                           (lambda ()
                             (push-menu "item-shop" '())))
+
+        (if (rooms-damaged (player))
+            (dialog-opts-push
+             "repair"
+             (lambda ()
+               (dialog "<c:shopkeeper:7> Let me have my repairman come over and assess the damages...")
+               (setq on-dialog-closed (run-util-script "repairman" ret)))))
+
 
         (dialog-opts-push "chat"
                           (lambda ()

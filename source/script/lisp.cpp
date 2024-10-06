@@ -91,6 +91,8 @@ static_assert(sizeof(ValueMemory) == 8);
 #endif
 
 
+static HEAP_DATA int value_remaining_count;
+static HEAP_DATA int early_gc_threshold = value_remaining_count;
 static HEAP_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
 
@@ -129,6 +131,7 @@ void value_pool_init()
         v->heap_node().next_ = value_pool;
         value_pool = v;
     }
+    value_remaining_count = VALUE_POOL_SIZE;
 }
 
 
@@ -137,6 +140,7 @@ Value* value_pool_alloc()
     if (value_pool) {
         auto ret = value_pool;
         value_pool = ret->heap_node().next_;
+        --value_remaining_count;
         return (Value*)ret;
     }
     return nullptr;
@@ -148,10 +152,40 @@ void value_pool_free(Value* value)
     value->hdr_.type_ = Value::Type::heap_node;
     value->hdr_.alive_ = false;
     value->hdr_.mark_bit_ = false;
+    ++value_remaining_count;
 
     value->heap_node().next_ = value_pool;
     value_pool = value;
 }
+
+
+using Finalizer = void (*)(Value*);
+
+struct FinalizerTableEntry
+{
+    constexpr FinalizerTableEntry(Finalizer fn) : fn_(fn)
+    {
+    }
+
+    Finalizer fn_;
+};
+
+
+constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
+    {
+        HeapNode::finalizer,
+        Nil::finalizer,
+        Integer::finalizer,
+        Cons::finalizer,
+        Function::finalizer,
+        Error::finalizer,
+        Symbol::finalizer,
+        UserData::finalizer,
+        DataBuffer::finalizer,
+        String::finalizer,
+        Float::finalizer,
+        __Reserved::finalizer,
+};
 
 
 struct Context
@@ -197,7 +231,9 @@ struct Context
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
-    bool strict_ = false;
+    bool strict_ : 1 = false;
+    bool callstack_untouched_ : 1 = true;
+    bool critical_gc_alert_ : 1 = false;
 
     struct GensymState
     {
@@ -216,6 +252,10 @@ struct Context
 static Optional<Context> bound_context;
 
 
+static void invoke_finalizer(Value* value);
+void value_pool_free(Value* value);
+
+
 static void push_callstack(Value* function)
 {
     bound_context->callstack_ = make_cons(function, bound_context->callstack_);
@@ -224,7 +264,28 @@ static void push_callstack(Value* function)
 
 static void pop_callstack()
 {
+    auto old = bound_context->callstack_;
+
     bound_context->callstack_ = bound_context->callstack_->cons().cdr();
+
+    if (bound_context->callstack_untouched_) {
+        // If nothing referenced the callstack by calling stacktrace(), then we
+        // can deallocate the memory reserved for the stack frame right away.
+        invoke_finalizer(old);
+        value_pool_free(old);
+    }
+
+    if (length(bound_context->callstack_) == 1) {
+        // If we're returning back to the toplevel, invoke the GC sometimes if
+        // it looks like we're running low on lisp values...
+        //
+        // Returning to the toplevel should be a very safe place to run the
+        // collector--we aren't in the middle of running any interesting code.
+
+        if (value_remaining_count < early_gc_threshold) {
+            run_gc();
+        }
+    }
 }
 
 
@@ -713,6 +774,14 @@ static Value* alloc_value()
         return init_val(val);
     }
 
+    if (bound_context->critical_gc_alert_) {
+        PLATFORM.fatal("unexpected gc run!");
+    }
+
+    // To be honest, this is a bit of a precarious place to run the GC... lots
+    // of things call alloc_value, meaning there's lots of code to comb through
+    // for gc bugs. We do preemptively invoke the gc when we're running low in
+    // some places to avoid having to do this...
     run_gc();
 
     // Hopefully, we've freed up enough memory...
@@ -1905,35 +1974,6 @@ static void gc_mark()
 }
 
 
-using Finalizer = void (*)(Value*);
-
-struct FinalizerTableEntry
-{
-    constexpr FinalizerTableEntry(Finalizer fn) : fn_(fn)
-    {
-    }
-
-    Finalizer fn_;
-};
-
-
-constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
-    {
-        HeapNode::finalizer,
-        Nil::finalizer,
-        Integer::finalizer,
-        Cons::finalizer,
-        Function::finalizer,
-        Error::finalizer,
-        Symbol::finalizer,
-        UserData::finalizer,
-        DataBuffer::finalizer,
-        String::finalizer,
-        Float::finalizer,
-        __Reserved::finalizer,
-};
-
-
 static void invoke_finalizer(Value* value)
 {
     // NOTE: This ordering should match the Value::Type enum.
@@ -2040,6 +2080,8 @@ static int gc_sweep()
             }
         }
     }
+
+    bound_context->callstack_untouched_ = true;
 
     if (used_count > bound_context->alloc_highwater_) {
         bound_context->alloc_highwater_ = used_count;
@@ -3065,8 +3107,25 @@ bool is_equal(Value* lhs, Value* rhs)
         return lhs->fp().value_ == rhs->fp().value_;
 
     case Value::Type::cons:
-        // FIXME: this is problematic for large lists! Or datastructures with
-        // cycles. Mainly intended for comparing single cons-cells.
+        if (is_list(lhs)) {
+            if (is_list(rhs)) {
+                if (length(lhs) not_eq length(rhs)) {
+                    return false;
+                }
+                auto l = lhs;
+                auto r = rhs;
+                while (l not_eq L_NIL and r not_eq L_NIL) {
+                    if (not is_equal(l->cons().car(), r->cons().car())) {
+                        return false;
+                    }
+                    l = l->cons().cdr();
+                    r = r->cons().cdr();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
         return is_equal(lhs->cons().car(), rhs->cons().car()) and
                is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
@@ -3206,6 +3265,7 @@ const char* nameof(Function::CPP_Impl impl);
 
 Value* stacktrace()
 {
+    bound_context->callstack_untouched_ = false;
     return bound_context->callstack_->cons().cdr();
 }
 
@@ -3819,6 +3879,20 @@ BUILTIN_TABLE(
                                get_op0()->integer().value_);
        }}},
      {"gensym", {0, [](int) { return gensym(); }}},
+     {"lisp-mem-set-gc-thresh",
+      {1,
+       [](int) {
+           L_EXPECT_OP(0, integer);
+           early_gc_threshold = L_LOAD_INT(0);
+           return L_NIL;
+       }}},
+     {"lisp-mem-crit-gc-alert",
+      {1,
+       [](int) {
+           L_EXPECT_OP(0, integer);
+           bound_context->critical_gc_alert_ = L_LOAD_INT(0);
+           return L_NIL;
+       }}},
      {"lisp-mem-vals-remaining",
       {0,
        [](int) {
@@ -5197,11 +5271,7 @@ const char* nameof(Value* value)
 
 void gc()
 {
-    auto var = lisp::get_var("gc");
-    if (var->type() == lisp::Value::Type::function) {
-        lisp::funcall(var, 0);
-        lisp::pop_op();
-    }
+    run_gc();
 }
 
 

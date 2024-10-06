@@ -33,4 +33,8 @@
     (setq friendlies-seen '()))
 
 
+;; I try not to run the gc manually. But we just detached a bunch of callbacks
+;; that were storing potentially large functions. The collector possibly going
+;; to end up needing to run anyway, and I don't want that to happen in the
+;; middle of a level, when the pause would be more noticeable.
 (gc)

@@ -6,9 +6,6 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(gc)
-
-
 (defn starts-with (str prefix)
   ;; Yeah, string handling is extremely minimal in this lisp
   ;; interpreter. Convert them to lists first.
@@ -37,6 +34,3 @@
 
 
 (unbind 'starts-with)
-
-
-(gc)

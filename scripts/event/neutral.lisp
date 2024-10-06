@@ -25,6 +25,3 @@
        ;"scripts/event/neutral/2/6_1.lisp"
        (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))
-
-
-(gc)

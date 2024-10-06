@@ -3,7 +3,17 @@
 ;;;
 
 (when (is-developer-mode)
-  (strict-mode true))
+  (strict-mode true)
+  (lisp-mem-crit-gc-alert true))
+
+;; NOTE: Based on some testing (see the game's syslog),
+;; SKYLAND rarely ever has more than about 2000 lisp values
+;; allocated at a time. When we're down to 3000 out of
+;; 10k available vals seems like a reasonable time to
+;; run it early. We could wait until we're completely out
+;; of memory, but the interpreter is a bit buggy in that
+;; state...
+(lisp-mem-set-gc-thresh 3000)
 
 
 ;; Define some common global

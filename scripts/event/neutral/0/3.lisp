@@ -91,8 +91,4 @@
                     (dialog "<c:merchant:7> Looks great! You made a fine choice!")
                     (setq on-dialog-closed exit))))))))))
 
-(gc) ;; just in case, no harm in running it.
-
-
-
 (setq on-dialog-declined exit)

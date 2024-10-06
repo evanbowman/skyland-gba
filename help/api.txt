@@ -262,6 +262,16 @@ o----------------------------o
 
 o----------------------------o
 
+ (rooms-damaged island)
+
+ Returns a list of xy pairs
+ representing the locations
+ of rooms on the island that
+ have damage.
+
+
+o----------------------------o
+
  (room-new island desc)
 
  Add a room to island,
@@ -320,7 +330,14 @@ o----------------------------o
 
 o----------------------------o
 
- (room-set-hp isle x y new-hp)
+ (room-hp isle x y)
+
+ Get a room's health.
+
+
+o----------------------------o
+
+ (room-hp-set isle x y new-hp)
 
  Set a room's health.
 
@@ -387,7 +404,7 @@ o----------------------------o
  character:
    0 - human
    1 - goblin
-   2 - dog
+   2 - undocumented
    3 - unused
 
 'icon: character artwork
@@ -457,6 +474,7 @@ o----------------------------o
  (on-victory)
  (on-crew-died)
  (on-shop-item-sel)
+ (on-shop-enter)
 
  A set of event functions,
  called by the engine for

@@ -18,10 +18,10 @@
    (torch 5 11)))
 
 (defn on-fadein ()
-  (map (lambda (room)
-         (if (equal (get room 0) 'torch)
-             (fire-new (opponent) (get room 1) (get room 2))))
-       (rooms (opponent)))
+  (foreach (lambda (room)
+             (if (equal (get room 0) 'torch)
+                 (fire-new (opponent) (get room 1) (get room 2))))
+           (rooms (opponent)))
   (setq on-fadein nil))
 
 ;; (flag-show (opponent) 1)

@@ -5,7 +5,6 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 
-(gc)
 
 (let ((opts (range 9)))
 
@@ -24,6 +23,3 @@
              ;8
              lv
              ))))
-
-
-(gc)

@@ -504,6 +504,47 @@ BINDING_TABLE({
 
           return result.result();
       }}},
+    {"room-damage",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, user_data);
+
+          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+          auto coord = RoomCoord{
+              (u8)lisp::get_op(1)->integer().value_,
+              (u8)lisp::get_op(0)->integer().value_,
+          };
+
+          if (auto room = island->get_room(coord)) {
+              auto mt = load_metaclass(room->metaclass_index());
+              return L_INT((*mt)->full_health() - room->health());
+          } else {
+              return L_NIL;
+          }
+      }}},
+    {"room-hp",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, user_data);
+
+          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+          auto coord = RoomCoord{
+              (u8)lisp::get_op(1)->integer().value_,
+              (u8)lisp::get_op(0)->integer().value_,
+          };
+
+          if (auto room = island->get_room(coord)) {
+              return L_INT(room->health());
+          } else {
+              return L_NIL;
+          }
+      }}},
     {"room-hp-set",
      {4,
       [](int argc) {
@@ -529,6 +570,7 @@ BINDING_TABLE({
               } else {
                   room->heal(diff);
               }
+              island->schedule_repaint();
           }
 
           return L_NIL;
@@ -568,6 +610,25 @@ BINDING_TABLE({
           b.push_back(L_CONS(L_SYM("ico2"), L_INT((*mt)->unsel_icon())));
           b.push_back(L_CONS(L_SYM("pwr"), L_INT((*mt)->consumes_power())));
           b.push_back(L_CONS(L_SYM("cost"), L_INT((*mt)->cost())));
+          b.push_back(L_CONS(L_SYM("max-hp"), L_INT((*mt)->full_health())));
+          b.push_back(L_CONS(L_SYM("category"), L_SYM([mt] {
+              switch ((*mt)->category()) {
+              case Room::Category::wall:
+                  return "wall";
+              case Room::Category::weapon:
+                  return "weapon";
+              case Room::Category::factory:
+                  return "factory";
+              case Room::Category::power:
+                  return "power";
+              case Room::Category::misc:
+                  return "misc";
+              case Room::Category::decoration:
+                  return "decoration";
+              default:
+                  return "invalid?!";
+              }
+          }())));
 
           return b.result();
       }}},
@@ -750,6 +811,24 @@ BINDING_TABLE({
               lisp::push_op(room->serialize()); // protect from gc.
               result.push_back(lisp::get_op(0));
               lisp::pop_op();
+          }
+
+          return result.result();
+      }}},
+    {"rooms-damaged",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, user_data);
+
+          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+
+          lisp::ListBuilder result;
+          for (auto& room : island->rooms()) {
+              auto mt = load_metaclass(room->metaclass_index());
+              if ((*mt)->full_health() not_eq room->health()) {
+                  result.push_back(L_CONS(L_INT(room->position().x),
+                                          L_INT(room->position().y)));
+              }
           }
 
           return result.result();
