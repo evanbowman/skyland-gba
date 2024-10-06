@@ -98,7 +98,8 @@ public:
                RoomProperties::locked_by_default |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::highly_flammable |
-               RoomProperties::multiboot_compatible;
+               RoomProperties::multiboot_compatible |
+               RoomProperties::oversize_explosion;
     }
 
 

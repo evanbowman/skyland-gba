@@ -84,7 +84,6 @@ static inline int boot_init()
                                      ";;; mods dir, and load them\n"
                                      ";;; here.\n"
                                      ";;;\n"
-                                     "\n(key-bind \"du\" 'repl)\n"
                                      "(port 1)\n";
 
         flash_filesystem::store_file_data("/mods/init.lisp",

@@ -212,6 +212,8 @@
 (assert-v ((pos-equalto? 1 15) '(3 15 7)))
 (assert-v (not ((pos-equalto? 1 8) '(3 15 7))))
 
+(assert-eq 767268228 (hash '(8 . 7)))
+
 
 (let ((tmp 0))
   (defn foo ()

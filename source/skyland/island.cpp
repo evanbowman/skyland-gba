@@ -885,10 +885,13 @@ void Island::update(Time dt)
 
         if (room->health() == 0) {
 
-            const bool quiet = (*room->metaclass())->properties() &
-                               RoomProperties::destroy_quietly;
+            auto props = (*room->metaclass())->properties();
 
-            auto cg = (*room->metaclass())->category();
+            const bool quiet = props & RoomProperties::destroy_quietly;
+            const bool big_explo =
+                (props & RoomProperties::oversize_explosion) or
+                (props & RoomProperties::habitable);
+
 
             if (++destroyed_count < 5 and not quiet) {
                 // Five rooms destroyed on the same island in the same frame! If
@@ -896,9 +899,7 @@ void Island::update(Time dt)
                 // game and use lots of entities.
                 big_explosion(
                     room->center(),
-                    BigExplosionConfig{.centerflash_ =
-                                           not quiet and
-                                           cg not_eq Room::Category::wall});
+                    BigExplosionConfig{.centerflash_ = big_explo});
             }
 
             if (str_eq(room->name(), "power-core") or

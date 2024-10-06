@@ -151,8 +151,7 @@ struct RoomProperties
         // Melts nearby ice blocks.
         generates_heat = (1 << 23),
 
-        // Only available in easy-mode.
-        easy_mode_only = (1 << 24),
+        oversize_explosion = (1 << 24),
 
         // Available in multiboot games. Unused...
         // I had this idea to support single cartridge

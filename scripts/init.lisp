@@ -104,9 +104,6 @@
   (dialog-opts-push txtn (lambda () (if on-dialog-declined (on-dialog-declined)))))
 
 
-;; For backwards compatibility...
-(defn/c repl () (push-menu "repl" '()))
-
 ;; shortcut accessors for room metadata
 (defn/c rinfo (key sym)
   (lookup key (room-meta sym)))
@@ -125,7 +122,10 @@
            varg)))
 
 
-;; Hash function for an xy coordinate pair
-(defn/c hash (xy)
-  (let ((h (+ (* (first xy) 374761393) (* (second xy) 668265263))))
-    (abs (* (^ h (>> h 13)) 1274126177))))
+(defn/c hash (v)
+  (cond
+    ((and (pair? v) (int? (car v)) (int? (cdr v))) ;; hash for xy coord pair
+     (let ((h (+ (* (first v) 374761393) (* (second v) 668265263))))
+       (abs (* (^ h (>> h 13)) 1274126177))))
+    (true
+     (error (format "cannot hash %" v)))))

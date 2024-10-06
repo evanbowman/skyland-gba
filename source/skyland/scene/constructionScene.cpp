@@ -1493,9 +1493,6 @@ bool ConstructionScene::collect_available_buildings()
             (APP.game_mode() == App::GameMode::skyland_forever and
              meta->properties() &
                  RoomProperties::skyland_forever_unsupported) or
-            (APP.gp_.difficulty_ not_eq
-                 GlobalPersistentData::Difficulty::beginner and
-             meta->properties() & RoomProperties::easy_mode_only) or
             (state_bit_load(StateBit::multiboot) and
              not(meta->properties() & RoomProperties::multiboot_compatible));
 
