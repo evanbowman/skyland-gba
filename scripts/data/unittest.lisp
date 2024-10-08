@@ -344,6 +344,9 @@
 
 (begin-test "FILE OPERATIONS")
 
+;; This file that we're running must exist...
+(assert-v (file-exists? "/scripts/data/unittest.lisp"))
+
 (setq temp (file-load "/scripts/data/test-data.txt"))
 (let ((size (get temp 1))
       (data (get temp 2)))
@@ -368,13 +371,11 @@
   (buffer-write (get temp 2) 0 (string-to-bytes str))
   (file-store temp)
   (setq temp (file-load "/test.dat"))
-  ;(fatal (string (get temp 1)))
-  ;(assert-eq str (buffer-read (get temp 2) 0 (length str)))
-  )
+  (assert-eq str (bytes-to-string (buffer-read (get temp 2) 0 (length str)))))
 
+(assert-v (file-exists? "/test.dat"))
 (file-unlink "/test.dat")
-(setq temp (file-load "/test.dat"))
-(assert-eq (get temp 1) 0) ;; empty file
+(assert-v (not (file-exists? "/test.dat")))
 
 (end-test)
 

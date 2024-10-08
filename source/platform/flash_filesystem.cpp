@@ -213,36 +213,40 @@ namespace flash_filesystem
 
 
 
-static BloomFilter<512> file_present_filter;
+// FIXME: re-enable the file present filter. It breaks regression for some
+// reason... after working for years, it doesn't pass some of the test cases
+// that I wrote for it. Too bad...
+// static BloomFilter<512> file_present_filter;
 
 
 
 void __path_cache_insert(const char* path)
 {
-    file_present_filter.insert(path, strlen(path));
+    // file_present_filter.insert(path, strlen(path));
 }
 
 
 
 void __path_cache_create()
 {
-    file_present_filter.clear();
+    // file_present_filter.clear();
 
-    walk([&](const char* path) { __path_cache_insert(path); });
+    // walk([&](const char* path) { __path_cache_insert(path); });
 }
 
 
 
 void __path_cache_destroy()
 {
-    file_present_filter.clear();
+    // file_present_filter.clear();
 }
 
 
 
 bool __path_cache_file_exists_maybe(const char* file_name)
 {
-    return file_present_filter.exists(file_name, strlen(file_name));
+    // return file_present_filter.exists(file_name, strlen(file_name));
+    return true;
 }
 
 

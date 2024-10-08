@@ -1070,6 +1070,18 @@ BINDING_TABLE({
 
           return result.result();
       }}},
+    {"file-exists?",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          auto path = lisp::get_op0()->string().value();
+          if (flash_filesystem::file_exists(path)) {
+              return lisp::make_boolean(true);
+          }
+
+          auto c = PLATFORM.load_file_contents("", path);
+          return lisp::make_boolean(c);
+      }}},
     {"weather",
      {1,
       [](int argc) {
