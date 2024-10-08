@@ -927,4 +927,61 @@ o----------------------------o
  condition is true.
 
 
+
+##############################
+
+ Section8:
+
+ Databuffers
+
+##############################
+
+o----------------------------o
+
+ (databuffer)
+
+ Allocate a 2kb buffer.
+
+
+o----------------------------o
+
+ (buffer-write buf
+               offset
+               bytes)
+
+ Write bytes to buf at
+ offset.
+
+ Bytes should contain a list
+ of integers, where each int
+ is of the range 0->255.
+
+ The function will return
+ true/false for
+ success/failure.
+
+ Failure cases are buffer
+ overruns and such...
+
+ Note about writing stuff:
+ want to write a string? If
+ it's ascii, you can just use
+ string-explode to format it
+ curretly...
+
+ For integers, try the
+ bitwise operators.
+
+
+o----------------------------o
+
+ (buffer-read buf offset len)
+
+ Read len bytes from buffer
+ at offset.
+
+ The result will be a list
+ of integers ranged 0->255.
+
+
 o----------------------------o

@@ -80,7 +80,7 @@ union ValueMemory
     Error error_;
     Symbol symbol_;
     UserData user_data_;
-    DataBuffer data_buffer_;
+    DataBuffer databuffer_;
     String string_;
     __Reserved __reserved_;
 };
@@ -213,7 +213,6 @@ struct Context
     Optional<DynamicMemory<StringInternTable>> string_intern_table_;
 
     Value* nil_ = nullptr;
-    Value* oom_ = nullptr;
     Value* string_buffer_ = nullptr;
     Value* globals_tree_ = nullptr;
     Value* tree_nullnode_ = nullptr;
@@ -830,30 +829,26 @@ static Value* alloc_value()
 
 Value* make_function(Function::CPP_Impl impl)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::function;
-        val->function().cpp_impl_ = impl;
-        val->function().required_args_ = 0;
-        val->hdr_.mode_bits_ = Function::ModeBits::cpp_function;
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::function;
+    val->function().cpp_impl_ = impl;
+    val->function().required_args_ = 0;
+    val->hdr_.mode_bits_ = Function::ModeBits::cpp_function;
+    return val;
 }
 
 
 static Value* make_lisp_function(Value* impl)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::function;
-        val->function().lisp_impl_.code_ = compr(impl);
-        val->function().required_args_ = 0;
-        val->function().lisp_impl_.lexical_bindings_ =
-            compr(bound_context->lexical_bindings_);
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::function;
+    val->function().lisp_impl_.code_ = compr(impl);
+    val->function().required_args_ = 0;
+    val->function().lisp_impl_.lexical_bindings_ =
+        compr(bound_context->lexical_bindings_);
 
-        val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
-        return val;
-    }
-    return bound_context->oom_;
+    val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
+    return val;
 }
 
 
@@ -1074,47 +1069,43 @@ static Value* make_lisp_argumented_function(Value* impl)
         return make_error(Error::Code::invalid_syntax, error_str);
     }
 
-    if (auto val = alloc_value()) {
+    auto val = alloc_value();
 
-        // Now, the complicated part...
-        // We need to clone the existing source code input, then we will alter
-        // the contents to substitute the input arguments with positional
-        // values.
-        // If an enclosed lambda captures an input argument, then we need to
-        // raise an error.
-        Protected new_impl(impl);
-        // new_impl = clone(impl); TODO... can anything bad happen if we mutate
-        // a list representing source code? I'm not certain.
+    // Now, the complicated part...
+    // We need to clone the existing source code input, then we will alter
+    // the contents to substitute the input arguments with positional
+    // values.
+    // If an enclosed lambda captures an input argument, then we need to
+    // raise an error.
+    Protected new_impl(impl);
+    // new_impl = clone(impl); TODO... can anything bad happen if we mutate
+    // a list representing source code? I'm not certain.
 
-        perform_argument_substitution(new_impl);
+    perform_argument_substitution(new_impl);
 
-        val->hdr_.type_ = Value::Type::function;
-        val->function().lisp_impl_.code_ = compr(new_impl->cons().cdr());
-        val->function().required_args_ = argc;
-        val->function().lisp_impl_.lexical_bindings_ =
-            compr(bound_context->lexical_bindings_);
+    val->hdr_.type_ = Value::Type::function;
+    val->function().lisp_impl_.code_ = compr(new_impl->cons().cdr());
+    val->function().required_args_ = argc;
+    val->function().lisp_impl_.lexical_bindings_ =
+        compr(bound_context->lexical_bindings_);
 
-        val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
+    val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
 
-        return val;
-    }
-    return bound_context->oom_;
+    return val;
 }
 
 
 Value* make_bytecode_function(Value* bytecode)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::function;
-        val->function().bytecode_impl_.lexical_bindings_ =
-            compr(bound_context->lexical_bindings_);
-        val->function().required_args_ = 0;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::function;
+    val->function().bytecode_impl_.lexical_bindings_ =
+        compr(bound_context->lexical_bindings_);
+    val->function().required_args_ = 0;
 
-        val->function().bytecode_impl_.bytecode_ = compr(bytecode);
-        val->hdr_.mode_bits_ = Function::ModeBits::lisp_bytecode_function;
-        return val;
-    }
-    return bound_context->oom_;
+    val->function().bytecode_impl_.bytecode_ = compr(bytecode);
+    val->hdr_.mode_bits_ = Function::ModeBits::lisp_bytecode_function;
+    return val;
 }
 
 
@@ -1134,14 +1125,12 @@ Value* make_cons_safe(Value* car, Value* cdr)
 
 Value* make_cons(Value* car, Value* cdr)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::cons;
-        val->cons().set_car(car);
-        val->cons().__set_cdr(cdr);
-        val->cons().is_definitely_list_ = false;
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::cons;
+    val->cons().set_car(car);
+    val->cons().__set_cdr(cdr);
+    val->cons().is_definitely_list_ = false;
+    return val;
 }
 
 
@@ -1157,23 +1146,19 @@ Value* make_boolean(bool is_true)
 
 Value* make_integer(s32 value)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::integer;
-        val->integer().value_ = value;
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::integer;
+    val->integer().value_ = value;
+    return val;
 }
 
 
 Value* make_float(Float::ValueType value)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::fp;
-        val->fp().value_ = value;
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::fp;
+    val->fp().value_ = value;
+    return val;
 }
 
 
@@ -1195,16 +1180,22 @@ Value* make_list(u32 length)
 }
 
 
+Value* make_error(const char* message)
+{
+    Protected str(make_string(message));
+
+    return make_error(Error::Code::custom, str);
+}
+
+
 Value* make_error(Error::Code error_code, Value* context)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::error;
-        val->error().code_ = error_code;
-        val->error().context_ = compr(context);
-        val->error().stacktrace_ = compr(stacktrace());
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::error;
+    val->error().code_ = error_code;
+    val->error().context_ = compr(context);
+    val->error().stacktrace_ = compr(stacktrace());
+    return val;
 }
 
 
@@ -1219,36 +1210,30 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
         mode = Symbol::ModeBits::small;
     }
 
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::symbol;
-        val->hdr_.mode_bits_ = (u8)mode;
-        val->symbol().set_name(name);
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::symbol;
+    val->hdr_.mode_bits_ = (u8)mode;
+    val->symbol().set_name(name);
+    return val;
 }
 
 
 static Value* intern_to_symbol(const char* already_interned_str)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::symbol;
-        val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
-        val->symbol().set_name(already_interned_str);
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::symbol;
+    val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
+    val->symbol().set_name(already_interned_str);
+    return val;
 }
 
 
 Value* make_userdata(void* obj)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::user_data;
-        val->user_data().obj_ = obj;
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::user_data;
+    val->user_data().obj_ = obj;
+    return val;
 }
 
 
@@ -1263,13 +1248,11 @@ Value* make_databuffer(const char* sbr_tag)
         sbr_tag = "lisp-databuffer";
     }
 
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::data_buffer;
-        new ((ScratchBufferPtr*)val->data_buffer().sbr_mem_)
-            ScratchBufferPtr(make_scratch_buffer(sbr_tag));
-        return val;
-    }
-    return bound_context->oom_;
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::databuffer;
+    new ((ScratchBufferPtr*)val->databuffer().sbr_mem_)
+        ScratchBufferPtr(make_scratch_buffer(sbr_tag));
+    return val;
 }
 
 
@@ -1278,14 +1261,11 @@ void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 Value* make_string_from_literal(const char* str)
 {
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::string;
-        val->string().data_.literal_.value_ = str;
-        val->string().is_literal_ = true;
-        return val;
-    } else {
-        return bound_context->oom_;
-    }
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::string;
+    val->string().data_.literal_.value_ = str;
+    val->string().is_literal_ = true;
+    return val;
 }
 
 
@@ -1307,7 +1287,7 @@ std::pair<Value*, int> store_string(const char* string, u32 len)
     if (existing_buffer) {
         const auto offset = (SCRATCH_BUFFER_SIZE - free) + 1;
 
-        auto write_ptr = existing_buffer->data_buffer().value()->data_ + offset;
+        auto write_ptr = existing_buffer->databuffer().value()->data_ + offset;
 
         memcpy(write_ptr, string, len);
 
@@ -1321,17 +1301,13 @@ std::pair<Value*, int> store_string(const char* string, u32 len)
 
         auto buffer = make_databuffer("lisp-string-bulk-allocator");
 
-        if (buffer == bound_context->oom_) {
-            Platform::fatal("oom");
-        }
-
         Protected p(buffer);
         bound_context->string_buffer_ = buffer;
 
         for (int i = 0; i < SCRATCH_BUFFER_SIZE; ++i) {
-            buffer->data_buffer().value()->data_[i] = '\0';
+            buffer->databuffer().value()->data_[i] = '\0';
         }
-        auto write_ptr = buffer->data_buffer().value()->data_;
+        auto write_ptr = buffer->databuffer().value()->data_;
 
         while (*string) {
             *write_ptr++ = *string++;
@@ -1353,15 +1329,12 @@ Value* make_string(const char* string)
 
     auto [buffer, offset] = store_string(string, len);
 
-    if (auto val = alloc_value()) {
-        val->hdr_.type_ = Value::Type::string;
-        val->string().data_.memory_.data_buffer_ = compr(buffer);
-        val->string().data_.memory_.offset_ = offset;
-        val->string().is_literal_ = false;
-        return val;
-    } else {
-        return bound_context->oom_;
-    }
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::string;
+    val->string().data_.memory_.databuffer_ = compr(buffer);
+    val->string().data_.memory_.offset_ = offset;
+    val->string().is_literal_ = false;
+    return val;
 }
 
 
@@ -1837,7 +1810,7 @@ void format_impl(Value* value, Printer& p, int depth)
         p.put_str("]");
         break;
 
-    case lisp::Value::Type::data_buffer:
+    case lisp::Value::Type::databuffer:
         p.put_str("<sbr>");
         break;
 
@@ -1852,8 +1825,8 @@ const char* String::value()
     if (is_literal_) {
         return data_.literal_.value_;
     } else {
-        return dcompr(data_.memory_.data_buffer_)
-                   ->data_buffer()
+        return dcompr(data_.memory_.databuffer_)
+                   ->databuffer()
                    .value()
                    ->data_ +
                data_.memory_.offset_;
@@ -1923,7 +1896,7 @@ static void gc_mark_value(Value* value)
 
     case Value::Type::string:
         if (not value->string().is_literal_) {
-            gc_mark_value(dcompr(value->string().data_.memory_.data_buffer_));
+            gc_mark_value(dcompr(value->string().data_.memory_.databuffer_));
         }
         break;
 
@@ -1998,7 +1971,6 @@ void Protected::gc_mark()
 static void gc_mark()
 {
     gc_mark_value(bound_context->nil_);
-    gc_mark_value(bound_context->oom_);
     gc_mark_value(bound_context->lexical_bindings_);
     gc_mark_value(bound_context->macros_);
     gc_mark_value(bound_context->tree_nullnode_);
@@ -2038,7 +2010,7 @@ static void invoke_finalizer(Value* value)
 
 void DataBuffer::finalizer(Value* buffer)
 {
-    reinterpret_cast<ScratchBufferPtr*>(buffer->data_buffer().sbr_mem_)
+    reinterpret_cast<ScratchBufferPtr*>(buffer->databuffer().sbr_mem_)
         ->~ScratchBufferPtr();
 }
 
@@ -2079,16 +2051,16 @@ int compact_string_memory()
                 db = new_buffer();
             }
 
-            memcpy(db->data_buffer().value()->data_ + write_offset,
+            memcpy(db->databuffer().value()->data_ + write_offset,
                    val->string().value(),
                    len);
 
-            auto old_buffer = dcompr(val->string().data_.memory_.data_buffer_);
+            auto old_buffer = dcompr(val->string().data_.memory_.databuffer_);
             if (not contains(recovered_buffers, old_buffer)) {
                 recovered_buffers.push_back(old_buffer);
             }
 
-            val->string().data_.memory_.data_buffer_ = compr(db);
+            val->string().data_.memory_.databuffer_ = compr(db);
             val->string().data_.memory_.offset_ = write_offset;
 
             write_offset += len;
@@ -3188,7 +3160,7 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::__reserved:
     case Value::Type::nil:
     case Value::Type::heap_node:
-    case Value::Type::data_buffer:
+    case Value::Type::databuffer:
         return lhs == rhs;
 
     case Value::Type::function:
@@ -3594,6 +3566,11 @@ BUILTIN_TABLE(
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::user_data);
        }}},
+     {"databuffer?",
+      {1,
+       [](int argc) {
+           return make_boolean(get_op0()->type() == Value::Type::user_data);
+       }}},
      {"string?",
       {1,
        [](int argc) {
@@ -3651,6 +3628,60 @@ BUILTIN_TABLE(
                return dcompr(get_op0()->error().context_);
            }
            return L_NIL;
+       }}},
+     {"databuffer",
+      {0,
+       [](int argc) {
+           return make_databuffer("lisp-databuffer");
+       }}},
+     {"buffer-write",
+      {3,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           L_EXPECT_OP(1, integer);
+           L_EXPECT_OP(2, databuffer);
+
+           if (not is_list(get_op0())) {
+               return make_boolean(false); // TODO: error
+           }
+
+           u16 len = length(get_op(0));
+           u16 offset = L_LOAD_INT(1);
+
+           if (offset + len >= SCRATCH_BUFFER_SIZE) {
+               return make_boolean(false); // TODO: error
+           }
+
+           int i = offset;
+           l_foreach(get_op0(), [&](Value* val) {
+               u8 byte = val->integer().value_;
+               get_op(2)->databuffer().value()->data_[i++] = byte;
+           });
+
+           return make_boolean(true);
+       }}},
+     {"buffer-read",
+      {3,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           L_EXPECT_OP(1, integer);
+           L_EXPECT_OP(2, databuffer);
+
+           u16 len = L_LOAD_INT(0);
+           u16 offset = L_LOAD_INT(1);
+
+           if (offset + len >= SCRATCH_BUFFER_SIZE) {
+               return make_boolean(false);
+           }
+
+           auto sbr = get_op(2)->databuffer().value();
+
+           lisp::ListBuilder result;
+           for (int i = 0; i < len; ++i) {
+               result.push_back(L_INT(sbr->data_[i + offset]));
+           }
+
+           return result.result();
        }}},
      {"apropos",
       {1,
@@ -3992,7 +4023,7 @@ BUILTIN_TABLE(
            for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
                Value* val = (Value*)&value_pool_data[i];
                if (val->hdr_.alive_ and
-                   val->hdr_.type_ == Value::Type::data_buffer) {
+                   val->hdr_.type_ == Value::Type::databuffer) {
                    ++databuffers;
                }
            }
@@ -4287,10 +4318,6 @@ BUILTIN_TABLE(
                if (is_boolean_true(funcall_result)) {
                    current->cons().set_car(val);
                    auto next = make_cons(L_NIL, L_NIL);
-                   if (next == bound_context->oom_) {
-                       current = result;
-                       return;
-                   }
                    current->cons().set_cdr(next);
                    prev = current;
                    current = next;
@@ -4515,10 +4542,8 @@ BUILTIN_TABLE(
            get_env([&current](const char* str) {
                current->cons().set_car(intern_to_symbol(str));
                auto next = make_cons(get_nil(), get_nil());
-               if (next not_eq bound_context->oom_) {
-                   current->cons().set_cdr(next);
-                   current = next;
-               }
+               current->cons().set_cdr(next);
+               current = next;
            });
 
            pop_op(); // result
@@ -4553,7 +4578,7 @@ BUILTIN_TABLE(
 
                auto buffer = get_op0()->function().bytecode_impl_.databuffer();
 
-               auto data = buffer->data_buffer().value();
+               auto data = buffer->databuffer().value();
 
                const auto start_offset = get_op0()
                                              ->function()
@@ -5360,11 +5385,6 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
     ctx->globals_tree_ = ctx->nil_;
     ctx->callstack_ = ctx->nil_;
     ctx->lexical_bindings_ = ctx->nil_;
-
-    ctx->oom_ = alloc_value();
-    ctx->oom_->hdr_.type_ = Value::Type::error;
-    ctx->oom_->error().code_ = Error::Code::out_of_memory;
-    ctx->oom_->error().context_ = compr(ctx->nil_);
 
     ctx->string_buffer_ = ctx->nil_;
     ctx->macros_ = ctx->nil_;

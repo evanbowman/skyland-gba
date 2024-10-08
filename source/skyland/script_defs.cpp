@@ -49,6 +49,7 @@
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
+#include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
@@ -991,6 +992,48 @@ BINDING_TABLE({
               big_explosion({Fixnum::from_integer(x), Fixnum::from_integer(y)});
           }
           return L_NIL;
+      }}},
+    {"level-retry",
+     {0,
+      [](int argc) {
+          PLATFORM.fill_overlay(0);
+          APP.restore_backup();
+          PLATFORM.speaker().clear_sounds();
+          push_menu_queue.push_back(make_deferred_scene<LoadLevelScene>());
+          return L_NIL;
+      }}},
+    {"file-load",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          Vector<char> contents;
+
+          lisp::ListBuilder result;
+          result.push_back(lisp::get_op0());
+
+          lisp::Protected buf(lisp::make_databuffer("file-contents"));
+          memset(buf->databuffer().value()->data_, 0, SCRATCH_BUFFER_SIZE);
+
+          if (APP.load_file(lisp::get_op0()->string().value(), contents)) {
+
+              if (contents.size() > SCRATCH_BUFFER_SIZE) {
+                  return lisp::make_error("file too large to load!");
+              }
+
+              int i = 0; // NOTE: vector indexing is not as fast as iteration.
+              for (char c : contents) {
+                  buf->databuffer().value()->data_[i++] = c;
+              }
+
+              result.push_back(L_INT(contents.size()));
+              result.push_back(buf);
+
+          } else {
+              result.push_back(L_INT(0));
+              result.push_back(buf);
+          }
+
+          return result.result();
       }}},
     {"weather",
      {1,

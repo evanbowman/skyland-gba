@@ -93,7 +93,7 @@ struct ValueHeader
         error,
         symbol,
         user_data,
-        data_buffer,
+        databuffer,
         string,
         fp,
         __reserved,
@@ -373,7 +373,7 @@ struct DataBuffer
 
     static ValueHeader::Type type()
     {
-        return ValueHeader::Type::data_buffer;
+        return ValueHeader::Type::databuffer;
     }
 
     alignas(ScratchBufferPtr) u8 sbr_mem_[sizeof(ScratchBufferPtr)];
@@ -394,7 +394,7 @@ struct String
 
     struct MemoryString
     {
-        CompressedPtr data_buffer_;
+        CompressedPtr databuffer_;
         u16 offset_;
     };
 
@@ -588,7 +588,7 @@ struct Value
         return *reinterpret_cast<UserData*>(this);
     }
 
-    DataBuffer& data_buffer()
+    DataBuffer& databuffer()
     {
         return *reinterpret_cast<DataBuffer*>(this);
     }
@@ -619,6 +619,7 @@ Value* make_cons(Value* car, Value* cdr);
 Value* make_integer(s32 value);
 Value* make_list(u32 length);
 Value* make_error(Error::Code error_code, Value* context);
+Value* make_error(const char* message);
 Value* make_userdata(void* obj);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);

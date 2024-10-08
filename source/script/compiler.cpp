@@ -1013,7 +1013,7 @@ void compile(Value* code)
 {
     // We will be rendering all of our compiled code into this buffer.
     push_op(make_databuffer("lisp-bytecode"));
-    if (get_op(0)->type() not_eq Value::Type::data_buffer) {
+    if (get_op(0)->type() not_eq Value::Type::databuffer) {
         return;
     }
 
@@ -1032,7 +1032,7 @@ void compile(Value* code)
     }
 
     pop_op();
-    auto buffer = get_op(0)->data_buffer().value();
+    auto buffer = get_op(0)->databuffer().value();
     pop_op();
     push_op(fn);
 
@@ -1044,7 +1044,7 @@ void compile(Value* code)
     write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
 
     write_pos = PeepholeOptimizer().run(
-        *fn->function().bytecode_impl_.databuffer()->data_buffer().value(),
+        *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
         write_pos);
 
     // std::cout << "compilation finished, bytes used: " << write_pos <<
@@ -1070,7 +1070,7 @@ void compile(Value* code)
             auto buf = val.function().bytecode_impl_.databuffer();
             int used = SCRATCH_BUFFER_SIZE - 1;
             for (; used > 0; --used) {
-                if ((Opcode)buf->data_buffer().value()->data_[used] not_eq
+                if ((Opcode)buf->databuffer().value()->data_[used] not_eq
                     instruction::Fatal::op()) {
                     ++used;
                     break;
@@ -1089,8 +1089,8 @@ void compile(Value* code)
 
                 auto src_buffer = fn->function().bytecode_impl_.databuffer();
                 for (int i = 0; i < bytes_used; ++i) {
-                    buf->data_buffer().value()->data_[used + i] =
-                        src_buffer->data_buffer().value()->data_[i];
+                    buf->databuffer().value()->data_[used + i] =
+                        src_buffer->databuffer().value()->data_[i];
                 }
 
                 Protected used_bytes(make_integer(used));

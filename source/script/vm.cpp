@@ -56,7 +56,7 @@ void vm_execute(Value* code_buffer, const int start_offset)
 {
     int pc = start_offset;
 
-    auto& code = *code_buffer->data_buffer().value();
+    auto& code = *code_buffer->databuffer().value();
 
     int nested_scope = 0;
 

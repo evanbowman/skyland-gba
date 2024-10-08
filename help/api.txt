@@ -789,6 +789,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (level-retry)
+
+ Try to reload the current
+ level from the beginning.
+
+
+o----------------------------o
+
  (log val)
 
  Write a value to the
@@ -969,6 +977,25 @@ o----------------------------o
  Terminate the game, and
  display fatal error message
  containing value.
+
+
+o----------------------------o
+
+ (file-load path)
+
+ Return a list, containing:
+
+ (path size databuffer)
+
+ Where databuffer contains
+ the loaded file data. Use
+ the databuffer functions to
+ access it. Some files may be
+ padded with trailing null
+ bytes, be careful of this.
+
+ This function can only load
+ files smaller than 2kb.
 
 
 o----------------------------o

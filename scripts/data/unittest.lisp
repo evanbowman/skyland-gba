@@ -7,11 +7,13 @@
 (setq put log)
 (setq newline (lambda () nil))
 
+(global 'current-test)
+
 
 (defn assert-v (v)
   (when (not v)
     (newline)
-    (error (format "assert failed! %" v))))
+    (error (format "in test %: assert failed! %" current-test v))))
 
 (if (not (error? (assert-v false)))
     (error "something has gone terribly wrong"))
@@ -19,7 +21,8 @@
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
     (newline)
-    (error (format "failure! expected % not equal %"
+    (error (format "in test %: expected % not equal %"
+                   current-test
                    lhs
                    rhs))))
 
@@ -48,16 +51,19 @@
 
 
 (defn begin-test (name)
+  (setq current-test name)
   (put (string name " test cases...")))
 
 (defn end-test ()
   (put " passed!")
+  (setq current-test nil)
   (gc)
   (newline))
 
 
 (assert-v (error? (let ((foo 2)) (global 'foo))))
 (assert-v (error? ((lambda () (setq a 5) 8))))
+
 
 
 (begin-test "READER")
@@ -298,6 +304,55 @@
                         "no more than 5 named args allowed in function"))))
 
 (end-test)
+
+
+
+(begin-test "DATABUFFER")
+
+(setq temp (lisp-mem-sbr-used))
+(databuffer)
+;; Make sure that allocating a databuffer increases the scratch buffer (sbr) count
+(assert-eq (lisp-mem-sbr-used) (+ temp 1))
+(gc)
+;; The databuffer that we created above has no references to it. Make sure that
+;; we recovered the mem associated with it.
+(assert-eq (lisp-mem-sbr-used) temp)
+
+(setq temp (databuffer))
+(assert-v (buffer-write temp 0 '(1 2 3 4 255)))
+(assert-eq (buffer-read temp 0 5) '(1 2 3 4 255))
+
+(let ((str "Hello, there!"))
+  (buffer-write temp 6 (string-explode str))
+  (assert-eq str (string-assemble (buffer-read temp 6 (length str)))))
+
+(assert-eq (buffer-read temp 0 5) '(1 2 3 4 255)) ; make sure it's still there...
+
+(end-test)
+
+
+
+(begin-test "FILE OPERATIONS")
+
+(setq temp (file-load "/scripts/data/test-data.txt"))
+(let ((size (get temp 1))
+      (data (get temp 2)))
+  (assert-eq "Here's some text..."
+             (string-assemble (filter (lambda (c)
+                                        ;; Some files have trailing null bytes
+                                        ;; for padding purposes. Also, filter
+                                        ;; out the ending newline.
+                                        (and (> c 0) (not (equal c 10))))
+                                      (buffer-read data 0 size)))))
+
+
+(let ((f (file-load "/scripts/stdlib.lisp")))
+  (assert-v (and (error? f)
+                 (equal (error-info f)
+                        "file too large to load!"))))
+
+(end-test)
+
 
 (assert-v (bound? 'begin-test))
 (assert-v (bound? 'end-test))

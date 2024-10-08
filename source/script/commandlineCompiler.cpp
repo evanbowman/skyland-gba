@@ -206,7 +206,7 @@ int main(int argc, char** argv)
     auto code_buffer = lisp::get_op(0)
                            ->function()
                            .bytecode_impl_.databuffer()
-                           ->data_buffer()
+                           ->databuffer()
                            .value();
 
     auto sym = make_relocatable(*code_buffer);

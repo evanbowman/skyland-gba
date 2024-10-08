@@ -31,55 +31,103 @@
  the engine's scripting
  language.
 
- SKYLAND lisp is a bit of a
+ SKYLAND LISP is a bit of a
  mix of scheme and common
  lisp.
 
- I won't give an in-depth
- description of the entire
- language. But I should
- mention a few notable
- differences from other lisp
- dialects. In almost all
- cases, the seemingly weird
- language design choices
- listed below result from
- gba hardware limitations.
+ While I've greatly improved
+ it over the years, I should
+ mention a few of its
+ remaining shortcomings:
 
- 1) While the language does
- support named arguments for
- functions, the older version
- of the interpreter only
- featured unnamed arguments,
- referenced by the $ symbol
- followed by the argument
- number. The interpreter
- does now support lambdas
- with named arguments, but
- the older (fn ...) syntax
- still exists in many
- scripts. I am slowly
- replacing it.
+ 1) You may find some
+ weirdness with the (read)
+ function. Do not ever make
+ any assumptions about the
+ results of (read) based on
+ your experience with other
+ lisps. Engineering an
+ efficient lisp that runs
+ on a gameboy means that
+ sometimes one needs to cut
+ corners a bit.
 
- Furthermore, the named
- argument syntax is built
- on top of the numbered
- positional argument syntax,
- so you may notice $ symbols
- in place of argument variable
- names in error messages.
+ 2) Following the above
+ point about the problematic
+ reader: macros. The reader
+ eagerly expands macros,
+ which normally isn't a
+ problem, but it makes macro
+ definition a bit of a puzzle
+ in cases where macros
+ contain other macros. Nested
+ macros are supported, but
+ there is definitely an
+ ordering problem where one
+ needs to be declared after
+ the macro that references
+ it.
 
- 2) The language does not
- allow you to capture a
- function argument as part of
- a closure, you have to
- manually create a let
- binding. Mostly for reasons
- hinted at in 1). I'll fix
- this someday.
+ 3) Capturing enclosing
+ function parameters in a
+ nested lambda is not
+ supported, and will raise a
+ fatal error. You can work
+ around this by binding the
+ vals to local vars with a
+ let expression. I know it's
+ annoying, but, with the way
+ argument substition works,
+ it would be fairly complex
+ to support this.
 
- 3) The reader (read) performs
- macro expansion. With very
- limited cpu, macroexpanding
- a function each time you call
- it just isn't realistic.
+
+ DATA TYPES:
+
+ nil: The empty list.
+ Represents the absence of
+ a value.
+ Evaluates to false.
+
+ int: A signed 32 bit
+ integer.
+
+ cons: A pair of two values.
+
+ function: A value containing
+ re-usable code. Functions
+ can be declared anonymously
+ with the lambda keyword and
+ live in the same namespace
+ as other variables.
+
+ error: Signals that an error
+ occurred.
+
+ symbol: A globally unique
+ value containing text. All
+ symbols with the same text
+ will compare identically to
+ one another. Symbol
+ comparison is optimized and
+ occurs in constant time.
+
+ user_data: A place to store
+ custom data when embedding
+ this scripting language in
+ another project.
+
+ databuffer: A 2kb fixed
+ size buffer, to be used in
+ whatever way you want. A
+ very low level datatype for
+ when you want to interact
+ with binary data. This is
+ the only mutable datatype.
+
+ string: It's a string.
+ Encoded in utf-8.
+
+ float: IEEE-754 floating
+ point number.
+ 
