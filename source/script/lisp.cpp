@@ -188,6 +188,11 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 };
 
 
+#define MAX_NAMED_ARGUMENTS 5 // isn't 5 named arguemnts plenty? Passing six or
+                              // more arguments to a function starts to indicate
+                              // bad code in my opinion...
+
+
 struct Context
 {
     using OperandStack = Buffer<Value*, 497>;
@@ -217,6 +222,11 @@ struct Context
     Value* macros_ = nullptr;
 
     Value* callstack_ = nullptr;
+
+    // contains symbol values $0, $1, $2, etc. used for argument substitution.
+    // storing the symbols here significantly simplifies some edge cases
+    // involving garbage collection that crop up during argument substitution.
+    Value* argument_symbols_[MAX_NAMED_ARGUMENTS];
 
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
@@ -254,6 +264,23 @@ static Optional<Context> bound_context;
 
 static void invoke_finalizer(Value* value);
 void value_pool_free(Value* value);
+
+
+void __unsafe_discard_list(Value* list)
+{
+    // NOTE: this function manually deallocates a list, and does not check to
+    // make sure that the value passed is actually of list type. This function
+    // may only be called in places within the interpreter implementation where
+    // we are throwing out some intermediary datastructures and know that the
+    // data could not possibly be referenced by anything.
+
+    while (list not_eq L_NIL) {
+        auto next = list->cons().cdr();
+        invoke_finalizer(list);
+        value_pool_free(list);
+        list = next;
+    }
+}
 
 
 static void push_callstack(Value* function)
@@ -698,6 +725,12 @@ void gc_symbols()
     //
     // NOTE: after performing short string optimizations for symbols, I put off
     // gc for the string intern table.
+    //
+    // NOTE: after pregenerating a symbol table for lisp scripts, I see almost
+    // no reason to bother with collecting symbols. We never hit the intern
+    // table anyway unless we are creating symbols at runtime, which only really
+    // happens if we're declaring variables with the developer lisp repl
+    // console.
 }
 
 
@@ -865,15 +898,16 @@ static int examine_argument_list(Value* function_impl)
 
 struct ArgBinding
 {
-    // FIXME! These should be gc roots!!!!!
-    Symbol* sym_;
-    Symbol* replacement_;
+    Symbol* sym_; // This symbol should be safe to store a pointer to... it's in
+                  // the input source code list, so it's a proper gc root...
+
+    u8 replacement_;
 };
 
 
 struct ArgBindings
 {
-    Buffer<ArgBinding, 16> bindings_;
+    Buffer<ArgBinding, MAX_NAMED_ARGUMENTS> bindings_;
     ArgBindings* parent_ = nullptr;
 };
 
@@ -885,17 +919,11 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 
     int arg = 0;
     l_foreach(arg_lat, [&](Value* val) {
-        auto replace = &make_symbol(::format("$%", arg++).c_str())->symbol();
 
-        push_op((Value*)replace); // protect from gc
-
-        if (not b.bindings_.push_back(ArgBinding{&val->symbol(), replace})) {
+        if (not b.bindings_.push_back(ArgBinding{&val->symbol(), (u8)arg++})) {
+            PLATFORM.fatal("too many named arguments for function! Max 16");
         }
     });
-
-    for (int i = 0; i < arg; ++i) {
-        pop_op(); // pop protected gc vals
-    }
 
     return b;
 }
@@ -903,6 +931,8 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 
 static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 {
+    auto& ctx = bound_context;
+
     while (true) {
         if (impl->type() not_eq Value::Type::cons) {
             break;
@@ -979,8 +1009,18 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                 for (auto& binding : bindings.bindings_) {
                     if (binding.sym_->unique_id() ==
                         val->symbol().unique_id()) {
-                        impl->cons().set_car(
-                            (lisp::Value*)binding.replacement_);
+
+                        auto old_val = impl->cons().car();
+
+                        // We're performing a destructive operation on a
+                        // cons. We can throw out the old value...  This is
+                        // actually safe.
+                        invoke_finalizer(old_val);
+                        value_pool_free(old_val);
+
+                        auto sym = ctx->argument_symbols_[binding.replacement_];
+
+                        impl->cons().set_car(sym);
                         replaced = true;
                     }
                 }
@@ -1022,6 +1062,18 @@ void perform_argument_substitution(Value* impl)
 
 static Value* make_lisp_argumented_function(Value* impl)
 {
+    int argc = examine_argument_list(impl);
+
+    if (argc > MAX_NAMED_ARGUMENTS) {
+
+        const char* error_fmt = "no more than % named args allowed in function";
+
+        Protected error_str(L_NIL);
+        error_str = make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
+
+        return make_error(Error::Code::invalid_syntax, error_str);
+    }
+
     if (auto val = alloc_value()) {
 
         // Now, the complicated part...
@@ -1034,7 +1086,6 @@ static Value* make_lisp_argumented_function(Value* impl)
         // new_impl = clone(impl); TODO... can anything bad happen if we mutate
         // a list representing source code? I'm not certain.
 
-        int argc = examine_argument_list(new_impl);
         perform_argument_substitution(new_impl);
 
         val->hdr_.type_ = Value::Type::function;
@@ -1952,6 +2003,10 @@ static void gc_mark()
     gc_mark_value(bound_context->macros_);
     gc_mark_value(bound_context->tree_nullnode_);
 
+    for (auto& sym : bound_context->argument_symbols_) {
+        gc_mark_value(sym);
+    }
+
     auto& ctx = bound_context;
 
     for (auto elem : *ctx->operand_stack_) {
@@ -2323,8 +2378,8 @@ static u32 read_symbol(CharSequence& code, int offset)
             }
 
             if (bound_context->string_intern_table_ and
-                id >= bound_context->string_intern_table_.data_ and
-                id < bound_context->string_intern_table_.data_ +
+                id >= (*bound_context->string_intern_table_)->data_ and
+                id < (*bound_context->string_intern_table_)->data_ +
                          string_intern_table_size) {
                 // Do not perform small symbol optimization, because the name,
                 // when interpreted as a pointer, falls in the range of the
@@ -2585,6 +2640,7 @@ static void macroexpand()
                 auto result = get_op0();
                 pop_op(); // result of eval_let()
                 pop_op(); // input list
+
                 push_op(result);
 
                 // OK, so... we want to allow users to recursively instantiate
@@ -2621,13 +2677,14 @@ u32 read(CharSequence& code, int offset)
             return i;
 
         case '[':
-        case '(':
+        case '(': {
             ++i;
             pop_op(); // nil
             i += read_list(code, offset + i);
             macroexpand();
             // list now at stack top.
             return i;
+        }
 
         case ';':
             while (true) {
@@ -2889,10 +2946,8 @@ static void eval_if(Value* code)
 }
 
 
-static void eval_lambda(Value* code)
+static void eval_function(Value* code)
 {
-    // todo: argument list...
-
     push_op(make_lisp_function(code));
 }
 
@@ -2996,7 +3051,7 @@ void eval(Value* code)
                 --bound_context->interp_entry_count_;
                 return;
             } else if (str_eq(form->symbol().name(), "fn")) {
-                eval_lambda(code->cons().cdr());
+                eval_function(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
                 pop_op(); // code
@@ -3588,6 +3643,14 @@ BUILTIN_TABLE(
                return lisp::make_error(lisp::Error::Code::invalid_argument_type,
                                        L_NIL);
            }
+       }}},
+     {"error-info",
+      {1,
+       [](int argc) {
+           if (get_op0()->type() == Value::Type::error) {
+               return dcompr(get_op0()->error().context_);
+           }
+           return L_NIL;
        }}},
      {"apropos",
       {1,
@@ -5288,23 +5351,25 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
         bound_context->external_symtab_size_ = external_symtab->second;
     }
 
+    auto& ctx = bound_context;
+
     value_pool_init();
-    bound_context->nil_ = alloc_value();
-    bound_context->nil_->hdr_.type_ = Value::Type::nil;
-    bound_context->nil_->hdr_.mode_bits_ = 0;
-    bound_context->globals_tree_ = bound_context->nil_;
-    bound_context->callstack_ = bound_context->nil_;
-    bound_context->lexical_bindings_ = bound_context->nil_;
+    ctx->nil_ = alloc_value();
+    ctx->nil_->hdr_.type_ = Value::Type::nil;
+    ctx->nil_->hdr_.mode_bits_ = 0;
+    ctx->globals_tree_ = ctx->nil_;
+    ctx->callstack_ = ctx->nil_;
+    ctx->lexical_bindings_ = ctx->nil_;
 
-    bound_context->oom_ = alloc_value();
-    bound_context->oom_->hdr_.type_ = Value::Type::error;
-    bound_context->oom_->error().code_ = Error::Code::out_of_memory;
-    bound_context->oom_->error().context_ = compr(bound_context->nil_);
+    ctx->oom_ = alloc_value();
+    ctx->oom_->hdr_.type_ = Value::Type::error;
+    ctx->oom_->error().code_ = Error::Code::out_of_memory;
+    ctx->oom_->error().context_ = compr(ctx->nil_);
 
-    bound_context->string_buffer_ = bound_context->nil_;
-    bound_context->macros_ = bound_context->nil_;
+    ctx->string_buffer_ = ctx->nil_;
+    ctx->macros_ = ctx->nil_;
 
-    bound_context->tree_nullnode_ =
+    ctx->tree_nullnode_ =
         make_cons(get_nil(), make_cons(get_nil(), get_nil()));
 
     // Push a few nil onto the operand stack. Allows us to access the first few
@@ -5318,6 +5383,10 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
     }
 
     push_callstack(make_string("toplevel"));
+
+    for (int i = 0; i < MAX_NAMED_ARGUMENTS; ++i) {
+        ctx->argument_symbols_[i] = make_symbol(::format("$%", i).c_str());
+    }
 }
 
 

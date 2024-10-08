@@ -68,7 +68,6 @@
 (defn/c dialog-opts-reset ()
   (setq dialog-opts nil))
 
-(dialog-opts-reset)
 
 (defn/c dialog-opts-push (name cb)
   (setq dialog-opts (cons (cons name cb) dialog-opts)))

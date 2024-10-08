@@ -53,10 +53,17 @@ ScenePtr RegressionModule::update(Time delta)
     state_bit_store(StateBit::regression, true);
 
     if (test_index == -1) {
-        APP.invoke_script("/scripts/data/unittest.lisp");
-
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.screen().schedule_fade(1);
+        PLATFORM.screen().clear();
+        Text::print("please wait...", {1, 1});
+        Text::print("running tests...", {1, 3});
+        PLATFORM.screen().display();
+
+        PLATFORM.system_call("watchdog-off", nullptr);
+        APP.invoke_script("/scripts/data/unittest.lisp");
+        PLATFORM.system_call("watchdog-on", nullptr);
+
         PLATFORM.screen().clear();
         Text::print("core regression passed!", {1, 1});
         Text::print("validating tutorials...", {1, 3});

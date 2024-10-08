@@ -13,12 +13,18 @@
     (newline)
     (error (format "assert failed! %" v))))
 
+(if (not (error? (assert-v false)))
+    (error "something has gone terribly wrong"))
+
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
     (newline)
     (error (format "failure! expected % not equal %"
                    lhs
                    rhs))))
+
+(if (not (error? (assert-eq 1 2)))
+    (error "something is wrong with assert-eq..."))
 
 (if (not (error? (error "...")))
     (fatal "unable to raise errors!?"))
@@ -124,6 +130,8 @@
 (assert-eq '(10 11 12 13 14 0 1 2 3 4) (difference (range 0 10) (range 5 15)))
 (assert-eq '(2 3) (union (range 10) '(-1 2 2 3 12 12 14)))
 (assert-v ((pos-equalto? 1 5) '(1 5 7)))
+(assert-eq (car '(2 . 3)) (first '(2 . 3)))
+(assert-eq (cdr '(4 . 5)) (second '(4 . 5)))
 
 (end-test)
 
@@ -195,6 +203,7 @@
 (assert-eq 5 (abs -5))
 (assert-eq "a 12 3.5 '(1 2 3) " (format "% % % % " 'a 12 3.5 '(1 2 3)))
 (assert-eq 20 (apply + (map int (split "0,1,1,2,3,5,8" ","))))
+(assert-eq (map cons '(1 2 3) '(4 5 6)) '((1 . 4) (2 . 5) (3 . 6)))
 (assert-eq 'cake (symbol "cake"))
 (assert-v ((equalto? 9) 9))
 (assert-v "bats" ((lambda () (arg 1)) "birds" "bats" "iguana"))
@@ -231,10 +240,78 @@
 (end-test)
 
 
+(begin-test "IN THE WEEDS")
+;; These test cases are testing very obscure implementation details about the
+;; interpreter, which normally wouldn't be visible to the programmer unless
+;; you're really doing something strange.
 
-(unbind 'assert-v
-        'assert-eq
-        'begin-test
+(global 'test-var)
+(assert-v (nil? test-var)) ; Declared global variables are initialized to nil
+(unbind 'test-var)
+(assert-v (error? (setq test-var 8))) ; Write to undefined variable raises error
+
+(global 'temp)
+(setq temp (read "(lambda (a b c) (+ a b c))"))
+(eval temp)
+;; NOTE: eval is destructive in some cases. Normally, you don't need to worry
+;; about this. But we want test coverage for these sorts of weird cases.
+;; Really, when doing argument substitution, we shouldn't be modifying the input
+;; list. Nothing should modify lists. But for practical purposes, it creates a
+;; whole bunch of pressure on the gc if we need to clone an entire function
+;; implementation every time we do argument substitution.
+(assert-eq temp '(lambda (a b c) (+ $0 $1 $2)))
+
+;; Another thing that you don't typically see: lambda is not the lowest level
+;; function primitive. There's a lower level syntax element called 'fn, which
+;; all lambdas are converted to after argument substitution. fn has no argument
+;; list and all substituted arguments have been replaced by $<argument number>.
+(assert-eq (disassemble (eval temp)) '(fn (+ $0 $1 $2)))
+
+;; Now a more complex one with a nested lambda:
+(setq temp (read "(lambda (a b c) (let ((x a) (y (+ b c))) (lambda (w v) (+ w v x y))))"))
+(assert-eq (disassemble (eval temp)) '(fn (let ((x $0) (y (+ $1 $2))) (fn (+ $0 $1 x y)))))
+
+;; Test some macros... the reader eagerly expands macros. This is pretty bad,
+;; but again, macroexpanding stuff during evaluation every time isn't
+;; sensible...
+(assert-eq (read "(and 1 2 3)") '(if (not 1) 0 (if (not 2) 0 (if (not 3) 0 1))))
+(assert-eq (read "(or 1 2)") '(if 1 1 (if 2 1 0)))
+(assert-eq (read "(when true nil)") '(if 1 (let () ())))
+(assert-eq (read "(cond ((a 5) 6 7 8) (true nil))")
+           '(if (a 5) (let () 6 7 8) (if 1 (let () ()) ())))
+
+;; The $V symbol gives you access to a variadic argument list. Let's make sure
+;; it works...
+(assert-eq 31 ((lambda (a b) (apply + (append (list a b) $V))) 1 2 3 4 5 6 7))
+(assert-eq 4 ((lambda () (length $V)) 1 2 3 4))
+
+(assert-eq true 1)
+(assert-eq nil false)
+(assert-eq nil '())
+
+
+(assert-v (not (error? (eval (read "(defn temp (a b c d e) (+ a b c d e))")))))
+
+(let ((result (eval (read "(defn temp (a b c d e f) (+ a b c d e f))"))))
+  (assert-v (and (error? result)
+                 (equal (error-info result)
+                        "no more than 5 named args allowed in function"))))
+
+(end-test)
+
+(assert-v (bound? 'begin-test))
+(assert-v (bound? 'end-test))
+
+(unbind 'begin-test
+        'temp
         'end-test)
 
+(assert-v (not (bound? 'begin-test)))
+(assert-v (not (bound? 'end-test)))
+
+(unbind 'assert-v
+        'assert-eq)
+
 (if (lambda? log) (unbind 'put))
+
+(gc)

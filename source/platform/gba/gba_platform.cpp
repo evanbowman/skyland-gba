@@ -1365,41 +1365,6 @@ static bool is_onscreen(const Platform::Screen& screen, const Vec2<Fixnum>& pos)
 
 
 
-void Platform::Screen::draw(const FastSpriteMatrix mat)
-{
-    auto shape = ATTR0_TALL;
-    auto size = ATTR1_SIZE_16;
-    shape = ATTR0_SQUARE;
-    size = ATTR1_SIZE_32;
-    int tx_scale = 16;
-
-    for (auto& spr : mat.data_[0]) {
-        const auto target_index = 2 + spr.tile_ * tx_scale;
-
-        if (UNLIKELY(oam_write_index == oam_count)) {
-            return;
-        }
-
-        auto oa = object_attribute_back_buffer + oam_write_index;
-
-        oa->attribute_0 = ATTR0_COLOR_16 | shape;
-        oa->attribute_1 = size;
-        auto abs_position = spr.screen_coord_;
-
-        oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9)));
-        oa->attribute_0 |= abs_position.y & 0x00ff;
-
-        oa->attribute_1 |= abs_position.x & 0x01ff;
-
-        oa->attribute_2 = target_index;
-        oa->attribute_2 |= 0; // palette bank
-        oa->attribute_2 |= ATTR2_PRIORITY(1);
-        oam_write_index += 1;
-    }
-}
-
-
-
 void Platform::Screen::draw_batch(TextureIndex t,
                                   const Buffer<Vec2<s32>, 64>& coords,
                                   const SpriteBatchOptions& opts)

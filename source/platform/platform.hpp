@@ -519,15 +519,6 @@ public:
         };
 
 
-        struct FastSpriteMatrix
-        {
-            Buffer<FastSprite, 128> data_[1];
-        };
-
-
-        void draw(const FastSpriteMatrix mat);
-
-
         // Optimized drawing routine for multiple copies of the same sprite.
         void draw_batch(TextureIndex texture,
                         const Buffer<Vec2<s32>, 64>& coords,

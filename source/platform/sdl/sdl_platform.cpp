@@ -936,12 +936,6 @@ void Platform::Screen::set_shader_argument(int arg)
 
 
 
-void Platform::Screen::draw(const FastSpriteMatrix mat)
-{
-}
-
-
-
 void Platform::Screen::draw_batch(TextureIndex t,
                                   const Buffer<Vec2<s32>, 64>& coords,
                                   const SpriteBatchOptions& opts)

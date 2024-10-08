@@ -656,6 +656,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (error-info error)
+
+ Return info attached to an
+ error value.
+
+
+o----------------------------o
+
  (eval list)
 
  Evaluate a list as lisp
