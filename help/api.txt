@@ -1000,6 +1000,50 @@ o----------------------------o
 
 o----------------------------o
 
+ (file-store file-data)
+
+ Store a file. file-data
+ should be in a similar form
+ as the result of file-load:
+
+ '(path size databuffer)
+
+ Currently there isn't an
+ api function for writing
+ to a file. So you'll have to
+ create one, or simply use
+ file-load and then the
+ databuffer functions for
+ writing data and set the
+ size manually or
+ something...
+
+
+o----------------------------o
+
+ (file-unlink path)
+
+ Delete a file.
+
+ NOTE: files in ROM cannot
+ be unlinked, for obvious
+ reasons. The game sort of
+ has two filesystems, one in
+ save ram, and one in rom.
+ The game will preferentially
+ load save ram files before
+ searching the rom filesystem,
+ so you can override rom
+ files with files generated
+ at runtime, but you cannot
+ delete rom files. Of course,
+ you could write a mostly
+ empty file to the save ram
+ filesystem...
+
+
+o----------------------------o
+
  (file-get-line path line)
 
  Retrieve a string containing

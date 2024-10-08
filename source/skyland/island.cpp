@@ -897,9 +897,8 @@ void Island::update(Time dt)
                 // Five rooms destroyed on the same island in the same frame! If
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
-                big_explosion(
-                    room->center(),
-                    BigExplosionConfig{.centerflash_ = big_explo});
+                big_explosion(room->center(),
+                              BigExplosionConfig{.centerflash_ = big_explo});
             }
 
             if (str_eq(room->name(), "power-core") or

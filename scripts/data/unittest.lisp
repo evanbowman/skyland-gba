@@ -323,10 +323,20 @@
 (assert-eq (buffer-read temp 0 5) '(1 2 3 4 255))
 
 (let ((str "Hello, there!"))
-  (buffer-write temp 6 (string-explode str))
-  (assert-eq str (string-assemble (buffer-read temp 6 (length str)))))
+  (buffer-write temp 6 (string-to-bytes str))
+  ;; FIXME: the string is ascii, so (length str) works here... but it's not good
+  ;; style.
+  (assert-eq str (bytes-to-string (buffer-read temp 6 (length str)))))
 
 (assert-eq (buffer-read temp 0 5) '(1 2 3 4 255)) ; make sure it's still there...
+
+(assert-eq 2147483647 (bytes-to-int (int-to-bytes 2147483647)))
+
+(let ((str "こんにちは！"))
+  (let ((encoded (string-to-bytes str)))
+    (buffer-write temp 0 encoded)
+    (assert-eq str (bytes-to-string (buffer-read temp 0 (length encoded))))))
+
 
 (end-test)
 
@@ -350,6 +360,21 @@
   (assert-v (and (error? f)
                  (equal (error-info f)
                         "file too large to load!"))))
+
+
+(setq temp (file-load "/test.dat"))
+(let ((str "some text!"))
+  (setq temp (list (get temp 0) (length str) (get temp 2)))
+  (buffer-write (get temp 2) 0 (string-to-bytes str))
+  (file-store temp)
+  (setq temp (file-load "/test.dat"))
+  ;(fatal (string (get temp 1)))
+  ;(assert-eq str (buffer-read (get temp 2) 0 (length str)))
+  )
+
+(file-unlink "/test.dat")
+(setq temp (file-load "/test.dat"))
+(assert-eq (get temp 1) 0) ;; empty file
 
 (end-test)
 

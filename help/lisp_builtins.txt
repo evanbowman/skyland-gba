@@ -383,6 +383,22 @@ o----------------------------o
 
 o----------------------------o
 
+ (int-to-bytes integer)
+
+ Disassemble an integer into
+ a list of bytes.
+
+
+o----------------------------o
+
+ (bytes-to-int bytes)
+
+ Assemble a list of four
+ bytes into an integer.
+
+
+o----------------------------o
+
  (< a b)
  (> a b)
  (+ ...)
@@ -473,7 +489,12 @@ o----------------------------o
 
  (split string delim)
 
- Does what you'd expect.
+ NOTE: split only currently
+ works with ascii delimiters!
+ i.e. delim must be an ascii
+ character. Otherwise, split
+ does what you'd expect it to
+ do.
 
 
 o----------------------------o
@@ -499,6 +520,31 @@ o----------------------------o
 
  Assemble a list of integer
  codepoints back into a
+ string.
+
+
+o----------------------------o
+
+ (string-to-bytes string)
+
+ Like string-explode, but
+ outputs a list of bytes in
+ range 0->255 instead of
+ outputting codepoints. This
+ is a lower level version
+ of the function that ignores
+ encoding. But sometimes you
+ want to ignore encoding...
+ like if you're working with
+ plain bytes an an input...
+
+
+o----------------------------o
+
+ (bytes-to-string bytes)
+
+ Re-interpret a list of
+ bytes ranged [0-255] as a
  string.
 
 

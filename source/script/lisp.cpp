@@ -188,9 +188,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 };
 
 
-#define MAX_NAMED_ARGUMENTS 5 // isn't 5 named arguemnts plenty? Passing six or
-                              // more arguments to a function starts to indicate
-                              // bad code in my opinion...
+#define MAX_NAMED_ARGUMENTS 5
 
 
 struct Context
@@ -914,7 +912,6 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 
     int arg = 0;
     l_foreach(arg_lat, [&](Value* val) {
-
         if (not b.bindings_.push_back(ArgBinding{&val->symbol(), (u8)arg++})) {
             PLATFORM.fatal("too many named arguments for function! Max 16");
         }
@@ -1064,7 +1061,8 @@ static Value* make_lisp_argumented_function(Value* impl)
         const char* error_fmt = "no more than % named args allowed in function";
 
         Protected error_str(L_NIL);
-        error_str = make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
+        error_str =
+            make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
 
         return make_error(Error::Code::invalid_syntax, error_str);
     }
@@ -1825,10 +1823,7 @@ const char* String::value()
     if (is_literal_) {
         return data_.literal_.value_;
     } else {
-        return dcompr(data_.memory_.databuffer_)
-                   ->databuffer()
-                   .value()
-                   ->data_ +
+        return dcompr(data_.memory_.databuffer_)->databuffer().value()->data_ +
                data_.memory_.offset_;
     }
 }
@@ -3584,6 +3579,64 @@ BUILTIN_TABLE(
            }
            return make_boolean(false);
        }}},
+     {"string-to-bytes",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, string);
+           ListBuilder result;
+
+           auto str = get_op0()->string().value();
+           while (*str not_eq '\0') {
+               result.push_back(L_INT(*str));
+               ++str;
+           }
+           return result.result();
+       }}},
+     {"bytes-to-string",
+      {1,
+       [](int argc) {
+           if (not is_list(get_op0())) {
+               return make_error("bytes-to-string expects a list param!");
+           }
+
+           auto temp =
+               allocate_dynamic<StringBuffer<2000>>("bytes-to-string-temp");
+           l_foreach(get_op0(), [&temp](Value* v) {
+               temp->push_back(v->integer().value_);
+           });
+
+           return make_string(temp->c_str());
+       }}},
+     {"int-to-bytes",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           ListBuilder result;
+           host_s32 value;
+           value.set(L_LOAD_INT(0));
+
+           for (int i = 0; i < 4; ++i) {
+               result.push_back(L_INT(((u8*)&value)[i]));
+           }
+
+           return result.result();
+       }}},
+     {"bytes-to-int",
+      {1,
+       [](int argc) {
+           if (not is_list(get_op0())) {
+               return make_error("bytes-to-int expects a list of four values!");
+           }
+
+           host_s32 value;
+           int i = 0;
+
+           l_foreach(get_op0(), [&](Value* v) {
+               ((u8*)&value)[i++] = v->integer().value_;
+           });
+
+           return L_INT(value.get());
+       }}},
      {"int",
       {1,
        [](int argc) {
@@ -3630,10 +3683,7 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"databuffer",
-      {0,
-       [](int argc) {
-           return make_databuffer("lisp-databuffer");
-       }}},
+      {0, [](int argc) { return make_databuffer("lisp-databuffer"); }}},
      {"buffer-write",
       {3,
        [](int argc) {
@@ -5389,8 +5439,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
     ctx->string_buffer_ = ctx->nil_;
     ctx->macros_ = ctx->nil_;
 
-    ctx->tree_nullnode_ =
-        make_cons(get_nil(), make_cons(get_nil(), get_nil()));
+    ctx->tree_nullnode_ = make_cons(get_nil(), make_cons(get_nil(), get_nil()));
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.

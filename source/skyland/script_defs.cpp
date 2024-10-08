@@ -613,23 +613,23 @@ BINDING_TABLE({
           b.push_back(L_CONS(L_SYM("cost"), L_INT((*mt)->cost())));
           b.push_back(L_CONS(L_SYM("max-hp"), L_INT((*mt)->full_health())));
           b.push_back(L_CONS(L_SYM("category"), L_SYM([mt] {
-              switch ((*mt)->category()) {
-              case Room::Category::wall:
-                  return "wall";
-              case Room::Category::weapon:
-                  return "weapon";
-              case Room::Category::factory:
-                  return "factory";
-              case Room::Category::power:
-                  return "power";
-              case Room::Category::misc:
-                  return "misc";
-              case Room::Category::decoration:
-                  return "decoration";
-              default:
-                  return "invalid?!";
-              }
-          }())));
+                                 switch ((*mt)->category()) {
+                                 case Room::Category::wall:
+                                     return "wall";
+                                 case Room::Category::weapon:
+                                     return "weapon";
+                                 case Room::Category::factory:
+                                     return "factory";
+                                 case Room::Category::power:
+                                     return "power";
+                                 case Room::Category::misc:
+                                     return "misc";
+                                 case Room::Category::decoration:
+                                     return "decoration";
+                                 default:
+                                     return "invalid?!";
+                                 }
+                             }())));
 
           return b.result();
       }}},
@@ -1000,6 +1000,41 @@ BINDING_TABLE({
           APP.restore_backup();
           PLATFORM.speaker().clear_sounds();
           push_menu_queue.push_back(make_deferred_scene<LoadLevelScene>());
+          return L_NIL;
+      }}},
+    {"file-store",
+     {1,
+      [](int argc) {
+          if (not is_list(lisp::get_op0())) {
+              return lisp::make_boolean(false);
+          }
+          auto path = lisp::get_list(lisp::get_op0(), 0);
+          auto size = lisp::get_list(lisp::get_op0(), 1);
+          auto data = lisp::get_list(lisp::get_op0(), 2);
+
+          if (path->type() not_eq lisp::Value::Type::string or
+              size->type() not_eq lisp::Value::Type::integer or
+              data->type() not_eq lisp::Value::Type::databuffer) {
+
+              // TODO: raise error!
+              return lisp::make_boolean(false);
+          }
+
+          Vector<char> output;
+          for (int i = 0; i < size->integer().value_; ++i) {
+              output.push_back(data->databuffer().value()->data_[i]);
+          }
+
+          auto success = flash_filesystem::store_file_data_binary(
+              path->string().value(), output, {.use_compression_ = true});
+
+          return lisp::make_boolean(success);
+      }}},
+    {"file-unlink",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          flash_filesystem::unlink_file(lisp::get_op0()->string().value());
           return L_NIL;
       }}},
     {"file-load",
