@@ -983,16 +983,8 @@ o----------------------------o
 
  (file-load path)
 
- Return a list, containing:
-
- (path size databuffer)
-
- Where databuffer contains
- the loaded file data. Use
- the databuffer functions to
- access it. Some files may be
- padded with trailing null
- bytes, be careful of this.
+ Loads and returns to contents
+ of a file.
 
  This function can only load
  files smaller than 2kb.
@@ -1000,23 +992,35 @@ o----------------------------o
 
 o----------------------------o
 
+ (file-read file offset len)
+
+ Read a range of bytes from
+ a file from the given begin
+ to end index range.
+
+
+o----------------------------o
+
+ (file-write! file offset val)
+
+ Write to a loaded file
+ object.
+
+ If you pass -1 as the offset,
+ then new data will be
+ appended to the end of the
+ file.
+
+ val should be a bytes list,
+ see int-to-bytes or
+ string-to-bytes, for example.
+
+
+o----------------------------o
+
  (file-store file-data)
 
- Store a file. file-data
- should be in a similar form
- as the result of file-load:
-
- '(path size databuffer)
-
- Currently there isn't an
- api function for writing
- to a file. So you'll have to
- create one, or simply use
- file-load and then the
- databuffer functions for
- writing data and set the
- size manually or
- something...
+ Store a file back to disk.
 
 
 o----------------------------o

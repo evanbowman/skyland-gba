@@ -1002,10 +1002,59 @@ BINDING_TABLE({
           push_menu_queue.push_back(make_deferred_scene<LoadLevelScene>());
           return L_NIL;
       }}},
+    {"file-write!",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(1, integer);
+
+          auto inp_list = lisp::get_op(2);
+
+          if (not lisp::is_list(lisp::get_op(2)) or not lisp::is_list(lisp::get_op0())) {
+              return lisp::make_error("invalid input");
+          }
+
+          auto path = lisp::get_list(lisp::get_op(2), 0);
+          auto size = lisp::get_list(lisp::get_op(2), 1);
+          auto data = lisp::get_list(lisp::get_op(2), 2);
+
+          if (path->type() not_eq lisp::Value::Type::string or
+              size->type() not_eq lisp::Value::Type::integer or
+              data->type() not_eq lisp::Value::Type::databuffer) {
+
+              return lisp::make_error("invalid input");
+          }
+
+          auto len = lisp::length(lisp::get_op0());
+          auto offset = L_LOAD_INT(1);
+
+          int size_int = size->integer().value_;
+          if (offset == -1) {
+              offset = size_int;
+          }
+
+          const int newsize = len + offset;
+
+          if (newsize > size_int) {
+              size_int = newsize;
+          }
+
+          if (newsize > SCRATCH_BUFFER_SIZE) {
+              return lisp::make_error("file size exceeds maximum!");
+          }
+
+          int i = 0;
+          l_foreach(lisp::get_op0(), [&](lisp::Value* v) {
+              data->databuffer().value()->data_[offset + i++] = v->integer().value_;
+          });
+
+          set_list(inp_list, 1, L_INT(size_int));
+
+          return inp_list;
+      }}},
     {"file-store",
      {1,
       [](int argc) {
-          if (not is_list(lisp::get_op0())) {
+          if (not lisp::is_list(lisp::get_op0())) {
               return lisp::make_boolean(false);
           }
           auto path = lisp::get_list(lisp::get_op0(), 0);

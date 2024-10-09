@@ -991,9 +991,9 @@ o----------------------------o
 
 o----------------------------o
 
- (buffer-write buf
-               offset
-               bytes)
+ (buffer-write! buf
+                offset
+                bytes)
 
  Write bytes to buf at
  offset.
@@ -1009,14 +1009,14 @@ o----------------------------o
  Failure cases are buffer
  overruns and such...
 
- Note about writing stuff:
- want to write a string? If
- it's ascii, you can just use
- string-explode to format it
- curretly...
+ NOTE: This is the only
+ function in the whole
+ implementation that modifies
+ a value. Careful!
 
- For integers, try the
- bitwise operators.
+ See also:
+ int-to-bytes,
+ string-to-bytes
 
 
 o----------------------------o

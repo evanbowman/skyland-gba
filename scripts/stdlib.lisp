@@ -167,3 +167,10 @@
   (let ((v val))
     (lambda (o)
       (not (equal o v)))))
+
+
+(defn/c file-read (file offset len)
+  (buffer-read (get file 2) offset len))
+
+(defn/c file-size (file)
+  (get file 1))

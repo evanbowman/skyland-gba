@@ -64,7 +64,7 @@ static const u32 string_intern_table_size = 2000;
 #if defined(__NDS__)
 #define VALUE_POOL_SIZE 20000
 #elif defined(__GBA__)
-#define VALUE_POOL_SIZE 9900
+#define VALUE_POOL_SIZE 10000
 #else
 #define VALUE_POOL_SIZE 200000
 #endif
@@ -3684,7 +3684,7 @@ BUILTIN_TABLE(
        }}},
      {"databuffer",
       {0, [](int argc) { return make_databuffer("lisp-databuffer"); }}},
-     {"buffer-write",
+     {"buffer-write!",
       {3,
        [](int argc) {
            L_EXPECT_OP(0, cons);

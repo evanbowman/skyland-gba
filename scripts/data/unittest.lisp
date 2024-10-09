@@ -10,6 +10,11 @@
 (global 'current-test)
 
 
+(defn ensure (result)
+  (when (error? result)
+    (fatal result)))
+
+
 (defn assert-v (v)
   (when (not v)
     (newline)
@@ -319,11 +324,11 @@
 (assert-eq (lisp-mem-sbr-used) temp)
 
 (setq temp (databuffer))
-(assert-v (buffer-write temp 0 '(1 2 3 4 255)))
+(assert-v (buffer-write! temp 0 '(1 2 3 4 255)))
 (assert-eq (buffer-read temp 0 5) '(1 2 3 4 255))
 
 (let ((str "Hello, there!"))
-  (buffer-write temp 6 (string-to-bytes str))
+  (buffer-write! temp 6 (string-to-bytes str))
   ;; FIXME: the string is ascii, so (length str) works here... but it's not good
   ;; style.
   (assert-eq str (bytes-to-string (buffer-read temp 6 (length str)))))
@@ -334,7 +339,7 @@
 
 (let ((str "こんにちは！"))
   (let ((encoded (string-to-bytes str)))
-    (buffer-write temp 0 encoded)
+    (buffer-write! temp 0 encoded)
     (assert-eq str (bytes-to-string (buffer-read temp 0 (length encoded))))))
 
 
@@ -348,15 +353,15 @@
 (assert-v (file-exists? "/scripts/data/unittest.lisp"))
 
 (setq temp (file-load "/scripts/data/test-data.txt"))
-(let ((size (get temp 1))
-      (data (get temp 2)))
-  (assert-eq "Here's some text..."
-             (string-assemble (filter (lambda (c)
-                                        ;; Some files have trailing null bytes
-                                        ;; for padding purposes. Also, filter
-                                        ;; out the ending newline.
-                                        (and (> c 0) (not (equal c 10))))
-                                      (buffer-read data 0 size)))))
+
+(assert-eq "Here's some text..."
+           (bytes-to-string (filter (lambda (c)
+                                      ;; Some files, particularly the ones
+                                      ;; appended to rom, have trailing null
+                                      ;; bytes for padding purposes. Also,
+                                      ;; filter out the ending newline.
+                                      (and (> c 0) (not (equal c 10))))
+                                    (file-read temp 0 (file-size temp)))))
 
 
 (let ((f (file-load "/scripts/stdlib.lisp")))
@@ -365,13 +370,24 @@
                         "file too large to load!"))))
 
 
-(setq temp (file-load "/test.dat"))
-(let ((str "some text!"))
-  (setq temp (list (get temp 0) (length str) (get temp 2)))
-  (buffer-write (get temp 2) 0 (string-to-bytes str))
-  (file-store temp)
-  (setq temp (file-load "/test.dat"))
-  (assert-eq str (bytes-to-string (buffer-read (get temp 2) 0 (length str)))))
+(let ((file (file-load "/test.dat"))
+      (str "some text!"))
+
+  (file-write! file 0 (string-to-bytes str))
+  (file-store file)
+
+  (setq file (file-load "/test.dat"))
+  (ensure (assert-eq str (bytes-to-string (file-read file 0 (length str)))))
+
+  ;; Append the string again, to the end of the file. Later, we'll read it back
+  ;; and make sure that there are two copies of the string back-to-back.
+  (file-write! file -1 (string-to-bytes str))
+  (file-store file)
+
+  (setq file (file-load "/test.dat"))
+  (ensure (assert-eq (string str str) (bytes-to-string (file-read file 0 (* 2 (length str))))))
+  (assert-eq (file-size file) (* 2 (length str))))
+
 
 (assert-v (file-exists? "/test.dat"))
 (file-unlink "/test.dat")
