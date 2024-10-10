@@ -51,6 +51,7 @@
 #include "scene/constructionScene.hpp"
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
+#include "scene/modules/hexViewerModule.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
@@ -2015,6 +2016,19 @@ BINDING_TABLE({
           }
 
           return builder.result();
+      }}},
+    {"databuffer-inspect",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, databuffer);
+          auto sbr = lisp::get_op0()->databuffer().value();
+
+          push_menu_queue.emplace_back([sbr] {
+              auto next = make_scene<HexViewerModule>(sbr);
+              next->next_scene_ = make_deferred_scene<ReadyScene>();
+              return next;
+          });
+          return L_NIL;
       }}},
     {"setvar",
      {2,

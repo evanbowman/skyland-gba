@@ -129,6 +129,27 @@
 (assert-eq (string 5 12 "foo" 3.5 'nice) "512foo3.5nice")
 (assert-eq "你好" (string-assemble (string-explode "你好")))
 
+(setq temp (lisp-mem-string-storage))
+"abc123"
+;; After allocating the above string, internal string memory should have
+;; increased by seven bytes, i.e. the length of the string plus one null byte.
+(assert-eq (lisp-mem-string-storage) (+ temp 7))
+"y"
+;; The interpreter does an internal buffer optimization for small strings, which
+;; is the reason why there is no character datatype. Although... technically the
+;; internal buffer optimization only covers strings that are three bytes or
+;; shorter, so some extended utf8 chars will not be optimized and, instead,
+;; require an extra allocation. But looking at the list of four byte untf8
+;; charsets... is anyone going to care if emojis, egyptian heiroglyphics, or
+;; musical symbols are not hyper-optimized?
+(assert-eq (lisp-mem-string-storage) (+ temp 7))
+"yy"
+(assert-eq (lisp-mem-string-storage) (+ temp 7))
+"yyy"
+(assert-eq (lisp-mem-string-storage) (+ temp 7))
+"yyyy" ;; This should trigger an allocation of five additional bytes...
+(assert-eq (lisp-mem-string-storage) (+ temp 12))
+
 (end-test)
 
 

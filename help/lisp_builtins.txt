@@ -677,6 +677,24 @@ o----------------------------o
 
 o----------------------------o
 
+ (disassemble function)
+
+ If the function is not
+ compiled, then return the
+ lisp representation of the
+ function.
+
+ If the function is compiled,
+ and there is a remote console
+ (e.g. uart) connected, then
+ print to the console.
+ Otherwise, write the
+ disassembler output to the
+ game's syslog.
+
+
+o----------------------------o
+
  (equal a b)
 
  Return a true value if a
@@ -783,6 +801,28 @@ o----------------------------o
  Number of additional memory
  pages allocated by the
  interpreter.
+
+ * string-storage:
+ Number of string bytes
+ allocated.
+
+
+o----------------------------o
+
+ (lisp-mem-string-buffers)
+
+ Returns a list of
+ databuffers allocated by
+ the interpreter for holding
+ strings.
+
+ Suggestion: ...
+ (map
+  databuffer-inspect
+  (lisp-mem-string-buffers))
+  
+ ...will let you inspect all
+ buffers containing strings!
 
 
 o----------------------------o

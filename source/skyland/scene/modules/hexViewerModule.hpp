@@ -56,6 +56,16 @@ namespace skyland
 class HexViewerModule : public Scene
 {
 public:
+
+    HexViewerModule(ScratchBufferPtr sbr) :
+        path_(format<86>("<sbr:'%'>", sbr->tag_))
+    {
+        for (char c : sbr->data_) {
+            data_.push_back(c);
+        }
+    }
+
+
     HexViewerModule(UserContext&& user_context,
                     const char* file_path,
                     bool rom_file)
@@ -213,12 +223,21 @@ public:
 
         if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             PLATFORM.fill_overlay(0);
+
+            if (next_scene_) {
+                PLATFORM.screen().schedule_fade(0);
+                return (*next_scene_)();
+            }
+
             return make_scene<FileBrowserModule>(
                 std::move(user_context_), path_.c_str(), false);
         }
 
         return null_scene();
     }
+
+
+    Optional<DeferredScene> next_scene_;
 
 
 private:

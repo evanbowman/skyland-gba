@@ -390,7 +390,12 @@ struct DataBuffer
 struct String
 {
     ValueHeader hdr_;
-    bool is_literal_;
+
+    enum ModeBits {
+        memory_string,
+        literal_string,
+        small_string,
+    };
 
     struct MemoryString
     {
@@ -403,12 +408,19 @@ struct String
         const char* value_;
     };
 
+    struct SmallString
+    {
+        char data_[4];
+    };
+
     union Data
     {
         MemoryString memory_;
         LiteralString literal_;
+        SmallString small_string_;
     } data_;
 
+    ModeBits variant() const;
 
     static ValueHeader::Type type()
     {

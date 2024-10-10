@@ -1262,7 +1262,7 @@ Value* make_string_from_literal(const char* str)
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::string;
     val->string().data_.literal_.value_ = str;
-    val->string().is_literal_ = true;
+    val->string().hdr_.mode_bits_ = String::literal_string;
     return val;
 }
 
@@ -1324,6 +1324,20 @@ Value* make_string(const char* string)
         return make_string_from_literal("");
     }
 
+    // NOTE: for really small strings, three bytes or less, we do an internal
+    // buffer optmization. For this reason, we don't have a separate datatype
+    // for character literals.
+    if (len < 4) {
+
+        auto val = alloc_value();
+        val->hdr_.type_ = Value::Type::string;
+        val->string().hdr_.mode_bits_ = String::small_string;
+
+        memset(val->string().data_.small_string_.data_, 0, 4);
+        memcpy(val->string().data_.small_string_.data_, string, len);
+
+        return val;
+    }
 
     auto [buffer, offset] = store_string(string, len);
 
@@ -1331,7 +1345,7 @@ Value* make_string(const char* string)
     val->hdr_.type_ = Value::Type::string;
     val->string().data_.memory_.databuffer_ = compr(buffer);
     val->string().data_.memory_.offset_ = offset;
-    val->string().is_literal_ = false;
+    val->string().hdr_.mode_bits_ = String::memory_string;
     return val;
 }
 
@@ -1820,12 +1834,26 @@ void format_impl(Value* value, Printer& p, int depth)
 
 const char* String::value()
 {
-    if (is_literal_) {
+    switch (hdr_.mode_bits_) {
+    case String::literal_string:
         return data_.literal_.value_;
-    } else {
+
+    case String::memory_string:
         return dcompr(data_.memory_.databuffer_)->databuffer().value()->data_ +
                data_.memory_.offset_;
+
+    case String::small_string:
+        return data_.small_string_.data_;
+
+    default:
+        return ""; // Huh?
     }
+}
+
+
+String::ModeBits String::variant() const
+{
+    return (ModeBits)hdr_.mode_bits_;
 }
 
 
@@ -1890,7 +1918,7 @@ static void gc_mark_value(Value* value)
         break;
 
     case Value::Type::string:
-        if (not value->string().is_literal_) {
+        if (value->string().variant() == String::memory_string) {
             gc_mark_value(dcompr(value->string().data_.memory_.databuffer_));
         }
         break;
@@ -2037,7 +2065,7 @@ int compact_string_memory()
         Value* val = (Value*)&value_pool_data[i];
 
         if (val->hdr_.alive_ and val->type() == Value::Type::string and
-            not val->string().is_literal_) {
+            val->string().variant() == String::memory_string) {
 
             const auto len = strlen(val->string().value()) + 1;
 
@@ -4023,6 +4051,41 @@ BUILTIN_TABLE(
                                get_op0()->integer().value_);
        }}},
      {"gensym", {0, [](int) { return gensym(); }}},
+     {"lisp-mem-string-storage",
+      {0,
+       [](int argc) {
+           int bytes = 0;
+           live_values([&bytes](Value& val) {
+               if (val.type() == Value::Type::string) {
+                   if (val.string().variant() == String::memory_string) {
+                       bytes += strlen(val.string().value()) + 1;
+                   }
+               }
+           });
+           return L_INT(bytes);
+       }}},
+     {"lisp-mem-string-buffers",
+      {0,
+       [](int argc) {
+           ListBuilder buffers;
+           live_values([&buffers](Value& val) {
+               if (val.type() == Value::Type::string) {
+                   if (val.string().variant() == String::memory_string) {
+                       auto buf = dcompr(val.string().data_.memory_.databuffer_);
+                       bool found = false;
+                       l_foreach(buffers.result(), [&](Value* v) {
+                           if (v == buf) {
+                               found = true;
+                           }
+                       });
+                       if (not found) {
+                           buffers.push_back(buf);
+                       }
+                   }
+               }
+           });
+           return buffers.result();
+       }}},
      {"lisp-mem-set-gc-thresh",
       {1,
        [](int) {
@@ -4321,6 +4384,10 @@ BUILTIN_TABLE(
        [](int argc) {
            EvalBuffer b;
            EvalPrinter p(b);
+
+           if (argc == 1 and get_op0()->hdr_.type() == Value::Type::symbol) {
+               return make_string_from_literal(get_op0()->symbol().name());
+           }
 
            for (int i = argc - 1; i > -1; --i) {
                auto val = get_op(i);
@@ -5043,8 +5110,11 @@ BUILTIN_TABLE(
                        if (depth == 0) {
                            out += "RET\r\n";
                            auto pfrm = interp_get_pfrm();
-                           pfrm->remote_console().printline(out.c_str(), "");
-                           ((Platform*)pfrm)->sleep(80);
+                           if (pfrm->remote_console().printline(out.c_str(), "")) {
+                               ((Platform*)pfrm)->sleep(80);
+                           } else {
+                               info(out.c_str());
+                           }
                            return get_nil();
                        } else {
                            --depth;
@@ -5451,7 +5521,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
         PLATFORM.fatal("pointer compression test failed 1");
     }
 
-    push_callstack(make_string("toplevel"));
+    push_callstack(make_string_from_literal("toplevel"));
 
     for (int i = 0; i < MAX_NAMED_ARGUMENTS; ++i) {
         ctx->argument_symbols_[i] = make_symbol(::format("$%", i).c_str());

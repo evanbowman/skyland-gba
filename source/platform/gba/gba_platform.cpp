@@ -3739,7 +3739,9 @@ void Platform::Logger::log(Severity level, const char* msg)
     }
 
     while (*msg not_eq '\0') {
-        log_data_->push_back(*msg, t);
+        if (*msg not_eq '\r') {
+            log_data_->push_back(*msg, t);
+        }
         ++msg;
     }
 
@@ -7186,6 +7188,10 @@ auto Platform::RemoteConsole::peek_buffer() -> Line*
 
 auto Platform::RemoteConsole::readline() -> Optional<Line>
 {
+    if (not remote_console_state) {
+        return {};
+    }
+
     auto& state = *::remote_console_state;
 
     if (not state.rx_full_lines_.empty()) {
@@ -7201,6 +7207,10 @@ auto Platform::RemoteConsole::readline() -> Optional<Line>
 
 bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 {
+    if (not remote_console_state) {
+        return false;
+    }
+
     auto& state = *::remote_console_state;
 
     if (state.tx_msg_ and not(*state.tx_msg_)->empty()) {
