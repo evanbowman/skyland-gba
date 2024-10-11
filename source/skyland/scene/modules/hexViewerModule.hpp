@@ -56,9 +56,8 @@ namespace skyland
 class HexViewerModule : public Scene
 {
 public:
-
-    HexViewerModule(ScratchBufferPtr sbr) :
-        path_(format<86>("<sbr:'%'>", sbr->tag_))
+    HexViewerModule(ScratchBufferPtr sbr)
+        : path_(format<86>("<sbr:'%'>", sbr->tag_))
     {
         for (char c : sbr->data_) {
             data_.push_back(c);

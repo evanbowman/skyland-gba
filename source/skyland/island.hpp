@@ -356,6 +356,9 @@ public:
     u8 min_y() const;
 
 
+    u16 script_userdata_tag() const;
+
+
     void schedule_repaint()
     {
         schedule_repaint_ = true;
@@ -529,7 +532,7 @@ Island* opponent_island();
 
 
 
-bool is_player_island(Island* isle);
+bool is_player_island(const Island* isle);
 
 
 

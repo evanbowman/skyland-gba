@@ -186,7 +186,11 @@ SYMTAB({{"on-fadein", 0},
 
 BINDING_TABLE({
     {"player",
-     {0, [](int argc) { return lisp::make_userdata(&APP.player_island()); }}},
+     {0,
+      [](int argc) {
+          auto tag = APP.player_island().script_userdata_tag();
+          return lisp::make_userdata(&APP.player_island(), tag);
+      }}},
     {"opponent",
      {0,
       [](int argc) {
@@ -195,7 +199,8 @@ BINDING_TABLE({
                   pfrm->fatal("opponent unassigned");
               }
           }
-          return lisp::make_userdata(APP.opponent_island());
+          auto tag = APP.opponent_island()->script_userdata_tag();
+          return lisp::make_userdata(APP.opponent_island(), tag);
       }}},
     {"lang-set",
      {1,
@@ -1010,7 +1015,8 @@ BINDING_TABLE({
 
           auto inp_list = lisp::get_op(2);
 
-          if (not lisp::is_list(lisp::get_op(2)) or not lisp::is_list(lisp::get_op0())) {
+          if (not lisp::is_list(lisp::get_op(2)) or
+              not lisp::is_list(lisp::get_op0())) {
               return lisp::make_error("invalid input");
           }
 
@@ -1045,7 +1051,8 @@ BINDING_TABLE({
 
           int i = 0;
           l_foreach(lisp::get_op0(), [&](lisp::Value* v) {
-              data->databuffer().value()->data_[offset + i++] = v->integer().value_;
+              data->databuffer().value()->data_[offset + i++] =
+                  v->integer().value_;
           });
 
           set_list(inp_list, 1, L_INT(size_int));

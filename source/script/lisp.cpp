@@ -82,7 +82,11 @@ union ValueMemory
     UserData user_data_;
     DataBuffer databuffer_;
     String string_;
-    __Reserved __reserved_;
+    __Reserved<Value::Type::__reserved_4> __reserved_4;
+    __Reserved<Value::Type::__reserved_3> __reserved_3;
+    __Reserved<Value::Type::__reserved_2> __reserved_2;
+    __Reserved<Value::Type::__reserved_1> __reserved_1;
+    __Reserved<Value::Type::__reserved_0> __reserved_0;
 };
 
 
@@ -184,7 +188,11 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         DataBuffer::finalizer,
         String::finalizer,
         Float::finalizer,
-        __Reserved::finalizer,
+        __Reserved<Value::Type::__reserved_4>::finalizer,
+        __Reserved<Value::Type::__reserved_3>::finalizer,
+        __Reserved<Value::Type::__reserved_2>::finalizer,
+        __Reserved<Value::Type::__reserved_1>::finalizer,
+        __Reserved<Value::Type::__reserved_0>::finalizer,
 };
 
 
@@ -1226,11 +1234,12 @@ static Value* intern_to_symbol(const char* already_interned_str)
 }
 
 
-Value* make_userdata(void* obj)
+Value* make_userdata(void* obj, u16 tag)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::user_data;
     val->user_data().obj_ = obj;
+    val->user_data().tag_ = tag;
     return val;
 }
 
@@ -1720,7 +1729,11 @@ void format_impl(Value* value, Printer& p, int depth)
 
         break;
 
-    case lisp::Value::Type::__reserved:
+    case lisp::Value::Type::__reserved_4:
+    case lisp::Value::Type::__reserved_3:
+    case lisp::Value::Type::__reserved_2:
+    case lisp::Value::Type::__reserved_1:
+    case lisp::Value::Type::__reserved_0:
         break;
 
     case lisp::Value::Type::string:
@@ -1809,7 +1822,7 @@ void format_impl(Value* value, Printer& p, int depth)
         break;
 
     case lisp::Value::Type::user_data:
-        p.put_str("<ud>");
+        p.put_str(::format("<userdata:%>", value->user_data().tag_).c_str());
         break;
 
     case lisp::Value::Type::error:
@@ -3180,7 +3193,11 @@ bool is_equal(Value* lhs, Value* rhs)
                is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
     case Value::Type::count:
-    case Value::Type::__reserved:
+    case Value::Type::__reserved_4:
+    case Value::Type::__reserved_3:
+    case Value::Type::__reserved_2:
+    case Value::Type::__reserved_1:
+    case Value::Type::__reserved_0:
     case Value::Type::nil:
     case Value::Type::heap_node:
     case Value::Type::databuffer:
@@ -4071,7 +4088,8 @@ BUILTIN_TABLE(
            live_values([&buffers](Value& val) {
                if (val.type() == Value::Type::string) {
                    if (val.string().variant() == String::memory_string) {
-                       auto buf = dcompr(val.string().data_.memory_.databuffer_);
+                       auto buf =
+                           dcompr(val.string().data_.memory_.databuffer_);
                        bool found = false;
                        l_foreach(buffers.result(), [&](Value* v) {
                            if (v == buf) {
@@ -5110,7 +5128,8 @@ BUILTIN_TABLE(
                        if (depth == 0) {
                            out += "RET\r\n";
                            auto pfrm = interp_get_pfrm();
-                           if (pfrm->remote_console().printline(out.c_str(), "")) {
+                           if (pfrm->remote_console().printline(out.c_str(),
+                                                                "")) {
                                ((Platform*)pfrm)->sleep(80);
                            } else {
                                info(out.c_str());

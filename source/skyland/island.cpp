@@ -948,7 +948,8 @@ void Island::update(Time dt)
                     // NOTE: fn is in a global var, as we accessed it through
                     // get_var. So there's no need to protect fn from the gc, as
                     // it's already attached to a gc root.
-                    lisp::push_op(lisp::make_userdata(this));
+                    auto tag = script_userdata_tag();
+                    lisp::push_op(lisp::make_userdata(this, tag));
                     lisp::push_op(lisp::make_symbol(room->name()));
                     lisp::push_op(lisp::make_integer(room->position().x));
                     lisp::push_op(lisp::make_integer(room->position().y));
@@ -1166,6 +1167,17 @@ void Island::update(Time dt)
                             .c_str());
     }
 #endif
+}
+
+
+
+u16 Island::script_userdata_tag() const
+{
+    if (is_player_island(this)) {
+        return 1;
+    } else {
+        return 2;
+    }
 }
 
 
@@ -2483,7 +2495,7 @@ bool synth_notes_load(Island& island, const char* path)
 
 
 
-bool is_player_island(Island* isle)
+bool is_player_island(const Island* isle)
 {
     return isle == &APP.player_island();
 }

@@ -96,7 +96,11 @@ struct ValueHeader
         databuffer,
         string,
         fp,
-        __reserved,
+        __reserved_4,
+        __reserved_3,
+        __reserved_2,
+        __reserved_1,
+        __reserved_0,
         count,
     };
 
@@ -497,6 +501,7 @@ struct Error
 struct UserData
 {
     ValueHeader hdr_;
+    u16 tag_;
     void* obj_;
 
     static ValueHeader::Type type()
@@ -510,13 +515,14 @@ struct UserData
 };
 
 
+template <ValueHeader::Type T>
 struct __Reserved
 {
     ValueHeader hdr_;
 
     static ValueHeader::Type type()
     {
-        return ValueHeader::Type::__reserved;
+        return T;
     }
 
     // Reserved for future use
@@ -632,7 +638,7 @@ Value* make_integer(s32 value);
 Value* make_list(u32 length);
 Value* make_error(Error::Code error_code, Value* context);
 Value* make_error(const char* message);
-Value* make_userdata(void* obj);
+Value* make_userdata(void* obj, u16 tag);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(const char* sbr_tag = "");
