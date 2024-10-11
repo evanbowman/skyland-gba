@@ -60,8 +60,22 @@ ScenePtr RegressionModule::update(Time delta)
         Text::print("running tests...", {1, 3});
         PLATFORM.screen().display();
 
+        lisp::set_var(
+            "regr-print", lisp::make_function([](int argc) {
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
+                PLATFORM.screen().clear();
+                for (int x = 0; x < 30; ++x) {
+                    PLATFORM.set_tile(Layer::overlay, x, 3, 0);
+                }
+                Text::print(lisp::get_op0()->string().value(), {1, 3});
+                PLATFORM.screen().display();
+                return L_NIL;
+            }));
+
         PLATFORM.system_call("watchdog-off", nullptr);
         APP.invoke_script("/scripts/data/unittest.lisp");
+        APP.invoke_script("/scripts/data/apitest.lisp");
         PLATFORM.system_call("watchdog-on", nullptr);
 
         PLATFORM.screen().clear();

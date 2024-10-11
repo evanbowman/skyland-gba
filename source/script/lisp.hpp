@@ -515,8 +515,7 @@ struct UserData
 };
 
 
-template <ValueHeader::Type T>
-struct __Reserved
+template <ValueHeader::Type T> struct __Reserved
 {
     ValueHeader hdr_;
 

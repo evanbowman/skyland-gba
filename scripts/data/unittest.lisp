@@ -1,11 +1,17 @@
+;;;
+;;; unittest.lisp
+;;;
+;;; This test case file intends to test the behavior of the lisp interpreter and
+;;; standard library. For extended functions related to game logic speficially,
+;;; see apitest.lisp.
+;;;
+
 (gc)
 
 (strict-mode true)
 
-(global 'put 'newline 'temp)
-
+(global 'put 'temp)
 (setq put log)
-(setq newline (lambda () nil))
 
 (global 'current-test)
 
@@ -17,7 +23,6 @@
 
 (defn assert-v (v)
   (when (not v)
-    (newline)
     (error (format "in test %: assert failed! %" current-test v))))
 
 (if (not (error? (assert-v false)))
@@ -25,7 +30,6 @@
 
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
-    (newline)
     (error (format "in test %: expected % not equal %"
                    current-test
                    lhs
@@ -57,13 +61,15 @@
 
 (defn begin-test (name)
   (setq current-test name)
-  (put (string name " test cases...")))
+  (let ((msg (string "running tests: " name "...")))
+    (when (bound? 'regr-print)
+      (regr-print msg))
+    (put msg)))
 
 (defn end-test ()
   (put " passed!")
   (setq current-test nil)
-  (gc)
-  (newline))
+  (gc))
 
 
 (assert-v (error? (let ((foo 2)) (global 'foo))))
@@ -71,7 +77,7 @@
 
 
 
-(begin-test "READER")
+(begin-test "reader")
 
 (assert-eq 1 (read "1"))
 (assert-eq (cons 1 2) (read "(1 . 2)"))
@@ -79,7 +85,7 @@
 (end-test)
 
 
-(begin-test "MATH")
+(begin-test "math")
 
 ;; basic math
 (assert-eq 5.0 (* 2.5 2.0))
@@ -122,7 +128,7 @@
 
 
 
-(begin-test "STRING")
+(begin-test "string")
 
 (assert-eq (length "ありがとうございます") 10)
 (assert-eq (slice "ありがとうございます" 2 7) "がとうござ")
@@ -154,7 +160,7 @@
 
 
 
-(begin-test "LIST")
+(begin-test "list")
 
 (assert-eq 3 (length (cons 1 (cons 2 (cons 3 nil)))))
 (assert-eq -2 (apply - (reverse '(3 1))))
@@ -169,7 +175,7 @@
 
 
 
-(begin-test "CLOSURE")
+(begin-test "closure")
 
 (setq temp 1)
 
@@ -188,11 +194,13 @@
 
 (assert-eq 135 (apply + (map foo (range 9))))
 
+(unbind 'foo)
+
 (end-test)
 
 
 
-(begin-test "MISC")
+(begin-test "misc")
 
 (assert-eq (range 0 10) (sort (reverse (range 0 10)) <))
 (setq temp 99)
@@ -214,7 +222,7 @@
 (end-test)
 
 
-(begin-test "LIBRARY FUNCTIONS")
+(begin-test "library")
 
 (assert-eq '(b . 6) (assoc 'b (acons 'b 6 '((b . 7) (c . 8)))))
 (assert-eq 190 (apply + (append (range 10) (range 10 20))))
@@ -245,10 +253,6 @@
   (this))
 (assert-eq test-this (test-this))
 
-(assert-eq "image" (read-ini "/scripts/data/cart/cart7.ini"
-                             "contents"
-                             "type"))
-
 (assert-v ((notequal? 5) 7))
 (assert-v (not ((notequal? 6) 6)))
 
@@ -256,7 +260,6 @@
 (assert-v ((pos-equalto? 1 15) '(3 15 7)))
 (assert-v (not ((pos-equalto? 1 8) '(3 15 7))))
 
-(assert-eq 767268228 (hash '(8 . 7)))
 
 
 (let ((tmp 0))
@@ -272,7 +275,7 @@
 (end-test)
 
 
-(begin-test "IN THE WEEDS")
+(begin-test "core")
 ;; These test cases are testing very obscure implementation details about the
 ;; interpreter, which normally wouldn't be visible to the programmer unless
 ;; you're really doing something strange.
@@ -333,7 +336,7 @@
 
 
 
-(begin-test "DATABUFFER")
+(begin-test "databuffer")
 
 (setq temp (lisp-mem-sbr-used))
 (databuffer)
@@ -367,61 +370,12 @@
 (end-test)
 
 
-
-(begin-test "FILE OPERATIONS")
-
-;; This file that we're running must exist...
-(assert-v (file-exists? "/scripts/data/unittest.lisp"))
-
-(setq temp (file-load "/scripts/data/test-data.txt"))
-
-(assert-eq "Here's some text..."
-           (bytes-to-string (filter (lambda (c)
-                                      ;; Some files, particularly the ones
-                                      ;; appended to rom, have trailing null
-                                      ;; bytes for padding purposes. Also,
-                                      ;; filter out the ending newline.
-                                      (and (> c 0) (not (equal c 10))))
-                                    (file-read temp 0 (file-size temp)))))
-
-
-(let ((f (file-load "/scripts/stdlib.lisp")))
-  (assert-v (and (error? f)
-                 (equal (error-info f)
-                        "file too large to load!"))))
-
-
-(let ((file (file-load "/test.dat"))
-      (str "some text!"))
-
-  (file-write! file 0 (string-to-bytes str))
-  (file-store file)
-
-  (setq file (file-load "/test.dat"))
-  (ensure (assert-eq str (bytes-to-string (file-read file 0 (length str)))))
-
-  ;; Append the string again, to the end of the file. Later, we'll read it back
-  ;; and make sure that there are two copies of the string back-to-back.
-  (file-write! file -1 (string-to-bytes str))
-  (file-store file)
-
-  (setq file (file-load "/test.dat"))
-  (ensure (assert-eq (string str str) (bytes-to-string (file-read file 0 (* 2 (length str))))))
-  (assert-eq (file-size file) (* 2 (length str))))
-
-
-(assert-v (file-exists? "/test.dat"))
-(file-unlink "/test.dat")
-(assert-v (not (file-exists? "/test.dat")))
-
-(end-test)
-
-
 (assert-v (bound? 'begin-test))
 (assert-v (bound? 'end-test))
 
 (unbind 'begin-test
         'temp
+        'ensure
         'end-test)
 
 (assert-v (not (bound? 'begin-test)))
