@@ -245,6 +245,7 @@
 (assert-eq 20 (apply + (map int (split "0,1,1,2,3,5,8" ","))))
 (assert-eq (map cons '(1 2 3) '(4 5 6)) '((1 . 4) (2 . 5) (3 . 6)))
 (assert-eq 'cake (symbol "cake"))
+(assert-v (not (equal 'cake 'CAKE)))
 (assert-v ((equalto? 9) 9))
 (assert-v "bats" ((lambda () (arg 1)) "birds" "bats" "iguana"))
 (assert-eq cons (identity cons))
@@ -368,6 +369,33 @@
 
 
 (end-test)
+
+
+
+(begin-test "wrapped")
+
+;; Here, we're going to define a custom value type called widget. The wrap
+;; function allows us to define custom types.
+
+(defn -decorate-widget (w)
+  (format "#(widget:%)" (unwrap w)))
+
+(setq temp (wrap 30 'widget))
+(assert-eq 'widget (type temp))
+(assert-eq 30 (unwrap temp))
+(assert-eq "#(widget:30)" (string temp))
+
+(defn -equal-widget (w1 w2)
+  (equal (unwrap w1) (unwrap w2)))
+
+(assert-v (equal temp (wrap 30 'widget)))
+(assert-v (not (equal temp (wrap 50 'widget))))
+
+(unbind '-equal-widget
+        '-decorate-widget)
+
+(end-test)
+
 
 
 (assert-v (bound? 'begin-test))

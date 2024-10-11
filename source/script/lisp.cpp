@@ -82,7 +82,7 @@ union ValueMemory
     UserData user_data_;
     DataBuffer databuffer_;
     String string_;
-    __Reserved<Value::Type::__reserved_4> __reserved_4;
+    Wrapped wrapped_;
     __Reserved<Value::Type::__reserved_3> __reserved_3;
     __Reserved<Value::Type::__reserved_2> __reserved_2;
     __Reserved<Value::Type::__reserved_1> __reserved_1;
@@ -188,7 +188,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         DataBuffer::finalizer,
         String::finalizer,
         Float::finalizer,
-        __Reserved<Value::Type::__reserved_4>::finalizer,
+        Wrapped::finalizer,
         __Reserved<Value::Type::__reserved_3>::finalizer,
         __Reserved<Value::Type::__reserved_2>::finalizer,
         __Reserved<Value::Type::__reserved_1>::finalizer,
@@ -830,6 +830,16 @@ static Value* alloc_value()
     Platform::fatal("LISP out of memory");
 
     return nullptr;
+}
+
+
+Value* wrap(Value* input, Value* type_sym)
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::wrapped;
+    val->wrapped().data_ = compr(input);
+    val->wrapped().type_sym_ = compr(type_sym);
+    return val;
 }
 
 
@@ -1710,7 +1720,7 @@ Value* dostring(CharSequence& code,
 const char* nameof(Value* value);
 
 
-void format_impl(Value* value, Printer& p, int depth)
+void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
 {
     bool prefix_quote = false;
 
@@ -1729,17 +1739,38 @@ void format_impl(Value* value, Printer& p, int depth)
 
         break;
 
-    case lisp::Value::Type::__reserved_4:
     case lisp::Value::Type::__reserved_3:
     case lisp::Value::Type::__reserved_2:
     case lisp::Value::Type::__reserved_1:
     case lisp::Value::Type::__reserved_0:
         break;
 
+    case lisp::Value::Type::wrapped: {
+        auto type = dcompr(value->wrapped().type_sym_);
+
+        auto decorator_fn = get_var(::format("-decorate-%",
+                                             type->symbol().name()).c_str());
+
+        if (decorator_fn->type() == Value::Type::function) {
+            push_op(value); // argument
+            safecall(decorator_fn, 1);
+            format_impl(get_op0(), p, depth + 1, true);
+            pop_op(); // result
+        } else {
+            Platform::fatal(::format("missing decorator function for %",
+                                     type->symbol().name()));
+        }
+        break;
+    }
+
     case lisp::Value::Type::string:
-        p.put_str("\"");
+        if (not skip_quotes) {
+            p.put_str("\"");
+        }
         p.put_str(value->string().value());
-        p.put_str("\"");
+        if (not skip_quotes) {
+            p.put_str("\"");
+        }
         break;
 
     case lisp::Value::Type::symbol:
@@ -1896,7 +1927,7 @@ void Symbol::set_name(const char* name)
 
 void format(Value* value, Printer& p)
 {
-    format_impl(value, p, 0);
+    format_impl(value, p, 0, false);
 }
 
 
@@ -1917,6 +1948,11 @@ static void gc_mark_value(Value* value)
     }
 
     switch (value->type()) {
+    case Value::Type::wrapped:
+        gc_mark_value(dcompr(value->wrapped().data_));
+        gc_mark_value(dcompr(value->wrapped().type_sym_));
+        break;
+
     case Value::Type::function:
         if (value->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
             gc_mark_value((dcompr(value->function().lisp_impl_.code_)));
@@ -3193,7 +3229,6 @@ bool is_equal(Value* lhs, Value* rhs)
                is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
     case Value::Type::count:
-    case Value::Type::__reserved_4:
     case Value::Type::__reserved_3:
     case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
@@ -3202,6 +3237,29 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::heap_node:
     case Value::Type::databuffer:
         return lhs == rhs;
+
+    case Value::Type::wrapped: {
+        if (not str_eq(dcompr(lhs->wrapped().type_sym_)->symbol().name(),
+                       dcompr(rhs->wrapped().type_sym_)->symbol().name())) {
+            return false;
+        }
+        auto type = dcompr(lhs->wrapped().type_sym_);
+        auto equal_fn = get_var(::format("-equal-%",
+                                         type->symbol().name()).c_str());
+
+        if (equal_fn->type() == Value::Type::function) {
+            push_op(rhs);
+            push_op(lhs);
+            safecall(equal_fn, 2);
+            auto ret = is_boolean_true(get_op0());
+            pop_op(); // result
+            return ret;
+        } else {
+            Platform::fatal(::format("missing equal function for %",
+                                     type->symbol().name()));
+        }
+        break;
+    }
 
     case Value::Type::function:
         if (lhs->hdr_.mode_bits_ not_eq rhs->hdr_.mode_bits_) {
@@ -3601,6 +3659,48 @@ BUILTIN_TABLE(
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::symbol);
        }}},
+     {"userdata-tag",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, user_data);
+           return L_INT(get_op0()->user_data().tag_);
+       }}},
+     {"type",
+      {1,
+       [](int argc) {
+           switch (get_op0()->type()) {
+           case Value::Type::count:
+           case Value::Type::__reserved_3:
+           case Value::Type::__reserved_2:
+           case Value::Type::__reserved_1:
+           case Value::Type::__reserved_0:
+           case Value::Type::nil:
+               return make_symbol("nil");
+           case Value::Type::heap_node:
+               return make_symbol("?");
+           case Value::Type::integer:
+               return make_symbol("int");
+           case Value::Type::cons:
+               return make_symbol("pair");
+           case Value::Type::function:
+               return make_symbol("lambda");
+           case Value::Type::error:
+               return make_symbol("error");
+           case Value::Type::symbol:
+               return make_symbol("symbol");
+           case Value::Type::user_data:
+               return make_symbol("userdata");
+           case Value::Type::databuffer:
+               return make_symbol("databuffer");
+           case Value::Type::string:
+               return make_symbol("string");
+           case Value::Type::fp:
+               return make_symbol("float");
+           case Value::Type::wrapped:
+               return dcompr(get_op0()->wrapped().type_sym_);
+           }
+           return make_symbol("?");
+       }}},
      {"userdata?",
       {1,
        [](int argc) {
@@ -3615,6 +3715,23 @@ BUILTIN_TABLE(
       {1,
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::string);
+       }}},
+     {"wrapped?",
+      {1,
+       [](int argc) {
+           return make_boolean(get_op0()->type() == Value::Type::wrapped);
+       }}},
+     {"wrap",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, symbol);
+           return wrap(get_op1(), get_op0());
+       }}},
+     {"unwrap",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, wrapped);
+           return dcompr(get_op0()->wrapped().data_);
        }}},
      {"odd?",
       {1,

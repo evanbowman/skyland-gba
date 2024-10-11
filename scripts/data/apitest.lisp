@@ -46,13 +46,178 @@
 
 
 
+(begin-test "pools")
+
+(global 'pools)
+(setq pools (mem-pools))
+(assert-v (not (nil? (find 'entity-mem pools))))
+(assert-v (not (nil? (find 'room-mem pools))))
+(assert-v (not (nil? (find 'receive-packet-pool pools))))
+(assert-v (not (nil? (find 'transmit-packet-pool pools))))
+(assert-v (not (nil? (find 'dynamic-texture-pool pools))))
+(assert-v (not (nil? (find 'entity-list-node pools))))
+(assert-v (not (nil? (find 'scenes pools))))
+(assert-v (not (nil? (find 'scratch-buffers pools))))
+
+(setq temp (mem-pool-info 0))
+(assert-v (assoc 'size (cdr temp)))
+(assert-v (assoc 'used (cdr temp)))
+(assert-v (assoc 'count (cdr temp)))
+
+
+(defn pool-usage (pool-sym)
+  (let ((sym pool-sym))
+    (let ((matched (filter (lambda (p)
+                             (equal sym (car (mem-pool-info p))))
+                           (range 0 (length pools)))))
+      (apply + (map (lambda (pl)
+                      (lookup 'used (cdr (mem-pool-info pl))))
+                    matched)))))
+
+(island-configure (player) '())
+(opponent-init 3 'neutral)
+(island-configure (opponent) '())
+
+(assert-eq 0 (pool-usage 'room-mem))
+(island-configure (player) '((power-core 1 13)))
+(assert-eq 1 (pool-usage 'room-mem))
+(room-del (player) 1 13)
+(assert-eq 0 (pool-usage 'room-mem))
+
+(assert-eq 0 (pool-usage 'entity-mem))
+(island-configure (player) '((power-core 1 13)))
+(chr-new (player) 1 14 'neutral nil)
+(assert-eq 1 (pool-usage 'entity-mem))
+(room-del (player) 1 13)
+(assert-eq 0 (pool-usage 'entity-mem))
+
+(unbind 'pool-usage)
+
+(end-test)
+
+
+
+(begin-test "isle")
+
+(opponent-init 4 'neutral)
+
+(assert-v (wrapped? (player)))
+(assert-v (wrapped? (opponent)))
+
+(assert-v (not (equal (player) (opponent))))
+(assert-eq (player) (player))
+
+(assert-eq (type (player)) 'isle)
+
+(assert-eq (userdata-tag (unwrap (player))) 1)
+(assert-eq (userdata-tag (unwrap (opponent))) 2)
+
+(assert-eq "#(isle:player)" (string (player)))
+(assert-eq "#(isle:opponent)" (string (opponent)))
+
+(terrain-set (player) 4)
+
+(island-configure
+ (player)
+ '((power-core 1 13)
+   (cannon 3 13)
+   (cannon 3 14)))
+
+(assert-eq 3 (length (rooms (player))))
+(groups-add 'Up 3 13)
+(assert-eq '((3 . 13)) (lookup 'Up (groups)))
+(groups-reset)
+(assert-eq nil (lookup 'Up (groups)))
+
+(assert-eq 2 (room-count (player) 'cannon))
+(room-new (player) '(cannon 3 12))
+(assert-eq 3 (room-count (player) 'cannon))
+(assert-eq '(power-core 1 13) (room-load (player) 1 13))
+(assert-v (room-is-critical (player) 1 13))
+(room-new (player) '(power-core 1 11))
+(assert-v (not (room-is-critical (player) 1 13)))
+
+(assert-eq (chr-slots (player)) '((2 . 14) (2 . 12) (1 . 14) (1 . 12)))
+(assert-eq (construction-sites (player) '(1 . 2)) '((0 . 13) (1 . 9) (2 . 9) (3 . 10)))
+(assert-eq (construction-sites (player) '(2 . 2)) '((1 . 9) (2 . 9)))
+(assert-eq (construction-sites (player) '(3 . 2)) '((1 . 9)))
+
+(room-new (player) '(cargo-bay 0 13))
+(cargo-set (player) 0 13 "cargo-test")
+(assert-eq "cargo-test" (cargo (player) 0 13))
+
+(assert-eq 4 (terrain (player)))
+
+(opponent-init 7 'hostile)
+(assert-eq (terrain (opponent)) 7)
+
+(room-mut (player) 0 13 'missile-silo)
+(assert-eq '(missile-silo 0 13) (room-load (player) 0 13))
+
+(assert-eq 240 (lookup 'max-hp (room-meta 'hull)))
+
+(end-test)
+
+
+(begin-test "chr")
+
+(island-configure
+ (player)
+ '((power-core 1 13)))
+
+(setq temp (chr-new (player) 1 14 'neutral nil))
+(assert-v (not (equal temp (chr-new (player) 1 14 'neutral nil))))
+(assert-eq (chrs (player)) '((1 14 (id . 2)) (1 14 (id . 3))))
+
+(end-test)
+
+
 (begin-test "misc")
 
 (assert-eq 767268228 (hash '(8 . 7)))
 
+(end-test)
+
+
+
+(begin-test "cart")
+
 (assert-eq "image" (read-ini "/scripts/data/cart/cart7.ini"
                              "contents"
                              "type"))
+
+(assert-eq "SKYLAND" (car (cart-info 0)))
+
+(end-test)
+
+
+
+(begin-test "hooks")
+
+(assert-v (and (bound? 'on-fadein)
+               (bound? 'on-converge)
+               (bound? 'on-dialog-closed)
+               (bound? 'on-room-destroyed)
+               (bound? 'on-victory)
+               (bound? 'on-crew-died)
+               (bound? 'on-shop-item-sel)
+               (bound? 'on-shop-enter)))
+
+(end-test)
+
+
+
+(begin-test "misc")
+
+(coins-set 55)
+(assert-eq 55 (coins))
+(coins-add 40)
+(assert-eq (coins) 95)
+
+;; This has to be true to get into the regression module
+(assert-v (is-developer-mode))
+
+(assert-eq 15 ((eval-file "/scripts/data/test-eval.lisp") 5))
 
 (end-test)
 
@@ -83,6 +248,8 @@
 
 (let ((file (file-load "/test.dat"))
       (str "some text!"))
+
+  (ensure (assert-eq "#(file:/test.dat)" (string file)))
 
   (file-write! file 0 (string-to-bytes str))
   (file-store file)

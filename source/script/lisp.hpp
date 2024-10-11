@@ -96,7 +96,7 @@ struct ValueHeader
         databuffer,
         string,
         fp,
-        __reserved_4,
+        wrapped,
         __reserved_3,
         __reserved_2,
         __reserved_1,
@@ -269,6 +269,29 @@ struct CompressedPtr
 
 CompressedPtr compr(Value* value);
 Value* dcompr(CompressedPtr ptr);
+
+
+
+// The purpose of a 'wrapped' object is to provide for the creation of custom
+// value types. When printed, a wrapped object will use the attached decorator
+// function or decorator symbol to render the wrapped instance.
+struct Wrapped
+{
+    ValueHeader hdr_;
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::wrapped;
+    }
+
+    static constexpr void finalizer(Value*)
+    {
+    }
+
+    CompressedPtr data_;
+    CompressedPtr type_sym_;
+};
+
 
 
 struct Cons
@@ -615,6 +638,11 @@ struct Value
         return *reinterpret_cast<String*>(this);
     }
 
+    Wrapped& wrapped()
+    {
+        return *reinterpret_cast<Wrapped*>(this);
+    }
+
     template <typename T> T& expect()
     {
         if (this->type() == T::type()) {
@@ -630,6 +658,7 @@ struct Value
 bool is_boolean_true(Value* val);
 
 
+Value* wrap(Value* input, Value* type_sym);
 Value* make_boolean(bool is_true);
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);

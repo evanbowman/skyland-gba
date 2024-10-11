@@ -184,12 +184,22 @@ SYMTAB({{"on-fadein", 0},
         {"on-shop-item-sel", 0}});
 
 
+Island* unwrap_isle(lisp::Value* v)
+{
+    if (not str_eq(dcompr(v->wrapped().type_sym_)->symbol().name(), "isle")) {
+        PLATFORM.fatal("invalid wrapped value!?");
+    }
+    return (Island*)dcompr(v->wrapped().data_)->user_data().obj_;
+}
+
+
 BINDING_TABLE({
     {"player",
      {0,
       [](int argc) {
           auto tag = APP.player_island().script_userdata_tag();
-          return lisp::make_userdata(&APP.player_island(), tag);
+          lisp::Protected ud(lisp::make_userdata(&APP.player_island(), tag));
+          return lisp::wrap(ud, L_SYM("isle"));
       }}},
     {"opponent",
      {0,
@@ -200,7 +210,25 @@ BINDING_TABLE({
               }
           }
           auto tag = APP.opponent_island()->script_userdata_tag();
-          return lisp::make_userdata(APP.opponent_island(), tag);
+          lisp::Protected ud(lisp::make_userdata(APP.opponent_island(), tag));
+          return lisp::wrap(ud, L_SYM("isle"));
+      }}},
+    {"-decorate-isle",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, wrapped);
+          auto island = unwrap_isle(lisp::get_op(0));
+          auto name = is_player_island(island) ? "player" : "opponent";
+          return lisp::make_string(format("#(isle:%)", name).c_str());
+      }}},
+    {"-equal-isle",
+     {2,
+      [](int argc) {
+          L_EXPECT_OP(0, wrapped);
+          L_EXPECT_OP(1, wrapped);
+          auto island = unwrap_isle(lisp::get_op(0));
+          auto island2 = unwrap_isle(lisp::get_op(1));
+          return lisp::make_boolean(island == island2);
       }}},
     {"lang-set",
      {1,
@@ -276,9 +304,9 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, integer);
           L_EXPECT_OP(3, integer);
-          L_EXPECT_OP(4, user_data);
+          L_EXPECT_OP(4, wrapped);
 
-          auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(4));
           u8 x1 = L_LOAD_INT(3);
           u8 y1 = L_LOAD_INT(2);
           u8 x2 = L_LOAD_INT(1);
@@ -516,9 +544,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -537,9 +565,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -558,9 +586,9 @@ BINDING_TABLE({
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, integer);
-          L_EXPECT_OP(3, user_data);
+          L_EXPECT_OP(3, wrapped);
 
-          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(3));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(2)->integer().value_,
@@ -586,11 +614,11 @@ BINDING_TABLE({
      {2,
       [](int argc) {
           L_EXPECT_OP(0, symbol);
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
 
           int count = 0;
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
           for (auto& room : island->rooms()) {
               if (str_eq(room->name(), lisp::get_op(0)->symbol().name())) {
                   ++count;
@@ -784,9 +812,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer); // y
           L_EXPECT_OP(1, integer); // x
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           const u8 x = L_LOAD_INT(1);
           const u8 y = L_LOAD_INT(0);
@@ -809,9 +837,9 @@ BINDING_TABLE({
     {"rooms",
      {1,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
+          L_EXPECT_OP(0, wrapped);
 
-          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(0));
 
           lisp::ListBuilder result;
           for (auto& room : island->rooms()) {
@@ -825,9 +853,9 @@ BINDING_TABLE({
     {"rooms-damaged",
      {1,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
+          L_EXPECT_OP(0, wrapped);
 
-          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(0));
 
           lisp::ListBuilder result;
           for (auto& room : island->rooms()) {
@@ -843,9 +871,9 @@ BINDING_TABLE({
     {"chrs",
      {1,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
+          L_EXPECT_OP(0, wrapped);
 
-          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(0));
 
           lisp::ListBuilder list;
 
@@ -883,11 +911,11 @@ BINDING_TABLE({
     {"chr-slots",
      {0,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
+          L_EXPECT_OP(0, wrapped);
 
           bool matrix[16][16];
 
-          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(0));
 
           island->plot_walkable_zones(matrix, nullptr);
 
@@ -1008,21 +1036,30 @@ BINDING_TABLE({
           push_menu_queue.push_back(make_deferred_scene<LoadLevelScene>());
           return L_NIL;
       }}},
+    {"-decorate-file",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, wrapped);
+          auto p = lisp::get_list(dcompr(lisp::get_op0()->wrapped().data_), 0);
+          auto str = p->string().value();
+          return lisp::make_string(::format("#(file:%)", str).c_str());
+      }}},
     {"file-write!",
      {3,
       [](int argc) {
           L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(2, wrapped);
 
-          auto inp_list = lisp::get_op(2);
+          auto inp_list = dcompr(lisp::get_op(2)->wrapped().data_);
 
-          if (not lisp::is_list(lisp::get_op(2)) or
+          if (not lisp::is_list(inp_list) or
               not lisp::is_list(lisp::get_op0())) {
               return lisp::make_error("invalid input");
           }
 
-          auto path = lisp::get_list(lisp::get_op(2), 0);
-          auto size = lisp::get_list(lisp::get_op(2), 1);
-          auto data = lisp::get_list(lisp::get_op(2), 2);
+          auto path = lisp::get_list(inp_list, 0);
+          auto size = lisp::get_list(inp_list, 1);
+          auto data = lisp::get_list(inp_list, 2);
 
           if (path->type() not_eq lisp::Value::Type::string or
               size->type() not_eq lisp::Value::Type::integer or
@@ -1062,12 +1099,17 @@ BINDING_TABLE({
     {"file-store",
      {1,
       [](int argc) {
-          if (not lisp::is_list(lisp::get_op0())) {
+          L_EXPECT_OP(0, wrapped);
+
+          auto input = dcompr(lisp::get_op0()->wrapped().data_);
+
+          if (not lisp::is_list(input)) {
               return lisp::make_boolean(false);
           }
-          auto path = lisp::get_list(lisp::get_op0(), 0);
-          auto size = lisp::get_list(lisp::get_op0(), 1);
-          auto data = lisp::get_list(lisp::get_op0(), 2);
+
+          auto path = lisp::get_list(input, 0);
+          auto size = lisp::get_list(input, 1);
+          auto data = lisp::get_list(input, 2);
 
           if (path->type() not_eq lisp::Value::Type::string or
               size->type() not_eq lisp::Value::Type::integer or
@@ -1125,7 +1167,7 @@ BINDING_TABLE({
               result.push_back(buf);
           }
 
-          return result.result();
+          return wrap(result.result(), lisp::make_symbol("file"));
       }}},
     {"file-exists?",
      {1,
@@ -1223,9 +1265,9 @@ BINDING_TABLE({
      {2,
       [](int argc) {
           L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
           island->init_terrain(lisp::get_op(0)->integer().value_);
 
           return L_NIL;
@@ -1233,9 +1275,9 @@ BINDING_TABLE({
     {"terrain",
      {1,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
+          L_EXPECT_OP(0, wrapped);
 
-          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(0));
           return lisp::make_integer(island->terrain().size());
 
           return L_NIL;
@@ -1244,9 +1286,9 @@ BINDING_TABLE({
      {2,
       [](int argc) {
           L_EXPECT_OP(0, cons);
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
           auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name();
           u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
           u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
@@ -1265,9 +1307,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -1283,9 +1325,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -1302,9 +1344,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -1333,9 +1375,9 @@ BINDING_TABLE({
           L_EXPECT_OP(0, symbol);
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, integer);
-          L_EXPECT_OP(3, user_data);
+          L_EXPECT_OP(3, wrapped);
 
-          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(3));
           auto coord = RoomCoord{
               (u8)lisp::get_op(2)->integer().value_,
               (u8)lisp::get_op(1)->integer().value_,
@@ -1353,9 +1395,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer); // y
           L_EXPECT_OP(1, integer); // x
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(1)->integer().value_,
@@ -1408,9 +1450,9 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer);   // x2
           L_EXPECT_OP(2, integer);   // y1
           L_EXPECT_OP(3, integer);   // x1
-          L_EXPECT_OP(4, user_data); // island
+          L_EXPECT_OP(4, wrapped); // island
 
-          auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(4));
 
           u8 startx = lisp::get_op(3)->integer().value_;
           u8 starty = lisp::get_op(2)->integer().value_;
@@ -1441,9 +1483,9 @@ BINDING_TABLE({
           L_EXPECT_OP(1, symbol);
           L_EXPECT_OP(2, integer); // y
           L_EXPECT_OP(3, integer); // x
-          L_EXPECT_OP(4, user_data);
+          L_EXPECT_OP(4, wrapped);
 
-          auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(4));
 
           auto coord = RoomCoord{
               (u8)lisp::get_op(3)->integer().value_,
@@ -1532,13 +1574,13 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
           RoomCoord coord;
           coord.x = lisp::get_op(1)->integer().value_;
           coord.y = lisp::get_op(0)->integer().value_;
 
-          if (auto room = ((Island*)lisp::get_op(2)->user_data().obj_)
+          if (auto room = (unwrap_isle(lisp::get_op(2)))
                               ->get_room(coord)) {
               room->select(coord);
           }
@@ -1550,12 +1592,12 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer);
           L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
           RoomCoord& sel = globals().near_cursor_loc_;
 
           if (auto ws = APP.scene().cast_world_scene()) {
-              if (lisp::get_op(2)->user_data().obj_ == &APP.player_island()) {
+              if (unwrap_isle(lisp::get_op(2)) == &APP.player_island()) {
                   sel = globals().far_cursor_loc_;
                   ws->near_camera();
               } else {
@@ -1600,8 +1642,8 @@ BINDING_TABLE({
     {"island-pos",
      {1,
       [](int argc) {
-          L_EXPECT_OP(0, user_data);
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          L_EXPECT_OP(0, wrapped);
+          auto island = unwrap_isle(lisp::get_op(1));
           return L_CONS(L_INT(island->visual_origin().x.as_integer()),
                         L_INT(island->visual_origin().y.as_integer()));
       }}},
@@ -1609,9 +1651,9 @@ BINDING_TABLE({
      {2,
       [](int argc) {
           L_EXPECT_OP(0, cons);
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
 
           configure_island(*island, lisp::get_op(0));
 
@@ -1621,9 +1663,9 @@ BINDING_TABLE({
      {2,
       [](int argc) {
           L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
           island->show_flag(true);
 
           auto gfx = L_LOAD_INT(0);
@@ -1807,9 +1849,9 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, integer); // y
           L_EXPECT_OP(1, integer); // x
-          L_EXPECT_OP(2, user_data);
+          L_EXPECT_OP(2, wrapped);
 
-          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(2));
           const u8 x = lisp::get_op(1)->integer().value_;
           const u8 y = lisp::get_op(0)->integer().value_;
 
@@ -1831,9 +1873,9 @@ BINDING_TABLE({
           L_EXPECT_OP(0, string);  // cargo
           L_EXPECT_OP(1, integer); // y
           L_EXPECT_OP(2, integer); // x
-          L_EXPECT_OP(3, user_data);
+          L_EXPECT_OP(3, wrapped);
 
-          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(3));
           const u8 x = lisp::get_op(2)->integer().value_;
           const u8 y = lisp::get_op(1)->integer().value_;
 
@@ -1851,9 +1893,9 @@ BINDING_TABLE({
           L_EXPECT_OP(0, string);  // cargo
           L_EXPECT_OP(1, integer); // y
           L_EXPECT_OP(2, integer); // x
-          L_EXPECT_OP(3, user_data);
+          L_EXPECT_OP(3, wrapped);
 
-          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(3));
           const u8 x = lisp::get_op(2)->integer().value_;
           const u8 y = lisp::get_op(1)->integer().value_;
 
@@ -1986,13 +2028,13 @@ BINDING_TABLE({
     {"construction-sites",
      {2,
       [](int argc) {
-          L_EXPECT_OP(1, user_data);
+          L_EXPECT_OP(1, wrapped);
           L_EXPECT_OP(0, cons);
 
           const int sx = lisp::get_op(0)->cons().car()->integer().value_;
           const int sy = lisp::get_op(0)->cons().cdr()->integer().value_;
 
-          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+          auto island = unwrap_isle(lisp::get_op(1));
 
           auto matrix = allocate_dynamic<bool[16][16]>("construction-zones");
 
@@ -2081,7 +2123,7 @@ BINDING_TABLE({
           lisp::ListBuilder list;
           auto p = GenericPool::instances();
           while (p) {
-              list.push_back(lisp::make_string(p->name()));
+              list.push_back(lisp::make_symbol(p->name()));
               p = p->next();
           }
           return list.result();
@@ -2097,10 +2139,10 @@ BINDING_TABLE({
               if (i == L_LOAD_INT(0)) {
                   auto stat = [&](const char* l, int v) {
                       list.push_back(
-                          lisp::make_cons_safe(lisp::make_string(l), L_INT(v)));
+                          lisp::make_cons_safe(lisp::make_symbol(l), L_INT(v)));
                   };
 
-                  list.push_back(lisp::make_string(p->name()));
+                  list.push_back(lisp::make_symbol(p->name()));
                   stat("size", p->pooled_element_size());
                   stat("count", p->pooled_element_count());
                   stat("used",

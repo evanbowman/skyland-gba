@@ -901,6 +901,14 @@ o----------------------------o
  executing function (if any).
 
 
+o----------------------------o
+
+ (type v)
+
+ Returns a symbol representing
+ the type of an input value.
+
+
 
 ##############################
 
@@ -997,6 +1005,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (userdata-tag userdata)
+
+ Return the tag associated
+ with a userdata.
+
+
+o----------------------------o
+
  (unless condition
    ...)
 
@@ -1068,6 +1084,50 @@ o----------------------------o
 
  The result will be a list
  of integers ranged 0->255.
+
+
+o----------------------------o
+
+
+
+##############################
+
+ Section9:
+
+ Custom Types
+
+##############################
+
+o----------------------------o
+
+ (wrap val type-sym)
+
+ Enclose a value in a custom-
+ typed wrapper.
+
+ When converted to a string,
+ the interpreter will pass the
+ wrapped value to a function
+ called -decorate-<type-sym> in
+ the environment. You have to
+ define this function yourself.
+
+ Also, -equal-<type-sym> can be
+ defined to make the wrapped
+ value compatible with the
+ equal function.
+
+ See the unittest.lisp section
+ about wrapped values for
+ examples.
+
+
+o----------------------------o
+
+ (unwrap val)
+
+ Return the value contained
+ in a type wrapper.
 
 
 o----------------------------o

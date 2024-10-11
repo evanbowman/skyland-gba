@@ -131,3 +131,27 @@
  float: IEEE-754 floating
  point number.
  
+ wrapped: A means of
+ defining custom types.
+ A wrapped object is packaged
+ in a wrapper that limits the
+ programmer's ability to see
+ inside the wrapped data.
+
+ For example:
+
+ ;; The interpreter will look
+ ;; in the environment for a
+ ;; function called
+ ;; -decorate-<type> when
+ ;; printing a wrapped value.
+ (defn -decorate-handle (h)
+   (string (format "<handle:%>"
+                   (unwrap h))))
+
+ (setq temp (wrap 5 'handle))
+ ; <handle:5>
+
+ (type temp)
+ ; 'handle
+
