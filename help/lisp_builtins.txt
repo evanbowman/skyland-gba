@@ -908,6 +908,11 @@ o----------------------------o
  Returns a symbol representing
  the type of an input value.
 
+ For wrapped values (see
+ section 9), type will return
+ the type-symbol passed to
+ wrap.
+
 
 
 ##############################
@@ -958,17 +963,15 @@ o----------------------------o
 
 o----------------------------o
 
- (defn name [arg-count]
+ (defn name (args...)
    body...)
 
- Define a new function,
- which expects at least
- arg-count args.
+ Define a new function.
 
 
 o----------------------------o
 
- (defn/c name [arg-count]
+ (defn/c name (args...)
    body...)
 
  Like defn, but defines a

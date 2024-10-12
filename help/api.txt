@@ -167,7 +167,7 @@ o----------------------------o
 
 o----------------------------o
 
- (opponent) -> island
+ (opponent) -> isle
 
  Returns a reference to the
  opponent's island. NOTE:
@@ -227,7 +227,7 @@ o----------------------------o
 
 o----------------------------o
 
- (player) -> island
+ (player) -> isle
 
  Returns a reference to the
  player's island.
