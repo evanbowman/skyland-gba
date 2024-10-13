@@ -8,7 +8,7 @@
 
 (assert-eq
  (chrs (player))
- '((4 14 (hp . 171) (id . 6))))
+ '((4 14 (hp . 171) (id . 2))))
 
 (assert-eq
  (chrs (opponent))

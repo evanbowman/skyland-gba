@@ -4,7 +4,7 @@
 
 (assert-eq
  (chrs (player))
- '((4 12 (id . 8)) (3 12 (id . 9))))
+ '((4 12 (id . 1)) (3 12 (id . 2))))
 
 (assert-eq
  (coins)
