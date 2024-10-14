@@ -284,3 +284,27 @@
         'put)
 
 (gc)
+
+(regr-print "linting all scripts!")
+
+(defn ends-with (str sufx)
+  (let ((m1 (string-explode str))
+        (m2 (string-explode sufx)))
+    (equal (slice m1 (- (length m1) (length m2))) m2)))
+
+(filesystem-walk
+ (lambda (path)
+   (when (ends-with path ".lisp")
+     (let ((spl (split path "/")))
+       (let ((fname (string (get spl (- (length spl) 2))
+                            "/"
+                            (get spl (- (length spl) 1)))))
+         (regr-print (string "linting " fname "…"))
+         (let ((r (lint-file path)))
+           (if (error? r)
+               (fatal (string "in file " fname ": " r)))))))))
+
+(regr-print "                        ")
+
+(unbind 'ends-with)
+(gc)

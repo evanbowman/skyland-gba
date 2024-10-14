@@ -18,7 +18,6 @@
 
 ;; Define some common global
 ;; variables.
-
 (eval-file "/scripts/globals.lisp")
 
 ;; Let's define some useful

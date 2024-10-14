@@ -1673,6 +1673,71 @@ bool is_executing()
 }
 
 
+void lint(Value* expr)
+{
+    switch (expr->type()) {
+    case Value::Type::cons:
+        if (is_list(expr)) {
+            auto fn_sym = get_list(expr, 0);
+            if (fn_sym->type() == Value::Type::symbol) {
+                auto fn = get_var(fn_sym->symbol().name());
+                if (fn->type() == Value::Type::function) {
+                    int reqd_args = fn->function().required_args_;
+                    if (length(expr) - 1 < reqd_args) {
+                        push_op(make_error(::format("insufficient args for %!",
+                                                    val_to_string<64>(fn).c_str()).c_str()));
+                        return;
+                    }
+                }
+            }
+
+            auto current = expr->cons().cdr();
+            while (current not_eq L_NIL) {
+                lint(current->cons().car());
+                if (get_op0()->type() == Value::Type::error) {
+                    return;
+                }
+                pop_op();
+                current = current->cons().cdr();
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    push_op(L_NIL);
+}
+
+
+Value* lint_code(CharSequence& code)
+{
+    int i = 0;
+    Protected result(get_nil());
+
+    while (true) {
+        i += read(code, i);
+        auto reader_result = get_op0();
+        if (reader_result == get_nil()) {
+            pop_op();
+            break;
+        }
+        lint(reader_result);
+        auto expr_result = get_op0();
+        result.set(expr_result);
+        pop_op(); // expression result
+        pop_op(); // reader result
+
+        if (is_error(expr_result)) {
+            return expr_result;
+        }
+    }
+
+    return result;
+}
+
+
 Value* dostring(const char* code)
 {
     BasicCharSequence cs(code);

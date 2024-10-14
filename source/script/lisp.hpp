@@ -899,6 +899,8 @@ Value* dostring(CharSequence& code,
                 ::Function<4 * sizeof(void*), void(Value&)> on_error);
 Value* dostring(const char* code);
 
+Value* lint_code(CharSequence& code);
+
 
 bool is_executing();
 

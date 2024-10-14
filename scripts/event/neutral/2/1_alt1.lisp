@@ -51,18 +51,18 @@
 
 
 (let ((bad (choice 2))
-      (move (lambda (type)
+      (move (lambda (mode)
               (let ((ch '((0 . 10) (1 . 10) (6 . 7))))
                 (while (and ch (chr-slots (player)))
                   (let ((sl (chr-slots (player))))
                     (chr-del (opponent) (caar ch) (cdar ch))
                     (setq ch (cdr ch))
-                    (chr-new (player) (caar sl) (cdar sl) type 0)))
+                    (chr-new (player) (caar sl) (cdar sl) mode 0)))
                 (while (and ch (chr-slots (opponent)))
                   (let ((sl (chr-slots (opponent))))
                     (chr-del (opponent) (caar ch) (cdar ch))
                     (setq ch (cdr ch))
-                    (chr-new (opponent) (caar sl) (cdar sl) type 0)))))))
+                    (chr-new (opponent) (caar sl) (cdar sl) mode 0)))))))
 
   (defn on-dialog-accepted ()
     (cond

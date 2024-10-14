@@ -1735,10 +1735,26 @@ BINDING_TABLE({
               APP.set_coins(L_LOAD_INT(0));
           }
 
-
           return L_NIL;
       }}},
     {"coins-victory", {0, [](int argc) { return L_INT(APP.victory_coins()); }}},
+    {"lint-file",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+          auto path = lisp::get_op(0)->string().value();
+
+          if (auto contents = PLATFORM.load_file_contents("", path)) {
+              lisp::BasicCharSequence seq(contents);
+              auto result = lisp::lint_code(seq);
+              return result;
+          } else {
+              StringBuffer<100> err("script '");
+              err += path;
+              err += "' missing";
+              PLATFORM.fatal(err.c_str());
+          }
+      }}},
     {"eval-file",
      {1,
       [](int argc) {
@@ -1779,6 +1795,20 @@ BINDING_TABLE({
                   return lisp::make_string((*val)->c_str());
               }
           }
+
+          return L_NIL;
+      }}},
+    {"filesystem-walk",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, function);
+
+          PLATFORM.walk_filesystem([](const char* path) {
+              auto fn = lisp::get_op(0);
+              lisp::push_op(lisp::make_string(path));
+              lisp::funcall(fn, 1);
+              lisp::pop_op(); // discard funcall result
+          });
 
           return L_NIL;
       }}},

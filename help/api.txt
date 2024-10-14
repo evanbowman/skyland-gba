@@ -809,6 +809,19 @@ o----------------------------o
 
 o----------------------------o
 
+ (lint-file path)
+
+ Run a linter program on the
+ lisp code in the file given
+ by path.
+
+ Returns an error upon
+ detecting an error, or
+ returns nil otherwise.
+
+
+o----------------------------o
+
  (log val)
 
  Write a value to the
@@ -1080,6 +1093,14 @@ o----------------------------o
 
  Return the number of lines
  in a file.
+
+
+o----------------------------o
+
+ (walk-filesystem callback)
+
+ Invoke callback for every
+ file in the filesystem.
 
 
 o----------------------------o
