@@ -320,7 +320,7 @@
            (if (error? r)
                (fatal (string "in file " (get spl (- (length spl) 1)) ": " r)))))))))
 
-
+;; Clear directory listing from screen
 (foreach (lambda (y)
            (regr-print "" 1 y))
          (range 5 10))

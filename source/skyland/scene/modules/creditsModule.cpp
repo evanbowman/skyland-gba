@@ -112,9 +112,6 @@ ScenePtr CreditsModule::update(Time delta)
         if (player().key_down(Key::action_2)) {
             state_ = State::fade_out_exit;
         }
-        if (autoadvance_) {
-            timer_ += delta;
-        }
         if (player().key_down(Key::action_1)) {
             if (player().key_down(Key::action_2)) {
                 state_ = State::fade_out_exit;
