@@ -42,7 +42,7 @@
 (defn on-dialog-accepted ()
   (let ((temp (chr-slots (player)))
         (join (lambda (txt)
-                  (adventure-log-add 7 '())
+                (adventure-log-add 7 '())
                 (dialog txt))))
     (if temp
         (progn

@@ -1446,10 +1446,10 @@ BINDING_TABLE({
     {"chr-move",
      {5,
       [](int argc) {
-          L_EXPECT_OP(0, integer);   // y2
-          L_EXPECT_OP(1, integer);   // x2
-          L_EXPECT_OP(2, integer);   // y1
-          L_EXPECT_OP(3, integer);   // x1
+          L_EXPECT_OP(0, integer); // y2
+          L_EXPECT_OP(1, integer); // x2
+          L_EXPECT_OP(2, integer); // y1
+          L_EXPECT_OP(3, integer); // x1
           L_EXPECT_OP(4, wrapped); // island
 
           auto island = unwrap_isle(lisp::get_op(4));
@@ -1580,8 +1580,7 @@ BINDING_TABLE({
           coord.x = lisp::get_op(1)->integer().value_;
           coord.y = lisp::get_op(0)->integer().value_;
 
-          if (auto room = (unwrap_isle(lisp::get_op(2)))
-                              ->get_room(coord)) {
+          if (auto room = (unwrap_isle(lisp::get_op(2)))->get_room(coord)) {
               room->select(coord);
           }
 
@@ -1799,12 +1798,22 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"filesystem-walk",
-     {1,
+     {2,
       [](int argc) {
+          L_EXPECT_OP(1, string);
           L_EXPECT_OP(0, function);
 
-          PLATFORM.walk_filesystem([](const char* path) {
-              auto fn = lisp::get_op(0);
+          auto search = lisp::get_op(1);
+          auto fn = lisp::get_op(0);
+
+          PLATFORM.walk_filesystem([fn, search](const char* path) {
+              auto len = strlen(search->string().value());
+              for (u32 i = 0; i < len; ++i) {
+                  if (path[i] not_eq search->string().value()[i]) {
+                      return;
+                  }
+              }
+
               lisp::push_op(lisp::make_string(path));
               lisp::funcall(fn, 1);
               lisp::pop_op(); // discard funcall result

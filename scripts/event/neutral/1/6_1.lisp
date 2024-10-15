@@ -63,8 +63,8 @@
                   (exit)))))
         (progn
           (dialog "<c:engineer:15>Hello there! I've designed a special type of hull resistant to missiles. I could have upgraded your hull, but you don't have any! But I'm sure we'll meet again someday!")
-          (exit))
-        (setq on-converge nil)))))
+          (exit)))))
+  (setq on-converge nil))
 
 
 (defn on-dialog-declined ()

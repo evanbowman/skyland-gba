@@ -97,7 +97,6 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
 
 extern Buffer<const char*, 4> completed_sounds_buffer;
 extern volatile bool completed_sounds_lock;
-extern StringBuffer<48> completed_music;
 
 
 
@@ -116,7 +115,6 @@ void audio_update_fast_isr()
 
     if (music_pos > music_len) {
         music_pos = 0;
-        completed_music = snd_ctx.music_track_name;
     }
     // Load 8 music samples upfront (in chunks of four), to try to take
     // advantage of sequential cartridge reads.

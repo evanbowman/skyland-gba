@@ -141,6 +141,9 @@ void ScriptedMenuScene::enter(Scene& prev)
     if (APP.load_file(path.c_str(), file)) {
         lisp::VectorCharSequence seq(file);
         lisp::read(seq);
+        lisp::Protected reader_result = lisp::get_op0();
+        lisp::pop_op();
+        lisp::eval(reader_result);
         model_ = lisp::get_op0();
         lisp::pop_op();
 

@@ -43,196 +43,13 @@ namespace skyland
 
 
 
-using Line = const char* const;
-
-
-
-struct Page
+bool CreditsModule::load_page(u32 page)
 {
-    Line* text_lines_;
-};
+    Vector<char> data;
 
-
-static const char* const page_0_lines[] = {"-- Programming --",
-                                           "",
-                                           "< Lead programmer >",
-                                           "Evan Bowman",
-                                           "",
-                                           "interrupt dispatcher by",
-                                           "Dave Murphy (devkitpro)",
-                                           "",
-                                           "optimized memcpy by",
-                                           "Jasper Vijn (tonc)",
-                                           nullptr};
-
-
-
-static const char* const page_01_lines[] = {"-- Programming (contd.) --",
-                                            "",
-                                            "",
-                                            "QR Code Generator by",
-                                            "Project Nayuki",
-                                            "",
-                                            "Heatshrink Algorithm by",
-                                            "Atomic Object",
-                                            "",
-                                            "",
-                                            "",
-                                            nullptr};
-
-static const char* const page_02_lines[] = {"-- Programming (contd.) --",
-                                            "",
-                                            "Thanks to Martin Korth",
-                                            "for the GBATEK hardware docs",
-                                            "",
-                                            "Thanks to the GBA",
-                                            "homebrew dev community",
-                                            "",
-                                            "Thanks to Endrift",
-                                            "for the mGBA Emulator",
-                                            "",
-                                            nullptr};
-
-
-static const char* const page_1_lines[] = {"-- Design --",
-                                           "",
-                                           "Design and Artwork",
-                                           "Evan Bowman",
-                                           nullptr};
-
-
-
-static const char* const page_2_lines[] = {"-- Music --",
-                                           "",
-                                           "\x12 Shadows \x12",
-                                           "Unattributed",
-                                           "",
-                                           "\x12 Life in Silico \x12",
-                                           "Scott Buckley",
-                                           "",
-                                           "\x12 Solecism \x12",
-                                           "Scott Buckley",
-                                           nullptr};
-
-
-
-static const char* const page_3_lines[] = {"-- Music (Contd.) --",
-                                           "",
-                                           "\x12 Struttin With Some BBQ \x12",
-                                           "Louis Armstrong",
-                                           "",
-                                           "\x12 At The End Of All Things \x12",
-                                           "Scott Buckley",
-                                           "",
-                                           "\x12 Ignis \x12",
-                                           "Scott Buckley",
-                                           nullptr};
-
-static const char* const page_4_lines[] = {"-- Sounds (Contd.) --",
-                                           "",
-                                           "\x12 misc. effects \x12",
-                                           "Evan + The Public Domain",
-                                           "",
-                                           "(Gathered public-domain",
-                                           "recordings of nature, bells,",
-                                           "and machinery, and remixed",
-                                           "them to make the game's sfx)",
-                                           nullptr};
-
-
-static const char* const page_5_lines[] = {"-- Beta Testing --",
-                                           "",
-                                           "junnunkarim",
-                                           "tolik518",
-                                           "Ben Casler",
-                                           nullptr};
-
-
-static const char* const page_end_lines0[] = {"-- Postscript --",
-                                              "",
-                                              "Making games is so hard...",
-                                              "",
-                                              "",
-                                              "",
-                                              "",
-                                              "",
-                                              "",
-                                              nullptr};
-
-static const char* const page_end_lines1[] = {"-- Postscript --",
-                                              "",
-                                              "Although it's only a simple",
-                                              "game, Skyland took thousands",
-                                              "of hours of work.",
-                                              "",
-                                              "It's really difficult to",
-                                              "call a project finished,",
-                                              "especially after working on",
-                                              "it for months.",
-                                              nullptr};
-
-static const char* const page_end_lines2[] = {"-- Postscript --",
-                                              "",
-                                              "But I'm running low on",
-                                              "cartridge space, so I guess",
-                                              "now is as good a time as any",
-                                              "to publish.",
-                                              "",
-                                              "As only my second game, I'm",
-                                              "excited to share it with",
-                                              "everyone!",
-                                              "",
-                                              nullptr};
-
-static const char* const page_end_lines3[] = {"-- Postscript --",
-                                              "",
-                                              "",
-                                              "Thanks for playing!",
-                                              "",
-                                              "-- Evan",
-                                              "",
-                                              "",
-                                              "",
-                                              "",
-                                              "",
-                                              nullptr};
-
-
-
-static const std::array<Time, 11> page_times_ = {
-    milliseconds(3000),
-    milliseconds(3000),
-    milliseconds(3000),
-    milliseconds(1500),
-    milliseconds(3000),
-    milliseconds(3000),
-    milliseconds(4500),
-    milliseconds(1000),
-    milliseconds(5000),
-    milliseconds(5000),
-    milliseconds(2000),
-};
-
-
-static const std::array<Page, 12> pages_ = {{{page_0_lines},
-                                             {page_01_lines},
-                                             {page_02_lines},
-                                             {page_1_lines},
-                                             {page_2_lines},
-                                             {page_3_lines},
-                                             {page_4_lines},
-                                             {page_5_lines},
-                                             {page_end_lines0},
-                                             {page_end_lines1},
-                                             {page_end_lines2},
-                                             {page_end_lines3}}};
-
-
-
-void CreditsModule::load_page(u32 page)
-{
-    if (page >= pages_.size()) {
-        return;
+    const char* fmt_path = "/scripts/data/credits/%.txt";
+    if (not APP.load_file(format(fmt_path, page).c_str(), data)) {
+        return false;
     }
 
     lines_.clear();
@@ -240,22 +57,26 @@ void CreditsModule::load_page(u32 page)
     PLATFORM.fill_overlay(112);
 
     u8 y = 1;
-    auto data = pages_[page].text_lines_;
 
-    while (*data not_eq nullptr) {
-        if (strlen(*data) == 0) {
-            y += 1;
-            ++data;
-            if (*data == nullptr) {
-                break;
+    StringBuffer<128> line;
+    for (char c : data) {
+        if (c == '\n') {
+            if (line.length()) {
+                lines_.emplace_back(
+                    line.c_str(),
+                    OverlayCoord{
+                        (u8)centered_text_margins(utf8::len(line.c_str())), y});
+                line.clear();
             }
+            y += 1;
+        } else if (c == '^') {
+            line.push_back('\x12');
+        } else {
+            line.push_back(c);
         }
-        lines_.emplace_back(
-            *data,
-            OverlayCoord{(u8)centered_text_margins(utf8::len(*data)), y});
-        y += 2;
-        ++data;
     }
+
+    return true;
 }
 
 
@@ -288,13 +109,14 @@ ScenePtr CreditsModule::update(Time delta)
 
     switch (state_) {
     case State::idle:
+        if (player().key_down(Key::action_2)) {
+            state_ = State::fade_out_exit;
+        }
         if (autoadvance_) {
             timer_ += delta;
         }
-        if ((autoadvance_ and timer_ > page_times_[page_]) or
-            player().key_down(Key::action_1)) {
-            if (player().key_down(Key::action_2) or
-                (u32) page_ + 1 == ::skyland::pages_.size()) {
+        if (player().key_down(Key::action_1)) {
+            if (player().key_down(Key::action_2)) {
                 state_ = State::fade_out_exit;
             } else {
                 state_ = State::fade_out_next;
@@ -343,7 +165,9 @@ ScenePtr CreditsModule::update(Time delta)
         break;
 
     case State::page_swap:
-        load_page(++page_);
+        if (not load_page(++page_)) {
+            return make_scene<TitleScreenScene>(3);
+        }
         state_ = State::fade_in;
         break;
     }

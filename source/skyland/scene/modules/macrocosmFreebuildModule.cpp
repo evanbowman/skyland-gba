@@ -72,7 +72,8 @@ void MacrocosmFreebuildModule::exit(Scene& prev)
 
 void MacrocosmFreebuildModule::init()
 {
-    PLATFORM.speaker().stream_music(APP.environment().music()->c_str(), 0);
+    PLATFORM.speaker().stream_music(
+        APP.environment().read_conf("macrocosm")->c_str(), 0);
 
 
     APP.camera().emplace<macro::Camera>();
@@ -228,7 +229,7 @@ ScenePtr MacrocosmFreebuildModule::update(Time delta)
 
 
 
-MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
+// MacrocosmFreebuildModule::Factory MacrocosmFreebuildModule::factory_;
 
 
 

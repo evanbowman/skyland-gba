@@ -1132,13 +1132,6 @@ Buffer<const char*, 4> Platform::Speaker::completed_sounds()
 
 
 
-const char* Platform::Speaker::completed_music()
-{
-    return nullptr;
-}
-
-
-
 bool Platform::Speaker::is_sound_playing(const char* name)
 {
     return true;

@@ -53,7 +53,7 @@ namespace skyland
 
 
 static const auto highlight_colors =
-    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
+    FontColors{custom_color(0x007cbf), custom_color(0xffffff)};
 
 
 
@@ -96,7 +96,7 @@ void FileBrowserModule::enter(Scene& prev)
         (*path_)->push_back("/");
     }
 
-    PLATFORM.screen().schedule_fade(0.95f, custom_color(0x00210f));
+    PLATFORM.screen().schedule_fade(0.95f, custom_color(0x007cbf));
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
@@ -111,7 +111,7 @@ void FileBrowserModule::exit(Scene& next)
 {
     lines_.clear();
     info_.reset();
-    PLATFORM.screen().schedule_fade(1, custom_color(0x000010));
+    PLATFORM.screen().schedule_fade(1, custom_color(0x007cbf));
     PLATFORM.screen().clear();
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
@@ -136,7 +136,7 @@ StringBuffer<200> FileBrowserModule::cwd() const
 void FileBrowserModule::repaint()
 {
     // Cover text with black during transition
-    PLATFORM.screen().fade(1.f, custom_color(0x00210f), {}, true, true);
+    PLATFORM.screen().fade(1.f, custom_color(0x007cbf), {}, true, true);
     faded_ = true;
 
     // If we clear all the lines, the engine will deallocate all of the tile
@@ -354,7 +354,7 @@ void FileBrowserModule::show_opts()
     info_->assign("file: ");
 
     auto highlight_colors =
-        FontColors{custom_color(0x000010), custom_color(0xffffff)};
+        FontColors{custom_color(0x007cbf), custom_color(0xffffff)};
 
     if (opt_index_ == 0) {
         info_->append("create", highlight_colors);
@@ -388,10 +388,10 @@ ScenePtr FileBrowserModule::update(Time delta)
         faded_ = false;
         PLATFORM.screen().fade(
             0.95f,
-            custom_color(0x00210f)); // Reset the fade parameters
+            custom_color(0x007cbf)); // Reset the fade parameters
 
         // Black background behind the text.
-        PLATFORM.screen().fade(1.f, custom_color(0x00210f));
+        PLATFORM.screen().fade(1.f, custom_color(0x007cbf));
     }
 
     auto on_dir_changed = [&] {

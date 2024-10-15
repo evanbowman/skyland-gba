@@ -8,6 +8,7 @@
 ;; NOTE: engine binds config fields from the sandbox settings menu to a list
 ;; variable called conf.
 
+(global 'conf) ; declaration for the linter
 
 (coins-set (get conf 0))
 (terrain-set (player) (get conf 1))

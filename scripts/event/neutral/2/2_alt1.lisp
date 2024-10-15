@@ -60,20 +60,6 @@
 (flag-show (opponent) 4)
 
 
-(defn on-converge ()
-  (setq on-converge nil)
-  (dialog
-   "The ship's weapons seem to be more-or-less intact! Attempt to remove one?")
-
-  (dialog-opts-reset)
-  (apply dialog-opts-push (take 'beam-gun))
-  (apply dialog-opts-push (take 'incinerator))
-  (apply dialog-opts-push (take 'splitter))
-  (dialog-opts-push "nope" (lambda ()
-                             (unbind 'take)
-                             (exit))))
-
-
 (defn take (w)
   (let ((wpn w))
     (list
@@ -126,3 +112,17 @@
             (dialog-opts-push (string "take " (rinfo 'name (get opts 0)) "…") wake)
             (dialog-opts-push (string "take " (rinfo 'name (get opts 1)) "…") wake)
             (unbind 'take))))))))
+
+
+(defn on-converge ()
+  (setq on-converge nil)
+  (dialog
+   "The ship's weapons seem to be more-or-less intact! Attempt to remove one?")
+
+  (dialog-opts-reset)
+  (apply dialog-opts-push (take 'beam-gun))
+  (apply dialog-opts-push (take 'incinerator))
+  (apply dialog-opts-push (take 'splitter))
+  (dialog-opts-push "nope" (lambda ()
+                             (unbind 'take)
+                             (exit))))

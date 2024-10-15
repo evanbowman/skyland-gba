@@ -219,8 +219,8 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/regressionModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/datetimeModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp

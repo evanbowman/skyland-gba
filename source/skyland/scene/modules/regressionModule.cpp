@@ -48,6 +48,11 @@ HEAP_DATA s8 test_index = -1;
 
 
 
+static const auto bkg_color = custom_color(0x007cbf);
+static const Text::OptColors text_colors{{custom_color(0xffffff), bkg_color}};
+
+
+
 ScenePtr RegressionModule::update(Time delta)
 {
     state_bit_store(StateBit::regression, true);
@@ -56,24 +61,29 @@ ScenePtr RegressionModule::update(Time delta)
 
     if (test_index == -1) {
         PLATFORM.screen().schedule_fade(0);
-        PLATFORM.screen().schedule_fade(1);
+        PLATFORM.screen().schedule_fade(1, bkg_color);
         PLATFORM.screen().clear();
-        Text::print("please wait...", {1, 1});
-        Text::print("running tests...", {1, 3});
+        Text::print("please wait...", {1, 1}, text_colors);
+        Text::print("running tests...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
-        lisp::set_var(
-            "regr-print", lisp::make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, string);
-                PLATFORM.screen().clear();
-                for (int x = 0; x < 30; ++x) {
-                    PLATFORM.set_tile(Layer::overlay, x, 3, 0);
-                }
-                Text::print(lisp::get_op0()->string().value(), {1, 3});
-                PLATFORM.screen().display();
-                return L_NIL;
-            }));
+        lisp::set_var("regr-print", lisp::make_function([](int argc) {
+                          L_EXPECT_ARGC(argc, 3);
+                          L_EXPECT_OP(2, string);
+                          L_EXPECT_OP(1, integer);
+                          L_EXPECT_OP(0, integer);
+                          PLATFORM.screen().clear();
+                          for (int x = 0; x < 30; ++x) {
+                              PLATFORM.set_tile(
+                                  Layer::overlay, x, L_LOAD_INT(0), 0);
+                          }
+                          Text::print(lisp::get_op(2)->string().value(),
+                                      {(u8)L_LOAD_INT(1),
+                                       (u8)L_LOAD_INT(0)},
+                                      text_colors);
+                          PLATFORM.screen().display();
+                          return L_NIL;
+                      }));
 
         PLATFORM.system_call("watchdog-off", nullptr);
         APP.invoke_script("/scripts/data/unittest.lisp");
@@ -81,8 +91,8 @@ ScenePtr RegressionModule::update(Time delta)
         PLATFORM.system_call("watchdog-on", nullptr);
 
         PLATFORM.screen().clear();
-        Text::print("core regression passed!", {1, 1});
-        Text::print("validating tutorials...", {1, 3});
+        Text::print("core regression passed!", {1, 1}, text_colors);
+        Text::print("validating tutorials...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
         PLATFORM.sleep(120);
@@ -103,13 +113,15 @@ ScenePtr RegressionModule::update(Time delta)
         if (test_index == SelectTutorialScene::tutorial_count()) {
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().schedule_fade(0);
-            PLATFORM.screen().schedule_fade(1);
+            PLATFORM.screen().schedule_fade(1, bkg_color);
             PLATFORM.screen().clear();
-            Text::print("all regression passed!", {1, 1});
+            Text::print("all regression passed!", {1, 1}, text_colors);
             u32 mstack = 0;
             PLATFORM.system_call("stack_usage", &mstack);
-            Text::print(format("max stack used %", mstack).c_str(), {1, 3});
-            Text::print("press any key to reset...", {1, 5});
+            Text::print(format("max stack used %", mstack).c_str(),
+                        {1, 3},
+                        text_colors);
+            Text::print("press any key to reset...", {1, 5}, text_colors);
 
             while (1) {
                 PLATFORM.keyboard().poll();

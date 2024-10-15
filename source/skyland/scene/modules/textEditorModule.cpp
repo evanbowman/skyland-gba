@@ -58,11 +58,11 @@ static int y_max()
 
 
 static const auto status_colors =
-    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
+    FontColors{custom_color(0x007cbf), custom_color(0xffffff)};
 
 
 static const auto highlight_colors =
-    FontColors{custom_color(0x00210f), custom_color(0xffe763)};
+    FontColors{custom_color(0xffffff), custom_color(0xF71735)};
 
 
 
@@ -117,7 +117,7 @@ void TextEditorModule::render_keyboard()
             auto colors = status_colors;
             if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
                 colors =
-                    FontColors{custom_color(0xffe763), custom_color(0x00210f)};
+                    FontColors{custom_color(0xffffff), custom_color(0x007cbf)};
             }
 
             PLATFORM.set_tile((calc_screen_tiles().x - 8) + x,
@@ -140,7 +140,7 @@ void TextEditorModule::render_completions()
 
         auto colors = status_colors;
         if (line - 13 == selected_completion_) {
-            colors = FontColors{custom_color(0xffe763), custom_color(0x00210f)};
+            colors = FontColors{custom_color(0xffffff), custom_color(0x007cbf)};
         }
 
         u32 x;
@@ -153,7 +153,7 @@ void TextEditorModule::render_completions()
 
             if (x < state_->current_word_.length() and
                 line - 13 not_eq selected_completion_) {
-                prefix_colors.foreground_ = custom_color(0x4646d2);
+                prefix_colors.foreground_ = custom_color(0xffffff);
             }
 
             PLATFORM.set_tile(x, line, t, prefix_colors);
@@ -409,13 +409,13 @@ void TextEditorModule::render(int start_line)
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0xe6a45a), custom_color(0x00210f)});
+                    FontColors{custom_color(0x99dbff), custom_color(0x007cbf)});
             } else if (ps.keyword and c not_eq '(') {
                 PLATFORM.set_tile(
                     x,
                     y,
                     t,
-                    FontColors{custom_color(0xe6a45a), custom_color(0x00210f)});
+                    FontColors{custom_color(0xfff5b8), custom_color(0x007cbf)});
             } else {
                 PLATFORM.set_tile(Layer::overlay, x, y, t);
             }

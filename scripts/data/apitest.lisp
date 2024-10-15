@@ -32,7 +32,7 @@
   (setq current-test name)
   (let ((msg (string "running tests: " name "...")))
     (when (bound? 'regr-print)
-      (regr-print msg))
+      (regr-print msg 1 3))
     (put msg)))
 
 (defn end-test ()
@@ -274,37 +274,61 @@
 (end-test)
 
 
-(regr-print "all tests passed!")
+(regr-print "all tests passed!" 1 3)
 
 (unbind 'begin-test
         'end-test
         'ensure
-        'assert-v
-        'assert-eq
         'put)
 
 (gc)
 
-(regr-print "linting all scripts!")
+(regr-print "linting all scripts!" 1 3)
 
 (defn ends-with (str sufx)
   (let ((m1 (string-explode str))
         (m2 (string-explode sufx)))
     (equal (slice m1 (- (length m1) (length m2))) m2)))
 
-(filesystem-walk
- (lambda (path)
-   (when (ends-with path ".lisp")
-     (let ((spl (split path "/")))
-       (let ((fname (string (get spl (- (length spl) 2))
-                            "/"
-                            (get spl (- (length spl) 1)))))
-         (regr-print (string "linting " fname "…"))
+(setq temp 0)
+
+;; This includes variable declarations that are not processed at startup. The
+;; linter needs them!
+(eval-file "/scripts/adventure_vars.lisp")
+
+(let ((last nil))
+  (filesystem-walk
+   "/"
+   (lambda (path)
+     (when (ends-with path ".lisp")
+       (+= temp 1)
+       (let ((indent 1)
+             (y 5)
+             (spl (split path "/")))
+         (if (< (length spl) (length last))
+             ;; Clean up lines if the directory depth is less than last printed
+             (foreach (lambda (yy)
+                        (regr-print "" 1 (+ y (- yy 1))))
+                      (range (length spl) (length last))))
+         (setq last spl)
+         (foreach (lambda (dir)
+                    (regr-print dir indent y)
+                    (+= indent 2)
+                    (+= y 1))
+                  (cdr spl))
          (let ((r (lint-file path)))
            (if (error? r)
-               (fatal (string "in file " fname ": " r)))))))))
+               (fatal (string "in file " (get spl (- (length spl) 1)) ": " r)))))))))
 
-(regr-print "                        ")
 
-(unbind 'ends-with)
+(foreach (lambda (y)
+           (regr-print "" 1 y))
+         (range 5 10))
+
+
+(assert-eq temp 210)
+
+(unbind 'ends-with
+        'assert-v
+        'assert-eq)
 (gc)

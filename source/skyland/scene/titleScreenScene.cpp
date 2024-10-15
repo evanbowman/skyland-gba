@@ -38,7 +38,7 @@
 #include "loadModuleScene.hpp"
 #include "module.hpp"
 #include "modules/fileBrowserModule.hpp"
-#include "modules/macrocosmLoaderModule.hpp"
+#include "modules/macrocosmFreebuildModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "platform/color.hpp"
@@ -1337,7 +1337,7 @@ ScenePtr TitleScreenScene::update(Time delta)
 
                 APP.invoke_script("/scripts/reset_hooks.lisp");
 
-                return make_scene<MacrocosmLoaderModule>();
+                return make_scene<MacrocosmFreebuildModule>();
 
             case 3:
                 PLATFORM.fatal("logic error, this should be unreachable");

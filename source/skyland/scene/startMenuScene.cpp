@@ -630,7 +630,8 @@ AGAIN:
                         PLATFORM.fill_overlay(0);
                         PLATFORM.screen().set_shader(passthrough_shader);
                         if (macrocosm().data_->freebuild_mode_) {
-                            return make_scene<TitleScreenScene>(3);
+                            return make_scene<TitleScreenScene>( // 3
+                                4);
                         } else {
                             return make_scene<TitleScreenScene>(4);
                         }

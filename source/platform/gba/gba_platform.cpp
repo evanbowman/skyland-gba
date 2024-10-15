@@ -2704,7 +2704,7 @@ void Platform::fatal(const char* msg)
 
     ::__platform__->screen().fade(0.f);
 
-    const auto bkg_color = custom_color(0xcb1500);
+    const auto bkg_color = custom_color(0x007cbf);
 
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
@@ -2744,12 +2744,12 @@ void Platform::fatal(const char* msg)
         text2.emplace(OverlayCoord{1, 3});
 
         const auto msg_len = strlen(msg);
-        if (msg_len > 26) {
+        if (msg_len > 28) {
             StringBuffer<28> temp;
-            for (int i = 0; i < 20; ++i) {
+            for (int i = 0; i < 21; ++i) {
                 temp.push_back(msg[i]);
             }
-            temp += "... (B)";
+            temp += "… (B)";
             text2->append(temp.c_str(), text_colors);
         } else {
             text2->append(msg, text_colors);
@@ -4095,20 +4095,6 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 Buffer<const char*, 4> completed_sounds_buffer;
 volatile bool completed_sounds_lock = false;
-EWRAM_DATA StringBuffer<48> completed_music;
-
-
-
-Optional<StringBuffer<48>> Platform::Speaker::completed_music()
-{
-    if (::completed_music.empty()) {
-        return {};
-    }
-
-    auto ret = ::completed_music;
-    ::completed_music.clear();
-    return ret;
-}
 
 
 
@@ -4737,7 +4723,6 @@ static void audio_update_music_volume_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
         snd_ctx.music_track_pos = 0;
-        completed_music = snd_ctx.music_track_name;
     }
 
     for (AudioSample& s : mixing_buffer) {
@@ -4956,7 +4941,6 @@ static void audio_update_doublespeed_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length + 2)) {
         snd_ctx.music_track_pos = 0;
-        completed_music = snd_ctx.music_track_name;
     }
 
     for (auto it = snd_ctx.active_sounds.begin();
@@ -4994,7 +4978,6 @@ static void audio_update_halfspeed_isr()
 
     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
         snd_ctx.music_track_pos = 0;
-        completed_music = snd_ctx.music_track_name;
     }
 
     for (auto it = snd_ctx.active_sounds.begin();

@@ -1673,27 +1673,150 @@ bool is_executing()
 }
 
 
-void lint(Value* expr)
+// Checks for undefined variable access, checks to make sure enough function
+// params are supplied, checks the proper structure of special forms, etc...
+void lint(Value* expr, Value* variable_list)
 {
+    bool is_special_form = false;
+
     switch (expr->type()) {
     case Value::Type::cons:
         if (is_list(expr)) {
             auto fn_sym = get_list(expr, 0);
             if (fn_sym->type() == Value::Type::symbol) {
-                auto fn = get_var(fn_sym->symbol().name());
+                auto name = fn_sym->symbol().name();
+
+                if (str_eq(name, "'") or str_eq(name, "`")) {
+                    push_op(L_NIL);
+                    return; // quoted list
+                } else if (str_eq(name, "macro")) {
+                    // We're linting macro-expanded code, which should be enough
+                    // to verify that a macro is well-formed. We don't need to
+                    // lint a macro definition as well, which would be difficult
+                    // to do correctly.
+                    push_op(L_NIL);
+                    return;
+                } else if (str_eq(name, "if")) {
+                    // (if cond true-branch [false-branch])
+                    if (length(expr) < 3 or length(expr) > 4) {
+                        push_op(make_error("malformed if expr!"));
+                        return;
+                    }
+                    is_special_form = true;
+                } else if (str_eq(name, "let")) {
+                    // (let ([(sym val)...]) [body])
+                    if (length(expr) < 2) {
+                        push_op(make_error("malformed let expr!"));
+                        return;
+                    }
+                    auto bindings = get_list(expr, 1);
+                    while (bindings not_eq L_NIL) {
+                        if (bindings->type() not_eq Value::Type::cons) {
+                            push_op(make_error("invalid let binding list"));
+                            return;
+                        }
+                        auto binding = bindings->cons().car();
+                        if (not is_list(binding)) {
+                            push_op(make_error("invalid let binding list"));
+                            return;
+                        }
+                        auto sym = get_list(binding, 0);
+                        if (sym->type() not_eq Value::Type::symbol) {
+                            push_op(make_error("let binding missing symbol"));
+                            return;
+                        }
+                        variable_list = L_CONS(sym, variable_list);
+                        bindings = bindings->cons().cdr();
+                    }
+                    is_special_form = true;
+                } else if (str_eq(name, "fn")) {
+                    // TODO: syntax checks for low level function primitive
+                    is_special_form = true;
+                } else if (str_eq(name, "lambda")) {
+                    // (lambda (args...) [body])
+                    if (length(expr) < 2) {
+                        push_op(make_error("invalid lambda syntax!"));
+                        return;
+                    }
+                    auto args = get_list(expr, 1);
+                    if (not is_list(args)) {
+                        push_op(make_error(
+                            "lambda expects arg list in position 1!"));
+                        return;
+                    }
+                    while (args not_eq L_NIL) {
+                        auto arg_name = args->cons().car();
+                        if (arg_name->type() not_eq Value::Type::symbol) {
+                            push_op(
+                                make_error("invalid value in lambda arglist!"));
+                            return;
+                        }
+                        variable_list = L_CONS(arg_name, variable_list);
+                        args = args->cons().cdr();
+                    }
+                    is_special_form = true;
+                } else if (str_eq(name, "while")) {
+                    // TODO: syntax checks for while expr
+                    is_special_form = true;
+                }
+
+                auto fn = get_var(fn_sym);
                 if (fn->type() == Value::Type::function) {
                     int reqd_args = fn->function().required_args_;
                     if (length(expr) - 1 < reqd_args) {
-                        push_op(make_error(::format("insufficient args for %!",
-                                                    val_to_string<64>(fn).c_str()).c_str()));
+                        push_op(
+                            make_error(::format("insufficient args for %!",
+                                                val_to_string<64>(fn).c_str())
+                                           .c_str()));
                         return;
                     }
                 }
             }
 
+            auto find_variable = [&](Value* cv) {
+                if (cv->type() == Value::Type::symbol) {
+                    bool found = false;
+                    l_foreach(variable_list, [cv, &found](Value* v) {
+                        if (cv->symbol().unique_id() ==
+                            v->symbol().unique_id()) {
+                            found = true;
+                        }
+                    });
+
+                    if (not found) {
+                        auto v = get_var(cv);
+                        if (v->type() == Value::Type::error) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            };
+
+            if (not is_special_form) {
+                auto cv = expr->cons().car();
+                if (not find_variable(cv)) {
+                    push_op(make_error(::format("invalid variable access: %",
+                                                val_to_string<32>(cv).c_str())
+                                           .c_str()));
+                    return;
+                }
+            }
+
             auto current = expr->cons().cdr();
             while (current not_eq L_NIL) {
-                lint(current->cons().car());
+
+                auto cv = current->cons().car();
+
+                if (not find_variable(cv)) {
+                    push_op(make_error(::format("invalid variable access: %",
+                                                cv->symbol().name())
+                                           .c_str()));
+                    return;
+                }
+
+                lint(cv, variable_list);
+
                 if (get_op0()->type() == Value::Type::error) {
                     return;
                 }
@@ -1716,6 +1839,8 @@ Value* lint_code(CharSequence& code)
     int i = 0;
     Protected result(get_nil());
 
+    Protected varlist = L_NIL;
+
     while (true) {
         i += read(code, i);
         auto reader_result = get_op0();
@@ -1723,7 +1848,31 @@ Value* lint_code(CharSequence& code)
             pop_op();
             break;
         }
-        lint(reader_result);
+        if (is_list(reader_result)) {
+            auto invoke = get_list(reader_result, 0);
+            if (invoke->type() == Value::Type::symbol) {
+                if (str_eq(invoke->symbol().name(), "global")) {
+                    l_foreach(reader_result->cons().cdr(),
+                              [&varlist](Value* val) {
+                                  if (val->type() == Value::Type::cons) {
+                                      auto sym = val->cons().cdr();
+                                      if (sym->type() == Value::Type::symbol) {
+                                          varlist = L_CONS(sym, varlist);
+                                      }
+                                  }
+                              });
+                } else if (str_eq(invoke->symbol().name(), "setfn")) {
+                    auto pair = get_list(reader_result, 1);
+                    if (pair->type() == Value::Type::cons) {
+                        auto sym = pair->cons().cdr();
+                        if (sym->type() == Value::Type::symbol) {
+                            varlist = L_CONS(sym, varlist);
+                        }
+                    }
+                }
+            }
+        }
+        lint(reader_result, varlist);
         auto expr_result = get_op0();
         result.set(expr_result);
         pop_op(); // expression result
@@ -1733,6 +1882,8 @@ Value* lint_code(CharSequence& code)
             return expr_result;
         }
     }
+
+    run_gc();
 
     return result;
 }
@@ -1813,8 +1964,8 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
     case lisp::Value::Type::wrapped: {
         auto type = dcompr(value->wrapped().type_sym_);
 
-        auto decorator_fn = get_var(::format("-decorate-%",
-                                             type->symbol().name()).c_str());
+        auto decorator_fn =
+            get_var(::format("-decorate-%", type->symbol().name()).c_str());
 
         if (decorator_fn->type() == Value::Type::function) {
             push_op(value); // argument
@@ -3309,8 +3460,8 @@ bool is_equal(Value* lhs, Value* rhs)
             return false;
         }
         auto type = dcompr(lhs->wrapped().type_sym_);
-        auto equal_fn = get_var(::format("-equal-%",
-                                         type->symbol().name()).c_str());
+        auto equal_fn =
+            get_var(::format("-equal-%", type->symbol().name()).c_str());
 
         if (equal_fn->type() == Value::Type::function) {
             push_op(rhs);
@@ -3812,10 +3963,10 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, string);
            ListBuilder result;
 
-           auto str = get_op0()->string().value();
-           while (*str not_eq '\0') {
-               result.push_back(L_INT(*str));
-               ++str;
+           int i = 0;
+           while (get_op0()->string().value()[i] not_eq '\0') {
+               result.push_back(L_INT(get_op0()->string().value()[i]));
+               ++i;
            }
            return result.result();
        }}},
@@ -4829,6 +4980,19 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, string);
            BasicCharSequence seq(get_op0()->string().value());
            read(seq);
+           auto result = get_op0();
+           pop_op();
+           return result;
+       }}},
+     {"lint",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, cons);
+           if (not is_list(get_op0())) {
+               return make_error("lint expects list parameter!");
+           }
+
+           lint(get_op0(), L_NIL);
            auto result = get_op0();
            pop_op();
            return result;

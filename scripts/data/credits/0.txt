@@ -1,0 +1,16 @@
+-- Programming --
+
+
+< Lead programmer >
+
+Evan Bowman
+
+
+interrupt dispatcher by
+
+Dave Murphy (devkitpro)
+
+
+optimized memcpy by
+
+Jasper Vijn (tonc)

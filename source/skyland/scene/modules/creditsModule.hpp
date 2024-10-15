@@ -80,9 +80,6 @@ public:
     }
 
 
-    bool autoadvance_ = false;
-
-
     Optional<DeferredScene> next_scene_;
 
 
@@ -96,7 +93,7 @@ private:
     } state_ = State::fade_in;
 
 
-    void load_page(u32 page);
+    bool load_page(u32 page);
 
 
     Buffer<Text, 12> lines_;

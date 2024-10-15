@@ -864,7 +864,6 @@ public:
         // Return a buffer containing any sounds that finished playing.
         Buffer<const char*, 4> completed_sounds();
 
-        Optional<StringBuffer<48>> completed_music();
         StringBuffer<48> current_music();
 
         void clear_sounds();

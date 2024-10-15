@@ -63,7 +63,7 @@
   (setq current-test name)
   (let ((msg (string "running tests: " name "...")))
     (when (bound? 'regr-print)
-      (regr-print msg))
+      (regr-print msg 1 3))
     (put msg)))
 
 (defn end-test ()
@@ -393,6 +393,17 @@
 
 (unbind '-equal-widget
         '-decorate-widget)
+
+(end-test)
+
+
+(begin-test "syntax")
+
+(assert-eq "invalid let binding list" (error-info (lint '(let (a 5) a))))
+(assert-eq "malformed let expr!" (error-info (lint '(let ))))
+(assert-eq "let binding missing symbol" (error-info (lint '(let ((a 6) (7 8))))))
+(assert-eq "invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
+(assert-eq "invalid lambda syntax!" (error-info (lint '(lambda ))))
 
 (end-test)
 
