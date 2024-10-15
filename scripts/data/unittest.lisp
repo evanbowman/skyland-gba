@@ -404,6 +404,7 @@
 (assert-eq "let binding missing symbol" (error-info (lint '(let ((a 6) (7 8))))))
 (assert-eq "invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
 (assert-eq "invalid lambda syntax!" (error-info (lint '(lambda ))))
+(assert-eq "invalid while syntax!" (error-info (lint '(while ))))
 
 (end-test)
 

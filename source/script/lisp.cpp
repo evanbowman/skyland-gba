@@ -1683,7 +1683,13 @@ void lint(Value* expr, Value* variable_list)
     case Value::Type::cons:
         if (is_list(expr)) {
             auto fn_sym = get_list(expr, 0);
-            if (fn_sym->type() == Value::Type::symbol) {
+            if (fn_sym->type() == Value::Type::cons and is_list(fn_sym)) {
+                lint(fn_sym, variable_list);
+                if (get_op0()->type() == Value::Type::error) {
+                    return;
+                }
+                pop_op();
+            } else if (fn_sym->type() == Value::Type::symbol) {
                 auto name = fn_sym->symbol().name();
 
                 if (str_eq(name, "'") or str_eq(name, "`")) {
@@ -1756,7 +1762,11 @@ void lint(Value* expr, Value* variable_list)
                     }
                     is_special_form = true;
                 } else if (str_eq(name, "while")) {
-                    // TODO: syntax checks for while expr
+                    // (while cond [body...])
+                    if (length(expr) < 2) {
+                        push_op(make_error("invalid while syntax!"));
+                        return;
+                    }
                     is_special_form = true;
                 }
 
