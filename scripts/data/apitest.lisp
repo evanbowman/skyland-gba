@@ -318,7 +318,8 @@
                   (cdr spl))
          (let ((r (lint-file path)))
            (if (error? r)
-               (fatal (string "in file " (get spl (- (length spl) 1)) ": " r)))))))))
+               (fatal (string "in file " (cdr spl) ": " r)))))))))
+
 
 ;; Clear directory listing from screen
 (foreach (lambda (y)
