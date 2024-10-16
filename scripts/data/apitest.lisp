@@ -37,8 +37,7 @@
 
 (defn end-test ()
   (put " passed!")
-  (setq current-test nil)
-  (gc))
+  (setq current-test nil))
 
 (defn ensure (result)
   (when (error? result)
@@ -280,8 +279,6 @@
         'end-test
         'ensure
         'put)
-
-(gc)
 
 (regr-print "linting all scripts!" 1 3)
 

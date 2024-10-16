@@ -68,8 +68,7 @@
 
 (defn end-test ()
   (put " passed!")
-  (setq current-test nil)
-  (gc))
+  (setq current-test nil))
 
 
 (assert-v (error? (let ((foo 2)) (global 'foo))))
