@@ -488,6 +488,7 @@ void CoOpTeam::receive(const network::packet::DroneSetTarget& packet)
     const auto drone_x = packet.drone_x_;
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
         (*drone)->set_target({packet.target_x_, packet.target_y_},
+                             false,
                              not packet.target_near_);
     }
 }

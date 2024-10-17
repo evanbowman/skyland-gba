@@ -2502,4 +2502,71 @@ bool is_player_island(const Island* isle)
 
 
 
+u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
+
+
+
+
+void collect_outer_rooms(Island& isle, Vector<Room*>& output)
+{
+    u8 matrix[16][16];
+    isle.plot_rooms(matrix);
+
+    auto add_set = [&](auto& isle, u8 x, u8 y) {
+        auto room = isle.get_room({x, y});
+        if (not room) {
+            return;
+        }
+        for (auto& r : output) {
+            if (r == room) {
+                return;
+            }
+        }
+        output.push_back(room);
+    };
+
+    // Shift blocks right by 1 so that there is empty space to the left
+    // for the flood fill computation.
+    for (int x = 14; x > -1; --x) {
+        for (int y = 0; y < 16; ++y) {
+            matrix[x + 1][y] = matrix[x][y];
+        }
+    }
+    for (int y = 0; y < 16; ++y) {
+        matrix[0][y] = 0;
+    }
+    for (int x = 0; x < 16; ++x) {
+        matrix[x][15] = 1;
+    }
+
+    static const int outer_fill = 99;
+
+    flood_fill(matrix, outer_fill, 0, 0);
+
+    for (u8 x = 0; x < isle.terrain().size() + 1; ++x) {
+        for (u8 y = 0; y < 15; ++y) {
+            if (matrix[x][y] > 0 and matrix[x][y] not_eq outer_fill) {
+                if (matrix[x][y - 1] == outer_fill) {
+                    add_set(isle, x - 1, y);
+                    continue;
+                }
+                if (matrix[x - 1][y] == outer_fill) {
+                    add_set(isle, x - 1, y);
+                    continue;
+                }
+                if (matrix[x + 1][y] == outer_fill) {
+                    add_set(isle, x - 1, y);
+                    continue;
+                }
+                if (matrix[x][y - 1] == outer_fill) {
+                    add_set(isle, x - 1, y);
+                    continue;
+                }
+            }
+        }
+    }
+}
+
+
+
 } // namespace skyland

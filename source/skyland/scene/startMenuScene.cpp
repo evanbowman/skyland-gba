@@ -45,6 +45,7 @@
 #include "macro/saveConfirmScene.hpp"
 #include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
+#include "modules/fileBrowserModule.hpp"
 #include "qrViewerScene.hpp"
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
@@ -517,22 +518,22 @@ AGAIN:
 
 
                 if (not PLATFORM.network_peer().is_connected()) {
-                    // NOTE: Don't display the connect or load options if we're
-                    // already in a multiplayer session.
 
-                    auto& current = macrocosm().sector();
-                    using macro::terrain::FreebuildSector;
-                    if (current.cast_freebuild_sector()) {
-                        add_option(
-
-                            SYSTR(start_menu_link)->c_str(),
-                            []() -> ScenePtr {
-                                PLATFORM.screen().pixelate(0);
-                                using Next = macro::FreebuildConnectFriendScene;
-                                return make_scene<Next>();
-                            },
-                            fade_sweep);
-                    }
+                    add_option(SYSTR(sandbox_music)->c_str(),
+                               [] {
+                                   UserContext ctx;
+                                   ctx.allow_backtrack_ = false;
+                                   ctx.browser_exit_scene_ = make_deferred_scene<macro::SelectorScene>();
+                                   const char* path = "/scripts/data/music/";
+                                   auto next = make_scene<FileBrowserModule>(std::move(ctx),
+                                                                             path,
+                                                                             true);
+                                   next->on_select_ = [](const char* path) {
+                                       PLATFORM.speaker().stream_music(path, 0);
+                                   };
+                                   return next;
+                               },
+                               cut);
 
                     add_macro_share_opt();
 

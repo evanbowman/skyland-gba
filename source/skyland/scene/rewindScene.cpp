@@ -1457,6 +1457,7 @@ ScenePtr RewindScene::update(Time)
                     if (e->has_previous_target_) {
                         drone->set_target(
                             {e->previous_target_x_, e->previous_target_y_},
+                            false,
                             e->previous_target_near_);
                     } else {
                         drone->drop_target();

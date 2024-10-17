@@ -104,6 +104,8 @@ public:
     void display() override;
 
 
+    Optional<Function<8, void(const char*)>> on_select_;
+
 private:
     Buffer<Text, 15> lines_;
     Optional<Text> info_;
@@ -118,9 +120,7 @@ private:
 
     StringBuffer<200> cwd() const;
 
-    static const int max_display_files_per_folder = 62;
-
-    using CwdNames = Buffer<StringBuffer<20>, max_display_files_per_folder>;
+    using CwdNames = Vector<StringBuffer<30>>;
     Optional<DynamicMemory<CwdNames>> cwd_names_;
 
     enum SelectedFilesystem {
@@ -143,7 +143,7 @@ private:
     void show_opts();
 
 
-    static const int max_folder_name = 20;
+    static const int max_folder_name = 30;
     static const int max_path_nesting = 12;
 
     using PathBuffer = Buffer<StringBuffer<max_folder_name>, max_path_nesting>;

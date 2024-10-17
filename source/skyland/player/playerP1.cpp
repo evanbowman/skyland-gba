@@ -335,7 +335,11 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
             auto& room = *player_island().rooms()[weapon_update_index_++];
 
             const auto category = (*room.metaclass())->category();
-            if (category == Room::Category::weapon) {
+
+            if (auto opt_drone = room.drone()) {
+                PlayerP1::autoassign_drone_target(**opt_drone);
+                next_weapon_action_timer_ = milliseconds(64);
+            } else if (category == Room::Category::weapon) {
                 PlayerP1::autoassign_weapon_target(room);
                 next_weapon_action_timer_ = milliseconds(64);
             } else {
@@ -382,6 +386,24 @@ void PlayerP1::AIState::update_weapon_targets(Time delta)
         }
 
         rescan_ = false;
+    }
+}
+
+
+
+void PlayerP1::autoassign_drone_target(Drone& drone)
+{
+    const bool has_pinned_target = drone.target_pinned() and drone.get_target();
+
+    if (has_pinned_target and (not drone.target_near() and
+                               (APP.opponent_island()->get_drone(*drone.get_target()) or
+                                APP.opponent_island()->get_room(*drone.get_target())))) {
+        // Do not override the pinned target
+    } else {
+        EnemyAI::drone_set_target(APP.opponent_island()->rooms_plot(),
+                                  drone,
+                                  &APP.player_island(),
+                                  APP.opponent_island());
     }
 }
 

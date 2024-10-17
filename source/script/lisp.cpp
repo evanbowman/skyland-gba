@@ -290,7 +290,9 @@ void __unsafe_discard_list(Value* list)
 
 static void push_callstack(Value* function)
 {
+    push_op(function); // GC protect
     bound_context->callstack_ = make_cons(function, bound_context->callstack_);
+    pop_op(); // gc unprotect
 }
 
 
@@ -931,7 +933,7 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
     int arg = 0;
     l_foreach(arg_lat, [&](Value* val) {
         if (not b.bindings_.push_back(ArgBinding{&val->symbol(), (u8)arg++})) {
-            PLATFORM.fatal("too many named arguments for function! Max 16");
+            PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
 
@@ -1210,7 +1212,9 @@ Value* make_error(Error::Code error_code, Value* context)
     val->hdr_.type_ = Value::Type::error;
     val->error().code_ = error_code;
     val->error().context_ = compr(context);
+    push_op(val); // gc protect
     val->error().stacktrace_ = compr(stacktrace());
+    pop_op(); // unprotect
     return val;
 }
 
@@ -2331,7 +2335,7 @@ int compact_string_memory()
 
     auto new_buffer = [] { return make_databuffer("string-memory"); };
 
-    auto db = new_buffer();
+    Protected db = new_buffer();
     u32 write_offset = 0;
 
     Vector<Value*> recovered_buffers;

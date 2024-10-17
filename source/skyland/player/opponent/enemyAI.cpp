@@ -119,36 +119,17 @@ void EnemyAI::update(Time delta)
     if (drone_update_timer_ <= 0) {
         drone_update_timer_ = drone_update_timeout_;
 
-        const auto combat_drone_index = DroneMeta::index("combat-drone");
-        const auto cannon_drone_index = DroneMeta::index("cannon-drone");
-        const auto flak_drone_index = DroneMeta::index("flak-drone");
-
         for (auto& drone_sp : (*target_island_).drones()) {
-
             if (drone_sp->parent() == ai_island_) {
-                if (drone_sp->metaclass_index() == cannon_drone_index or
-                    drone_sp->metaclass_index() == flak_drone_index) {
-
-                    offensive_drone_set_target((*target_island_).rooms_plot(),
-                                               *drone_sp);
-                } else if (drone_sp->metaclass_index() == combat_drone_index) {
-                    combat_drone_set_target((*target_island_).rooms_plot(),
-                                            *drone_sp);
-                }
+                auto& matrix = (*target_island_).rooms_plot();
+                drone_set_target(matrix, *drone_sp, ai_island_, target_island_);
             }
         }
 
         for (auto& drone_sp : ai_island_->drones()) {
             if (drone_sp->parent() == ai_island_) {
-                if (drone_sp->metaclass_index() == cannon_drone_index or
-                    drone_sp->metaclass_index() == flak_drone_index) {
-
-                    offensive_drone_set_target((*target_island_).rooms_plot(),
-                                               *drone_sp);
-                } else if (drone_sp->metaclass_index() == combat_drone_index) {
-                    combat_drone_set_target((*target_island_).rooms_plot(),
-                                            *drone_sp);
-                }
+                auto& matrix = (*target_island_).rooms_plot();
+                drone_set_target(matrix, *drone_sp, ai_island_, target_island_);
             }
         }
     }
@@ -248,6 +229,27 @@ void EnemyAI::update(Time delta)
                 }
             }
         }
+    }
+}
+
+
+
+void EnemyAI::drone_set_target(const Bitmatrix<16, 16>& matrix,
+                               Drone& drone,
+                               Island* ai_island,
+                               Island* target_island)
+{
+    const auto combat_drone_index = DroneMeta::index("combat-drone");
+    const auto cannon_drone_index = DroneMeta::index("cannon-drone");
+    const auto flak_drone_index = DroneMeta::index("flak-drone");
+
+    if (drone.metaclass_index() == cannon_drone_index or
+        drone.metaclass_index() == flak_drone_index) {
+
+        offensive_drone_set_target(matrix, drone, ai_island, target_island);
+
+    } else if (drone.metaclass_index() == combat_drone_index) {
+        combat_drone_set_target(matrix, drone, ai_island, target_island);
     }
 }
 
@@ -1475,135 +1477,114 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
 
 
 void EnemyAI::combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
-                                      Drone& drone)
+                                      Drone& drone,
+                                      Island* ai_island,
+                                      Island* target_island)
 {
-    for (auto& drone_sp : (*target_island_).drones()) {
-        if (drone_sp->parent() == &(*target_island_)) {
-            drone.set_target(drone_sp->position(), true);
+    for (auto& drone_sp : (*target_island).drones()) {
+        if (drone_sp->parent() == target_island) {
+            drone.set_target(drone_sp->position(), false, true);
         }
     }
 
-    for (auto& drone_sp : ai_island_->drones()) {
-        if (drone_sp->parent() == &(*target_island_)) {
-            drone.set_target(drone_sp->position(), false);
+    for (auto& drone_sp : ai_island->drones()) {
+        if (drone_sp->parent() == target_island) {
+            drone.set_target(drone_sp->position(), false, false);
         }
     }
 }
 
 
 
-void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
-                                         Drone& drone)
+static bool test_local_reachability(const Bitmatrix<16, 16>& matrix,
+                                    int x0, int y0, int x1, int y1)
 {
-    // Calculate a few radial line-of-sight paths based on the drone's position,
-    // and select a target based on what we believe to be visible.
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
+    int error = dx + dy;
 
-    // We cannot do very intensive raycasting to determine an ideal target
-    // without potentially affecting performance on the gameboy, if the enemy
-    // has deployed a lot of drones.
+    while (true) {
+        if (x0 == x1 && y0 == y1) {
+            return true;
+        }
+        if (matrix.get(x0, y0)) {
+            return false;
+        }
+        int e2 = 2 * error;
+        if (e2 >= dy) {
+            if (x0 == x1) {
+                break;
+            }
+            error = error + dy;
+            x0 = x0 + sx;
+        }
+        if (e2 <= dx) {
+            if (y0 == y1) {
+                break;
+            }
+            error = error + dx;
+            y0 = y0 + sy;
+        }
+    }
+
+    return true;
+}
+
+
+
+void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
+                                         Drone& drone,
+                                         Island* ai_island,
+                                         Island* target_island)
+{
+    if (drone.target_checksum() == target_island->checksum()) {
+        return; // No reason to recalculate...
+    }
 
     Optional<RoomCoord> ideal_pos;
     ATP highest_weight = 0.0_atp;
 
     const auto drone_pos = drone.position();
 
-    RoomCoord cursor = drone_pos;
-
-    const auto width = (*target_island_).terrain().size();
-
-    auto enqueue = [&] {
-        if (auto room = (*target_island_).get_room(cursor)) {
-            auto weight = room->get_atp();
-            if (weight > highest_weight) {
-                ideal_pos = cursor;
-            }
+    auto enqueue = [&](auto& room) {
+        auto weight = room->get_atp();
+        if (weight > highest_weight) {
+            highest_weight = weight;
+            ideal_pos = room->position();
         }
     };
 
-    // seek left
-    while (cursor.x > 0) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
+    Vector<Room*> outer;
+    collect_outer_rooms(*target_island, outer);
+
+    for (auto& room : outer) {
+        for (int x = 0; x < room->size().x; ++x) {
+            for (int y = 0; y < room->size().y; ++y) {
+                int rx = room->position().x + x;
+                int ry = room->position().y + y;
+                if (test_local_reachability(target_island->rooms_plot(),
+                                            drone_pos.x,
+                                            drone_pos.y,
+                                            rx,
+                                            ry)) {
+                    // PLATFORM.set_tile(target_island->layer(),
+                    //                   rx,
+                    //                   ry, StaticTile::path_marker);
+                    enqueue(room);
+                }
+            }
         }
-        --cursor.x;
     }
-
-    cursor = drone_pos;
-
-    // seek right
-    while (cursor.x < width) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        ++cursor.x;
-    }
-
-    cursor = drone_pos;
-
-    // seek down
-    while (cursor.y < 15) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        ++cursor.y;
-    }
-
-    cursor = drone_pos;
-
-    // seek diagonally, with slope -1
-    while (cursor.x < width and cursor.y < 15) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        ++cursor.x;
-        ++cursor.y;
-    }
-
-    cursor = drone_pos;
-
-    // seek diagonally, with slope = 1
-    while (cursor.x > 0 and cursor.y < 15) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        --cursor.x;
-        ++cursor.y;
-    }
-
-    cursor = drone_pos;
-
-    // seek diagonally, with slope = -2
-    while (cursor.x < width and cursor.y < 15) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        ++cursor.x;
-        cursor.y += 2;
-    }
-
-    cursor = drone_pos;
-
-    // seek diagonally, with slope = 2
-    while (cursor.x > 0 and cursor.y < 15) {
-        if (matrix.get(cursor.x, cursor.y)) {
-            enqueue();
-            break;
-        }
-        --cursor.x;
-        cursor.y += 2;
-    }
-
-    // Ok, we might want to think about casting a few trajectories diagonally
-    // upwards, but for now, let's stick with what we've done so far.
 
     if (ideal_pos) {
-        drone.set_target(*ideal_pos);
+        // PLATFORM.set_tile(target_island->layer(),
+        //                   ideal_pos->x,
+        //                   ideal_pos->y, StaticTile::airborne_selection);
+        drone.set_target(*ideal_pos, false, false);
+
+        drone.target_checksum() = target_island->checksum();
     }
 }
 

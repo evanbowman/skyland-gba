@@ -49,7 +49,12 @@ ScenePtr FeedbackModule::update(Time delta)
         "/scripts/config/feedback.lisp",
         "",
         "",
-        make_deferred_scene<TitleScreenScene>(3));
+        [] {
+            PLATFORM.screen().schedule_fade(1);
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
+            return make_scene<TitleScreenScene>(3);
+        });
 }
 
 

@@ -9,7 +9,7 @@
 @	+ 83 tiles lz77 compressed
 @	Total size: 32 + 332 = 364
 @
-@	Time-stamp: 2024-01-17, 18:06:03
+@	Time-stamp: 2024-10-16, 11:28:37
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -38,7 +38,7 @@ overlay_qrTiles:
 	.global overlay_qrPal		@ 32 unsigned chars
 	.hidden overlay_qrPal
 overlay_qrPal:
-	.hword 0x7C1F,0x2C7D,0x7719,0x0800,0x77DE,0x2CE7,0x737B,0x4887
+	.hword 0x7C1F,0x2C7D,0x7719,0x0800,0x77DE,0x2CE7,0x737B,0x4980
 	.hword 0x09F7,0x498C,0x537A,0x0421,0x0421,0x0421,0x0421,0x0421
 
 @}}BLOCK(overlay_qr)

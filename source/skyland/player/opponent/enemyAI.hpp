@@ -103,6 +103,13 @@ public:
                             Island* ai_island,
                             Island* target_island);
 
+
+    static void drone_set_target(const Bitmatrix<16, 16>& matrix,
+                                 Drone& drone,
+                                 Island* ai_island,
+                                 Island* target_island);
+
+
 private:
     void update_drone_ai();
     void update_local_chr_ai();
@@ -167,11 +174,16 @@ private:
                            Island* target_island);
 
 
-    void combat_drone_set_target(const Bitmatrix<16, 16>& matrix, Drone& drone);
+    static void combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
+                                        Drone& drone,
+                                        Island* ai_island,
+                                        Island* target_island);
 
 
-    void offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
-                                    Drone& drone);
+    static void offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
+                                           Drone& drone,
+                                           Island* ai_island,
+                                           Island* target_island);
 
 
     static void update_drone_bay(const Bitmatrix<16, 16>& matrix,

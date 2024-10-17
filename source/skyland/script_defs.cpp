@@ -52,6 +52,7 @@
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
+#include "scene/textEntryScene.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
@@ -413,6 +414,38 @@ BINDING_TABLE({
               push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
           } else if (str_eq(menu_name, "item-shop")) {
               push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());
+          } else if (str_eq(menu_name, "file-selector")) {
+              auto path = get_list(param_list, 0)->string().value();
+              push_menu_queue.push_back([path] {
+                  UserContext ctx;
+                  ctx.allow_backtrack_ = false;
+                  ctx.browser_exit_scene_ = make_deferred_scene<ReadyScene>();
+                  auto next = make_scene<FileBrowserModule>(std::move(ctx),
+                                                            path,
+                                                            true);
+                  next->on_select_ = [](const char* path) {
+                      auto fn = lisp::get_var("on-menu-resp");
+                      lisp::push_op(lisp::make_string(path));
+                      lisp::safecall(fn, 1);
+                      lisp::pop_op(); // discard result
+                  };
+                  return next;
+              });
+          } else if (str_eq(menu_name, "text-entry")) {
+              auto rqd = get_list(param_list, 0)->integer().value_;
+              auto lim = get_list(param_list, 1)->integer().value_;
+              push_menu_queue.push_back([rqd, lim]() {
+                  return make_scene<TextEntryScene>("Entry:",
+                                                    [](const char* text) {
+                                                        auto fn = lisp::get_var("on-menu-resp");
+                                                        lisp::push_op(lisp::make_string(text));
+                                                        lisp::safecall(fn, 1);
+                                                        lisp::pop_op(); // ignore result
+                                                        return make_scene<ReadyScene>();
+                                                    },
+                                                    rqd,
+                                                    lim);
+              });
           } else if (str_eq(menu_name, "glossary")) {
               auto sym = param_list->cons().car()->symbol().name();
               push_menu_queue.push_back([sym]() {
@@ -1796,6 +1829,11 @@ BINDING_TABLE({
           }
 
           return L_NIL;
+      }}},
+    {"filesystem-remaining",
+     {0,
+      [](int argc) {
+          return L_INT(flash_filesystem::statistics().bytes_available_);
       }}},
     {"filesystem-walk",
      {2,

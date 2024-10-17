@@ -14,6 +14,7 @@
  'on-dialog-accepted
  'on-dialog-declined
  'on-level-exit
+ 'on-menu-resp
  'last-zone
  'enemies-seen
  'friendlies-seen

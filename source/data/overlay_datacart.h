@@ -7,9 +7,9 @@
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
 //	+ 563 tiles lz77 compressed
-//	Total size: 32 + 2412 = 2444
+//	Total size: 32 + 2504 = 2536
 //
-//	Time-stamp: 2024-01-17, 18:06:02
+//	Time-stamp: 2024-10-16, 17:27:18
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_OVERLAY_DATACART_H
 #define GRIT_OVERLAY_DATACART_H
 
-#define overlay_datacartTilesLen 2412
-extern const unsigned int overlay_datacartTiles[603];
+#define overlay_datacartTilesLen 2504
+extern const unsigned int overlay_datacartTiles[626];
 
 #define overlay_datacartPalLen 32
 extern const unsigned short overlay_datacartPal[16];

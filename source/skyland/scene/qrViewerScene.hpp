@@ -100,7 +100,7 @@ public:
         const char* text,
         const char* message,
         DeferredScene next,
-        ColorConstant exit_color = custom_color(0x392194));
+        ColorConstant exit_color = custom_color(0x006ea6));
 
 
     void enter(Scene& prev) override;

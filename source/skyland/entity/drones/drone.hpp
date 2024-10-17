@@ -35,6 +35,7 @@
 #pragma once
 
 #include "memory/rc.hpp"
+#include "skyland/blockChecksum.hpp"
 #include "skyland/coord.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/scene.hpp"
@@ -120,7 +121,13 @@ public:
 
 
 
-    void set_target(const RoomCoord& target, bool target_near = false);
+    void set_target(const RoomCoord& target,
+                    bool target_pinned,
+                    bool target_near);
+
+
+    Optional<RoomCoord> get_target() const;
+    bool target_near() const;
 
 
     void drop_target();
@@ -169,7 +176,6 @@ public:
 
 
     virtual void display_on_hover(Platform::Screen& screen,
-
                                   const RoomCoord& cursor)
     {
     }
@@ -178,23 +184,36 @@ public:
     void display(Platform::Screen& screen);
 
 
-protected:
-    u8 state_ = State::launch;
+    bool target_pinned() const;
 
+
+    BlockChecksum& target_checksum()
+    {
+        return target_checksum_;
+    }
+
+
+private:
+    Island* parent_;
+    Island* destination_;
+
+protected:
     Time timer_ = 0;
     Time duration_ = 0;
 
     void update_sprite();
 
 private:
-    Island* parent_;
-    Island* destination_;
-    RoomCoord grid_pos_;
+
     Vec2<s16> anchor_;
+    BlockChecksum target_checksum_ = 0;
+    RoomCoord grid_pos_;
 
 protected:
     Optional<RoomCoord> target_;
-    u8 target_near_ : 1;
+    bool target_near_ : 1 = false;
+    bool target_pinned_ : 1 = false;
+    u8 state_ = State::launch;
 
 private:
     u8 metaclass_index_ : 7;

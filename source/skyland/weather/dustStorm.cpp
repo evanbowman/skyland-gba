@@ -45,7 +45,6 @@ namespace skyland
 
 
 void init_clouds();
-u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
@@ -127,73 +126,14 @@ void DustStorm::update(Time delta)
 
         Vector<Room*> tmp;
 
-        auto add_set = [&](auto& isle, u8 x, u8 y) {
-            auto room = isle.get_room({x, y});
-            if (not room) {
-                return;
-            }
-            for (auto& r : tmp) {
-                if (r == room) {
-                    return;
-                }
-            }
-            tmp.push_back(room);
-        };
-
-        auto collect_outer_rooms = [&](auto& isle) {
-            u8 matrix[16][16];
-            isle.plot_rooms(matrix);
-
-            // Shift blocks right by 1 so that there is empty space to the left
-            // for the flood fill computation.
-            for (int x = 14; x > -1; --x) {
-                for (int y = 0; y < 16; ++y) {
-                    matrix[x + 1][y] = matrix[x][y];
-                }
-            }
-            for (int y = 0; y < 16; ++y) {
-                matrix[0][y] = 0;
-            }
-            for (int x = 0; x < 16; ++x) {
-                matrix[x][15] = 1;
-            }
-
-            static const int outer_fill = 99;
-
-            flood_fill(matrix, outer_fill, 0, 0);
-
-            for (u8 x = 0; x < isle.terrain().size() + 1; ++x) {
-                for (u8 y = 0; y < 15; ++y) {
-                    if (matrix[x][y] > 0 and matrix[x][y] not_eq outer_fill) {
-                        if (matrix[x][y - 1] == outer_fill) {
-                            add_set(isle, x - 1, y);
-                            continue;
-                        }
-                        if (matrix[x - 1][y] == outer_fill) {
-                            add_set(isle, x - 1, y);
-                            continue;
-                        }
-                        if (matrix[x + 1][y] == outer_fill) {
-                            add_set(isle, x - 1, y);
-                            continue;
-                        }
-                        if (matrix[x][y - 1] == outer_fill) {
-                            add_set(isle, x - 1, y);
-                            continue;
-                        }
-                    }
-                }
-            }
-        };
-
-        collect_outer_rooms(APP.player_island());
+        collect_outer_rooms(APP.player_island(), tmp);
 
         for (auto& d : APP.player_island().drones()) {
             d->apply_damage(damage_amount);
         }
 
         if (APP.opponent_island()) {
-            collect_outer_rooms(*APP.opponent_island());
+            collect_outer_rooms(*APP.opponent_island(), tmp);
 
             for (auto& d : APP.opponent_island()->drones()) {
                 d->apply_damage(damage_amount);

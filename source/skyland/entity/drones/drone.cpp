@@ -169,8 +169,12 @@ void Drone::rewind(Time delta)
 
 
 
-void Drone::set_target(const RoomCoord& target, bool target_near)
+void Drone::set_target(const RoomCoord& target,
+                       bool target_pinned,
+                       bool target_near)
 {
+    target_pinned_ = target_pinned;
+
     if (target_) {
         if (*target_ == target and target_near_ == target_near) {
             // Optimization to save space in the rewind buffer.
@@ -206,7 +210,29 @@ void Drone::drop_target()
                         "for rolling back a drop_target().");
     }
 
+    target_pinned_ = false;
     target_.reset();
+}
+
+
+
+Optional<RoomCoord> Drone::get_target() const
+{
+    return target_;
+}
+
+
+
+bool Drone::target_near() const
+{
+    return target_near_;
+}
+
+
+
+bool Drone::target_pinned() const
+{
+    return target_pinned_;
 }
 
 

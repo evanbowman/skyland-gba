@@ -35,6 +35,7 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "blockChecksum.hpp"
 #include "bulkTimer.hpp"
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
@@ -393,9 +394,6 @@ public:
     }
 
 
-    using BlockChecksum = u16;
-
-
     BlockChecksum checksum() const
     {
         return checksum_;
@@ -549,6 +547,11 @@ bool speaker_data_store(Island& island, const char* path);
 
 
 bool speaker_data_load(Island& island, const char* path);
+
+
+
+void collect_outer_rooms(Island& isle, Vector<Room*>& output);
+
 
 
 } // namespace skyland

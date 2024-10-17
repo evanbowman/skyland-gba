@@ -84,7 +84,7 @@ ScenePtr CombatDroneSetTargetScene::update(Time delta)
         packet.target_near_ = near_;
         network::transmit(packet);
 
-        drone_->set_target(cursor_loc_, near_);
+        drone_->set_target(cursor_loc_, true, near_);
 
         return exit_scene();
     }

@@ -117,7 +117,11 @@ void FileBrowserModule::exit(Scene& next)
     PLATFORM.screen().display();
 
     if (user_context_.browser_exit_scene_) {
-        PLATFORM.screen().schedule_fade(0);
+        if (next.cast_world_scene() or next.cast_macrocosm_scene()) {
+            PLATFORM.load_overlay_texture("overlay");
+            PLATFORM.screen().schedule_fade(1);
+            PLATFORM.screen().schedule_fade(0);
+        }
     }
 }
 
@@ -165,6 +169,9 @@ void FileBrowserModule::repaint()
 
     StringBuffer<200> path;
     for (u32 i = 0; i < (*path_)->size(); ++i) {
+        if (i < user_context_.hide_path_) {
+            continue;
+        }
         if (i == 1 and selected_filesystem_ == SelectedFilesystem::sram) {
             path += "flash/";
         } else if (i == 1 and selected_filesystem_ == SelectedFilesystem::rom) {
@@ -547,7 +554,13 @@ ScenePtr FileBrowserModule::update(Time delta)
                     auto path = this->cwd();
                     path += selected;
 
-                    if (get_extension(path) == ".dat") {
+                    if (on_select_) {
+                        PLATFORM.speaker().play_sound("button_wooden", 3);
+                        (*on_select_)(path.c_str());
+                        if (user_context_.browser_exit_scene_) {
+                            return (*user_context_.browser_exit_scene_)();
+                        }
+                    } else if (get_extension(path) == ".dat") {
                         return make_scene<HexViewerModule>(
 
                             std::move(user_context_), path.c_str(), false);
@@ -572,13 +585,19 @@ ScenePtr FileBrowserModule::update(Time delta)
 
     case SelectedFilesystem::rom:
         if (APP.player().key_down(Key::action_2)) {
-            on_dir_changed();
-            if ((*path_)->size() == 1) {
-                selected_filesystem_ = SelectedFilesystem::none;
-                repaint();
+            if (not user_context_.allow_backtrack_) {
+                if (user_context_.browser_exit_scene_) {
+                    return (*user_context_.browser_exit_scene_)();
+                }
             } else {
-                (*path_)->pop_back();
-                repaint();
+                on_dir_changed();
+                if ((*path_)->size() == 1) {
+                    selected_filesystem_ = SelectedFilesystem::none;
+                    repaint();
+                } else {
+                    (*path_)->pop_back();
+                    repaint();
+                }
             }
         } else if (APP.player().key_down(Key::up)) {
             scroll_up();
@@ -596,6 +615,20 @@ ScenePtr FileBrowserModule::update(Time delta)
                 } else {
                     auto path = this->cwd();
                     path += selected;
+
+                    if (on_select_) {
+                        PLATFORM.speaker().play_sound("button_wooden", 3);
+                        (*on_select_)(path.c_str());
+                        if (user_context_.browser_exit_scene_) {
+                            return (*user_context_.browser_exit_scene_)();
+                        }
+                    }
+
+                    if (get_extension(path) == ".exe") {
+
+                    } else if (get_extension(path) == ".photo") {
+
+                    }
 
                     return make_scene<TextEditorModule>(
 

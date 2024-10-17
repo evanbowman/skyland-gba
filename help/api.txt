@@ -906,10 +906,21 @@ o----------------------------o
  "repl", no params
  "construction", no params
  "qrcode", string to encode
+ "text-entry", '(required-chars char-limit)
+
+ Some menus that have produce
+ responses will pass the
+ response back by calling
+ on-menu-resp with the
+ response as an argument.
 
  For example:
  (push-menu "glossary" '(hull))
  (push-menu "item-shop" '())
+
+ (defn on-menu-resp (text)
+   (log (string "got text: " text)))
+ (push-menu "text-entry" '(8 8))
 
  etc. See scripts for details.
 
@@ -1097,7 +1108,15 @@ o----------------------------o
 
 o----------------------------o
 
- (walk-filesystem callback)
+ (filesystem-remaining)
+
+ Returns the amount of free
+ space for writing files.
+
+
+o----------------------------o
+
+ (filesystem-walk callback)
 
  Invoke callback for every
  file in the filesystem.

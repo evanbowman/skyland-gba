@@ -3,6 +3,7 @@
 #include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/textviewScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "fileBrowserModule.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -81,6 +82,15 @@ void DataCartModule::show_cart(int index)
 
         Text::print(name.c_str(), {8, 6}, colors);
         Text::print(cart->subheading().c_str(), {8, 8}, colors);
+
+        auto type = cart->expect_content_string("icon");
+        if (*type == "image") {
+            PLATFORM.set_tile(Layer::overlay, 8, 10, 386);
+        } else if (*type == "files") {
+            PLATFORM.set_tile(Layer::overlay, 8, 10, 387);
+        } else if (*type == "exe") {
+            PLATFORM.set_tile(Layer::overlay, 8, 10, 385);
+        }
     }
 
     tmp.__detach();
@@ -279,6 +289,15 @@ ScenePtr DataCartModule::update(Time delta)
                 Text::print(name.c_str(), {8, 6}, colors);
                 Text::print(cart->subheading().c_str(), {8, 8}, colors);
 
+                auto type = cart->expect_content_string("icon");
+                if (*type == "image") {
+                    PLATFORM.set_tile(Layer::overlay, 8, 10, 389);
+                } else if (*type == "files") {
+                    PLATFORM.set_tile(Layer::overlay, 8, 10, 390);
+                } else if (*type == "exe") {
+                    PLATFORM.set_tile(Layer::overlay, 8, 10, 388);
+                }
+
                 PLATFORM.speaker().play_sound("button_wooden", 3);
 
                 for (int y = 21; y < 30; ++y) {
@@ -324,7 +343,7 @@ ScenePtr DataCartModule::update(Time delta)
         PLATFORM.speaker().play_sound("insert_cart", 2);
         PLATFORM.set_overlay_origin(0, 0);
         state_ = State::wait;
-        wait_time_ = milliseconds(400);
+        wait_time_ = milliseconds(200);
         timer_ = 0;
         break;
 
@@ -334,7 +353,9 @@ ScenePtr DataCartModule::update(Time delta)
             if (auto cart = carts_->load(cart_index_)) {
                 auto str = format("booting %...", cart->name().c_str());
                 auto tp = cart->expect_content_string("type");
-                if (*tp == "image") {
+                if (*tp == "files") {
+                    str = "reading archive...";
+                } else if (*tp == "image") {
                     str = "developing photos...";
                 } else if (*tp == "textview") {
                     str = "printing booklet...";
@@ -349,7 +370,7 @@ ScenePtr DataCartModule::update(Time delta)
 
     case State::booting:
         timer_ += delta;
-        if (test_key(Key::action_2) or timer_ > milliseconds(900)) {
+        if (test_key(Key::action_2) or timer_ > milliseconds(700)) {
             PLATFORM.fill_overlay(0);
             state_ = State::boot;
         }
@@ -468,6 +489,25 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
     } else if (*type == "image") {
         PLATFORM.speaker().play_sound("tw_bell", 2);
         return make_scene<CartPhotoViewScene>(cart_index);
+    } else if (*type == "files") {
+        PLATFORM.speaker().play_sound("tw_bell", 2);
+        UserContext ctx;
+        ctx.hide_path_ = 3;
+        ctx.allow_backtrack_ = false;
+        ctx.readonly_ = true;
+        ctx.browser_exit_scene_ = [cart_index] {
+            auto next = make_scene<DataCartModule>(true);
+            next->skip_dialog_ = true;
+            next->set_index(cart_index);
+            PLATFORM.screen().schedule_fade(1);
+            return next;
+        };
+        auto path = cart.expect_content_string("dir");
+        auto next = make_scene<FileBrowserModule>(std::move(ctx),
+                                                  path->c_str(),
+                                                  true);
+        return next;
+
     } else if (*type == "textview") {
         PLATFORM.speaker().play_sound("tw_bell", 2);
         auto tv = make_scene<TextviewScene>(

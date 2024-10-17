@@ -150,7 +150,7 @@ private:
 
     Time flicker_timer_ = 0;
 
-    Island::BlockChecksum checksum_;
+    BlockChecksum checksum_;
 
     bool flicker_on_ = false;
 

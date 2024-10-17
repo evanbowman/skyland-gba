@@ -99,7 +99,7 @@ public:
 
 
     static void autoassign_weapon_target(Room& r);
-
+    static void autoassign_drone_target(Drone& d);
 
 protected:
     virtual void update_ai(Time delta);

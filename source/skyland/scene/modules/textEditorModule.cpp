@@ -670,7 +670,11 @@ void TextEditorModule::enter(Scene& prev)
         break;
 
     case SyntaxMode::plain_text:
-        temp += "(text mode)";
+        if (user_context_.readonly_) {
+            temp += "(readonly) ";
+        } else {
+            temp += "(text mode)";
+        }
         break;
 
     case SyntaxMode::python:
@@ -966,7 +970,7 @@ ScenePtr TextEditorModule::update(Time delta)
                 }
             }
         } else if (APP.player().key_pressed(Key::alt_1)) {
-            if (APP.player().key_down(Key::action_1)) {
+            if (APP.player().key_down(Key::action_1) and not user_context_.readonly_) {
                 auto pos = insert_pos();
                 insert_char('\n', pos);
                 cursor_.x = 0; // newline
@@ -990,7 +994,7 @@ ScenePtr TextEditorModule::update(Time delta)
                 }
                 render(start_line_);
                 shade_cursor();
-            } else if (APP.player().key_down(Key::action_2)) {
+            } else if (APP.player().key_down(Key::action_2) and not user_context_.readonly_) {
                 if (selected()) {
                     delete_selection();
                 } else {
@@ -1287,7 +1291,7 @@ ScenePtr TextEditorModule::update(Time delta)
                                                      filesystem_ ==
                                                          FileSystem::rom);
             }
-        } else if (APP.player().key_down(Key::action_1)) {
+        } else if (APP.player().key_down(Key::action_1) and not user_context_.readonly_) {
             start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
             show_keyboard_ = true;
             mode_ = Mode::edit;

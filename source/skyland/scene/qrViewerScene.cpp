@@ -70,9 +70,9 @@ void QRViewerScene::enter(Scene& prev)
             Text t(OverlayCoord{(u8)m, (u8)(calc_screen_tiles().y / 2 - 1)});
             t.assign(str->c_str(),
                      OptColors{{ColorConstant::silver_white,
-                                custom_color(0x392194)}});
+                                custom_color(0x006ea6)}});
             PLATFORM.system_call("vsync", nullptr);
-            PLATFORM.screen().fade(1.f, custom_color(0x392194));
+            PLATFORM.screen().fade(1.f, custom_color(0x006ea6));
             PLATFORM.screen().display();
         }
 
@@ -119,7 +119,7 @@ void QRViewerScene::enter(Scene& prev)
                             {u8(5 + qr_->drawsize(format_)), text_margin},
                             {u8(st.x - (6 + qr_->drawsize(format_))), 18},
                             0,
-                            OptColors{{custom_color(0x392194),
+                            OptColors{{custom_color(0x006ea6),
                                        ColorConstant::silver_white}});
 
                 if (overworld_) {
@@ -135,7 +135,7 @@ void QRViewerScene::enter(Scene& prev)
                     OptColors{{overworld_ ? custom_color(0x4e4e73)
                                           : ColorConstant::silver_white,
                                overworld_ ? custom_color(0xd2d9a7)
-                                          : custom_color(0x392194)}});
+                                          : custom_color(0x006ea6)}});
             }
 
             qr_->draw({2, (u8)margin}, (int)format_);
@@ -176,11 +176,14 @@ ScenePtr QRViewerScene::update(Time delta)
     if (timer_ > milliseconds(300) and player().key_down(Key::action_1)) {
         exit_ = true;
         tv_.reset();
+        next_text_.reset();
         PLATFORM.fill_overlay(0);
         if (overworld_) {
             PLATFORM.screen().schedule_fade(0.f);
         } else {
             PLATFORM.screen().schedule_fade(1.f, exit_color_);
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
         }
     }
 

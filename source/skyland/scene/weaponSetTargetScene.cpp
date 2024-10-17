@@ -359,7 +359,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
                 if (near_) {
                     if (auto drone =
                             APP.player_island().get_drone(weapon_loc_)) {
-                        (*drone)->set_target(cursor_loc);
+                        (*drone)->set_target(cursor_loc, true, false);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());
@@ -367,7 +367,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
                 } else {
                     if (auto drone =
                             APP.opponent_island()->get_drone(weapon_loc_)) {
-                        (*drone)->set_target(cursor_loc);
+                        (*drone)->set_target(cursor_loc, true, false);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());

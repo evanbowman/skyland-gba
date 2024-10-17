@@ -13,6 +13,7 @@
 (setq on-shop-item-sel '())    ; Shop item selected
 (setq on-shop-enter '())       ; Shop entry dialog
 (setq on-level-exit '())       ; Hook invoked when leaving a level
+(setq on-menu-resp '())        ; Used by some menus via push-menu function
 (dialog-opts-reset)
 
 ;; legacy callbacks, no longer invoked by the engine, but still used in various

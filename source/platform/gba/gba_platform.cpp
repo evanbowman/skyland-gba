@@ -4503,7 +4503,10 @@ bool Platform::Speaker::stream_music(const char* filename, Microseconds offset)
     auto found = PLATFORM.load_file("scripts/data/music", filename);
 
     if (not found.second) {
-        return false;
+        found = PLATFORM.load_file("", filename);
+        if (not found.second) {
+            return false;
+        }
     }
 
     const Microseconds sample_offset = offset * 0.016f; // NOTE: because 16kHz

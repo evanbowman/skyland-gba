@@ -74,14 +74,14 @@ void TextEntryScene::enter(Scene& prev)
 
     submit_text_->assign(
         submit_cstr,
-        FontColors{custom_color(0xcdc3eb), custom_color(0x392194)});
+        FontColors{custom_color(0xcdc3eb), custom_color(0x007cbf)});
 
     entry_.emplace(OverlayCoord{u8(centered_text_margins(char_limit_)), 5});
 
     auto base_colors =
-        FontColors{custom_color(0xffffff), custom_color(0x392194)};
+        FontColors{custom_color(0xffffff), custom_color(0x007cbf)};
 
-    PLATFORM.screen().schedule_fade(1.f, custom_color(0x392194));
+    PLATFORM.screen().schedule_fade(1.f, custom_color(0x007cbf));
 
     auto mapping_info_lbrace = locale_texture_map()('<');
     const u16 lbrace = PLATFORM.map_glyph('<', *mapping_info_lbrace);
@@ -103,7 +103,7 @@ void TextEntryScene::enter(Scene& prev)
             u8(centered_text_margins(utf8::len(state_->prompt_.c_str()))), 2});
 
     static const auto status_colors =
-        FontColors{custom_color(0x392194), ColorConstant::silver_white};
+        FontColors{custom_color(0x007cbf), ColorConstant::silver_white};
 
     prompt_text_->assign(state_->prompt_.c_str(), status_colors);
 
@@ -214,7 +214,7 @@ ScenePtr TextEntryScene::update(Time delta)
 
 
 static const auto status_colors =
-    FontColors{ColorConstant::silver_white, custom_color(0x392194)};
+    FontColors{ColorConstant::silver_white, custom_color(0x007cbf)};
 
 
 void TextEntryScene::render_keyboard()
