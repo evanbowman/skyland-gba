@@ -131,6 +131,9 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
+    void publish_tiles();
+
+
 private:
     TileId tile_;
     int canvas_texture_slot_ = -1;

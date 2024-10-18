@@ -76,7 +76,7 @@ Canvas::Canvas(Island* parent, const RoomCoord& position)
 
 void Canvas::format_description(StringBuffer<512>& buffer)
 {
-    buffer += SYSTR(description_canvas)->c_str();
+    buffer += format(SYSTR(description_canvas)->c_str(), slot_count);
 }
 
 
@@ -104,31 +104,42 @@ void Canvas::bind_graphics(const img::Image& img)
         img_data_ = allocate_dynamic<img::Image>("canvas-img-data");
         **img_data_ = img;
 
-        u8 buffer[16][16];
-        for (int x = 0; x < 16; ++x) {
-            for (int y = 0; y < 16; ++y) {
-                buffer[x][y] = img.get_pixel(x, y);
-            }
-        }
-
-        const int sl = canvas_texture_slot_;
-
-        auto enc = PLATFORM.encode_tile(buffer);
-
-        switch (parent()->layer()) {
-        case Layer::map_0_ext:
-            PLATFORM.overwrite_t0_tile(Tile::canvas_tiles_begin + sl, enc);
-            break;
-
-        case Layer::map_1_ext:
-            PLATFORM.overwrite_t1_tile(Tile::canvas_tiles_begin + sl, enc);
-            break;
-
-        default:
-            break;
-        }
+        publish_tiles();
 
         parent()->schedule_repaint();
+    }
+}
+
+
+
+void Canvas::publish_tiles()
+{
+    if (not img_data_) {
+        return;
+    }
+
+    u8 buffer[16][16];
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            buffer[x][y] = (**img_data_).get_pixel(x, y);
+        }
+    }
+
+    const int sl = canvas_texture_slot_;
+
+    auto enc = PLATFORM.encode_tile(buffer);
+
+    switch (parent()->layer()) {
+    case Layer::map_0_ext:
+        PLATFORM.overwrite_t0_tile(Tile::canvas_tiles_begin + sl, enc);
+        break;
+
+    case Layer::map_1_ext:
+        PLATFORM.overwrite_t1_tile(Tile::canvas_tiles_begin + sl, enc);
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -164,7 +175,7 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
     }();
 
     ret->save_to_file_ = false;
-    ret->backdrop_color_ = custom_color(0x007cbf);
+    ret->backdrop_color_ = custom_color(0x4cb2d5);
 
     auto isle = parent();
     auto p = position();
@@ -182,6 +193,10 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
     }
 
     ret->next_ = [isle, p](const img::Image& img) -> ScenePtr {
+        APP.player_island().schedule_repaint();
+        if (APP.opponent_island()) {
+            APP.opponent_island()->schedule_repaint();
+        }
         if (auto room = isle->get_room(p)) {
             if (auto canvas = room->cast<Canvas>()) {
                 canvas->bind_graphics(img);

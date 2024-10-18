@@ -99,11 +99,21 @@ public:
         Paint::init();
 
         if (backdrop_color_) {
+            draw_world_ = false;
+            for (int x = 0; x < 16; ++x) {
+                for (int y = 0; y < 16; ++y) {
+                    PLATFORM.set_tile(APP.player_island().layer(), x, y, 0);
+                    if (APP.opponent_island()) {
+                        PLATFORM.set_tile(APP.opponent_island()->layer(), x, y, 0);
+                    }
+                }
+            }
+
             PLATFORM.screen().schedule_fade(1, *backdrop_color_,
-                                            true,
+                                            false,
                                             false,
                                             true,
-                                            true);
+                                            false);
         }
     }
 

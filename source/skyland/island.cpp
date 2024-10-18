@@ -52,6 +52,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "skyland/rooms/canvas.hpp"
 
 
 
@@ -1427,6 +1428,15 @@ void Island::render_interior()
         PLATFORM.load_tile1_texture(t);
     }
 
+    auto canvas_mti = metaclass_index("canvas");
+    for (auto& room : rooms()) {
+        if (room->metaclass_index() == canvas_mti) {
+            if (auto c = room->cast<Canvas>()) {
+                c->publish_tiles();
+            }
+        }
+    }
+
     // When rendering the interior/exterior of a castle, we've swapped the
     // tileset texture, so all tiles mapped into memory need to be discarded,
     // allowing the repaint() code to insert new mappings into vram.
@@ -1447,6 +1457,15 @@ void Island::render_exterior()
     } else {
         PLATFORM.load_tile1_texture(
             APP.environment().opponent_island_texture());
+    }
+
+    auto canvas_mti = metaclass_index("canvas");
+    for (auto& room : rooms()) {
+        if (room->metaclass_index() == canvas_mti) {
+            if (auto c = room->cast<Canvas>()) {
+                c->publish_tiles();
+            }
+        }
     }
 
     layer_ == Layer::map_0_ext ? PLATFORM.clear_tile0_mappings()

@@ -229,14 +229,16 @@ ScenePtr Paint::update(Time delta)
 
 void Paint::display()
 {
-    APP.player_island().display();
+    if (draw_world_) {
+        APP.player_island().display();
 
-    for (auto& effect : APP.effects()) {
-        PLATFORM.screen().draw(effect->sprite());
-    }
+        for (auto& effect : APP.effects()) {
+            PLATFORM.screen().draw(effect->sprite());
+        }
 
-    for (auto& bird : APP.birds()) {
-        PLATFORM.screen().draw(bird->sprite());
+        for (auto& bird : APP.birds()) {
+            PLATFORM.screen().draw(bird->sprite());
+        }
     }
 
     Sprite sprite;

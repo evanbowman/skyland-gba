@@ -106,6 +106,7 @@ protected:
     Vec2<u8> cursor_;
     u32 color_ = 0;
     int view_shift_;
+    bool draw_world_ = true;
 
     u8 width_;
     u8 height_;
