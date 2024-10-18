@@ -63,6 +63,15 @@ public:
     }
 
 
+    PaintScene(const img::Image& img)
+        : Paint(canvas_width, canvas_height, 1, 1), create_(false)
+    {
+        texture_ = img;
+        initialized_ = true;
+        save_to_file_ = false;
+    }
+
+
     void enter(Scene& prev) override
     {
         APP.effects().clear();
@@ -79,7 +88,7 @@ public:
                 }
             }
 
-        } else {
+        } else if (not initialized_) {
             for (int x = 0; x < canvas_width; ++x) {
                 for (int y = 0; y < canvas_height; ++y) {
                     set_pixel(x, y, 1);
@@ -88,22 +97,47 @@ public:
         }
 
         Paint::init();
+
+        if (backdrop_color_) {
+            PLATFORM.screen().schedule_fade(1, *backdrop_color_,
+                                            true,
+                                            false,
+                                            true,
+                                            true);
+        }
     }
+
+
+    Optional<ColorConstant> backdrop_color_;
+    Optional<Function<sizeof(void*) * 4, ScenePtr(const img::Image&)>> next_;
+    bool save_to_file_ = true;
 
 
     ScenePtr update(Time delta) override
     {
-        PLATFORM.screen().schedule_fade(0.f);
+        if (not backdrop_color_) {
+            PLATFORM.screen().schedule_fade(0);
+        }
 
         if (APP.player().key_down(Key::action_2)) {
-            Vector<char> output;
-            for (u32 i = 0; i < sizeof texture_; ++i) {
-                output.push_back(((u8*)&texture_)[i]);
-            }
-            output.push_back('\0');
 
-            flash_filesystem::store_file_data_binary(file_path_.c_str(),
-                                                     output);
+            PLATFORM.screen().schedule_fade(0);
+
+            if (save_to_file_) {
+                Vector<char> output;
+                for (u32 i = 0; i < sizeof texture_; ++i) {
+                    output.push_back(((u8*)&texture_)[i]);
+                }
+                output.push_back('\0');
+
+                flash_filesystem::store_file_data_binary(file_path_.c_str(),
+                                                         output);
+            }
+
+            if (next_) {
+                PLATFORM.fill_overlay(0);
+                return (*next_)(texture_);
+            }
 
             return make_scene<FileBrowserModule>();
         }
@@ -134,6 +168,7 @@ private:
     img::Image texture_;
     StringBuffer<64> file_path_;
     bool create_;
+    bool initialized_ = false;
 };
 
 

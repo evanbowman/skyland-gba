@@ -749,7 +749,7 @@ ScenePtr WorldMapScene::update(Time delta)
             if (save_opt_sel_ == 0) {
                 clr_txt();
                 redraw_icons();
-                save::store(APP.persistent_data());
+                save::store("", APP.persistent_data());
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 state_ = State::save_selected;
                 show_saved_indicator();
@@ -1170,7 +1170,7 @@ ScenePtr WorldMapScene::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::print_saved_text;
-            save::store(APP.persistent_data());
+            save::store("", APP.persistent_data());
             PLATFORM.fill_overlay(0);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

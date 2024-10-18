@@ -41,6 +41,19 @@ namespace base32
 
 
 
+static const char* const default_alphabet =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+
+
+Vector<char> decode(Vector<char>& input, const char* alphabet)
+{
+    // TODO...
+    PLATFORM.fatal("implement base32 decoding!");
+}
+
+
+
 struct Cipher
 {
     Buffer<u8, 5> data_;
@@ -55,7 +68,7 @@ Vector<char> encode(Vector<char>& input, const char* alphabet)
     auto pos = input.begin();
 
     if (alphabet == nullptr) {
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        alphabet = default_alphabet;
     }
 
     while (pos not_eq input.end()) {
@@ -79,6 +92,7 @@ Vector<char> encode(Vector<char>& input, const char* alphabet)
 
         auto enc = [&](u8 val) { result.push_back(alphabet[val]); };
 
+        // P.S.: this is unintelligible... what was I thinking?
         enc(cipher.data_[0] >> 3);
         enc(((cipher.data_[0] & 0b00000111) << 2) | (cipher.data_[1] >> 6));
         enc((cipher.data_[1] & 0b00111110) >> 1);

@@ -1074,6 +1074,26 @@ BINDING_TABLE({
           push_menu_queue.push_back(make_deferred_scene<LoadLevelScene>());
           return L_NIL;
       }}},
+    {"savegame",
+     {0,
+      [](int argc) {
+          if (APP.game_mode() == App::GameMode::adventure) {
+              if (APP.scene().cast_world_scene()) {
+                  // If we're in a level, store our backup save, because, when
+                  // storing a regular save, the world map coords would be
+                  // wrong. The backup save was created before entering the
+                  // level.
+                  if (APP.has_backup()) {
+                      APP.store_backup();
+                      return lisp::make_boolean(true);
+                  }
+              } else {
+                  save::store("", APP.persistent_data());
+                  return lisp::make_boolean(true);
+              }
+          }
+          return L_NIL;
+      }}},
     {"-decorate-file",
      {1,
       [](int argc) {

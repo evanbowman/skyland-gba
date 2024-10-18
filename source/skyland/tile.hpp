@@ -177,8 +177,8 @@ struct Tile
 
         RESERVED_RANGE_DO_NOT_USE,
 
-        dlc_tiles_begin = 113,
-        dlc_tiles_end = 127,
+        canvas_tiles_begin = 113,
+        canvas_tiles_end = 127,
 
         liberty_1,
         liberty_2,
@@ -325,6 +325,8 @@ struct Tile
         market_stall_4,
         market_stall_5,
         market_stall_6,
+        canvas,
+        count
     };
 };
 
@@ -461,8 +463,8 @@ struct InteriorTile
         // actually works.
         RESERVED_RANGE_DO_NOT_USE,
 
-        dlc_tiles_begin = 113,
-        dlc_tiles_end = 127,
+        canvas_tiles_begin = 113,
+        canvas_tiles_end = 127,
 
         liberty_1,
         liberty_2,
@@ -609,6 +611,8 @@ struct InteriorTile
         market_stall_4,
         market_stall_5,
         market_stall_6,
+        canvas,
+        count
     };
 };
 

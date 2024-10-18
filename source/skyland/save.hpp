@@ -113,7 +113,7 @@ void store_global_data(const GlobalPersistentData&);
 
 
 
-void store(const PersistentData& d);
+void store(const char* prefix_path, const PersistentData& d);
 
 
 
@@ -121,7 +121,7 @@ bool exists();
 
 
 
-bool load(PersistentData& d);
+bool load(const char* prefix_path, PersistentData& d);
 
 
 

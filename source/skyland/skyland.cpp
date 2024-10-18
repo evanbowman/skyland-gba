@@ -168,9 +168,7 @@ App::App(bool clean_boot)
     // On unrecoverrable errors: try to store a backup, and flush the system log
     // to sram.
     PLATFORM.on_unrecoverrable_error([this]() {
-        if (backup_->valid_) {
-            backup_->store();
-        }
+        store_backup();
         if (is_developer_mode()) {
             PLATFORM.logger().flush();
         }
@@ -228,6 +226,15 @@ Coins App::terrain_cost(Island& island)
 bool App::has_backup()
 {
     return backup_->valid_;
+}
+
+
+
+void App::store_backup()
+{
+    if (backup_->valid_) {
+        backup_->store();
+    }
 }
 
 

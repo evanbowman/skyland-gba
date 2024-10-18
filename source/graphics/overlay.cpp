@@ -441,7 +441,7 @@ void Text::assign(const char* str, const OptColors& colors)
 
 void Text::append(const char* str, const OptColors& colors)
 {
-    if (str == nullptr or not validate_str(str)) {
+    if (str == nullptr) {
         return;
     }
 

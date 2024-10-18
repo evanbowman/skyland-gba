@@ -417,6 +417,7 @@ public:
     };
 
     void create_backup(const BackupContext& ctx);
+    void store_backup();
     void delete_backup();
     bool has_backup();
     void restore_backup();

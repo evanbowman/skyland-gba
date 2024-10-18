@@ -61,6 +61,7 @@
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/fountain.hpp"
+#include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/gold.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/ice.hpp"
@@ -391,7 +392,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         Basalt,
                                         Snow,
                                         MarketStall,
-                                        PlunderedRoom>;
+                                        PlunderedRoom,
+                                        Canvas>;
 
 
 

@@ -143,6 +143,7 @@ wheat
 windmill
 wool
 workshop
+???
 /tiled
 /vines
 /brick
@@ -335,6 +336,7 @@ Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
 A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
 ...
+What could this be? You'll have to try it out in the sandbox level editor and see what it does...
 paused
 slow
 regular

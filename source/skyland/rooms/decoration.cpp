@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2023  Evan Bowman. Some rights reserved.
+// Copyright (C) 2024  Evan Bowman. Some rights reserved.
 //
 // This program is source-available; the source code is provided for educational
 // purposes. All copies of the software must be distributed along with this
@@ -32,22 +32,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#pragma once
-
-#include "containers/vector.hpp"
-
+#include "decoration.hpp"
+#include "skyland/tileId.hpp"
 
 
-namespace base32
+
+namespace skyland
 {
-
-
-
-Vector<char> encode(Vector<char>& input, const char* alphabet = nullptr);
-
-
-
-Vector<char> decode(Vector<char>& input, const char* alphabet = nullptr);
 
 
 

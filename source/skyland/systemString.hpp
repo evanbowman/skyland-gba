@@ -206,6 +206,7 @@ enum class SystemString {
     block_windmill,
     block_wool,
     block_workshop,
+    block_generic,
 
     tiled_suffix,
     vines_suffix,
@@ -428,6 +429,7 @@ enum class SystemString {
     description_balloon,
     description_warhead,
     description_homing_missile,
+    description_canvas,
 
     gs_paused,
     gs_slow,

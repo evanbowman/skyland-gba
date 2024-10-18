@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2023  Evan Bowman. Some rights reserved.
+// Copyright (C) 2024  Evan Bowman. Some rights reserved.
 //
 // This program is source-available; the source code is provided for educational
 // purposes. All copies of the software must be distributed along with this
@@ -32,10 +32,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#pragma once
-
-#include "skyland/room.hpp"
+#include "decoration.hpp"
 #include "skyland/tileId.hpp"
+#include "skyland/tile.hpp"
+#include "skyland/systemString.hpp"
+#include "skyland/img.hpp"
 
 
 
@@ -44,49 +45,99 @@ namespace skyland
 
 
 
-class Decoration : public Room
+class Canvas : public Decoration
 {
 public:
-    using Room::Room;
+
+    Canvas(Island* parent, const RoomCoord& position);
 
 
-    void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override
+    ~Canvas();
+
+
+    static int default_health()
     {
+        return 1;
     }
 
 
-    void render_scaffolding(TileId buffer[16][16]) override
+    static int default_cost()
     {
+        return 1;
+    }
+
+
+    static int default_power()
+    {
+        return 0;
     }
 
 
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::locked_by_default | RoomProperties::fragile |
-               RoomProperties::multiplayer_unsupported;
+               RoomProperties::only_constructible_in_sandbox | RoomProperties::fragile;
     }
 
 
-    bool description_visible() override
+    static Vec2<u8> size()
     {
-        return true;
+        return {1, 1};
     }
 
 
-    static ATP atp_value()
+    static SystemString ui_name()
     {
-        return 1.0_atp;
+        return SystemString::block_generic;
     }
 
 
-    static Category category()
+    static const char* name()
     {
-        return Category::decoration;
+        return "canvas";
     }
+
+
+    void render_interior(App* app, TileId buffer[16][16]) override;
+
+
+    void render_exterior(App* app, TileId buffer[16][16]) override;
+
+
+    ScenePtr select_impl(const RoomCoord& cursor) override;
+
+
+    lisp::Value* serialize() override;
+
+
+    void deserialize(lisp::Value* v) override;
+
+
+    void bind_graphics(const img::Image& img);
+
+
+    static Icon icon()
+    {
+        return 2664;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 2680;
+    }
+
+
+    static void format_description(StringBuffer<512>& buffer);
+
+
+private:
+    TileId tile_;
+    int canvas_texture_slot_ = -1;
+
+    Optional<DynamicMemory<img::Image>> img_data_;
 };
 
 
 
-} // namespace skyland
+}

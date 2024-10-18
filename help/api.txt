@@ -931,6 +931,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (savegame)
+
+ This shouldn't need any
+ explanation...
+
+
+o----------------------------o
+
  (sel-move island x y)
 
  Move the cursor to island:

@@ -264,6 +264,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/basalt.cpp
   ${SOURCE_DIR}/skyland/rooms/ladder.cpp
   ${SOURCE_DIR}/skyland/rooms/weapon.cpp
+  ${SOURCE_DIR}/skyland/rooms/canvas.cpp
   ${SOURCE_DIR}/skyland/rooms/barrier.cpp
   ${SOURCE_DIR}/skyland/rooms/speaker.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp

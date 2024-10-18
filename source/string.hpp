@@ -432,14 +432,13 @@ StringBuffer<size> format(const char* fmt_str, Args&&... args)
 
 
 
-// I was trying to track down certain bugs, where invalid strings were being
-// passed to str_len.
-inline bool validate_str(const char* str)
+template<size_t N>
+struct StringLiteral
 {
-    for (int i = 0; i < 100000; ++i) {
-        if (str[i] == '\0') {
-            return true;
-        }
+    constexpr StringLiteral(const char (&str)[N])
+    {
+        std::copy_n(str, N, value);
     }
-    return false;
-}
+
+    char value[N];
+};

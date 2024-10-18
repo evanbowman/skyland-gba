@@ -148,16 +148,19 @@ void EmergencyBackup::init()
 
 
 
-static void store(const SaveData& sd)
+static void store(const char* prefix_path, const SaveData& sd)
 {
+    StringBuffer<128> opath;
+    opath += prefix_path;
+    opath += save_data_filename;
+
     Vector<char> out_buffer;
     auto out_ptr = (const u8*)&sd;
     for (u32 i = 0; i < sizeof sd; ++i) {
         out_buffer.push_back(*(out_ptr++));
     }
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
-    flash_filesystem::store_file_data_binary(
-        save_data_filename, out_buffer, opts);
+    flash_filesystem::store_file_data_binary(opath.c_str(), out_buffer, opts);
 }
 
 
@@ -176,7 +179,7 @@ void EmergencyBackup::store()
 
     save_data.data_ = persistent_data_;
 
-    save::store(save_data);
+    save::store("", save_data);
 
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
     flash_filesystem::store_file_data_text(
@@ -185,7 +188,7 @@ void EmergencyBackup::store()
 
 
 
-void store(const PersistentData& d)
+void store(const char* prefix_path, const PersistentData& d)
 {
     lisp::_Printer<Vector<char>> p;
     auto val = APP.invoke_script("/scripts/save.lisp");
@@ -206,11 +209,14 @@ void store(const PersistentData& d)
         save_data.data_.set_flag(PersistentData::StateFlag::dev_mode_active);
     }
 
-    store(save_data);
+    store(prefix_path, save_data);
+
+    StringBuffer<128> opath;
+    opath += prefix_path;
+    opath += save_data_lisp_filename;
 
     flash_filesystem::StorageOptions opts{.use_compression_ = true};
-    flash_filesystem::store_file_data_text(
-        save_data_lisp_filename, p.data_, opts);
+    flash_filesystem::store_file_data_text(opath.c_str(), p.data_, opts);
 
     synth_notes_store(APP.player_island(), "/save/synth.dat");
     speaker_data_store(APP.player_island(), "/save/speaker.dat");
@@ -218,7 +224,7 @@ void store(const PersistentData& d)
 
 
 
-bool load(PersistentData& d)
+bool load(const char* prefix_path, PersistentData& d)
 {
     Vector<char> data;
 

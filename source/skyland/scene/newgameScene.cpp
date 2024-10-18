@@ -79,7 +79,7 @@ void NewgameScene::enter(Scene& prev)
         break;
     }
 
-    if (save::load(APP.persistent_data())) {
+    if (save::load("", APP.persistent_data())) {
         if (APP.persistent_data().state_flags_.get() &
             PersistentData::permadeath_on) {
             save::erase();
