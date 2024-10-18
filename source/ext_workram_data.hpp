@@ -34,9 +34,9 @@
 
 
 #if defined(__NDS__)
-#define HEAP_DATA
+#define EXT_WORKRAM_DATA
 #elif defined(__GBA__)
-#define HEAP_DATA __attribute__((section(".ewram")))
+#define EXT_WORKRAM_DATA __attribute__((section(".ewram")))
 #else
-#define HEAP_DATA
+#define EXT_WORKRAM_DATA
 #endif

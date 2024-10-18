@@ -46,10 +46,7 @@ namespace skyland
 ScenePtr FeedbackModule::update(Time delta)
 {
     return make_scene<ConfiguredURLQRViewerScene>(
-        "/scripts/config/feedback.lisp",
-        "",
-        "",
-        [] {
+        "/scripts/config/feedback.lisp", "", "", [] {
             PLATFORM.screen().schedule_fade(1);
             PLATFORM.screen().clear();
             PLATFORM.screen().display();

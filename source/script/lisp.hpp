@@ -690,7 +690,12 @@ Value* make_string_from_literal(const char* str);
 Value* make_cons_safe(Value* car, Value* cdr);
 
 
-#define L_CONS(CAR, CDR) lisp::make_cons_safe(CAR, CDR)
+#define L_CONS(CAR, CDR)                                                       \
+    ([&] {                                                                     \
+        lisp::Protected v1(static_cast<lisp::Value*>(CAR));                    \
+        lisp::Protected v2(static_cast<lisp::Value*>(CDR));                    \
+        return make_cons(v1, v2);                                              \
+    }())
 
 #define L_INT(VALUE) lisp::make_integer(VALUE)
 

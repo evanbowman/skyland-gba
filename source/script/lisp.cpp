@@ -36,7 +36,7 @@
 #include "allocator.hpp"
 #include "bytecode.hpp"
 #include "eternal/eternal.hpp"
-#include "heap_data.hpp"
+#include "ext_workram_data.hpp"
 #include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "localization.hpp"
@@ -95,9 +95,9 @@ static_assert(sizeof(ValueMemory) == 8);
 #endif
 
 
-static HEAP_DATA int value_remaining_count;
-static HEAP_DATA int early_gc_threshold = value_remaining_count;
-static HEAP_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
+static EXT_WORKRAM_DATA int value_remaining_count;
+static EXT_WORKRAM_DATA int early_gc_threshold = value_remaining_count;
+static EXT_WORKRAM_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
 
 
@@ -197,6 +197,8 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 
 
 #define MAX_NAMED_ARGUMENTS 5
+#define RECENT_ALLOC_CACHE_SIZE 8
+#define __USE_RECENT_ALLOC_CACHE__
 
 
 struct Context
@@ -233,6 +235,24 @@ struct Context
     // involving garbage collection that crop up during argument substitution.
     Value* argument_symbols_[MAX_NAMED_ARGUMENTS];
 
+#ifdef __USE_RECENT_ALLOC_CACHE__
+    // Ok, so this array exists mainly for the sake of my own sanity. Allocating
+    // lisp values within C++ code is extremely fragile; it is very easy to
+    // forget to protect something from the GC, resulting in dangling pointer
+    // issues if the gc runs unexpectedly and collects something that's actually
+    // in use. The recent_alloc_cache stores N recently allocated values, and
+    // the GC will not collect these N vals.
+    //
+    // For example: If someone calls make_cons(make_symbol("..."), L_NIL); Then
+    // there's a potential gc bug, where allocation of the cons value within
+    // make cons triggers a gc sweep which collects the input symbol argument,
+    // which is not protected from the GC. The existence of the
+    // recent_alloc_cache simplifies things for the programmer, by protecting
+    // values from the gc in cases of programmer error, where the developer may
+    // have made an honest mistake and forgot to gc protect something.
+    Value* recent_alloc_cache_[RECENT_ALLOC_CACHE_SIZE];
+#endif
+
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
 
@@ -246,6 +266,7 @@ struct Context
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
+    u8 recent_alloc_cache_index_ = 0;
     bool strict_ : 1 = false;
     bool callstack_untouched_ : 1 = true;
     bool critical_gc_alert_ : 1 = false;
@@ -802,6 +823,12 @@ Value* Function::Bytecode::databuffer() const
 }
 
 
+constexpr bool is_powerof2(int v)
+{
+    return v && ((v & (v - 1)) == 0);
+}
+
+
 static Value* alloc_value()
 {
     auto init_val = [](Value* val) {
@@ -811,6 +838,14 @@ static Value* alloc_value()
     };
 
     if (auto val = value_pool_alloc()) {
+#ifdef __USE_RECENT_ALLOC_CACHE__
+        auto& i = bound_context->recent_alloc_cache_index_;
+        bound_context->recent_alloc_cache_[i++] = val;
+
+        static_assert(is_powerof2(RECENT_ALLOC_CACHE_SIZE));
+        i %= RECENT_ALLOC_CACHE_SIZE;
+#endif
+
         return init_val(val);
     }
 
@@ -1897,8 +1932,6 @@ Value* lint_code(CharSequence& code)
         }
     }
 
-    run_gc();
-
     return result;
 }
 
@@ -2280,6 +2313,14 @@ static void gc_mark()
     for (auto& sym : bound_context->argument_symbols_) {
         gc_mark_value(sym);
     }
+
+#ifdef __USE_RECENT_ALLOC_CACHE__
+    for (auto& v : bound_context->recent_alloc_cache_) {
+        if (v) {
+            gc_mark_value(v);
+        }
+    }
+#endif
 
     auto& ctx = bound_context;
 
@@ -4415,6 +4456,9 @@ BUILTIN_TABLE(
                                get_op0()->integer().value_);
        }}},
      {"gensym", {0, [](int) { return gensym(); }}},
+     {"lisp-mem-stack-used",
+      {0,
+       [](int argc) { return L_INT(bound_context->operand_stack_->size()); }}},
      {"lisp-mem-string-storage",
       {0,
        [](int argc) {
@@ -5056,7 +5100,8 @@ BUILTIN_TABLE(
                compile(dcompr(get_op0()->function().lisp_impl_.code_));
                auto ret = get_op0();
                if (ret->type() == Value::Type::function) {
-                   ret->function().required_args_ = input->function().required_args_;
+                   ret->function().required_args_ =
+                       input->function().required_args_;
                }
                pop_op();
                return ret;
@@ -5873,6 +5918,12 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
     }
 
     bound_context.emplace();
+
+#ifdef __USE_RECENT_ALLOC_CACHE__
+    for (auto& v : bound_context->recent_alloc_cache_) {
+        v = nullptr;
+    }
+#endif
 
     if (external_symtab and external_symtab->second) {
         bound_context->external_symtab_contents_ = external_symtab->first;

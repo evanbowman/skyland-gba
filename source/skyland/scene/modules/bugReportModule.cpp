@@ -63,10 +63,7 @@ ScenePtr BugReportModule::update(Time delta)
                    PROGRAM_VERSION_REVISION);
 
     auto next = make_scene<ConfiguredURLQRViewerScene>(
-        "/scripts/config/bug_report.lisp",
-        "",
-        hash.c_str(),
-        [] {
+        "/scripts/config/bug_report.lisp", "", hash.c_str(), [] {
             PLATFORM.screen().schedule_fade(1);
             PLATFORM.screen().clear();
             PLATFORM.screen().display();

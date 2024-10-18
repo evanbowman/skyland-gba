@@ -37,7 +37,7 @@
 #include "configure_island.hpp"
 #include "dataCart.hpp"
 #include "eternal/eternal.hpp"
-#include "heap_data.hpp"
+#include "ext_workram_data.hpp"
 #include "macrocosmEngine.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
@@ -52,11 +52,11 @@
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
-#include "scene/textEntryScene.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "scene/scriptedMenuScene.hpp"
+#include "scene/textEntryScene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
@@ -143,7 +143,7 @@ DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line)
 
 
 
-static HEAP_DATA Buffer<DeferredScene, 8> push_menu_queue;
+static EXT_WORKRAM_DATA Buffer<DeferredScene, 8> push_menu_queue;
 
 
 
@@ -420,9 +420,8 @@ BINDING_TABLE({
                   UserContext ctx;
                   ctx.allow_backtrack_ = false;
                   ctx.browser_exit_scene_ = make_deferred_scene<ReadyScene>();
-                  auto next = make_scene<FileBrowserModule>(std::move(ctx),
-                                                            path,
-                                                            true);
+                  auto next =
+                      make_scene<FileBrowserModule>(std::move(ctx), path, true);
                   next->on_select_ = [](const char* path) {
                       auto fn = lisp::get_var("on-menu-resp");
                       lisp::push_op(lisp::make_string(path));
@@ -435,16 +434,17 @@ BINDING_TABLE({
               auto rqd = get_list(param_list, 0)->integer().value_;
               auto lim = get_list(param_list, 1)->integer().value_;
               push_menu_queue.push_back([rqd, lim]() {
-                  return make_scene<TextEntryScene>("Entry:",
-                                                    [](const char* text) {
-                                                        auto fn = lisp::get_var("on-menu-resp");
-                                                        lisp::push_op(lisp::make_string(text));
-                                                        lisp::safecall(fn, 1);
-                                                        lisp::pop_op(); // ignore result
-                                                        return make_scene<ReadyScene>();
-                                                    },
-                                                    rqd,
-                                                    lim);
+                  return make_scene<TextEntryScene>(
+                      "Entry:",
+                      [](const char* text) {
+                          auto fn = lisp::get_var("on-menu-resp");
+                          lisp::push_op(lisp::make_string(text));
+                          lisp::safecall(fn, 1);
+                          lisp::pop_op(); // ignore result
+                          return make_scene<ReadyScene>();
+                      },
+                      rqd,
+                      lim);
               });
           } else if (str_eq(menu_name, "glossary")) {
               auto sym = param_list->cons().car()->symbol().name();
@@ -668,35 +668,40 @@ BINDING_TABLE({
           auto mt = load_metaclass(lisp::get_op(0)->symbol().name());
 
           lisp::ListBuilder b;
-          b.push_back(L_CONS(L_SYM("name"),
-                             lisp::make_string((*mt)->ui_name()->c_str())));
+
+          auto append = [&](const char* sym, lisp::Value* v) {
+              lisp::Protected p(v);
+              b.push_back(L_CONS(L_SYM(sym), v));
+          };
+
+          append("name", lisp::make_string((*mt)->ui_name()->c_str()));
 
           auto sz = (*mt)->size();
 
-          b.push_back(L_CONS(L_SYM("size"), L_CONS(L_INT(sz.x), L_INT(sz.y))));
-          b.push_back(L_CONS(L_SYM("ico1"), L_INT((*mt)->icon())));
-          b.push_back(L_CONS(L_SYM("ico2"), L_INT((*mt)->unsel_icon())));
-          b.push_back(L_CONS(L_SYM("pwr"), L_INT((*mt)->consumes_power())));
-          b.push_back(L_CONS(L_SYM("cost"), L_INT((*mt)->cost())));
-          b.push_back(L_CONS(L_SYM("max-hp"), L_INT((*mt)->full_health())));
-          b.push_back(L_CONS(L_SYM("category"), L_SYM([mt] {
-                                 switch ((*mt)->category()) {
-                                 case Room::Category::wall:
-                                     return "wall";
-                                 case Room::Category::weapon:
-                                     return "weapon";
-                                 case Room::Category::factory:
-                                     return "factory";
-                                 case Room::Category::power:
-                                     return "power";
-                                 case Room::Category::misc:
-                                     return "misc";
-                                 case Room::Category::decoration:
-                                     return "decoration";
-                                 default:
-                                     return "invalid?!";
-                                 }
-                             }())));
+          append("size", L_CONS(L_INT(sz.x), L_INT(sz.y)));
+          append("ico1", L_INT((*mt)->icon()));
+          append("ico2", L_INT((*mt)->unsel_icon()));
+          append("pwr", L_INT((*mt)->consumes_power()));
+          append("cost", L_INT((*mt)->cost()));
+          append("max-hp", L_INT((*mt)->full_health()));
+          append("category", L_SYM([mt] {
+                     switch ((*mt)->category()) {
+                     case Room::Category::wall:
+                         return "wall";
+                     case Room::Category::weapon:
+                         return "weapon";
+                     case Room::Category::factory:
+                         return "factory";
+                     case Room::Category::power:
+                         return "power";
+                     case Room::Category::misc:
+                         return "misc";
+                     case Room::Category::decoration:
+                         return "decoration";
+                     default:
+                         return "invalid?!";
+                     }
+                 }()));
 
           return b.result();
       }}},
@@ -915,8 +920,8 @@ BINDING_TABLE({
                   if (chr->owner() == &island->owner()) {
                       using namespace lisp;
                       ListBuilder chr_info;
-                      chr_info.push_back(make_integer(chr->grid_position().x));
-                      chr_info.push_back(make_integer(chr->grid_position().y));
+                      chr_info.push_back(L_INT(chr->grid_position().x));
+                      chr_info.push_back(L_INT(chr->grid_position().y));
                       if (chr->health() not_eq 255) {
                           chr_info.push_back(make_cons(
                               make_symbol("hp"), make_integer(chr->health())));
@@ -926,12 +931,12 @@ BINDING_TABLE({
                               make_cons(make_symbol("rplc"), make_integer(1)));
                       }
                       if (auto race = chr->get_race()) {
-                          chr_info.push_back(make_cons_safe(
-                              make_symbol("race"), make_integer(race)));
+                          chr_info.push_back(
+                              L_CONS(make_symbol("race"), make_integer(race)));
                       }
                       if (auto icon = chr->get_icon()) {
-                          chr_info.push_back(make_cons_safe(
-                              make_symbol("icon"), make_integer(icon)));
+                          chr_info.push_back(
+                              L_CONS(make_symbol("icon"), make_integer(icon)));
                       }
                       chr_info.push_back(make_cons(make_symbol("id"),
                                                    make_integer(chr->id())));
@@ -2215,8 +2220,7 @@ BINDING_TABLE({
           while (p) {
               if (i == L_LOAD_INT(0)) {
                   auto stat = [&](const char* l, int v) {
-                      list.push_back(
-                          lisp::make_cons_safe(lisp::make_symbol(l), L_INT(v)));
+                      list.push_back(L_CONS(L_SYM(l), L_INT(v)));
                   };
 
                   list.push_back(lisp::make_symbol(p->name()));

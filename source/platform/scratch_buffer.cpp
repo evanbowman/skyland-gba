@@ -38,11 +38,11 @@
 #ifndef __TEST__
 #include "platform.hpp"
 #endif
-#include "heap_data.hpp"
+#include "ext_workram_data.hpp"
 
 
 
-static HEAP_DATA
+static EXT_WORKRAM_DATA
     ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                scratch_buffer_count>
         scratch_buffer_pool("scratch-buffers");

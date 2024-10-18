@@ -121,9 +121,8 @@ public:
 
 
 
-    void set_target(const RoomCoord& target,
-                    bool target_pinned,
-                    bool target_near);
+    void
+    set_target(const RoomCoord& target, bool target_pinned, bool target_near);
 
 
     Optional<RoomCoord> get_target() const;
@@ -204,7 +203,6 @@ protected:
     void update_sprite();
 
 private:
-
     Vec2<s16> anchor_;
     BlockChecksum target_checksum_ = 0;
     RoomCoord grid_pos_;

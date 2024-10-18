@@ -1497,7 +1497,10 @@ void EnemyAI::combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
 
 
 static bool test_local_reachability(const Bitmatrix<16, 16>& matrix,
-                                    int x0, int y0, int x1, int y1)
+                                    int x0,
+                                    int y0,
+                                    int x1,
+                                    int y1)
 {
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;

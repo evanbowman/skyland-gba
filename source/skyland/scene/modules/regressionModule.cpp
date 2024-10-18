@@ -32,7 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "regressionModule.hpp"
-#include "heap_data.hpp"
+#include "ext_workram_data.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene/selectTutorialScene.hpp"
 #include "skyland/skyland.hpp"
@@ -44,7 +44,7 @@ namespace skyland
 
 
 
-HEAP_DATA s8 test_index = -1;
+EXT_WORKRAM_DATA s8 test_index = -1;
 
 
 
@@ -78,8 +78,7 @@ ScenePtr RegressionModule::update(Time delta)
                                   Layer::overlay, x, L_LOAD_INT(0), 0);
                           }
                           Text::print(lisp::get_op(2)->string().value(),
-                                      {(u8)L_LOAD_INT(1),
-                                       (u8)L_LOAD_INT(0)},
+                                      {(u8)L_LOAD_INT(1), (u8)L_LOAD_INT(0)},
                                       text_colors);
                           PLATFORM.screen().display();
                           return L_NIL;

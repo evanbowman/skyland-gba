@@ -395,9 +395,10 @@ void PlayerP1::autoassign_drone_target(Drone& drone)
 {
     const bool has_pinned_target = drone.target_pinned() and drone.get_target();
 
-    if (has_pinned_target and (not drone.target_near() and
-                               (APP.opponent_island()->get_drone(*drone.get_target()) or
-                                APP.opponent_island()->get_room(*drone.get_target())))) {
+    if (has_pinned_target and
+        (not drone.target_near() and
+         (APP.opponent_island()->get_drone(*drone.get_target()) or
+          APP.opponent_island()->get_room(*drone.get_target())))) {
         // Do not override the pinned target
     } else {
         EnemyAI::drone_set_target(APP.opponent_island()->rooms_plot(),

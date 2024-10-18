@@ -627,7 +627,6 @@ ScenePtr FileBrowserModule::update(Time delta)
                     if (get_extension(path) == ".exe") {
 
                     } else if (get_extension(path) == ".photo") {
-
                     }
 
                     return make_scene<TextEditorModule>(

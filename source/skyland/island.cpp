@@ -2506,7 +2506,6 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
 
-
 void collect_outer_rooms(Island& isle, Vector<Room*>& output)
 {
     u8 matrix[16][16];

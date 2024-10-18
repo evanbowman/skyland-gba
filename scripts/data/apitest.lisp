@@ -326,6 +326,8 @@
 
 (assert-eq temp 210)
 
+(assert-eq 6 (lisp-mem-stack-used))
+
 (unbind 'ends-with
         'assert-v
         'assert-eq)

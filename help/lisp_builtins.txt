@@ -806,6 +806,10 @@ o----------------------------o
  Number of string bytes
  allocated.
 
+ * stack-used:
+ Number of operand stack
+ slots in use.
+
 
 o----------------------------o
 

@@ -1,9 +1,9 @@
 #include "dataCartModule.hpp"
 #include "checkersModule.hpp"
+#include "fileBrowserModule.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/textviewScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
-#include "fileBrowserModule.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -503,9 +503,8 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
             return next;
         };
         auto path = cart.expect_content_string("dir");
-        auto next = make_scene<FileBrowserModule>(std::move(ctx),
-                                                  path->c_str(),
-                                                  true);
+        auto next =
+            make_scene<FileBrowserModule>(std::move(ctx), path->c_str(), true);
         return next;
 
     } else if (*type == "textview") {
