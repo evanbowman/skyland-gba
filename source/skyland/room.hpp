@@ -514,7 +514,7 @@ public:
 
     static Icon icon()
     {
-        return 2504;
+        return 3208;
     }
 
 

@@ -52,6 +52,35 @@ static Bitvector<slot_count> canvas_texture_slots;
 
 
 
+using ImgPool = ObjectPool<img::Image, slot_count>;
+Optional<DynamicMemory<ImgPool>> img_pool;
+
+
+
+Canvas::ImagePtr alloc_img()
+{
+    if (not img_pool) {
+        img_pool = allocate_dynamic<ImgPool>("canvas-img-pool", "canvas-img");
+    }
+
+    return {(*img_pool)->alloc(), [](img::Image* ptr) {
+        if (ptr == nullptr) {
+            PLATFORM.fatal("cannot free null image ptr!");
+        }
+        if (not img_pool) {
+            PLATFORM.fatal("img pool dealloc logic error!");
+        }
+        (*img_pool)->free(ptr);
+
+        if ((*img_pool)->remaining() == slot_count) {
+            // The image pool is no longer in use. Drop it to free memory.
+            img_pool.reset();
+        }
+    }};
+}
+
+
+
 static int alloc_canvas_texture()
 {
     for (int i = 0; i < slot_count; ++i) {
@@ -101,7 +130,9 @@ void Canvas::bind_graphics(const img::Image& img)
         apply_damage(Room::health_upper_limit());
     } else {
         tile_ = Tile::canvas_tiles_begin + canvas_texture_slot_;
-        img_data_ = allocate_dynamic<img::Image>("canvas-img-data");
+        if (not img_data_) {
+            img_data_ = alloc_img();
+        }
         **img_data_ = img;
 
         publish_tiles();

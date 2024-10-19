@@ -93,7 +93,7 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::not_constructible | RoomProperties::habitable |
+        return RoomProperties::only_constructible_in_sandbox | RoomProperties::habitable |
                RoomProperties::multiboot_compatible;
     }
 };

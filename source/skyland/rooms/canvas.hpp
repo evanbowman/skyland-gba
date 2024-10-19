@@ -135,11 +135,14 @@ public:
     void publish_tiles();
 
 
+    using ImagePtr = UniquePtr<img::Image, void(*)(img::Image*)>;
+
+
 private:
     TileId tile_;
     int canvas_texture_slot_ = -1;
 
-    Optional<DynamicMemory<img::Image>> img_data_;
+    Optional<ImagePtr> img_data_;
 };
 
 

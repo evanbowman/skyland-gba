@@ -6,25 +6,8 @@
 (dialog "The remains of an abandoned island emerge from the mist, floating towards you...")
 
 
-(let ((opts
-       '((7 . ((plundered-room 0 13)
-               (power-core 1 13)
-               (hull 1 12)
-               (hull 2 12 6)
-               (stairwell 3 11)
-               (workshop 4 13)
-               (workshop 4 11)
-               (hull 4 10)
-               (hull 5 10 12)
-               (masonry 6 14 3)
-               (masonry 6 13 3)
-               (windmill 6 12)
-               (hull 6 11)))
-         (5 . ((hull 0 14)
-               (power-core 1 13)
-               (hull 1 12)
-               (workshop 3 13))))))
-  (let ((opt (sample opts)))
+(let ((file "/scripts/event/neutral/0/2_layouts.lisp"))
+  (let ((opt (eval (read (file-get-line file (+ 1 (choice (file-line-count file))))))))
     (opponent-init (car opt) 'neutral)
     (island-configure (opponent) (cdr opt))))
 
