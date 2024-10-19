@@ -103,8 +103,9 @@ protected:
     u16 palette_[16];
 
 
-    Vec2<u8> cursor_;
-    u32 color_ = 0;
+    static Vec2<u8> cursor_;
+    static u32 color_;
+
     int view_shift_;
     bool draw_world_ = true;
 

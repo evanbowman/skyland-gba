@@ -118,8 +118,11 @@ public:
     }
 
 
+    using OverscrollDir = Key;
+
     Optional<ColorConstant> backdrop_color_;
-    Optional<Function<sizeof(void*) * 4, ScenePtr(const img::Image&)>> next_;
+    Optional<Function<sizeof(void*) * 4, ScenePtr(const img::Image&,
+                                                  const Optional<OverscrollDir>&)>> next_;
     bool save_to_file_ = true;
 
 
@@ -129,7 +132,29 @@ public:
             PLATFORM.screen().schedule_fade(0);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        Optional<OverscrollDir> overscroll;
+
+        if (exit_on_overscroll_) {
+            // Allow scrolling to adjacent canvases:
+            if (APP.player().key_down(Key::right) and cursor_.x == (width_ - 1)) {
+                overscroll = Key::right;
+                cursor_.x = 0;
+            }
+            if (APP.player().key_down(Key::left) and cursor_.x == 0) {
+                overscroll = Key::left;
+                cursor_.x = width_ - 1;
+            }
+            if (APP.player().key_down(Key::up) and cursor_.y == 0) {
+                overscroll = Key::up;
+                cursor_.y = height_ - 1;
+            }
+            if (APP.player().key_down(Key::down) and cursor_.y == (height_ - 1)) {
+                overscroll = Key::down;
+                cursor_.y = 0;
+            }
+        }
+
+        if (overscroll or APP.player().key_down(Key::action_2)) {
 
             PLATFORM.screen().schedule_fade(0);
 
@@ -146,7 +171,7 @@ public:
 
             if (next_) {
                 PLATFORM.fill_overlay(0);
-                return (*next_)(texture_);
+                return (*next_)(texture_, overscroll);
             }
 
             return make_scene<FileBrowserModule>();
@@ -174,11 +199,18 @@ public:
     }
 
 
+    void exit_on_overscroll()
+    {
+        exit_on_overscroll_ = true;
+    }
+
+
 private:
     img::Image texture_;
     StringBuffer<64> file_path_;
     bool create_;
     bool initialized_ = false;
+    bool exit_on_overscroll_ = false;
 };
 
 

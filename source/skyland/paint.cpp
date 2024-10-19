@@ -43,6 +43,11 @@ namespace skyland
 
 
 
+Vec2<u8> Paint::cursor_;
+u32 Paint::color_ = 0;
+
+
+
 u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 

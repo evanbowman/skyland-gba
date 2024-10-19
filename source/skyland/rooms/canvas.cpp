@@ -176,6 +176,7 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
 
     ret->save_to_file_ = false;
     ret->backdrop_color_ = custom_color(0x4cb2d5);
+    ret->exit_on_overscroll();
 
     auto isle = parent();
     auto p = position();
@@ -192,7 +193,8 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
         return null_scene();
     }
 
-    ret->next_ = [isle, p](const img::Image& img) -> ScenePtr {
+    ret->next_ = [isle, p](const img::Image& img,
+                           const Optional<Key>& overscroll) -> ScenePtr {
         APP.player_island().schedule_repaint();
         if (APP.opponent_island()) {
             APP.opponent_island()->schedule_repaint();
@@ -200,11 +202,44 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
         if (auto room = isle->get_room(p)) {
             if (auto canvas = room->cast<Canvas>()) {
                 canvas->bind_graphics(img);
-                if (is_player_island(room->parent())) {
-                    return make_scene<ReadyScene>();
-                } else {
-                    return make_scene<InspectP2Scene>();
+            }
+            if (overscroll) {
+                auto p = room->position();
+                switch (*overscroll) {
+                case Key::left:
+                    --p.x;
+                    break;
+
+                case Key::right:
+                    ++p.x;
+                    break;
+
+                case Key::up:
+                    --p.y;
+                    break;
+
+                case Key::down:
+                    ++p.y;
+                    break;
+
+                default:
+                    break;
                 }
+                if (p.x < 16 and p.y < 16) {
+                    if (auto adjacent = isle->get_room(p)) {
+                        if (auto c = adjacent->cast<Canvas>()) {
+                            auto scn = c->select(p);
+                            if (scn) {
+                                return scn;
+                            }
+                        }
+                    }
+                }
+            }
+            if (is_player_island(room->parent())) {
+                return make_scene<ReadyScene>();
+            } else {
+                return make_scene<InspectP2Scene>();
             }
         }
         PLATFORM.fatal("cannot writeback image: origin room missing!");
