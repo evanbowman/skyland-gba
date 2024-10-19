@@ -67,7 +67,7 @@
    (masonry 10 12 0)
    (hull 10 14)
    (hull 11 14)
-   (hull 11 13))
+   (hull 11 13)))
 
 
 (defn on-converge ()
