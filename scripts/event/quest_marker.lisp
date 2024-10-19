@@ -22,7 +22,12 @@
                   (equal pos (cddr q)))
                 quests)))
     (if (not found)
-        (fatal "invalid quest marker!"))
+        (progn
+          (if (is-developer-mode)
+             (fatal (string "invalid quest marker! " (wg-pos))))
+          (if quests
+              (setq found quests)
+              (fatal "quest marker with no active quests!?"))))
 
     (eval-file
      ;; NOTE: For backwards compatibility with old save files. We used to
