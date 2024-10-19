@@ -200,9 +200,12 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
             APP.opponent_island()->schedule_repaint();
         }
         if (auto room = isle->get_room(p)) {
-            if (auto canvas = room->cast<Canvas>()) {
-                canvas->bind_graphics(img);
-            }
+            auto bind = [&] {
+                if (auto canvas = room->cast<Canvas>()) {
+                    canvas->bind_graphics(img);
+                }
+            };
+
             if (overscroll) {
                 auto p = room->position();
                 switch (*overscroll) {
@@ -230,12 +233,15 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
                         if (auto c = adjacent->cast<Canvas>()) {
                             auto scn = c->select(p);
                             if (scn) {
+                                bind();
                                 return scn;
                             }
                         }
                     }
                 }
+                return null_scene();
             }
+            bind();
             if (is_player_island(room->parent())) {
                 return make_scene<ReadyScene>();
             } else {

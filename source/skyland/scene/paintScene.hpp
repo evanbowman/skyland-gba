@@ -49,6 +49,10 @@ namespace skyland
 
 
 
+// TODO: fix the horrible spaghetti-code in this file!
+
+
+
 class PaintScene : public Scene, public Paint
 {
 public:
@@ -69,6 +73,12 @@ public:
         texture_ = img;
         initialized_ = true;
         save_to_file_ = false;
+    }
+
+
+    void exit(Scene& next) override
+    {
+        PLATFORM.fill_overlay(0);
     }
 
 
@@ -134,6 +144,8 @@ public:
 
         Optional<OverscrollDir> overscroll;
 
+        auto prev_cursor = cursor_;
+
         if (exit_on_overscroll_) {
             // Allow scrolling to adjacent canvases:
             if (APP.player().key_down(Key::right) and cursor_.x == (width_ - 1)) {
@@ -156,9 +168,15 @@ public:
 
         if (overscroll or APP.player().key_down(Key::action_2)) {
 
-            PLATFORM.screen().schedule_fade(0);
-
-            if (save_to_file_) {
+            if (next_) {
+                auto ret = (*next_)(texture_, overscroll);
+                if (not ret) {
+                    cursor_ = prev_cursor;
+                } else {
+                    PLATFORM.screen().schedule_fade(0);
+                }
+                return ret;
+            } else if (save_to_file_) {
                 Vector<char> output;
                 for (u32 i = 0; i < sizeof texture_; ++i) {
                     output.push_back(((u8*)&texture_)[i]);
@@ -167,11 +185,6 @@ public:
 
                 flash_filesystem::store_file_data_binary(file_path_.c_str(),
                                                          output);
-            }
-
-            if (next_) {
-                PLATFORM.fill_overlay(0);
-                return (*next_)(texture_, overscroll);
             }
 
             return make_scene<FileBrowserModule>();
