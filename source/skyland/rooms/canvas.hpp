@@ -117,6 +117,9 @@ public:
     void bind_graphics(const img::Image& img);
 
 
+    void finalize() override;
+
+
     static Icon icon()
     {
         return 2664;

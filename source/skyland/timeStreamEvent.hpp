@@ -39,6 +39,7 @@
 #include "coins.hpp"
 #include "number/random.hpp"
 #include "timeStreamHeader.hpp"
+#include "img.hpp"
 
 
 
@@ -79,6 +80,8 @@ enum Type : u8 {
     opponent_room_destroyed,
 
     player_room_destroyed_with_group,
+
+    canvas_block_destroyed,
 
     player_room_transmuted,
     opponent_room_transmuted,
@@ -281,6 +284,19 @@ struct PlayerRoomDestroyedWithGroup
     u8 group_;
 
     static constexpr const auto t = Type::player_room_destroyed_with_group;
+};
+
+
+
+struct CanvasBlockDestroyed
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    bool near_;
+    u8 data_[sizeof(img::Image)];
+
+    static constexpr const auto t = Type::canvas_block_destroyed;
 };
 
 

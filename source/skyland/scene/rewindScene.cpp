@@ -56,6 +56,7 @@
 #include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cargoBay.hpp"
+#include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -403,6 +404,27 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::opponent_room_created: {
             auto e = (time_stream::event::OpponentRoomCreated*)end;
             APP.opponent_island()->destroy_room({e->x_, e->y_});
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::canvas_block_destroyed: {
+            auto e = (time_stream::event::CanvasBlockDestroyed*)end;
+
+            Island* island =
+                e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (island) {
+                if (auto room = island->get_room({e->x_, e->y_})) {
+                    if (auto c = room->cast<Canvas>()) {
+                        img::Image tmp;
+                        memcpy(&tmp, e->data_, sizeof tmp);
+                        c->bind_graphics(tmp);
+                    }
+                }
+            }
+
             APP.time_stream().pop(sizeof *e);
             break;
         }

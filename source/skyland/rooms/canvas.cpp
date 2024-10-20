@@ -37,6 +37,7 @@
 #include "skyland/scene/paintScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/inspectP2Scene.hpp"
+#include "skyland/timeStreamEvent.hpp"
 #include "compression.hpp"
 #include "base32.hpp"
 
@@ -138,6 +139,22 @@ void Canvas::bind_graphics(const img::Image& img)
         publish_tiles();
 
         parent()->schedule_repaint();
+    }
+}
+
+
+
+void Canvas::finalize()
+{
+    Room::finalize();
+
+    if (health() == 0 and img_data_) {
+        time_stream::event::CanvasBlockDestroyed e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.near_ = is_player_island(parent());
+        memcpy(e.data_, &(**img_data_), sizeof **img_data_);
+        APP.time_stream().push(APP.level_timer(), e);
     }
 }
 
