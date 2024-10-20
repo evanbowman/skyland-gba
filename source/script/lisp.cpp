@@ -1953,6 +1953,8 @@ Value* dostring(CharSequence& code,
 
     Protected result(get_nil());
 
+    auto prev_stk = bound_context->operand_stack_->size();
+
     while (true) {
         i += read(code, i);
         auto reader_result = get_op0();
@@ -1972,6 +1974,11 @@ Value* dostring(CharSequence& code,
             pop_op();
             break;
         }
+    }
+
+    if (bound_context->strict_ and
+        bound_context->operand_stack_->size() not_eq prev_stk) {
+        PLATFORM.fatal("stack spill!");
     }
 
     --bound_context->interp_entry_count_;
@@ -4459,6 +4466,15 @@ BUILTIN_TABLE(
      {"lisp-mem-stack-used",
       {0,
        [](int argc) { return L_INT(bound_context->operand_stack_->size()); }}},
+     {"lisp-mem-stack-contents",
+      {0,
+       [](int argc) {
+           lisp::ListBuilder b;
+           for (auto& v : *bound_context->operand_stack_) {
+               b.push_back(v);
+           }
+           return b.result();
+       }}},
      {"lisp-mem-string-storage",
       {0,
        [](int argc) {
