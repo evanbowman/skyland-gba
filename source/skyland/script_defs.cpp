@@ -923,12 +923,12 @@ BINDING_TABLE({
                       chr_info.push_back(L_INT(chr->grid_position().x));
                       chr_info.push_back(L_INT(chr->grid_position().y));
                       if (chr->health() not_eq 255) {
-                          chr_info.push_back(make_cons(
+                          chr_info.push_back(L_CONS(
                               make_symbol("hp"), make_integer(chr->health())));
                       }
                       if (chr->is_replicant()) {
                           chr_info.push_back(
-                              make_cons(make_symbol("rplc"), make_integer(1)));
+                              L_CONS(make_symbol("rplc"), make_integer(1)));
                       }
                       if (auto race = chr->get_race()) {
                           chr_info.push_back(
@@ -938,8 +938,8 @@ BINDING_TABLE({
                           chr_info.push_back(
                               L_CONS(make_symbol("icon"), make_integer(icon)));
                       }
-                      chr_info.push_back(make_cons(make_symbol("id"),
-                                                   make_integer(chr->id())));
+                      chr_info.push_back(L_CONS(make_symbol("id"),
+                                                make_integer(chr->id())));
                       list.push_front(chr_info.result());
                   }
               }

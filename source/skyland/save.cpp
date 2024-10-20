@@ -133,6 +133,8 @@ void EmergencyBackup::init()
 {
     persistent_data_ = APP.persistent_data();
 
+    lisp::gc();
+
     lisp_data_.emplace();
 
     LispPrinter p(*lisp_data_);

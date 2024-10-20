@@ -324,7 +324,7 @@
          (range 5 10))
 
 
-(assert-eq temp 210)
+(assert-eq temp 212)
 
 (assert-eq 6 (lisp-mem-stack-used))
 
