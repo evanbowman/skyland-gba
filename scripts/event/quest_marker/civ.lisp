@@ -81,7 +81,7 @@
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
               (defn on-dialog-closed ()
-                (dialog "<c:sylph:21>hello, traveller...<B:0> We are very grateful to you for bringing him to us...")
+                (dialog "<c:sylph:21>hello, traveller...<B:0> I am very grateful to you for bringing him back! ...")
                 (setq on-dialog-closed (lambda ()
                                          (on-timeout 500 'fut)
                                          (setq on-dialog-closed nil)))
