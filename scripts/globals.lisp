@@ -25,5 +25,4 @@
  'shop-items
  'zone-shop-items
  'qvar
- 'adventure-vars
- 'require-alist)
+ 'adventure-vars)
