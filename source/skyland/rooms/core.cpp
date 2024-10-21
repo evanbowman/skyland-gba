@@ -133,7 +133,7 @@ Power BackupCore::power_usage() const
 
 const char* BackupCore::upgrade_mt_name() const
 {
-    return nullptr;
+    return "power-core";
 }
 
 
