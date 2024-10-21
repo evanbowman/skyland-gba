@@ -36,6 +36,7 @@
 #include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
+#include "levelExitScene.hpp"
 #include "lispReplScene.hpp"
 #include "loadLevelScene.hpp"
 #include "macro/freebuildConnectFriendScene.hpp"
@@ -492,7 +493,7 @@ AGAIN:
                     lisp::set_var("sb-help", L_NIL);
                     PLATFORM.fill_overlay(0);
                     PLATFORM.screen().set_shader(passthrough_shader);
-                    return make_scene<TitleScreenScene>(3);
+                    return make_scene<LevelExitScene<TitleScreenScene>>(3);
                 },
                 fade_sweep);
             break;
@@ -693,9 +694,9 @@ AGAIN:
                     SYSTR(start_menu_sky_map)->c_str(),
                     []() -> ScenePtr {
                         if (APP.current_world_location() == 0) {
-                            return make_scene<WorldMapScene>();
+                            return make_scene<LevelExitScene<WorldMapScene>>();
                         } else {
-                            return make_scene<ZoneImageScene>();
+                            return make_scene<LevelExitScene<ZoneImageScene>>();
                         }
                     },
                     cut);
@@ -771,7 +772,7 @@ AGAIN:
                 []() -> ScenePtr {
                     PLATFORM.fill_overlay(0);
                     PLATFORM.screen().set_shader(passthrough_shader);
-                    return make_scene<SelectChallengeScene>();
+                    return make_scene<LevelExitScene<SelectChallengeScene>>();
                 },
                 fade_sweep);
 

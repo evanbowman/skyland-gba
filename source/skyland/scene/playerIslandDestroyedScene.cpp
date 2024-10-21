@@ -39,6 +39,7 @@
 #include "coOpSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
+#include "levelExitScene.hpp"
 #include "linkScene.hpp"
 #include "platform/color.hpp"
 #include "readyScene.hpp"
@@ -654,21 +655,6 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             PLATFORM.speaker().stream_music("music_box.raw", 0);
         }
 
-        for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update();
-            if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(achievement);
-
-                PLATFORM.screen().fade(1.f);
-
-                auto next = make_deferred_scene<PlayerIslandDestroyedScene>(
-                    island_, true);
-                return make_scene<AchievementNotificationScene>(
-                    achievement, next, true);
-            }
-        }
-
-
         setup_shader();
 
         for (auto& room : APP.player_island().rooms()) {
@@ -698,6 +684,20 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         ++it;
                     }
                 }
+            }
+        }
+
+        for (int i = 0; i < 64; ++i) {
+            const auto achievement = achievements::update();
+            if (achievement not_eq achievements::Achievement::none) {
+                achievements::award(achievement);
+
+                PLATFORM.screen().fade(1.f);
+
+                auto next = make_deferred_scene<PlayerIslandDestroyedScene>(
+                    island_, true);
+                return make_scene<AchievementNotificationScene>(
+                    achievement, next, true);
             }
         }
 
@@ -821,7 +821,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                 switch (APP.game_mode()) {
                 case App::GameMode::challenge:
-                    return make_scene<SelectChallengeScene>();
+                    return make_scene<LevelExitScene<SelectChallengeScene>>();
 
                 case App::GameMode::adventure: {
                     if (APP.world_graph()
@@ -846,7 +846,8 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         }
 
                         next->set_next_scene([] {
-                            auto next = make_scene<AdventureLogScene>();
+                            auto next =
+                                make_scene<LevelExitScene<AdventureLogScene>>();
 
                             next->set_next_scene([] {
                                 return make_scene<HighscoresScene>(true, 1);
@@ -856,12 +857,12 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                         return next;
                     } else {
-                        return make_scene<ZoneImageScene>();
+                        return make_scene<LevelExitScene<ZoneImageScene>>();
                     }
                 }
 
                 case App::GameMode::sandbox:
-                    return make_scene<SandboxResetScene>();
+                    return make_scene<LevelExitScene<SandboxResetScene>>();
 
                 case App::GameMode::co_op:
                     Platform::fatal("logic error: co_op 111");
@@ -873,7 +874,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                     return make_scene<LinkScene>();
 
                 default:
-                    return make_scene<TitleScreenScene>(3);
+                    return make_scene<LevelExitScene<TitleScreenScene>>(3);
                 }
                 Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
@@ -885,30 +886,30 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                 if (PLATFORM.network_peer().is_connected()) {
                     PLATFORM.network_peer().disconnect();
-                    return make_scene<LinkScene>();
+                    return make_scene<LevelExitScene<LinkScene>>();
                 }
 
                 switch (APP.game_mode()) {
                 case App::GameMode::challenge:
-                    return make_scene<SelectChallengeScene>();
+                    return make_scene<LevelExitScene<SelectChallengeScene>>();
 
                 case App::GameMode::adventure: {
                     lisp::dostring("(adventure-log-add 5 '())");
-                    return make_scene<HighscoresScene>(true, 1);
+                    return make_scene<LevelExitScene<HighscoresScene>>(true, 1);
                 }
 
                 case App::GameMode::sandbox:
-                    return make_scene<SandboxResetScene>();
+                    return make_scene<LevelExitScene<SandboxResetScene>>();
 
                 case App::GameMode::multiplayer:
-                    return make_scene<LinkScene>();
+                    return make_scene<LevelExitScene<LinkScene>>();
 
                 case App::GameMode::co_op:
                 case App::GameMode::skyland_forever:
-                    return make_scene<HighscoresScene>(true, 3);
+                    return make_scene<LevelExitScene<HighscoresScene>>(true, 3);
 
                 default:
-                    return make_scene<TitleScreenScene>(3);
+                    return make_scene<LevelExitScene<TitleScreenScene>>(3);
                 }
             }
         } else {

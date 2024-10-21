@@ -33,6 +33,7 @@
 
 
 #include "levelCompleteOptionsScene.hpp"
+#include "levelExitScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
@@ -138,7 +139,7 @@ ScenePtr LevelCompleteOptionsScene::update(Time delta)
         if (timer_ > fade_duration) {
             PLATFORM.load_overlay_texture("overlay");
 
-            return make_scene<ZoneImageScene>();
+            return make_scene<LevelExitScene<ZoneImageScene>>();
         } else {
             const auto amount =
                 partial_fade_amt + (1.f - partial_fade_amt) *

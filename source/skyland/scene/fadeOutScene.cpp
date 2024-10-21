@@ -33,6 +33,7 @@
 
 
 #include "fadeOutScene.hpp"
+#include "levelExitScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "selectTutorialScene.hpp"
 #include "skyland/player/autopilotPlayer.hpp"
@@ -118,26 +119,26 @@ ScenePtr FadeOutScene::update(Time delta)
         PLATFORM.screen().fade(1.f);
 
         if (state_bit_load(StateBit::regression)) {
-            return make_scene<RegressionModule>();
+            return make_scene<LevelExitScene<RegressionModule>>();
         }
 
         switch (APP.game_mode()) {
         case App::GameMode::tutorial:
-            return make_scene<SelectTutorialScene>();
+            return make_scene<LevelExitScene<SelectTutorialScene>>();
 
         case App::GameMode::adventure:
-            return make_scene<ZoneImageScene>();
+            return make_scene<LevelExitScene<ZoneImageScene>>();
 
         case App::GameMode::challenge:
-            return make_scene<SelectChallengeScene>();
+            return make_scene<LevelExitScene<SelectChallengeScene>>();
 
         case App::GameMode::skyland_forever:
         case App::GameMode::sandbox:
-            return make_scene<TitleScreenScene>(3);
+            return make_scene<LevelExitScene<TitleScreenScene>>(3);
 
         case App::GameMode::co_op:
         case App::GameMode::multiplayer:
-            return make_scene<TitleScreenScene>();
+            return make_scene<LevelExitScene<TitleScreenScene>>();
 
         case App::GameMode::macro:
             Platform::fatal("logic error: macro fadeout!?");
