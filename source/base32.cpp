@@ -41,8 +41,7 @@ namespace base32
 
 
 
-static const char* const default_alphabet =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+static const char* const default_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 
 

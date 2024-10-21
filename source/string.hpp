@@ -432,8 +432,7 @@ StringBuffer<size> format(const char* fmt_str, Args&&... args)
 
 
 
-template<size_t N>
-struct StringLiteral
+template <size_t N> struct StringLiteral
 {
     constexpr StringLiteral(const char (&str)[N])
     {

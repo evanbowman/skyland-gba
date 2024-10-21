@@ -40,5 +40,5 @@
 
 namespace skyland
 {
-    using BlockChecksum = u16;
+using BlockChecksum = u16;
 }

@@ -945,8 +945,8 @@ BINDING_TABLE({
                           chr_info.push_back(
                               L_CONS(make_symbol("icon"), make_integer(icon)));
                       }
-                      chr_info.push_back(L_CONS(make_symbol("id"),
-                                                make_integer(chr->id())));
+                      chr_info.push_back(
+                          L_CONS(make_symbol("id"), make_integer(chr->id())));
                       list.push_front(chr_info.result());
                   }
               }
@@ -1711,7 +1711,7 @@ BINDING_TABLE({
           L_EXPECT_OP(0, integer);
           auto island = unwrap_isle(lisp::get_op(2));
           island->set_position({Fixnum::from_integer(L_LOAD_INT(1)),
-                  Fixnum::from_integer(L_LOAD_INT(0))});
+                                Fixnum::from_integer(L_LOAD_INT(0))});
           return L_NIL;
       }}},
     {"island-pos",

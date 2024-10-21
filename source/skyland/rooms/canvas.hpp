@@ -34,10 +34,10 @@
 #pragma once
 
 #include "decoration.hpp"
-#include "skyland/tileId.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/systemString.hpp"
 #include "skyland/img.hpp"
+#include "skyland/systemString.hpp"
+#include "skyland/tile.hpp"
+#include "skyland/tileId.hpp"
 
 
 
@@ -49,7 +49,6 @@ namespace skyland
 class Canvas : public Decoration
 {
 public:
-
     Canvas(Island* parent, const RoomCoord& position);
 
 
@@ -77,7 +76,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::only_constructible_in_sandbox | RoomProperties::fragile;
+               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::fragile;
     }
 
 
@@ -138,7 +138,7 @@ public:
     void publish_tiles();
 
 
-    using ImagePtr = UniquePtr<img::Image, void(*)(img::Image*)>;
+    using ImagePtr = UniquePtr<img::Image, void (*)(img::Image*)>;
 
 
 private:
@@ -150,4 +150,4 @@ private:
 
 
 
-}
+} // namespace skyland

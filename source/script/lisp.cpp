@@ -1870,8 +1870,10 @@ void lint(Value* expr, Value* variable_list)
                             }
 
                             if (not find_variable(set_sym)) {
-                                push_op(make_error(::format("set for unknown variable %",
-                                                            set_sym->symbol().name()).c_str()));
+                                push_op(make_error(
+                                    ::format("set for unknown variable %",
+                                             set_sym->symbol().name())
+                                        .c_str()));
                                 return;
                             }
                         }

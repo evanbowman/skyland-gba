@@ -114,16 +114,14 @@ public:
                 for (int y = 0; y < 16; ++y) {
                     PLATFORM.set_tile(APP.player_island().layer(), x, y, 0);
                     if (APP.opponent_island()) {
-                        PLATFORM.set_tile(APP.opponent_island()->layer(), x, y, 0);
+                        PLATFORM.set_tile(
+                            APP.opponent_island()->layer(), x, y, 0);
                     }
                 }
             }
 
-            PLATFORM.screen().schedule_fade(1, *backdrop_color_,
-                                            false,
-                                            false,
-                                            true,
-                                            false);
+            PLATFORM.screen().schedule_fade(
+                1, *backdrop_color_, false, false, true, false);
         }
     }
 
@@ -131,8 +129,10 @@ public:
     using OverscrollDir = Key;
 
     Optional<ColorConstant> backdrop_color_;
-    Optional<Function<sizeof(void*) * 4, ScenePtr(const img::Image&,
-                                                  const Optional<OverscrollDir>&)>> next_;
+    Optional<
+        Function<sizeof(void*) * 4,
+                 ScenePtr(const img::Image&, const Optional<OverscrollDir>&)>>
+        next_;
     bool save_to_file_ = true;
 
 
@@ -148,7 +148,8 @@ public:
 
         if (exit_on_overscroll_) {
             // Allow scrolling to adjacent canvases:
-            if (APP.player().key_down(Key::right) and cursor_.x == (width_ - 1)) {
+            if (APP.player().key_down(Key::right) and
+                cursor_.x == (width_ - 1)) {
                 overscroll = Key::right;
                 cursor_.x = 0;
             }
@@ -160,7 +161,8 @@ public:
                 overscroll = Key::up;
                 cursor_.y = height_ - 1;
             }
-            if (APP.player().key_down(Key::down) and cursor_.y == (height_ - 1)) {
+            if (APP.player().key_down(Key::down) and
+                cursor_.y == (height_ - 1)) {
                 overscroll = Key::down;
                 cursor_.y = 0;
             }

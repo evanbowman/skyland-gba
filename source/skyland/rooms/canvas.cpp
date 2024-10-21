@@ -33,13 +33,13 @@
 
 
 #include "canvas.hpp"
+#include "base32.hpp"
+#include "compression.hpp"
 #include "script/listBuilder.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene/paintScene.hpp"
 #include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "compression.hpp"
-#include "base32.hpp"
 
 
 
@@ -65,19 +65,19 @@ Canvas::ImagePtr alloc_img()
     }
 
     return {(*img_pool)->alloc(), [](img::Image* ptr) {
-        if (ptr == nullptr) {
-            PLATFORM.fatal("cannot free null image ptr!");
-        }
-        if (not img_pool) {
-            PLATFORM.fatal("img pool dealloc logic error!");
-        }
-        (*img_pool)->free(ptr);
+                if (ptr == nullptr) {
+                    PLATFORM.fatal("cannot free null image ptr!");
+                }
+                if (not img_pool) {
+                    PLATFORM.fatal("img pool dealloc logic error!");
+                }
+                (*img_pool)->free(ptr);
 
-        if ((*img_pool)->remaining() == slot_count) {
-            // The image pool is no longer in use. Drop it to free memory.
-            img_pool.reset();
-        }
-    }};
+                if ((*img_pool)->remaining() == slot_count) {
+                    // The image pool is no longer in use. Drop it to free memory.
+                    img_pool.reset();
+                }
+            }};
 }
 
 
@@ -332,10 +332,9 @@ lisp::Value* Canvas::serialize()
         int rem = output.size();
         u32 i = 0;
         while (rem > 4) {
-            out_list.push_back(L_INT(output[i]
-                                     | (output[i + 1] << 8)
-                                     | (output[i + 2] << 16)
-                                     | (output[i + 3] << 24)));
+            out_list.push_back(L_INT(output[i] | (output[i + 1] << 8) |
+                                     (output[i + 2] << 16) |
+                                     (output[i + 3] << 24)));
             rem -= 4;
             i += 4;
         }
@@ -388,4 +387,4 @@ void Canvas::deserialize(lisp::Value* v)
 
 
 
-}
+} // namespace skyland

@@ -51,4 +51,4 @@ Vector<char> decode(Vector<char>& input, const char* alphabet = nullptr);
 
 
 
-}
+} // namespace base32

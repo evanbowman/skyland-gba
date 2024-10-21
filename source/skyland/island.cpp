@@ -48,11 +48,11 @@
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
+#include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "skyland/rooms/canvas.hpp"
 
 
 
