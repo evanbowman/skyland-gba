@@ -81,4 +81,16 @@
 (mkch (opponent) 'hostile)
 
 
+
+(defn import-level ()
+  (push-menu "file-browser" '("/scripts/event/" true))
+
+  (defn on-menu-resp (path)
+    (eval-file path)
+    (dialog-reset)
+    (island-set-pos (opponent) (+ 250 (* 16 (- 10 (terrain (opponent))))) 374)
+    (eval-file "/scripts/reset_hooks.lisp")))
+
+
+
 (unbind 'conf 'mkch)
