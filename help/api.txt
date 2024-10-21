@@ -907,6 +907,7 @@ o----------------------------o
  "construction", no params
  "qrcode", string to encode
  "text-entry", '(required-chars char-limit)
+ "file-browser", '(directory allow-backtrack)
 
  Some menus that have produce
  responses will pass the

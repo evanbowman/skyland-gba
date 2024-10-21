@@ -414,11 +414,12 @@ BINDING_TABLE({
               push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
           } else if (str_eq(menu_name, "item-shop")) {
               push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());
-          } else if (str_eq(menu_name, "file-selector")) {
+          } else if (str_eq(menu_name, "file-browser")) {
               auto path = get_list(param_list, 0)->string().value();
-              push_menu_queue.push_back([path] {
+              bool allow_backtrack = get_list(param_list, 1)->integer().value_;
+              push_menu_queue.push_back([path, allow_backtrack] {
                   UserContext ctx;
-                  ctx.allow_backtrack_ = false;
+                  ctx.allow_backtrack_ = allow_backtrack;
                   ctx.browser_exit_scene_ = make_deferred_scene<ReadyScene>();
                   auto next =
                       make_scene<FileBrowserModule>(std::move(ctx), path, true);
@@ -822,6 +823,12 @@ BINDING_TABLE({
     {"has-dialog?",
      {0,
       [](int argc) { return lisp::make_boolean((bool)APP.dialog_buffer()); }}},
+    {"dialog-reset",
+     {0,
+      [](int argc) {
+          APP.dialog_buffer().reset();
+          return L_NIL;
+      }}},
     {"dialog",
      {1,
       [](int argc) {
@@ -1694,6 +1701,17 @@ BINDING_TABLE({
               APP.setup_input(bundle);
           }
 
+          return L_NIL;
+      }}},
+    {"island-set-pos",
+     {3,
+      [](int argc) {
+          L_EXPECT_OP(2, wrapped);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(0, integer);
+          auto island = unwrap_isle(lisp::get_op(2));
+          island->set_position({Fixnum::from_integer(L_LOAD_INT(1)),
+                  Fixnum::from_integer(L_LOAD_INT(0))});
           return L_NIL;
       }}},
     {"island-pos",

@@ -82,6 +82,9 @@
                   (dialog-opts-push "farming?"
                                     (chat "<c:Farmer Meyer:9>Farms up here grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island reactor core..."))
 
+                  (dialog-opts-push "irrigation?"
+                                    (chat "<c:Farmer Meyer:9>Although we do get some light rain up here, it's not enough for growing crops. But we can harvest water from the clouds, of course..."))
+
                   (dialog-opts-push "nope" (lambda ()
                                              (dialog "<c:Farmer Meyer:9>Good luck!")
                                              (setq on-dialog-closed exit)
