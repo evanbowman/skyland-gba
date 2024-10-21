@@ -1624,7 +1624,7 @@ void funcall(Value* obj, u8 argc)
 void safecall(Value* fn, u8 argc)
 {
     if (fn->type() not_eq Value::Type::function) {
-        Platform::fatal("attempt to all non-function!");
+        Platform::fatal("attempt to call non-function!");
     }
 
     if (bound_context->operand_stack_->size() < argc) {
@@ -1849,6 +1849,33 @@ void lint(Value* expr, Value* variable_list)
                                                 val_to_string<32>(cv).c_str())
                                            .c_str()));
                     return;
+                }
+
+                if (cv->type() == Value::Type::symbol) {
+                    if (str_eq(cv->symbol().name(), "set")) {
+                        if (length(expr) < 3) {
+                            push_op(make_error("invalid syntax in set expr"));
+                            return;
+                        }
+                        auto set_sym = get_list(expr, 1);
+                        if (set_sym->type() == Value::Type::cons) {
+                            // The thing being set should be a quoted pair,
+                            // unless a variable is passed to set, which is also
+                            // entirely possible (and cannot easily be verified
+                            // by the linter).
+                            set_sym = set_sym->cons().cdr();
+                            if (set_sym->type() not_eq Value::Type::symbol) {
+                                push_op(make_error("setq expects symbol!"));
+                                return;
+                            }
+
+                            if (not find_variable(set_sym)) {
+                                push_op(make_error(::format("set for unknown variable %",
+                                                            set_sym->symbol().name()).c_str()));
+                                return;
+                            }
+                        }
+                    }
                 }
             }
 
