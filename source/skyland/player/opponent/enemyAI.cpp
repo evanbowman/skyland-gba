@@ -699,7 +699,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
 
-            if (room->metaclass() == infirmary_metac) {
+            if (not room->is_powered_down() and
+                room->metaclass() == infirmary_metac) {
 
                 auto chr_room = ai_island_->get_room(character.grid_position());
 
@@ -730,7 +731,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                         }
                     }
                 }
-            } else if (room->metaclass() == transporter_metac) {
+            } else if (not room->is_powered_down() and
+                       room->metaclass() == transporter_metac) {
 
                 auto transporter = room->cast<Transporter>();
 

@@ -695,6 +695,7 @@ enum class SystemString {
     error_friendly,
     error_no_more_pauses,
     error_powered_off,
+    error_cannot_divert_power,
 
     easy_mode_auto_rewind_title,
     easy_mode_auto_rewind_text,

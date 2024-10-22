@@ -43,7 +43,7 @@
   (transporter  100 999  40)
   (replicator   80  2000 60)
   (drone-bay    200 2100 36)
-  (cargo-bay    60  300  5)
+  (cargo-bay    60  300  0)
   (arc-gun      240 1700 40)
   (nemesis      200 1400 18)
   (escape-beacon 90 1600 40)

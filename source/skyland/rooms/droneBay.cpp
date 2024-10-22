@@ -116,6 +116,10 @@ void DroneBay::rewind(Time delta)
         detach_drone(false);
     }
 
+    if (is_powered_down()) {
+        return;
+    }
+
     if (reload_ <= 0) {
         // fully reloaded
     } else if (reload_ < 1000 * drone_bay_reload_ms) {
@@ -208,6 +212,24 @@ ScenePtr DroneBay::select_impl(const RoomCoord& cursor)
         return make_scene<ConstructDroneScene>(position());
     }
     return null_scene();
+}
+
+
+
+void DroneBay::on_powerchange()
+{
+    if (is_powered_down()) {
+        detach_drone(false);
+    }
+
+    start_reload();
+}
+
+
+
+bool DroneBay::allows_powerdown()
+{
+    return true;
 }
 
 

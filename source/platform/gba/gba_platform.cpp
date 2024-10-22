@@ -1667,7 +1667,7 @@ static u16 x3_scroll = 0;
 static u16 y3_scroll = 0;
 
 
-static const int tile_reserved_count = 8;
+static const int tile_reserved_count = 9;
 static const int tile_mapping_slots = 111 - tile_reserved_count;
 
 using TileMappings = s16[tile_mapping_slots];
@@ -3151,7 +3151,7 @@ void init_darkened_palette()
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
         auto r = blend(from, c, 90);
-        MEM_BG_PALETTE[(9 * 16) + i] = r;
+        // MEM_BG_PALETTE[(9 * 16) + i] = r;
         tilesheet_0_darkened_palette[i] = r;
     }
 }
@@ -3232,6 +3232,9 @@ void Platform::load_tile0_texture(const char* name)
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
+
+                from = Color::from_bgr_hex_555(tilesheet_0_darkened_palette[i]);
+                MEM_BG_PALETTE[(9 * 16) + i] = blend(from, c, last_fade_amt);
             }
 
             if (info.compressed_) {

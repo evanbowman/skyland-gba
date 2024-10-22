@@ -19,6 +19,6 @@
 
 (assert-eq
  (groups)
- '((Up) (Left) (Right)))
+ '((Up) (Left) (Right) (poweroff)))
 
 (assert-eq 2300 (coins))

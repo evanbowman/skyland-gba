@@ -36,6 +36,7 @@
 
 
 #include "constructionScene.hpp"
+#include "notificationScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
@@ -54,6 +55,8 @@ public:
     {
         ActiveWorldScene::enter(prev);
 
+        APP.player_island().show_powerdown_opts(true);
+
         persist_ui();
     }
 
@@ -61,6 +64,8 @@ public:
     void exit(Scene& next) override
     {
         ActiveWorldScene::exit(next);
+
+        APP.player_island().show_powerdown_opts(false);
         text_.reset();
         PLATFORM.fill_overlay(0);
     }
@@ -151,8 +156,7 @@ public:
 
         if (APP.player().key_down(Key::action_1)) {
             if (auto room = APP.player_island().get_room(cursor_loc)) {
-                auto cg = (*room->metaclass())->category();
-                if (cg not_eq Room::Category::wall) {
+                if (room->allows_powerdown()) {
                     if (room->is_powered_down()) {
                         room->set_powerdown(false);
                         PLATFORM.speaker().play_sound("poweron", 4);
@@ -168,6 +172,9 @@ public:
                     }
                 } else {
                     PLATFORM.speaker().play_sound("beep_error", 3);
+                    auto next = make_deferred_scene<AdjustPowerScene>();
+                    auto err = SYSTR(error_cannot_divert_power);
+                    return make_scene<NotificationScene>(err->c_str(), next);
                 }
             }
         }
@@ -196,6 +203,7 @@ public:
         sprite.set_priority(0);
         sprite.set_texture_index(62);
         sprite.set_size(Sprite::Size::w16_h32);
+
         sprite.set_flip({true, false});
 
         PLATFORM.screen().draw(sprite);

@@ -107,6 +107,12 @@ public:
     void set_open(bool open);
 
 
+    void on_powerchange() override;
+
+
+    bool allows_powerdown() override;
+
+
     bool is_open() const
     {
         return open_;

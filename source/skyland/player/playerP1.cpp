@@ -412,6 +412,10 @@ void PlayerP1::autoassign_drone_target(Drone& drone)
 
 void PlayerP1::autoassign_weapon_target(Room& room)
 {
+    if (room.is_powered_down()) {
+        return;
+    }
+
     // Even when the targeting AI is active, the game allows you to
     // pin targets manually, and the AI won't try to assign them
     // again until the block to which the target is pinned is

@@ -61,12 +61,12 @@ Weapon::Weapon(Island* parent,
 
 void Weapon::on_powerchange()
 {
+    override_reload_timer(reload());
+
     if (is_powered_down()) {
         parent()->bulk_timer().deschedule(this);
     } else {
-        auto rem = Timer::remaining();
-        Timer::__override_clock(0);
-        parent()->bulk_timer().schedule(this, rem);
+        parent()->bulk_timer().schedule(this, 0);
     }
 }
 
@@ -75,6 +75,20 @@ void Weapon::on_powerchange()
 Weapon::~Weapon()
 {
     parent()->bulk_timer().deschedule(this);
+}
+
+
+
+Weapon* Weapon::is_weapon()
+{
+    return this;
+}
+
+
+
+bool Weapon::allows_powerdown()
+{
+    return true;
 }
 
 

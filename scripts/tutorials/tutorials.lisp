@@ -6,9 +6,6 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(gc)
-
-
 '(("Introduction" . "tutorials/overview.lisp")
   ("Weapon Groups" . "tutorials/weapon_groups.lisp")
   ("Salvage" . "tutorials/salvage.lisp")
@@ -21,4 +18,5 @@
   ("Transporters" . "tutorials/transporter.lisp")
   ("Moving Blocks" . "tutorials/moving_blocks.lisp")
   ("Replicators" . "tutorials/replicator.lisp")
-  ("Firing Patterns" . "tutorials/firing_patterns.lisp"))
+  ("Firing Patterns" . "tutorials/firing_patterns.lisp")
+  ("Diverting Power" . "tutorials/power_balance_2.lisp"))

@@ -432,6 +432,11 @@ ScenePtr Transporter::select_impl(const RoomCoord& cursor)
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
 
+    if (is_powered_down()) {
+        return null_scene();
+    }
+
+
     if (mt_prep_seconds) {
         return null_scene();
     }
@@ -489,6 +494,20 @@ void Transporter::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;
+}
+
+
+
+void Transporter::on_powerchange()
+{
+    begin_recharge();
+}
+
+
+
+bool Transporter::allows_powerdown()
+{
+    return true;
 }
 
 

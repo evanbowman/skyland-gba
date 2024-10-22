@@ -169,6 +169,12 @@ public:
     }
 
 
+    void on_powerchange() override;
+
+
+    bool allows_powerdown() override;
+
+
 private:
     Optional<SharedEntityRef<Drone>> drone_;
 

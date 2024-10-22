@@ -151,6 +151,12 @@ public:
     void finalize() override;
 
 
+    void on_powerchange() override;
+
+
+    bool allows_powerdown() override;
+
+
 private:
     Time recharge_ = 1000 * transporter_reload_ms;
 };

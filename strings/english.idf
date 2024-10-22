@@ -330,7 +330,7 @@ Built long ago on the surface, this laser burns through everything in its path, 
 Built thousands of years ago during the surface wars. Extremely durable and repairable, with huge power output. No one makes engines like this anymore.
 Mostly decorative, but generates some power. Power output doubled in stormy weather. One allowed per island.
 Built on the surface, these missiles divide into ten projeciles upon impact and ricochet off walls. Few, if any, still exist, look in shops...
-Like a ladder, but one block taller. (Upgrade a ladder via the select menu)
+Like a ladder, but one block taller. (Upgrade a ladder via the SELECT menu)
 Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
@@ -554,6 +554,7 @@ power outage!
 castle may be friendly!
 out of pauses!
 block is powered off!
+cannot divert power from this!
 Beginner mode: auto-rewind:
 Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.

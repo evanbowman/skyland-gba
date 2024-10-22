@@ -55,6 +55,7 @@ struct StaticTile
         flag_end = 5,
         group_icons,
         path_marker,
+        icons_2,
         count,
     };
 };
@@ -70,6 +71,7 @@ struct Tile
         flag_end = 5,
         __fixme,
         __fixme2,
+        __fixme3,
         palm_1,
         palm_2,
         shrubbery,
@@ -341,6 +343,7 @@ struct InteriorTile
         flag_end = 5,
         __fixme,
         __fixme2,
+        __fixme3,
         palm_1,
         palm_2,
         shrubbery,

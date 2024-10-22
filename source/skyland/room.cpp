@@ -542,6 +542,20 @@ bool Room::description_visible()
 
 
 
+Weapon* Room::is_weapon()
+{
+    return nullptr;
+}
+
+
+
+bool Room::allows_powerdown()
+{
+    return false;
+}
+
+
+
 void Room::set_powerdown(bool powerdown)
 {
     if (powerdown == powerdown_) {

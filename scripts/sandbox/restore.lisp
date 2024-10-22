@@ -14,6 +14,19 @@
             (island-configure (player) (car (load 'rooms)))
             (island-configure (opponent) (cdr (load 'rooms)))
 
+            (let ((grp (load 'groups))
+                  (join (lambda (g)
+                          (let ((grp g))
+                            (lambda (xy) (groups-add grp (first xy) (second xy)))))))
+              (when grp
+                (groups-reset)
+                (map (join 'Up) (lookup 'Up grp))
+                (map (join 'Left) (lookup 'Left grp))
+                (map (join 'Right) (lookup 'Right grp))
+                (map (lambda (xy)
+                       (poweroff (player) (first xy) (second xy) true))
+                     (lookup 'poweroff grp))))
+
             (let ((setc
                    (lambda (i c t)
                      (let ((isle i)

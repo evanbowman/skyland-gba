@@ -177,7 +177,7 @@
    (1669 A)
    (2869 B)
    (50 nil)
-   (100 "<c:Milo:5> Finally, in addition to holding the B button over an empty space, you can access the block movement system through the select menu.")
+   (100 "<c:Milo:5> Finally, in addition to holding the B button over an empty space, you can access the block movement system through the SELECT menu.")
    (500 Select)
    (1000 Down)
    (800 Select)

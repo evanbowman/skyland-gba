@@ -261,6 +261,8 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"©"): return 185;
         case UTF8_GETCHR(u8"。"): return 302;
         case UTF8_GETCHR(u8"|"): return 311;
+        case UTF8_GETCHR(u8"⚡"): return 312;
+        case UTF8_GETCHR(u8"🪙"): return 313;
 
         // Cyrillic Characters
         case UTF8_GETCHR(u8"А"): return 187;

@@ -78,11 +78,13 @@ static const auto specific_colors =
 
 void SelectMenuScene::redraw_line(int line, bool highlight)
 {
-    opts_->lines_[line].assign(loadstr(opts_->strings_[line])->c_str(),
-                               highlight ? highlight_colors
+    auto clr = highlight ? highlight_colors
                                          : (opts_->specific_.get(line)
                                                 ? specific_colors
-                                                : Text::OptColors{}));
+                                            : Text::OptColors{});
+
+    opts_->lines_[line].assign(loadstr(opts_->strings_[line])->c_str(), clr);
+    opts_->lines_[line].append(opts_->suffixes_[line].c_str(), clr);
 
     for (int i = opts_->lines_[line].len(); i < opts_->longest_line_; ++i) {
         opts_->lines_[line].append(
@@ -338,20 +340,23 @@ void SelectMenuScene::enter(Scene& scene)
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
 
-    auto add_line = [&](SystemString str, bool specific, auto callback) {
+    auto add_line = [&](SystemString str, const char* suffix, bool specific, auto callback) {
         auto line = loadstr(str);
         opts_->specific_.set(opts_->lines_.size(), specific);
         u8 y = opts_->lines_.size() + 1;
         opts_->lines_.emplace_back(OverlayCoord{1, y});
         if (opts_->lines_.size() == 1) {
             opts_->lines_.back().assign(line->c_str(), highlight_colors);
+            opts_->lines_.back().append(suffix);
         } else {
-            opts_->lines_.back().assign(
-                line->c_str(), specific ? specific_colors : Text::OptColors{});
+            auto clr = specific ? specific_colors : Text::OptColors{};
+            opts_->lines_.back().assign(line->c_str(), clr);
+            opts_->lines_.back().append(suffix, clr);
         }
         opts_->longest_line_ =
             std::max(utf8::len(line->c_str()), size_t(opts_->longest_line_));
         opts_->strings_.push_back(str);
+        opts_->suffixes_.push_back(suffix);
         opts_->callbacks_.push_back(callback);
     };
 
@@ -360,6 +365,7 @@ void SelectMenuScene::enter(Scene& scene)
             APP.game_mode() == App::GameMode::sandbox) {
             if (isle->interior_visible()) {
                 add_line(SystemString::sel_menu_view_exterior,
+                         "",
                          false,
                          []() -> ScenePtr {
                              show_island_exterior(&APP.player_island());
@@ -367,6 +373,7 @@ void SelectMenuScene::enter(Scene& scene)
                          });
             } else {
                 add_line(SystemString::sel_menu_view_interior,
+                         "",
                          false,
                          []() -> ScenePtr {
                              show_island_interior(&APP.player_island());
@@ -379,6 +386,7 @@ void SelectMenuScene::enter(Scene& scene)
             if (is_player_island(isle) or
                 APP.game_mode() == App::GameMode::sandbox) {
                 add_line(SystemString::sel_menu_move_blocks,
+                         "",
                          false,
                          [far = is_far_camera()]() {
                              return move_blocks_setup(far);
@@ -389,6 +397,7 @@ void SelectMenuScene::enter(Scene& scene)
         if (auto chr = isle->character_at_location(cursor)) {
             if (chr->is_superpinned()) {
                 add_line(SystemString::sel_menu_unpin_crewmember,
+                         "",
                          true,
                          [id = chr->id()] {
                              auto chr = BasicCharacter::find_by_id(id);
@@ -400,6 +409,7 @@ void SelectMenuScene::enter(Scene& scene)
                          });
             } else {
                 add_line(SystemString::sel_menu_pin_crewmember,
+                         "",
                          true,
                          [id = chr->id()] {
                              auto chr = BasicCharacter::find_by_id(id);
@@ -411,32 +421,33 @@ void SelectMenuScene::enter(Scene& scene)
             }
 
             add_line(SystemString::sel_menu_crewmember_icon,
+                         "",
                      true,
                      [id = chr->id()]() {
                          return make_scene<SetCharacterIconScene>(id);
                      });
 
-        } else if (auto room = isle->get_room(cursor)) {
-            if ((is_player_island(isle) or
-                 APP.game_mode() == App::GameMode::sandbox) and
-                APP.game_mode() not_eq App::GameMode::co_op) {
-                if ((*room->metaclass())->category() ==
-                        Room::Category::weapon and
-                    room->get_target()) {
+        } // else if (auto room = isle->get_room(cursor)) {
+        //     if ((is_player_island(isle) or
+        //          APP.game_mode() == App::GameMode::sandbox) and
+        //         APP.game_mode() not_eq App::GameMode::co_op) {
+        //         if ((*room->metaclass())->category() ==
+        //                 Room::Category::weapon and
+        //             room->get_target()) {
 
-                    if (not PLATFORM.network_peer().is_connected()) {
-                        add_line(SystemString::sel_menu_weapon_halt,
-                                 true,
-                                 [this, c = cursor]() {
-                                     if (auto room = island()->get_room(c)) {
-                                         room->unset_target();
-                                     }
-                                     return null_scene();
-                                 });
-                    }
-                }
-            }
-        }
+        //             if (not PLATFORM.network_peer().is_connected()) {
+        //                 add_line(SystemString::sel_menu_weapon_halt,
+        //                          true,
+        //                          [this, c = cursor]() {
+        //                              if (auto room = island()->get_room(c)) {
+        //                                  room->unset_target();
+        //                              }
+        //                              return null_scene();
+        //                          });
+        //             }
+        //         }
+        //     }
+        // }
 
         bool bird_found = false;
         for (auto& bird : APP.birds()) {
@@ -445,7 +456,8 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
         if (bird_found) {
-            add_line(SystemString::sel_menu_spook_bird, true, [this, cursor]() {
+            add_line(SystemString::sel_menu_spook_bird,
+                         "", true, [this, cursor]() {
                 for (auto& bird : APP.birds()) {
                     if (bird->island() == island() and
                         bird->coordinate() == cursor) {
@@ -465,6 +477,7 @@ void SelectMenuScene::enter(Scene& scene)
                 if (room->upgrade_mt_name()) {
                     add_line(
                         SystemString::sel_menu_upgrade_block,
+                         "",
                         true,
                         [this, cursor]() -> ScenePtr {
                             auto room = island()->get_room(cursor);
@@ -486,6 +499,7 @@ void SelectMenuScene::enter(Scene& scene)
                           is_player_island(room->parent()))) {
                 add_line(
                     SystemString::sel_menu_describe_block,
+                         "",
                     true,
                     [this, cursor]() -> ScenePtr {
                         if (auto room = island()->get_room(cursor)) {
@@ -508,39 +522,48 @@ void SelectMenuScene::enter(Scene& scene)
                         return null_scene();
                     });
             }
-            if (room and is_player_island(isle) and
-                // NOTE: walls cannot be powered down. A wall's main purpose is
-                // to absorb damange, if a wall consumes power, what would a
-                // powered down wall even mean, logically speaking...
-                (*room->metaclass())->category() not_eq Room::Category::wall) {
+            if (room and room->power_usage() < 0) {
+                if (is_player_island(island())) {
+                    add_line(
+                        SystemString::sel_menu_adjust_power,
+                        "",
+                        true,
+                        [this, cursor]() {
+                            return make_scene<AdjustPowerScene>();
+                        });
+                }
+            }
+            if (room and is_player_island(isle) and room->allows_powerdown()) {
 
-                // if (room->is_powered_down()) {
-                //     add_line(SystemString::sel_menu_poweron,
-                //              true,
-                //              [this, c = cursor]() {
-                //                  if (auto room = island()->get_room(c)) {
-                //                      room->set_powerdown(false);
-                //                      PLATFORM.speaker().play_sound("poweron",
-                //                                                    4);
-                //                      island()->schedule_repaint();
-                //                  }
-                //                  show_power_on_exit_ = true;
-                //                  return null_scene();
-                //              });
-                // } else if (room->power_usage() > 0) {
-                //     add_line(SystemString::sel_menu_powerdown,
-                //              true,
-                //              [this, c = cursor]() {
-                //                  if (auto room = island()->get_room(c)) {
-                //                      room->set_powerdown(true);
-                //                      PLATFORM.speaker().play_sound("powerdown",
-                //                                                    4);
-                //                      island()->schedule_repaint();
-                //                  }
-                //                  show_power_on_exit_ = true;
-                //                  return null_scene();
-                //              });
-                // }
+                if (room->is_powered_down()) {
+                    add_line(SystemString::sel_menu_poweron,
+                             format(" +%⚡", (*room->metaclass())->consumes_power()).c_str(),
+                             true,
+                             [this, c = cursor]() {
+                                 if (auto room = island()->get_room(c)) {
+                                     room->set_powerdown(false);
+                                     PLATFORM.speaker().play_sound("poweron",
+                                                                   4);
+                                     island()->schedule_repaint();
+                                 }
+                                 show_power_on_exit_ = true;
+                                 return null_scene();
+                             });
+                } else if (room->power_usage() > 0) {
+                    add_line(SystemString::sel_menu_powerdown,
+                         format(" -%⚡", (*room->metaclass())->consumes_power()).c_str(),
+                             true,
+                             [this, c = cursor]() {
+                                 if (auto room = island()->get_room(c)) {
+                                     room->set_powerdown(true);
+                                     PLATFORM.speaker().play_sound("powerdown",
+                                                                   4);
+                                     island()->schedule_repaint();
+                                 }
+                                 show_power_on_exit_ = true;
+                                 return null_scene();
+                             });
+                }
             }
         }
     }
@@ -548,27 +571,20 @@ void SelectMenuScene::enter(Scene& scene)
     if (not PLATFORM.network_peer().is_connected()) {
 
         if (not is_far_camera() and cursor == *APP.player_island().flag_pos()) {
-            add_line(SystemString::sel_menu_edit_flag, true, []() {
+            add_line(SystemString::sel_menu_edit_flag,
+                         "", true, []() {
                 auto ret = make_scene<FlagDesignerModule>();
                 ret->editing_ingame_ = true;
                 return ret;
             });
         }
 
-        if (is_player_island(island())) {
-            // add_line(
-            //     SystemString::sel_menu_adjust_power, false, [this, cursor]() {
-            //         return make_scene<AdjustPowerScene>();
-            //     });
-        }
-
-
-        add_line(SystemString::sel_menu_pause, false, []() {
+        add_line(SystemString::sel_menu_pause, "", false, []() {
             return set_gamespeed_setup();
         });
     }
 
-    add_line(SystemString::sel_menu_back, false, []() { return null_scene(); });
+    add_line(SystemString::sel_menu_back, "", false, []() { return null_scene(); });
 
     for (int i = 0; i < opts_->longest_line_ + 1; ++i) {
         PLATFORM.set_tile(Layer::overlay, i, 0, 425);

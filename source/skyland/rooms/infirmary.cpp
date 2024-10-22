@@ -50,6 +50,25 @@ Infirmary::Infirmary(Island* parent, const RoomCoord& position)
 }
 
 
+
+static const auto infirmary_heal_interval = milliseconds(1000);
+
+
+
+void Infirmary::on_powerchange()
+{
+    heal_timer_ = infirmary_heal_interval;
+}
+
+
+
+bool Infirmary::allows_powerdown()
+{
+    return true;
+}
+
+
+
 void Infirmary::update(Time delta)
 {
     Room::update(delta);
@@ -76,8 +95,8 @@ void Infirmary::update(Time delta)
 
     if (characters_healing) {
         heal_timer_ += delta;
-        if (heal_timer_ > milliseconds(1000)) {
-            heal_timer_ -= milliseconds(1000);
+        if (heal_timer_ > infirmary_heal_interval) {
+            heal_timer_ -= infirmary_heal_interval;
             int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {

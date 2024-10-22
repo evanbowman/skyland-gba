@@ -50,9 +50,6 @@ void Bulkhead::plot_walkable_zones(bool matrix[16][16],
                                    BasicCharacter* for_character)
 {
     if (is_powered_down()) {
-        if (open_) {
-            Room::plot_walkable_zones(matrix, for_character);
-        }
         return;
     }
 
@@ -77,6 +74,22 @@ void Bulkhead::format_description(StringBuffer<512>& buffer)
 Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
+}
+
+
+
+void Bulkhead::on_powerchange()
+{
+    if (is_powered_down()) {
+        set_open(false);
+    }
+}
+
+
+
+bool Bulkhead::allows_powerdown()
+{
+    return true;
 }
 
 

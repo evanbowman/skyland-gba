@@ -132,12 +132,18 @@ public:
     }
 
 
+    Weapon* is_weapon() override;
+
+
     void display_on_hover(Platform::Screen& screen,
 
                           const RoomCoord& cursor) override;
 
 
     ScenePtr select_impl(const RoomCoord& cursor) override;
+
+
+    bool allows_powerdown() override;
 
 
 protected:

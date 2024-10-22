@@ -171,6 +171,14 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 
 
+void Island::show_powerdown_opts(bool show)
+{
+    show_powerdown_opts_ = show;
+    schedule_repaint();
+}
+
+
+
 static auto fire_alloc_texture(Island& island)
 {
     Optional<Platform::DynamicTexturePtr> result;
@@ -1773,6 +1781,13 @@ void Island::repaint_partial()
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
             }
+        } else if (show_powerdown_opts_ and room->allows_powerdown()) {
+            const auto tile = (6 * 4 - 1) + 4 + 5;
+            if (layer_ == Layer::map_0_ext) {
+                auto [x, y] = room->position();
+                PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
+            }
+
         }
     }
 }
@@ -2080,6 +2095,12 @@ void Island::repaint()
             }
 
             const auto tile = (6 * 4 - 1) + 4;
+            if (layer_ == Layer::map_0_ext) {
+                auto [x, y] = room->position();
+                PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
+            }
+        } else if (show_powerdown_opts_ and room->allows_powerdown()) {
+            const auto tile = (6 * 4 - 1) + 4 + 5;
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);

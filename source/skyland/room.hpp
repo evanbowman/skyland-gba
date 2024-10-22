@@ -65,6 +65,7 @@ class Island;
 class BasicCharacter;
 class Drone;
 struct RoomMeta;
+class Weapon;
 
 
 
@@ -262,8 +263,7 @@ public:
     }
 
 
-
-    void set_injured();
+    virtual Weapon* is_weapon();
 
 
     virtual void update(Time delta);
@@ -276,7 +276,6 @@ public:
 
 
     virtual void display_on_hover(Platform::Screen& screen,
-
                                   const RoomCoord& cursor);
 
 
@@ -766,7 +765,14 @@ public:
     void set_powerdown(bool powerdown);
 
 
+    virtual bool allows_powerdown();
+
+
 protected:
+
+    void set_injured();
+
+
     ScenePtr do_select();
 
     virtual ScenePtr select_impl(const RoomCoord& cursor);

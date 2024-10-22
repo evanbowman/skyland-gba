@@ -77,6 +77,7 @@ private:
 
         Buffer<Text, cap> lines_;
         Buffer<SystemString, cap> strings_;
+        Buffer<StringBuffer<8>, cap> suffixes_;
         Buffer<Function<16, ScenePtr()>, cap> callbacks_;
         u8 longest_line_;
 

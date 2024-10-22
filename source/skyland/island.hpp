@@ -424,6 +424,9 @@ public:
     void recalculate_power_usage();
 
 
+    void show_powerdown_opts(bool show);
+
+
 private:
     void repaint_partial();
 
@@ -507,6 +510,7 @@ private:
     bool has_radar_ : 1;
     bool is_boarded_ : 1;
     bool hidden_ : 1;
+    bool show_powerdown_opts_ : 1 = false;
 
 
     // During repaint(), the game caches the results of plot_rooms() in this

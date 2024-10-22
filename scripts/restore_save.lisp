@@ -64,7 +64,10 @@
         (groups-reset)
         (map (join 'Up) (lookup 'Up grp))
         (map (join 'Left) (lookup 'Left grp))
-        (map (join 'Right) (lookup 'Right grp))))
+        (map (join 'Right) (lookup 'Right grp))
+        (map (lambda (xy)
+               (poweroff (player) (first xy) (second xy) true))
+             (lookup 'poweroff grp))))
 
     (when (> (load 'save-protocol) 1)
       (difficulty-set (load 'diff)))))

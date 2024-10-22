@@ -262,6 +262,7 @@ BINDING_TABLE({
           lisp::ListBuilder up;
           lisp::ListBuilder left;
           lisp::ListBuilder right;
+          lisp::ListBuilder poweroff;
 
           for (auto& room : APP.player_island().rooms()) {
               auto pos = room->position();
@@ -282,11 +283,16 @@ BINDING_TABLE({
                   left.push_back(L_CONS(L_INT(pos.x), L_INT(pos.y)));
                   break;
               }
+
+              if (room->is_powered_down()) {
+                  poweroff.push_back(L_CONS(L_INT(pos.x), L_INT(pos.y)));
+              }
           }
 
           ret.push_back(L_CONS(L_SYM("Up"), up.result()));
           ret.push_back(L_CONS(L_SYM("Left"), left.result()));
           ret.push_back(L_CONS(L_SYM("Right"), right.result()));
+          ret.push_back(L_CONS(L_SYM("poweroff"), poweroff.result()));
 
           return ret.result();
       }}},
@@ -316,8 +322,8 @@ BINDING_TABLE({
           if (auto room = island->get_room({x1, y1})) {
               if ((*room->metaclass())->category() == Room::Category::weapon) {
                   room->set_target({x2, y2}, false);
-                  if (not str_eq(room->name(), "decimator")) {
-                      ((Weapon*)room)->fire();
+                  if (auto w = room->is_weapon()) {
+                      w->fire();
                   }
                   room->unset_target();
               }
@@ -878,6 +884,27 @@ BINDING_TABLE({
           result.push_back(lisp::make_integer(PROGRAM_VERSION_REVISION));
 
           return result.result();
+      }}},
+    {"poweroff",
+     {4,
+      [](int argc) {
+          L_EXPECT_OP(3, wrapped);
+          L_EXPECT_OP(2, integer);
+          L_EXPECT_OP(1, integer);
+          L_EXPECT_OP(0, integer);
+
+          auto island = unwrap_isle(lisp::get_op(3));
+          u8 x = L_LOAD_INT(2);
+          u8 y = L_LOAD_INT(1);
+          auto on = L_LOAD_INT(0);
+
+          if (auto room = island->get_room({x, y})) {
+              if (room->allows_powerdown()) {
+                  room->set_powerdown(on);
+              }
+          }
+
+          return L_NIL;
       }}},
     {"rooms",
      {1,

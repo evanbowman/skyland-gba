@@ -1,6 +1,6 @@
 (assert-eq
  (groups)
- '((Up (3 . 13) (3 . 14)) (Left (0 . 13)) (Right)))
+ '((Up (3 . 13) (3 . 14)) (Left (0 . 13)) (Right) (poweroff)))
 
 (assert-eq
  (rooms (player))

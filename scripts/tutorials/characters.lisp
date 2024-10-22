@@ -27,7 +27,7 @@
 
 (autopilot
  '((1000 nil)
-   (100 "<c:Milo:5>Now, I know we've had a great time chatting, but some of the crew have been slacking off and don't really know what to do! Let's give them some work! <d:2000> Oh! <d:400> Right... <d:400> You can't see them, can you!? Press the SELECT button to open the select menu and press select again to view the interior of your castle.")
+   (100 "<c:Milo:5>Now, I know we've had a great time chatting, but some of the crew have been slacking off and don't really know what to do! Let's give them some work! <d:2000> Oh! <d:400> Right... <d:400> You can't see them, can you!? Press the SELECT button to open the SELECT menu and press SELECT again to view the interior of your castle.")
    (3151 Select)
    (800 A)
    (2733 Right)
@@ -96,7 +96,7 @@
    (13600 Right)
    (232 Right)
    (250 Down)
-   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! Normally, your island automates crew positioning, but you can take control by hovering over a crewmember and choosing 'pin crewmember' from the select menu! Even when crewmembers are not pinned, they will remain in place until they finish their tasks if you order them somewhere.")
+   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! Normally, your island automates crew positioning, but you can take control by hovering over a crewmember and choosing 'pin crewmember' from the SELECT menu! Even when crewmembers are not pinned, they will remain in place until they finish their tasks if you order them somewhere.")
    (500 Left)
    (100 Left)
    (800 Select)

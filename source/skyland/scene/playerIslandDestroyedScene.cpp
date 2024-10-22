@@ -513,7 +513,9 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 bool has_command_module = false;
                 for (auto& room : APP.player_island().rooms()) {
                     if (auto tx = room->cast<Transporter>()) {
-                        ready_transporters.push_back(tx);
+                        if (not tx->is_powered_down() and tx->ready()) {
+                            ready_transporters.push_back(tx);
+                        }
                     }
 
                     // FIXME: refactor this. command-module removed from the
@@ -655,6 +657,20 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             PLATFORM.speaker().stream_music("music_box.raw", 0);
         }
 
+        for (int i = 0; i < 64; ++i) {
+            const auto achievement = achievements::update();
+            if (achievement not_eq achievements::Achievement::none) {
+                achievements::award(achievement);
+
+                PLATFORM.screen().fade(1.f);
+
+                auto next = make_deferred_scene<PlayerIslandDestroyedScene>(
+                    island_, true);
+                return make_scene<AchievementNotificationScene>(
+                    achievement, next, true);
+            }
+        }
+
         setup_shader();
 
         for (auto& room : APP.player_island().rooms()) {
@@ -684,20 +700,6 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         ++it;
                     }
                 }
-            }
-        }
-
-        for (int i = 0; i < 64; ++i) {
-            const auto achievement = achievements::update();
-            if (achievement not_eq achievements::Achievement::none) {
-                achievements::award(achievement);
-
-                PLATFORM.screen().fade(1.f);
-
-                auto next = make_deferred_scene<PlayerIslandDestroyedScene>(
-                    island_, true);
-                return make_scene<AchievementNotificationScene>(
-                    achievement, next, true);
             }
         }
 
@@ -847,7 +849,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                         next->set_next_scene([] {
                             auto next =
-                                make_scene<LevelExitScene<AdventureLogScene>>();
+                                make_scene<AdventureLogScene>();
 
                             next->set_next_scene([] {
                                 return make_scene<HighscoresScene>(true, 1);
