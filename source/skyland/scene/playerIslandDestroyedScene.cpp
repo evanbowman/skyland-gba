@@ -510,7 +510,6 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 }
 
                 Buffer<Transporter*, 16> ready_transporters;
-                bool has_command_module = false;
                 for (auto& room : APP.player_island().rooms()) {
                     if (auto tx = room->cast<Transporter>()) {
                         if (not tx->is_powered_down() and tx->ready()) {
@@ -518,13 +517,10 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         }
                     }
 
-                    // FIXME: refactor this. command-module removed from the
-                    // game.
-                    has_command_module = true;
                 }
 
 
-                if (has_command_module and not ready_transporters.empty()) {
+                if (not ready_transporters.empty()) {
                     for (auto& room : APP.opponent_island()->rooms()) {
                         Buffer<RoomCoord, 8> temp;
 
