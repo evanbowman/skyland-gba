@@ -78,32 +78,30 @@ void IonFizzler::render_exterior(App* app, TileId buffer[16][16])
     buffer[position().x][position().y] = Tile::ion_fizzler;
     buffer[position().x][position().y + 1] = Tile::ion_fizzler_exterior;
 
-    // auto clamp = [](auto v, auto f, auto c) { return v; };
+    // int left = clamp(position().x - 2, 0, 15);
+    // int right = clamp(position().x + 2, 0, (int)parent()->terrain().size());
+    // int top = clamp(position().y - 2, 0, 15);
+    // int bot = clamp(position().y + 2, 0, 15);
 
-    int left = clamp(position().x - 2, 0, 15);
-    int right = clamp(position().x + 2, 0, (int)parent()->terrain().size());
-    int top = clamp(position().y - 2, 0, 15);
-    int bot = clamp(position().y + 2, 0, 15);
+    // auto set_if_empty = [&](int x, int y, TileId t) {
+    //     if (not buffer[x][y]) {
+    //         buffer[x][y] = t;
+    //     }
+    // };
+    // set_if_empty(left, top, Tile::fizzle_boundary_tl);
+    // set_if_empty(right, top, Tile::fizzle_boundary_tr);
+    // set_if_empty(left, bot, Tile::fizzle_boundary_bl);
+    // set_if_empty(right, bot, Tile::fizzle_boundary_br);
 
-    auto set_if_empty = [&](int x, int y, TileId t) {
-        if (not buffer[x][y]) {
-            buffer[x][y] = t;
-        }
-    };
-    set_if_empty(left, top, Tile::fizzle_boundary_tl);
-    set_if_empty(right, top, Tile::fizzle_boundary_tr);
-    set_if_empty(left, bot, Tile::fizzle_boundary_bl);
-    set_if_empty(right, bot, Tile::fizzle_boundary_br);
+    // for (int y = top + 1; y < bot; ++y) {
+    //     set_if_empty(left, y, Tile::fizzle_boundary_l);
+    //     set_if_empty(right, y, Tile::fizzle_boundary_r);
+    // }
 
-    for (int y = top + 1; y < bot; ++y) {
-        set_if_empty(left, y, Tile::fizzle_boundary_l);
-        set_if_empty(right, y, Tile::fizzle_boundary_r);
-    }
-
-    for (int x = right + 1; x < left; ++x) {
-        set_if_empty(x, top, Tile::fizzle_boundary_t);
-        set_if_empty(x, bot, Tile::fizzle_boundary_b);
-    }
+    // for (int x = right + 1; x < left; ++x) {
+    //     set_if_empty(x, top, Tile::fizzle_boundary_t);
+    //     set_if_empty(x, bot, Tile::fizzle_boundary_b);
+    // }
 }
 
 
