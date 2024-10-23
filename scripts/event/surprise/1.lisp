@@ -11,7 +11,7 @@
   (coins-add bonus))
 
 
-(weather 7)
+(weather-set 7)
 
 
 (opponent-init 7 'hostile)

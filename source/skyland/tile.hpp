@@ -71,7 +71,6 @@ struct Tile
         flag_end = 5,
         __fixme,
         __fixme2,
-        __fixme3,
         palm_1,
         palm_2,
         shrubbery,
@@ -328,6 +327,14 @@ struct Tile
         market_stall_5,
         market_stall_6,
         canvas,
+        fizzle_boundary_tl,
+        fizzle_boundary_t,
+        fizzle_boundary_tr,
+        fizzle_boundary_l,
+        fizzle_boundary_r,
+        fizzle_boundary_bl,
+        fizzle_boundary_b,
+        fizzle_boundary_br,
         count
     };
 };
@@ -343,7 +350,6 @@ struct InteriorTile
         flag_end = 5,
         __fixme,
         __fixme2,
-        __fixme3,
         palm_1,
         palm_2,
         shrubbery,
@@ -615,6 +621,14 @@ struct InteriorTile
         market_stall_5,
         market_stall_6,
         canvas,
+        fizzle_boundary_tl,
+        fizzle_boundary_t,
+        fizzle_boundary_tr,
+        fizzle_boundary_l,
+        fizzle_boundary_r,
+        fizzle_boundary_bl,
+        fizzle_boundary_b,
+        fizzle_boundary_br,
         count
     };
 };

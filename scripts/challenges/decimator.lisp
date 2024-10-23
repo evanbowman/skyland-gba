@@ -81,7 +81,7 @@
 
 
 
-(weather 3)
+(weather-set 3)
 
 
 (defn on-victory ()

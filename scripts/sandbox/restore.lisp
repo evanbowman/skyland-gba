@@ -14,6 +14,9 @@
             (island-configure (player) (car (load 'rooms)))
             (island-configure (opponent) (cdr (load 'rooms)))
 
+            (when (lookup 'weather data)
+              (weather-set (lookup 'weather data)))
+
             (let ((grp (load 'groups))
                   (join (lambda (g)
                           (let ((grp g))

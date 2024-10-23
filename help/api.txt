@@ -1186,3 +1186,19 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (weather-set int)
+
+ Set the weather type.
+
+
+o----------------------------o
+
+ (weather)
+
+ Get the current weather
+ type.
+
+
+o----------------------------o
+

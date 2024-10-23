@@ -91,4 +91,4 @@
   (challenge-complete 6))
 
 
-(weather 3)
+(weather-set 3)

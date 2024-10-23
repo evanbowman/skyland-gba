@@ -1274,6 +1274,11 @@ BINDING_TABLE({
           return lisp::make_boolean(c);
       }}},
     {"weather",
+     {0,
+      [](int argc) {
+          return L_INT(APP.environment().id());
+      }}},
+    {"weather-set",
      {1,
       [](int argc) {
           L_EXPECT_OP(0, integer);

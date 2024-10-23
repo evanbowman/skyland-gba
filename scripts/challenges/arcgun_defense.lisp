@@ -50,4 +50,4 @@
 
 
 
-(weather 3)
+(weather-set 3)
