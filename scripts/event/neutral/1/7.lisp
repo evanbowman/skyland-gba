@@ -44,7 +44,7 @@
 
 
 (defn on-converge ()
-  (let ((c (choice 5))
+  (let ((c (choice 6))
         (end (lambda ()
                (run-util-script "pickup-cart" 4
          "Something else catches your attention.<d:500>.<d:500>.<d:500> a data cartridge!"))))
@@ -65,6 +65,7 @@
                     incinerator
                     warhead
                     beam-gun
+                    deflector
                     splitter)))
         (let ((pick (sample opts)))
           (dialog

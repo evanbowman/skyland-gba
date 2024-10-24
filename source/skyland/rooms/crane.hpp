@@ -198,10 +198,10 @@ public:
     }
 
 
-    void apply_damage(Health damage) override
+    void apply_damage(Health damage, const DamageConfiguration& conf) override
     {
         if (state_ == State::idle) {
-            Room::apply_damage(damage);
+            Room::apply_damage(damage, conf);
         } else {
             // Does not take damage while dropping/retracting.
         }

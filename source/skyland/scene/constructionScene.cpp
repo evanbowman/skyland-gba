@@ -834,7 +834,7 @@ ScenePtr ConstructionScene::update(Time delta)
 
             PLATFORM.speaker().play_sound("gravel", 4);
 
-            island()->render_terrain();
+            island()->schedule_repaint();
 
 
             if (data_->construction_sites_[selector_].x == -1) {

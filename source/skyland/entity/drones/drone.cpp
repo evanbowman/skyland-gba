@@ -37,6 +37,7 @@
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -223,6 +224,13 @@ Optional<RoomCoord> Drone::get_target() const
 
 
 
+void Drone::set_shielded(bool v)
+{
+    shielded_ = v;
+}
+
+
+
 bool Drone::target_near() const
 {
     return target_near_;
@@ -237,8 +245,19 @@ bool Drone::target_pinned() const
 
 
 
+extern SharedVariable deflector_shield_strength;
+
+
+
 void Drone::apply_damage(Health amount)
 {
+    if (shielded_) {
+        if (amount <= deflector_shield_strength) {
+            return;
+        }
+        amount -= deflector_shield_strength;
+    }
+
     time_stream::event::DroneHealthChanged e;
     e.x_pos_ = grid_pos_.x;
     e.y_pos_ = grid_pos_.y;

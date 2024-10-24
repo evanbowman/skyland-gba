@@ -3,7 +3,7 @@
 ;;;
 
 
-(dialog "A shop approaches! Looks like they specialize in selling various types of hull...")
+(dialog "A shop approaches! Looks like they specialize in selling various types of defenses...")
 
 
 
@@ -11,7 +11,8 @@
       (cons (wg-pos)
             '((mirror-hull    350 8 (1 . 1))
               (energized-hull 300 4 (1 . 1))
-              (stacked-hull   400 4 (1 . 1)))))
+              (stacked-hull   400 4 (1 . 1))
+              (deflector      2800 2 (1 . 1)))))
 
 (let ((xy (cdr (wg-pos))))
   ;; switch the current map node to a shop node type

@@ -242,7 +242,7 @@ void Flak::burst(const Vec2<Fixnum>& position,
         const int y = grid_y_start + y_off;
         if (x >= 0 and x < 16 and y >= 0 and y < 16) {
             if (auto room = island->get_room({u8(x), u8(y)})) {
-                room->apply_damage(damage, source);
+                room->apply_damage(damage);
             }
         }
     };

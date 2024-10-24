@@ -192,6 +192,9 @@ public:
     }
 
 
+    void set_shielded(bool is_shielded);
+
+
 private:
     Island* parent_;
     Island* destination_;
@@ -211,6 +214,7 @@ protected:
     Optional<RoomCoord> target_;
     bool target_near_ : 1 = false;
     bool target_pinned_ : 1 = false;
+    bool shielded_ : 1 = false;
     u8 state_ = State::launch;
 
 private:

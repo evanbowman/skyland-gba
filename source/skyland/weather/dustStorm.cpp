@@ -35,6 +35,7 @@
 #include "dustStorm.hpp"
 #include "containers/vector.hpp"
 #include "skyland/island.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -104,12 +105,13 @@ void DustStorm::display()
 
 
 
+SHARED_VARIABLE(dust_storm_damage);
+
+
+
 void DustStorm::update(Time delta)
 {
     (*state_).update(clamp(delta * 2, Time(0), milliseconds(32)));
-
-    constexpr int damage_amount = 9;
-
 
     damage_timer_ += delta;
     if (damage_timer_ > seconds(4)) {
@@ -129,19 +131,19 @@ void DustStorm::update(Time delta)
         collect_outer_rooms(APP.player_island(), tmp);
 
         for (auto& d : APP.player_island().drones()) {
-            d->apply_damage(damage_amount);
+            d->apply_damage(dust_storm_damage);
         }
 
         if (APP.opponent_island()) {
             collect_outer_rooms(*APP.opponent_island(), tmp);
 
             for (auto& d : APP.opponent_island()->drones()) {
-                d->apply_damage(damage_amount);
+                d->apply_damage(dust_storm_damage);
             }
         }
 
         for (auto& r : tmp) {
-            r->apply_damage(damage_amount);
+            r->apply_damage(dust_storm_damage);
         }
     }
 }

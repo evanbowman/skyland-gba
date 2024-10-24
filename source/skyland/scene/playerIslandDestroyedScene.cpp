@@ -516,7 +516,6 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                             ready_transporters.push_back(tx);
                         }
                     }
-
                 }
 
 
@@ -844,8 +843,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                         }
 
                         next->set_next_scene([] {
-                            auto next =
-                                make_scene<AdventureLogScene>();
+                            auto next = make_scene<AdventureLogScene>();
 
                             next->set_next_scene([] {
                                 return make_scene<HighscoresScene>(true, 1);

@@ -189,7 +189,7 @@ void DecimatorBurst::on_collision(Room& room, Vec2<u8> origin)
     big_explosion(sprite_.get_position(),
                   BigExplosionConfig{.centerflash_ = true});
 
-    room.apply_damage(decimator_burst_damage, source_);
+    room.apply_damage(decimator_burst_damage);
 }
 
 

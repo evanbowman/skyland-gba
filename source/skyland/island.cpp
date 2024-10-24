@@ -736,6 +736,10 @@ void Island::update(Time dt)
 
     TIMEPOINT(t2);
 
+    if (should_recompute_deflector_shields_) {
+        should_recompute_deflector_shields_ = false;
+        recompute_deflector_shields();
+    }
 
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
@@ -893,6 +897,8 @@ void Island::update(Time dt)
         const auto next = room->dispatch_next();
 
         if (room->health() == 0) {
+
+            schedule_recompute_deflector_shields();
 
             auto props = (*room->metaclass())->properties();
 
@@ -1176,6 +1182,13 @@ void Island::update(Time dt)
                             .c_str());
     }
 #endif
+}
+
+
+
+void Island::schedule_recompute_deflector_shields()
+{
+    should_recompute_deflector_shields_ = true;
 }
 
 
@@ -1578,6 +1591,7 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
 
             recalculate_power_usage();
             on_layout_changed(from);
+            schedule_recompute_deflector_shields();
 
             schedule_repaint_ = true;
 
@@ -1636,6 +1650,25 @@ void Island::plot_walkable_zones(bool matrix[16][16],
         if (props & RoomProperties::habitable) {
             room->plot_walkable_zones(matrix, for_character);
         }
+    }
+}
+
+
+
+// I suppose this function needs to be called whenever a block is destroyed,
+// moved, or created...
+void Island::recompute_deflector_shields()
+{
+    for (auto& room : rooms()) {
+        room->set_shielded(false);
+    }
+
+    for (auto& drone : drones_) {
+        drone->set_shielded(false);
+    }
+
+    for (auto& room : rooms()) {
+        room->project_deflector_shield();
     }
 }
 
@@ -1787,7 +1820,6 @@ void Island::repaint_partial()
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
             }
-
         }
     }
 }
@@ -2176,6 +2208,7 @@ void Island::destroy_room(const RoomCoord& coord)
             owner().rooms_lost_++;
 
             on_layout_changed(coord);
+            schedule_recompute_deflector_shields();
 
             repaint();
             recalculate_power_usage();

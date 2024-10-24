@@ -485,18 +485,6 @@ void BoardingPod::rewind(Time delta)
 
 
 
-void BoardingPod::apply_damage(Health damage, Island* source)
-{
-    if (source == parent()) {
-    } else if (parent() not_eq owner_) {
-        damage /= 4;
-    }
-
-    Room::apply_damage(damage);
-}
-
-
-
 void BoardingPod::update(Time delta)
 {
     Room::update(delta);

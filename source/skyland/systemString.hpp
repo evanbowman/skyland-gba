@@ -116,6 +116,7 @@ enum class SystemString {
     block_cargo_bay,
     block_power_core,
     block_decimator,
+    block_deflector,
     block_drone_bay,
     block_escape_beacon,
     block_farmhouse,
@@ -430,6 +431,7 @@ enum class SystemString {
     description_warhead,
     description_homing_missile,
     description_canvas,
+    description_deflector,
 
     gs_paused,
     gs_slow,

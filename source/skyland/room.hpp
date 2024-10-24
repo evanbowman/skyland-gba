@@ -339,6 +339,9 @@ public:
     }
 
 
+    virtual void project_deflector_shield();
+
+
     virtual Time reload_time_remaining() const
     {
         return 0;
@@ -429,8 +432,20 @@ public:
     }
 
 
-    virtual void apply_damage(Health damage);
-    virtual void apply_damage(Health damage, Island* src);
+    struct DamageConfiguration
+    {
+        bool ignore_deflector_shield_ = false;
+
+        static DamageConfiguration create()
+        {
+            return {};
+        }
+    };
+
+
+    virtual void apply_damage(
+        Health damage,
+        const DamageConfiguration& conf = DamageConfiguration::create());
 
 
     virtual void burn_damage(Health damage);
@@ -768,8 +783,10 @@ public:
     virtual bool allows_powerdown();
 
 
-protected:
+    void set_shielded(bool shielded);
 
+
+protected:
     void set_injured();
 
 
@@ -838,7 +855,9 @@ private:
     u8 size_x_ : 4;
     u8 size_y_ : 4;
 
-    [[maybe_unused]] u8 unused___ : 4;
+    [[maybe_unused]] u8 unused___ : 3;
+
+    u8 shielded_ : 1;
 
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;

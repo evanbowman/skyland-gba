@@ -69,10 +69,10 @@ void Barrier::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Barrier::apply_damage(Health damage)
+void Barrier::apply_damage(Health damage, const DamageConfiguration& conf)
 {
     // Takes no damage, kind of the whole point.
-    Room::apply_damage(0);
+    Room::apply_damage(0, conf);
 }
 
 

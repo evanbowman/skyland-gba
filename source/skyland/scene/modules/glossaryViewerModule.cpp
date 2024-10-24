@@ -97,6 +97,9 @@ void GlossaryViewerModule::load_page(int page)
                                             ColorConstant::rich_black});
     } else {
         dependency_text_.reset();
+        for (int x = 0; x < 30; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x, 18, 0);
+        }
     }
 
 

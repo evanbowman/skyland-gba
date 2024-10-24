@@ -45,20 +45,18 @@ namespace skyland
 
 
 
-template <typename NextScene>
-class LevelExitScene : public ScriptHookScene
+template <typename NextScene> class LevelExitScene : public ScriptHookScene
 {
 public:
-
-    template <typename ...Args>
-    LevelExitScene(Args&& ...args) :
-        ScriptHookScene("on-level-exit", make_deferred_scene<NextScene>(std::forward<Args>(args)...))
+    template <typename... Args>
+    LevelExitScene(Args&&... args)
+        : ScriptHookScene(
+              "on-level-exit",
+              make_deferred_scene<NextScene>(std::forward<Args>(args)...))
     {
     }
-
-
 };
 
 
 
-}
+} // namespace skyland

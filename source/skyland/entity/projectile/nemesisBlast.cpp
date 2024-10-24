@@ -148,7 +148,7 @@ void NemesisBlast::on_collision(Room& room, Vec2<u8> origin)
 
     timestream_record_destroyed();
 
-    room.apply_damage(damage(), source_);
+    room.apply_damage(damage());
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);

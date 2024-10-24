@@ -54,7 +54,7 @@ public:
     void update(Time delta) override;
 
 
-    void apply_damage(Health damage) override;
+    void apply_damage(Health damage, const DamageConfiguration& conf) override;
 
 
     static const char* name()

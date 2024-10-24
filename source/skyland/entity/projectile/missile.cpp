@@ -280,11 +280,11 @@ void Missile::on_collision(Room& room, Vec2<u8> origin)
     auto metac = room.metaclass();
 
     if (str_cmp((*metac)->name(), "hull") == 0) {
-        room.apply_damage(missile_damage * 0.9f, source_);
+        room.apply_damage(missile_damage * 0.9f);
     } else if (str_cmp((*metac)->name(), "stacked-hull") == 0) {
-        room.apply_damage(missile_damage / 4, source_);
+        room.apply_damage(missile_damage / 4);
     } else {
-        room.apply_damage(missile_damage, source_);
+        room.apply_damage(missile_damage);
     }
 
     if (room.health()) {
@@ -370,7 +370,7 @@ public:
             break;
         }
 
-        room.apply_damage(damage, parent_);
+        room.apply_damage(damage);
         APP.camera()->shake(4);
 
         sound_impact.play(1);

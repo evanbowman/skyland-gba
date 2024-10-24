@@ -53,6 +53,7 @@ cannon
 cargo-bay
 power-core
 decimator
+deflector
 drone-bay
 escape-beacon
 farmhouse
@@ -337,6 +338,7 @@ A small single-person vessel. Often used by villagers to make long trips between
 A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
 ...
 What could this be? You'll have to try it out in the sandbox level editor and see what it does... (max % allowed per level).
+Originally designed to shield against harsh radiation on the surface. Emits a weak energy field, but with a wide area. All nearby blocks will take % damage less.
 paused
 slow
 regular

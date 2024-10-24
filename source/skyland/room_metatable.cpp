@@ -56,6 +56,7 @@
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/crane.hpp"
 #include "skyland/rooms/decimator.hpp"
+#include "skyland/rooms/deflector.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/escapeBeacon.hpp"
 #include "skyland/rooms/fireCharge.hpp"
@@ -362,18 +363,15 @@ using RoomMetatableType = RoomMetatable<15,
                                         Water,
                                         WaterSource,
                                         Ice,
-                                        Lava,
-                                        LavaSource,
                                         Explosive,
                                         TNT,
-                                        Cesium,
                                         Radar,
                                         Transporter,
                                         TargetingComputer,
-                                        CommandModule,
                                         EscapeBeacon,
                                         Replicator,
                                         DroneBay,
+                                        Deflector,
                                         // decoration
                                         Speaker,
                                         Synth,
@@ -531,7 +529,8 @@ RoomMeta* load_metaclass(const char* name)
         }
     }
 
-    const char* removed_blocks_from_old_versions[] = {"gold"};
+    const char* removed_blocks_from_old_versions[] = {
+        "gold", "command-module", "lava", "lava-source", "cesium"};
 
     for (auto type : removed_blocks_from_old_versions) {
         if (str_eq(type, name)) {

@@ -103,7 +103,7 @@ void Crane::update(Time delta)
             if (item_ == Discoveries::Item::bomb) {
                 PLATFORM.speaker().play_sound("explosion1", 2);
                 big_explosion(pos);
-                apply_damage(5);
+                apply_damage(5, {});
             } else {
                 // ...
             }

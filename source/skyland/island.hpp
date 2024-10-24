@@ -74,6 +74,7 @@ public:
         }
         recalculate_power_usage();
         on_layout_changed(insert->position());
+        schedule_recompute_deflector_shields();
         return result;
     }
 
@@ -92,6 +93,7 @@ public:
                 }
                 recalculate_power_usage();
                 on_layout_changed(position);
+                schedule_recompute_deflector_shields();
                 return true;
             }
         }
@@ -427,7 +429,13 @@ public:
     void show_powerdown_opts(bool show);
 
 
+    void schedule_recompute_deflector_shields();
+
+
 private:
+    void recompute_deflector_shields();
+
+
     void repaint_partial();
 
 
@@ -511,6 +519,7 @@ private:
     bool is_boarded_ : 1;
     bool hidden_ : 1;
     bool show_powerdown_opts_ : 1 = false;
+    bool should_recompute_deflector_shields_ : 1 = false;
 
 
     // During repaint(), the game caches the results of plot_rooms() in this

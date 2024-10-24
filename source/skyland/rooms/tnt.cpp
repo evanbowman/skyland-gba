@@ -71,7 +71,7 @@ void Explosive::update(Time delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(5);
+            apply_damage(5, {});
             damage_timer_ = 0;
         }
     }
@@ -214,9 +214,9 @@ static SharedVariable tnt_range("dynamite_range", 1);
 
 
 
-void Explosive::apply_damage(Health damage)
+void Explosive::apply_damage(Health damage, const DamageConfiguration& conf)
 {
-    Room::apply_damage(damage);
+    Room::apply_damage(damage, conf);
 
     ignition_ = true;
 }
@@ -481,7 +481,7 @@ void Cesium::update(Time delta)
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
-            apply_damage(10);
+            apply_damage(10, {});
             damage_timer_ = 0;
         }
 
@@ -493,7 +493,7 @@ void Cesium::update(Time delta)
         if (auto room = parent()->get_room({x, u8(y - 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(1);
+                apply_damage(1, {});
                 return;
             }
         }
@@ -501,7 +501,7 @@ void Cesium::update(Time delta)
         if (auto room = parent()->get_room({x, u8(y + 1)})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(1);
+                apply_damage(1, {});
                 return;
             }
         }
@@ -509,7 +509,7 @@ void Cesium::update(Time delta)
         if (auto room = parent()->get_room({u8(x + 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(1);
+                apply_damage(1, {});
                 return;
             }
         }
@@ -517,7 +517,7 @@ void Cesium::update(Time delta)
         if (auto room = parent()->get_room({u8(x - 1), y})) {
             if ((*room->metaclass())->properties() & RoomProperties::fluid) {
                 ignition_ = true;
-                apply_damage(1);
+                apply_damage(1, {});
                 return;
             }
         }

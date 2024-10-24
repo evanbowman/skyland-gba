@@ -139,7 +139,7 @@ public:
     }
 
 
-    void apply_damage(Health damage) override;
+    void apply_damage(Health damage, const DamageConfiguration& conf) override;
 
 
     void ignite(int range, Health damage, bool spread_fire);

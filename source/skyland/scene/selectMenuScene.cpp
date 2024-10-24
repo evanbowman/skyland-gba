@@ -48,11 +48,16 @@
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland
 {
+
+
+
+SHARED_VARIABLE(powerdown_allowed);
 
 
 
@@ -79,9 +84,8 @@ static const auto specific_colors =
 void SelectMenuScene::redraw_line(int line, bool highlight)
 {
     auto clr = highlight ? highlight_colors
-                                         : (opts_->specific_.get(line)
-                                                ? specific_colors
-                                            : Text::OptColors{});
+                         : (opts_->specific_.get(line) ? specific_colors
+                                                       : Text::OptColors{});
 
     opts_->lines_[line].assign(loadstr(opts_->strings_[line])->c_str(), clr);
     opts_->lines_[line].append(opts_->suffixes_[line].c_str(), clr);
@@ -340,7 +344,10 @@ void SelectMenuScene::enter(Scene& scene)
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
 
-    auto add_line = [&](SystemString str, const char* suffix, bool specific, auto callback) {
+    auto add_line = [&](SystemString str,
+                        const char* suffix,
+                        bool specific,
+                        auto callback) {
         auto line = loadstr(str);
         opts_->specific_.set(opts_->lines_.size(), specific);
         u8 y = opts_->lines_.size() + 1;
@@ -421,7 +428,7 @@ void SelectMenuScene::enter(Scene& scene)
             }
 
             add_line(SystemString::sel_menu_crewmember_icon,
-                         "",
+                     "",
                      true,
                      [id = chr->id()]() {
                          return make_scene<SetCharacterIconScene>(id);
@@ -456,17 +463,17 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
         if (bird_found) {
-            add_line(SystemString::sel_menu_spook_bird,
-                         "", true, [this, cursor]() {
-                for (auto& bird : APP.birds()) {
-                    if (bird->island() == island() and
-                        bird->coordinate() == cursor) {
-                        PLATFORM.speaker().play_sound("seagull_1", 0);
-                        bird->signal();
+            add_line(
+                SystemString::sel_menu_spook_bird, "", true, [this, cursor]() {
+                    for (auto& bird : APP.birds()) {
+                        if (bird->island() == island() and
+                            bird->coordinate() == cursor) {
+                            PLATFORM.speaker().play_sound("seagull_1", 0);
+                            bird->signal();
+                        }
                     }
-                }
-                return null_scene();
-            });
+                    return null_scene();
+                });
         }
 
 
@@ -477,7 +484,7 @@ void SelectMenuScene::enter(Scene& scene)
                 if (room->upgrade_mt_name()) {
                     add_line(
                         SystemString::sel_menu_upgrade_block,
-                         "",
+                        "",
                         true,
                         [this, cursor]() -> ScenePtr {
                             auto room = island()->get_room(cursor);
@@ -499,7 +506,7 @@ void SelectMenuScene::enter(Scene& scene)
                           is_player_island(room->parent()))) {
                 add_line(
                     SystemString::sel_menu_describe_block,
-                         "",
+                    "",
                     true,
                     [this, cursor]() -> ScenePtr {
                         if (auto room = island()->get_room(cursor)) {
@@ -522,47 +529,49 @@ void SelectMenuScene::enter(Scene& scene)
                         return null_scene();
                     });
             }
-            if (room and room->power_usage() < 0) {
+            if (powerdown_allowed and room and room->power_usage() < 0) {
                 if (is_player_island(island())) {
-                    add_line(
-                        SystemString::sel_menu_adjust_power,
-                        "",
-                        true,
-                        [this, cursor]() {
-                            return make_scene<AdjustPowerScene>();
-                        });
+                    add_line(SystemString::sel_menu_adjust_power,
+                             "",
+                             true,
+                             [this, cursor]() {
+                                 return make_scene<AdjustPowerScene>();
+                             });
                 }
             }
-            if (room and is_player_island(isle) and room->allows_powerdown()) {
+            if (powerdown_allowed and
+                room and is_player_island(isle) and room->allows_powerdown()) {
 
                 if (room->is_powered_down()) {
-                    add_line(SystemString::sel_menu_poweron,
-                             format(" +%⚡", (*room->metaclass())->consumes_power()).c_str(),
-                             true,
-                             [this, c = cursor]() {
-                                 if (auto room = island()->get_room(c)) {
-                                     room->set_powerdown(false);
-                                     PLATFORM.speaker().play_sound("poweron",
-                                                                   4);
-                                     island()->schedule_repaint();
-                                 }
-                                 show_power_on_exit_ = true;
-                                 return null_scene();
-                             });
+                    add_line(
+                        SystemString::sel_menu_poweron,
+                        format(" +%⚡", (*room->metaclass())->consumes_power())
+                            .c_str(),
+                        true,
+                        [this, c = cursor]() {
+                            if (auto room = island()->get_room(c)) {
+                                room->set_powerdown(false);
+                                PLATFORM.speaker().play_sound("poweron", 4);
+                                island()->schedule_repaint();
+                            }
+                            show_power_on_exit_ = true;
+                            return null_scene();
+                        });
                 } else if (room->power_usage() > 0) {
-                    add_line(SystemString::sel_menu_powerdown,
-                         format(" -%⚡", (*room->metaclass())->consumes_power()).c_str(),
-                             true,
-                             [this, c = cursor]() {
-                                 if (auto room = island()->get_room(c)) {
-                                     room->set_powerdown(true);
-                                     PLATFORM.speaker().play_sound("powerdown",
-                                                                   4);
-                                     island()->schedule_repaint();
-                                 }
-                                 show_power_on_exit_ = true;
-                                 return null_scene();
-                             });
+                    add_line(
+                        SystemString::sel_menu_powerdown,
+                        format(" -%⚡", (*room->metaclass())->consumes_power())
+                            .c_str(),
+                        true,
+                        [this, c = cursor]() {
+                            if (auto room = island()->get_room(c)) {
+                                room->set_powerdown(true);
+                                PLATFORM.speaker().play_sound("powerdown", 4);
+                                island()->schedule_repaint();
+                            }
+                            show_power_on_exit_ = true;
+                            return null_scene();
+                        });
                 }
             }
         }
@@ -571,8 +580,7 @@ void SelectMenuScene::enter(Scene& scene)
     if (not PLATFORM.network_peer().is_connected()) {
 
         if (not is_far_camera() and cursor == *APP.player_island().flag_pos()) {
-            add_line(SystemString::sel_menu_edit_flag,
-                         "", true, []() {
+            add_line(SystemString::sel_menu_edit_flag, "", true, []() {
                 auto ret = make_scene<FlagDesignerModule>();
                 ret->editing_ingame_ = true;
                 return ret;
@@ -584,7 +592,8 @@ void SelectMenuScene::enter(Scene& scene)
         });
     }
 
-    add_line(SystemString::sel_menu_back, "", false, []() { return null_scene(); });
+    add_line(
+        SystemString::sel_menu_back, "", false, []() { return null_scene(); });
 
     for (int i = 0; i < opts_->longest_line_ + 1; ++i) {
         PLATFORM.set_tile(Layer::overlay, i, 0, 425);

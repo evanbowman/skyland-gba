@@ -45,6 +45,7 @@
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/tile.hpp"
 #include "timeStreamEvent.hpp"
 
@@ -65,6 +66,8 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
     if (name == nullptr) {
         return;
     }
+
+    shielded_ = 0;
 
     finalized_ = 0;
     dispatch_queued_ = 0;
@@ -757,15 +760,26 @@ void Room::plot_walkable_zones(bool matrix[16][16],
 
 
 
-void Room::apply_damage(Health damage, Island* src)
+void Room::set_shielded(bool shielded)
 {
-    apply_damage(damage);
+    shielded_ = shielded;
 }
 
 
 
-void Room::apply_damage(Health damage)
+extern SharedVariable deflector_shield_strength;
+
+
+
+void Room::apply_damage(Health damage, const DamageConfiguration& conf)
 {
+    if (shielded_ and not conf.ignore_deflector_shield_) {
+        if (damage <= deflector_shield_strength) {
+            return;
+        }
+        damage -= deflector_shield_strength;
+    }
+
     update_description();
 
     if (health_ not_eq 0) {
@@ -917,15 +931,16 @@ bool Room::non_owner_selectable() const
 
 void Room::burn_damage(Health amount)
 {
-    // const auto prev_health = health();
+    DamageConfiguration conf;
+    conf.ignore_deflector_shield_ = true;
 
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {
-        apply_damage(amount * 4);
+        apply_damage(amount * 4, conf);
     } else if (not(props & RoomProperties::habitable)) {
-        apply_damage(amount * 2);
+        apply_damage(amount * 2, conf);
     } else {
-        apply_damage(amount);
+        apply_damage(amount, conf);
         // Hmm: revist someday, I'm not sure about this yet
         // if (prev_health > 0 and health_ == 0) {
         //     if (not cast<PlunderedRoom>()) {
@@ -1048,7 +1063,7 @@ bool Room::target_pinned() const
 
 void Room::plunder(Health damage)
 {
-    apply_damage(damage);
+    apply_damage(damage, {.ignore_deflector_shield_ = true});
 
     if (health_ == 0) {
 
@@ -1112,6 +1127,12 @@ void Room::init_ai_awareness()
     }
 
     init_awareness_upon_unpause_ = false;
+}
+
+
+
+void Room::project_deflector_shield()
+{
 }
 
 

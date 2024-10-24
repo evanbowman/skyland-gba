@@ -189,7 +189,7 @@ void FireBolt::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    room.apply_damage(firebolt_damage, source_);
+    room.apply_damage(firebolt_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);

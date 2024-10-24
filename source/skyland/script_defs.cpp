@@ -1273,11 +1273,7 @@ BINDING_TABLE({
           auto c = PLATFORM.load_file_contents("", path);
           return lisp::make_boolean(c);
       }}},
-    {"weather",
-     {0,
-      [](int argc) {
-          return L_INT(APP.environment().id());
-      }}},
+    {"weather", {0, [](int argc) { return L_INT(APP.environment().id()); }}},
     {"weather-set",
      {1,
       [](int argc) {

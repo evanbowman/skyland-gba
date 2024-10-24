@@ -54,7 +54,7 @@ namespace skyland
 
 
 
-// SHARED_VARIABLE(cannonball_damage);
+SHARED_VARIABLE(beam_damage);
 
 
 
@@ -142,6 +142,10 @@ extern Sound sound_impact;
 
 void Beam::on_collision(Room& room, Vec2<u8> origin)
 {
+    if (index_ > 1) {
+        return;
+    }
+
     if (source_ == room.parent()) {
         if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
             // Because we do not want to include collisions with the originating
@@ -181,7 +185,7 @@ void Beam::on_collision(Room& room, Vec2<u8> origin)
         if (APP.camera()->shake_magnitude() <= 2) {
             APP.camera()->shake(8);
         }
-        room.apply_damage(4, source_);
+        room.apply_damage(beam_damage);
         if (not damaged_.push_back(room.position())) {
             this->destroy(true);
         }

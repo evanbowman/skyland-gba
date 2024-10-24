@@ -235,7 +235,7 @@ void ArcBolt::on_collision(Room& room, Vec2<u8> origin)
     }
 
     for (auto& room : state->rooms_) {
-        room->apply_damage(arcbolt_damage, source_);
+        room->apply_damage(arcbolt_damage);
     }
 
 
