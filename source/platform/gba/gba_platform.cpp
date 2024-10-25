@@ -3162,7 +3162,7 @@ static bool
 load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
 {
     auto file = filesystem::load(path, nullopt());
-    if (file.second) {
+    if (std::get<1>(file)) {
 
         StringBuffer<84> name_str(path);
 
@@ -3177,21 +3177,21 @@ load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
             }
             pf += ".pal.bin";
             auto pal_file = filesystem::load(pf.c_str(), nullopt());
-            if (not pal_file.second) {
+            if (not std::get<1>(pal_file)) {
                 Platform::fatal(format("% missing palette", pf.c_str()));
             }
-            init_palette((u16*)pal_file.first, pd, pal);
-            LZ77UnCompVram(file.first, (void*)&MEM_SCREENBLOCKS[sbb][0]);
+            init_palette((u16*)std::get<0>(pal_file), pd, pal);
+            LZ77UnCompVram(std::get<0>(file), (void*)&MEM_SCREENBLOCKS[sbb][0]);
             return true;
 
         } else if (ends_with(StringBuffer<10>(".skg"), name_str)) {
-            auto data = (const u16*)file.first;
+            auto data = (const u16*)std::get<0>(file);
             init_palette(data, pd, pal);
             const auto c = invoke_shader(real_color(last_color), pal, 0);
 
             // Skip the palette section of the file...
             data += 16;
-            int data_len = file.second - 16 * 2;
+            int data_len = std::get<1>(file) - 16 * 2;
 
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(pd[i]);
@@ -4028,12 +4028,55 @@ static constexpr std::array<VolumeScaleLUT, 20> volume_scale_LUTs = {
 
 
 
+EWRAM_DATA Optional<filesystem::DirectoryCache> sounds_dir;
+
+
+
 static Optional<ActiveSoundInfo> make_sound(const char* name)
 {
     if (auto sound = get_sound(name)) {
         return ActiveSoundInfo{
             0, sound->length_, sound->data_, 0, sound->name_};
     } else {
+        if (not sounds_dir) {
+            sounds_dir = filesystem::find_directory("/scripts/data/sounds/");
+        }
+        if (not sounds_dir) {
+            PLATFORM.fatal("missing /scripts/data/sounds directory "
+                           "in resource bundle!");
+        }
+        auto f_info = filesystem::load(
+            format("/scripts/data/sounds/%", name).c_str(), sounds_dir);
+        if (std::get<1>(f_info)) {
+
+            // FIXME!!!
+            //
+            // The game assumes that sound names are globally unique pointers to
+            // null terminated strings, this used to be true with the old
+            // setup. To maintain uniqueness, we use the the path string from
+            // the file header...
+            auto path = std::get<2>(f_info)->path_;
+
+            auto seek_filename = [](const char* path) {
+                while (*path not_eq '\0') {
+                    ++path;
+                }
+                while (*path not_eq '/') {
+                    --path;
+                }
+                ++path;
+                return path;
+            };
+
+            path = seek_filename(path);
+
+            return ActiveSoundInfo{.position_ = 0,
+                                   .length_ = (s32)std::get<1>(f_info),
+                                   .data_ =
+                                       (const AudioSample*)std::get<0>(f_info),
+                                   .name_ = path};
+        }
+        PLATFORM.fatal(format("sound % missing!", name).c_str());
         return {};
     }
 }
@@ -4626,7 +4669,8 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     path += filename;
 
-    return filesystem::load(path.c_str(), nullopt());
+    auto info = filesystem::load(path.c_str(), nullopt());
+    return {std::get<0>(info), std::get<1>(info)};
 }
 
 

@@ -856,6 +856,8 @@ public:
 
         StringBuffer<48> current_music();
 
+        u8 music_loop_count();
+
         void clear_sounds();
         void stop_sound(const char* name);
 

@@ -279,6 +279,8 @@ ScenePtr SandboxLoaderModule::update(Time delta)
     }
 
     auto update_env = [&] {
+        auto last_ambiance = APP.environment().ambiance();
+
         environment_init(parameters_[4]);
         PLATFORM.system_call("v-parallax", (void*)false);
 
@@ -289,6 +291,12 @@ ScenePtr SandboxLoaderModule::update(Time delta)
             0.7f, ColorConstant::rich_black, false, false);
         PLATFORM.screen().schedule_fade(
             0.6f, ColorConstant::rich_black, false, false);
+
+        auto new_ambiance = APP.environment().ambiance();
+        if (*last_ambiance not_eq new_ambiance->c_str()) {
+            PLATFORM.speaker().stream_music(new_ambiance->c_str(), 0);
+        }
+
     };
 
 

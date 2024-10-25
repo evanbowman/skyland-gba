@@ -47,8 +47,8 @@
 #include "skyland/scene/adjustPowerScene.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -539,8 +539,8 @@ void SelectMenuScene::enter(Scene& scene)
                              });
                 }
             }
-            if (powerdown_allowed and
-                room and is_player_island(isle) and room->allows_powerdown()) {
+            if (powerdown_allowed and room and is_player_island(isle) and
+                room->allows_powerdown()) {
 
                 if (room->is_powered_down()) {
                     add_line(

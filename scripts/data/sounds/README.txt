@@ -1,0 +1,3 @@
+Originally, I compiled sounds directly into the game itself. Going forward, I'm
+going to do things better and add new sounds to this directory. The old way was
+super tedious...

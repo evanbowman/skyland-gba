@@ -64,8 +64,16 @@ void background_init()
 
 void MacrocosmLoaderModule::enter(Scene& prev)
 {
-    PLATFORM.speaker().stream_music(
-        APP.environment().read_conf("macrocosm")->c_str(), 0);
+    auto fd = PLATFORM.load_file("scripts/data", "environment.ini");
+    if (not fd.second) {
+        PLATFORM.fatal("missing env config file!");
+    }
+
+    Conf c;
+    auto v = c.get(fd.first, "macrocosm", "music");
+
+    PLATFORM.speaker().stream_music((*std::get_if<Conf::String>(&v))->c_str(),
+                                    0);
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 

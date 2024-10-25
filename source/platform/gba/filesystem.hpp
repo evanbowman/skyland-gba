@@ -73,13 +73,12 @@ using FileSize = u32;
 bool is_mounted();
 
 
-using FileNumber = u32;
-using DirectoryCache = FileNumber;
+using DirectoryCache = std::pair<const FileHeader*, u32>;
 Optional<DirectoryCache> find_directory(const char* prefix);
 
 
-std::pair<FileContents, FileSize> load(FilePath path,
-                                       Optional<DirectoryCache> dir);
+std::tuple<FileContents, FileSize, const FileHeader*>
+load(FilePath path, Optional<DirectoryCache> dir);
 
 
 void walk(Function<8 * sizeof(void*), void(const char* path)> callback);
