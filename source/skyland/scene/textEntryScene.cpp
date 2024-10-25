@@ -180,7 +180,7 @@ ScenePtr TextEntryScene::update(Time delta)
         if (state_->buffer_.length() >= (u32)required_chars_) {
             return receiver_(state_->buffer_.c_str());
         } else {
-            PLATFORM.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error.raw", 2);
         }
     }
 

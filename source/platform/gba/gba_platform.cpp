@@ -3162,7 +3162,7 @@ static bool
 load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
 {
     auto file = filesystem::load(path, nullopt());
-    if (file.second) {
+    if (std::get<1>(file)) {
 
         StringBuffer<84> name_str(path);
 
@@ -3177,21 +3177,21 @@ load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
             }
             pf += ".pal.bin";
             auto pal_file = filesystem::load(pf.c_str(), nullopt());
-            if (not pal_file.second) {
+            if (not std::get<1>(pal_file)) {
                 Platform::fatal(format("% missing palette", pf.c_str()));
             }
-            init_palette((u16*)pal_file.first, pd, pal);
-            LZ77UnCompVram(file.first, (void*)&MEM_SCREENBLOCKS[sbb][0]);
+            init_palette((u16*)std::get<0>(pal_file), pd, pal);
+            LZ77UnCompVram(std::get<0>(file), (void*)&MEM_SCREENBLOCKS[sbb][0]);
             return true;
 
         } else if (ends_with(StringBuffer<10>(".skg"), name_str)) {
-            auto data = (const u16*)file.first;
+            auto data = (const u16*)std::get<0>(file);
             init_palette(data, pd, pal);
             const auto c = invoke_shader(real_color(last_color), pal, 0);
 
             // Skip the palette section of the file...
             data += 16;
-            int data_len = file.second - 16 * 2;
+            int data_len = std::get<1>(file) - 16 * 2;
 
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(pd[i]);
@@ -3838,112 +3838,35 @@ static const AudioTrack* find_music(const char* name)
 // NOTE: Between remixing the audio track down to 8-bit 16kHz signed, generating
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
-#include "data/music_struttin.hpp"
-#include "data/sound_archivist.hpp"
-#include "data/sound_beep_error.hpp"
-#include "data/sound_bell.hpp"
-#include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
-#include "data/sound_cancel.hpp"
-#include "data/sound_cannon.hpp"
-#include "data/sound_click.hpp"
 #include "data/sound_click_negative.hpp"
 #include "data/sound_click_wooden.hpp"
-#include "data/sound_cling.hpp"
-#include "data/sound_coin.hpp"
-#include "data/sound_core_destroyed.hpp"
-#include "data/sound_creaking.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
-#include "data/sound_door.hpp"
-#include "data/sound_drone_beep.hpp"
-#include "data/sound_explosion1.hpp"
-#include "data/sound_explosion2.hpp"
-#include "data/sound_fizzle.hpp"
 #include "data/sound_footstep1.hpp"
 #include "data/sound_footstep2.hpp"
 #include "data/sound_footstep3.hpp"
-#include "data/sound_glass_break.hpp"
-#include "data/sound_gravel.hpp"
-#include "data/sound_gust.hpp"
-#include "data/sound_gust2.hpp"
 #include "data/sound_insert_cart.hpp"
-#include "data/sound_ion_cannon.hpp"
 #include "data/sound_missile.hpp"
 #include "data/sound_missile_explosion.hpp"
-#include "data/sound_msg.hpp"
-#include "data/sound_open_book.hpp"
-#include "data/sound_openbag.hpp"
-#include "data/sound_page_flip.hpp"
-#include "data/sound_pong_blip1.hpp"
-#include "data/sound_pong_blip2.hpp"
-#include "data/sound_powerdown.hpp"
-#include "data/sound_poweron.hpp"
-#include "data/sound_scroll.hpp"
-#include "data/sound_seagull_1.hpp"
-#include "data/sound_seagull_2.hpp"
-#include "data/sound_thunder_1.hpp"
-#include "data/sound_thunder_2.hpp"
-#include "data/sound_thunder_close_1.hpp"
-#include "data/sound_tonal_flutter.hpp"
-#include "data/sound_transporter.hpp"
-#include "data/sound_tw_bell.hpp"
-#include "data/sound_typewriter.hpp"
-#include "data/sound_weapon_target.hpp"
 
 
 
+// Sound assets used to be converted to source files and manually included in
+// the project. This array is a relic from that time... I've managed to lose the
+// .raw files for these sounds and I'm too lazy to fix it right now. Need to
+// compile the source files containing data to obj files and copy out the sound
+// data into a .raw file, then place it in /scripts/data/sounds/
 static const AudioTrack sounds[] = {
-    DEF_SOUND(explosion1, sound_explosion1),
-    DEF_SOUND(explosion2, sound_explosion2),
-    DEF_SOUND(glass_break, sound_glass_break),
-    DEF_SOUND(build0, sound_build0),
-    DEF_SOUND(missile, sound_missile),
-    DEF_SOUND(impact, sound_missile_explosion),
-    DEF_SOUND(fizzle, sound_fizzle),
-    DEF_SOUND(gravel, sound_gravel),
-    DEF_SOUND(beep_error, sound_beep_error),
-    DEF_SOUND(drone_beep, sound_drone_beep),
-    DEF_SOUND(typewriter, sound_typewriter),
     DEF_SOUND(footstep1, sound_footstep1),
     DEF_SOUND(footstep2, sound_footstep2),
     DEF_SOUND(footstep3, sound_footstep3),
-    DEF_SOUND(ion_cannon, sound_ion_cannon),
-    DEF_SOUND(gust1, sound_gust),
-    DEF_SOUND(gust2, sound_gust2),
-    DEF_SOUND(openbag, sound_openbag),
-    DEF_SOUND(tw_bell, sound_tw_bell),
-    DEF_SOUND(click, sound_scroll),
     DEF_SOUND(cursor_tick, sound_cursor_click),
     // DEF_SOUND(click_negative, sound_click_negative),
     DEF_SOUND(click_wooden, sound_click_wooden),
     DEF_SOUND(button_wooden, sound_button_wooden),
     DEF_SOUND(click_digital_1, sound_digital_click_1),
-    DEF_SOUND(cannon, sound_cannon),
-    DEF_SOUND(cling, sound_cling),
-    DEF_SOUND(weapon_target, sound_weapon_target),
-    DEF_SOUND(transporter, sound_transporter),
-    DEF_SOUND(thunder_1, sound_thunder_1),
-    DEF_SOUND(thunder_2, sound_thunder_2),
-    DEF_SOUND(thunder_close_1, sound_thunder_close_1),
-    DEF_SOUND(core_destroyed, sound_core_destroyed),
-    DEF_SOUND(pong_blip_1, sound_pong_blip1),
-    DEF_SOUND(pong_blip_2, sound_pong_blip2),
-    DEF_SOUND(struttin, music_struttin),
-    DEF_SOUND(creaking, sound_creaking),
-    DEF_SOUND(coin, sound_coin),
-    DEF_SOUND(bell, sound_bell),
-    DEF_SOUND(archivist, sound_archivist),
-    DEF_SOUND(cancel, sound_cancel),
-    DEF_SOUND(seagull_1, sound_seagull_1),
-    DEF_SOUND(seagull_2, sound_seagull_2),
-    DEF_SOUND(msg, sound_msg),
-    DEF_SOUND(door, sound_door),
-    DEF_SOUND(insert_cart, sound_insert_cart),
-    DEF_SOUND(tonal_flutter, sound_tonal_flutter),
-    DEF_SOUND(powerdown, sound_powerdown),
-    DEF_SOUND(poweron, sound_poweron),
-    DEF_SOUND(page_flip, sound_page_flip)};
+    DEF_SOUND(insert_cart, sound_insert_cart)};
 
 
 static const AudioTrack* get_sound(const char* name)
@@ -4028,12 +3951,56 @@ static constexpr std::array<VolumeScaleLUT, 20> volume_scale_LUTs = {
 
 
 
+EWRAM_DATA Optional<filesystem::DirectoryCache> sounds_dir;
+
+
+
 static Optional<ActiveSoundInfo> make_sound(const char* name)
 {
     if (auto sound = get_sound(name)) {
         return ActiveSoundInfo{
             0, sound->length_, sound->data_, 0, sound->name_};
     } else {
+        if (not sounds_dir) {
+            sounds_dir = filesystem::find_directory("/scripts/data/sounds/");
+        }
+        if (not sounds_dir) {
+            PLATFORM.fatal("missing /scripts/data/sounds directory "
+                           "in resource bundle!");
+        }
+        auto f_info = filesystem::load(format("/scripts/data/sounds/%", name).c_str(),
+                                       sounds_dir);
+        if (std::get<1>(f_info)) {
+
+            // FIXME!!!
+            //
+            // The game assumes that sound names are globally unique pointers to
+            // null terminated strings, this used to be true with the old
+            // setup. To maintain uniqueness, we use the the path string from
+            // the file header...
+            auto path = std::get<2>(f_info)->path_;
+
+            auto seek_filename = [](const char* path) {
+                while (*path not_eq '\0') {
+                    ++path;
+                }
+                while (*path not_eq '/') {
+                    --path;
+                }
+                ++path;
+                return path;
+            };
+
+            path = seek_filename(path);
+
+            return ActiveSoundInfo {
+                .position_ = 0,
+                .length_ = (s32)std::get<1>(f_info),
+                .data_ = (const AudioSample*)std::get<0>(f_info),
+                .name_ = path
+            };
+        }
+        PLATFORM.fatal(format("sound % missing!", name).c_str());
         return {};
     }
 }
@@ -4626,7 +4593,8 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     path += filename;
 
-    return filesystem::load(path.c_str(), nullopt());
+    auto info = filesystem::load(path.c_str(), nullopt());
+    return {std::get<0>(info), std::get<1>(info)};
 }
 
 

@@ -150,7 +150,7 @@ ScenePtr DataCartModule::update(Time delta)
             return ret;
         };
         return dialog_prompt(
-            SystemString::dialog_datacarts_prompt, next, "archivist");
+            SystemString::dialog_datacarts_prompt, next, "archivist.raw");
     } else if (not skip_dialog_) {
         auto next = []() -> ScenePtr {
             auto ret = make_scene<DataCartModule>(true);
@@ -158,7 +158,7 @@ ScenePtr DataCartModule::update(Time delta)
             return ret;
         };
         return dialog_prompt(
-            SystemString::dialog_datacarts_return, next, "archivist");
+            SystemString::dialog_datacarts_return, next, "archivist.raw");
     }
 
     APP.player().update(delta);
@@ -167,8 +167,8 @@ ScenePtr DataCartModule::update(Time delta)
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    if (not PLATFORM.speaker().is_sound_playing("archivist")) {
-        PLATFORM.speaker().play_sound("archivist", 9);
+    if (not PLATFORM.speaker().is_sound_playing("archivist.raw")) {
+        PLATFORM.speaker().play_sound("archivist.raw", 9);
     }
 
 
@@ -307,7 +307,7 @@ ScenePtr DataCartModule::update(Time delta)
                 }
 
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 1);
+                PLATFORM.speaker().play_sound("beep_error.raw", 1);
             }
         }
         break;
@@ -445,7 +445,7 @@ public:
                     PLATFORM.enable_glyph_mode(true);
                     text_.emplace();
                     text_->assign((*c)->c_str(), {5, 2}, {20, 16});
-                    PLATFORM.speaker().play_sound("page_flip", 3);
+                    PLATFORM.speaker().play_sound("page_flip.raw", 3);
 
                 } else {
                     PLATFORM.enable_glyph_mode(false);
@@ -455,14 +455,14 @@ public:
                             .expect_content_string("img")
                             ->c_str());
                     draw_image(1, 4, 1, 22, 17, Layer::overlay);
-                    PLATFORM.speaker().play_sound("page_flip", 3);
+                    PLATFORM.speaker().play_sound("page_flip.raw", 3);
                 }
                 flipped_ = not flipped_;
             }
         }
 
-        if (not PLATFORM.speaker().is_sound_playing("archivist")) {
-            PLATFORM.speaker().play_sound("archivist", 9);
+        if (not PLATFORM.speaker().is_sound_playing("archivist.raw")) {
+            PLATFORM.speaker().play_sound("archivist.raw", 9);
         }
 
         return null_scene();
@@ -487,10 +487,10 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
     } else if (*type == "checkers") {
         return make_scene<CheckersModule>();
     } else if (*type == "image") {
-        PLATFORM.speaker().play_sound("tw_bell", 2);
+        PLATFORM.speaker().play_sound("tw_bell.raw", 2);
         return make_scene<CartPhotoViewScene>(cart_index);
     } else if (*type == "files") {
-        PLATFORM.speaker().play_sound("tw_bell", 2);
+        PLATFORM.speaker().play_sound("tw_bell.raw", 2);
         UserContext ctx;
         ctx.hide_path_ = 3;
         ctx.allow_backtrack_ = false;
@@ -508,7 +508,7 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
         return next;
 
     } else if (*type == "textview") {
-        PLATFORM.speaker().play_sound("tw_bell", 2);
+        PLATFORM.speaker().play_sound("tw_bell.raw", 2);
         auto tv = make_scene<TextviewScene>(
             cart.expect_content_string("text")->c_str());
         tv->next_ = [cart_index]() {

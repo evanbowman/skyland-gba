@@ -216,7 +216,7 @@ void Missile::update(Time delta)
             max_y += Fixnum::from_integer(16 * 16 + 32);
             if (pos.y > max_y) {
                 this->on_destroy();
-                PLATFORM.speaker().play_sound("explosion1", 2);
+                PLATFORM.speaker().play_sound("explosion1.raw", 2);
             }
         }
         break;
@@ -651,7 +651,7 @@ void AtomicMissile::burst(const Vec2<Fixnum>& position, Room& origin_room)
         }
     }
 
-    PLATFORM.speaker().play_sound("explosion2", 8);
+    PLATFORM.speaker().play_sound("explosion2.raw", 8);
 }
 
 

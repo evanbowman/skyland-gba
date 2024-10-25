@@ -57,7 +57,7 @@
       (sel-input 'drone-bay
                  "Pick a slot (2x1)"
                  (lambda (isle x y)
-                   (sound "build0")
+                   (sound "build0.raw")
                    (room-new (player) `(drone-bay ,x ,y))
                    (dialog "<c:robot:13> 01000010 01111001 01100101!")
                    (exit))))
@@ -70,13 +70,13 @@
       (sel-input 'drone-bay
                  "Pick a slot (2x1) (1 of 2)"
                  (lambda (isle x y)
-                   (sound "build0")
+                   (sound "build0.raw")
                    (room-new (player) `(drone-bay ,x ,y))
 
                    (sel-input 'drone-bay
                               "Pick a slot (2x1) (2 of 2)"
                               (lambda (isle x y)
-                                (sound "build0")
+                                (sound "build0.raw")
                                 (room-new (player) `(drone-bay ,x ,y))
                                 (dialog "<c:robot:13> 01000010 01111001 01100101!")
                                 (exit)))))))

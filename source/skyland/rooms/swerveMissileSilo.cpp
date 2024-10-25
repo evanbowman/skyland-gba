@@ -167,7 +167,7 @@ public:
 
             path_.push_back(new_node);
             update_desc();
-            PLATFORM.speaker().play_sound("typewriter", 2);
+            PLATFORM.speaker().play_sound("typewriter.raw", 2);
         }
 
         if (test_key(Key::right)) {
@@ -377,7 +377,7 @@ ScenePtr SwerveMissileSilo::select_impl(const RoomCoord& cursor)
 
     if (parent()->power_supply() < parent()->power_drain()) {
         auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error.raw", 2);
         auto str = SYSTR(error_power_out);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }

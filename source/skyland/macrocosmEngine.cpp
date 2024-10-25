@@ -2765,7 +2765,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (block.data_ == 16) {
             s.set_block(position, terrain::Type::air);
             screenshake = 12;
-            Platform::instance().speaker().play_sound("explosion1", 2);
+            Platform::instance().speaker().play_sound("explosion1.raw", 2);
 
             auto pos = screen_coord(s.project_block(position.x,
                                                     position.y,

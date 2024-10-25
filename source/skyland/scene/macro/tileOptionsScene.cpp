@@ -118,7 +118,7 @@ static const TileOptionsScene::OptionInfo options[] = {
              state.sector().ref_block(c).data_ = 1;
              return make_scene<SelectorScene>();
          } else if (not harvest_block(state, state.sector(), c)) {
-             Platform::instance().speaker().play_sound("beep_error", 2);
+             Platform::instance().speaker().play_sound("beep_error.raw", 2);
              return make_scene<TileOptionsScene>();
          } else {
              s.update_ui(state);
@@ -166,14 +166,14 @@ ScenePtr TileOptionsScene::update(Player& player, macro::EngineImpl& state)
             --selector_;
         }
         show_options(state);
-        PLATFORM.speaker().play_sound("click", 1);
+        PLATFORM.speaker().play_sound("click.raw", 1);
     }
 
     if (player.key_down(Key::right)) {
         ++selector_;
         selector_ %= options_.size();
         show_options(state);
-        PLATFORM.speaker().play_sound("click", 1);
+        PLATFORM.speaker().play_sound("click.raw", 1);
     }
 
     return null_scene();

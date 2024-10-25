@@ -263,7 +263,7 @@ ScenePtr InspectP2Scene::update(Time delta)
         return make_scene<ConstructionScene>(false);
     } else if (APP.player().key_down(Key::alt_2)) {
 
-        PLATFORM.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error.raw", 2);
 
         cursor_loc.x = 0;
 
@@ -311,13 +311,13 @@ ScenePtr InspectP2Scene::update(Time delta)
                 is_player_island(room->owner())) {
                 return room->select(cursor_loc);
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         } else if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
             if (is_player_island((*drone)->parent())) {
                 return (*drone)->select();
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
     }
@@ -333,7 +333,7 @@ ScenePtr InspectP2Scene::update(Time delta)
                 if (not(props & RoomProperties::salvage_disallowed)) {
                     return make_scene<SalvageRoomScene>(false);
                 } else {
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                     auto msg = SYSTR(salvage_error_disallowed);
                     auto s = make_deferred_scene<InspectP2Scene>();
                     return make_scene<NotificationScene>(msg->c_str(), s);

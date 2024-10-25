@@ -273,7 +273,7 @@ ScenePtr DatetimeModule::update(Time delta)
             } else {
                 dt_.date_.month_--;
             }
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             repaint();
         } else if (test_key(Key::down)) {
             if (dt_.date_.month_ == 12) {
@@ -281,7 +281,7 @@ ScenePtr DatetimeModule::update(Time delta)
             } else {
                 dt_.date_.month_++;
             }
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             repaint();
         } else if (key_down<Key::action_1>()) {
             state_ = State::set_year;
@@ -297,12 +297,12 @@ ScenePtr DatetimeModule::update(Time delta)
         if (test_key(Key::up)) {
             if (dt_.date_.year_ > 1) {
                 dt_.date_.year_--;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
                 repaint();
             }
         } else if (test_key(Key::down)) {
             dt_.date_.year_++;
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             repaint();
         } else if (key_down<Key::action_1>()) {
             state_ = State::set_day;
@@ -317,14 +317,14 @@ ScenePtr DatetimeModule::update(Time delta)
         if (test_key(Key::up)) {
             if (dt_.date_.day_ > 1) {
                 dt_.date_.day_--;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
                 repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.date_.day_ <
                 days_per_month(dt_.date_.month_ - 1, 2000 + dt_.date_.year_)) {
                 dt_.date_.day_++;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
             repaint();
         } else if (key_down<Key::action_1>()) {
@@ -340,13 +340,13 @@ ScenePtr DatetimeModule::update(Time delta)
         if (test_key(Key::up)) {
             if (dt_.hour_ > 0) {
                 dt_.hour_--;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
                 repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.hour_ < 23) {
                 dt_.hour_++;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
             repaint();
         } else if (key_down<Key::action_1>()) {
@@ -362,13 +362,13 @@ ScenePtr DatetimeModule::update(Time delta)
         if (test_key(Key::up)) {
             if (dt_.minute_ > 0) {
                 dt_.minute_--;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
                 repaint();
             }
         } else if (test_key(Key::down)) {
             if (dt_.minute_ < 59) {
                 dt_.minute_++;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
             repaint();
         } else if (key_down<Key::action_1>()) {
@@ -385,12 +385,12 @@ ScenePtr DatetimeModule::update(Time delta)
             if (dt_.second_ > 0) {
                 dt_.second_--;
                 repaint();
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
         } else if (test_key(Key::down)) {
             if (dt_.second_ < 59) {
                 dt_.second_++;
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
             repaint();
         } else if (key_down<Key::action_1>()) {

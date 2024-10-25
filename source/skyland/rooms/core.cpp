@@ -74,7 +74,7 @@ void Core::update(Time delta)
 
 
 
-Sound core_destroyed("core_destroyed");
+Sound core_destroyed("core_destroyed.raw");
 
 
 

@@ -90,7 +90,7 @@ public:
 
     ScenePtr select() override
     {
-        PLATFORM.speaker().play_sound("drone_beep", 1);
+        PLATFORM.speaker().play_sound("drone_beep.raw", 1);
 
         Optional<RoomCoord> initial_pos;
         if (target_near_ == (is_player_island(destination()))) {

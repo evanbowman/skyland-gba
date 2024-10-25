@@ -240,9 +240,9 @@ void Storm::update(Time delta)
     if (s.thunder_timer_ <= 0) {
         s.thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
         if (rng::choice<2>(gen)) {
-            PLATFORM.speaker().play_sound("thunder_1", 0);
+            PLATFORM.speaker().play_sound("thunder_1.raw", 0);
         } else {
-            PLATFORM.speaker().play_sound("thunder_2", 0);
+            PLATFORM.speaker().play_sound("thunder_2.raw", 0);
         }
     }
 

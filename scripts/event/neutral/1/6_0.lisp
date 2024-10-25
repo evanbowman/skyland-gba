@@ -129,7 +129,7 @@
                                                      (cdr (rinfo 'size wpn))))
                                      (lambda (isle x y)
                                       (room-new (player) `(,wpn ,x ,y))
-                                      (sound "build0")
+                                      (sound "build0.raw")
                                       (resp)))))))
                   (impl
                    (lambda ()

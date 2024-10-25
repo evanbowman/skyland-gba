@@ -149,7 +149,7 @@ Island* ConstructionScene::island()
 
 
 
-static Sound sound_openbag("openbag");
+static Sound sound_openbag("openbag.raw");
 
 
 
@@ -520,7 +520,7 @@ ScenePtr ConstructionScene::update(Time delta)
         auto scroll_right = [&] {
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             if (building_selector_ <
                 (int)data_->available_buildings_.size() - 1) {
                 ++building_selector_;
@@ -533,7 +533,7 @@ ScenePtr ConstructionScene::update(Time delta)
         auto scroll_left = [&] {
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
                 show_current_building_text();
@@ -572,7 +572,7 @@ ScenePtr ConstructionScene::update(Time delta)
         }
 
         if (APP.player().key_down(Key::down)) {
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
 
             flicker_on_ = false;
             flicker_timer_ = -milliseconds(150);
@@ -604,7 +604,7 @@ ScenePtr ConstructionScene::update(Time delta)
         }
 
         if (APP.player().key_down(Key::up)) {
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             const auto current_category =
                 (*load_metaclass(
                      data_->available_buildings_[building_selector_]))
@@ -674,7 +674,7 @@ ScenePtr ConstructionScene::update(Time delta)
                 if (dup) {
                     category_label_.reset();
                     msg(SYSTR(construciton_one_allowed)->c_str());
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                     state_ = State::insufficient_funds;
                     break;
                 }
@@ -683,7 +683,7 @@ ScenePtr ConstructionScene::update(Time delta)
             if (APP.coins() < get_room_cost(island(), target)) {
                 category_label_.reset();
                 msg(SYSTR(construction_insufficient_funds)->c_str());
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -693,7 +693,7 @@ ScenePtr ConstructionScene::update(Time delta)
                     target->consumes_power()) {
                 category_label_.reset();
                 msg(SYSTR(construction_insufficient_power_supply)->c_str());
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -701,14 +701,14 @@ ScenePtr ConstructionScene::update(Time delta)
             if (globals().room_pools_.empty() or island()->rooms().full()) {
                 category_label_.reset();
                 msg(SYSTR(construction_too_many_rooms)->c_str());
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
 
             if (not site_has_space(mti)) {
                 category_label_.reset();
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 msg(SYSTR(construction_not_enough_space)->c_str());
                 state_ = State::insufficient_funds;
                 break;
@@ -723,7 +723,7 @@ ScenePtr ConstructionScene::update(Time delta)
             const u8 dest_y =
                 data_->construction_sites_[selector_].y - (sz - 1);
 
-            PLATFORM.speaker().play_sound("build0", 4);
+            PLATFORM.speaker().play_sound("build0.raw", 4);
 
             target->create(island(), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
@@ -832,7 +832,7 @@ ScenePtr ConstructionScene::update(Time delta)
             terrain.push_back(Tile::terrain_middle);
             terrain.push_back(Tile::terrain_right);
 
-            PLATFORM.speaker().play_sound("gravel", 4);
+            PLATFORM.speaker().play_sound("gravel.raw", 4);
 
             island()->schedule_repaint();
 

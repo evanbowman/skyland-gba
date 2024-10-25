@@ -131,7 +131,7 @@ void Cannonball::rewind(Time delta)
 
 
 
-Sound sound_impact("impact");
+Sound sound_impact("impact.raw");
 
 
 
@@ -170,7 +170,7 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        PLATFORM.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling.raw", 2);
     } else {
         this->destroy(true);
         if (room.health()) {

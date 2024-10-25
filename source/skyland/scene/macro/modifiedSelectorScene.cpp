@@ -128,7 +128,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
         } else if (test_key(Key::down) and sector.get_z_view() > 0) {
             bool success = sector.set_z_view(sector.get_z_view() - 1);
             if (not success) {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             } else {
                 visible_layers_text_->assign(
                     SYSTR(macro_visible_layers)->c_str());
@@ -138,7 +138,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
         } else if (test_key(Key::up)) {
             bool success = sector.set_z_view(sector.get_z_view() + 1);
             if (not success) {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             } else {
                 visible_layers_text_->assign(
                     SYSTR(macro_visible_layers)->c_str());
@@ -174,11 +174,11 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
                     PLATFORM.speaker().play_sound("cursor_tick", 0);
                     state.sector().set_cursor(c, false);
                 } else {
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 }
 
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
 

@@ -41,7 +41,7 @@
                                     (dialog "<c:repairman:30> Sorry, you can't afford it!")
                                     (setq on-dialog-closed done))
                                   (progn
-                                    (sound "build0")
+                                    (sound "build0.raw")
                                     (coins-set (- (coins) cost))
                                     (foreach (lambda (room)
                                                (room-hp-set (player)

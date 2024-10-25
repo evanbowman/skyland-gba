@@ -155,7 +155,7 @@ public:
             PLATFORM.sleep(4);
             PLATFORM.screen().schedule_fade(0.f);
 
-            PLATFORM.speaker().play_sound("bell", 3);
+            PLATFORM.speaker().play_sound("bell.raw", 3);
 
             return make_scene<ReadyScene>();
         }

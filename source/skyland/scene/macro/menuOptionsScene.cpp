@@ -187,7 +187,7 @@ ScenePtr MenuOptionsScene::update(Player& player, macro::EngineImpl& state)
                     }
                 }
             }
-            PLATFORM.speaker().play_sound("cancel", 3);
+            PLATFORM.speaker().play_sound("cancel.raw", 3);
             message_text_.emplace(OverlayCoord{0, 19});
             message_text_->assign(SYS_CSTR(macro_harvest_not_ready));
         }

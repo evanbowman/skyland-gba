@@ -120,7 +120,7 @@ ScenePtr MindControlTargetScene::update(Time delta)
             island = &APP.player_island();
         }
         if (not near_ and not island->interior_visible()) {
-            PLATFORM.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error.raw", 2);
             return null_scene();
         }
         if (auto room = island->get_room(cursor_loc)) {

@@ -627,7 +627,7 @@ ScenePtr MacroverseScene::update(Time delta)
                 describe_selected(m);
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
 
@@ -637,7 +637,7 @@ ScenePtr MacroverseScene::update(Time delta)
                 describe_selected(m);
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
 
@@ -647,7 +647,7 @@ ScenePtr MacroverseScene::update(Time delta)
                 describe_selected(m);
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
 
@@ -657,7 +657,7 @@ ScenePtr MacroverseScene::update(Time delta)
                 describe_selected(m);
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             } else {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             }
         }
         break;
@@ -858,7 +858,7 @@ ScenePtr MacroverseScene::update(Time delta)
             push(selected_.x, selected_.y + 1);
 
             if (colony_create_slots_.empty()) {
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
             } else {
                 auto textline = [&](const StringBuffer<48>& str, u8 y) {
                     text_objs_.emplace_back(str.c_str(), OverlayCoord{1, y});
@@ -961,7 +961,7 @@ ScenePtr MacroverseScene::update(Time delta)
                     break;
 
                 } else {
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 }
             }
         }

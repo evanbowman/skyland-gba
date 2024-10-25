@@ -544,6 +544,12 @@ public:
     }
 
 
+    static const char* construction_sound()
+    {
+        return "build0";
+    }
+
+
     virtual bool description_visible();
 
 

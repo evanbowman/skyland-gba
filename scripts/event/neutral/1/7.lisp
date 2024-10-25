@@ -83,6 +83,6 @@
                      (cdr (rinfo 'size pick)))
              (lambda (isle x y)
                (room-new (player) `(,pick ,x ,y))
-               (sound "build0")
+               (sound "build0.raw")
                (dialog "All done!")
                (end))))))))))

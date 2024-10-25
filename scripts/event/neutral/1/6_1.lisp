@@ -53,7 +53,7 @@
                     (exit))
                 (progn
                   (coins-add (* -1 cost))
-                  (sound "build0")
+                  (sound "build0.raw")
                   (map
                    (lambda (room)
                      (room-mut (player) (get room 1) (get room 2) 'stacked-hull))

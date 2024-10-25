@@ -122,7 +122,7 @@ void Curveshot::update(Time delta)
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
             this->destroy(pos.y > min_y);
-            PLATFORM.speaker().play_sound("explosion1", 2);
+            PLATFORM.speaker().play_sound("explosion1.raw", 2);
         }
     }
 
@@ -191,7 +191,7 @@ void Curveshot::on_collision(Room& room)
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        PLATFORM.speaker().play_sound("cling", 2);
+        PLATFORM.speaker().play_sound("cling.raw", 2);
     } else {
         this->destroy(true);
         if (room.health()) {

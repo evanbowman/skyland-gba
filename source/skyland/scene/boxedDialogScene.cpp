@@ -271,7 +271,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         text_state_.timer_ = 0;
 
         if (sfx) {
-            PLATFORM.speaker().play_sound("msg", 5);
+            PLATFORM.speaker().play_sound("msg.raw", 5);
         }
 
         if (text_state_.current_word_remaining_ == 0) {
@@ -794,7 +794,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
         if (key_down<Key::action_2>()) {
             choice_sel_ = 0;
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             update_opt_cursor();
         }
 
@@ -804,7 +804,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             } else {
                 --choice_sel_;
             }
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             update_opt_cursor();
         }
 
@@ -814,7 +814,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             } else {
                 ++choice_sel_;
             }
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
             update_opt_cursor();
         }
 

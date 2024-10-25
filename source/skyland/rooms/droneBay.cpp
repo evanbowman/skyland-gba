@@ -205,7 +205,7 @@ ScenePtr DroneBay::select_impl(const RoomCoord& cursor)
         }
         if (not free[0] or not free[1]) {
             auto future_scene = []() { return make_scene<ReadyScene>(); };
-            PLATFORM.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error.raw", 2);
             return make_scene<NotificationScene>("drone-bay covered!",
                                                  future_scene);
         }
@@ -267,7 +267,7 @@ void DroneBay::detach_drone(bool quiet)
         APP.time_stream().push(APP.level_timer(), e);
 
         if (not PLATFORM.screen().fade_active()) {
-            PLATFORM.speaker().play_sound("explosion1", 0);
+            PLATFORM.speaker().play_sound("explosion1.raw", 0);
             APP.camera()->shake(6);
         }
     }

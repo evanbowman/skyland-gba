@@ -171,7 +171,7 @@ ScenePtr SparkCannon::select_impl(const RoomCoord& cursor)
     }
 
     if (level_ == 0) {
-        PLATFORM.speaker().play_sound("beep_error", 3);
+        PLATFORM.speaker().play_sound("beep_error.raw", 3);
         return null_scene();
     }
 

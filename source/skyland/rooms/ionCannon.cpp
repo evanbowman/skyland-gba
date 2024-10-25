@@ -54,7 +54,7 @@ SHARED_VARIABLE(ion_cannon_reload_ms);
 
 
 
-Sound ion_cannon_sound("ion_cannon");
+Sound ion_cannon_sound("ion_cannon.raw");
 
 
 

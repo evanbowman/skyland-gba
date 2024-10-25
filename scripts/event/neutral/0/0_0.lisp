@@ -67,7 +67,7 @@
               (sel-input 'ladder
                          "Place ladder (1x2):"
                          (lambda (isle x y)
-                             (sound "build0")
+                             (sound "build0.raw")
                            (room-new (player) `(ladder ,x ,y))
                            (chr-del (opponent) 1 14)
                            (chr-new (player) x (+ 1 y) 'neutral nil)

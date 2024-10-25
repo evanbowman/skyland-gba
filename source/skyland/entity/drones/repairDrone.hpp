@@ -155,7 +155,7 @@ public:
 
     ScenePtr select() override
     {
-        PLATFORM.speaker().play_sound("drone_beep", 1);
+        PLATFORM.speaker().play_sound("drone_beep.raw", 1);
         return make_scene<RepairDroneRangeScene>(shared_from_this());
     }
 

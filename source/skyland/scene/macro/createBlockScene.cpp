@@ -425,7 +425,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
             while (state.sector().get_block(cursor).type() not_eq
                    terrain::Type::air) {
                 if (cursor.z == state.sector().size().z - 1) {
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                     return;
                 }
                 cursor.z++;
@@ -433,7 +433,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
             auto& above = state.sector().get_block(cursor);
             if (above.type() == terrain::Type::air) {
                 state.sector().set_cursor(cursor, false);
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
         }
     }
@@ -445,7 +445,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
             while (state.sector().get_block(cursor).type() not_eq
                    terrain::Type::air) {
                 if (cursor.z == 0) {
-                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
                     return;
                 }
                 cursor.z--;
@@ -453,7 +453,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
             auto& beneath = state.sector().get_block(cursor);
             if (beneath.type() == terrain::Type::air) {
                 state.sector().set_cursor(cursor, false);
-                PLATFORM.speaker().play_sound("click", 1);
+                PLATFORM.speaker().play_sound("click.raw", 1);
             }
         }
     }
@@ -480,7 +480,7 @@ ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
                 selector_ = 0;
             }
             show_options(state);
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
         }
 
         if (player.key_down(Key::left)) {
@@ -490,7 +490,7 @@ ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
                 selector_ = options_.size() - 1;
             }
             show_options(state);
-            PLATFORM.speaker().play_sound("click", 1);
+            PLATFORM.speaker().play_sound("click.raw", 1);
         }
     }
 
@@ -584,7 +584,7 @@ ScenePtr CreateBlockScene::onclick(macro::EngineImpl& state)
              cost.water_ > p.water_.get() or cost.crystal_ > p.crystal_.get() or
              cost.clay_ > p.clay_.get() or cost.water_ > p.water_.get() or
              cost.productivity_ > state.sector().productivity())) {
-            PLATFORM.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error.raw", 2);
             return make_scene<InsufficentResourcesScene>(state, cost);
         } else if (not state.data_->freebuild_mode_) {
             auto prod = state.sector().productivity();
@@ -603,7 +603,7 @@ ScenePtr CreateBlockScene::onclick(macro::EngineImpl& state)
         update_ui_on_exit();
 
         if (options_[selector_] not_eq terrain::Type::air) {
-            PLATFORM.speaker().play_sound("build0", 4);
+            PLATFORM.speaker().play_sound("build0.raw", 4);
 
             return make_scene<SelectorScene>();
 
@@ -611,7 +611,7 @@ ScenePtr CreateBlockScene::onclick(macro::EngineImpl& state)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     } else {
-        PLATFORM.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error.raw", 2);
     }
 
     return null_scene();

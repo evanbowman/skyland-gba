@@ -135,7 +135,7 @@ void AdventureLogScene::enter(Scene& prev)
 
     PLATFORM.load_overlay_texture("overlay_adventurelog");
     show_page(0);
-    PLATFORM.speaker().play_sound("page_flip", 0);
+    PLATFORM.speaker().play_sound("page_flip.raw", 0);
     PLATFORM.screen().schedule_fade(1, custom_color(0xcdd6a1));
 }
 

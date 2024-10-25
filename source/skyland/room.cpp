@@ -612,7 +612,7 @@ ScenePtr Room::do_select()
                 if (character->grid_position() == cursor_loc) {
 
                     if (is_co_op and character->co_op_locked()) {
-                        PLATFORM.speaker().play_sound("beep_error", 2);
+                        PLATFORM.speaker().play_sound("beep_error.raw", 2);
                         // TODO: notification scene instead!
                         return null_scene();
                     }
@@ -681,7 +681,7 @@ ScenePtr Room::select(const RoomCoord& cursor)
         }
 
         auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error", 2);
+        PLATFORM.speaker().play_sound("beep_error.raw", 2);
         auto str = SYSTR(error_powered_off);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
@@ -1069,7 +1069,7 @@ void Room::plunder(Health damage)
 
         if (parent() not_eq &APP.player_island()) {
             // You get some coins for plundering a room
-            PLATFORM.speaker().play_sound("coin", 2);
+            PLATFORM.speaker().play_sound("coin.raw", 2);
             APP.set_coins(APP.coins() + (*metaclass())->cost() * 0.3f);
         }
 

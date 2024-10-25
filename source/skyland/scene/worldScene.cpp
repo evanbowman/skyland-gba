@@ -633,7 +633,7 @@ ScenePtr WorldScene::update(Time delta)
             if (PLATFORM.network_peer().is_connected()) {
                 if (not g.multiplayer_pauses_remaining_) {
                     can_pause = false;
-                    PLATFORM.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 3);
                     set_gamespeed(GameSpeed::normal);
                     auto future_scene = []() {
                         return make_scene<ReadyScene>();
@@ -665,7 +665,7 @@ ScenePtr WorldScene::update(Time delta)
             if (PLATFORM.network_peer().is_connected()) {
                 if (not g.multiplayer_pause_owner_) {
                     can_unpause = false;
-                    PLATFORM.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 3);
                 } else {
                     g.multiplayer_pause_owner_ = false;
                 }

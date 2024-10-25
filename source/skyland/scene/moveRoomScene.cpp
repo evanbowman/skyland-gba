@@ -110,13 +110,13 @@ ScenePtr MoveRoomScene::update(Time delta)
             if (not skip and APP.coins() < 800) {
                 auto future_scene = make_deferred_scene<ReadyScene>();
                 auto str = SYSTR(construction_insufficient_funds);
-                PLATFORM.speaker().play_sound("beep_error", 2);
+                PLATFORM.speaker().play_sound("beep_error.raw", 2);
                 return make_scene<NotificationScene>(str->c_str(),
                                                      future_scene);
             }
             unpersist_ui();
             if (not skip) {
-                PLATFORM.speaker().play_sound("coin", 2);
+                PLATFORM.speaker().play_sound("coin.raw", 2);
                 APP.set_coins(APP.coins() - 800);
             }
             state_ = State::move_stuff;
@@ -162,7 +162,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             if (auto r = island_->get_room(cursor_loc)) {
                 if (str_eq(r->name(), "mycelium")) {
                     // Can't be moved!
-                    PLATFORM.speaker().play_sound("beep_error", 3);
+                    PLATFORM.speaker().play_sound("beep_error.raw", 3);
                     return null_scene();
                 }
                 state_ = State::move_block;
@@ -204,7 +204,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                             c.y = cursor_loc.y + y;
 
                             auto err = [&]() {
-                                PLATFORM.speaker().play_sound("beep_error", 3);
+                                PLATFORM.speaker().play_sound("beep_error.raw", 3);
                                 return null_scene();
                             };
 
@@ -222,7 +222,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                             }
                         }
                     }
-                    PLATFORM.speaker().play_sound("build0", 4);
+                    PLATFORM.speaker().play_sound("build0.raw", 4);
                     island_->move_room(move_src_, cursor_loc);
                 }
             }
@@ -294,7 +294,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                                 dest.y = (dest.y - offset_y) + y;
 
                                 auto err = [&]() {
-                                    PLATFORM.speaker().play_sound("beep_error",
+                                    PLATFORM.speaker().play_sound("beep_error.raw",
                                                                   3);
                                     return null_scene();
                                 };
@@ -327,7 +327,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                     }
                 }
 
-                PLATFORM.speaker().play_sound("build0", 4);
+                PLATFORM.speaker().play_sound("build0.raw", 4);
 
                 time_stream::event::MoveRegionBegin e;
                 APP.time_stream().push(APP.level_timer(), e);
@@ -383,7 +383,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             //     auto offset_y =
             //         (*group_selection_)->anchor_.y - this->cursor().y;
             //     if (offset_y not_eq 0) {
-            //         PLATFORM.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error.raw", 2);
             //         return null_scene();
             //     }
             // }
@@ -419,7 +419,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             //     auto offset_y =
             //         (*group_selection_)->anchor_.y - this->cursor().y;
             //     if (offset_y not_eq 0) {
-            //         PLATFORM.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error.raw", 2);
             //         return null_scene();
             //     }
             // }
@@ -457,7 +457,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             //     auto offset_x =
             //         (*group_selection_)->anchor_.x - this->cursor().x;
             //     if (offset_x not_eq 0) {
-            //         PLATFORM.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error.raw", 2);
             //         return null_scene();
             //     }
             // }
@@ -493,7 +493,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             //     auto offset_x =
             //         (*group_selection_)->anchor_.x - this->cursor().x;
             //     if (offset_x not_eq 0) {
-            //         PLATFORM.speaker().play_sound("beep_error", 2);
+            //         PLATFORM.speaker().play_sound("beep_error.raw", 2);
             //         return null_scene();
             //     }
             // }

@@ -1066,7 +1066,7 @@ void WeaponSetTargetScene::enter(Scene& prev)
     }
 
     if (not APP.player_island().get_drone(weapon_loc_)) {
-        PLATFORM.speaker().play_sound("weapon_target", 3);
+        PLATFORM.speaker().play_sound("weapon_target.raw", 3);
     }
 
     APP.player().network_sync_cursor(cursor_loc, 2, false);

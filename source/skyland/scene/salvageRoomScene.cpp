@@ -208,7 +208,7 @@ ScenePtr SalvageRoomScene::update(Time delta)
         if (length(room->characters()) > 0) {
             auto future_scene = [exit_scene]() { return exit_scene(); };
             auto msg = SYSTR(salvage_error_populated);
-            PLATFORM.speaker().play_sound("beep_error", 2);
+            PLATFORM.speaker().play_sound("beep_error.raw", 2);
             if (next_) {
                 return (*next_)();
             } else {
@@ -241,7 +241,7 @@ ScenePtr SalvageRoomScene::update(Time delta)
                 // all of the characters inside.
                 if (length(room->characters()) == 0) {
 
-                    PLATFORM.speaker().play_sound("coin", 2);
+                    PLATFORM.speaker().play_sound("coin.raw", 2);
                     APP.set_coins(APP.coins() + salvage_value(*room));
 
                     u16 mt_index = 0;
