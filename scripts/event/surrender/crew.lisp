@@ -59,28 +59,28 @@
                         (let ((tx x)
                               (ty y))
                           (defn on-dialog-accepted ()
-                            (sound "gravel.raw")
+                            (sound "gravel")
                             (alloc-space took)
                             (sel-input
                              took
                              "Place block:"
                              (lambda (isle x y)
                                (room-new (player) (list took x y))
-                               (sound "build0.raw")
+                               (sound "build0")
                                (room-del (opponent) tx ty)
                                (dialog (format "Accepted surrender, and acquired % blocks!" (- tot (- cnt 1))))
                                (adventure-log-add 62 '())
                                (setq on-dialog-closed (curry exit 2)))))))
                       (progn
                         (room-del (opponent) x y)
-                        (sound "gravel.raw")
+                        (sound "gravel")
                         (alloc-space took)
                         (sel-input
                          took
                          (format "Place block: (%/%)" (- tot cnt) tot)
                          (lambda (isle x y)
                            (room-new (player) (list took x y))
-                           (sound "build0.raw")
+                           (sound "build0")
                            (setq cnt (- cnt 1))
                            (if (equal cnt 0)
                                (progn

@@ -59,7 +59,7 @@ void ItemShopScene::enter(Scene& prev)
 
     WorldScene::enter(prev);
 
-    PLATFORM.speaker().play_sound("openbag.raw", 3);
+    PLATFORM.speaker().play_sound("openbag", 3);
 
     auto items = lisp::get_var("shop-items");
     lisp::l_foreach(items, [this](lisp::Value* item) {

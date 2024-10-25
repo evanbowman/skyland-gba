@@ -416,8 +416,8 @@ void Transporter::transport_occupant(Optional<RoomCoord> destination)
 
     edit_characters().erase(characters().begin());
 
-    if (not PLATFORM.speaker().is_sound_playing("transporter.raw")) {
-        PLATFORM.speaker().play_sound("transporter.raw", 2);
+    if (not PLATFORM.speaker().is_sound_playing("transporter")) {
+        PLATFORM.speaker().play_sound("transporter", 2);
     }
 }
 
@@ -471,7 +471,7 @@ ScenePtr Transporter::select_impl(const RoomCoord& cursor)
         if (is_player_island(parent())) {
             return make_scene<RecoverCharacterScene>(position());
         } else {
-            PLATFORM.speaker().play_sound("beep_error.raw", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();
         }
     }

@@ -114,7 +114,7 @@ bool FullscreenDialogScene::advance_text(Time delta, bool sfx)
         }
 
         if (sfx) {
-            PLATFORM.speaker().play_sound("msg.raw", 5);
+            PLATFORM.speaker().play_sound("msg", 5);
         }
 
         // At this point, we know the length of the next space-delimited word in

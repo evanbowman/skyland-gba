@@ -1040,7 +1040,7 @@ void Island::update(Time dt)
                 // Core and Reactor play a loud sound on their own, playing an
                 // explosion simultaneously causes clipping on some consoles.
                 not core_destroyed) {
-                PLATFORM.speaker().play_sound("explosion1.raw", 2);
+                PLATFORM.speaker().play_sound("explosion1", 2);
             }
 
             if (PLATFORM.network_peer().is_connected()) {

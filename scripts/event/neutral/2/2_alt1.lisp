@@ -77,7 +77,7 @@
                (rooms (opponent)))
 
 
-          (sound "build0.raw")
+          (sound "build0")
           (dialog "The fortress remains quiet.<B:0> Now to remove the next one...")
 
           (let ((opts '(beam-gun incinerator splitter))

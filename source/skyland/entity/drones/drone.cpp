@@ -275,8 +275,8 @@ void Drone::update(Time delta)
     switch (state_) {
     case State::launch: {
         if (timer_ == 0 and delta > 0) {
-            if (not PLATFORM.speaker().is_sound_playing("tonal_flutter.raw")) {
-                PLATFORM.speaker().play_sound("tonal_flutter.raw", 3);
+            if (not PLATFORM.speaker().is_sound_playing("tonal_flutter")) {
+                PLATFORM.speaker().play_sound("tonal_flutter", 3);
             }
         }
         timer_ += delta;

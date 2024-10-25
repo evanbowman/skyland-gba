@@ -80,14 +80,14 @@
                 (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
                (lambda (isle x y)
                  (room-new (player) (list item x y))
-                 (sound "build0.raw")
+                 (sound "build0")
                  (alloc-space item)
                  (sel-input
                   item
                   (string "place second " (rinfo 'name item) ":")
                   (lambda (isle x y)
                     (room-new (player) (list item x y))
-                    (sound "build0.raw")
+                    (sound "build0")
                     (dialog "<c:merchant:7> Looks great! You made a fine choice!")
                     (setq on-dialog-closed exit))))))))))
 

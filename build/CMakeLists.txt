@@ -445,15 +445,68 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet_macro.s
     ${DATA_DIR}/spritesheet_macroverse.s
     ${DATA_DIR}/music_unaccompanied_wind.s
+    ${DATA_DIR}/music_struttin.s
+    ${DATA_DIR}/sound_archivist.s
+    ${DATA_DIR}/sound_tonal_flutter.s
+    ${DATA_DIR}/sound_powerdown.s
+    ${DATA_DIR}/sound_poweron.s
+    ${DATA_DIR}/sound_door.s
+    ${DATA_DIR}/sound_cancel.s
+    ${DATA_DIR}/sound_page_flip.s
+    ${DATA_DIR}/sound_seagull_1.s
+    ${DATA_DIR}/sound_seagull_2.s
+    ${DATA_DIR}/sound_creaking.s
+    ${DATA_DIR}/sound_ion_cannon.s
+    ${DATA_DIR}/sound_pong_blip1.s
+    ${DATA_DIR}/sound_pong_blip2.s
+    ${DATA_DIR}/sound_msg.s
+    ${DATA_DIR}/sound_pop.s
+    ${DATA_DIR}/sound_coin.s
+    ${DATA_DIR}/sound_bell.s
+    ${DATA_DIR}/sound_thud.s
+    ${DATA_DIR}/sound_click.s
+    ${DATA_DIR}/sound_cling.s
+    ${DATA_DIR}/sound_heart.s
+    ${DATA_DIR}/sound_dodge.s
+    ${DATA_DIR}/sound_creak.s
+    ${DATA_DIR}/sound_build0.s
+    ${DATA_DIR}/sound_cannon.s
     ${DATA_DIR}/sound_insert_cart.s
+    ${DATA_DIR}/sound_missile.s
+    ${DATA_DIR}/sound_thunder_1.s
+    ${DATA_DIR}/sound_thunder_2.s
+    ${DATA_DIR}/sound_thunder_close_1.s
+    ${DATA_DIR}/sound_glass_break.s
+    ${DATA_DIR}/sound_missile_explosion.s
+    ${DATA_DIR}/sound_weapon_target.s
+    ${DATA_DIR}/sound_transporter.s
+    ${DATA_DIR}/sound_core_destroyed.s
+    ${DATA_DIR}/sound_gust.s
+    ${DATA_DIR}/sound_gust2.s
     ${DATA_DIR}/sound_click_negative.s
     ${DATA_DIR}/sound_click_wooden.s
     ${DATA_DIR}/sound_cursor_click.s
     ${DATA_DIR}/sound_button_wooden.s
     ${DATA_DIR}/sound_digital_click_1.s
+    ${DATA_DIR}/sound_fizzle.s
+    ${DATA_DIR}/sound_gravel.s
+    ${DATA_DIR}/sound_dropitem.s
+    ${DATA_DIR}/sound_scroll.s
+    ${DATA_DIR}/sound_beep_error.s
+    ${DATA_DIR}/sound_drone_beep.s
+    ${DATA_DIR}/sound_laser1.s
+    ${DATA_DIR}/sound_select.s
+    ${DATA_DIR}/sound_openbag.s
+    ${DATA_DIR}/sound_blaster.s
+    ${DATA_DIR}/sound_tw_bell.s
     ${DATA_DIR}/sound_footstep1.s
     ${DATA_DIR}/sound_footstep2.s
-    ${DATA_DIR}/sound_footstep3.s)
+    ${DATA_DIR}/sound_footstep3.s
+    ${DATA_DIR}/sound_footstep4.s
+    ${DATA_DIR}/sound_open_book.s
+    ${DATA_DIR}/sound_explosion1.s
+    ${DATA_DIR}/sound_typewriter.s
+    ${DATA_DIR}/sound_explosion2.s)
 endif()
 
 

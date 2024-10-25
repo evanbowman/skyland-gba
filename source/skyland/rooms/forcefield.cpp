@@ -136,7 +136,7 @@ void Forcefield2::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-Sound glass_break_sound("glass_break.raw");
+Sound glass_break_sound("glass_break");
 
 
 

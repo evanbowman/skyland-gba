@@ -73,7 +73,7 @@ IonBurst::IonBurst(const Vec2<Fixnum>& position,
 
 
 
-Sound sound_fizzle("fizzle.raw");
+Sound sound_fizzle("fizzle");
 
 
 

@@ -54,7 +54,7 @@ SHARED_VARIABLE(cannon_reload_ms);
 
 
 
-Sound cannon_sound("cannon.raw");
+Sound cannon_sound("cannon");
 
 
 

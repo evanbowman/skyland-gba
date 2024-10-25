@@ -78,7 +78,7 @@ ScenePtr AssignWeaponGroupScene::update(Time delta)
         if (APP.player().key_down(Key::action_1)) {
             if (auto room = APP.player_island().get_room(cursor_loc)) {
                 if (room->co_op_locked()) {
-                    PLATFORM.speaker().play_sound("beep_error.raw", 2);
+                    PLATFORM.speaker().play_sound("beep_error", 2);
                     // TODO: notification
                 } else if ((*room->metaclass())->category() ==
                            Room::Category::weapon) {

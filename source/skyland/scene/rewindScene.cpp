@@ -1583,7 +1583,7 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::cannon_sound_completed: {
             auto e = (time_stream::event::CannonSoundCompleted*)end;
-            PLATFORM.speaker().play_sound("cannon.raw", 3);
+            PLATFORM.speaker().play_sound("cannon", 3);
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1591,7 +1591,7 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::missile_sound_completed: {
             auto e = (time_stream::event::MissileSoundCompleted*)end;
-            PLATFORM.speaker().play_sound("missile.raw", 3);
+            PLATFORM.speaker().play_sound("missile", 3);
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1599,7 +1599,7 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::hit_sound_completed: {
             auto e = (time_stream::event::HitSoundCompleted*)end;
-            PLATFORM.speaker().play_sound("impact.raw", 3);
+            PLATFORM.speaker().play_sound("impact", 3);
             APP.time_stream().pop(sizeof *e);
             break;
         }

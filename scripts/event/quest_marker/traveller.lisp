@@ -39,7 +39,7 @@
                 (sel-input sym0
                            (string "Place " (rinfo 'name sym0))
                            (lambda (isle x y)
-                             (sound "build0.raw")
+                             (sound "build0")
                              (room-new (player) (list sym0 x y))
                              (dialog "<c:traveller:23> Goodbye, and good luck!")
                              (map (lambda (chr)

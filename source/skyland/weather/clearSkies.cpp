@@ -27,13 +27,13 @@ void ClearSkies::update(Time delta)
         switch (rng::choice<3>(rng::utility_state)) {
         case 0:
             if (not APP.birds().empty()) {
-                PLATFORM.speaker().play_sound("seagull_1.raw", 0);
+                PLATFORM.speaker().play_sound("seagull_1", 0);
             }
             break;
 
         case 1:
             if (not APP.birds().empty()) {
-                PLATFORM.speaker().play_sound("seagull_2.raw", 0);
+                PLATFORM.speaker().play_sound("seagull_2", 0);
             }
             break;
 

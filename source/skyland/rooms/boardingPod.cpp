@@ -647,7 +647,7 @@ void BoardingPod::set_target(const RoomCoord& target, bool pinned)
         if (auto room = island->get_room(target)) {
             if (not((*room->metaclass())->properties() &
                     RoomProperties::habitable)) {
-                PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
                 return;
             }
         }
@@ -694,14 +694,14 @@ ScenePtr BoardingPod::select(const RoomCoord& cursor)
         (static_cast<Opponent&>(APP.opponent_island()->owner()))
             .is_friendly()) {
         auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error.raw", 3);
+        PLATFORM.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
         auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error.raw", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }

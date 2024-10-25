@@ -18,7 +18,7 @@
         (progn
           (setq c (car (sort c (lambda (xy1 xy2)
                                  (< (first xy1) (first xy2))))))
-          (sound "build0.raw")
+          (sound "build0")
           (room-new
            (player)
            (list 'cargo-bay (car c) (cdr c)))

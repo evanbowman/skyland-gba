@@ -31,7 +31,7 @@ void UpgradePromptScene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
 
-    PLATFORM.speaker().play_sound("openbag.raw", 8);
+    PLATFORM.speaker().play_sound("openbag", 8);
 
     persist_ui();
 
@@ -135,7 +135,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
             StringBuffer<80> err;
 
             auto notify_err = [&]() {
-                PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
                 return make_scene<NotificationScene>(err, next);
             };
 
@@ -190,7 +190,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
                         for (u8 y = sy; y < target_coord_.y; ++y) {
 
                             if (APP.player_island().get_room({x, y})) {
-                                PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                                PLATFORM.speaker().play_sound("beep_error", 3);
                                 err = SYS_CSTR(construction_not_enough_space);
                                 return make_scene<NotificationScene>(err, next);
                             }
@@ -202,7 +202,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
                             get_room_cost(&APP.player_island(), *from);
 
                 if (APP.coins() < cost) {
-                    PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                    PLATFORM.speaker().play_sound("beep_error", 3);
                     err = SYS_CSTR(construction_insufficient_funds);
                     return make_scene<NotificationScene>(err, next);
                 }
@@ -211,10 +211,10 @@ ScenePtr UpgradePromptScene::update(Time delta)
 
                 APP.set_coins(APP.coins() - cost);
                 APP.level_coins_spent() += cost;
-                PLATFORM.speaker().play_sound("build0.raw", 4);
+                PLATFORM.speaker().play_sound("build0", 4);
             }
         } else {
-            PLATFORM.speaker().play_sound("beep_error.raw", 3);
+            PLATFORM.speaker().play_sound("beep_error", 3);
         }
         return make_scene<ReadyScene>();
     }

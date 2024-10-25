@@ -166,7 +166,7 @@ ScenePtr player_island_onclick(Time& camera_update_timer,
 {
     if (auto room = APP.player_island().get_room(pos)) {
         if (room->co_op_locked()) {
-            PLATFORM.speaker().play_sound("beep_error.raw", 2);
+            PLATFORM.speaker().play_sound("beep_error", 2);
             // TODO: display notification: co-op player editing room.
             return null_scene();
         }
@@ -317,7 +317,7 @@ ScenePtr update_modifier_keys()
 
             APP.player().reassign_all_weapon_targets();
 
-            PLATFORM.speaker().play_sound("drone_beep.raw", 1);
+            PLATFORM.speaker().play_sound("drone_beep", 1);
 
             return make_scene<ReadyScene>();
         }
@@ -338,7 +338,7 @@ ScenePtr process_exit_condition(App::ExitCondition c)
         if (APP.opponent_island()) {
             APP.opponent_island()->projectiles().clear();
         }
-        PLATFORM.speaker().play_sound("bell.raw", 1);
+        PLATFORM.speaker().play_sound("bell", 1);
         return make_scene<EscapeBeaconFadeScene>(true);
 
     case App::ExitCondition::opponent_fled:
@@ -348,7 +348,7 @@ ScenePtr process_exit_condition(App::ExitCondition c)
             APP.opponent_island()->projectiles().clear();
         }
         APP.effects().clear();
-        PLATFORM.speaker().play_sound("bell.raw", 1);
+        PLATFORM.speaker().play_sound("bell", 1);
         return make_scene<EscapeBeaconFadeScene>(false);
 
     case App::ExitCondition::misc:
@@ -635,7 +635,7 @@ ScenePtr ReadyScene::update(Time delta)
                     if (auto await = room->co_op_acquire_lock(next)) {
                         return await;
                     } else {
-                        PLATFORM.speaker().play_sound("beep_error.raw", 2);
+                        PLATFORM.speaker().play_sound("beep_error", 2);
                         // TODO: notification
                     }
                 } else {
@@ -643,7 +643,7 @@ ScenePtr ReadyScene::update(Time delta)
                 }
 
             } else {
-                PLATFORM.speaker().play_sound("beep_error.raw", 2);
+                PLATFORM.speaker().play_sound("beep_error", 2);
                 auto msg = SYSTR(salvage_error_disallowed);
                 auto next = make_deferred_scene<ReadyScene>();
                 return make_scene<NotificationScene>(msg->c_str(), next);

@@ -222,7 +222,7 @@ ScenePtr SelInputScene::update(Time delta)
                     auto room = APP.player_island().get_room({x, ry});
                     if (room or x == APP.player_island().terrain().size() or
                         ry < construction_zone_min_y) {
-                        PLATFORM.speaker().play_sound("beep_error.raw", 1);
+                        PLATFORM.speaker().play_sound("beep_error", 1);
                         return null_scene();
                     }
                 }

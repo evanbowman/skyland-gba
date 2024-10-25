@@ -341,17 +341,17 @@ static bool is_gui_sound(const char* sound_name)
 {
     MAPBOX_ETERNAL_CONSTEXPR const auto gui_sound_table =
         mapbox::eternal::map<mapbox::eternal::string, int>(
-            {{"click.raw", 0},
-             {"drone_beep.raw", 0},
-             {"openbag.raw", 0},
-             {"beep_error.raw", 0},
+            {{"click", 0},
+             {"drone_beep", 0},
+             {"openbag", 0},
+             {"beep_error", 0},
              {"click_wooden", 0},
              {"button_wooden", 0},
              {"click_negative", 0},
              {"cursor_tick", 0},
-             {"seagull_1.raw", 0},
-             {"seagull_2.raw", 0},
-             {"weapon_target.raw", 0}});
+             {"seagull_1", 0},
+             {"seagull_2", 0},
+             {"weapon_target", 0}});
 
     return gui_sound_table.find(sound_name) not_eq gui_sound_table.end();
 }
@@ -433,13 +433,13 @@ void App::update(Time delta)
         // Do not play sounds associated with the game's ui.
         if (not is_gui_sound(sound)) {
 
-            if (str_eq(sound, "cannon.raw")) {
+            if (str_eq(sound, "cannon")) {
                 time_stream::event::CannonSoundCompleted e;
                 time_stream_.push(level_timer_, e);
-            } else if (str_eq(sound, "missile.raw")) {
+            } else if (str_eq(sound, "missile")) {
                 time_stream::event::MissileSoundCompleted e;
                 time_stream_.push(level_timer_, e);
-            } else if (str_eq(sound, "impact.raw")) {
+            } else if (str_eq(sound, "impact")) {
                 time_stream::event::HitSoundCompleted e;
                 time_stream_.push(level_timer_, e);
             } else {
@@ -805,7 +805,7 @@ ScenePtr reject_if_friendly()
         (static_cast<Opponent&>(APP.opponent_island()->owner()))
             .is_friendly()) {
         auto future_scene = []() { return make_scene<ReadyScene>(); };
-        PLATFORM.speaker().play_sound("beep_error.raw", 3);
+        PLATFORM.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }

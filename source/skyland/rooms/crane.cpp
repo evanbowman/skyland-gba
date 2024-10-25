@@ -101,7 +101,7 @@ void Crane::update(Time delta)
             pos.y += Fixnum::from_integer(timer_) * Fixnum(0.00004f);
 
             if (item_ == Discoveries::Item::bomb) {
-                PLATFORM.speaker().play_sound("explosion1.raw", 2);
+                PLATFORM.speaker().play_sound("explosion1", 2);
                 big_explosion(pos);
                 apply_damage(5, {});
             } else {

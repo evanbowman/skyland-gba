@@ -34,7 +34,7 @@
           (when (not sl)
             (alloc-space 'ladder)
             (let ((site (construction-sites (player) '(1 . 2))))
-              (sound "build0.raw")
+              (sound "build0")
               (room-new (player) `(ladder ,(caar site) ,(cdar site)))))
 
           (setq sl (chr-slots (player)))

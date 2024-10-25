@@ -136,9 +136,9 @@ ScenePtr TargetingComputer::select_impl(const RoomCoord& cursor)
     enabled_ = not enabled_;
 
     if (enabled_) {
-        PLATFORM.speaker().play_sound("poweron.raw", 4);
+        PLATFORM.speaker().play_sound("poweron", 4);
     } else {
-        PLATFORM.speaker().play_sound("powerdown.raw", 4);
+        PLATFORM.speaker().play_sound("powerdown", 4);
     }
 
     schedule_repaint();

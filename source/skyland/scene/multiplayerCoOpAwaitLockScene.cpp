@@ -49,7 +49,7 @@ ScenePtr MultiplayerCoOpAwaitLockScene::update(Time delta)
             // have checked the room's lock and acquired it.
             room->co_op_peer_release_lock();
         }
-        PLATFORM.speaker().play_sound("beep_error.raw", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         return make_scene<ReadyScene>();
     };
 
@@ -82,7 +82,7 @@ ScenePtr MultiplayerCoOpAwaitChrLockScene::update(Time delta)
         if (auto chr = BasicCharacter::find_by_id(id_).first) {
             chr->co_op_release_lock();
         }
-        PLATFORM.speaker().play_sound("beep_error.raw", 2);
+        PLATFORM.speaker().play_sound("beep_error", 2);
         return make_scene<ReadyScene>();
     };
 

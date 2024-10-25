@@ -354,7 +354,7 @@ TOP:
             repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
-            PLATFORM.speaker().play_sound("typewriter.raw", 2);
+            PLATFORM.speaker().play_sound("typewriter", 2);
             display_mode_ = DisplayMode::entry;
         }
         break;
@@ -388,7 +388,7 @@ TOP:
             auto& kb = alt_ ? alt_keyboard : keyboard;
             command_->push_back(kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
             repaint_entry();
-            PLATFORM.speaker().play_sound("typewriter.raw", 2);
+            PLATFORM.speaker().play_sound("typewriter", 2);
             reset_history_index();
         } else if (PLATFORM.keyboard().down_transition<Key::alt_1>()) {
             // Try to isolate an identifier from the command buffer, for autocomplete.
@@ -439,7 +439,7 @@ TOP:
 
         if (PLATFORM.keyboard().down_transition<Key::start>()) {
 
-            PLATFORM.speaker().play_sound("tw_bell.raw", 2);
+            PLATFORM.speaker().play_sound("tw_bell", 2);
 
             lisp::BasicCharSequence seq(command_->c_str());
             lisp::read(seq);

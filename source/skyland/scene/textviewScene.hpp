@@ -79,8 +79,8 @@ public:
             }
         }
 
-        if (not PLATFORM.speaker().is_sound_playing("archivist.raw")) {
-            PLATFORM.speaker().play_sound("archivist.raw", 9);
+        if (not PLATFORM.speaker().is_sound_playing("archivist")) {
+            PLATFORM.speaker().play_sound("archivist", 9);
         }
 
         auto fc = custom_color(0xf7f7ef);
@@ -119,7 +119,7 @@ public:
                 };
 
                 if (has_more_pages()) {
-                    PLATFORM.speaker().play_sound("page_flip.raw", 3);
+                    PLATFORM.speaker().play_sound("page_flip", 3);
                     dir_ = false;
                     page_ += 1;
                     timer_ = 0;
@@ -128,7 +128,7 @@ public:
 
             } else if (PLATFORM.keyboard().pressed<Key::left>()) {
                 if (page_ > 0) {
-                    PLATFORM.speaker().play_sound("page_flip.raw", 3);
+                    PLATFORM.speaker().play_sound("page_flip", 3);
                     dir_ = true;
                     page_ -= 1;
                     timer_ = 0;
@@ -155,7 +155,7 @@ public:
 
         case DisplayMode::transition:
             repaint_page();
-            PLATFORM.speaker().play_sound("open_book.raw", 0);
+            PLATFORM.speaker().play_sound("open_book", 0);
             display_mode_ = DisplayMode::after_transition;
             break;
         }

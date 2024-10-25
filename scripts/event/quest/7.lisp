@@ -101,7 +101,7 @@
                       (string "place explosive " (+ cnt 1) "/7:")
                       (lambda (isle x y)
                         (room-new (player) (list bloc x y))
-                        (sound "build0.raw")
+                        (sound "build0")
 
                         (room-del (opponent) (+ cnt 2) 12)
 

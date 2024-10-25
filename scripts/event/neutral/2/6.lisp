@@ -38,7 +38,7 @@
              (lambda (isle x y)
                (room-new (player) (list 'incinerator x y))
                  (room-del (opponent) 0 13)
-               (sound "build0.raw")
+               (sound "build0")
                (dialog "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")
                (run-util-script "pickup-cart"
                                 7

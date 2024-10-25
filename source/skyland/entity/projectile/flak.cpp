@@ -57,6 +57,10 @@ SHARED_VARIABLE(flak_r3_damage);
 
 
 
+static Sound sound_fizzle("fizzle");
+
+
+
 Flak::Flak(const Vec2<Fixnum>& position,
            const Vec2<Fixnum>& target,
            Island* source,
@@ -315,7 +319,7 @@ void Flak::on_collision(Room& room, Vec2<u8> origin)
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
-        PLATFORM.speaker().play_sound("cling.raw", 2);
+        PLATFORM.speaker().play_sound("cling", 2);
     } else {
         destroyed_ = true;
         destroy(true);

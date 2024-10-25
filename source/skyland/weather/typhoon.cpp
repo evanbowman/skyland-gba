@@ -196,7 +196,7 @@ void Typhoon::update(Time delta)
             lightning_timer_ = milliseconds(100);
             ls_ = LightningState::hold;
 
-            PLATFORM.speaker().play_sound("thunder_close_1.raw", 0);
+            PLATFORM.speaker().play_sound("thunder_close_1", 0);
 
             time_stream::event::Lightning e;
             APP.time_stream().push(APP.level_timer(), e);

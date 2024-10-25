@@ -67,7 +67,7 @@
                         "pick a slot:"
                         (lambda (isle x y)
                           (room-new (player) (list (get info 0) x y))
-                          (sound "build0.raw")
+                          (sound "build0")
 
                           (setq shop-items
                                 (filter

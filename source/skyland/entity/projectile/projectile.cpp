@@ -64,7 +64,7 @@ void Projectile::destroy_out_of_bounds(Island* target)
     if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
         pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
         this->destroy(pos.y.as_integer() > min_y);
-        PLATFORM.speaker().play_sound("explosion1.raw", 2);
+        PLATFORM.speaker().play_sound("explosion1", 2);
     }
 }
 

@@ -468,7 +468,7 @@ void SelectMenuScene::enter(Scene& scene)
                     for (auto& bird : APP.birds()) {
                         if (bird->island() == island() and
                             bird->coordinate() == cursor) {
-                            PLATFORM.speaker().play_sound("seagull_1.raw", 0);
+                            PLATFORM.speaker().play_sound("seagull_1", 0);
                             bird->signal();
                         }
                     }
@@ -551,7 +551,7 @@ void SelectMenuScene::enter(Scene& scene)
                         [this, c = cursor]() {
                             if (auto room = island()->get_room(c)) {
                                 room->set_powerdown(false);
-                                PLATFORM.speaker().play_sound("poweron.raw", 4);
+                                PLATFORM.speaker().play_sound("poweron", 4);
                                 island()->schedule_repaint();
                             }
                             show_power_on_exit_ = true;
@@ -566,7 +566,7 @@ void SelectMenuScene::enter(Scene& scene)
                         [this, c = cursor]() {
                             if (auto room = island()->get_room(c)) {
                                 room->set_powerdown(true);
-                                PLATFORM.speaker().play_sound("powerdown.raw", 4);
+                                PLATFORM.speaker().play_sound("powerdown", 4);
                                 island()->schedule_repaint();
                             }
                             show_power_on_exit_ = true;

@@ -68,7 +68,7 @@
                (format "Pick a slot (%x%)" (car (rinfo 'size wpn)) (cdr (rinfo 'size wpn)))
                (lambda (isle x y)
                  (room-new (player) (list wpn x y))
-                 (sound "build0.raw")
+                 (sound "build0")
                  (cond
                   ((equal wpn 'rocket-bomb)
                    (dialog "Like a missile-silo, but starts fires! A useful addition!"))

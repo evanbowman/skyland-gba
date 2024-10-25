@@ -474,8 +474,8 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     if (PLATFORM.speaker().is_music_playing("unaccompanied_wind") and
-        not PLATFORM.speaker().is_sound_playing("creaking.raw")) {
-        PLATFORM.speaker().play_sound("creaking.raw", 9);
+        not PLATFORM.speaker().is_sound_playing("creaking")) {
+        PLATFORM.speaker().play_sound("creaking", 9);
     }
 
 
@@ -1041,7 +1041,7 @@ ScenePtr WorldMapScene::update(Time delta)
             0.5f, ColorConstant::rich_black, true, true);
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
-        PLATFORM.speaker().play_sound("cancel.raw", 5);
+        PLATFORM.speaker().play_sound("cancel", 5);
         PLATFORM.sleep(30);
         APP.current_world_location() = prev_world_loc_;
         auto next = make_scene<WorldMapScene>();

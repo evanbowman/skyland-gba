@@ -568,23 +568,23 @@ static int module_page_count(bool dev)
 void TitleScreenScene::play_gust_sound()
 {
     if (rng::choice<4>(rng::utility_state)) {
-        if (PLATFORM.speaker().is_sound_playing("gust1.raw")) {
+        if (PLATFORM.speaker().is_sound_playing("gust1")) {
             if (rng::choice<2>(rng::utility_state)) {
-                PLATFORM.speaker().stop_sound("gust1.raw");
-                PLATFORM.speaker().play_sound("gust2.raw", 1);
+                PLATFORM.speaker().stop_sound("gust1");
+                PLATFORM.speaker().play_sound("gust2", 1);
             } else {
-                PLATFORM.speaker().stop_sound("gust1.raw");
-                PLATFORM.speaker().play_sound("gust1.raw", 1);
+                PLATFORM.speaker().stop_sound("gust1");
+                PLATFORM.speaker().play_sound("gust1", 1);
             }
         } else {
-            PLATFORM.speaker().play_sound("gust1.raw", 1);
+            PLATFORM.speaker().play_sound("gust1", 1);
         }
     } else {
-        if (PLATFORM.speaker().is_sound_playing("gust2.raw")) {
-            PLATFORM.speaker().stop_sound("gust2.raw");
-            PLATFORM.speaker().play_sound("gust1.raw", 1);
+        if (PLATFORM.speaker().is_sound_playing("gust2")) {
+            PLATFORM.speaker().stop_sound("gust2");
+            PLATFORM.speaker().play_sound("gust1", 1);
         } else {
-            PLATFORM.speaker().play_sound("gust2.raw", 1);
+            PLATFORM.speaker().play_sound("gust2", 1);
         }
     }
 }
@@ -618,12 +618,12 @@ ScenePtr TitleScreenScene::update(Time delta)
 
     if (menu_selection_ == 3) {
         if (state_ not_eq State::scroll_archives and
-            not PLATFORM.speaker().is_sound_playing("struttin.raw")) {
-            PLATFORM.speaker().stop_sound("creaking.raw");
-            PLATFORM.speaker().play_sound("struttin.raw", 7);
+            not PLATFORM.speaker().is_sound_playing("struttin")) {
+            PLATFORM.speaker().stop_sound("creaking");
+            PLATFORM.speaker().play_sound("struttin", 7);
         }
-    } else if (not PLATFORM.speaker().is_sound_playing("creaking.raw")) {
-        PLATFORM.speaker().play_sound("creaking.raw", 9);
+    } else if (not PLATFORM.speaker().is_sound_playing("creaking")) {
+        PLATFORM.speaker().play_sound("creaking", 9);
     }
 
 
@@ -715,12 +715,12 @@ ScenePtr TitleScreenScene::update(Time delta)
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {
             if (rng::choice<5>(rng::critical_state) == 0 and
-                not PLATFORM.speaker().is_sound_playing("seagull_1.raw") and
-                not PLATFORM.speaker().is_sound_playing("seagull_2.raw")) {
+                not PLATFORM.speaker().is_sound_playing("seagull_1") and
+                not PLATFORM.speaker().is_sound_playing("seagull_2")) {
                 if (rng::choice<2>(rng::critical_state)) {
-                    PLATFORM.speaker().play_sound("seagull_1.raw", 0);
+                    PLATFORM.speaker().play_sound("seagull_1", 0);
                 } else {
-                    PLATFORM.speaker().play_sound("seagull_2.raw", 0);
+                    PLATFORM.speaker().play_sound("seagull_2", 0);
                 }
             }
             bird_timer_ =
@@ -1498,7 +1498,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                         timer_ = 0;
                         PLATFORM.load_tile1_texture(
                             "skyland_title_5_flattened");
-                        PLATFORM.speaker().play_sound("gust2.raw", 3);
+                        PLATFORM.speaker().play_sound("gust2", 3);
                         break;
                     }
 
@@ -1828,25 +1828,25 @@ void TitleScreenScene::Pong::update(bool sound_effects)
 {
     if (ball_.x >= 23) {
         if (sound_effects) {
-            PLATFORM.speaker().play_sound("pong_blip1.raw", 0);
+            PLATFORM.speaker().play_sound("pong_blip_1", 0);
         }
         ball_speed_.x *= -1;
     }
     if (ball_.y >= 20) {
         if (sound_effects) {
-            PLATFORM.speaker().play_sound("pong_blip2.raw", 0);
+            PLATFORM.speaker().play_sound("pong_blip_2", 0);
         }
         ball_speed_.y *= -1;
     }
     if (ball_.y < 1) {
         if (sound_effects) {
-            PLATFORM.speaker().play_sound("pong_blip2.raw", 0);
+            PLATFORM.speaker().play_sound("pong_blip_2", 0);
         }
         ball_speed_.y *= -1;
     }
     if (ball_.x < 1) {
         if (sound_effects) {
-            PLATFORM.speaker().play_sound("pong_blip1.raw", 0);
+            PLATFORM.speaker().play_sound("pong_blip_1", 0);
         }
         ball_speed_.x *= -1;
     }

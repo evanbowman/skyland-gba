@@ -420,7 +420,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
         }
 
-        PLATFORM.speaker().play_sound("explosion1.raw", 3);
+        PLATFORM.speaker().play_sound("explosion1", 3);
 
         big_explosion(origin, BigExplosionConfig{.draw_priority_ = 0});
 
@@ -454,7 +454,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
         if (timer_ > milliseconds(300)) {
 
-            PLATFORM.speaker().play_sound("explosion1.raw", 3);
+            PLATFORM.speaker().play_sound("explosion1", 3);
 
             big_explosion(origin, BigExplosionConfig{.draw_priority_ = 0});
             const auto off = Fixnum::from_integer(-50);
@@ -483,7 +483,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
             APP.rumble().activate(milliseconds(190));
 
-            PLATFORM.speaker().play_sound("explosion2.raw", 4);
+            PLATFORM.speaker().play_sound("explosion2", 4);
 
             // If we destroyed the other island, erase all of the goblins on our
             // own island. We're doing this here, because the screen's faded to
@@ -706,7 +706,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         break;
 
     case AnimState::show_coins: {
-        PLATFORM.speaker().play_sound("coin.raw", 2);
+        PLATFORM.speaker().play_sound("coin", 2);
         force_show_coins();
         APP.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;

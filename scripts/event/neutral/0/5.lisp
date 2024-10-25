@@ -71,7 +71,7 @@
                   (sel-input 'cargo-bay
                              "Place cargo bay (1x2):"
                              (lambda (isle x y)
-                               (sound "build0.raw")
+                               (sound "build0")
                                (room-new (player) `(cargo-bay ,x ,y))
                                (chr-del (opponent) 1 12)
                                (chr-new (player) x (+ 1 y) 'neutral nil)

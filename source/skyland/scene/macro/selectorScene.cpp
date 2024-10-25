@@ -253,7 +253,7 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
 
             auto val = board.data_[cursor.x][cursor.y];
             if (val == CheckerBoard::red or val == CheckerBoard::red_king) {
-                PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
                 return null_scene();
             }
 
@@ -281,7 +281,7 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
                     }
                     if (not found) {
                         text_->assign(SYSTR(checkers_forced_jump)->c_str());
-                        PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                        PLATFORM.speaker().play_sound("beep_error", 3);
                         return null_scene();
                     }
 
@@ -303,7 +303,7 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
                 state.sector().set_block(cursor, terrain::Type::air);
                 return make_scene<MoveCheckerScene>(pos, slots);
             } else {
-                PLATFORM.speaker().play_sound("beep_error.raw", 3);
+                PLATFORM.speaker().play_sound("beep_error", 3);
             }
 
         } else {

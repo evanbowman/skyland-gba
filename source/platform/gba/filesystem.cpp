@@ -155,7 +155,7 @@ Optional<DirectoryCache> find_directory(const char* prefix)
         }
 
         if (match) {
-            return {{hdr, files_remaining}};
+            return root->file_count_.get() - files_remaining;
         }
 
         --files_remaining;
@@ -167,8 +167,8 @@ Optional<DirectoryCache> find_directory(const char* prefix)
 
 
 
-std::tuple<FileContents, FileSize, const FileHeader*> load(FilePath path,
-                                                           Optional<DirectoryCache> dir)
+std::pair<FileContents, FileSize> load(FilePath path,
+                                       Optional<DirectoryCache> dir)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);
@@ -176,37 +176,26 @@ std::tuple<FileContents, FileSize, const FileHeader*> load(FilePath path,
     const auto root = get_root();
 
     u32 files_remaining = root->file_count_.get();
-
-    if (dir) {
-        current = (const char*)(*dir).first;
-        files_remaining = (*dir).second;
-    }
-
-    auto path_len = strlen(path);
-    if (path_len > sizeof(FileHeader::path_) - 1) {
-        PLATFORM.fatal(format("supplied path % exceeds max path len!", path));
-    }
+    FileNumber file_no = 0;
 
     while (files_remaining) {
         auto hdr = (FileHeader*)current;
 
-        if (// NOTE: because fs paths are padded, we can speed up file search by
-            // checking if the last character of the header path matches the
-            // last character of the supplied path.
-            path[path_len - 1] == hdr->path_[path_len - 1] and
-            str_eq(hdr->path_, path)) {
-
+        if (dir and *dir < file_no) {
+            // Keep incrementing until we reach the desired seek position.
+        } else if (str_eq(hdr->path_, path)) {
             if ((u32)(intptr_t)(current + sizeof(FileHeader)) % 4 not_eq 0) {
                 Platform::fatal("unaligned file");
             }
-            return {current + sizeof(FileHeader), hdr->size_.get(), hdr};
+            return {current + sizeof(FileHeader), hdr->size_.get()};
         }
 
         --files_remaining;
+        ++file_no;
         current += sizeof(FileHeader) + hdr->size_.get();
     }
 
-    return {nullptr, 0, nullptr};
+    return {nullptr, 0};
 }
 
 
