@@ -213,8 +213,8 @@ void Bulkhead::set_open(bool open)
     }
 
     if (APP.time_stream().pushes_enabled()) {
-        if (not PLATFORM.speaker().is_sound_playing("door")) {
-            PLATFORM.speaker().play_sound("door", 0);
+        if (not PLATFORM.speaker().is_sound_playing("door.raw")) {
+            PLATFORM.speaker().play_sound("door.raw", 0);
         }
     }
 

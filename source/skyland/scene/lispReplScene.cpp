@@ -337,12 +337,12 @@ TOP:
             cpl_->completion_cursor_ < cpl_->completions_.size() - 1) {
             ++cpl_->completion_cursor_;
             repaint_completions();
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
         } else if (PLATFORM.keyboard().down_transition<Key::up>() and
                    cpl_->completion_cursor_ > 0) {
             --cpl_->completion_cursor_;
             repaint_completions();
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
         } else if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
             repaint_entry();
             cpl_->completion_strs_.clear();
@@ -490,7 +490,7 @@ TOP:
             } else {
                 keyboard_cursor_.x -= 1;
             }
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
         } else if (PLATFORM.keyboard().down_transition<Key::right>()) {
             if (keyboard_cursor_.x == 5) {
@@ -498,7 +498,7 @@ TOP:
             } else {
                 keyboard_cursor_.x += 1;
             }
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
         } else if (PLATFORM.keyboard().down_transition<Key::up>()) {
             if (keyboard_cursor_.y == 0) {
@@ -506,7 +506,7 @@ TOP:
             } else {
                 keyboard_cursor_.y -= 1;
             }
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
         } else if (PLATFORM.keyboard().down_transition<Key::down>()) {
             if (keyboard_cursor_.y == 6) {
@@ -514,7 +514,7 @@ TOP:
             } else {
                 keyboard_cursor_.y += 1;
             }
-            PLATFORM.speaker().play_sound("scroll", 1);
+            PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
         }
         break;

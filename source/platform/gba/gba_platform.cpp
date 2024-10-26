@@ -3843,11 +3843,9 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_click_wooden.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
-#include "data/sound_core_destroyed.hpp"
 #include "data/sound_creaking.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
-#include "data/sound_door.hpp"
 #include "data/sound_drone_beep.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"
@@ -3869,11 +3867,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_page_flip.hpp"
 #include "data/sound_pong_blip1.hpp"
 #include "data/sound_pong_blip2.hpp"
-#include "data/sound_powerdown.hpp"
-#include "data/sound_poweron.hpp"
 #include "data/sound_scroll.hpp"
-#include "data/sound_seagull_1.hpp"
-#include "data/sound_seagull_2.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
 #include "data/sound_thunder_close_1.hpp"
@@ -3907,7 +3901,6 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(tw_bell, sound_tw_bell),
     DEF_SOUND(click, sound_scroll),
     DEF_SOUND(cursor_tick, sound_cursor_click),
-    // DEF_SOUND(click_negative, sound_click_negative),
     DEF_SOUND(click_wooden, sound_click_wooden),
     DEF_SOUND(button_wooden, sound_button_wooden),
     DEF_SOUND(click_digital_1, sound_digital_click_1),
@@ -3918,7 +3911,6 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(thunder_1, sound_thunder_1),
     DEF_SOUND(thunder_2, sound_thunder_2),
     DEF_SOUND(thunder_close_1, sound_thunder_close_1),
-    DEF_SOUND(core_destroyed, sound_core_destroyed),
     DEF_SOUND(pong_blip_1, sound_pong_blip1),
     DEF_SOUND(pong_blip_2, sound_pong_blip2),
     DEF_SOUND(struttin, music_struttin),
@@ -3927,14 +3919,9 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(archivist, sound_archivist),
     DEF_SOUND(cancel, sound_cancel),
-    DEF_SOUND(seagull_1, sound_seagull_1),
-    DEF_SOUND(seagull_2, sound_seagull_2),
     DEF_SOUND(msg, sound_msg),
-    DEF_SOUND(door, sound_door),
     DEF_SOUND(insert_cart, sound_insert_cart),
     DEF_SOUND(tonal_flutter, sound_tonal_flutter),
-    DEF_SOUND(powerdown, sound_powerdown),
-    DEF_SOUND(poweron, sound_poweron),
     DEF_SOUND(page_flip, sound_page_flip)};
 
 
@@ -4068,7 +4055,7 @@ static Optional<ActiveSoundInfo> make_sound(const char* name)
                                        (const AudioSample*)std::get<0>(f_info),
                                    .name_ = path};
         }
-        PLATFORM.fatal(format("sound % missing!", name).c_str());
+        // PLATFORM.fatal(format("sound % missing!", name).c_str());
         return {};
     }
 }

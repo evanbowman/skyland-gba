@@ -159,12 +159,12 @@ public:
                 if (room->allows_powerdown()) {
                     if (room->is_powered_down()) {
                         room->set_powerdown(false);
-                        PLATFORM.speaker().play_sound("poweron", 4);
+                        PLATFORM.speaker().play_sound("poweron.raw", 4);
                         APP.player_island().schedule_repaint();
                         desc_block();
                     } else if (room->power_usage() > 0) {
                         room->set_powerdown(true);
-                        PLATFORM.speaker().play_sound("powerdown", 4);
+                        PLATFORM.speaker().play_sound("powerdown.raw", 4);
                         APP.player_island().schedule_repaint();
                         desc_block();
                     } else {

@@ -710,12 +710,12 @@ ScenePtr TitleScreenScene::update(Time delta)
         bird_timer_ -= delta;
         if (bird_timer_ <= 0) {
             if (rng::choice<5>(rng::critical_state) == 0 and
-                not PLATFORM.speaker().is_sound_playing("seagull_1") and
-                not PLATFORM.speaker().is_sound_playing("seagull_2")) {
+                not PLATFORM.speaker().is_sound_playing("seagull_1.raw") and
+                not PLATFORM.speaker().is_sound_playing("seagull_2.raw")) {
                 if (rng::choice<2>(rng::critical_state)) {
-                    PLATFORM.speaker().play_sound("seagull_1", 0);
+                    PLATFORM.speaker().play_sound("seagull_1.raw", 0);
                 } else {
-                    PLATFORM.speaker().play_sound("seagull_2", 0);
+                    PLATFORM.speaker().play_sound("seagull_2.raw", 0);
                 }
             }
             bird_timer_ =
