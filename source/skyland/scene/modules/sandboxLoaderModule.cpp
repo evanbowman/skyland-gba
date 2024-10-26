@@ -171,6 +171,11 @@ void SandboxLoaderModule::enter(Scene& prev)
     } else {
         environment_init(parameters_[4]);
         PLATFORM.screen().set_shader(APP.environment().shader());
+
+        auto new_ambiance = APP.environment().ambiance();
+        if (not PLATFORM.speaker().is_music_playing(new_ambiance->c_str())) {
+            PLATFORM.speaker().stream_music(new_ambiance->c_str(), 0);
+        }
     }
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
