@@ -1569,7 +1569,8 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
             for (int y = 0; y < room->size().y; ++y) {
                 int rx = room->position().x + x;
                 int ry = room->position().y + y;
-                if (test_local_reachability(target_island->rooms_plot(),
+                if (room->get_atp() > highest_weight and
+                    test_local_reachability(target_island->rooms_plot(),
                                             drone_pos.x,
                                             drone_pos.y,
                                             rx,
