@@ -67,6 +67,28 @@ ScenePtr RegressionModule::update(Time delta)
         Text::print("running tests...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
+        PLATFORM.walk_filesystem([](const char* path) {
+            if (starts_with("/scripts/data/sounds/", StringBuffer<128>(path))) {
+                while (*path not_eq '\0') {
+                    ++path;
+                }
+                while (*path not_eq '/') {
+                    --path;
+                }
+                ++path;
+                StringBuffer<80> filename;
+                while (*path not_eq '.' and *path not_eq '\0') {
+                    filename.push_back(*path);
+                    ++path;
+                }
+
+                auto comp = PLATFORM.get_extensions().__test_compare_sound;
+                if (comp and not comp(filename.c_str())) {
+                    PLATFORM.fatal(path);
+                }
+            }
+        });
+
         lisp::set_var("regr-print", lisp::make_function([](int argc) {
                           L_EXPECT_ARGC(argc, 3);
                           L_EXPECT_OP(2, string);
@@ -84,10 +106,10 @@ ScenePtr RegressionModule::update(Time delta)
                           return L_NIL;
                       }));
 
-        PLATFORM.system_call("watchdog-off", nullptr);
+        PLATFORM_EXTENSION(watchdog_off);
         APP.invoke_script("/scripts/data/unittest.lisp");
         APP.invoke_script("/scripts/data/apitest.lisp");
-        PLATFORM.system_call("watchdog-on", nullptr);
+        PLATFORM_EXTENSION(watchdog_on);
 
         PLATFORM.screen().clear();
         Text::print("core regression passed!", {1, 1}, text_colors);
@@ -116,7 +138,9 @@ ScenePtr RegressionModule::update(Time delta)
             PLATFORM.screen().clear();
             Text::print("all regression passed!", {1, 1}, text_colors);
             u32 mstack = 0;
-            PLATFORM.system_call("stack_usage", &mstack);
+            if (auto s = PLATFORM.get_extensions().get_stack_usage) {
+                mstack = s();
+            }
             Text::print(format("max stack used %", mstack).c_str(),
                         {1, 3},
                         text_colors);
@@ -124,7 +148,7 @@ ScenePtr RegressionModule::update(Time delta)
 
             while (1) {
                 PLATFORM.keyboard().poll();
-                PLATFORM.system_call("feed-watchdog", nullptr);
+                PLATFORM_EXTENSION(feed_watchdog);
 
                 if (PLATFORM.keyboard()
                         .down_transition<Key::action_1,
@@ -133,7 +157,7 @@ ScenePtr RegressionModule::update(Time delta)
                                          Key::up,
                                          Key::left,
                                          Key::right>()) {
-                    PLATFORM.system_call("restart", nullptr);
+                    PLATFORM_EXTENSION(restart);
                 }
 
                 PLATFORM.screen().clear();

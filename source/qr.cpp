@@ -49,7 +49,7 @@ Optional<QRCode> QRCode::create(const char* text)
 
     auto temp = make_scratch_buffer("qr-temp-buffer");
 
-    Platform::instance().system_call("watchdog-off", 0);
+    PLATFORM_EXTENSION(watchdog_off);
 
     bool ok = qrcodegen_encodeText(text,
                                    (u8*)temp->data_,
@@ -60,7 +60,7 @@ Optional<QRCode> QRCode::create(const char* text)
                                    qrcodegen_Mask_AUTO,
                                    true);
 
-    Platform::instance().system_call("watchdog-on", 0);
+    PLATFORM_EXTENSION(watchdog_on);
 
     if (ok) {
         return QRCode(qr_data);

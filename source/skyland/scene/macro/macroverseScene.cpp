@@ -402,8 +402,9 @@ public:
     {
         int circ_center_x = PLATFORM.screen().size().x / 2;
         int circ_center_y = PLATFORM.screen().size().y / 2;
-        int params[] = {circ_radius_, circ_center_x, circ_center_y};
-        PLATFORM.system_call("iris-wipe-effect", params);
+
+        PLATFORM_EXTENSION(
+            iris_wipe_effect, circ_radius_, circ_center_x, circ_center_y);
     }
 
 
@@ -1095,8 +1096,7 @@ void MacroverseScene::display()
         return;
     }
 
-    PLATFORM.system_call(
-        "_prlx_macro", (void*)(intptr_t)(int)macrocosm().data_->cloud_scroll_);
+    PLATFORM_EXTENSION(update_parallax_macro, macrocosm().data_->cloud_scroll_);
 
 
     if (state_ == State::select_colony_layout) {

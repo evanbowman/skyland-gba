@@ -129,7 +129,7 @@ void MultiplayerSettingsScene::enter(Scene& prev)
 
     PLATFORM.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
 
-    PLATFORM.system_call("v-parallax", (void*)false);
+    PLATFORM_EXTENSION(vertical_parallax_enable, false);
 }
 
 
@@ -217,7 +217,7 @@ void MultiplayerSettingsScene::exit(Scene& next)
 
     PLATFORM.load_overlay_texture("overlay");
 
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
     if (vs_parameters_[0]) {
         setup_co_op_game();

@@ -92,7 +92,6 @@ ScenePtr MacrocosmLoaderModule::update(Time delta)
     APP.camera().emplace<macro::Camera>();
 
     PLATFORM.load_background_texture("background_macro");
-    // PLATFORM.system_call("parallax-clouds", false);
 
     PLATFORM.load_sprite_texture("spritesheet_macro");
     PLATFORM.load_tile0_texture("macro_rendertexture");
@@ -124,7 +123,7 @@ ScenePtr MacrocosmLoaderModule::update(Time delta)
     m.load();
     APP.game_mode() = App::GameMode::macro;
 
-    PLATFORM.system_call("vsync", nullptr);
+    PLATFORM_EXTENSION(force_vsync);
     sector.render();
 
     loading_text_.reset();

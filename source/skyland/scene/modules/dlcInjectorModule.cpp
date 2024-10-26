@@ -126,8 +126,7 @@ ScenePtr DlcInjectorModule::update(Time delta)
     Module::update(delta);
 
     Vector<char> result;
-
-    PLATFORM.system_call("dlc-download", &result);
+    PLATFORM_EXTENSION(dlc_download, result);
 
     if (result.size() not_eq 0) {
         store_dlc(result);

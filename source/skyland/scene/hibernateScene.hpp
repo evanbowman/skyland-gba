@@ -70,7 +70,7 @@ public:
             text_.reset();
             PLATFORM.screen().display();
             info("enter hibernate...");
-            PLATFORM.system_call("hibernate", nullptr);
+            PLATFORM_EXTENSION(hibernate);
             info("resume!");
             return make_scene<StartMenuScene>(1);
         }

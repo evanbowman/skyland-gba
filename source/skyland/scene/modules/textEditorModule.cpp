@@ -658,10 +658,6 @@ void TextEditorModule::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_editor");
 
-    while (PLATFORM.screen().touch()) {
-        PLATFORM.system_call("swap-screens", nullptr);
-    }
-
     header_.emplace(OverlayCoord{});
     StringBuffer<32> temp("  text editor  ");
     switch (syntax_mode_) {
@@ -705,7 +701,7 @@ void TextEditorModule::enter(Scene& prev)
 
 void TextEditorModule::exit(Scene& next)
 {
-    PLATFORM.system_call("vsync", nullptr);
+    PLATFORM_EXTENSION(force_vsync);
     PLATFORM.screen().fade(0.9f, ColorConstant::rich_black, {}, true, true);
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -1597,7 +1593,7 @@ void TextEditorModule::paste_selection(Vector<char>& source)
     auto insert = insert_pos();
 
     for (char c : source) {
-        PLATFORM.system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
         insert_char(c, insert);
         if (c == '\n') {
             ++cursor_.y;

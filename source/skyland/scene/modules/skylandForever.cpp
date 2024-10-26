@@ -64,7 +64,7 @@ static const u8 settings_start = 10;
 void SkylandForever::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_challenges");
-    PLATFORM.system_call("v-parallax", (void*)false);
+    PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
 
     APP.level_coins_spent() = 0;
@@ -124,12 +124,12 @@ void SkylandForever::exit(Scene& prev)
     environment_init(parameters_[1]);
 
     PLATFORM.load_overlay_texture("overlay");
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
     init(parameters_[0], rng::critical_state);
 
     PLATFORM.load_overlay_texture("overlay");
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
     PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 }

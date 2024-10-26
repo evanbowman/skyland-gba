@@ -95,17 +95,10 @@ void Speaker::update(Time delta)
             timer_ += delta;
             if (timer_ > milliseconds(750)) {
 
-                PLATFORM.speaker().stop_chiptune_note(
-                    Platform::Speaker::Channel::square_1);
-
-                PLATFORM.speaker().stop_chiptune_note(
-                    Platform::Speaker::Channel::square_2);
-
-                PLATFORM.speaker().stop_chiptune_note(
-                    Platform::Speaker::Channel::noise);
-
-                PLATFORM.speaker().stop_chiptune_note(
-                    Platform::Speaker::Channel::wave);
+                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
+                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
+                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
+                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
 
                 end_music_ = false;
             }
@@ -150,15 +143,15 @@ void Speaker::update(Time delta)
         }
 
 
-        PLATFORM.speaker().init_chiptune_square_1(settings_.square_1_);
-        PLATFORM.speaker().init_chiptune_square_2(settings_.square_2_);
-        PLATFORM.speaker().init_chiptune_noise(settings_.noise_);
+        PLATFORM_EXTENSION(psg_init_square_1, settings_.square_1_);
+        PLATFORM_EXTENSION(psg_init_square_2, settings_.square_2_);
+        PLATFORM_EXTENSION(psg_init_noise, settings_.noise_);
 
         timer_ = 0;
 
         auto play_note = [&](Platform::Speaker::Channel ch, Synth& s) {
             auto note = s.notes()[index_];
-            PLATFORM.speaker().play_chiptune_note(ch, note);
+            PLATFORM_EXTENSION(psg_play_note, ch, note);
         };
 
 
@@ -187,7 +180,7 @@ void Speaker::update(Time delta)
     }
 
     if (auto p = square_1()) {
-        PLATFORM.speaker().apply_chiptune_effect(
+        PLATFORM_EXTENSION(psg_apply_effect,
             Platform::Speaker::Channel::square_1,
             load_effect((int)Platform::Speaker::Channel::square_1),
             p->effect_parameters()[index_].value_,
@@ -196,7 +189,7 @@ void Speaker::update(Time delta)
 
 
     if (auto n = noise()) {
-        PLATFORM.speaker().apply_chiptune_effect(
+        PLATFORM_EXTENSION(psg_apply_effect,
             Platform::Speaker::Channel::noise,
             load_effect((int)Platform::Speaker::Channel::noise),
             n->effect_parameters()[index_].value_,
@@ -204,7 +197,7 @@ void Speaker::update(Time delta)
     }
 
     if (auto p = square_2()) {
-        PLATFORM.speaker().apply_chiptune_effect(
+        PLATFORM_EXTENSION(psg_apply_effect,
             Platform::Speaker::Channel::square_2,
             load_effect((int)Platform::Speaker::Channel::square_2),
             p->effect_parameters()[index_].value_,
@@ -403,14 +396,10 @@ void Speaker::finalize()
     }
 
     if (playing_) {
-
-        PLATFORM.speaker().stop_chiptune_note(
-            Platform::Speaker::Channel::square_1);
-        PLATFORM.speaker().stop_chiptune_note(
-            Platform::Speaker::Channel::square_2);
-        PLATFORM.speaker().stop_chiptune_note(
-            Platform::Speaker::Channel::noise);
-        PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
+        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
+        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
+        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
     }
 }
 

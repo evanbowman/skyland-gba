@@ -185,7 +185,7 @@ public:
             if (flash_filesystem::read_file_data_binary(parsed[1].c_str(),
                                                         data)) {
                 auto enc = base32::encode(data);
-                PLATFORM.system_call("console-write-buffer", &enc);
+                PLATFORM_EXTENSION(console_write_buffer, enc);
                 PLATFORM.remote_console().printline("\r\nComplete!", "sc> ");
             } else {
                 PLATFORM.remote_console().printline("file not found!", "sc> ");

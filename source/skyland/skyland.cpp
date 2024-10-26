@@ -546,10 +546,8 @@ void App::update_parallax(Time delta)
 
 void App::_render_update_scroll()
 {
-    PLATFORM.system_call("_prlx7",
-                         (void*)(intptr_t)(u8)cloud_scroll_1fp_.as_integer());
-    PLATFORM.system_call("_prlx8",
-                         (void*)(intptr_t)(u8)cloud_scroll_2fp_.as_integer());
+    PLATFORM_EXTENSION(update_parallax_r1, (u8)cloud_scroll_1fp_.as_integer());
+    PLATFORM_EXTENSION(update_parallax_r2, (u8)cloud_scroll_2fp_.as_integer());
 }
 
 
@@ -578,7 +576,7 @@ void App::set_coins(Coins coins)
 
 void init_clouds()
 {
-    PLATFORM.system_call("parallax-clouds", (void*)true);
+    PLATFORM_EXTENSION(enable_parallax_clouds, true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {

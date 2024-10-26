@@ -322,13 +322,6 @@ Platform& Platform::instance()
 
 
 
-void* Platform::system_call(const char* feature_name, void* arg)
-{
-    return nullptr;
-}
-
-
-
 u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 {
     return 0;

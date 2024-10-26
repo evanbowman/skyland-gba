@@ -938,7 +938,7 @@ AGAIN:
     case State::after_sweep: {
         timer_ += delta;
         if (timer_ > milliseconds(100)) {
-            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM_EXTENSION(force_vsync);
             data_->text_.clear();
             PLATFORM.screen().display();
 

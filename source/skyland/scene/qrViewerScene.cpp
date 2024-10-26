@@ -71,7 +71,7 @@ void QRViewerScene::enter(Scene& prev)
             t.assign(str->c_str(),
                      OptColors{{ColorConstant::silver_white,
                                 custom_color(0x006ea6)}});
-            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM_EXTENSION(force_vsync);
             PLATFORM.screen().fade(1.f, custom_color(0x006ea6));
             PLATFORM.screen().display();
         }

@@ -142,20 +142,14 @@ public:
                 flash_filesystem::store_file_data(
                     lang_file, path, strlen(path));
             }
-            auto has_clock = PLATFORM.system_clock().initial_time();
-            if (clean_boot_ and has_clock) {
-                auto next = make_scene<DatetimeModule>();
-                next->next_scene_ = make_deferred_scene<IntroCreditsScene>();
-                return next;
-            } else {
-                if (PLATFORM.device_name() == "MacroDesktopDemo") {
-                    APP.gp_.stateflags_.set(
-                        GlobalPersistentData::freebuild_unlocked, true);
-                    return make_scene<MacrocosmFreebuildModule>();
-                }
 
-                return make_scene<IntroCreditsScene>();
+            if (PLATFORM.device_name() == "MacroDesktopDemo") {
+                APP.gp_.stateflags_.set(
+                    GlobalPersistentData::freebuild_unlocked, true);
+                return make_scene<MacrocosmFreebuildModule>();
             }
+
+            return make_scene<IntroCreditsScene>();
         }
 
         return null_scene();
@@ -223,7 +217,7 @@ public:
         PLATFORM.screen().display();
 
 
-        PLATFORM.system_call("vsync", 0);
+        PLATFORM_EXTENSION(force_vsync);
         PLATFORM.enable_glyph_mode(true);
         PLATFORM.load_overlay_texture("overlay");
         PLATFORM.load_tile1_texture("boot_img_flattened");
@@ -331,7 +325,9 @@ public:
                 fc);
 
             u32 mstack = 0;
-            PLATFORM.system_call("stack_usage", &mstack);
+            if (auto s = PLATFORM.get_extensions().get_stack_usage) {
+                mstack = s();
+            }
 
             Text::print(format("Stk: [%]", mstack).c_str(), {2, 10}, fc);
 
@@ -344,7 +340,7 @@ public:
                 fc);
         }
 
-        PLATFORM.system_call("vsync", 0);
+        PLATFORM_EXTENSION(force_vsync);
         Text msg({1, u8(st.y - 2)});
         msg.append(text, fc);
         auto len = msg.len();
@@ -410,7 +406,7 @@ public:
             PLATFORM.load_sprite_texture(APP.environment().sprite_texture());
             PLATFORM.load_background_texture(
                 APP.environment().background_texture());
-            PLATFORM.system_call("v-parallax", (void*)true);
+            PLATFORM_EXTENSION(vertical_parallax_enable, true);
             SkylandForever::init(1, rng::get(rng::critical_state));
             APP.persistent_data().score_.set(0);
             APP.set_coins(std::max(0, APP.coins() - 1000));

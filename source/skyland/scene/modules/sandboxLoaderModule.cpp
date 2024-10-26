@@ -137,7 +137,7 @@ void SandboxLoaderModule::enter(Scene& prev)
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 
-    PLATFORM.system_call("v-parallax", (void*)false);
+    PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
 
     const StringBuffer<32> title = SYSTR(sandbox_title)->c_str();
@@ -223,7 +223,7 @@ void SandboxLoaderModule::exit(Scene& next)
         show_island_exterior(APP.opponent_island());
 
         PLATFORM.load_overlay_texture("overlay");
-        PLATFORM.system_call("v-parallax", (void*)true);
+        PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -287,7 +287,7 @@ ScenePtr SandboxLoaderModule::update(Time delta)
         auto last_ambiance = APP.environment().ambiance();
 
         environment_init(parameters_[4]);
-        PLATFORM.system_call("v-parallax", (void*)false);
+        PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
         PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
@@ -301,7 +301,6 @@ ScenePtr SandboxLoaderModule::update(Time delta)
         if (*last_ambiance not_eq new_ambiance->c_str()) {
             PLATFORM.speaker().stream_music(new_ambiance->c_str(), 0);
         }
-
     };
 
 

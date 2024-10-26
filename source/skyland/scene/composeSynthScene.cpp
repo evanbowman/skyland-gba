@@ -102,12 +102,12 @@ ScenePtr ComposeSynthScene::update(Time delta)
     if (note_demo_timer_ > 0) {
         note_demo_timer_ -= delta;
         if (note_demo_timer_ < 0) {
-            PLATFORM.speaker().stop_chiptune_note(channel_);
+            PLATFORM_EXTENSION(psg_stop_note, channel_);
         }
     }
 
 
-    PLATFORM.speaker().apply_chiptune_effect(
+    PLATFORM_EXTENSION(psg_apply_effect,
         Platform::Speaker::Channel::square_1,
         effect_flags_.load((int)Platform::Speaker::Channel::square_1,
                            demo_index_),
@@ -566,11 +566,11 @@ void ComposeSynthScene::demo_note()
         demo_index_ = resume_y_;
     }
 
-    PLATFORM.speaker().init_chiptune_square_1(square_1_settings_);
-    PLATFORM.speaker().init_chiptune_square_2(square_2_settings_);
-    PLATFORM.speaker().init_chiptune_noise(noise_settings_);
+    PLATFORM_EXTENSION(psg_init_square_1, square_1_settings_);
+    PLATFORM_EXTENSION(psg_init_square_2, square_2_settings_);
+    PLATFORM_EXTENSION(psg_init_noise, noise_settings_);
 
-    PLATFORM.speaker().play_chiptune_note(channel_, notes_[demo_index_]);
+    PLATFORM_EXTENSION(psg_play_note, channel_, notes_[demo_index_]);
 
     note_demo_timer_ = seconds(3);
 }
@@ -975,7 +975,7 @@ void ComposeSynthScene::exit(Scene& next)
 {
     PLATFORM.fill_overlay(0);
 
-    PLATFORM.speaker().stop_chiptune_note(channel_);
+    PLATFORM_EXTENSION(psg_stop_note, channel_);
 
     PLATFORM.screen().schedule_fade(0.f);
 

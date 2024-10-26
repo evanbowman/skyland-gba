@@ -2074,14 +2074,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-const Platform::Screen::Touch* Platform::Screen::touch() const
-{
-    // No touchscreen on the gba!
-    return nullptr;
-}
-
-
-
 using OptDmaBufferData = std::array<u16, 161>;
 EWRAM_DATA Optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
 EWRAM_DATA int dma_effect_params[3];
@@ -4257,247 +4249,6 @@ static EWRAM_DATA AnalogChannel analog_channel[4];
 
 
 
-void Platform::Speaker::stop_chiptune_note(Channel channel)
-{
-    switch (channel) {
-    case Channel::square_1:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 8);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xc);
-        break;
-
-    case Channel::square_2:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 9);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xd);
-        break;
-
-    case Channel::noise:
-        // FIXME!?
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_LNOISE;
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_RNOISE;
-        break;
-
-    case Channel::wave:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
-        break;
-
-    default:
-        // TODO!
-        break;
-    }
-
-    // Turn directsound back on!
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
-}
-
-
-
-void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
-{
-    auto note = note_desc.regular_.note_;
-    u8 octave = note_desc.regular_.octave_;
-
-    if (channel == Channel::noise and
-        note_desc.noise_freq_.frequency_select_ == 0) {
-        return;
-    } else if (channel not_eq Channel::noise and
-               ((u8)note >= (u8)Note::count or note == Note::invalid)) {
-        return;
-    }
-
-
-    // Turn off directsound!
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
-
-    switch (channel) {
-    case Channel::square_1:
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR1;
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR1;
-        analog_channel[(int)channel].last_note_ = note;
-        analog_channel[(int)channel].last_octave_ = octave;
-        analog_channel[(int)channel].effect_timer_ = 0;
-        REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
-        break;
-
-    case Channel::square_2:
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR2;
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR2;
-        analog_channel[(int)channel].last_note_ = note;
-        analog_channel[(int)channel].last_octave_ = octave;
-        analog_channel[(int)channel].effect_timer_ = 0;
-        REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
-        break;
-
-    case Channel::noise: {
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LNOISE;
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RNOISE;
-        analog_channel[(int)channel].last_note_ = note;
-        analog_channel[(int)channel].last_octave_ = octave;
-        analog_channel[(int)channel].effect_timer_ = 0;
-        auto freq = note_desc.noise_freq_.frequency_select_;
-        auto entry = noise_frequency_table_[freq];
-        REG_SND4FREQ = 0;
-        REG_SND4FREQ = SFREQ_RESET | ((0x0f & entry.shift_) << 4) |
-                       (0x07 & entry.ratio_) |
-                       (note_desc.noise_freq_.wide_mode_ << 3);
-        break;
-    }
-
-    case Channel::wave:
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LWAVE;
-        REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RWAVE;
-        analog_channel[(int)channel].last_note_ = note;
-        analog_channel[(int)channel].last_octave_ = octave;
-        analog_channel[(int)channel].effect_timer_ = 0;
-        break;
-
-    default:
-        // TODO...
-        break;
-    }
-}
-
-
-
-void Platform::Speaker::apply_chiptune_effect(Channel channel,
-                                              Effect effect,
-                                              u8 argument,
-                                              Microseconds delta)
-{
-    if (channel == Channel::invalid) {
-        return;
-    }
-
-
-    const auto ch_num = (int)channel;
-
-
-    auto apply_vibrato = [&](volatile u16* freq_register) {
-        auto amplitude = argument & 0x0f;
-        auto freq = (argument & 0xf0) >> 4;
-
-        // We're using freq as a divisor. Zero isn't valid
-        freq++;
-
-        analog_channel[ch_num].effect_timer_ += delta;
-        auto rate = SND_RATE(analog_channel[ch_num].last_note_,
-                             analog_channel[ch_num].last_octave_);
-
-
-        auto vib = float(cosine(analog_channel[ch_num].effect_timer_ / freq)) /
-                   std::numeric_limits<s16>::max();
-
-        vib *= (amplitude << 2);
-        rate += vib;
-        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
-        *freq_register = *freq_register | rate;
-    };
-
-
-    auto apply_duty = [&](volatile u16* ctrl_register) {
-        *ctrl_register = *ctrl_register & ~SSQR_DUTY_MASK;
-        // (Only four possible duty cycles, hence the mask)
-        *ctrl_register = *ctrl_register | SSQR_DUTY((argument >> 4) & 0x03);
-    };
-
-
-    auto apply_envelope = [&](volatile u16* ctrl_register) {
-        auto duty = (*ctrl_register & SSQR_DUTY_MASK) >> SSQR_DUTY_SHIFT;
-        auto length = (*ctrl_register & SSQR_LEN_MASK) >> SSQR_LEN_SHIFT;
-
-        // To match LSDJ: first nibble: volume, second nibble: 1-7: release with
-        // decreasing envelope, 8-f: release with increasing envelope.
-
-        int dir = 0;
-
-        if ((argument & 0x0f) < 8) {
-            dir = 0; // decreasing
-        } else {
-            dir = 1;
-        }
-
-        *ctrl_register = SSQR_BUILD(
-            (argument & 0xf0) >> 4, dir, (argument & 0x07), duty, length);
-    };
-
-
-    auto cancel_effect = [&](volatile u16* freq_register) {
-        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
-        *freq_register =
-            *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
-                                      analog_channel[ch_num].last_octave_);
-
-        analog_channel[ch_num].effect_timer_ = 0;
-    };
-
-
-    switch (channel) {
-    case Channel::square_1: {
-        switch (effect) {
-        case Effect::vibrato:
-            apply_vibrato(&REG_SND1FREQ);
-            break;
-
-        case Effect::none:
-            cancel_effect(&REG_SND1FREQ);
-            break;
-
-        case Effect::duty:
-            apply_duty(&REG_SND1CNT);
-            break;
-
-        case Effect::envelope:
-            apply_envelope(&REG_SND1CNT);
-            break;
-        }
-        break;
-    }
-
-    case Channel::square_2:
-        switch (effect) {
-        case Effect::vibrato:
-            apply_vibrato(&REG_SND2FREQ);
-            break;
-
-        case Effect::none:
-            cancel_effect(&REG_SND2FREQ);
-            break;
-
-        case Effect::duty:
-            apply_duty(&REG_SND2CNT);
-            break;
-
-        case Effect::envelope:
-            apply_envelope(&REG_SND2CNT);
-            break;
-        }
-        break;
-
-    case Channel::noise:
-        switch (effect) {
-        case Effect::duty:
-            apply_duty(&REG_SND4CNT);
-            break;
-
-        case Effect::envelope:
-            apply_envelope(&REG_SND4CNT);
-            break;
-
-        default:
-            break;
-        }
-        break;
-
-    default:
-        // TODO...
-        break;
-    }
-}
-
-
-
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
                                    Optional<Vec2<Float>> position)
@@ -5275,70 +5026,6 @@ static void audio_start()
 
 
 
-void Platform::Speaker::init_chiptune_square_1(ChannelSettings settings)
-{
-    REG_SND1CNT = SSQR_BUILD(settings.volume_,
-                             settings.envelope_direction_,
-                             settings.envelope_step_,
-                             settings.duty_,
-                             settings.length_);
-}
-
-
-
-void Platform::Speaker::init_chiptune_square_2(ChannelSettings settings)
-{
-    REG_SND2CNT = SSQR_BUILD(settings.volume_,
-                             settings.envelope_direction_,
-                             settings.envelope_step_,
-                             settings.duty_,
-                             settings.length_);
-}
-
-
-
-void Platform::Speaker::init_chiptune_wave(u16 config)
-{
-}
-
-
-
-void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
-{
-    REG_SND4CNT = SSQR_BUILD(settings.volume_,
-                             settings.envelope_direction_,
-                             settings.envelope_step_,
-                             settings.duty_,
-                             settings.length_);
-}
-
-
-
-// We want our code to be resiliant to cartridges lacking an RTC chip. Run the
-// timer-based delta clock for a while, and make sure that the RTC also counted
-// up.
-static bool rtc_verify_operability(Optional<DateTime> tm1)
-{
-    if (get_gflag(GlobalFlag::rtc_faulty)) {
-        return false;
-    }
-
-    Microseconds counter = PLATFORM.delta_clock().reset();
-
-    while (counter < seconds(1) + milliseconds(250)) {
-        counter += PLATFORM.delta_clock().reset();
-    }
-
-    const auto tm2 = PLATFORM.system_clock().now();
-
-    return tm1 and tm2 and time_diff(*tm1, *tm2) > 0;
-}
-
-
-static Optional<DateTime> start_time;
-
-
-
 static void remote_console_start();
 
 
@@ -5482,7 +5169,7 @@ void show_health_and_safety_message()
 
     while (true) {
         ++frames;
-        PLATFORM.system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
         VBlankIntrWait();
 
         if (frames > 60) {
@@ -6586,7 +6273,7 @@ MASTER_RETRY:
             irqDisable(IRQ_SERIAL);
             return;
         }
-        ::__platform__->system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     const char* handshake =
@@ -6610,7 +6297,7 @@ MASTER_RETRY:
     }
 
     while (true) {
-        ::__platform__->system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
         delta += ::__platform__->delta_clock().reset();
         if (delta > seconds(20)) {
             StringBuffer<64> err =
@@ -6779,144 +6466,6 @@ Platform::NetworkPeer::~NetworkPeer()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-// SystemClock
-//
-// Uses the cartridge RTC hardware, over the gpio port.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-static void rtc_gpio_write_command(u8 value)
-{
-    u8 temp;
-
-    for (u8 i = 0; i < 8; i++) {
-        temp = ((value >> (7 - i)) & 1);
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 5;
-    }
-}
-
-
-static void rtc_gpio_write_data(u8 value)
-{
-    u8 temp;
-
-    for (u8 i = 0; i < 8; i++) {
-        temp = ((value >> i) & 1);
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 4;
-        GPIO_PORT_DATA = (temp << 1) | 5;
-    }
-}
-
-
-static u8 rtc_gpio_read_value()
-{
-    u8 temp;
-    u8 value = 0;
-
-    for (u8 i = 0; i < 8; i++) {
-        GPIO_PORT_DATA = 4;
-        GPIO_PORT_DATA = 4;
-        GPIO_PORT_DATA = 4;
-        GPIO_PORT_DATA = 4;
-        GPIO_PORT_DATA = 4;
-        GPIO_PORT_DATA = 5;
-
-        temp = ((GPIO_PORT_DATA & 2) >> 1);
-        value = (value >> 1) | (temp << 7);
-    }
-
-    return value;
-}
-
-
-static u8 rtc_get_status()
-{
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 5;
-    GPIO_PORT_DIRECTION = 7;
-
-    rtc_gpio_write_command(S3511A_CMD_STATUS | S3511A_RD);
-
-    GPIO_PORT_DIRECTION = 5;
-
-    const auto status = rtc_gpio_read_value();
-
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 1;
-
-    return status;
-}
-
-
-static auto rtc_get_datetime()
-{
-    std::array<u8, 7> result;
-
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 5;
-    GPIO_PORT_DIRECTION = 7;
-
-    rtc_gpio_write_command(S3511A_CMD_DATETIME | S3511A_RD);
-
-    GPIO_PORT_DIRECTION = 5;
-
-    for (auto& val : result) {
-        val = rtc_gpio_read_value();
-    }
-
-    result[4] &= 0x7F;
-
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 1;
-
-    return result;
-}
-
-
-
-static void rtc_set_datetime(std::array<u8, 7> vals)
-{
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 5;
-    GPIO_PORT_DIRECTION = 7;
-
-    rtc_gpio_write_command(S3511A_CMD_DATETIME | S3511A_WR);
-
-    for (u32 i = 0; i < vals.size(); i++) {
-        rtc_gpio_write_data(vals[i]);
-    }
-
-    GPIO_PORT_DATA = 1;
-    GPIO_PORT_DATA = 1;
-}
-
-
-
-Platform::SystemClock::SystemClock()
-{
-}
-
-
-
-static u32 bcd_to_binary(u8 bcd)
-{
-    if (bcd > 0x9f)
-        return 0xff;
-
-    if ((bcd & 0xf) <= 9)
-        return (10 * ((bcd >> 4) & 0xf)) + (bcd & 0xf);
-    else
-        return 0xff;
-}
-
-
 
 IrqState critical_section_enter()
 {
@@ -6948,78 +6497,6 @@ void critical_section_exit(IrqState state)
     REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
 }
 
-
-
-Optional<DateTime> Platform::SystemClock::initial_time()
-{
-    return start_time;
-}
-
-
-
-#define BCD_ENCODE(X) (((X) % 10) + (((X) / 10) << 4))
-
-
-
-void Platform::SystemClock::configure(DateTime dt)
-{
-    std::array<u8, 7> data;
-    data[0] = BCD_ENCODE(dt.date_.year_);
-    data[1] = BCD_ENCODE(dt.date_.month_);
-    data[2] = BCD_ENCODE(dt.date_.day_);
-
-    int d = dt.date_.day_;
-    int m = dt.date_.month_;
-    int y = dt.date_.year_;
-    int day_of_week = (d += m < 3 ? y-- : y - 2,
-                       23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) %
-                      7;
-
-    data[3] = BCD_ENCODE(day_of_week);
-    data[4] = BCD_ENCODE(dt.hour_);
-    data[5] = BCD_ENCODE(dt.minute_);
-    data[6] = BCD_ENCODE(dt.second_);
-
-    auto irq = critical_section_enter();
-    rtc_set_datetime(data);
-    critical_section_exit(irq);
-}
-
-
-
-Optional<DateTime> Platform::SystemClock::now()
-{
-    if (get_gflag(GlobalFlag::rtc_faulty)) {
-        return {};
-    }
-
-    auto irq = critical_section_enter();
-    const auto [year, month, day, dow, hr, min, sec] = rtc_get_datetime();
-    critical_section_exit(irq);
-
-    DateTime info;
-    info.date_.year_ = bcd_to_binary(year);
-    info.date_.month_ = bcd_to_binary(month);
-    info.date_.day_ = bcd_to_binary(day);
-    info.hour_ = bcd_to_binary(hr);
-    info.minute_ = bcd_to_binary(min);
-    info.second_ = bcd_to_binary(sec);
-
-    return info;
-}
-
-
-
-void Platform::SystemClock::init()
-{
-    GPIO_PORT_READ_ENABLE = 1;
-
-    auto status = rtc_get_status();
-    if (status & S3511A_STATUS_POWER) {
-        set_gflag(GlobalFlag::rtc_faulty, true);
-        warning("RTC chip power failure");
-    }
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7337,283 +6814,556 @@ void memset16(u16* data, u16 val, int count)
 }
 
 
-// #include "incbin.h"
-// INCBIN(Skyland_MB_ROM, "SkylandClient_mb.gba");
 
-
-
-void* Platform::system_call(const char* feature_name, void* arg)
-{
-    if (str_eq(feature_name, "sc")) { // Stackcheck, abreviated for speed.
+static const Platform::Extensions extensions{
+    .stack_check = []() -> bool {
         if (not canary_check()) {
             longjmp(stack_overflow_resume_context, 1);
         }
-        return nullptr;
-    } else if (str_eq(feature_name, "psync")) {
-        memcpy32(bg_palette_back_buffer + 32, tilesheet_1_palette, 8);
-        memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
-        memcpy32(&bg_palette_back_buffer[16 * 11], background_palette, 8);
-        set_gflag(GlobalFlag::partial_palette_sync, true);
-    } else if (str_eq(feature_name, "feed-watchdog")) {
-        ::watchdog_counter = 0;
-    } else if (str_cmp(feature_name, "_prlx7") == 0) {
+        return true;
+    },
+    .palette_sync =
+        []() {
+            memcpy32(bg_palette_back_buffer + 32, tilesheet_1_palette, 8);
+            memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
+            memcpy32(&bg_palette_back_buffer[16 * 11], background_palette, 8);
+            set_gflag(GlobalFlag::partial_palette_sync, true);
+        },
+    .feed_watchdog = []() { ::watchdog_counter = 0; },
+    .update_parallax_r1 =
+        [](u8 scroll) {
+            auto& screen = PLATFORM.screen();
+            if (not get_gflag(GlobalFlag::v_parallax)) {
+                auto offset = screen.get_view().get_center().cast<s32>().y / 2;
+                for (int i = 112 - offset; i < 128 - offset; ++i) {
+                    u8 temp = scroll +
+                              screen.get_view().get_center().cast<s32>().x / 3;
+                    parallax_table[i] = temp;
+                }
 
-        if (not get_gflag(GlobalFlag::v_parallax)) {
-            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
-            for (int i = 112 - offset; i < 128 - offset; ++i) {
-                u8 temp = ((u8)(intptr_t)arg) +
-                          screen_.get_view().get_center().cast<s32>().x / 3;
-                parallax_table[i] = temp;
+                for (int i = 0; i < 112 - offset; ++i) {
+                    parallax_table[i] = 0;
+                }
+
+                // Fixme: clean up this code...
+                return;
             }
 
-            for (int i = 0; i < 112 - offset; ++i) {
-                parallax_table[i] = 0;
+            auto offset =
+                screen.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+
+            const auto x_amount =
+                scroll +
+                (screen.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+
+            for (int i = (112 - offset) - 30; i < 128 - offset; ++i) {
+                parallax_table[i] = x_amount;
+                vertical_parallax_table[i] = offset;
             }
 
-            // Fixme: clean up this code...
-            return nullptr;
-        }
+            if (not get_gflag(GlobalFlag::palette_sync)) {
+                // NOTE: The palette sync is costly, don't bother to scroll this
+                // stuff if we're about to copy over the palette back buffer. During
+                // fades, the palettes are copied infrequently anyway.
 
-        auto offset =
-            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+                s16 far_x_offset =
+                    screen.get_view().get_center().cast<s32>().x / 2 * 0.5f + 3;
 
-        const auto x_amount =
-            ((u8)(intptr_t)arg) +
-            (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+                s16 v_scroll = (offset * 6) / 2 + 24;
 
-        for (int i = (112 - offset) - 30; i < 128 - offset; ++i) {
-            parallax_table[i] = x_amount;
-            vertical_parallax_table[i] = offset;
-        }
+                // Gradient effect:
+                for (int i = 0; i < (112 - offset) - 30; ++i) {
+                    parallax_table[i] = far_x_offset / 4;
+                    if (i < -v_scroll) {
+                        // For scroll wrapping: We're doing a gradient effect here,
+                        // if the dithered tile gradient scrolls such that the
+                        // scroll wraps, then fill in the wrapped rows with the
+                        // pixels with zero offset scanlines, which use the darkest
+                        // gradient color. NOTE: this works because the amount of
+                        // background scrolling for the gradient does not exceed the
+                        // width of the darkest band of tiles in the gradient.
 
-        if (not get_gflag(GlobalFlag::palette_sync)) {
-            // NOTE: The palette sync is costly, don't bother to scroll this
-            // stuff if we're about to copy over the palette back buffer. During
-            // fades, the palettes are copied infrequently anyway.
+                        vertical_parallax_table[i] = 0;
 
-            s16 far_x_offset =
-                screen_.get_view().get_center().cast<s32>().x / 2 * 0.5f + 3;
+                        if (i > 12) {
+                            // Yeah, some amount of trial and error here.
+                            vertical_parallax_table[i] = v_scroll / 2;
+                        }
 
-            s16 v_scroll = (offset * 6) / 2 + 24;
-
-            // Gradient effect:
-            for (int i = 0; i < (112 - offset) - 30; ++i) {
-                parallax_table[i] = far_x_offset / 4;
-                if (i < -v_scroll) {
-                    // For scroll wrapping: We're doing a gradient effect here,
-                    // if the dithered tile gradient scrolls such that the
-                    // scroll wraps, then fill in the wrapped rows with the
-                    // pixels with zero offset scanlines, which use the darkest
-                    // gradient color. NOTE: this works because the amount of
-                    // background scrolling for the gradient does not exceed the
-                    // width of the darkest band of tiles in the gradient.
-
-                    vertical_parallax_table[i] = 0;
-
-                    if (i > 12) {
-                        // Yeah, some amount of trial and error here.
-                        vertical_parallax_table[i] = v_scroll / 2;
+                    } else {
+                        vertical_parallax_table[i] = v_scroll;
                     }
-
-                } else {
-                    vertical_parallax_table[i] = v_scroll;
                 }
             }
-        }
-    } else if (str_cmp(feature_name, "_prlx8") == 0) {
+        },
+    .update_parallax_r2 =
+        [](u8 scroll) {
+            auto& screen = PLATFORM.screen();
+            if (not get_gflag(GlobalFlag::v_parallax)) {
+                auto offset = screen.get_view().get_center().cast<s32>().y / 2;
+                for (int i = 128 - offset; i < 160 - offset; ++i) {
+                    u8 temp = scroll +
+                              screen.get_view().get_center().cast<s32>().x / 3;
+                    parallax_table[i] = temp;
+                }
+                return;
+            }
 
-        if (not get_gflag(GlobalFlag::v_parallax)) {
-            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
+            auto offset =
+                screen.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
+
+            const auto x_amount =
+                scroll + screen.get_view().get_center().cast<s32>().x / 3;
+
             for (int i = 128 - offset; i < 160 - offset; ++i) {
-                u8 temp = ((u8)(intptr_t)arg) +
-                          screen_.get_view().get_center().cast<s32>().x / 3;
-                parallax_table[i] = temp;
+                parallax_table[i] = x_amount;
+                vertical_parallax_table[i] = offset;
             }
-            return nullptr;
-        }
 
-        auto offset =
-            screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
+            // When the two layers of parallax scrolling diverge, there is a gap of
+            // unshifted pixels between them, which we need to account for.
+            // Otherwise, certain rows that were scrolled last time will not have
+            // their y-scroll adjusted, which can create graphical glitches.
+            auto other_row_offset =
+                screen.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
 
-        const auto x_amount = ((u8)(intptr_t)arg) +
-                              screen_.get_view().get_center().cast<s32>().x / 3;
+            for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
+                // We put a layer of solid-colored tiles offscreen, and we scroll
+                // them up to fill the gap.
+                vertical_parallax_table[i] = 38;
+                parallax_table[i] = x_amount;
+            }
+        },
+    .update_parallax_macro =
+        [](int scroll) {
+            for (int i = 0; i < 160; ++i) {
+                vertical_parallax_table[i] = 0;
+            }
+            int amount_4 = (scroll * 0.1f);
+            for (int i = 32; i < 64; ++i) {
+                parallax_table[i] = (u8)amount_4;
+            }
+            int amount_3 = (scroll * 0.4f);
+            for (int i = 64; i < 100; ++i) {
+                parallax_table[i] = (u8)amount_3;
+            }
+            int amount_2 = (scroll * 0.7f);
+            for (int i = 100; i < 128; ++i) {
+                parallax_table[i] = (u8)amount_2;
+            }
+            for (int i = 128; i < 160; ++i) {
+                parallax_table[i] = (u8)scroll;
+            }
+        },
+    .enable_parallax_clouds =
+        [](bool on) {
+            set_gflag(GlobalFlag::parallax_clouds, on);
 
-        for (int i = 128 - offset; i < 160 - offset; ++i) {
-            parallax_table[i] = x_amount;
-            vertical_parallax_table[i] = offset;
-        }
-
-        // When the two layers of parallax scrolling diverge, there is a gap of
-        // unshifted pixels between them, which we need to account for.
-        // Otherwise, certain rows that were scrolled last time will not have
-        // their y-scroll adjusted, which can create graphical glitches.
-        auto other_row_offset =
-            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
-
-        for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
-            // We put a layer of solid-colored tiles offscreen, and we scroll
-            // them up to fill the gap.
-            vertical_parallax_table[i] = 38;
-            parallax_table[i] = x_amount;
-        }
-
-
-    } else if (str_eq(feature_name, "_prlx_macro")) {
-        auto scroll = (int)((intptr_t)arg);
-        for (int i = 0; i < 160; ++i) {
-            vertical_parallax_table[i] = 0;
-        }
-        int amount_4 = (scroll * 0.1f);
-        for (int i = 32; i < 64; ++i) {
-            parallax_table[i] = (u8)amount_4;
-        }
-        int amount_3 = (scroll * 0.4f);
-        for (int i = 64; i < 100; ++i) {
-            parallax_table[i] = (u8)amount_3;
-        }
-        int amount_2 = (scroll * 0.7f);
-        for (int i = 100; i < 128; ++i) {
-            parallax_table[i] = (u8)amount_2;
-        }
-        for (int i = 128; i < 160; ++i) {
-            parallax_table[i] = (u8)scroll;
-        }
-    } else if (str_cmp(feature_name, "gswap") == 0) {
-        *((u16*)0x4000002) = 0x0000 | (bool)arg;
-    } else if (str_cmp(feature_name, "parallax-clouds") == 0) {
-
-        set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
-
-        if ((bool)arg) {
-            vblank_dma_callback = vblank_full_transfer_scroll_isr;
-            for (int i = 0; i < 280; ++i) {
-                if (i < 140) {
-                    vertical_parallax_table[i] = 200;
-                } else {
-                    vertical_parallax_table[i] = 0;
+            if (on) {
+                vblank_dma_callback = vblank_full_transfer_scroll_isr;
+                for (int i = 0; i < 280; ++i) {
+                    if (i < 140) {
+                        vertical_parallax_table[i] = 200;
+                    } else {
+                        vertical_parallax_table[i] = 0;
+                    }
                 }
             }
-        }
-    } else if (str_cmp(feature_name, "v-parallax") == 0) {
-        set_gflag(GlobalFlag::v_parallax, (bool)arg);
+        },
+    .vertical_parallax_enable =
+        [](bool on) {
+            set_gflag(GlobalFlag::v_parallax, on);
 
-        if ((bool)arg) {
-            vblank_dma_callback = vblank_full_transfer_scroll_isr;
-        } else {
-            vblank_dma_callback = vblank_horizontal_transfer_scroll_isr;
-        }
-    } else if (str_cmp(feature_name, "dlc-download") == 0) {
-        download_dlc_blob(*(Vector<char>*)arg);
-    } else if (str_eq(feature_name, "vsync")) {
-        VBlankIntrWait();
-    } else if (str_eq(feature_name, "overlay-circle-effect")) {
-        int radius = ((int*)arg)[0];
-        int x = ((int*)arg)[1];
-        int y = ((int*)arg)[2];
-        if (radius == 0 and opt_dma_buffer_) {
-            // Cancel DMA transfer. Important, because we're freeing the buffer
-            // of data used by the hdma when we drop the opt_dma_buffer.
-            DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
-            vblank_dma_callback = vblank_full_transfer_scroll_isr;
-            opt_dma_buffer_.reset();
-            fill_overlay(0);
-            window_init_default();
-        } else if (radius not_eq 0) {
-            if (not opt_dma_buffer_) {
-                VBlankIntrWait();
-                opt_dma_buffer_ =
-                    allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
-                memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
-                window_init_effectmode();
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
-                win_circle((*opt_dma_buffer_)->data(), x, y, radius);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
-                DMA_TRANSFER(
-                    &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
-                fill_overlay(491);
+            if (on) {
+                vblank_dma_callback = vblank_full_transfer_scroll_isr;
+            } else {
+                vblank_dma_callback = vblank_horizontal_transfer_scroll_isr;
             }
-            vblank_dma_callback = vblank_circle_effect_isr;
-            dma_effect_params[0] = radius;
-            dma_effect_params[1] = x;
-            dma_effect_params[2] = y;
-        }
-    } else if (str_eq(feature_name, "iris-wipe-effect")) {
-        int radius = ((int*)arg)[0];
-        int x = ((int*)arg)[1];
-        int y = ((int*)arg)[2];
-        if (radius == 0 and opt_dma_buffer_) {
-            // Cancel DMA transfer. Important, because we're freeing the buffer
-            // of data used by the hdma when we drop the opt_dma_buffer.
-            DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
-            vblank_dma_callback = vblank_full_transfer_scroll_isr;
-            opt_dma_buffer_.reset();
-            fill_overlay(0);
-            window_init_default();
-        } else if (radius not_eq 0) {
-            if (not opt_dma_buffer_) {
-                VBlankIntrWait();
-                opt_dma_buffer_ =
-                    allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
-                memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
-                window_init_inverse_effectmode();
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
-                win_circle((*opt_dma_buffer_)->data(), x, y, radius);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
-                REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
-                DMA_TRANSFER(
-                    &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
-                fill_overlay(112);
+        },
+    .force_vsync = [] { VBlankIntrWait(); },
+    .overlay_circle_effect =
+        [](int radius, int x, int y) {
+            if (radius == 0 and opt_dma_buffer_) {
+                // Cancel DMA transfer. Important, because we're freeing the buffer
+                // of data used by the hdma when we drop the opt_dma_buffer.
+                DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+                vblank_dma_callback = vblank_full_transfer_scroll_isr;
+                opt_dma_buffer_.reset();
+                PLATFORM.fill_overlay(0);
+                window_init_default();
+            } else if (radius not_eq 0) {
+                if (not opt_dma_buffer_) {
+                    VBlankIntrWait();
+                    opt_dma_buffer_ =
+                        allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                    memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+                    window_init_effectmode();
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
+                    win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
+                    DMA_TRANSFER(
+                        &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+                    PLATFORM.fill_overlay(491);
+                }
+                vblank_dma_callback = vblank_circle_effect_isr;
+                dma_effect_params[0] = radius;
+                dma_effect_params[1] = x;
+                dma_effect_params[2] = y;
             }
-            vblank_dma_callback = vblank_circle_effect_isr;
-            dma_effect_params[0] = radius;
-            dma_effect_params[1] = x;
-            dma_effect_params[2] = y;
+        },
+    .iris_wipe_effect =
+        [](int radius, int x, int y) {
+            if (radius == 0 and opt_dma_buffer_) {
+                // Cancel DMA transfer. Important, because we're freeing the buffer
+                // of data used by the hdma when we drop the opt_dma_buffer.
+                DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+                vblank_dma_callback = vblank_full_transfer_scroll_isr;
+                opt_dma_buffer_.reset();
+                PLATFORM.fill_overlay(0);
+                window_init_default();
+            } else if (radius not_eq 0) {
+                if (not opt_dma_buffer_) {
+                    VBlankIntrWait();
+                    opt_dma_buffer_ =
+                        allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                    memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+                    window_init_inverse_effectmode();
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
+                    win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+                    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
+                    DMA_TRANSFER(
+                        &REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+                    PLATFORM.fill_overlay(112);
+                }
+                vblank_dma_callback = vblank_circle_effect_isr;
+                dma_effect_params[0] = radius;
+                dma_effect_params[1] = x;
+                dma_effect_params[2] = y;
+            }
+        },
+    .hibernate =
+        [] {
+            REG_KEYCNT =
+                KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+
+            irqSet(IRQ_KEYPAD, [] {});
+
+            Stop();
+
+            irqSet(IRQ_KEYPAD, keypad_isr);
+            REG_KEYCNT = KEY_SELECT | KEY_START | KEY_R | KEY_L |
+                         KEYIRQ_ENABLE | KEYIRQ_AND;
+        },
+    .print_memory_diagnostics = [] { scratch_buffer_memory_diagnostics(); },
+    .console_write_buffer =
+        [](Vector<char>& input) {
+            uart_blocking_output_mode();
+
+            // Our console doesn't support output for lines larger than ~2
+            // kilobytes. This system call implements a blocking write for large
+            // data buffers.
+
+            for (char c : input) {
+                uart_blocking_write(c);
+            }
+
+            uart_blocking_send_sync();
+            REG_SIOCNT = 0;
+            REG_SIODATA8 = '\n';
+
+            // Re-enable the async non-blocking console.
+            remote_console_start();
+        },
+    .dlc_download = [](Vector<char>& output) { download_dlc_blob(output); },
+    .watchdog_on = [] { set_gflag(GlobalFlag::watchdog_disabled, false); },
+    .watchdog_off = [] { set_gflag(GlobalFlag::watchdog_disabled, true); },
+    .get_stack_usage = [] { return max_stack_usage(); },
+    .restart = [] { ::restart(); },
+    .psg_play_note = [](Platform::Speaker::Channel channel,
+                        Platform::Speaker::NoteDesc note_desc) {
+        auto note = note_desc.regular_.note_;
+        u8 octave = note_desc.regular_.octave_;
+
+        if (channel == Platform::Speaker::Channel::noise and
+            note_desc.noise_freq_.frequency_select_ == 0) {
+            return;
+        } else if (channel not_eq Platform::Speaker::Channel::noise and
+                   ((u8)note >= (u8)Platform::Speaker::Note::count or
+                    note == Platform::Speaker::Note::invalid)) {
+            return;
         }
-    } else if (str_eq(feature_name, "hibernate")) {
-        REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 
-        irqSet(IRQ_KEYPAD, [] {});
 
-        Stop();
+        // Turn off directsound!
+        REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+        REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
 
-        irqSet(IRQ_KEYPAD, keypad_isr);
-        REG_KEYCNT =
-            KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
-    } else if (str_eq(feature_name, "print-memory-diagnostics")) {
-        scratch_buffer_memory_diagnostics();
-    } else if (str_eq(feature_name, "console-write-buffer")) {
-        auto v = (Vector<char>*)arg;
+        switch (channel) {
+        case Platform::Speaker::Channel::square_1:
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR1;
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR1;
+            analog_channel[(int)channel].last_note_ = note;
+            analog_channel[(int)channel].last_octave_ = octave;
+            analog_channel[(int)channel].effect_timer_ = 0;
+            REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+            break;
 
-        uart_blocking_output_mode();
+        case Platform::Speaker::Channel::square_2:
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR2;
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR2;
+            analog_channel[(int)channel].last_note_ = note;
+            analog_channel[(int)channel].last_octave_ = octave;
+            analog_channel[(int)channel].effect_timer_ = 0;
+            REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+            break;
 
-        // Our console doesn't support output for lines larger than ~2
-        // kilobytes. This system call implements a blocking write for large
-        // data buffers.
-
-        for (char c : *v) {
-            uart_blocking_write(c);
+        case Platform::Speaker::Channel::noise: {
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LNOISE;
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RNOISE;
+            analog_channel[(int)channel].last_note_ = note;
+            analog_channel[(int)channel].last_octave_ = octave;
+            analog_channel[(int)channel].effect_timer_ = 0;
+            auto freq = note_desc.noise_freq_.frequency_select_;
+            auto entry = noise_frequency_table_[freq];
+            REG_SND4FREQ = 0;
+            REG_SND4FREQ = SFREQ_RESET | ((0x0f & entry.shift_) << 4) |
+                (0x07 & entry.ratio_) |
+                (note_desc.noise_freq_.wide_mode_ << 3);
+            break;
         }
 
-        uart_blocking_send_sync();
-        REG_SIOCNT = 0;
-        REG_SIODATA8 = '\n';
+        case Platform::Speaker::Channel::wave:
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LWAVE;
+            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RWAVE;
+            analog_channel[(int)channel].last_note_ = note;
+            analog_channel[(int)channel].last_octave_ = octave;
+            analog_channel[(int)channel].effect_timer_ = 0;
+            break;
 
-        // Re-enable the async non-blocking console.
-        remote_console_start();
-    } else if (str_eq(feature_name, "watchdog-on")) {
-        set_gflag(GlobalFlag::watchdog_disabled, false);
-    } else if (str_eq(feature_name, "watchdog-off")) {
-        set_gflag(GlobalFlag::watchdog_disabled, true);
-    } else if (str_eq(feature_name, "restart")) {
-        restart();
-    } else if (str_eq(feature_name, "stack_usage")) {
-        *((u32*)arg) = max_stack_usage();
+        default:
+            // TODO...
+            break;
+        }
+    },
+    .psg_stop_note = [](Platform::Speaker::Channel channel) {
+            switch (channel) {
+    case Platform::Speaker::Channel::square_1:
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 8);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xc);
+        break;
+
+    case Platform::Speaker::Channel::square_2:
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 9);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xd);
+        break;
+
+    case Platform::Speaker::Channel::noise:
+        // FIXME!?
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_LNOISE;
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_RNOISE;
+        break;
+
+    case Platform::Speaker::Channel::wave:
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
+        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
+        break;
+
+    default:
+        // TODO!
+        break;
     }
 
-    return nullptr;
+    // Turn directsound back on!
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
+
+    },
+    .psg_apply_effect = [](Platform::Speaker::Channel channel,
+                           Platform::Speaker::Effect effect,
+                           u8 argument,
+                           Microseconds delta) {
+            if (channel == Platform::Speaker::Channel::invalid) {
+        return;
+    }
+
+
+    const auto ch_num = (int)channel;
+
+
+    auto apply_vibrato = [&](volatile u16* freq_register) {
+        auto amplitude = argument & 0x0f;
+        auto freq = (argument & 0xf0) >> 4;
+
+        // We're using freq as a divisor. Zero isn't valid
+        freq++;
+
+        analog_channel[ch_num].effect_timer_ += delta;
+        auto rate = SND_RATE(analog_channel[ch_num].last_note_,
+                             analog_channel[ch_num].last_octave_);
+
+
+        auto vib = float(cosine(analog_channel[ch_num].effect_timer_ / freq)) /
+                   std::numeric_limits<s16>::max();
+
+        vib *= (amplitude << 2);
+        rate += vib;
+        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+        *freq_register = *freq_register | rate;
+    };
+
+
+    auto apply_duty = [&](volatile u16* ctrl_register) {
+        *ctrl_register = *ctrl_register & ~SSQR_DUTY_MASK;
+        // (Only four possible duty cycles, hence the mask)
+        *ctrl_register = *ctrl_register | SSQR_DUTY((argument >> 4) & 0x03);
+    };
+
+
+    auto apply_envelope = [&](volatile u16* ctrl_register) {
+        auto duty = (*ctrl_register & SSQR_DUTY_MASK) >> SSQR_DUTY_SHIFT;
+        auto length = (*ctrl_register & SSQR_LEN_MASK) >> SSQR_LEN_SHIFT;
+
+        // To match LSDJ: first nibble: volume, second nibble: 1-7: release with
+        // decreasing envelope, 8-f: release with increasing envelope.
+
+        int dir = 0;
+
+        if ((argument & 0x0f) < 8) {
+            dir = 0; // decreasing
+        } else {
+            dir = 1;
+        }
+
+        *ctrl_register = SSQR_BUILD(
+            (argument & 0xf0) >> 4, dir, (argument & 0x07), duty, length);
+    };
+
+
+    auto cancel_effect = [&](volatile u16* freq_register) {
+        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+        *freq_register =
+            *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
+                                      analog_channel[ch_num].last_octave_);
+
+        analog_channel[ch_num].effect_timer_ = 0;
+    };
+
+
+    switch (channel) {
+    case Platform::Speaker::Channel::square_1: {
+        switch (effect) {
+        case Platform::Speaker::Effect::vibrato:
+            apply_vibrato(&REG_SND1FREQ);
+            break;
+
+        case Platform::Speaker::Effect::none:
+            cancel_effect(&REG_SND1FREQ);
+            break;
+
+        case Platform::Speaker::Effect::duty:
+            apply_duty(&REG_SND1CNT);
+            break;
+
+        case Platform::Speaker::Effect::envelope:
+            apply_envelope(&REG_SND1CNT);
+            break;
+        }
+        break;
+    }
+
+    case Platform::Speaker::Channel::square_2:
+        switch (effect) {
+        case Platform::Speaker::Effect::vibrato:
+            apply_vibrato(&REG_SND2FREQ);
+            break;
+
+        case Platform::Speaker::Effect::none:
+            cancel_effect(&REG_SND2FREQ);
+            break;
+
+        case Platform::Speaker::Effect::duty:
+            apply_duty(&REG_SND2CNT);
+            break;
+
+        case Platform::Speaker::Effect::envelope:
+            apply_envelope(&REG_SND2CNT);
+            break;
+        }
+        break;
+
+    case Platform::Speaker::Channel::noise:
+        switch (effect) {
+        case Platform::Speaker::Effect::duty:
+            apply_duty(&REG_SND4CNT);
+            break;
+
+        case Platform::Speaker::Effect::envelope:
+            apply_envelope(&REG_SND4CNT);
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    default:
+        // TODO...
+        break;
+    }
+    },
+    .psg_init_square_1 = [](Platform::Speaker::ChannelSettings settings) {
+        REG_SND1CNT = SSQR_BUILD(settings.volume_,
+                                 settings.envelope_direction_,
+                                 settings.envelope_step_,
+                                 settings.duty_,
+                                 settings.length_);
+    },
+    .psg_init_square_2 = [](Platform::Speaker::ChannelSettings settings) {
+        REG_SND2CNT = SSQR_BUILD(settings.volume_,
+                                 settings.envelope_direction_,
+                                 settings.envelope_step_,
+                                 settings.duty_,
+                                 settings.length_);
+    },
+    .psg_init_wave = [](Platform::Speaker::ChannelSettings s) {
+
+    },
+    .psg_init_noise = [](Platform::Speaker::ChannelSettings settings) {
+        REG_SND4CNT = SSQR_BUILD(settings.volume_,
+                                 settings.envelope_direction_,
+                                 settings.envelope_step_,
+                                 settings.duty_,
+                                 settings.length_);
+    },
+    .__test_compare_sound = [](const char* name) {
+        if (auto s = get_sound(name)) {
+
+            auto f_info = filesystem::load(format("/scripts/data/sounds/%", name).c_str(),
+                                           sounds_dir);
+
+            if (std::get<1>(f_info)) {
+                for (int i = 0; i < s->length_ and i < (int)std::get<1>(f_info); ++i) {
+                    if (std::get<0>(f_info)[i] not_eq s->data_[i]) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        return true;
+    },
+};
+
+
+
+const Platform::Extensions& Platform::get_extensions()
+{
+    return extensions;
 }
 
 
@@ -7686,8 +7436,6 @@ static void publisher_logo_anim()
 Platform::Platform()
 {
     ::__platform__ = this;
-
-    const auto tm1 = system_clock_.now();
 
     logger().set_threshold(Severity::fatal);
 
@@ -7808,11 +7556,6 @@ Platform::Platform()
         warning("BIOS checksum failed, may be corrupt");
         break;
     }
-
-    // NOTE: initializing the system clock is easier before interrupts are
-    // enabled, because the system clock pulls data from the gpio port on the
-    // cartridge.
-    system_clock_.init();
 
 
     irqInit(); // NOTE: Do not move these lines with respect to
@@ -7972,29 +7715,7 @@ Platform::Platform()
         REG_WAITCNT |= 1 << 14;
     }
 
-    CONF_BOOL(detect_rtc);
-
-    if (not detect_rtc or not rtc_verify_operability(tm1)) {
-        set_gflag(GlobalFlag::rtc_faulty, true);
-        info("RTC chip appears either non-existant or non-functional");
-    } else {
-        auto now = system_clock_.now();
-        if (now->date_.year_ not_eq 0 and now->date_.month_ not_eq 0 and
-            now->date_.day_ not_eq 0 and now->hour_ not_eq 0 and
-            now->minute_ not_eq 0 and now->second_ not_eq 0) {
-
-            ::start_time = now;
-
-            StringBuffer<100> str = "startup time: ";
-
-            log_format_time(str, *::start_time);
-
-            info(str.c_str());
-
-        } else {
-            info("RTC chip exists, but starttime is zeroed!");
-        }
-    }
+    set_gflag(GlobalFlag::rtc_faulty, true);
 
     const auto stk_size_min = 11000;
     if (stack_reserved_size() < stk_size_min) {

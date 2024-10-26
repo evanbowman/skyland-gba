@@ -334,7 +334,7 @@ void __draw_image(TileDesc start_tile,
 
 void GlossaryViewerModule::show_category_image(int img)
 {
-    PLATFORM.system_call("vsync", 0); // fixme
+    PLATFORM_EXTENSION(force_vsync);
 
     switch (cover_img_) {
         // FIXME: I was using distinct images for each page of the glossary. But

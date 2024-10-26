@@ -66,8 +66,8 @@ public:
     {
         int circ_center_x = PLATFORM.screen().size().x / 2;
         int circ_center_y = PLATFORM.screen().size().y / 2;
-        int params[] = {circ_radius_, circ_center_x, circ_center_y};
-        PLATFORM.system_call("iris-wipe-effect", params);
+        PLATFORM_EXTENSION(
+            iris_wipe_effect, circ_radius_, circ_center_x, circ_center_y);
     }
 
 

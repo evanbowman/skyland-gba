@@ -224,7 +224,7 @@ void TitleScreenScene::enter(Scene& prev)
     APP.swap_player<PlayerP1>();
 
     init_clouds();
-    PLATFORM.system_call("v-parallax", (void*)false);
+    PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
     APP.player_island().clear();
 
@@ -374,7 +374,7 @@ void TitleScreenScene::exit(Scene& next)
 
     text_.reset();
 
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
     PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
     PLATFORM.load_tile1_texture(APP.environment().opponent_island_texture());
@@ -626,11 +626,6 @@ ScenePtr TitleScreenScene::update(Time delta)
         PLATFORM.speaker().play_sound("creaking", 9);
     }
 
-
-    if (APP.player().key_down(Key::action_4)) {
-        // For the nintendo ds
-        PLATFORM.system_call("swap-screens", nullptr);
-    }
 
     {
         ambient_movement_ =
@@ -1023,7 +1018,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 put_menu_text();
                 play_gust_sound();
                 state_ = State::scroll_to_center;
-                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.load_tile0_texture("skyland_title_0_flattened");
                 __draw_image(31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
@@ -1033,7 +1028,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 state_ = State::scroll_to_end;
                 play_gust_sound();
                 timer_ = 0;
-                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.load_tile0_texture("skyland_title_3_flattened");
             } else if (menu_selection_ == 4) {
                 menu_selection_ = 2;
@@ -1058,7 +1053,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 put_menu_text();
                 state_ = State::scroll_macro;
                 play_gust_sound();
-                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.load_tile1_texture("skyland_title_2_flattened");
                 timer_ = 0;
             } else if (menu_selection_ == 3) {
@@ -1072,7 +1067,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 put_menu_text();
                 play_gust_sound();
                 state_ = State::scroll_multiplayer;
-                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.load_tile0_texture("skyland_title_4_flattened");
                 __draw_image(31, 0, 3, 30, 14, Layer::map_0);
                 timer_ = 0;
@@ -1164,7 +1159,7 @@ ScenePtr TitleScreenScene::update(Time delta)
         if (timer_ > duration) {
             timer_ = 0;
             state_ = State::wait;
-            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM_EXTENSION(force_vsync);
             PLATFORM.load_tile1_texture("skyland_title_1_flattened");
             x_scroll_ = 0;
         } else {
@@ -1206,7 +1201,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = 0;
             state_ = State::wait;
             x_scroll_ = 240;
-            PLATFORM.system_call("vsync", nullptr);
+            PLATFORM_EXTENSION(force_vsync);
             PLATFORM.load_tile0_texture("skyland_title_0_flattened");
             PLATFORM.speaker().set_music_volume(max_vol);
             PLATFORM.speaker().set_sounds_volume(max_vol);
@@ -1503,7 +1498,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                     }
 
                     PLATFORM.fill_overlay(0);
-                    PLATFORM.system_call("vsync", 0); // FIXME
+                    PLATFORM_EXTENSION(force_vsync);
                     PLATFORM.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
                     APP.game_mode() = App::GameMode::challenge;

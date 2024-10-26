@@ -177,7 +177,7 @@ void scratch_buffer_dump_sector(int sector)
 
         PLATFORM.remote_console().printline(out.c_str(), "");
         PLATFORM.sleep(20);
-        PLATFORM.system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     StringBuffer<50> complete("dumped : ");

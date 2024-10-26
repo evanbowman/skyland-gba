@@ -135,10 +135,12 @@ void Platform::Logger::log(Severity level, const char* msg)
 }
 
 
-void* Platform::system_call(const char* feature_name, void* arg)
+Platform::Extensions Platform::get_extensions()
 {
-    return nullptr;
+    static const Extensions ext;
+    return ext;
 }
+
 
 
 bool Platform::RemoteConsole::printline(const char* text, const char* prompt)

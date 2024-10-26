@@ -166,7 +166,7 @@ void CheckersModule::init()
     }
 
 
-    PLATFORM.system_call("vsync", nullptr);
+    PLATFORM_EXTENSION(force_vsync);
 
     m.sector().render();
 
@@ -174,8 +174,7 @@ void CheckersModule::init()
     PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
     PLATFORM.screen().schedule_fade(0.f);
 
-    PLATFORM.system_call("_prlx_macro",
-                         (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+    PLATFORM_EXTENSION(update_parallax_macro, macrocosm().data_->cloud_scroll_);
 }
 
 

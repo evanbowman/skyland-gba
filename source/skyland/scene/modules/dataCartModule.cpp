@@ -38,7 +38,7 @@ void DataCartModule::show_cart(int index)
     static const Text::OptColors colors{
         {ColorConstant::silver_white, custom_color(0x000818)}};
 
-    PLATFORM.system_call("vsync", nullptr);
+    PLATFORM_EXTENSION(force_vsync);
     Text tmp({});
     tmp.append("(", colors);
     tmp.append(index + 1, colors);
@@ -483,7 +483,7 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
     auto type = cart.expect_content_string("type");
 
     if (*type == "reboot") {
-        PLATFORM.system_call("restart", nullptr);
+        PLATFORM_EXTENSION(restart);
     } else if (*type == "checkers") {
         return make_scene<CheckersModule>();
     } else if (*type == "image") {

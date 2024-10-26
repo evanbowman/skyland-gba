@@ -1165,9 +1165,3 @@ void Platform::sleep(Frame frames)
 
     ::slept_ticks += sleep_end - sleep_start;
 }
-
-
-void* Platform::system_call(const char* feature_name, void* arg)
-{
-    return nullptr;
-}

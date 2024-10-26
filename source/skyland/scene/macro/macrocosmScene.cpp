@@ -131,7 +131,8 @@ ScenePtr MacrocosmScene::update(Time delta)
     }
     if (was_gre) {
         PLATFORM.screen().set_shader_argument((val << 8) | val2);
-        PLATFORM.system_call("psync", nullptr);
+
+        PLATFORM_EXTENSION(palette_sync);
     }
 
     const bool is_night = raster::globalstate::is_night;
@@ -248,8 +249,7 @@ void MacrocosmScene::display()
 
     auto& m = macrocosm();
 
-    PLATFORM.system_call("_prlx_macro",
-                         (void*)(intptr_t)(int)m.data_->cloud_scroll_);
+    PLATFORM_EXTENSION(update_parallax_macro, macrocosm().data_->cloud_scroll_);
 
     for (auto& e : m.data_->entities_) {
         PLATFORM.screen().draw(e->sprite());

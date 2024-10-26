@@ -272,7 +272,7 @@ void download_dlc_blob(Vector<char>& output)
 
     while (dlc_transfer.state_ == DlcTransferContext::State::read_size or
            dlc_transfer.halfwords_remaining_) {
-        PLATFORM.system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     irqDisable(IRQ_SERIAL);

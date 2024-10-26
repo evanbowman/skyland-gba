@@ -63,7 +63,7 @@ void SelectChallengeScene::enter(Scene& prev)
 
     PLATFORM.load_overlay_texture("overlay_challenges");
 
-    PLATFORM.system_call("v-parallax", (void*)false);
+    PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
     APP.player_island().clear_rooms();
     APP.effects().clear();
@@ -179,7 +179,7 @@ void SelectChallengeScene::exit(Scene& next)
     PLATFORM.fill_overlay(0);
     PLATFORM.load_overlay_texture("overlay");
 
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
     PLATFORM.screen().fade(1.f);
 }

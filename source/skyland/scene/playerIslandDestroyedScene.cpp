@@ -188,8 +188,10 @@ void PlayerIslandDestroyedScene::display()
         int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
                             PLATFORM.screen().get_view().get_center().y - 510;
         // Platform::fatal(stringify(circ_center_y).c_str());
-        int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
-        PLATFORM.system_call("overlay-circle-effect", params);
+        PLATFORM_EXTENSION(overlay_circle_effect,
+                           circ_effect_radius_,
+                           circ_center_x,
+                           circ_center_y);
     }
 
 
@@ -584,7 +586,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
     case AnimState::begin_fade2: {
         anim_state_ = AnimState::fade;
-        PLATFORM.system_call("vsync", 0);
+        PLATFORM_EXTENSION(force_vsync);
         PLATFORM.fill_overlay(0);
         PLATFORM.screen().fade(
             1.f, ColorConstant::silver_white, {}, true, true);
@@ -877,7 +879,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                 PLATFORM.screen().set_shader(APP.environment().shader());
                 PLATFORM.screen().set_shader_argument(0);
-                PLATFORM.system_call("vsync", nullptr);
+                PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.screen().fade(1.f);
 
                 if (PLATFORM.network_peer().is_connected()) {
@@ -1156,10 +1158,10 @@ void PlayerIslandDestroyedScene::exit(Scene& next)
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.screen().pixelate(0);
 
-    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
-    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
-    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
-    PLATFORM.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
 
     if (restore_volume_) {
         PLATFORM.speaker().set_music_volume(

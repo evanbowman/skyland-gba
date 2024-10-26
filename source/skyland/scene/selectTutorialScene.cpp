@@ -111,7 +111,7 @@ void SelectTutorialScene::enter(Scene& prev)
     if (state_ not_eq State::quickselect) {
         PLATFORM.load_overlay_texture("overlay_challenges");
 
-        PLATFORM.system_call("v-parallax", (void*)false);
+        PLATFORM_EXTENSION(vertical_parallax_enable, false);
     }
 
     APP.game_mode() = App::GameMode::tutorial;
@@ -234,7 +234,7 @@ void SelectTutorialScene::exit(Scene& next)
     PLATFORM.fill_overlay(0);
     PLATFORM.load_overlay_texture("overlay");
 
-    PLATFORM.system_call("v-parallax", (void*)true);
+    PLATFORM_EXTENSION(vertical_parallax_enable, true);
 }
 
 

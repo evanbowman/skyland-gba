@@ -776,10 +776,6 @@ ScenePtr WorldScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_4)) {
-        PLATFORM.system_call("swap-screens", nullptr);
-    }
-
     if (not noreturn_ and APP.dialog_buffer()) {
         return make_dialog();
     }

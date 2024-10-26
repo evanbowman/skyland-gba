@@ -106,7 +106,7 @@ public:
 
     void repaint(u32 row_offset)
     {
-        PLATFORM.system_call("vsync", 0);
+        PLATFORM_EXTENSION(force_vsync);
 
         Text offset(OverlayCoord{14, 18});
         auto colors =

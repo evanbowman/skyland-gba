@@ -853,7 +853,7 @@ RETRY:
         gen(3, 0.02f);
         gen(size().z, 0.1f);
 
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -998,7 +998,7 @@ BREAK:
     }
 
     if (low_count < (1 * area) / 3) {
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
         goto RETRY;
     }
 
@@ -1101,7 +1101,7 @@ void terrain::Sector::generate_terrain_regular(int min_blocks,
         gen(3, 0.02f);
         gen(size().z, 0.1f);
 
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1388,7 +1388,7 @@ void terrain::Sector::generate_terrain_desert(int min_blocks,
         gen(3, 0.02f);
         gen(size().z, 0.1f);
 
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1571,7 +1571,7 @@ void terrain::Sector::generate_terrain_tundra(int min_blocks,
         gen(3, 0.02f);
         gen(size().z, 0.1f);
 
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {
@@ -1749,7 +1749,7 @@ void terrain::Sector::generate_terrain_molten(int min_blocks,
         gen(3, 0.02f);
         gen(size().z, 0.1f);
 
-        Platform::instance().system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
     }
 
     for (int x = 1; x < size().x - 1; ++x) {

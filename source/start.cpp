@@ -168,7 +168,7 @@ void start(Platform& pfrm)
     while (PLATFORM.is_running()) {
         PLATFORM.keyboard().poll();
 
-        PLATFORM.system_call("feed-watchdog", nullptr);
+        PLATFORM_EXTENSION(feed_watchdog);
 
         auto dt = PLATFORM.delta_clock().reset();
         app->update(dt);

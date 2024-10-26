@@ -530,7 +530,7 @@ void FlagDesignerModule::exit(Scene& next)
             show_island_exterior(APP.opponent_island());
         }
     } else {
-        PLATFORM.system_call("vsync", nullptr); // FIXME
+        PLATFORM_EXTENSION(force_vsync);
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
         PLATFORM.screen().fade(1.f);

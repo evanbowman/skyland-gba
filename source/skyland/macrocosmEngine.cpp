@@ -448,19 +448,6 @@ void EngineImpl::save()
     } else {
         info(format("macro save used % buffers", sbr_used).c_str());
     }
-
-    DateTime dt;
-    if (auto tm = PLATFORM.system_clock().now()) {
-        dt = *tm;
-        save_data.clear();
-
-        for (u32 i = 0; i < sizeof(dt); ++i) {
-            save_data.push_back(((u8*)&dt)[i]);
-        }
-
-        flash_filesystem::store_file_data_binary(save::timestamp_path,
-                                                 save_data);
-    }
 }
 
 

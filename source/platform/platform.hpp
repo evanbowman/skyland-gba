@@ -72,6 +72,16 @@ enum class ShaderPalette {
 };
 
 
+
+#define PLATFORM_EXTENSION(NAME, ...)                                          \
+    {                                                                          \
+        if (PLATFORM.get_extensions().NAME) {                                  \
+            PLATFORM.get_extensions().NAME(__VA_ARGS__);                       \
+        }                                                                      \
+    }
+
+
+
 class Platform
 {
 public:
@@ -81,7 +91,6 @@ public:
     class Speaker;
     class NetworkPeer;
     class DeltaClock;
-    class SystemClock;
     class RemoteConsole;
 
     using DeviceName = StringBuffer<23>;
@@ -152,10 +161,6 @@ public:
     }
 
 
-    // For devices with two screens, like the nintendo ds.
-    Screen* sub_screen();
-
-
     Keyboard& keyboard()
     {
         return keyboard_;
@@ -187,11 +192,6 @@ public:
         return delta_clock_;
     }
 
-    SystemClock& system_clock()
-    {
-        return system_clock_;
-    }
-
     // NOTE: I must admit, the platform class interface has become quite
     // bloated.
 
@@ -211,13 +211,6 @@ public:
 
 
     [[noreturn]] static void restart();
-
-
-    // An interface for dynamically-bound optional procedures. Invoked via
-    // string name, so that these functions do not need to be defined right away
-    // when going through the tedious process of re-implementing the Platform
-    // class for a new build target.
-    void* system_call(const char* feature_name, void* arg);
 
 
     struct TextureMapping
@@ -424,27 +417,6 @@ public:
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // SystemClock
-    ////////////////////////////////////////////////////////////////////////////
-
-
-    class SystemClock
-    {
-    public:
-        Optional<DateTime> now();
-        Optional<DateTime> initial_time();
-
-        void configure(DateTime dt);
-
-    private:
-        friend class Platform;
-
-        void init();
-
-        SystemClock();
-    };
-
 
     ////////////////////////////////////////////////////////////////////////////
     // Screen
@@ -456,35 +428,6 @@ public:
     {
     public:
         static constexpr u32 sprite_limit = 128;
-
-
-        class Touch
-        {
-        public:
-            Optional<Vec2<u32>> read() const
-            {
-                return current_;
-            }
-
-
-            Optional<Vec2<u32>> up_transition() const
-            {
-                if (not current_ and previous_) {
-                    return previous_;
-                }
-
-                return {};
-            }
-
-
-        private:
-            friend class Screen;
-            Optional<Vec2<u32>> current_;
-            Optional<Vec2<u32>> previous_;
-        };
-
-
-        const Touch* touch() const;
 
 
         void draw(const Sprite& spr);
@@ -499,13 +442,6 @@ public:
             bool position_absolute_;
             Sprite::Alpha alpha_;
             Sprite::Size sz_ = Sprite::Size::w16_h32;
-        };
-
-
-        struct FastSprite
-        {
-            Vec2<s16> screen_coord_;
-            u16 tile_;
         };
 
 
@@ -577,7 +513,6 @@ public:
 
         View view_;
         void* userdata_;
-        Touch touch_;
     };
 
 
@@ -759,24 +694,12 @@ public:
         };
 
 
-        void play_chiptune_note(Channel channel, NoteDesc note);
-
-
-        void stop_chiptune_note(Channel channel);
-
-
         enum class Effect {
             none,
             vibrato,
             duty,
             envelope,
         };
-
-
-        void apply_chiptune_effect(Channel channel,
-                                   Effect effect,
-                                   u8 argument,
-                                   Microseconds delta);
 
 
         struct ChannelSettings
@@ -787,12 +710,6 @@ public:
             u8 envelope_direction_ : 1;
             u8 volume_ : 4;
         };
-
-
-        void init_chiptune_square_1(ChannelSettings settings);
-        void init_chiptune_square_2(ChannelSettings settings);
-        void init_chiptune_wave(u16 config);
-        void init_chiptune_noise(ChannelSettings settings);
 
 
         // NOTE: All music will loop. It's just more efficient to implement the
@@ -855,8 +772,6 @@ public:
         Buffer<const char*, 4> completed_sounds();
 
         StringBuffer<48> current_music();
-
-        u8 music_loop_count();
 
         void clear_sounds();
         void stop_sound(const char* name);
@@ -981,12 +896,54 @@ public:
     Platform(const Platform&) = delete;
     ~Platform();
 
+
+    // Use these with the PLATFORM_EXTENSION macro. Intended to make porting
+    // easier, by allowing certain functions to be left undeclared until the
+    // person working on the port has time to implement them fully. This allows
+    // us to leave certain functions unimplemented entirely on some platforms,
+    // not requiring us to stub out unused functions.
+    struct Extensions
+    {
+        bool (*stack_check)();
+        void (*palette_sync)();
+        void (*feed_watchdog)();
+        void (*update_parallax_r1)(u8 scroll);
+        void (*update_parallax_r2)(u8 scroll);
+        void (*update_parallax_macro)(int scroll);
+        void (*enable_parallax_clouds)(bool on);
+        void (*vertical_parallax_enable)(bool on);
+        void (*force_vsync)();
+        void (*overlay_circle_effect)(int radius, int x, int y);
+        void (*iris_wipe_effect)(int radius, int x, int y);
+        void (*hibernate)();
+        void (*print_memory_diagnostics)();
+        void (*console_write_buffer)(Vector<char>& input);
+        void (*dlc_download)(Vector<char>& output);
+        void (*watchdog_on)();
+        void (*watchdog_off)();
+        u32 (*get_stack_usage)();
+        void (*restart)();
+
+        void (*psg_play_note)(Speaker::Channel c, Speaker::NoteDesc note);
+        void (*psg_stop_note)(Speaker::Channel c);
+        void (*psg_apply_effect)(Speaker::Channel c, Speaker::Effect e, u8 arg, Microseconds delta);
+        void (*psg_init_square_1)(Speaker::ChannelSettings s);
+        void (*psg_init_square_2)(Speaker::ChannelSettings s);
+        void (*psg_init_wave)(Speaker::ChannelSettings s);
+        void (*psg_init_noise)(Speaker::ChannelSettings s);
+
+        bool (*__test_compare_sound)(const char* sound_name);
+    };
+
+
+    const Extensions& get_extensions();
+
+
 private:
     Platform();
 
     friend int main(int argc, char** argv);
 
-    SystemClock system_clock_;
     NetworkPeer network_peer_;
     DeltaClock delta_clock_;
     RemoteConsole console_;
