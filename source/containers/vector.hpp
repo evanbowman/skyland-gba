@@ -458,11 +458,11 @@ public:
 
 private:
     ScratchBufferPtr data_;
-    bool valid_ = true;
     u32 size_ = 0;
 
     // Improves the performance of push_back() and end() and other operations
     // dealing with the end of the vector.
     mutable Chunk* end_cache_ = nullptr;
     mutable u16 end_chunk_size_ = 0;
+    bool valid_ = true;
 };
