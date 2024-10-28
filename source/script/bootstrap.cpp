@@ -135,9 +135,9 @@ void Platform::Logger::log(Severity level, const char* msg)
 }
 
 
-Platform::Extensions Platform::get_extensions()
+const Platform::Extensions& Platform::get_extensions()
 {
-    static const Extensions ext;
+    static const Extensions ext{};
     return ext;
 }
 
@@ -148,11 +148,6 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
     std::cout << text;
     std::cout << prompt;
     return true;
-}
-
-
-Platform::SystemClock::SystemClock()
-{
 }
 
 
