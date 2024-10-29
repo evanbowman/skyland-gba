@@ -122,7 +122,7 @@
 (defn/c alloc-space (sym)
   (let ((size (rinfo 'size sym)))
     (while (not (construction-sites (player) size))
-      (terrain-set (player) (+ terrain (player) 1)))))
+      (terrain-set (player) (+ (terrain (player)) 1)))))
 
 (defn/c run-util-script (file)
   (let ((varg (cdr $V)))
