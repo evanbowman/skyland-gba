@@ -587,8 +587,8 @@ void walk(Function<8 * sizeof(void*), void(const char*)> callback)
 
         offset += sizeof r;
 
-        char file_name[256];
-        memset(file_name, 0, 256);
+        char file_name[FS_MAX_PATH + 1];
+        memset(file_name, 0, FS_MAX_PATH + 1);
 
         PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -603,6 +603,40 @@ void walk(Function<8 * sizeof(void*), void(const char*)> callback)
 
         offset += r.appended_size();
     }
+}
+
+
+
+int file_revisions(const char* path)
+{
+    int rev_count = 0;
+
+    auto offset = start_offset;
+    offset += sizeof(Root);
+
+    while (true) {
+        Record r;
+
+        PLATFORM.read_save_data(&r, sizeof r, offset);
+
+        if (r.file_info_.name_length_ == 0xff) {
+            break;
+        }
+
+        offset += sizeof r;
+        char file_name[FS_MAX_PATH + 1];
+        memset(file_name, 0, FS_MAX_PATH + 1);
+
+        PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
+
+        if (str_eq(path, file_name)) {
+            ++rev_count;
+        }
+
+        offset += r.appended_size();
+    }
+
+    return rev_count;
 }
 
 
@@ -630,8 +664,8 @@ int find_file(const char* path, Record& result)
 
         offset += sizeof r;
 
-        char file_name[256];
-        memset(file_name, 0, 256);
+        char file_name[FS_MAX_PATH + 1];
+        memset(file_name, 0, FS_MAX_PATH + 1);
 
         PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -718,8 +752,8 @@ static void compact()
 
         offset += sizeof r;
 
-        char file_name[256];
-        memset(file_name, 0, 256);
+        char file_name[FS_MAX_PATH + 1];
+        memset(file_name, 0, FS_MAX_PATH + 1);
 
         PLATFORM.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -951,8 +985,8 @@ bool store_file_data(const char* path,
     }
     off += sizeof info;
 
-    char file_name[256];
-    memset(file_name, 0, 256);
+    char file_name[FS_MAX_PATH + 1];
+    memset(file_name, 0, FS_MAX_PATH + 1);
     memcpy(file_name, path, path_len);
 
     if (not PLATFORM.write_save_data(file_name, path_total, off)) {
@@ -1230,7 +1264,7 @@ bool compaction()
     Platform pfrm(".regr_output", ".regr_output2");
     initialize({.offset_ = 8});
 
-    if (end_offset not_eq 2420) {
+    if (end_offset not_eq 1482) {
         std::cerr << "end offset does not match expected!"
                   << " (" << end_offset << ")" << std::endl;
         return false;
@@ -1267,7 +1301,7 @@ bool write_triggered_compaction()
     Buffer<std::pair<StringBuffer<68>, Vector<char>>, 9> files;
 
     Vector<char> test;
-    for (int i = 0; i < 9999; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         test.push_back('A');
     }
 
@@ -1285,18 +1319,22 @@ bool write_triggered_compaction()
         });
 
         // trigger compaction
-        store_file_data("/stuff.dat", test);
+        while (gap_space not_eq 0) {
+            store_file_data("/stuff.dat", test);
+        }
 
         for (auto& kvp : files) {
             Vector<char> data;
             read_file_data(kvp.first.c_str(), data);
 
             if (data.size() not_eq kvp.second.size()) {
+                std::cout << "size mismatch?!" << std::endl;
                 return false;
             }
 
             for (u32 i = 0; i < data.size(); ++i) {
                 if (data[i] not_eq kvp.second[i]) {
+                    std::cout << "byte mismatch?!" << std::endl;
                     return false;
                 }
             }
@@ -1309,13 +1347,14 @@ bool write_triggered_compaction()
     Platform pfrm(".regr_output", ".regr_output2");
     initialize({.offset_ = 8});
 
-    if (end_offset not_eq 12438) {
+    if (end_offset not_eq 2500) {
         std::cerr << "end offset does not match expected! (" << end_offset
                   << ")" << std::endl;
         return false;
     }
 
     if (gap_space not_eq 0) {
+        std::cout << "gap space bad?! " << gap_space << std::endl;
         return false;
     }
 

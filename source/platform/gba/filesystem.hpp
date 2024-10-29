@@ -59,6 +59,11 @@ struct FileHeader
     char path_[62]; // Must be null-terminated.
     host_u16 flags_;
     host_u32 size_;
+
+    u8 get_padding()
+    {
+        return flags_.get() >> 13;
+    }
 };
 
 

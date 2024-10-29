@@ -4,6 +4,7 @@ import os
 
 project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
 
+
 bytes_encoded = 0
 
 
@@ -139,10 +140,6 @@ def encode_file(path, real_name, out):
         for i in range(len(encoded_path), 62):
             out.write('\0'.encode('utf-8'))
 
-        # Two reserved bytes for file data flags
-        out.write('\0'.encode('utf-8'))
-        out.write('\0'.encode('utf-8'))
-
         bytes_encoded += 64
 
         data = test_file.read()
@@ -164,6 +161,9 @@ def encode_file(path, real_name, out):
         pad = 4 - (len(file_contents) + null_padding) % 4
         bytes_encoded += len(file_contents) + null_padding + pad
 
+        # Two reserved bytes for file data flags
+        out.write((pad << 13).to_bytes(2, 'little'))
+
         # +1 for null terminator
         out.write((len(file_contents) + null_padding + pad).to_bytes(4, 'little'))
 
@@ -175,12 +175,11 @@ def encode_file(path, real_name, out):
 
 
 def is_emacs_backup_file(name):
-    return '~' in name or '#' in name
+    return '~' in name or '#' in name or '.DS_Store' in name
 
 
 def collect_paths(paths_list, subdir):
     for root, dirs, files in os.walk(os.path.join(project_root_path, subdir), topdown=False):
-
         if dirs:
             dirs.sort()
         if files:

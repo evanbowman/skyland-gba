@@ -252,6 +252,10 @@ bool file_exists(const char* path);
 
 
 
+int file_revisions(const char* path);
+
+
+
 void destroy();
 
 

@@ -61,11 +61,17 @@ with open("fs.extracted.bin", "wb") as f:
         path = data[pos:pos+62]
         path = path.strip(b'\0')
         path = path.decode("utf-8")[1:] # Ignore leading slash
-        pos += 64 # (path field size)
+        pos += 62 # (path field size)
         print("  Extracting {}...".format(path))
+
+        flags = int.from_bytes(data[pos:pos+2], byteorder='little')
+
+        pos += 2
 
         file_size = int.from_bytes(data[pos:pos+4], byteorder='little')
         pos += 4
+
+        padding = flags >> 13
 
         dirname = os.path.dirname(path)
 
@@ -75,7 +81,7 @@ with open("fs.extracted.bin", "wb") as f:
             os.makedirs(dirname)
 
         with open(path, "wb") as f:
-            contents = data[pos:pos+file_size-1] # -1 for null terminator
+            contents = data[pos:pos + file_size - (padding + 1)] # +1 for null terminator
             if path.split('.')[-1] == "lisp":
                 contents = unminify_lisp(contents.decode("utf-8")).encode('utf-8')
             f.write(contents)
