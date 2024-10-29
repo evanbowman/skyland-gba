@@ -526,9 +526,11 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
     auto decimator_mt = load_metaclass("decimator");
     auto flak_gun_mt = load_metaclass("flak-gun");
-
+    auto radiator_mt = load_metaclass("radiator");
 
     bool damaged_habitable_rooms = false;
+
+    Buffer<Room*, 10> radiators;
 
     for (auto& room : ai_island_->rooms()) {
         if (room->health() not_eq room->max_health() and
@@ -546,6 +548,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             ++decimator_count;
         } else if (room->metaclass() == flak_gun_mt) {
             ++weapon_count;
+        } else if (room->metaclass() == radiator_mt) {
+            radiators.push_back(room.get());
         }
         for (auto& other : room->characters()) {
             if (other->owner() == owner and other.get() not_eq &character) {
@@ -658,6 +662,13 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             const auto base_weight = room->get_atp();
 
             slot.ai_weight_ = base_weight;
+
+            for (auto& r : radiators) {
+                if (abs(r->position().x - slot.coord_.x) < 3 and
+                    abs(r->position().y - slot.coord_.y) < 3) {
+                    slot.ai_weight_ -= 600.0_atp;
+                }
+            }
 
             if (room->health() not_eq room->max_health()) {
                 // Increase room weight if damaged.
@@ -1563,6 +1574,10 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
 
     Vector<Room*> outer;
     collect_outer_rooms(*target_island, outer);
+    // FIXME: what about sorting the rooms by weight? Then we can break out of
+    // the below loop early... but iterating isn't that expensive, whereas
+    // sorting could be costly... of course, I could and should just measure it
+    // both ways... which is why I haven't made the proposed changes yet...
 
     for (auto& room : outer) {
         for (int x = 0; x < room->size().x; ++x) {
