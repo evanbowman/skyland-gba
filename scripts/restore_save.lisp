@@ -66,10 +66,9 @@
         (map (join 'Left) (lookup 'Left grp))
         (map (join 'Right) (lookup 'Right grp))
         ;; See also: powerdown_allowed config in init.lisp
-        ;; (map (lambda (xy)
-        ;;        (poweroff (player) (first xy) (second xy) true))
-        ;;      (lookup 'poweroff grp))
-        ))
+        (map (lambda (xy)
+               (poweroff (player) (first xy) (second xy) true))
+             (lookup 'poweroff grp))))
 
     (when (> (load 'save-protocol) 1)
       (difficulty-set (load 'diff)))))

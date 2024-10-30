@@ -19,5 +19,4 @@
   ("Moving Blocks" . "tutorials/moving_blocks.lisp")
   ("Replicators" . "tutorials/replicator.lisp")
   ("Firing Patterns" . "tutorials/firing_patterns.lisp")
-  ;("Diverting Power" . "tutorials/power_balance_2.lisp")
-  )
+  ("Diverting Power" . "tutorials/power_balance_2.lisp"))
