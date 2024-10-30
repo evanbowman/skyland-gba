@@ -58,6 +58,7 @@ ScenePtr RegressionModule::update(Time delta)
     state_bit_store(StateBit::regression, true);
 
     BasicCharacter::__reset_ids();
+    rng::critical_state = 5;
 
     if (test_index == -1) {
         PLATFORM.screen().schedule_fade(0);

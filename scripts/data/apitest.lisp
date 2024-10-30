@@ -205,6 +205,19 @@
 (end-test)
 
 
+(begin-test "world graph")
+
+(wg-generate)
+(assert-eq
+ (wg-nodes)
+ '((1 0 . 5) (3 4 . 7) (2 8 . 5) (3 12 . 5) (3 16 . 4) (5 20 . 7) (9 7 . 11) (8 17 . 7) (9 19 . 10) (9 16 . 11) (3 20 . 1) (3 11 . 11) (9 7 . 8) (6 3 . 11) (9 17 . 1) (9 10 . 2) (8 11 . 8) (3 14 . 8)))
+
+(assert-eq (wg-path '(0 . 5) '(8 . 5))
+           '((0 . 5) (4 . 7) (8 . 5)))
+
+(end-test)
+
+
 
 (begin-test "misc")
 
@@ -324,7 +337,7 @@
          (range 5 10))
 
 
-(assert-eq temp 212)
+(assert-eq temp 214)
 
 (assert-eq 6 (lisp-mem-stack-used))
 

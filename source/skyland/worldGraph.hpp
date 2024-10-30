@@ -86,7 +86,14 @@ public:
     };
 
 
-    Node nodes_[20];
+    static constexpr const int node_count = 20;
+
+
+    using PathBuffer = Buffer<Vec2<s8>, node_count>;
+    PathBuffer path(Vec2<s8> n1, Vec2<s8> n2);
+
+
+    Node nodes_[node_count];
     u8 storm_depth_ = 1;
 };
 

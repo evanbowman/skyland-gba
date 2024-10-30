@@ -62,6 +62,120 @@ static const auto node_death_sequence_time = milliseconds(1500);
 
 
 
+// Number of hops to get from Node n1 to Node n2
+WorldGraph::PathBuffer WorldGraph::path(Vec2<s8> n1, Vec2<s8> n2)
+{
+    PathBuffer result;
+
+    struct Vertex
+    {
+        Vertex* prev_ = nullptr;
+        u16 dist_ = std::numeric_limits<u16>::max();
+        Vec2<s8> coord_;
+    };
+
+    BulkAllocator<2> vertex_memory;
+
+    Buffer<Vertex*, node_count * 4> priority_q;
+
+    if (n1 == n2) {
+        return result;
+    }
+
+    struct Matrix
+    {
+        Vertex* mat_[WorldGraph::width][WorldGraph::height] = {{}};
+    };
+
+    auto mat = allocate_dynamic<Matrix>("wg-path-mat");
+
+    Vertex* start_v = nullptr;
+
+    for (auto& n : nodes_) {
+        if (n.type_ == WorldGraph::Node::Type::null) {
+            continue;
+        }
+        if (auto vert = vertex_memory.alloc<Vertex>()) {
+            vert->coord_ = n.coord_;
+            if (priority_q.push_back(vert.release())) {
+                auto v = priority_q.back();
+                if (v->coord_ == n1) {
+                    start_v = v;
+                    start_v->dist_ = 0;
+                }
+                mat->mat_[v->coord_.x][v->coord_.y] = v;
+            }
+        } else {
+            error("failed to push vertex!");
+            return result;
+        }
+    }
+
+    if (not start_v) {
+        error("missing startv");
+        return result;
+    }
+
+    auto neighbors = [&](Vertex* data) {
+        Buffer<Vertex*, 10> result;
+
+        auto o = data->coord_;
+
+        for (int x = clamp(o.x - 4, 0, (int)o.x); x < o.x + 5; ++x) {
+            for (int y = clamp(o.y - 4, 0, (int)o.y); y < o.y + 5; ++y) {
+                auto n = mat->mat_[x][y];
+                if (n) {
+                    result.push_back(n);
+                }
+            }
+        }
+        return result;
+    };
+
+    auto sort_q = [&] {
+        std::sort(priority_q.begin(),
+                  priority_q.end(),
+                  [](auto& lhs, auto& rhs) { return lhs->dist_ > rhs->dist_; });
+    };
+
+    sort_q();
+
+    while (true) {
+        if (not priority_q.empty()) {
+            auto min = priority_q.back();
+            if (min->dist_ == std::numeric_limits<u16>::max()) {
+                return result;
+            }
+            if (min->coord_ == n2) {
+                PathBuffer result;
+                auto current_v = priority_q.back();
+                while (current_v) {
+                    result.push_back(current_v->coord_);
+                    current_v = current_v->prev_;
+                }
+                return result;
+            }
+            priority_q.pop_back();
+
+            for (auto& neighbor : neighbors(min)) {
+                auto alt = min->dist_ +
+                           manhattan_length(min->coord_, neighbor->coord_);
+                if (alt < neighbor->dist_) {
+                    neighbor->dist_ = alt;
+                    neighbor->prev_ = min;
+                }
+            }
+            sort_q();
+        } else {
+            return result;
+        }
+    }
+
+    return result;
+}
+
+
+
 // TODO: create a worldGraph.cpp and move this function there.
 void WorldGraph::generate()
 {

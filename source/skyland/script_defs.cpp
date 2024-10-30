@@ -2071,6 +2071,32 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"wg-generate",
+        {0, [](int argc) {
+            APP.world_graph().generate();
+            return L_NIL;
+        }}},
+    {"wg-path",
+     {2,
+      [](int argc) {
+          L_EXPECT_OP(0, cons);
+          L_EXPECT_OP(1, cons);
+
+          s8 x1 = lisp::get_op1()->cons().car()->integer().value_;
+          s8 y1 = lisp::get_op1()->cons().cdr()->integer().value_;
+
+          s8 x2 = lisp::get_op0()->cons().car()->integer().value_;
+          s8 y2 = lisp::get_op0()->cons().cdr()->integer().value_;
+
+          auto path = APP.world_graph().path({x1, y1}, {x2, y2});
+
+          lisp::ListBuilder path_list;
+          for (auto& n : path) {
+              path_list.push_front(L_CONS(L_INT(n.x), L_INT(n.y)));
+          }
+
+          return path_list.result();
+      }}},
     {"wg-current-type",
      {0,
       [](int argc) {
@@ -2111,6 +2137,17 @@ BINDING_TABLE({
       }}},
     {"wg-storm-frontier",
      {0, [](int argc) { return L_INT(APP.world_graph().storm_depth_); }}},
+    {"wg-turns-remaining",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, cons);
+          int x = lisp::get_op0()->cons().car()->integer().value_;
+          int turns = 0;
+          while (not is_x_behind_storm_frontier(x, turns)) {
+              ++turns;
+          }
+          return L_INT(turns);
+      }}},
     {"wg-is-x-behind-frontier?",
      {1,
       [](int argc) {

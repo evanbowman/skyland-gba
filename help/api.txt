@@ -514,6 +514,13 @@ o----------------------------o
 
 o----------------------------o
 
+ (wg-generate)
+
+ Regenerate world graph.
+
+
+o----------------------------o
+
  (wg-current-type)
 
  Returns the type enumeration
@@ -540,6 +547,14 @@ o----------------------------o
  Calling this function on the
  player's currently inhabited
  node is undefined behavior.
+
+
+o----------------------------o
+
+ (wg-path '(x1 . y1) '(x2 . y2))
+
+ Find a path between two
+ coordinates, if one exists.
 
 
 o----------------------------o
@@ -575,6 +590,15 @@ o----------------------------o
 
  Check if a node x coord is
  behind the storm boundary.
+
+
+o----------------------------o
+
+ (wg-turns-remaining '(x . y))
+
+ Number of turns before an
+ x,y coord falls into the
+ storm.
 
 
 
