@@ -6,6 +6,7 @@
   (strict-mode true)
   (lisp-mem-crit-gc-alert true))
 
+
 ;; NOTE: Based on some testing (see the game's syslog),
 ;; SKYLAND rarely ever has more than about 2000 lisp values
 ;; allocated at a time. When we're down to 3000 out of
@@ -139,4 +140,5 @@
      (error (format "cannot hash %" v)))))
 
 
-(setvar "powerdown_allowed" 0)
+(setvar "powerdown_allowed" 1)
+(setvar "minimap_on" 1)

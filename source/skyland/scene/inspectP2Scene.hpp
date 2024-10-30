@@ -37,6 +37,7 @@
 
 
 #include "worldScene.hpp"
+#include "skyland/blockChecksum.hpp"
 
 
 
@@ -58,10 +59,14 @@ public:
     void display() override;
 
 
+    bool displays_minimap() override;
+
+
 public:
     Time cursor_anim_timer_;
     Time describe_room_timer_ = seconds(1);
     Optional<Text> room_description_;
+    BlockChecksum island_checksums_;
     u8 cursor_anim_frame_;
     bool await_start_key_ = false;
     bool await_b_key_ = false;

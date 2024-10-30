@@ -63,6 +63,7 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
+#include "skyland/minimap.hpp"
 
 
 
@@ -74,6 +75,10 @@ namespace skyland
 void describe_room(Island* island,
                    const RoomCoord& cursor_loc,
                    Optional<Text>& room_description);
+
+
+
+SHARED_VARIABLE(minimap_on);
 
 
 
@@ -371,10 +376,28 @@ ScenePtr process_exit_condition(App::ExitCondition c)
 
 
 
+bool ReadyScene::displays_minimap()
+{
+    return true;
+}
+
+
+
 ScenePtr ReadyScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
         return scene;
+    }
+
+    const auto last_checksums = island_checksums_;
+
+    island_checksums_ =
+        APP.player_island().checksum() +
+        (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
+
+    if (island_checksums_ not_eq last_checksums) {
+        minimap::repaint();
+        minimap::show();
     }
 
     const auto exit_cond = APP.exit_condition();
@@ -726,7 +749,6 @@ void describe_room(Island* island,
 
                 if (chr_icon and not overlap) {
                     room_description.emplace(
-
                         OverlayCoord{4, u8(calc_screen_tiles().y - 1)});
                 }
 
@@ -807,10 +829,10 @@ void describe_room(Island* island,
                 if (chr_icon and not overlap) {
                     int offset = (chr_icon - 1) * 16;
                     PLATFORM.load_overlay_chunk(
-                        181, offset, 16, "character_art");
+                        274, offset, 16, "character_art");
                     const auto st = calc_screen_tiles();
 
-                    int tile = 181;
+                    int tile = 274;
                     for (int y = 0; y < 4; ++y) {
                         for (int x = 0; x < 4; ++x) {
                             PLATFORM.set_tile(
@@ -1051,9 +1073,31 @@ void ReadyScene::display()
 
 
 
+void ReadyScene::enter(Scene& prev)
+{
+    ActiveWorldScene::enter(prev);
+
+    island_checksums_ =
+        APP.player_island().checksum() +
+        (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
+
+    if (minimap_on) {
+        minimap::repaint();
+        minimap::show();
+    }
+}
+
+
+
 void ReadyScene::exit(Scene& next)
 {
     clear_room_description(room_description_);
+
+    if (minimap_on) {
+        if (not next.displays_minimap()) {
+            minimap::hide();
+        }
+    }
 
     if (not next.cast_world_scene()) {
         ActiveWorldScene::exit(next);

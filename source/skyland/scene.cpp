@@ -67,6 +67,13 @@ void Scene::exit(Scene& next_scene)
 
 
 
+bool Scene::displays_minimap()
+{
+    return false;
+}
+
+
+
 WorldScene* Scene::cast_world_scene()
 {
     return nullptr;

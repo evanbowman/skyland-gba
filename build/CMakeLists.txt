@@ -104,6 +104,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/console.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
+  ${SOURCE_DIR}/skyland/minimap.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/dataCart.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp

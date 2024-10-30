@@ -84,6 +84,9 @@ public:
     virtual void display();
 
 
+    virtual bool displays_minimap();
+
+
     virtual void enter(Scene& prev_scene);
 
 

@@ -45,11 +45,13 @@
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "selectMenuScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/script_defs.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -58,9 +60,30 @@ namespace skyland
 
 
 
+extern SharedVariable minimap_on;
+
+
+
+bool InspectP2Scene::displays_minimap()
+{
+    return true;
+}
+
+
+
 void InspectP2Scene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
+
+    if (APP.opponent_island()) {
+        island_checksums_ =
+            APP.player_island().checksum() + APP.opponent_island()->checksum();
+    }
+
+    if (minimap_on) {
+        minimap::repaint();
+        minimap::show();
+    }
 
     far_camera();
 }
@@ -74,6 +97,12 @@ void clear_room_description(Optional<Text>& room_description);
 void InspectP2Scene::exit(Scene& next)
 {
     ActiveWorldScene::exit(next);
+
+    if (minimap_on) {
+        if (not next.displays_minimap()) {
+            minimap::hide();
+        }
+    }
 
     clear_room_description(room_description_);
 }
@@ -127,6 +156,17 @@ ScenePtr InspectP2Scene::update(Time delta)
     if (not APP.opponent_island()) {
         return make_scene<ReadyScene>();
     }
+
+    const auto last_checksums = island_checksums_;
+
+    island_checksums_ =
+        APP.player_island().checksum() + APP.opponent_island()->checksum();
+
+    if (island_checksums_ not_eq last_checksums) {
+        minimap::repaint();
+        minimap::show();
+    }
+
 
     auto& cursor_loc = globals().far_cursor_loc_;
 

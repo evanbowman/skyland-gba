@@ -39,6 +39,7 @@
 #include "groupSelection.hpp"
 #include "skyland/room.hpp"
 #include "worldScene.hpp"
+#include "skyland/minimap.hpp"
 
 
 
@@ -100,13 +101,7 @@ private:
     int cursor_tics_ = 0;
     Time tic_timer_ = milliseconds(100);
 
-    struct MinimapFramebufferCache
-    {
-        Vector<u8> pixels_;
-
-        u16 player_island_checksum_ = -1;
-        u16 opponent_island_checksum_ = -1;
-    } fb_cache_;
+    minimap::FramebufferCache fb_cache_;
 
     bool near_;
     bool resume_far_ = false;
