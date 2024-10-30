@@ -695,20 +695,6 @@ bool file_exists(const char* path)
 
 
 
-void invalidate_file(int file_offset)
-{
-    if (file_offset == -1) {
-        return;
-    }
-
-    // NOTE: first byte of record holds invalidate bytes.
-    static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
-    auto stat = Record::InvalidateStatus::invalid;
-    PLATFORM.write_save_data(&stat, 2, file_offset);
-}
-
-
-
 void unlink_file(const char* path)
 {
     if (not __path_cache_file_exists_maybe(path)) {
@@ -721,7 +707,11 @@ void unlink_file(const char* path)
 
     auto off = find_file(path, r);
     while (off not_eq -1) {
-        invalidate_file(off);
+        // NOTE: first byte of record holds invalidate bytes.
+        static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
+        auto stat = Record::InvalidateStatus::invalid;
+        PLATFORM.write_save_data(&stat, 2, off);
+
         gap_space += r.full_size();
         freed = true;
 
@@ -958,9 +948,7 @@ bool store_file_data(const char* path,
         return false;
     }
 
-    // Later, we will invalidate the old record's header.
-    Record old_record;
-    auto old_file_loc = find_file(path, old_record);
+    unlink_file(path);
 
     u8 crc8 = 0;
     for (char c : input) {
@@ -1016,8 +1004,6 @@ bool store_file_data(const char* path,
     if (input_padding) {
         input.pop_back();
     }
-
-    invalidate_file(old_file_loc);
 
     if (write_errors) {
         // NOTE: write errors indicate that a simultaneous writeback to flash
