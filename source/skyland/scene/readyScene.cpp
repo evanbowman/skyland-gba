@@ -78,10 +78,6 @@ void describe_room(Island* island,
 
 
 
-SHARED_VARIABLE(minimap_on);
-
-
-
 void clear_room_description(Optional<Text>& room_description)
 {
     if (not room_description) {
@@ -395,8 +391,11 @@ ScenePtr ReadyScene::update(Time delta)
         APP.player_island().checksum() +
         (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
 
-    if (island_checksums_ not_eq last_checksums) {
-        minimap::repaint();
+    if (state_bit_load(StateBit::minimap_on) and
+        island_checksums_ not_eq last_checksums) {
+        minimap::repaint({
+                .show_destroyed_rooms_ = true
+            });
         minimap::show();
     }
 
@@ -425,8 +424,6 @@ ScenePtr ReadyScene::update(Time delta)
     }
 
     auto& cursor_loc = globals().near_cursor_loc_;
-
-
 
     auto test_key = [&](Key k) {
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
@@ -1081,8 +1078,10 @@ void ReadyScene::enter(Scene& prev)
         APP.player_island().checksum() +
         (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
 
-    if (minimap_on) {
-        minimap::repaint();
+    if (state_bit_load(StateBit::minimap_on)) {
+        minimap::repaint({
+                .show_destroyed_rooms_ = true
+            });
         minimap::show();
     }
 }
@@ -1093,10 +1092,8 @@ void ReadyScene::exit(Scene& next)
 {
     clear_room_description(room_description_);
 
-    if (minimap_on) {
-        if (not next.displays_minimap()) {
-            minimap::hide();
-        }
+    if (not next.displays_minimap()) {
+        minimap::hide();
     }
 
     if (not next.cast_world_scene()) {

@@ -141,4 +141,3 @@
 
 
 (setvar "powerdown_allowed" 1)
-(setvar "minimap_on" 1)

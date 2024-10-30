@@ -615,6 +615,8 @@ unpin crewmember
 power-on
 power-off
 divert power
+show minimap
+hide minimap
 choose flag:
 colonial
 old empire

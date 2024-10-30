@@ -498,7 +498,13 @@ void WeaponSetTargetScene::exit(Scene& next)
         }
     }
 
-    PLATFORM.fill_overlay(0);
+    if (state_bit_load(StateBit::minimap_on)) {
+        if (not next.displays_minimap()) {
+            minimap::hide();
+        }
+    } else {
+        PLATFORM.fill_overlay(0);
+    }
 }
 
 
@@ -534,6 +540,13 @@ void WeaponSetTargetScene::minimap_hide()
     minimap::hide();
 
     minimap_visible_ = false;
+}
+
+
+
+bool WeaponSetTargetScene::displays_minimap()
+{
+    return true;
 }
 
 

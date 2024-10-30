@@ -40,6 +40,7 @@
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/minimap.hpp"
 
 
 
@@ -164,6 +165,7 @@ SharedVariable score_multiplier("score_multiplier", 1);
 void PlayerP1::on_room_destroyed(Room& room)
 {
     if (room.parent() not_eq &APP.player_island()) {
+
         if (room.cast<Mycelium>()) {
             int mcount = 0;
             for (auto& oroom : APP.opponent_island()->rooms()) {
@@ -189,6 +191,18 @@ void PlayerP1::on_room_destroyed(Room& room)
         }
 
         APP.score().set(APP.score().get() + add_score);
+
+    } else {
+
+        auto p = room.position();
+        auto sz = room.size();
+
+        for (int x = p.x; x < p.x + sz.x; ++x) {
+            for (int y = p.y; y < p.y + sz.y; ++y) {
+                minimap::player_destroyed_rooms.set(x, y, true);
+            }
+        }
+
     }
 }
 

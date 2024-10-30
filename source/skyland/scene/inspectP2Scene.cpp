@@ -60,10 +60,6 @@ namespace skyland
 
 
 
-extern SharedVariable minimap_on;
-
-
-
 bool InspectP2Scene::displays_minimap()
 {
     return true;
@@ -80,8 +76,10 @@ void InspectP2Scene::enter(Scene& prev)
             APP.player_island().checksum() + APP.opponent_island()->checksum();
     }
 
-    if (minimap_on) {
-        minimap::repaint();
+    if (state_bit_load(StateBit::minimap_on)) {
+        minimap::repaint({
+                .show_destroyed_rooms_ = true
+            });
         minimap::show();
     }
 
@@ -98,7 +96,7 @@ void InspectP2Scene::exit(Scene& next)
 {
     ActiveWorldScene::exit(next);
 
-    if (minimap_on) {
+    if (state_bit_load(StateBit::minimap_on)) {
         if (not next.displays_minimap()) {
             minimap::hide();
         }
@@ -162,8 +160,11 @@ ScenePtr InspectP2Scene::update(Time delta)
     island_checksums_ =
         APP.player_island().checksum() + APP.opponent_island()->checksum();
 
-    if (island_checksums_ not_eq last_checksums) {
-        minimap::repaint();
+    if (state_bit_load(StateBit::minimap_on) and
+        island_checksums_ not_eq last_checksums) {
+        minimap::repaint({
+                .show_destroyed_rooms_ = true
+            });
         minimap::show();
     }
 

@@ -57,6 +57,7 @@ enum class StateBit {
     regression,
     show_fps,
     verbose_boot,
+    minimap_on,
     count,
 };
 

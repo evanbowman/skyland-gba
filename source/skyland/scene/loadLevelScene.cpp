@@ -48,6 +48,7 @@
 #include "skyland/weather/blizzard.hpp"
 #include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/typhoon.hpp"
+#include "skyland/minimap.hpp"
 
 
 
@@ -104,6 +105,12 @@ SHARED_VARIABLE(zone4_coin_yield);
 
 void prep_level()
 {
+    for (int x = 0; x < minimap::player_destroyed_rooms.size().x; ++x) {
+        for (int y = 0; y < minimap::player_destroyed_rooms.size().y; ++y) {
+            minimap::player_destroyed_rooms.set(x, y, false);
+        }
+    }
+
     auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;

@@ -773,6 +773,8 @@ enum class SystemString {
     sel_menu_poweron,
     sel_menu_powerdown,
     sel_menu_adjust_power,
+    sel_menu_show_minimap,
+    sel_menu_hide_minimap,
 
     choose_flag,
     flag_default,

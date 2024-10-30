@@ -569,6 +569,18 @@ void SelectMenuScene::enter(Scene& scene)
             });
         }
 
+        if (state_bit_load(StateBit::minimap_on)) {
+            add_line(SystemString::sel_menu_hide_minimap, "", false, []() {
+                state_bit_store(StateBit::minimap_on, false);
+                return null_scene();
+            });
+        } else {
+            add_line(SystemString::sel_menu_show_minimap, "", false, []() {
+                state_bit_store(StateBit::minimap_on, true);
+                return null_scene();
+            });
+        }
+
         add_line(SystemString::sel_menu_pause, "", false, []() {
             return set_gamespeed_setup();
         });
