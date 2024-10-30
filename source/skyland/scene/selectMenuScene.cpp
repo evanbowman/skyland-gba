@@ -401,60 +401,42 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
 
-        if (auto chr = isle->character_at_location(cursor)) {
-            if (chr->is_superpinned()) {
-                add_line(SystemString::sel_menu_unpin_crewmember,
+        if (is_player_island(isle)) {
+            if (auto chr = isle->character_at_location(cursor)) {
+                if (chr->is_superpinned()) {
+                    add_line(SystemString::sel_menu_unpin_crewmember,
+                             "",
+                             true,
+                             [id = chr->id()] {
+                                 auto chr = BasicCharacter::find_by_id(id);
+                                 if (chr.first) {
+                                     chr.first->un_superpin();
+                                     chr.first->unpin();
+                                 }
+                                 return null_scene();
+                             });
+                } else {
+                    add_line(SystemString::sel_menu_pin_crewmember,
+                             "",
+                             true,
+                             [id = chr->id()] {
+                                 auto chr = BasicCharacter::find_by_id(id);
+                                 if (chr.first) {
+                                     chr.first->superpin();
+                                 }
+                                 return null_scene();
+                             });
+                }
+
+                add_line(SystemString::sel_menu_crewmember_icon,
                          "",
                          true,
-                         [id = chr->id()] {
-                             auto chr = BasicCharacter::find_by_id(id);
-                             if (chr.first) {
-                                 chr.first->un_superpin();
-                                 chr.first->unpin();
-                             }
-                             return null_scene();
-                         });
-            } else {
-                add_line(SystemString::sel_menu_pin_crewmember,
-                         "",
-                         true,
-                         [id = chr->id()] {
-                             auto chr = BasicCharacter::find_by_id(id);
-                             if (chr.first) {
-                                 chr.first->superpin();
-                             }
-                             return null_scene();
+                         [id = chr->id()]() {
+                             return make_scene<SetCharacterIconScene>(id);
                          });
             }
 
-            add_line(SystemString::sel_menu_crewmember_icon,
-                     "",
-                     true,
-                     [id = chr->id()]() {
-                         return make_scene<SetCharacterIconScene>(id);
-                     });
-
-        } // else if (auto room = isle->get_room(cursor)) {
-        //     if ((is_player_island(isle) or
-        //          APP.game_mode() == App::GameMode::sandbox) and
-        //         APP.game_mode() not_eq App::GameMode::co_op) {
-        //         if ((*room->metaclass())->category() ==
-        //                 Room::Category::weapon and
-        //             room->get_target()) {
-
-        //             if (not PLATFORM.network_peer().is_connected()) {
-        //                 add_line(SystemString::sel_menu_weapon_halt,
-        //                          true,
-        //                          [this, c = cursor]() {
-        //                              if (auto room = island()->get_room(c)) {
-        //                                  room->unset_target();
-        //                              }
-        //                              return null_scene();
-        //                          });
-        //             }
-        //         }
-        //     }
-        // }
+        }
 
         bool bird_found = false;
         for (auto& bird : APP.birds()) {
