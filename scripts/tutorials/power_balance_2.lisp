@@ -27,7 +27,7 @@
 
 (autopilot
  '((500 nil)
-   (100 "<c:Milo:5>In one of the earlier tutorials about Power Balance, we explained the importance of building enough power to supply all of the systems on your island. <B:0> But sometimes, you want to control power usage more precisely. <B:0> By opening the SELECT menu on certain blocks, we can deactivate them, allowing us to use the energy for something else instead.")
+   (100 "<c:Milo:5>In one of the earlier tutorials about Power Balance, we explained the importance of building enough power to supply all of the systems on your island. <B:0> The Beginner difficulty setting allows you to disable unused blocks, allowing us to reclaim power without salvaging them. <B:0> By opening the SELECT menu on certain blocks, we can deactivate them, allowing us to use the energy for something else instead.")
    (1219 Select)
    (100 Select)
    (1903 Right)

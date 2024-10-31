@@ -4,6 +4,7 @@
 
 
 (eval-file "/scripts/reset_hooks.lisp")
+(setvar "powerdown_allowed" 1)
 
 
 '(("Introduction" . "tutorials/overview.lisp")
