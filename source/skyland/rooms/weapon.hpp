@@ -36,6 +36,7 @@
 
 #include "skyland/bulkTimer.hpp"
 #include "skyland/room.hpp"
+#include "memory/tinyBuffer.hpp"
 
 
 
@@ -122,7 +123,10 @@ public:
 
     Optional<RoomCoord> get_target() const override
     {
-        return target_;
+        if (not target_queue_.empty()) {
+            return target_queue_.back();
+        }
+        return nullopt();
     }
 
 
@@ -149,8 +153,7 @@ public:
 protected:
     void on_powerchange() override;
 
-
-    Optional<RoomCoord> target_;
+    TinyBuffer<RoomCoord, 2> target_queue_;
     bool target_pinned_ = false;
 };
 

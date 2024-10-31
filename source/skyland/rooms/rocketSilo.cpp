@@ -85,7 +85,7 @@ void RocketSilo::fire()
 
     Vec2<Fixnum> target;
 
-    auto room = island->get_room(*target_);
+    auto room = island->get_room(*get_target());
     if (room and not PLATFORM.network_peer().is_connected()) {
         // Note: if we use the center of a room as a target, we
         // have issues with multiplayer games, where a missile
@@ -100,8 +100,8 @@ void RocketSilo::fire()
         target = room->center();
     } else {
         auto origin = island->origin();
-        origin.x += Fixnum::from_integer(target_->x * 16 + 8);
-        origin.y += Fixnum::from_integer(target_->y * 16 + 8);
+        origin.x += Fixnum::from_integer(get_target()->x * 16 + 8);
+        origin.y += Fixnum::from_integer(get_target()->y * 16 + 8);
         target = origin;
     }
 

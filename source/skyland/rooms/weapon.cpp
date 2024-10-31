@@ -116,7 +116,7 @@ void Weapon::timer_expired()
         }
     }
 
-    if (target_) {
+    if (get_target()) {
 
         if (is_powered_down()) {
             unset_target();
@@ -203,7 +203,7 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
                               const RoomCoord& cursor)
 {
-    if (not target_) {
+    if (not get_target()) {
         return;
     }
 
@@ -211,8 +211,8 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
     if (target_island) {
         auto pos = target_island->visual_origin();
-        pos.x += Fixnum::from_integer(target_->x * 16);
-        pos.y += Fixnum::from_integer(target_->y * 16);
+        pos.x += Fixnum::from_integer(get_target()->x * 16);
+        pos.y += Fixnum::from_integer(get_target()->y * 16);
 
         static const int reticule_spr_idx = 45;
 
@@ -240,7 +240,7 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
         return;
     }
 
-    if (target_ and *target_ == target) {
+    if (get_target() and *get_target() == target) {
         // No need to waste space in rewind memory if the target does not
         // change.
         return;
@@ -253,9 +253,9 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
     e.near_ = is_player_island(parent());
     e.previous_target_pinned_ = target_pinned_;
 
-    if (target_) {
-        e.previous_target_x_ = target_->x;
-        e.previous_target_y_ = target_->y;
+    if (get_target()) {
+        e.previous_target_x_ = get_target()->x;
+        e.previous_target_y_ = get_target()->y;
         e.has_previous_target_ = true;
     } else {
         e.previous_target_x_ = 0;
@@ -265,7 +265,8 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
 
     APP.time_stream().push(APP.level_timer(), e);
 
-    target_ = target;
+    target_queue_.clear();
+    target_queue_.push(target);
     target_pinned_ = pinned;
 }
 
@@ -273,7 +274,7 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
 
 void Weapon::unset_target()
 {
-    if (not target_) {
+    if (not get_target()) {
         // Already uninitialized.
         return;
     }
@@ -286,9 +287,9 @@ void Weapon::unset_target()
     e.near_ = is_player_island(parent());
     e.previous_target_pinned_ = target_pinned_;
 
-    if (target_) {
-        e.previous_target_x_ = target_->x;
-        e.previous_target_y_ = target_->y;
+    if (get_target()) {
+        e.previous_target_x_ = get_target()->x;
+        e.previous_target_y_ = get_target()->y;
         e.has_previous_target_ = true;
     } else {
         e.previous_target_x_ = 0;
@@ -298,7 +299,7 @@ void Weapon::unset_target()
 
     APP.time_stream().push(APP.level_timer(), e);
 
-    target_.reset();
+    target_queue_.clear();
     target_pinned_ = false;
 }
 
@@ -332,7 +333,7 @@ ScenePtr Weapon::select_impl(const RoomCoord& cursor)
 
         using Next = WeaponSetTargetScene;
 
-        auto next = make_deferred_scene<Next>(position(), true, target_);
+        auto next = make_deferred_scene<Next>(position(), true, get_target());
 
         if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);
