@@ -160,11 +160,6 @@ ScenePtr MoveRoomScene::update(Time delta)
         if (player().key_down(Key::action_1)) {
             auto cursor_loc = cursor();
             if (auto r = island_->get_room(cursor_loc)) {
-                if (str_eq(r->name(), "mycelium")) {
-                    // Can't be moved!
-                    PLATFORM.speaker().play_sound("beep_error", 3);
-                    return null_scene();
-                }
                 state_ = State::move_block;
                 move_src_ = r->position();
                 move_diff_ =

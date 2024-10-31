@@ -103,7 +103,8 @@ static ScenePtr select_menu_help(bool far)
     const auto flag = GlobalPersistentData::sel_menu_help_prompt_dont_remind_me;
 
     const bool skip_prompt = APP.gp_.stateflags_.get(flag) or
-                             state_bit_load(StateBit::sel_menu_help_prompt);
+                             state_bit_load(StateBit::sel_menu_help_prompt) or
+                             PLATFORM.network_peer().is_connected();
 
     auto dont_remind = []() {
         APP.gp_.stateflags_.set(flag, true);
@@ -401,7 +402,7 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
 
-        if (is_player_island(isle)) {
+        if (is_player_island(isle) and not PLATFORM.network_peer().is_connected()) {
             if (auto chr = isle->character_at_location(cursor)) {
                 if (chr->is_superpinned()) {
                     add_line(SystemString::sel_menu_unpin_crewmember,

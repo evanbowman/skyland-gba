@@ -36,6 +36,7 @@
 #include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "weaponSetTargetScene.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -356,6 +357,12 @@ ScenePtr GroupSelectionScene::update(Time delta)
 
                         r->set_group(*group);
                         APP.player_island().schedule_repaint();
+
+                        network::packet::SetWeaponGroup p;
+                        p.x_ = cursor_loc.x;
+                        p.y_ = cursor_loc.y;
+                        p.group_ = (u8)*group;
+                        network::transmit(p);
                     }
                 }
             }
