@@ -20,3 +20,5 @@
      (range 0 3))
 
 (flag-show (player) 0)
+
+(setvar "powerdown_allowed" 0)
