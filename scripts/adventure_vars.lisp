@@ -14,3 +14,8 @@
                                   (lambda (kvp)
                                     (equal (car kvp) n))
                                   (cons name val)))))
+
+
+(if (equal (difficulty) 0)
+    (setvar "powerdown_allowed" 1)
+    (setvar "powerdown_allowed" 0))

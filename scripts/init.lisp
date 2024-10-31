@@ -138,6 +138,3 @@
        (abs (* (^ h (>> h 13)) 1274126177))))
     (true
      (error (format "cannot hash %" v)))))
-
-
-(setvar "powerdown_allowed" 1)

@@ -505,9 +505,7 @@ void TitleScreenScene::run_init_scripts(bool allow_mods)
 
     const bool use_rom_fs = (allow_mods == false);
 
-    APP.invoke_script("/scripts/config/rooms.lisp", use_rom_fs);
-    APP.invoke_script("/scripts/config/damage.lisp", use_rom_fs);
-    APP.invoke_script("/scripts/config/timing.lisp", use_rom_fs);
+    APP.invoke_script("/scripts/config/setup.lisp", use_rom_fs);
 
     if (allow_mods) {
         APP.invoke_ram_script("/mods/init.lisp");

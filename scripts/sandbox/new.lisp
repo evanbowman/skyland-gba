@@ -94,3 +94,5 @@
 
 
 (unbind 'conf 'mkch)
+
+(setvar "powerdown_allowed" 1)
