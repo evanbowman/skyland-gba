@@ -410,17 +410,9 @@ void WorldScene::display()
         APP.opponent_island()->display_fires();
     }
 
-    if (not birds_drawn_) {
-        // We try to queue bird entities before a display call, because unlike
-        // other objects, birds sit directly on top of tiles, and if there's any
-        // tearing whatsoever, it's super noticeable. But not all derived scenes
-        // actually call WorldScene::update(), so we perform the draw call here
-        // for those cases.
-        for (auto& bird : APP.birds()) {
-            PLATFORM.screen().draw(bird->sprite());
-        }
+    for (auto& bird : APP.birds()) {
+        PLATFORM.screen().draw(bird->sprite());
     }
-    birds_drawn_ = false;
 }
 
 
@@ -798,11 +790,6 @@ ScenePtr WorldScene::update(Time delta)
     update_entities(world_delta, APP.birds());
 
     TIMEPOINT(t7);
-
-    for (auto& bird : APP.birds()) {
-        PLATFORM.screen().draw(bird->sprite());
-    }
-    birds_drawn_ = true;
 
 
     if (APP.game_mode() == App::GameMode::co_op) {

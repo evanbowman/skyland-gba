@@ -113,7 +113,7 @@ void clear_room_description(Optional<Text>& room_description)
 std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos)
 {
     const auto view_offset =
-        PLATFORM.screen().get_view().get_center().cast<s32>();
+        PLATFORM.screen().get_view().int_center().cast<s32>();
 
     {
         auto island_pos = APP.player_island().get_position();
@@ -1061,6 +1061,10 @@ void ReadyScene::display()
             spr.set_alpha(Sprite::Alpha::translucent);
         }
         PLATFORM.screen().draw(spr);
+    }
+
+    if (state_bit_load(StateBit::minimap_on)) {
+        minimap::draw_cursor(true);
     }
 
     WorldScene::display();

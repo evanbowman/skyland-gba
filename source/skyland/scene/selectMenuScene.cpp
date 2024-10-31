@@ -593,6 +593,7 @@ void SelectMenuScene::enter(Scene& scene)
             });
         } else {
             add_line(SystemString::sel_menu_show_minimap, "", false, []() {
+                PLATFORM.speaker().play_sound("minimap_open.raw", 3);
                 state_bit_store(StateBit::minimap_on, true);
                 return null_scene();
             });

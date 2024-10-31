@@ -63,7 +63,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 
     sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
 
-    sprite_.set_priority(2);
+    // sprite_.set_priority(2);
 }
 
 
@@ -82,7 +82,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
     sprite_.set_position(position);
     sprite_.set_flip({flip, false});
     sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_priority(2);
+    // sprite_.set_priority(2);
     sprite_.set_texture_index(dt->mapping_index() * 2);
 
     anim_index_ = 1;

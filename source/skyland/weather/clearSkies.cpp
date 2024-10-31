@@ -56,7 +56,7 @@ void ClearSkies::display()
 {
     bool disable_lensflare = false;
 
-    const auto& view_pos = PLATFORM.screen().get_view().get_center();
+    const auto& view_pos = PLATFORM.screen().get_view().int_center();
 
     Sprite spr;
     spr.set_priority(3);

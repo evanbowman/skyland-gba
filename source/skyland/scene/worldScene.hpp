@@ -52,7 +52,7 @@ class WorldScene : public Scene
 {
 public:
     WorldScene()
-        : far_camera_(false), birds_drawn_(false), noreturn_(false),
+        : far_camera_(false), noreturn_(false),
           disable_ui_(false), disable_gamespeed_icon_(false),
           force_show_power_usage_(false)
     {
@@ -156,7 +156,6 @@ private:
     Power last_power_supplied_ = 0;
     Power last_power_used_ = 0;
     bool far_camera_ : 1;
-    bool birds_drawn_ : 1;
     bool noreturn_ : 1;
     bool disable_ui_ : 1;
     bool disable_gamespeed_icon_ : 1;

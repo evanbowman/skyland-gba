@@ -443,6 +443,10 @@ void InspectP2Scene::display()
         }
     }
 
+    if (state_bit_load(StateBit::minimap_on)) {
+        minimap::draw_cursor(false);
+    }
+
     WorldScene::display();
 }
 

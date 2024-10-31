@@ -624,4 +624,36 @@ void repaint(const Settings& settings)
 
 
 
+void draw_cursor(bool near)
+{
+    Sprite spr;
+    spr.set_size(Sprite::Size::w8_h8);
+    spr.set_tidx_8x8(34, 1);
+    spr.set_priority(0);
+
+    auto view_center = PLATFORM.screen().get_view().int_center();
+    auto pos = Vec2<Fixnum> {
+        Fixnum::from_integer(view_center.x),
+        Fixnum::from_integer(view_center.y)
+    };
+    pos.x += Fixnum::from_integer(minimap_x_anchor * 8 - 1);
+    pos.y += Fixnum::from_integer(y_anchor * 8);
+
+    if (not near) {
+        pos.x += 7.0_fixed + Fixnum::from_integer(APP.player_island().terrain().size() * 3);
+    }
+
+    auto& cursor_loc =
+        near ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
+
+    pos.x += 3.0_fixed * Fixnum::from_integer(cursor_loc.x + 1);
+    pos.y += 3.0_fixed * Fixnum::from_integer(cursor_loc.y - 4);
+
+    spr.set_position(pos);
+
+    PLATFORM.screen().draw(spr);
+}
+
+
+
 } // namespace skyland::minimap
