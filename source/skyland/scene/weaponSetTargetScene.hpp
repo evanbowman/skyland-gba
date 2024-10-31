@@ -37,9 +37,9 @@
 
 #include "containers/vector.hpp"
 #include "groupSelection.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/room.hpp"
 #include "worldScene.hpp"
-#include "skyland/minimap.hpp"
 
 
 

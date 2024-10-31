@@ -54,6 +54,7 @@
 #include "selectMenuScene.hpp"
 #include "selectTutorialScene.hpp"
 #include "selectWeaponGroupScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene/scriptHookScene.hpp"
@@ -63,7 +64,6 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
-#include "skyland/minimap.hpp"
 
 
 
@@ -393,9 +393,7 @@ ScenePtr ReadyScene::update(Time delta)
 
     if (state_bit_load(StateBit::minimap_on) and
         island_checksums_ not_eq last_checksums) {
-        minimap::repaint({
-                .show_destroyed_rooms_ = true
-            });
+        minimap::repaint({.show_destroyed_rooms_ = true});
         minimap::show();
     }
 
@@ -1079,9 +1077,7 @@ void ReadyScene::enter(Scene& prev)
         (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
 
     if (state_bit_load(StateBit::minimap_on)) {
-        minimap::repaint({
-                .show_destroyed_rooms_ = true
-            });
+        minimap::repaint({.show_destroyed_rooms_ = true});
         minimap::show();
     }
 }

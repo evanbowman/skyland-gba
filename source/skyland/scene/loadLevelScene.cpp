@@ -40,6 +40,7 @@
 #include "script/lisp.hpp"
 #include "skyland/configure_island.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/weatherEngine.hpp"
@@ -48,7 +49,6 @@
 #include "skyland/weather/blizzard.hpp"
 #include "skyland/weather/slightlyOvercast.hpp"
 #include "skyland/weather/typhoon.hpp"
-#include "skyland/minimap.hpp"
 
 
 

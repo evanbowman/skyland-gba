@@ -36,6 +36,7 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene/constructionScene.hpp"
@@ -91,6 +92,10 @@ void ModifyCharacterScene::exit(Scene& next)
             chr->co_op_release_lock();
         }
     }
+
+    if (not next.displays_minimap()) {
+        minimap::hide();
+    }
 }
 
 
@@ -109,6 +114,15 @@ void ModifyCharacterScene::enter(Scene& prev)
         island = &APP.player_island();
     } else if (APP.opponent_island()) {
         island = APP.opponent_island();
+    }
+
+    island_checksums_ =
+        APP.player_island().checksum() +
+        (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
+
+    if (state_bit_load(StateBit::minimap_on)) {
+        minimap::repaint({.show_destroyed_rooms_ = true});
+        minimap::show();
     }
 
     auto found = BasicCharacter::find_by_id(chr_id_);
@@ -181,6 +195,18 @@ ScenePtr ModifyCharacterScene::update(Time delta)
 {
     if (APP.player().key_down(Key::select)) {
         return null_scene();
+    }
+
+    const auto last_checksums = island_checksums_;
+
+    island_checksums_ =
+        APP.player_island().checksum() +
+        (APP.opponent_island() ? APP.opponent_island()->checksum() : 0);
+
+    if (state_bit_load(StateBit::minimap_on) and
+        island_checksums_ not_eq last_checksums) {
+        minimap::repaint({.show_destroyed_rooms_ = true});
+        minimap::show();
     }
 
     Island* island = nullptr;
@@ -411,6 +437,13 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y)
     }
 
     return count;
+}
+
+
+
+bool ModifyCharacterScene::displays_minimap()
+{
+    return true;
 }
 
 

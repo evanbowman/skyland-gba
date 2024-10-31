@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2023  Evan Bowman. Some rights reserved.
+// Copyright (C) 2024  Evan Bowman. Some rights reserved.
 //
 // This program is source-available; the source code is provided for educational
 // purposes. All copies of the software must be distributed along with this
@@ -31,47 +31,53 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #pragma once
 
+#include "containers/vector.hpp"
+#include "room.hpp"
+#include "scene/groupSelection.hpp"
 
 
-#include "skyland/blockChecksum.hpp"
-#include "worldScene.hpp"
 
-
-
-namespace skyland
+namespace skyland::minimap
 {
 
 
 
-class InspectP2Scene final : public ActiveWorldScene
+struct FramebufferCache
 {
-public:
-    void enter(Scene& prev) override;
-    void exit(Scene& prev) override;
+    Vector<u8> pixels_;
 
-
-    ScenePtr update(Time delta) override;
-
-
-    void display() override;
-
-
-    bool displays_minimap() override;
-
-
-public:
-    Time cursor_anim_timer_;
-    Time describe_room_timer_ = seconds(1);
-    Optional<Text> room_description_;
-    BlockChecksum island_checksums_;
-    u8 cursor_anim_frame_;
-    bool await_start_key_ = false;
-    bool await_b_key_ = false;
+    u16 player_island_checksum_ = -1;
+    u16 opponent_island_checksum_ = -1;
 };
 
 
 
-} // namespace skyland
+struct Settings
+{
+    FramebufferCache* pixel_cache_ = nullptr;
+    GroupSelection* weapon_group_selection_ = nullptr;
+    Optional<RoomCoord> weapon_loc_ = nullopt();
+    Optional<Room::Group> group_ = nullopt();
+    Optional<bool> target_near_ = nullopt();
+
+    bool show_destroyed_rooms_ = false;
+};
+
+
+
+void show();
+void hide();
+void move(u8 y_anchor);
+
+
+extern Bitmatrix<16, 16> player_destroyed_rooms;
+
+
+
+void repaint(const Settings& settings = {});
+
+
+
+} // namespace skyland::minimap

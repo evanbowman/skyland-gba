@@ -926,7 +926,10 @@ public:
 
         void (*psg_play_note)(Speaker::Channel c, Speaker::NoteDesc note);
         void (*psg_stop_note)(Speaker::Channel c);
-        void (*psg_apply_effect)(Speaker::Channel c, Speaker::Effect e, u8 arg, Microseconds delta);
+        void (*psg_apply_effect)(Speaker::Channel c,
+                                 Speaker::Effect e,
+                                 u8 arg,
+                                 Microseconds delta);
         void (*psg_init_square_1)(Speaker::ChannelSettings s);
         void (*psg_init_square_2)(Speaker::ChannelSettings s);
         void (*psg_init_wave)(Speaker::ChannelSettings s);

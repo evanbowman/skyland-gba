@@ -49,9 +49,9 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/script_defs.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 
@@ -77,9 +77,7 @@ void InspectP2Scene::enter(Scene& prev)
     }
 
     if (state_bit_load(StateBit::minimap_on)) {
-        minimap::repaint({
-                .show_destroyed_rooms_ = true
-            });
+        minimap::repaint({.show_destroyed_rooms_ = true});
         minimap::show();
     }
 
@@ -162,9 +160,7 @@ ScenePtr InspectP2Scene::update(Time delta)
 
     if (state_bit_load(StateBit::minimap_on) and
         island_checksums_ not_eq last_checksums) {
-        minimap::repaint({
-                .show_destroyed_rooms_ = true
-            });
+        minimap::repaint({.show_destroyed_rooms_ = true});
         minimap::show();
     }
 

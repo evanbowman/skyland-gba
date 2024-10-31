@@ -2072,10 +2072,11 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"wg-generate",
-        {0, [](int argc) {
-            APP.world_graph().generate();
-            return L_NIL;
-        }}},
+     {0,
+      [](int argc) {
+          APP.world_graph().generate();
+          return L_NIL;
+      }}},
     {"wg-path",
      {2,
       [](int argc) {

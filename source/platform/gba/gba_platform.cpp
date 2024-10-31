@@ -7070,280 +7070,296 @@ static const Platform::Extensions extensions{
     .watchdog_off = [] { set_gflag(GlobalFlag::watchdog_disabled, true); },
     .get_stack_usage = [] { return max_stack_usage(); },
     .restart = [] { ::restart(); },
-    .psg_play_note = [](Platform::Speaker::Channel channel,
-                        Platform::Speaker::NoteDesc note_desc) {
-        auto note = note_desc.regular_.note_;
-        u8 octave = note_desc.regular_.octave_;
+    .psg_play_note =
+        [](Platform::Speaker::Channel channel,
+           Platform::Speaker::NoteDesc note_desc) {
+            auto note = note_desc.regular_.note_;
+            u8 octave = note_desc.regular_.octave_;
 
-        if (channel == Platform::Speaker::Channel::noise and
-            note_desc.noise_freq_.frequency_select_ == 0) {
-            return;
-        } else if (channel not_eq Platform::Speaker::Channel::noise and
-                   ((u8)note >= (u8)Platform::Speaker::Note::count or
-                    note == Platform::Speaker::Note::invalid)) {
-            return;
-        }
-
-
-        // Turn off directsound!
-        REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
-        REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
-
-        switch (channel) {
-        case Platform::Speaker::Channel::square_1:
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR1;
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR1;
-            analog_channel[(int)channel].last_note_ = note;
-            analog_channel[(int)channel].last_octave_ = octave;
-            analog_channel[(int)channel].effect_timer_ = 0;
-            REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
-            break;
-
-        case Platform::Speaker::Channel::square_2:
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR2;
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR2;
-            analog_channel[(int)channel].last_note_ = note;
-            analog_channel[(int)channel].last_octave_ = octave;
-            analog_channel[(int)channel].effect_timer_ = 0;
-            REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
-            break;
-
-        case Platform::Speaker::Channel::noise: {
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LNOISE;
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RNOISE;
-            analog_channel[(int)channel].last_note_ = note;
-            analog_channel[(int)channel].last_octave_ = octave;
-            analog_channel[(int)channel].effect_timer_ = 0;
-            auto freq = note_desc.noise_freq_.frequency_select_;
-            auto entry = noise_frequency_table_[freq];
-            REG_SND4FREQ = 0;
-            REG_SND4FREQ = SFREQ_RESET | ((0x0f & entry.shift_) << 4) |
-                (0x07 & entry.ratio_) |
-                (note_desc.noise_freq_.wide_mode_ << 3);
-            break;
-        }
-
-        case Platform::Speaker::Channel::wave:
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LWAVE;
-            REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RWAVE;
-            analog_channel[(int)channel].last_note_ = note;
-            analog_channel[(int)channel].last_octave_ = octave;
-            analog_channel[(int)channel].effect_timer_ = 0;
-            break;
-
-        default:
-            // TODO...
-            break;
-        }
-    },
-    .psg_stop_note = [](Platform::Speaker::Channel channel) {
-            switch (channel) {
-    case Platform::Speaker::Channel::square_1:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 8);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xc);
-        break;
-
-    case Platform::Speaker::Channel::square_2:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 9);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xd);
-        break;
-
-    case Platform::Speaker::Channel::noise:
-        // FIXME!?
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_LNOISE;
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_RNOISE;
-        break;
-
-    case Platform::Speaker::Channel::wave:
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
-        REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
-        break;
-
-    default:
-        // TODO!
-        break;
-    }
-
-    // Turn directsound back on!
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
-    REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
-
-    },
-    .psg_apply_effect = [](Platform::Speaker::Channel channel,
-                           Platform::Speaker::Effect effect,
-                           u8 argument,
-                           Microseconds delta) {
-            if (channel == Platform::Speaker::Channel::invalid) {
-        return;
-    }
-
-
-    const auto ch_num = (int)channel;
-
-
-    auto apply_vibrato = [&](volatile u16* freq_register) {
-        auto amplitude = argument & 0x0f;
-        auto freq = (argument & 0xf0) >> 4;
-
-        // We're using freq as a divisor. Zero isn't valid
-        freq++;
-
-        analog_channel[ch_num].effect_timer_ += delta;
-        auto rate = SND_RATE(analog_channel[ch_num].last_note_,
-                             analog_channel[ch_num].last_octave_);
-
-
-        auto vib = float(cosine(analog_channel[ch_num].effect_timer_ / freq)) /
-                   std::numeric_limits<s16>::max();
-
-        vib *= (amplitude << 2);
-        rate += vib;
-        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
-        *freq_register = *freq_register | rate;
-    };
-
-
-    auto apply_duty = [&](volatile u16* ctrl_register) {
-        *ctrl_register = *ctrl_register & ~SSQR_DUTY_MASK;
-        // (Only four possible duty cycles, hence the mask)
-        *ctrl_register = *ctrl_register | SSQR_DUTY((argument >> 4) & 0x03);
-    };
-
-
-    auto apply_envelope = [&](volatile u16* ctrl_register) {
-        auto duty = (*ctrl_register & SSQR_DUTY_MASK) >> SSQR_DUTY_SHIFT;
-        auto length = (*ctrl_register & SSQR_LEN_MASK) >> SSQR_LEN_SHIFT;
-
-        // To match LSDJ: first nibble: volume, second nibble: 1-7: release with
-        // decreasing envelope, 8-f: release with increasing envelope.
-
-        int dir = 0;
-
-        if ((argument & 0x0f) < 8) {
-            dir = 0; // decreasing
-        } else {
-            dir = 1;
-        }
-
-        *ctrl_register = SSQR_BUILD(
-            (argument & 0xf0) >> 4, dir, (argument & 0x07), duty, length);
-    };
-
-
-    auto cancel_effect = [&](volatile u16* freq_register) {
-        *freq_register = *freq_register & ~SFREQ_RATE_MASK;
-        *freq_register =
-            *freq_register | SND_RATE(analog_channel[ch_num].last_note_,
-                                      analog_channel[ch_num].last_octave_);
-
-        analog_channel[ch_num].effect_timer_ = 0;
-    };
-
-
-    switch (channel) {
-    case Platform::Speaker::Channel::square_1: {
-        switch (effect) {
-        case Platform::Speaker::Effect::vibrato:
-            apply_vibrato(&REG_SND1FREQ);
-            break;
-
-        case Platform::Speaker::Effect::none:
-            cancel_effect(&REG_SND1FREQ);
-            break;
-
-        case Platform::Speaker::Effect::duty:
-            apply_duty(&REG_SND1CNT);
-            break;
-
-        case Platform::Speaker::Effect::envelope:
-            apply_envelope(&REG_SND1CNT);
-            break;
-        }
-        break;
-    }
-
-    case Platform::Speaker::Channel::square_2:
-        switch (effect) {
-        case Platform::Speaker::Effect::vibrato:
-            apply_vibrato(&REG_SND2FREQ);
-            break;
-
-        case Platform::Speaker::Effect::none:
-            cancel_effect(&REG_SND2FREQ);
-            break;
-
-        case Platform::Speaker::Effect::duty:
-            apply_duty(&REG_SND2CNT);
-            break;
-
-        case Platform::Speaker::Effect::envelope:
-            apply_envelope(&REG_SND2CNT);
-            break;
-        }
-        break;
-
-    case Platform::Speaker::Channel::noise:
-        switch (effect) {
-        case Platform::Speaker::Effect::duty:
-            apply_duty(&REG_SND4CNT);
-            break;
-
-        case Platform::Speaker::Effect::envelope:
-            apply_envelope(&REG_SND4CNT);
-            break;
-
-        default:
-            break;
-        }
-        break;
-
-    default:
-        // TODO...
-        break;
-    }
-    },
-    .psg_init_square_1 = [](Platform::Speaker::ChannelSettings settings) {
-        REG_SND1CNT = SSQR_BUILD(settings.volume_,
-                                 settings.envelope_direction_,
-                                 settings.envelope_step_,
-                                 settings.duty_,
-                                 settings.length_);
-    },
-    .psg_init_square_2 = [](Platform::Speaker::ChannelSettings settings) {
-        REG_SND2CNT = SSQR_BUILD(settings.volume_,
-                                 settings.envelope_direction_,
-                                 settings.envelope_step_,
-                                 settings.duty_,
-                                 settings.length_);
-    },
-    .psg_init_wave = [](Platform::Speaker::ChannelSettings s) {
-
-    },
-    .psg_init_noise = [](Platform::Speaker::ChannelSettings settings) {
-        REG_SND4CNT = SSQR_BUILD(settings.volume_,
-                                 settings.envelope_direction_,
-                                 settings.envelope_step_,
-                                 settings.duty_,
-                                 settings.length_);
-    },
-    .__test_compare_sound = [](const char* name) {
-        if (auto s = get_sound(name)) {
-
-            auto f_info = filesystem::load(format("/scripts/data/sounds/%", name).c_str(),
-                                           sounds_dir);
-
-            if (std::get<1>(f_info)) {
-                for (int i = 0; i < s->length_ and i < (int)std::get<1>(f_info); ++i) {
-                    if (std::get<0>(f_info)[i] not_eq s->data_[i]) {
-                        return false;
-                    }
-                }
+            if (channel == Platform::Speaker::Channel::noise and
+                note_desc.noise_freq_.frequency_select_ == 0) {
+                return;
+            } else if (channel not_eq Platform::Speaker::Channel::noise and
+                       ((u8)note >= (u8)Platform::Speaker::Note::count or
+                        note == Platform::Speaker::Note::invalid)) {
+                return;
             }
 
+
+            // Turn off directsound!
+            REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
+            REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 9);
+
+            switch (channel) {
+            case Platform::Speaker::Channel::square_1:
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR1;
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR1;
+                analog_channel[(int)channel].last_note_ = note;
+                analog_channel[(int)channel].last_octave_ = octave;
+                analog_channel[(int)channel].effect_timer_ = 0;
+                REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+                break;
+
+            case Platform::Speaker::Channel::square_2:
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LSQR2;
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RSQR2;
+                analog_channel[(int)channel].last_note_ = note;
+                analog_channel[(int)channel].last_octave_ = octave;
+                analog_channel[(int)channel].effect_timer_ = 0;
+                REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+                break;
+
+            case Platform::Speaker::Channel::noise: {
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LNOISE;
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RNOISE;
+                analog_channel[(int)channel].last_note_ = note;
+                analog_channel[(int)channel].last_octave_ = octave;
+                analog_channel[(int)channel].effect_timer_ = 0;
+                auto freq = note_desc.noise_freq_.frequency_select_;
+                auto entry = noise_frequency_table_[freq];
+                REG_SND4FREQ = 0;
+                REG_SND4FREQ = SFREQ_RESET | ((0x0f & entry.shift_) << 4) |
+                               (0x07 & entry.ratio_) |
+                               (note_desc.noise_freq_.wide_mode_ << 3);
+                break;
+            }
+
+            case Platform::Speaker::Channel::wave:
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_LWAVE;
+                REG_SNDDMGCNT = REG_SNDDMGCNT | SDMG_RWAVE;
+                analog_channel[(int)channel].last_note_ = note;
+                analog_channel[(int)channel].last_octave_ = octave;
+                analog_channel[(int)channel].effect_timer_ = 0;
+                break;
+
+            default:
+                // TODO...
+                break;
+            }
+        },
+    .psg_stop_note =
+        [](Platform::Speaker::Channel channel) {
+            switch (channel) {
+            case Platform::Speaker::Channel::square_1:
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 8);
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xc);
+                break;
+
+            case Platform::Speaker::Channel::square_2:
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 9);
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xd);
+                break;
+
+            case Platform::Speaker::Channel::noise:
+                // FIXME!?
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_LNOISE;
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~SDMG_RNOISE;
+                break;
+
+            case Platform::Speaker::Channel::wave:
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xb);
+                REG_SNDDMGCNT = REG_SNDDMGCNT & ~(1 << 0xf);
+                break;
+
+            default:
+                // TODO!
+                break;
+            }
+
+            // Turn directsound back on!
+            REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 9);
+            REG_SOUNDCNT_H = REG_SOUNDCNT_H | (1 << 8);
+        },
+    .psg_apply_effect =
+        [](Platform::Speaker::Channel channel,
+           Platform::Speaker::Effect effect,
+           u8 argument,
+           Microseconds delta) {
+            if (channel == Platform::Speaker::Channel::invalid) {
+                return;
+            }
+
+
+            const auto ch_num = (int)channel;
+
+
+            auto apply_vibrato = [&](volatile u16* freq_register) {
+                auto amplitude = argument & 0x0f;
+                auto freq = (argument & 0xf0) >> 4;
+
+                // We're using freq as a divisor. Zero isn't valid
+                freq++;
+
+                analog_channel[ch_num].effect_timer_ += delta;
+                auto rate = SND_RATE(analog_channel[ch_num].last_note_,
+                                     analog_channel[ch_num].last_octave_);
+
+
+                auto vib =
+                    float(cosine(analog_channel[ch_num].effect_timer_ / freq)) /
+                    std::numeric_limits<s16>::max();
+
+                vib *= (amplitude << 2);
+                rate += vib;
+                *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+                *freq_register = *freq_register | rate;
+            };
+
+
+            auto apply_duty = [&](volatile u16* ctrl_register) {
+                *ctrl_register = *ctrl_register & ~SSQR_DUTY_MASK;
+                // (Only four possible duty cycles, hence the mask)
+                *ctrl_register =
+                    *ctrl_register | SSQR_DUTY((argument >> 4) & 0x03);
+            };
+
+
+            auto apply_envelope = [&](volatile u16* ctrl_register) {
+                auto duty =
+                    (*ctrl_register & SSQR_DUTY_MASK) >> SSQR_DUTY_SHIFT;
+                auto length =
+                    (*ctrl_register & SSQR_LEN_MASK) >> SSQR_LEN_SHIFT;
+
+                // To match LSDJ: first nibble: volume, second nibble: 1-7: release with
+                // decreasing envelope, 8-f: release with increasing envelope.
+
+                int dir = 0;
+
+                if ((argument & 0x0f) < 8) {
+                    dir = 0; // decreasing
+                } else {
+                    dir = 1;
+                }
+
+                *ctrl_register = SSQR_BUILD((argument & 0xf0) >> 4,
+                                            dir,
+                                            (argument & 0x07),
+                                            duty,
+                                            length);
+            };
+
+
+            auto cancel_effect = [&](volatile u16* freq_register) {
+                *freq_register = *freq_register & ~SFREQ_RATE_MASK;
+                *freq_register = *freq_register |
+                                 SND_RATE(analog_channel[ch_num].last_note_,
+                                          analog_channel[ch_num].last_octave_);
+
+                analog_channel[ch_num].effect_timer_ = 0;
+            };
+
+
+            switch (channel) {
+            case Platform::Speaker::Channel::square_1: {
+                switch (effect) {
+                case Platform::Speaker::Effect::vibrato:
+                    apply_vibrato(&REG_SND1FREQ);
+                    break;
+
+                case Platform::Speaker::Effect::none:
+                    cancel_effect(&REG_SND1FREQ);
+                    break;
+
+                case Platform::Speaker::Effect::duty:
+                    apply_duty(&REG_SND1CNT);
+                    break;
+
+                case Platform::Speaker::Effect::envelope:
+                    apply_envelope(&REG_SND1CNT);
+                    break;
+                }
+                break;
+            }
+
+            case Platform::Speaker::Channel::square_2:
+                switch (effect) {
+                case Platform::Speaker::Effect::vibrato:
+                    apply_vibrato(&REG_SND2FREQ);
+                    break;
+
+                case Platform::Speaker::Effect::none:
+                    cancel_effect(&REG_SND2FREQ);
+                    break;
+
+                case Platform::Speaker::Effect::duty:
+                    apply_duty(&REG_SND2CNT);
+                    break;
+
+                case Platform::Speaker::Effect::envelope:
+                    apply_envelope(&REG_SND2CNT);
+                    break;
+                }
+                break;
+
+            case Platform::Speaker::Channel::noise:
+                switch (effect) {
+                case Platform::Speaker::Effect::duty:
+                    apply_duty(&REG_SND4CNT);
+                    break;
+
+                case Platform::Speaker::Effect::envelope:
+                    apply_envelope(&REG_SND4CNT);
+                    break;
+
+                default:
+                    break;
+                }
+                break;
+
+            default:
+                // TODO...
+                break;
+            }
+        },
+    .psg_init_square_1 =
+        [](Platform::Speaker::ChannelSettings settings) {
+            REG_SND1CNT = SSQR_BUILD(settings.volume_,
+                                     settings.envelope_direction_,
+                                     settings.envelope_step_,
+                                     settings.duty_,
+                                     settings.length_);
+        },
+    .psg_init_square_2 =
+        [](Platform::Speaker::ChannelSettings settings) {
+            REG_SND2CNT = SSQR_BUILD(settings.volume_,
+                                     settings.envelope_direction_,
+                                     settings.envelope_step_,
+                                     settings.duty_,
+                                     settings.length_);
+        },
+    .psg_init_wave =
+        [](Platform::Speaker::ChannelSettings s) {
+
+        },
+    .psg_init_noise =
+        [](Platform::Speaker::ChannelSettings settings) {
+            REG_SND4CNT = SSQR_BUILD(settings.volume_,
+                                     settings.envelope_direction_,
+                                     settings.envelope_step_,
+                                     settings.duty_,
+                                     settings.length_);
+        },
+    .__test_compare_sound =
+        [](const char* name) {
+            if (auto s = get_sound(name)) {
+
+                auto f_info = filesystem::load(
+                    format("/scripts/data/sounds/%", name).c_str(), sounds_dir);
+
+                if (std::get<1>(f_info)) {
+                    for (int i = 0;
+                         i < s->length_ and i < (int)std::get<1>(f_info);
+                         ++i) {
+                        if (std::get<0>(f_info)[i] not_eq s->data_[i]) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
             return true;
-        }
-        return true;
-    },
+        },
 };
 
 

@@ -33,6 +33,7 @@
 
 
 #include "playerP1.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/mycelium.hpp"
@@ -40,7 +41,6 @@
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/minimap.hpp"
 
 
 
@@ -202,7 +202,6 @@ void PlayerP1::on_room_destroyed(Room& room)
                 minimap::player_destroyed_rooms.set(x, y, true);
             }
         }
-
     }
 }
 

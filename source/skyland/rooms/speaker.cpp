@@ -95,10 +95,14 @@ void Speaker::update(Time delta)
             timer_ += delta;
             if (timer_ > milliseconds(750)) {
 
-                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
-                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
-                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
-                PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
+                PLATFORM_EXTENSION(psg_stop_note,
+                                   Platform::Speaker::Channel::square_1);
+                PLATFORM_EXTENSION(psg_stop_note,
+                                   Platform::Speaker::Channel::square_2);
+                PLATFORM_EXTENSION(psg_stop_note,
+                                   Platform::Speaker::Channel::noise);
+                PLATFORM_EXTENSION(psg_stop_note,
+                                   Platform::Speaker::Channel::wave);
 
                 end_music_ = false;
             }
@@ -180,7 +184,8 @@ void Speaker::update(Time delta)
     }
 
     if (auto p = square_1()) {
-        PLATFORM_EXTENSION(psg_apply_effect,
+        PLATFORM_EXTENSION(
+            psg_apply_effect,
             Platform::Speaker::Channel::square_1,
             load_effect((int)Platform::Speaker::Channel::square_1),
             p->effect_parameters()[index_].value_,
@@ -190,14 +195,15 @@ void Speaker::update(Time delta)
 
     if (auto n = noise()) {
         PLATFORM_EXTENSION(psg_apply_effect,
-            Platform::Speaker::Channel::noise,
-            load_effect((int)Platform::Speaker::Channel::noise),
-            n->effect_parameters()[index_].value_,
-            delta);
+                           Platform::Speaker::Channel::noise,
+                           load_effect((int)Platform::Speaker::Channel::noise),
+                           n->effect_parameters()[index_].value_,
+                           delta);
     }
 
     if (auto p = square_2()) {
-        PLATFORM_EXTENSION(psg_apply_effect,
+        PLATFORM_EXTENSION(
+            psg_apply_effect,
             Platform::Speaker::Channel::square_2,
             load_effect((int)Platform::Speaker::Channel::square_2),
             p->effect_parameters()[index_].value_,

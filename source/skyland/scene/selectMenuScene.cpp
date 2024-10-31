@@ -435,7 +435,6 @@ void SelectMenuScene::enter(Scene& scene)
                              return make_scene<SetCharacterIconScene>(id);
                          });
             }
-
         }
 
         bool bird_found = false;
@@ -548,7 +547,8 @@ void SelectMenuScene::enter(Scene& scene)
                         [this, c = cursor]() {
                             if (auto room = island()->get_room(c)) {
                                 room->set_powerdown(true);
-                                PLATFORM.speaker().play_sound("powerdown.raw", 4);
+                                PLATFORM.speaker().play_sound("powerdown.raw",
+                                                              4);
                                 island()->schedule_repaint();
                             }
                             show_power_on_exit_ = true;

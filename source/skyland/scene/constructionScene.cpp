@@ -41,6 +41,7 @@
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "selectMenuScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"

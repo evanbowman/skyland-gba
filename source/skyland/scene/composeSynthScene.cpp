@@ -107,7 +107,8 @@ ScenePtr ComposeSynthScene::update(Time delta)
     }
 
 
-    PLATFORM_EXTENSION(psg_apply_effect,
+    PLATFORM_EXTENSION(
+        psg_apply_effect,
         Platform::Speaker::Channel::square_1,
         effect_flags_.load((int)Platform::Speaker::Channel::square_1,
                            demo_index_),

@@ -36,6 +36,7 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/notificationScene.hpp"
@@ -243,6 +244,9 @@ ScenePtr SalvageRoomScene::update(Time delta)
 
                     PLATFORM.speaker().play_sound("coin", 2);
                     APP.set_coins(APP.coins() + salvage_value(*room));
+
+                    minimap::player_destroyed_rooms.set(
+                        cursor_loc.x, cursor_loc.y, false);
 
                     u16 mt_index = 0;
                     if (auto room = island()->get_room(cursor_loc)) {
