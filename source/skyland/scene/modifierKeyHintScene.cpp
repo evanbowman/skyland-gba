@@ -124,6 +124,8 @@ void ModifierKeyHintScene::exit(Scene& next)
 {
     ActiveWorldScene::exit(next);
 
+    text_.clear();
+
     PLATFORM.screen().schedule_fade(0.f);
 
     PLATFORM.fill_overlay(0);
