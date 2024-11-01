@@ -12,7 +12,14 @@
 
 
 (defn challenge-hint ()
-  (dialog "Try using an arc-gun against the enemy hull, a repair drone could keep you alive."))
+  (dialog "Are you sure you want a hint?")
+  (dialog-await-y/n)
+
+  (defn on-dialog-accepted ()
+    (dialog "Hint: Try using an arc-gun against the enemy hull, a repair drone could keep you alive."))
+
+  (setq on-dialog-declined (lambda ())))
+
 
 
 (setq on-fadein
