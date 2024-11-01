@@ -32,6 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#pragma once
+
 #include "number/int.h"
 #include <new>
 
@@ -58,9 +60,27 @@ struct TinyBuffer
     }
 
 
-    bool push(const T& elem)
+    bool full() const
     {
-        if (count_ == Capacity) {
+        return count_ == Capacity;
+    }
+
+
+    T& operator[](u32 index)
+    {
+        return ((T*)mem_.data())[index];
+    }
+
+
+    const T& operator[](u32 index) const
+    {
+        return ((T*)mem_.data())[index];
+    }
+
+
+    bool push_back(const T& elem)
+    {
+        if (full()) {
             return false;
         }
         new ((T*)mem_.data() + count_) T(elem);
@@ -75,9 +95,9 @@ struct TinyBuffer
     }
 
 
-    void pop()
+    void pop_back()
     {
-        if (count_ == 0) {
+        if (empty()) {
             return;
         }
         ((T*)mem_.data() + --count_)->~T();
@@ -99,7 +119,7 @@ struct TinyBuffer
     void clear()
     {
         while (count_) {
-            pop();
+            pop_back();
         }
     }
 };

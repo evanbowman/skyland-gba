@@ -47,6 +47,7 @@
 #include "script/value.hpp"
 #include "tileId.hpp"
 #include <limits>
+#include "targetQueue.hpp"
 
 
 
@@ -329,9 +330,14 @@ public:
     virtual bool target_pinned() const;
 
 
-    virtual void set_target(const RoomCoord& target, bool pinned)
-    {
-    }
+    using TargetCount = u8;
+    virtual TargetCount target_count() const;
+
+
+    virtual void set_target(const TargetQueue& q, bool pinned);
+
+
+    virtual void set_target(const RoomCoord& target, bool pinned);
 
 
     virtual void unset_target()

@@ -559,6 +559,25 @@ bool Room::allows_powerdown()
 
 
 
+void Room::set_target(const RoomCoord& target, bool pinned)
+{
+}
+
+
+
+void Room::set_target(const TargetQueue& q, bool pinned)
+{
+}
+
+
+
+Room::TargetCount Room::target_count() const
+{
+    return 0;
+}
+
+
+
 void Room::set_powerdown(bool powerdown)
 {
     if (powerdown == powerdown_) {

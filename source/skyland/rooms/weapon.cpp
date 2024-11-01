@@ -116,7 +116,7 @@ void Weapon::timer_expired()
         }
     }
 
-    if (get_target()) {
+    if (not target_queue_.empty()) {
 
         if (is_powered_down()) {
             unset_target();
@@ -134,6 +134,10 @@ void Weapon::timer_expired()
         auto island = other_island();
 
         if (island and not island->is_destroyed()) {
+
+            while (target_queue_.size() > 1 and not island->get_room(target_queue_.back().coord())) {
+                target_queue_.pop_back();
+            }
 
             // This check for friendly status is partly just a sanity check. It
             // shouldn't be possible to set a weapon target if the opposing
@@ -200,7 +204,6 @@ void Weapon::___rewind___ability_used()
 
 
 void Weapon::display_on_hover(Platform::Screen& screen,
-
                               const RoomCoord& cursor)
 {
     if (not get_target()) {
@@ -210,18 +213,27 @@ void Weapon::display_on_hover(Platform::Screen& screen,
     auto target_island = other_island();
 
     if (target_island) {
-        auto pos = target_island->visual_origin();
-        pos.x += Fixnum::from_integer(get_target()->x * 16);
-        pos.y += Fixnum::from_integer(get_target()->y * 16);
-
         static const int reticule_spr_idx = 45;
 
-        Sprite spr;
-        spr.set_position(pos);
-        spr.set_texture_index(reticule_spr_idx);
-        spr.set_size(Sprite::Size::w16_h32);
+        Sprite::Alpha alpha = Sprite::Alpha::opaque;
 
-        screen.draw(spr);
+        for (int i = target_queue_.size() - 1; i > -1; --i) {
+            auto target = target_queue_[i].coord();
+
+            auto pos = target_island->visual_origin();
+            pos.x += Fixnum::from_integer(target.x * 16);
+            pos.y += Fixnum::from_integer(target.y * 16);
+
+            Sprite spr;
+            spr.set_position(pos);
+            spr.set_texture_index(reticule_spr_idx);
+            spr.set_size(Sprite::Size::w16_h32);
+            spr.set_alpha(alpha);
+
+            screen.draw(spr);
+
+            alpha = Sprite::Alpha::translucent;
+        }
     }
 }
 
@@ -266,7 +278,44 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
     APP.time_stream().push(APP.level_timer(), e);
 
     target_queue_.clear();
-    target_queue_.push(target);
+    target_queue_.push_back(PackedTarget::pack(target));
+    target_pinned_ = pinned;
+}
+
+
+
+Room::TargetCount Weapon::target_count() const
+{
+    return target_queue_.size();
+}
+
+
+
+void Weapon::set_target(const TargetQueue& tq, bool pinned)
+{
+    if (is_powered_down()) {
+        return;
+    }
+
+    if (tq.empty()) {
+        return;
+    }
+    if (tq.size() == 1) {
+        if (target_queue_.size() > 1) {
+            target_queue_.clear();
+        }
+        set_target(tq[0].coord(), pinned);
+        return;
+    }
+
+    // TODO: record time stream event!
+
+    target_queue_.clear();
+
+    for (int i = tq.size() - 1; i > -1; --i) {
+        target_queue_.push_back(tq[i]);
+    }
+
     target_pinned_ = pinned;
 }
 

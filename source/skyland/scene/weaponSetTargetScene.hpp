@@ -116,6 +116,9 @@ private:
     u8 minimap_x_anchor_ = 1;
 
     Optional<RoomCoord> initial_pos_;
+
+    TargetQueue target_queue_;
+    bool queue_mode_ = false;
 };
 
 

@@ -171,15 +171,13 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
     }
 
 
-    if (APP.player().key_down(Key::select)) {
-        minimap_disabled = not minimap_disabled;
-        PLATFORM.speaker().play_sound("click_wooden", 2);
-        if (minimap_disabled) {
-            minimap_hide();
-        } else {
-            minimap_repaint();
-            minimap_show();
+    if (not queue_mode_ and APP.player().key_down(Key::select)) {
+        if (PLATFORM.network_peer().is_connected()) {
+            PLATFORM.speaker().play_sound("beep_error", 3);
+            return null_scene();
         }
+        PLATFORM.speaker().play_sound("weapon_target", 3);
+        queue_mode_ = true;
     }
 
 
@@ -239,8 +237,17 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
     auto onclick = [&](RoomCoord cursor_loc) -> ScenePtr {
         if (APP.opponent_island()->get_room(cursor_loc)) {
 
-            auto do_set_target = [cursor_loc](Room& room) {
-                room.set_target(cursor_loc, true);
+            if (queue_mode_) {
+                if (not target_queue_.full()) {
+                    target_queue_.push_back(PackedTarget::pack(cursor_loc));
+                    return null_scene();
+                }
+            } else {
+                target_queue_.push_back(PackedTarget::pack(cursor_loc));
+            }
+
+            auto do_set_target = [this, cursor_loc](Room& room) {
+                room.set_target(target_queue_, true);
                 network::packet::WeaponSetTarget packet;
                 packet.weapon_x_ = room.position().x;
                 packet.weapon_y_ = room.position().y;
@@ -383,35 +390,11 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
         camera_update_timer_ = milliseconds(500);
         minimap_repaint_timer_ = milliseconds(100);
     }
-    if (test_key(Key::action_1)) {
+    if (test_key(Key::action_1) or target_queue_.full()) {
         if (auto scene = onclick(cursor_loc)) {
             return scene;
         }
     }
-    if (auto pos = APP.player().tap_released()) {
-        auto [x, y, island] = check_island_tapclick(*pos);
-        if (island == APP.opponent_island()) {
-            if (auto scene = onclick({x, y})) {
-                return scene;
-            } else {
-                return make_scene<ReadyScene>();
-            }
-        } else {
-            return make_scene<ReadyScene>();
-        }
-    }
-
-
-    // auto origin = APP.opponent_island()->visual_origin();
-
-    // origin.x += Fixnum::from_integer(cursor_loc.x * 16);
-    // origin.y += Fixnum::from_integer(cursor_loc.y * 16);
-
-    // auto abs_cursor_y = origin.y.as_integer() - PLATFORM.screen().get_view().int_center().y;
-
-    // if (abs_cursor_x > 8 * (27 - minimap_width() - 3)) {
-    //     minimap_show(1);
-    // } else if (abs_cursor_x < 8 * (27 - minimap_width() + 1)) {
 
 
     if (APP.player().key_down(Key::action_2)) {
