@@ -45,9 +45,9 @@
 #include "power.hpp"
 #include "scene.hpp"
 #include "script/value.hpp"
+#include "targetQueue.hpp"
 #include "tileId.hpp"
 #include <limits>
-#include "targetQueue.hpp"
 
 
 

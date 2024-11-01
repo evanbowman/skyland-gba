@@ -402,7 +402,8 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
 
-        if (is_player_island(isle) and not PLATFORM.network_peer().is_connected()) {
+        if (is_player_island(isle) and
+            not PLATFORM.network_peer().is_connected()) {
             if (auto chr = isle->character_at_location(cursor)) {
                 if (chr->is_superpinned()) {
                     add_line(SystemString::sel_menu_unpin_crewmember,
@@ -556,10 +557,9 @@ void SelectMenuScene::enter(Scene& scene)
                             return null_scene();
                         });
                 }
-            } else if (is_player_island(isle) and
-                       room and
+            } else if (is_player_island(isle) and room and
                        (*room->metaclass())->category() ==
-                       Room::Category::weapon and
+                           Room::Category::weapon and
                        room->get_target()) {
 
                 if (not PLATFORM.network_peer().is_connected()) {

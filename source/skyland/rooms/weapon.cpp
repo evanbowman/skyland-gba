@@ -135,7 +135,16 @@ void Weapon::timer_expired()
 
         if (island and not island->is_destroyed()) {
 
-            while (target_queue_.size() > 1 and not island->get_room(target_queue_.back().coord())) {
+            while (target_queue_.size() > 1 and
+                   not island->get_room(target_queue_.back().coord())) {
+
+                time_stream::event::TargetQueuePop e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                e.queue_elem_x_ = target_queue_.back().x_;
+                e.queue_elem_y_ = target_queue_.back().y_;
+                APP.time_stream().push(APP.level_timer(), e);
+
                 target_queue_.pop_back();
             }
 
@@ -159,6 +168,13 @@ void Weapon::timer_expired()
                                                          // reload() above to
                                                          // record events.
     Timer::__override_clock(0);
+}
+
+
+
+void Weapon::__rewind_push_target_queue(const RoomCoord& target)
+{
+    target_queue_.push_back(PackedTarget::pack(target));
 }
 
 
@@ -203,8 +219,7 @@ void Weapon::___rewind___ability_used()
 
 
 
-void Weapon::display_on_hover(Platform::Screen& screen,
-                              const RoomCoord& cursor)
+void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 {
     if (not get_target()) {
         return;
@@ -258,26 +273,8 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
         return;
     }
 
-    time_stream::event::WeaponSetTarget e;
-    e.room_x_ = position().x;
-    e.room_y_ = position().y;
+    clear_target_queue();
 
-    e.near_ = is_player_island(parent());
-    e.previous_target_pinned_ = target_pinned_;
-
-    if (get_target()) {
-        e.previous_target_x_ = get_target()->x;
-        e.previous_target_y_ = get_target()->y;
-        e.has_previous_target_ = true;
-    } else {
-        e.previous_target_x_ = 0;
-        e.previous_target_y_ = 0;
-        e.has_previous_target_ = false;
-    }
-
-    APP.time_stream().push(APP.level_timer(), e);
-
-    target_queue_.clear();
     target_queue_.push_back(PackedTarget::pack(target));
     target_pinned_ = pinned;
 }
@@ -308,15 +305,55 @@ void Weapon::set_target(const TargetQueue& tq, bool pinned)
         return;
     }
 
-    // TODO: record time stream event!
-
-    target_queue_.clear();
+    clear_target_queue();
 
     for (int i = tq.size() - 1; i > -1; --i) {
         target_queue_.push_back(tq[i]);
     }
 
     target_pinned_ = pinned;
+}
+
+
+
+void Weapon::clear_target_queue()
+{
+    if (target_queue_.size() < 2) {
+        time_stream::event::WeaponSetTarget e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+
+        e.near_ = is_player_island(parent());
+        e.previous_target_pinned_ = target_pinned_;
+
+        if (get_target()) {
+            e.previous_target_x_ = get_target()->x;
+            e.previous_target_y_ = get_target()->y;
+            e.has_previous_target_ = true;
+        } else {
+            e.previous_target_x_ = 0;
+            e.previous_target_y_ = 0;
+            e.has_previous_target_ = false;
+        }
+
+        APP.time_stream().push(APP.level_timer(), e);
+
+    } else {
+
+        for (int i = 0; i < target_queue_.size(); ++i) {
+            time_stream::event::TargetQueuePop e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+
+            auto elem = target_queue_[i];
+            e.queue_elem_x_ = elem.x_;
+            e.queue_elem_y_ = elem.y_;
+
+            APP.time_stream().push(APP.level_timer(), e);
+        }
+    }
+
+    target_queue_.clear();
 }
 
 
@@ -328,27 +365,8 @@ void Weapon::unset_target()
         return;
     }
 
+    clear_target_queue();
 
-    time_stream::event::WeaponSetTarget e;
-    e.room_x_ = position().x;
-    e.room_y_ = position().y;
-
-    e.near_ = is_player_island(parent());
-    e.previous_target_pinned_ = target_pinned_;
-
-    if (get_target()) {
-        e.previous_target_x_ = get_target()->x;
-        e.previous_target_y_ = get_target()->y;
-        e.has_previous_target_ = true;
-    } else {
-        e.previous_target_x_ = 0;
-        e.previous_target_y_ = 0;
-        e.has_previous_target_ = false;
-    }
-
-    APP.time_stream().push(APP.level_timer(), e);
-
-    target_queue_.clear();
     target_pinned_ = false;
 }
 

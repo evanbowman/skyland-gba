@@ -58,6 +58,7 @@
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/weapon.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -97,8 +98,6 @@ T* respawn_basic_projectile(Island* parent,
 
 
 void respawn_plugin_projectile(
-
-
     Island* parent,
     const time_stream::event::PluginProjectileDestroyed& e)
 {
@@ -1352,6 +1351,20 @@ ScenePtr RewindScene::update(Time)
                     APP.player_island().get_room({e->room_x_, e->room_y_})) {
                 room->set_group((Room::Group)e->prev_group_);
                 APP.player_island().repaint();
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::target_queue_pop: {
+            auto e = (time_stream::event::TargetQueuePop*)end;
+            auto& isle = APP.player_island();
+            if (auto room = isle.get_room({e->room_x_, e->room_y_})) {
+                if (auto w = room->is_weapon()) {
+                    w->__rewind_push_target_queue(
+                        {e->queue_elem_x_, e->queue_elem_y_});
+                }
             }
             APP.time_stream().pop(sizeof *e);
             break;

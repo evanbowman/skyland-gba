@@ -438,7 +438,8 @@ void PlayerP1::autoassign_weapon_target(Room& room)
         room.target_pinned() and room.get_target() and
         APP.opponent_island()->get_room(*room.get_target());
 
-    if (not has_pinned_target and room.target_count() < 2 and not room.cast<Warhead>()) {
+    if (not has_pinned_target and room.target_count() < 2 and
+        not room.cast<Warhead>()) {
         EnemyAI::update_room(room,
                              APP.opponent_island()->rooms_plot(),
                              &APP.player(),

@@ -36,6 +36,7 @@
 
 #include "number/int.h"
 #include <new>
+#include <array>
 
 
 
@@ -48,6 +49,12 @@ struct TinyBuffer
 
     TinyBuffer()
     {
+    }
+
+
+    static constexpr u8 capacity()
+    {
+        return Capacity;
     }
 
 

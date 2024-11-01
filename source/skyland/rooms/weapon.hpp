@@ -34,9 +34,9 @@
 
 #pragma once
 
+#include "memory/tinyBuffer.hpp"
 #include "skyland/bulkTimer.hpp"
 #include "skyland/room.hpp"
-#include "memory/tinyBuffer.hpp"
 
 
 
@@ -136,6 +136,9 @@ public:
     }
 
 
+    void __rewind_push_target_queue(const RoomCoord& target);
+
+
     int debris_tile() override
     {
         return 1;
@@ -157,6 +160,8 @@ public:
 
 protected:
     void on_powerchange() override;
+
+    void clear_target_queue();
 
     TargetQueue target_queue_;
     bool target_pinned_ = false;

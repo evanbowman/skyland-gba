@@ -34,9 +34,9 @@
 #include "groupSelectionScene.hpp"
 #include "constructionScene.hpp"
 #include "readyScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "weaponSetTargetScene.hpp"
-#include "skyland/network.hpp"
 
 
 

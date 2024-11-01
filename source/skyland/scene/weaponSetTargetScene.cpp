@@ -178,6 +178,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
         }
         PLATFORM.speaker().play_sound("weapon_target", 3);
         queue_mode_ = true;
+        redraw_target_queue_text();
     }
 
 
@@ -240,6 +241,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
             if (queue_mode_) {
                 if (not target_queue_.full()) {
                     target_queue_.push_back(PackedTarget::pack(cursor_loc));
+                    redraw_target_queue_text();
                     return null_scene();
                 }
             } else {
@@ -426,6 +428,21 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
 }
 
 
+
+void WeaponSetTargetScene::redraw_target_queue_text()
+{
+    if (not target_queue_text_) {
+        target_queue_text_.emplace(OverlayCoord{0, 0});
+    }
+
+    auto fmt_str = SYSTR(weapon_target_queue);
+    target_queue_text_->assign(
+        format(fmt_str->c_str(), target_queue_.size(), target_queue_.capacity())
+            .c_str());
+}
+
+
+
 void WeaponSetTargetScene::display()
 {
     WorldScene::display();
@@ -463,6 +480,28 @@ void WeaponSetTargetScene::display()
         origin.y += 10.0_fixed;
         sprite.set_position(origin);
         PLATFORM.screen().draw(sprite);
+    }
+
+    static const int reticule_spr_idx = 45;
+
+    Sprite::Alpha alpha = Sprite::Alpha::opaque;
+
+    for (int i = target_queue_.size() - 1; i > -1; --i) {
+        auto target = target_queue_[i].coord();
+
+        auto pos = APP.opponent_island()->visual_origin();
+        pos.x += Fixnum::from_integer(target.x * 16);
+        pos.y += Fixnum::from_integer(target.y * 16);
+
+        Sprite spr;
+        spr.set_position(pos);
+        spr.set_texture_index(reticule_spr_idx);
+        spr.set_size(Sprite::Size::w16_h32);
+        spr.set_alpha(alpha);
+
+        PLATFORM.screen().draw(spr);
+
+        alpha = Sprite::Alpha::translucent;
     }
 }
 

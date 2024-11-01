@@ -632,15 +632,14 @@ void draw_cursor(bool near)
     spr.set_priority(0);
 
     auto view_center = PLATFORM.screen().get_view().int_center();
-    auto pos = Vec2<Fixnum> {
-        Fixnum::from_integer(view_center.x),
-        Fixnum::from_integer(view_center.y)
-    };
+    auto pos = Vec2<Fixnum>{Fixnum::from_integer(view_center.x),
+                            Fixnum::from_integer(view_center.y)};
     pos.x += Fixnum::from_integer(minimap_x_anchor * 8 - 1);
     pos.y += Fixnum::from_integer(y_anchor * 8);
 
     if (not near) {
-        pos.x += 7.0_fixed + Fixnum::from_integer(APP.player_island().terrain().size() * 3);
+        pos.x += 7.0_fixed +
+                 Fixnum::from_integer(APP.player_island().terrain().size() * 3);
     }
 
     auto& cursor_loc =
