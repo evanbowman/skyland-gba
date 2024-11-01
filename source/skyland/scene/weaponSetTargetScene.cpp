@@ -172,7 +172,14 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
 
 
     if (not queue_mode_ and APP.player().key_down(Key::select)) {
-        if (PLATFORM.network_peer().is_connected()) {
+
+        bool drone_target = false;
+        if ((near_ and APP.player_island().get_drone(weapon_loc_)) or
+            APP.opponent_island()->get_drone(weapon_loc_)) {
+            drone_target = true;
+        }
+
+        if (drone_target or PLATFORM.network_peer().is_connected()) {
             PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();
         }
