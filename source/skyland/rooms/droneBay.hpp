@@ -169,6 +169,12 @@ public:
     }
 
 
+    static WeaponOrientation weapon_orientation()
+    {
+        return WeaponOrientation::vertical;
+    }
+
+
     void on_powerchange() override;
 
 
