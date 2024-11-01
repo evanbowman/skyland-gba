@@ -1,5 +1,5 @@
 ;;;
-;;; challenges/beacon.lisp
+;;; challenges/arcgun_defense.lisp
 ;;;
 
 
