@@ -1,6 +1,6 @@
-;;
-;; porcupine1.lisp
-;;
+;;;
+;;; porcupine1.lisp
+;;;
 
 
 (coins-set 10000)
