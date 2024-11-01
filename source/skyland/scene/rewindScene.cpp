@@ -1161,6 +1161,8 @@ ScenePtr RewindScene::update(Time)
                 chr->__assign_id(e->id_.get());
                 chr->set_race(e->race_);
                 chr->set_icon(e->icon_);
+                chr->set_max_health(e->max_health_);
+                chr->__set_health(e->health_);
 
                 island->add_character(std::move(chr));
             }

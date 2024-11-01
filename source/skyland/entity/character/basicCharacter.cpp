@@ -352,6 +352,20 @@ bool BasicCharacter::ai_automated() const
 
 
 
+u8 BasicCharacter::get_max_health() const
+{
+    return max_health_;
+}
+
+
+
+void BasicCharacter::set_max_health(u8 val)
+{
+    max_health_ = val;
+}
+
+
+
 void BasicCharacter::update(Time delta, Room* room)
 {
     // const auto t1 = PLATFORM.delta_clock().sample();

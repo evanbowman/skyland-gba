@@ -122,6 +122,7 @@ bool Replicator::create_replicant()
 
 
             chr->apply_damage(255 - replicant_health);
+            chr->set_max_health(replicant_health);
             chr->transported();
             edit_characters().push(std::move(chr));
             update_description();

@@ -156,6 +156,12 @@ public:
     }
 
 
+    u8 get_max_health() const;
+
+
+    void set_max_health(u8 value);
+
+
     void set_idle();
 
 
@@ -345,6 +351,7 @@ private:
 
     u8 icon_;
     u8 radiation_counter_ = 0;
+    u8 max_health_ = max_health;
 
     u8 ai_automated_ : 1;
     u8 superpinned_ : 1;
