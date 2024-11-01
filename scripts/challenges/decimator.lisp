@@ -1,6 +1,6 @@
-;
-;decimator.lisp
-;
+;;;
+;;;decimator.lisp
+;;;
 
 (defn challenge-hint ()
   (dialog "Sorry, no hints for this one."))
