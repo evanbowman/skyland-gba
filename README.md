@@ -58,7 +58,7 @@ Skyland is jam-packed with stuff, some of the highlights:
 
 # Modding (no C++ toolchain required!)
 
-I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in modding/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. The encode_files.py script in the extracted tools/ directory repacks the filesystem into a file called fs.bin. Then, simply run `cat SkylandEngine.gba fs.bin > Skyland.gba` to repackage the gba game. Skyland uses unicode internally, and you'll find much of the menu text in strings/strings.txt. You'll find the rest of the text scattered throughout the lisp scripts. See help/localization.txt for more info.
+I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in modding/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts.  The encode_files.py script in the extracted tools/ directory repacks the filesystem into a file called fs.bin. Then, for linux simply run `cat SkylandEngine.gba fs.bin > Skyland.gba` to repackage the gba game and for windows run the join fs_engine.py in the tools directory. Skyland uses unicode internally, and you'll find much of the menu text in strings/strings.txt. You'll find the rest of the text scattered throughout the lisp scripts. See help/localization.txt for more info.
 
 # License
 
