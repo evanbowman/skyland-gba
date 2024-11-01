@@ -878,6 +878,8 @@ struct CharacterDied
     u8 mind_controlled_ : 1;
     u8 race_ : 4;
     u8 icon_;
+    u8 max_health_;
+    u8 health_;
 
     static constexpr const auto t = Type::character_died;
 };

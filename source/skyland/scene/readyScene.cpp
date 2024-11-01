@@ -816,7 +816,11 @@ void describe_room(Island* island,
                         }
                         room_description->append(chr->health() / 10);
                         room_description->append("/");
-                        room_description->append(25);
+                        if (chr->get_max_health() == 255) {
+                            room_description->append(25);
+                        } else {
+                            room_description->append(chr->get_max_health() / 10);
+                        }
                         ++i;
                     }
                 }

@@ -768,6 +768,8 @@ void Island::update(Time dt)
         e.race_ = c.get_race();
         e.is_replicant_ = c.is_replicant();
         e.icon_ = c.get_icon();
+        e.max_health_ = c.get_max_health();
+        e.health_ = c.health();
         APP.time_stream().push(APP.level_timer(), e);
     };
 
