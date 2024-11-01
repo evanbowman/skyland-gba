@@ -1,6 +1,6 @@
-;;
-;; porcupine2.lisp
-;;
+;;;
+;;; porcupine2.lisp
+;;;
 
 
 (coins-set 11000)
