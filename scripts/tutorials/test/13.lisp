@@ -1,2 +1,4 @@
 
-(assert-eq (groups) '((Up) (Left) (Right) (poweroff (4 . 14))))
+(assert-eq
+ (rooms (opponent))
+ '((hull 0 14) (hull 0 13) (power-core 1 13) (hull 1 12) (hull 2 12)))
