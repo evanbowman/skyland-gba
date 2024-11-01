@@ -116,7 +116,7 @@ void Weapon::timer_expired()
         }
     }
 
-    if (target_) {
+    if (not target_queue_.empty()) {
 
         if (is_powered_down()) {
             unset_target();
@@ -134,6 +134,19 @@ void Weapon::timer_expired()
         auto island = other_island();
 
         if (island and not island->is_destroyed()) {
+
+            while (target_queue_.size() > 1 and
+                   not island->get_room(target_queue_.back().coord())) {
+
+                time_stream::event::TargetQueuePop e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                e.queue_elem_x_ = target_queue_.back().x_;
+                e.queue_elem_y_ = target_queue_.back().y_;
+                APP.time_stream().push(APP.level_timer(), e);
+
+                target_queue_.pop_back();
+            }
 
             // This check for friendly status is partly just a sanity check. It
             // shouldn't be possible to set a weapon target if the opposing
@@ -155,6 +168,13 @@ void Weapon::timer_expired()
                                                          // reload() above to
                                                          // record events.
     Timer::__override_clock(0);
+}
+
+
+
+void Weapon::__rewind_push_target_queue(const RoomCoord& target)
+{
+    target_queue_.push_back(PackedTarget::pack(target));
 }
 
 
@@ -199,29 +219,36 @@ void Weapon::___rewind___ability_used()
 
 
 
-void Weapon::display_on_hover(Platform::Screen& screen,
-
-                              const RoomCoord& cursor)
+void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 {
-    if (not target_) {
+    if (not get_target()) {
         return;
     }
 
     auto target_island = other_island();
 
     if (target_island) {
-        auto pos = target_island->visual_origin();
-        pos.x += Fixnum::from_integer(target_->x * 16);
-        pos.y += Fixnum::from_integer(target_->y * 16);
-
         static const int reticule_spr_idx = 45;
 
-        Sprite spr;
-        spr.set_position(pos);
-        spr.set_texture_index(reticule_spr_idx);
-        spr.set_size(Sprite::Size::w16_h32);
+        Sprite::Alpha alpha = Sprite::Alpha::opaque;
 
-        screen.draw(spr);
+        for (int i = target_queue_.size() - 1; i > -1; --i) {
+            auto target = target_queue_[i].coord();
+
+            auto pos = target_island->visual_origin();
+            pos.x += Fixnum::from_integer(target.x * 16);
+            pos.y += Fixnum::from_integer(target.y * 16);
+
+            Sprite spr;
+            spr.set_position(pos);
+            spr.set_texture_index(reticule_spr_idx);
+            spr.set_size(Sprite::Size::w16_h32);
+            spr.set_alpha(alpha);
+
+            screen.draw(spr);
+
+            alpha = Sprite::Alpha::translucent;
+        }
     }
 }
 
@@ -240,65 +267,106 @@ void Weapon::set_target(const RoomCoord& target, bool pinned)
         return;
     }
 
-    if (target_ and *target_ == target) {
+    if (get_target() and *get_target() == target) {
         // No need to waste space in rewind memory if the target does not
         // change.
         return;
     }
 
-    time_stream::event::WeaponSetTarget e;
-    e.room_x_ = position().x;
-    e.room_y_ = position().y;
+    clear_target_queue();
 
-    e.near_ = is_player_island(parent());
-    e.previous_target_pinned_ = target_pinned_;
+    target_queue_.push_back(PackedTarget::pack(target));
+    target_pinned_ = pinned;
+}
 
-    if (target_) {
-        e.previous_target_x_ = target_->x;
-        e.previous_target_y_ = target_->y;
-        e.has_previous_target_ = true;
-    } else {
-        e.previous_target_x_ = 0;
-        e.previous_target_y_ = 0;
-        e.has_previous_target_ = false;
+
+
+Room::TargetCount Weapon::target_count() const
+{
+    return target_queue_.size();
+}
+
+
+
+void Weapon::set_target(const TargetQueue& tq, bool pinned)
+{
+    if (is_powered_down()) {
+        return;
     }
 
-    APP.time_stream().push(APP.level_timer(), e);
+    if (tq.empty()) {
+        return;
+    }
+    if (tq.size() == 1) {
+        if (target_queue_.size() > 1) {
+            target_queue_.clear();
+        }
+        set_target(tq[0].coord(), pinned);
+        return;
+    }
 
-    target_ = target;
+    clear_target_queue();
+
+    for (int i = tq.size() - 1; i > -1; --i) {
+        target_queue_.push_back(tq[i]);
+    }
+
     target_pinned_ = pinned;
+}
+
+
+
+void Weapon::clear_target_queue()
+{
+    if (target_queue_.size() < 2) {
+        time_stream::event::WeaponSetTarget e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+
+        e.near_ = is_player_island(parent());
+        e.previous_target_pinned_ = target_pinned_;
+
+        if (get_target()) {
+            e.previous_target_x_ = get_target()->x;
+            e.previous_target_y_ = get_target()->y;
+            e.has_previous_target_ = true;
+        } else {
+            e.previous_target_x_ = 0;
+            e.previous_target_y_ = 0;
+            e.has_previous_target_ = false;
+        }
+
+        APP.time_stream().push(APP.level_timer(), e);
+
+    } else {
+
+        for (int i = 0; i < target_queue_.size(); ++i) {
+            time_stream::event::TargetQueuePop e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+
+            auto elem = target_queue_[i];
+            e.queue_elem_x_ = elem.x_;
+            e.queue_elem_y_ = elem.y_;
+
+            APP.time_stream().push(APP.level_timer(), e);
+        }
+    }
+
+    target_queue_.clear();
 }
 
 
 
 void Weapon::unset_target()
 {
-    if (not target_) {
+    if (not get_target()) {
         // Already uninitialized.
         return;
     }
 
+    clear_target_queue();
 
-    time_stream::event::WeaponSetTarget e;
-    e.room_x_ = position().x;
-    e.room_y_ = position().y;
-
-    e.near_ = is_player_island(parent());
-    e.previous_target_pinned_ = target_pinned_;
-
-    if (target_) {
-        e.previous_target_x_ = target_->x;
-        e.previous_target_y_ = target_->y;
-        e.has_previous_target_ = true;
-    } else {
-        e.previous_target_x_ = 0;
-        e.previous_target_y_ = 0;
-        e.has_previous_target_ = false;
-    }
-
-    APP.time_stream().push(APP.level_timer(), e);
-
-    target_.reset();
     target_pinned_ = false;
 }
 
@@ -332,7 +400,7 @@ ScenePtr Weapon::select_impl(const RoomCoord& cursor)
 
         using Next = WeaponSetTargetScene;
 
-        auto next = make_deferred_scene<Next>(position(), true, target_);
+        auto next = make_deferred_scene<Next>(position(), true, get_target());
 
         if (APP.game_mode() == App::GameMode::co_op) {
             return co_op_acquire_lock(next);

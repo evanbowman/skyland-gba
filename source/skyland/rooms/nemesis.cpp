@@ -87,8 +87,8 @@ void Nemesis::fire()
     Vec2<Fixnum> target;
 
     auto origin = island->origin();
-    origin.x += Fixnum::from_integer(target_->x * 16 + 8);
-    origin.y += Fixnum::from_integer(target_->y * 16 + 8);
+    origin.x += Fixnum::from_integer(get_target()->x * 16 + 8);
+    origin.y += Fixnum::from_integer(get_target()->y * 16 + 8);
     target = origin;
 
     APP.camera()->shake(4);

@@ -52,9 +52,8 @@ class WorldScene : public Scene
 {
 public:
     WorldScene()
-        : far_camera_(false), noreturn_(false),
-          disable_ui_(false), disable_gamespeed_icon_(false),
-          force_show_power_usage_(false)
+        : far_camera_(false), noreturn_(false), disable_ui_(false),
+          disable_gamespeed_icon_(false), force_show_power_usage_(false)
     {
     }
 

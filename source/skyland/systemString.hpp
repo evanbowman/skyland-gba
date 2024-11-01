@@ -776,6 +776,8 @@ enum class SystemString {
     sel_menu_show_minimap,
     sel_menu_hide_minimap,
 
+    weapon_target_queue,
+
     choose_flag,
     flag_default,
     flag_alt1,

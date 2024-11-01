@@ -95,6 +95,9 @@ private:
 
     Time describe_room_timer_ = milliseconds(400);
     Optional<Text> room_description_;
+    Optional<Text> target_queue_text_;
+
+    void redraw_target_queue_text();
 
     u16 last_player_checksum_ = 0;
     u16 last_opponent_checksum_ = 0;
@@ -116,6 +119,9 @@ private:
     u8 minimap_x_anchor_ = 1;
 
     Optional<RoomCoord> initial_pos_;
+
+    TargetQueue target_queue_;
+    bool queue_mode_ = false;
 };
 
 

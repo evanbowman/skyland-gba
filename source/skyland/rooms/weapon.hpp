@@ -34,6 +34,7 @@
 
 #pragma once
 
+#include "memory/tinyBuffer.hpp"
 #include "skyland/bulkTimer.hpp"
 #include "skyland/room.hpp"
 
@@ -117,13 +118,25 @@ public:
     void set_target(const RoomCoord& target, bool pinned) override;
 
 
+    void set_target(const TargetQueue& q, bool pinned) override;
+
+
+    TargetCount target_count() const override;
+
+
     void unset_target() override;
 
 
     Optional<RoomCoord> get_target() const override
     {
-        return target_;
+        if (not target_queue_.empty()) {
+            return target_queue_.back().coord();
+        }
+        return nullopt();
     }
+
+
+    void __rewind_push_target_queue(const RoomCoord& target);
 
 
     int debris_tile() override
@@ -136,7 +149,6 @@ public:
 
 
     void display_on_hover(Platform::Screen& screen,
-
                           const RoomCoord& cursor) override;
 
 
@@ -149,8 +161,9 @@ public:
 protected:
     void on_powerchange() override;
 
+    void clear_target_queue();
 
-    Optional<RoomCoord> target_;
+    TargetQueue target_queue_;
     bool target_pinned_ = false;
 };
 

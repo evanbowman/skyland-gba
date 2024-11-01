@@ -140,6 +140,8 @@ enum Type : u8 {
     player_room_repaired,
     opponent_room_repaired,
 
+    target_queue_pop,
+
     coins_changed,
 
     character_moved,
@@ -950,6 +952,20 @@ struct WeaponSetTarget
     u8 unused_ : 5;
 
     static constexpr const auto t = Type::weapon_set_target;
+};
+
+
+
+struct TargetQueuePop
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+
+    u8 queue_elem_x_ : 4;
+    u8 queue_elem_y_ : 4;
+
+    static constexpr const auto t = Type::target_queue_pop;
 };
 
 
