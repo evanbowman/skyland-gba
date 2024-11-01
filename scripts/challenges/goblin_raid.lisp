@@ -12,7 +12,7 @@
 
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog "Try using an arc-gun against the enemy hull, a repair drone could keep you alive."))
 
 
 (setq on-fadein
