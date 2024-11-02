@@ -58,7 +58,7 @@ Skyland is jam-packed with stuff, some of the highlights:
 
 # Modding (no C++ toolchain required!)
 
-I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in tools/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. After editing the scripts, simply run tools/build.py from the same directory where you ran unpack_rom.py to zip everything back up into a Skyland.gba file!
+I designed the Skyland to be moddable, and wrote all level scenarios in a custom scripting language called Skyland LISP. The script in tools/unpack_rom.py extracts the game's filesystem from the Skyland.gba ROM, producing a SkylandEngine.gba ROM and directories full of lisp scripts. After editing the scripts, simply run [repack.sh](https://github.com/evanbowman/skyland-beta/blob/master/repack.sh) from the same directory where you ran unpack_rom.py to zip everything back up into a Skyland.gba file!
 
 # License
 
