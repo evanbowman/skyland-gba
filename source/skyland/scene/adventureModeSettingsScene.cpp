@@ -220,7 +220,7 @@ void AdventureModeSettingsScene::update_field(bool inc)
     case 0: {
         auto& diff = APP.gp_.difficulty_;
 
-        if (not inc and (int)diff == 0) {
+        if (not inc and (int) diff == 0) {
             diff = GlobalPersistentData::Difficulty::expert;
             break;
         }

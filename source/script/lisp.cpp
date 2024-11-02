@@ -1934,8 +1934,8 @@ int error_find_linenum(CharSequence& code, int byte_offset)
 void error_append_line_hint(Error& err, int line)
 {
     Protected old_ctx = dcompr(err.context_);
-    err.context_ = compr(L_CONS(make_string(::format("near line:%", line).c_str()),
-                                old_ctx));
+    err.context_ = compr(
+        L_CONS(make_string(::format("near line:%", line).c_str()), old_ctx));
 }
 
 
@@ -2607,9 +2607,8 @@ template <typename F> void foreach_string_intern(F&& fn)
 
 
 
-static void push_reader_error(CharSequence& code,
-                              int byte_offset,
-                              Error::Code ec)
+static void
+push_reader_error(CharSequence& code, int byte_offset, Error::Code ec)
 {
     Protected err = make_error(ec, L_NIL);
 
@@ -2646,7 +2645,8 @@ static u32 read_list(CharSequence& code, int offset)
             } else {
                 i += 1;
                 if (dotted_pair or result == get_nil()) {
-                    push_reader_error(code, i, Error::Code::mismatched_parentheses);
+                    push_reader_error(
+                        code, i, Error::Code::mismatched_parentheses);
                     return i;
                 } else {
                     dotted_pair = true;
