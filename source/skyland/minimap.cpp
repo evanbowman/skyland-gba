@@ -315,7 +315,25 @@ void repaint(const Settings& settings)
 
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
+                auto set_pixel = [&](int xo, int yo, int v) {
+                    pixel_buffer[(x + 1) * 3 + xo]
+                        [((y - 3) * 3 + yo) - 2] = v;
+                };
                 if (auto room = APP.player_island().get_room({x, y})) {
+                    if (APP.player_island().fire_present({x, y})) {
+                        set_pixel(0, 0, color_red_index);
+                        set_pixel(1, 0, color_red_index);
+                        set_pixel(2, 0, color_red_index);
+
+                        set_pixel(0, 1, color_red_index);
+                        set_pixel(1, 1, color_bright_yellow_index);
+                        set_pixel(2, 1, color_red_index);
+
+                        set_pixel(0, 2, color_bright_yellow_index);
+                        set_pixel(1, 2, color_bright_yellow_index);
+                        set_pixel(2, 2, color_bright_yellow_index);
+                        continue;
+                    }
                     if ((*room->metaclass())->category() ==
                             Room::Category::weapon and
                         ((settings.weapon_loc_ and
