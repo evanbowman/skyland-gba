@@ -49,6 +49,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "groupSelectionScene.hpp"
 
 
 
@@ -559,16 +560,33 @@ void SelectMenuScene::enter(Scene& scene)
                 }
             } else if (is_player_island(isle) and room and
                        (*room->metaclass())->category() ==
-                           Room::Category::weapon and
-                       room->get_target()) {
+                           Room::Category::weapon) {
 
                 if (not PLATFORM.network_peer().is_connected()) {
-                    add_line(SystemString::sel_menu_weapon_halt,
+                    if (room->get_target()) {
+                        add_line(SystemString::sel_menu_weapon_halt,
                              "",
                              true,
                              [this, c = cursor]() {
                                  if (auto room = island()->get_room(c)) {
                                      room->unset_target();
+                                 }
+                                 return null_scene();
+                             });
+                    }
+                }
+            }
+            if (is_player_island(isle) and room and
+                (*room->metaclass())->category() ==
+                Room::Category::weapon) {
+                if (not PLATFORM.network_peer().is_connected()) {
+                    add_line(SystemString::sel_menu_select_all,
+                             "",
+                             true,
+                             [this, c = cursor]() -> ScenePtr {
+                                 if (auto room = island()->get_room(c)) {
+                                     auto mti = room->metaclass_index();
+                                     return make_scene<GroupSelectionScene>(mti);
                                  }
                                  return null_scene();
                              });

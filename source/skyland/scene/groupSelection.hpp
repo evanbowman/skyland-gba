@@ -35,6 +35,7 @@
 
 #include "memory/buffer.hpp"
 #include "skyland/coord.hpp"
+#include "skyland/metaclassIndex.hpp"
 
 
 
@@ -51,6 +52,8 @@ struct GroupSelection
     RoomCoord sel_br_;
 
     RoomCoord anchor_;
+
+    Optional<MetaclassIndex> room_mti_;
 
     Buffer<RoomCoord, 90> rooms_;
 };

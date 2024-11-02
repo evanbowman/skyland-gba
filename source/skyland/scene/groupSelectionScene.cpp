@@ -45,6 +45,13 @@ namespace skyland
 
 
 
+GroupSelectionScene::GroupSelectionScene(MetaclassIndex mti)
+{
+    group_mti_ = mti;
+}
+
+
+
 void GroupSelectionScene::exit(Scene& next)
 {
     text_.reset();
@@ -75,6 +82,25 @@ void GroupSelectionScene::enter(Scene& prev)
     for (int i = 0; i < text_->len(); ++i) {
         PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
+
+    if (group_mti_) {
+        (*group_selection_)->room_mti_ = group_mti_;
+        state_ = State::list_actions;
+        text_.reset();
+        PLATFORM.fill_overlay(0);
+
+        for (auto& room : APP.player_island().rooms()) {
+            if (room->metaclass_index() == *group_mti_) {
+                auto pos = room->position();
+                (*group_selection_)->rooms_.push_back({pos.x, pos.y});
+            }
+        }
+
+        cursor_anim_frame_ = false;
+
+        show_action_list();
+    }
+
 }
 
 

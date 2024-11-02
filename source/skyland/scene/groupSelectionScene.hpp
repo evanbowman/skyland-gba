@@ -48,6 +48,11 @@ namespace skyland
 class GroupSelectionScene : public ActiveWorldScene
 {
 public:
+
+    GroupSelectionScene() = default;
+    GroupSelectionScene(MetaclassIndex mti);
+
+
     void enter(Scene& prev) override;
     void exit(Scene& next) override;
 
@@ -85,6 +90,7 @@ private:
     Optional<DynamicMemory<GroupSelection>> group_selection_;
 
     Optional<Text> text_;
+    Optional<MetaclassIndex> group_mti_;
 };
 
 

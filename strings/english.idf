@@ -617,6 +617,7 @@ power-off
 divert power
 show minimap
 hide minimap
+select all
 setup target queue (%/%):
 choose flag:
 colonial

@@ -775,6 +775,7 @@ enum class SystemString {
     sel_menu_adjust_power,
     sel_menu_show_minimap,
     sel_menu_hide_minimap,
+    sel_menu_select_all,
 
     weapon_target_queue,
 
