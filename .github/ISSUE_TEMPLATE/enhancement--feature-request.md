@@ -2,7 +2,7 @@
 name: ENHANCEMENT/ feature request
 about: Suggest an improvement to the game
 title: ENHANCEMENT - placeholder
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
@@ -16,5 +16,5 @@ Description of what you want to happen.
 **Describe alternatives you've considered**
 Description of any alternative solutions or features you've considered.
 
-**Additionalp icturez**
+**Additional pictures**
 You can add a mockup of what the feature would look like.
