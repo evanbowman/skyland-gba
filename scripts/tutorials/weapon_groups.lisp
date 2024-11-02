@@ -1,3 +1,8 @@
+;;;
+;;; weapon_groups.lisp
+;;;
+
+
 (coins-add 5000)
 
 (terrain-set (player) 4)

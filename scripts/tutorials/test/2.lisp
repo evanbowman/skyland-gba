@@ -1,3 +1,11 @@
+;;;
+;;; weapon_groups.lisp
+;;;
+
+(assert-eq
+ (groups)
+ '((Up (3 . 13) (3 . 14)) (Left (0 . 13)) (Right) (poweroff)))
+
 (assert-eq
  (rooms (player))
- '((power-core 1 13) (hull 1 12) (hull 2 12) (cannon 3 14) (cannon 3 13 100)))
+ '((missile-silo 0 13) (power-core 1 13) (cannon 3 13) (cannon 3 14)))

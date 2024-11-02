@@ -1,15 +1,11 @@
-(assert-eq
- (rooms (player))
- '((power-core 1 13) (transporter 3 13) (transporter 4 13)))
+;;;
+;;; characters.lisp
+;;;
 
 (assert-eq
- (rooms (opponent))
- '((power-core 1 13 6) (stairwell 3 11)))
+ (rooms (player))
+ '((power-core 1 13) (infirmary 1 11) (workshop 3 13) (workshop 3 11) (stairwell 5 11)))
 
 (assert-eq
  (chrs (player))
- '((4 14 (hp . 171) (id . 2))))
-
-(assert-eq
- (chrs (opponent))
- '())
+ '((2 12 (id . 1))))
