@@ -211,6 +211,7 @@ with open('fs.bin', 'wb') as filesystem:
     collect_paths(files_list, "data")
 
     files_list.append(["/readme.txt", os.path.join(project_root_path, "readme.txt")])
+    files_list.append(["/repack.sh", os.path.join(project_root_path, "repack.sh")])
     files_list.append(["/boot.ini", os.path.join(project_root_path, "boot.ini")])
 
     for info in files_list:
