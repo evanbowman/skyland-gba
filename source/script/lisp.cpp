@@ -1914,6 +1914,32 @@ void lint(Value* expr, Value* variable_list)
 }
 
 
+
+int error_find_linenum(CharSequence& code, int byte_offset)
+{
+    int current_line = 1;
+    for (int j = 0; j < byte_offset; ++j) {
+        if (code[j] == '\n') {
+            ++current_line;
+        }
+    }
+    while (code[byte_offset++] == '\n') {
+        ++current_line;
+    }
+    return current_line;
+}
+
+
+
+void error_append_line_hint(Error& err, int line)
+{
+    Protected old_ctx = dcompr(err.context_);
+    err.context_ = compr(L_CONS(make_string(::format("near line:%", line).c_str()),
+                                old_ctx));
+}
+
+
+
 Value* lint_code(CharSequence& code)
 {
     int i = 0;
@@ -1922,6 +1948,7 @@ Value* lint_code(CharSequence& code)
     Protected varlist = L_NIL;
 
     while (true) {
+        const auto last_i = i;
         i += read(code, i);
         auto reader_result = get_op0();
         if (reader_result == get_nil()) {
@@ -1959,6 +1986,9 @@ Value* lint_code(CharSequence& code)
         pop_op(); // reader result
 
         if (is_error(expr_result)) {
+            const auto current_line = error_find_linenum(code, last_i);
+            error_append_line_hint(expr_result->error(), current_line);
+            expr_result->error().stacktrace_ = compr(L_NIL);
             return expr_result;
         }
     }
@@ -1987,6 +2017,7 @@ Value* dostring(CharSequence& code,
     auto prev_stk = bound_context->operand_stack_->size();
 
     while (true) {
+        const auto last_i = i;
         i += read(code, i);
         auto reader_result = get_op0();
         if (reader_result == get_nil()) {
@@ -2000,6 +2031,8 @@ Value* dostring(CharSequence& code,
         pop_op(); // reader result
 
         if (is_error(expr_result)) {
+            const auto current_line = error_find_linenum(code, last_i);
+            error_append_line_hint(expr_result->error(), current_line);
             push_op(expr_result);
             on_error(*expr_result);
             pop_op();
@@ -2573,6 +2606,21 @@ template <typename F> void foreach_string_intern(F&& fn)
 }
 
 
+
+static void push_reader_error(CharSequence& code,
+                              int byte_offset,
+                              Error::Code ec)
+{
+    Protected err = make_error(ec, L_NIL);
+
+    const auto current_line = error_find_linenum(code, byte_offset);
+    error_append_line_hint(err->error(), current_line);
+
+    push_op(err);
+}
+
+
+
 static u32 read_list(CharSequence& code, int offset)
 {
     int i = 0;
@@ -2598,8 +2646,7 @@ static u32 read_list(CharSequence& code, int offset)
             } else {
                 i += 1;
                 if (dotted_pair or result == get_nil()) {
-                    push_op(lisp::make_error(
-                        Error::Code::mismatched_parentheses, L_NIL));
+                    push_reader_error(code, i, Error::Code::mismatched_parentheses);
                     return i;
                 } else {
                     dotted_pair = true;
@@ -2628,16 +2675,14 @@ static u32 read_list(CharSequence& code, int offset)
 
         case '\0':
             pop_op();
-            push_op(
-                lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+            push_reader_error(code, i, Error::Code::mismatched_parentheses);
             return i;
             break;
 
         default:
         DEFAULT:
             if (dotted_pair) {
-                push_op(lisp::make_error(Error::Code::mismatched_parentheses,
-                                         L_NIL));
+                push_reader_error(code, i, Error::Code::mismatched_parentheses);
                 return i;
             }
             i += read(code, offset + i);
@@ -2674,8 +2719,7 @@ static u32 read_string(CharSequence& code, int offset)
 
         if (current == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
             // FIXME: correct error code.
-            push_op(
-                lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+            push_reader_error(code, i, Error::Code::mismatched_parentheses);
             return i;
         }
 
