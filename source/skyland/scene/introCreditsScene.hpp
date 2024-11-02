@@ -76,6 +76,7 @@ private:
     Time bird_seq_timer2_ = 0;
     Time bird_seq_timer3_ = 0;
     u8 bird_anim_ = 1;
+    bool skip_ = false;
 };
 
 

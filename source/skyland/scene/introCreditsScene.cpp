@@ -160,9 +160,12 @@ ScenePtr IntroCreditsScene::update(Time delta)
             bird_seq_timer_ = 0;
             bird_seq_timer2_ = 0;
             bird_seq_timer3_ = 0;
+            if (key_down<Key::action_2>()) {
+                skip_ = true;
+            }
         }
     } else {
-        if (timer_ > milliseconds(400)) {
+        if (skip_ or timer_ > milliseconds(400)) {
             PLATFORM.set_overlay_origin(0, 0);
             return make_scene<TitleScreenScene>();
         }
