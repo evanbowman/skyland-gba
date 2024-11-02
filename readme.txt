@@ -15,9 +15,7 @@
  scripts and rebuild the rom
  using the modding toolchain,
  run the following commands
- after editing script files:
- `python3 encode_files.py`
- `cat SkylandEngine.gba fs.bin > Skyland.gba`
+ after editing script files simply run repack.sh.
 
  If you have the Skyland rom
  but not the engine rom or the
