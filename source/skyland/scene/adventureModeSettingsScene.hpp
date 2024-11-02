@@ -69,7 +69,6 @@ public:
 
 private:
     void repaint_difficulty(int difficulty, bool selected);
-    void repaint_autofire(bool on, bool selected);
     void repaint_permadeath(bool on, bool selected);
 
     void repaint();

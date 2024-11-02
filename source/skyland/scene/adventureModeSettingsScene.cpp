@@ -75,17 +75,6 @@ void AdventureModeSettingsScene::repaint_difficulty(int difficulty,
 
 
 
-void AdventureModeSettingsScene::repaint_autofire(bool on, bool selected)
-{
-    render_line(1,
-                on ? SystemString::on : SystemString::off,
-                on ? SystemString::autofire_hint_on
-                   : SystemString::autofire_hint_off,
-                selected);
-}
-
-
-
 void AdventureModeSettingsScene::repaint_permadeath(bool on, bool selected)
 {
     render_line(1,
@@ -164,8 +153,6 @@ void AdventureModeSettingsScene::repaint()
     switch (sel_) {
     case 0:
         repaint_difficulty((int)APP.gp_.difficulty_, true);
-        // repaint_autofire(
-        //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on),
             false);
@@ -173,19 +160,9 @@ void AdventureModeSettingsScene::repaint()
 
     case 1:
         repaint_difficulty((int)APP.gp_.difficulty_, false);
-        // repaint_autofire(
-        //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), true);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
         break;
-
-        // case 2:
-        //     repaint_difficulty((int)APP.gp_.difficulty_, false);
-        //     // repaint_autofire(
-        //     //     APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on), false);
-        //     repaint_permadeath(
-        //         APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
-        //     break;
     }
 }
 
@@ -242,22 +219,18 @@ void AdventureModeSettingsScene::update_field(bool inc)
     switch (sel_) {
     case 0: {
         auto& diff = APP.gp_.difficulty_;
+
+        if (not inc and (int)diff == 0) {
+            diff = GlobalPersistentData::Difficulty::expert;
+            break;
+        }
         diff = (GlobalPersistentData::Difficulty)(inc ? (int)diff + 1
                                                       : (int)diff - 1);
-        if ((int)diff < 0) {
-            diff = GlobalPersistentData::Difficulty::expert;
-        } else if ((int)diff > (int)GlobalPersistentData::Difficulty::expert) {
+        if ((int)diff > (int)GlobalPersistentData::Difficulty::expert) {
             diff = GlobalPersistentData::Difficulty::beginner;
         }
         break;
     }
-
-        // case 1: {
-        //     bool af = APP.gp_.stateflags_.get(GlobalPersistentData::autofire_on);
-        //     af = not af;
-        //     APP.gp_.stateflags_.set(GlobalPersistentData::autofire_on, af);
-        //     break;
-        // }
 
     case 1: {
         bool pd = APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on);
