@@ -34,6 +34,7 @@
 
 #include "selectMenuScene.hpp"
 #include "constructionScene.hpp"
+#include "groupSelectionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "menuPromptScene.hpp"
 #include "modules/flagDesignerModule.hpp"
@@ -49,7 +50,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "groupSelectionScene.hpp"
 
 
 
@@ -565,20 +565,19 @@ void SelectMenuScene::enter(Scene& scene)
                 if (not PLATFORM.network_peer().is_connected()) {
                     if (room->get_target()) {
                         add_line(SystemString::sel_menu_weapon_halt,
-                             "",
-                             true,
-                             [this, c = cursor]() {
-                                 if (auto room = island()->get_room(c)) {
-                                     room->unset_target();
-                                 }
-                                 return null_scene();
-                             });
+                                 "",
+                                 true,
+                                 [this, c = cursor]() {
+                                     if (auto room = island()->get_room(c)) {
+                                         room->unset_target();
+                                     }
+                                     return null_scene();
+                                 });
                     }
                 }
             }
             if (is_player_island(isle) and room and
-                (*room->metaclass())->category() ==
-                Room::Category::weapon) {
+                (*room->metaclass())->category() == Room::Category::weapon) {
                 if (not PLATFORM.network_peer().is_connected()) {
                     add_line(SystemString::sel_menu_select_all,
                              "",
@@ -586,7 +585,8 @@ void SelectMenuScene::enter(Scene& scene)
                              [this, c = cursor]() -> ScenePtr {
                                  if (auto room = island()->get_room(c)) {
                                      auto mti = room->metaclass_index();
-                                     return make_scene<GroupSelectionScene>(mti);
+                                     return make_scene<GroupSelectionScene>(
+                                         mti);
                                  }
                                  return null_scene();
                              });

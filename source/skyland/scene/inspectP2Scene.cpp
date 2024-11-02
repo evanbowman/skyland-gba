@@ -159,7 +159,7 @@ ScenePtr InspectP2Scene::update(Time delta)
         APP.player_island().checksum() + APP.opponent_island()->checksum();
 
     if (state_bit_load(StateBit::minimap_on) and
-        island_checksums_ not_eq last_checksums) {
+        (minimap::needs_repaint() or island_checksums_ not_eq last_checksums)) {
         minimap::repaint({.show_destroyed_rooms_ = true});
         minimap::show();
     }

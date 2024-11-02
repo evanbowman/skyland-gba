@@ -532,6 +532,7 @@ void WeaponSetTargetScene::exit(Scene& next)
             minimap::hide();
         }
     } else {
+        minimap::hide();
         PLATFORM.fill_overlay(0);
     }
 }

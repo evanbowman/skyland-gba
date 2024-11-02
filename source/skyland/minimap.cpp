@@ -50,6 +50,22 @@ static const int minimap_start_tile = 290;
 static const int minimap_isle_spacing = 3;
 static u8 minimap_x_anchor;
 static u8 y_anchor = 14;
+static bool visible = false;
+static bool needs_repaint_ = false;
+
+
+
+void schedule_repaint()
+{
+    needs_repaint_ = true;
+}
+
+
+
+bool needs_repaint()
+{
+    return needs_repaint_;
+}
 
 
 
@@ -124,6 +140,8 @@ void show()
     }
 
     minimap_x_anchor = anchor;
+
+    visible = true;
 }
 
 
@@ -142,12 +160,16 @@ void hide()
                 Layer::overlay, minimap_x_anchor + x, y_anchor + y, 0);
         }
     }
+
+    visible = false;
 }
 
 
 
 void repaint(const Settings& settings)
 {
+    needs_repaint_ = false;
+
     if (APP.game_mode() == App::GameMode::tutorial) {
         return;
     }
@@ -209,6 +231,7 @@ void repaint(const Settings& settings)
         }
     };
 
+    static const u8 color_red_index = 1;
     static const u8 color_black_index = 3;
     static const u8 color_tan_index = 8;
     static const u8 color_white_index = 4;
@@ -217,6 +240,7 @@ void repaint(const Settings& settings)
     static const u8 color_darkgray_index = 5;
     static const u8 color_burnt_orange_index = 14;
     static const u8 color_green_index = 11;
+    static const u8 color_bright_yellow_index = 12;
 
     const int opp_offset =
         1 + APP.player_island().terrain().size() + minimap_isle_spacing;
@@ -361,6 +385,24 @@ void repaint(const Settings& settings)
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
                 if (auto room = APP.opponent_island()->get_room({x, y})) {
+                    if (APP.opponent_island()->fire_present({x, y})) {
+                        auto set_pixel = [&](int xo, int yo, int v) {
+                            pixel_buffer[(x + opp_offset) * 3 + xo - 2]
+                                        [((y - 3) * 3 + yo) - 2] = v;
+                        };
+                        set_pixel(0, 0, color_red_index);
+                        set_pixel(1, 0, color_red_index);
+                        set_pixel(2, 0, color_red_index);
+
+                        set_pixel(0, 1, color_red_index);
+                        set_pixel(1, 1, color_bright_yellow_index);
+                        set_pixel(2, 1, color_red_index);
+
+                        set_pixel(0, 2, color_bright_yellow_index);
+                        set_pixel(1, 2, color_bright_yellow_index);
+                        set_pixel(2, 2, color_bright_yellow_index);
+                        continue;
+                    }
                     for (int xx = 0; xx < 3; ++xx) {
                         for (int yy = 0; yy < 3; ++yy) {
                             u8 clr;
@@ -651,6 +693,38 @@ void draw_cursor(bool near)
     spr.set_position(pos);
 
     PLATFORM.screen().draw(spr);
+}
+
+
+
+void draw_weapon_targets(const Weapon& weapon)
+{
+    if (not visible) {
+        return;
+    }
+
+    Sprite spr;
+    spr.set_size(Sprite::Size::w8_h8);
+    spr.set_tidx_8x8(34, 2);
+    spr.set_priority(0);
+
+    auto view_center = PLATFORM.screen().get_view().int_center();
+    auto pos = Vec2<Fixnum>{Fixnum::from_integer(view_center.x),
+                            Fixnum::from_integer(view_center.y)};
+    pos.x += Fixnum::from_integer(minimap_x_anchor * 8 - 1);
+    pos.y += Fixnum::from_integer(y_anchor * 8);
+
+    pos.x += 7.0_fixed +
+             Fixnum::from_integer(APP.player_island().terrain().size() * 3);
+
+    for (int i = 0; i < weapon.target_queue().size(); ++i) {
+        auto tc = weapon.target_queue()[i].coord();
+        auto p = pos;
+        p.x += 3.0_fixed * Fixnum::from_integer(tc.x + 1);
+        p.y += 3.0_fixed * Fixnum::from_integer(tc.y - 4);
+        spr.set_position(p);
+        PLATFORM.screen().draw(spr);
+    }
 }
 
 

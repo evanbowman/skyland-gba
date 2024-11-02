@@ -34,6 +34,7 @@
 
 #include "weapon.hpp"
 #include "globals.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
@@ -249,6 +250,8 @@ void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 
             alpha = Sprite::Alpha::translucent;
         }
+
+        minimap::draw_weapon_targets(*this);
     }
 }
 
@@ -409,6 +412,13 @@ ScenePtr Weapon::select_impl(const RoomCoord& cursor)
         }
     }
     return null_scene();
+}
+
+
+
+const TargetQueue& Weapon::target_queue() const
+{
+    return target_queue_;
 }
 
 

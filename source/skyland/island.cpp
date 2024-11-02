@@ -39,6 +39,7 @@
 #include "entity/projectile/projectile.hpp"
 #include "globals.hpp"
 #include "latency.hpp"
+#include "minimap.hpp"
 #include "network.hpp"
 #include "number/random.hpp"
 #include "platform/flash_filesystem.hpp"
@@ -518,10 +519,18 @@ void Island::FireState::update(Island& island, Time delta)
                             }
                         } else if (not(*mat)[x][y]) {
                             island.fire_extinguish({x, y});
+                            if (is_player_island(&island) or
+                                not player_island().fire_texture()) {
+                                minimap::schedule_repaint();
+                            }
                             return;
                         }
                         if (not old_positions.get(x, y)) {
                             island.fire_create({x, y});
+                            if (is_player_island(&island) or
+                                not player_island().fire_texture()) {
+                                minimap::schedule_repaint();
+                            }
                         }
                     };
 

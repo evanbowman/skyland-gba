@@ -158,6 +158,9 @@ public:
     bool allows_powerdown() override;
 
 
+    const TargetQueue& target_queue() const;
+
+
 protected:
     void on_powerchange() override;
 

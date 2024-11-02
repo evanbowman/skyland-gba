@@ -39,6 +39,19 @@
 
 
 
+namespace skyland
+{
+
+
+
+class Weapon;
+
+
+
+}
+
+
+
 namespace skyland::minimap
 {
 
@@ -72,12 +85,19 @@ void hide();
 void move(u8 y_anchor);
 
 
+
+void schedule_repaint();
+bool needs_repaint();
+
+
+
 extern Bitmatrix<16, 16> player_destroyed_rooms;
 
 
 
 void repaint(const Settings& settings = {});
 void draw_cursor(bool near);
+void draw_weapon_targets(const Weapon& weapon);
 
 
 
