@@ -706,12 +706,32 @@ bool App::load_file(const char* path, Vector<char>& result)
 
 
 
+const char* seek_filename(const char* path)
+{
+    const auto begin = path;
+
+    while (*path not_eq '\0') {
+        ++path;
+    }
+    while (*path not_eq '/' and path not_eq begin) {
+        --path;
+    }
+    if (path == begin) {
+        return begin;
+    }
+    ++path;
+    return path;
+}
+
+
+
 lisp::Value* App::invoke_script(const char* path, bool rom_fs_only)
 {
-    auto on_err = [](lisp::Value& err) {
+    auto on_err = [path](lisp::Value& err) {
         lisp::DefaultPrinter p;
         lisp::format(&err, p);
-        PLATFORM.fatal(p.data_.c_str());
+        auto file = seek_filename(path);
+        PLATFORM.fatal(format("%: %", file, p.data_.c_str()));
     };
 
     if (is_developer_mode() and not PLATFORM.network_peer().is_connected() and
