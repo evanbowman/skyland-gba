@@ -183,7 +183,7 @@ void SelectTutorialScene::show_options()
     int start_index = page_ * 5;
 
     lisp::l_foreach(*tutorials_, [&](lisp::Value* val) {
-        if (val->type() not_eq lisp::Value::Type::cons) {
+        if (not lisp::is_list(val)) {
             PLATFORM.fatal("tutorial list format invalid");
         }
 
@@ -192,7 +192,9 @@ void SelectTutorialScene::show_options()
             PLATFORM.fatal("tutorial list format invalid");
         }
 
-        bool completed = APP.gp_.watched_tutorials_.get() & (1 << index);
+        int tutorial_num = lisp::get_list(val, 2)->integer().value_;
+
+        bool completed = APP.gp_.watched_tutorials_.get() & (1 << tutorial_num);
 
         if (index++ < start_index) {
             return;
@@ -279,13 +281,15 @@ ScenePtr SelectTutorialScene::update(Time delta)
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*tutorials_, index);
 
-        if (not(APP.gp_.watched_tutorials_.get() & (1 << index))) {
+        auto tutorial_num = lisp::get_list(choice, 2)->integer().value_;
+
+        if (not(APP.gp_.watched_tutorials_.get() & (1 << tutorial_num))) {
             APP.gp_.watched_tutorials_.set(APP.gp_.watched_tutorials_.get() |
-                                           (1 << index));
+                                           (1 << tutorial_num));
             save::store_global_data(APP.gp_);
         }
 
-        auto file_name = choice->cons().cdr();
+        auto file_name = lisp::get_list(choice, 1);
         if (file_name->type() not_eq lisp::Value::Type::string) {
             PLATFORM.fatal("tutorial list format invalid");
         }

@@ -127,9 +127,16 @@ ScenePtr RegressionModule::update(Time delta)
 
         if (test_index > 0) {
             APP.invoke_script("/scripts/tutorials/test/common.lisp");
-            APP.invoke_script(
-                format("/scripts/tutorials/test/%.lisp", test_index - 1)
-                    .c_str());
+
+            auto tutorial_list =
+                APP.invoke_script("/scripts/tutorials/tutorials.lisp");
+
+            auto test_num = lisp::get_list(
+                lisp::get_list(tutorial_list, test_index - 1), 2);
+
+            APP.invoke_script(format("/scripts/tutorials/test/%.lisp",
+                                     test_num->integer().value_)
+                                  .c_str());
         }
 
         if (test_index == SelectTutorialScene::tutorial_count()) {
