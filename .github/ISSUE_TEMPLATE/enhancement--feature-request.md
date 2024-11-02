@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Is your feature request related to a problem? Please describe.**
-Description of the current behaviour and why do you think it could be better
+Description of the current behaviour and why do you think it could be better.
 
 **Describe wanted behaviour**
 Description of what you want to happen.
@@ -16,5 +16,5 @@ Description of what you want to happen.
 **Describe alternatives you've considered**
 Description of any alternative solutions or features you've considered.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Additionalp icturez**
+You can add a mockup of what the feature would look like.
