@@ -100,7 +100,6 @@ void GroupSelectionScene::enter(Scene& prev)
 
         show_action_list();
     }
-
 }
 
 

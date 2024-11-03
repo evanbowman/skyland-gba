@@ -316,8 +316,7 @@ void repaint(const Settings& settings)
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
                 auto set_pixel = [&](int xo, int yo, int v) {
-                    pixel_buffer[(x + 1) * 3 + xo]
-                        [((y - 3) * 3 + yo) - 2] = v;
+                    pixel_buffer[(x + 1) * 3 + xo][((y - 3) * 3 + yo) - 2] = v;
                 };
                 if (auto room = APP.player_island().get_room({x, y})) {
                     if (APP.player_island().fire_present({x, y})) {

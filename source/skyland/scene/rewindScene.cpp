@@ -54,6 +54,7 @@
 #include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/entity/projectile/pluginProjectile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -61,7 +62,6 @@
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/minimap.hpp"
 
 
 

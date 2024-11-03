@@ -48,7 +48,6 @@ namespace skyland
 class GroupSelectionScene : public ActiveWorldScene
 {
 public:
-
     GroupSelectionScene() = default;
     GroupSelectionScene(MetaclassIndex mti);
 
