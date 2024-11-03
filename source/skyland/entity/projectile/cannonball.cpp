@@ -226,7 +226,13 @@ void Cannonball::on_collision(Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Cannonball explodes upon collision.
+
+    bool skip_destroy = false;
+
     if (auto drone = entity.cast_drone()) {
+        if (drone->ignores_damage()) {
+            skip_destroy = true;
+        }
         if (drone->position() == origin_tile_ and drone->parent() == source_) {
             // Do not shoot ourself.
             return;
@@ -234,7 +240,9 @@ void Cannonball::on_collision(Entity& entity)
     }
 
 
-    this->destroy(true);
+    if (not skip_destroy) {
+        this->destroy(true);
+    }
 
     entity.apply_damage(cannonball_damage);
 }

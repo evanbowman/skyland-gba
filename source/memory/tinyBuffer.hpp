@@ -47,9 +47,7 @@ struct TinyBuffer
     u8 count_ = 0;
 
 
-    TinyBuffer()
-    {
-    }
+    TinyBuffer() = default;
 
 
     static constexpr u8 capacity()
@@ -58,7 +56,7 @@ struct TinyBuffer
     }
 
 
-    TinyBuffer(const TinyBuffer& other) = delete;
+    static_assert(std::is_trivially_copyable_v<T>);
 
 
     ~TinyBuffer()

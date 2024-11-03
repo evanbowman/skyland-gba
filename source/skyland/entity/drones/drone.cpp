@@ -134,8 +134,23 @@ void Drone::update_sprite()
 
 
 
+Room* Drone::attached_to()
+{
+    for (auto& room : parent()->rooms()) {
+        auto found = room->drone();
+        if (found and (*found).get() == this) {
+            return room.get();
+        }
+    }
+    return nullptr;
+}
+
+
+
 void Drone::rewind(Time delta)
 {
+    suppress_time_stream_ = false;
+
     switch (state_) {
     case State::launch: {
         timer_ -= delta;
@@ -270,6 +285,13 @@ void Drone::apply_damage(Health amount)
 
 
 
+bool Drone::ignores_damage()
+{
+    return false;
+}
+
+
+
 void Drone::update(Time delta)
 {
     switch (state_) {
@@ -290,7 +312,10 @@ void Drone::update(Time delta)
             e.parent_near_ = is_player_island(parent_);
             e.destination_near_ = is_player_island(destination_);
             e.duration_.set(duration_);
-            APP.time_stream().push(APP.level_timer(), e);
+
+            if (not suppress_time_stream_) {
+                APP.time_stream().push(APP.level_timer(), e);
+            }
             break;
         }
         auto amount = smoothstep(0.f, duration_, timer_);

@@ -281,6 +281,14 @@ void DroneBay::finalize()
 {
     detach_drone(false);
 
+    if (not rq_.empty()) {
+        time_stream::event::AttachReconstructionQueue e;
+        e.db_x_ = position().x;
+        e.db_y_ = position().y;
+        memcpy(e.previous_queue_memory_, &rq_, sizeof rq_);
+        APP.time_stream().push(APP.level_timer(), e);
+    }
+
     Room::finalize();
 }
 

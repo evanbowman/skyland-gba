@@ -105,6 +105,11 @@ public:
     }
 
 
+    virtual void on_rewind_drone_destroyed()
+    {
+    }
+
+
     void __set_health(Health health)
     {
         health_ = health;
@@ -162,6 +167,9 @@ public:
     void apply_damage(Health amount) override;
 
 
+    virtual bool ignores_damage();
+
+
     Time timer() const
     {
         return timer_;
@@ -195,6 +203,9 @@ public:
     void set_shielded(bool is_shielded);
 
 
+    Room* attached_to();
+
+
 private:
     Island* parent_;
     Island* destination_;
@@ -205,8 +216,9 @@ protected:
 
     void update_sprite();
 
-private:
     Vec2<s16> anchor_;
+
+private:
     BlockChecksum target_checksum_ = 0;
     RoomCoord grid_pos_;
 
@@ -215,6 +227,7 @@ protected:
     bool target_near_ : 1 = false;
     bool target_pinned_ : 1 = false;
     bool shielded_ : 1 = false;
+    bool suppress_time_stream_ : 1 = false;
     u8 state_ = State::launch;
 
 private:

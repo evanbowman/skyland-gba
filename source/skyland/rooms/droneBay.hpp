@@ -40,6 +40,7 @@
 #include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
+#include "reconstructionQueue.hpp"
 
 
 
@@ -183,11 +184,10 @@ public:
 
 private:
     Optional<SharedEntityRef<Drone>> drone_;
-
-
     Time reload_ = 0;
 
-    Optional<RoomCoord> target_;
+public:
+    ReconstructionQueue rq_;
 };
 
 

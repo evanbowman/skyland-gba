@@ -505,6 +505,8 @@ enum class SystemString {
 
     deploy_drone_prompt,
     drone_position_prompt,
+    automate_reconstruction_prompt_1,
+    automate_reconstruction_prompt_2,
 
     highscores_title,
     highscores_score,

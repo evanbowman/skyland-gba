@@ -61,6 +61,7 @@
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/minimap.hpp"
 
 
 
@@ -630,6 +631,23 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::opponent_fire_extinguished: {
             auto e = (time_stream::event::OpponentFireExtinguished*)end;
             APP.opponent_island()->fire_create({e->x_, e->y_});
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::attach_reconstruction_queue: {
+            auto e = (time_stream::event::AttachReconstructionQueue*)end;
+            RoomCoord pos = {e->db_x_, e->db_y_};
+            if (auto room = APP.player_island().get_room(pos)) {
+                if (auto db = room->cast<DroneBay>()) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+                    // It's essentially trivially copyable, you idiotic compiler.
+                    memcpy(&db->rq_, e->previous_queue_memory_, sizeof db->rq_);
+#pragma GCC diagnostic pop
+                }
+            }
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1549,6 +1567,7 @@ ScenePtr RewindScene::update(Time)
                 (*drone)->__override_state((Drone::State)e->state_,
                                            e->duration_.get(),
                                            e->timer_.get());
+                (*drone)->on_rewind_drone_destroyed();
 
                 if (auto room =
                         parent_island->get_room({e->db_x_pos_, e->db_y_pos_})) {

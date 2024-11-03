@@ -40,6 +40,7 @@
 #include "img.hpp"
 #include "number/random.hpp"
 #include "timeStreamHeader.hpp"
+#include "skyland/rooms/reconstructionQueue.hpp"
 
 
 
@@ -141,6 +142,8 @@ enum Type : u8 {
     opponent_room_repaired,
 
     target_queue_pop,
+
+    attach_reconstruction_queue,
 
     coins_changed,
 
@@ -968,6 +971,18 @@ struct TargetQueuePop
     u8 queue_elem_y_ : 4;
 
     static constexpr const auto t = Type::target_queue_pop;
+};
+
+
+
+struct AttachReconstructionQueue
+{
+    Header header_;
+    u8 db_x_ : 4;
+    u8 db_y_ : 4;
+    u8 previous_queue_memory_[sizeof(ReconstructionQueue)];
+
+    static constexpr const auto t = Type::attach_reconstruction_queue;
 };
 
 

@@ -296,7 +296,18 @@ void Missile::on_collision(Room& room, Vec2<u8> origin)
 
 void Missile::on_collision(Entity& entity)
 {
-    kill();
+    bool skip_destroy = false;
+
+    if (auto drone = entity.cast_drone()) {
+        if (drone->ignores_damage()) {
+            skip_destroy = true;
+        }
+    }
+
+    if (not skip_destroy) {
+        kill();
+    }
+
     APP.camera()->shake(18);
     big_explosion(sprite_.get_position());
 
@@ -541,7 +552,18 @@ void ClumpMissile::spawn_bomblets(Island* source, Vec2<Fixnum> origin)
 
 void ClumpMissile::on_collision(Entity& entity)
 {
-    kill();
+    bool skip_destroy = false;
+
+    if (auto drone = entity.cast_drone()) {
+        if (drone->ignores_damage()) {
+            skip_destroy = true;
+        }
+    }
+
+    if (not skip_destroy) {
+        kill();
+    }
+
     APP.camera()->shake(18);
     big_explosion(sprite_.get_position());
 

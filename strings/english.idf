@@ -399,6 +399,8 @@ set weapon group
 pick weapon group: 
 deploy:
 launch drone: select position
+automate reconstruction:
+selected %/%:
 -- highscores --
 score
 l + r: share top score

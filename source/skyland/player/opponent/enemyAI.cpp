@@ -1340,10 +1340,21 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
         // NOTE: this loop assumes that the initial weight for combat drones is
         // zeroe'd.
         if (room->metaclass() == drone_bay_mt) {
-            // If the player has drone bays, he/she may deploy drones, in which
-            // case, we might want to think about proactively deploying a combat
-            // drone of our own.
-            if (weights[combat_drone_index] == 0.0_atp) {
+            bool is_recons_drone = false;
+            if (auto opt_drone = room->drone()) {
+                if (str_eq((*opt_drone)->name(), "reconstruction-drone")) {
+                    is_recons_drone = true;
+                }
+            }
+            if (is_recons_drone) {
+                // Hmm.. how do you do negative literals?
+                // Anyway, reconstruction_drones are immune to damage, so don't
+                // deploy combat drones.
+                weights[combat_drone_index] = 0.0_atp - 90.0_atp;
+            } else if (weights[combat_drone_index] == 0.0_atp) {
+                // If the player has drone bays, he/she may deploy drones, in
+                // which case, we might want to think about proactively
+                // deploying a combat drone of our own.
                 weights[combat_drone_index] = 14.0_atp;
             } else {
                 // For each DroneBay controlled by the player, it becomes
