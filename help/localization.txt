@@ -34,7 +34,7 @@ this without any help.
  b) Translate the text
     as described above.
 
- c) run encode_files.py
+ c) run repack.sh
     to zip everything back
     up.
 
