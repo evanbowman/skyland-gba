@@ -175,6 +175,14 @@ public:
                             r->position().y});
                 }
                 show_count();
+            } else {
+                for (auto it = reconstruction_queue_.begin(); it not_eq reconstruction_queue_.end();) {
+                    if (RoomCoord{it->x_, it->y_} == cursor_loc) {
+                        it = reconstruction_queue_.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
             }
         }
 

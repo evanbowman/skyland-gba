@@ -320,9 +320,10 @@ void Drone::update(Time delta)
         }
         auto amount = smoothstep(0.f, duration_, timer_);
         auto dest = calc_pos(destination_, grid_pos_);
-        auto pos = interpolate(fvec(dest),
-                               Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
-                               Float(amount));
+        auto pos = interpolate_fp(dest,
+                                  Vec2<Fixnum>{Fixnum::from_integer(anchor_.x),
+                                               Fixnum::from_integer(anchor_.y)},
+                                  Fixnum(amount));
         sprite_.set_position(Vec2<Fixnum>{Fixnum(pos.x), Fixnum(pos.y)});
 
         if (parent() not_eq &APP.player_island()) {

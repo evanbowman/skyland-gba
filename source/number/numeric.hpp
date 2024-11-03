@@ -253,6 +253,12 @@ inline Float smoothstep(Float edge0, Float edge1, Float x)
     return x * x * (3 - 2 * x);
 }
 
+inline Fixnum smoothstep_fp(Fixnum edge0, Fixnum edge1, Fixnum x)
+{
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0_fixed, 1.0_fixed);
+    return x * x * (3.0_fixed - 2.0_fixed * x);
+}
+
 template <typename T> T interpolate(const T& a, const T& b, Float t)
 {
     return a * t + (1 - t) * b;
