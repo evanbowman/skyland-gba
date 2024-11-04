@@ -343,6 +343,8 @@ void ReconstructionDrone::update(Time delta)
                             p.x_ = pos.x;
                             p.y_ = pos.y;
                             APP.time_stream().push(APP.level_timer(), p);
+                        } else {
+                            kill();
                         }
                     }
                 }
