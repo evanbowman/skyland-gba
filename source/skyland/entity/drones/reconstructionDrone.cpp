@@ -41,6 +41,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -343,8 +344,12 @@ void ReconstructionDrone::update(Time delta)
                             p.x_ = pos.x;
                             p.y_ = pos.y;
                             APP.time_stream().push(APP.level_timer(), p);
-                        } else {
-                            kill();
+
+                            network::packet::RoomConstructed packet;
+                            packet.metaclass_index_.set(entry.block_metaclass_);
+                            packet.x_ = pos.x;
+                            packet.y_ = pos.y;
+                            network::transmit(packet);
                         }
                     }
                 }
