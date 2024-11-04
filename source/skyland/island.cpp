@@ -417,11 +417,13 @@ bool Island::fire_present(const RoomCoord& coord) const
 
 
 
-void Island::fires_extinguish()
+void Island::fires_extinguish(bool clear_tiles)
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
-            PLATFORM.set_tile(layer_, x, y, 0);
+            if (clear_tiles) {
+                PLATFORM.set_tile(layer_, x, y, 0);
+            }
             fire_extinguish({(u8)x, (u8)y});
         }
     }

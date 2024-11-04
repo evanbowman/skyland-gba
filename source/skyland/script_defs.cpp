@@ -1329,8 +1329,6 @@ BINDING_TABLE({
 
           app->swap_opponent<EnemyAI>();
 
-          APP.player_island().schedule_repaint();
-
           return L_NIL;
       }}},
     {"opponent-init",
