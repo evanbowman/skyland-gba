@@ -151,7 +151,9 @@ public:
                 for (auto it = reconstruction_queue_.begin();
                      it not_eq reconstruction_queue_.end();) {
 
-                    if (RoomCoord{it->x_, it->y_} == cursor_loc) {
+                    auto rc = RoomCoord{it->x_, it->y_};
+                    if (APP.player_island().get_room(rc) ==
+                        APP.player_island().get_room(cursor_loc)) {
                         found = true;
                         it = reconstruction_queue_.erase(it);
                     } else {
@@ -393,6 +395,7 @@ void ReconstructionDrone::update(Time delta)
 
 ScenePtr ReconstructionDrone::select()
 {
+    PLATFORM.speaker().play_sound("drone_beep", 1);
     return make_scene<SetupReconstructionQueueScene>(shared_from_this());
 }
 
