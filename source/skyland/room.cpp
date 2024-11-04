@@ -1658,4 +1658,10 @@ bool Room::co_op_locked() const
 
 
 
+void Room::parent_layout_changed(RoomCoord moved_from, RoomCoord to)
+{
+}
+
+
+
 } // namespace skyland

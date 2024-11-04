@@ -239,6 +239,9 @@ void shift_rooms_right(Island& island)
     // all.
     for (auto& d : island.drones()) {
         d->apply_damage(999);
+        if (d->alive()) { // For damage-impervious drones
+            d->kill();
+        }
     }
     // Furthermore... all weapons on the players' island need to
     // have their targets adjusted accordingly:

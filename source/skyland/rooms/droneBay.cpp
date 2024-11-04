@@ -294,4 +294,17 @@ void DroneBay::finalize()
 
 
 
+void DroneBay::parent_layout_changed(RoomCoord moved_from, RoomCoord to)
+{
+    for (int i = 0; i < rq_.size(); ++i) {
+        auto& elem = rq_[i];
+        if (elem.x_ == moved_from.x and elem.y_ == moved_from.y) {
+            elem.x_ = to.x;
+            elem.y_ = to.y;
+        }
+    }
+}
+
+
+
 } // namespace skyland

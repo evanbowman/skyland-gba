@@ -182,6 +182,9 @@ public:
     bool allows_powerdown() override;
 
 
+    void parent_layout_changed(RoomCoord moved_from, RoomCoord to) override;
+
+
 private:
     Optional<SharedEntityRef<Drone>> drone_;
     Time reload_ = 0;

@@ -415,6 +415,9 @@ public:
     void heal(Health amount);
 
 
+    virtual void parent_layout_changed(RoomCoord moved_from, RoomCoord to);
+
+
     // Careful! Converts a room to an entirely new type, by changing the parent
     // class. If called from within a member function of a Room, the code would
     // need to return immediately after. Seriously, this function needs to be

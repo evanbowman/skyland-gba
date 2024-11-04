@@ -52,6 +52,7 @@
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
 
@@ -1637,6 +1638,10 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
             }
             for (auto& l : fire_respawn_locs) {
                 fire_create({l.x, l.y});
+            }
+
+            for (auto& r : rooms()) {
+                r->parent_layout_changed(from, to);
             }
         }
     }
