@@ -195,7 +195,10 @@ ScenePtr SkylandForever::update(Time delta)
     }
 
     auto update_env = [&] {
+        auto last_ambiance = APP.environment().ambiance();
+
         environment_init(parameters_[1]);
+        PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
         PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
@@ -204,6 +207,11 @@ ScenePtr SkylandForever::update(Time delta)
             0.7f, ColorConstant::rich_black, false, false);
         PLATFORM.screen().schedule_fade(
             0.6f, ColorConstant::rich_black, false, false);
+
+        auto new_ambiance = APP.environment().ambiance();
+        if (*last_ambiance not_eq new_ambiance->c_str()) {
+            PLATFORM.speaker().stream_music(new_ambiance->c_str(), 0);
+        }
     };
 
     if (APP.player().key_down(Key::right) or
