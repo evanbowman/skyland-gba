@@ -272,6 +272,12 @@ void App::restore_backup()
 
     player_island().fires_extinguish();
 
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            PLATFORM.set_tile(player_island().layer(), x, y, 0);
+        }
+    }
+
     current_world_location() = backup_->next_world_location_;
     ++world_graph().storm_depth_;
 }

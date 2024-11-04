@@ -157,7 +157,7 @@ void prep_level()
     APP.persistent_data().lives_ = 2;
 
     APP.player_island().init_ai_awareness();
-    APP.player_island().fires_extinguish(false);
+    APP.player_island().fires_extinguish();
 
     if (APP.opponent_island()) {
         APP.opponent_island()->set_drift(Fixnum(-0.000025f));

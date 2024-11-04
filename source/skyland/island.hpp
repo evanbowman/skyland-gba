@@ -381,7 +381,7 @@ public:
     void fire_extinguish(const RoomCoord& coord);
     void fire_create(const RoomCoord& coord);
 
-    void fires_extinguish(bool clear_tiles = true);
+    void fires_extinguish();
 
 
     const EntityList<BasicCharacter>& outdoor_characters()
