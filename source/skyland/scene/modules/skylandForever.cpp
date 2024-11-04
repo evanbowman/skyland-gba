@@ -287,6 +287,17 @@ void SkylandForever::update_parameter(u8 line_num)
 
     auto boolean_field_str = parameters_[line_num] ? SYSTR(yes) : SYSTR(no);
 
+    auto get_weather_str = [&] {
+        return loadstr((SystemString)((int)SystemString::weather_clear +
+                                      (parameters_[line_num] - 1)));
+    };
+
+    bool is_weather_field = false;
+    if (param_info[line_num].name_ == SystemString::sandbox_weather) {
+        is_weather_field = true;
+        int_text_len = utf8::len(get_weather_str()->c_str());
+    }
+
     if (line_num == 0) {
         switch (parameters_[line_num]) {
         case 0:
@@ -322,6 +333,8 @@ void SkylandForever::update_parameter(u8 line_num)
         temp += text;
     } else if (is_boolean_field) {
         temp += boolean_field_str->c_str();
+    } else if (is_weather_field) {
+        temp += get_weather_str()->c_str();
     } else {
         temp += stringify(parameters_[line_num]);
     }
