@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "number/numeric.hpp"
 #include "memory/tinyBuffer.hpp"
+#include "number/numeric.hpp"
 
 
 
@@ -34,4 +34,4 @@ using TargetQueue = TinyBuffer<PackedTarget, 3>;
 
 
 
-}
+} // namespace skyland

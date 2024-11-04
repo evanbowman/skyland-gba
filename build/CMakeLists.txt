@@ -144,6 +144,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/explosion/exploSpawner.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/entity/drones/drone.cpp
+  ${SOURCE_DIR}/skyland/entity/drones/reconstructionDrone.cpp
   ${SOURCE_DIR}/skyland/entity/drones/droneMeta.cpp
   ${SOURCE_DIR}/skyland/entity/birds/genericBird.cpp
   ${SOURCE_DIR}/skyland/entity/macro/macrocosmEntity.cpp

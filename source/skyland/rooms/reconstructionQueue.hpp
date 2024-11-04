@@ -23,9 +23,9 @@ static constexpr const int reconstruction_queue_size = 8;
 
 
 
-using ReconstructionQueue = TinyBuffer<ReconstructionQueueEntry,
-                                       reconstruction_queue_size>;
+using ReconstructionQueue =
+    TinyBuffer<ReconstructionQueueEntry, reconstruction_queue_size>;
 
 
 
-}
+} // namespace skyland

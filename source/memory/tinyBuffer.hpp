@@ -35,13 +35,12 @@
 #pragma once
 
 #include "number/int.h"
-#include <new>
 #include <array>
+#include <new>
 
 
 
-template <typename T, u32 Capacity>
-struct TinyBuffer
+template <typename T, u32 Capacity> struct TinyBuffer
 {
     alignas(T) std::array<u8, Capacity * sizeof(T)> mem_;
     u8 count_ = 0;
