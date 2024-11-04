@@ -2698,6 +2698,15 @@ void Platform::fatal(const char* msg)
 
     const auto bkg_color = custom_color(0x007cbf);
 
+    {
+        int temp;
+        DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
+        DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
+        DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
+    }
+    vblank_dma_callback = no_op_task;
+    window_init_default();
+
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
 
