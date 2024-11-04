@@ -375,8 +375,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
                         auto prev = r->group();
 
                         time_stream::event::WeaponSetGroup e;
-                        e.room_x_ = cursor_loc.x;
-                        e.room_y_ = cursor_loc.y;
+                        e.room_x_ = r->position().x;
+                        e.room_y_ = r->position().y;
                         e.prev_group_ = (u8)prev;
                         APP.time_stream().push(APP.level_timer(), e);
 
@@ -384,8 +384,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
                         APP.player_island().schedule_repaint();
 
                         network::packet::SetWeaponGroup p;
-                        p.x_ = cursor_loc.x;
-                        p.y_ = cursor_loc.y;
+                        p.x_ = r->position().x;
+                        p.y_ = r->position().y;
                         p.group_ = (u8)*group;
                         network::transmit(p);
                     }
