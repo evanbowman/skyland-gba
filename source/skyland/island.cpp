@@ -2656,4 +2656,15 @@ void collect_outer_rooms(Island& isle, Vector<Room*>& output)
 
 
 
+BlockChecksum opponent_island_checksum()
+{
+    if (APP.opponent_island()) {
+        return APP.opponent_island()->checksum();
+    } else {
+        return 0;
+    }
+}
+
+
+
 } // namespace skyland

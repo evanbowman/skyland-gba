@@ -75,11 +75,14 @@ EXT_WORKRAM_DATA Bitmatrix<16, 16> player_destroyed_rooms;
 
 static u8 minimap_width()
 {
-    int pixel_width =
-        (3 * (1 + APP.player_island().terrain().size() + minimap_isle_spacing +
-              (APP.opponent_island() ? APP.opponent_island()->terrain().size()
-                                     : 0) +
-              1));
+    int pixel_width = (1 + APP.player_island().terrain().size() + 1);
+
+    APP.with_opponent_island([&](auto& isle) {
+        pixel_width += minimap_isle_spacing + isle.terrain().size();
+    });
+
+    pixel_width *= 3;
+
     return pixel_width / 8 + (pixel_width % 8 > 0);
 }
 
@@ -119,11 +122,6 @@ void move(u8 new_y_anchor)
 void show()
 {
     if (APP.game_mode() == App::GameMode::tutorial) {
-        return;
-    }
-
-    if (not APP.opponent_island()) {
-        hide();
         return;
     }
 
@@ -174,10 +172,6 @@ void repaint(const Settings& settings)
         return;
     }
 
-    if (not APP.opponent_island()) {
-        return;
-    }
-
     [[maybe_unused]] auto before = PLATFORM.delta_clock().sample();
 
 
@@ -213,7 +207,7 @@ void repaint(const Settings& settings)
             }
         }
         fb_cache->player_island_checksum_ = APP.player_island().checksum();
-        fb_cache->opponent_island_checksum_ = APP.opponent_island()->checksum();
+        fb_cache->opponent_island_checksum_ = opponent_island_checksum();
     };
 
     auto restore_pixels = [&]() {
@@ -260,8 +254,7 @@ void repaint(const Settings& settings)
 
     if (fb_cache and
         fb_cache->player_island_checksum_ == APP.player_island().checksum() and
-        fb_cache->opponent_island_checksum_ ==
-            APP.opponent_island()->checksum()) {
+        fb_cache->opponent_island_checksum_ == opponent_island_checksum()) {
 
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
@@ -303,15 +296,18 @@ void repaint(const Settings& settings)
             }
         }
 
-        for (u32 x = 0; x < APP.opponent_island()->terrain().size(); ++x) {
-            for (int xx = 0; xx < 3; ++xx) {
-                for (int yy = 0; yy < 3; ++yy) {
-                    pixel_buffer[(x + opp_offset) * 3 + xx -
-                                 2][((15 - 3) * 3 + yy) - 2] =
-                        (yy == 0) ? color_green_index : color_darkgray_index;
+        APP.with_opponent_island([&](auto& isle) {
+            for (u32 x = 0; x < isle.terrain().size(); ++x) {
+                for (int xx = 0; xx < 3; ++xx) {
+                    for (int yy = 0; yy < 3; ++yy) {
+                        pixel_buffer[(x + opp_offset) * 3 + xx -
+                                     2][((15 - 3) * 3 + yy) - 2] =
+                            (yy == 0) ? color_green_index : color_darkgray_index;
+                    }
                 }
             }
-        }
+        });
+
 
         for (u8 y = 4; y < 15; ++y) {
             for (u8 x = 0; x < 13; ++x) {
@@ -399,56 +395,59 @@ void repaint(const Settings& settings)
             }
         }
 
-        for (u8 y = 4; y < 15; ++y) {
-            for (u8 x = 0; x < 13; ++x) {
-                if (auto room = APP.opponent_island()->get_room({x, y})) {
-                    if (APP.opponent_island()->fire_present({x, y})) {
-                        auto set_pixel = [&](int xo, int yo, int v) {
-                            pixel_buffer[(x + opp_offset) * 3 + xo - 2]
-                                        [((y - 3) * 3 + yo) - 2] = v;
-                        };
-                        set_pixel(0, 0, color_red_index);
-                        set_pixel(1, 0, color_red_index);
-                        set_pixel(2, 0, color_red_index);
+        APP.with_opponent_island([&](auto& isle) {
+            for (u8 y = 4; y < 15; ++y) {
+                for (u8 x = 0; x < 13; ++x) {
+                    if (auto room = isle.get_room({x, y})) {
+                        if (isle.fire_present({x, y})) {
+                            auto set_pixel = [&](int xo, int yo, int v) {
+                                pixel_buffer[(x + opp_offset) * 3 + xo - 2]
+                                    [((y - 3) * 3 + yo) - 2] = v;
+                            };
+                            set_pixel(0, 0, color_red_index);
+                            set_pixel(1, 0, color_red_index);
+                            set_pixel(2, 0, color_red_index);
 
-                        set_pixel(0, 1, color_red_index);
-                        set_pixel(1, 1, color_bright_yellow_index);
-                        set_pixel(2, 1, color_red_index);
+                            set_pixel(0, 1, color_red_index);
+                            set_pixel(1, 1, color_bright_yellow_index);
+                            set_pixel(2, 1, color_red_index);
 
-                        set_pixel(0, 2, color_bright_yellow_index);
-                        set_pixel(1, 2, color_bright_yellow_index);
-                        set_pixel(2, 2, color_bright_yellow_index);
-                        continue;
-                    }
-                    for (int xx = 0; xx < 3; ++xx) {
-                        for (int yy = 0; yy < 3; ++yy) {
-                            u8 clr;
-                            switch ((*room->metaclass())->category()) {
-                            case Room::Category::wall:
-                                if ((*room->metaclass())->properties() &
-                                    RoomProperties::accepts_ion_damage) {
-                                    clr = color_el_blue_index;
-                                } else {
-                                    clr = color_gray_index;
+                            set_pixel(0, 2, color_bright_yellow_index);
+                            set_pixel(1, 2, color_bright_yellow_index);
+                            set_pixel(2, 2, color_bright_yellow_index);
+                            continue;
+                        }
+                        for (int xx = 0; xx < 3; ++xx) {
+                            for (int yy = 0; yy < 3; ++yy) {
+                                u8 clr;
+                                switch ((*room->metaclass())->category()) {
+                                case Room::Category::wall:
+                                    if ((*room->metaclass())->properties() &
+                                        RoomProperties::accepts_ion_damage) {
+                                        clr = color_el_blue_index;
+                                    } else {
+                                        clr = color_gray_index;
+                                    }
+                                    break;
+
+                                case Room::Category::weapon:
+                                    clr = color_burnt_orange_index;
+                                    break;
+
+                                default:
+                                    clr = color_tan_index;
+                                    break;
                                 }
-                                break;
 
-                            case Room::Category::weapon:
-                                clr = color_burnt_orange_index;
-                                break;
-
-                            default:
-                                clr = color_tan_index;
-                                break;
+                                pixel_buffer[(x + opp_offset) * 3 + xx - 2]
+                                    [((y - 3) * 3 + yy) - 2] = clr;
                             }
-
-                            pixel_buffer[(x + opp_offset) * 3 + xx - 2]
-                                        [((y - 3) * 3 + yy) - 2] = clr;
                         }
                     }
                 }
             }
-        }
+        });
+
 
         save_pixels();
     }
@@ -562,17 +561,19 @@ void repaint(const Settings& settings)
                           cursor_center_px_y);
             }
         } else {
-            if (auto drone = APP.opponent_island()->get_drone(weapon_loc)) {
-                int drone_emit_px_x = ((*drone)->position().x) * 3;
-                int drone_emit_px_y =
-                    (((*drone)->position().y - 3) * 3 + 1) - 2;
+            APP.with_opponent_island([&](auto& isle) {
+                if (auto drone = isle.get_drone(weapon_loc)) {
+                    int drone_emit_px_x = ((*drone)->position().x) * 3;
+                    int drone_emit_px_y =
+                        (((*drone)->position().y - 3) * 3 + 1) - 2;
 
-                plot_line(nullptr,
-                          drone_emit_px_x + opp_offset * 3 - 1,
-                          drone_emit_px_y,
-                          cursor_center_px_x,
-                          cursor_center_px_y);
-            }
+                    plot_line(nullptr,
+                              drone_emit_px_x + opp_offset * 3 - 1,
+                              drone_emit_px_y,
+                              cursor_center_px_x,
+                              cursor_center_px_y);
+                }
+            });
         }
     }
 
