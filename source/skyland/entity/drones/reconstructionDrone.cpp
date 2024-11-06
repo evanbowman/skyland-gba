@@ -34,6 +34,7 @@
 #include "reconstructionDrone.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/minimap.hpp"
+#include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene/constructionScene.hpp"
@@ -41,7 +42,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/network.hpp"
 
 
 

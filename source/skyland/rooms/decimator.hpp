@@ -163,7 +163,6 @@ public:
     int counter_ = 0;
 
 private:
-
     Time reload_ = 1000 * decimator_reload_ms;
     u8 flicker_cyc_ = 0;
 

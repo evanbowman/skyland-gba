@@ -38,8 +38,8 @@
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
-#include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/decimator.hpp"
+#include "skyland/rooms/forcefield.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/timeStreamEvent.hpp"
 

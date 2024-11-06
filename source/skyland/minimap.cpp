@@ -300,9 +300,10 @@ void repaint(const Settings& settings)
             for (u32 x = 0; x < isle.terrain().size(); ++x) {
                 for (int xx = 0; xx < 3; ++xx) {
                     for (int yy = 0; yy < 3; ++yy) {
-                        pixel_buffer[(x + opp_offset) * 3 + xx -
-                                     2][((15 - 3) * 3 + yy) - 2] =
-                            (yy == 0) ? color_green_index : color_darkgray_index;
+                        pixel_buffer[(x + opp_offset) * 3 + xx - 2]
+                                    [((15 - 3) * 3 + yy) - 2] =
+                                        (yy == 0) ? color_green_index
+                                                  : color_darkgray_index;
                     }
                 }
             }
@@ -402,7 +403,7 @@ void repaint(const Settings& settings)
                         if (isle.fire_present({x, y})) {
                             auto set_pixel = [&](int xo, int yo, int v) {
                                 pixel_buffer[(x + opp_offset) * 3 + xo - 2]
-                                    [((y - 3) * 3 + yo) - 2] = v;
+                                            [((y - 3) * 3 + yo) - 2] = v;
                             };
                             set_pixel(0, 0, color_red_index);
                             set_pixel(1, 0, color_red_index);
@@ -440,7 +441,7 @@ void repaint(const Settings& settings)
                                 }
 
                                 pixel_buffer[(x + opp_offset) * 3 + xx - 2]
-                                    [((y - 3) * 3 + yy) - 2] = clr;
+                                            [((y - 3) * 3 + yy) - 2] = clr;
                             }
                         }
                     }
