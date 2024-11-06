@@ -144,17 +144,33 @@ void Canvas::bind_graphics(const img::Image& img)
 
 
 
-void Canvas::finalize()
+void Canvas::record_removed()
 {
-    Room::finalize();
-
-    if (health() == 0 and img_data_) {
+    if (img_data_) {
         time_stream::event::CanvasBlockDestroyed e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.near_ = is_player_island(parent());
         memcpy(e.data_, &(**img_data_), sizeof **img_data_);
         APP.time_stream().push(APP.level_timer(), e);
+    }
+}
+
+
+
+void Canvas::on_salvage()
+{
+    record_removed();
+}
+
+
+
+void Canvas::finalize()
+{
+    Room::finalize();
+
+    if (health() == 0) {
+        record_removed();
     }
 }
 

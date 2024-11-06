@@ -120,6 +120,12 @@ public:
     void finalize() override;
 
 
+    void on_salvage() override;
+
+
+    void record_removed();
+
+
     static Icon icon()
     {
         return 2664;

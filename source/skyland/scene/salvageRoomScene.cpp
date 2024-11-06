@@ -264,6 +264,7 @@ ScenePtr SalvageRoomScene::update(Time delta)
                             e.health_.set(room->health());
                         };
 
+                        room->on_salvage();
                         island()->destroy_room(cursor_loc);
 
                         if (is_player_island(island())) {

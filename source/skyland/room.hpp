@@ -384,6 +384,9 @@ public:
     }
 
 
+    virtual void on_salvage();
+
+
     // NOTE: The first three elements of the result list must be room name
     // symbol, x, y. Subsequent entries in the list can contain whatever you
     // want.

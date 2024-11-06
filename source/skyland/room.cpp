@@ -1664,4 +1664,10 @@ void Room::parent_layout_changed(RoomCoord moved_from, RoomCoord to)
 
 
 
+void Room::on_salvage()
+{
+}
+
+
+
 } // namespace skyland
