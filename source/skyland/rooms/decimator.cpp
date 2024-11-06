@@ -70,10 +70,15 @@ Decimator::Decimator(Island* parent, const RoomCoord& position)
 
 
 
+static const Time burst_interval = milliseconds(200);
+
+
+
 void Decimator::unset_target()
 {
-    reload_ = 1000 * decimator_reload_ms;
-    counter_ = 0;
+    // reload_ = 1000 * decimator_reload_ms;
+    // counter_ = 0;
+    // firing_ = false;
 }
 
 
@@ -231,7 +236,7 @@ void Decimator::update(Time delta)
         if (not opponent_friendly) {
             reload_ -= delta;
 
-            if (reload_ < 0) {
+            if (reload_ < 0 and not firing_) {
                 if (is_player_island(parent())) {
                     time_stream::event::PlayerRoomReloadComplete e;
                     e.room_x_ = position().x;
@@ -245,9 +250,7 @@ void Decimator::update(Time delta)
                 }
             }
         }
-
     } else if (has_pilot) {
-
         if (parent()->power_supply() < parent()->power_drain()) {
             return;
         }
@@ -275,22 +278,39 @@ void Decimator::update(Time delta)
                 target.x -= 100.0_fixed;
             }
 
+            if (is_player_island(parent())) {
+                time_stream::event::PlayerDecimatorBurstCreated e;
+                e.src_x_ = position().x;
+                e.src_y_ = position().y;
+                e.prev_counter_ = counter_;
+                APP.time_stream().push(APP.level_timer(), e);
+            } else {
+                time_stream::event::OpponentDecimatorBurstCreated e;
+                e.src_x_ = position().x;
+                e.src_y_ = position().y;
+                e.prev_counter_ = counter_;
+                APP.time_stream().push(APP.level_timer(), e);
+            }
+
+            firing_ = true;
 
             auto c = APP.alloc_entity<DecimatorBurst>(
                 start, target, parent(), position());
 
             if (c) {
+                c->burst_index_ = counter_;
                 parent()->projectiles().push(std::move(c));
                 set_ai_aware(true);
             }
 
             if (counter_ < 6) {
                 ++counter_;
-                reload_ += milliseconds(200);
+                reload_ += burst_interval;
             } else {
                 reload_ += 1000 * decimator_reload_ms;
                 counter_ = 0;
                 flicker_cyc_ = 0;
+                firing_ = false;
             }
         }
     }
@@ -306,10 +326,14 @@ void Decimator::rewind(Time delta)
         return;
     }
 
-    if (reload_ <= 0) {
-        // Reloaded.
-    } else if (reload_ < 1000 * decimator_reload_ms) {
+    if (firing_) {
         reload_ += delta;
+    } else {
+        if (reload_ <= 0) {
+            // Reloaded.
+        } else if (reload_ < 1000 * decimator_reload_ms) {
+            reload_ += delta;
+        }
     }
 }
 
@@ -324,13 +348,7 @@ void Decimator::___rewind___finished_reload()
 
 void Decimator::___rewind___ability_used()
 {
-    reload_ = 0;
-
-    if (counter_ > 1) {
-        --counter_;
-    }
-
-    // FIXME: Adjust counter correctly.
+    // reload_ = 0;
 }
 
 
@@ -404,6 +422,39 @@ void Decimator::finalize()
     if (health() <= 0) {
         ExploSpawner::create(center());
     }
+}
+
+
+
+void Decimator::rewind_started_firing()
+{
+    for (auto& p : parent()->projectiles()) {
+        if (auto b = p->cast_decimator_burst()) {
+            if (b->origin_tile() == position()) {
+                b->kill();
+            }
+        }
+    }
+    firing_ = false;
+    counter_ = 0;
+    reload_ = 0;
+}
+
+
+
+void Decimator::rewind_projectile_created(int new_counter)
+{
+    for (auto& p : parent()->projectiles()) {
+        if (auto b = p->cast_decimator_burst()) {
+            if (b->burst_index_ >= counter_) {
+                b->kill();
+            }
+        }
+    }
+
+    counter_ = new_counter;
+
+    reload_ = burst_interval;
 }
 
 

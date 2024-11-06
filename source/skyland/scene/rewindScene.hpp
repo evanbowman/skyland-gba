@@ -71,6 +71,7 @@ private:
     Optional<Text> speed_text3_;
     int speed_ = 0;
     bool far_camera_;
+    bool exit_requested_ = false;
 };
 
 

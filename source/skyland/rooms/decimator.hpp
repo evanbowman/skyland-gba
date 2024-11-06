@@ -156,12 +156,19 @@ public:
     void finalize() override;
 
 
-private:
+    void rewind_projectile_created(int new_counter);
+    void rewind_started_firing();
+
+
     int counter_ = 0;
 
+private:
 
     Time reload_ = 1000 * decimator_reload_ms;
     u8 flicker_cyc_ = 0;
+
+public:
+    bool firing_ = false;
 };
 
 

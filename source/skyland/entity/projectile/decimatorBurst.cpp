@@ -39,6 +39,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/rooms/decimator.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -129,10 +130,15 @@ void DecimatorBurst::rewind(Time delta)
         sprite_.set_flip({true, false});
     }
 
-    if (timer_ < 0) {
-        if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used();
+    if (auto r = source_->get_room(origin_tile_)) {
+        if (auto dec = r->cast<Decimator>()) {
+            if (dec->counter_ < burst_index_) {
+                kill();
+            }
         }
+    }
+
+    if (timer_ <= 0) {
         kill();
     }
 }

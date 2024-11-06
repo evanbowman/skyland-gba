@@ -57,6 +57,7 @@
 #include "skyland/minimap.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/canvas.hpp"
+#include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/weapon.hpp"
@@ -346,12 +347,40 @@ ScenePtr RewindScene::update(Time)
     }
 
 
+    auto is_decimator_firing = [&] {
+        for (auto& r : APP.player_island().rooms()) {
+            if (auto dec = r->cast<Decimator>()) {
+                if (dec->firing_) {
+                    return true;
+                }
+            }
+        }
+        if (APP.opponent_island()) {
+            for (auto& r : APP.opponent_island()->rooms()) {
+                if (auto dec = r->cast<Decimator>()) {
+                    if (dec->firing_) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    };
+
 
     const auto current_timestamp = APP.level_timer().total();
     auto end_timestamp = APP.time_stream().end_timestamp();
 
     if (not APP.opponent_island() or not end_timestamp or
-        APP.player().key_down(Key::alt_1)) {
+        APP.player().key_down(Key::alt_1) or
+        (exit_requested_ and not is_decimator_firing())) {
+
+        if (APP.player().key_down(Key::alt_1)) {
+            if (is_decimator_firing()) {
+                exit_requested_ = true;
+                return null_scene();
+            }
+        }
 
         APP.time_stream().enable_pushes(true);
 
@@ -724,7 +753,6 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::player_nemesis_blast_destroyed: {
             auto e = (time_stream::event::PlayerNemesisBlastDestroyed*)end;
             if (auto v = respawn_basic_projectile<NemesisBlast>(
-
                     &APP.player_island(), *e, medium_explosion_inv)) {
                 v->set_variant(e->variant_);
                 APP.camera()->shake(8);
@@ -737,7 +765,6 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::opponent_nemesis_blast_destroyed: {
             auto e = (time_stream::event::PlayerNemesisBlastDestroyed*)end;
             if (auto v = respawn_basic_projectile<NemesisBlast>(
-
                     APP.opponent_island(), *e, medium_explosion_inv)) {
                 v->set_variant(e->variant_);
                 APP.camera()->shake(8);
@@ -928,6 +955,44 @@ ScenePtr RewindScene::update(Time)
                 &APP.player_island(), *e, medium_explosion_inv);
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_decimator_burst_created: {
+            auto e = (time_stream::event::PlayerDecimatorBurstCreated*)end;
+            RoomCoord c;
+            c.x = e->src_x_;
+            c.y = e->src_y_;
+            if (auto room = APP.player_island().get_room(c)) {
+                if (auto dec = room->cast<Decimator>()) {
+                    dec->rewind_projectile_created(e->prev_counter_);
+                    if (e->prev_counter_ == 0) {
+                        dec->rewind_started_firing();
+                    }
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_decimator_burst_created: {
+            auto e = (time_stream::event::OpponentDecimatorBurstCreated*)end;
+            RoomCoord c;
+            c.x = e->src_x_;
+            c.y = e->src_y_;
+            APP.with_opponent_island([&](auto& isle) {
+                if (auto room = isle.get_room(c)) {
+                    if (auto dec = room->template cast<Decimator>()) {
+                        dec->rewind_projectile_created(e->prev_counter_);
+                        if (e->prev_counter_ == 0) {
+                            dec->rewind_started_firing();
+                        }
+                    }
+                }
+            });
+            APP.time_stream().pop(sizeof *e);
             break;
         }
 

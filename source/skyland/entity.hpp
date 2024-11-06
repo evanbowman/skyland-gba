@@ -61,6 +61,7 @@ class App;
 class Room;
 class Drone;
 class OffscreenWarning;
+class DecimatorBurst;
 
 
 
@@ -155,6 +156,12 @@ public:
 
     // B/C no RTTI
     virtual OffscreenWarning* cast_offscreen_warning()
+    {
+        return nullptr;
+    }
+
+
+    virtual DecimatorBurst* cast_decimator_burst()
     {
         return nullptr;
     }

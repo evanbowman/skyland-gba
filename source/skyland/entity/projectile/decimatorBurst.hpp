@@ -78,6 +78,21 @@ public:
     void on_collision(Entity&) override;
 
 
+    int burst_index_ = 0;
+
+
+    DecimatorBurst* cast_decimator_burst()
+    {
+        return this;
+    }
+
+
+    RoomCoord origin_tile() const
+    {
+        return origin_tile_;
+    }
+
+
 private:
     Time timer_ = 0;
     Vec2<Fixnum> step_vector_;
