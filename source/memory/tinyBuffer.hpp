@@ -46,6 +46,15 @@ template <typename T, u32 Capacity> struct TinyBuffer
     u8 count_ = 0;
 
 
+    using ValueType = T;
+
+
+    T* data()
+    {
+        return (T*)mem_.data();
+    }
+
+
     TinyBuffer() = default;
 
 
@@ -55,7 +64,7 @@ template <typename T, u32 Capacity> struct TinyBuffer
     }
 
 
-    static_assert(std::is_trivially_copyable_v<T>);
+    TinyBuffer(const TinyBuffer&) = delete;
 
 
     ~TinyBuffer()

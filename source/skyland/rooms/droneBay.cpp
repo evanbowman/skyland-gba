@@ -285,7 +285,8 @@ void DroneBay::finalize()
         time_stream::event::AttachReconstructionQueue e;
         e.db_x_ = position().x;
         e.db_y_ = position().y;
-        memcpy(e.previous_queue_memory_, &rq_, sizeof rq_);
+        e.previous_queue_memory_ = rq_.mem_;
+        e.previous_queue_size_ = rq_.count_;
         APP.time_stream().push(APP.level_timer(), e);
     }
 

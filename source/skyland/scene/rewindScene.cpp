@@ -670,11 +670,9 @@ ScenePtr RewindScene::update(Time)
             RoomCoord pos = {e->db_x_, e->db_y_};
             if (auto room = APP.player_island().get_room(pos)) {
                 if (auto db = room->cast<DroneBay>()) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
-                    // It's essentially trivially copyable, you idiotic compiler.
-                    memcpy(&db->rq_, e->previous_queue_memory_, sizeof db->rq_);
-#pragma GCC diagnostic pop
+                    static_assert(std::is_trivially_copyable_v<ReconstructionQueue::ValueType>);
+                    db->rq_.mem_ = e->previous_queue_memory_;
+                    db->rq_.count_ = e->previous_queue_size_;
                 }
             }
             APP.time_stream().pop(sizeof *e);

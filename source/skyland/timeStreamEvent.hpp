@@ -1005,7 +1005,8 @@ struct AttachReconstructionQueue
     Header header_;
     u8 db_x_ : 4;
     u8 db_y_ : 4;
-    u8 previous_queue_memory_[sizeof(ReconstructionQueue)];
+    decltype(ReconstructionQueue::mem_) previous_queue_memory_;
+    u8 previous_queue_size_;
 
     static constexpr const auto t = Type::attach_reconstruction_queue;
 };

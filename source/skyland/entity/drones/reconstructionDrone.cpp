@@ -125,7 +125,8 @@ public:
                     time_stream::event::AttachReconstructionQueue e;
                     e.db_x_ = attached->position().x;
                     e.db_y_ = attached->position().y;
-                    memcpy(e.previous_queue_memory_, &db->rq_, sizeof db->rq_);
+                    e.previous_queue_memory_ = db->rq_.mem_;
+                    e.previous_queue_size_ = db->rq_.count_;
                     APP.time_stream().push(APP.level_timer(), e);
 
                     db->rq_.clear();
