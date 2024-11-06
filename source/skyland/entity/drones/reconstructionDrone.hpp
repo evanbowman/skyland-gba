@@ -102,7 +102,7 @@ public:
 
     Time reload_time_remaining() const override
     {
-        if (state_ == Drone::State::launch) {
+        if (state_ == State::launch_2) {
             return reload_time;
         }
         return reload_time - timer_;
@@ -118,6 +118,7 @@ public:
     enum State : u8 {
         __derived = Drone::State::ready,
         active,
+        launch_2,
     };
 
     s8 recons_index_ = -1;

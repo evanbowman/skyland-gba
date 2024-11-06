@@ -311,6 +311,14 @@ void ReconstructionDrone::update(Time delta)
     }
 
     switch (state_) {
+    case State::launch_2:
+        state_ = Drone::State::launch;
+        Drone::update(delta);
+        if (state_ == Drone::State::launch) {
+            state_ = State::launch_2;
+        }
+        break;
+
     case Drone::State::launch:
         Drone::update(delta);
         break;
@@ -361,7 +369,7 @@ void ReconstructionDrone::update(Time delta)
             sprite_.set_flip({prev.x > return_to_.x, false});
             set_movement_target(return_to_);
             timer_ = 1;
-            state_ = Drone::State::launch;
+            state_ = State::launch_2;
         } else {
             return_to_ = position();
         }
@@ -388,7 +396,7 @@ void ReconstructionDrone::update(Time delta)
                         sprite_.set_flip({pos.x < position().x, false});
                         set_movement_target(pos);
                         timer_ = 1;
-                        state_ = Drone::State::launch;
+                        state_ = State::launch_2;
                         recons_index_ = i;
                     }
                 }

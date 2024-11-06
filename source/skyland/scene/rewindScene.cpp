@@ -1239,7 +1239,6 @@ ScenePtr RewindScene::update(Time)
                 chr = alloc_chr();
             }
 
-
             if (chr) {
                 chr->__assign_id(e->id_.get());
                 chr->set_race(e->race_);
@@ -1249,8 +1248,6 @@ ScenePtr RewindScene::update(Time)
 
                 island->add_character(std::move(chr));
             }
-
-
 
             APP.time_stream().pop(sizeof *e);
             break;
