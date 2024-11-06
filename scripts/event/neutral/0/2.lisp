@@ -6,7 +6,7 @@
 (dialog "The remains of an abandoned island emerge from the mist, floating towards you...")
 
 
-(let ((file "/scripts/event/neutral/0/2_layouts.lisp"))
+(let ((file "/scripts/event/neutral/0/2_layouts.txt"))
   (let ((opt (eval (read (file-get-line file (+ 1 (choice (file-line-count file))))))))
     (opponent-init (car opt) 'neutral)
     (island-configure (opponent) (cdr opt))))
