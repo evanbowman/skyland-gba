@@ -548,6 +548,7 @@ bool is_player_island(const Island* isle);
 
 
 BlockChecksum opponent_island_checksum();
+BlockChecksum island_checksums();
 
 
 

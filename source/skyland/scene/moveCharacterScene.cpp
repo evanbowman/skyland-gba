@@ -116,9 +116,7 @@ void ModifyCharacterScene::enter(Scene& prev)
         island = APP.opponent_island();
     }
 
-    island_checksums_ =
-        APP.player_island().checksum() +
-        opponent_island_checksum();
+    island_checksums_ = island_checksums();
 
     if (state_bit_load(StateBit::minimap_on)) {
         minimap::repaint({.show_destroyed_rooms_ = true});
@@ -199,9 +197,7 @@ ScenePtr ModifyCharacterScene::update(Time delta)
 
     const auto last_checksums = island_checksums_;
 
-    island_checksums_ =
-        APP.player_island().checksum() +
-        opponent_island_checksum();
+    island_checksums_ = island_checksums();
 
     if (state_bit_load(StateBit::minimap_on) and
         (minimap::needs_repaint() or island_checksums_ not_eq last_checksums)) {

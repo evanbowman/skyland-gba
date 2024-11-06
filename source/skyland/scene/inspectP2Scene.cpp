@@ -72,8 +72,7 @@ void InspectP2Scene::enter(Scene& prev)
     ActiveWorldScene::enter(prev);
 
     if (APP.opponent_island()) {
-        island_checksums_ =
-            APP.player_island().checksum() + APP.opponent_island()->checksum();
+        island_checksums_ = island_checksums();
     }
 
     if (state_bit_load(StateBit::minimap_on)) {
@@ -155,8 +154,7 @@ ScenePtr InspectP2Scene::update(Time delta)
 
     const auto last_checksums = island_checksums_;
 
-    island_checksums_ =
-        APP.player_island().checksum() + APP.opponent_island()->checksum();
+    island_checksums_ = island_checksums();
 
     if (state_bit_load(StateBit::minimap_on) and
         (minimap::needs_repaint() or island_checksums_ not_eq last_checksums)) {

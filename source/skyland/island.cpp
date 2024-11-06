@@ -2667,4 +2667,11 @@ BlockChecksum opponent_island_checksum()
 
 
 
+BlockChecksum island_checksums()
+{
+    return APP.player_island().checksum() + opponent_island_checksum();
+}
+
+
+
 } // namespace skyland
