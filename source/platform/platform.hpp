@@ -25,7 +25,6 @@
 
 #include "dateTime.hpp"
 #include "function.hpp"
-#include "graphics/contrast.hpp"
 #include "graphics/sprite.hpp"
 #include "graphics/view.hpp"
 #include "key.hpp"
