@@ -925,7 +925,7 @@ void describe_room(Island* island,
             room_description.emplace(
                 OverlayCoord{0, u8(calc_screen_tiles().y - 1)});
             Text::OptColors opts = {
-                {custom_color(0x3d90f5), ColorConstant::rich_black}};
+                {custom_color(0x3e9bf7), ColorConstant::rich_black}};
             room_description->append("(", opts);
             room_description->append((*drone)->name(), opts);
             room_description->append(") ", opts);
