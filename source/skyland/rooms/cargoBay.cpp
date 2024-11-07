@@ -111,13 +111,12 @@ void CargoBay::display(Platform::Screen& screen)
 
         if (*cargo() not_eq '\0') {
             Sprite sprite;
-            sprite.set_size(Sprite::Size::w16_h16);
             sprite.set_tidx_16x16(51, 0);
             auto pos = origin();
             pos.y +=
                 Fixnum::from_integer(16 + parent()->get_ambient_movement());
             sprite.set_position(pos);
-            sprite.set_size(Sprite::Size::w16_h32);
+            sprite.set_size(Sprite::Size::w16_h16);
             screen.draw(sprite);
         }
     }

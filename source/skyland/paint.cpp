@@ -45,6 +45,7 @@ namespace skyland
 
 Vec2<u8> Paint::cursor_;
 u32 Paint::color_ = 0;
+Paint::Tool Paint::tool_ = Paint::Tool::pen;
 
 
 
@@ -87,6 +88,9 @@ void Paint::init()
     draw_rulers();
     show_color_name();
     show_toolbar();
+
+    cursor_.x = clamp((int)cursor_.x, 0, (int)width_ - 1);
+    cursor_.y = clamp((int)cursor_.y, 0, (int)height_ - 1);
 }
 
 
@@ -129,7 +133,7 @@ void Paint::show_color_name()
         "sage",
         "olive green",
     };
-    for (int i = 0; i < 30; ++i) {
+    for (int i = 2; i < 16; ++i) {
         PLATFORM.set_tile(Layer::overlay, i, 19, 0);
     }
     static const FontColors shade[16] = {
@@ -178,6 +182,22 @@ void Paint::show_toolbar()
 
     PLATFORM.load_overlay_chunk(unsel_vram_offset, 0, tcount, txtr);
     PLATFORM.load_overlay_chunk(sel_vram_offset, sel_src_offset, tcount, txtr);
+    PLATFORM.load_overlay_chunk(258, icon_metatile_size * 28, 15, txtr);
+
+    MediumIcon::draw(258, OverlayCoord{26, 3});
+    MediumIcon::draw(262, OverlayCoord{28, 3});
+    PLATFORM.set_tile(Layer::overlay, 27, 5, 258 + 8);
+
+    for (int x = 0; x < 19; ++x) {
+        if (x < 2 or x > 16) {
+            PLATFORM.set_tile(Layer::overlay, x, 18, 258 + 9);
+            PLATFORM.set_tile(Layer::overlay, x, 19, 258 + 11);
+        }
+    }
+    PLATFORM.set_tile(Layer::overlay, 18, 18, 258 + 12);
+    PLATFORM.set_tile(Layer::overlay, 18, 19, 258 + 13);
+
+    PLATFORM.set_tile(Layer::overlay, 1, 18, 487); // transparent color
 
     for (int i = 0; i < icon_count; ++i) {
         OverlayCoord coord;
@@ -213,21 +233,40 @@ void Paint::show()
 
 ScenePtr Paint::update(Time delta)
 {
-    if (APP.player().key_down(Key::alt_1)) {
+    auto test_key = [&](Key k) {
+        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    };
+
+    if (test_key(Key::alt_1)) {
         color_--;
         color_ %= 16;
         ready_ = true;
         show_color_name();
+        flicker_on_ = false;
+        cursor_flicker_ = 0;
     }
-    if (APP.player().key_down(Key::alt_2)) {
+    if (test_key(Key::alt_2)) {
         color_++;
         color_ %= 16;
         ready_ = true;
         show_color_name();
+        flicker_on_ = false;
+        cursor_flicker_ = 0;
     }
     bool cursor_move_ready = false;
 
     update_entities(delta, APP.birds());
+
+    if (not flicker_on_) {
+        if (++cursor_flicker_ == 96) {
+            flicker_on_ = true;
+            cursor_flicker_ = 0;
+        }
+    } else {
+        if (++cursor_flicker_ == 32) {
+            cursor_flicker_ = 0;
+        }
+    }
 
     switch (mode_) {
     case Mode::draw: {
@@ -239,7 +278,9 @@ ScenePtr Paint::update(Time delta)
             }
         }
 
-        auto try_drag = [&](int xo, int yo) {
+        auto on_move = [&](int xo, int yo) {
+            flicker_on_ = false;
+            cursor_flicker_ = 0;
             if (tool_ == Tool::drag) {
                 if (xo > 0) {
                     u8 last_col[16];
@@ -312,21 +353,21 @@ ScenePtr Paint::update(Time delta)
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
-                try_drag(1, 0);
+                on_move(1, 0);
             }
             if (APP.player().key_pressed(Key::left) and cursor_.x > 0) {
                 --cursor_.x;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
-                try_drag(-1, 0);
+                on_move(-1, 0);
             }
             if (APP.player().key_pressed(Key::up) and cursor_.y > 0) {
                 --cursor_.y;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
-                try_drag(0, -1);
+                on_move(0, -1);
             }
             if (APP.player().key_pressed(Key::down) and
                 cursor_.y < (height_ - 1)) {
@@ -334,7 +375,7 @@ ScenePtr Paint::update(Time delta)
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
-                try_drag(0, 1);
+                on_move(0, 1);
             }
         } else {
             if (APP.player().key_down(Key::right) and
@@ -343,21 +384,21 @@ ScenePtr Paint::update(Time delta)
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
-                try_drag(1, 0);
+                on_move(1, 0);
             }
             if (APP.player().key_down(Key::left) and cursor_.x > 0) {
                 --cursor_.x;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
-                try_drag(-1, 0);
+                on_move(-1, 0);
             }
             if (APP.player().key_down(Key::up) and cursor_.y > 0) {
                 --cursor_.y;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
-                try_drag(0, -1);
+                on_move(0, -1);
             }
             if (APP.player().key_down(Key::down) and
                 cursor_.y < (height_ - 1)) {
@@ -365,7 +406,7 @@ ScenePtr Paint::update(Time delta)
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
-                try_drag(0, 1);
+                on_move(0, 1);
             }
         }
 
@@ -375,6 +416,8 @@ ScenePtr Paint::update(Time delta)
 
         if (APP.player().key_down(Key::start)) {
             mode_ = Mode::tool_select;
+            flicker_on_ = true;
+            cursor_flicker_ = 0;
         }
 
         if (APP.player().key_pressed(Key::action_1) and ready_) {
@@ -466,9 +509,19 @@ void Paint::display()
 
     auto vx = PLATFORM.screen().get_view().get_center().x;
 
+    auto dark_cursor = [this] {
+        if (flicker_on_) {
+            return cursor_flicker_ < 16;
+        }
+        auto p = get_pixel(cursor_.x, cursor_.y);
+        return p == 3 or p == 4 or p == 8 or p == 9 or p == 10 or p == 11 or p == 13 or p == 14;
+    };
+
+    sprite.set_priority(0);
+
     sprite.set_position({
-        Fixnum::from_integer((-7 + cursor_.x * 8.f + 8 * origin_x_) + vx),
-        Fixnum::from_integer(-1 + cursor_.y * 8.f + 8 * origin_y_ + view_shift_),
+        Fixnum::from_integer((-8 + cursor_.x * 8.f + 8 * origin_x_) + vx),
+        Fixnum::from_integer(1 + cursor_.y * 8.f + 8 * origin_y_ + view_shift_),
     });
 
     switch (tool_) {
@@ -477,21 +530,31 @@ void Paint::display()
 
     case Tool::pen:
         sprite.set_size(Sprite::Size::w16_h16);
-        sprite.set_tidx_16x16(51, 1);
+        sprite.set_tidx_16x16(62, 0);
+        PLATFORM.screen().draw(sprite);
         break;
 
     case Tool::bucket:
         sprite.set_size(Sprite::Size::w16_h16);
-        sprite.set_tidx_16x16(51, 1);
+        sprite.set_tidx_16x16(34, 1);
+        PLATFORM.screen().draw(sprite);
         break;
 
     case Tool::drag:
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_tidx_16x16(99, 0);
+        PLATFORM.screen().draw(sprite);
         break;
     }
 
-    sprite.set_priority(0);
+    sprite.set_position({
+        Fixnum::from_integer((cursor_.x * 8.f + 8 * origin_x_) + vx),
+        Fixnum::from_integer(cursor_.y * 8.f + 8 * origin_y_ + view_shift_),
+    });
+
+    sprite.set_size(Sprite::Size::w8_h8);
+    sprite.set_tidx_8x8(51, dark_cursor() ? 4 : 5);
+
     PLATFORM.screen().draw(sprite);
 
     sprite.set_size(Sprite::Size::w16_h32);
@@ -505,6 +568,9 @@ void Paint::display()
     if (mode_ == Mode::tool_select) {
         sprite.set_size(Sprite::Size::w16_h16);
         sprite.set_tidx_16x16(15, 0);
+        if (flicker_on_) {
+            sprite.set_tidx_16x16(15, cursor_flicker_ < 16);
+        }
         sprite.set_position({Fixnum::from_integer(vx + 28 * 8),
                 Fixnum::from_integer(view_shift_ + (5 + (int)tool_ * 2) * 8)});
         PLATFORM.screen().draw(sprite);

@@ -121,12 +121,17 @@ protected:
         bucket,
         drag,
         count,
-    } tool_ = Tool::pen;
+    };
+
+    static Tool tool_;
 
     enum class Mode : u8 {
         draw,
         tool_select,
     } mode_ = Mode::draw;
+
+    bool flicker_on_ = false;
+    u8 cursor_flicker_ = 0;
 };
 
 
