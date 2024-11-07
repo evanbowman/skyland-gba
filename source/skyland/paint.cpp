@@ -85,6 +85,7 @@ void Paint::init()
     show();
 
     draw_rulers();
+    show_color_name();
 }
 
 
@@ -103,6 +104,60 @@ void Paint::draw_rulers()
                           origin_y_ + i,
                           i == cursor_.y ? 473 : 471);
     }
+}
+
+
+
+void Paint::show_color_name()
+{
+    static const char* color_names[16] = {
+        "transparent",
+        "prussian blue",
+        "blue gray",
+        "pale gray",
+        "gamboge",
+        "vermillion",
+        "indian red",
+        "emerald green",
+        "pale green",
+        "warm white",
+        "light blue",
+        "electric blue",
+        "cobalt blue",
+        "naples yellow",
+        "sage",
+        "olive green",
+    };
+    for (int i = 0; i < 30; ++i) {
+        PLATFORM.set_tile(Layer::overlay, i, 19, 0);
+    }
+    static const FontColors shade[16] = {
+        {ColorConstant::silver_white, custom_color(0x163061)},
+        {ColorConstant::silver_white, custom_color(0x163061)},
+        {ColorConstant::silver_white, custom_color(0x666691)},
+        {custom_color(0x163061),      custom_color(0x9fb7c5)},
+        {custom_color(0x163061),      custom_color(0xe6b220)},
+        {ColorConstant::silver_white, custom_color(0xe24920)},
+        {ColorConstant::silver_white, custom_color(0x6e2d4a)},
+        {ColorConstant::silver_white, custom_color(0x277b6e)},
+        {custom_color(0x163061),      custom_color(0xb8ea80)}, // pale green
+        {custom_color(0x163061),      custom_color(0xf2f5eb)}, // warm white
+        {custom_color(0x163061),      custom_color(0xa2dfe8)},
+        {custom_color(0x163061),      custom_color(0x66fff7)},
+        {ColorConstant::silver_white, custom_color(0x165fce)},
+        {custom_color(0x163061),      custom_color(0xd9e2a3)},
+        {custom_color(0x163061),      custom_color(0xa9b07f)},
+        {ColorConstant::silver_white, custom_color(0x6b6b39)},
+    };
+    StringBuffer<15> txt = color_names[color_];
+    while (not txt.full()) {
+        txt.push_back(' ');
+    }
+    FontColors c;
+    c.foreground_ = shade[color_].foreground_;
+    auto inp_bkg = shade[color_].background_;
+    c.background_ = APP.environment().shader()(ShaderPalette::tile0, ColorConstant(inp_bkg), 0, color_);
+    Text::print(txt.c_str(), OverlayCoord{2, 19}, c);
 }
 
 
@@ -131,11 +186,13 @@ ScenePtr Paint::update(Time delta)
         color_--;
         color_ %= 16;
         ready_ = true;
+        show_color_name();
     }
     if (APP.player().key_down(Key::alt_2)) {
         color_++;
         color_ %= 16;
         ready_ = true;
+        show_color_name();
     }
     bool cursor_move_ready = false;
 

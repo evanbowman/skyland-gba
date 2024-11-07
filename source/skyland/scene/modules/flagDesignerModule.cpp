@@ -511,12 +511,7 @@ void FlagDesignerModule::enter(Scene& prev)
 
     PLATFORM.screen().schedule_fade(0);
 
-    auto bg_color = APP.environment().shader()(
-        ShaderPalette::background, custom_color(0x5aadef), 0, 4);
-
-    const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
-
-    Text::print(SYS_CSTR(flag_designer_presets), {17, 1}, colors);
+    show_presets_hint();
 }
 
 
@@ -544,6 +539,17 @@ void FlagDesignerModule::show()
     Paint::show();
 
     vram_write_flag(APP.custom_flag_image_, Layer::map_0_ext);
+}
+
+
+
+void FlagDesignerModule::show_presets_hint()
+{
+    auto bg_color = APP.environment().shader()(ShaderPalette::background, custom_color(0x5aadef), 0, 4);
+
+    const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
+
+    Text::print(SYS_CSTR(flag_designer_presets), {17, 1}, colors);
 }
 
 
@@ -597,7 +603,14 @@ ScenePtr FlagDesignerModule::update(Time delta)
 
     update_entities(delta, APP.effects());
 
-    return Paint::update(delta);
+    auto ret = Paint::update(delta);
+
+    if (APP.player().key_down(Key::alt_1) or
+        APP.player().key_down(Key::alt_2)) {
+
+        show_presets_hint();
+    }
+    return ret;
 }
 
 

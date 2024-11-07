@@ -77,6 +77,7 @@ public:
 
     virtual void show();
     void draw_rulers();
+    void show_color_name();
 
 
     virtual u8 get_pixel(u8 x, u8 y) = 0;
