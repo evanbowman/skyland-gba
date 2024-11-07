@@ -154,7 +154,8 @@ void Paint::show_color_name()
         {custom_color(0x163061), custom_color(0xa9b07f)},
         {ColorConstant::silver_white, custom_color(0x6b6b39)},
     };
-    StringBuffer<15> txt = color_names[color_];
+    StringBuffer<16> txt = " ";
+    txt += color_names[color_];
     while (not txt.full()) {
         txt.push_back(' ');
     }
@@ -163,7 +164,7 @@ void Paint::show_color_name()
     auto inp_bkg = shade[color_].background_;
     c.background_ = APP.environment().shader()(
         ShaderPalette::tile0, ColorConstant(inp_bkg), 0, color_);
-    Text::print(txt.c_str(), OverlayCoord{2, 19}, c);
+    Text::print(txt.c_str(), OverlayCoord{1, 19}, c);
 }
 
 
@@ -189,7 +190,7 @@ void Paint::show_toolbar()
     PLATFORM.set_tile(Layer::overlay, 27, 5, 258 + 8);
 
     for (int x = 0; x < 19; ++x) {
-        if (x < 2 or x > 16) {
+        if (x < 1 or x > 16) {
             PLATFORM.set_tile(Layer::overlay, x, 18, 258 + 9);
             PLATFORM.set_tile(Layer::overlay, x, 19, 258 + 11);
         }
