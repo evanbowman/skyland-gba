@@ -93,6 +93,8 @@
 //;
 #include "data/character_art.h"
 //;
+#include "data/paint_icons.h"
+//;
 #include "data/traded_core_flattened.h"
 //;
 #include "data/photo_village_flattened.h"
@@ -252,6 +254,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(flags, false),
 //;
     TEXTURE_INFO(character_art, false),
+//;
+    TEXTURE_INFO(paint_icons, false),
 //;
     TEXTURE_INFO(traded_core_flattened, true),
 //;

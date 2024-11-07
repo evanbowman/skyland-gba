@@ -496,12 +496,18 @@ SmallIcon::~SmallIcon()
 }
 
 
+void MediumIcon::draw(int tile, const OverlayCoord& coord)
+{
+    PLATFORM.set_tile(Layer::overlay, coord.x, coord.y, tile);
+    PLATFORM.set_tile(Layer::overlay, coord.x + 1, coord.y, tile + 1);
+    PLATFORM.set_tile(Layer::overlay, coord.x, coord.y + 1, tile + 2);
+    PLATFORM.set_tile(Layer::overlay, coord.x + 1, coord.y + 1, tile + 3);
+}
+
+
 MediumIcon::MediumIcon(int tile, const OverlayCoord& coord) : coord_(coord)
 {
-    PLATFORM.set_tile(Layer::overlay, coord_.x, coord_.y, tile);
-    PLATFORM.set_tile(Layer::overlay, coord_.x + 1, coord_.y, tile + 1);
-    PLATFORM.set_tile(Layer::overlay, coord_.x, coord_.y + 1, tile + 2);
-    PLATFORM.set_tile(Layer::overlay, coord_.x + 1, coord_.y + 1, tile + 3);
+    draw(tile, coord);
 }
 
 

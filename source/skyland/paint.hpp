@@ -78,6 +78,7 @@ public:
     virtual void show();
     void draw_rulers();
     void show_color_name();
+    void show_toolbar();
 
 
     virtual u8 get_pixel(u8 x, u8 y) = 0;
@@ -114,6 +115,18 @@ protected:
     u8 height_;
     u8 origin_x_;
     u8 origin_y_;
+
+    enum class Tool : u8 {
+        pen,
+        bucket,
+        drag,
+        count,
+    } tool_ = Tool::pen;
+
+    enum class Mode : u8 {
+        draw,
+        tool_select,
+    } mode_ = Mode::draw;
 };
 
 

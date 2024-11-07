@@ -157,6 +157,8 @@ public:
     MediumIcon(const MediumIcon&) = delete;
     ~MediumIcon();
 
+    static void draw(int tile, const OverlayCoord& coord);
+
     inline const auto& coord() const
     {
         return coord_;

@@ -545,7 +545,8 @@ void FlagDesignerModule::show()
 
 void FlagDesignerModule::show_presets_hint()
 {
-    auto bg_color = APP.environment().shader()(ShaderPalette::background, custom_color(0x5aadef), 0, 4);
+    auto bg_color = APP.environment().shader()(
+        ShaderPalette::background, custom_color(0x5aadef), 0, 4);
 
     const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
 
@@ -562,7 +563,7 @@ ScenePtr FlagDesignerModule::update(Time delta)
         return next;
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (mode_ == Mode::draw and APP.player().key_down(Key::action_2)) {
         if (changed_) {
             APP.custom_flag_image_.save();
         }

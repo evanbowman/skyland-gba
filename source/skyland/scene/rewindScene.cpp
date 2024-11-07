@@ -670,7 +670,8 @@ ScenePtr RewindScene::update(Time)
             RoomCoord pos = {e->db_x_, e->db_y_};
             if (auto room = APP.player_island().get_room(pos)) {
                 if (auto db = room->cast<DroneBay>()) {
-                    static_assert(std::is_trivially_copyable_v<ReconstructionQueue::ValueType>);
+                    static_assert(std::is_trivially_copyable_v<
+                                  ReconstructionQueue::ValueType>);
                     db->rq_.mem_ = e->previous_queue_memory_;
                     db->rq_.count_ = e->previous_queue_size_;
                 }
