@@ -103,17 +103,23 @@ public:
 
 protected:
     Time cursor_move_tic_ = 0;
-
-    bool ready_ = false;
+    int view_shift_;
 
     u16 palette_[16];
+
+    bool ready_ : 1 = false;
+    bool flicker_on_ : 1 = false;
+    bool draw_world_ : 1 = true;
+    bool preview_ : 1 = false;
+    bool copy_tool_txtr_ : 1 = true;
+
+
+    virtual void show_presets_hint();
 
 
     static Vec2<u8> cursor_;
     static u32 color_;
 
-    int view_shift_;
-    bool draw_world_ = true;
 
     u8 width_;
     u8 height_;
@@ -136,7 +142,6 @@ protected:
         tool_select,
     } mode_ = Mode::draw;
 
-    bool flicker_on_ = false;
     u8 cursor_flicker_ = 0;
 
     Tool last_tool_ = Tool::pen;
@@ -174,6 +179,8 @@ protected:
     void push_history(HistoryEntry::BucketFill b);
     void push_history(HistoryEntry h);
     bool undo(bool repaint = true);
+
+    void show_tool_name();
 
     using HistoryBuffer = Buffer<HistoryEntry, 678>;
     Optional<DynamicMemory<HistoryBuffer>> history_;

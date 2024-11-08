@@ -285,9 +285,12 @@ void Paint::show_toolbar()
     const int sel_vram_offset = 213;
     const int sel_src_offset = 14 * icon_metatile_size;
 
-    PLATFORM.load_overlay_chunk(unsel_vram_offset, 0, tcount, txtr);
-    PLATFORM.load_overlay_chunk(sel_vram_offset, sel_src_offset, tcount, txtr);
-    PLATFORM.load_overlay_chunk(258, icon_metatile_size * 28, 15, txtr);
+    if (copy_tool_txtr_) {
+        copy_tool_txtr_ = false;
+        PLATFORM.load_overlay_chunk(unsel_vram_offset, 0, tcount, txtr);
+        PLATFORM.load_overlay_chunk(sel_vram_offset, sel_src_offset, tcount, txtr);
+        PLATFORM.load_overlay_chunk(258, icon_metatile_size * 28, 23, txtr);
+    }
 
     MediumIcon::draw(258, OverlayCoord{26, 3});
     MediumIcon::draw(262, OverlayCoord{28, 3});
@@ -314,6 +317,72 @@ void Paint::show_toolbar()
             MediumIcon::draw(unsel_vram_offset + i * icon_metatile_size, coord);
         }
     }
+    show_tool_name();
+}
+
+
+
+void Paint::show_preview()
+{
+    u8 buffer[16][16];
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            buffer[x][y] = get_pixel(x, y);
+        }
+    }
+
+    auto enc = PLATFORM.encode_tile(buffer);
+    PLATFORM.overwrite_overlay_tile(131, enc);
+
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            buffer[x][y] = get_pixel(x + 8, y);
+        }
+    }
+
+    enc = PLATFORM.encode_tile(buffer);
+    PLATFORM.overwrite_overlay_tile(132, enc);
+
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            buffer[x][y] = get_pixel(x, y + 8);
+        }
+    }
+
+    enc = PLATFORM.encode_tile(buffer);
+    PLATFORM.overwrite_overlay_tile(133, enc);
+
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            buffer[x][y] = get_pixel(x + 8, y + 8);
+        }
+    }
+
+    enc = PLATFORM.encode_tile(buffer);
+    PLATFORM.overwrite_overlay_tile(134, enc);
+
+    PLATFORM.set_tile(Layer::overlay, 21, 2, 131, 0);
+    PLATFORM.set_tile(Layer::overlay, 22, 2, 132, 0);
+    PLATFORM.set_tile(Layer::overlay, 21, 3, 133, 0);
+    PLATFORM.set_tile(Layer::overlay, 22, 3, 134, 0);
+
+    PLATFORM.set_tile(Layer::overlay, 19, 0, 258 + 15);
+    PLATFORM.set_tile(Layer::overlay, 24, 0, 258 + 16);
+    PLATFORM.set_tile(Layer::overlay, 19, 5, 258 + 17);
+    PLATFORM.set_tile(Layer::overlay, 24, 5, 258 + 18);
+
+    for (int x = 20; x < 24; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 0, 258 + 19);
+        PLATFORM.set_tile(Layer::overlay, x, 5, 258 + 22);
+    }
+
+    for (int y = 1; y < 5; ++y) {
+        PLATFORM.set_tile(Layer::overlay, 19, y, 258 + 20);
+        PLATFORM.set_tile(Layer::overlay, 24, y, 258 + 21);
+    }
 }
 
 
@@ -331,6 +400,10 @@ void Paint::show()
             PLATFORM.set_palette(
                 Layer::overlay, x + origin_x_, y + origin_y_, 0);
         }
+    }
+
+    if (preview_) {
+        show_preview();
     }
 }
 
@@ -435,6 +508,7 @@ ScenePtr Paint::update(Time delta)
         show_color_name();
         flicker_on_ = false;
         cursor_flicker_ = 0;
+        show_presets_hint();
     }
     if (test_key(Key::alt_2)) {
         color_++;
@@ -443,6 +517,7 @@ ScenePtr Paint::update(Time delta)
         show_color_name();
         flicker_on_ = false;
         cursor_flicker_ = 0;
+        show_presets_hint();
     }
     bool cursor_move_ready = false;
 
@@ -463,10 +538,17 @@ ScenePtr Paint::update(Time delta)
     case Mode::draw: {
         if (APP.player().key_down(Key::action_2)) {
             if (tool_ not_eq last_tool_) {
-                tool_ = last_tool_;
+                std::swap(tool_, last_tool_);
                 show_toolbar();
                 return null_scene();
             }
+        }
+
+        if (APP.player().key_held(Key::action_2, milliseconds(400))) {
+            tool_ = Tool::exit;
+            mode_ = Mode::tool_select;
+            flicker_on_ = true;
+            cursor_flicker_ = 0;
         }
 
         if (cursor_move_tic_ > 0) {
@@ -653,7 +735,9 @@ ScenePtr Paint::update(Time delta)
         if ((APP.player().key_down(Key::action_1) or
              APP.player().key_down(Key::action_2) or
              APP.player().key_down(Key::start))) {
-            if (APP.player().key_down(Key::action_2) or tool_ == Tool::undo) {
+            if (APP.player().key_down(Key::action_2) or
+                tool_ == Tool::undo or
+                tool_ == Tool::exit) {
                 tool_ = last_tool_;
                 show_toolbar();
             }
@@ -667,6 +751,12 @@ ScenePtr Paint::update(Time delta)
     APP.update_parallax(delta);
 
     return null_scene();
+}
+
+
+
+void Paint::show_presets_hint()
+{
 }
 
 
@@ -764,6 +854,31 @@ void Paint::display()
         PLATFORM.screen().draw(sprite);
     }
 
+}
+
+
+
+void Paint::show_tool_name()
+{
+    const char* names[(int)Tool::count] = {
+        "pen",
+        "fill",
+        "drag",
+        "undo",
+        "exit",
+    };
+
+    for (int x = 0; x < 8; ++x) {
+        PLATFORM.set_tile(Layer::overlay, 22 + x, 19, 0);
+        PLATFORM.set_tile(Layer::overlay, 22 + x, 18, 0);
+    }
+
+    u8 name_x = 30 - utf8::len(names[(int)tool_]);
+    Text::print(names[(int)tool_], OverlayCoord{name_x, 19});
+
+    for (int x = name_x; x < 30; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 18, 425);
+    }
 }
 
 

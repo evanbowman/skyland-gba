@@ -106,6 +106,8 @@ public:
             }
         }
 
+        preview_ = true;
+
         Paint::init();
 
         if (backdrop_color_) {
@@ -138,6 +140,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
+        APP.player().update(delta);
+
         if (not backdrop_color_) {
             PLATFORM.screen().schedule_fade(0);
         }
@@ -146,7 +150,7 @@ public:
 
         auto prev_cursor = cursor_;
 
-        if (exit_on_overscroll_) {
+        if (exit_on_overscroll_ and mode_ == Mode::draw) {
             // Allow scrolling to adjacent canvases:
             if (APP.player().key_down(Key::right) and
                 cursor_.x == (width_ - 1)) {

@@ -557,6 +557,8 @@ void FlagDesignerModule::show_presets_hint()
 
 ScenePtr FlagDesignerModule::update(Time delta)
 {
+    APP.player().update(delta);
+
     if (APP.player().key_down(Key::select)) {
         auto next = make_scene<FlagTemplateScene>();
         next->editing_ingame_ = editing_ingame_;
@@ -604,14 +606,7 @@ ScenePtr FlagDesignerModule::update(Time delta)
 
     update_entities(delta, APP.effects());
 
-    auto ret = Paint::update(delta);
-
-    if (APP.player().key_down(Key::alt_1) or
-        APP.player().key_down(Key::alt_2)) {
-
-        show_presets_hint();
-    }
-    return ret;
+    return Paint::update(delta);
 }
 
 
