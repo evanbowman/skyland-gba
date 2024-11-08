@@ -55,6 +55,8 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 void Paint::init()
 {
+    history_ = allocate_dynamic<HistoryBuffer>("paint-history");
+
     for (int x = 0; x < width_; ++x) {
         for (int y = 0; y < height_; ++y) {
             PLATFORM.set_tile(
@@ -109,6 +111,104 @@ void Paint::draw_rulers()
                           origin_y_ + i,
                           i == cursor_.y ? 473 : 471);
     }
+}
+
+
+
+bool Paint::undo(bool repaint)
+{
+    if ((*history_)->empty()) {
+        return false;
+    }
+
+    auto last = (*history_)->back();
+    (*history_)->pop_back();
+
+    switch (last.type_) {
+    case 0:
+        set_pixel(last.pen_.x_, last.pen_.y_, last.pen_.prev_color_);
+        break;
+
+    case 1:
+        switch (last.drag_.dir_) {
+        case 0:
+            apply_drag(-1, 0, false);
+            break;
+
+        case 1:
+            apply_drag(1, 0, false);
+            break;
+
+        case 2:
+            apply_drag(0, 1, false);
+            break;
+
+        case 3:
+            apply_drag(0, -1, false);
+            break;
+        }
+        break;
+
+    case 2:
+        if ((*history_)->size() < last.bucket_.pixels_filled_) {
+            // Part of the PixelChanged entries associated with this bucket fill
+            // were aged out of the buffer, so the bucket fill cannot be fully
+            // reversed. It will never be possible to fully reverse the effect,
+            // due to aged out entries, so we might as well clear the history.
+            (*history_)->clear();
+            return false;
+        }
+        for (int i = 0; i < last.bucket_.pixels_filled_; ++i) {
+            undo(false);
+        }
+        break;
+    }
+
+    if (repaint) {
+        show();
+    }
+
+    return true;
+}
+
+
+
+void Paint::push_history(HistoryEntry h)
+{
+    if ((*history_)->full()) {
+        (*history_)->erase((*history_)->begin());
+    }
+    (*history_)->push_back(h);
+}
+
+
+
+void Paint::push_history(HistoryEntry::PixelChanged p)
+{
+    HistoryEntry h;
+    h.type_ = 0;
+    h.pen_ = p;
+    push_history(h);
+}
+
+
+
+void Paint::push_history(HistoryEntry::CanvasDragged d)
+{
+    HistoryEntry h;
+    h.type_ = 1;
+    h.drag_ = d;
+    push_history(h);
+}
+
+
+
+void Paint::push_history(HistoryEntry::BucketFill b)
+{
+    HistoryEntry h;
+    h.type_ = 2;
+    h.bucket_ = b;
+    push_history(h);
 }
 
 
@@ -232,6 +332,92 @@ void Paint::show()
 
 
 
+void Paint::apply_drag(int xo, int yo, bool record_history)
+{
+    if (xo > 0) {
+        u8 last_col[16];
+        for (int y = 0; y < height(); ++y) {
+            last_col[y] = get_pixel(width() - 1, y);
+        }
+        for (int x = width() - 1; x > 0; --x) {
+            for (int y = 0; y < height(); ++y) {
+                set_pixel(x, y, get_pixel(x - 1, y));
+            }
+        }
+        for (int y = 0; y < height(); ++y) {
+            set_pixel(0, y, last_col[y]);
+        }
+        if (record_history) {
+            show();
+            push_history(HistoryEntry::CanvasDragged{
+                    .dir_ = 0
+                });
+        }
+    }
+    if (xo < 0) {
+        u8 first_col[16];
+        for (int y = 0; y < height(); ++y) {
+            first_col[y] = get_pixel(0, y);
+        }
+        for (int x = 0; x < width() - 1; ++x) {
+            for (int y = 0; y < height(); ++y) {
+                set_pixel(x, y, get_pixel(x + 1, y));
+            }
+        }
+        for (int y = 0; y < height(); ++y) {
+            set_pixel(width() - 1, y, first_col[y]);
+        }
+        if (record_history) {
+            show();
+            push_history(HistoryEntry::CanvasDragged{
+                    .dir_ = 1
+                });
+        }
+    }
+    if (yo < 0) {
+        u8 first_row[16];
+        for (int x = 0; x < width(); ++x) {
+            first_row[x] = get_pixel(x, 0);
+        }
+        for (int x = 0; x < width(); ++x) {
+            for (int y = 0; y < height() - 1; ++y) {
+                set_pixel(x, y, get_pixel(x, y + 1));
+            }
+        }
+        for (int x = 0; x < width(); ++x) {
+            set_pixel(x, height() - 1, first_row[x]);
+        }
+        if (record_history) {
+            show();
+            push_history(HistoryEntry::CanvasDragged{
+                    .dir_ = 2
+                });
+        }
+    }
+    if (yo > 0) {
+        u8 last_row[16];
+        for (int x = 0; x < width(); ++x) {
+            last_row[x] = get_pixel(x, height() - 1);
+        }
+        for (int y = height() - 1; y > 0; --y) {
+            for (int x = 0; x < width(); ++x) {
+                set_pixel(x, y, get_pixel(x, y - 1));
+            }
+        }
+        for (int x = 0; x < width(); ++x) {
+            set_pixel(x, 0, last_row[x]);
+        }
+        if (record_history) {
+            show();
+            push_history(HistoryEntry::CanvasDragged{
+                    .dir_ = 3
+                });
+        }
+    }
+}
+
+
+
 ScenePtr Paint::update(Time delta)
 {
     auto test_key = [&](Key k) {
@@ -283,67 +469,7 @@ ScenePtr Paint::update(Time delta)
             flicker_on_ = false;
             cursor_flicker_ = 0;
             if (tool_ == Tool::drag) {
-                if (xo > 0) {
-                    u8 last_col[16];
-                    for (int y = 0; y < height(); ++y) {
-                        last_col[y] = get_pixel(width() - 1, y);
-                    }
-                    for (int x = width() - 1; x > 0; --x) {
-                        for (int y = 0; y < height(); ++y) {
-                            set_pixel(x, y, get_pixel(x - 1, y));
-                        }
-                    }
-                    for (int y = 0; y < height(); ++y) {
-                        set_pixel(0, y, last_col[y]);
-                    }
-                    show();
-                }
-                if (xo < 0) {
-                    u8 first_col[16];
-                    for (int y = 0; y < height(); ++y) {
-                        first_col[y] = get_pixel(0, y);
-                    }
-                    for (int x = 0; x < width() - 1; ++x) {
-                        for (int y = 0; y < height(); ++y) {
-                            set_pixel(x, y, get_pixel(x + 1, y));
-                        }
-                    }
-                    for (int y = 0; y < height(); ++y) {
-                        set_pixel(width() - 1, y, first_col[y]);
-                    }
-                    show();
-                }
-                if (yo < 0) {
-                    u8 first_row[16];
-                    for (int x = 0; x < width(); ++x) {
-                        first_row[x] = get_pixel(x, 0);
-                    }
-                    for (int x = 0; x < width(); ++x) {
-                        for (int y = 0; y < height() - 1; ++y) {
-                            set_pixel(x, y, get_pixel(x, y + 1));
-                        }
-                    }
-                    for (int x = 0; x < width(); ++x) {
-                        set_pixel(x, height() - 1, first_row[x]);
-                    }
-                    show();
-                }
-                if (yo > 0) {
-                    u8 last_row[16];
-                    for (int x = 0; x < width(); ++x) {
-                        last_row[x] = get_pixel(x, height() - 1);
-                    }
-                    for (int y = height() - 1; y > 0; --y) {
-                        for (int x = 0; x < width(); ++x) {
-                            set_pixel(x, y, get_pixel(x, y - 1));
-                        }
-                    }
-                    for (int x = 0; x < width(); ++x) {
-                        set_pixel(x, 0, last_row[x]);
-                    }
-                    show();
-                }
-
+                apply_drag(xo, yo);
             }
         };
 
@@ -417,23 +543,40 @@ ScenePtr Paint::update(Time delta)
 
         if (APP.player().key_down(Key::start)) {
             mode_ = Mode::tool_select;
+            last_tool_ = tool_;
             flicker_on_ = true;
             cursor_flicker_ = 0;
         }
+
+        auto do_set_pixel = [this](u8 x, u8 y, u8 v) {
+            auto current_color = get_pixel(x, y);
+            if (current_color not_eq v) {
+                push_history(HistoryEntry::PixelChanged {
+                        .x_ = x,
+                        .y_ = y,
+                        .prev_color_ = current_color
+                    });
+            }
+            set_pixel(x, y, v);
+        };
 
         if (APP.player().key_pressed(Key::action_1) and ready_) {
             switch (tool_) {
             case Tool::drag:
                 break;
 
-            case Tool::count:
-            case Tool::pen:
-                set_pixel(cursor_.x, cursor_.y, color_);
-                show();
+            case Tool::undo:
                 break;
 
+            case Tool::count:
+            case Tool::pen: {
+                do_set_pixel(cursor_.x, cursor_.y, color_);
+                show();
+                break;
+            }
+
             case Tool::bucket: {
-                ready_ = true;
+                ready_ = false;
                 u8 temp[16][16];
                 for (int x = 0; x < width(); ++x) {
                     for (int y = 0; y < height(); ++y) {
@@ -441,11 +584,18 @@ ScenePtr Paint::update(Time delta)
                     }
                 }
                 flood_fill(temp, color_, cursor_.x, cursor_.y);
+                u8 change_count = 0;
                 for (int x = 0; x < width(); ++x) {
                     for (int y = 0; y < height(); ++y) {
-                        set_pixel(x, y, temp[x][y]);
+                        if (get_pixel(x, y) not_eq temp[x][y]) {
+                            ++change_count;
+                        }
+                        do_set_pixel(x, y, temp[x][y]);
                     }
                 }
+                push_history(HistoryEntry::BucketFill {
+                        .pixels_filled_ = change_count
+                    });
                 show();
                 break;
             }
@@ -471,9 +621,21 @@ ScenePtr Paint::update(Time delta)
             }
             show_toolbar();
         }
-        if (APP.player().key_down(Key::action_1) or
-            APP.player().key_down(Key::action_2) or
-            not APP.player().key_pressed(Key::start)) {
+
+        if (tool_ == Tool::undo and APP.player().key_down(Key::action_1)) {
+            if (not undo()) {
+                PLATFORM.speaker().play_sound("beep_error", 4);
+            }
+            break;
+        }
+
+        if ((APP.player().key_down(Key::action_1) or
+             APP.player().key_down(Key::action_2) or
+             APP.player().key_down(Key::start))) {
+            if (tool_ == Tool::undo) {
+                tool_ = last_tool_;
+                show_toolbar();
+            }
             mode_ = Mode::draw;
             ready_ = false;
         }
@@ -527,6 +689,9 @@ void Paint::display()
 
     switch (tool_) {
     case Tool::count:
+        break;
+
+    case Tool::undo:
         break;
 
     case Tool::pen:

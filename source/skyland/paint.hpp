@@ -79,6 +79,10 @@ public:
     void draw_rulers();
     void show_color_name();
     void show_toolbar();
+    void show_preview();
+
+
+    void apply_drag(int xo, int yo, bool record_history = true);
 
 
     virtual u8 get_pixel(u8 x, u8 y) = 0;
@@ -120,6 +124,7 @@ protected:
         pen,
         bucket,
         drag,
+        undo,
         count,
     };
 
@@ -132,6 +137,45 @@ protected:
 
     bool flicker_on_ = false;
     u8 cursor_flicker_ = 0;
+
+    Tool last_tool_ = Tool::pen;
+
+    struct HistoryEntry
+    {
+        u8 type_;
+
+        struct PixelChanged
+        {
+            u8 x_ : 4;
+            u8 y_ : 4;
+            u8 prev_color_ : 4;
+        };
+
+        struct CanvasDragged
+        {
+            u8 dir_;
+        };
+
+        struct BucketFill
+        {
+            u8 pixels_filled_;
+        };
+
+        union {
+            PixelChanged pen_;
+            CanvasDragged drag_;
+            BucketFill bucket_;
+        };
+    };
+
+    void push_history(HistoryEntry::PixelChanged p);
+    void push_history(HistoryEntry::CanvasDragged d);
+    void push_history(HistoryEntry::BucketFill b);
+    void push_history(HistoryEntry h);
+    bool undo(bool repaint = true);
+
+    using HistoryBuffer = Buffer<HistoryEntry, 678>;
+    Optional<DynamicMemory<HistoryBuffer>> history_;
 };
 
 
