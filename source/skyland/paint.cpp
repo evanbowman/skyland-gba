@@ -87,6 +87,10 @@ void Paint::init()
 
     show();
 
+    if (tool_ == Tool::exit) {
+        tool_ = Tool::pen;
+    }
+
     draw_rulers();
     show_color_name();
     show_toolbar();
@@ -457,6 +461,14 @@ ScenePtr Paint::update(Time delta)
 
     switch (mode_) {
     case Mode::draw: {
+        if (APP.player().key_down(Key::action_2)) {
+            if (tool_ not_eq last_tool_) {
+                tool_ = last_tool_;
+                show_toolbar();
+                return null_scene();
+            }
+        }
+
         if (cursor_move_tic_ > 0) {
             cursor_move_tic_ -= delta;
             if (cursor_move_tic_ <= 0) {
@@ -568,6 +580,9 @@ ScenePtr Paint::update(Time delta)
             case Tool::undo:
                 break;
 
+            case Tool::exit:
+                break;
+
             case Tool::count:
             case Tool::pen: {
                 do_set_pixel(cursor_.x, cursor_.y, color_);
@@ -622,6 +637,10 @@ ScenePtr Paint::update(Time delta)
                 tool_ = (Tool)((int)tool_ + 1);
             }
             show_toolbar();
+        }
+
+        if (tool_ == Tool::exit and APP.player().key_down(Key::action_1)) {
+            break;
         }
 
         if (tool_ == Tool::undo and APP.player().key_down(Key::action_1)) {
@@ -693,6 +712,7 @@ void Paint::display()
     case Tool::count:
         break;
 
+    case Tool::exit:
     case Tool::undo:
         break;
 

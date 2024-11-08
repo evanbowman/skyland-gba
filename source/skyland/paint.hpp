@@ -125,6 +125,7 @@ protected:
         bucket,
         drag,
         undo,
+        exit,
         count,
     };
 

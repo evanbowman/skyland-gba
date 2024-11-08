@@ -563,7 +563,7 @@ ScenePtr FlagDesignerModule::update(Time delta)
         return next;
     }
 
-    if (mode_ == Mode::draw and APP.player().key_down(Key::action_2)) {
+    if (tool_ == Tool::exit and APP.player().key_down(Key::action_1)) {
         if (changed_) {
             APP.custom_flag_image_.save();
         }
