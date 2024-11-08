@@ -593,9 +593,11 @@ ScenePtr Paint::update(Time delta)
                         do_set_pixel(x, y, temp[x][y]);
                     }
                 }
-                push_history(HistoryEntry::BucketFill {
-                        .pixels_filled_ = change_count
-                    });
+                if (change_count) {
+                    push_history(HistoryEntry::BucketFill {
+                            .pixels_filled_ = change_count
+                        });
+                }
                 show();
                 break;
             }
@@ -632,7 +634,7 @@ ScenePtr Paint::update(Time delta)
         if ((APP.player().key_down(Key::action_1) or
              APP.player().key_down(Key::action_2) or
              APP.player().key_down(Key::start))) {
-            if (tool_ == Tool::undo) {
+            if (APP.player().key_down(Key::action_2) or tool_ == Tool::undo) {
                 tool_ = last_tool_;
                 show_toolbar();
             }
