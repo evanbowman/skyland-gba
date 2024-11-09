@@ -2,6 +2,10 @@ import struct
 import os
 import binascii
 
+# This script extracts all files stored in Skyland.sav
+# The game implements a log-structured filesystem in save memory.
+# This script extracts the stored files.
+
 # NOTE: the existing heatshrink package does not build with the latest version of the python interpreter. But maybe someday it will...
 
 try:
