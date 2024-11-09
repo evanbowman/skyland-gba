@@ -86,6 +86,8 @@ public:
     {
         APP.effects().clear();
 
+        PLATFORM.fill_overlay(0);
+
         if (not create_) {
             Vector<char> data;
             flash_filesystem::read_file_data_binary(file_path_.c_str(), data);

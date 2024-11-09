@@ -87,7 +87,7 @@ void Paint::init()
 
     show();
 
-    if (tool_ == Tool::exit) {
+    if (tool_ == Tool::exit or tool_ == Tool::preset) {
         tool_ = Tool::pen;
     }
 
@@ -292,9 +292,9 @@ void Paint::show_toolbar()
         PLATFORM.load_overlay_chunk(258, icon_metatile_size * 28, 23, txtr);
     }
 
-    MediumIcon::draw(258, OverlayCoord{26, 3});
-    MediumIcon::draw(262, OverlayCoord{28, 3});
-    PLATFORM.set_tile(Layer::overlay, 27, 5, 258 + 8);
+    MediumIcon::draw(258, OverlayCoord{26, 2});
+    MediumIcon::draw(262, OverlayCoord{28, 2});
+    PLATFORM.set_tile(Layer::overlay, 27, 4, 258 + 8);
 
     for (int x = 0; x < 19; ++x) {
         if (x < 1 or x > 16) {
@@ -310,7 +310,7 @@ void Paint::show_toolbar()
     for (int i = 0; i < icon_count; ++i) {
         OverlayCoord coord;
         coord.x = 28;
-        coord.y = 5 + i * 2;
+        coord.y = 4 + i * 2;
         if (i == (int)tool_) {
             MediumIcon::draw(sel_vram_offset + i * icon_metatile_size, coord);
         } else {
@@ -508,7 +508,6 @@ ScenePtr Paint::update(Time delta)
         show_color_name();
         flicker_on_ = false;
         cursor_flicker_ = 0;
-        show_presets_hint();
     }
     if (test_key(Key::alt_2)) {
         color_++;
@@ -517,7 +516,6 @@ ScenePtr Paint::update(Time delta)
         show_color_name();
         flicker_on_ = false;
         cursor_flicker_ = 0;
-        show_presets_hint();
     }
     bool cursor_move_ready = false;
 
@@ -537,18 +535,17 @@ ScenePtr Paint::update(Time delta)
     switch (mode_) {
     case Mode::draw: {
         if (APP.player().key_down(Key::action_2)) {
-            if (tool_ not_eq last_tool_) {
-                std::swap(tool_, last_tool_);
-                show_toolbar();
-                return null_scene();
-            }
+            std::swap(tool_, last_tool_);
+            show_toolbar();
+            return null_scene();
         }
 
-        if (APP.player().key_held(Key::action_2, milliseconds(400))) {
-            tool_ = Tool::exit;
-            mode_ = Mode::tool_select;
-            flicker_on_ = true;
-            cursor_flicker_ = 0;
+        if (APP.player().key_down(Key::select)) {
+            tool_ = (Tool)((int)tool_ + 1);
+            if ((int)tool_ > (int)Tool::drag) {
+                tool_ = Tool::pen;
+            }
+            show_toolbar();
         }
 
         if (cursor_move_tic_ > 0) {
@@ -665,6 +662,9 @@ ScenePtr Paint::update(Time delta)
             case Tool::exit:
                 break;
 
+            case Tool::preset:
+                break;
+
             case Tool::count:
             case Tool::pen: {
                 do_set_pixel(cursor_.x, cursor_.y, color_);
@@ -721,7 +721,8 @@ ScenePtr Paint::update(Time delta)
             show_toolbar();
         }
 
-        if (tool_ == Tool::exit and APP.player().key_down(Key::action_1)) {
+        if ((tool_ == Tool::exit or
+             tool_ == Tool::preset) and APP.player().key_down(Key::action_1)) {
             break;
         }
 
@@ -751,12 +752,6 @@ ScenePtr Paint::update(Time delta)
     APP.update_parallax(delta);
 
     return null_scene();
-}
-
-
-
-void Paint::show_presets_hint()
-{
 }
 
 
@@ -802,6 +797,7 @@ void Paint::display()
     case Tool::count:
         break;
 
+    case Tool::preset:
     case Tool::exit:
     case Tool::undo:
         break;
@@ -845,12 +841,11 @@ void Paint::display()
 
     if (mode_ == Mode::tool_select) {
         sprite.set_size(Sprite::Size::w16_h16);
-        sprite.set_tidx_16x16(15, 0);
-        if (flicker_on_) {
-            sprite.set_tidx_16x16(15, cursor_flicker_ < 16);
-        }
-        sprite.set_position({Fixnum::from_integer(vx + 28 * 8),
-                Fixnum::from_integer(view_shift_ + (5 + (int)tool_ * 2) * 8)});
+        sprite.set_tidx_16x16(59, 0);
+        auto offset = sine8(tool_selector_anim_) >> 6;
+        tool_selector_anim_ += 4;
+        sprite.set_position({Fixnum::from_integer(vx + 28 * 8 - 13 + offset),
+                Fixnum::from_integer(2 + view_shift_ + (4 + (int)tool_ * 2) * 8)});
         PLATFORM.screen().draw(sprite);
     }
 
@@ -865,6 +860,7 @@ void Paint::show_tool_name()
         "fill",
         "drag",
         "undo",
+        "presets",
         "exit",
     };
 

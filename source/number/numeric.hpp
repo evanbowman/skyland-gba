@@ -314,6 +314,9 @@ constexpr Time milliseconds(u32 count)
 }
 
 
+u8 sine8(u8 v);
+
+
 // These functions are imprecise versions of sin/cos for embedded
 // systems. Fortunately, we aren't doing heavy scientific calculations, so a
 // slightly imprecise angle is just fine. If you want an angle in terms of 360,

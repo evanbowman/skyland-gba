@@ -82,9 +82,6 @@ public:
     void set_pixel(u8 x, u8 y, u8 value) override;
 
 
-    void show_presets_hint() override;
-
-
     void show() override;
 
     bool changed_ = false;

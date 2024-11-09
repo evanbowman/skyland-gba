@@ -103,7 +103,7 @@ public:
 
 protected:
     Time cursor_move_tic_ = 0;
-    int view_shift_;
+    s16 view_shift_;
 
     u16 palette_[16];
 
@@ -114,9 +114,6 @@ protected:
     bool copy_tool_txtr_ : 1 = true;
 
 
-    virtual void show_presets_hint();
-
-
     static Vec2<u8> cursor_;
     static u32 color_;
 
@@ -125,12 +122,14 @@ protected:
     u8 height_;
     u8 origin_x_;
     u8 origin_y_;
+    u8 tool_selector_anim_ = 0;
 
     enum class Tool : u8 {
         pen,
         bucket,
         drag,
         undo,
+        preset,
         exit,
         count,
     };

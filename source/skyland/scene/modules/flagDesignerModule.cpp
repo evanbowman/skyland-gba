@@ -510,8 +510,6 @@ void FlagDesignerModule::enter(Scene& prev)
     show();
 
     PLATFORM.screen().schedule_fade(0);
-
-    show_presets_hint();
 }
 
 
@@ -543,23 +541,11 @@ void FlagDesignerModule::show()
 
 
 
-void FlagDesignerModule::show_presets_hint()
-{
-    auto bg_color = APP.environment().shader()(
-        ShaderPalette::background, custom_color(0x5aadef), 0, 4);
-
-    const Text::OptColors colors{{ColorConstant::silver_white, bg_color}};
-
-    Text::print(SYS_CSTR(flag_designer_presets), {17, 1}, colors);
-}
-
-
-
 ScenePtr FlagDesignerModule::update(Time delta)
 {
     APP.player().update(delta);
 
-    if (APP.player().key_down(Key::select)) {
+    if (tool_ == Tool::preset and APP.player().key_down(Key::action_1)) {
         auto next = make_scene<FlagTemplateScene>();
         next->editing_ingame_ = editing_ingame_;
         return next;
