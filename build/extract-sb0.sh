@@ -1,2 +1,2 @@
 python3 unpack_sav.py
-LISP extract-sb.lisp
+racket extract-sb0.rkt
