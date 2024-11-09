@@ -562,6 +562,7 @@ ScenePtr Paint::update(Time delta)
             if (tool_ == Tool::drag) {
                 apply_drag(xo, yo);
             }
+            show_tool_name();
         };
 
         if (cursor_move_ready) {
@@ -864,13 +865,22 @@ void Paint::show_tool_name()
         "exit",
     };
 
-    for (int x = 0; x < 8; ++x) {
-        PLATFORM.set_tile(Layer::overlay, 22 + x, 19, 0);
-        PLATFORM.set_tile(Layer::overlay, 22 + x, 18, 0);
+    for (int x = 0; x < 9; ++x) {
+        PLATFORM.set_tile(Layer::overlay, 21 + x, 19, 0);
+        PLATFORM.set_tile(Layer::overlay, 21 + x, 18, 0);
     }
 
-    u8 name_x = 30 - utf8::len(names[(int)tool_]);
-    Text::print(names[(int)tool_], OverlayCoord{name_x, 19});
+    StringBuffer<9> temp_str = names[(int)tool_];
+
+    if (tool_ == Tool::pen or tool_ == Tool::bucket) {
+        temp_str += ":";
+        temp_str += stringify(cursor_.x);
+        temp_str += ",";
+        temp_str += stringify(cursor_.y);
+    }
+
+    u8 name_x = 30 - temp_str.length();
+    Text::print(temp_str.c_str(), OverlayCoord{name_x, 19});
 
     for (int x = name_x; x < 30; ++x) {
         PLATFORM.set_tile(Layer::overlay, x, 18, 425);
