@@ -145,7 +145,7 @@ public:
     }
 
 
-    Weapon* is_weapon() override;
+    Weapon* cast_weapon() override;
 
 
     void display_on_hover(Platform::Screen& screen,

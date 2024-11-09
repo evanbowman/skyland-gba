@@ -576,8 +576,7 @@ void SelectMenuScene::enter(Scene& scene)
                     }
                 }
             }
-            if (is_player_island(isle) and room and
-                (*room->metaclass())->category() == Room::Category::weapon) {
+            if (is_player_island(isle) and room and room->cast_weapon()) {
                 if (not PLATFORM.network_peer().is_connected()) {
                     add_line(SystemString::sel_menu_select_all,
                              "",

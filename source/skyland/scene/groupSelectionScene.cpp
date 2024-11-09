@@ -248,8 +248,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
         for (u8 x = tl.x; x < br.x + 1; ++x) {
             for (u8 y = tl.y; y < br.y + 1; ++y) {
                 if (auto room = APP.player_island().get_room({x, y})) {
-                    const auto cg = (*room->metaclass())->category();
-                    if (cg == Room::Category::weapon) {
+                    if (room->cast_weapon()) {
                         (*group_selection_)->rooms_.push_back({x, y});
                     }
                 }

@@ -264,7 +264,7 @@ public:
     }
 
 
-    virtual Weapon* is_weapon();
+    virtual Weapon* cast_weapon();
 
 
     virtual void update(Time delta);

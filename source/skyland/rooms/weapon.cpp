@@ -80,7 +80,7 @@ Weapon::~Weapon()
 
 
 
-Weapon* Weapon::is_weapon()
+Weapon* Weapon::cast_weapon()
 {
     return this;
 }

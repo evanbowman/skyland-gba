@@ -1442,7 +1442,7 @@ ScenePtr RewindScene::update(Time)
             auto e = (time_stream::event::TargetQueuePop*)end;
             auto& isle = APP.player_island();
             if (auto room = isle.get_room({e->room_x_, e->room_y_})) {
-                if (auto w = room->is_weapon()) {
+                if (auto w = room->cast_weapon()) {
                     w->__rewind_push_target_queue(
                         {e->queue_elem_x_, e->queue_elem_y_});
                 }

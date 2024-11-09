@@ -545,7 +545,7 @@ bool Room::description_visible()
 
 
 
-Weapon* Room::is_weapon()
+Weapon* Room::cast_weapon()
 {
     return nullptr;
 }

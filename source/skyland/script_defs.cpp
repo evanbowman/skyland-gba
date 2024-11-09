@@ -322,7 +322,7 @@ BINDING_TABLE({
           if (auto room = island->get_room({x1, y1})) {
               if ((*room->metaclass())->category() == Room::Category::weapon) {
                   room->set_target({x2, y2}, false);
-                  if (auto w = room->is_weapon()) {
+                  if (auto w = room->cast_weapon()) {
                       w->fire();
                   }
                   room->unset_target();

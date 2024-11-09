@@ -80,15 +80,8 @@ ScenePtr AssignWeaponGroupScene::update(Time delta)
                 if (room->co_op_locked()) {
                     PLATFORM.speaker().play_sound("beep_error", 2);
                     // TODO: notification
-                } else if ((*room->metaclass())->category() ==
-                           Room::Category::weapon) {
-                    // TODO: select category first in select_group scene, then
-                    // assign groups in bulk, rather than cycling through.
-                    // if (room->group() == current_group_) {
-                    //     room->set_group(Room::Group::none);
-                    // } else {
-                    //     room->set_group(current_group_);
-                    // }
+                } else if (room->cast_weapon()) {
+
                     auto group = room->group();
 
                     time_stream::event::WeaponSetGroup e;
