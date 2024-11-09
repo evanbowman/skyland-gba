@@ -47,7 +47,7 @@ def read_record(f):
 
         # Attempt to decode the filename with UTF-8, fallback to a safe name if it fails
         try:
-            filename = filename_raw.decode('utf-8').strip('\0')
+            filename = filename_raw.decode('utf-8')
         except UnicodeDecodeError:
             # If decoding fails, use a fallback name
             filename = f"file_{binascii.hexlify(filename_raw).decode()}"
@@ -93,11 +93,10 @@ def decompress_heatshrink(compressed_data):
         return compressed_data
 
 def save_file(record, output_dir):
-    filename = record['filename']
-    full_path = filename.split('/')
+    filename = record['filename'].strip('\0')
     file_data = record['data']
     filename = os.path.basename(filename)
-    file_path = os.path.join(output_dir, *full_path)
+    file_path = os.path.join(output_dir, filename)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     try:
         with open(file_path, 'wb') as output_file:
