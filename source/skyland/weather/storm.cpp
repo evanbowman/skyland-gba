@@ -166,7 +166,7 @@ void State::update(Time delta)
     static constexpr const auto scale = rain_pos_scale;
     static_assert(scale % 2 == 0);
 
-    auto camera = APP.camera()->center().cast<s16>();
+    auto camera = PLATFORM.screen().get_view().int_center().cast<s16>();
     auto camera_diff_x = camera.x - last_camera_.x;
     auto camera_diff_y = camera.y - last_camera_.y;
 
@@ -215,12 +215,6 @@ void State::update(Time delta)
     if (camera_diff_x != 0 or camera_diff_y != 0) {
         last_camera_ = camera;
     }
-
-    TIMEPOINT(t2);
-
-    // if (t2 - t1 > 2000) {
-    //     Platform::fatal(format("%", t2 - t1));
-    // }
 }
 
 
@@ -230,8 +224,6 @@ void Storm::update(Time delta)
     if (PLATFORM.screen().fade_active()) {
         return;
     }
-
-    TIMEPOINT(t1);
 
     auto& gen = rng::utility_state;
 

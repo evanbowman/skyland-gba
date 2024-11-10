@@ -378,9 +378,10 @@ void BasicCharacter::update(Time delta, Room* room)
         if (radiation_counter_) {
             radiation_counter_ -= std::min((u8)4, radiation_counter_);
             sprite_.set_mix({custom_color(0xe81858), radiation_counter_});
+            if (radiation_counter_ == 0) {
+                sprite_.set_mix({});
+            }
         }
-    } else {
-        sprite_.set_mix({});
     }
 
     switch (state_) {
@@ -783,10 +784,9 @@ void BasicCharacter::movement_step(Time delta)
             sprite_.set_flip({true, false});
         }
 
-        auto fpos = interpolate(
-            fvec(dest), fvec(o), Float(timer_) / movement_step_duration(race_));
+        auto fpos = interpolate_fp(dest, o, Fixnum(Float(timer_) / movement_step_duration(race_)));
 
-        sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x), Fixnum(fpos.y)});
+        sprite_.set_position(fpos);
     }
 
     if (timer_ > movement_step_duration(race_)) {
