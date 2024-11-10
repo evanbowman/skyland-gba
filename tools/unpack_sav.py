@@ -13,6 +13,8 @@ try:
 except ImportError:
     HEATSHRINK_AVAILABLE = False
     print("Warning: Heatshrink module is not installed. Skipping decompression.")
+    print("You may run Heatshrink decompression from the command line with:")
+    print("heatshrink -w 8 -l 4 -d <in> <out>")
 
 def extract_files_from_fs3_log(file_path, output_dir):
     with open(file_path, 'rb') as f:
