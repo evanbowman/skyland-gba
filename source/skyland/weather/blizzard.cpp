@@ -192,7 +192,7 @@ void Blizzard::display()
         return;
     }
 
-    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
+    auto batch = allocate_dynamic_fast<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
 
     static const int rain_pos_scale = 128;
     const auto scale = rain_pos_scale;

@@ -111,7 +111,8 @@ static uint8_t rand8(void)
 
 void State::display()
 {
-    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
+    using Buf = Buffer<Vec2<s32>, 64>;
+    auto batch = allocate_dynamic_fast<Buf>("rain-spr-buffer");
 
     constexpr auto scale = rain_pos_scale;
 

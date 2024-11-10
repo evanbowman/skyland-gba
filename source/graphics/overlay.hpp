@@ -372,8 +372,12 @@ private:
 
 inline OverlayCoord calc_screen_tiles()
 {
+#ifdef __GBA__
+    return {30, 20};
+#else
     constexpr u32 overlay_tile_size = 8;
     return (PLATFORM.screen().size() / overlay_tile_size).cast<u8>();
+#endif
 }
 
 

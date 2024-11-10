@@ -106,3 +106,34 @@ memcpy16:
     pop     {r4}
     pop     {r3}
     bx  r3
+
+
+    .section .iwram,"ax", %progbits
+    .align  2
+    .code   32
+    .global memset32
+    .type   memset32 STT_FUNC
+memset32:
+	and		r12, r2, #7
+	movs	r2, r2, lsr #3
+	beq		.Lres_set32
+	push	{r4-r9}
+	@ set 32byte chunks with 8fold xxmia
+	mov		r3, r1
+	mov		r4, r1
+	mov		r5, r1
+	mov		r6, r1
+	mov		r7, r1
+	mov		r8, r1
+	mov		r9, r1
+.Lmain_set32:
+		stmia	r0!, {r1, r3-r9}
+		subs	r2, r2, #1
+		bhi		.Lmain_set32
+	pop		{r4-r9}
+	@ residual 0-7 words
+.Lres_set32:
+		subs	r12, r12, #1
+		stmhsia	r0!, {r1}
+		bhi		.Lres_set32
+	bx	lr

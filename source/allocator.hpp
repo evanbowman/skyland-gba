@@ -158,6 +158,37 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 
 
 
+template <typename T, typename... Args>
+DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag, Args&&... args)
+{
+    static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
+
+    auto sc_buf = make_scratch_buffer(tag, false);
+
+    auto deleter = [](T* val) {
+        if (val) {
+            if constexpr (not std::is_trivial<T>()) {
+                val->~T();
+            }
+            // No need to actually deallocate anything, we
+            // just need to make sure that we're calling the
+            // destructor.
+        }
+    };
+
+    void* alloc_ptr = sc_buf->data_;
+
+    static_assert(alignof(T) <= ScratchBuffer::data_alignment);
+
+    T* result = reinterpret_cast<T*>(alloc_ptr);
+    new (result) T(std::forward<Args>(args)...);
+    alloc_ptr = (char*)alloc_ptr + sizeof(T);
+
+    return {sc_buf, {result, deleter}};
+}
+
+
+
 // A lightweight, copyable, reference-counted large allocation. Stored data must
 // be trivially destructible.
 template <typename T> class ScratchMemory
