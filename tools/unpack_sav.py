@@ -6,17 +6,13 @@ import binascii
 # The game implements a log-structured filesystem in save memory.
 # This script extracts the stored files.
 
-# NOTE: the existing heatshrink package does not build with the latest version of the python interpreter. But maybe someday it will...
-
 try:
-    import heatshrink
+    import heatshrink2
     HEATSHRINK_AVAILABLE = True
     print("Heatshrink module is available for decompression.")
 except ImportError:
     HEATSHRINK_AVAILABLE = False
     print("Warning: Heatshrink module is not installed. Skipping decompression.")
-    print("You may run Heatshrink decompression from the command line with:")
-    print("heatshrink -w 8 -l 4 -d <in> <out>")
 
 def extract_files_from_fs3_log(file_path, output_dir):
     with open(file_path, 'rb') as f:
@@ -53,7 +49,7 @@ def read_record(f):
 
         # Attempt to decode the filename with UTF-8, fallback to a safe name if it fails
         try:
-            filename = filename_raw.decode('utf-8')
+            filename = filename_raw.decode('utf-8').strip('\0')
         except UnicodeDecodeError:
             # If decoding fails, use a fallback name
             filename = f"file_{binascii.hexlify(filename_raw).decode()}"
@@ -71,7 +67,7 @@ def read_record(f):
         f.read(padding_len)  # Skip padding byte if needed
 
         # Step 7: If the file is compressed, we will decompress it (only if heatshrink is available)
-        if flags_[1] & 0x02:  # Check if the compressed flag is set
+        if flags_[0] & 0x02:  # Check if the compressed flag is set
             if HEATSHRINK_AVAILABLE:
                 print(f"File '{filename}' is compressed, decompressing...")
                 file_data = decompress_heatshrink(file_data)
@@ -91,18 +87,20 @@ def read_record(f):
 
 def decompress_heatshrink(compressed_data):
     try:
-        decompressor = heatshrink.decompressor.Decompressor()
-        decompressed_data = decompressor.decompress(compressed_data)
+        decompressed_data = heatshrink2.decompress(compressed_data,
+                                                   window_sz2 = 8,
+                                                   lookahead_sz2 = 4)
         return decompressed_data
     except Exception as e:
         print(f"Error during decompression: {e}")
         return compressed_data
 
 def save_file(record, output_dir):
-    filename = record['filename'].strip('\0')
+    filename = record['filename']
+    full_path = filename.split('/')
     file_data = record['data']
     filename = os.path.basename(filename)
-    file_path = os.path.join(output_dir, filename)
+    file_path = os.path.join(output_dir, *full_path)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     try:
         with open(file_path, 'wb') as output_file:
