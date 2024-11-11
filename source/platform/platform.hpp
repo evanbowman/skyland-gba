@@ -72,14 +72,6 @@ enum class ShaderPalette {
 
 
 
-#ifdef __GBA__
-#define WORDSIZE 4
-#else
-#define WORDSIZE (sizeof(void*))
-#endif
-
-
-
 #define PLATFORM_EXTENSION(NAME, ...)                                          \
     {                                                                          \
         if (PLATFORM.get_extensions().NAME) {                                  \
@@ -930,8 +922,6 @@ public:
         void (*watchdog_off)();
         u32 (*get_stack_usage)();
         void (*restart)();
-
-        void (*memset_words)(void* dst, u32 src, u32 word_count);
 
         void (*psg_play_note)(Speaker::Channel c, Speaker::NoteDesc note);
         void (*psg_stop_note)(Speaker::Channel c);

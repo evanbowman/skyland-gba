@@ -370,6 +370,8 @@ static int scratch_buffer_highwater = 0;
 
 void App::update(Time delta)
 {
+    TIMEPOINT(t1);
+
     const auto previous_rng = rng::critical_state;
     const auto previous_score = score().get();
 
@@ -381,6 +383,8 @@ void App::update(Time delta)
 
     Sound::update_all(delta);
 
+    TIMEPOINT(t2);
+
     auto line = PLATFORM.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
         if (not console_state_) {
@@ -390,6 +394,8 @@ void App::update(Time delta)
     }
 
     rumble_.update(delta);
+
+    TIMEPOINT(t3);
 
     if (game_speed() not_eq GameSpeed::stopped) {
         for (auto it = deferred_callbacks_.begin();
@@ -406,7 +412,11 @@ void App::update(Time delta)
         }
     }
 
+    TIMEPOINT(t4);
+
     next_scene_ = current_scene_->update(delta);
+
+    TIMEPOINT(t5);
 
     if (next_scene_) {
         current_scene_->exit(*next_scene_);
@@ -422,6 +432,8 @@ void App::update(Time delta)
     if (score().get() not_eq previous_score) {
         record_score_diff(score().get() - previous_score);
     }
+
+    TIMEPOINT(t6);
 
     for (const char* sound : PLATFORM.speaker().completed_sounds()) {
         // Do not play sounds associated with the game's ui.
@@ -443,6 +455,20 @@ void App::update(Time delta)
             }
         }
     }
+
+    TIMEPOINT(t7);
+
+
+    // if (PLATFORM.keyboard().pressed<Key::select>()) {
+    //     Platform::fatal(format("% % % % % %",
+    //                            t2 - t1,
+    //                            t3 - t2,
+    //                            t4 - t3,
+    //                            t5 - t4,
+    //                            t6 - t5,
+    //                            t7 - t6)
+    //                         .c_str());
+    // }
 
     if (scratch_buffers_in_use() > scratch_buffer_highwater) {
         scratch_buffer_highwater = scratch_buffers_in_use();

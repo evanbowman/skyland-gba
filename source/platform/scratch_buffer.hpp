@@ -48,9 +48,9 @@
 
 struct ScratchBuffer
 {
-    static const int data_alignment = alignof(void*);
-
-    alignas(data_alignment) char data_[SCRATCH_BUFFER_SIZE];
+    // NOTE: do not make any assumptions about the alignment of the data_
+    // member.
+    char data_[SCRATCH_BUFFER_SIZE];
 
     using Tag = const char*;
     Tag tag_;
@@ -63,8 +63,7 @@ using ScratchBufferPtr =
 
 
 
-ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag,
-                                     bool zero_fill = true);
+ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag);
 
 
 

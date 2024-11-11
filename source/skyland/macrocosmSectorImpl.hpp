@@ -421,6 +421,8 @@ public:
             set_z_view(size().z);
         }
 
+        [[maybe_unused]] auto start = PLATFORM.delta_clock().sample();
+
         auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
         globalstate::_cursor_raster_tiles.clear();
 
@@ -545,6 +547,8 @@ public:
             _db.emplace(allocate_dynamic<raster::DepthBuffer>("depth-buffer"));
         }
 
+        [[maybe_unused]] auto t2 = PLATFORM.delta_clock().sample();
+
         auto& node_allocator = (*_db)->depth_node_allocator_;
 
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
@@ -564,6 +568,8 @@ public:
         });
 
 
+        [[maybe_unused]] auto t3 = PLATFORM.delta_clock().sample();
+
         if (cursor_moved) {
             for (auto& t : prev_cursor_raster_tiles) {
                 if (t < RASTER_CELLCOUNT) {
@@ -582,6 +588,8 @@ public:
                 }
             }
         }
+
+        [[maybe_unused]] auto t4 = PLATFORM.delta_clock().sample();
 
         for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
@@ -795,6 +803,8 @@ public:
             }
         }
 
+        [[maybe_unused]] auto t5 = PLATFORM.delta_clock().sample();
+
         for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
             auto t = globalstate::_cursor_raster_tiles[i];
 
@@ -812,6 +822,15 @@ public:
                 head = head->next_;
             }
         }
+
+        [[maybe_unused]] auto stop = PLATFORM.delta_clock().sample();
+        // PLATFORM.fatal(format("%, %, %, % (%)",
+        //                   t2 - start,
+        //                   t3 - t2,
+        //                   t4 - t3,
+        //                   t5 - t4,
+        //                   stop - start)
+        //                .c_str());
     }
 
 

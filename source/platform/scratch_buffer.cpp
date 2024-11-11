@@ -42,36 +42,10 @@
 
 
 
-using SbrCtrlBlock = PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>;
-using SbrPool = Pool<sizeof(SbrCtrlBlock), scratch_buffer_count, alignof(SbrCtrlBlock)>;
-
 static EXT_WORKRAM_DATA
-SbrPool scratch_buffer_pool("scratch-buffers");
-
-
-
-static Optional<Rc<ScratchBuffer, SbrCtrlBlock>>
-create_sbr_rc(void (*finalizer_hook)(SbrCtrlBlock*))
-{
-    auto ctrl = scratch_buffer_pool.alloc();
-    if (ctrl) {
-        // THIS IS VERY BAD! VERY BAD INDEED!
-        // The control block constructor for scratch buffers was generating a
-        // memset call for the whole byte array. Certainly not very efficient.
-        // So I'm not calling the constructor at all, and setting the fields
-        // manually. Really, this is not very good at all! But, in
-        // practice... although the control block has a constructor, it doesn't
-        // contain any non-trivial fields...
-        ((SbrCtrlBlock*)ctrl)->finalizer_hook_ = finalizer_hook;
-        ((SbrCtrlBlock*)ctrl)->pool_ = nullptr;
-        ((SbrCtrlBlock*)ctrl)->strong_count_ = 0;
-        ((SbrCtrlBlock*)ctrl)->weak_count_ = 0;
-        return Rc<ScratchBuffer, SbrCtrlBlock>((SbrCtrlBlock*)ctrl);
-    } else {
-        return {};
-    }
-}
-
+    ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
+               scratch_buffer_count>
+        scratch_buffer_pool("scratch-buffers");
 
 
 
@@ -105,8 +79,7 @@ void set_scratch_buffer_oom_handler(
 
 
 
-ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag,
-                                     bool zero_fill)
+ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     if (not scratch_buffers_remaining()) {
         if (scratch_buffer_oom_handler) {
@@ -121,33 +94,16 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag,
     }
 
     auto finalizer =
-        [](SbrCtrlBlock* ctrl) {
+        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
             --scratch_buffers_in_use_;
-            scratch_buffer_pool.free((u8*)ctrl);
+            ctrl->pool_->free(ctrl);
         };
 
-    auto maybe_buffer = create_sbr_rc(finalizer);
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
+        &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use_;
 
-        if (zero_fill) {
-            // Unfortunately, because I only noticed the memset call very late
-            // in development, some code depends on allocated memory being
-            // zeroed. At least the allocator is deterministic, although not as
-            // fast as it could be... If we do have to zero memory before
-            // accessing it, let's at least do so as fast as possible...
-
-            auto data = (*maybe_buffer)->data_;
-
-            auto fast_memset = PLATFORM.get_extensions().memset_words;
-
-            if ((intptr_t)data % WORDSIZE == 0 and fast_memset) {
-                static_assert(SCRATCH_BUFFER_SIZE % WORDSIZE == 0);
-                fast_memset(data, 0, SCRATCH_BUFFER_SIZE / WORDSIZE);
-            } else {
-                memset(data, 0, SCRATCH_BUFFER_SIZE);
-            }
-        }
         (*maybe_buffer)->tag_ = tag;
 
         return *maybe_buffer;

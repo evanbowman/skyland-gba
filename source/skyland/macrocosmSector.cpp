@@ -552,6 +552,8 @@ void terrain::Sector::render()
 
     render_setup();
 
+    [[maybe_unused]] auto start = PLATFORM.delta_clock().sample();
+
     for (int i = 0; i < RASTER_CELLCOUNT; ++i) {
 
         if (auto head = (*_db)->depth_1_->visible_[i]) {
@@ -602,6 +604,10 @@ void terrain::Sector::render()
             }
         }
     }
+
+    [[maybe_unused]] auto stop = PLATFORM.delta_clock().sample();
+    // PLATFORM.fatal(stringify(stop - start).c_str());
+
 
     globalstate::_changed = false;
     globalstate::_shrunk = false;

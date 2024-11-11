@@ -368,6 +368,8 @@ void BasicCharacter::set_max_health(u8 val)
 
 void BasicCharacter::update(Time delta, Room* room)
 {
+    // const auto t1 = PLATFORM.delta_clock().sample();
+
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
@@ -376,10 +378,9 @@ void BasicCharacter::update(Time delta, Room* room)
         if (radiation_counter_) {
             radiation_counter_ -= std::min((u8)4, radiation_counter_);
             sprite_.set_mix({custom_color(0xe81858), radiation_counter_});
-            if (radiation_counter_ == 0) {
-                sprite_.set_mix({});
-            }
         }
+    } else {
+        sprite_.set_mix({});
     }
 
     switch (state_) {
@@ -652,6 +653,13 @@ void BasicCharacter::update(Time delta, Room* room)
 
         break;
     }
+
+    // const auto t2 = PLATFORM.delta_clock().sample();
+
+    // if (PLATFORM.keyboard().pressed<Key::select>()) {
+    //     Platform::fatal(format("%",
+    //                            t2 - t1).c_str());
+    // }
 }
 
 
@@ -775,9 +783,10 @@ void BasicCharacter::movement_step(Time delta)
             sprite_.set_flip({true, false});
         }
 
-        auto fpos = interpolate_fp(dest, o, Fixnum(Float(timer_) / movement_step_duration(race_)));
+        auto fpos = interpolate(
+            fvec(dest), fvec(o), Float(timer_) / movement_step_duration(race_));
 
-        sprite_.set_position(fpos);
+        sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x), Fixnum(fpos.y)});
     }
 
     if (timer_ > movement_step_duration(race_)) {
