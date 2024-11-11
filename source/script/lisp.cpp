@@ -5744,8 +5744,8 @@ const char* intern(const char* string)
     if (not ctx->string_intern_table_) {
         ctx->string_intern_table_ =
             allocate_dynamic<StringInternTable>("string-intern-table");
-        info(format("allocating string intern table (due to symbol %)",
-                    string));
+        info(::format("allocating string intern table (due to symbol %)",
+                      string));
     }
 
     const char* search = (*ctx->string_intern_table_)->data_;
