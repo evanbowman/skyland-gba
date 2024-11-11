@@ -54,6 +54,15 @@ public:
     using ReverseIterator = reverse_iterator;
 
 
+    struct SkipZeroFill {};
+
+
+    Buffer(const SkipZeroFill&)
+    {
+        begin_ = (Iterator)mem_.data();
+        end_ = begin_;
+    }
+
     Buffer() : mem_{}, begin_((Iterator)mem_.data()), end_(begin_)
     {
     }
