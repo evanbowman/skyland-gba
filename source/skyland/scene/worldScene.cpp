@@ -515,9 +515,6 @@ ScenePtr WorldScene::update(Time delta)
 {
     auto& g = globals();
 
-    TIMEPOINT(t1);
-
-
     if (not PLATFORM.network_peer().is_connected()) {
         // We scale game updates based on frame delta. But if the game starts to
         // lag a lot, the logic can start to get screwed up, so at some point,
@@ -554,9 +551,6 @@ ScenePtr WorldScene::update(Time delta)
     auto& mt_prep_timer = g.multiplayer_prep_timer_;
 
     auto& mt_prep_seconds = g.multiplayer_prep_seconds_;
-
-
-    TIMEPOINT(t2);
 
 
     if (PLATFORM.network_peer().is_connected()) {
@@ -684,8 +678,6 @@ ScenePtr WorldScene::update(Time delta)
         set_gamespeed_keyheld_timer_ = 0;
     }
 
-    TIMEPOINT(t3);
-
     if (APP.opponent_island()) {
 
         const bool show_opponent_interior =
@@ -773,23 +765,15 @@ ScenePtr WorldScene::update(Time delta)
     }
 
 
-    TIMEPOINT(t4);
-
     APP.player_island().update(world_delta);
-
-    TIMEPOINT(t5);
 
     if (APP.opponent_island()) {
         APP.opponent_island()->update(world_delta);
     }
 
-    TIMEPOINT(t6);
-
     update_entities(world_delta, APP.effects());
 
     update_entities(world_delta, APP.birds());
-
-    TIMEPOINT(t7);
 
 
     if (APP.game_mode() == App::GameMode::co_op) {
@@ -903,8 +887,6 @@ ScenePtr WorldScene::update(Time delta)
         }
     }
 
-    TIMEPOINT(t8);
-
     if (APP.opponent_island()) {
         for (auto& projectile : APP.player_island().projectiles()) {
             APP.opponent_island()->test_collision(*projectile);
@@ -922,21 +904,6 @@ ScenePtr WorldScene::update(Time delta)
             APP.opponent_island()->test_collision(*projectile);
         }
     }
-
-    TIMEPOINT(t9);
-
-    // if (PLATFORM.keyboard().pressed<Key::select>()) {
-    //     Platform::fatal(format("% % % % % % % %",
-    //                            t2 - t1,
-    //                            t3 - t2,
-    //                            t4 - t3,
-    //                            t5 - t4, // player island
-    //                            t6 - t5, // opponent_island
-    //                            t7 - t6,
-    //                            t8 - t7,
-    //                            t9 - t8)
-    //                         .c_str());
-    // }
 
     return ret;
 }

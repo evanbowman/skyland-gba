@@ -368,8 +368,6 @@ void BasicCharacter::set_max_health(u8 val)
 
 void BasicCharacter::update(Time delta, Room* room)
 {
-    // const auto t1 = PLATFORM.delta_clock().sample();
-
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
@@ -654,13 +652,6 @@ void BasicCharacter::update(Time delta, Room* room)
 
         break;
     }
-
-    // const auto t2 = PLATFORM.delta_clock().sample();
-
-    // if (PLATFORM.keyboard().pressed<Key::select>()) {
-    //     Platform::fatal(format("%",
-    //                            t2 - t1).c_str());
-    // }
 }
 
 

@@ -490,8 +490,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     // reachable slots by the assigned weights, and run an implementation of
     // Dijkstra's algorithm to find a path.
 
-    TIMEPOINT(t1);
-
     if (character.has_movement_path()) {
         return;
     }
@@ -589,16 +587,10 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
         }
     }
 
-    TIMEPOINT(t2);
-
-
     DynamicMemory<bool[16][16]> matrix_ =
         allocate_dynamic<bool[16][16]>("ai-rooms-plot");
 
     ai_island_->plot_walkable_zones(*matrix_, &character);
-
-
-    TIMEPOINT(t3);
 
 
     u8 matrix[16][16];
@@ -846,14 +838,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             network::transmit(packet);
         }
     }
-
-
-    TIMEPOINT(t4);
-
-    //#define PROFILE_LATENCY
-#ifdef PROFILE_LATENCY
-    Platform::fatal(format("% % %", t2 - t1, t3 - t2, t4 - t3).c_str());
-#endif
 }
 
 

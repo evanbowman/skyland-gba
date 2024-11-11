@@ -346,8 +346,6 @@ void Windmill::finalize()
 
 void Windmill::update(Time delta)
 {
-    TIMEPOINT(t1);
-
     Room::update(delta);
     Room::ready();
 
@@ -377,10 +375,6 @@ void Windmill::update(Time delta)
             room.apply_damage(Room::health_upper_limit());
         }
     }
-
-    TIMEPOINT(t2);
-
-    // Platform::fatal(stringify(t2 - t1));
 }
 
 
