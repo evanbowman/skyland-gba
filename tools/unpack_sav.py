@@ -2,7 +2,8 @@ import struct
 import os
 import binascii
 
-# This script extracts all files stored in Skyland.sav
+# This script should be ran from the directory where you stored the game save.
+# This script extracts all files stored in Skyland.sav to /extracted_cart_ram.
 # The game implements a log-structured filesystem in save memory.
 # This script extracts the stored files.
 
@@ -14,7 +15,7 @@ except ImportError:
     HEATSHRINK_AVAILABLE = False
     print("Warning: Heatshrink module is not installed. Skipping decompression.")
     print("You may run Heatshrink decompression from the command line with:")
-    print("heatshrink -w 8 -l 4 -d <in> <out>")
+    print("heatshrink2 decompress -w 8 -l 4 <in> <out>")
 
 def extract_files_from_fs3_log(file_path, output_dir):
     with open(file_path, 'rb') as f:
