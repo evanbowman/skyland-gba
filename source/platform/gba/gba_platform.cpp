@@ -6846,12 +6846,9 @@ static const Platform::Extensions extensions{
                 return;
             }
 
-            auto offset =
-                center.y / 4 + 3;
+            auto offset = center.y / 4 + 3;
 
-            const auto x_amount =
-                scroll +
-                (center.x / 3) * 0.8f;
+            const int x_amount = scroll + (center.x / 3) * 0.8f;
 
             for (int i = (112 - offset) - 30; i < 128 - offset; ++i) {
                 parallax_table[i] = x_amount;
@@ -6907,11 +6904,9 @@ static const Platform::Extensions extensions{
                 return;
             }
 
-            auto offset =
-                center.y / 2 * 0.7f + 3;
+            const int offset = center.y / 2 * 0.7f + 3;
 
-            const auto x_amount =
-                scroll + center.x / 3;
+            const auto x_amount = scroll + center.x / 3;
 
             for (int i = 128 - offset; i < 160 - offset; ++i) {
                 parallax_table[i] = x_amount;
