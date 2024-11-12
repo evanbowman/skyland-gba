@@ -67,6 +67,18 @@ namespace detail
 // allocator.
 template <typename T, u32 Count> struct PooledControlBlock
 {
+    PooledControlBlock(ObjectPool<PooledControlBlock, Count>* pool,
+                       void (*finalizer_hook)(PooledControlBlock*))
+        : pool_(pool),
+          finalizer_hook_(finalizer_hook), strong_count_(0), weak_count_(0)
+    {
+        if (finalizer_hook_ == nullptr) {
+            finalizer_hook_ = [](PooledControlBlock* ctrl) {
+                ctrl->pool_->free(ctrl);
+            };
+        }
+    }
+
     template <typename... Args>
     PooledControlBlock(ObjectPool<PooledControlBlock, Count>* pool,
                        void (*finalizer_hook)(PooledControlBlock*),

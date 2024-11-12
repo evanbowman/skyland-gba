@@ -106,3 +106,79 @@ memcpy16:
     pop     {r4}
     pop     {r3}
     bx  r3
+
+
+    .section .iwram,"ax", %progbits
+    .align  2
+    .code   32
+    .global memset32
+    .type   memset32 STT_FUNC
+memset32:
+	and		r12, r2, #7
+	movs	r2, r2, lsr #3
+	beq		.Lres_set32
+	push	{r4-r9}
+	@ set 32byte chunks with 8fold xxmia
+	mov		r3, r1
+	mov		r4, r1
+	mov		r5, r1
+	mov		r6, r1
+	mov		r7, r1
+	mov		r8, r1
+	mov		r9, r1
+.Lmain_set32:
+		stmia	r0!, {r1, r3-r9}
+		subs	r2, r2, #1
+		bhi		.Lmain_set32
+	pop		{r4-r9}
+	@ residual 0-7 words
+.Lres_set32:
+		subs	r12, r12, #1
+		stmhsia	r0!, {r1}
+		bhi		.Lres_set32
+	bx	lr
+
+
+    .text
+    .align  2
+    .code   16
+    .thumb_func
+    .global memset16
+    .type   memset16 STT_FUNC
+memset16:
+	push	{r4, lr}
+	@ under 6 hwords -> std set
+	cmp		r2, #5
+	bls		.Ltail_set16
+	@ dst not word aligned: copy 1 hword and align
+	lsl		r3, r0, #31
+	bcc		.Lmain_set16
+		strh	r1, [r0]
+		add		r0, #2
+		sub		r2, r2, #1
+	@ Again, memset32 does the real work
+.Lmain_set16:
+	lsl		r4, r1, #16
+	orr		r1, r4
+	lsl		r4, r2, #31
+	lsr		r2, r2, #1
+	ldr		r3, =memset32
+	bl		.Llong_bl
+	@ NOTE: r0 is altered by memset32, but in exactly the right
+	@ way, so we can use is as is. r1 is now doubled though.
+	lsr		r2, r4, #31
+	beq		.Lend_set16
+	lsr		r1, #16
+.Ltail_set16:
+	sub		r2, #1
+	bcc		.Lend_set16		@ r2 was 0, bug out
+	lsl		r2, r2, #1
+.Lres_set16:
+		strh	r1, [r0, r2]
+		sub		r2, r2, #2
+		bcs		.Lres_set16
+.Lend_set16:
+	pop		{r4}
+	pop		{r3}
+.Llong_bl:
+	bx	r3

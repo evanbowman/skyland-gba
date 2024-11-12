@@ -129,7 +129,7 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 {
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
-    auto sc_buf = make_scratch_buffer(tag);
+    auto sc_buf = make_zeroed_sbr(tag, sizeof(T) + alignof(T));
 
     auto deleter = [](T* val) {
         if (val) {
@@ -176,7 +176,7 @@ private:
     // u8 data_[sizeof(T)];
 
 public:
-    ScratchMemory() : handle_(make_scratch_buffer("scratch-memory"))
+    ScratchMemory() : handle_(make_zeroed_sbr("scratch-memory", sizeof(T) + alignof(T)))
     {
         void* alloc_ptr = handle_->data_;
         std::size_t size = sizeof handle_->data_;
@@ -240,7 +240,7 @@ struct ScratchBufferBulkAllocator
 {
 
     ScratchBufferBulkAllocator()
-        : buffer_(make_scratch_buffer("bulk-allocator")),
+        : buffer_(make_zeroed_sbr("bulk-allocator")),
           alloc_ptr_(buffer_->data_), size_(sizeof buffer_->data_)
     {
     }
@@ -340,7 +340,7 @@ template <u32 max_pages> struct GenericBumpAllocator
     size_t current_page_remaining_ = 0;
 
 
-    GenericBumpAllocator() : current_page_(make_scratch_buffer("xml"))
+    GenericBumpAllocator() : current_page_(make_zeroed_sbr("xml"))
     {
         pages_.emplace_back(current_page_);
         current_page_remaining_ = SCRATCH_BUFFER_SIZE;
@@ -376,7 +376,7 @@ template <u32 max_pages> struct GenericBumpAllocator
     void* alloc(u32 bytes, u32 alignment)
     {
         if (bytes + alignment > current_page_remaining_) { // FIXME
-            current_page_ = make_scratch_buffer("xml");
+            current_page_ = make_zeroed_sbr("xml");
             current_page_remaining_ = SCRATCH_BUFFER_SIZE;
             pages_.emplace_back(current_page_);
         }

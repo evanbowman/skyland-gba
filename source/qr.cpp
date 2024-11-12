@@ -45,9 +45,9 @@ namespace skyland
 
 Optional<QRCode> QRCode::create(const char* text)
 {
-    auto qr_data = make_scratch_buffer("qrcode-data-buffer");
+    auto qr_data = make_zeroed_sbr("qrcode-data-buffer");
 
-    auto temp = make_scratch_buffer("qr-temp-buffer");
+    auto temp = make_zeroed_sbr("qr-temp-buffer");
 
     PLATFORM_EXTENSION(watchdog_off);
 

@@ -39,6 +39,7 @@
 #include "memory/rc.hpp"
 
 
+
 #if defined(__GBA__) or defined(__NDS__)
 #define SCRATCH_BUFFER_SIZE 2048
 #else
@@ -64,6 +65,11 @@ using ScratchBufferPtr =
 
 
 ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag);
+
+
+
+ScratchBufferPtr make_zeroed_sbr(const ScratchBuffer::Tag& tag,
+                                 u32 zero_fill_size = SCRATCH_BUFFER_SIZE);
 
 
 

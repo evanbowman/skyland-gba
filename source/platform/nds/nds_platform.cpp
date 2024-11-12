@@ -724,62 +724,6 @@ void Platform::walk_filesystem(
 
 
 
-static int scratch_buffers_in_use = 0;
-
-
-
-static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
-                  scratch_buffer_count>
-    scratch_buffer_pool;
-
-
-
-ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
-{
-    if (not scratch_buffers_remaining()) {
-        // if (scratch_buffer_oom_handler) {
-        //     (*scratch_buffer_oom_handler)();
-
-        //     if (not scratch_buffers_remaining()) {
-        //         log_data_.reset();
-        //     }
-        // }
-    }
-
-    auto finalizer =
-        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
-            --scratch_buffers_in_use;
-            ctrl->pool_->free(ctrl);
-        };
-
-    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
-        &scratch_buffer_pool, finalizer);
-    if (maybe_buffer) {
-        ++scratch_buffers_in_use;
-        return *maybe_buffer;
-    } else {
-        screen().fade(1.f, ColorConstant::electric_blue);
-        fatal("scratch buffer pool exhausted");
-    }
-}
-
-
-
-void Platform::set_scratch_buffer_oom_handler(
-    Function<4 * sizeof(void*), void()> callback)
-{
-    // ...
-}
-
-
-
-int Platform::scratch_buffers_remaining()
-{
-    return scratch_buffer_count - scratch_buffers_in_use;
-}
-
-
-
 Platform::SystemClock::SystemClock()
 {
 }

@@ -335,7 +335,22 @@ extern "C" {
 __attribute__((section(".iwram"), long_call)) void
 memcpy32(void* dst, const void* src, uint wcount);
 void memcpy16(void* dst, const void* src, uint hwcount);
+
+__attribute__((section(".iwram"), long_call))
+void memset32(void *dst, u32 src, u32 wdn);
+void memset16(void *dst, u16 src, u32 hwn);
+
+
+
 }
+
+
+
+void Platform::memset_words(void* dest, u8 byte, u32 word_count)
+{
+    memset32(dest, byte, word_count);
+}
+
 
 
 // Used for software rendering, needs to be stored in iwram and heavily
@@ -1802,66 +1817,12 @@ TileDesc Platform::map_tile1_chunk(TileDesc src)
 
 
 
-#define BIT_MASK(len) ((1 << (len)) - 1)
-
-static void __toncset(void* dst, u32 fill, uint size)
-{
-    if (size == 0 || dst == NULL)
-        return;
-
-    uint left = (u32)dst & 3;
-    u32* dst32 = (u32*)((char*)dst - left);
-    u32 count, mask;
-
-    // Unaligned head.
-    if (left != 0) {
-        // Adjust for very small stint.
-        if (left + size < 4) {
-            mask = BIT_MASK(size * 8) << (left * 8);
-            *dst32 = (*dst32 & ~mask) | (fill & mask);
-            return;
-        }
-
-        mask = BIT_MASK(left * 8);
-        *dst32 = (*dst32 & mask) | (fill & ~mask);
-        dst32++;
-        size -= 4 - left;
-    }
-
-    // Main stint.
-    count = size / 4;
-    uint tmp = count & 3;
-    count /= 4;
-
-    switch (tmp) {
-        do {
-            *dst32++ = fill;
-        case 3:
-            *dst32++ = fill;
-        case 2:
-            *dst32++ = fill;
-        case 1:
-            *dst32++ = fill;
-        case 0:;
-        } while (count--);
-    }
-
-    // Tail
-    size &= 3;
-    if (size) {
-        mask = BIT_MASK(size * 8);
-        *dst32 = (*dst32 & ~mask) | (fill & mask);
-    }
-}
-
-
-
 void Platform::blit_t0_erase(u16 index)
 {
     u8* p =
         ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) + index * vram_tile_size();
 
-    __toncset(p, 0, vram_tile_size());
+    memset16(p, 0, vram_tile_size() / 2);
 }
 
 
@@ -1871,7 +1832,7 @@ void Platform::blit_t1_erase(u16 index)
     u8* p =
         ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) + index * vram_tile_size();
 
-    __toncset(p, 0, vram_tile_size());
+    memset16(p, 0, vram_tile_size() / 2);
 }
 
 
@@ -2170,7 +2131,7 @@ void Platform::Screen::clear()
         // the vblank interrupt handler, because it causes missed audio timer
         // interrupts and an unpleasant screeching sound.
         if (get_gflag(GlobalFlag::iris_effect_mode)) {
-            memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+            memset16((*opt_dma_buffer_)->data(), 0, 160);
         }
         win_circle((*opt_dma_buffer_)->data(),
                    dma_effect_params[1],
@@ -6802,14 +6763,6 @@ void CpuFastSet(const void* source, void* dest, u32 mode)
 }
 
 
-void memset16(u16* data, u16 val, int count)
-{
-    for (int i = 0; i < count; ++i) {
-        data[i] = val;
-    }
-}
-
-
 
 static const Platform::Extensions extensions{
     .stack_check = []() -> bool {
@@ -6917,10 +6870,9 @@ static const Platform::Extensions extensions{
             // unshifted pixels between them, which we need to account for.
             // Otherwise, certain rows that were scrolled last time will not have
             // their y-scroll adjusted, which can create graphical glitches.
-            auto other_row_offset =
-                center.y / 4 + 3;
+            auto other_row_offset = center.y / 4 + 3;
 
-            for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
+            for (int i = 128 - other_row_offset; i < (128 - offset); ++i) {
                 // We put a layer of solid-colored tiles offscreen, and we scroll
                 // them up to fill the gap.
                 vertical_parallax_table[i] = 38;

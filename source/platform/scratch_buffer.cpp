@@ -79,6 +79,28 @@ void set_scratch_buffer_oom_handler(
 
 
 
+ScratchBufferPtr make_zeroed_sbr(const ScratchBuffer::Tag& tag,
+                                 u32 zero_fill_size)
+{
+    auto sbr = make_scratch_buffer(tag);
+
+    if (zero_fill_size > SCRATCH_BUFFER_SIZE) {
+        PLATFORM.fatal("buffer overfill");
+    }
+
+    static const int wordsize = sizeof(void*);
+
+    if ((intptr_t)sbr->data_ % wordsize == 0 and zero_fill_size % wordsize == 0) {
+        PLATFORM.memset_words(sbr->data_, 0, zero_fill_size / wordsize);
+    } else {
+        memset(sbr->data_, 0, zero_fill_size);
+    }
+
+    return sbr;
+}
+
+
+
 ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     if (not scratch_buffers_remaining()) {

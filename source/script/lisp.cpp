@@ -1307,7 +1307,7 @@ Value* make_databuffer(const char* sbr_tag)
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::databuffer;
     new ((ScratchBufferPtr*)val->databuffer().sbr_mem_)
-        ScratchBufferPtr(make_scratch_buffer(sbr_tag));
+        ScratchBufferPtr(make_zeroed_sbr(sbr_tag));
     return val;
 }
 
@@ -2706,7 +2706,7 @@ static u32 read_list(CharSequence& code, int offset)
 
 static u32 read_string(CharSequence& code, int offset)
 {
-    auto temp = make_scratch_buffer("lisp-string-memory");
+    auto temp = make_zeroed_sbr("lisp-string-memory");
     auto write = temp->data_;
 
     int i = 0;

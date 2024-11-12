@@ -42,7 +42,7 @@ ScratchBufferPtr save_str(const char* str)
     if (strlen(str) - 1 > SCRATCH_BUFFER_SIZE) {
         Platform::fatal("save_str passed excessively long string");
     }
-    auto tmp = make_scratch_buffer("cached-str");
+    auto tmp = make_zeroed_sbr("cached-str");
     auto out = tmp->data_;
     while (*str not_eq '\0') {
         *(out++) = *(str++);
