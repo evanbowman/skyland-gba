@@ -376,6 +376,10 @@ void TitleScreenScene::exit(Scene& next)
 
     PLATFORM_EXTENSION(vertical_parallax_enable, true);
 
+    APP.effects().clear();
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
+
     PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
     PLATFORM.load_tile1_texture(APP.environment().opponent_island_texture());
     PLATFORM.load_sprite_texture(APP.environment().sprite_texture());
