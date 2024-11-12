@@ -315,7 +315,7 @@ public:
     }
 
 
-    Vector(ScratchBuffer::Tag t = "") : data_(make_scratch_buffer(t))
+    Vector(ScratchBuffer::Tag t = "") : data_(make_zeroed_sbr(t))
     {
         Chunk::initialize(data_, nullptr);
     }
@@ -352,7 +352,7 @@ public:
         }
 
         if (size == (int)Chunk::elems() and not current->header_.next_) {
-            auto sbr = make_scratch_buffer(t);
+            auto sbr = make_zeroed_sbr(t);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
@@ -382,7 +382,7 @@ public:
         }
 
         if (size == (int)Chunk::elems() and not current->header_.next_) {
-            auto sbr = make_scratch_buffer("vector-segment");
+            auto sbr = make_zeroed_sbr("vector-segment");
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
