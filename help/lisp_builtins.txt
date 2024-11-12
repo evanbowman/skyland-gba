@@ -374,6 +374,13 @@ o----------------------------o
 
 o----------------------------o
 
+ (incr v)
+
+ Increment an integer.
+
+
+o----------------------------o
+
  (int v)
 
  Convert v to an integer, if
@@ -395,6 +402,13 @@ o----------------------------o
 
  Assemble a list of four
  bytes into an integer.
+
+
+o----------------------------o
+
+ (decr v)
+
+ Decrement an integer.
 
 
 o----------------------------o

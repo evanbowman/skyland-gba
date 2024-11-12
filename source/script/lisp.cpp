@@ -4466,6 +4466,18 @@ BUILTIN_TABLE(
            }
            return make_string(result.c_str());
        }}},
+     {"incr",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           return L_INT(L_LOAD_INT(0) + 1);
+       }}},
+     {"decr",
+      {1,
+       [](int argc) {
+           L_EXPECT_OP(0, integer);
+           return L_INT(L_LOAD_INT(0) - 1);
+       }}},
      {"+",
       {0,
        [](int argc) {
