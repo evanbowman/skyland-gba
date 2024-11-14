@@ -1199,6 +1199,7 @@ EWRAM_DATA u16 tilesheet_1_palette[16];
 EWRAM_DATA u16 overlay_palette[16];
 EWRAM_DATA u16 background_palette[16];
 EWRAM_DATA u16 tilesheet_0_darkened_palette[16];
+EWRAM_DATA u16 custom_flag_palette[16];
 
 
 
@@ -2877,7 +2878,7 @@ void Platform::Screen::fade(float amount,
         // Custom flag palette?
         for (int i = 0; i < 16; ++i) {
             auto from =
-                Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+                Color::from_bgr_hex_555(custom_flag_palette[i]);
             MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
         }
         // Tile1 palette
@@ -2980,7 +2981,7 @@ void Platform::Screen::schedule_fade(Float amount,
     if (include_tiles or not dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from =
-                Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+                Color::from_bgr_hex_555(custom_flag_palette[i]);
             auto val = blend(from, c, amt);
             bg_palette_back_buffer[16 * 12 + i] = val;
             sp_palette_back_buffer[16 + i] = val;
@@ -7062,16 +7063,11 @@ static const Platform::Extensions extensions{
             for (auto& info : tile_textures) {
                 if (str_eq(info.name_, "tilesheet")) {
                     for (int i = 0; i < 16; ++i) {
-                        MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
-
-                        // When we started allowing players to design custom sprites, we
-                        // needed to reserve a sprite palette and fill it with the same
-                        // color values as the image editor uses for custom tile
-                        // graphics.
-                        MEM_PALETTE[16 + i] =
-                            agb_color_correction(
+                        auto c = agb_color_correction(
                                 Color::from_bgr_hex_555(info.palette_data_[i]))
                                 .bgr_hex_555();
+                        MEM_BG_PALETTE[(12 * 16) + i] = c;
+                        custom_flag_palette[i] = c;
                     }
                 }
             }
@@ -7632,6 +7628,7 @@ Platform::Platform()
         if (str_eq(info.name_, "tilesheet")) {
             for (int i = 0; i < 16; ++i) {
                 MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
+                custom_flag_palette[i] = info.palette_data_[i];
 
                 // When we started allowing players to design custom sprites, we
                 // needed to reserve a sprite palette and fill it with the same
