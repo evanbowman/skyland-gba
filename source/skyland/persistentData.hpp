@@ -68,8 +68,9 @@ struct GlobalPersistentData
         gamespeed_help_prompt_dont_remind_me,
         move_blocks_help_prompt_dont_remind_me,
         sel_menu_help_prompt_dont_remind_me,
-        autofire_on,
+        autofire_on, // deprecated
         permadeath_on,
+        agb_color_mode,
     };
 
     enum class Difficulty : u8 {

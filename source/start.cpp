@@ -165,6 +165,10 @@ void start(Platform& pfrm)
         state_bit_store(StateBit::verbose_boot, true);
     }
 
+    if (auto cm = PLATFORM.get_extensions().agb_color_correction) {
+        cm(APP.gp_.stateflags_.get(GlobalPersistentData::agb_color_mode));
+    }
+
     while (PLATFORM.is_running()) {
         PLATFORM.keyboard().poll();
 

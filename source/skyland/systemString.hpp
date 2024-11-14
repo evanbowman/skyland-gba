@@ -255,6 +255,7 @@ enum class SystemString {
     module_cart_viewer,
     module_freebuild,
     module_regression,
+    module_colormode,
 
     months,
 
