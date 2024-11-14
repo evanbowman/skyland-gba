@@ -2363,6 +2363,15 @@ BINDING_TABLE({
 
           return L_INT(prev);
       }}},
+    {"color-mode",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          if (auto cm = PLATFORM.get_extensions().agb_color_correction) {
+              cm(L_LOAD_INT(0));
+          }
+          return L_NIL;
+      }}},
     {"is-developer-mode",
      {0, [](int argc) { return lisp::make_boolean(APP.is_developer_mode()); }}},
     {"challenge-complete",

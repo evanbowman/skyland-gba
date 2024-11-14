@@ -89,6 +89,10 @@ void __cxa_pure_virtual()
 
 
 
+u8* color_correction_lut = nullptr;
+
+
+
 extern char __iwram_overlay_end;
 extern char __text_start;
 extern char __iwram_start__;
@@ -1159,13 +1163,34 @@ void Platform::Screen::set_shader(Shader shader)
 
 
 
+Color agb_color_correction(const Color& c)
+{
+    if (not color_correction_lut) {
+        return c;
+    }
+
+    #define COLOR_LUT_SIZE 32
+
+    // Calculate the index into the flat LUT array
+    int index = (c.r_ * COLOR_LUT_SIZE * COLOR_LUT_SIZE + c.g_ * COLOR_LUT_SIZE + c.b_) * 3;
+
+    // Access the RGB channels from the LUT
+    u8 r_value = color_correction_lut[index + 0];
+    u8 g_value = color_correction_lut[index + 1];
+    u8 b_value = color_correction_lut[index + 2];
+
+    return Color(r_value, g_value, b_value);
+}
+
+
+
 static Color invoke_shader(const Color& c, ShaderPalette palette, int index)
 {
-    return shader( // FIXME!!!
+    return agb_color_correction(shader(
         std::move(palette),
         c.hex(),
         std::move(shader_argument),
-        std::move(index));
+        std::move(index)));
 }
 
 
@@ -5348,7 +5373,6 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     gm.mapper_offset_ = mapping_info.offset_;
                     gm.reference_count_ = 0;
                     gm.unused_ = false;
-
                     // 8 x 8 x (4 bitsperpixel / 8 bitsperbyte)
                     constexpr int tile_size = vram_tile_size();
 
@@ -7028,6 +7052,16 @@ static const Platform::Extensions extensions{
     .watchdog_off = [] { set_gflag(GlobalFlag::watchdog_disabled, true); },
     .get_stack_usage = [] { return max_stack_usage(); },
     .restart = [] { ::restart(); },
+    .agb_color_correction = [](bool enabled) {
+        if (enabled) {
+            if (auto fd = PLATFORM.load_file("", "/scripts/data/color/agb_screen.dat");
+                fd.second >= 98304) {
+                color_correction_lut = (u8*)fd.first;
+            }
+        } else {
+            color_correction_lut = nullptr;
+        }
+    },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
            Platform::Speaker::NoteDesc note_desc) {
