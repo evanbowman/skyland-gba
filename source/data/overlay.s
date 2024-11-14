@@ -9,7 +9,7 @@
 @	+ 4200 tiles not compressed
 @	Total size: 32 + 134400 = 134432
 @
-@	Time-stamp: 2024-11-14, 16:39:28
+@	Time-stamp: 2024-11-14, 17:28:13
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -4751,6 +4751,6 @@ overlayTiles:
 	.hidden overlayPal
 overlayPal:
 	.hword 0x7C1F,0x2C7D,0x7719,0x0800,0x77DE,0x2CE7,0x737B,0x7F80
-	.hword 0x42D9,0x5926,0x55CE,0x2314,0x3B7D,0x2C53,0x2DF9,0x25D2
+	.hword 0x42D9,0x60E8,0x55CE,0x2314,0x3B7D,0x2C53,0x2DF9,0x25D2
 
 @}}BLOCK(overlay)
