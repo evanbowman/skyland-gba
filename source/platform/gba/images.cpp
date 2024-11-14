@@ -87,7 +87,7 @@
 //;
 #include "data/background_title_screen.h"
 //;
-#include "data/pub_logo_flattened.h"
+#include "data/colorProfiles.h"
 //;
 #include "data/flags.h"
 //;
@@ -249,7 +249,7 @@ static const TextureData tile_textures[] = {
 
 static const TextureData overlay_textures[] = {
 
-    TEXTURE_INFO(pub_logo_flattened, true),
+    TEXTURE_INFO(colorProfiles, false),
 //;
     TEXTURE_INFO(flags, false),
 //;

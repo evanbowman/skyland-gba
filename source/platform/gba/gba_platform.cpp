@@ -1223,6 +1223,10 @@ void Platform::Screen::set_shader_argument(int arg)
 {
     shader_argument = arg;
 
+    init_palette(current_overlay_texture->palette_data_,
+                 overlay_palette,
+                 ShaderPalette::overlay);
+
     init_palette(current_spritesheet->palette_data_,
                  sprite_palette,
                  ShaderPalette::spritesheet);

@@ -83,6 +83,8 @@ private:
     int sel_ = 0;
     int last_sel_ = -1;
 
+    void bind_selected_profile();
+
     static Factory factory_;
 };
 

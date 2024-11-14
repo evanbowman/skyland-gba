@@ -66,6 +66,9 @@ void ColorProfileModule::enter(Scene& prev)
 
     int i = 0;
 
+    PLATFORM.load_overlay_chunk(258, 0, 72 + 12, "colorProfiles");
+    draw_image(258, 17, 1, 12, 7, Layer::overlay);
+
     title_.emplace(OverlayCoord{1, 1});
     title_->assign("Color Profiles");
 
@@ -91,6 +94,26 @@ void ColorProfileModule::exit(Scene& next)
 {
     title_.reset();
     text_.clear();
+
+    PLATFORM.fill_overlay(0);
+}
+
+
+
+void ColorProfileModule::bind_selected_profile()
+{
+    auto v = lisp::get_list(*options_, sel_);
+    auto fname = v->cons().cdr();
+    if (auto cm = PLATFORM.get_extensions().apply_color_correction) {
+        if (fname not_eq L_NIL) {
+            cm(fname->string().value());
+        } else {
+            cm(nullptr);
+        }
+        PLATFORM.screen().set_shader_argument(0);
+        PLATFORM.screen().schedule_fade(0);
+        PLATFORM.screen().schedule_fade(1);
+    }
 }
 
 
@@ -100,20 +123,18 @@ ScenePtr ColorProfileModule::update(Time delta)
     if (key_down<Key::action_1>()) {
         auto v = lisp::get_list(*options_, sel_);
         auto fname = v->cons().cdr();
-        if (auto cm = PLATFORM.get_extensions().apply_color_correction) {
-            if (fname not_eq L_NIL) {
-                StringBuffer<128> color_name = fname->string().value();
-                cm(color_name.c_str());
-                Vector<char> cname;
-                for (char c : color_name) {
-                    cname.push_back(c);
-                }
-                flash_filesystem::store_file_data("/save/color.txt", cname);
-            } else {
-                cm(nullptr);
-                flash_filesystem::unlink_file("/save/color.txt");
+        if (fname not_eq L_NIL) {
+            StringBuffer<128> color_name = fname->string().value();
+            Vector<char> cname;
+            for (char c : color_name) {
+                cname.push_back(c);
             }
+            flash_filesystem::store_file_data("/save/color.txt", cname);
+        } else {
+            flash_filesystem::unlink_file("/save/color.txt");
         }
+
+        bind_selected_profile();
 
         return make_scene<TitleScreenScene>(3);
     }
@@ -126,12 +147,14 @@ ScenePtr ColorProfileModule::update(Time delta)
         if (sel_ < (int)text_.size() - 1) {
             ++sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
+            bind_selected_profile();
         }
     }
     if (test_key(Key::up)) {
         if (sel_ > 0) {
             --sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
+            bind_selected_profile();
         }
     }
 

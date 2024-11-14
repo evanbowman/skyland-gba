@@ -377,6 +377,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_dialog_fullscreen.s
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/overlay_adventurelog.s
+    ${DATA_DIR}/colorProfiles.s
     ${DATA_DIR}/stack_overflow_flattened.s
     ${DATA_DIR}/pub_logo_flattened.s
     ${DATA_DIR}/traded_core_flattened.s
@@ -787,7 +788,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background_macro 0 0 NO YES)
     add_background(background_macro_night 0 0 NO YES)
     add_background(background_title_screen 0 0 NO YES)
-    add_overlay(pub_logo 0 0 YES YES)
+    add_overlay(colorProfiles 12 7 NO NO)
     add_overlay(flags 2 2 NO NO)
     add_overlay(character_art 4 4 NO NO)
     add_overlay(paint_icons 2 2 NO NO)

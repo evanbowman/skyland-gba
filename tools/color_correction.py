@@ -1,5 +1,8 @@
 import numpy as np
 
+# NOTE: I wrote this based on Higan's color correction GLSL shader.
+# I'm bad at math, so there certainly could be mistakes here...
+
 def inverse_color_transform(r, g, b):
     # Reverse the final gamma correction
     r, g, b = r ** 2.2, g ** 2.2, b ** 2.2
