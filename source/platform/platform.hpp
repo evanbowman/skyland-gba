@@ -925,7 +925,7 @@ public:
         void (*watchdog_off)();
         u32 (*get_stack_usage)();
         void (*restart)();
-        void (*agb_color_correction)(bool enabled);
+        void (*apply_color_correction)(const char* table_name);
 
         void (*psg_play_note)(Speaker::Channel c, Speaker::NoteDesc note);
         void (*psg_stop_note)(Speaker::Channel c);

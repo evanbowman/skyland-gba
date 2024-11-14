@@ -219,7 +219,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/menuOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/moveCheckerScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/agbColorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/colorProfileModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/regressionModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp

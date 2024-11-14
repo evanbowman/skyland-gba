@@ -288,7 +288,8 @@ void Paint::show_toolbar()
     if (copy_tool_txtr_) {
         copy_tool_txtr_ = false;
         PLATFORM.load_overlay_chunk(unsel_vram_offset, 0, tcount, txtr);
-        PLATFORM.load_overlay_chunk(sel_vram_offset, sel_src_offset, tcount, txtr);
+        PLATFORM.load_overlay_chunk(
+            sel_vram_offset, sel_src_offset, tcount, txtr);
         PLATFORM.load_overlay_chunk(258, icon_metatile_size * 28, 23, txtr);
     }
 
@@ -426,9 +427,7 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
         }
         if (record_history) {
             show();
-            push_history(HistoryEntry::CanvasDragged{
-                    .dir_ = 0
-                });
+            push_history(HistoryEntry::CanvasDragged{.dir_ = 0});
         }
     }
     if (xo < 0) {
@@ -446,9 +445,7 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
         }
         if (record_history) {
             show();
-            push_history(HistoryEntry::CanvasDragged{
-                    .dir_ = 1
-                });
+            push_history(HistoryEntry::CanvasDragged{.dir_ = 1});
         }
     }
     if (yo < 0) {
@@ -466,9 +463,7 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
         }
         if (record_history) {
             show();
-            push_history(HistoryEntry::CanvasDragged{
-                    .dir_ = 2
-                });
+            push_history(HistoryEntry::CanvasDragged{.dir_ = 2});
         }
     }
     if (yo > 0) {
@@ -486,9 +481,7 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
         }
         if (record_history) {
             show();
-            push_history(HistoryEntry::CanvasDragged{
-                    .dir_ = 3
-                });
+            push_history(HistoryEntry::CanvasDragged{.dir_ = 3});
         }
     }
 }
@@ -643,11 +636,8 @@ ScenePtr Paint::update(Time delta)
         auto do_set_pixel = [this](u8 x, u8 y, u8 v) {
             auto current_color = get_pixel(x, y);
             if (current_color not_eq v) {
-                push_history(HistoryEntry::PixelChanged {
-                        .x_ = x,
-                        .y_ = y,
-                        .prev_color_ = current_color
-                    });
+                push_history(HistoryEntry::PixelChanged{
+                    .x_ = x, .y_ = y, .prev_color_ = current_color});
             }
             set_pixel(x, y, v);
         };
@@ -692,9 +682,8 @@ ScenePtr Paint::update(Time delta)
                     }
                 }
                 if (change_count) {
-                    push_history(HistoryEntry::BucketFill {
-                            .pixels_filled_ = change_count
-                        });
+                    push_history(HistoryEntry::BucketFill{.pixels_filled_ =
+                                                              change_count});
                 }
                 show();
                 break;
@@ -722,8 +711,8 @@ ScenePtr Paint::update(Time delta)
             show_toolbar();
         }
 
-        if ((tool_ == Tool::exit or
-             tool_ == Tool::preset) and APP.player().key_down(Key::action_1)) {
+        if ((tool_ == Tool::exit or tool_ == Tool::preset) and
+            APP.player().key_down(Key::action_1)) {
             break;
         }
 
@@ -737,8 +726,7 @@ ScenePtr Paint::update(Time delta)
         if ((APP.player().key_down(Key::action_1) or
              APP.player().key_down(Key::action_2) or
              APP.player().key_down(Key::start))) {
-            if (APP.player().key_down(Key::action_2) or
-                tool_ == Tool::undo or
+            if (APP.player().key_down(Key::action_2) or tool_ == Tool::undo or
                 tool_ == Tool::exit) {
                 tool_ = last_tool_;
                 show_toolbar();
@@ -784,7 +772,8 @@ void Paint::display()
             return cursor_flicker_ < 16;
         }
         auto p = get_pixel(cursor_.x, cursor_.y);
-        return p == 3 or p == 4 or p == 8 or p == 9 or p == 10 or p == 11 or p == 13 or p == 14;
+        return p == 3 or p == 4 or p == 8 or p == 9 or p == 10 or p == 11 or
+               p == 13 or p == 14;
     };
 
     sprite.set_priority(0);
@@ -845,11 +834,11 @@ void Paint::display()
         sprite.set_tidx_16x16(59, 0);
         auto offset = sine8(tool_selector_anim_) >> 6;
         tool_selector_anim_ += 4;
-        sprite.set_position({Fixnum::from_integer(vx + 28 * 8 - 13 + offset),
-                Fixnum::from_integer(2 + view_shift_ + (4 + (int)tool_ * 2) * 8)});
+        sprite.set_position(
+            {Fixnum::from_integer(vx + 28 * 8 - 13 + offset),
+             Fixnum::from_integer(2 + view_shift_ + (4 + (int)tool_ * 2) * 8)});
         PLATFORM.screen().draw(sprite);
     }
-
 }
 
 

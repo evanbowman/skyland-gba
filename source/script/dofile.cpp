@@ -270,20 +270,20 @@ int main(int argc, char** argv)
                   }));
 
     lisp::set_var("eval-file", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
-        std::ifstream t(L_LOAD_STRING(0));
-        std::stringstream buffer;
-        buffer << t.rdbuf();
-        auto str = buffer.str();
-        lisp::BasicCharSequence seq(str.c_str());
-        return lisp::dostring(seq, [](lisp::Value& err) {
-            Printer p;
-            lisp::format(&err, p);
-            std::cout << std::endl;
-            exit(EXIT_FAILURE);
-        });
-    }));
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, string);
+                      std::ifstream t(L_LOAD_STRING(0));
+                      std::stringstream buffer;
+                      buffer << t.rdbuf();
+                      auto str = buffer.str();
+                      lisp::BasicCharSequence seq(str.c_str());
+                      return lisp::dostring(seq, [](lisp::Value& err) {
+                          Printer p;
+                          lisp::format(&err, p);
+                          std::cout << std::endl;
+                          exit(EXIT_FAILURE);
+                      });
+                  }));
 
     for (int i = 1; i < argc; ++i) {
         auto path = argv[i];

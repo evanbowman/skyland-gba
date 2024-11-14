@@ -31,9 +31,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "agbColorModule.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
+
+#pragma once
+
+
+#include "script/lisp.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -42,25 +45,46 @@ namespace skyland
 
 
 
-ScenePtr AgbColorModule::update(Time delta)
+class ColorProfileModule : public Module<ColorProfileModule>
 {
-    auto flag = APP.gp_.stateflags_.get(GlobalPersistentData::agb_color_mode);
+public:
+    ScenePtr update(Time delta) override;
 
-    flag = not flag;
-    APP.gp_.stateflags_.set(GlobalPersistentData::agb_color_mode, flag);
 
-    save::store_global_data(APP.gp_);
+    void enter(Scene& prev) override;
+    void exit(Scene& next) override;
 
-    if (auto cm = PLATFORM.get_extensions().agb_color_correction) {
-        cm(flag);
+
+    static SystemString module_name()
+    {
+        return SystemString::module_colormode;
     }
 
-    return make_scene<TitleScreenScene>(3);
-}
+
+    static u16 icon()
+    {
+        return 4088;
+    }
 
 
+    static bool run_scripts()
+    {
+        return false;
+    }
 
-AgbColorModule::Factory AgbColorModule::factory_;
+
+    static StringBuffer<64> load_current_profile();
+
+
+private:
+    Optional<lisp::Protected> options_;
+    Optional<Text> title_;
+    Buffer<Text, 8> text_;
+    int sel_ = 0;
+    int last_sel_ = -1;
+
+    static Factory factory_;
+};
 
 
 

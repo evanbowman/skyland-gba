@@ -175,8 +175,7 @@ public:
         }
 
         if (overscroll or
-            (tool_ == Tool::exit and
-             APP.player().key_down(Key::action_1))) {
+            (tool_ == Tool::exit and APP.player().key_down(Key::action_1))) {
 
             if (next_) {
                 auto ret = (*next_)(texture_, overscroll);

@@ -166,7 +166,8 @@ protected:
             u8 pixels_filled_;
         };
 
-        union {
+        union
+        {
             PixelChanged pen_;
             CanvasDragged drag_;
             BucketFill bucket_;

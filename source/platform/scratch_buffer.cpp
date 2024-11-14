@@ -90,7 +90,8 @@ ScratchBufferPtr make_zeroed_sbr(const ScratchBuffer::Tag& tag,
 
     static const int wordsize = sizeof(void*);
 
-    if ((intptr_t)sbr->data_ % wordsize == 0 and zero_fill_size % wordsize == 0) {
+    if ((intptr_t)sbr->data_ % wordsize == 0 and
+        zero_fill_size % wordsize == 0) {
         PLATFORM.memset_words(sbr->data_, 0, zero_fill_size / wordsize);
     } else {
         memset(sbr->data_, 0, zero_fill_size);

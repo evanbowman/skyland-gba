@@ -35,6 +35,7 @@
 #pragma once
 
 #include "fadeInScene.hpp"
+#include "modules/colorProfileModule.hpp"
 #include "modules/datetimeModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
@@ -380,6 +381,13 @@ public:
         TIMEPOINT(t2);
 
         info(format("boot took %", t2 - t1));
+
+        if (auto cm = PLATFORM.get_extensions().apply_color_correction) {
+            auto col = ColorProfileModule::load_current_profile();
+            if (col.length()) {
+                cm(col.c_str());
+            }
+        }
 
         PLATFORM.fill_overlay(0);
         PLATFORM.screen().schedule_fade(1.f);

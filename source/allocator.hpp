@@ -176,7 +176,8 @@ private:
     // u8 data_[sizeof(T)];
 
 public:
-    ScratchMemory() : handle_(make_zeroed_sbr("scratch-memory", sizeof(T) + alignof(T)))
+    ScratchMemory()
+        : handle_(make_zeroed_sbr("scratch-memory", sizeof(T) + alignof(T)))
     {
         void* alloc_ptr = handle_->data_;
         std::size_t size = sizeof handle_->data_;

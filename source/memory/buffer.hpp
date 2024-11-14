@@ -54,7 +54,9 @@ public:
     using ReverseIterator = reverse_iterator;
 
 
-    struct SkipZeroFill {};
+    struct SkipZeroFill
+    {
+    };
 
 
     Buffer(const SkipZeroFill&)

@@ -340,12 +340,9 @@ __attribute__((section(".iwram"), long_call)) void
 memcpy32(void* dst, const void* src, uint wcount);
 void memcpy16(void* dst, const void* src, uint hwcount);
 
-__attribute__((section(".iwram"), long_call))
-void memset32(void *dst, u32 src, u32 wdn);
-void memset16(void *dst, u16 src, u32 hwn);
-
-
-
+__attribute__((section(".iwram"), long_call)) void
+memset32(void* dst, u32 src, u32 wdn);
+void memset16(void* dst, u16 src, u32 hwn);
 }
 
 
@@ -1169,10 +1166,12 @@ Color agb_color_correction(const Color& c)
         return c;
     }
 
-    #define COLOR_LUT_SIZE 32
+#define COLOR_LUT_SIZE 32
 
     // Calculate the index into the flat LUT array
-    int index = (c.r_ * COLOR_LUT_SIZE * COLOR_LUT_SIZE + c.g_ * COLOR_LUT_SIZE + c.b_) * 3;
+    int index = (c.r_ * COLOR_LUT_SIZE * COLOR_LUT_SIZE +
+                 c.g_ * COLOR_LUT_SIZE + c.b_) *
+                3;
 
     // Access the RGB channels from the LUT
     u8 r_value = color_correction_lut[index + 0];
@@ -1186,11 +1185,10 @@ Color agb_color_correction(const Color& c)
 
 static Color invoke_shader(const Color& c, ShaderPalette palette, int index)
 {
-    return agb_color_correction(shader(
-        std::move(palette),
-        c.hex(),
-        std::move(shader_argument),
-        std::move(index)));
+    return agb_color_correction(shader(std::move(palette),
+                                       c.hex(),
+                                       std::move(shader_argument),
+                                       std::move(index)));
 }
 
 
@@ -6810,8 +6808,7 @@ static const Platform::Extensions extensions{
             if (not get_gflag(GlobalFlag::v_parallax)) {
                 auto offset = center.y / 2;
                 for (int i = 112 - offset; i < 128 - offset; ++i) {
-                    u8 temp = scroll +
-                              center.x / 3;
+                    u8 temp = scroll + center.x / 3;
                     parallax_table[i] = temp;
                 }
 
@@ -6837,8 +6834,7 @@ static const Platform::Extensions extensions{
                 // stuff if we're about to copy over the palette back buffer. During
                 // fades, the palettes are copied infrequently anyway.
 
-                s16 far_x_offset =
-                    center.x / 4 + 3;
+                s16 far_x_offset = center.x / 4 + 3;
 
                 s16 v_scroll = (offset * 6) / 2 + 24;
 
@@ -6874,8 +6870,7 @@ static const Platform::Extensions extensions{
             if (not get_gflag(GlobalFlag::v_parallax)) {
                 auto offset = center.y / 2;
                 for (int i = 128 - offset; i < 160 - offset; ++i) {
-                    u8 temp = scroll +
-                              center.x / 3;
+                    u8 temp = scroll + center.x / 3;
                     parallax_table[i] = temp;
                 }
                 return;
@@ -7052,16 +7047,19 @@ static const Platform::Extensions extensions{
     .watchdog_off = [] { set_gflag(GlobalFlag::watchdog_disabled, true); },
     .get_stack_usage = [] { return max_stack_usage(); },
     .restart = [] { ::restart(); },
-    .agb_color_correction = [](bool enabled) {
-        if (enabled) {
-            if (auto fd = PLATFORM.load_file("", "/scripts/data/color/agb_screen.dat");
-                fd.second >= 98304) {
-                color_correction_lut = (u8*)fd.first;
+    .apply_color_correction =
+        [](const char* table_name) {
+            if (table_name) {
+                if (auto fd = PLATFORM.load_file(
+                        "",
+                        format("/scripts/data/color/%", table_name).c_str());
+                    fd.second >= 98304) {
+                    color_correction_lut = (u8*)fd.first;
+                }
+            } else {
+                color_correction_lut = nullptr;
             }
-        } else {
-            color_correction_lut = nullptr;
-        }
-    },
+        },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
            Platform::Speaker::NoteDesc note_desc) {
