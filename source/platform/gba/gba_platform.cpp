@@ -7059,6 +7059,22 @@ static const Platform::Extensions extensions{
             } else {
                 color_correction_lut = nullptr;
             }
+            for (auto& info : tile_textures) {
+                if (str_eq(info.name_, "tilesheet")) {
+                    for (int i = 0; i < 16; ++i) {
+                        MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
+
+                        // When we started allowing players to design custom sprites, we
+                        // needed to reserve a sprite palette and fill it with the same
+                        // color values as the image editor uses for custom tile
+                        // graphics.
+                        MEM_PALETTE[16 + i] =
+                            agb_color_correction(
+                                Color::from_bgr_hex_555(info.palette_data_[i]))
+                                .bgr_hex_555();
+                    }
+                }
+            }
         },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
