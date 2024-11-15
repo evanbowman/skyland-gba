@@ -6798,15 +6798,15 @@ void setup_hardcoded_palettes()
     // when I wanted background tiles to flicker between a few different colors.
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(15 * 16) + i] =
-            Color(custom_color(0xef0d54)).bgr_hex_555();
+            agb_color_correction(Color(custom_color(0xef0d54))).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(14 * 16) + i] =
-            Color(custom_color(0x103163)).bgr_hex_555();
+            agb_color_correction(Color(custom_color(0x103163))).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(13 * 16) + i] =
-            Color(ColorConstant::silver_white).bgr_hex_555();
+            agb_color_correction(Color(ColorConstant::silver_white)).bgr_hex_555();
     }
 
     // Really bad hack. We added a feature where the player can design his/her
