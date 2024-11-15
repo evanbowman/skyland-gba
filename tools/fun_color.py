@@ -33,7 +33,47 @@ save_lut_to_file(generate_soft_sepia_lut(), "sepia.dat")
 
 
 
-def generate_ukiyo_e_lut(size=32, blue_intensity=0.2, yellow_intensity=0.1, red_warmth=0.1,
+def is_cool_red(r, g, b):
+    """
+    Determines if the color (r, g, b) is a 'cool red'.
+
+    :param r: Red component (normalized, 0 to 1).
+    :param g: Green component (normalized, 0 to 1).
+    :param b: Blue component (normalized, 0 to 1).
+    :return: True if the color is a cool red, False otherwise.
+    """
+    # Red is dominant
+    if r > g and r > b:
+        # Presence of significant blue influence
+        if b > 0.3 * r:
+            # Green is not significant (not a warm red)
+            if g < 0.5 * r:
+                return True
+    return False
+
+
+
+def is_reddish_blue(r, g, b):
+    """
+    Determines if the color (r, g, b) is a 'reddish blue'.
+
+    :param r: Red component (normalized, 0 to 1).
+    :param g: Green component (normalized, 0 to 1).
+    :param b: Blue component (normalized, 0 to 1).
+    :return: True if the color is a reddish blue, False otherwise.
+    """
+    # Blue is dominant
+    if b > r and b > g:
+        # Significant red presence
+        if r > 0.3 * b:
+            # Green is not significant
+            if g < 0.5 * b:
+                return True
+    return False
+
+
+
+def generate_ukiyo_e_lut(size=32, blue_intensity=0.1, yellow_intensity=0.1, red_warmth=0.1,
                          saturation_threshold=0.3, teal_saturation=0.7, lightness_threshold=0.5):
     """
     Generate a ukiyo-e-inspired LUT with adjustments for only light, saturated blues,
@@ -75,6 +115,9 @@ def generate_ukiyo_e_lut(size=32, blue_intensity=0.2, yellow_intensity=0.1, red_
                 else:
                     adjusted_r, adjusted_g, adjusted_b = norm_r, norm_g, norm_b
 
+                while is_reddish_blue(adjusted_r, adjusted_g, adjusted_b):
+                    adjusted_r = np.clip(adjusted_r - 0.1, 0, 1)
+
                 if norm_g > norm_r and norm_g > norm_b and lightness > 0.4: # Light to medium greens
                     norm_r += 0.15 * norm_g  # Add red for olive tone
                     norm_b *= 0.5  # Desaturate to avoid intense green
@@ -86,6 +129,8 @@ def generate_ukiyo_e_lut(size=32, blue_intensity=0.2, yellow_intensity=0.1, red_
                 # Step 3: Adjust reds (warm up cool reds)
                 if norm_r > norm_b and norm_r > norm_g:  # Red dominant
                     adjusted_r = np.clip(adjusted_r + red_warmth, 0, 1)
+                    while is_cool_red(adjusted_r, g, b):
+                        adjusted_r = np.clip(adjusted_r + red_warmth, 0, 1)
 
                 # Store adjusted color values
                 lut[r, g, b, 0] = int(adjusted_r * 31)  # Red channel (5-bit)
@@ -96,7 +141,7 @@ def generate_ukiyo_e_lut(size=32, blue_intensity=0.2, yellow_intensity=0.1, red_
 
 # Parameters
 size = 32
-blue_intensity = 0.2         # Moderate shift for saturated blues
+blue_intensity = 0.1         # Moderate shift for saturated blues
 yellow_intensity = 0.1       # Moderate control of yellows
 red_warmth = 0.1             # Mild warm-up for reds
 saturation_threshold = 0.3   # Minimum saturation to apply blue adjustment
