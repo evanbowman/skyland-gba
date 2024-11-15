@@ -79,7 +79,7 @@ public:
 private:
     Optional<lisp::Protected> options_;
     Optional<Text> title_;
-    Buffer<Text, 8> text_;
+    Buffer<Text, 7> text_;
     int sel_ = 0;
     int last_sel_ = -1;
 

@@ -73,6 +73,9 @@ void ColorProfileModule::enter(Scene& prev)
     title_->assign("Color Profiles");
 
     lisp::l_foreach(*options_, [this, prof, &i](lisp::Value* v) {
+        if (text_.full()) {
+            return;
+        }
         text_.emplace_back(OverlayCoord{3, u8(5 + text_.size() * 2)});
         text_.back().assign(v->cons().car()->string().value());
         auto file = v->cons().cdr();

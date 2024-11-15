@@ -6791,6 +6791,59 @@ void CpuFastSet(const void* source, void* dest, u32 mode)
 
 
 
+
+void setup_hardcoded_palettes()
+{
+    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
+    // when I wanted background tiles to flicker between a few different colors.
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(15 * 16) + i] =
+            Color(custom_color(0xef0d54)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(14 * 16) + i] =
+            Color(custom_color(0x103163)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(13 * 16) + i] =
+            Color(ColorConstant::silver_white).bgr_hex_555();
+    }
+
+    // Really bad hack. We added a feature where the player can design his/her
+    // own flag, but we frequently switch color palettes when viewing
+    // interior/exterior of a castle, so we reserve one of the palette banks for
+    // the flag palette, which is taken from the tilesheet texture.
+    for (auto& info : tile_textures) {
+        if (str_eq(info.name_, "tilesheet")) {
+            for (int i = 0; i < 16; ++i) {
+                auto c = agb_color_correction(Color::from_bgr_hex_555(info.palette_data_[i]))
+                    .bgr_hex_555();
+                MEM_BG_PALETTE[(12 * 16) + i] = c;
+                custom_flag_palette[i] = c;
+
+                // When we started allowing players to design custom sprites, we
+                // needed to reserve a sprite palette and fill it with the same
+                // color values as the image editor uses for custom tile
+                // graphics.
+                MEM_PALETTE[16 + i] = info.palette_data_[i];
+            }
+        }
+    }
+    for (auto& info : overlay_textures) {
+        if (str_eq(info.name_, "overlay_dialog")) {
+            // FIXME!!! handle this dynamically, rather than reserving a
+            // specific palette...
+            for (int i = 0; i < 16; ++i) {
+                auto c = agb_color_correction(Color::from_bgr_hex_555(info.palette_data_[i]))
+                    .bgr_hex_555();
+                MEM_BG_PALETTE[(10 * 16) + i] = c;
+            }
+        }
+    }
+}
+
+
+
 static const Platform::Extensions extensions{
     .stack_check = []() -> bool {
         if (not canary_check()) {
@@ -7064,17 +7117,7 @@ static const Platform::Extensions extensions{
             } else {
                 color_correction_lut = nullptr;
             }
-            for (auto& info : tile_textures) {
-                if (str_eq(info.name_, "tilesheet")) {
-                    for (int i = 0; i < 16; ++i) {
-                        auto c = agb_color_correction(
-                                Color::from_bgr_hex_555(info.palette_data_[i]))
-                                .bgr_hex_555();
-                        MEM_BG_PALETTE[(12 * 16) + i] = c;
-                        custom_flag_palette[i] = c;
-                    }
-                }
-            }
+            setup_hardcoded_palettes();
         },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
@@ -7609,48 +7652,7 @@ Platform::Platform()
         rumble_init(nullptr);
     }
 
-    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
-    // when I wanted background tiles to flicker between a few different colors.
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(15 * 16) + i] =
-            Color(custom_color(0xef0d54)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(14 * 16) + i] =
-            Color(custom_color(0x103163)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(13 * 16) + i] =
-            Color(ColorConstant::silver_white).bgr_hex_555();
-    }
-
-    // Really bad hack. We added a feature where the player can design his/her
-    // own flag, but we frequently switch color palettes when viewing
-    // interior/exterior of a castle, so we reserve one of the palette banks for
-    // the flag palette, which is taken from the tilesheet texture.
-    for (auto& info : tile_textures) {
-        if (str_eq(info.name_, "tilesheet")) {
-            for (int i = 0; i < 16; ++i) {
-                MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
-                custom_flag_palette[i] = info.palette_data_[i];
-
-                // When we started allowing players to design custom sprites, we
-                // needed to reserve a sprite palette and fill it with the same
-                // color values as the image editor uses for custom tile
-                // graphics.
-                MEM_PALETTE[16 + i] = info.palette_data_[i];
-            }
-        }
-    }
-    for (auto& info : overlay_textures) {
-        if (str_eq(info.name_, "overlay_dialog")) {
-            // FIXME!!! handle this dynamically, rather than reserving a
-            // specific palette...
-            for (int i = 0; i < 16; ++i) {
-                MEM_BG_PALETTE[(10 * 16) + i] = info.palette_data_[i];
-            }
-        }
-    }
+    setup_hardcoded_palettes();
 
     irqSet(IRQ_KEYPAD, keypad_isr);
     irqEnable(IRQ_KEYPAD);
