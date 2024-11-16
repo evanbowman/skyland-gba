@@ -82,6 +82,7 @@
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
+#include "skyland/rooms/portal.hpp"
 #include "skyland/rooms/piston.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
@@ -355,6 +356,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         LadderPlus,
                                         StairwellPlus,
                                         StairwellPlusPlus,
+                                        Portal,
                                         Bulkhead,
                                         Infirmary,
                                         CargoBay,

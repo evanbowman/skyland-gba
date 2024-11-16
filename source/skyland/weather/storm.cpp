@@ -111,7 +111,8 @@ static uint8_t rand8(void)
 
 void State::display()
 {
-    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
+    using Buf = Buffer<Vec2<s32>, 64>;
+    auto batch = allocate_dynamic_fast<Buf>("rain-spr-buffer", Buf::SkipZeroFill{});
 
     constexpr auto scale = rain_pos_scale;
 
@@ -214,12 +215,6 @@ void State::update(Time delta)
     if (camera_diff_x != 0 or camera_diff_y != 0) {
         last_camera_ = camera;
     }
-
-    TIMEPOINT(t2);
-
-    // if (t2 - t1 > 2000) {
-    //     Platform::fatal(format("%", t2 - t1));
-    // }
 }
 
 
@@ -229,8 +224,6 @@ void Storm::update(Time delta)
     if (PLATFORM.screen().fade_active()) {
         return;
     }
-
-    TIMEPOINT(t1);
 
     auto& gen = rng::utility_state;
 

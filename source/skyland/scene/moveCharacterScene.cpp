@@ -38,6 +38,7 @@
 #include "readyScene.hpp"
 #include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
+#include "skyland/rooms/portal.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -64,6 +65,41 @@ ModifyCharacterScene::ModifyCharacterScene(CharacterId chr_id, bool near)
 
 
 u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
+
+
+
+void flood_fill_through_portals(Island& isle,
+                                u8 matrix[16][16],
+                                u8 replace,
+                                u8 x,
+                                u8 y)
+{
+    flood_fill(matrix, replace, x, y);
+
+    // Good lord this is horrible...
+    for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 0; y < 16; ++y) {
+            if (matrix[x][y] == replace) {
+                if (auto room = isle.get_room({x, y})) {
+                    if (room->cast<Portal>()) {
+                        for (u8 xx = 0; xx < 16; ++xx) {
+                            for (u8 yy = 0; yy < 16;  ++yy) {
+                                if (matrix[xx][yy] not_eq replace) {
+                                    if (auto o = isle.get_room({xx, yy})) {
+                                        if (o->cast<Portal>()) {
+                                            flood_fill(matrix, replace, xx, yy);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
 
@@ -163,7 +199,7 @@ void ModifyCharacterScene::enter(Scene& prev)
 
     // Ok, so now we do a flood fill, to find all cells reachable from the
     // position of the cursor. Erase all othre disconnected components.
-    flood_fill(matrix, 2, cursor_loc.x, cursor_loc.y);
+    flood_fill_through_portals(*island, matrix, 2, cursor_loc.x, cursor_loc.y);
 
 
     for (int x = 0; x < 16; ++x) {

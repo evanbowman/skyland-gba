@@ -30,6 +30,7 @@
   (stairwell++  90  600  0)
   (ladder+      45  450  0)
   (ladder       30  400  0)
+  (portal       30  800  20)
   (bulkhead-door 100 400 5)
   (radiator     60  400  50)
   (workshop     60  2000 10)

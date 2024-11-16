@@ -632,6 +632,9 @@ struct InteriorTile
         deflector_boundary_b,
         deflector_boundary_br,
         deflector_boundary_center,
+        deflector_source,
+        portal_1,
+        portal_2,
         count
     };
 };

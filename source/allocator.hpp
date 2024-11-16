@@ -124,6 +124,41 @@ template <typename T> struct DynamicMemory
 };
 
 
+
+template <typename T, typename... Args>
+DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag, Args&&... args)
+{
+    static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
+
+    auto sc_buf = make_scratch_buffer(tag);
+
+    auto deleter = [](T* val) {
+        if (val) {
+            if constexpr (not std::is_trivial<T>()) {
+                val->~T();
+            }
+            // No need to actually deallocate anything, we
+            // just need to make sure that we're calling the
+            // destructor.
+        }
+    };
+
+    void* alloc_ptr = sc_buf->data_;
+    std::size_t size = sizeof sc_buf->data_;
+
+    if (align(alignof(T), sizeof(T), alloc_ptr, size)) {
+        T* result = reinterpret_cast<T*>(alloc_ptr);
+        new (result) T(std::forward<Args>(args)...);
+        alloc_ptr = (char*)alloc_ptr + sizeof(T);
+        size -= sizeof(T);
+
+        return {sc_buf, {result, deleter}};
+    }
+    return {sc_buf, {nullptr, deleter}};
+}
+
+
+
 template <typename T, typename... Args>
 DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 {

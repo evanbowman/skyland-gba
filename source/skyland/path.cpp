@@ -35,6 +35,7 @@
 #include "path.hpp"
 #include "island.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/rooms/portal.hpp"
 
 
 
@@ -159,6 +160,22 @@ Optional<Path> find_path(Island* island,
                 if (alt < neighbor->dist_) {
                     neighbor->dist_ = alt;
                     neighbor->prev_ = min;
+                }
+            }
+            if (auto room = island->get_room(min->coord_)) {
+                if (room->cast<Portal>()) {
+                    for (auto& o : island->rooms()) {
+                        if (o.get() not_eq room and o->cast<Portal>()) {
+                            auto alt = min->dist_ +
+                                manhattan_length(min->coord_, o->position());
+                            if (auto n = vertex_mat[o->position().x][o->position().y]) {
+                                if (alt < n->dist_) {
+                                    n->dist_ = alt;
+                                    n->prev_ = min;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             sort_q();

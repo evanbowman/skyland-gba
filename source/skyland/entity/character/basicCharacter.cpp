@@ -39,6 +39,7 @@
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/replicator.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/portal.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -378,9 +379,11 @@ void BasicCharacter::update(Time delta, Room* room)
         if (radiation_counter_) {
             radiation_counter_ -= std::min((u8)4, radiation_counter_);
             sprite_.set_mix({custom_color(0xe81858), radiation_counter_});
+
+            if (radiation_counter_ == 0) {
+                sprite_.set_mix({});
+            }
         }
-    } else {
-        sprite_.set_mix({});
     }
 
     switch (state_) {
@@ -456,6 +459,7 @@ void BasicCharacter::update(Time delta, Room* room)
                             not str_eq(name, "ladder+") and
                             not str_eq(name, "stairwell+") and
                             not str_eq(name, "stairwell++") and
+                            not str_eq(name, "portal") and
                             not APP.opponent().is_friendly()) {
                             state_ = State::plunder_room;
                             timer_ = 0;
@@ -769,6 +773,8 @@ void BasicCharacter::movement_step(Time delta)
     awaiting_movement_ = false;
     can_move_ = false;
 
+    bool warped = false;
+
 
     if (not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
@@ -776,6 +782,17 @@ void BasicCharacter::movement_step(Time delta)
         dest.x += Fixnum::from_integer(dest_grid_pos.x * 16);
         dest.y += Fixnum::from_integer(dest_grid_pos.y * 16 -
                                        3); // floor is two pixels thick
+
+        if (auto r = parent()->get_room(grid_position())) {
+            if (r->cast<Portal>()) {
+                if (auto d = parent()->get_room(dest_grid_pos)) {
+                    if (d->cast<Portal>()) {
+                        timer_ = movement_step_duration(race_) + 1;
+                        warped = true;
+                    }
+                }
+            }
+        }
 
         if (dest_grid_pos.x < grid_position_.x) {
             sprite_.set_flip({false, false});
@@ -818,6 +835,15 @@ void BasicCharacter::movement_step(Time delta)
             }
 
             (*movement_path_)->pop_back();
+
+            if (warped) {
+                state_ = State::after_transport;
+                anim_timer_ = 0;
+                sprite_.set_mix({ColorConstant::electric_blue, 255});
+                idle_count_ = 0;
+                sprite_.set_texture_index(base_frame(this) + 5);
+            }
+
         } else {
             movement_path_.reset();
         }

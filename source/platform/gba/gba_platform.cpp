@@ -1371,21 +1371,9 @@ u16 find_dynamic_mapping(u16 virtual_index)
 
 
 
-static Optional<Vec2<s32>> cached_view_center;
-
-
-
 static Vec2<s32> get_view_center(const Platform::Screen& screen)
 {
-    Vec2<s32> view_center;
-    if (cached_view_center) {
-        view_center = *cached_view_center;
-    } else {
-        view_center = screen.get_view().get_center().cast<s32>();
-        cached_view_center = view_center;
-    }
-
-    return view_center;
+    return screen.get_view().int_center().cast<s32>();
 }
 
 
@@ -2362,8 +2350,6 @@ void Platform::Screen::display()
             BG1_Y_SCROLL = view_offset.y / 2;
         }
     }
-
-    cached_view_center.reset();
 }
 
 
