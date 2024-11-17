@@ -1956,6 +1956,15 @@ void Island::repaint()
                 auto t1 = mem->tiles[x][y];
                 auto t2 = mem->tiles[x][y + 1];
 
+                if (t1 == Tile::wall_plain_1) {
+                    if (t2 == Tile::wall_window_1) {
+                        t2 = Tile::wall_window_middle_1;
+                    }
+                    if (t2 == Tile::wall_plain_1) {
+                        t2 = Tile::wall_plain_middle;
+                    }
+                    mem->tiles[x][y + 1] = t2;
+                }
                 if (t1 == Tile::wall_window_2) {
                     if (t2 == Tile::wall_window_1) {
                         mem->tiles[x][y] = Tile::wall_window_middle_2;

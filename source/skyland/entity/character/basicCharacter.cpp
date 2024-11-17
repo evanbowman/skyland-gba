@@ -842,6 +842,8 @@ void BasicCharacter::movement_step(Time delta)
                 sprite_.set_mix({ColorConstant::electric_blue, 255});
                 idle_count_ = 0;
                 sprite_.set_texture_index(base_frame(this) + 5);
+                awaiting_movement_ = true;
+                can_move_ = false;
             }
 
         } else {

@@ -55,7 +55,10 @@ public:
     }
 
 
-    // static void format_description(StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_portal)->c_str();
+    }
 
 
     void render_interior(App* app, TileId buffer[16][16]) override
