@@ -421,7 +421,7 @@ void BasicCharacter::update(Time delta, Room* room)
                 sprite_.set_position(o);
             } else {
                 timer_ += delta;
-                movement_step(delta);
+                movement_step(delta, room);
                 anim_timer_ += delta;
                 if (anim_timer_ > milliseconds(100)) {
                     anim_timer_ = 0;
@@ -764,7 +764,7 @@ void BasicCharacter::update_attack(Time delta)
 
 
 
-void BasicCharacter::movement_step(Time delta)
+void BasicCharacter::movement_step(Time delta, Room* current_room)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -783,13 +783,11 @@ void BasicCharacter::movement_step(Time delta)
         dest.y += Fixnum::from_integer(dest_grid_pos.y * 16 -
                                        3); // floor is two pixels thick
 
-        if (auto r = parent()->get_room(grid_position())) {
-            if (r->cast<Portal>()) {
-                if (auto d = parent()->get_room(dest_grid_pos)) {
-                    if (d->cast<Portal>()) {
-                        timer_ = movement_step_duration(race_) + 1;
-                        warped = true;
-                    }
+        if (current_room and current_room->cast<Portal>()) {
+            if (auto d = parent()->get_room(dest_grid_pos)) {
+                if (d->cast<Portal>()) {
+                    timer_ = movement_step_duration(race_) + 1;
+                    warped = true;
                 }
             }
         }

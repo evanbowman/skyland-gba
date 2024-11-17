@@ -365,7 +365,7 @@ private:
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
-    void movement_step(Time delta);
+    void movement_step(Time delta, Room* current_room);
 
     void update_attack(Time delta);
 };

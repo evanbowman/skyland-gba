@@ -336,7 +336,6 @@ using RoomMetatableType = RoomMetatable<15,
                                         BeamGun,
                                         MissileSilo,
                                         RocketSilo,
-                                        // SwerveMissileSilo,
                                         ClumpBomb,
                                         Warhead,
                                         // factories
