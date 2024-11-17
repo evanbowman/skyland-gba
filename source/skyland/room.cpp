@@ -1082,6 +1082,12 @@ bool Room::target_pinned() const
 
 void Room::plunder(Health damage)
 {
+    if (size().x == 1 and size().y == 1) {
+        // This block cannot be converted to a plundered room, because its
+        // dimensions are smaller!
+        return;
+    }
+
     apply_damage(damage, {.ignore_deflector_shield_ = true});
 
     if (health_ == 0) {
