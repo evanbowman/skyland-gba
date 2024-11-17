@@ -293,12 +293,7 @@ void Transporter::recover_character(const RoomCoord& position)
                 unlinked->set_parent(parent());
                 unlinked->transported();
 
-                if (parent() == APP.opponent_island() and
-                    not parent()->interior_visible()) {
-                    // Don't waste cpu on an effect that can't be seen.
-                } else if (auto e = alloc_entity<CharacterOutline>(*unlinked)) {
-                    APP.effects().push(std::move(e));
-                }
+                make_transport_effect(*unlinked);
 
                 edit_characters().push(std::move(unlinked));
                 ready();
@@ -307,6 +302,18 @@ void Transporter::recover_character(const RoomCoord& position)
                 ++it;
             }
         }
+    }
+}
+
+
+
+void make_transport_effect(BasicCharacter& chr)
+{
+    if (chr.parent() == APP.opponent_island() and
+        not chr.parent()->interior_visible()) {
+        // Don't waste cpu on an effect that can't be seen.
+    } else if (auto e = alloc_entity<CharacterOutline>(chr)) {
+        APP.effects().push(std::move(e));
     }
 }
 

@@ -170,4 +170,8 @@ void transport_character_impl(Island* src_island,
 
 
 
+void make_transport_effect(BasicCharacter& chr);
+
+
+
 } // namespace skyland

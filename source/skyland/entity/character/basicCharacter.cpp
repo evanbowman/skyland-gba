@@ -785,7 +785,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
 
         if (current_room and current_room->cast<Portal>()) {
             if (auto d = parent()->get_room(dest_grid_pos)) {
-                if (d->cast<Portal>()) {
+                if (d not_eq current_room and d->cast<Portal>()) {
                     timer_ = movement_step_duration(race_) + 1;
                     warped = true;
                 }
@@ -842,6 +842,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
                 sprite_.set_texture_index(base_frame(this) + 5);
                 awaiting_movement_ = true;
                 can_move_ = false;
+                make_transport_effect(*this);
             }
 
         } else {
