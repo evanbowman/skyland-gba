@@ -108,7 +108,7 @@ public:
         ActiveWorldScene::update(delta);
 
         if (APP.player().key_down(Key::down)) {
-            if (index_ == 6) {
+            if (index_ == 7) {
                 index_ = 0;
             } else {
                 ++index_;

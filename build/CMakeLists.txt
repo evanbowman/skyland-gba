@@ -130,6 +130,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/weather/dynamic.cpp
   ${SOURCE_DIR}/skyland/weather/dustStorm.cpp
   ${SOURCE_DIR}/skyland/weather/blizzard.cpp
+  ${SOURCE_DIR}/skyland/weather/solarStorm.cpp
   ${SOURCE_DIR}/skyland/weather/clearSkies.cpp
   ${SOURCE_DIR}/skyland/weather/environment.cpp
   ${SOURCE_DIR}/skyland/weather/slightlyOvercast.cpp

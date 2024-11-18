@@ -52,7 +52,7 @@ void prep_level();
 const SkylandForever::ParameterInfo
     SkylandForever::param_info[decltype(parameters_)::capacity()] = {
         {SystemString::sf_difficulty, 1, 0, 2},
-        {SystemString::sandbox_weather, 1, 1, 7},
+        {SystemString::sandbox_weather, 1, 1, 8},
 };
 
 
