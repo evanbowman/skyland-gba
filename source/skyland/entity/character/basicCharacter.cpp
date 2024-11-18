@@ -367,6 +367,13 @@ void BasicCharacter::set_max_health(u8 val)
 
 
 
+void BasicCharacter::set_phase(u8 phase)
+{
+    sprite_.set_alpha(phase ? Sprite::Alpha::translucent : Sprite::Alpha::opaque);
+}
+
+
+
 void BasicCharacter::update(Time delta, Room* room)
 {
     // const auto t1 = PLATFORM.delta_clock().sample();
@@ -764,6 +771,51 @@ void BasicCharacter::update_attack(Time delta)
 
 
 
+struct WarpEffect : public Entity
+{
+public:
+    WarpEffect(Vec2<Fixnum> source,
+               Vec2<Fixnum> dest,
+               Time interval) :
+        Entity({}), interval_(interval), source_(source), dest_(dest)
+    {
+        sprite_.set_size(Sprite::Size::w8_h8);
+        sprite_.set_origin({4, 4});
+        sprite_.set_position(source);
+        sprite_.set_tidx_8x8(30, 6);
+    }
+
+
+    void update(Time delta) override
+    {
+        if (delta == 0) {
+            return;
+        }
+
+        timer_ += delta;
+        if (timer_ < interval_) {
+            auto pos = interpolate_fp(source_, dest_, Fixnum(Float(timer_) / interval_));
+            sprite_.set_position(pos);
+        } else {
+            kill();
+        }
+    }
+
+
+    void rewind(Time delta) override
+    {
+        kill();
+    }
+
+private:
+    Time timer_ = 0;
+    Time interval_;
+    Vec2<Fixnum> source_;
+    Vec2<Fixnum> dest_;
+};
+
+
+
 void BasicCharacter::movement_step(Time delta, Room* current_room)
 {
     auto o = parent_->visual_origin();
@@ -788,6 +840,12 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
                 if (d not_eq current_room and d->cast<Portal>()) {
                     timer_ = movement_step_duration(race_) + 1;
                     warped = true;
+
+                    if (auto e = APP.alloc_entity<WarpEffect>(d->visual_center(),
+                                                              current_room->visual_center(),
+                                                              milliseconds(200))) {
+                        APP.effects().push(std::move(e));
+                    }
                 }
             }
         }
