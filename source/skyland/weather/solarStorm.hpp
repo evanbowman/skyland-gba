@@ -70,7 +70,7 @@ public:
 
 
 private:
-    u8 update_cyc_ = 0;
+    Time ignite_timer_ = 0;
 };
 
 

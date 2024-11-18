@@ -166,7 +166,7 @@ void IncineratorBolt::on_collision(Room& room, Vec2<u8> origin)
     auto damage = [&](int xo, int yo) {
         Vec2<u8> c{u8(coord.x + xo), u8(coord.y + yo)};
         if (auto r = room.parent()->get_room(c)) {
-            r->apply_damage(2);
+            r->burn_damage(2);
             room.parent()->fire_create(c);
         }
     };

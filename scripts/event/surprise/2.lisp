@@ -1,6 +1,8 @@
 
 (dialog "Your castle passes under a hole in the atmosphere! <B:0>"
-        "Intense light bakes your hull, setting anything flammable on fire!")
+        "Be careful! Periodic solar flares may ignite random things! <B:0>"
+        "Fire damage is currently increased!")
 
+(adventure-log-add 65 '())
 
 (weather-set 8)

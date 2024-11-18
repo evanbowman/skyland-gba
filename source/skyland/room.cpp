@@ -48,6 +48,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/tile.hpp"
 #include "timeStreamEvent.hpp"
+#include "skyland/weather/solarStorm.hpp"
 
 
 
@@ -952,6 +953,10 @@ void Room::burn_damage(Health amount)
 {
     DamageConfiguration conf;
     conf.ignore_deflector_shield_ = true;
+
+    if (APP.environment().id() == weather::SolarStorm::id_) {
+        amount *= 2;
+    }
 
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {

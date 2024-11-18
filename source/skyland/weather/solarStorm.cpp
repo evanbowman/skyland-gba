@@ -35,6 +35,7 @@
 #include "solarStorm.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/entity/misc/lightningStrike.hpp"
 
 
 
@@ -59,27 +60,59 @@ Platform::Screen::Shader SolarStorm::shader() const
 
 void SolarStorm::update(Time delta)
 {
-    if (delta > 0 and ++update_cyc_ == 30) {
-        update_cyc_ = 0;
+    auto last_ignite_tm = ignite_timer_;
+    ignite_timer_ += delta;
 
-        for (u8 x = 0; x < 16; ++x) {
-            for (u8 y = 0; y < 16; ++y) {
-                if (auto r = APP.player_island().get_room({x, y})) {
-                    auto p = (*r->metaclass())->properties();
-                    if (p & RoomProperties::highly_flammable) {
-                        APP.player_island().fire_create({x, y});
+    const auto ignite_warning_time = seconds(3);
+    const auto ignite_time = seconds(26);
+    const auto warn_at = ignite_time - ignite_warning_time;
+
+    if (ignite_timer_ > warn_at and last_ignite_tm <= warn_at) {
+        PLATFORM.speaker().play_sound("warning_alarm.raw", 7);
+    }
+
+    if (ignite_timer_ > ignite_time) {
+        ignite_timer_ -= ignite_time;
+
+        if (auto l = APP.alloc_entity<LightningStrike>()) {
+            PLATFORM.speaker().play_sound("thunder_close_1", 5);
+            APP.effects().push(std::move(l));
+
+            for (auto& room : player_island().rooms()) {
+                room->on_lightning();
+            }
+
+            if (opponent_island()) {
+                for (auto& room : opponent_island()->rooms()) {
+                    room->on_lightning();
+                }
+            }
+
+            auto start_random_fire = [&](auto& isle) {
+                Vector<Room*> hr;
+                for (auto& r : isle.rooms()) {
+                    auto prop = (*r->metaclass())->properties();
+                    if (prop & RoomProperties::habitable) {
+                        hr.push_back(r.get());
                     }
                 }
+                if (hr.size() == 0) {
+                    return;
+                }
+                int idx = rng::choice(hr.size(), rng::critical_state);
+                auto r = hr[idx];
+                auto p = r->position();
+                p.y += r->size().y - 1;
+                isle.fire_create(p);
+            };
 
-                APP.with_opponent_island([x, y](auto& isle) {
-                    if (auto r = isle.get_room({x, y})) {
-                        auto p = (*r->metaclass())->properties();
-                        if (p & RoomProperties::highly_flammable) {
-                            isle.fire_create({x, y});
-                        }
-                    }
-                });
-            }
+            start_random_fire(APP.player_island());
+            start_random_fire(APP.player_island());
+
+            APP.with_opponent_island([&](auto& isle) {
+                start_random_fire(isle);
+                start_random_fire(isle);
+            });
         }
     }
 }
@@ -123,7 +156,7 @@ Platform::Screen::Shader SolarStorm::get_shader()
             case 11:
                 return custom_color(0x63f2ff);
             case 12:
-                return custom_color(0x1567C6);
+                return custom_color(0x5254c4);
             case 13:
                 return custom_color(0xe8e8a7);
             case 14:
@@ -169,7 +202,7 @@ Platform::Screen::Shader SolarStorm::get_shader()
             case 11:
                 return custom_color(0x63f2ff);
             case 12:
-                return custom_color(0x1567C6);
+                return custom_color(0x5254c4);
             case 13:
                 return custom_color(0xe8e8a7);
             case 14:
@@ -195,28 +228,27 @@ Platform::Screen::Shader SolarStorm::get_shader()
             break;
 
         case ShaderPalette::spritesheet:
-            // TODO...
-            // switch (index) {
-            // case 1:
-            //     return custom_color(0xc95175);
-            // case 8:
-            //     return custom_color(0x47679e);
+            switch (index) {
+            case 1:
+                return custom_color(0xe33314);
+            case 8:
+                return custom_color(0x736373);
 
-            // case 10:
-            //     return custom_color(0x0872E9);
+            case 10:
+                return custom_color(0x5252c6);
 
-            // case 11:
-            //     return custom_color(0x9bc4c1);
+            case 11:
+                return custom_color(0xbdb5ad);
 
-            // case 12:
-            //     return custom_color(0x163061);
+            case 12:
+                return custom_color(0x393952);
 
-            // case 2:
-            //     return custom_color(0x1e1121);
+            case 2:
+                return custom_color(0x1e1121);
 
-            // default:
-            //     break;
-            // }
+            default:
+                break;
+            }
             break;
 
         default:

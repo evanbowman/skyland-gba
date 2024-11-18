@@ -62,3 +62,4 @@ refused to pay imperial missile station
 accepted goblin surrender, salvaged blocks...
 accepted atomic arsenal quest!
 retrieved atomic arsenal!
+encountered a solar storm!
