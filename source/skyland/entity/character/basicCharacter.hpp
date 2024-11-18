@@ -326,6 +326,9 @@ public:
     void apply_radiation_damage(Health amount);
 
 
+    void set_phase(u8 phase);
+
+
 private:
     Island* parent_;
     Player* owner_;

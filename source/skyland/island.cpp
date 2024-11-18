@@ -1277,6 +1277,10 @@ HitBox Island::hitbox() const
 
 void Island::test_collision(Entity& entity)
 {
+    if (phase_ == 1) {
+        return;
+    }
+
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
     auto entity_pos = ivec((entity.sprite().get_position() - this->origin()));
@@ -1328,6 +1332,39 @@ void Island::test_collision(Entity& entity)
             }
         }
     }
+}
+
+
+
+void Island::set_phase(u8 phase)
+{
+    phase_ = phase;
+
+    for (auto& r : rooms()) {
+        for (auto& chr : r->characters()) {
+            chr->set_phase(phase);
+        }
+    }
+
+    Buffer<Layer, 4> translucent_layers;
+    if (APP.player_island().phase()) {
+        translucent_layers.push_back(APP.player_island().layer());
+    }
+
+    APP.with_opponent_island([&](auto& isle) {
+        if (isle.phase()) {
+            translucent_layers.push_back(isle.layer());
+        }
+    });
+
+    PLATFORM_EXTENSION(enable_translucence, translucent_layers);
+}
+
+
+
+u8 Island::phase() const
+{
+    return phase_;
 }
 
 

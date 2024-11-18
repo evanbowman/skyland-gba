@@ -432,6 +432,12 @@ public:
     void schedule_recompute_deflector_shields();
 
 
+    void set_phase(u8 phase);
+
+
+    u8 phase() const;
+
+
 private:
     void recompute_deflector_shields();
 
@@ -520,6 +526,7 @@ private:
     bool hidden_ : 1;
     bool show_powerdown_opts_ : 1 = false;
     bool should_recompute_deflector_shields_ : 1 = false;
+    u8 phase_ : 1 = 0;
 
 
     // During repaint(), the game caches the results of plot_rooms() in this

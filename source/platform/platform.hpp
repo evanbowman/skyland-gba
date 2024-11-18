@@ -926,6 +926,7 @@ public:
         u32 (*get_stack_usage)();
         void (*restart)();
         void (*apply_color_correction)(const char* table_name);
+        void (*enable_translucence)(const Buffer<Layer, 4>& layers);
 
         void (*psg_play_note)(Speaker::Channel c, Speaker::NoteDesc note);
         void (*psg_stop_note)(Speaker::Channel c);

@@ -851,7 +851,7 @@ void window_init_default()
     set_gflag(GlobalFlag::effect_window_mode, false);
     set_gflag(GlobalFlag::iris_effect_mode, false);
 
-    REG_WININ = WIN_ALL;
+    REG_WININ = WIN_ALL | WIN_BLD;
     // Outside the window, display the background and the overlay, also objects.
     REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
 }
@@ -917,7 +917,7 @@ static void init_video(Platform::Screen& screen)
 
     window_init_default();
 
-    REG_BLENDCNT = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
+    REG_BLENDCNT = BLD_BUILD(0, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
 
     REG_BLENDALPHA = BLDA_BUILD(0x40 / 8, 0x40 / 8);
 
@@ -7105,6 +7105,31 @@ static const Platform::Extensions extensions{
             }
             setup_hardcoded_palettes();
         },
+    .enable_translucence = [](const Buffer<Layer, 4>& layers) {
+        u16 bld = 0;
+
+        for (auto& l : layers) {
+            switch (l) {
+            case Layer::map_0_ext:
+                bld |= BLD_BG0;
+                break;
+
+            case Layer::map_1_ext:
+                bld |= BLD_BG3;
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        int mode = 0;
+        if (layers.size()) {
+            mode = 1;
+        }
+
+        REG_BLENDCNT = BLD_BUILD(bld, BLD_BG0 | BLD_BG1 | BLD_BG3, mode);
+    },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
            Platform::Speaker::NoteDesc note_desc) {
