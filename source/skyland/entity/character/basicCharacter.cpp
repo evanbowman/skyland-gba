@@ -774,7 +774,9 @@ void BasicCharacter::update_attack(Time delta)
 struct WarpEffect : public Entity
 {
 public:
-    WarpEffect(Vec2<Fixnum> source,
+    WarpEffect(u8 tidx1,
+               u8 tidx2,
+               Vec2<Fixnum> source,
                Vec2<Fixnum> dest,
                Time interval) :
         Entity({}), interval_(interval), source_(source), dest_(dest)
@@ -782,7 +784,7 @@ public:
         sprite_.set_size(Sprite::Size::w8_h8);
         sprite_.set_origin({4, 4});
         sprite_.set_position(source);
-        sprite_.set_tidx_8x8(30, 6);
+        sprite_.set_tidx_8x8(tidx1, tidx2);
     }
 
 
@@ -841,7 +843,8 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
                     timer_ = movement_step_duration(race_) + 1;
                     warped = true;
 
-                    if (auto e = APP.alloc_entity<WarpEffect>(d->visual_center(),
+                    if (auto e = APP.alloc_entity<WarpEffect>(30, 6,
+                                                              d->visual_center(),
                                                               current_room->visual_center(),
                                                               milliseconds(200))) {
                         APP.effects().push(std::move(e));
@@ -898,7 +901,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
                 sprite_.set_mix({ColorConstant::electric_blue, 255});
                 idle_count_ = 0;
                 sprite_.set_texture_index(base_frame(this) + 5);
-                awaiting_movement_ = true;
+                awaiting_movement_ = false;
                 can_move_ = false;
                 make_transport_effect(*this);
             }
