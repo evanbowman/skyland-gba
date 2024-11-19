@@ -3,3 +3,5 @@ Goblins don't usually eat each other, but they will do it if hungry enough.
 Drones can be destroyed by dynamite!
 If you have a radar installed, you can even use transporters to warp goblins from their ship to yours. I wonder why someone would do that?
 When you select 'continue building' after a fight, you can move blocks around for free! I wonder what that means...
+Repair drones can put out fires!
+Fires can spread through portals! Be careful when building portal networks!
