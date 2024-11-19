@@ -66,6 +66,7 @@ void SelectChallengeScene::enter(Scene& prev)
     PLATFORM_EXTENSION(vertical_parallax_enable, false);
 
     APP.player_island().clear_rooms();
+    APP.player_island().projectiles().clear();
     APP.effects().clear();
 
     challenges_ = APP.invoke_script("/scripts/challenges/challenge.lisp");
