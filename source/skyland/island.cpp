@@ -46,6 +46,7 @@
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
+#include "rooms/portal.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
@@ -430,46 +431,53 @@ void Island::fires_extinguish()
 
 void Island::fire_extinguish(const RoomCoord& coord)
 {
-    if (not fire_.positions_.get(coord.x, coord.y)) {
+    u8 x = clamp((int)coord.x, 0, 15);
+    u8 y = clamp((int)coord.y, 0, 15);
+
+    if (not fire_.positions_.get(x, y)) {
         return;
     }
 
     if (this == &player_island()) {
         time_stream::event::PlayerFireExtinguished e;
-        e.x_ = coord.x;
-        e.y_ = coord.y;
+        e.x_ = x;
+        e.y_ = y;
         APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentFireExtinguished e;
-        e.x_ = coord.x;
-        e.y_ = coord.y;
+        e.x_ = x;
+        e.y_ = y;
         APP.time_stream().push(APP.level_timer(), e);
     }
 
-    fire_.positions_.set(coord.x, coord.y, false);
+    fire_.positions_.set(x, y, false);
 }
 
 
 
 void Island::fire_create(const RoomCoord& coord)
 {
-    if (fire_.positions_.get(coord.x, coord.y)) {
+    u8 x = clamp((int)coord.x, 0, 15);
+    u8 y = clamp((int)coord.y, 0, 15);
+
+
+    if (fire_.positions_.get(x, y)) {
         return;
     }
 
     if (this == &player_island()) {
         time_stream::event::PlayerFireCreated e;
-        e.x_ = coord.x;
-        e.y_ = coord.y;
+        e.x_ = x;
+        e.y_ = y;
         APP.time_stream().push(APP.level_timer(), e);
     } else {
         time_stream::event::OpponentFireCreated e;
-        e.x_ = coord.x;
-        e.y_ = coord.y;
+        e.x_ = x;
+        e.y_ = y;
         APP.time_stream().push(APP.level_timer(), e);
     }
 
-    fire_.positions_.set(coord.x, coord.y, true);
+    fire_.positions_.set(x, y, true);
 }
 
 
@@ -496,12 +504,21 @@ void Island::FireState::update(Island& island, Time delta)
                         plotted = true;
                     }
 
-                    const auto props = [&] {
-                        if (auto room = island.get_room({x, y})) {
-                            return (*room->metaclass())->properties();
+                    u32 props = 0;
+
+                    if (auto room = island.get_room({x, y})) {
+                        props = (*room->metaclass())->properties();
+
+                        if (room->cast<Portal>()) {
+                            for (auto& r : island.rooms()) {
+                                if (r->cast<Portal>()) {
+                                    if (rng::choice<3>(rng::critical_state) == 0) {
+                                        island.fire_create(r->position());
+                                    }
+                                }
+                            }
                         }
-                        return u32(0);
-                    }();
+                    }
 
                     if (not(*mat)[x][y] and
                         not(props & RoomProperties::highly_flammable)) {

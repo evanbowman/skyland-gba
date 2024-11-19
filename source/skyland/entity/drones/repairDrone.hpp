@@ -101,8 +101,9 @@ public:
                         if (x < 0 or y < 0) {
                             continue;
                         }
-                        if (auto room =
-                                destination()->get_room({u8(x), u8(y)})) {
+                        RoomCoord pos{u8(x), u8(y)};
+                        destination()->fire_extinguish(pos);
+                        if (auto room = destination()->get_room(pos)) {
                             const bool found = [&] {
                                 for (auto pushed : heal_queue) {
                                     if (pushed == room) {
