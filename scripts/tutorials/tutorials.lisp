@@ -19,6 +19,7 @@
   ("Your Crew"  "tutorials/characters.lisp" 9)
   ("Replicators" "tutorials/replicator.lisp" 10)
   ("Transporters" "tutorials/transporter.lisp" 11)
+  ("Portals" "tutorials/portals.lisp" 15)
   ("Adding Terrain" "tutorials/terrain.lisp" 12)
   ("Power Balance" "tutorials/power_balance.lisp" 13)
   ("Diverting Power" "tutorials/power_balance_2.lisp" 14))
