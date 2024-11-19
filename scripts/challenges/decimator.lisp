@@ -3,7 +3,13 @@
 ;;;
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog "Are you sure you want a hint?")
+  (dialog-await-y/n)
+
+  (defn on-dialog-accepted ()
+    (dialog "Hint: Decimators will only fire in a straight line."))
+
+  (setq on-dialog-declined (lambda ())))
 
 
 (terrain-set (player) 10)
