@@ -99,6 +99,10 @@ void SelInputScene::exit(Scene& next)
 
 
 
+lisp::Value* wrap_island(Island* isle);
+
+
+
 ScenePtr SelInputScene::update(Time delta)
 {
     if (auto scene = ActiveWorldScene::update(delta)) {
@@ -230,12 +234,8 @@ ScenePtr SelInputScene::update(Time delta)
         }
 
         auto isle = near_ ? &APP.player_island() : APP.opponent_island();
-        u8 tag = 0;
-        if (isle) {
-            tag = isle->script_userdata_tag();
-        }
 
-        lisp::push_op(lisp::make_userdata(isle, tag));
+        lisp::push_op(wrap_island(isle));
         lisp::push_op(lisp::make_integer(cursor_loc.x));
 
         int y = cursor_loc.y;

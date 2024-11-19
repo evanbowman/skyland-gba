@@ -185,6 +185,16 @@ SYMTAB({{"on-fadein", 0},
         {"on-shop-item-sel", 0}});
 
 
+
+lisp::Value* wrap_island(Island* isle)
+{
+    auto tag = isle->script_userdata_tag();
+    lisp::Protected ud(lisp::make_userdata(isle, tag));
+    return lisp::wrap(ud, L_SYM("isle"));
+}
+
+
+
 Island* unwrap_isle(lisp::Value* v)
 {
     if (not str_eq(dcompr(v->wrapped().type_sym_)->symbol().name(), "isle")) {
@@ -198,9 +208,7 @@ BINDING_TABLE({
     {"player",
      {0,
       [](int argc) {
-          auto tag = APP.player_island().script_userdata_tag();
-          lisp::Protected ud(lisp::make_userdata(&APP.player_island(), tag));
-          return lisp::wrap(ud, L_SYM("isle"));
+          return wrap_island(&APP.player_island());
       }}},
     {"opponent",
      {0,
@@ -210,9 +218,7 @@ BINDING_TABLE({
                   pfrm->fatal("opponent unassigned");
               }
           }
-          auto tag = APP.opponent_island()->script_userdata_tag();
-          lisp::Protected ud(lisp::make_userdata(APP.opponent_island(), tag));
-          return lisp::wrap(ud, L_SYM("isle"));
+          return wrap_island(APP.opponent_island());
       }}},
     {"-decorate-isle",
      {1,

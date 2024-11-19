@@ -50,4 +50,10 @@ void FriendlyAI::on_room_damaged(Room& room)
 
 
 
+void FriendlyAI::update(Time delta)
+{
+}
+
+
+
 } // namespace skyland

@@ -73,6 +73,14 @@ inline Value choice(Value n, LinearGenerator& gen)
 }
 
 
+
+template <Value N> bool chance(LinearGenerator& gen)
+{
+    return choice<N>(gen) == 0;
+}
+
+
+
 template <u32 offset> Fixnum sample(Fixnum n, LinearGenerator& gen)
 {
     if (choice<2>(gen)) {

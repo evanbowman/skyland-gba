@@ -755,6 +755,10 @@ void Island::update_simple(Time dt)
 
 
 
+lisp::Value* wrap_island(Island* isle);
+
+
+
 void Island::update(Time dt)
 {
     update_simple(dt);
@@ -977,8 +981,7 @@ void Island::update(Time dt)
                     // NOTE: fn is in a global var, as we accessed it through
                     // get_var. So there's no need to protect fn from the gc, as
                     // it's already attached to a gc root.
-                    auto tag = script_userdata_tag();
-                    lisp::push_op(lisp::make_userdata(this, tag));
+                    lisp::push_op(wrap_island(this));
                     lisp::push_op(lisp::make_symbol(room->name()));
                     lisp::push_op(lisp::make_integer(room->position().x));
                     lisp::push_op(lisp::make_integer(room->position().y));

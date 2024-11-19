@@ -52,10 +52,8 @@ class MissileSilo;
 class FriendlyAI : public Opponent
 {
 public:
-    void update(Time delta) override
-    {
-        // TODO...
-    }
+
+    void update(Time delta) override;
 
 
     bool is_friendly() const override
