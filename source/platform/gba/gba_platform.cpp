@@ -2867,8 +2867,7 @@ void Platform::Screen::fade(float amount,
         }
         // Custom flag palette?
         for (int i = 0; i < 16; ++i) {
-            auto from =
-                Color::from_bgr_hex_555(custom_flag_palette[i]);
+            auto from = Color::from_bgr_hex_555(custom_flag_palette[i]);
             MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
         }
         // Tile1 palette
@@ -2970,8 +2969,7 @@ void Platform::Screen::schedule_fade(Float amount,
     // Custom flag/tile/sprite palette:
     if (include_tiles or not dodge) {
         for (int i = 0; i < 16; ++i) {
-            auto from =
-                Color::from_bgr_hex_555(custom_flag_palette[i]);
+            auto from = Color::from_bgr_hex_555(custom_flag_palette[i]);
             auto val = blend(from, c, amt);
             bg_palette_back_buffer[16 * 12 + i] = val;
             sp_palette_back_buffer[16 + i] = val;
@@ -6777,7 +6775,6 @@ void CpuFastSet(const void* source, void* dest, u32 mode)
 
 
 
-
 void setup_hardcoded_palettes()
 {
     // NOTE: these colors were a custom hack I threw in during the GBA game jam,
@@ -6792,7 +6789,8 @@ void setup_hardcoded_palettes()
     }
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(13 * 16) + i] =
-            agb_color_correction(Color(ColorConstant::silver_white)).bgr_hex_555();
+            agb_color_correction(Color(ColorConstant::silver_white))
+                .bgr_hex_555();
     }
 
     // Really bad hack. We added a feature where the player can design his/her
@@ -6802,8 +6800,9 @@ void setup_hardcoded_palettes()
     for (auto& info : tile_textures) {
         if (str_eq(info.name_, "tilesheet")) {
             for (int i = 0; i < 16; ++i) {
-                auto c = agb_color_correction(Color::from_bgr_hex_555(info.palette_data_[i]))
-                    .bgr_hex_555();
+                auto c = agb_color_correction(
+                             Color::from_bgr_hex_555(info.palette_data_[i]))
+                             .bgr_hex_555();
                 MEM_BG_PALETTE[(12 * 16) + i] = c;
                 custom_flag_palette[i] = c;
 
@@ -6820,8 +6819,9 @@ void setup_hardcoded_palettes()
             // FIXME!!! handle this dynamically, rather than reserving a
             // specific palette...
             for (int i = 0; i < 16; ++i) {
-                auto c = agb_color_correction(Color::from_bgr_hex_555(info.palette_data_[i]))
-                    .bgr_hex_555();
+                auto c = agb_color_correction(
+                             Color::from_bgr_hex_555(info.palette_data_[i]))
+                             .bgr_hex_555();
                 MEM_BG_PALETTE[(10 * 16) + i] = c;
             }
         }
@@ -7105,31 +7105,32 @@ static const Platform::Extensions extensions{
             }
             setup_hardcoded_palettes();
         },
-    .enable_translucence = [](const Buffer<Layer, 4>& layers) {
-        u16 bld = 0;
+    .enable_translucence =
+        [](const Buffer<Layer, 4>& layers) {
+            u16 bld = 0;
 
-        for (auto& l : layers) {
-            switch (l) {
-            case Layer::map_0_ext:
-                bld |= BLD_BG0;
-                break;
+            for (auto& l : layers) {
+                switch (l) {
+                case Layer::map_0_ext:
+                    bld |= BLD_BG0;
+                    break;
 
-            case Layer::map_1_ext:
-                bld |= BLD_BG3;
-                break;
+                case Layer::map_1_ext:
+                    bld |= BLD_BG3;
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+                }
             }
-        }
 
-        int mode = 0;
-        if (layers.size()) {
-            mode = 1;
-        }
+            int mode = 0;
+            if (layers.size()) {
+                mode = 1;
+            }
 
-        REG_BLENDCNT = BLD_BUILD(bld, BLD_BG0 | BLD_BG1 | BLD_BG3, mode);
-    },
+            REG_BLENDCNT = BLD_BUILD(bld, BLD_BG0 | BLD_BG1 | BLD_BG3, mode);
+        },
     .psg_play_note =
         [](Platform::Speaker::Channel channel,
            Platform::Speaker::NoteDesc note_desc) {

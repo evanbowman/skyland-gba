@@ -48,7 +48,6 @@ namespace skyland::weather
 class SolarStorm : public CleanEnvironment
 {
 public:
-
     SolarStorm()
     {
     }

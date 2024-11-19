@@ -48,9 +48,8 @@ namespace skyland
 class Portal : public Room
 {
 public:
-
-    Portal(Island* parent, const RoomCoord& position) :
-        Room(parent, name(), position)
+    Portal(Island* parent, const RoomCoord& position)
+        : Room(parent, name(), position)
     {
     }
 
@@ -127,4 +126,4 @@ public:
 
 
 
-}
+} // namespace skyland

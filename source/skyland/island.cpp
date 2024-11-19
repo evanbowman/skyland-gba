@@ -512,7 +512,8 @@ void Island::FireState::update(Island& island, Time delta)
                         if (room->cast<Portal>()) {
                             for (auto& r : island.rooms()) {
                                 if (r->cast<Portal>()) {
-                                    if (rng::choice<3>(rng::critical_state) == 0) {
+                                    if (rng::choice<3>(rng::critical_state) ==
+                                        0) {
                                         island.fire_create(r->position());
                                     }
                                 }

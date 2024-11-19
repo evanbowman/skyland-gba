@@ -616,11 +616,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
     auto current_pos = character.grid_position();
 
-    flood_fill_through_portals(*ai_island_,
-                               matrix,
-                               2,
-                               current_pos.x,
-                               current_pos.y);
+    flood_fill_through_portals(
+        *ai_island_, matrix, 2, current_pos.x, current_pos.y);
 
     struct Destination
     {
@@ -852,8 +849,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             network::transmit(packet);
         }
     }
-
-
 }
 
 
@@ -916,11 +911,8 @@ void EnemyAI::assign_boarded_character(BasicCharacter& character,
 
     auto current_pos = character.grid_position();
 
-    flood_fill_through_portals(*target_island_,
-                               matrix,
-                               2,
-                               current_pos.x,
-                               current_pos.y);
+    flood_fill_through_portals(
+        *target_island_, matrix, 2, current_pos.x, current_pos.y);
 
     struct Destination
     {

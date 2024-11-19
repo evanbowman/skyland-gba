@@ -38,8 +38,8 @@
 #include "readyScene.hpp"
 #include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
-#include "skyland/rooms/portal.hpp"
 #include "skyland/path.hpp"
+#include "skyland/rooms/portal.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -83,7 +83,7 @@ void flood_fill_through_portals(Island& isle,
                 if (auto room = isle.get_room({x, y})) {
                     if (room->cast<Portal>()) {
                         for (u8 xx = 0; xx < 16; ++xx) {
-                            for (u8 yy = 0; yy < 16;  ++yy) {
+                            for (u8 yy = 0; yy < 16; ++yy) {
                                 if (matrix[xx][yy] not_eq replace) {
                                     if (auto o = isle.get_room({xx, yy})) {
                                         if (o->cast<Portal>()) {
@@ -99,7 +99,6 @@ void flood_fill_through_portals(Island& isle,
         }
     }
 }
-
 
 
 

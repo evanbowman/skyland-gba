@@ -33,9 +33,9 @@
 
 
 #include "solarStorm.hpp"
+#include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/entity/misc/lightningStrike.hpp"
 
 
 

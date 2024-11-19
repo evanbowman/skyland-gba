@@ -126,7 +126,8 @@ template <typename T> struct DynamicMemory
 
 
 template <typename T, typename... Args>
-DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag, Args&&... args)
+DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag,
+                                       Args&&... args)
 {
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
