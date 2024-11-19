@@ -35,6 +35,7 @@
 #include "constructionScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "weaponSetTargetScene.hpp"
 
@@ -321,6 +322,16 @@ ScenePtr GroupSelectionScene::update(Time delta)
             case 0:
                 if (auto err = reject_if_friendly()) {
                     return err;
+                }
+                if (APP.player_island().power_supply() <
+                    APP.player_island().power_drain()) {
+                    auto future_scene = []() {
+                        return make_scene<ReadyScene>();
+                    };
+                    PLATFORM.speaker().play_sound("beep_error", 2);
+                    auto str = SYSTR(error_power_out);
+                    return make_scene<NotificationScene>(str->c_str(),
+                                                         future_scene);
                 }
                 return make_scene<WeaponSetTargetScene>(**group_selection_);
 
