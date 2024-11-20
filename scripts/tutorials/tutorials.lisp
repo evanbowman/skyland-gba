@@ -6,6 +6,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 (setvar "powerdown_allowed" 1)
 
+;; NOTE: the list should not exceed 64 tutorials.
 
 '(("Introduction" "tutorials/overview.lisp" 0)
   ("Game Speed" "tutorials/game_speed.lisp" 1)

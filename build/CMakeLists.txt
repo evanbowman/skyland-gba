@@ -380,7 +380,6 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_adventurelog.s
     ${DATA_DIR}/colorProfiles.s
     ${DATA_DIR}/stack_overflow_flattened.s
-    ${DATA_DIR}/pub_logo_flattened.s
     ${DATA_DIR}/traded_core_flattened.s
     ${DATA_DIR}/photo_village_flattened.s
     ${DATA_DIR}/photo_surface_flattened.s

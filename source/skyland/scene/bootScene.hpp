@@ -341,7 +341,8 @@ public:
                 fc);
         }
 
-        PLATFORM_EXTENSION(force_vsync);
+        PLATFORM.screen().clear();
+
         Text msg({1, u8(st.y - 2)});
         msg.append(text, fc);
         auto len = msg.len();
@@ -354,7 +355,6 @@ public:
             info(text);
         }
 
-        PLATFORM.screen().clear();
         PLATFORM.screen().display();
     }
 

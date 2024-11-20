@@ -7441,62 +7441,6 @@ void Platform::Speaker::start()
 
 
 
-static void publisher_logo_anim()
-{
-    PLATFORM.screen().schedule_fade(1, ColorConstant::silver_white, true, true);
-
-    PLATFORM.screen().clear();
-    PLATFORM.screen().fade(1, ColorConstant::silver_white, {}, true, true);
-    PLATFORM.load_overlay_texture("pub_logo_flattened");
-    PLATFORM.screen().display();
-    bool skip = false;
-    volatile u32* keys = (volatile u32*)0x04000130;
-    for (int i = 0; i < 15; ++i) {
-        PLATFORM.screen().schedule_fade(
-            1.f - (Float(i) / 15), ColorConstant::silver_white, true, true);
-        if (~(*keys) & KEY_B) {
-            skip = true;
-        }
-        PLATFORM.screen().clear();
-        PLATFORM.screen().display();
-
-        if (i == 0) {
-            PLATFORM.fill_overlay(1);
-            draw_image(1, 0, 5, 30, 10, Layer::overlay);
-        }
-    }
-    PLATFORM.screen().schedule_fade(0);
-    if (not skip) {
-        for (int i = 0; i < 55; ++i) {
-            PLATFORM.screen().clear();
-            PLATFORM.screen().display();
-            if (~(*keys) & KEY_B) {
-                break;
-            }
-        }
-    }
-    int fadout_frames = 20;
-    for (int i = 0; i < fadout_frames; ++i) {
-        PLATFORM.screen().schedule_fade(
-            (Float(i) / fadout_frames), ColorConstant::rich_black, true, true);
-
-        PLATFORM.screen().clear();
-        PLATFORM.screen().display();
-    }
-
-    PLATFORM.screen().schedule_fade(1, ColorConstant::rich_black, true, true);
-    PLATFORM.screen().clear();
-    PLATFORM.screen().display();
-
-    PLATFORM.fill_overlay(0);
-    for (int i = 0; i < 10; ++i) {
-        VBlankIntrWait();
-    }
-    PLATFORM.screen().schedule_fade(0);
-}
-
-
-
 Platform::Platform()
 {
     ::__platform__ = this;
@@ -7674,11 +7618,6 @@ Platform::Platform()
     VBlankIntrWait();
     screen().fade(1, ColorConstant::silver_white);
     init_video(screen());
-
-    CONF_BOOL(show_publisher_logo);
-    if (show_publisher_logo) {
-        publisher_logo_anim();
-    }
 
     fill_overlay(0);
 
