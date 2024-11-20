@@ -924,6 +924,7 @@ public:
         void (*watchdog_on)();
         void (*watchdog_off)();
         u32 (*get_stack_usage)();
+        u32 (*get_stack_size)();
         void (*restart)();
         void (*apply_color_correction)(const char* table_name);
         void (*enable_translucence)(const Buffer<Layer, 4>& layers);

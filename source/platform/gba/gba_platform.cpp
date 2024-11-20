@@ -7090,6 +7090,7 @@ static const Platform::Extensions extensions{
     .watchdog_on = [] { set_gflag(GlobalFlag::watchdog_disabled, false); },
     .watchdog_off = [] { set_gflag(GlobalFlag::watchdog_disabled, true); },
     .get_stack_usage = [] { return max_stack_usage(); },
+    .get_stack_size = [] { return stack_reserved_size(); },
     .restart = [] { ::restart(); },
     .apply_color_correction =
         [](const char* table_name) {

@@ -114,6 +114,7 @@
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/windmill.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "ext_workram_data.hpp"
 
 
 
@@ -396,7 +397,7 @@ using RoomMetatableType = RoomMetatable<15,
 
 
 
-static RoomMetatableType __room_metatable;
+static EXT_WORKRAM_DATA RoomMetatableType __room_metatable;
 
 
 

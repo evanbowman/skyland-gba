@@ -85,21 +85,21 @@ Vec2<int> calc_screen_tiles()
 // Inspired by the dvorak keyboard layout, redesigned for use with a gameboy
 // dpad. Optimized for the smallest horizontal _and_ vertical travel between key
 // presses.
-static const char* keyboard[7][6] = {{"z", "y", "g", "f", "v", "q"},
-                                     {"m", "b", "i", "d", "l", "j"},
-                                     {"w", "a", "o", "e", "u", "k"},
-                                     {"p", "h", "t", "n", "s", "r"},
-                                     {"x", "c", "(", ")", "-", " "},
-                                     {"$", "'", "0", "1", "2", "3"},
-                                     {"4", "5", "6", "7", "8", "9"}};
+static const char* const keyboard[7][6] = {{"z", "y", "g", "f", "v", "q"},
+                                           {"m", "b", "i", "d", "l", "j"},
+                                           {"w", "a", "o", "e", "u", "k"},
+                                           {"p", "h", "t", "n", "s", "r"},
+                                           {"x", "c", "(", ")", "-", " "},
+                                           {"$", "'", "0", "1", "2", "3"},
+                                           {"4", "5", "6", "7", "8", "9"}};
 
-static const char* alt_keyboard[7][6] = {{"Z", "Y", "G", "F", "V", "Q"},
-                                         {"M", "B", "I", "D", "L", "J"},
-                                         {"W", "A", "O", "E", "U", "K"},
-                                         {"P", "H", "T", "N", "S", "R"},
-                                         {"X", "C", "*", "/", "_", "+"},
-                                         {"$", "\"", "<", ">", ".", ","},
-                                         {"@", "*", ";", ":", "%", "#"}};
+static const char* const alt_keyboard[7][6] = {{"Z", "Y", "G", "F", "V", "Q"},
+                                               {"M", "B", "I", "D", "L", "J"},
+                                               {"W", "A", "O", "E", "U", "K"},
+                                               {"P", "H", "T", "N", "S", "R"},
+                                               {"X", "C", "*", "/", "_", "+"},
+                                               {"$", "\"", "<", ">", ".", ","},
+                                               {"@", "*", ";", ":", "%", "#"}};
 
 
 void LispReplScene::repaint_entry(bool show_cursor)

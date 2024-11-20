@@ -152,7 +152,14 @@ ScenePtr RegressionModule::update(Time delta)
             Text::print(format("max stack used %", mstack).c_str(),
                         {1, 3},
                         text_colors);
-            Text::print("press any key to reset...", {1, 5}, text_colors);
+            u32 ssize = 0;
+            if (auto s = PLATFORM.get_extensions().get_stack_size) {
+                ssize = s();
+            }
+            Text::print(format("(approx. stack size %)", ssize).c_str(),
+                        {1, 5},
+                        text_colors);
+            Text::print("press any key to reset...", {1, 7}, text_colors);
 
             while (1) {
                 PLATFORM.keyboard().poll();
