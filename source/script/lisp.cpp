@@ -2706,7 +2706,7 @@ static u32 read_list(CharSequence& code, int offset)
 
 static u32 read_string(CharSequence& code, int offset)
 {
-    auto temp = make_zeroed_sbr("lisp-string-memory");
+    auto temp = make_scratch_buffer("lisp-string-memory");
     auto write = temp->data_;
 
     int i = 0;
@@ -2749,6 +2749,7 @@ static u32 read_string(CharSequence& code, int offset)
         ++i;
     }
 
+    *write = '\0';
     push_op(make_string(temp->data_));
 
     return i;
