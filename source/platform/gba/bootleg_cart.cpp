@@ -274,7 +274,7 @@ bool bootleg_flash_writeback(BootlegFlashType flash_type,
     return true;
 }
 
-
+#pragma GCC diagnostic ignored "-Warray-bounds"
 
 extern char __rom_end__;
 extern int save_capacity;
