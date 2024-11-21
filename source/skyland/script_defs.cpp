@@ -979,10 +979,10 @@ BINDING_TABLE({
                               L_CONS(make_symbol("icon"), make_integer(icon)));
                       }
                       if (auto e = chr->stats().enemies_vanquished_) {
-                          chr_info.push_back(L_CONS(L_SYM("kills"), L_INT(e)));
+                          chr_info.push_back(L_CONS(L_SYM("kc"), L_INT(e)));
                       }
                       if (auto b = chr->stats().battles_fought_) {
-                          chr_info.push_back(L_CONS(L_SYM("battles"), L_INT(b)));
+                          chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
                       }
                       chr_info.push_back(
                           L_CONS(make_symbol("id"), make_integer(chr->id())));
@@ -1638,10 +1638,10 @@ BINDING_TABLE({
                           if (auto ic = find_param("icon")) {
                               icon = ic;
                           }
-                          if (auto e = find_param("kills")) {
+                          if (auto e = find_param("kc")) {
                               kills = e;
                           }
-                          if (auto b = find_param("battles")) {
+                          if (auto b = find_param("bt")) {
                               battles = b;
                           }
                       }
