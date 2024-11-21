@@ -8,4 +8,4 @@
 
 (assert-eq
  (chrs (player))
- '((2 12 (id . 1))))
+ '((2 12 (br . 1) (id . 1))))
