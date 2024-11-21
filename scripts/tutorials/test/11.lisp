@@ -12,7 +12,7 @@
 
 (assert-eq
  (chrs (player))
- '((4 14 (hp . 171) (kc . 1) (id . 2))))
+ '((4 14 (hp . 171) (kc . 1) (sc . 9) (id . 2))))
 
 (assert-eq
  (chrs (opponent))

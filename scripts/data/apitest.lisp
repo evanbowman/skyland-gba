@@ -310,6 +310,7 @@
   (filesystem-walk
    "/"
    (lambda (path)
+     (gc)
      (when (ends-with path ".lisp")
        (+= temp 1)
        (let ((indent 1)
