@@ -206,124 +206,6 @@ static ScenePtr set_gamespeed_setup()
 
 
 
-class SetCharacterIconScene : public ActiveWorldScene
-{
-public:
-    SetCharacterIconScene(CharacterId id) : id_(id)
-    {
-        // ...
-    }
-
-
-    void show_icon()
-    {
-        int offset = (icons[index_] - 1) * 16;
-        PLATFORM.load_overlay_chunk(181, offset, 16, "character_art");
-        const auto st = calc_screen_tiles();
-
-        PLATFORM.set_tile(Layer::overlay, 4, st.y - 4, 398);
-        PLATFORM.set_tile(Layer::overlay, 4, st.y - 3, 399);
-
-        int tile = 181;
-        for (int y = 0; y < 4; ++y) {
-            for (int x = 0; x < 4; ++x) {
-                PLATFORM.set_tile(Layer::overlay, x, st.y - 4 + y, tile++, 10);
-            }
-        }
-    }
-
-
-    static constexpr u8 icons[] = {1,  5,  6,  7,  8,  9,  10, 11, 12, 14, 15,
-                                   16, 17, 18, 20, 21, 22, 23, 19, 26, 27, 28};
-
-
-    void enter(Scene& prev) override
-    {
-        ActiveWorldScene::enter(prev);
-
-        auto found = BasicCharacter::find_by_id(id_);
-        if (found.first) {
-            auto icon = found.first->get_icon();
-            for (u32 i = 0; i < (sizeof icons); ++i) {
-                if (icon == icons[i]) {
-                    index_ = i;
-                    break;
-                }
-            }
-        }
-
-        show_icon();
-    }
-
-
-    void exit(Scene& next) override
-    {
-        ActiveWorldScene::exit(next);
-
-        PLATFORM.fill_overlay(0);
-    }
-
-
-    ScenePtr update(Time delta) override
-    {
-        if (auto next = ActiveWorldScene::update(delta)) {
-            return next;
-        }
-
-        auto test_key = [&](Key k) {
-            return APP.player().test_key(
-                k, milliseconds(500), milliseconds(100));
-        };
-
-        if (test_key(Key::down)) {
-            if (index_ < (int)(sizeof icons) - 1) {
-                ++index_;
-            } else {
-                index_ = 0;
-            }
-            PLATFORM.speaker().play_sound("cursor_tick", 0);
-            show_icon();
-        }
-
-        if (test_key(Key::up)) {
-            if (index_ == 0) {
-                index_ = (int)(sizeof icons) - 1;
-            } else {
-                --index_;
-            }
-            PLATFORM.speaker().play_sound("cursor_tick", 0);
-            show_icon();
-        }
-
-        if (test_key(Key::action_2)) {
-            return make_scene<ReadyScene>();
-        }
-
-        if (test_key(Key::action_1)) {
-            auto found = BasicCharacter::find_by_id(id_);
-            if (found.first) {
-                PLATFORM.speaker().play_sound("button_wooden", 3);
-                auto icn = icons[index_];
-                if (icn == 19) {
-                    found.first->set_icon(0);
-                } else {
-                    found.first->set_icon(icn);
-                }
-            }
-            return make_scene<ReadyScene>();
-        }
-
-        return null_scene();
-    }
-
-
-private:
-    CharacterId id_;
-    int index_ = 0;
-};
-
-
-
 void SelectMenuScene::enter(Scene& scene)
 {
     disable_ui();
@@ -444,13 +326,6 @@ void SelectMenuScene::enter(Scene& scene)
                                  next->next_ = make_deferred_scene<ReadyScene>();
                              }
                              return next;
-                         });
-
-                add_line(SystemString::sel_menu_crewmember_icon,
-                         "",
-                         true,
-                         [id = chr->id()]() {
-                             return make_scene<SetCharacterIconScene>(id);
                          });
             }
         }

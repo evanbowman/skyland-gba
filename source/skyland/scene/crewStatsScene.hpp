@@ -63,7 +63,13 @@ public:
 private:
     Vector<CharacterId> chrs_;
     int page_index_ = 0;
+    int icon_sel_ = 0;
     bool exit_ = false;
+
+    enum State : u8 {
+        regular,
+        icon_select,
+    } state_ = State::regular;
 
     void show_page();
 };

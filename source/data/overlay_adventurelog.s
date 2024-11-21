@@ -7,9 +7,9 @@
 @	Transparent color : FF,00,FF
 @	+ palette 16 entries, not compressed
 @	+ 173 tiles lz77 compressed
-@	Total size: 32 + 1040 = 1072
+@	Total size: 32 + 1048 = 1080
 @
-@	Time-stamp: 2024-11-21, 16:45:30
+@	Time-stamp: 2024-11-21, 17:47:23
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -17,7 +17,7 @@
 
 	.section .rodata
 	.align	2
-	.global overlay_adventurelogTiles		@ 1040 unsigned chars
+	.global overlay_adventurelogTiles		@ 1048 unsigned chars
 	.hidden overlay_adventurelogTiles
 overlay_adventurelogTiles:
 	.word 0x0015A010,0xF0000033,0x11059001,0xF001F011,0x01F0FF01,0x01F001F0,0x01F001F0,0x01F001F0
@@ -54,9 +54,9 @@ overlay_adventurelogTiles:
 	.word 0x03100090,0x00000800,0x08000008,0x0800006B,0x00800300,0x91650007,0xC0F50622,0x403F4807
 	.word 0x1810101E,0x02181F02,0x9818742F,0x101F505F,0x4C021115,0x817F1888,0x1F201FF0,0x3A005E02
 	.word 0x9FA86700,0x02FF7E50,0x2807A082,0xF08750BE,0xF09F2003,0xFE01F001,0x01F001F0,0x427901F0
-	.word 0x077003F0,0x7F9914C0,0xE1840A11,0xF01FF337,0xF01FF01F,0xDB1FF01F,0xFE0A93A0,0x91040B11
+	.word 0x077003F0,0x7F9914C0,0xE1840A11,0xF01FF337,0xF01FF01F,0xDE1FF01F,0xFE0A93A0,0x91040B11
 
-	.word 0xE31111B6,0xF0E001F0,0x3001F001,0x0000000B
+	.word 0x9A8E00B6,0x1AFE9C3F,0x5A45F53F,0x1A1B1062,0x1A5B4ABE,0x000000DE
 
 	.section .rodata
 	.align	2

@@ -624,7 +624,7 @@ divert power
 show minimap
 hide minimap
 select all
-crewmember stats
+crewmember info
 -- Crewmember Passport --
 Battles
 Vanquished
