@@ -624,6 +624,13 @@ divert power
 show minimap
 hide minimap
 select all
+crewmember stats
+-- Crewmember Passport --
+Battles
+Vanquished
+Repaired
+Steps Taken
+Fires Quenched
 setup target queue (%/%):
 choose flag:
 colonial

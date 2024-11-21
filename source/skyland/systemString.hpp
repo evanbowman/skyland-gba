@@ -782,6 +782,14 @@ enum class SystemString {
     sel_menu_show_minimap,
     sel_menu_hide_minimap,
     sel_menu_select_all,
+    sel_menu_crewmember_stats,
+
+    crewmember_stats_title,
+    crewmember_stats_battles,
+    crewmember_stats_vanquished,
+    crewmember_stats_repaired,
+    crewmember_stats_steps,
+    crewmember_stats_fires,
 
     weapon_target_queue,
 

@@ -339,13 +339,14 @@ public:
 private:
     Island* parent_;
     Player* owner_;
-    RoomCoord grid_position_;
     Time timer_ = 0;
     Time anim_timer_ = 0;
+    Optional<Path> movement_path_;
 
     CharacterId id_;
     u16 idle_count_ = 0;
 
+    RoomCoord grid_position_;
     u8 awaiting_movement_ : 1;
     u8 can_move_ : 1;
     u8 is_replicant_ : 1;
@@ -370,8 +371,6 @@ private:
     CharacterStats stats_;
 
     bool has_opponent(Room* room);
-
-    Optional<Path> movement_path_;
 
     bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 

@@ -838,11 +838,6 @@ void describe_room(Island* island,
                             PLATFORM.set_tile(Layer::overlay, icon_x(), y, 485);
                             auto e = chr->stats().enemies_vanquished_;
                             room_description->append(e);
-
-                            room_description->append("  ");
-                            PLATFORM.set_tile(Layer::overlay, icon_x(), y, 486);
-                            auto br = chr->stats().blocks_repaired_.get();
-                            room_description->append(br);
                         }
                         ++i;
                     }

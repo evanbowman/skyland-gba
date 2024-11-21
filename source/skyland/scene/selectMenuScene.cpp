@@ -49,6 +49,7 @@
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "crewStatsScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -430,6 +431,20 @@ void SelectMenuScene::enter(Scene& scene)
                                  return null_scene();
                              });
                 }
+
+                add_line(SystemString::sel_menu_crewmember_stats,
+                         "",
+                         true,
+                         [id = chr->id(),
+                          far = is_far_camera()]() {
+                             auto next = make_scene<CrewStatsScene>(id);
+                             if (far) {
+                                 next->next_ = make_deferred_scene<InspectP2Scene>();
+                             } else {
+                                 next->next_ = make_deferred_scene<ReadyScene>();
+                             }
+                             return next;
+                         });
 
                 add_line(SystemString::sel_menu_crewmember_icon,
                          "",
