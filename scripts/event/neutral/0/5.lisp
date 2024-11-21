@@ -57,7 +57,7 @@
           (if temp
               (progn
                 (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral nil)
+                (chr-new (player) (car temp) (cdr temp) 'neutral '((race . 0) (icon . 13)))
                 (chr-del (opponent) 1 12)
                 (adventure-log-add 15 '())
                 (dialog "The villager girl joined your crew!")
@@ -74,7 +74,7 @@
                                (sound "build0")
                                (room-new (player) `(cargo-bay ,x ,y))
                                (chr-del (opponent) 1 12)
-                               (chr-new (player) x (+ 1 y) 'neutral nil)
+                               (chr-new (player) x (+ 1 y) 'neutral '((race . 0) (icon . 13)))
                                (dialog "<c:girl:14>Wait, you're serious! I guess I asked for it haha...")
                                (defn on-dialog-closed ()
                                  (adventure-log-add 15 '())

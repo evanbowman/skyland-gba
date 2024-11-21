@@ -30,7 +30,7 @@
                                          (car s)
                                          (cdr s)
                                          'neutral
-                                         '((race . 1)))
+                                         '((race . 1))(icon . 18))
                                 (adventure-log-add 51 '())
                                 (dialog "One of the goblins joined your crew!")
                                 (run-util-script "hostile-pickup-cart"
