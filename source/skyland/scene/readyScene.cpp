@@ -820,6 +820,19 @@ void describe_room(Island* island,
                             room_description->append(chr->get_max_health() /
                                                      10);
                         }
+                        // Replicants with icons cause appended stats to be cropped offscreen
+                        bool skip = chr->is_replicant() and chr_icon;
+                        if (skip or (not overlap and chr->owner() == &APP.player())) {
+                            int xo = chr_icon ? 4 : 0;
+                            auto b = chr->stats().battles_fought_;
+                            room_description->append(" v:");
+                            PLATFORM.set_tile(Layer::overlay, xo + room_description->len() - 2, 19, 484);
+                            room_description->append(b);
+                            auto e = chr->stats().enemies_vanquished_;
+                            room_description->append(" e:");
+                            PLATFORM.set_tile(Layer::overlay, xo + room_description->len() - 2, 19, 485);
+                            room_description->append(e);
+                        }
                         ++i;
                     }
                 }

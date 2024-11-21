@@ -1083,7 +1083,11 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
         bird->signal();
     }
 
-    circ_effect_ = rng::choice<3>(rng::utility_state);
+    for (auto& room : APP.player_island().rooms()) {
+        for (auto& chr : room->characters()) {
+            chr->stats().battles_fought_++;
+        }
+    }
 
     APP.persistent_data().total_seconds_.set(
         (u32)(APP.persistent_data().total_seconds_.get() +

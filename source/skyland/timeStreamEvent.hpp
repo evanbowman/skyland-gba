@@ -41,6 +41,7 @@
 #include "number/random.hpp"
 #include "skyland/rooms/reconstructionQueue.hpp"
 #include "timeStreamHeader.hpp"
+#include "entity/character/characterStats.hpp"
 
 
 
@@ -156,6 +157,7 @@ enum Type : u8 {
     character_transported,
     character_disembark,
     character_movement_path_assigned,
+    character_vanquished_opponent,
 
     character_position_jump,
 
@@ -909,9 +911,20 @@ struct CharacterDied
     u8 max_health_;
     u8 health_;
 
+    CharacterStats stats_;
+
     static constexpr const auto t = Type::character_died;
 };
 
+
+
+struct CharacterVanquishedOpponent
+{
+    Header header_;
+    HostInteger<CharacterId> id_;
+
+    static constexpr const auto t = Type::character_vanquished_opponent;
+};
 
 
 struct CharacterHealthChanged

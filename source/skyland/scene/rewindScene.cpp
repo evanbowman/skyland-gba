@@ -1206,6 +1206,19 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::character_vanquished_opponent: {
+            auto e = (time_stream::event::CharacterVanquishedOpponent*)end;
+            auto chr_info = BasicCharacter::find_by_id(e->id_.get());
+            if (chr_info.first) {
+                if (chr_info.first->stats().enemies_vanquished_ > 0) {
+                    chr_info.first->stats().enemies_vanquished_--;
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::character_died: {
             auto e = (time_stream::event::CharacterDied*)end;
 
@@ -1244,6 +1257,7 @@ ScenePtr RewindScene::update(Time)
                 chr->set_icon(e->icon_);
                 chr->set_max_health(e->max_health_);
                 chr->__set_health(e->health_);
+                chr->stats() = e->stats_;
 
                 island->add_character(std::move(chr));
             }

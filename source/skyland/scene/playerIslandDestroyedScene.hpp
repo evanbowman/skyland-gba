@@ -115,8 +115,6 @@ private:
     Fixnum sink_speed_;
     Island* island_;
 
-    bool circ_effect_ = false;
-
     Buffer<Text, 5> lines_;
 
     bool options_allowed_ = true;

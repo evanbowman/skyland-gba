@@ -102,4 +102,6 @@
    (800 Select)
    (800 Right)
    (800 A)
-   (449 Down)))
+   (449 Down)
+   (300 nil)
+   (100 "<c:Milo:5> One final thing: When hovering over a crewmember, you may see a few icons. <B:0> The flag icon refers to the number of battles that the crewmember participated in, <B:0> and the other icon with the red X refers to the number of golbins the crewmember vanquished! <B:0> Cool, huh?")))

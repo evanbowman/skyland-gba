@@ -748,6 +748,14 @@ void BasicCharacter::update_attack(Time delta)
 
         if (auto chr = get_opponent()) {
             chr->apply_damage(4);
+            if (chr->health() <= 0) {
+                if (stats_.enemies_vanquished_ < 255) {
+                    stats_.enemies_vanquished_++;
+                    time_stream::event::CharacterVanquishedOpponent e;
+                    e.id_.set(id());
+                    APP.time_stream().push(APP.level_timer(), e);
+                }
+            }
         } else {
             sprite_.set_texture_index(base_frame(this) + 5);
             state_ = State::moving_or_idle;
@@ -768,6 +776,13 @@ void BasicCharacter::update_attack(Time delta)
         timer_ = 0;
         idle_count_ = 0;
     }
+}
+
+
+
+CharacterStats& BasicCharacter::stats()
+{
+    return stats_;
 }
 
 

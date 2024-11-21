@@ -978,6 +978,12 @@ BINDING_TABLE({
                           chr_info.push_back(
                               L_CONS(make_symbol("icon"), make_integer(icon)));
                       }
+                      if (auto e = chr->stats().enemies_vanquished_) {
+                          chr_info.push_back(L_CONS(L_SYM("kills"), L_INT(e)));
+                      }
+                      if (auto b = chr->stats().battles_fought_) {
+                          chr_info.push_back(L_CONS(L_SYM("battles"), L_INT(b)));
+                      }
                       chr_info.push_back(
                           L_CONS(make_symbol("id"), make_integer(chr->id())));
                       list.push_front(chr_info.result());
@@ -1594,6 +1600,8 @@ BINDING_TABLE({
           bool is_replicant = false;
           int race = 0;
           int icon = 0;
+          u8 kills = 0;
+          u8 battles = 0;
 
           // For backwards compatibility with old versions. We used to accept a
           // integer parameter indicating whether the character was a
@@ -1630,6 +1638,12 @@ BINDING_TABLE({
                           if (auto ic = find_param("icon")) {
                               icon = ic;
                           }
+                          if (auto e = find_param("kills")) {
+                              kills = e;
+                          }
+                          if (auto b = find_param("battles")) {
+                              battles = b;
+                          }
                       }
                   }
               });
@@ -1662,6 +1676,8 @@ BINDING_TABLE({
                   chr->set_icon(icon);
 
                   id = chr->id();
+                  chr->stats().enemies_vanquished_ = kills;
+                  chr->stats().battles_fought_ = battles;
                   island->add_character(std::move(chr));
               }
           }

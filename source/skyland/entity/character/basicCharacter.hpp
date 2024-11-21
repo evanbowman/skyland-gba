@@ -38,6 +38,7 @@
 #include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
+#include "characterStats.hpp"
 
 
 
@@ -329,6 +330,9 @@ public:
     void set_phase(u8 phase);
 
 
+    CharacterStats& stats();
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -360,6 +364,7 @@ private:
     u8 superpinned_ : 1;
     u8 unused_ : 6;
 
+    CharacterStats stats_;
 
     bool has_opponent(Room* room);
 

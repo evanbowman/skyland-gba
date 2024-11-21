@@ -797,6 +797,7 @@ void Island::update(Time dt)
         e.icon_ = c.get_icon();
         e.max_health_ = c.get_max_health();
         e.health_ = c.health();
+        e.stats_ = c.stats();
         APP.time_stream().push(APP.level_timer(), e);
     };
 
