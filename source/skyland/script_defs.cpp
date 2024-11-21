@@ -205,11 +205,7 @@ Island* unwrap_isle(lisp::Value* v)
 
 
 BINDING_TABLE({
-    {"player",
-     {0,
-      [](int argc) {
-          return wrap_island(&APP.player_island());
-      }}},
+    {"player", {0, [](int argc) { return wrap_island(&APP.player_island()); }}},
     {"opponent",
      {0,
       [](int argc) {

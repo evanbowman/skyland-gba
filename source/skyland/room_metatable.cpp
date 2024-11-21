@@ -36,6 +36,7 @@
 
 #include "script/lisp.hpp"
 
+#include "ext_workram_data.hpp"
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
@@ -114,7 +115,6 @@
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/windmill.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "ext_workram_data.hpp"
 
 
 

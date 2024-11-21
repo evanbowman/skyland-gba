@@ -59,8 +59,7 @@ struct CharacterStats
     FiresExtinguished fires_extinguished_;
 
 
-    template <typename T>
-    static void inc(T& val)
+    template <typename T> static void inc(T& val)
     {
         if (val not_eq std::numeric_limits<T>::max()) {
             ++val;
@@ -68,8 +67,7 @@ struct CharacterStats
     }
 
 
-    template <typename T>
-    static void inc(HostInteger<T>& val)
+    template <typename T> static void inc(HostInteger<T>& val)
     {
         if (val.get() not_eq std::numeric_limits<T>::max()) {
             val.set(val.get() + 1);
@@ -79,4 +77,4 @@ struct CharacterStats
 
 
 
-}
+} // namespace skyland

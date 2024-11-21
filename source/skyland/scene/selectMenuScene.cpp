@@ -34,6 +34,7 @@
 
 #include "selectMenuScene.hpp"
 #include "constructionScene.hpp"
+#include "crewStatsScene.hpp"
 #include "groupSelectionScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "menuPromptScene.hpp"
@@ -49,7 +50,6 @@
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
-#include "crewStatsScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -317,8 +317,7 @@ void SelectMenuScene::enter(Scene& scene)
                 add_line(SystemString::sel_menu_crewmember_stats,
                          "",
                          true,
-                         [id = chr->id(),
-                          far = is_far_camera()]() {
+                         [id = chr->id(), far = is_far_camera()]() {
                              auto next = make_scene<CrewStatsScene>(id);
                              return next;
                          });

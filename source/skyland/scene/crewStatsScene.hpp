@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "skyland/scene_pool.hpp"
 #include "skyland/characterId.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -46,7 +46,6 @@ namespace skyland
 class CrewStatsScene : public Scene
 {
 public:
-
     CrewStatsScene(CharacterId selected_chr);
 
 
@@ -76,4 +75,4 @@ private:
 
 
 
-}
+} // namespace skyland

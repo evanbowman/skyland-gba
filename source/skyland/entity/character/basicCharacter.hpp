@@ -34,11 +34,11 @@
 
 #pragma once
 
+#include "characterStats.hpp"
 #include "memory/buffer.hpp"
 #include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
-#include "characterStats.hpp"
 
 
 

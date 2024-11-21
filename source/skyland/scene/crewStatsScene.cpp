@@ -43,7 +43,8 @@ namespace skyland
 
 
 
-static const auto bold_colors = FontColors{custom_color(0xf7f7ef), custom_color(0x0e0984)};
+static const auto bold_colors =
+    FontColors{custom_color(0xf7f7ef), custom_color(0x0e0984)};
 
 
 
@@ -132,7 +133,8 @@ void CrewStatsScene::show_page()
         PLATFORM.set_tile(Layer::overlay, x, 17, 150);
     }
 
-    const auto stat_colors = FontColors{custom_color(0x495ac5), custom_color(0xe1e6da)};
+    const auto stat_colors =
+        FontColors{custom_color(0x495ac5), custom_color(0xe1e6da)};
 
     auto st = info.first->stats();
 
@@ -340,4 +342,4 @@ ScenePtr CrewStatsScene::update(Time delta)
 
 
 
-}
+} // namespace skyland

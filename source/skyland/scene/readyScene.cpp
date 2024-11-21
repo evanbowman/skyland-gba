@@ -823,7 +823,8 @@ void describe_room(Island* island,
                         }
                         // Replicants with icons cause appended stats to be cropped offscreen
                         bool skip = chr->is_replicant() and chr_icon;
-                        if (skip or (not overlap and chr->owner() == &APP.player())) {
+                        if (skip or
+                            (not overlap and chr->owner() == &APP.player())) {
                             const int xo = chr_icon ? 4 : 0;
                             const int y = calc_screen_tiles().y - 1;
                             auto icon_x = [&] {
