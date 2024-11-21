@@ -61,6 +61,18 @@ Explosive::Explosive(Island* parent,
 
 
 
+void Explosive::rewind(Time delta)
+{
+    Room::rewind(delta);
+
+    if (health() == max_health()) {
+        Room::ready();
+        ignition_ = false;
+    }
+}
+
+
+
 void Explosive::update(Time delta)
 {
     Room::update(delta);
