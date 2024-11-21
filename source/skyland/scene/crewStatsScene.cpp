@@ -32,6 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "crewStatsScene.hpp"
+#include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -227,7 +229,8 @@ ScenePtr CrewStatsScene::update(Time delta)
 
     switch (state_) {
     case State::regular: {
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().key_down(Key::action_2) or
+            APP.player().key_down(Key::action_1)) {
             exit_ = true;
             PLATFORM.fill_overlay(0);
             return null_scene();
@@ -268,8 +271,22 @@ ScenePtr CrewStatsScene::update(Time delta)
             break;
         }
 
-        if (exit_ and next_) {
-            return (*next_)();
+        if (exit_) {
+            if (next_) {
+                return (*next_)();
+            }
+            auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
+            if (found.first) {
+                if (found.second->parent() == APP.opponent_island()) {
+                    globals().far_cursor_loc_ = found.first->grid_position();
+                    return make_scene<InspectP2Scene>();
+                } else {
+                    globals().near_cursor_loc_ = found.first->grid_position();
+                    return make_scene<ReadyScene>();
+                }
+            } else {
+                return make_scene<ReadyScene>();
+            }
         }
         break;
     }
