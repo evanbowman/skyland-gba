@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "number/int.h"
+#include "number/endian.hpp"
 
 
 
@@ -44,8 +44,32 @@ namespace skyland
 
 struct CharacterStats
 {
-    u8 enemies_vanquished_;
-    u8 battles_fought_;
+    using BlockRepairCount = u16;
+    using EnemiesVanquished = u8;
+    using BattlesFought = u8;
+
+    EnemiesVanquished enemies_vanquished_;
+    BattlesFought battles_fought_;
+
+    HostInteger<BlockRepairCount> blocks_repaired_;
+
+
+    template <typename T>
+    static void inc(T& val)
+    {
+        if (val not_eq std::numeric_limits<T>::max()) {
+            ++val;
+        }
+    }
+
+
+    template <typename T>
+    static void inc(HostInteger<T>& val)
+    {
+        if (val.get() not_eq std::numeric_limits<T>::max()) {
+            val.set(val.get() + 1);
+        }
+    }
 };
 
 

@@ -333,6 +333,9 @@ public:
     CharacterStats& stats();
 
 
+    void record_stats();
+
+
 private:
     Island* parent_;
     Player* owner_;

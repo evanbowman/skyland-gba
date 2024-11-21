@@ -984,6 +984,9 @@ BINDING_TABLE({
                       if (auto b = chr->stats().battles_fought_) {
                           chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
                       }
+                      if (auto b = chr->stats().blocks_repaired_.get()) {
+                          chr_info.push_back(L_CONS(L_SYM("br"), L_INT(b)));
+                      }
                       chr_info.push_back(
                           L_CONS(make_symbol("id"), make_integer(chr->id())));
                       list.push_front(chr_info.result());
@@ -1602,6 +1605,7 @@ BINDING_TABLE({
           int icon = 0;
           u8 kills = 0;
           u8 battles = 0;
+          int repaired = 0;
 
           // For backwards compatibility with old versions. We used to accept a
           // integer parameter indicating whether the character was a
@@ -1644,6 +1648,9 @@ BINDING_TABLE({
                           if (auto b = find_param("bt")) {
                               battles = b;
                           }
+                          if (auto b = find_param("br")) {
+                              repaired = b;
+                          }
                       }
                   }
               });
@@ -1678,6 +1685,7 @@ BINDING_TABLE({
                   id = chr->id();
                   chr->stats().enemies_vanquished_ = kills;
                   chr->stats().battles_fought_ = battles;
+                  chr->stats().blocks_repaired_.set(repaired);
                   island->add_character(std::move(chr));
               }
           }

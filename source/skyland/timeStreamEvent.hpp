@@ -157,7 +157,7 @@ enum Type : u8 {
     character_transported,
     character_disembark,
     character_movement_path_assigned,
-    character_vanquished_opponent,
+    character_stats_changed,
 
     character_position_jump,
 
@@ -918,12 +918,13 @@ struct CharacterDied
 
 
 
-struct CharacterVanquishedOpponent
+struct CharacterStatsChanged
 {
     Header header_;
     HostInteger<CharacterId> id_;
+    CharacterStats prev_stats_;
 
-    static constexpr const auto t = Type::character_vanquished_opponent;
+    static constexpr const auto t = Type::character_stats_changed;
 };
 
 

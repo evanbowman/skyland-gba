@@ -375,10 +375,25 @@ void BasicCharacter::set_phase(u8 phase)
 
 
 
+void BasicCharacter::record_stats()
+{
+    if (owner() not_eq &APP.player()) {
+        // Don't bother with opponent stats, as they aren't displayed
+        // anyway. But... maybe displaying stats for enemies might be fun?
+        // e.g. if a goblin killed one of your crew, knowing which goblin it was
+        // would allow your crew to exact vengence on that goblin...
+        return;
+    }
+    time_stream::event::CharacterStatsChanged e;
+    e.id_.set(id());
+    e.prev_stats_ = stats_;
+    APP.time_stream().push(APP.level_timer(), e);
+}
+
+
+
 void BasicCharacter::update(Time delta, Room* room)
 {
-    // const auto t1 = PLATFORM.delta_clock().sample();
-
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
     o.y += Fixnum::from_integer(grid_position_.y * 16 - 3);
@@ -645,6 +660,10 @@ void BasicCharacter::update(Time delta, Room* room)
                     } else {
                         room->heal(2);
                     }
+                    if (room->health() == room->max_health()) {
+                        record_stats();
+                        CharacterStats::inc(stats_.blocks_repaired_);
+                    }
                 } else {
                     this->set_idle();
                     break;
@@ -665,13 +684,6 @@ void BasicCharacter::update(Time delta, Room* room)
 
         break;
     }
-
-    // const auto t2 = PLATFORM.delta_clock().sample();
-
-    // if (PLATFORM.keyboard().pressed<Key::select>()) {
-    //     Platform::fatal(format("%",
-    //                            t2 - t1).c_str());
-    // }
 }
 
 
@@ -749,12 +761,8 @@ void BasicCharacter::update_attack(Time delta)
         if (auto chr = get_opponent()) {
             chr->apply_damage(4);
             if (chr->health() <= 0) {
-                if (stats_.enemies_vanquished_ < 255) {
-                    stats_.enemies_vanquished_++;
-                    time_stream::event::CharacterVanquishedOpponent e;
-                    e.id_.set(id());
-                    APP.time_stream().push(APP.level_timer(), e);
-                }
+                record_stats();
+                CharacterStats::inc(stats_.enemies_vanquished_);
             }
         } else {
             sprite_.set_texture_index(base_frame(this) + 5);

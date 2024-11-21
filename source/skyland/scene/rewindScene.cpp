@@ -1206,13 +1206,11 @@ ScenePtr RewindScene::update(Time)
         }
 
 
-        case time_stream::event::Type::character_vanquished_opponent: {
-            auto e = (time_stream::event::CharacterVanquishedOpponent*)end;
+        case time_stream::event::Type::character_stats_changed: {
+            auto e = (time_stream::event::CharacterStatsChanged*)end;
             auto chr_info = BasicCharacter::find_by_id(e->id_.get());
             if (chr_info.first) {
-                if (chr_info.first->stats().enemies_vanquished_ > 0) {
-                    chr_info.first->stats().enemies_vanquished_--;
-                }
+                chr_info.first->stats() = e->prev_stats_;
             }
             APP.time_stream().pop(sizeof *e);
             break;
