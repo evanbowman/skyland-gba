@@ -174,6 +174,18 @@ void CrewStatsScene::show_page()
     PLATFORM.set_tile(Layer::overlay, 2, 18, 155);
 
     draw_image(156, 20, 3, 5, 3, Layer::overlay);
+
+    if (page_index_ > 0) {
+        PLATFORM.set_tile(Layer::overlay, 0, 9, 173);
+    } else {
+        PLATFORM.set_tile(Layer::overlay, 0, 9, 0);
+    }
+
+    if (page_index_ < (int)chrs_.size() - 1) {
+        PLATFORM.set_tile(Layer::overlay, 29, 9, 174);
+    } else {
+        PLATFORM.set_tile(Layer::overlay, 29, 9, 0);
+    }
 }
 
 
@@ -269,6 +281,10 @@ ScenePtr CrewStatsScene::update(Time delta)
         }
 
         if (APP.player().key_down(Key::action_1)) {
+            if (icons[icon_sel_] == 19) {
+                state_ = State::regular;
+                show_page();
+            }
             PLATFORM.speaker().play_sound("button_wooden", 3);
             auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
             if (found.first) {
