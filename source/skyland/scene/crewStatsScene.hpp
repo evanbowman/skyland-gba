@@ -59,6 +59,10 @@ public:
     Optional<DeferredScene> next_;
 
 
+    Float bkg_fade_amount_ = 0.5f;
+    Float exit_fade_ = 0.f;
+
+
 private:
     Vector<CharacterId> chrs_;
     int page_index_ = 0;

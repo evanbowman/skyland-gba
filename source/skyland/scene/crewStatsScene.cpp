@@ -198,7 +198,7 @@ void CrewStatsScene::enter(Scene& prev)
 {
     PLATFORM.load_overlay_texture("overlay_adventurelog");
     show_page();
-    PLATFORM.screen().schedule_fade(0.5f);
+    PLATFORM.screen().schedule_fade(bkg_fade_amount_);
 }
 
 
@@ -206,7 +206,7 @@ void CrewStatsScene::enter(Scene& prev)
 void CrewStatsScene::exit(Scene& next)
 {
     PLATFORM.load_overlay_texture("overlay");
-    PLATFORM.screen().schedule_fade(0);
+    PLATFORM.screen().schedule_fade(exit_fade_);
 }
 
 
