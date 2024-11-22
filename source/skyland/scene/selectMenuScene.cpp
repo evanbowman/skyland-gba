@@ -286,9 +286,17 @@ void SelectMenuScene::enter(Scene& scene)
             }
         }
 
-        if (is_player_island(isle) and
-            not PLATFORM.network_peer().is_connected()) {
-            if (auto chr = isle->character_at_location(cursor)) {
+        if (not PLATFORM.network_peer().is_connected()) {
+            BasicCharacter* chr = nullptr;
+            if (auto room = isle->get_room(cursor)) {
+                for (auto& c : room->characters()) {
+                    if (c->grid_position() == cursor and
+                        c->owner() == &APP.player()) {
+                        chr = c.get();
+                    }
+                }
+            }
+            if (chr) {
                 if (chr->is_superpinned()) {
                     add_line(SystemString::sel_menu_unpin_crewmember,
                              "",
