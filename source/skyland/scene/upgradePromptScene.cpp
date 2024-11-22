@@ -154,7 +154,8 @@ ScenePtr UpgradePromptScene::update(Time delta)
                 }
 
                 if (props & RoomProperties::workshop_required and
-                    APP.player_island().workshop_count() == 0) {
+                    APP.player_island().workshop_count() == 0 and
+                    APP.player_island().manufactory_count() == 0) {
                     err = SYS_CSTR(upgrade_denied_workshop);
                     return notify_err();
                 }
