@@ -177,16 +177,16 @@ void CrewStatsScene::show_page()
 
     PLATFORM.set_tile(Layer::overlay, 2, 18, 155);
 
-    draw_image(156, 20, 3, 5, 3, Layer::overlay);
+    draw_image(156, 20, 2, 5, 4, Layer::overlay);
 
     if (page_index_ > 0) {
-        PLATFORM.set_tile(Layer::overlay, 0, 9, 173);
+        PLATFORM.set_tile(Layer::overlay, 0, 9, 178);
     } else {
         PLATFORM.set_tile(Layer::overlay, 0, 9, 0);
     }
 
     if (page_index_ < (int)chrs_.size() - 1) {
-        PLATFORM.set_tile(Layer::overlay, 29, 9, 174);
+        PLATFORM.set_tile(Layer::overlay, 29, 9, 179);
     } else {
         PLATFORM.set_tile(Layer::overlay, 29, 9, 0);
     }
@@ -254,8 +254,8 @@ ScenePtr CrewStatsScene::update(Time delta)
 
         if (APP.player().key_down(Key::start)) {
             state_ = State::icon_select;
-            PLATFORM.set_tile(Layer::overlay, 2, 4, 171);
-            PLATFORM.set_tile(Layer::overlay, 2, 5, 172);
+            PLATFORM.set_tile(Layer::overlay, 2, 4, 176);
+            PLATFORM.set_tile(Layer::overlay, 2, 5, 177);
             PLATFORM.speaker().play_sound("button_wooden", 3);
             Text::print("choose icon", {2, 6}, bold_colors);
 
