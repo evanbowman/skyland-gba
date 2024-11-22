@@ -785,6 +785,7 @@ enum class SystemString {
     sel_menu_crewmember_stats,
 
     crewmember_stats_title,
+    crewmember_stats_title_ending,
     crewmember_stats_battles,
     crewmember_stats_vanquished,
     crewmember_stats_repaired,

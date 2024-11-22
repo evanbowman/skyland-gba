@@ -853,6 +853,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                                 next->next_ = make_deferred_scene<HighscoresScene>(true, 1);
                                 next->bkg_fade_amount_ = 1;
                                 next->exit_fade_ = 1;
+                                next->title_ = SystemString::crewmember_stats_title_ending;
                                 return next;
                             });
                             return next;

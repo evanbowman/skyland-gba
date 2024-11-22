@@ -61,6 +61,7 @@ public:
 
     Float bkg_fade_amount_ = 0.5f;
     Float exit_fade_ = 0.f;
+    SystemString title_ = SystemString::crewmember_stats_title;
 
 
 private:

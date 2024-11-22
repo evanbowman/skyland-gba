@@ -834,11 +834,6 @@ void describe_room(Island* island,
                             room_description->append("  ");
                             PLATFORM.set_tile(Layer::overlay, icon_x(), y, 484);
                             room_description->append(b);
-
-                            room_description->append("  ");
-                            PLATFORM.set_tile(Layer::overlay, icon_x(), y, 485);
-                            auto e = chr->stats().enemies_vanquished_;
-                            room_description->append(e);
                         }
                         ++i;
                     }

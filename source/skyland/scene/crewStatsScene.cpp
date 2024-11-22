@@ -101,7 +101,7 @@ void CrewStatsScene::show_page()
     const int offset = (chr_icon - 1) * 16;
     PLATFORM.load_overlay_chunk(274, offset, 16, "character_art");
 
-    Text::print(SYS_CSTR(crewmember_stats_title), {2, 1}, bold_colors);
+    Text::print(loadstr(title_)->c_str(), {2, 1}, bold_colors);
 
     int tile = 274;
     for (int y = 0; y < 4; ++y) {

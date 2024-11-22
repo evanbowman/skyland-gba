@@ -118,6 +118,8 @@ void prep_level()
     far_cursor_loc.x = 0;
     far_cursor_loc.y = 14;
 
+    APP.player_island().projectiles().clear();
+
     const auto pl_terrain_size = APP.player_island().terrain().size();
     if (pl_terrain_size > 8) {
         cursor_loc.x = pl_terrain_size / 2;
