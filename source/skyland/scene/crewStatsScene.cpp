@@ -138,38 +138,63 @@ void CrewStatsScene::show_page()
 
     auto st = info.first->stats();
 
-    PLATFORM.set_tile(Layer::overlay, 3, 7, 139);
-    StringBuffer<96> temp = stringify(st.battles_fought_);
-    temp += " ";
-    temp += SYS_CSTR(crewmember_stats_battles);
-    Text::print(temp.c_str(), {5, 7}, stat_colors);
+    for (int y = 0; y < 4; ++y) {
+        PLATFORM.set_tile(Layer::overlay, 27, 1 + y, 181 + y);
+    }
 
-    PLATFORM.set_tile(Layer::overlay, 3, 8, 144);
-    PLATFORM.set_tile(Layer::overlay, 3, 9, 143);
-    PLATFORM.set_tile(Layer::overlay, 3, 10, 145);
-    temp = stringify(st.enemies_vanquished_);
-    temp += " ";
-    temp += SYS_CSTR(crewmember_stats_vanquished);
-    Text::print(temp.c_str(), {5, 9}, stat_colors);
+    auto separator = [&](int y) {
+        for (int x = 3; x < 25; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x, y, 180);
+        }
+    };
 
-    PLATFORM.set_tile(Layer::overlay, 3, 11, 147);
-    PLATFORM.set_tile(Layer::overlay, 4, 11, 148);
-    temp = stringify(st.blocks_repaired_.get());
-    temp += " ";
-    temp += SYS_CSTR(crewmember_stats_repaired);
-    Text::print(temp.c_str(), {5, 11}, stat_colors);
+    StringBuffer<96> temp;
 
-    PLATFORM.set_tile(Layer::overlay, 3, 13, 154);
-    temp = stringify(st.fires_extinguished_);
-    temp += " ";
-    temp += SYS_CSTR(crewmember_stats_fires);
-    Text::print(temp.c_str(), {5, 13}, stat_colors);
+    auto append_stat = [&](int val) {
+        auto tl = integer_text_length(val);
+        while (utf8::len(temp.c_str()) + tl < 20) {
+            temp.push_back(' ');
+        }
+        temp += stringify(val);
+    };
 
-    PLATFORM.set_tile(Layer::overlay, 3, 15, 153);
-    temp = stringify(st.steps_taken_.get());
-    temp += " ";
-    temp += SYS_CSTR(crewmember_stats_steps);
-    Text::print(temp.c_str(), {5, 15}, stat_colors);
+    PLATFORM.set_tile(Layer::overlay, 25, 7, 139);
+    temp = SYS_CSTR(crewmember_stats_battles);
+    append_stat(st.battles_fought_);
+    Text::print(temp.c_str(), {4, 7}, stat_colors);
+
+    separator(8);
+
+    PLATFORM.set_tile(Layer::overlay, 25, 8, 144);
+    PLATFORM.set_tile(Layer::overlay, 25, 9, 143);
+    PLATFORM.set_tile(Layer::overlay, 25, 10, 145);
+    temp = SYS_CSTR(crewmember_stats_vanquished);
+    append_stat(st.enemies_vanquished_);
+    Text::print(temp.c_str(), {4, 9}, stat_colors);
+
+    separator(10);
+
+    PLATFORM.set_tile(Layer::overlay, 25, 11, 147);
+    PLATFORM.set_tile(Layer::overlay, 26, 11, 148);
+    temp = SYS_CSTR(crewmember_stats_repaired);
+    append_stat(st.blocks_repaired_.get());
+    Text::print(temp.c_str(), {4, 11}, stat_colors);
+
+    separator(12);
+
+    PLATFORM.set_tile(Layer::overlay, 25, 13, 154);
+    temp = SYS_CSTR(crewmember_stats_fires);
+    append_stat(st.fires_extinguished_);
+    Text::print(temp.c_str(), {4, 13}, stat_colors);
+
+    separator(14);
+
+    PLATFORM.set_tile(Layer::overlay, 25, 15, 153);
+    temp = SYS_CSTR(crewmember_stats_steps);
+    append_stat(st.steps_taken_.get());
+    Text::print(temp.c_str(), {4, 15}, stat_colors);
+
+    separator(16);
 
     temp = "id:";
     temp += stringify(info.first->id());
@@ -242,6 +267,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             if (page_index_ < (int)chrs_.size() - 1) {
                 ++page_index_;
                 show_page();
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
 
@@ -249,6 +275,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             if (page_index_ > 0) {
                 --page_index_;
                 show_page();
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
 
@@ -303,6 +330,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             if (icons[icon_sel_] == 19) {
                 state_ = State::regular;
                 show_page();
+                break;
             }
             PLATFORM.speaker().play_sound("button_wooden", 3);
             auto found = BasicCharacter::find_by_id(chrs_[page_index_]);

@@ -73,6 +73,14 @@ struct CharacterStats
             val.set(val.get() + 1);
         }
     }
+
+
+    template <typename T> static void dec(HostInteger<T>& val)
+    {
+        if (val.get() not_eq 0) {
+            val.set(val.get() - 1);
+        }
+    }
 };
 
 

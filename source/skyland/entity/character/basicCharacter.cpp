@@ -928,6 +928,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
             (*movement_path_)->pop_back();
             CharacterStats::inc(stats_.steps_taken_);
             CharacterStats::inc(stats_.steps_taken_);
+            CharacterStats::inc(stats_.steps_taken_);
 
             if (warped) {
                 state_ = State::after_transport;
@@ -967,12 +968,9 @@ void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
     }
 
     (*movement_path_)->push_back(grid_position_);
-    if (stats_.steps_taken_.get() > 0) {
-        stats_.steps_taken_.set(stats_.steps_taken_.get() - 1);
-    }
-    if (stats_.steps_taken_.get() > 0) {
-        stats_.steps_taken_.set(stats_.steps_taken_.get() - 1);
-    }
+    CharacterStats::dec(stats_.steps_taken_);
+    CharacterStats::dec(stats_.steps_taken_);
+    CharacterStats::dec(stats_.steps_taken_);
 
     if (new_pos.x < grid_position_.x) {
         sprite_.set_flip({false, false});
