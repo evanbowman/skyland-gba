@@ -366,6 +366,16 @@ void Island::rewind(Time delta)
 void Island::check_destroyed()
 {
     destroyed_ = false;
+
+    if (owner_ == &APP.opponent()) {
+        if (APP.opponent().is_friendly()) {
+            // Just as a failsafe! You cannot destroy friendly
+            // islands. Impossible. They won't even blow up if you found some
+            // hacky way to do it.
+            return;
+        }
+    }
+
     bool has_core = false;
     for (auto& room : rooms_) {
         if ((*room->metaclass())->category() == Room::Category::power) {
