@@ -33,3 +33,9 @@ Release
 build/*.png
 build/psp/*.c
 *.pdf
+# build artifacts
+build/fs.bin
+lisp_symtab.dat
+build/SkylandEngine
+# specialized build.sh file should not be commited
+build/#build.sh
