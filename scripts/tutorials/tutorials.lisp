@@ -8,7 +8,8 @@
 
 ;; NOTE: the list should not exceed 64 tutorials.
 
-'(("Introduction" "tutorials/overview.lisp" 0)
+'(;; ("template" "tutorials/template.lisp" 0)
+  ("Introduction" "tutorials/overview.lisp" 0)
   ("Game Speed" "tutorials/game_speed.lisp" 1)
   ("Weapon Groups" "tutorials/weapon_groups.lisp" 2)
   ("Firing Patterns" "tutorials/firing_patterns.lisp" 3)
