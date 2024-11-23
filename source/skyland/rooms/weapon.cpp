@@ -136,18 +136,7 @@ void Weapon::timer_expired()
 
         if (island and not island->is_destroyed()) {
 
-            while (target_queue_.size() > 1 and
-                   not island->get_room(target_queue_.back().coord())) {
-
-                time_stream::event::TargetQueuePop e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                e.queue_elem_x_ = target_queue_.back().x_;
-                e.queue_elem_y_ = target_queue_.back().y_;
-                APP.time_stream().push(APP.level_timer(), e);
-
-                target_queue_.pop_back();
-            }
+            update_targets();
 
             // This check for friendly status is partly just a sanity check. It
             // shouldn't be possible to set a weapon target if the opposing
@@ -169,6 +158,29 @@ void Weapon::timer_expired()
                                                          // reload() above to
                                                          // record events.
     Timer::__override_clock(0);
+}
+
+
+
+void Weapon::update_targets()
+{
+    auto island = other_island();
+    if (not island) {
+        return;
+    }
+
+    while (target_queue_.size() > 1 and
+           not island->get_room(target_queue_.back().coord())) {
+
+        time_stream::event::TargetQueuePop e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+        e.queue_elem_x_ = target_queue_.back().x_;
+        e.queue_elem_y_ = target_queue_.back().y_;
+        APP.time_stream().push(APP.level_timer(), e);
+
+        target_queue_.pop_back();
+    }
 }
 
 

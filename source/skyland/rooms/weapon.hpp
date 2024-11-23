@@ -161,6 +161,9 @@ public:
     const TargetQueue& target_queue() const;
 
 
+    void update_targets();
+
+
 protected:
     void on_powerchange() override;
 

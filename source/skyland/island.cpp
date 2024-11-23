@@ -56,6 +56,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "rooms/weapon.hpp"
 
 
 
@@ -1122,6 +1123,12 @@ void Island::update(Time dt)
             recalculate_power_usage();
 
             do_repaint = true;
+
+            for (auto& r : APP.player_island().rooms()) {
+                if (auto w = r->cast_weapon()) {
+                    w->update_targets();
+                }
+            }
 
         } else {
             if (dt not_eq 0) {
