@@ -27,6 +27,8 @@
 
 (chr-new (opponent) 1 14 'hostile nil)
 
+(dialog "This is a template for a tutorial, see <B:0> /scripts/tutorials/template.lisp for more information.")
+
 ;; (autopilot '(<key presses here...>))
 
 
