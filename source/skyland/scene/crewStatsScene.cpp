@@ -92,6 +92,10 @@ void CrewStatsScene::show_page()
         }
     }
 
+    for (int x = 2; x < 28; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 0, 185);
+    }
+
     PLATFORM.set_tile(Layer::overlay, 2, 5, 141);
     for (int x = 7; x < 26; ++x) {
         // Squiggly band effect

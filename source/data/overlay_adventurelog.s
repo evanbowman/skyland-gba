@@ -9,7 +9,7 @@
 @	+ 187 tiles lz77 compressed
 @	Total size: 32 + 1260 = 1292
 @
-@	Time-stamp: 2024-11-22, 11:56:10
+@	Time-stamp: 2024-11-23, 16:21:52
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -63,7 +63,7 @@ overlay_adventurelogTiles:
 	.word 0x7E1BEBFB,0xCF02C312,0x66D30260,0x03400600,0x200B10EB,0x061E2013,0x00661040,0xE1032008
 	.word 0xFF121340,0x6A6AC553,0xD1F36A6A,0x00D3F3D6,0x1300F80F,0x000600FF,0xFF57FF03,0x808F0600
 	.word 0x0D008806,0x06401C20,0xFF2350AD,0x00FF2A00,0x8F019006,0x00DF1200,0x8837A041,0x72A03E00
-	.word 0x01F0C350,0xF08001F0,0x00000001
+	.word 0x01F0C350,0xF0C0BB33,0x0003B015
 
 	.section .rodata
 	.align	2
