@@ -43,6 +43,15 @@ namespace skyland
 
 
 
+void __draw_image(TileDesc start_tile,
+                  u16 start_x,
+                  u16 start_y,
+                  u16 width,
+                  u16 height,
+                  Layer layer);
+
+
+
 bool CreditsModule::load_page(u32 page)
 {
     Vector<char> data;
@@ -58,10 +67,32 @@ bool CreditsModule::load_page(u32 page)
 
     u8 y = 1;
 
+    for (int x = 0; x < 30; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            PLATFORM.set_tile(Layer::overlay, x, y, 112);
+        }
+    }
+
     StringBuffer<128> line;
     for (char c : data) {
         if (c == '\n') {
             if (line.length()) {
+                if (line[0] == '/') {
+                    PLATFORM.load_tile1_texture(line.c_str());
+                    PLATFORM.screen().set_view(View{});
+                    __draw_image(0, 3, y, 24, 10, Layer::map_1);
+                    PLATFORM.set_scroll(Layer::map_1_ext, 0, -(y - 2) * 8 + 4);
+                    for (int x = 0; x < 30; ++x) {
+                        for (int yy = 0; yy < 20; ++yy) {
+                            if (not (yy < y or yy > y + 9 or x < 3 or x > 26)) {
+                                PLATFORM.set_tile(Layer::overlay, x, yy, 0);
+                            }
+                        }
+                    }
+                    y += 10;
+                    line.clear();
+                    continue;
+                }
                 lines_.emplace_back(
                     line.c_str(),
                     OverlayCoord{
@@ -127,7 +158,12 @@ ScenePtr CreditsModule::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::idle;
-            PLATFORM.screen().schedule_fade(0.f);
+            PLATFORM.screen().schedule_fade(0.f,
+                                            ColorConstant::rich_black,
+                                            true,
+                                            true,
+                                            true,
+                                            true);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
@@ -140,10 +176,18 @@ ScenePtr CreditsModule::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::page_swap;
+            PLATFORM.screen().schedule_fade(
+                1, ColorConstant::rich_black,
+                true,
+                true);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount, ColorConstant::rich_black,
+                true,
+                true,
+                true,
+                true);
         }
         break;
 
@@ -157,7 +201,12 @@ ScenePtr CreditsModule::update(Time delta)
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount,
+                ColorConstant::rich_black,
+                true,
+                true,
+                true,
+                false);
         }
         break;
 

@@ -1,7 +1,6 @@
 -- Postscript --
 
-
-
+/scripts/data/img/city.img.bin
 
 Thanks for playing!
 
