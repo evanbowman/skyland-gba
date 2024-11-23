@@ -145,7 +145,7 @@ void SelectTutorialScene::enter(Scene& prev)
 
         PLATFORM.screen().set_view({});
 
-        PLATFORM.screen().fade(
+        PLATFORM.screen().schedule_fade(
             default_fade, ColorConstant::rich_black, {}, false);
     }
 
