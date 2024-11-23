@@ -101,7 +101,7 @@ void CrewStatsScene::show_page()
     const int offset = (chr_icon - 1) * 16;
     PLATFORM.load_overlay_chunk(274, offset, 16, "character_art");
 
-    Text::print(loadstr(title_)->c_str(), {2, 1}, bold_colors);
+    Text::print(loadstr(title_)->c_str(), {2, 1});
 
     int tile = 274;
     for (int y = 0; y < 4; ++y) {
@@ -198,7 +198,7 @@ void CrewStatsScene::show_page()
 
     temp = "id:";
     temp += stringify(info.first->id());
-    Text::print(temp.c_str(), {(u8)(28 - temp.length()), 18}, bold_colors);
+    Text::print(temp.c_str(), {(u8)(28 - temp.length()), 18});
 
     PLATFORM.set_tile(Layer::overlay, 2, 18, 155);
 
