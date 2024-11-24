@@ -39,3 +39,7 @@
 ;; down twice to finish recording. This will trigger writing log.txt to save
 ;; data, so that you can retrieve the key presses.
 (key-bind "dd" 'tutorial-done) ;; bind down-down sequence to function
+
+
+(if (is-regression-mode)
+    (exit))
