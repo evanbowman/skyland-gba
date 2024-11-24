@@ -1,5 +1,6 @@
 -- Design --
 
+/scripts/data/img/ruins_isle.img.bin
 
 Design and Artwork
 
