@@ -47,6 +47,7 @@
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "rooms/portal.hpp"
+#include "rooms/weapon.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "skyland/entity/ghost.hpp"
@@ -56,7 +57,6 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "rooms/weapon.hpp"
 
 
 

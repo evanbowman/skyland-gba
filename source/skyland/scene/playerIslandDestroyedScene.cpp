@@ -35,9 +35,9 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "achievementNotificationScene.hpp"
 #include "adventureLogScene.hpp"
-#include "crewStatsScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "coOpSyncScene.hpp"
+#include "crewStatsScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "levelExitScene.hpp"
@@ -850,10 +850,13 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                             next->set_next_scene([] {
                                 auto next = make_scene<CrewStatsScene>(0);
-                                next->next_ = make_deferred_scene<HighscoresScene>(true, 1);
+                                next->next_ =
+                                    make_deferred_scene<HighscoresScene>(true,
+                                                                         1);
                                 next->bkg_fade_amount_ = 1;
                                 next->exit_fade_ = 1;
-                                next->title_ = SystemString::crewmember_stats_title_ending;
+                                next->title_ =
+                                    SystemString::crewmember_stats_title_ending;
                                 return next;
                             });
                             return next;

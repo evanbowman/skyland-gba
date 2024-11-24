@@ -84,7 +84,7 @@ bool CreditsModule::load_page(u32 page)
                     PLATFORM.set_scroll(Layer::map_1_ext, 0, -(y - 2) * 8 + 4);
                     for (int x = 0; x < 30; ++x) {
                         for (int yy = 0; yy < 20; ++yy) {
-                            if (not (yy < y or yy > y + 9 or x < 3 or x > 26)) {
+                            if (not(yy < y or yy > y + 9 or x < 3 or x > 26)) {
                                 PLATFORM.set_tile(Layer::overlay, x, yy, 0);
                             }
                         }
@@ -158,12 +158,8 @@ ScenePtr CreditsModule::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::idle;
-            PLATFORM.screen().schedule_fade(0.f,
-                                            ColorConstant::rich_black,
-                                            true,
-                                            true,
-                                            true,
-                                            true);
+            PLATFORM.screen().schedule_fade(
+                0.f, ColorConstant::rich_black, true, true, true, true);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
@@ -177,17 +173,11 @@ ScenePtr CreditsModule::update(Time delta)
             timer_ = 0;
             state_ = State::page_swap;
             PLATFORM.screen().schedule_fade(
-                1, ColorConstant::rich_black,
-                true,
-                true);
+                1, ColorConstant::rich_black, true, true);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black,
-                true,
-                true,
-                true,
-                true);
+                amount, ColorConstant::rich_black, true, true, true, true);
         }
         break;
 
@@ -201,12 +191,7 @@ ScenePtr CreditsModule::update(Time delta)
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount,
-                ColorConstant::rich_black,
-                true,
-                true,
-                true,
-                false);
+                amount, ColorConstant::rich_black, true, true, true, false);
         }
         break;
 
