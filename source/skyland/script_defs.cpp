@@ -2411,6 +2411,11 @@ BINDING_TABLE({
       }}},
     {"is-developer-mode",
      {0, [](int argc) { return lisp::make_boolean(APP.is_developer_mode()); }}},
+    {"is-regression-mode",
+     {0,
+      [](int argc) {
+          return lisp::make_boolean(state_bit_load(StateBit::regression));
+      }}},
     {"challenge-complete",
      {1,
       [](int argc) {

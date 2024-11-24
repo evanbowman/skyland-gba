@@ -764,6 +764,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (is-regression-mode)
+
+ Returns true if the game is
+ running regression tests.
+
+
+o----------------------------o
+
  (key-bind str symbol)
 
  While the game does not
