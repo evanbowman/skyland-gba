@@ -321,6 +321,10 @@ void make_transport_effect(BasicCharacter& chr)
 
 void Transporter::transport_occupant(Optional<RoomCoord> destination)
 {
+    if (characters().empty()) {
+        return;
+    }
+
     begin_recharge();
 
     ready();
@@ -332,9 +336,6 @@ void Transporter::transport_occupant(Optional<RoomCoord> destination)
     }
 
     auto chr = characters().begin();
-    if (chr == characters().end()) {
-        return;
-    }
 
     auto island = other_island();
     if (island == nullptr) {
