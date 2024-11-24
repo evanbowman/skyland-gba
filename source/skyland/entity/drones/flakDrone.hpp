@@ -88,7 +88,7 @@ public:
         PLATFORM.speaker().play_sound("drone_beep", 1);
         Optional<RoomCoord> initial_pos;
         if (target_near_ == (is_player_island(destination()))) {
-            initial_pos = target_;
+            initial_pos = get_target();
         }
 
         return make_scene<WeaponSetTargetScene>(
@@ -99,7 +99,7 @@ public:
     void display_on_hover(Platform::Screen& screen,
                           const RoomCoord& cursor) override
     {
-        if (not target_) {
+        if (not get_target()) {
             return;
         }
 
@@ -111,16 +111,27 @@ public:
         }
 
         if (target_island) {
-            auto pos = target_island->visual_origin();
-            pos.x += Fixnum::from_integer(target_->x * 16);
-            pos.y += Fixnum::from_integer(target_->y * 16);
+            static const int reticule_spr_idx = 45;
 
-            Sprite spr;
-            spr.set_position(pos);
-            spr.set_texture_index(45);
-            spr.set_size(Sprite::Size::w16_h32);
+            Sprite::Alpha alpha = Sprite::Alpha::opaque;
 
-            screen.draw(spr);
+            for (int i = target_queue_.size() - 1; i > -1; --i) {
+                auto target = target_queue_[i].coord();
+
+                auto pos = target_island->visual_origin();
+                pos.x += Fixnum::from_integer(target.x * 16);
+                pos.y += Fixnum::from_integer(target.y * 16);
+
+                Sprite spr;
+                spr.set_position(pos);
+                spr.set_texture_index(reticule_spr_idx);
+                spr.set_size(Sprite::Size::w16_h32);
+                spr.set_alpha(alpha);
+
+                screen.draw(spr);
+
+                alpha = Sprite::Alpha::translucent;
+            }
         }
     }
 
@@ -172,7 +183,10 @@ public:
             duration_ += delta;
             update_sprite();
             if (timer_ > reload_time) {
-                if (target_) {
+
+                update_targets();
+
+                if (auto t = get_target()) {
                     if (not APP.opponent_island()) {
                         return;
                     }
@@ -184,14 +198,13 @@ public:
                         target_island = &APP.player_island();
                     }
 
-                    if (target_) {
-
+                    if (t) {
                         auto start = sprite_.get_position();
                         start.x += 8.0_fixed;
                         start.y += 8.0_fixed;
                         auto target = target_island->origin();
-                        target.x += Fixnum::from_integer(target_->x * 16 + 8);
-                        target.y += Fixnum::from_integer(target_->y * 16 + 8);
+                        target.x += Fixnum::from_integer(t->x * 16 + 8);
+                        target.y += Fixnum::from_integer(t->y * 16 + 8);
 
                         auto c = APP.alloc_entity<Flak>(
                             start, target, parent(), position());

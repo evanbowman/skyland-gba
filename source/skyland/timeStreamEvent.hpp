@@ -186,6 +186,7 @@ enum Type : u8 {
     drone_destroyed,
 
     drone_set_target,
+    drone_target_queue_pop,
     drone_reload_complete,
 
     rng_changed,
@@ -1116,6 +1117,22 @@ struct DroneDestroyed
     HostInteger<Time> duration_;
 
     static constexpr const auto t = Type::drone_destroyed;
+};
+
+
+
+struct DroneTargetQueuePop
+{
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 queue_elem_x_ : 4;
+    u8 queue_elem_y_ : 4;
+    u8 previous_target_near_ : 1;
+    u8 destination_near_ : 1;
+    u8 unused_ : 6;
+
+    static constexpr const auto t = Type::drone_target_queue_pop;
 };
 
 

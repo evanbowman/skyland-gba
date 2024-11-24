@@ -107,7 +107,7 @@ public:
             duration_ += delta;
             update_sprite();
             if (timer_ > reload_time) {
-                if (target_) {
+                if (auto target = get_target()) {
                     if (not APP.opponent_island()) {
                         return;
                     }
@@ -115,7 +115,7 @@ public:
                     auto island = target_near_ ? &APP.player_island()
                                                : APP.opponent_island();
 
-                    if (auto drone = island->get_drone(*target_)) {
+                    if (auto drone = island->get_drone(*target)) {
 
                         auto start = sprite_.get_position();
                         start.x += 8.0_fixed;

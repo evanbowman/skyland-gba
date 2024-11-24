@@ -454,6 +454,9 @@ private:
     void check_destroyed();
 
 
+    void update_target_queues();
+
+
     BulkTimer bulk_timer_;
 
     EntityList<BasicCharacter> characters_;

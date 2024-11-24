@@ -39,6 +39,7 @@
 #include "skyland/coord.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/targetQueue.hpp"
 
 
 
@@ -126,8 +127,8 @@ public:
 
 
 
-    void
-    set_target(const RoomCoord& target, bool target_pinned, bool target_near);
+    void set_target(const RoomCoord& target, bool target_pinned, bool target_near);
+    void set_target(const TargetQueue& target, bool target_pinned, bool target_near);
 
 
     Optional<RoomCoord> get_target() const;
@@ -206,6 +207,15 @@ public:
     Room* attached_to();
 
 
+    void clear_target_queue();
+
+
+    void update_targets();
+
+
+    void __rewind_push_target_queue(const RoomCoord& c);
+
+
 private:
     Island* parent_;
     Island* destination_;
@@ -223,7 +233,7 @@ private:
     RoomCoord grid_pos_;
 
 protected:
-    Optional<RoomCoord> target_;
+    TargetQueue target_queue_;
     bool target_near_ : 1 = false;
     bool target_pinned_ : 1 = false;
     bool shielded_ : 1 = false;

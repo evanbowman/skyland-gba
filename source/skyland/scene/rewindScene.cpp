@@ -1450,6 +1450,20 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::drone_target_queue_pop: {
+            auto e = (time_stream::event::DroneTargetQueuePop*)end;
+            auto isle = e->destination_near_ ? &APP.player_island() : APP.opponent_island();
+            if (isle) {
+                if (auto drone = isle->get_drone({e->x_pos_, e->y_pos_})) {
+                    (*drone)->__rewind_push_target_queue(
+                        {e->queue_elem_x_, e->queue_elem_y_});
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::target_queue_pop: {
             auto e = (time_stream::event::TargetQueuePop*)end;
             auto& isle = APP.player_island();

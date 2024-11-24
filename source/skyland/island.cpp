@@ -1124,11 +1124,7 @@ void Island::update(Time dt)
 
             do_repaint = true;
 
-            for (auto& r : APP.player_island().rooms()) {
-                if (auto w = r->cast_weapon()) {
-                    w->update_targets();
-                }
-            }
+            update_target_queues();
 
         } else {
             if (dt not_eq 0) {
@@ -1170,6 +1166,27 @@ void Island::update(Time dt)
     }
 
     fire_.update(*this, dt);
+}
+
+
+
+void Island::update_target_queues()
+{
+    for (auto& r : APP.player_island().rooms()) {
+        if (auto w = r->cast_weapon()) {
+            w->update_targets();
+        }
+    }
+
+    for (auto& drone : APP.player_island().drones()) {
+        drone->update_targets();
+    }
+
+    APP.with_opponent_island([](auto& isle) {
+        for (auto& drone : isle.drones()) {
+            drone->update_targets();
+        }
+    });
 }
 
 

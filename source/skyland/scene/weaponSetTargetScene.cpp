@@ -172,14 +172,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
 
 
     if (not queue_mode_ and APP.player().key_down(Key::select)) {
-
-        bool drone_target = false;
-        if ((near_ and APP.player_island().get_drone(weapon_loc_)) or
-            APP.opponent_island()->get_drone(weapon_loc_)) {
-            drone_target = true;
-        }
-
-        if (drone_target or PLATFORM.network_peer().is_connected()) {
+        if (PLATFORM.network_peer().is_connected()) {
             PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();
         }
@@ -375,7 +368,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
                 if (near_) {
                     if (auto drone =
                             APP.player_island().get_drone(weapon_loc_)) {
-                        (*drone)->set_target(cursor_loc, true, false);
+                        (*drone)->set_target(target_queue_, true, false);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());
@@ -383,7 +376,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
                 } else {
                     if (auto drone =
                             APP.opponent_island()->get_drone(weapon_loc_)) {
-                        (*drone)->set_target(cursor_loc, true, false);
+                        (*drone)->set_target(target_queue_, true, false);
                         sync(**drone);
 
                         return drone_exit_scene(drone->get());
