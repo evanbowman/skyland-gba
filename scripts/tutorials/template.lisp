@@ -41,5 +41,5 @@
 (key-bind "dd" 'tutorial-done) ;; bind down-down sequence to function
 
 
-(if (is-regression-mode)
-    (exit))
+(when (is-regression-mode)
+  (setq on-fadein exit))
