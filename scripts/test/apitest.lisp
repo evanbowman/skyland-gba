@@ -238,7 +238,7 @@
 (begin-test "file")
 
 ;; This file that we're running must exist...
-(assert-v (file-exists? "/scripts/data/unittest.lisp"))
+(assert-v (file-exists? "/scripts/test/unittest.lisp"))
 
 (setq temp (file-load "/scripts/data/test-data.txt"))
 

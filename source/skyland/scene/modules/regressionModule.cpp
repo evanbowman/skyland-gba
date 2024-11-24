@@ -108,8 +108,8 @@ ScenePtr RegressionModule::update(Time delta)
                       }));
 
         PLATFORM_EXTENSION(watchdog_off);
-        APP.invoke_script("/scripts/data/unittest.lisp");
-        APP.invoke_script("/scripts/data/apitest.lisp");
+        APP.invoke_script("/scripts/test/unittest.lisp");
+        APP.invoke_script("/scripts/test/apitest.lisp");
         PLATFORM_EXTENSION(watchdog_on);
 
         PLATFORM.screen().clear();
