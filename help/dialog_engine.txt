@@ -78,7 +78,7 @@ o----------------------------o
 o----------------------------o
 
  <S:INTEGER>
-
+0 = OFF, 1 = ON
  Enable/disable text printing
  via skyland conlang symbols.
 

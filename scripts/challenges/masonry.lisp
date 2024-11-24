@@ -13,7 +13,7 @@
 
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog "Try upgrading your workshop to a manufactory, regular weapons will not be enough!"))
 
 
 

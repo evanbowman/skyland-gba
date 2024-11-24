@@ -140,6 +140,7 @@ s8 last_cover_img = -1;
 
 void GlossaryViewerModule::enter(Scene& prev)
 {
+    PLATFORM.fill_overlay(0);
     if (state_ not_eq State::quickview) {
         PLATFORM.screen().set_shader(passthrough_shader);
     }
@@ -176,8 +177,8 @@ void GlossaryViewerModule::enter(Scene& prev)
     PLATFORM.screen().set_view(View{});
     PLATFORM.set_scroll(Layer::map_0_ext, 0, 0);
 
-    PLATFORM.screen().fade(0.95f);
-    PLATFORM.screen().fade(1.f);
+    PLATFORM.screen().schedule_fade(0.95f);
+    PLATFORM.screen().schedule_fade(1.f);
 
     PLATFORM.speaker().set_music_volume(10);
 
