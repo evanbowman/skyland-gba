@@ -349,7 +349,7 @@ void memset16(void* dst, u16 src, u32 hwn);
 
 void Platform::memset_words(void* dest, u8 byte, u32 word_count)
 {
-    memset32(dest, byte, word_count);
+    memset32(dest, byte | byte << 8 | byte << 16 | byte << 24, word_count);
 }
 
 
@@ -2001,7 +2001,8 @@ Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
 Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 {
     EncodedTile t;
-    Buffer<u8, 128> buffer;
+    using Buf = Buffer<u8, 128>;
+    Buf buffer(Buf::SkipZeroFill{});
 
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -2044,7 +2045,7 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     }
 
 
-    memcpy(t.bytes_, buffer.data(), 128);
+    memcpy32(t.bytes_, buffer.data(), 128 / 4);
 
     return t;
 }

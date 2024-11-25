@@ -172,9 +172,6 @@ void repaint(const Settings& settings)
         return;
     }
 
-    [[maybe_unused]] auto before = PLATFORM.delta_clock().sample();
-
-
     const u8 width = minimap_width();
 
     static const int minimap_px_width = 104;
@@ -682,16 +679,6 @@ void repaint(const Settings& settings)
             }
             PLATFORM.overwrite_overlay_tile(tile, encode_small_tile(td.data_));
             tile++;
-        }
-    }
-
-    [[maybe_unused]] auto after = PLATFORM.delta_clock().sample();
-
-    if (not PLATFORM.network_peer().is_connected()) {
-        if (Platform::DeltaClock::duration(before, after) > milliseconds(16)) {
-            // FIXME: repaint function has large overhead. Optimize and remove
-            // clock reset.
-            PLATFORM.delta_clock().reset();
         }
     }
 }
