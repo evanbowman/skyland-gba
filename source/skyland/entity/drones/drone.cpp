@@ -249,7 +249,7 @@ void Drone::clear_target_queue()
         target_queue_.clear();
 
     } else {
-        for (int i = 0; i < target_queue_.size(); ++i) {
+        for (int i = target_queue_.size() - 1; i > -1; --i) {
             time_stream::event::DroneTargetQueuePop e;
             e.x_pos_ = grid_pos_.x;
             e.y_pos_ = grid_pos_.y;
