@@ -253,6 +253,8 @@ void DroneBay::detach_drone(bool quiet)
     if (drone_ and not quiet) {
         (*drone_)->kill();
 
+        (*drone_)->clear_target_queue();
+
         time_stream::event::DroneDestroyed e;
         e.x_pos_ = (*drone_)->position().x;
         e.y_pos_ = (*drone_)->position().y;
