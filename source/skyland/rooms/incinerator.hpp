@@ -133,7 +133,7 @@ public:
     }
 
 
-    void finalize() override;
+    void finalize_weapon() override;
 };
 
 

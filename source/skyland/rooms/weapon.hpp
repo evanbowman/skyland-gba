@@ -127,6 +127,12 @@ public:
     void unset_target() override;
 
 
+    void finalize() override final;
+
+
+    virtual void finalize_weapon();
+
+
     Optional<RoomCoord> get_target() const override
     {
         if (not target_queue_.empty()) {

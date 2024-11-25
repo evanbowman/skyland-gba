@@ -142,10 +142,8 @@ void Incinerator::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-void Incinerator::finalize()
+void Incinerator::finalize_weapon()
 {
-    Room::finalize();
-
     if (health() <= 0) {
         auto pos = center();
         pos.y += 8.0_fixed;

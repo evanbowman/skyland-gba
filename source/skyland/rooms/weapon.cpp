@@ -75,7 +75,6 @@ void Weapon::on_powerchange()
 
 Weapon::~Weapon()
 {
-    clear_target_queue();
     parent()->bulk_timer().deschedule(this);
 }
 
@@ -91,6 +90,23 @@ Weapon* Weapon::cast_weapon()
 bool Weapon::allows_powerdown()
 {
     return true;
+}
+
+
+
+void Weapon::finalize()
+{
+    Room::finalize();
+
+    finalize_weapon();
+
+    clear_target_queue();
+}
+
+
+
+void Weapon::finalize_weapon()
+{
 }
 
 
