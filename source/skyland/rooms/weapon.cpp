@@ -372,6 +372,12 @@ void Weapon::clear_target_queue()
 
     } else {
 
+        if (APP.is_developer_mode() and not is_player_island(parent())) {
+            // TargetQueuePop events assume that the player's weapons generated
+            // them.
+            PLATFORM.fatal("opponent has a target queue!?");
+        }
+
         for (int i = target_queue_.size() - 1; i > -1; --i) {
             time_stream::event::TargetQueuePop e;
             e.room_x_ = position().x;
