@@ -146,6 +146,7 @@ enum Type : u8 {
     opponent_room_repaired,
 
     target_queue_pop,
+    target_queue_clear,
 
     attach_reconstruction_queue,
 
@@ -997,6 +998,17 @@ struct WeaponSetTarget
     u8 unused_ : 5;
 
     static constexpr const auto t = Type::weapon_set_target;
+};
+
+
+
+struct TargetQueueClear
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+
+    static constexpr const auto t = Type::target_queue_clear;
 };
 
 

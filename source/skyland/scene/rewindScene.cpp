@@ -1465,6 +1465,19 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::target_queue_clear: {
+            auto e = (time_stream::event::TargetQueueClear*)end;
+            auto& isle = APP.player_island();
+            if (auto room = isle.get_room({e->room_x_, e->room_y_})) {
+                if (auto w = room->cast_weapon()) {
+                    w->clear_target_queue();
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::target_queue_pop: {
             auto e = (time_stream::event::TargetQueuePop*)end;
             auto& isle = APP.player_island();

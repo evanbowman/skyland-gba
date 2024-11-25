@@ -75,6 +75,7 @@ void Weapon::on_powerchange()
 
 Weapon::~Weapon()
 {
+    clear_target_queue();
     parent()->bulk_timer().deschedule(this);
 }
 
@@ -355,7 +356,7 @@ void Weapon::clear_target_queue()
 
     } else {
 
-        for (int i = 0; i < target_queue_.size(); ++i) {
+        for (int i = target_queue_.size() - 1; i > -1; --i) {
             time_stream::event::TargetQueuePop e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
@@ -366,6 +367,11 @@ void Weapon::clear_target_queue()
 
             APP.time_stream().push(APP.level_timer(), e);
         }
+
+        time_stream::event::TargetQueueClear e;
+        e.room_x_ = position().x;
+        e.room_y_ = position().y;
+        APP.time_stream().push(APP.level_timer(), e);
     }
 
     target_queue_.clear();

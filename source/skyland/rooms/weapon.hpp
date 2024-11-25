@@ -164,10 +164,11 @@ public:
     void update_targets();
 
 
+    void clear_target_queue();
+
+
 protected:
     void on_powerchange() override;
-
-    void clear_target_queue();
 
     TargetQueue target_queue_;
     bool target_pinned_ = false;

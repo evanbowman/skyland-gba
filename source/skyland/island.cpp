@@ -1020,9 +1020,6 @@ void Island::update(Time dt)
 
             const auto group = room->group();
 
-            const auto had_target = room->get_target();
-            const bool target_was_pinned = room->target_pinned();
-
             room->finalize();
 
             if (&owner() == &APP.player()) {
@@ -1030,17 +1027,6 @@ void Island::update(Time dt)
                     // To trigger the recording of the room's powered-down state
                     // in rewinding logic.
                     room->set_powerdown(false);
-                }
-                if (had_target) {
-                    time_stream::event::WeaponSetTarget e;
-                    e.room_x_ = pos.x;
-                    e.room_y_ = pos.y;
-                    e.previous_target_x_ = had_target->x;
-                    e.previous_target_y_ = had_target->y;
-                    e.near_ = true;
-                    e.has_previous_target_ = true;
-                    e.previous_target_pinned_ = target_was_pinned;
-                    APP.time_stream().push(APP.level_timer(), e);
                 }
                 if (group not_eq Room::Group::none) {
                     time_stream::event::PlayerRoomDestroyedWithGroup p;
