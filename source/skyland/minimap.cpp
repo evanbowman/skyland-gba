@@ -182,7 +182,7 @@ void repaint(const Settings& settings)
     using MinimapPixels = u8[minimap_px_width][minimap_px_height];
 
     // auto pixel_buffer = allocate_dynamic<MinimapPixels>("m-px-buffer");
-    MinimapPixels pixel_buffer;
+    alignas(u32) MinimapPixels pixel_buffer;
 
     auto cursor_loc = globals().far_cursor_loc_;
 
@@ -285,7 +285,9 @@ void repaint(const Settings& settings)
         restore_pixels();
 
     } else {
-        memset(pixel_buffer, color_black_index, sizeof pixel_buffer);
+        static const int wordsize = sizeof(void*);
+        static_assert(sizeof pixel_buffer % wordsize == 0);
+        PLATFORM.memset_words(pixel_buffer, color_black_index, sizeof pixel_buffer / wordsize);
 
         for (u32 x = 0; x < APP.player_island().terrain().size(); ++x) {
             for (int xx = 0; xx < 3; ++xx) {
@@ -309,13 +311,14 @@ void repaint(const Settings& settings)
             }
         });
 
-
-        for (u8 y = 4; y < 15; ++y) {
-            for (u8 x = 0; x < 13; ++x) {
-                auto set_pixel = [&](int xo, int yo, int v) {
-                    pixel_buffer[(x + 1) * 3 + xo][((y - 3) * 3 + yo) - 2] = v;
-                };
-                if (auto room = APP.player_island().get_room({x, y})) {
+        for (auto& room : APP.player_island().rooms()) {
+            auto pos = room->position();
+            auto mt = room->metaclass();
+            for (u8 x = pos.x; x < pos.x + room->size().x; ++x) {
+                for (u8 y = pos.y; y < pos.y + room->size().y; ++y) {
+                    auto set_pixel = [&](int xo, int yo, int v) {
+                        pixel_buffer[(x + 1) * 3 + xo][((y - 3) * 3 + yo) - 2] = v;
+                    };
                     if (APP.player_island().fire_present({x, y})) {
                         set_pixel(0, 0, color_red_index);
                         set_pixel(1, 0, color_red_index);
@@ -330,8 +333,8 @@ void repaint(const Settings& settings)
                         set_pixel(2, 2, color_bright_yellow_index);
                         continue;
                     }
-                    if ((*room->metaclass())->category() ==
-                            Room::Category::weapon and
+                    if ((*mt)->category() ==
+                        Room::Category::weapon and
                         ((settings.weapon_loc_ and
                           *settings.weapon_loc_ == Vec2<u8>{x, y}) or
                          (room->group() not_eq Room::Group::none and
@@ -340,21 +343,21 @@ void repaint(const Settings& settings)
                          is_selected({x, y}))) {
                         bool found = false;
                         for (auto& wpn : weapons) {
-                            if (wpn == room) {
+                            if (wpn == room.get()) {
                                 found = true;
                                 break;
                             }
                         }
                         if (not found) {
-                            weapons.push_back(room);
+                            weapons.push_back(room.get());
                         }
                     }
                     for (int xx = 0; xx < 3; ++xx) {
                         for (int yy = 0; yy < 3; ++yy) {
                             u8 clr;
-                            switch ((*room->metaclass())->category()) {
+                            switch ((*mt)->category()) {
                             case Room::Category::wall:
-                                if ((*room->metaclass())->properties() &
+                                if ((*mt)->properties() &
                                     RoomProperties::accepts_ion_damage) {
                                     clr = color_el_blue_index;
                                 } else {
@@ -381,15 +384,22 @@ void repaint(const Settings& settings)
                             }
 
                             pixel_buffer[(x + 1) * 3 + xx]
-                                        [((y - 3) * 3 + yy) - 2] = clr;
+                                [((y - 3) * 3 + yy) - 2] = clr;
                         }
                     }
-                } else if (settings.show_destroyed_rooms_ and
-                           player_destroyed_rooms.get(x, y)) {
-                    for (int xx = 0; xx < 3; ++xx) {
-                        for (int yy = 0; yy < 3; ++yy) {
-                            pixel_buffer[(x + 1) * 3 + xx]
-                                        [((y - 3) * 3 + yy) - 2] = 1;
+                }
+            }
+        }
+
+        for (u8 y = 4; y < 15; ++y) {
+            for (u8 x = 0; x < 13; ++x) {
+                if (settings.show_destroyed_rooms_ and
+                    player_destroyed_rooms.get(x, y)) {
+                    if (not APP.player_island().get_room({x, y})) {
+                        for (int xx = 0; xx < 3; ++xx) {
+                            for (int yy = 0; yy < 3; ++yy) {
+                                pixel_buffer[(x + 1) * 3 + xx][((y - 3) * 3 + yy) - 2] = 1;
+                            }
                         }
                     }
                 }
@@ -397,13 +407,15 @@ void repaint(const Settings& settings)
         }
 
         APP.with_opponent_island([&](auto& isle) {
-            for (u8 y = 4; y < 15; ++y) {
-                for (u8 x = 0; x < 13; ++x) {
-                    if (auto room = isle.get_room({x, y})) {
+            for (auto& room : isle.rooms()) {
+                auto pos = room->position();
+                auto mt = room->metaclass();
+                for (u8 x = pos.x; x < pos.x + room->size().x; ++x) {
+                    for (u8 y = pos.y; y < pos.y + room->size().y; ++y) {
                         if (isle.fire_present({x, y})) {
                             auto set_pixel = [&](int xo, int yo, int v) {
                                 pixel_buffer[(x + opp_offset) * 3 + xo - 2]
-                                            [((y - 3) * 3 + yo) - 2] = v;
+                                    [((y - 3) * 3 + yo) - 2] = v;
                             };
                             set_pixel(0, 0, color_red_index);
                             set_pixel(1, 0, color_red_index);
@@ -421,9 +433,9 @@ void repaint(const Settings& settings)
                         for (int xx = 0; xx < 3; ++xx) {
                             for (int yy = 0; yy < 3; ++yy) {
                                 u8 clr;
-                                switch ((*room->metaclass())->category()) {
+                                switch ((*mt)->category()) {
                                 case Room::Category::wall:
-                                    if ((*room->metaclass())->properties() &
+                                    if ((*mt)->properties() &
                                         RoomProperties::accepts_ion_damage) {
                                         clr = color_el_blue_index;
                                     } else {
@@ -441,10 +453,11 @@ void repaint(const Settings& settings)
                                 }
 
                                 pixel_buffer[(x + opp_offset) * 3 + xx - 2]
-                                            [((y - 3) * 3 + yy) - 2] = clr;
+                                    [((y - 3) * 3 + yy) - 2] = clr;
                             }
                         }
                     }
+
                 }
             }
         });
