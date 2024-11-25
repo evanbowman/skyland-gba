@@ -34,4 +34,9 @@ using TargetQueue = TinyBuffer<PackedTarget, 3>;
 
 
 
+class Island;
+void show_target_queue(Island& isle, const TargetQueue& target_queue);
+
+
+
 } // namespace skyland

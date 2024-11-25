@@ -249,6 +249,35 @@ void Weapon::___rewind___ability_used()
 
 
 
+void show_target_queue(Island& isle, const TargetQueue& target_queue)
+{
+    static const int reticule_spr_idx = 45;
+
+    Sprite::Alpha alpha = Sprite::Alpha::opaque;
+
+    for (int i = target_queue.size() - 1; i > -1; --i) {
+        auto target = target_queue[i].coord();
+
+        auto pos = isle.visual_origin();
+        pos.x += Fixnum::from_integer(target.x * 16);
+        pos.y += Fixnum::from_integer(target.y * 16);
+
+        Sprite spr;
+        spr.set_position(pos);
+        spr.set_texture_index(reticule_spr_idx);
+        spr.set_size(Sprite::Size::w16_h32);
+        spr.set_alpha(alpha);
+
+        PLATFORM.screen().draw(spr);
+
+        alpha = Sprite::Alpha::translucent;
+    }
+
+    minimap::draw_weapon_targets(target_queue);
+}
+
+
+
 void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 {
     if (not get_target()) {
@@ -258,30 +287,9 @@ void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
     auto target_island = other_island();
 
     if (target_island) {
-        static const int reticule_spr_idx = 45;
-
-        Sprite::Alpha alpha = Sprite::Alpha::opaque;
-
-        for (int i = target_queue_.size() - 1; i > -1; --i) {
-            auto target = target_queue_[i].coord();
-
-            auto pos = target_island->visual_origin();
-            pos.x += Fixnum::from_integer(target.x * 16);
-            pos.y += Fixnum::from_integer(target.y * 16);
-
-            Sprite spr;
-            spr.set_position(pos);
-            spr.set_texture_index(reticule_spr_idx);
-            spr.set_size(Sprite::Size::w16_h32);
-            spr.set_alpha(alpha);
-
-            screen.draw(spr);
-
-            alpha = Sprite::Alpha::translucent;
-        }
-
-        minimap::draw_weapon_targets(*this);
+        show_target_queue(*target_island, target_queue());
     }
+
 }
 
 

@@ -97,7 +97,7 @@ extern Bitmatrix<16, 16> player_destroyed_rooms;
 
 void repaint(const Settings& settings = {});
 void draw_cursor(bool near);
-void draw_weapon_targets(const Weapon& weapon);
+void draw_weapon_targets(const TargetQueue& tq);
 
 
 

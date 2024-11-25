@@ -716,7 +716,7 @@ void draw_cursor(bool near)
 
 
 
-void draw_weapon_targets(const Weapon& weapon)
+void draw_weapon_targets(const TargetQueue& tq)
 {
     if (not visible) {
         return;
@@ -736,8 +736,8 @@ void draw_weapon_targets(const Weapon& weapon)
     pos.x += 7.0_fixed +
              Fixnum::from_integer(APP.player_island().terrain().size() * 3);
 
-    for (int i = 0; i < weapon.target_queue().size(); ++i) {
-        auto tc = weapon.target_queue()[i].coord();
+    for (int i = 0; i < tq.size(); ++i) {
+        auto tc = tq[i].coord();
         auto p = pos;
         p.x += 3.0_fixed * Fixnum::from_integer(tc.x + 1);
         p.y += 3.0_fixed * Fixnum::from_integer(tc.y - 4);

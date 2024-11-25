@@ -111,27 +111,7 @@ public:
         }
 
         if (target_island) {
-            static const int reticule_spr_idx = 45;
-
-            Sprite::Alpha alpha = Sprite::Alpha::opaque;
-
-            for (int i = target_queue_.size() - 1; i > -1; --i) {
-                auto target = target_queue_[i].coord();
-
-                auto pos = target_island->visual_origin();
-                pos.x += Fixnum::from_integer(target.x * 16);
-                pos.y += Fixnum::from_integer(target.y * 16);
-
-                Sprite spr;
-                spr.set_position(pos);
-                spr.set_texture_index(reticule_spr_idx);
-                spr.set_size(Sprite::Size::w16_h32);
-                spr.set_alpha(alpha);
-
-                screen.draw(spr);
-
-                alpha = Sprite::Alpha::translucent;
-            }
+            show_target_queue(*target_island, target_queue_);
         }
     }
 
