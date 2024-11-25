@@ -186,7 +186,7 @@ void EnemyAI::update(Time delta)
     if (local_character_reassign_timer_ <= 0) {
 
         if (ai_island_) {
-            if (ai_island_->character_count() > 4) {
+            if (ai_island_->character_count() > 2) {
                 bool reassigned = false;
                 for (auto& room : ai_island_->rooms()) {
                     for (auto& character : room->characters()) {
