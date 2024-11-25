@@ -188,6 +188,7 @@ enum Type : u8 {
 
     drone_set_target,
     drone_target_queue_pop,
+    drone_target_queue_clear,
     drone_reload_complete,
 
     rng_changed,
@@ -1145,6 +1146,19 @@ struct DroneTargetQueuePop
     u8 unused_ : 6;
 
     static constexpr const auto t = Type::drone_target_queue_pop;
+};
+
+
+
+struct DroneTargetQueueClear
+{
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 destination_near_ : 1;
+    u8 unused_ : 7;
+
+    static constexpr const auto t = Type::drone_target_queue_clear;
 };
 
 

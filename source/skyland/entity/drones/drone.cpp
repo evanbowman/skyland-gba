@@ -260,6 +260,13 @@ void Drone::clear_target_queue()
             e.previous_target_near_ = target_near_;
             APP.time_stream().push(APP.level_timer(), e);
         }
+
+        time_stream::event::DroneTargetQueueClear e;
+        e.x_pos_ = grid_pos_.x;
+        e.y_pos_ = grid_pos_.y;
+        e.destination_near_ = is_player_island(destination_);
+        APP.time_stream().push(APP.level_timer(), e);
+
         target_queue_.clear();
     }
 }

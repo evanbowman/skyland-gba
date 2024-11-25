@@ -1465,6 +1465,20 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::drone_target_queue_clear: {
+            auto e = (time_stream::event::DroneTargetQueueClear*)end;
+            auto isle = e->destination_near_ ? &APP.player_island()
+                                             : APP.opponent_island();
+            if (isle) {
+                if (auto drone = isle->get_drone({e->x_pos_, e->y_pos_})) {
+                    (*drone)->clear_target_queue();
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::target_queue_clear: {
             auto e = (time_stream::event::TargetQueueClear*)end;
             auto& isle = APP.player_island();
