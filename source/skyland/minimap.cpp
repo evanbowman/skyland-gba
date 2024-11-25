@@ -284,7 +284,8 @@ void repaint(const Settings& settings)
     } else {
         static const int wordsize = sizeof(void*);
         static_assert(sizeof pixel_buffer % wordsize == 0);
-        PLATFORM.memset_words(pixel_buffer, color_black_index, sizeof pixel_buffer / wordsize);
+        PLATFORM.memset_words(
+            pixel_buffer, color_black_index, sizeof pixel_buffer / wordsize);
 
         for (u32 x = 0; x < APP.player_island().terrain().size(); ++x) {
             for (int xx = 0; xx < 3; ++xx) {
@@ -314,7 +315,8 @@ void repaint(const Settings& settings)
             for (u8 x = pos.x; x < pos.x + room->size().x; ++x) {
                 for (u8 y = pos.y; y < pos.y + room->size().y; ++y) {
                     auto set_pixel = [&](int xo, int yo, int v) {
-                        pixel_buffer[(x + 1) * 3 + xo][((y - 3) * 3 + yo) - 2] = v;
+                        pixel_buffer[(x + 1) * 3 + xo][((y - 3) * 3 + yo) - 2] =
+                            v;
                     };
                     if (APP.player_island().fire_present({x, y})) {
                         set_pixel(0, 0, color_red_index);
@@ -330,8 +332,7 @@ void repaint(const Settings& settings)
                         set_pixel(2, 2, color_bright_yellow_index);
                         continue;
                     }
-                    if ((*mt)->category() ==
-                        Room::Category::weapon and
+                    if ((*mt)->category() == Room::Category::weapon and
                         ((settings.weapon_loc_ and
                           *settings.weapon_loc_ == Vec2<u8>{x, y}) or
                          (room->group() not_eq Room::Group::none and
@@ -381,7 +382,7 @@ void repaint(const Settings& settings)
                             }
 
                             pixel_buffer[(x + 1) * 3 + xx]
-                                [((y - 3) * 3 + yy) - 2] = clr;
+                                        [((y - 3) * 3 + yy) - 2] = clr;
                         }
                     }
                 }
@@ -395,7 +396,8 @@ void repaint(const Settings& settings)
                     if (not APP.player_island().get_room({x, y})) {
                         for (int xx = 0; xx < 3; ++xx) {
                             for (int yy = 0; yy < 3; ++yy) {
-                                pixel_buffer[(x + 1) * 3 + xx][((y - 3) * 3 + yy) - 2] = 1;
+                                pixel_buffer[(x + 1) * 3 + xx]
+                                            [((y - 3) * 3 + yy) - 2] = 1;
                             }
                         }
                     }
@@ -412,7 +414,7 @@ void repaint(const Settings& settings)
                         if (isle.fire_present({x, y})) {
                             auto set_pixel = [&](int xo, int yo, int v) {
                                 pixel_buffer[(x + opp_offset) * 3 + xo - 2]
-                                    [((y - 3) * 3 + yo) - 2] = v;
+                                            [((y - 3) * 3 + yo) - 2] = v;
                             };
                             set_pixel(0, 0, color_red_index);
                             set_pixel(1, 0, color_red_index);
@@ -450,11 +452,10 @@ void repaint(const Settings& settings)
                                 }
 
                                 pixel_buffer[(x + opp_offset) * 3 + xx - 2]
-                                    [((y - 3) * 3 + yy) - 2] = clr;
+                                            [((y - 3) * 3 + yy) - 2] = clr;
                             }
                         }
                     }
-
                 }
             }
         });
