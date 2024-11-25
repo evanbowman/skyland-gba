@@ -539,22 +539,24 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     Buffer<Room*, 10> radiators;
 
     for (auto& room : ai_island_->rooms()) {
+        auto mt = room->metaclass();
+
         if (room->health() not_eq room->max_health() and
-            (*room->metaclass())->properties() & RoomProperties::habitable) {
+            (*mt)->properties() & RoomProperties::habitable) {
             damaged_habitable_rooms = true;
         }
-        if (room->metaclass() == cannon_mt) {
+        if (mt == cannon_mt) {
             ++weapon_count;
             ++cannon_count;
-        } else if (room->metaclass() == missile_silo_mt) {
+        } else if (mt == missile_silo_mt) {
             ++weapon_count;
             ++missile_count;
-        } else if (room->metaclass() == decimator_mt) {
+        } else if (mt == decimator_mt) {
             ++weapon_count;
             ++decimator_count;
-        } else if (room->metaclass() == flak_gun_mt) {
+        } else if (mt == flak_gun_mt) {
             ++weapon_count;
-        } else if (room->metaclass() == radiator_mt) {
+        } else if (mt == radiator_mt) {
             radiators.push_back(room.get());
         }
         for (auto& other : room->characters()) {
@@ -574,16 +576,17 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     }
 
     for (auto& room : APP.player_island().rooms()) {
-        if (room->metaclass() == cannon_mt) {
+        auto mt = room->metaclass();
+        if (mt == cannon_mt) {
             ++player_weapon_count;
             ++player_cannon_count;
-        } else if (room->metaclass() == missile_silo_mt) {
+        } else if (mt == missile_silo_mt) {
             ++player_weapon_count;
             ++player_missile_count;
-        } else if (room->metaclass() == decimator_mt) {
+        } else if (mt == decimator_mt) {
             ++player_weapon_count;
             ++player_decimator_count;
-        } else if (room->metaclass() == flak_gun_mt) {
+        } else if (mt == flak_gun_mt) {
             ++player_weapon_count;
         }
         for (auto& chr : room->characters()) {
@@ -662,6 +665,8 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
         if (auto room = ai_island_->get_room(slot.coord_)) {
 
+            auto mt = room->metaclass();
+
             const auto base_weight = room->get_atp();
 
             slot.ai_weight_ = base_weight;
@@ -713,8 +718,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
 
-            if (not room->is_powered_down() and
-                room->metaclass() == infirmary_metac) {
+            if (not room->is_powered_down() and mt == infirmary_metac) {
 
                 auto chr_room = ai_island_->get_room(character.grid_position());
 
@@ -746,7 +750,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                     }
                 }
             } else if (not room->is_powered_down() and
-                       room->metaclass() == transporter_metac) {
+                       mt == transporter_metac) {
 
                 auto transporter = room->cast<Transporter>();
 
@@ -804,7 +808,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             }
 
             if (weapon_count < player_weapon_count) {
-                if (room->metaclass() == decimator_mt) {
+                if (mt == decimator_mt) {
                     slot.ai_weight_ += 500.0_atp;
                 }
             }
