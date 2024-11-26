@@ -740,8 +740,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                         }
                     }
                 }
-            } else if (not room->is_powered_down() and
-                       mt == transporter_mt) {
+            } else if (not room->is_powered_down() and mt == transporter_mt) {
 
                 auto transporter = room->cast<Transporter>();
 

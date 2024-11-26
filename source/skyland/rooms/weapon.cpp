@@ -289,7 +289,6 @@ void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
     if (target_island) {
         show_target_queue(*target_island, target_queue());
     }
-
 }
 
 
