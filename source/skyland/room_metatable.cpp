@@ -485,6 +485,12 @@ const RoomMeta* missile_silo_mt = load_metaclass(MissileSilo::name());
 const RoomMeta* ion_cannon_mt = load_metaclass(IonCannon::name());
 const RoomMeta* bulkhead_mt = load_metaclass(Bulkhead::name());
 const RoomMeta* drone_bay_mt = load_metaclass(DroneBay::name());
+#define G_MT const RoomMeta*
+EXT_WORKRAM_DATA G_MT decimator_mt = load_metaclass(Decimator::name());
+EXT_WORKRAM_DATA G_MT flak_gun_mt = load_metaclass(FlakGun::name());
+EXT_WORKRAM_DATA G_MT radiator_mt = load_metaclass(Radiator::name());
+EXT_WORKRAM_DATA G_MT infirmary_mt = load_metaclass(Infirmary::name());
+EXT_WORKRAM_DATA G_MT transporter_mt = load_metaclass(Transporter::name());
 
 
 

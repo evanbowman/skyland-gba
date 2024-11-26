@@ -529,11 +529,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     int player_cannon_count = 0;
     int player_missile_count = 0;
 
-
-    auto decimator_mt = load_metaclass("decimator");
-    auto flak_gun_mt = load_metaclass("flak-gun");
-    auto radiator_mt = load_metaclass("radiator");
-
     bool damaged_habitable_rooms = false;
 
     Buffer<Room*, 10> radiators;
@@ -643,10 +638,6 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
     }
 
 
-    const auto infirmary_metac = load_metaclass("infirmary");
-    const auto transporter_metac = load_metaclass("transporter");
-
-
     for (auto& slot : slots) {
 
         bool excluded = false;
@@ -718,7 +709,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
 
-            if (not room->is_powered_down() and mt == infirmary_metac) {
+            if (not room->is_powered_down() and mt == infirmary_mt) {
 
                 auto chr_room = ai_island_->get_room(character.grid_position());
 
@@ -750,7 +741,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                     }
                 }
             } else if (not room->is_powered_down() and
-                       mt == transporter_metac) {
+                       mt == transporter_mt) {
 
                 auto transporter = room->cast<Transporter>();
 

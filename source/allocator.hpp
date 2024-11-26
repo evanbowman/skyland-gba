@@ -277,7 +277,7 @@ struct ScratchBufferBulkAllocator
 {
 
     ScratchBufferBulkAllocator()
-        : buffer_(make_zeroed_sbr("bulk-allocator")),
+        : buffer_(make_scratch_buffer("bulk-allocator")),
           alloc_ptr_(buffer_->data_), size_(sizeof buffer_->data_)
     {
     }

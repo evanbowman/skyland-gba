@@ -175,6 +175,11 @@ extern const RoomMeta* missile_silo_mt;
 extern const RoomMeta* ion_cannon_mt;
 extern const RoomMeta* bulkhead_mt;
 extern const RoomMeta* drone_bay_mt;
+extern const RoomMeta* decimator_mt;
+extern const RoomMeta* flak_gun_mt;
+extern const RoomMeta* radiator_mt;
+extern const RoomMeta* infirmary_mt;
+extern const RoomMeta* transporter_mt;
 
 
 inline bool is_forcefield(RoomMeta* m)

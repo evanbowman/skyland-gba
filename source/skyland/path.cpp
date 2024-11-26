@@ -60,7 +60,8 @@ Optional<Path> find_path(Island* island,
 {
     BulkAllocator<2> vertex_memory_;
 
-    Buffer<PathVertexData*, 256> priority_q;
+    using VertexBuffer = Buffer<PathVertexData*, 256>;
+    VertexBuffer priority_q(VertexBuffer::SkipZeroFill{});
     PathVertexData* vertex_mat[16][16] = {};
 
 
