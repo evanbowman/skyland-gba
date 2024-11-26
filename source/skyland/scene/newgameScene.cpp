@@ -34,6 +34,7 @@
 
 #include "newgameScene.hpp"
 #include "adventureLogScene.hpp"
+#include "adventureModeSettingsScene.hpp"
 #include "globals.hpp"
 #include "menuPromptScene.hpp"
 #include "readyScene.hpp"
@@ -138,6 +139,7 @@ ScenePtr NewgameScene::update(Time delta)
                 loaded_ = false;
                 reset_state();
             }
+            PLATFORM.fill_overlay(0);
         } else {
             return null_scene();
         }
@@ -167,6 +169,13 @@ ScenePtr NewgameScene::update(Time delta)
         ret->set_next_scene([] { return make_scene<ZoneImageScene>(); });
         return ret;
     });
+
+    if (not loaded_) {
+        next = [] {
+            auto ret = make_scene<AdventureModeSettingsScene>(true);
+            return ret;
+        };
+    }
 
 
     if (loaded_ and not skip_save_prompt) {

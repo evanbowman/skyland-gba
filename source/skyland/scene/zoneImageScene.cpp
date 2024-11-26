@@ -180,10 +180,6 @@ ScenePtr ZoneImageScene::update(Time delta)
             PLATFORM.screen().fade(
                 1.f, ColorConstant::rich_black, {}, true, true);
 
-            if (APP.zone() == 1) {
-                return make_scene<AdventureModeSettingsScene>(true);
-            }
-
             return make_scene<WorldMapScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

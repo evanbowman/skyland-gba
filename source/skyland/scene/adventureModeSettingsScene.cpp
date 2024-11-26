@@ -34,7 +34,7 @@
 
 #include "adventureModeSettingsScene.hpp"
 #include "skyland/skyland.hpp"
-#include "worldMapScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 
@@ -320,7 +320,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             }
         }
 
-        return make_scene<WorldMapScene>();
+        return make_scene<ZoneImageScene>();
     }
 
 
