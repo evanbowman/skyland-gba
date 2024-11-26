@@ -243,6 +243,10 @@ void AdventureModeSettingsScene::update_field(bool inc)
 
 
 
+void load_difficulty_profile();
+
+
+
 ScenePtr AdventureModeSettingsScene::update(Time delta)
 {
     if (init_) {
@@ -292,19 +296,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
     if (APP.player().key_down(Key::action_1)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
-        switch (APP.gp_.difficulty_) {
-        case GlobalPersistentData::Difficulty::beginner:
-            APP.invoke_script("/scripts/config/easy/score.lisp");
-            break;
-
-        case GlobalPersistentData::Difficulty::experienced:
-            APP.invoke_script("/scripts/config/normal/score.lisp");
-            break;
-
-        case GlobalPersistentData::Difficulty::expert:
-            APP.invoke_script("/scripts/config/hard/score.lisp");
-            break;
-        }
+        load_difficulty_profile();
 
         if ((u8)APP.gp_.difficulty_ not_eq original_ or
             APP.gp_.stateflags_ not_eq stateflags_cached_) {

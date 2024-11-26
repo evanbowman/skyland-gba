@@ -58,14 +58,8 @@ namespace skyland
 
 
 
-void NewgameScene::enter(Scene& prev)
+void load_difficulty_profile()
 {
-    show_island_exterior(&APP.player_island());
-
-    APP.with_opponent_island([](auto& isle) { show_island_exterior(&isle); });
-
-    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-
     switch (APP.gp_.difficulty_) {
     case GlobalPersistentData::Difficulty::beginner:
         APP.invoke_script("/scripts/config/easy/score.lisp");
@@ -79,6 +73,17 @@ void NewgameScene::enter(Scene& prev)
         APP.invoke_script("/scripts/config/hard/score.lisp");
         break;
     }
+}
+
+
+
+void NewgameScene::enter(Scene& prev)
+{
+    show_island_exterior(&APP.player_island());
+
+    APP.with_opponent_island([](auto& isle) { show_island_exterior(&isle); });
+
+    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     if (save::load("", APP.persistent_data())) {
         if (APP.persistent_data().state_flags_.get() &
@@ -87,6 +92,8 @@ void NewgameScene::enter(Scene& prev)
         }
 
         loaded_ = true;
+
+        load_difficulty_profile();
 
     } else {
         reset_state();
