@@ -1542,6 +1542,9 @@ BINDING_TABLE({
               auto id = lisp::get_op(1)->integer().value_;
               if (auto chr = BasicCharacter::find_by_id(id).first) {
                   chr->__set_health(hp);
+                  if (chr->is_replicant()) {
+                      chr->set_max_health(hp);
+                  }
               }
           } else if (argc == 1) {
               auto id = lisp::get_op(0)->integer().value_;

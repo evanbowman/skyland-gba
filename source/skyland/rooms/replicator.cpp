@@ -89,7 +89,9 @@ bool Replicator::create_replicant()
         const auto chr_pos = found_chr->grid_position();
         const auto chr_health = found_chr->health();
 
-        const Health replicant_health = chr_health * 0.75f;
+        Health replicant_health = clamp(Health(chr_health * 0.75f),
+                                        Health(255 / 10 - 10),
+                                        Health(255));
 
         const auto dst = [&] {
             if (chr_pos.x ==
