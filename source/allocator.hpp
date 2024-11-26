@@ -335,7 +335,8 @@ template <u8 pages, typename T> class BumpAllocator
 public:
     BumpAllocator()
     {
-        mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+        mem_.emplace_back(allocate_dynamic_fast<Block>(
+            "depth-block", typename Block::SkipZeroFill{}));
         current_ = &*mem_.back();
     }
 
@@ -351,7 +352,8 @@ public:
             if (mem_.full()) {
                 Platform::fatal("Bump allocator oom!");
             }
-            mem_.emplace_back(allocate_dynamic<Block>("depth-block"));
+            mem_.emplace_back(allocate_dynamic_fast<Block>(
+                "depth-block", typename Block::SkipZeroFill{}));
             current_ = &*mem_.back();
             cnt_ = 0;
         }
