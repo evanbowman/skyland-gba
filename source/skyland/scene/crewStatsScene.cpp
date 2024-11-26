@@ -219,6 +219,10 @@ void CrewStatsScene::show_page()
     } else {
         PLATFORM.set_tile(Layer::overlay, 29, 9, 0);
     }
+
+    if (info.first->is_replicant()) {
+        Text::print(SYSTR(character_label_replicant)->c_str(), {8, 4});
+    }
 }
 
 
