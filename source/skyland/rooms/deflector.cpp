@@ -50,8 +50,9 @@ SHARED_VARIABLE(deflector_shield_strength);
 
 void Deflector::format_description(StringBuffer<512>& buffer)
 {
-    buffer += format<256>(SYSTR(description_deflector)->c_str(),
-                          deflector_shield_strength);
+    make_format(buffer,
+                SYSTR(description_deflector)->c_str(),
+                deflector_shield_strength);
 }
 
 

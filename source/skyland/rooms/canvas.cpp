@@ -106,7 +106,7 @@ Canvas::Canvas(Island* parent, const RoomCoord& position)
 
 void Canvas::format_description(StringBuffer<512>& buffer)
 {
-    buffer += format(SYSTR(description_canvas)->c_str(), slot_count);
+    make_format(buffer, SYSTR(description_canvas)->c_str(), slot_count);
 }
 
 
