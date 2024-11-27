@@ -56,6 +56,7 @@ static SHARED_VARIABLE(sf_p1_coin_yield);
 static SHARED_VARIABLE(sf_p2_coin_yield);
 static SHARED_VARIABLE(sf_p3_coin_yield);
 static SHARED_VARIABLE(sf_p4_coin_yield);
+static SHARED_VARIABLE(chaos_core_placement_chance);
 
 
 
@@ -345,7 +346,7 @@ void ProcgenEnemyAI::generate_power_sources()
 
     for (int i = 0; i < reactor_count; ++i) {
         const char* core = "reactor";
-        if (rng::chance<9>(rng_source_)) {
+        if (rng::chance(chaos_core_placement_chance, rng_source_)) {
             bool player_has_chaos_core = false;
             for (auto& room : APP.player_island().rooms()) {
                 if (room->cast<ChaosCore>()) {

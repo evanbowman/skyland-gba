@@ -80,6 +80,11 @@ template <Value N> bool chance(LinearGenerator& gen)
 }
 
 
+inline bool chance(Value n, LinearGenerator& gen)
+{
+    return choice(n, gen) == 0;
+}
+
 
 template <u32 offset> Fixnum sample(Fixnum n, LinearGenerator& gen)
 {
