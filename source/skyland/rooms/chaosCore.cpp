@@ -40,8 +40,8 @@
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/exploTrail.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
-#include "skyland/sharedVariable.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
@@ -87,9 +87,8 @@ Power ChaosCore::power_usage() const
 
 void ChaosCore::format_description(StringBuffer<512>& buffer)
 {
-    make_format(buffer,
-                SYSTR(description_chaos_core)->c_str(),
-                chaos_core_yield_rate);
+    make_format(
+        buffer, SYSTR(description_chaos_core)->c_str(), chaos_core_yield_rate);
 }
 
 

@@ -180,6 +180,7 @@ extern const RoomMeta* flak_gun_mt;
 extern const RoomMeta* radiator_mt;
 extern const RoomMeta* infirmary_mt;
 extern const RoomMeta* transporter_mt;
+extern const RoomMeta* chaos_core_mt;
 
 
 inline bool is_forcefield(RoomMeta* m)

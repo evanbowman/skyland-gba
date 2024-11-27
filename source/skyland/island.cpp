@@ -45,6 +45,7 @@
 #include "platform/flash_filesystem.hpp"
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
+#include "rooms/chaosCore.hpp"
 #include "rooms/core.hpp"
 #include "rooms/portal.hpp"
 #include "rooms/weapon.hpp"
@@ -183,6 +184,17 @@ void Island::show_powerdown_opts(bool show)
 
 
 
+int Island::smoke_sprite()
+{
+    if (dark_smoke_) {
+        return 61;
+    } else {
+        return 27;
+    }
+}
+
+
+
 static auto fire_alloc_texture(Island& island)
 {
     Optional<Platform::DynamicTexturePtr> result;
@@ -297,7 +309,7 @@ void Island::rewind(Time delta)
                 // FIXME: faking the rewound smoke effects doesn't work if the
                 // island is moving. So just don't spawn them. We'll need to
                 // think of another way.
-                if (auto e = APP.alloc_entity<SmokePuff>(o)) {
+                if (auto e = APP.alloc_entity<SmokePuff>(o, smoke_sprite())) {
                     e->jump_to_end();
                     APP.effects().push(std::move(e));
                 }
@@ -748,7 +760,7 @@ void Island::update_simple(Time dt)
             o.x += Fixnum::from_integer(chimney_loc_->x * 16 + 8);
             o.y += Fixnum::from_integer(chimney_loc_->y * 16 - 4);
 
-            if (auto e = APP.alloc_entity<SmokePuff>(o)) {
+            if (auto e = APP.alloc_entity<SmokePuff>(o, smoke_sprite())) {
                 APP.effects().push(std::move(e));
             }
         }
@@ -1202,8 +1214,12 @@ void Island::on_layout_changed(const RoomCoord& room_added_removed_coord)
     bool buffer[16][16];
 
     checksum_ = 0;
+    dark_smoke_ = false;
 
     for (auto& room : rooms()) {
+        if (room->metaclass() == chaos_core_mt) {
+            dark_smoke_ = true;
+        }
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
                 plot_walkable_zones(buffer, chr.get());

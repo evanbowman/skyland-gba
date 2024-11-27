@@ -457,6 +457,9 @@ private:
     void update_target_queues();
 
 
+    int smoke_sprite();
+
+
     BulkTimer bulk_timer_;
 
     EntityList<BasicCharacter> characters_;
@@ -529,8 +532,8 @@ private:
     bool hidden_ : 1;
     bool show_powerdown_opts_ : 1 = false;
     bool should_recompute_deflector_shields_ : 1 = false;
+    bool dark_smoke_ : 1 = false;
     u8 phase_ : 1 = 0;
-
 
     // During repaint(), the game caches the results of plot_rooms() in this
     // matrix of bitflags. We use the result to speed up collision checking.
