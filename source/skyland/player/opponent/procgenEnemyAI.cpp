@@ -39,6 +39,7 @@
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/chaosCore.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -343,8 +344,20 @@ void ProcgenEnemyAI::generate_power_sources()
     }
 
     for (int i = 0; i < reactor_count; ++i) {
+        const char* core = "reactor";
+        if (rng::chance<4>(rng::critical_state)) {
+            bool player_has_chaos_core = false;
+            for (auto& room : APP.player_island().rooms()) {
+                if (room->cast<ChaosCore>()) {
+                    player_has_chaos_core = true;
+                }
+            }
+            if (not player_has_chaos_core) {
+                core = "chaos-core";
+            }
+        }
         place_room_random_loc(
-            levelgen_size_.x < 4 ? 1 : levelgen_size_.x / 2 - 1, "reactor");
+            levelgen_size_.x < 4 ? 1 : levelgen_size_.x / 2 - 1, core);
     }
 
     core_count_ += reactor_count;
