@@ -37,6 +37,7 @@
   (infirmary    60  1000 10)
   (backup-core  30  900  -150)
   (power-core   60  3000 -150)
+  (chaos-core   50  4200 0)
   (reactor      140 4200 -400)
   (war-engine   400 7500 -1000)
   (solar-cell   40  1000  -140)

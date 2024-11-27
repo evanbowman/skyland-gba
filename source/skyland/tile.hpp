@@ -337,6 +337,12 @@ struct Tile
         deflector_boundary_br,
         deflector_boundary_center,
         deflector_source,
+        reserved_p1,
+        reserved_p2,
+        reserved_d1,
+        reserved_d2,
+        reserved_d3,
+        reserved_d4,
         count
     };
 };
@@ -634,7 +640,10 @@ struct InteriorTile
         deflector_boundary_center,
         deflector_source,
         portal_1,
-        portal_2,
+        chaos_core_1,
+        chaos_core_2,
+        chaos_core_3,
+        chaos_core_4,
         count
     };
 };

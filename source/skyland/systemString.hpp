@@ -96,6 +96,7 @@ enum class SystemString {
     block_building,
     block_carved_hematite,
     block_carved_masonry,
+    block_chaos_core,
     block_cloak,
     block_cocoa,
     block_command_module,
@@ -435,6 +436,7 @@ enum class SystemString {
     description_canvas,
     description_deflector,
     description_portal,
+    description_chaos_core,
 
     gs_paused,
     gs_slow,

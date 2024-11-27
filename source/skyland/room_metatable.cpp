@@ -51,6 +51,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/cargoBay.hpp"
+#include "skyland/rooms/chaosCore.hpp"
 #include "skyland/rooms/cloak.hpp"
 #include "skyland/rooms/clumpBomb.hpp"
 #include "skyland/rooms/commandModule.hpp"
@@ -348,6 +349,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         SolarCell,
                                         BackupCore,
                                         WarEngine,
+                                        ChaosCore,
                                         Windmill,
                                         Balloon,
                                         // misc
