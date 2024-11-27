@@ -255,7 +255,7 @@ void FireBolt::on_collision(Entity& entity)
 {
     this->destroy(true);
 
-    entity.apply_damage(30);
+    entity.apply_damage(firebolt_damage);
 }
 
 

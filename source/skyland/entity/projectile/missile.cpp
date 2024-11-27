@@ -404,6 +404,11 @@ private:
 
 
 
+SHARED_VARIABLE(rocket_bomb_impact_damage);
+SHARED_VARIABLE(rocket_bomb_splash_damage);
+
+
+
 void RocketBomb::burst(const Vec2<Fixnum>& position, Room& origin_room)
 {
     int grid_x_start = origin_room.position().x;
@@ -425,12 +430,12 @@ void RocketBomb::burst(const Vec2<Fixnum>& position, Room& origin_room)
         }
     };
 
-    apply_damage(0, 0, 40);
+    apply_damage(0, 0, rocket_bomb_impact_damage);
 
-    apply_damage(1, 0, 16);
-    apply_damage(-1, 0, 16);
-    apply_damage(0, 1, 16);
-    apply_damage(0, -1, 16);
+    apply_damage(1, 0, rocket_bomb_splash_damage);
+    apply_damage(-1, 0, rocket_bomb_splash_damage);
+    apply_damage(0, 1, rocket_bomb_splash_damage);
+    apply_damage(0, -1, rocket_bomb_splash_damage);
 }
 
 

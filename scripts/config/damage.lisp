@@ -14,7 +14,11 @@
    (20  . "flak_r1_damage")
    (12  . "flak_r2_damage")
    (10  . "flak_r3_damage")
-   (20  . "arcbolt_damage")))
+   (20  . "arcbolt_damage")
+   (8   . "incinerator_impact_damage")
+   (2   . "incinerator_splash_damage")
+   (40  . "rocket_bomb_impact_damage")
+   (16  . "rocket_bomb_splash_damage")))
 
 (setvar "block_crack_threshold_health" 60)
 (setvar "deflector_shield_strength" 8)
