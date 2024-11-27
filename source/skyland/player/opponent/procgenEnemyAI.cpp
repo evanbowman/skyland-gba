@@ -345,7 +345,7 @@ void ProcgenEnemyAI::generate_power_sources()
 
     for (int i = 0; i < reactor_count; ++i) {
         const char* core = "reactor";
-        if (rng::chance<8>(rng::critical_state)) {
+        if (rng::chance<9>(rng::critical_state)) {
             bool player_has_chaos_core = false;
             for (auto& room : APP.player_island().rooms()) {
                 if (room->cast<ChaosCore>()) {
