@@ -38,8 +38,8 @@
 #include "skyland/network.hpp"
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/rooms/core.hpp"
 #include "skyland/rooms/chaosCore.hpp"
+#include "skyland/rooms/core.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
@@ -345,7 +345,7 @@ void ProcgenEnemyAI::generate_power_sources()
 
     for (int i = 0; i < reactor_count; ++i) {
         const char* core = "reactor";
-        if (rng::chance<9>(rng::critical_state)) {
+        if (rng::chance<9>(rng_source_)) {
             bool player_has_chaos_core = false;
             for (auto& room : APP.player_island().rooms()) {
                 if (room->cast<ChaosCore>()) {
@@ -1683,11 +1683,10 @@ void ProcgenEnemyAI::generate_foundation()
                             if (auto r =
                                     APP.opponent_island()->get_room({x, yy})) {
                                 if (auto m = r->cast<Masonry>()) {
-                                    if (rng::choice<4>(rng::critical_state) ==
-                                        0) {
+                                    if (rng::choice<4>(rng_source_) == 0) {
                                         m->set_gfx(2);
-                                    } else if (rng::choice<11>(
-                                                   rng::critical_state) == 0) {
+                                    } else if (rng::choice<11>(rng_source_) ==
+                                               0) {
                                         m->set_gfx(3);
                                     }
                                 }
