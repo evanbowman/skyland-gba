@@ -250,7 +250,11 @@ bool DroneBay::attach_drone(SharedEntityRef<Drone> drone)
 
 Time DroneBay::reload_interval() const
 {
-    return 1000 * drone_bay_reload_ms;
+    Time ret = 1000 * drone_bay_reload_ms;
+    if (amplify_) {
+        ret /= 2;
+    }
+    return ret;
 }
 
 
