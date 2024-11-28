@@ -64,6 +64,11 @@ public:
 
         timer_ += delta;
         if (timer_ >= milliseconds(80)) {
+
+            if (PLATFORM.screen().fade_active()) {
+                kill();
+            }
+
             timer_ -= milliseconds(80);
             auto t = sprite_.get_texture_index();
             if (t == 31 * 2 + 5) {
@@ -139,11 +144,12 @@ public:
                 }
             };
 
-            segment(Fixnum::from_integer(-16), Fixnum::from_integer(-16), false, false);
-            segment(Fixnum::from_integer(-16), 0.0_fixed, false, true);
-            segment(0.0_fixed, Fixnum::from_integer(-16), true, false);
-            segment(0.0_fixed, 0.0_fixed, true, true);
-
+            if (not PLATFORM.screen().fade_active()) {
+                segment(Fixnum::from_integer(-16), Fixnum::from_integer(-16), false, false);
+                segment(Fixnum::from_integer(-16), 0.0_fixed, false, true);
+                segment(0.0_fixed, Fixnum::from_integer(-16), true, false);
+                segment(0.0_fixed, 0.0_fixed, true, true);
+            }
         }
 
         amplify_adjacent();
