@@ -343,8 +343,7 @@ Time Decimator::interval() const
 {
     Time ret = 1000 * decimator_reload_ms;
     if (amplify_) {
-        ret *= 3;
-        ret /= 4;
+        ret /= 2;
     }
     return ret;
 }
