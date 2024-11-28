@@ -117,7 +117,7 @@ void FlakGun::fire()
 
 
 
-Time FlakGun::reload() const
+Time FlakGun::reload_impl() const
 {
     return 1000 * flak_gun_reload_ms;
 }

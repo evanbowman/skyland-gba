@@ -115,7 +115,7 @@ void Incinerator::fire()
 
 
 
-Time Incinerator::reload() const
+Time Incinerator::reload_impl() const
 {
     return 1000 * incinerator_reload_ms;
 }

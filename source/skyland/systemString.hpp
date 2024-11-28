@@ -78,6 +78,7 @@ enum class SystemString {
     mt_timeout_duration,
 
     block_air,
+    block_amplifier,
     block_annihilator,
     block_arcgun,
     block_arch,
@@ -437,6 +438,7 @@ enum class SystemString {
     description_deflector,
     description_portal,
     description_chaos_core,
+    description_amplifier,
 
     gs_paused,
     gs_slow,

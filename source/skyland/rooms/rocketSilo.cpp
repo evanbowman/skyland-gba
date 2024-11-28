@@ -132,7 +132,7 @@ void RocketSilo::fire()
 
 
 
-Time RocketSilo::reload() const
+Time RocketSilo::reload_impl() const
 {
     return reload_time();
 }

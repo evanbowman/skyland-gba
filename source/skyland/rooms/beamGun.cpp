@@ -172,7 +172,7 @@ void BeamGun::fire()
 
 
 
-Time BeamGun::reload() const
+Time BeamGun::reload_impl() const
 {
     return 1000 * beam_reload_ms;
 }

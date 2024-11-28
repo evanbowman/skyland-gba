@@ -798,6 +798,9 @@ public:
     void set_shielded(bool shielded);
 
 
+    virtual void amplify(bool enabled);
+
+
 protected:
     void set_injured();
 
@@ -893,7 +896,6 @@ private:
     u8 show_damage_delay_frames_ : 6;
 
     u8 powerdown_ : 1;
-
     [[maybe_unused]] u8 unused_ : 1;
 };
 

@@ -58,7 +58,7 @@ public:
 
 
     void fire() override;
-    Time reload() const override;
+    Time reload_impl() const override;
 
 
     static WeaponOrientation weapon_orientation()

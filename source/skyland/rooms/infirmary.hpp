@@ -112,8 +112,15 @@ public:
     bool allows_powerdown() override;
 
 
+    void amplify(bool enabled) override;
+
+
+    Time heal_interval() const;
+
+
 private:
     Time heal_timer_ = 0;
+    bool amplify_ = false;
 };
 
 

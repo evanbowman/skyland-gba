@@ -38,6 +38,7 @@
 
 #include "ext_workram_data.hpp"
 #include "roomPluginInfo.hpp"
+#include "skyland/rooms/amplifier.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/balloon.hpp"
@@ -376,6 +377,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Replicator,
                                         DroneBay,
                                         Deflector,
+                                        Amplifier,
                                         // decoration
                                         Speaker,
                                         Synth,

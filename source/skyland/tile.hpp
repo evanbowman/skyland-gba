@@ -338,11 +338,11 @@ struct Tile
         deflector_boundary_center,
         deflector_source,
         reserved_p1,
-        reserved_p2,
         reserved_d1,
         reserved_d2,
         reserved_d3,
         reserved_d4,
+        amplifier,
         count
     };
 };
@@ -644,6 +644,7 @@ struct InteriorTile
         chaos_core_2,
         chaos_core_3,
         chaos_core_4,
+        amplifier,
         count
     };
 };

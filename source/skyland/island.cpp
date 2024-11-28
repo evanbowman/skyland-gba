@@ -376,6 +376,15 @@ void Island::rewind(Time delta)
 
 
 
+void Island::unamplify_blocks()
+{
+    for (auto& r : rooms()) {
+        r->amplify(false);
+    }
+}
+
+
+
 void Island::check_destroyed()
 {
     destroyed_ = false;
@@ -1634,6 +1643,7 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
             rooms_.insert_room(std::move(room));
 
             recalculate_power_usage();
+            unamplify_blocks();
             on_layout_changed(from);
             schedule_recompute_deflector_shields();
 
@@ -2266,6 +2276,7 @@ void Island::destroy_room(const RoomCoord& coord)
 
             on_layout_changed(coord);
             schedule_recompute_deflector_shields();
+            unamplify_blocks();
 
             repaint();
             recalculate_power_usage();

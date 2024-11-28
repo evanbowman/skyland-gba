@@ -116,7 +116,7 @@ void ArcGun::fire()
 
 
 
-Time ArcGun::reload() const
+Time ArcGun::reload_impl() const
 {
     return 1000 * arc_gun_reload_ms;
 }

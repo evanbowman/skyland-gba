@@ -126,7 +126,7 @@ void Warhead::fire()
 
 
 
-Time Warhead::reload() const
+Time Warhead::reload_impl() const
 {
     return reload_time();
 }

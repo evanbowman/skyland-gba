@@ -132,7 +132,7 @@ void ClumpBomb::fire()
 
 
 
-Time ClumpBomb::reload() const
+Time ClumpBomb::reload_impl() const
 {
     return reload_time();
 }

@@ -55,9 +55,20 @@ static const auto infirmary_heal_interval = milliseconds(1000);
 
 
 
+Time Infirmary::heal_interval() const
+{
+    Time interval = infirmary_heal_interval;
+    if (amplify_) {
+        interval /= 2;
+    }
+    return interval;
+}
+
+
+
 void Infirmary::on_powerchange()
 {
-    heal_timer_ = infirmary_heal_interval;
+    heal_timer_ = heal_interval();
 }
 
 
@@ -95,8 +106,8 @@ void Infirmary::update(Time delta)
 
     if (characters_healing) {
         heal_timer_ += delta;
-        if (heal_timer_ > infirmary_heal_interval) {
-            heal_timer_ -= infirmary_heal_interval;
+        if (heal_timer_ > heal_interval()) {
+            heal_timer_ -= heal_interval();
             int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
@@ -108,6 +119,14 @@ void Infirmary::update(Time delta)
         }
     }
 }
+
+
+
+void Infirmary::amplify(bool enabled)
+{
+    amplify_ = enabled;
+}
+
 
 
 void Infirmary::format_description(StringBuffer<512>& buffer)

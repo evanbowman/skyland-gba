@@ -142,10 +142,10 @@ public:
     }
 
 
-    void begin_recharge()
-    {
-        recharge_ = 1000 * transporter_reload_ms;
-    }
+    void begin_recharge();
+
+
+    Time recharge_time() const;
 
 
     void finalize() override;
@@ -157,8 +157,12 @@ public:
     bool allows_powerdown() override;
 
 
+    void amplify(bool enable) override;
+
+
 private:
     Time recharge_ = 1000 * transporter_reload_ms;
+    bool amplify_ = false;
 };
 
 

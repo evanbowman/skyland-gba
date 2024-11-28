@@ -293,6 +293,26 @@ void Weapon::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 
 
 
+Time Weapon::reload() const
+{
+    Time base_time = reload_impl();
+
+    if (amplify_) {
+        return base_time / 2;
+    } else {
+        return base_time;
+    }
+}
+
+
+
+void Weapon::amplify(bool enabled)
+{
+    amplify_ = enabled;
+}
+
+
+
 bool Weapon::target_pinned() const
 {
     return target_pinned_;

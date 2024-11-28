@@ -77,7 +77,6 @@
                      (if (equal id (lookup 'id (cddr chr)))
                          (chr-del (player) (car chr) (cadr chr))))
                    (chrs (player)))
-              (coins-add 3000)
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
               (defn on-dialog-closed ()
@@ -91,11 +90,14 @@
                   (effect "lightning" 0 0)
                   (opponent-reset)
                   (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
+                  (let ((sites (construction-sites (player) '(1 . 1))))
+                    (if sites
+                        (room-new (player) `(amplifier ,(caar sites) ,(cdar sites)))))
 
                   (on-timeout 1000 'fut)
 
                   (defn fut ()
-                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon...")
+                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island...")
                     (unbind 'fut)
                     (setq on-dialog-closed exit))))))))
 

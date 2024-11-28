@@ -112,7 +112,7 @@ void Annihilator::fire()
 
 
 
-Time Annihilator::reload() const
+Time Annihilator::reload_impl() const
 {
     return 1000 * 3000;
 }

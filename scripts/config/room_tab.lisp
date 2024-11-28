@@ -32,6 +32,7 @@
   (ladder       30  400  0)
   (portal       30  1600 30)
   (bulkhead-door 100 400 5)
+  (amplifier    20  5000 100)
   (radiator     60  400  50)
   (workshop     60  2000 10)
   (infirmary    60  1000 10)

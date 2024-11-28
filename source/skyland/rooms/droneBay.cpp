@@ -248,6 +248,13 @@ bool DroneBay::attach_drone(SharedEntityRef<Drone> drone)
 
 
 
+Time DroneBay::reload_interval() const
+{
+    return 1000 * drone_bay_reload_ms;
+}
+
+
+
 void DroneBay::detach_drone(bool quiet)
 {
     if (drone_ and not quiet) {
@@ -275,6 +282,15 @@ void DroneBay::detach_drone(bool quiet)
     }
 
     drone_.reset();
+}
+
+
+
+void DroneBay::amplify(bool enable)
+{
+    amplify_ = enable;
+
+    reload_ = std::min(reload_, reload_interval());
 }
 
 

@@ -66,7 +66,10 @@ public:
     }
 
 
-    virtual Time reload() const = 0;
+    virtual Time reload_impl() const = 0;
+
+
+    Time reload() const;
 
 
     virtual void fire() = 0;
@@ -173,11 +176,15 @@ public:
     void clear_target_queue();
 
 
+    void amplify(bool enabled) override;
+
+
 protected:
     void on_powerchange() override;
 
     TargetQueue target_queue_;
-    bool target_pinned_ = false;
+    bool target_pinned_ : 1 = false;
+    bool amplify_ : 1 = false;
 };
 
 

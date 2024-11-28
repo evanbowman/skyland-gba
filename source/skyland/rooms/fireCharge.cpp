@@ -118,7 +118,7 @@ void FireCharge::fire()
 
 
 
-Time FireCharge::reload() const
+Time FireCharge::reload_impl() const
 {
     return 1000 * fire_charge_reload_ms;
 }

@@ -132,7 +132,7 @@ void MissileSilo::fire()
 
 
 
-Time MissileSilo::reload() const
+Time MissileSilo::reload_impl() const
 {
     return 1000 * missile_silo_reload_ms;
 }

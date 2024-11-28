@@ -49,10 +49,6 @@ namespace skyland
 
 
 
-extern SharedVariable drone_bay_reload_ms;
-
-
-
 class DroneBay final : public Room
 {
 public:
@@ -158,9 +154,12 @@ public:
     void detach_drone(bool quiet) override;
 
 
+    Time reload_interval() const;
+
+
     void start_reload()
     {
-        reload_ = 1000 * drone_bay_reload_ms;
+        reload_ = reload_interval();
     }
 
 
@@ -185,12 +184,18 @@ public:
     void parent_layout_changed(RoomCoord moved_from, RoomCoord to) override;
 
 
+    void amplify(bool enable) override;
+
+
 private:
     Optional<SharedEntityRef<Drone>> drone_;
     Time reload_ = 0;
 
 public:
     ReconstructionQueue rq_;
+
+private:
+    bool amplify_ = false;
 };
 
 

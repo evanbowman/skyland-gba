@@ -438,6 +438,9 @@ public:
     u8 phase() const;
 
 
+    void unamplify_blocks();
+
+
 private:
     void recompute_deflector_shields();
 

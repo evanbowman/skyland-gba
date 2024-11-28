@@ -1681,4 +1681,10 @@ void Room::on_salvage()
 
 
 
+void Room::amplify(bool enabled)
+{
+}
+
+
+
 } // namespace skyland

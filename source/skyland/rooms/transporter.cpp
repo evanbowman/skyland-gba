@@ -122,7 +122,7 @@ void Transporter::rewind(Time delta)
 
     if (recharge_ <= 0) {
         // Fully recharged.
-    } else if (recharge_ < 1000 * transporter_reload_ms) {
+    } else if (recharge_ < recharge_time()) {
         recharge_ += delta;
     }
 }
@@ -582,6 +582,35 @@ void Transporter::finalize()
 
     if (health() <= 0) {
         ExploSpawner::create(center());
+    }
+}
+
+
+
+Time Transporter::recharge_time() const
+{
+    Time time = 1000 * transporter_reload_ms;
+    if (amplify_) {
+        time /= 2;
+    }
+    return time;
+}
+
+
+
+void Transporter::begin_recharge()
+{
+    recharge_ = recharge_time();
+}
+
+
+
+void Transporter::amplify(bool enable)
+{
+    amplify_ = enable;
+
+    if (enable) {
+        recharge_ = std::min(recharge_, recharge_time());
     }
 }
 
