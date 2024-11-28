@@ -307,7 +307,7 @@ void Decimator::update(Time delta)
                 ++counter_;
                 reload_ += burst_interval;
             } else {
-                reload_ += 1000 * decimator_reload_ms;
+                reload_ += interval();
                 counter_ = 0;
                 flicker_cyc_ = 0;
                 firing_ = false;
@@ -331,10 +331,22 @@ void Decimator::rewind(Time delta)
     } else {
         if (reload_ <= 0) {
             // Reloaded.
-        } else if (reload_ < 1000 * decimator_reload_ms) {
+        } else if (reload_ < interval()) {
             reload_ += delta;
         }
     }
+}
+
+
+
+Time Decimator::interval() const
+{
+    Time ret = 1000 * decimator_reload_ms;
+    if (amplify_) {
+        ret *= 3;
+        ret /= 4;
+    }
+    return ret;
 }
 
 
@@ -455,6 +467,17 @@ void Decimator::rewind_projectile_created(int new_counter)
     counter_ = new_counter;
 
     reload_ = burst_interval;
+}
+
+
+
+void Decimator::amplify(bool enable)
+{
+    amplify_ = enable;
+
+    if (amplify_) {
+        reload_ = std::min(reload_, interval());
+    }
 }
 
 

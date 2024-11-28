@@ -97,6 +97,9 @@ public:
     }
 
 
+    Time interval() const;
+
+
     static Vec2<u8> size()
     {
         return {2, 2};
@@ -162,12 +165,17 @@ public:
 
     int counter_ = 0;
 
+
+    void amplify(bool enable) override;
+
+
 private:
     Time reload_ = 1000 * decimator_reload_ms;
     u8 flicker_cyc_ = 0;
 
 public:
     bool firing_ = false;
+    bool amplify_ = false;
 };
 
 
