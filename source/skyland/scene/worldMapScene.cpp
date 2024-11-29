@@ -1015,6 +1015,7 @@ ScenePtr WorldMapScene::update(Time delta)
                         if (node.type_ == WorldGraph::Node::Type::exit) {
                             state_ = State::save_plot;
                             navigation_buffer_.push_back(cursor_);
+                            plot_navigation_path(navigation_buffer_);
                             return null_scene();
                         }
                         APP.world_graph().nodes_[cursor_].type_ =
