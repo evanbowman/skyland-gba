@@ -53,7 +53,7 @@ struct HintInfo
 
 
 
-static const std::array<HintInfo, 12> hints = {
+static const std::array<HintInfo, 13> hints = {
     {{"<none>", SystemString::hint_boss},
      {"<none>", SystemString::hint_nav_plot},
      {"<none>", SystemString::hint_gamespeed},
