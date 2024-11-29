@@ -65,6 +65,9 @@ public:
     void display() override;
 
 
+    static void reset_nav_path();
+
+
 private:
     void show_map(WorldGraph& map, int storm_depth);
 
@@ -107,43 +110,52 @@ private:
         save_animate_out,
         save_exit,
         abort_move,
+        plot_moves,
+        save_plot,
     } state_ = State::fade_in;
 
     void redraw_icons();
 
-    int prev_world_loc_ = 0;
-    int cursor_ = 0;
-    u8 cursor_keyframe_ = 0;
-    Time cursor_anim_timer_ = 0;
-    Time timer_ = 0;
-    ColorMix cmix_;
-
-    int movement_cursor_ = 0;
     Buffer<Vec2<s8>, 10> movement_targets_;
     Buffer<Vec2<s8>, 10> dead_nodes_;
 
-    Time storm_scroll_timer_ = 0;
-
-    void render_map_key();
-
-    static bool show_tier_2_;
-    bool tier_2_visible_ = false;
-    bool fast_ = false;
-    bool has_radar_ = false;
-    u8 save_opt_sel_ = 0;
-    u8 save_opt_len_ = 0;
-
-    Time tier_2_timer_ = 0;
+    using WorldGraphIndex = u8;
+    using NavBuffer = Buffer<WorldGraphIndex, 10>;
+    NavBuffer navigation_buffer_;
+    static NavBuffer navigation_path_;
 
     Optional<Text> heading_;
     Optional<Text> warning_;
     Optional<Text> exit_label_;
     Optional<Text> map_key_;
-    // Optional<Text> key_[3];
     Optional<MediumIcon> save_icon_;
     Optional<MediumIcon> help_icon_;
     Optional<MediumIcon> logbook_icon_;
     Optional<MediumIcon> edit_icon_;
+
+    Optional<DynamicMemory<WorldGraph>> cached_world_graph_;
+
+    int movement_cursor_ = 0;
+    int prev_world_loc_ = 0;
+    int cursor_ = 0;
+    int cached_cursor_ = 0;
+    Time cursor_anim_timer_ = 0;
+    Time timer_ = 0;
+    Time tier_2_timer_ = 0;
+    Time storm_scroll_timer_ = 0;
+
+    ColorMix cmix_;
+    u8 cursor_keyframe_ = 0;
+    bool tier_2_visible_ = false;
+    bool fast_ = false;
+    bool has_radar_ = false;
+    u8 save_opt_sel_ = 0;
+    u8 save_opt_len_ = 0;
+    bool nav_mode_ = false;
+
+    void render_map_key();
+
+    static bool show_tier_2_;
 };
 
 

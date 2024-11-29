@@ -200,6 +200,7 @@ ScenePtr NewgameScene::update(Time delta)
         return ret;
 
     } else {
+        WorldMapScene::reset_nav_path();
         return next();
     }
 }

@@ -593,6 +593,18 @@ ScenePtr WorldMapScene::update(Time delta)
     }
 
 
+    auto exit_nav_mode = [&] {
+        cursor_ = cached_cursor_;
+        navigation_buffer_.clear();
+        nav_mode_ = false;
+        APP.world_graph() = **cached_world_graph_;
+        draw_stormcloud_background(APP.world_graph().storm_depth_);
+        APP.current_world_location() = cursor_;
+        state_ = State::deselected;
+        return make_scene<WorldMapScene>();
+    };
+
+
     auto to_move_state = [&] {
         state_ = State::move;
         movement_cursor_ = 0;
@@ -626,6 +638,14 @@ ScenePtr WorldMapScene::update(Time delta)
             collect_targets(5, 5);
         }
 
+        if (not nav_mode_ and not navigation_path_.empty()) {
+            for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                if (movement_targets_[i] == APP.world_graph().nodes_[navigation_path_[0]].coord_) {
+                    movement_cursor_ = i;
+                }
+            }
+        }
+
         render_map_key();
     };
 
@@ -636,6 +656,9 @@ ScenePtr WorldMapScene::update(Time delta)
 
     switch (state_) {
     case State::deselected:
+        if (APP.player().key_down(Key::select)) {
+            state_ = State::plot_moves;
+        }
         if (APP.player().key_down(Key::action_1)) {
             state_ = State::selected;
             PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -651,6 +674,9 @@ ScenePtr WorldMapScene::update(Time delta)
         break;
 
     case State::selected:
+        if (APP.player().key_down(Key::select)) {
+            state_ = State::plot_moves;
+        }
         if (APP.player().key_down(Key::action_1)) {
             to_move_state();
         }
@@ -885,7 +911,56 @@ ScenePtr WorldMapScene::update(Time delta)
                 tier_2_visible_ = true;
             }
         }
+        if (nav_mode_) {
+            auto node = APP.world_graph().nodes_[cursor_];
+            if (node.type_ == WorldGraph::Node::Type::corrupted) {
+                return exit_nav_mode();
+            }
+        }
+        if (nav_mode_ and APP.player().key_down(Key::select) and
+            navigation_buffer_.size() > 1) {
+            state_ = State::save_plot;
+            return null_scene();
+        }
         if (APP.player().key_down(Key::action_1)) {
+            if (nav_mode_) {
+                for (int i = 0; i < 19; ++i) {
+                    auto node = APP.world_graph().nodes_[i];
+                    if (node.coord_ == movement_targets_[movement_cursor_]) {
+                        cursor_ = i;
+                        if (node.type_ == WorldGraph::Node::Type::exit) {
+                            state_ = State::save_plot;
+                            return null_scene();
+                        }
+                        APP.world_graph().nodes_[cursor_].type_ =
+                            WorldGraph::Node::Type::visited;
+                        Text::print(stringify(navigation_buffer_.size()).c_str(),
+                                    OverlayCoord{u8(node.coord_.x + 5),
+                                                 u8(node.coord_.y + 3 + 1)});
+                        PLATFORM.set_tile(Layer::overlay,
+                                          node.coord_.x + 5,
+                                          node.coord_.y + 3 - 1,
+                                          171);
+                        APP.current_world_location() = cursor_;
+                        update_storm_frontier(APP.world_graph(), 0);
+                        ++APP.world_graph().storm_depth_;
+                        show_map(APP.world_graph(), 0);
+                        PLATFORM_EXTENSION(force_vsync);
+                        draw_stormcloud_background(APP.world_graph().storm_depth_);
+                        auto node = APP.world_graph().nodes_[cursor_];
+                        if (node.type_ == WorldGraph::Node::Type::corrupted) {
+                            PLATFORM.speaker().play_sound("beep_error", 4);
+                            PLATFORM.sleep(60);
+                        } else {
+                            PLATFORM.speaker().play_sound("button_wooden", 3);
+                        }
+                    }
+                }
+                navigation_buffer_.push_back(cursor_);
+                to_move_state();
+                break;
+            }
+
             if (APP.world_graph().nodes_[cursor_].type_ not_eq
                 WorldGraph::Node::Type::shop) {
                 APP.world_graph().nodes_[cursor_].type_ =
@@ -902,6 +977,14 @@ ScenePtr WorldMapScene::update(Time delta)
             APP.create_backup(App::BackupContext{
                 .next_world_location_ = (s8)cursor_,
             });
+
+            if (not nav_mode_ and not navigation_path_.empty()) {
+                if (navigation_path_[0] == cursor_) {
+                    navigation_path_.erase(navigation_path_.begin());
+                } else {
+                    navigation_path_.clear();
+                }
+            }
 
             prev_world_loc_ = APP.current_world_location();
             APP.current_world_location() = cursor_;
@@ -924,6 +1007,9 @@ ScenePtr WorldMapScene::update(Time delta)
             }
 
         } else if (APP.player().key_down(Key::action_2)) {
+            if (nav_mode_) {
+                return exit_nav_mode();
+            }
             state_ = State::selected;
             map_key_.reset();
             redraw_icons();
@@ -1143,6 +1229,34 @@ ScenePtr WorldMapScene::update(Time delta)
             render_map_key();
         }
         break;
+    }
+
+    case State::plot_moves: {
+        nav_mode_ = true;
+        for (int x = 0; x < 32; ++x) {
+            for (int y = 0; y < 32; ++y) {
+                auto t = PLATFORM.get_tile(Layer::overlay, x, y);
+                if (t == 171) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+        }
+        heading_->assign(SYSTR(wg_nav)->c_str());
+        cached_cursor_ = cursor_;
+        cached_world_graph_ = allocate_dynamic<WorldGraph>("cached-world-graph");
+        **cached_world_graph_ = APP.world_graph();
+        navigation_buffer_.clear();
+        navigation_buffer_.push_back(cursor_);
+        to_move_state();
+        break;
+    }
+
+    case State::save_plot: {
+        PLATFORM.speaker().play_sound("button_wooden", 3);
+        PLATFORM.sleep(20);
+        navigation_buffer_.erase(navigation_buffer_.begin());
+        navigation_path_ = navigation_buffer_;
+        return exit_nav_mode();
     }
 
     case State::abort_move: {
@@ -1499,6 +1613,17 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
 
+WorldMapScene::NavBuffer WorldMapScene::navigation_path_;
+
+
+
+void WorldMapScene::reset_nav_path()
+{
+    navigation_path_.clear();
+}
+
+
+
 void WorldMapScene::display()
 {
     if (state_ == State::show_saved_text or state_ == State::save_animate_out or
@@ -1509,17 +1634,28 @@ void WorldMapScene::display()
     Sprite cursor;
     cursor.set_priority(0);
 
-    Vec2<s8> cursor_loc = APP.world_graph().nodes_[cursor_].coord_;
-    cursor_loc.x += 5;
-    cursor_loc.y += 3;
+    auto show_cursor = [&cursor, this](int cursor_) {
+        Vec2<s8> cursor_loc = APP.world_graph().nodes_[cursor_].coord_;
+        cursor_loc.x += 5;
+        cursor_loc.y += 3;
 
+        cursor.set_size(Sprite::Size::w16_h16);
+        cursor.set_tidx_16x16(28, 0);
+        cursor.set_position({Fixnum((int)cursor_loc.x * 8) - 8.0_fixed,
+                Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
+        cursor.set_mix(cmix_);
+        PLATFORM.screen().draw(cursor);
+    };
 
-    cursor.set_size(Sprite::Size::w16_h16);
-    cursor.set_tidx_16x16(28, 0);
-    cursor.set_position({Fixnum((int)cursor_loc.x * 8) - 8.0_fixed,
-                         Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
-    cursor.set_mix(cmix_);
-    PLATFORM.screen().draw(cursor);
+    if (nav_mode_) {
+        show_cursor(navigation_buffer_[0]);
+        if (state_ not_eq State::save_plot) {
+            show_cursor(navigation_buffer_.back());
+        }
+    } else {
+        show_cursor(cursor_);
+    }
+
 
 
     cursor.set_mix({});
@@ -1799,6 +1935,35 @@ void WorldMapScene::show_map(WorldGraph& map, int storm_depth_offset)
         if (node.type_ == WorldGraph::Node::Type::null) {
             continue;
         }
+        bool on_nav_path = false;
+
+        if (not navigation_buffer_.empty()) {
+            auto it = navigation_buffer_.begin();
+            ++it;
+            for (; it not_eq navigation_buffer_.end(); ++it) {
+                if (map.nodes_[*it].coord_ == node.coord_) {
+                    on_nav_path = true;
+                }
+            }
+            if (map.nodes_[cursor_].coord_ == node.coord_) {
+                on_nav_path = true;
+            }
+        }
+
+        if (not nav_mode_) {
+            for (auto idx : navigation_path_) {
+                auto node = map.nodes_[idx];
+                if (node.type_ == WorldGraph::Node::Type::corrupted or
+                    node.type_ == WorldGraph::Node::Type::visited) {
+                    continue;
+                }
+                PLATFORM.set_tile(Layer::overlay,
+                                  map_start_x + node.coord_.x,
+                                  map_start_y + node.coord_.y - 1,
+                                  171);
+            }
+        }
+
         if (is_x_behind_storm_frontier(node.coord_.x, storm_depth_offset)) {
 
             if (node.type_ == WorldGraph::Node::Type::exit) {
@@ -1809,17 +1974,31 @@ void WorldMapScene::show_map(WorldGraph& map, int storm_depth_offset)
             }
             node.type_ = WorldGraph::Node::Type::corrupted;
 
-            PLATFORM.set_tile(Layer::overlay,
-                              map_start_x + node.coord_.x,
-                              map_start_y + node.coord_.y,
-                              98);
+            if (on_nav_path) {
+                PLATFORM.set_tile(Layer::overlay,
+                                  map_start_x + node.coord_.x,
+                                  map_start_y + node.coord_.y,
+                                  170);
+            } else {
+                PLATFORM.set_tile(Layer::overlay,
+                                  map_start_x + node.coord_.x,
+                                  map_start_y + node.coord_.y,
+                                  98);
+            }
 
         } else {
 
-            PLATFORM.set_tile(Layer::overlay,
-                              map_start_x + node.coord_.x,
-                              map_start_y + node.coord_.y,
-                              114 + (int)node.type_);
+            if (on_nav_path) {
+                PLATFORM.set_tile(Layer::overlay,
+                                  map_start_x + node.coord_.x,
+                                  map_start_y + node.coord_.y,
+                                  170);
+            } else {
+                PLATFORM.set_tile(Layer::overlay,
+                                  map_start_x + node.coord_.x,
+                                  map_start_y + node.coord_.y,
+                                  114 + (int)node.type_);
+            }
         }
     }
 }

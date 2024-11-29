@@ -584,6 +584,7 @@ enum class SystemString {
     wg_exit,
     wg_save_and_quit,
     wg_save_and_continue,
+    wg_nav,
 
     sandbox_coins,
     sandbox_terrain_size,

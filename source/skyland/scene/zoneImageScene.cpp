@@ -147,6 +147,9 @@ ScenePtr ZoneImageScene::update(Time delta)
         return make_scene<HighscoresScene>(true, 1);
     }
 
+    // We're entering a new zone. Clear out the old custom navigation path...
+    WorldMapScene::reset_nav_path();
+
     switch (state_) {
     case State::fade_in: {
         timer_ += delta;
