@@ -578,6 +578,90 @@ void show_saved_indicator()
 
 
 
+void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
+{
+    struct Tile16x16p
+    {
+        u8 data_[16][16];
+    };
+
+    static const int fb_tile_width = 11;
+    static const int fb_tile_height = 6;
+    static const int fb_px_width = fb_tile_width * 16;
+    static const int fb_px_height = fb_tile_height * 16;
+
+    Vector<Tile16x16p> framebuffer;
+    for (int i = 0; i < fb_tile_width * fb_tile_height; ++i) {
+        framebuffer.emplace_back();
+    }
+
+    auto plot_pixel = [&](u8 x, u8 y, u8 p) {
+        if (x > fb_px_width or y > fb_px_height) {
+            return;
+        }
+        u8 tx = x / 16;
+        u8 ty = y / 16;
+        x %= 16;
+        y %= 16;
+        framebuffer[ty * fb_tile_width + tx].data_[x][y] = p;
+    };
+
+    auto plot_line = [&](int x0, int y0, int x1, int y1, u8 color) {
+        int dx = abs(x1 - x0);
+        int sx = x0 < x1 ? 1 : -1;
+        int dy = -abs(y1 - y0);
+        int sy = y0 < y1 ? 1 : -1;
+        int error = dx + dy;
+
+        while (true) {
+            plot_pixel(x0, y0, color);
+            if (x0 == x1 && y0 == y1)
+                break;
+            int e2 = 2 * error;
+            if (e2 >= dy) {
+                if (x0 == x1)
+                    break;
+                error = error + dy;
+                x0 = x0 + sx;
+            }
+            if (e2 <= dx) {
+                if (y0 == y1)
+                    break;
+                error = error + dx;
+                y0 = y0 + sy;
+            }
+        }
+    };
+
+    auto prev = nav.begin();
+    auto it = nav.begin();
+    ++it;
+    for (; it not_eq nav.end();) {
+        auto c1 = APP.world_graph().nodes_[*prev].coord_;
+        auto c2 = APP.world_graph().nodes_[*it].coord_;
+        int cx1 = c1.x * 8 - 4;
+        int cx2 = c2.x * 8 - 4;
+        int cy1 = c1.y * 8 - 4;
+        int cy2 = c2.y * 8 - 4;
+        plot_line(cx1, cy1, cx2, cy2, 1);
+        ++it;
+        ++prev;
+    }
+
+    for (u32 i = 0; i < framebuffer.size(); ++i) {
+        PLATFORM.overwrite_t0_tile(i + 1, PLATFORM.encode_tile(framebuffer[i].data_));
+    }
+
+    int tile = 1;
+    for (int y = 0; y < fb_tile_height; ++y) {
+        for (int x = 0; x < fb_tile_width; ++x) {
+            PLATFORM.set_tile(Layer::map_0_ext, 3 + x, 2 + y, tile++);
+        }
+    }
+}
+
+
+
 ScenePtr WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
@@ -930,6 +1014,7 @@ ScenePtr WorldMapScene::update(Time delta)
                         cursor_ = i;
                         if (node.type_ == WorldGraph::Node::Type::exit) {
                             state_ = State::save_plot;
+                            navigation_buffer_.push_back(cursor_);
                             return null_scene();
                         }
                         APP.world_graph().nodes_[cursor_].type_ =
@@ -937,10 +1022,6 @@ ScenePtr WorldMapScene::update(Time delta)
                         Text::print(stringify(navigation_buffer_.size()).c_str(),
                                     OverlayCoord{u8(node.coord_.x + 5),
                                                  u8(node.coord_.y + 3 + 1)});
-                        PLATFORM.set_tile(Layer::overlay,
-                                          node.coord_.x + 5,
-                                          node.coord_.y + 3 - 1,
-                                          171);
                         APP.current_world_location() = cursor_;
                         update_storm_frontier(APP.world_graph(), 0);
                         ++APP.world_graph().storm_depth_;
@@ -957,6 +1038,7 @@ ScenePtr WorldMapScene::update(Time delta)
                     }
                 }
                 navigation_buffer_.push_back(cursor_);
+                plot_navigation_path(navigation_buffer_);
                 to_move_state();
                 break;
             }
@@ -1233,14 +1315,6 @@ ScenePtr WorldMapScene::update(Time delta)
 
     case State::plot_moves: {
         nav_mode_ = true;
-        for (int x = 0; x < 32; ++x) {
-            for (int y = 0; y < 32; ++y) {
-                auto t = PLATFORM.get_tile(Layer::overlay, x, y);
-                if (t == 171) {
-                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
-                }
-            }
-        }
         heading_->assign(SYSTR(wg_nav)->c_str());
         cached_cursor_ = cursor_;
         cached_world_graph_ = allocate_dynamic<WorldGraph>("cached-world-graph");
@@ -1400,6 +1474,11 @@ ScenePtr WorldMapScene::update(Time delta)
             state_ = State::print_saved_text;
             save::store("", APP.persistent_data());
             PLATFORM.fill_overlay(0);
+            for (int x = 0; x < 16; ++x) {
+                for (int y = 0; y < 16; ++y) {
+                    PLATFORM.set_tile(Layer::map_0_ext, x, y, 0);
+                }
+            }
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().fade(
@@ -1877,6 +1956,7 @@ void WorldMapScene::enter(Scene& prev_scene)
 
     PLATFORM.load_overlay_texture("overlay_world_map");
     PLATFORM.load_tile1_texture("tilesheet_world_map_backdrop");
+    PLATFORM.load_tile0_texture("tilesheet_world_map_framebuffer");
 
     PLATFORM.set_scroll(Layer::map_1_ext, 16, 0);
     draw_stormcloud_background(APP.world_graph().storm_depth_);
@@ -1908,6 +1988,11 @@ void WorldMapScene::enter(Scene& prev_scene)
     warning_->assign(SYSTR(wg_storm_label)->c_str());
 
     show_map(APP.world_graph(), -1);
+    if (not navigation_path_.empty() and not nav_mode_) {
+        navigation_path_.insert(navigation_path_.begin(), cursor_);
+        plot_navigation_path(navigation_path_);
+        navigation_path_.erase(navigation_path_.begin());
+    }
 
     redraw_icons();
 
@@ -1957,10 +2042,6 @@ void WorldMapScene::show_map(WorldGraph& map, int storm_depth_offset)
                     node.type_ == WorldGraph::Node::Type::visited) {
                     continue;
                 }
-                PLATFORM.set_tile(Layer::overlay,
-                                  map_start_x + node.coord_.x,
-                                  map_start_y + node.coord_.y - 1,
-                                  171);
             }
         }
 

@@ -390,6 +390,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/photo_incinerator_flattened.s
     ${DATA_DIR}/photo_goblin_stronghold_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
+    ${DATA_DIR}/tilesheet_world_map_framebuffer.s
     ${DATA_DIR}/overlay_large_numeral.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
@@ -763,6 +764,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_world_map_backdrop 2 2 NO YES)
+    add_tilesheet(tilesheet_world_map_framebuffer 2 2 NO YES)
     add_tilesheet(skyland_title_5 0 0 YES YES)
     add_tilesheet(skyland_title_4 0 0 YES YES)
     add_tilesheet(skyland_title_3 0 0 YES YES)

@@ -68,6 +68,10 @@ public:
     static void reset_nav_path();
 
 
+    using WorldGraphIndex = u8;
+    using NavBuffer = Buffer<WorldGraphIndex, 10>;
+
+
 private:
     void show_map(WorldGraph& map, int storm_depth);
 
@@ -119,8 +123,6 @@ private:
     Buffer<Vec2<s8>, 10> movement_targets_;
     Buffer<Vec2<s8>, 10> dead_nodes_;
 
-    using WorldGraphIndex = u8;
-    using NavBuffer = Buffer<WorldGraphIndex, 10>;
     NavBuffer navigation_buffer_;
     static NavBuffer navigation_path_;
 
