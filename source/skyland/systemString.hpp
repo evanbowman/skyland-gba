@@ -675,6 +675,7 @@ enum class SystemString {
     hint_gamespeed,
     hint_infirmary,
     hint_navigation,
+    hint_nav_plot,
     hint_doors,
     hint_repair,
     hint_hotkeys,

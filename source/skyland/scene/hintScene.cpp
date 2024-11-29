@@ -55,6 +55,7 @@ struct HintInfo
 
 static const std::array<HintInfo, 12> hints = {
     {{"<none>", SystemString::hint_boss},
+     {"<none>", SystemString::hint_nav_plot},
      {"<none>", SystemString::hint_gamespeed},
      {"hint_infirmary", SystemString::hint_infirmary},
      {"<none>", SystemString::hint_navigation},
