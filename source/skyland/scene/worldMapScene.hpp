@@ -69,7 +69,7 @@ public:
 
 
     using WorldGraphIndex = u8;
-    using NavBuffer = Buffer<WorldGraphIndex, 10>;
+    using NavBuffer = Buffer<WorldGraphIndex, 16>;
 
 
 private:
