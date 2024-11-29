@@ -614,7 +614,9 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
         int error = dx + dy;
 
         while (true) {
-            plot_pixel(x0, y0, color);
+            plot_pixel(x0, y0, color + 1);
+            color++;
+            color %= 8;
             if (x0 == x1 && y0 == y1)
                 break;
             int e2 = 2 * error;
@@ -643,7 +645,11 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
         int cx2 = c2.x * 8 - 4;
         int cy1 = c1.y * 8 - 4;
         int cy2 = c2.y * 8 - 4;
-        plot_line(cx1, cy1, cx2, cy2, 1);
+        plot_line(cx1, cy1, cx2, cy2, 0);
+        plot_line(cx1 - 1, cy1, cx2 - 1, cy2, 0);
+        plot_line(cx1 + 1, cy1, cx2 + 1, cy2, 0);
+        plot_line(cx1, cy1 - 1, cx2, cy2 - 1, 0);
+        plot_line(cx1, cy1 + 1, cx2, cy2 + 1, 0);
         ++it;
         ++prev;
     }
@@ -1713,6 +1719,11 @@ void WorldMapScene::display()
 
     Sprite cursor;
     cursor.set_priority(0);
+
+    if (++palette_cyc_counter_ == 7) {
+        palette_cyc_counter_ = 0;
+        PLATFORM_EXTENSION(rotate_palette, Layer::map_0_ext, 1, 8);
+    }
 
     auto show_cursor = [&cursor, this](int cursor_) {
         Vec2<s8> cursor_loc = APP.world_graph().nodes_[cursor_].coord_;

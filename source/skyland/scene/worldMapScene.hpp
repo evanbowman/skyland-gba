@@ -154,6 +154,7 @@ private:
     u8 save_opt_sel_ = 0;
     u8 save_opt_len_ = 0;
     bool nav_mode_ = false;
+    u8 palette_cyc_counter_ = 0;
 
     void render_map_key();
 

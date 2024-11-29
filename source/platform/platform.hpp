@@ -939,6 +939,7 @@ public:
         void (*psg_init_square_2)(Speaker::ChannelSettings s);
         void (*psg_init_wave)(Speaker::ChannelSettings s);
         void (*psg_init_noise)(Speaker::ChannelSettings s);
+        void (*rotate_palette)(Layer l, u8 range_start, u8 range_end);
 
         bool (*__test_compare_sound)(const char* sound_name);
     };

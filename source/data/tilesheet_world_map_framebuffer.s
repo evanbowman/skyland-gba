@@ -9,7 +9,7 @@
 @	+ 4 tiles Metatiled by 2x2 lz77 compressed
 @	Total size: 32 + 24 = 56
 @
-@	Time-stamp: 2024-11-29, 15:36:54
+@	Time-stamp: 2024-11-29, 18:52:30
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -27,7 +27,7 @@ tilesheet_world_map_framebufferTiles:
 	.global tilesheet_world_map_framebufferPal		@ 32 unsigned chars
 	.hidden tilesheet_world_map_framebufferPal
 tilesheet_world_map_framebufferPal:
-	.hword 0x0000,0x5FE9,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
-	.hword 0x0421,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421
+	.hword 0x0000,0x7BEC,0x73CB,0x6BAA,0x5F69,0x5748,0x5F69,0x6BAA
+	.hword 0x73CB,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421,0x0421
 
 @}}BLOCK(tilesheet_world_map_framebuffer)
