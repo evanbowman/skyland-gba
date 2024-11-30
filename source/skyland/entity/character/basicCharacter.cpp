@@ -246,6 +246,10 @@ void BasicCharacter::rewind(Time delta)
     }
     radiation_counter_ = 0;
 
+    if (sprite_.get_mix().color_ == ColorConstant::electric_blue) {
+        sprite_.set_mix({});
+    }
+
     sprite_.set_position(o);
 
     sprite_.set_texture_index(base_frame(this) + 5);
