@@ -1034,7 +1034,8 @@ ScenePtr WorldMapScene::update(Time delta)
                         ++APP.world_graph().storm_depth_;
                         show_map(APP.world_graph(), 0);
                         PLATFORM_EXTENSION(force_vsync);
-                        draw_stormcloud_background(APP.world_graph().storm_depth_);
+                        draw_stormcloud_background(APP.world_graph().storm_depth_,
+                                                   false);
                         auto node = APP.world_graph().nodes_[cursor_];
                         if (node.type_ == WorldGraph::Node::Type::corrupted) {
                             PLATFORM.speaker().play_sound("beep_error", 4);
