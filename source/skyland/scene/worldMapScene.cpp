@@ -585,8 +585,8 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
         u8 data_[16][16];
     };
 
-    static const int fb_tile_width = 11;
-    static const int fb_tile_height = 6;
+    static const int fb_tile_width = 12;
+    static const int fb_tile_height = 7;
     static const int fb_px_width = fb_tile_width * 16;
     static const int fb_px_height = fb_tile_height * 16;
 
@@ -641,10 +641,19 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
     for (; it not_eq nav.end();) {
         auto c1 = APP.world_graph().nodes_[*prev].coord_;
         auto c2 = APP.world_graph().nodes_[*it].coord_;
-        int cx1 = c1.x * 8 - 4;
-        int cx2 = c2.x * 8 - 4;
-        int cy1 = c1.y * 8 - 4;
-        int cy2 = c2.y * 8 - 4;
+        // NOTE: Everything is shifted leftwards by eight pixels, and then 4
+        // pixels are added to center the line under the map markers. The
+        // framebuffer is also shifted upwards by one 16x16 tile, then we add 12
+        // to shift the y coordinate down by one 8x8px tile + the centering
+        // margin. It's all a bit complicated... I'm trying to prevent the lines
+        // from being cropped off the edge of the framebuffer, but there's not
+        // enough graphics memory to make the framebuffer the same size as the
+        // screen, so there's going to be some weird offset calculations no
+        // matter what I do.
+        int cx1 = c1.x * 8 + 12;
+        int cx2 = c2.x * 8 + 12;
+        int cy1 = c1.y * 8 + 12;
+        int cy2 = c2.y * 8 + 12;
         plot_line(cx1, cy1, cx2, cy2, 0);
         plot_line(cx1 - 1, cy1, cx2 - 1, cy2, 0);
         plot_line(cx1 + 1, cy1, cx2 + 1, cy2, 0);
@@ -661,7 +670,7 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
     int tile = 1;
     for (int y = 0; y < fb_tile_height; ++y) {
         for (int x = 0; x < fb_tile_width; ++x) {
-            PLATFORM.set_tile(Layer::map_0_ext, 3 + x, 2 + y, tile++);
+            PLATFORM.set_tile(Layer::map_0_ext, 2 + x, 1 + y, tile++);
         }
     }
 }
