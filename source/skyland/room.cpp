@@ -137,6 +137,12 @@ void Room::reset_injured_timer(Time value)
 
 
 
+void Room::on_level_start()
+{
+}
+
+
+
 void Room::set_injured()
 {
     for (int x = 0; x < size().x; ++x) {

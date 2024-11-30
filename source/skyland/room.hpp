@@ -345,6 +345,9 @@ public:
     }
 
 
+    virtual void on_level_start();
+
+
     virtual void project_deflector_shield();
 
 

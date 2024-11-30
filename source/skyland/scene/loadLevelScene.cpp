@@ -127,6 +127,7 @@ void prep_level()
 
     for (auto& room : APP.player_island().rooms()) {
         room->update_description();
+        room->on_level_start();
     }
 
     // Bugfix: in case an island is destroyed by a projectile after processing a

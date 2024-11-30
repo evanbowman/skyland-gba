@@ -76,9 +76,15 @@ static const Time burst_interval = milliseconds(200);
 
 void Decimator::unset_target()
 {
-    // reload_ = 1000 * decimator_reload_ms;
-    // counter_ = 0;
-    // firing_ = false;
+}
+
+
+
+void Decimator::on_level_start()
+{
+    reload_ = 1000 * decimator_reload_ms;
+    firing_ = false;
+    counter_ = 0;
 }
 
 

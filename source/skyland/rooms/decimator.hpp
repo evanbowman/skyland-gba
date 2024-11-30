@@ -75,6 +75,9 @@ public:
     void unset_target() override;
 
 
+    void on_level_start() override;
+
+
     void ___rewind___finished_reload() override;
 
     void ___rewind___ability_used() override;
