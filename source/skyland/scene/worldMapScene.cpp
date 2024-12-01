@@ -2121,6 +2121,7 @@ void WorldMapScene::exit(Scene& next_scene)
     edit_icon_.reset();
     heading_.reset();
     warning_.reset();
+    map_key_.reset();
 
     PLATFORM.load_overlay_texture("overlay");
 
