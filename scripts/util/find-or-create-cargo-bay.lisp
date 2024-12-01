@@ -4,8 +4,7 @@
     (if bays
         (let ((bay (sample bays)))
           (callback (car bay) (cdr bay)))
-        (let ((cb callback)
-              (rsym room-sym))
+        (let ((cb callback))
           (alloc-space 'cargo-bay)
           (sel-input 'cargo-bay
                      "Place cargo-bay:"
