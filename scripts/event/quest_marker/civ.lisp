@@ -91,16 +91,18 @@
                   (effect "lightning" 0 0)
                   (opponent-reset)
                   (wg-storm-frontier-set (max (list (- (wg-storm-frontier) 3) 1)))
-                  (let ((sites (construction-sites (player) '(1 . 1))))
-                    (if sites
-                        (room-new (player) `(amplifier ,(caar sites) ,(cdar sites)))))
 
                   (on-timeout 1000 'fut)
 
                   (defn fut ()
-                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island...")
+                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island... <B:0> Where do you want to place it?")
                     (unbind 'fut)
-                    (setq on-dialog-closed exit))))))))
+                    (defn on-dialog-closed ()
+                      (run-util-script "place-new-block"
+                                       'amplifier
+                                       "Place amplifier:"
+                                       (lambda (x y)
+                                         (exit)))))))))))
 
     (defn on-converge ()
       (dialog "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about...")
