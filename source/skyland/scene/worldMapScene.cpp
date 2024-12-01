@@ -1713,6 +1713,13 @@ WorldMapScene::NavBuffer WorldMapScene::navigation_path_;
 
 
 
+WorldMapScene::NavBuffer& WorldMapScene::nav_path()
+{
+    return navigation_path_;
+}
+
+
+
 void WorldMapScene::reset_nav_path()
 {
     navigation_path_.clear();

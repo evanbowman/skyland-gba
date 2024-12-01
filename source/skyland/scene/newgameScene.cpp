@@ -173,12 +173,17 @@ ScenePtr NewgameScene::update(Time delta)
 
     DeferredScene next([] {
         auto ret = make_scene<AdventureLogScene>();
-        ret->set_next_scene([] { return make_scene<ZoneImageScene>(); });
+        ret->set_next_scene([] {
+            auto scn = make_scene<ZoneImageScene>();
+            scn->reset_nav_path_ = false;
+            return scn;
+        });
         return ret;
     });
 
     if (not loaded_) {
         next = [] {
+            WorldMapScene::reset_nav_path();
             auto ret = make_scene<AdventureModeSettingsScene>(true);
             return ret;
         };
@@ -200,7 +205,6 @@ ScenePtr NewgameScene::update(Time delta)
         return ret;
 
     } else {
-        WorldMapScene::reset_nav_path();
         return next();
     }
 }

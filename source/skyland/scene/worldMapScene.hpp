@@ -72,6 +72,9 @@ public:
     using NavBuffer = Buffer<WorldGraphIndex, 16>;
 
 
+    static NavBuffer& nav_path();
+
+
 private:
     void show_map(WorldGraph& map, int storm_depth);
 

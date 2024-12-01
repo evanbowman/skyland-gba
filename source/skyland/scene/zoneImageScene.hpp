@@ -55,6 +55,9 @@ public:
     ScenePtr update(Time delta) override;
 
 
+    bool reset_nav_path_ = true;
+
+
 private:
     Time timer_ = 0;
 

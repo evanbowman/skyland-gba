@@ -67,6 +67,7 @@
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
+#include "skyland/scene/worldMapScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
@@ -2146,6 +2147,28 @@ BINDING_TABLE({
           }
 
           return path_list.result();
+      }}},
+    {"wg-nav-path",
+     {0,
+      [](int argc) {
+          lisp::ListBuilder list;
+          for (auto i : WorldMapScene::nav_path()) {
+              list.push_back(L_INT(i));
+          }
+          return list.result();
+      }}},
+    {"wg-nav-path-set",
+     {1,
+      [](int argc) {
+          auto list = lisp::get_op0();
+          if (not lisp::is_list(list)) {
+              return lisp::make_error("invalid input");
+          }
+          WorldMapScene::nav_path().clear();
+          lisp::l_foreach(list, [](lisp::Value* v) {
+              WorldMapScene::nav_path().push_back(v->integer().value_);
+          });
+          return L_NIL;
       }}},
     {"wg-current-type",
      {0,

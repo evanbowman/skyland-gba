@@ -601,6 +601,34 @@ o----------------------------o
  storm.
 
 
+o----------------------------o
+
+ (wg-nav-path)
+
+ Return the current navigation
+ path drawn by the player.
+
+ NOTE: This function returns
+ a list of indices into the
+ (wg-nodes) list, not a list
+ of coordinate pairs.
+
+
+o----------------------------o
+
+ (wg-nav-path-set path-list)
+
+ Set the navigation path.
+
+ path-list should be of a
+ similar format described int
+ the documentation of
+ (wg-nav-path)
+
+ path-list should not exceed
+ 16 entries.
+
+
 
 ##############################
 

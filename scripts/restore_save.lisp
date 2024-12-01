@@ -19,6 +19,8 @@
                             (load 'adventure-log)
                             '()))
 
+    (wg-nav-path-set (load 'nav))
+
     (when (> (load 'save-protocol) 2)
       (terrain-set (player) (load 'terrain))
 
