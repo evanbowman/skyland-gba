@@ -16,6 +16,7 @@
             (defn on-dialog-closed ()
               (dialog txt1)
               (defn on-dialog-closed ()
+                (setq on-dialog-closed nil)
                 (sel-input rsym
                            txt2
                            (lambda (isle x y)

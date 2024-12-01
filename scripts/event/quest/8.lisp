@@ -37,19 +37,18 @@
              (dialog "<c:king of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
              (defn on-dialog-closed ()
                (dialog "<c:warrior princess of E. Cay:28> I'm going too! Better than sitting around here doing nothing... <B:0> Don't worry, I can pull my own weight!")
-               (let ((vec (chr-slots (player)))
-                     (slot nil))
-                 (when (not vec)
-                   (alloc-space 'ladder)
-                   (let ((s (construction-sites (player) '(1 . 2))))
-                     (room-new (player) `(ladder ,(caar s) ,(cdr (car s))))
-                     (setq vec (chr-slots (player)))))
-                 (setq slot (car vec))
-                 (chr-new (player) (car slot) (cdr slot) 'neutral '((icon . 28))))
-               (setq on-dialog-closed
-                     (lambda ()
-                       (dialog "The princess joined your crew!")
-                       (setq on-dialog-closed exit)))))
+
+               (defn on-dialog-closed ()
+                 (setq on-dialog-closed nil)
+                 (run-util-script
+                  "find-crew-slot"
+                  "<c:warrior princess of E. Cay:28> Hmm... you seem to be out of space... <B:0> Let me fix that!"
+                  'ladder
+                  "Place block (1x2):"
+                  (lambda (x y _)
+                    (chr-new (player) x y 'neutral '((icon . 28)))
+                    (dialog "The princess joined your crew!")
+                    (setq on-dialog-closed exit))))))
            (progn
              (dialog "<c:king of Emsshaw Cay:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
 
