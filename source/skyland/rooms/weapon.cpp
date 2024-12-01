@@ -298,7 +298,7 @@ Time Weapon::reload() const
     Time base_time = reload_impl();
 
     if (amplify_) {
-        return base_time / 2;
+        return (base_time * 5) / 8;
     } else {
         return base_time;
     }
