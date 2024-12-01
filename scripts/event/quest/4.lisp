@@ -79,21 +79,23 @@
     (dialog-await-binary-q "ok!" "no thanks")
 
     (defn on-dialog-accepted ()
-      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
-            (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
-        (if (and m c)
+      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+        (if m
             (progn
-              (adventure-log-add 20 (list fee))
-              (push 'qids qid)
               (push 'quests (cons "ceramics.lisp" m))
-              (push 'qvar (cons qid fee))
-              (coins-set (- (coins) fee))
-              (cargo-set (player) (car c) (cdr c) "ceramic tiles")
-              (dialog "<c:merchant:7>Great, here are your tiles!")
-              (defn on-dialog-closed ()
-                (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
-                (exit)
-                (setq on-dialog-closed exit)))
+              (run-util-script
+               "find-or-create-cargo-bay"
+               (lambda (x y)
+                 (adventure-log-add 20 (list fee))
+                 (push 'qids qid)
+                 (push 'qvar (cons qid fee))
+                 (coins-set (- (coins) fee))
+                 (cargo-set (player) x y "ceramic tiles")
+                 (dialog "<c:merchant:7>Great, here are your tiles!")
+                 (defn on-dialog-closed ()
+                   (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
+                   (exit)
+                   (setq on-dialog-closed exit)))))
           (progn
             (dialog
              "<c:merchant:7>Oh, I'm so sorry! We can't actually sell you anything today.")

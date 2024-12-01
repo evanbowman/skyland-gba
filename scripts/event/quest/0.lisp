@@ -59,27 +59,20 @@
 
         (setq on-dialog-accepted
               (lambda ()
-                (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
-                      (complete (lambda (x y)
-                                  (coins-add 500)
-                                  (push 'qids 0)
-                                  (adventure-log-add 16 '())
-                                  (cargo-set (player) x y "parcel")
-                                  (dialog "<c:merchant:7>Wonderful! I'll mark the address "
-                                          "with an * on your sky chart!")
-                                  (run-util-script "pickup-cart" 5
-                                                   "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."))))
+                (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
                   (if m
-                      (let ((bays (cargo-bays (player))))
-                        (push 'quests (cons "delivery.lisp" m))
-                        (if bays
-                            (let ((bay (sample bays)))
-                              (complete (car bay) (cdr bay)))
-                            (run-util-script "place-new-block"
-                                             'cargo-bay
-                                             "Place cargo-bay:"
-                                             (lambda (x y)
-                                               (complete x y)))))
+                      (run-util-script
+                       "find-or-create-cargo-bay"
+                       (lambda (x y)
+                         (push 'quests (cons "delivery.lisp" m))
+                         (coins-add 500)
+                         (push 'qids 0)
+                         (adventure-log-add 16 '())
+                         (cargo-set (player) x y "parcel")
+                         (dialog "<c:merchant:7>Wonderful! I'll mark the address "
+                                 "with an * on your sky chart!")
+                         (run-util-script "pickup-cart" 5
+                                          "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge...")))
                       (progn
                         (dialog
                          "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
