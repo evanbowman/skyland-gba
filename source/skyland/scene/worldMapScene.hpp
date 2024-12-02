@@ -123,6 +123,8 @@ private:
 
     void redraw_icons();
 
+    void draw_border();
+
     Buffer<Vec2<s8>, 10> movement_targets_;
     Buffer<Vec2<s8>, 10> dead_nodes_;
 

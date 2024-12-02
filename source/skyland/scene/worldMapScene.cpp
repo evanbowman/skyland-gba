@@ -697,7 +697,6 @@ ScenePtr WorldMapScene::update(Time delta)
         navigation_buffer_.clear();
         nav_mode_ = false;
         APP.world_graph() = **cached_world_graph_;
-        draw_stormcloud_background(APP.world_graph().storm_depth_);
         APP.current_world_location() = cursor_;
         state_ = State::deselected;
         return make_scene<WorldMapScene>();
@@ -1338,6 +1337,7 @@ ScenePtr WorldMapScene::update(Time delta)
         **cached_world_graph_ = APP.world_graph();
         navigation_buffer_.clear();
         navigation_buffer_.push_back(cursor_);
+        draw_border();
         to_move_state();
         break;
     }
@@ -1992,22 +1992,7 @@ void WorldMapScene::enter(Scene& prev_scene)
 
     PLATFORM.enable_glyph_mode(true);
 
-    auto st = calc_screen_tiles();
-
-    for (int x = 1; x < st.x - 1; ++x) {
-        PLATFORM.set_tile(Layer::overlay, x, 0, 89);
-        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 90);
-    }
-
-    for (int y = 1; y < st.y - 1; ++y) {
-        PLATFORM.set_tile(Layer::overlay, 0, y, 91);
-        PLATFORM.set_tile(Layer::overlay, st.x - 1, y, 92);
-    }
-
-    PLATFORM.set_tile(Layer::overlay, 0, 0, 93);
-    PLATFORM.set_tile(Layer::overlay, st.x - 1, 0, 95);
-    PLATFORM.set_tile(Layer::overlay, 0, st.y - 1, 96);
-    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - 1, 94);
+    draw_border();
 
     heading_.emplace(OverlayCoord{1, 1});
 
@@ -2035,8 +2020,33 @@ void WorldMapScene::enter(Scene& prev_scene)
         }
     }
 
+    for (int x = 0; x < 5; ++x) {
+        PLATFORM.set_tile(Layer::overlay, 30 - 5 + x, 0, 179 + x);
+    }
 
     update_storm_frontier(APP.world_graph(), -1);
+}
+
+
+
+void WorldMapScene::draw_border()
+{
+    auto st = calc_screen_tiles();
+
+    for (int x = 1; x < st.x - 1; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, 0, 89);
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 90);
+    }
+
+    for (int y = 1; y < st.y - 1; ++y) {
+        PLATFORM.set_tile(Layer::overlay, 0, y, 91);
+        PLATFORM.set_tile(Layer::overlay, st.x - 1, y, 92);
+    }
+
+    PLATFORM.set_tile(Layer::overlay, 0, 0, 93);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, 0, 95);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 1, 96);
+    PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - 1, 94);
 }
 
 
