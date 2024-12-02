@@ -73,36 +73,28 @@
   (dialog-await-binary-q "of course!" "I'm kind of busy…")
 
   (defn on-dialog-accepted ()
-    (let ((sl (chr-slots (player))))
-      (when (not sl)
-        (alloc-space 'ladder)
+    (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+      (when m
+        (push 'qids 5)
+        (adventure-log-add 52 '())
+        (push 'quests (cons "traveller.lisp" m)))
 
-        (let ((site (construction-sites (player) '(1 . 2))))
-          (sound "build0")
-          (room-new (player) (list 'ladder (caar site) (cdr (car site))))))
+      (run-util-script
+       "find-crew-slot"
+       "<c:traveller:23> Oh! It looks like you're out of room! Let me fix that..."
+       'ladder
+       "Place block (1x2):"
+       (lambda (x y _)
+         (let ((id (chr-new (player) x y 'neutral '((icon . 23)))))
+           (push 'qvar (cons 5 id)))
 
-      (setq sl (chr-slots (player)))
-      (let ((id (chr-new (player)
-                         (caar sl)
-                         (cdr (car sl))
-                         'neutral
-                         '((icon . 23)))))
+         (dialog (if m
+                     "<c:traveller:23> Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *..."
+                     "<c:traveller:23> Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here..."))
+         (defn on-dialog-closed ()
+           (dialog "The mysterious traveller joined your crew!")
+           (setq on-dialog-closed exit))))))
 
-        (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-          (if m
-              (progn
-                (push 'qids 5)
-                (adventure-log-add 52 '())
-                (push 'quests (cons "traveller.lisp" m))
-                (dialog "<c:traveller:23> Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *...")
-                (defn on-dialog-closed ()
-                  (dialog "The mysterious traveller joined your crew!")
-                  (setq on-dialog-closed exit)))
-            (progn
-              (dialog "<c:traveller:23> Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here...")
-              (defn on-dialog-closed ()
-                (dialog "The mysterious traveller joined your crew!")
-                (setq on-dialog-closed exit))))))))
 
   (defn on-dialog-declined ()
     (exit)))

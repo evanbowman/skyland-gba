@@ -11,12 +11,12 @@
   (setq on-fadein nil))
 
 
-(let ((id nil))
-  (map (lambda (chr)
-         (let ((icon (lookup 'icon (cddr chr))))
-           (if (equal icon 23)
-               (setq id (lookup 'id (cddr chr))))))
-       (chrs (player)))
+(let ((traveller-id (lookup 5 qvar))
+      (id nil))
+  (foreach (lambda (chr)
+             (if (equal traveller-id (lookup 'id (cddr chr)))
+                 (setq id (lookup 'id (cddr chr)))))
+           (chrs (player)))
 
   (defn on-converge ()
     (setq on-converge nil)
