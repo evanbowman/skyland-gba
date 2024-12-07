@@ -4,13 +4,15 @@
 
 (defn on-dialog-closed ()
   (setq on-dialog-closed '())
-  (let ((c (int (* 0.72 (float (coins-victory))))))
+  (let ((c (int (* 0.72 (float (coins-victory)))))
+        (score-bonus (int (* 0.25 (float (coins-victory))))))
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
     (dialog-opts-push (format "+1 crew, +%@" c)
                       (lambda ()
                         (coins-add c)
+                        (score-add score-bonus)
                         (run-util-script
                          "find-crew-slot"
                          "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce hoomansses will not leave us! I'll build an ledarr!"
@@ -23,9 +25,9 @@
                            (run-util-script "hostile-pickup-cart"
                                             8
                                             "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge...")
-               
+
                           (exit 2)))))
-  (let ((cnt 0) 
+  (let ((cnt 0)
           (tot (/ (length (rooms (opponent))) 5)))
       (setq cnt tot)
       (when cnt
