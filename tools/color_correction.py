@@ -1,3 +1,5 @@
+# The code in this individual file is public domain.
+
 import numpy as np
 
 # NOTE: I wrote this based on Higan's color correction GLSL shader.
