@@ -1000,6 +1000,21 @@ o----------------------------o
 
 o----------------------------o
 
+ (score)
+
+ Return the current score.
+
+
+o----------------------------o
+
+ (score-add integer)
+
+ Increase the player's
+ score.
+
+
+o----------------------------o
+
  (sel-move island x y)
 
  Move the cursor to island:

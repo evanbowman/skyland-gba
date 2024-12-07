@@ -257,6 +257,18 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"score",
+     {0,
+      [](int argc) {
+          return L_INT(APP.score().get());
+      }}},
+    {"score-add",
+     {1,
+      [](int argc) {
+          L_EXPECT_OP(0, integer);
+          APP.score().set(APP.score().get() + L_LOAD_INT(0));
+          return L_INT(APP.score().get());
+      }}},
     {"groups",
      {0,
       [](int argc) {
