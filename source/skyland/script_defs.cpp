@@ -1694,6 +1694,12 @@ BINDING_TABLE({
               if (chr) {
                   id = chr->id();
 
+                  if (not icon) {
+                      static const int count = 3;
+                      static const int goblin_icons[count] = {2, 32, 33};
+                      int selection = rng::choice(count, rng::utility_state);
+                      icon = goblin_icons[selection];
+                  }
                   chr->set_icon(icon);
 
                   island->add_character(std::move(chr));
