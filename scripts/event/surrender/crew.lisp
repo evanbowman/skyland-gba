@@ -19,7 +19,12 @@
                          'ladder
                          "Place block (1x2):"
                          (lambda (x y _)
-                           (chr-new (player) x y 'neutral '((race . 1) (icon . 18)))
+                           (chr-new (player)
+                                    x
+                                    y
+                                    'neutral
+                                    (list (cons 'race 1)
+                                          (cons 'icon (sample '(18 35 36 37)))))
                            (adventure-log-add 51 '())
                            (dialog "One of the goblins joined your crew!")
                            (run-util-script "hostile-pickup-cart"
