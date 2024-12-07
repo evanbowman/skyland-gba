@@ -39,3 +39,6 @@ lisp_symtab.dat
 build/SkylandEngine
 # specialized build.sh file should not be commited
 build/#build.sh
+source/platform/gba/images.cpp
+source/platform/nds/images.cpp
+source/platform/desktop/images.cpp
