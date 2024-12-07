@@ -1695,8 +1695,8 @@ BINDING_TABLE({
                   id = chr->id();
 
                   if (not icon) {
-                      static const int count = 3;
-                      static const int goblin_icons[count] = {2, 32, 33};
+                      static const int count = 4;
+                      static const int goblin_icons[count] = {2, 32, 33, 34};
                       int selection = rng::choice(count, rng::utility_state);
                       icon = goblin_icons[selection];
                   }
