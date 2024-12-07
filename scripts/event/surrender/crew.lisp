@@ -11,34 +11,21 @@
     (dialog-opts-push (format "+1 crew, +%@" c)
                       (lambda ()
                         (coins-add c)
-                        (let ((g (chrs (opponent)))
-                              (ss (chr-slots (player))))
-
-                          (unless ss
-                            (alloc-space 'ladder)
-
-                            (let ((s (construction-sites (player) '(1 . 2))))
-                              (room-new (player) (list 'ladder (caar s) (cdr (car s))))
-                              (setq ss (chr-slots (player)))))
-
-                          (if g
-                              (let ((s (get ss (choice (length ss)))))
-                                (chr-del (opponent)
-                                         (caar g)
-                                         (cdr (car g)))
-                                (chr-new (player)
-                                         (car s)
-                                         (cdr s)
-                                         'neutral
-                                         '((race . 1) (icon . 18)))
-                                (adventure-log-add 51 '())
-                                (dialog "One of the goblins joined your crew!")
-                                (run-util-script "hostile-pickup-cart"
-                                                 8
-                                                 "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."))))
-                        (exit 2)))
-
-    (let ((cnt 0)
+                        (run-util-script
+                         "find-crew-slot"
+                         "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce hoomansses will not leave us! I'll build an ledarr!"
+                         'ladder
+                         "Place block (1x2):"
+                         (lambda (x y _)
+                           (chr-new (player) x y 'neutral '((race . 1) (icon . 18)))
+                           (adventure-log-add 51 '())
+                           (dialog "One of the goblins joined your crew!")
+                           (run-util-script "hostile-pickup-cart"
+                                            8
+                                            "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge...")
+               
+                          (exit 2)))))
+  (let ((cnt 0) 
           (tot (/ (length (rooms (opponent))) 5)))
       (setq cnt tot)
       (when cnt
