@@ -9,7 +9,7 @@
 
 (terrain-set (opponent) -3)
 
-(chr-new (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 1 14 'neutral '((icon . 22)))
 
 
 (defn on-converge ()
