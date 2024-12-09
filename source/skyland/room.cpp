@@ -633,6 +633,11 @@ ScenePtr Room::do_select()
 
         const bool is_co_op = APP.game_mode() == App::GameMode::co_op;
 
+        if (not near and APP.opponent().is_friendly()) {
+            PLATFORM.speaker().play_sound("beep_error", 2);
+            return null_scene();
+        }
+
         auto try_move = [&](auto cond) -> ScenePtr {
             for (auto& character : characters_) {
                 if (character->grid_position() == cursor_loc) {
