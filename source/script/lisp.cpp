@@ -5174,6 +5174,41 @@ BUILTIN_TABLE(
        [](int argc) {
            return bound_context->callstack_->cons().cdr()->cons().car();
        }}},
+     {"sort",
+      {2,
+       [](int argc) {
+           L_EXPECT_OP(0, function);
+           L_EXPECT_OP(1, cons);
+
+           auto comp = get_op0();
+           if (not is_list(get_op1())) {
+               return make_error("sort parameter must be list!");
+           }
+
+           using TempBuffer = Buffer<Value*, 509>;
+           auto buf = allocate_dynamic_fast<TempBuffer>("sort-buffer");
+
+           l_foreach(get_op1(), [&buf](Value* v) {
+               buf->push_back(v);
+           });
+
+           std::sort(buf->begin(), buf->end(),
+                     [comp](Value* lhs, Value* rhs) {
+                         push_op(lhs);
+                         push_op(rhs);
+                         funcall(comp, 2);
+                         auto result = get_op0();
+                         pop_op(); // result
+                         return is_boolean_true(result);
+                     });
+
+           ListBuilder result;
+           for (Value* v : *buf) {
+               result.push_back(v);
+           }
+
+           return result.result();
+       }}},
      {"env",
       {0,
        [](int argc) {

@@ -104,23 +104,6 @@
     (set sym (union tmp tmp))))
 
 
-(defn/c merge (l1 l2 comp)
-  (cond
-   ((not l1) l2)
-   ((not l2) l1)
-   ((comp (car l1) (car l2))
-    (cons (car l1) ((this) (cdr l1) l2 comp)))
-   (true (cons (car l2) ((this) l1 (cdr l2) comp)))))
-
-
-(defn/c sort (lat comp)
-  (if (not (cdr lat))
-      lat
-    (let ((len (length lat)))
-      (merge ((this) (slice lat 0 (/ len 2)) comp)
-             ((this) (slice lat (/ len 2)) comp)
-             comp))))
-
 ;; While suboptimal, these functions have the benefit of being small.
 (defn/c min (lat) (car (sort lat <)))
 (defn/c max (lat) (car (sort lat >)))
