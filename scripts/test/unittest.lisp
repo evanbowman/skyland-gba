@@ -207,6 +207,7 @@
 (begin-test "misc")
 
 (assert-eq (range 0 20) (sort (reverse (range 0 20)) <))
+(assert-eq (reverse (range 0 20)) (sort (range 0 20) >))
 (setq temp 99)
 (assert-eq temp 99)
 (unbind 'temp)
