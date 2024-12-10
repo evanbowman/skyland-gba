@@ -44,6 +44,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   (let ((c (choice 6))
         (end (lambda ()
                (run-util-script "pickup-cart" 4
