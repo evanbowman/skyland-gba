@@ -5792,7 +5792,8 @@ const char* intern(const char* string)
     if (ctx->external_symtab_contents_) {
         const char* search = ctx->external_symtab_contents_;
         for (u32 i = 0; i < ctx->external_symtab_size_;) {
-            if (str_eq(search + i, string)) {
+            if (string[len - 1] == (search + i)[len - 1] and
+                str_eq(search + i, string)) {
                 return search + i;
             } else {
                 i += 32;
