@@ -3749,6 +3749,29 @@ Value* stacktrace()
 }
 
 
+
+bool comp_less_than(Value* lhs, Value* rhs)
+{
+    if (lhs->type() == Value::Type::fp) {
+        return lhs->fp().value_ < rhs->fp().value_;
+    }
+    return lhs->integer().value_ < rhs->integer().value_;
+}
+
+
+
+Value* l_comp_less_than(int argc)
+{
+    if (get_op0()->type() == Value::Type::fp) {
+        L_EXPECT_OP(1, fp);
+        return make_integer(comp_less_than(get_op1(), get_op0()));
+    }
+    L_EXPECT_OP(0, integer);
+    L_EXPECT_OP(1, integer);
+    return make_integer(comp_less_than(get_op1(), get_op0()));
+}
+
+
 #if defined(__GBA__) or defined(__APPLE__)
 #define BUILTIN_TABLE                                                          \
     MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =                        \
@@ -4375,17 +4398,7 @@ BUILTIN_TABLE(
        }}},
      {"<",
       {2,
-       [](int argc) {
-           if (get_op0()->type() == Value::Type::fp) {
-               L_EXPECT_OP(1, fp);
-               return make_integer(get_op1()->fp().value_ <
-                                   get_op0()->fp().value_);
-           }
-           L_EXPECT_OP(0, integer);
-           L_EXPECT_OP(1, integer);
-           return make_integer(get_op1()->integer().value_ <
-                               get_op0()->integer().value_);
-       }}},
+       l_comp_less_than}},
      {">",
       {2,
        [](int argc) {
@@ -5181,6 +5194,21 @@ BUILTIN_TABLE(
            L_EXPECT_OP(1, cons);
 
            auto comp = get_op0();
+
+           auto compare = [comp](Value* lhs, Value* rhs) {
+               if (comp->hdr_.mode_bits_ == Function::ModeBits::cpp_function and
+                   comp->function().cpp_impl_ == l_comp_less_than) {
+                   return comp_less_than(lhs, rhs);
+               } else {
+                   push_op(lhs);
+                   push_op(rhs);
+                   funcall(comp, 2);
+                   auto result = get_op0();
+                   pop_op(); // result
+                   return is_boolean_true(result);
+               }
+           };
+
            if (not is_list(get_op1())) {
                return make_error("sort parameter must be list!");
            }
@@ -5192,15 +5220,7 @@ BUILTIN_TABLE(
                buf->push_back(v);
            });
 
-           std::sort(buf->begin(), buf->end(),
-                     [comp](Value* lhs, Value* rhs) {
-                         push_op(lhs);
-                         push_op(rhs);
-                         funcall(comp, 2);
-                         auto result = get_op0();
-                         pop_op(); // result
-                         return is_boolean_true(result);
-                     });
+           std::sort(buf->begin(), buf->end(), compare);
 
            ListBuilder result;
            for (Value* v : *buf) {
