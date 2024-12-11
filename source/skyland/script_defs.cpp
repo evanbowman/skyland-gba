@@ -49,6 +49,7 @@
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
+#include "scene/newgameScene.hpp"
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
@@ -2457,6 +2458,13 @@ BINDING_TABLE({
 
           flash_filesystem::copy_file("/crash/adventure.lisp",
                                       "/save/adventure.lisp");
+
+          PLATFORM.fill_overlay(0);
+          PLATFORM.speaker().clear_sounds();
+          PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+
+          push_menu_queue.push_back(make_deferred_scene<NewgameScene>());
+
           return L_NIL;
       }}},
     {"is-developer-mode",
