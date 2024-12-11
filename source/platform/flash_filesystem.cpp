@@ -1082,6 +1082,30 @@ u32 read_file_data(const char* path, Vector<char>& output)
 
 
 
+bool copy_file(const char* from_path, const char* to_path)
+{
+    Vector<char> contents;
+    if (read_file_data(from_path, contents)) {
+        return store_file_data(to_path, contents);
+    }
+
+    return false;
+}
+
+
+
+bool move_file(const char* from_path, const char* to_path)
+{
+    if (copy_file(from_path, to_path)) {
+        unlink_file(from_path);
+        return true;
+    }
+
+    return false;
+}
+
+
+
 } // namespace flash_filesystem
 
 

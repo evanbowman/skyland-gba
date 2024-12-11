@@ -2453,6 +2453,12 @@ BINDING_TABLE({
 
           return L_INT(prev);
       }}},
+    {"recover-crash",
+     {0, [](int argc) {
+         flash_filesystem::copy_file("/crash/adventure.dat", "/save/adventure.dat");
+         flash_filesystem::copy_file("/crash/adventure.lisp", "/save/adventure.lisp");
+         return L_NIL;
+     }}},
     {"is-developer-mode",
      {0, [](int argc) { return lisp::make_boolean(APP.is_developer_mode()); }}},
     {"is-regression-mode",

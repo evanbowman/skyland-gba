@@ -172,6 +172,12 @@ App::App(bool clean_boot)
         if (is_developer_mode()) {
             PLATFORM.logger().flush();
         }
+        // After a crash, someone might keep playing the game, and if I ask for
+        // their save file, information useful for reproducing the crash might
+        // already be gone. So copy the player's progress at the time of the
+        // crash to a crash directory, so that I can investigate it more easily.
+        flash_filesystem::copy_file("/save/adventure.dat", "/crash/adventure.dat");
+        flash_filesystem::copy_file("/save/adventure.lisp", "/crash/adventure.lisp");
     });
 
     // If the platform runs out of scratch buffers, try to do anything that we

@@ -256,6 +256,11 @@ int file_revisions(const char* path);
 
 
 
+bool copy_file(const char* from_path, const char* to_path);
+bool move_file(const char* from_path, const char* to_path);
+
+
+
 void destroy();
 
 
