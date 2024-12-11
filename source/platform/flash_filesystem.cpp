@@ -352,6 +352,39 @@ static u32 disk_capacity = 0;
 static u32 start_offset = 0;
 static u32 end_offset = 0;
 static u32 gap_space = 0;
+static bool fs_lock = false;
+
+
+
+struct AutoreleaseLock
+{
+    bool has_lock_ = false;
+
+
+    AutoreleaseLock() = default;
+
+
+    AutoreleaseLock(const AutoreleaseLock&) = delete;
+
+
+    bool acquire()
+    {
+        if (fs_lock) {
+            return false;
+        }
+        fs_lock = true;
+        has_lock_ = true;
+        return true;
+    }
+
+
+    ~AutoreleaseLock()
+    {
+        if (has_lock_) {
+            fs_lock = false;
+        }
+    }
+};
 
 
 
@@ -697,6 +730,11 @@ bool file_exists(const char* path)
 
 void unlink_file(const char* path)
 {
+    AutoreleaseLock guard;
+    if (not guard.acquire()) {
+        return;
+    }
+
     if (not __path_cache_file_exists_maybe(path)) {
         return;
     }
@@ -949,6 +987,11 @@ bool store_file_data(const char* path,
     }
 
     unlink_file(path);
+
+    AutoreleaseLock guard;
+    if (not guard.acquire()) {
+        return false;
+    }
 
     u8 crc8 = 0;
     for (char c : input) {
