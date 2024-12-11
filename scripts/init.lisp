@@ -144,6 +144,6 @@
 
 ;; This function simply sets current-level, which is used for crash reporting,
 ;; before evaluating the desired script.
-(defn/c begin-level (path)
+(defn/c load-level (path)
   (setq current-level path)
   (eval-file path))

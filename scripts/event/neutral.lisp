@@ -21,7 +21,7 @@
     (let ((lv (sample lvs)))
       (setq friendlies-seen (cons lv friendlies-seen))
 
-      (begin-level
+      (load-level
        ;"scripts/event/neutral/2/6_1.lisp"
        (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))

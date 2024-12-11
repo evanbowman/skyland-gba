@@ -1,2 +1,2 @@
 
-(begin-level "/scripts/event/neutral/0/3.lisp")
+(load-level "/scripts/event/neutral/0/3.lisp")
