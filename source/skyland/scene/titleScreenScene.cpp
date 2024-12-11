@@ -40,7 +40,6 @@
 #include "modules/fileBrowserModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "multiplayerConnectScene.hpp"
-#include "startAdventureScene.hpp"
 #include "platform/color.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
@@ -55,6 +54,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
+#include "startAdventureScene.hpp"
 #include "zoneImageScene.hpp"
 
 

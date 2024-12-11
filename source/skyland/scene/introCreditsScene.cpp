@@ -33,11 +33,11 @@
 
 
 #include "introCreditsScene.hpp"
-#include "startAdventureScene.hpp"
 #include "number/random.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
+#include "startAdventureScene.hpp"
 #include "titleScreenScene.hpp"
 #include "version.hpp"
 
