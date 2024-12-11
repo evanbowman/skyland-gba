@@ -664,7 +664,8 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
     }
 
     for (u32 i = 0; i < framebuffer.size(); ++i) {
-        PLATFORM.overwrite_t0_tile(i + 1, PLATFORM.encode_tile(framebuffer[i].data_));
+        PLATFORM.overwrite_t0_tile(i + 1,
+                                   PLATFORM.encode_tile(framebuffer[i].data_));
     }
 
     int tile = 1;
@@ -738,7 +739,8 @@ ScenePtr WorldMapScene::update(Time delta)
 
         if (not nav_mode_ and not navigation_path_.empty()) {
             for (u32 i = 0; i < movement_targets_.size(); ++i) {
-                if (movement_targets_[i] == APP.world_graph().nodes_[navigation_path_[0]].coord_) {
+                if (movement_targets_[i] ==
+                    APP.world_graph().nodes_[navigation_path_[0]].coord_) {
                     movement_cursor_ = i;
                 }
             }
@@ -1034,16 +1036,17 @@ ScenePtr WorldMapScene::update(Time delta)
                         }
                         APP.world_graph().nodes_[cursor_].type_ =
                             WorldGraph::Node::Type::visited;
-                        Text::print(stringify(navigation_buffer_.size()).c_str(),
-                                    OverlayCoord{u8(node.coord_.x + 5),
-                                                 u8(node.coord_.y + 3 + 1)});
+                        Text::print(
+                            stringify(navigation_buffer_.size()).c_str(),
+                            OverlayCoord{u8(node.coord_.x + 5),
+                                         u8(node.coord_.y + 3 + 1)});
                         APP.current_world_location() = cursor_;
                         update_storm_frontier(APP.world_graph(), 0);
                         ++APP.world_graph().storm_depth_;
                         show_map(APP.world_graph(), 0);
                         PLATFORM_EXTENSION(force_vsync);
-                        draw_stormcloud_background(APP.world_graph().storm_depth_,
-                                                   false);
+                        draw_stormcloud_background(
+                            APP.world_graph().storm_depth_, false);
                         auto node = APP.world_graph().nodes_[cursor_];
                         if (node.type_ == WorldGraph::Node::Type::corrupted) {
                             PLATFORM.speaker().play_sound("beep_error", 4);
@@ -1333,7 +1336,8 @@ ScenePtr WorldMapScene::update(Time delta)
         nav_mode_ = true;
         heading_->assign(SYSTR(wg_nav)->c_str());
         cached_cursor_ = cursor_;
-        cached_world_graph_ = allocate_dynamic<WorldGraph>("cached-world-graph");
+        cached_world_graph_ =
+            allocate_dynamic<WorldGraph>("cached-world-graph");
         **cached_world_graph_ = APP.world_graph();
         navigation_buffer_.clear();
         navigation_buffer_.push_back(cursor_);
@@ -1750,7 +1754,7 @@ void WorldMapScene::display()
         cursor.set_size(Sprite::Size::w16_h16);
         cursor.set_tidx_16x16(28, 0);
         cursor.set_position({Fixnum((int)cursor_loc.x * 8) - 8.0_fixed,
-                Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
+                             Fixnum((int)cursor_loc.y * 8) - 12.0_fixed});
         cursor.set_mix(cmix_);
         PLATFORM.screen().draw(cursor);
     };

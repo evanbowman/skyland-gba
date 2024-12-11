@@ -34,9 +34,9 @@
 
 #pragma once
 
-#include "skyland/tile.hpp"
 #include "skyland/room.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -102,8 +102,8 @@ private:
 class Amplifier : public Room
 {
 public:
-    Amplifier(Island* parent, const RoomCoord& position) :
-        Room(parent, name(), position)
+    Amplifier(Island* parent, const RoomCoord& position)
+        : Room(parent, name(), position)
     {
     }
 
@@ -134,18 +134,22 @@ public:
         if (burst_timer_ > burst_time) {
             burst_timer_ -= burst_time;
 
-            auto segment = [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
-                auto p = visual_center();
-                p.x += xoff;
-                p.y += yoff;
-                if (auto e = APP.alloc_entity<AmpAnim>(p)) {
-                    e->sprite().set_flip({xflip, yflip});
-                    APP.effects().push(std::move(e));
-                }
-            };
+            auto segment =
+                [&](Fixnum xoff, Fixnum yoff, bool xflip, bool yflip) {
+                    auto p = visual_center();
+                    p.x += xoff;
+                    p.y += yoff;
+                    if (auto e = APP.alloc_entity<AmpAnim>(p)) {
+                        e->sprite().set_flip({xflip, yflip});
+                        APP.effects().push(std::move(e));
+                    }
+                };
 
             if (not PLATFORM.screen().fade_active()) {
-                segment(Fixnum::from_integer(-16), Fixnum::from_integer(-16), false, false);
+                segment(Fixnum::from_integer(-16),
+                        Fixnum::from_integer(-16),
+                        false,
+                        false);
                 segment(Fixnum::from_integer(-16), 0.0_fixed, false, true);
                 segment(0.0_fixed, Fixnum::from_integer(-16), true, false);
                 segment(0.0_fixed, 0.0_fixed, true, true);
@@ -206,13 +210,15 @@ public:
 
                 sprite.set_size(Sprite::Size::w16_h16);
                 sprite.set_tidx_16x16(13, 1);
-                sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                                     origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
+                sprite.set_position(
+                    {origin.x + Fixnum::from_integer(x * 16),
+                     origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
             } else {
                 sprite.set_size(Sprite::Size::w16_h32);
                 sprite.set_texture_index(13);
-                sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                                     origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
+                sprite.set_position(
+                    {origin.x + Fixnum::from_integer(x * 16),
+                     origin.y + Fixnum::from_integer((pos.y - 1) * 16)});
             }
 
             screen.draw(sprite);
@@ -220,8 +226,8 @@ public:
             sprite.set_size(Sprite::Size::w16_h16);
             sprite.set_tidx_16x16(13, 1);
             sprite.set_position(
-                                {origin.x + Fixnum::from_integer(x * 16),
-                                 origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
+                {origin.x + Fixnum::from_integer(x * 16),
+                 origin.y + Fixnum::from_integer((pos.y + 1) * 16)});
             screen.draw(sprite);
             sprite.set_texture_index(13);
         }

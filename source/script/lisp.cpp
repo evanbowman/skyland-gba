@@ -4396,9 +4396,7 @@ BUILTIN_TABLE(
 
            return make_integer(length(get_op0()));
        }}},
-     {"<",
-      {2,
-       l_comp_less_than}},
+     {"<", {2, l_comp_less_than}},
      {">",
       {2,
        [](int argc) {
@@ -5216,9 +5214,7 @@ BUILTIN_TABLE(
            using TempBuffer = Buffer<Value*, 509>;
            auto buf = allocate_dynamic_fast<TempBuffer>("sort-buffer");
 
-           l_foreach(get_op1(), [&buf](Value* v) {
-               buf->push_back(v);
-           });
+           l_foreach(get_op1(), [&buf](Value* v) { buf->push_back(v); });
 
            std::sort(buf->begin(), buf->end(), compare);
 

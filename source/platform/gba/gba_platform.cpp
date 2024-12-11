@@ -7402,16 +7402,17 @@ static const Platform::Extensions extensions{
                                      settings.duty_,
                                      settings.length_);
         },
-    .rotate_palette = [](Layer l, u8 range_start, u8 range_end) {
-        if (l == Layer::map_0_ext) {
-            auto prev = MEM_BG_PALETTE[range_end - 1];
-            for (int i = range_start; i < range_end; ++i) {
-                auto temp = MEM_BG_PALETTE[i];
-                MEM_BG_PALETTE[i] = prev;
-                prev = temp;
+    .rotate_palette =
+        [](Layer l, u8 range_start, u8 range_end) {
+            if (l == Layer::map_0_ext) {
+                auto prev = MEM_BG_PALETTE[range_end - 1];
+                for (int i = range_start; i < range_end; ++i) {
+                    auto temp = MEM_BG_PALETTE[i];
+                    MEM_BG_PALETTE[i] = prev;
+                    prev = temp;
+                }
             }
-        }
-    },
+        },
     .__test_compare_sound =
         [](const char* name) {
             if (auto s = get_sound(name)) {
