@@ -502,7 +502,7 @@ int main(int argc, char** argv)
         // on the stack itself is not corrupted.
 
         if (unrecoverrable_error_callback) {
-            (*unrecoverrable_error_callback)();
+            (*unrecoverrable_error_callback)("stack overflow");
         }
         on_stack_overflow();
     }
@@ -2632,7 +2632,7 @@ static void vblank_isr()
                 on_stack_overflow();
             } else {
                 if (::__platform__ and ::unrecoverrable_error_callback) {
-                    (*::unrecoverrable_error_callback)();
+                    (*::unrecoverrable_error_callback)("game stalled");
                 }
             }
 
@@ -2667,7 +2667,7 @@ void Platform::fatal(const char* msg)
     ::__platform__->set_overlay_origin(0, 0);
 
     if (::__platform__ and ::unrecoverrable_error_callback) {
-        (*::unrecoverrable_error_callback)();
+        (*::unrecoverrable_error_callback)(&*msg);
     }
 
     ::__platform__->screen().fade(0.f);

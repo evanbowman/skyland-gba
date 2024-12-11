@@ -53,8 +53,14 @@ static const Text::OptColors text_colors{{custom_color(0xffffff), bkg_color}};
 
 
 
+void skip_crash_report();
+
+
+
 ScenePtr RegressionModule::update(Time delta)
 {
+    skip_crash_report();
+
     state_bit_store(StateBit::regression, true);
 
     BasicCharacter::__reset_ids();

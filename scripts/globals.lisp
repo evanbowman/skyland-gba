@@ -25,4 +25,5 @@
  'shop-items
  'zone-shop-items
  'qvar
+ 'current-level
  'adventure-vars)

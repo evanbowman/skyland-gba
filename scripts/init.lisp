@@ -138,3 +138,12 @@
        (abs (* (^ h (>> h 13)) 1274126177))))
     (true
      (error (format "cannot hash %" v)))))
+
+
+(setq current-level nil)
+
+;; This function simply sets current-level, which is used for crash reporting,
+;; before evaluating the desired script.
+(defn/c begin-level (path)
+  (setq current-level path)
+  (eval-file path))

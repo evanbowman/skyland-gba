@@ -126,6 +126,52 @@ void store_hidden_rooms()
 
 
 
+bool skip_crash_report_ = false;
+
+
+
+void skip_crash_report()
+{
+    skip_crash_report_ = true;
+}
+
+
+
+void create_crash_report(const char* error_text)
+{
+    if (skip_crash_report_) {
+        return;
+    }
+
+    Vector<char> text;
+    auto append = [&text](const char* str) {
+        while (*str not_eq '\0') {
+            text.push_back(*str);
+            ++str;
+        }
+        text.push_back('\n');
+    };
+
+    append("error:");
+    append(error_text);
+
+    append("");
+
+    append("lisp stack:");
+    lisp::l_foreach(lisp::stacktrace(), [&](lisp::Value* v) {
+        append(lisp::val_to_string<96>(v).c_str());
+    });
+
+    append("");
+
+    append("current level:");
+    append(lisp::val_to_string<96>(lisp::get_var("current-level")).c_str());
+
+    flash_filesystem::store_file_data("/crash/report.txt", text);
+}
+
+
+
 App* __app__;
 
 
@@ -167,7 +213,7 @@ App::App(bool clean_boot)
 
     // On unrecoverrable errors: try to store a backup, and flush the system log
     // to sram.
-    PLATFORM.on_unrecoverrable_error([this]() {
+    PLATFORM.on_unrecoverrable_error([this](const char* error_text) {
         store_backup();
         if (is_developer_mode()) {
             PLATFORM.logger().flush();
@@ -181,6 +227,8 @@ App::App(bool clean_boot)
 
         flash_filesystem::copy_file("/save/adventure.lisp",
                                     "/crash/adventure.lisp");
+
+        create_crash_report(error_text);
     });
 
     // If the platform runs out of scratch buffers, try to do anything that we

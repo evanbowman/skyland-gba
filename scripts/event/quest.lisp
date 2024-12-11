@@ -18,7 +18,7 @@
     (when lvs
       (setq lv (sample lvs)))
 
-    (eval-file
+    (begin-level
      (format "/scripts/event/quest/%.lisp"
              ;8
              lv
