@@ -157,7 +157,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
   ${SOURCE_DIR}/skyland/scene/rewindScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
-  ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/itemShopScene.cpp
   ${SOURCE_DIR}/skyland/scene/qrViewerScene.cpp
   ${SOURCE_DIR}/skyland/scene/lispReplScene.cpp
@@ -192,6 +191,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/adventureLogScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/upgradePromptScene.cpp
+  ${SOURCE_DIR}/skyland/scene/startAdventureScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/groupSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp

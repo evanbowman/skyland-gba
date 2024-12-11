@@ -49,7 +49,7 @@
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
 #include "scene/constructionScene.hpp"
-#include "scene/newgameScene.hpp"
+#include "scene/startAdventureScene.hpp"
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
@@ -2463,7 +2463,7 @@ BINDING_TABLE({
           PLATFORM.speaker().clear_sounds();
           PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
 
-          push_menu_queue.push_back(make_deferred_scene<NewgameScene>());
+          push_menu_queue.push_back(make_deferred_scene<StartAdventureScene>());
 
           return L_NIL;
       }}},

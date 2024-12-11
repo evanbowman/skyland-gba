@@ -33,7 +33,7 @@
 
 
 #include "introCreditsScene.hpp"
-#include "newgameScene.hpp"
+#include "startAdventureScene.hpp"
 #include "number/random.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"

@@ -32,7 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "newgameScene.hpp"
+#include "startAdventureScene.hpp"
 #include "adventureLogScene.hpp"
 #include "adventureModeSettingsScene.hpp"
 #include "globals.hpp"
@@ -77,7 +77,7 @@ void load_difficulty_profile()
 
 
 
-void NewgameScene::enter(Scene& prev)
+void StartAdventureScene::enter(Scene& prev)
 {
     show_island_exterior(&APP.player_island());
 
@@ -113,7 +113,7 @@ void NewgameScene::enter(Scene& prev)
 
 
 
-ScenePtr NewgameScene::update(Time delta)
+ScenePtr StartAdventureScene::update(Time delta)
 {
     if (not(APP.persistent_data().state_flags_.get() &
             PersistentData::permadeath_on) and
@@ -211,7 +211,7 @@ ScenePtr NewgameScene::update(Time delta)
 
 
 
-void NewgameScene::reset_state()
+void StartAdventureScene::reset_state()
 {
     APP.set_coins(0);
 

@@ -35,7 +35,7 @@
 #pragma once
 
 
-#include "scene/newgameScene.hpp"
+#include "scene/startAdventureScene.hpp"
 #include "skyland/scene.hpp"
 
 

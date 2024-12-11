@@ -35,7 +35,6 @@
 #include "zoneImageScene.hpp"
 #include "adventureModeSettingsScene.hpp"
 #include "highscoresScene.hpp"
-#include "newgameScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"

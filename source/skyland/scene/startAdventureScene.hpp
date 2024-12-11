@@ -44,7 +44,7 @@ namespace skyland
 
 
 
-class NewgameScene : public Scene
+class StartAdventureScene : public Scene
 {
 public:
     void enter(Scene& prev) override;
