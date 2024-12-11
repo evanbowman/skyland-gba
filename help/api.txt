@@ -1219,6 +1219,25 @@ o----------------------------o
  Maybe someday I'll use this
  for localization...
 
+o----------------------------o
+
+ (restore-crash)
+
+ Restores an adventure
+ from backup files in the
+ crash/ folder of save data.
+
+ The easiest way to run this
+ function is from the script
+ console in the sandbox
+ start menu.
+
+ I'm not sure what would
+ happen if you ran this from
+ within an adventure game...
+ Probably it wouldn't do
+ anything.
+
 
 o----------------------------o
 
