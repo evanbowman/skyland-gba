@@ -12,6 +12,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Explain what you did that caused the bug
+If the bug resulted in a crash, please attach your save file, if possible.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
