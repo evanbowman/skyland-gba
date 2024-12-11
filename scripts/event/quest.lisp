@@ -18,7 +18,7 @@
     (when lvs
       (setq lv (sample lvs)))
 
-    (load-level
+    (setup-level
      (format "/scripts/event/quest/%.lisp"
              ;8
              lv

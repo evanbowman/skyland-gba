@@ -17,4 +17,4 @@
       (let ((lv (sample lvs)))
         (setq surprises-seen (cons lv surprises-seen))
         (procgen)
-        (load-level (format "scripts/event/surprise/%.lisp" lv)))))
+        (setup-level (format "scripts/event/surprise/%.lisp" lv)))))
