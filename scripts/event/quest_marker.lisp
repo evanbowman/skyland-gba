@@ -29,7 +29,7 @@
               (setq found quests)
               (fatal "quest marker with no active quests!?"))))
 
-    (setup-level
+    (eval-file
      ;; NOTE: For backwards compatibility with old save files. We used to
      ;; store the whole path that we want to evaluate, now we just store the
      ;; script name.

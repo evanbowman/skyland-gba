@@ -13,7 +13,7 @@
 (if (and (equal (length enemies-seen) 0) (equal (zone) 0))
     (progn
       (push 'enemies-seen 0)
-      (setup-level "/scripts/event/hostile/0/0.lisp"))
+      (eval-file "/scripts/event/hostile/0/0.lisp"))
   ;; Sometimes, procedurally generate an enemy. More frequently at lower levels.
   (if (< (choice 100) (get '(60 55 50 45) (zone)))
       (progn

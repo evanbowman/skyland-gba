@@ -25,6 +25,6 @@
         (push 'enemies-seen lv)
 
         (lambda ()
-          (setup-level (format "/scripts/event/hostile/%/%.lisp" (zone) lv))))
+          (eval-file (format "/scripts/event/hostile/%/%.lisp" (zone) lv))))
     ;; We've run out of level templates! Use procedural generation instead.
     procgen))

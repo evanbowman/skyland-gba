@@ -4,5 +4,5 @@
 
 
 (if (choice 2)
-    (setup-level "/scripts/event/neutral/2/1_alt0.lisp")
-  (setup-level "/scripts/event/neutral/0/2.lisp"))
+    (eval-file "/scripts/event/neutral/2/1_alt0.lisp")
+  (eval-file "/scripts/event/neutral/0/2.lisp"))

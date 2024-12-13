@@ -141,9 +141,3 @@
 
 
 (setq current-level nil)
-
-;; This function simply sets current-level, which is used for crash reporting,
-;; before evaluating the desired script.
-(defn/c setup-level (path)
-  (setq current-level path)
-  (eval-file path))
