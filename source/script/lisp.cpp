@@ -110,6 +110,17 @@ struct StringInternTable
 const char* intern(const char* string);
 
 
+void Function::Signature::reset()
+{
+    required_args_ = 0;
+    arg0_type_ = ValueHeader::Type::nil;
+    arg1_type_ = ValueHeader::Type::nil;
+    arg2_type_ = ValueHeader::Type::nil;
+    arg3_type_ = ValueHeader::Type::nil;
+    ret_type_ = ValueHeader::Type::nil;
+}
+
+
 std::pair<ValuePoolUsed, ValuePoolFree> value_pool_info()
 {
     int values_remaining = 0;
@@ -352,7 +363,7 @@ const char* native_interface_resolve_intern_default(const char*)
 
 NativeInterface::LookupResult native_interface_fn_lookup_default(const char*)
 {
-    return {0, nullptr};
+    return {EMPTY_SIG(0), nullptr};
 }
 
 
@@ -885,7 +896,7 @@ Value* make_function(Function::CPP_Impl impl)
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::function;
     val->function().cpp_impl_ = impl;
-    val->function().required_args_ = 0;
+    val->function().sig_.reset();
     val->hdr_.mode_bits_ = Function::ModeBits::cpp_function;
     return val;
 }
@@ -896,10 +907,9 @@ static Value* make_lisp_function(Value* impl)
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::function;
     val->function().lisp_impl_.code_ = compr(impl);
-    val->function().required_args_ = 0;
+    val->function().sig_.reset();
     val->function().lisp_impl_.lexical_bindings_ =
         compr(bound_context->lexical_bindings_);
-
     val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
     return val;
 }
@@ -923,19 +933,33 @@ static int examine_argument_list(Value* function_impl)
     l_foreach(arg_lat, [&](Value* val) {
         ++argc;
 
-        if (val->type() not_eq lisp::Value::Type::symbol) {
-            PLATFORM.fatal(
-                ::format("value \'%\' in argument list \'%\' is non-symbol!",
-                         val_to_string<64>(val).c_str(),
-                         val_to_string<128>(arg_lat).c_str()));
+        Value* sym = L_NIL;
+
+        if (val->type() not_eq Value::Type::symbol) {
+            if (val->type() == Value::Type::cons) {
+                if (not(val->cons().car()->type() == Value::Type::symbol and
+                        val->cons().cdr()->type() == Value::Type::symbol)) {
+                    PLATFORM.fatal(::format("invalid type declaration: %",
+                                            val_to_string<96>(val).c_str()));
+                } else {
+                    sym = val->cons().car();
+                }
+            } else {
+                PLATFORM.fatal(::format(
+                    "value \'%\' in argument list \'%\' is non-symbol!",
+                    val_to_string<64>(val).c_str(),
+                    val_to_string<128>(arg_lat).c_str()));
+            }
+        } else {
+            sym = val;
         }
 
         if (not bound_context->external_symtab_contents_ and
-            val->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
+            sym->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
             PLATFORM.fatal(::format(
                 "symbol name \'%\' in argument list \'%\' is too long! "
                 "(4 char limit)",
-                val->symbol().name(),
+                sym->symbol().name(),
                 val_to_string<128>(arg_lat).c_str()));
         }
     });
@@ -950,6 +974,7 @@ struct ArgBinding
                   // the input source code list, so it's a proper gc root...
 
     u8 replacement_;
+    u8 type_;
 };
 
 
@@ -967,7 +992,42 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 
     int arg = 0;
     l_foreach(arg_lat, [&](Value* val) {
-        if (not b.bindings_.push_back(ArgBinding{&val->symbol(), (u8)arg++})) {
+        Value* sym;
+        u8 type = Value::Type::nil;
+        if (val->type() == Value::Type::cons) {
+            sym = val->cons().car();
+            auto& type_symbol = val->cons().cdr()->symbol();
+            if (str_eq(type_symbol.name(), "int")) {
+                type = Value::Type::integer;
+            } else if (str_eq(type_symbol.name(), "string")) {
+                type = Value::Type::string;
+            } else if (str_eq(type_symbol.name(), "pair")) {
+                type = Value::Type::cons;
+            } else if (str_eq(type_symbol.name(), "symbol")) {
+                type = Value::Type::symbol;
+            } else if (str_eq(type_symbol.name(), "float")) {
+                type = Value::Type::fp;
+            } else if (str_eq(type_symbol.name(), "error")) {
+                type = Value::Type::error;
+            } else if (str_eq(type_symbol.name(), "userdata")) {
+                type = Value::Type::user_data;
+            } else if (str_eq(type_symbol.name(), "databuffer")) {
+                type = Value::Type::databuffer;
+            } else if (str_eq(type_symbol.name(), "nil")) {
+                type = Value::Type::nil;
+            } else if (str_eq(type_symbol.name(), "lambda")) {
+                type = Value::Type::function;
+            } else if (str_eq(type_symbol.name(), "wrapped")) {
+                type = Value::Type::wrapped;
+            } else {
+                PLATFORM.fatal(
+                    ::format("invalid type symbol %", type_symbol.name()));
+            }
+        } else {
+            sym = val;
+        }
+        if (not b.bindings_.push_back(
+                ArgBinding{&sym->symbol(), (u8)arg++, type})) {
             PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
@@ -1092,7 +1152,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 }
 
 
-void perform_argument_substitution(Value* impl)
+ArgBindings perform_argument_substitution(Value* impl)
 {
     Protected gc_root(impl);
 
@@ -1104,6 +1164,8 @@ void perform_argument_substitution(Value* impl)
     if (arguments.bindings_.size() > 0) { // Don't bother with no-arg functions
         arg_substitution_impl(fn_impl, arguments);
     }
+
+    return arguments;
 }
 
 
@@ -1134,13 +1196,27 @@ static Value* make_lisp_argumented_function(Value* impl)
     // new_impl = clone(impl); TODO... can anything bad happen if we mutate
     // a list representing source code? I'm not certain.
 
-    perform_argument_substitution(new_impl);
+    auto bind = perform_argument_substitution(new_impl);
 
     val->hdr_.type_ = Value::Type::function;
     val->function().lisp_impl_.code_ = compr(new_impl->cons().cdr());
-    val->function().required_args_ = argc;
+    val->function().sig_.reset();
+    val->function().sig_.required_args_ = argc;
     val->function().lisp_impl_.lexical_bindings_ =
         compr(bound_context->lexical_bindings_);
+
+    if (bind.bindings_.size() > 0) {
+        val->function().sig_.arg0_type_ = bind.bindings_[0].type_;
+    }
+    if (bind.bindings_.size() > 1) {
+        val->function().sig_.arg1_type_ = bind.bindings_[1].type_;
+    }
+    if (bind.bindings_.size() > 2) {
+        val->function().sig_.arg2_type_ = bind.bindings_[2].type_;
+    }
+    if (bind.bindings_.size() > 3) {
+        val->function().sig_.arg3_type_ = bind.bindings_[3].type_;
+    }
 
     val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
 
@@ -1154,7 +1230,7 @@ Value* make_bytecode_function(Value* bytecode)
     val->hdr_.type_ = Value::Type::function;
     val->function().bytecode_impl_.lexical_bindings_ =
         compr(bound_context->lexical_bindings_);
-    val->function().required_args_ = 0;
+    val->function().sig_.reset();
 
     val->function().bytecode_impl_.bytecode_ = compr(bytecode);
     val->hdr_.mode_bits_ = Function::ModeBits::lisp_bytecode_function;
@@ -1517,6 +1593,43 @@ void lexical_frame_store(Value* kvp)
 void vm_execute(Value* code, int start_offset);
 
 
+const char* type_to_string(ValueHeader::Type tp)
+{
+    switch (tp) {
+    case Value::Type::count:
+    case Value::Type::__reserved_3:
+    case Value::Type::__reserved_2:
+    case Value::Type::__reserved_1:
+    case Value::Type::__reserved_0:
+    case Value::Type::nil:
+        return "?";
+    case Value::Type::heap_node:
+        return "?";
+    case Value::Type::integer:
+        return "int";
+    case Value::Type::cons:
+        return "pair";
+    case Value::Type::function:
+        return "lambda";
+    case Value::Type::error:
+        return "error";
+    case Value::Type::symbol:
+        return "symbol";
+    case Value::Type::user_data:
+        return "userdata";
+    case Value::Type::databuffer:
+        return "databuffer";
+    case Value::Type::string:
+        return "string";
+    case Value::Type::fp:
+        return "float";
+    case Value::Type::wrapped:
+        return "wrapped";
+    }
+    return "?";
+}
+
+
 // The function arguments should be sitting at the top of the operand stack
 // prior to calling funcall. The arguments will be consumed, and replaced with
 // the result of the function call.
@@ -1540,11 +1653,47 @@ void funcall(Value* obj, u8 argc)
 
     switch (obj->type()) {
     case Value::Type::function: {
-        if (obj->function().required_args_ > argc) {
+        if (obj->function().sig_.required_args_ > argc) {
             pop_args();
             push_op(make_error(Error::Code::invalid_argc, obj));
             break;
         }
+
+        auto arg_error = [&](auto exp_type, auto got_type) {
+            return ::format<256>("invalid arg type for %! expected %, got %",
+                                 val_to_string<64>(obj).c_str(),
+                                 type_to_string((ValueHeader::Type)exp_type),
+                                 type_to_string((ValueHeader::Type)got_type));
+        };
+
+#define CHECK_ARG_TYPE(ARG, FIELD)                                             \
+    if (obj->function().sig_.FIELD not_eq Value::Type::nil and                 \
+        get_arg(ARG)->type() not_eq obj->function().sig_.FIELD and             \
+        not(get_arg(ARG)->type() == Value::Type::nil and                       \
+            obj->function().sig_.FIELD == Value::Type::cons)) {                \
+        pop_args();                                                            \
+        push_op(make_error(                                                    \
+            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())        \
+                .c_str()));                                                    \
+        break;                                                                 \
+    }
+
+#define CHECK_ARG_TYPES()                                                      \
+    if (argc > 3) {                                                            \
+        CHECK_ARG_TYPE(0, arg0_type_);                                         \
+        CHECK_ARG_TYPE(1, arg1_type_);                                         \
+        CHECK_ARG_TYPE(2, arg2_type_);                                         \
+        CHECK_ARG_TYPE(3, arg3_type_);                                         \
+    } else if (argc > 2) {                                                     \
+        CHECK_ARG_TYPE(0, arg0_type_);                                         \
+        CHECK_ARG_TYPE(1, arg1_type_);                                         \
+        CHECK_ARG_TYPE(2, arg2_type_);                                         \
+    } else if (argc > 1) {                                                     \
+        CHECK_ARG_TYPE(0, arg0_type_);                                         \
+        CHECK_ARG_TYPE(1, arg1_type_);                                         \
+    } else if (argc > 0) {                                                     \
+        CHECK_ARG_TYPE(0, arg0_type_);                                         \
+    }
 
         switch (obj->hdr_.mode_bits_) {
         case Function::ModeBits::cpp_function: {
@@ -1561,6 +1710,12 @@ void funcall(Value* obj, u8 argc)
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
             const auto break_loc = ctx.operand_stack_->size() - 1;
+            ctx.arguments_break_loc_ = break_loc;
+            ctx.current_fn_argc_ = argc;
+            if (bound_context->strict_) {
+                CHECK_ARG_TYPES();
+            }
+
             auto expression_list = dcompr(obj->function().lisp_impl_.code_);
             auto result = get_nil();
             push_op(result);
@@ -1591,6 +1746,9 @@ void funcall(Value* obj, u8 argc)
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
             ctx.current_fn_argc_ = argc;
+            if (bound_context->strict_) {
+                CHECK_ARG_TYPES();
+            }
 
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
@@ -1793,12 +1951,17 @@ void lint(Value* expr, Value* variable_list)
                     }
                     while (args not_eq L_NIL) {
                         auto arg_name = args->cons().car();
-                        if (arg_name->type() not_eq Value::Type::symbol) {
+                        auto arg_sym = arg_name;
+                        if (arg_name->type() == Value::Type::cons) {
+                            arg_sym = arg_name->cons().car();
+                            // TODO: arg type is in cdr...
+                        }
+                        if (arg_sym->type() not_eq Value::Type::symbol) {
                             push_op(
                                 make_error("invalid value in lambda arglist!"));
                             return;
                         }
-                        variable_list = L_CONS(arg_name, variable_list);
+                        variable_list = L_CONS(arg_sym, variable_list);
                         args = args->cons().cdr();
                     }
                     is_special_form = true;
@@ -1813,13 +1976,125 @@ void lint(Value* expr, Value* variable_list)
 
                 auto fn = get_var(fn_sym);
                 if (fn->type() == Value::Type::function) {
-                    int reqd_args = fn->function().required_args_;
+                    int reqd_args = fn->function().sig_.required_args_;
                     if (length(expr) - 1 < reqd_args) {
                         push_op(
                             make_error(::format("insufficient args for %!",
                                                 val_to_string<64>(fn).c_str())
                                            .c_str()));
                         return;
+                    }
+                    auto& fn_var = fn->function();
+
+                    auto type_check = [&](auto expected_type, int slot) {
+                        auto arg = get_list(expr, slot + 1);
+                        if (arg->type() == Value::Type::symbol) {
+                            // TODO: track types through variable reference.
+                            // For example, if the symbol refers to a function
+                            // argument of known type...
+                            return true;
+                        }
+                        if (expected_type == Value::Type::symbol) {
+                            // Special case: quoted symbol
+                            if (arg->type() == Value::Type::cons) {
+                                if (str_eq(arg->cons().car()->symbol().name(),
+                                           "'") and
+                                    arg->cons().cdr()->type() ==
+                                        Value::Type::symbol) {
+                                    return true;
+                                }
+                            }
+                        }
+                        auto detected_type = arg->hdr_.type();
+                        if (is_list(arg)) {
+                            auto first = get_list(arg, 0);
+                            if (first->type() == Value::Type::symbol) {
+                                auto name = first->symbol().name();
+                                if (str_eq(name, "lambda") or
+                                    str_eq(name, "fn")) {
+                                    // The first element of the list indicates
+                                    // that the list is a lambda function.
+                                    detected_type = Value::Type::function;
+                                } else {
+                                    auto builtin = __load_builtin(name);
+                                    if (builtin.second) {
+                                        auto rt = builtin.first.ret_type_;
+                                        if (rt == Value::Type::nil) {
+                                            // The builtin does not have a
+                                            // concrete return type. Static
+                                            // analysis cannot be performed
+                                            // here.
+                                            return true;
+                                        } else {
+                                            detected_type = (Value::Type)rt;
+                                        }
+                                    } else {
+                                        auto v = get_var(first);
+                                        if (v->type() ==
+                                            Value::Type::function) {
+                                            auto& fn = v->function();
+                                            if (fn.sig_.ret_type_ ==
+                                                Value::Type::nil) {
+                                                return true;
+                                            } else {
+                                                detected_type =
+                                                    (Value::Type)
+                                                        fn.sig_.ret_type_;
+                                            }
+                                        } else {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // TODO: check return type of function call, if possible...
+                                return true;
+                            }
+                        }
+                        return detected_type == expected_type;
+                    };
+
+                    auto arg_error = [&](int arg, u8 expected) {
+                        auto tp = (ValueHeader::Type)expected;
+                        return ::format(
+                            "invalid arg % type for %! "
+                            "expected %, got %",
+                            arg,
+                            val_to_string<64>(fn).c_str(),
+                            type_to_string(tp),
+                            val_to_string<64>(get_list(expr, arg + 1)).c_str());
+                    };
+
+                    auto push_arg_error = [&](int arg, u8 exp) {
+                        push_op(make_error(arg_error(arg, exp).c_str()));
+                    };
+
+                    if (fn_var.sig_.arg0_type_ not_eq ValueHeader::Type::nil) {
+                        if (not type_check(fn_var.sig_.arg0_type_, 0)) {
+                            push_arg_error(0, fn_var.sig_.arg0_type_);
+                            return;
+                        }
+                    }
+                    if (fn_var.sig_.arg1_type_ not_eq ValueHeader::Type::nil) {
+                        if (not type_check(fn_var.sig_.arg1_type_, 1)) {
+                            push_arg_error(1, fn_var.sig_.arg1_type_);
+                            return;
+                        }
+                    }
+                    if (fn_var.sig_.arg2_type_ not_eq ValueHeader::Type::nil) {
+                        if (not type_check(fn_var.sig_.arg2_type_, 2)) {
+                            push_arg_error(2, fn_var.sig_.arg2_type_);
+                            return;
+                        }
+                    }
+                    if (fn_var.sig_.arg3_type_ not_eq ValueHeader::Type::nil) {
+                        if (not type_check(fn_var.sig_.arg3_type_, 3)) {
+                            push_arg_error(3, fn_var.sig_.arg3_type_);
+                            return;
+                        }
+                    }
+                    if (fn_var.sig_.ret_type_ not_eq ValueHeader::Type::nil) {
+                        // TODO...
                     }
                 }
             }
@@ -2179,9 +2454,9 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
             p.put_str("<lambda");
         }
 
-        if (value->function().required_args_) {
+        if (value->function().sig_.required_args_) {
             p.put_str(":");
-            p.put_str(stringify(value->function().required_args_).c_str());
+            p.put_str(stringify(value->function().sig_.required_args_).c_str());
         }
         p.put_str(">");
         break;
@@ -3772,6 +4047,18 @@ Value* l_comp_less_than(int argc)
 }
 
 
+Value* repr_signature(Function::Signature sig)
+{
+    ListBuilder list;
+    list.push_back(L_SYM(type_to_string((Value::Type)sig.ret_type_)));
+    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg0_type_)));
+    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg1_type_)));
+    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg2_type_)));
+    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg3_type_)));
+    return list.result();
+}
+
+
 #if defined(__GBA__) or defined(__APPLE__)
 #define BUILTIN_TABLE                                                          \
     MAPBOX_ETERNAL_CONSTEXPR const auto builtin_table =                        \
@@ -3781,13 +4068,15 @@ Value* l_comp_less_than(int argc)
     const auto builtin_table = std::unordered_map<std::string, Builtin>
 #endif
 
+
+
 using RequiredArgc = int;
-using Builtin = std::pair<RequiredArgc, lisp::Value* (*)(int)>;
+using Builtin = std::pair<Function::Signature, lisp::Value* (*)(int)>;
 // clang-format off
 BUILTIN_TABLE(
     // clang-format on
     {{"set",
-      {2,
+      {SIG2(nil, symbol, nil),
        [](int argc) {
            L_EXPECT_OP(1, symbol);
 
@@ -3800,7 +4089,7 @@ BUILTIN_TABLE(
            return lisp::set_var(get_op1(), get_op0(), define_if_missing);
        }}},
      {"global",
-      {1,
+      {SIG1(nil, symbol),
        [](int argc) {
            for (int i = 0; i < argc; ++i) {
                L_EXPECT_OP(i, symbol);
@@ -3818,14 +4107,21 @@ BUILTIN_TABLE(
            return get_op0();
        }}},
      {"strict-mode",
-      {1,
+      {SIG1(nil, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            bound_context->strict_ = L_LOAD_INT(0);
            return L_NIL;
        }}},
+     {"signature",
+      {SIG1(cons, function),
+       [](int argc) {
+           L_EXPECT_OP(0, function);
+           auto sig = get_op0()->function().sig_;
+           return repr_signature(sig);
+       }}},
      {"require-args",
-      {2,
+      {SIG2(function, function, integer),
        [](int argc) {
            L_EXPECT_OP(1, function);
            L_EXPECT_OP(0, integer);
@@ -3833,12 +4129,12 @@ BUILTIN_TABLE(
            lisp::Protected result(L_NIL);
            result = alloc_value();
            result->function() = get_op1()->function();
-           result->function().required_args_ = L_LOAD_INT(0);
+           result->function().sig_.required_args_ = L_LOAD_INT(0);
 
            return (Value*)result;
        }}},
      {"rot13",
-      {1,
+      {SIG1(string, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            auto str = L_LOAD_STRING(0);
@@ -3850,7 +4146,7 @@ BUILTIN_TABLE(
            return lisp::make_string(rotstr->c_str());
        }}},
      {"cons",
-      {2,
+      {SIG2(cons, nil, nil),
        [](int argc) {
            auto car = get_op1();
            auto cdr = get_op0();
@@ -3866,20 +4162,20 @@ BUILTIN_TABLE(
            return make_cons(get_op1(), get_op0());
        }}},
      {"car",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().car();
        }}},
      {"first",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().car();
        }}},
-     {"identity", {1, [](int argc) { return get_op0(); }}},
+     {"identity", {SIG1(nil, nil), [](int argc) { return get_op0(); }}},
      {"cddr",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            auto cdr = get_op0()->cons().cdr();
@@ -3890,7 +4186,7 @@ BUILTIN_TABLE(
            return cdr->cons().cdr();
        }}},
      {"cadr",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            auto cdr = get_op0()->cons().cdr();
@@ -3901,7 +4197,7 @@ BUILTIN_TABLE(
            return cdr->cons().car();
        }}},
      {"cdar",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            auto car = get_op0()->cons().car();
@@ -3912,7 +4208,7 @@ BUILTIN_TABLE(
            return car->cons().cdr();
        }}},
      {"caar",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            auto car = get_op0()->cons().car();
@@ -3923,25 +4219,25 @@ BUILTIN_TABLE(
            return car->cons().car();
        }}},
      {"cdr",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().cdr();
        }}},
      {"second",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().cdr();
        }}},
      {"rest",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            return get_op0()->cons().cdr();
        }}},
      {"list",
-      {0,
+      {SIG0(cons),
        [](int argc) {
            ListBuilder list;
            for (int i = 0; i < argc; ++i) {
@@ -3954,7 +4250,7 @@ BUILTIN_TABLE(
            return list.result();
        }}},
      {"split",
-      {2,
+      {SIG2(list, string, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            L_EXPECT_OP(1, string);
@@ -3983,135 +4279,109 @@ BUILTIN_TABLE(
            return b.result();
        }}},
      {"arg",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            return get_arg(get_op0()->integer().value_);
        }}},
      {"abs",
-      {1,
+      {SIG1(integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            return make_integer(abs(L_LOAD_INT(0)));
        }}},
      {"not",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) { return make_integer(not is_boolean_true(get_op0())); }}},
      {"equal",
-      {2,
+      {EMPTY_SIG(2),
        [](int argc) { return make_integer(is_equal(get_op0(), get_op1())); }}},
-     {"list?", {1, [](int argc) { return make_boolean(is_list(get_op0())); }}},
+     {"list?",
+      {EMPTY_SIG(1),
+       [](int argc) { return make_boolean(is_list(get_op0())); }}},
      {"nil?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::nil);
        }}},
      {"int?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::integer);
        }}},
      {"float?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::fp);
        }}},
      {"pair?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::cons);
        }}},
      {"lambda?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::function);
        }}},
      {"error?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::error);
        }}},
      {"symbol?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::symbol);
        }}},
      {"userdata-tag",
-      {1,
+      {SIG1(integer, user_data),
        [](int argc) {
            L_EXPECT_OP(0, user_data);
            return L_INT(get_op0()->user_data().tag_);
        }}},
      {"type",
-      {1,
+      {SIG1(symbol, nil),
        [](int argc) {
-           switch (get_op0()->type()) {
-           case Value::Type::count:
-           case Value::Type::__reserved_3:
-           case Value::Type::__reserved_2:
-           case Value::Type::__reserved_1:
-           case Value::Type::__reserved_0:
-           case Value::Type::nil:
-               return make_symbol("nil");
-           case Value::Type::heap_node:
-               return make_symbol("?");
-           case Value::Type::integer:
-               return make_symbol("int");
-           case Value::Type::cons:
-               return make_symbol("pair");
-           case Value::Type::function:
-               return make_symbol("lambda");
-           case Value::Type::error:
-               return make_symbol("error");
-           case Value::Type::symbol:
-               return make_symbol("symbol");
-           case Value::Type::user_data:
-               return make_symbol("userdata");
-           case Value::Type::databuffer:
-               return make_symbol("databuffer");
-           case Value::Type::string:
-               return make_symbol("string");
-           case Value::Type::fp:
-               return make_symbol("float");
-           case Value::Type::wrapped:
+           if (get_op0()->type() == Value::Type::wrapped) {
                return dcompr(get_op0()->wrapped().type_sym_);
            }
-           return make_symbol("?");
+           return make_symbol(type_to_string(get_op0()->type()));
        }}},
      {"userdata?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::user_data);
        }}},
      {"databuffer?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::user_data);
        }}},
      {"string?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::string);
        }}},
      {"wrapped?",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::wrapped);
        }}},
      {"wrap",
-      {2,
+      {SIG2(wrapped, nil, symbol),
        [](int argc) {
            L_EXPECT_OP(0, symbol);
            return wrap(get_op1(), get_op0());
        }}},
      {"unwrap",
-      {1,
+      {SIG1(nil, wrapped),
        [](int argc) {
            L_EXPECT_OP(0, wrapped);
            return dcompr(get_op0()->wrapped().data_);
        }}},
      {"odd?",
-      {1,
+      {SIG1(nil, integer),
        [](int argc) {
            if (get_op0()->type() == Value::Type::integer) {
                return make_boolean(L_LOAD_INT(0) % 2);
@@ -4119,7 +4389,7 @@ BUILTIN_TABLE(
            return make_boolean(false);
        }}},
      {"string-to-bytes",
-      {1,
+      {SIG1(cons, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            ListBuilder result;
@@ -4132,7 +4402,7 @@ BUILTIN_TABLE(
            return result.result();
        }}},
      {"bytes-to-string",
-      {1,
+      {SIG1(string, cons),
        [](int argc) {
            if (not is_list(get_op0())) {
                return make_error("bytes-to-string expects a list param!");
@@ -4147,7 +4417,7 @@ BUILTIN_TABLE(
            return make_string(temp->c_str());
        }}},
      {"int-to-bytes",
-      {1,
+      {SIG1(cons, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            ListBuilder result;
@@ -4161,7 +4431,7 @@ BUILTIN_TABLE(
            return result.result();
        }}},
      {"bytes-to-int",
-      {1,
+      {SIG1(integer, cons),
        [](int argc) {
            if (not is_list(get_op0())) {
                return make_error("bytes-to-int expects a list of four values!");
@@ -4177,7 +4447,7 @@ BUILTIN_TABLE(
            return L_INT(value.get());
        }}},
      {"int",
-      {1,
+      {SIG1(integer, nil),
        [](int argc) {
            if (get_op0()->type() == Value::Type::string) {
                auto str = L_LOAD_STRING(0);
@@ -4199,7 +4469,7 @@ BUILTIN_TABLE(
            }
        }}},
      {"float",
-      {1,
+      {SIG1(fp, nil),
        [](int argc) {
            if (get_op0()->type() == Value::Type::string) {
                auto str = L_LOAD_STRING(0);
@@ -4214,7 +4484,7 @@ BUILTIN_TABLE(
            }
        }}},
      {"error-info",
-      {1,
+      {SIG1(nil, error),
        [](int argc) {
            if (get_op0()->type() == Value::Type::error) {
                return dcompr(get_op0()->error().context_);
@@ -4222,9 +4492,10 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"databuffer",
-      {0, [](int argc) { return make_databuffer("lisp-databuffer"); }}},
+      {SIG0(databuffer),
+       [](int argc) { return make_databuffer("lisp-databuffer"); }}},
      {"buffer-write!",
-      {3,
+      {SIG3(nil, databuffer, integer, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            L_EXPECT_OP(1, integer);
@@ -4250,7 +4521,7 @@ BUILTIN_TABLE(
            return make_boolean(true);
        }}},
      {"buffer-read",
-      {3,
+      {SIG3(cons, databuffer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
@@ -4273,7 +4544,7 @@ BUILTIN_TABLE(
            return result.result();
        }}},
      {"apropos",
-      {1,
+      {SIG1(nil, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
 
@@ -4288,7 +4559,7 @@ BUILTIN_TABLE(
            return list.result();
        }}},
      {"apply",
-      {2,
+      {SIG2(nil, function, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            L_EXPECT_OP(1, function);
@@ -4315,7 +4586,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"fill",
-      {2,
+      {SIG2(cons, integer, integer),
        [](int argc) {
            L_EXPECT_OP(1, integer);
 
@@ -4327,7 +4598,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"difference",
-      {2,
+      {SIG2(cons, cons, cons),
        [](int argc) {
            ListBuilder list;
 
@@ -4344,7 +4615,7 @@ BUILTIN_TABLE(
            return list.result();
        }}},
      {"union",
-      {2,
+      {SIG2(cons, cons, cons),
        [](int argc) {
            ListBuilder list;
 
@@ -4363,7 +4634,7 @@ BUILTIN_TABLE(
            return list.result();
        }}},
      {"collect",
-      {1,
+      {SIG1(cons, function),
        [](int argc) {
            L_EXPECT_OP(0, function);
 
@@ -4384,7 +4655,7 @@ BUILTIN_TABLE(
            return res.result();
        }}},
      {"length",
-      {1,
+      {SIG1(integer, nil),
        [](int argc) {
            if (get_op0()->type() == Value::Type::nil) {
                return make_integer(0);
@@ -4396,9 +4667,9 @@ BUILTIN_TABLE(
 
            return make_integer(length(get_op0()));
        }}},
-     {"<", {2, l_comp_less_than}},
+     {"<", {EMPTY_SIG(2), l_comp_less_than}},
      {">",
-      {2,
+      {EMPTY_SIG(2),
        [](int argc) {
            if (get_op0()->type() == Value::Type::fp) {
                L_EXPECT_OP(1, fp);
@@ -4411,14 +4682,14 @@ BUILTIN_TABLE(
                                get_op0()->integer().value_);
        }}},
      {"&",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) & L_LOAD_INT(0));
        }}},
      {"|",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            int accum = 0;
            for (int i = 0; i < argc; ++i) {
@@ -4428,41 +4699,41 @@ BUILTIN_TABLE(
            return make_integer(accum);
        }}},
      {"^",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) ^ L_LOAD_INT(0));
        }}},
      {"~",
-      {1,
+      {SIG1(integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            return L_INT(~L_LOAD_INT(0));
        }}},
      {"mod",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) % L_LOAD_INT(0));
        }}},
      {">>",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) >> L_LOAD_INT(0));
        }}},
      {"<<",
-      {2,
+      {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) << L_LOAD_INT(0));
        }}},
      {"hex",
-      {1,
+      {SIG1(string, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            const char* hex = "0123456789abcdef";
@@ -4479,19 +4750,19 @@ BUILTIN_TABLE(
            return make_string(result.c_str());
        }}},
      {"incr",
-      {1,
+      {SIG1(integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            return L_INT(L_LOAD_INT(0) + 1);
        }}},
      {"decr",
-      {1,
+      {SIG1(integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            return L_INT(L_LOAD_INT(0) - 1);
        }}},
      {"+",
-      {0,
+      {EMPTY_SIG(0),
        [](int argc) {
            if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
                Float::ValueType accum = 0;
@@ -4509,7 +4780,7 @@ BUILTIN_TABLE(
            return make_integer(accum);
        }}},
      {"-",
-      {1,
+      {EMPTY_SIG(1),
        [](int argc) {
            if (argc == 1) {
                if (get_op0()->type() == Value::Type::fp) {
@@ -4532,7 +4803,7 @@ BUILTIN_TABLE(
            }
        }}},
      {"*",
-      {0,
+      {EMPTY_SIG(0),
        [](int argc) {
            if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
                Float::ValueType accum = 1;
@@ -4550,7 +4821,7 @@ BUILTIN_TABLE(
            return make_integer(accum);
        }}},
      {"/",
-      {2,
+      {EMPTY_SIG(2),
        [](int argc) {
            if (get_op0()->type() == Value::Type::fp) {
                L_EXPECT_OP(1, fp);
@@ -4561,12 +4832,12 @@ BUILTIN_TABLE(
            return make_integer(get_op1()->integer().value_ /
                                get_op0()->integer().value_);
        }}},
-     {"gensym", {0, [](int) { return gensym(); }}},
+     {"gensym", {SIG0(symbol), [](int) { return gensym(); }}},
      {"lisp-mem-stack-used",
-      {0,
+      {SIG0(integer),
        [](int argc) { return L_INT(bound_context->operand_stack_->size()); }}},
      {"lisp-mem-stack-contents",
-      {0,
+      {SIG0(cons),
        [](int argc) {
            lisp::ListBuilder b;
            for (auto& v : *bound_context->operand_stack_) {
@@ -4575,7 +4846,7 @@ BUILTIN_TABLE(
            return b.result();
        }}},
      {"lisp-mem-string-storage",
-      {0,
+      {SIG0(integer),
        [](int argc) {
            int bytes = 0;
            live_values([&bytes](Value& val) {
@@ -4588,7 +4859,7 @@ BUILTIN_TABLE(
            return L_INT(bytes);
        }}},
      {"lisp-mem-string-buffers",
-      {0,
+      {SIG0(cons),
        [](int argc) {
            ListBuilder buffers;
            live_values([&buffers](Value& val) {
@@ -4611,21 +4882,21 @@ BUILTIN_TABLE(
            return buffers.result();
        }}},
      {"lisp-mem-set-gc-thresh",
-      {1,
+      {SIG1(nil, integer),
        [](int) {
            L_EXPECT_OP(0, integer);
            early_gc_threshold = L_LOAD_INT(0);
            return L_NIL;
        }}},
      {"lisp-mem-crit-gc-alert",
-      {1,
+      {SIG1(nil, integer),
        [](int) {
            L_EXPECT_OP(0, integer);
            bound_context->critical_gc_alert_ = L_LOAD_INT(0);
            return L_NIL;
        }}},
      {"lisp-mem-vals-remaining",
-      {0,
+      {SIG0(integer),
        [](int) {
            int values_remaining = 0;
            Value* current = value_pool;
@@ -4637,7 +4908,7 @@ BUILTIN_TABLE(
            return L_INT(values_remaining);
        }}},
      {"lisp-mem-global-count",
-      {0,
+      {SIG0(integer),
        [](int argc) {
            auto& ctx = bound_context;
            int globals_used = 0;
@@ -4648,13 +4919,13 @@ BUILTIN_TABLE(
            return L_INT(globals_used);
        }}},
      {"lisp-mem-string-internb",
-      {0,
+      {SIG0(integer),
        [](int argc) {
            auto& ctx = bound_context;
            return L_INT(ctx->string_intern_pos_);
        }}},
      {"lisp-mem-sbr-used",
-      {0,
+      {SIG0(integer),
        [](int argc) {
            int databuffers = 0;
            for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
@@ -4667,7 +4938,7 @@ BUILTIN_TABLE(
            return L_INT(databuffers);
        }}},
      {"range",
-      {1,
+      {SIG1(cons, integer),
        [](int argc) {
            int start = 0;
            int end = 0;
@@ -4714,7 +4985,7 @@ BUILTIN_TABLE(
            return lat.result();
        }}},
      {"unbind",
-      {0,
+      {EMPTY_SIG(0),
        [](int argc) {
            for (int i = 0; i < argc; ++i) {
                auto sym = get_op(i);
@@ -4729,14 +5000,14 @@ BUILTIN_TABLE(
            return get_nil();
        }}},
      {"symbol",
-      {1,
+      {SIG1(symbol, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
 
            return make_symbol(get_op0()->string().value());
        }}},
      {"format",
-      {2,
+      {SIG2(string, string, nil),
        [](int argc) {
            int fmt_arg = argc - 2;
 
@@ -4765,7 +5036,7 @@ BUILTIN_TABLE(
            return make_string(builder->c_str());
        }}},
      {"profile",
-      {1,
+      {SIG1(integer, function),
        [](int argc) {
            L_EXPECT_OP(0, function);
            auto start = PLATFORM.delta_clock().sample();
@@ -4775,7 +5046,7 @@ BUILTIN_TABLE(
            return L_INT(stop - start);
        }}},
      {"slice",
-      {2,
+      {EMPTY_SIG(2),
        [](int argc) {
            int begin = 0;
            int end = 0;
@@ -4868,7 +5139,7 @@ BUILTIN_TABLE(
            }
        }}},
      {"string-explode",
-      {0,
+      {SIG1(cons, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            ListBuilder list;
@@ -4885,7 +5156,7 @@ BUILTIN_TABLE(
            return list.result();
        }}},
      {"string-assemble",
-      {0,
+      {SIG1(string, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
 
@@ -4904,7 +5175,7 @@ BUILTIN_TABLE(
            return make_string(str->c_str());
        }}},
      {"string",
-      {0,
+      {SIG0(string),
        [](int argc) {
            EvalBuffer b;
            EvalPrinter p(b);
@@ -4925,13 +5196,13 @@ BUILTIN_TABLE(
            return make_string(b.c_str());
        }}},
      {"error",
-      {1,
+      {SIG1(error, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            return make_error(Error::Code::custom, get_op0());
        }}},
      {"bound?",
-      {1,
+      {SIG1(nil, symbol),
        [](int argc) {
            L_EXPECT_OP(0, symbol);
 
@@ -4939,7 +5210,7 @@ BUILTIN_TABLE(
            return make_integer(found not_eq nullptr);
        }}},
      {"filter",
-      {2,
+      {SIG2(cons, function, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            L_EXPECT_OP(1, function);
@@ -4977,7 +5248,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"nameof",
-      {1,
+      {SIG1(nil, nil),
        [](int argc) {
            if (auto name = nameof(get_op0())) {
                return make_symbol(name);
@@ -4985,7 +5256,7 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"foreach",
-      {2,
+      {SIG2(nil, function, cons),
        [](int argc) {
            L_EXPECT_OP(1, function);
            L_EXPECT_OP(0, cons);
@@ -5001,7 +5272,7 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"map",
-      {2,
+      {SIG2(cons, function, cons),
        [](int argc) {
            if (lisp::get_op(argc - 1)->type() not_eq Value::Type::function and
                lisp::get_op(argc - 1)->type() not_eq Value::Type::cons) {
@@ -5061,7 +5332,7 @@ BUILTIN_TABLE(
            return result.result();
        }}},
      {"find",
-      {2,
+      {SIG2(nil, nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
 
@@ -5085,7 +5356,7 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"flatten",
-      {1,
+      {SIG1(cons, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
 
@@ -5108,7 +5379,7 @@ BUILTIN_TABLE(
            return b.result();
        }}},
      {"reverse",
-      {1,
+      {SIG1(cons, cons),
        [](int argc) {
            if (get_op0()->type() not_eq lisp::Value::Type::cons) {
                return L_NIL;
@@ -5125,9 +5396,9 @@ BUILTIN_TABLE(
 
            return result;
        }}},
-     {"gc", {0, [](int argc) { return make_integer(run_gc()); }}},
+     {"gc", {EMPTY_SIG(0), [](int argc) { return make_integer(run_gc()); }}},
      {"get",
-      {2,
+      {SIG2(nil, cons, integer),
        [](int argc) {
            if (get_op0()->type() == lisp::Value::Type::nil) {
                return L_NIL;
@@ -5148,7 +5419,7 @@ BUILTIN_TABLE(
            return get_list(get_op1(), index);
        }}},
      {"read",
-      {1,
+      {SIG1(nil, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
            BasicCharSequence seq(get_op0()->string().value());
@@ -5158,7 +5429,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"lint",
-      {1,
+      {SIG1(nil, cons),
        [](int argc) {
            L_EXPECT_OP(0, cons);
            if (not is_list(get_op0())) {
@@ -5171,7 +5442,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"eval",
-      {1,
+      {SIG1(nil, nil),
        [](int argc) {
            eval(get_op0());
            auto result = get_op0();
@@ -5179,14 +5450,14 @@ BUILTIN_TABLE(
 
            return result;
        }}},
-     {"stacktrace", {0, [](int argc) { return stacktrace(); }}},
+     {"stacktrace", {SIG0(cons), [](int argc) { return stacktrace(); }}},
      {"this",
-      {0,
+      {SIG0(function),
        [](int argc) {
            return bound_context->callstack_->cons().cdr()->cons().car();
        }}},
      {"sort",
-      {2,
+      {SIG2(cons, cons, function),
        [](int argc) {
            L_EXPECT_OP(0, function);
            L_EXPECT_OP(1, cons);
@@ -5226,7 +5497,7 @@ BUILTIN_TABLE(
            return result.result();
        }}},
      {"env",
-      {0,
+      {EMPTY_SIG(0),
        [](int argc) {
            Value* result = make_cons(get_nil(), get_nil());
            push_op(result); // protect from the gc
@@ -5245,7 +5516,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"compile",
-      {1,
+      {SIG1(function, function),
        [](int argc) {
            L_EXPECT_OP(0, function);
 
@@ -5255,8 +5526,7 @@ BUILTIN_TABLE(
                compile(dcompr(get_op0()->function().lisp_impl_.code_));
                auto ret = get_op0();
                if (ret->type() == Value::Type::function) {
-                   ret->function().required_args_ =
-                       input->function().required_args_;
+                   ret->function().sig_ = input->function().sig_;
                }
                pop_op();
                return ret;
@@ -5265,7 +5535,7 @@ BUILTIN_TABLE(
            }
        }}},
      {"disassemble",
-      {1, [](int argc) {
+      {SIG1(nil, function), [](int argc) {
            L_EXPECT_OP(0, function);
 
            if (get_op0()->hdr_.mode_bits_ ==
@@ -5904,7 +6174,7 @@ NativeInterface::LookupResult __load_builtin(const char* name)
         return found_ni_fn;
     }
 
-    return {0, nullptr};
+    return {EMPTY_SIG(0), nullptr};
 }
 
 
@@ -5973,7 +6243,7 @@ Value* get_var(Value* symbol)
     auto builtin = __load_builtin(symbol_name);
     if (builtin.second) {
         auto fn = lisp::make_function(builtin.second);
-        fn->function().required_args_ = builtin.first;
+        fn->function().sig_ = builtin.first;
         return fn;
     }
 

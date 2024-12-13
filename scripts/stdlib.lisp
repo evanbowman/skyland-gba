@@ -55,7 +55,7 @@
 (global 'setfn)
 (setq setfn
       (compile
-       (lambda (sym fn)
+       (lambda ((sym . symbol) fn)
          (global sym)
          (set sym fn))))
 
@@ -95,7 +95,7 @@
   ;; with unquote-splicing is quite compact.
   `(,@lat1 ,@lat2))
 
-(defn/c push (sym val)
+(defn/c push ((sym . symbol) val)
   (set sym (cons val (eval sym))))
 
 
@@ -120,7 +120,7 @@
               v))
          lat)))
 
-(defn/c curry (fn)
+(defn/c curry ((fn . lambda))
   (let ((func fn)
         (args (cdr $V)))
     (lambda ()

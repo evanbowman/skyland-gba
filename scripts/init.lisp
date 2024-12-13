@@ -24,12 +24,12 @@
 ;; Let's define some useful
 ;; builtin functions:
 
-(defn/c cargo-bays (isle)
-  (let ((rooms (rooms isle)))
+(defn/c cargo-bays ((isle . wrapped))
+  (let ((rooms-list (rooms isle)))
     (map (lambda (room)
            (cons (cadr room)
                  (cadr (cdr room))))
-         (filter (car-equalto? 'cargo-bay) rooms))))
+         (filter (car-equalto? 'cargo-bay) rooms-list))))
 
 (defn/c clamp (v low high)
   (cond
@@ -50,15 +50,15 @@
   (car (wg-pos)))
 
 ;; Choose a random element of a list.
-(defn/c sample (lat)
+(defn/c sample ((lat . pair))
   (get lat (choice (length lat))))
 
-(defn/c secret (x y text)
+(defn/c secret ((x . int) (y . int) (text . string))
   (room-mut (opponent) x y 'code)
   (qr-set (opponent) x y text))
 
 ;; NOTE: see adventure_log.txt for message text...
-(defn/c adventure-log-add (id args)
+(defn/c adventure-log-add ((id . int) (args . pair))
   ;; args: event-code parameters
   (setq adventure-log (cons (cons id args) adventure-log)))
 
@@ -69,7 +69,7 @@
   (setq dialog-opts nil))
 
 
-(defn/c dialog-opts-push (name cb)
+(defn/c dialog-opts-push ((name . string) (cb . lambda))
   (setq dialog-opts (cons (cons name cb) dialog-opts)))
 
 ;; For backwards compatibility. The old dialog api had a function for setting up
@@ -82,7 +82,7 @@
 (defn/c dialog-await-y/n ()
   (dialog-await-binary-q "yes" "no"))
 
-(defn/c dialog-await-binary-q (txt1 txt2)
+(defn/c dialog-await-binary-q ((txt1 . string) (txt2 . string))
   (dialog-opts-reset)
   (dialog-opts-push txt1 (lambda () (if on-dialog-accepted (on-dialog-accepted))))
   (dialog-opts-push txt2 (lambda () (if on-dialog-declined (on-dialog-declined)))))
@@ -93,7 +93,7 @@
 ;; be a bunch of worldbuilding questions. If you select a middle option, the
 ;; game will show the text, and then re-display the query box of options, with
 ;; the previously selected one removed.
-(defn/c dialog-await-binary-q-w/lore (txty txtn lore)
+(defn/c dialog-await-binary-q-w/lore ((txty . string) (txtn . string) lore)
   (dialog-opts-reset)
   (dialog-opts-push txty (lambda () (if on-dialog-accepted (on-dialog-accepted))))
 
@@ -120,12 +120,12 @@
 
 ;; Shortcut for making sure enough space on a player's island exists to place a
 ;; new block.
-(defn/c alloc-space (sym)
+(defn/c alloc-space ((sym . symbol))
   (let ((size (rinfo 'size sym)))
     (while (not (construction-sites (player) size))
       (terrain-set (player) (+ (terrain (player)) 1)))))
 
-(defn/c run-util-script (file)
+(defn/c run-util-script ((file . string))
   (let ((varg (cdr $V)))
     (apply (eval-file (string "/scripts/util/" file ".lisp"))
            varg)))

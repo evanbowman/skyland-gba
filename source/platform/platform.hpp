@@ -348,7 +348,8 @@ public:
     bool is_running() const;
 
 
-    using UnrecoverrableErrorCallback = Function<4 * sizeof(void*), void(const char*)>;
+    using UnrecoverrableErrorCallback =
+        Function<4 * sizeof(void*), void(const char*)>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
     using TaskPointer = void (*)();

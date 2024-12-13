@@ -5,10 +5,10 @@
 (setq adventure-vars
       '(("mercenary-event" . nil)))
 
-(defn/c adv-var-load (name)
+(defn/c adv-var-load ((name . string))
   (lookup name adventure-vars))
 
-(defn/c adv-var-store (name val)
+(defn/c adv-var-store ((name . string) val)
   (let ((n name))
     (setq adventure-vars (replace adventure-vars
                                   (lambda (kvp)

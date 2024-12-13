@@ -780,7 +780,7 @@ lisp::Value* App::invoke_script(const char* path, bool rom_fs_only)
         lisp::DefaultPrinter p;
         lisp::format(&err, p);
         auto file = seek_filename(path);
-        PLATFORM.fatal(format("%: %", file, p.data_.c_str()));
+        PLATFORM.fatal(format<256>("%: %", file, p.data_.c_str()));
     };
 
     if (is_developer_mode() and not PLATFORM.network_peer().is_connected() and

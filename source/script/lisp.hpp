@@ -350,8 +350,18 @@ private:
 struct Function
 {
     ValueHeader hdr_;
-    u8 required_args_;
-    u16 unused_;
+    struct Signature
+    {
+        u8 required_args_ : 4;
+        u8 arg0_type_ : 4;
+        u8 arg1_type_ : 4;
+        u8 arg2_type_ : 4;
+        u8 arg3_type_ : 4;
+        u8 ret_type_ : 4;
+
+        void reset();
+
+    } sig_;
 
     static ValueHeader::Type type()
     {
@@ -723,7 +733,7 @@ struct NativeInterface
     using Function = lisp::Function::CPP_Impl;
     using RequiredArgs = int;
 
-    using LookupResult = std::pair<RequiredArgs, Function>;
+    using LookupResult = std::pair<lisp::Function::Signature, Function>;
 
     // Given a string function name, should return a C++ lisp function
     // implementation.
@@ -988,6 +998,69 @@ template <typename F> void l_foreach(Value* list, F&& fn)
 
 
 void safecall(Value* fn, u8 argc);
+
+
+
+#define SIG0(RET)                                                              \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = 0,                                                   \
+        .arg0_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::nil,                            \
+        .ret_type_ = lisp::ValueHeader::Type::RET,                             \
+    })
+
+#define SIG1(RET, TP0)                                                         \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = 1,                                                   \
+        .arg0_type_ = lisp::ValueHeader::Type::TP0,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::nil,                            \
+        .ret_type_ = lisp::ValueHeader::Type::RET,                             \
+    })
+
+#define SIG2(RET, TP0, TP1)                                                    \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = 2,                                                   \
+        .arg0_type_ = lisp::ValueHeader::Type::TP0,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::TP1,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::nil,                            \
+        .ret_type_ = lisp::ValueHeader::Type::nil,                             \
+    })
+
+#define SIG3(RET, TP0, TP1, TP2)                                               \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = 3,                                                   \
+        .arg0_type_ = lisp::ValueHeader::Type::TP0,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::TP1,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::TP2,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::nil,                            \
+        .ret_type_ = lisp::ValueHeader::Type::RET,                             \
+    })
+
+#define SIG4(RET, TP0, TP1, TP2, TP3)                                          \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = 4,                                                   \
+        .arg0_type_ = lisp::ValueHeader::Type::TP0,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::TP1,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::TP2,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::TP3,                            \
+        .ret_type_ = lisp::ValueHeader::Type::RET,                             \
+    })
+
+#define EMPTY_SIG(ARGC)                                                        \
+    (lisp::Function::Signature{                                                \
+        .required_args_ = ARGC,                                                \
+        .arg0_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg1_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg2_type_ = lisp::ValueHeader::Type::nil,                            \
+        .arg3_type_ = lisp::ValueHeader::Type::nil,                            \
+        .ret_type_ = lisp::ValueHeader::Type::nil,                             \
+    })
+
 
 
 } // namespace lisp

@@ -73,6 +73,7 @@
 
 (defn end-test ()
   (put " passed!")
+  (gc)
   (setq current-test nil))
 
 
@@ -199,6 +200,27 @@
 (assert-eq 135 (apply + (map foo (range 9))))
 
 (unbind 'foo)
+
+(end-test)
+
+
+(begin-test "type signature")
+
+(defn foo ((arg . int))
+  (* arg 2))
+
+(assert-eq (foo 2) 4)
+(assert-v (error? (foo 'abcd)))           ; pass invalid type
+(assert-v (error? ((compile foo) 'abcd))) ; compilation preserves type signature
+
+(defn foo ((str . string) (iv . int))
+  (format str iv iv))
+
+(assert-eq (foo "%:%" 5) "5:5")
+(assert-v (error? (foo 5 6)))
+(assert-v (error? (foo "5" "6")))
+
+(assert-eq (signature foo) '(? string int ? ?))
 
 (end-test)
 
