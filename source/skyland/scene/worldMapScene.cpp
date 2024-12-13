@@ -123,9 +123,11 @@ WorldGraph::PathBuffer WorldGraph::path(Vec2<s8> n1, Vec2<s8> n2)
 
         for (int x = clamp(o.x - 4, 0, (int)o.x); x < o.x + 5; ++x) {
             for (int y = clamp(o.y - 4, 0, (int)o.y); y < o.y + 5; ++y) {
-                auto n = mat->mat_[x][y];
-                if (n) {
-                    result.push_back(n);
+                if (x < WorldGraph::width and y < WorldGraph::height) {
+                    auto n = mat->mat_[x][y];
+                    if (n) {
+                        result.push_back(n);
+                    }
                 }
             }
         }
