@@ -112,6 +112,7 @@ rail-ns (decoration)
 rail-we (decoration)
 rail-hub
 rocket-bomb
+sylph-cannon
 saffron
 sand
 truss
@@ -346,6 +347,7 @@ Originally designed to shield against harsh radiation on the surface. Emits a we
 Allows crewmembers to travel instantly to any other portal on your island! More resource-hungry than a stairwell, but allows you to design very compact castles!
 One of the few pieces of technology goblins have managed to invent. Generates % power for each unique block in your castle! Don't let it explode, though...
 Speeds up recharge times for nearby blocks. Rare, fragile, and incredibly valuable.
+...
 paused
 slow
 regular

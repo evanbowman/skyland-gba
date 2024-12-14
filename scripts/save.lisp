@@ -26,4 +26,5 @@
  (cons 'adventure-log adventure-log)
  (cons 'zone-shop-items zone-shop-items)
  (cons 'groups (groups))
- (cons 'nav (wg-nav-path)))
+ (cons 'nav (wg-nav-path))
+ (cons 'faction (faction)))

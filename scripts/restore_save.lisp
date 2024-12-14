@@ -72,5 +72,9 @@
                (poweroff (player) (first xy) (second xy) true))
              (lookup 'poweroff grp))))
 
+    (let ((fact (load 'faction)))
+      (if fact
+          (faction-set fact)))
+
     (when (> (load 'save-protocol) 1)
       (difficulty-set (load 'diff)))))

@@ -59,6 +59,7 @@
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
 #include "weather/environment.hpp"
+#include "faction.hpp"
 
 
 
@@ -186,6 +187,9 @@ public:
     {
         return game_mode_;
     }
+
+
+    Faction& faction();
 
 
     void clear_effects_lowpriority();
@@ -560,6 +564,7 @@ private:
     GameSpeed game_speed_ = GameSpeed::normal;
     bool launch_input_ = false;
     GameMode game_mode_ = GameMode::adventure;
+    Faction faction_ = Faction::human;
     enum class RemoteConsoleSyntax : u8 {
         none,
         simple_console,

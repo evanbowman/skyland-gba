@@ -343,6 +343,7 @@ struct Tile
         reserved_d3,
         reserved_d4,
         amplifier,
+        sylph_cannon,
         count
     };
 };
@@ -645,6 +646,7 @@ struct InteriorTile
         chaos_core_3,
         chaos_core_4,
         amplifier,
+        sylph_cannon,
         count
     };
 };

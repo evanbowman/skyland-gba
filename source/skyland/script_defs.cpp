@@ -2085,6 +2085,36 @@ BINDING_TABLE({
           }
           return L_NIL;
       }}},
+    {"faction",
+     {SIG0(symbol),
+      [](int argc) {
+          switch (APP.faction()) {
+          default:
+          case Faction::human:
+              return L_SYM("human");
+          case Faction::sylph:
+              return L_SYM("sylph");
+          case Faction::goblin:
+              return L_SYM("goblin");
+          }
+      }}},
+    {"faction-set",
+     {SIG1(nil, symbol),
+      [](int argc) {
+          auto sym = lisp::get_op0()->symbol().name();
+          Faction f;
+          if (str_eq(sym, "human")) {
+              f = Faction::human;
+          } else if (str_eq(sym, "sylph")) {
+              f = Faction::sylph;
+          } else if (str_eq(sym, "goblin")) {
+              f = Faction::goblin;
+          } else {
+              return lisp::make_error("invalid faction symbol!");
+          }
+          APP.faction() = f;
+          return L_NIL;
+      }}},
     {"cargo-set",
      {SIG4(nil, wrapped, integer, integer, string),
       [](int argc) {

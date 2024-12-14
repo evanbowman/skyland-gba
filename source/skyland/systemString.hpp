@@ -175,6 +175,7 @@ enum class SystemString {
     block_road_we,
     block_road_hub,
     block_rocket_bomb,
+    block_sylph_cannon,
     block_saffron,
     block_sand,
     block_scaffolding,
@@ -439,6 +440,7 @@ enum class SystemString {
     description_portal,
     description_chaos_core,
     description_amplifier,
+    description_sylph_cannon,
 
     gs_paused,
     gs_slow,

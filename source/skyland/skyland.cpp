@@ -822,6 +822,13 @@ weather::Environment& App::environment()
 
 
 
+Faction& App::faction()
+{
+    return faction_;
+}
+
+
+
 macro::EngineImpl& macrocosm()
 {
     auto& m = APP.macrocosm();
