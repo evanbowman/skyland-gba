@@ -129,6 +129,7 @@ private:
     Buffer<Vec2<s8>, 10> dead_nodes_;
 
     NavBuffer navigation_buffer_;
+    NavBuffer cached_navigation_path_;
     static NavBuffer navigation_path_;
 
     Optional<Text> heading_;

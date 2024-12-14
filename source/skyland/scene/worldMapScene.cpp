@@ -1082,6 +1082,7 @@ ScenePtr WorldMapScene::update(Time delta)
             });
 
             if (not nav_mode_ and not navigation_path_.empty()) {
+                cached_navigation_path_ = navigation_path_;
                 if (navigation_path_[0] == cursor_) {
                     navigation_path_.erase(navigation_path_.begin());
                 } else {
@@ -1368,6 +1369,7 @@ ScenePtr WorldMapScene::update(Time delta)
         PLATFORM.screen().display();
         PLATFORM.speaker().play_sound("cancel", 5);
         PLATFORM.sleep(30);
+        navigation_path_ = cached_navigation_path_;
         APP.current_world_location() = prev_world_loc_;
         auto next = make_scene<WorldMapScene>();
         APP.world_graph().storm_depth_--;
