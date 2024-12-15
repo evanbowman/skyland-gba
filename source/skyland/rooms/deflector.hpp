@@ -72,7 +72,8 @@ public:
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
                RoomProperties::multiplayer_unsupported |
-               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::sylph_only |
+               RoomProperties::manufactory_required |
                RoomProperties::accepts_ion_damage;
     }
 

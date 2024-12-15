@@ -650,8 +650,6 @@ enum class SystemString {
     achievement_triage_description,
     achievement_banana_man_name,
     achievement_banana_man_description,
-    achievement_ancient_weapon_name,
-    achievement_ancient_weapon_description,
     achievement_ship_of_theseus_name,
     achievement_ship_of_theseus_description,
     achievement_lemons_name,

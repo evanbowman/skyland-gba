@@ -76,7 +76,7 @@ enum Achievement : u8 {
     maestro_2       = 9,
     triage          = 10,
     banana_man      = 11,
-    ancient_weapon  = 12,
+    edge_of_world   = 12,
     ship_of_theseus = 13,
     lemons          = 14,
     new_colossus    = 15,
@@ -85,7 +85,6 @@ enum Achievement : u8 {
     mycelium        = 18,
     primitive       = 19,
     hero            = 20,
-    edge_of_world   = 21,
     // pacifist        = 23,
     count
     // clang-format on
