@@ -244,8 +244,30 @@ void CrewStatsScene::exit(Scene& next)
 
 
 
-static constexpr u8 icons[] = {5,  1,  6,  7,  8,  9,  10, 11, 12, 14, 15,
-                               16, 17, 18, 20, 21, 22, 23, 19, 26, 27, 28};
+static constexpr u8 human_icons[] = {5,  1,  6,  7,  8,  9,  10, 11, 12, 14, 15,
+                                     16, 17, 20, 21, 22, 23, 19, 26, 27, 28};
+
+
+static constexpr u8 goblin_icons[] = {18, 35, 36, 37, 19};
+
+
+
+std::pair<u8*, u32> CrewStatsScene::icons()
+{
+    auto found_chr = BasicCharacter::find_by_id(chrs_[page_index_]);
+    if (not found_chr.first) {
+        return {(u8*)human_icons, (u32)sizeof(human_icons)};
+    } else {
+        switch (found_chr.first->get_race()) {
+        default:
+        case 0:
+            return {(u8*)human_icons, (u32)sizeof(human_icons)};
+
+        case 1:
+            return {(u8*)goblin_icons, (u32)sizeof(goblin_icons)};
+        }
+    }
+}
 
 
 
@@ -254,7 +276,7 @@ ScenePtr CrewStatsScene::update(Time delta)
     APP.player().update(delta);
 
     auto show_icon = [this]() {
-        int offset = (icons[icon_sel_] - 1) * 16;
+        int offset = (icons().first[icon_sel_] - 1) * 16;
         PLATFORM.load_overlay_chunk(274, offset, 16, "character_art");
     };
 
@@ -297,8 +319,8 @@ ScenePtr CrewStatsScene::update(Time delta)
             auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
             if (found.first) {
                 auto icon = found.first->get_icon();
-                for (u32 i = 0; i < (sizeof icons); ++i) {
-                    if (icon == icons[i]) {
+                for (u32 i = 0; i < icons().second; ++i) {
+                    if (icon == icons().first[i]) {
                         icon_sel_ = i;
                         break;
                     }
@@ -335,7 +357,7 @@ ScenePtr CrewStatsScene::update(Time delta)
         }
 
         if (APP.player().key_down(Key::action_1)) {
-            if (icons[icon_sel_] == 19) {
+            if (icons().first[icon_sel_] == 19) {
                 state_ = State::regular;
                 show_page();
                 break;
@@ -343,14 +365,14 @@ ScenePtr CrewStatsScene::update(Time delta)
             PLATFORM.speaker().play_sound("button_wooden", 3);
             auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
             if (found.first) {
-                found.first->set_icon(icons[icon_sel_]);
+                found.first->set_icon(icons().first[icon_sel_]);
             }
             state_ = State::regular;
             show_page();
         }
 
         if (test_key(Key::down)) {
-            if (icon_sel_ < (int)(sizeof icons) - 1) {
+            if (icon_sel_ < (int)icons().second - 1) {
                 ++icon_sel_;
             } else {
                 icon_sel_ = 0;
@@ -361,7 +383,7 @@ ScenePtr CrewStatsScene::update(Time delta)
 
         if (test_key(Key::up)) {
             if (icon_sel_ == 0) {
-                icon_sel_ = (int)(sizeof icons) - 1;
+                icon_sel_ = icons().second - 1;
             } else {
                 --icon_sel_;
             }

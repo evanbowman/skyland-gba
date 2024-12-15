@@ -64,6 +64,9 @@ public:
     SystemString title_ = SystemString::crewmember_stats_title;
 
 
+    std::pair<u8*, u32> icons();
+
+
 private:
     Vector<CharacterId> chrs_;
     int page_index_ = 0;
