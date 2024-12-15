@@ -1471,6 +1471,22 @@ bool ConstructionScene::collect_available_buildings()
         const bool sandbox_dependencies_off =
             not SandboxLoaderModule::get_setting(3);
 
+        if (APP.game_mode() not_eq App::GameMode::sandbox) {
+            if ((meta->properties() & RoomProperties::human_only) and
+                APP.faction() not_eq Faction::human) {
+                continue;
+            }
+
+            if ((meta->properties() & RoomProperties::sylph_only) and
+                APP.faction() not_eq Faction::sylph) {
+                continue;
+            }
+
+            if ((meta->properties() & RoomProperties::goblin_only) and
+                APP.faction() not_eq Faction::goblin) {
+                continue;
+            }
+        }
 
         const bool dependencies_satisfied =
             (not manufactory_required or

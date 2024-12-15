@@ -138,7 +138,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
-               RoomProperties::multiboot_compatible;
+               RoomProperties::multiboot_compatible |
+               RoomProperties::human_only;
     }
 
 

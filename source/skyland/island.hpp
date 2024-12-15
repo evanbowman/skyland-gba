@@ -240,16 +240,13 @@ public:
     }
 
 
-    u8 workshop_count() const
-    {
-        return workshop_count_;
-    }
+    u8 instance_count(MetaclassIndex idx) const;
 
 
-    u8 manufactory_count() const
-    {
-        return manufactory_count_;
-    }
+    u8 workshop_count() const;
+
+
+    u8 manufactory_count() const;
 
 
     u8 core_count() const
@@ -505,8 +502,6 @@ private:
     BlockChecksum checksum_ = 0;
 
     u8 flag_anim_index_;
-    u8 workshop_count_ = 0;
-    u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
     u8 min_y_ = 0;
     s8 ambient_movement_;

@@ -1934,8 +1934,6 @@ void Island::repaint()
     Buffer<RoomCoord, decltype(terrain_)::capacity()> chimney_locs;
 
     has_radar_ = false;
-    manufactory_count_ = 0;
-    workshop_count_ = 0;
     core_count_ = 0;
     offensive_capabilities_ = 0;
     for (auto& room : rooms_) {
@@ -1948,10 +1946,6 @@ void Island::repaint()
         auto metac = room->metaclass();
         if (str_cmp((*metac)->name(), "radar") == 0) {
             has_radar_ = true;
-        } else if (str_cmp((*metac)->name(), "workshop") == 0) {
-            ++workshop_count_;
-        } else if (str_cmp((*metac)->name(), "manufactory") == 0) {
-            ++manufactory_count_;
         } else if ((*room->metaclass())->category() == Room::Category::power) {
             critical_core_x_ = room->position().x;
             critical_core_y_ = room->position().y;
@@ -2206,6 +2200,35 @@ void Island::repaint()
             }
         }
     }
+}
+
+
+
+u8 Island::instance_count(MetaclassIndex idx) const
+{
+    u8 count = 0;
+
+    for (auto& room : rooms_) {
+        if (room->metaclass_index() == idx) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+
+
+u8 Island::workshop_count() const
+{
+    return instance_count(metaclass_index("workshop"));
+}
+
+
+
+u8 Island::manufactory_count() const
+{
+    return instance_count(metaclass_index("manufactory"));
 }
 
 

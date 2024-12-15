@@ -48,6 +48,9 @@ namespace skyland
 
 const char* Core::upgrade_mt_name() const
 {
+    if (APP.faction() == Faction::goblin) {
+        return "chaos-core";
+    }
     return "reactor";
 }
 

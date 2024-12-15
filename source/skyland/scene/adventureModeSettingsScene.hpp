@@ -70,11 +70,12 @@ public:
 private:
     void repaint_difficulty(int difficulty, bool selected);
     void repaint_permadeath(bool on, bool selected);
+    void repaint_faction(Faction faction, bool selected);
 
     void repaint();
 
     Optional<Text> title_;
-    Buffer<Text, 2> lines_;
+    Buffer<Text, 3> lines_;
 
     int sel_ = 0;
 

@@ -85,7 +85,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::has_chimney | RoomProperties::habitable |
-               RoomProperties::only_constructible_in_sandbox;
+               RoomProperties::manufactory_required |
+               RoomProperties::goblin_only;
     }
 
 

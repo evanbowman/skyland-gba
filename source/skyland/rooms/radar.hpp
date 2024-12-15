@@ -113,7 +113,8 @@ public:
     {
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::multiboot_compatible;
+               RoomProperties::multiboot_compatible |
+               RoomProperties::human_only;
     }
 
 

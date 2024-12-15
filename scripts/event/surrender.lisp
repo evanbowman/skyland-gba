@@ -12,4 +12,10 @@
     (eval-file (string p "crew.lisp")))
    (true
     (if (equal 0 (choice 3))
-        (dialog "<c:goblin pirates:2>You pessky humannss! We'll never surrender to the likess of you!")))))
+        (dialog
+         "<c:goblin pirates:2>You "
+         (cond
+           ((equal (faction) 'human) "nassty humannss")
+           ((equal (faction) 'goblin) "traitorsss")
+           ((equal (faction) 'sylph) "arrogant ssylph"))
+         "! We'll never surrender to the likess of you!")))))

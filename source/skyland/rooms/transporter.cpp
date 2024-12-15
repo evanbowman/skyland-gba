@@ -55,6 +55,7 @@ namespace skyland
 
 
 SHARED_VARIABLE(transporter_reload_ms);
+SHARED_VARIABLE(transporter_goblin_perk_ms);
 
 
 
@@ -590,6 +591,9 @@ void Transporter::finalize()
 Time Transporter::recharge_time() const
 {
     Time time = 1000 * transporter_reload_ms;
+    if (is_player_island(parent()) and APP.faction() == Faction::goblin) {
+        time -= 1000 * transporter_goblin_perk_ms;
+    }
     if (amplify_) {
         time /= 2;
     }

@@ -215,6 +215,8 @@ void TitleScreenScene::enter(Scene& prev)
 
     APP.macrocosm().reset();
 
+    APP.faction() = Faction::human;
+
     dev_ = APP.is_developer_mode();
 
     const int offset = 64;

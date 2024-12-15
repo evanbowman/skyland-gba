@@ -58,7 +58,12 @@
                       (adventure-log-add 41 '())
                       (setq on-dialog-closed
                             (lambda ()
-                              (dialog "<c:goblin:2>Die humansss!")
+                              (dialog "<c:goblin:2>Die "
+                                      (cond
+                                        ((equal (faction) 'goblin) "traitorsss")
+                                        ((equal (faction) 'human) "humansss")
+                                        ((equal (faction) 'sylph) "sylph sscum"))
+                                      "!")
                               (setq on-dialog-closed '()))))))
               (progn
                 (dialog "Sadly, there's no room...")

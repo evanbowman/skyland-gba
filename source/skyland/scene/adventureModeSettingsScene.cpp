@@ -35,6 +35,7 @@
 #include "adventureModeSettingsScene.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -43,7 +44,7 @@ namespace skyland
 
 
 
-struct DifficultyInfo
+struct SettingInfo
 {
     SystemString text_;
     SystemString desc_;
@@ -54,14 +55,23 @@ struct DifficultyInfo
 static const SystemString titles[] = {
     SystemString::sf_difficulty,
     SystemString::permadeath_setting,
+    SystemString::faction_setting,
 };
 
 
 
-static const DifficultyInfo difficulty_text[] = {
+static const SettingInfo difficulty_text[] = {
     {SystemString::sf_casual, SystemString::difficulty_hint_easy},
     {SystemString::sf_normal, SystemString::difficulty_hint_normal},
     {SystemString::sf_hard, SystemString::difficulty_hint_hard},
+};
+
+
+
+static const SettingInfo faction_text[] = {
+    {SystemString::faction_human, SystemString::faction_desc_human},
+    {SystemString::faction_goblin, SystemString::faction_desc_goblin},
+    {SystemString::faction_sylph, SystemString::faction_desc_sylph}
 };
 
 
@@ -71,6 +81,15 @@ void AdventureModeSettingsScene::repaint_difficulty(int difficulty,
 {
     auto d = difficulty_text[difficulty];
     render_line(0, d.text_, d.desc_, selected);
+}
+
+
+
+void AdventureModeSettingsScene::repaint_faction(Faction faction,
+                                                 bool selected)
+{
+    auto d = faction_text[(int)faction];
+    render_line(2, d.text_, d.desc_, selected);
 }
 
 
@@ -150,19 +169,79 @@ void AdventureModeSettingsScene::render_line(int linenum,
 
 void AdventureModeSettingsScene::repaint()
 {
+    for (int x = 0; x < 30; ++x) {
+        for (int y = 10; y < 14; ++y) {
+            PLATFORM.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
+
+    auto show_dividing_line = [&] {
+        for (int x = 1; x < 29; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x, 13, 377);
+        }
+    };
+
+    show_dividing_line();
+
     switch (sel_) {
     case 0:
         repaint_difficulty((int)APP.gp_.difficulty_, true);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on),
             false);
+        repaint_faction(APP.faction(), false);
         break;
 
     case 1:
         repaint_difficulty((int)APP.gp_.difficulty_, false);
         repaint_permadeath(
             APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), true);
+        repaint_faction(APP.faction(), false);
         break;
+
+    case 2: {
+        repaint_difficulty((int)APP.gp_.difficulty_, false);
+        repaint_permadeath(
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
+        repaint_faction(APP.faction(), true);
+        RoomProperties::Value filter;
+        switch (APP.faction()) {
+        default:
+        case Faction::human:
+            filter = RoomProperties::human_only;
+            break;
+
+        case Faction::goblin:
+            filter = RoomProperties::goblin_only;
+            break;
+
+        case Faction::sylph:
+            filter = RoomProperties::sylph_only;
+            break;
+        }
+
+        Buffer<int, 5> icons;
+
+        auto [mt, ms] = room_metatable();
+        for (int i = 0; i < ms; ++i) {
+            if (mt[i]->properties() & filter) {
+                icons.push_back(mt[i]->unsel_icon());
+            }
+        }
+
+        static const int vram_locs[] = {
+            258, 181, 197, 213, 274
+        };
+
+        int x_margin = (30 - icons.size() * 4) / 2;
+
+        for (u32 i = 0; i < icons.size(); ++i) {
+            draw_image(vram_locs[i], x_margin + i * 4, 10, 4, 4, Layer::overlay);
+            PLATFORM.load_overlay_chunk(vram_locs[i], icons[i], 16);
+        }
+
+        break;
+    }
     }
 }
 
@@ -238,6 +317,25 @@ void AdventureModeSettingsScene::update_field(bool inc)
         APP.gp_.stateflags_.set(GlobalPersistentData::permadeath_on, pd);
         break;
     }
+
+    case 2: {
+        const auto faction = APP.faction();
+        if (inc) {
+            if ((int)faction + 1 == (int)Faction::count) {
+                APP.faction() = Faction::start;
+            } else {
+                APP.faction() = (Faction)((int)faction + 1);
+            }
+        } else {
+            if (faction == Faction::start) {
+                APP.faction() = (Faction)((int)Faction::count - 1);
+            } else {
+                APP.faction() = (Faction)((int)faction - 1);
+            }
+        }
+        break;
+    }
+
     }
 }
 
@@ -259,7 +357,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         return APP.player().test_key(k, milliseconds(500), milliseconds(100));
     };
 
-    static const int sel_max = 1;
+    static const int sel_max = 2;
 
     if (test_key(Key::up)) {
         if (sel_ > 0) {

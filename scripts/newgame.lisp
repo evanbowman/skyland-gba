@@ -49,8 +49,11 @@
 ;; Variables associated with quests
 (setq qvar nil)
 
-
-(chr-new (player) 2 14 'neutral nil)
+(chr-new (player) 2 14 'neutral
+         (cond
+           ((equal (faction) 'goblin) '((race . 1)))
+           ((equal (faction) 'sylph) nil)
+           ((equal (faction) 'human) nil)))
 
 (eval-file "/scripts/adventure_vars.lisp")
 

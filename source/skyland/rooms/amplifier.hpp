@@ -237,7 +237,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::sylph_only |
                RoomProperties::accepts_ion_damage;
     }
 

@@ -80,7 +80,12 @@
            (rooms (opponent)))
       (dialog "The survivors turned out to be vicious goblins, and their island is not as defensless as it initially appeared...")
       (defn on-dialog-closed ()
-        (dialog "<c:goblin:2>Die humansss!")
+        (dialog "<c:goblin:2>Die "
+                (cond
+                  ((equal (faction) 'goblin) "traitorsss")
+                  ((equal (faction) 'human) "humansss")
+                  ((equal (faction) 'sylph) "sylph sscum"))
+                "!")
         (setq on-dialog-closed nil))
       (opponent-mode 'hostile))
      (true

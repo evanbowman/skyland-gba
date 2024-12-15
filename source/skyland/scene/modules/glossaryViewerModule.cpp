@@ -499,8 +499,20 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                     }
                     break;
 
-                case SystemString::filter_habitable:
-                    if (cond & RoomProperties::habitable) {
+                case SystemString::filter_sylph_exclusive:
+                    if (cond & RoomProperties::sylph_only) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                case SystemString::filter_goblin_exclusive:
+                    if (cond & RoomProperties::goblin_only) {
+                        (*filter_buf_)->push_back(i);
+                    }
+                    break;
+
+                case SystemString::filter_human_exclusive:
+                    if (cond & RoomProperties::human_only) {
                         (*filter_buf_)->push_back(i);
                     }
                     break;

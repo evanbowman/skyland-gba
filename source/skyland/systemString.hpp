@@ -614,13 +614,17 @@ enum class SystemString {
     difficulty_hint_hard,
     difficulty_hint_annihilation,
 
-    autofire_setting,
-    autofire_hint_on,
-    autofire_hint_off,
-
     permadeath_setting,
     permadeath_hint_on,
     permadeath_hint_off,
+
+    faction_setting,
+    faction_desc_human,
+    faction_desc_sylph,
+    faction_desc_goblin,
+    faction_human,
+    faction_sylph,
+    faction_goblin,
 
     exit_tutorial,
 
@@ -692,10 +696,12 @@ enum class SystemString {
     filter_begin,
     filter_req_workshop = filter_begin,
     filter_req_manufactory,
-    filter_habitable,
     filter_ion_damage,
     filter_highly_flammable,
     filter_surface_weapons,
+    filter_human_exclusive,
+    filter_goblin_exclusive,
+    filter_sylph_exclusive,
     filter_end,
 
     // Place no new enumerations here. (filter_end)
@@ -706,6 +712,9 @@ enum class SystemString {
     glossary_workshop_required,
     glossary_manufactory_required,
     glossary_not_constructible,
+    glossary_human_only,
+    glossary_sylph_only,
+    glossary_goblin_only,
 
     error_power_out,
     error_friendly,

@@ -162,6 +162,10 @@ struct RoomProperties
         multiboot_compatible = (1 << 25),
 
         singleton = (1 << 26),
+
+        human_only = (1 << 27),
+        sylph_only = (1 << 28),
+        goblin_only = (1 << 29),
     };
 };
 

@@ -7,6 +7,7 @@
  '((25000 . "decimator_reload_ms")
    (25000 . "drone_bay_reload_ms")
    (18000 . "transporter_reload_ms")
+   (6000 . "transporter_goblin_perk_ms")
    (10000 . "beam_reload_ms")
    (6800 . "incinerator_reload_ms")
    (3500 . "cannon_reload_ms")

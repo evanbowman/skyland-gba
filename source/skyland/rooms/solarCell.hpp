@@ -123,7 +123,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden | RoomProperties::disallow_chimney;
+               RoomProperties::roof_hidden | RoomProperties::disallow_chimney |
+               RoomProperties::human_only;
     }
 };
 
