@@ -50,6 +50,8 @@ const char* Core::upgrade_mt_name() const
 {
     if (APP.faction() == Faction::goblin) {
         return "chaos-core";
+    } else if (APP.faction() == Faction::sylph) {
+        return nullptr;
     }
     return "reactor";
 }
