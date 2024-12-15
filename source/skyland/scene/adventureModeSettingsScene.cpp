@@ -266,6 +266,18 @@ void AdventureModeSettingsScene::enter(Scene& prev)
                    Text::OptColors{{ColorConstant::med_blue_gray,
                                     ColorConstant::rich_black}});
 
+
+    if (APP.gp_.stateflags_.get(GlobalPersistentData::goblin_faction)) {
+        APP.faction() = Faction::goblin;
+    }
+
+    if (APP.gp_.stateflags_.get(GlobalPersistentData::sylph_faction)) {
+        APP.faction() = Faction::sylph;
+    }
+
+    prev_faction_ = APP.faction();
+
+
     repaint();
 
     for (int x = 1; x < 29; ++x) {
@@ -395,6 +407,25 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
     if (APP.player().key_down(Key::action_1)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
         load_difficulty_profile();
+
+        if (APP.faction() not_eq prev_faction_) {
+            APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction, false);
+            APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, false);
+
+            switch (APP.faction()) {
+            default:
+                break;
+
+            case Faction::goblin:
+                APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction, true);
+                break;
+
+            case Faction::sylph:
+                APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, true);
+                break;
+            }
+        }
+
 
         if ((u8)APP.gp_.difficulty_ not_eq original_ or
             APP.gp_.stateflags_ not_eq stateflags_cached_) {

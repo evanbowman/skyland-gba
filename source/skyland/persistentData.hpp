@@ -71,6 +71,8 @@ struct GlobalPersistentData
         autofire_on, // deprecated
         permadeath_on,
         agb_color_mode,
+        goblin_faction,
+        sylph_faction,
     };
 
     enum class Difficulty : u8 {

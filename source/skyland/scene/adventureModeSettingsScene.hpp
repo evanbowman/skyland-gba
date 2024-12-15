@@ -83,6 +83,7 @@ private:
     bool newgame_;
     u8 original_;
     Bitvector<64> stateflags_cached_;
+    Faction prev_faction_;
     bool init_ = true;
 };
 
