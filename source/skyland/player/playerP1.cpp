@@ -227,6 +227,10 @@ void PlayerP1::on_room_plundered(Room& room)
         APP.score().set(
             (APP.score().get() +
              1.5f * (score_multiplier * (*room.metaclass())->cost())));
+
+        if (str_eq((*room.metaclass())->name(), "decimator")) {
+            achievements::raise(achievements::Achievement::ancient_weapon);
+        }
     }
 }
 

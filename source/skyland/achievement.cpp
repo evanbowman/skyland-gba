@@ -163,27 +163,15 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[banana_man].reward_), awarded);
      }},
 
-    {SystemString::achievement_end_of_line_name,
-     SystemString::achievement_end_of_line_description,
-     "spark-cannon",
+    {SystemString::achievement_ancient_weapon_name,
+     SystemString::achievement_ancient_weapon_description,
+     "decimator",
      []() {
-         if (APP.zone() == 4) {
-             auto current_x = APP.world_graph()
-                                  .nodes_[APP.current_world_location()]
-                                  .coord_.x;
-
-             for (auto& node : APP.world_graph().nodes_) {
-                 if (node.coord_.x > current_x) {
-                     return false;
-                 }
-             }
-
-             return true;
-         }
+         // invoked manually through achievements::raise().
          return false;
      },
      [](bool awarded) {
-         set_enabled(metaclass_index(info[edge_of_world].reward_), awarded);
+         set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
      }},
 
     {SystemString::achievement_ship_of_theseus_name,
@@ -288,6 +276,29 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](bool awarded) {
          set_enabled(metaclass_index(info[hero].reward_), awarded);
+     }},
+
+    {SystemString::achievement_end_of_line_name,
+     SystemString::achievement_end_of_line_description,
+     "spark-cannon",
+     []() {
+         if (APP.zone() == 4) {
+             auto current_x = APP.world_graph()
+                                  .nodes_[APP.current_world_location()]
+                                  .coord_.x;
+
+             for (auto& node : APP.world_graph().nodes_) {
+                 if (node.coord_.x > current_x) {
+                     return false;
+                 }
+             }
+
+             return true;
+         }
+         return false;
+     },
+     [](bool awarded) {
+         set_enabled(metaclass_index(info[edge_of_world].reward_), awarded);
      }},
 
     // {SystemString::achievement_pacifist_name,
