@@ -148,7 +148,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden | RoomProperties::locked_by_default |
+               RoomProperties::roof_hidden |
+               RoomProperties::goblin_only |
                RoomProperties::habitable;
     }
 
