@@ -321,14 +321,14 @@ void AdventureModeSettingsScene::update_field(bool inc)
     case 2: {
         const auto faction = APP.faction();
         if (inc) {
-            if ((int)faction + 1 == (int)Faction::count) {
+            if ((int)faction + 1 == (int)Faction::count - 1) {
                 APP.faction() = Faction::start;
             } else {
                 APP.faction() = (Faction)((int)faction + 1);
             }
         } else {
             if (faction == Faction::start) {
-                APP.faction() = (Faction)((int)Faction::count - 1);
+                APP.faction() = (Faction)((int)Faction::count - 2);
             } else {
                 APP.faction() = (Faction)((int)faction - 1);
             }
