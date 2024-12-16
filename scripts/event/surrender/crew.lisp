@@ -24,7 +24,7 @@
                                     y
                                     'neutral
                                     (list (cons 'race 1)
-                                          (cons 'icon (sample '(18 35 36 37)))))
+                                          (cons 'icon (sample '(18 35 36 37 41)))))
                            (adventure-log-add 51 '())
                            (dialog "One of the goblins joined your crew!")
                            (run-util-script "hostile-pickup-cart"
