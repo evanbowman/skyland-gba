@@ -160,15 +160,26 @@ DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line);
 StringBuffer<128> AdventureLogScene::format_logentry(int entry)
 {
     StringBuffer<128> result;
-    
+
     if (auto v = load_logentry(entry)) {
+        
+        const char* file = "/strings/adventure_log.txt";
+        if (APP.faction() == Faction::human) {
+            file = "/strings/adventure_log_human.txt";
+        } else if (APP.faction() == Faction::goblin) {
+            file = "/strings/adventure_log_goblin.txt";
+        } else if (APP.faction() == Faction::sylph) {
+            file = "/strings/adventure_log_sylph.txt";
+        } else {
+            file = "/strings/adventure_log.txt";
+        } 
+
 
         auto line = lisp::get_list(v, 0)->integer().value_;
-        if (APP.faction() == Faction::sylph) {
-            auto str = get_line_from_file("/strings/adventure_log_sylph.txt", line);
-            
-            Buffer<StringBuffer<20>, 8> args;
-            lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
+        auto str = get_line_from_file(file, line);
+
+        Buffer<StringBuffer<20>, 8> args;
+        lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
             lisp::DefaultPrinter p;
             lisp::format(val, p);
             args.push_back(p.data_.c_str());
@@ -186,80 +197,6 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
             }
             ++fmt_str;
         }
-        }
-        else if (APP.faction() == Faction::goblin) {
-            auto str = get_line_from_file("/strings/adventure_log_goblin.txt", line);
-            
-            Buffer<StringBuffer<20>, 8> args;
-            lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
-            lisp::DefaultPrinter p;
-            lisp::format(val, p);
-            args.push_back(p.data_.c_str());
-        });
-
-        const char* fmt_str = str->c_str();
-        u32 current_arg = 0;
-        while (*fmt_str not_eq '\0') {
-            if (*fmt_str == '%') {
-                if (current_arg < args.size()) {
-                    result += args[current_arg++];
-                }
-            } else {
-                result.push_back(*fmt_str);
-            }
-            ++fmt_str;
-        }
-        }
-        else if (APP.faction() == Faction::human) {
-            auto str = get_line_from_file("/strings/adventure_log_human.txt", line);
-
-            
-            Buffer<StringBuffer<20>, 8> args;
-            lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
-            lisp::DefaultPrinter p;
-            lisp::format(val, p);
-            args.push_back(p.data_.c_str());
-        });
-
-        const char* fmt_str = str->c_str();
-        u32 current_arg = 0;
-        while (*fmt_str not_eq '\0') {
-            if (*fmt_str == '%') {
-                if (current_arg < args.size()) {
-                    result += args[current_arg++];
-                }
-            } else {
-                result.push_back(*fmt_str);
-            }
-            ++fmt_str;
-        }
-        }
-        else {
-            auto str = get_line_from_file("/strings/adventure_log.txt", line);
-
-            Buffer<StringBuffer<20>, 8> args;
-            lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {
-            lisp::DefaultPrinter p;
-            lisp::format(val, p);
-            args.push_back(p.data_.c_str());
-        });
-
-        const char* fmt_str = str->c_str();
-        u32 current_arg = 0;
-        while (*fmt_str not_eq '\0') {
-            if (*fmt_str == '%') {
-                if (current_arg < args.size()) {
-                    result += args[current_arg++];
-                }
-            } else {
-                result.push_back(*fmt_str);
-            }
-            ++fmt_str;
-        }
-        }
-
-
-
     }
 
     return result;
