@@ -1,3 +1,6 @@
+;;;
+;;; neutral/0/5_human.lisp
+;;;
 
 (dialog
  "A distress call sounds over your radio! <B:0> "

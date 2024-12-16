@@ -1,5 +1,5 @@
 ;;;
-;;; neutral/0/0_0.lisp
+;;; neutral/0/0_goblin.lisp
 ;;;
 
 

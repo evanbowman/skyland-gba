@@ -1,5 +1,5 @@
 ;;;
-;;; neutral/1/0.lisp
+;;; neutral/1/0_goblin.lisp
 ;;;
 
 
@@ -105,6 +105,6 @@
 
 (setq on-dialog-declined
       (lambda ()
-        (dialog "The mercenaries became angry, and cut the transmission.")
+        (dialog "The monks became angry, and cut the transmission.")
         (adventure-log-add 66 '())
         (exit)))
