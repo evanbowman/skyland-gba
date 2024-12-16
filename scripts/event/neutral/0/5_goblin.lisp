@@ -57,7 +57,7 @@
   (run-util-script
    "find-crew-slot"
    "<c:goblin raider:39>Hold on, don't leave me here! I know your casstle's full, but thiss island is burning!"
-   'cargo-bay
+   'ladder
    "Place block (1x2):"
    (lambda (x y _)
      (chr-del (opponent) 1 12)
