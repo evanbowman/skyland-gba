@@ -1,6 +1,10 @@
 
 (dialog
- "<c:goblin pirates:2>We surrender! Honesst, we promise not to pillage any other cassstles!")
+ (cond
+  ((equal (faction) 'goblin)
+    "<c:goblin pirates:2>We surrender! Honesst, we promise to help you pillage any other cassstles!")
+  (true
+    "<c:goblin pirates:2>We surrender! Honesst, we promise not to pillage any other cassstles!")))
 
 (defn on-dialog-closed ()
   (setq on-dialog-closed '())
