@@ -97,7 +97,7 @@
                         (/ (coins) 2))))))
   (defn on-converge ()
     (dialog
-     "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
+     "<c:goblin queen:40>#cackle# You're tresspasssing in my territory! I demand a tribute of "
      (string val)
      "@! Pay!")
 
@@ -110,11 +110,11 @@
         (progn
           (opponent-mode 'hostile)
           (adventure-log-add 32 '())
-          (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
+          (dialog "<c:globlin queen:40>Thatsss not enough! Letss ssee if theress anything we can take!!"))
       (progn
         (coins-add (- val))
         (adventure-log-add 31 (list val))
-        (dialog "The goblin king rejoices, having successfully extorted "
+        (dialog "The goblin queen rejoices, having successfully extorted "
                 (string val)
                 "@.")
         (exit)))))
@@ -124,4 +124,4 @@
 (defn on-dialog-declined ()
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
-  (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!"))
+  (dialog "<c:goblin queen:40>YARRRGG!!! PREPARE FOR BOARDING!!!"))
