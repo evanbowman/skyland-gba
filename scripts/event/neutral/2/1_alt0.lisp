@@ -15,7 +15,8 @@
    (hull 4 12)))
 
 
-(chr-new (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 1 14 'neutral
+         (list (cons 'race (if (equal (faction) 'goblin) 1 0))))
 
 
 (setq on-converge
@@ -48,13 +49,17 @@
                   (chr-del (opponent) 1 14)
                   (if (not bad)
                       (progn
-                        (chr-new (player) (car temp) (cdr temp) 'neutral nil)
+                        (chr-new (player) (car temp) (cdr temp) 'neutral
+                                 (list (cons 'race
+                                             (if (equal (faction) 'goblin) 1 0))))
                         (dialog "The survivor joined your crew!")
                         (adventure-log-add 40 '())
                         (exit))
                     (progn
                       (chr-new (player) (car temp) (cdr temp) 'hostile nil)
-                      (dialog "The survivor turned out to be a vicious goblin!")
+                      (dialog (if (equal (faction) 'goblin)
+                                  "The survivor turned out to be very unfriendly!"
+                                  "The survivor turned out to be a vicious goblin!"))
                       (adventure-log-add 41 '())
                       (setq on-dialog-closed
                             (lambda ()

@@ -64,8 +64,8 @@
 (flag-show (opponent) 1)
 
 
-(chr-new (opponent) 0 14 'neutral 0)
-(chr-new (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 0 14 'neutral '((race . 1)))
+(chr-new (opponent) 1 14 'neutral '((race . 1)))
 
 
 (setq on-converge
