@@ -19,7 +19,8 @@
       (setq lv (sample lvs)))
 
     (eval-file
-     (format "/scripts/event/quest/%.lisp"
+     (format "/scripts/event/quest/%/%.lisp"
+             (faction)
              ;8
              lv
              ))))
