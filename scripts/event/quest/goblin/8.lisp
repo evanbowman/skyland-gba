@@ -6,8 +6,8 @@
 (dialog
  "A proximity alarm wakes your crew in the night! <B:0>"
  "<b:/scripts/data/img/night.img.bin>"
- "An unknown island appears in the moonlight. <B:0>"
- "You almost ran right into it! Upon contacting them, you find the inhabitants in a heated discussion...")
+ "An ancient fortress appears in the moonlight. <B:0>"
+ "You almost ran right into it! Inside, you hear the sounds of ritual chanting...")
 
 (weather-set 7)
 
@@ -20,11 +20,9 @@
 
 (defn on-converge ()
   (dialog
-   "<c:king of Emsshaw Cay:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
+   "<c:ashwalker elder:42>The ssstorm brings change... Our seers have had visionsss of an ancient weapon, buried in the ruins of our ancestorsss. <B:0> A relic from before the Great Change that made us what we are... <B:0> It must not remain below when the ssstorm arrives. <B:0> Will you help retrieve it?")
 
-   (dialog-await-binary-q-w/lore "okay..." "sorry, but no"
-                                 '(("atomics?" .
-                                    "<c:king of Emsshaw Cay:27> During the surface wars, ancient civilizations fought each other with powerful atomic weapons. <B:0> When our ancestors moved up here, they stashed their arsenal in a hidden place for safe keeping. <B:0> Can you go retrieve them?")))
+   (dialog-await-binary-q "okay..." "sorry, but no")
 
    (defn on-dialog-accepted ()
      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -33,24 +31,24 @@
            (progn
              (adventure-log-add 63 '())
              (push 'qids 8)
-             (push 'quests (cons "atomics.lisp" m))
-             (dialog "<c:king of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
+             (push 'quests (cons "goblin_atomics.lisp" m))
+             (dialog "<c:ashwalker elder:42> The location hasss been marked on your chart with an *! <B:0> My apprentice will guide you through the old rituals...")
              (defn on-dialog-closed ()
-               (dialog "<c:warrior princess of E. Cay:28> I'm going too! Better than sitting around here doing nothing... <B:0> Don't worry, I can pull my own weight!")
+               (dialog "<c:ashwalker apprentice:41> Finally, a chance to prove my worth to the Order! <B:0> I know all the ancient wardsss against radiation!")
 
                (defn on-dialog-closed ()
                  (setq on-dialog-closed nil)
                  (run-util-script
                   "find-crew-slot"
-                  "<c:warrior princess of E. Cay:28> Hmm... you seem to be out of space... <B:0> Let me fix that!"
+                  "<c:ashwalker apprentice:41> Hmm... you seem to be out of sspace... <B:0> Let me fix that!"
                   'ladder
                   "Place block (1x2):"
                   (lambda (x y _)
-                    (chr-new (player) x y 'neutral '((icon . 28)))
-                    (dialog "The princess joined your crew!")
+                    (chr-new (player) x y 'neutral '((icon . 41) (race . 1)))
+                    (dialog "The apprentice joined your crew!")
                     (setq on-dialog-closed exit))))))
            (progn
-             (dialog "<c:king of Emsshaw Cay:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
+             (dialog "<c:ashwalker elder:42> The visionsss were unclear... The ssstorm moves too quickly, the path is already blocked...")))))
 
 
    (setq on-dialog-declined exit))
