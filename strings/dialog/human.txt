@@ -6,3 +6,13 @@ what do you say?
 <c:merchant:7> Seems like you have enough now!
 <c:merchant:7> Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?
 <c:merchant:7> Looks great! You made a fine choice!
+<b:/scripts/data/img/explorer.img.bin>You come across an explorer's balloon, floating gently in the breeze. You adjust your engines to keep pace with it...
+<c:explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?
+He seems harmless, invite him aboard?
+<c:explorer:22> I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?
+The explorer joined your crew!
+The explorer joined your crew. Hungry, he ate 600@ of your food supplies!
+Sadly, there's no room...
+<c:explorer:22>No room in your castle? Hold on, I've got some supplies, I'll help out...
+<c:explorer:22> Thanks! I'll try to help out however I can!
+The explorer joined your crew!
