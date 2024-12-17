@@ -1,19 +1,19 @@
 
-fought off a hostile vessel, -%@, +%@.
+fought off a hosstile vessel, -%@, +%@.
 
 % crewmembers died in the fighting!
 __unused__
-defeated the storm king!
-rescued a castaway!
+defeated the king of the sstorm, now goblins can pillage ssafely!
+resscued a castaway!
 found an abandoned wreck, but did not explore.
 found an abandoned wreck, found rocket-bomb!
-bought two % from some merchants for %@!
-explored abandoned ruins, found %@
-met pirate redbeard, failed to bribe
-met pirate redbeard, paid %@ toll
-met pirate redbeard, refused to pay bribe
-rescued an orphan girl! she joined the crew!
-accepted delivery quest from a merchant outpost!
+bought two % from some sscavengers for %@!
+explored abandoned ruinss, found %@
+met sstinker redbeard, failed to bribe
+met sstinker redbeard, paid %@ toll
+met sstinker redbeard, refussed to pay bribe
+resscued a goblin raider! she joined the crew!
+accepted delivery quesst from a merchant outpost!
 accepted banana man's mysterious task!
 accepted farmer meyer's quest! (deliver % trees)
 accepted chauffeur's quest!
@@ -32,12 +32,12 @@ paid %@ to goblin king
 goblin king rejected bribe and attacked!
 goblin king attacked after bribe refused
 island contaminated by infested castle
-scavenged %@ from infested isle
+sscavenged %@ from infested issle
 donated core to village, +2 % and +3 crew!
-upgraded all hull to staked hull!
-collected %@ from forsaken town!
+upgraded all hull to sstaked hull!
+collected %@ from forssaken town!
 encountered drone carrier...
-rescued survivor from wrecked ship!
+resscued survivor from wrecked ship!
 feral survivor from wrecked ship attacked!
 pirates attack from stolen warship!
 pirates in stolen warship move on after bribe...
@@ -47,7 +47,7 @@ recovered incinerator from burning island!!
 collected %@ from abandoned isle
 a massive warship attacks...
 discovered a shop!
-purchased % for %@
+purchassed % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
