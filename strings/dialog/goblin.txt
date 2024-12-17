@@ -1,8 +1,8 @@
-Some merchants broadcast an advertisement for advanced technology! Let's see if they have anything useful!
-<c:merchant:7> We ordered too many
-s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, 
-...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?
-what do you say?
-<c:merchant:7> Seems like you have enough now!
-<c:merchant:7> Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?
-<c:merchant:7> Looks great! You made a fine choice!
+Your sensors detect some goblin scavengers returning from a raid. <B:0> Their leader excitedly waves you down, eager to trade their mysterious finds...
+<c:scavenger:35> Found thessse 
+s on a human issle! Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!"
+...but you don't ssseem to have enough. Do you want to ssalvage some stuff to come up with the funds? I'll check back in 15 seconds?
+
+<c:scavenger:35> Seems like you have enough now!
+<c:scavenger:35> Sorry, that's not enough! Do you want to salvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?
+<c:scavenger:35> Yesss! Ssmart choice! Don't mind the burn marksss, they add character!

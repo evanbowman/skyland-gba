@@ -12,11 +12,16 @@
  '((power-core 3 13)
    (hull 0 14)))
 
-(chr-new (opponent) 1 14 'neutral 0)
-(chr-new (opponent) 2 14 'neutral 0)
+(let ((race (if (equal (faction) 'goblin) 1 0)))
+  (chr-new (opponent) 1 14 'neutral (list (cons 'race race)))
+  (chr-new (opponent) 2 14 'neutral (list (cons 'race race))))
 
 
-(flag-show (opponent) 6)
+
+(flag-show (opponent)
+           (if (equal (faction) 'goblin)
+               0
+               6))
 
 
 (let ((item (sample '(arc-gun flak-gun fire-charge)))
