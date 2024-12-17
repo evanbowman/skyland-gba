@@ -1,7 +1,7 @@
 
 (dialog
- "<b:/scripts/data/img/airship.img.bin>"
- "While passing by a small airship, a the owner frantically signals you with his radio...")
+ ;"<b:/scripts/data/img/airship.img.bin>" TODO: make new graphics
+ "In the distance, you spot a series of colored smoke signals rising from several islands...")
 
 
 (opponent-init 6 'neutral)
@@ -23,11 +23,9 @@
 
 (defn on-converge ()
   (dialog
-   "<c:chauffeur:11>Hey man, I was supposed to pick up a whole bunch of people and give em a lift outa here, but the skies've been crawling with goblins ever since these storm clouds started rollin' in, I don't think I can make it there in time. You've got a big, powerful fortress, wanna help a fella out?")
+   "<c:goblin scout:38>Ssseeing your flag on the horizon givesss us hope! <B:0> Our clan was scattered when the ssstorm changed course. We're too few to survive alone, but together... <B:0> Help gather my crew, and we'll join your strength with oursss!")
 
-  (dialog-await-binary-q-w/lore "I accept!" "I'm kind of busy…"
-                                '(("explain transit more…" .
-                                   "<c:chauffeur:11>Ah! I thought you would already know, but I can explain that more. Most medium distance transit takes place using transporters. But over long distances, warp transit can be a bit unreliable. <B:0> (You wouldn't want to end up inside a wall, or worse) <B:0> So long distance transport takes place using airships. Many isles are propelled by powerful atomic reactors, but it doesn't make sense to use that much energy for passenger transit, so my airship is slower and powered by balloon. <B:0> Anyway, can you help pick up these people?"))))
+  (dialog-await-binary-q "I accept!" "I'm kind of busy…"))
 
 
 (defn on-dialog-accepted ()
@@ -36,13 +34,13 @@
     (if m
         (progn
           (push 'qids 3)
-          (push 'quests (cons "pickup.lisp" m))
+          (push 'quests (cons "goblin_pickup.lisp" m))
           (adventure-log-add 19 '())
-          (dialog "<c:chauffeur:11>Thanks a lot! I just marked the location your sky chart with an *!"))
+          (dialog "<c:goblin scout:38>Yesss! I've marked their sssignals on your chart with an *!"))
       (progn
-        (dialog "<c:chauffeur:11>Ya know, now that I look at this map, I don't think you can make it there in time either, I hope they won't get too mad at me...")))))
+        (dialog "<c:goblin scout:38>The ssstorm moves too fast... we won't reach them in time. My clan is lost...")))))
 
 
 (defn on-dialog-declined ()
-  (dialog "<c:chauffeur:11>Hey, don't worry, I understand...")
+  (dialog "<c:goblin scout:38>Fine then... we'll find another way...")
   (setq on-dialog-closed exit))
