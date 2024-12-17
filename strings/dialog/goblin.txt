@@ -1,6 +1,6 @@
 Your sensors detect some goblin scavengers returning from a raid. <B:0> Their leader excitedly waves you down, eager to trade their mysterious finds...
 <c:scavenger:35> Found thessse 
-s on a human issle! Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!"
+s on a human issle! Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!
 ...but you don't ssseem to have enough. Do you want to ssalvage some stuff to come up with the funds? I'll check back in 15 seconds?
 
 <c:scavenger:35> Seems like you have enough now!
