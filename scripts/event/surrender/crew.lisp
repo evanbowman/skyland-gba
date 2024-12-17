@@ -19,7 +19,9 @@
                         (score-add score-bonus)
                         (run-util-script
                          "find-crew-slot"
-                         "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce hoomansses will not leave us! I'll build an ledarr!"
+                        (if (equal (faction) 'goblin)
+                          "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce friends will not leave usss! I'll build an ledarr!"
+                          "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce hoomansses will not leave us! I'll build an ledarr!")
                          'ladder
                          "Place block (1x2):"
                          (lambda (x y _)
