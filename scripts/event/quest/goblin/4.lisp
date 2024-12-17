@@ -1,6 +1,7 @@
 
 (dialog
- "<b:/scripts/data/img/ceramics.img.bin>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
+ ;"<b:/scripts/data/img/ceramics.img.bin>" TODO: draw image
+ "You encounter a goblin salvage crew hauling up strange artifacts through a break in the clouds. Your crew recognizes them as valuable relics from the surface wars...")
 
 
 (opponent-init 13 'neutral)
@@ -72,7 +73,7 @@
     (setq on-converge nil)
     (dialog
      (format
-      "<c:merchant:7>So, whaddya you say? Purchase a batch of ceramics for %@?"
+      "<c:scavenger:34>Found thessse rare artifactsss in the ruinsss below! Worth a fortune to the right collector. Only %@ for the lot!"
       fee
       (* fee 2)))
 
@@ -82,7 +83,7 @@
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
         (if m
             (progn
-              (push 'quests (cons "ceramics.lisp" m))
+              (push 'quests (cons "artifacts.lisp" m))
               (run-util-script
                "find-or-create-cargo-bay"
                (lambda (x y)
@@ -90,19 +91,18 @@
                  (push 'qids qid)
                  (push 'qvar (cons qid fee))
                  (coins-set (- (coins) fee))
-                 (cargo-set (player) x y "ceramic tiles")
-                 (dialog "<c:merchant:7>Great, here are your tiles!")
+                 (cargo-set (player) x y "artifacts")
+                 (dialog "<c:scavenger:34>Careful with the ancient tech!")
                  (defn on-dialog-closed ()
-                   (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
+                   (dialog "(Your crew marks a collector's location on your sky chart with an *)")
                    (exit)
                    (setq on-dialog-closed exit)))))
           (progn
             (dialog
-             "<c:merchant:7>Oh, I'm so sorry! We can't actually sell you anything today.")
+             "<c:scavenger:34>Bah, sssomeone else already claimed the artifactsss...")
             (setq on-dialog-closed exit)))))
-
 
     (setq on-dialog-declined
           (lambda ()
-            (dialog "<c:merchant:7>No problem!")
+            (dialog "<c:scavenger:34>Argh, off with you then!")
             (setq on-dialog-closed exit)))))
