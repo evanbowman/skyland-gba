@@ -61,7 +61,7 @@
                              (join "The explorer joined your crew!")
                              (setq on-dialog-closed nil)
                              (exit)))))))))
-  (exit)))
+  (exit))
 
 
 (defn on-dialog-declined ()
