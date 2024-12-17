@@ -68,7 +68,7 @@
 (defn on-converge ()
   (setq on-converge nil)
 
-  (dialog "<c:traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched goblins ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
+  (dialog "<c:traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched pirates ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
 
   (dialog-await-binary-q "of course!" "I'm kind of busy…")
 
