@@ -55,7 +55,7 @@
      (dialog "<c:castaway:38> Thanks for ressscuing me! I'll try to help out however I can! <B:0> Whatt? You've been banisshed too? <B:0> Ha! HAHAHA! SSome sorry lot of goblins we are!")
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
-       (if (or (equal (choice 2) 1) (< (coins) 300))
+       (if (or (chance 2) (< (coins) 300))
            (dialog "The castaway joined your crew!")
            (progn
              (coins-set (- (coins) 300))

@@ -39,7 +39,7 @@
           (setq temp (get temp (choice (length temp))))
           (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 36) (race . 1)))
           (chr-del (opponent) 1 14)
-          (if (or (equal (choice 2) 1) (< (coins) 600))
+          (if (or (chance 2) (< (coins) 600))
               (join "The spotter joined your crew!")
               (progn
                 (coins-set (- (coins) 600))

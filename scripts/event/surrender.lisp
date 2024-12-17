@@ -11,7 +11,7 @@
    ((and (equal c 1) (equal (difficulty) 0))
     (eval-file (string p "crew.lisp")))
    (true
-    (if (equal 0 (choice 3))
+    (if (chance 3)
         (dialog
          "<c:goblin pirates:2>You "
          (cond

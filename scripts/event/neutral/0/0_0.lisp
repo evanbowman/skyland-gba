@@ -53,7 +53,7 @@
           (setq temp (sample temp))
           (chr-new (player) (car temp) (cdr temp) 'neutral '((race . 0) (icon . 1)))
           (chr-del (opponent) 1 14)
-          (if (or (equal (choice 2) 1) (< (coins) 300))
+          (if (or (chance 2) (< (coins) 300))
               (join "The castaway joined your crew!")
               (progn
                 (coins-set (- (coins) 300))

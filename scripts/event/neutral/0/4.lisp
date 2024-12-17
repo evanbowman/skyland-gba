@@ -35,7 +35,7 @@
 (let ((wpn 'rocket-bomb)
       (pos '(7 . 12)))
 
-  (when (equal (choice 7) 0)
+  (when (chance 7)
     (setq wpn 'splitter)
     (setq pos '(7 . 13))
     (terrain-set (opponent) 9))
