@@ -18,7 +18,7 @@
 
 
 
-(flag-show (opponent) 6)
+(flag-show (opponent) 1)
 
 
 (let ((item (sample '(arc-gun flak-gun fire-charge)))
