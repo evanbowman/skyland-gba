@@ -1,3 +1,6 @@
+;;;
+;;; quest/human/4.lisp
+;;;
 
 (dialog
  "<b:/scripts/data/img/ceramics.img.bin>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
@@ -83,6 +86,7 @@
         (if m
             (progn
               (push 'quests (cons "ceramics.lisp" m))
+              (dialog "<c:merchant:7>Great, here are your tiles!")
               (run-util-script
                "find-or-create-cargo-bay"
                (lambda (x y)
@@ -91,7 +95,6 @@
                  (push 'qvar (cons qid fee))
                  (coins-set (- (coins) fee))
                  (cargo-set (player) x y "ceramic tiles")
-                 (dialog "<c:merchant:7>Great, here are your tiles!")
                  (defn on-dialog-closed ()
                    (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
                    (exit)
