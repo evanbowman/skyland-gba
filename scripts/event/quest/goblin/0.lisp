@@ -1,61 +1,24 @@
 
 
 (dialog
- "<b:/scripts/data/img/market_quest.img.bin>"
- "You arrive at a busy trading port. "
- "Some merchants broadcast a message asking for assistance...")
+ ;"<b:/scripts/data/img/market_quest.img.bin>" TODO: draw cover image
+ "You approach a raider waypoint. A goblin crew broadcasts a signal requesting help...")
 
 
 (opponent-init 9 'neutral)
 
 (island-configure
  (opponent)
- '((bronze-hull 0 11)
-   (bronze-hull 0 10)
-   (hull 0 9)
-   (statue 0 7)
-   (bronze-hull 0 14)
-   (bronze-hull 0 12)
-   (bronze-hull 0 13)
-   (workshop 1 11)
-   (bridge 1 10)
-   (masonry 1 14 3)
-   (masonry 1 13)
-   (masonry 2 13)
-   (masonry 2 14)
-   (stairwell 3 11)
-   (bridge 3 10)
-   (shrubbery 4 13)
-   (masonry 4 14)
-   (bridge 5 10)
-   (masonry 5 13)
-   (masonry 5 12)
-   (masonry 5 11)
-   (windmill 5 14)
-   (bronze-hull 5 9)
-   (banana-plant 5 8)
-   (power-core 6 13)
-   (masonry 7 12)
-   (masonry 7 11)
-   (bridge 7 10)
-   (bronze-hull 7 9)
-   (banana-plant 7 8)
-   (stairwell 8 11)
-   (shrubbery 8 9)))
+ '((hull 0 11 60) (cannon 0 14) (cannon 0 12) (hull 0 13 60) (hull 1 9 60) (hull 1 14) (hull 1 10) (hull 1 11 60) (hull 1 13) (hull 1 12 60) (hull 2 9 60) (workshop 2 10) (masonry 2 14 0) (workshop 2 12) (masonry 3 14 3) (chaos-core 4 12) (hull 4 9) (power-core 4 10) (missile-silo 5 8) (plundered-room 6 10) (plundered-room 6 12) (masonry 6 14 2) (missile-silo 6 8) (crane 7 11) (masonry 7 14 0) (masonry 7 13 0) (hull 7 10) (shrubbery 7 9) (hull 8 14) (hull 8 13) (hull 8 10) (hull 9 14) (banana-plant 9 10)))
 
-(flag-show (opponent) 6)
+(flag-show (opponent) 0)
 
 
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:merchant:7>We promised to deliver some cargo to our customers, but with "
-         "this storm approaching, we don't think we can make the delivery. "
-         "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
-         "you generously.")
-        (dialog-await-binary-q-w/lore "I accept!" "sorry, but no."
-                                      '(("explain deliveries?" .
-                                         "<c:merchant:7>Usually we have stuff delivered by balloon. Customers place orders, and we send then out by airship. But with this terrible weather coming in, it's too risky to send anything. Can you help us out?")))
+         "<c:raider:39>Sssnatched some valuable cargo from a merchant fleet, but our ship took heavy damage in the fight. With that storm approaching, we won't make it to the black market in time. Help usss deliver the goods? We'll split the profit, and our contact paysss well!")
+        (dialog-await-binary-q "I accept!" "sorry, but no.")
 
         (setq on-dialog-accepted
               (lambda ()
@@ -64,19 +27,18 @@
                       (run-util-script
                        "find-or-create-cargo-bay"
                        (lambda (x y)
-                         (push 'quests (cons "delivery.lisp" m))
+                         (push 'quests (cons "loot.lisp" m))
                          (coins-add 500)
                          (push 'qids 0)
                          (adventure-log-add 16 '())
-                         (cargo-set (player) x y "parcel")
-                         (dialog "<c:merchant:7>Wonderful! I'll mark the address "
-                                 "with an * on your sky chart!")
-                         (run-util-script "pickup-cart" 5
-                                          "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge...")))
+                         (cargo-set (player) x y "loot")
+                         (dialog "<c:raider:39>Excccellent! I'll mark the location with an * on your chart!")
+                         (setq on-dialog-closed exit)))
                       (progn
                         (dialog
-                         "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
-                         "she had to relocate to flee the storm. Here's 400@ for your trouble.")
+                         "<c:raider:39>Bah! Jussst got word our contact had to move their "
+                         "operation - ssstorm's getting too close. Here'sss 400@ for your time, "
+                         "at leassst.")
                         (setq on-dialog-closed
                               (lambda ()
                                 (coins-add 400)
@@ -84,5 +46,5 @@
 
         (setq on-dialog-declined
               (lambda ()
-                (dialog "<c:merchant:7>I understand... I guess we'll try to find someone else...")
+                (dialog "<c:raider:39>Bah, fine... We'll find another sssship to move the loot...")
                 (setq on-dialog-closed exit)))))
