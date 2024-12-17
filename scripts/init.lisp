@@ -141,10 +141,3 @@
 
 
 (setq current-level nil)
-
-
-(defn/c loadstr (dialog-file-line)
-  (file-get-line (string "/strings/dialog/"
-                         (faction)
-                         ".txt")
-                 dialog-file-line))
