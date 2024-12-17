@@ -771,7 +771,7 @@ void describe_room(Island* island,
                                             return SYSTR(character_label_human);
 
                                         case 2:
-                                            return SYSTR(character_label_dog);
+                                            return SYSTR(character_label_bad_human);
 
                                         case 1:
                                             auto ret =

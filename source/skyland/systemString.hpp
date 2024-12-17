@@ -230,7 +230,7 @@ enum class SystemString {
     character_label_human,
     character_label_goblin,
     character_label_replicant,
-    character_label_dog,
+    character_label_bad_human,
 
     menu_text_adventure,
     menu_text_challenge,

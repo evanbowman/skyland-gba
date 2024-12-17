@@ -1950,8 +1950,8 @@ void WorldMapScene::display()
             {Fixnum::from_integer(184), Fixnum::from_integer(128)});
         PLATFORM.screen().draw(cursor);
     } else if (state_ == State::show_node_death_icons) {
-        cursor.set_size(Sprite::Size::w16_h32);
-        cursor.set_texture_index(77);
+        cursor.set_size(Sprite::Size::w16_h16);
+        cursor.set_tidx_16x16(73, 1);
         const int offset =
             interpolate(9, 0, Float(timer_) / node_death_sequence_time);
         for (auto& node : dead_nodes_) {

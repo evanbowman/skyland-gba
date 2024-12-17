@@ -1151,8 +1151,8 @@ void ConstructionScene::display()
             if (data_->construction_sites_[selector_].y == 15) {
                 // Display a different icon when constructing terrain, as a hint
                 // to the player that he/she can expand an island's terrain.
-                sprite.set_texture_index(73);
-                sprite.set_size(Sprite::Size::w16_h32);
+                sprite.set_tidx_16x16(73, 0);
+                sprite.set_size(Sprite::Size::w16_h16);
             } else {
                 sprite.set_tidx_16x16(12, 0);
                 sprite.set_size(Sprite::Size::w16_h16);

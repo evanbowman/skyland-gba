@@ -482,7 +482,7 @@ void WeaponSetTargetScene::display()
         PLATFORM.screen().draw(sprite);
     }
 
-    static const int reticule_spr_idx = 45;
+    static const int reticule_spr_idx = 95;
 
     Sprite::Alpha alpha = Sprite::Alpha::opaque;
 
@@ -495,8 +495,8 @@ void WeaponSetTargetScene::display()
 
         Sprite spr;
         spr.set_position(pos);
-        spr.set_texture_index(reticule_spr_idx);
-        spr.set_size(Sprite::Size::w16_h32);
+        spr.set_tidx_16x16(reticule_spr_idx, 1);
+        spr.set_size(Sprite::Size::w16_h16);
         spr.set_alpha(alpha);
 
         PLATFORM.screen().draw(spr);

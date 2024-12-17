@@ -1620,7 +1620,7 @@ BINDING_TABLE({
           };
 
           bool is_replicant = false;
-          int race = 0;
+          int race = -1;
           int icon = 0;
           u8 kills = 0;
           u8 battles = 0;
@@ -1695,7 +1695,11 @@ BINDING_TABLE({
               if (chr) {
                   id = chr->id();
 
-                  if (not icon) {
+                  if (race not_eq -1) {
+                      chr->set_race(race);
+                  }
+
+                  if (not icon and chr->get_race() == 1) {
                       static const int count = 4;
                       static const int goblin_icons[count] = {2, 32, 33, 34};
                       int selection = rng::choice(count, rng::utility_state);
@@ -1711,7 +1715,9 @@ BINDING_TABLE({
                   island, &APP.player(), coord, is_replicant);
 
               if (chr) {
-                  chr->set_race(race);
+                  if (race not_eq -1) {
+                      chr->set_race(race);
+                  }
 
                   chr->set_icon(icon);
 

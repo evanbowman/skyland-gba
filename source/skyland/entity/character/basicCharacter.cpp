@@ -52,11 +52,7 @@ namespace skyland
 
 static Time movement_step_duration(int race)
 {
-    if (race == 2) {
-        return milliseconds(100);
-    } else {
-        return milliseconds(300);
-    }
+    return milliseconds(300);
 }
 
 
@@ -440,9 +436,6 @@ void BasicCharacter::update(Time delta, Room* room)
     case State::moving_or_idle: {
 
         if (movement_path_) {
-            if (race_ == 2) {
-                set_can_move();
-            }
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
                 // is grid-based
@@ -664,11 +657,7 @@ void BasicCharacter::update(Time delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    if (race_ == 2) {
-                        room->heal(1);
-                    } else {
-                        room->heal(2);
-                    }
+                    room->heal(2);
                     if (room->health() == room->max_health()) {
                         record_stats();
                         CharacterStats::inc(stats_.blocks_repaired_);
@@ -712,6 +701,18 @@ Sprite BasicCharacter::prepare_sprite() const
         }
     } else if (race_) {
         switch (race_) {
+        case 2:
+            switch (ret.get_texture_index()) {
+            case 46:
+                ret.set_texture_index(45);
+                break;
+
+            case 47:
+                ret.set_texture_index(77);
+                break;
+            }
+            break;
+
         case 1:
             switch (ret.get_texture_index()) {
             case 39:
@@ -720,18 +721,6 @@ Sprite BasicCharacter::prepare_sprite() const
 
             case 40:
                 ret.set_texture_index(41);
-                break;
-            }
-            break;
-
-        case 2:
-            switch (ret.get_texture_index()) {
-            case 40:
-                ret.set_texture_index(99);
-                break;
-
-            case 39:
-                ret.set_texture_index(100);
                 break;
             }
             break;

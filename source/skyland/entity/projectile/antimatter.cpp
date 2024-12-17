@@ -59,8 +59,8 @@ Antimatter::Antimatter(const Vec2<Fixnum>& position,
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
-    sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(95);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_tidx_16x16(95, 0);
 
     sprite_.set_origin({8, 8});
 

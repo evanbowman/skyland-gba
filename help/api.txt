@@ -402,9 +402,9 @@ o----------------------------o
 
  'race: the race of the
  character:
-   0 - human
+   0 - human (default)
    1 - goblin
-   2 - undocumented
+   2 - hostile human
    3 - unused
 
 'icon: character artwork
