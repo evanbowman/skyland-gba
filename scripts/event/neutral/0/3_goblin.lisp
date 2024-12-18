@@ -73,7 +73,7 @@
                       (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
                       (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
               (progn
-                (adventure-log-add 10 (list (rinfo 'name item) 1300))
+                (adventure-log-add 67 (list (rinfo 'name item) 1300))
                 (coins-add -1300)
                 (alloc-space item)
                 (sel-input
