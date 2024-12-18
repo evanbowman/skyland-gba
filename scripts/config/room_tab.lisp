@@ -18,7 +18,6 @@
   (ion-fizzler  40  200  20)
   (deflector    100 3000 80)
   (cannon       200 1000 34)
-  (flimsy-cannon 120 800 34)
   (ion-cannon   150 800  30)
   (fire-charge  200 1800 34)
   (flak-gun     125 2000 34)

@@ -78,7 +78,8 @@ public:
     {
         return Weapon::properties() | RoomProperties::roof_hidden |
                RoomProperties::manufactory_required |
-               RoomProperties::multiboot_compatible;
+               RoomProperties::multiboot_compatible |
+               RoomProperties::goblin_only;
     }
 
 
