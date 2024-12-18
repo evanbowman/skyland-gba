@@ -13,11 +13,11 @@ met sstinker redbeard, failed to bribe
 met sstinker redbeard, paid %@ toll
 met sstinker redbeard, refussed to pay bribe
 resscued a goblin raider! she joined the crew!
-accepted delivery quesst from a merchant outpost!
+accepted loot quesst from a raider waypoint!
 accepted banana man's mysterious task!
 accepted farmer meyer's quest! (deliver % trees)
-accepted chauffeur's quest!
-purchased tiles for resale, cost %@
+accepted quest from sscattered golin clan!
+purchased artifacts for resale, cost %@
 resold tiles for %@!
 completed merchant quest, earned %@
 farmer meyer's brother paid %@ for delivery of % trees
@@ -49,7 +49,7 @@ a massive warship attacks...
 discovered a shop!
 purchassed % for %@
 accepting defeat, a goblin joined your crew!
-accepted mysterious traveller's quest!
+accepted surface keeper's quest!
 invited an explorer aboard!
 accepted quest from orphan boy!
 returned lost child to the Sylph...
@@ -60,7 +60,7 @@ unable to make payment to imperial missile station!
 made payment to imperial missile station
 refused to pay imperial missile station
 accepted goblin surrender, salvaged blocks...
-accepted atomic arsenal quest!
+accepted ancient weapon quest from ashwalkers!
 retrieved atomic arsenal!
 encountered a solar storm!
 encountered warrior monks!
