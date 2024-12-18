@@ -328,7 +328,7 @@ using RoomMetatableType = RoomMetatable<14,
                                         Barrier,
                                         // weapons
                                         Cannon,
-                                        FlimsyCannon,
+                                        // FlimsyCannon,
                                         IonCannon,
                                         FlakGun,
                                         ArcGun,
