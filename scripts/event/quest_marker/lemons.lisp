@@ -40,12 +40,15 @@
                                         (rooms (player)))))))))
           (if (equal c 0)
               (progn
-                (dialog "<c:Farmer Ted:9>Hey, you lost my brother's trees!?")
+                (dialog 
+                (if (equal (faction) 'goblin)
+                      "<c:Farmer Ted:9>From the moment I saw you nasty goblins, I knew there was no hope."
+                      "<c:Farmer Ted:9>Hey, you lost my brother's trees!?"))
                 (setq on-dialog-closed exit))
             (progn
 
               (dialog
-               "<c:Farmer Ted:9>Wonderful! Here's "
+               "<c:Farmer Ted:9>Whoa! I didn't think there would be any left, Here's "
                (string c)
                "@ for your trouble!")
 
