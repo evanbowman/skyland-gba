@@ -124,6 +124,7 @@ enum class SystemString {
     block_escape_beacon,
     block_farmhouse,
     block_flak_gun,
+    block_flimsy_cannon,
     block_fire_charge,
     block_food,
     block_forcefield,
@@ -441,6 +442,7 @@ enum class SystemString {
     description_chaos_core,
     description_amplifier,
     description_sylph_cannon,
+    description_flimsy_cannon,
 
     gs_paused,
     gs_slow,

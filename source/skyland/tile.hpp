@@ -344,6 +344,9 @@ struct Tile
         reserved_d4,
         amplifier,
         sylph_cannon,
+        flimsy_cannon_1,
+        flimsy_cannon_2,
+        flimsy_cannon_3,
         count
     };
 };
@@ -647,6 +650,9 @@ struct InteriorTile
         chaos_core_4,
         amplifier,
         sylph_cannon,
+        flimsy_cannon_1,
+        flimsy_cannon_2,
+        flimsy_cannon_3,
         count
     };
 };
