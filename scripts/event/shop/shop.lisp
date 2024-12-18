@@ -7,9 +7,6 @@
 (eval-file "/scripts/event/check_zone.lisp")
 
 
-(setq current-level "shop.lisp")
-
-
 (adventure-log-add 49 '())
 
 

@@ -140,7 +140,5 @@
      (error (format "cannot hash %" v)))))
 
 
-(setq current-level nil)
-
 (defn/c chance ((n . int)) ; 1 in n chance
   (equal 0 (choice n)))

@@ -164,9 +164,6 @@ void create_crash_report(const char* error_text)
 
     append("");
 
-    append("current level:");
-    append(lisp::val_to_string<96>(lisp::get_var("current-level")).c_str());
-
     flash_filesystem::store_file_data("/crash/report.txt", text);
 }
 
