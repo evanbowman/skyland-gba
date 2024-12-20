@@ -72,8 +72,8 @@
   (set sym val))
 
 (defn/c destroy-temps ()
-  (map unbind (filter bound? temp-fns))
-  (setq temp-fns nil))
+  (map unbind (filter bound? temp-vals))
+  (setq temp-vals nil))
 
 
 (macro progn (BODY)
