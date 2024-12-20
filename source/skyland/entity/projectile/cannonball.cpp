@@ -76,9 +76,34 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
     auto step = direction(fvec(position), fvec(target)) * speed;
     step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 
-    if (APP.environment().is_night()) {
-        // The normal cannonball texture is hard to see at night
-        sprite_.set_tidx_16x16(96, 0);
+    set_strength(1);
+}
+
+
+
+void Cannonball::set_strength(u8 strength)
+{
+    strength_ = strength;
+
+    switch (strength_) {
+    case 0:
+        sprite_.set_size(Sprite::Size::w8_h8);
+        sprite_.set_origin({4, 4});
+        sprite_.set_tidx_8x8(89, 2);
+        break;
+
+    case 1:
+        if (APP.environment().is_night()) {
+            // The normal cannonball texture is hard to see at night
+            sprite_.set_tidx_16x16(96, 0);
+        } else {
+            sprite_.set_texture_index(18 * 2);
+        }
+        break;
+
+    case 2:
+        sprite_.set_tidx_16x16(96, 1);
+        break;
     }
 }
 
@@ -160,7 +185,15 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    room.apply_damage(cannonball_damage);
+    auto damage = (int)cannonball_damage;
+
+    if (strength_ == 2) {
+        damage = (1.5_fixed * Fixnum::from_integer(damage)).as_integer();
+    } else if (strength_ == 0) {
+        damage /= 2;
+    }
+
+    room.apply_damage(damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);
@@ -184,7 +217,7 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
 void Cannonball::record_destroyed()
 {
     auto timestream_record =
-        [&](time_stream::event::BasicProjectileDestroyed& c) {
+        [&](time_stream::event::BasicCannonballDestroyed& c) {
             c.x_origin_ = origin_tile_.x;
             c.y_origin_ = origin_tile_.y;
             c.timer_.set(timer_);
@@ -198,10 +231,12 @@ void Cannonball::record_destroyed()
     if (is_player_island(source_)) {
         time_stream::event::PlayerCannonballDestroyed c;
         timestream_record(c);
+        c.strength_ = strength_;
         APP.time_stream().push(APP.level_timer(), c);
     } else {
         time_stream::event::OpponentCannonballDestroyed c;
         timestream_record(c);
+        c.strength_ = strength_;
         APP.time_stream().push(APP.level_timer(), c);
     }
 }
@@ -244,7 +279,15 @@ void Cannonball::on_collision(Entity& entity)
         this->destroy(true);
     }
 
-    entity.apply_damage(cannonball_damage);
+    auto damage = (int)cannonball_damage;
+
+    if (strength_ == 2) {
+        damage = (1.5_fixed * Fixnum::from_integer(damage)).as_integer();
+    } else if (strength_ == 0) {
+        damage /= 2;
+    }
+
+    entity.apply_damage(damage);
 }
 
 

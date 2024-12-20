@@ -50,6 +50,7 @@
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/flimsyCannon.hpp"
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/chaosCore.hpp"
@@ -311,7 +312,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<15,
+using RoomMetatableType = RoomMetatable<14,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -327,6 +328,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Barrier,
                                         // weapons
                                         Cannon,
+                                        // FlimsyCannon,
                                         IonCannon,
                                         FlakGun,
                                         ArcGun,

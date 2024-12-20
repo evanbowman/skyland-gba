@@ -43,6 +43,10 @@
 ;; takes up less space than non-compiled functions.
 (macro defn/c (NAME REST) `(setfn ,(cons $q NAME) (compile (lambda ,@REST))))
 
+;; Define a temporary function, to be cleaned up at the end of a level. Use for
+;; script-local functions that don't need to be referenced by other scripts.
+(macro defn/temp (NAME REST) `(set-temp ,(cons $q NAME) (lambda ,@REST)))
+
 
 (macro += (NAME VAL)
  `(setq ,NAME (+ ,NAME ,@VAL)))
@@ -58,6 +62,18 @@
        (lambda ((sym . symbol) fn)
          (global sym)
          (set sym fn))))
+
+
+(global 'temp-vals)
+
+(defn/c set-temp ((sym . symbol) val)
+  (global sym)
+  (push-set 'temp-vals sym)
+  (set sym val))
+
+(defn/c destroy-temps ()
+  (map unbind (filter bound? temp-fns))
+  (setq temp-fns nil))
 
 
 (macro progn (BODY)

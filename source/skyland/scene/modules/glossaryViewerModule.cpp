@@ -87,14 +87,41 @@ void GlossaryViewerModule::load_page(int page)
     }
 
     const auto cond = mt[page]->properties();
-    if (cond & RoomProperties::workshop_required) {
+
+    bool ingame_glossary = static_cast<bool>(next_scene_);
+
+    bool cannot_build_human_excl = (cond & RoomProperties::human_only) and
+        APP.faction() not_eq Faction::human;
+
+    bool cannot_build_goblin_excl = (cond & RoomProperties::goblin_only) and
+        APP.faction() not_eq Faction::goblin;
+
+    bool cannot_build_sylph_excl = (cond & RoomProperties::sylph_only) and
+        APP.faction() not_eq Faction::sylph;
+
+    auto dependency_colors = FontColors{ColorConstant::med_blue_gray,
+                                       ColorConstant::rich_black};
+
+
+    if (ingame_glossary and (cannot_build_human_excl or
+                             cannot_build_goblin_excl or
+                             cannot_build_sylph_excl)) {
+        if (cannot_build_human_excl) {
+            dependency_text_->assign(SYS_CSTR(glossary_human_only),
+                                     dependency_colors);
+        } else if (cannot_build_goblin_excl) {
+            dependency_text_->assign(SYS_CSTR(glossary_goblin_only),
+                                     dependency_colors);
+        } else if (cannot_build_sylph_excl) {
+            dependency_text_->assign(SYS_CSTR(glossary_sylph_only),
+                                     dependency_colors);
+        }
+    } else if (cond & RoomProperties::workshop_required) {
         dependency_text_->assign(SYS_CSTR(glossary_workshop_required),
-                                 FontColors{ColorConstant::med_blue_gray,
-                                            ColorConstant::rich_black});
+                                 dependency_colors);
     } else if (cond & RoomProperties::manufactory_required) {
         dependency_text_->assign(SYS_CSTR(glossary_manufactory_required),
-                                 FontColors{ColorConstant::med_blue_gray,
-                                            ColorConstant::rich_black});
+                                 dependency_colors);
     } else {
         dependency_text_.reset();
         for (int x = 0; x < 30; ++x) {

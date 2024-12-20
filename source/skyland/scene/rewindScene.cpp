@@ -794,8 +794,11 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(
+            auto p = respawn_basic_projectile<Cannonball>(
                 &APP.player_island(), *e, medium_explosion_inv);
+            if (p) {
+                p->set_strength(e->strength_);
+            }
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -804,8 +807,11 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(
+            auto p = respawn_basic_projectile<Cannonball>(
                 APP.opponent_island(), *e, medium_explosion_inv);
+            if (p) {
+                p->set_strength(e->strength_);
+            }
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;

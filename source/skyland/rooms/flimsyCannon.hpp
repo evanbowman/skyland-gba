@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2023  Evan Bowman. Some rights reserved.
+// Copyright (C) 2024  Evan Bowman. Some rights reserved.
 //
 // This program is source-available; the source code is provided for educational
 // purposes. All copies of the software must be distributed along with this
@@ -47,14 +47,10 @@ namespace skyland
 
 
 
-extern SharedVariable nemesis_reload_ms;
-
-
-
-class Nemesis final : public Weapon
+class FlimsyCannon final : public Weapon
 {
 public:
-    Nemesis(Island* parent, const RoomCoord& position);
+    FlimsyCannon(Island* parent, const RoomCoord& position);
 
 
     void fire() override;
@@ -74,12 +70,18 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
+    static Category category()
+    {
+        return Category::weapon;
+    }
+
+
     static RoomProperties::Bitmask properties()
     {
-        return Weapon::properties() | RoomProperties::roof_hidden |
-               RoomProperties::manufactory_required |
-               RoomProperties::multiboot_compatible |
-               RoomProperties::goblin_only;
+        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
+               RoomProperties::goblin_only |
+               RoomProperties::workshop_required |
+               RoomProperties::multiboot_compatible;
     }
 
 
@@ -91,31 +93,25 @@ public:
 
     static Vec2<u8> size()
     {
-        return {2, 1};
+        return {1, 1};
     }
 
 
     static const char* name()
     {
-        return "nemesis";
+        return "flimsy-cannon";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_nemesis;
+        return SystemString::block_flimsy_cannon;
     }
 
 
     static ATP atp_value()
     {
-        return 12.0_atp;
-    }
-
-
-    static Category category()
-    {
-        return Category::weapon;
+        return 900.0_atp;
     }
 
 
@@ -128,16 +124,16 @@ public:
 
     static Icon icon()
     {
-        return 1592;
+        return 3992;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1608;
+        return 3976;
     }
-};
 
+};
 
 
 } // namespace skyland

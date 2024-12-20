@@ -45,7 +45,7 @@
     (if m
         (progn
           (dialog
-           "<c:Farmer Meyer:9>Looks like a bad storm's coming this way! Hey, I have an idea! How about you do me a favor and relocate my orchard of lemon trees to my brother's island... I'll tell him to pay you 1400@ for each one that you successfully deliver!")
+           "<c:Farmer Meyer:9>Looks like a bad storm's coming this way! Umm, maybe you could do me a favor and relocate my orchard of lemon trees to my brother's island... I'll tell him to pay you 1400@ for each one that you successfully deliver!")
 
           (defn on-dialog-closed ()
             (map (lambda (room)
@@ -92,5 +92,5 @@
 
               )))
       (progn
-        (dialog "<c:Farmer Meyer:9>I was going to ask you to help relocate some of these lemon trees, but the storm's getting closer and I need to move out! Maybe we'll meet again, someday...")
+        (dialog "<c:Farmer Meyer:9>I was going to ask you to help relocate some of these lemon trees, but the storm's getting closer and I need to move out!")
         (setq on-dialog-closed exit)))))

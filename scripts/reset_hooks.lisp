@@ -16,6 +16,8 @@
 (setq on-menu-resp '())        ; Used by some menus via push-menu function
 (dialog-opts-reset)
 
+(destroy-temps)
+
 ;; legacy callbacks, no longer invoked by the engine, but still used in various
 ;; scripts.
 (setq on-dialog-accepted '())  ; Upon selecting yes in a dialog prompt.

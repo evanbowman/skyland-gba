@@ -61,6 +61,7 @@ drone-bay
 escape-beacon
 farmhouse
 flak-gun
+flimsy-cannon
 fire-charge
 food
 forcefield
@@ -348,6 +349,7 @@ Allows crewmembers to travel instantly to any other portal on your island! More 
 One of the few pieces of technology goblins have managed to invent. Generates % power for each unique block in your castle! Don't let it explode, though...
 Speeds up recharge times for nearby blocks. Rare, fragile, and incredibly valuable.
 ...
+Goblins tried to design a better cannon; it's powerful, yet flawed - starts at % damage, drops to % at half health, and % at quarter health.
 paused
 slow
 regular

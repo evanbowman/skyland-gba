@@ -464,14 +464,29 @@ struct BasicProjectileDestroyed
 
 
 
-struct PlayerCannonballDestroyed : BasicProjectileDestroyed
+struct BasicCannonballDestroyed
+{
+    Header header_;
+    u8 x_origin_ : 4;
+    u8 y_origin_ : 4;
+    HostInteger<Time> timer_;
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+    host_s64 x_speed__data_;
+    host_s64 y_speed__data_;
+    u8 strength_;
+};
+
+
+
+struct PlayerCannonballDestroyed : BasicCannonballDestroyed
 {
     static constexpr const auto t = Type::player_cannonball_destroyed;
 };
 
 
 
-struct OpponentCannonballDestroyed : BasicProjectileDestroyed
+struct OpponentCannonballDestroyed : BasicCannonballDestroyed
 {
     static constexpr const auto t = Type::player_cannonball_destroyed;
 };
