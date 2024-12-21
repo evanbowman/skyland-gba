@@ -1,10 +1,13 @@
 ;;;
-;;; neutral/0/1.lisp
+;;; neutral/2/4.lisp
 ;;;
 
 
-(dialog "A goblin stronghold approaches... they seem to be willing to negotiate...")
-
+(dialog
+ "<b:/scripts/data/img/goblin_queen.img.bin> "
+ "Through sheets of rain, you spot a fortress ahead... <B:0> Its walls are wrapped in writhing mycelium, organic patterns reaching toward the high windows... <B:0>"
+  "<b:/scripts/data/img/goblin_queen_close.img.bin> "
+ "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew whispers that she extracts a heavy price from those who enter her domain...")
 
 
 (opponent-init 9 'hostile)
@@ -124,4 +127,4 @@
 (defn on-dialog-declined ()
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
-  (dialog "<c:goblin queen:40>YARRRGG!!! PREPARE FOR BOARDING!!!"))
+  (dialog "<c:goblin queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!"))
