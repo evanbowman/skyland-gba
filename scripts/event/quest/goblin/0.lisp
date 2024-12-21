@@ -1,7 +1,7 @@
 
 
 (dialog
- ;"<b:/scripts/data/img/market_quest.img.bin>" TODO: draw cover image
+ "<b:/scripts/data/img/raider_waypoint.img.bin>"
  "You approach a raider waypoint. A goblin crew broadcasts a signal requesting help...")
 
 
