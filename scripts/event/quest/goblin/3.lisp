@@ -1,6 +1,6 @@
 
 (dialog
- ;"<b:/scripts/data/img/airship.img.bin>" TODO: make new graphics
+ "<b:/scripts/data/img/flares.img.bin>"
  "In the distance, you spot a series of colored smoke signals rising from several islands...")
 
 

@@ -1,5 +1,7 @@
 
-(dialog "You spot strange flares arcing between the clouds... <B:0> A lone goblin perches atop a makeshift balloon, studying the patterns of island movements!")
+(dialog
+ "<b:/scripts/data/img/flares.img.bin>"
+ "You spot strange flares arcing between the clouds... <B:0> A lone goblin perches atop a makeshift balloon, studying the patterns of island movements!")
 
 (opponent-init -3 'neutral)
 
