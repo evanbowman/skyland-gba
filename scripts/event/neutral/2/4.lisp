@@ -4,11 +4,11 @@
 
 
 (dialog
- "<b:/scripts/data/img/goblin_queen.img.bin> "
  "Through sheets of rain, you spot a fortress ahead... <B:0> Its walls are wrapped in writhing mycelium, organic patterns reaching toward the high windows... <B:0>"
   "<b:/scripts/data/img/goblin_queen_close.img.bin> "
- "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew whispers that she extracts a heavy price from those who enter her domain...")
+ "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew warns that those who refuse her demands rarely survive to regret it...")
 
+(weather-set 3)
 
 (opponent-init 9 'hostile)
 
@@ -104,7 +104,10 @@
      (string val)
      "@! Pay!")
 
-    (dialog-await-binary-q "I'll pay…" "no way!")
+    (dialog-await-binary-q-w/lore
+     (format "I'll pay… (%@)" val) "no way!"
+     '(("goblin queen?" . "It's said that she began as a promising Ashwalker apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?")))
+
     (setq on-converge nil))
 
 
@@ -128,3 +131,13 @@
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
   (dialog "<c:goblin queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!"))
+
+
+(defn on-room-destroyed (isle sym)
+  (if (equal isle (opponent))
+      (if (equal (+ (room-count (opponent) 'reactor)
+                    (room-count (opponent) 'power-core))
+                 1)
+          (progn
+            (setq on-room-destroyed nil)
+            (dialog "As victory draws near, the goblin queen slips away...")))))

@@ -1005,7 +1005,8 @@ void Island::update(Time dt)
             // delta clock would ruin multiplayer sync. We have no need to
             // register an on-room-destroyed callback in multiplayer anyway...
             if (APP.game_mode() not_eq App::GameMode::multiplayer and
-                APP.game_mode() not_eq App::GameMode::co_op) {
+                APP.game_mode() not_eq App::GameMode::co_op and
+                not str_eq(room->name(), "mycelium")) {
 
                 // This is quite expensive! But it's convenient to be able to be
                 // able to register a callback when a room's destroyed.
