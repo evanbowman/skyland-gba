@@ -612,7 +612,6 @@ ScenePtr TitleScreenScene::update(Time delta)
 
     rng::get(rng::critical_state);
     rng::get(rng::utility_state);
-    rng::get(APP.crane_game_rng());
 
     hover_timer_ += delta;
 

@@ -140,7 +140,6 @@ void prep_level()
     APP.stat_timer().reset(0);
     APP.level_timer().reset(0);
     state_bit_store(StateBit::surrender_offered, false);
-    rng::get(APP.crane_game_rng());
     state_bit_store(StateBit::crane_game_got_treasure, false);
 
     if (APP.game_mode() not_eq App::GameMode::skyland_forever and
