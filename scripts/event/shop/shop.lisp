@@ -92,7 +92,7 @@
                               (push-menu "item-shop" '())
                             (progn
                               (dialog
-                               "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? WE'RE CLOSED.")
+                               "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED.")
                               (let ((xy (cdr (wg-pos))))
                                 ;; switch the current map node to a visited node
                                 ;; type, preventing us from talking to the
