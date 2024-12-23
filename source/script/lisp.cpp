@@ -2243,7 +2243,8 @@ Value* lint_code(CharSequence& code)
                                       }
                                   }
                               });
-                } else if (str_eq(invoke->symbol().name(), "setfn")) {
+                } else if (str_eq(invoke->symbol().name(), "setfn") or
+                           str_eq(invoke->symbol().name(), "set-temp")) {
                     auto pair = get_list(reader_result, 1);
                     if (pair->type() == Value::Type::cons) {
                         auto sym = pair->cons().cdr();
