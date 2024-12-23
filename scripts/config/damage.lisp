@@ -23,3 +23,4 @@
 (setvar "block_crack_threshold_health" 60)
 (setvar "deflector_shield_strength" 8)
 (setvar "dust_storm_damage" 8)
+(setvar "sylph_cannon_damage_percent" 25)

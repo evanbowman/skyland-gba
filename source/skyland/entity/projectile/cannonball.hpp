@@ -79,7 +79,7 @@ public:
     void on_collision(Entity&) override;
 
 
-    void set_strength(u8 strength);
+    void set_variant(u8 variant);
 
 
 private:
@@ -88,13 +88,15 @@ private:
     void record_destroyed();
 
     Time timer_ = 0;
+    Time timer2_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
 
     // We need to keep track of the origin tile coords, to prevent cannons from
     // shooting themselves.
     RoomCoord origin_tile_;
-    u8 strength_ = 0;
+
+    u8 variant_ = 0;
 };
 
 

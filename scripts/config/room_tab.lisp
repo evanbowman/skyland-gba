@@ -19,6 +19,7 @@
   (deflector    100 3000 80)
   (cannon       200 1000 34)
   (ion-cannon   150 800  30)
+  (sylph-cannon 240 2000 45)
   (fire-charge  200 1800 34)
   (flak-gun     125 2000 34)
   (rocket-bomb  200 2600 30)

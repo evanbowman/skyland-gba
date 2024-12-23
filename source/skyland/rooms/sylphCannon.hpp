@@ -47,10 +47,10 @@ namespace skyland
 
 
 
-class FlimsyCannon final : public Weapon
+class SylphCannon final : public Weapon
 {
 public:
-    FlimsyCannon(Island* parent, const RoomCoord& position);
+    SylphCannon(Island* parent, const RoomCoord& position);
 
 
     void fire() override;
@@ -79,8 +79,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::goblin_only |
-               RoomProperties::workshop_required |
+               RoomProperties::sylph_only |
+               RoomProperties::manufactory_required |
                RoomProperties::multiboot_compatible;
     }
 
@@ -99,13 +99,13 @@ public:
 
     static const char* name()
     {
-        return "flimsy-cannon";
+        return "sylph-cannon";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_flimsy_cannon;
+        return SystemString::block_sylph_cannon;
     }
 
 

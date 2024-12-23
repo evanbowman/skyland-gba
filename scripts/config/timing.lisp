@@ -11,6 +11,7 @@
    (10000 . "beam_reload_ms")
    (6800 . "incinerator_reload_ms")
    (3500 . "cannon_reload_ms")
+   (3500 . "sylph_cannon_reload_ms")
    (4200 . "fire_charge_reload_ms")
    (4000 . "nemesis_reload_ms")
    (7000 . "missile_silo_reload_ms")

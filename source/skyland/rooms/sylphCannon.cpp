@@ -32,7 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "flimsyCannon.hpp"
+#include "sylphCannon.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/misc/animatedEffect.hpp"
@@ -49,8 +49,9 @@ namespace skyland
 
 
 
-SHARED_VARIABLE(flimsy_cannon_reload_ms);
+SHARED_VARIABLE(sylph_cannon_reload_ms);
 extern SharedVariable cannonball_damage;
+extern SharedVariable sylph_cannon_damage_percent;
 
 
 
@@ -58,25 +59,24 @@ extern Sound cannon_sound;
 
 
 
-void FlimsyCannon::format_description(StringBuffer<512>& buffer)
+void SylphCannon::format_description(StringBuffer<512>& buffer)
 {
     make_format(buffer,
-                SYSTR(description_flimsy_cannon)->c_str(),
-                (1.5_fixed * Fixnum(cannonball_damage)).as_integer(),
-                (1.0_fixed * Fixnum(cannonball_damage)).as_integer(),
-                (0.5_fixed * Fixnum(cannonball_damage)).as_integer());
+                SYSTR(description_sylph_cannon)->c_str(),
+                sylph_cannon_damage_percent,
+                "%");
 }
 
 
 
-FlimsyCannon::FlimsyCannon(Island* parent, const RoomCoord& position)
-    : Weapon(parent, name(), position, 1000 * flimsy_cannon_reload_ms)
+SylphCannon::SylphCannon(Island* parent, const RoomCoord& position)
+    : Weapon(parent, name(), position, 1000 * sylph_cannon_reload_ms)
 {
 }
 
 
 
-void FlimsyCannon::fire()
+void SylphCannon::fire()
 {
     auto island = other_island();
 
@@ -109,13 +109,7 @@ void FlimsyCannon::fire()
 
     auto c = APP.alloc_entity<Cannonball>(start, target, parent(), position());
     if (c) {
-        if (health() < max_health() / 2) {
-            c->set_strength(0);
-        } else if (health() < ((max_health() * 3) / 4)) {
-            c->set_strength(1);
-        } else {
-            c->set_strength(2);
-        }
+        c->set_variant(2);
         parent()->projectiles().push(std::move(c));
     }
 
@@ -127,23 +121,23 @@ void FlimsyCannon::fire()
 
 
 
-Time FlimsyCannon::reload_impl() const
+Time SylphCannon::reload_impl() const
 {
-    return 1000 * flimsy_cannon_reload_ms;
+    return 1000 * sylph_cannon_reload_ms;
 }
 
 
 
-void FlimsyCannon::render_interior(App* app, TileId buffer[16][16])
+void SylphCannon::render_interior(App* app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::flimsy_cannon_1;
+    buffer[position().x][position().y] = Tile::sylph_cannon;
 }
 
 
 
-void FlimsyCannon::render_exterior(App* app, TileId buffer[16][16])
+void SylphCannon::render_exterior(App* app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::flimsy_cannon_1;
+    buffer[position().x][position().y] = Tile::sylph_cannon;
 }
 
 

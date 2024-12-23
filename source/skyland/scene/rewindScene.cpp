@@ -797,7 +797,7 @@ ScenePtr RewindScene::update(Time)
             auto p = respawn_basic_projectile<Cannonball>(
                 &APP.player_island(), *e, medium_explosion_inv);
             if (p) {
-                p->set_strength(e->strength_);
+                p->set_variant(e->variant_);
             }
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
@@ -810,7 +810,7 @@ ScenePtr RewindScene::update(Time)
             auto p = respawn_basic_projectile<Cannonball>(
                 APP.opponent_island(), *e, medium_explosion_inv);
             if (p) {
-                p->set_strength(e->strength_);
+                p->set_variant(e->variant_);
             }
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);

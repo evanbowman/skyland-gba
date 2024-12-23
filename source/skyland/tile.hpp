@@ -345,8 +345,6 @@ struct Tile
         amplifier,
         sylph_cannon,
         flimsy_cannon_1,
-        flimsy_cannon_2,
-        flimsy_cannon_3,
         count
     };
 };
@@ -651,8 +649,6 @@ struct InteriorTile
         amplifier,
         sylph_cannon,
         flimsy_cannon_1,
-        flimsy_cannon_2,
-        flimsy_cannon_3,
         count
     };
 };

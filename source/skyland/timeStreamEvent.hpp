@@ -474,7 +474,7 @@ struct BasicCannonballDestroyed
     host_s16 y_pos_;
     host_s64 x_speed__data_;
     host_s64 y_speed__data_;
-    u8 strength_;
+    u8 variant_;
 };
 
 

@@ -76,16 +76,16 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
     auto step = direction(fvec(position), fvec(target)) * speed;
     step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
 
-    set_strength(1);
+    set_variant(1);
 }
 
 
 
-void Cannonball::set_strength(u8 strength)
+void Cannonball::set_variant(u8 variant)
 {
-    strength_ = strength;
+    variant_ = variant;
 
-    switch (strength_) {
+    switch (variant_) {
     case 0:
         sprite_.set_size(Sprite::Size::w8_h8);
         sprite_.set_origin({4, 4});
@@ -116,6 +116,24 @@ void Cannonball::update(Time delta)
     sprite_.set_position(pos);
 
     timer_ += delta;
+
+
+    if (variant_ == 2) {
+        timer2_ += delta;
+        if (timer2_ > milliseconds(80)) {
+            timer2_ -= milliseconds(80);
+
+            // const auto max_y =
+            //     APP.player_island().origin().y + 16.0_fixed * 16.0_fixed + 32.0_fixed;
+
+            auto pos = sprite_.get_position();
+            pos = rng::sample<2>(pos, rng::utility_state);
+
+            if (auto e = alloc_entity<Explosion>(pos)) {
+                APP.effects().push(std::move(e));
+            }
+        }
+    }
 
 
     Island* target;
@@ -160,6 +178,10 @@ Sound sound_impact("impact");
 
 
 
+SHARED_VARIABLE(sylph_cannon_damage_percent);
+
+
+
 void Cannonball::on_collision(Room& room, Vec2<u8> origin)
 {
     if (source_ == room.parent()) {
@@ -179,21 +201,29 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
+    auto damage = (int)cannonball_damage;
+
+    if (variant_ == 2) {
+        // Unfotunately, using Fixnum here results in an unacceptable loss of
+        // accuracy, so I'm using floats.
+        auto damage_fp = ((room.max_health() *
+                           sylph_cannon_damage_percent) *
+                          0.01f);
+        damage = damage_fp;
+        damage = std::max(damage, 1);
+    } else if (variant_ == 0) {
+        damage /= 2;
+    }
+
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
-        room.max_health() < cannonball_damage) {
+        room.max_health() <= damage) {
         room.apply_damage(Room::health_upper_limit());
         return;
     }
 
-    auto damage = (int)cannonball_damage;
-
-    if (strength_ == 2) {
-        damage = (1.5_fixed * Fixnum::from_integer(damage)).as_integer();
-    } else if (strength_ == 0) {
-        damage /= 2;
-    }
-
-    room.apply_damage(damage);
+    room.apply_damage(damage, {
+            .ignore_deflector_shield_ = variant_ == 2,
+        });
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);
@@ -205,7 +235,13 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         timer_ = 0;
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
-        this->destroy(true);
+        bool big_explo = damage > 40;
+        this->destroy(not big_explo);
+        if (big_explo) {
+            big_explosion(sprite_.get_position(), {
+                    .centerflash_ = true,
+                });
+        }
         if (room.health()) {
             sound_impact.play(1);
         }
@@ -231,12 +267,12 @@ void Cannonball::record_destroyed()
     if (is_player_island(source_)) {
         time_stream::event::PlayerCannonballDestroyed c;
         timestream_record(c);
-        c.strength_ = strength_;
+        c.variant_ = variant_;
         APP.time_stream().push(APP.level_timer(), c);
     } else {
         time_stream::event::OpponentCannonballDestroyed c;
         timestream_record(c);
-        c.strength_ = strength_;
+        c.variant_ = variant_;
         APP.time_stream().push(APP.level_timer(), c);
     }
 }
@@ -281,9 +317,9 @@ void Cannonball::on_collision(Entity& entity)
 
     auto damage = (int)cannonball_damage;
 
-    if (strength_ == 2) {
-        damage = (1.5_fixed * Fixnum::from_integer(damage)).as_integer();
-    } else if (strength_ == 0) {
+    if (variant_ == 2) {
+
+    } else if (variant_ == 0) {
         damage /= 2;
     }
 
