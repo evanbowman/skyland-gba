@@ -93,6 +93,11 @@
                             (progn
                               (dialog
                                "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? WE'RE CLOSED.")
+                              (let ((xy (cdr (wg-pos))))
+                                ;; switch the current map node to a visited node
+                                ;; type, preventing us from talking to the
+                                ;; shopkeeper if we return (empty shop!)
+                                (wg-node-set (first xy) (second xy) 1))
                               (exit)))))))
 
           (dialog-opts-push (if (> (length name) 13)

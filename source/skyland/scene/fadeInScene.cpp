@@ -155,6 +155,8 @@ ScenePtr FadeInScene::update(Time delta)
                 PLATFORM.speaker().stream_music(
                     APP.environment().music()->c_str(), 0);
             }
+        } else if (node.type_ == WorldGraph::Node::Type::shop) {
+            APP.time_stream().enable_pushes(false);
         }
 
         state_bit_store(StateBit::disable_autopause, false);

@@ -1565,6 +1565,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 APP.environment().ambiance()->c_str(), 0);
             auto maxvol = Platform::Speaker::music_volume_max;
             PLATFORM.speaker().set_music_volume(maxvol);
+            APP.invoke_script("/scripts/reset_hooks.lisp");
             update_weather_onload();
             return make_scene<FadeInScene>();
         } else {
