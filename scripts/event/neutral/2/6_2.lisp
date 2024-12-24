@@ -1,6 +1,8 @@
 
 (dialog
- "A heavily damaged fortress appears through the mist. <B:0> Your crew is taken aback - few raiders dare attack sylph vessels, and fewer still succeed...")
+ "A heavily damaged fortress appears through the mist. <B:0> "
+ "<b:/scripts/data/img/sylph_ship.img.bin>"
+ "Your crew is taken aback - few raiders dare attack sylph vessels, and fewer still succeed...")
 
 
 (opponent-init 10 'neutral)
