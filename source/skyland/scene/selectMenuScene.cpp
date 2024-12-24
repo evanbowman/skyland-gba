@@ -224,6 +224,12 @@ void SelectMenuScene::enter(Scene& scene)
                                   : globals().near_cursor_loc_;
 
 
+    auto opp_isle = APP.opponent_island();
+
+    auto drone = is_far_camera() ?
+        (opp_isle ? opp_isle->get_drone(cursor) : nullopt()) :
+        APP.player_island().get_drone(cursor);
+
     PLATFORM.screen().clear();
     display();
     PLATFORM.fill_overlay(0);
@@ -463,6 +469,19 @@ void SelectMenuScene::enter(Scene& scene)
                                      if (auto room = island()->get_room(c)) {
                                          room->unset_target();
                                      }
+                                     return null_scene();
+                                 });
+                    }
+                }
+            } else if (drone) {
+                if (not PLATFORM.network_peer().is_connected()) {
+                    if ((*drone)->get_target()) {
+                        auto d = *drone;
+                        add_line(SystemString::sel_menu_weapon_halt,
+                                 "",
+                                 true,
+                                 [d]() {
+                                     d->clear_target_queue();
                                      return null_scene();
                                  });
                     }
