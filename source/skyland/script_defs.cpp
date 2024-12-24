@@ -197,6 +197,22 @@ lisp::Value* wrap_island(Island* isle)
 
 
 
+int file_line_count(const char* fname)
+{
+    int lcnt = 0;
+    if (auto contents = PLATFORM.load_file_contents("", fname)) {
+        while (*contents not_eq '\0') {
+            if (*contents == '\n') {
+                ++lcnt;
+            }
+            ++contents;
+        }
+    }
+    return lcnt;
+}
+
+
+
 Island* unwrap_isle(lisp::Value* v)
 {
     if (not str_eq(dcompr(v->wrapped().type_sym_)->symbol().name(), "isle")) {
@@ -2011,16 +2027,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, string);
           auto fname = lisp::get_op(0)->string().value();
-          int lcnt = 0;
-          if (auto contents = PLATFORM.load_file_contents("", fname)) {
-              while (*contents not_eq '\0') {
-                  if (*contents == '\n') {
-                      ++lcnt;
-                  }
-                  ++contents;
-              }
-          }
-          return L_INT(lcnt);
+          return L_INT(file_line_count(fname));
       }}},
     {"file-get-line",
      {SIG2(nil, string, integer),

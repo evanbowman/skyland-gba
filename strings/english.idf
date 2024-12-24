@@ -644,6 +644,9 @@ show minimap
 hide minimap
 select all
 crewmember info
+drone info
+-- Drone Service Log --
+technician's notes:
 -- Crewmember Passport --
 --  Crewmember Report  --
 Battles

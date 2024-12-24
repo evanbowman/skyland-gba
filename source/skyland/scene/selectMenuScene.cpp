@@ -51,6 +51,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "droneStatsScene.hpp"
 
 
 
@@ -60,6 +61,7 @@ namespace skyland
 
 
 SHARED_VARIABLE(powerdown_allowed);
+
 
 
 
@@ -475,8 +477,17 @@ void SelectMenuScene::enter(Scene& scene)
                 }
             } else if (drone) {
                 if (not PLATFORM.network_peer().is_connected()) {
+
+                    auto d = *drone;
+
+                    add_line(SystemString::sel_menu_drone_stats,
+                             "",
+                             true,
+                             [d]() {
+                                 return make_scene<DroneStatsScene>(d);
+                             });
+
                     if ((*drone)->get_target()) {
-                        auto d = *drone;
                         add_line(SystemString::sel_menu_weapon_halt,
                                  "",
                                  true,

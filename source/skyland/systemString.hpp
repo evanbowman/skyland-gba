@@ -802,6 +802,10 @@ enum class SystemString {
     sel_menu_hide_minimap,
     sel_menu_select_all,
     sel_menu_crewmember_stats,
+    sel_menu_drone_stats,
+
+    drone_info_heading,
+    drone_info_notes,
 
     crewmember_stats_title,
     crewmember_stats_title_ending,
