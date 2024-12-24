@@ -41,12 +41,13 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-
+#include "skyland/sharedVariable.hpp"
 
 
 namespace skyland
 {
 
+SHARED_VARIABLE(rewind_disabled);
 
 
 void generate_snow(Island& isle)
@@ -155,7 +156,9 @@ ScenePtr FadeInScene::update(Time delta)
                 PLATFORM.speaker().stream_music(
                     APP.environment().music()->c_str(), 0);
             }
-        } else if (node.type_ == WorldGraph::Node::Type::shop) {
+        }
+
+        if (rewind_disabled) {
             APP.time_stream().enable_pushes(false);
         }
 

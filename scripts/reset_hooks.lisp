@@ -35,6 +35,8 @@
 (if (not (bound? 'friendlies-seen))
     (setq friendlies-seen '()))
 
+(setvar "rewind_disabled" 0)
+
 
 ;; I try not to run the gc manually. But we just detached a bunch of callbacks
 ;; that were storing potentially large functions. The collector possibly going
