@@ -63,7 +63,8 @@
                  (if (equal rem 1)
                      (progn
                        (dialog "The Sylph are known for their elegant engineering. <B:0> These cannons don't just blast through blocks - they resonate with them somehow, seeming to deal more damage to stronger structures. <B:0> With the cannons safely aboard, you leave the mysterious wreck behind...")
-                       (setq on-dialog-closed exit))
+                       (run-util-script "pickup-cart" 9
+                                        "One of your crewmembers hands over another item found aboard the sylph vessel..."))
                      (collect-block (incr index) (decr rem)))))))
 
 
