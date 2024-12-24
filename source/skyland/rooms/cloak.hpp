@@ -83,8 +83,7 @@ public:
     {
         return RoomProperties::roof_hidden | RoomProperties::disallow_chimney |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::accepts_ion_damage |
-               RoomProperties::sylph_only |
+               RoomProperties::accepts_ion_damage | RoomProperties::sylph_only |
                RoomProperties::manufactory_required;
     }
 

@@ -42,6 +42,7 @@
 #include "console.hpp"
 #include "dialog.hpp"
 #include "entity/birds/bird.hpp"
+#include "faction.hpp"
 #include "flag.hpp"
 #include "gamespeed.hpp"
 #include "highscores.hpp"
@@ -59,7 +60,6 @@
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
 #include "weather/environment.hpp"
-#include "faction.hpp"
 
 
 

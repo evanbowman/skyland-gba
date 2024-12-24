@@ -122,9 +122,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::workshop_required |
-               RoomProperties::roof_hidden | RoomProperties::disallow_chimney |
-               RoomProperties::human_only;
+        return RoomProperties::workshop_required | RoomProperties::roof_hidden |
+               RoomProperties::disallow_chimney | RoomProperties::human_only;
     }
 };
 

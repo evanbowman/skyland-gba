@@ -33,9 +33,9 @@
 
 
 #include "adventureModeSettingsScene.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -71,8 +71,7 @@ static const SettingInfo difficulty_text[] = {
 static const SettingInfo faction_text[] = {
     {SystemString::faction_human, SystemString::faction_desc_human},
     {SystemString::faction_goblin, SystemString::faction_desc_goblin},
-    {SystemString::faction_sylph, SystemString::faction_desc_sylph}
-};
+    {SystemString::faction_sylph, SystemString::faction_desc_sylph}};
 
 
 
@@ -85,8 +84,7 @@ void AdventureModeSettingsScene::repaint_difficulty(int difficulty,
 
 
 
-void AdventureModeSettingsScene::repaint_faction(Faction faction,
-                                                 bool selected)
+void AdventureModeSettingsScene::repaint_faction(Faction faction, bool selected)
 {
     auto d = faction_text[(int)faction];
     render_line(2, d.text_, d.desc_, selected);
@@ -202,7 +200,8 @@ void AdventureModeSettingsScene::repaint()
     case 2: {
         repaint_difficulty((int)APP.gp_.difficulty_, false);
         repaint_permadeath(
-            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on), false);
+            APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on),
+            false);
         repaint_faction(APP.faction(), true);
         RoomProperties::Value filter;
         switch (APP.faction()) {
@@ -229,14 +228,13 @@ void AdventureModeSettingsScene::repaint()
             }
         }
 
-        static const int vram_locs[] = {
-            258, 181, 197, 213, 274
-        };
+        static const int vram_locs[] = {258, 181, 197, 213, 274};
 
         int x_margin = (30 - icons.size() * 4) / 2;
 
         for (u32 i = 0; i < icons.size(); ++i) {
-            draw_image(vram_locs[i], x_margin + i * 4, 10, 4, 4, Layer::overlay);
+            draw_image(
+                vram_locs[i], x_margin + i * 4, 10, 4, 4, Layer::overlay);
             PLATFORM.load_overlay_chunk(vram_locs[i], icons[i], 16);
         }
 
@@ -347,7 +345,6 @@ void AdventureModeSettingsScene::update_field(bool inc)
         }
         break;
     }
-
     }
 }
 
@@ -409,7 +406,8 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         load_difficulty_profile();
 
         if (APP.faction() not_eq prev_faction_) {
-            APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction, false);
+            APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction,
+                                    false);
             APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, false);
 
             switch (APP.faction()) {
@@ -417,11 +415,13 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
                 break;
 
             case Faction::goblin:
-                APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction, true);
+                APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction,
+                                        true);
                 break;
 
             case Faction::sylph:
-                APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, true);
+                APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction,
+                                        true);
                 break;
             }
         }

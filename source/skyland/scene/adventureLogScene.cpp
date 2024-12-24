@@ -162,7 +162,7 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
     StringBuffer<128> result;
 
     if (auto v = load_logentry(entry)) {
-        
+
         const char* file = "/strings/adventure_log.txt";
         if (APP.faction() == Faction::human) {
             file = "/strings/adventure_log_human.txt";
@@ -172,7 +172,7 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
             file = "/strings/adventure_log_sylph.txt";
         } else {
             file = "/strings/adventure_log.txt";
-        } 
+        }
 
 
         auto line = lisp::get_list(v, 0)->integer().value_;

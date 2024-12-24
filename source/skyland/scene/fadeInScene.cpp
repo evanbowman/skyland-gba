@@ -39,9 +39,9 @@
 #include "script/lisp.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 namespace skyland

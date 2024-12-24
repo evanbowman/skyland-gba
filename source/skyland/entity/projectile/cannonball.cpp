@@ -206,9 +206,8 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
     if (variant_ == 2) {
         // Unfotunately, using Fixnum here results in an unacceptable loss of
         // accuracy, so I'm using floats.
-        auto damage_fp = ((room.max_health() *
-                           sylph_cannon_damage_percent) *
-                          0.01f);
+        auto damage_fp =
+            ((room.max_health() * sylph_cannon_damage_percent) * 0.01f);
         damage = damage_fp;
         damage = std::max(damage, 1);
     } else if (variant_ == 0) {
@@ -221,9 +220,10 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    room.apply_damage(damage, {
-            .ignore_deflector_shield_ = variant_ == 2,
-        });
+    room.apply_damage(damage,
+                      {
+                          .ignore_deflector_shield_ = variant_ == 2,
+                      });
 
     if (str_eq(room.name(), "mirror-hull")) {
         room.set_ai_aware(true);
@@ -238,9 +238,10 @@ void Cannonball::on_collision(Room& room, Vec2<u8> origin)
         bool big_explo = damage > 40;
         this->destroy(not big_explo);
         if (big_explo) {
-            big_explosion(sprite_.get_position(), {
-                    .centerflash_ = true,
-                });
+            big_explosion(sprite_.get_position(),
+                          {
+                              .centerflash_ = true,
+                          });
         }
         if (room.health()) {
             sound_impact.play(1);

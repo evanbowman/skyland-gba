@@ -39,8 +39,7 @@ namespace skyland
 
 
 
-enum class Faction : u8
-{
+enum class Faction : u8 {
     start,
     human = start,
     goblin,

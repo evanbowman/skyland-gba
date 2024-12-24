@@ -1447,10 +1447,8 @@ void ProcgenEnemyAI::generate_characters()
                 if (APP.opponent_island()->character_at_location(slot.coord_)) {
                     continue;
                 }
-                auto e = alloc_entity<BasicCharacter>(APP.opponent_island(),
-                                                 &APP.opponent(),
-                                                 slot.coord_,
-                                                 false);
+                auto e = alloc_entity<BasicCharacter>(
+                    APP.opponent_island(), &APP.opponent(), slot.coord_, false);
                 APP.opponent_island()->add_character(std::move(e));
 
                 break;
