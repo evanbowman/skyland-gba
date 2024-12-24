@@ -96,3 +96,4 @@
 (unbind 'conf 'mkch)
 
 (setvar "powerdown_allowed" 1)
+(setvar "rewind_disabled" 0)

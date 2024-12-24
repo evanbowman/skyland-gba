@@ -42,3 +42,4 @@ build/#build.sh
 source/platform/gba/images.cpp
 source/platform/nds/images.cpp
 source/platform/desktop/images.cpp
+build/.cmake/*

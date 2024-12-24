@@ -5,6 +5,8 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 (setvar "powerdown_allowed" 1)
+(setvar "rewind_disabled" 0)
+
 
 ;; NOTE: the list should not exceed 64 tutorials.
 
