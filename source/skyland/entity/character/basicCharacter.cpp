@@ -492,18 +492,18 @@ void BasicCharacter::update(Time delta, Room* room)
             set_wants_to_chat(false);
             // Number of "wants to chat" cycles until the character will seek
             // out another conversation.
-            antisocial_ = rng::choice<10>(rng::utility_state);
+            antisocial_ = rng::choice<8>(rng::utility_state);
             set_idle();
         }
         anim_timer_ += delta;
         if (anim_timer_ > milliseconds(100)) {
             anim_timer_ = 0;
-            auto pos = sprite_.get_position();
-            pos.y -= 4.0_fixed;
-            bool xflip = sprite_.get_flip().x;
-            if (auto e = alloc_entity<MessageBubble>(pos, xflip)) {
-                APP.effects().push(std::move(e));
-            }
+            // auto pos = sprite_.get_position();
+            // pos.y -= 4.0_fixed;
+            // bool xflip = sprite_.get_flip().x;
+            // if (auto e = alloc_entity<MessageBubble>(pos, xflip)) {
+            //     APP.effects().push(std::move(e));
+            // }
         }
         sprite_.set_position(o);
         break;
@@ -545,7 +545,11 @@ void BasicCharacter::update(Time delta, Room* room)
                         --antisocial_;
                         idle_count_ = 0;
                     } else {
-                        set_wants_to_chat(true);
+                        bool hostile_opponent =
+                            APP.opponent_island() and
+                            not APP.opponent().is_friendly();
+
+                        set_wants_to_chat(not hostile_opponent);
                     }
                 }
             }

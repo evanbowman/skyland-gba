@@ -217,12 +217,6 @@ void PlayerP1::on_room_damaged(Room& room)
             bird->signal();
         }
     }
-
-    for (auto& room : island->rooms()) {
-        for (auto& chr : room->edit_characters()) {
-            chr->set_wants_to_chat(false);
-        }
-    }
 }
 
 
