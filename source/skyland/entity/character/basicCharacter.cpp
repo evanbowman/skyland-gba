@@ -545,13 +545,7 @@ void BasicCharacter::update(Time delta, Room* room)
                         --antisocial_;
                         idle_count_ = 0;
                     } else {
-                        bool hostile_opponent =
-                            APP.opponent_island() and
-                            not APP.opponent().is_friendly();
-
-                        if (not hostile_opponent) {
-                            set_wants_to_chat(true);
-                        }
+                        set_wants_to_chat(true);
                     }
                 }
             }
