@@ -539,20 +539,6 @@ void BasicCharacter::update(Time delta, Room* room)
             if (delta > 0) {
                 ++idle_count_;
             }
-            if (idle_count_ > 60 * 10) {
-                if (owner_ == &APP.player()) {
-                    if (antisocial_) {
-                        --antisocial_;
-                        idle_count_ = 0;
-                    } else {
-                        bool hostile_opponent =
-                            APP.opponent_island() and
-                            not APP.opponent().is_friendly();
-
-                        set_wants_to_chat(not hostile_opponent);
-                    }
-                }
-            }
 
             if (wants_to_chat()) {
                 // Check if adjacent crewmembers want to chat...
