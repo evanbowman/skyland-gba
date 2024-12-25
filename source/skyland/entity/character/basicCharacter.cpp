@@ -50,6 +50,41 @@ namespace skyland
 
 
 
+class MessageBubble : public Entity
+{
+public:
+    MessageBubble(const Vec2<Fixnum>& position, bool xflip) :
+        Entity({{}, {}})
+    {
+        sprite_.set_position(position);
+        sprite_.set_size(Sprite::Size::w16_h16);
+        sprite_.set_tidx_16x16(93, 0);
+        sprite_.set_priority(0);
+        sprite_.set_flip({xflip, false});
+    }
+
+
+    void update(Time delta) override
+    {
+        timer_ += delta;
+        if (timer_ > milliseconds(100)) {
+            kill();
+        }
+    }
+
+
+    void rewind(Time delta) override
+    {
+        kill();
+    }
+
+
+private:
+    Time timer_ = 0;
+};
+
+
+
 static Time movement_step_duration(int race)
 {
     return milliseconds(300);
@@ -138,6 +173,8 @@ BasicCharacter::BasicCharacter(Island* parent,
 
     ai_automated_ = true;
     superpinned_ = false;
+
+    antisocial_ = rng::choice<10>(rng::utility_state);
 }
 
 
@@ -224,6 +261,7 @@ void BasicCharacter::transported()
     anim_timer_ = 0;
     sprite_.set_mix({ColorConstant::electric_blue, 255});
     idle_count_ = 0;
+    set_wants_to_chat(false);
     unpin();
 }
 
@@ -316,12 +354,25 @@ void BasicCharacter::rewind(Time delta)
 
 
 
+BasicCharacter::Personality BasicCharacter::get_personality() const
+{
+    switch (icon_) {
+        // TODO: individual character icons might have distinct personalities.
+        // Ideally I would make something like this configurable...
+    default:
+        return Personality::practical;
+    }
+}
+
+
+
 void BasicCharacter::set_idle()
 {
     sprite_.set_texture_index(base_frame(this) + 5);
     state_ = State::moving_or_idle;
     timer_ = 0;
     idle_count_ = 0;
+    set_wants_to_chat(false);
 }
 
 
@@ -433,6 +484,31 @@ void BasicCharacter::update(Time delta, Room* room)
         break;
     }
 
+    case State::chatting: {
+        timer_ += delta;
+        if (has_movement_path() or
+            timer_ > seconds(7) + milliseconds(100)) {
+            timer_ = 0;
+            set_wants_to_chat(false);
+            // Number of "wants to chat" cycles until the character will seek
+            // out another conversation.
+            antisocial_ = rng::choice<10>(rng::utility_state);
+            set_idle();
+        }
+        anim_timer_ += delta;
+        if (anim_timer_ > milliseconds(100)) {
+            anim_timer_ = 0;
+            auto pos = sprite_.get_position();
+            pos.y -= 4.0_fixed;
+            bool xflip = sprite_.get_flip().x;
+            if (auto e = alloc_entity<MessageBubble>(pos, xflip)) {
+                APP.effects().push(std::move(e));
+            }
+        }
+        sprite_.set_position(o);
+        break;
+    }
+
     case State::moving_or_idle: {
 
         if (movement_path_) {
@@ -460,7 +536,50 @@ void BasicCharacter::update(Time delta, Room* room)
             can_move_ = false;
             sprite_.set_position(o);
             sprite_.set_texture_index(base_frame(this) + 5);
-            ++idle_count_;
+            if (delta > 0) {
+                ++idle_count_;
+            }
+            if (idle_count_ > 60 * 10) {
+                if (owner_ == &APP.player()) {
+                    if (antisocial_) {
+                        --antisocial_;
+                        idle_count_ = 0;
+                    } else {
+                        set_wants_to_chat(true);
+                    }
+                }
+            }
+
+            if (wants_to_chat()) {
+                // Check if adjacent crewmembers want to chat...
+
+                auto adjacent_chr = [&](int xo, int yo) {
+                    return parent()->character_at_location({
+                            (u8)(grid_position_.x + xo),
+                            (u8)(grid_position_.y + yo)
+                        });
+                };
+
+                BasicCharacter* chr = nullptr;
+
+                if ((chr = adjacent_chr(-1, 0)) or
+                    (chr = adjacent_chr(1, 0)) or
+                    (chr = adjacent_chr(0, -1)) or
+                    (chr = adjacent_chr(0, 1))) {
+
+                    if (chr->wants_to_chat() and
+                        not chr->has_movement_path() and
+                        (chr->state() == State::moving_or_idle or
+                         chr->state() == State::chatting)) {
+                        state_ = State::chatting;
+                        chr->state_ = State::chatting;
+                        chr->timer_ = 0;
+                        timer_ = 0;
+                        anim_timer_ = 0;
+                        chr->anim_timer_ = 0;
+                    }
+                }
+            }
 
             if (room) {
 
@@ -767,6 +886,7 @@ void BasicCharacter::update_attack(Time delta)
             state_ = State::moving_or_idle;
             timer_ = 0;
             idle_count_ = 0;
+            set_wants_to_chat(false);
         }
 
         timer_ = 0;
@@ -781,6 +901,7 @@ void BasicCharacter::update_attack(Time delta)
         state_ = State::moving_or_idle;
         timer_ = 0;
         idle_count_ = 0;
+        set_wants_to_chat(false);
     }
 }
 
@@ -928,6 +1049,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
                 anim_timer_ = 0;
                 sprite_.set_mix({ColorConstant::electric_blue, 255});
                 idle_count_ = 0;
+                set_wants_to_chat(false);
                 sprite_.set_texture_index(base_frame(this) + 5);
                 awaiting_movement_ = false;
                 can_move_ = false;
@@ -978,6 +1100,7 @@ void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
     awaiting_movement_ = false;
     can_move_ = false;
     idle_count_ = 0;
+    set_wants_to_chat(false);
 }
 
 
@@ -1135,6 +1258,24 @@ const char* BasicCharacter::name() const
     // feature removed...
 
     return nullptr;
+}
+
+
+
+bool BasicCharacter::wants_to_chat() const
+{
+    return wants_to_chat_;
+}
+
+
+
+void BasicCharacter::set_wants_to_chat(bool status)
+{
+    wants_to_chat_ = status;
+    idle_count_ = 0;
+
+    // sprite_.set_mix({ColorConstant::rich_black, (u8)(128 * (int)status)});
+
 }
 
 

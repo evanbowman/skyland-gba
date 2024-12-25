@@ -347,6 +347,7 @@ ScenePtr ModifyCharacterScene::update(Time delta)
 
             if (path and *path) {
                 sel_chr->set_movement_path(std::move(*path));
+                sel_chr->set_wants_to_chat(false);
                 sel_chr->pin();
 
                 network::packet::ChrSetTargetV2 packet;

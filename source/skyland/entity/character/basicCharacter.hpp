@@ -42,6 +42,13 @@
 
 
 
+// NOTE: Originally, I called this class BasicCharacter, because I planned on
+// creating other types of derived characters. But in practice, BasicCharacter
+// is the only type of character, and includes all of the different behavior
+// needed for crewmember logic.
+
+
+
 namespace skyland
 {
 
@@ -190,6 +197,7 @@ public:
         repair_room,
         extinguish_fire,
         after_transport,
+        chatting,
     };
 
 
@@ -336,6 +344,22 @@ public:
     void record_stats();
 
 
+    bool wants_to_chat() const;
+    void set_wants_to_chat(bool status);
+
+
+    enum class Personality
+    {
+        practical,
+        adventurous,
+        cautious,
+        goblin,
+    };
+
+
+    Personality get_personality() const;
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -366,7 +390,9 @@ private:
 
     u8 ai_automated_ : 1;
     u8 superpinned_ : 1;
-    u8 unused_ : 6;
+    u8 wants_to_chat_ : 1 = 0;
+    u8 antisocial_ : 4 = 0;
+    u8 unused_ : 1;
 
     CharacterStats stats_;
 

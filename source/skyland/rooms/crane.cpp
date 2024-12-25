@@ -125,7 +125,7 @@ void Crane::display_on_hover(Platform::Screen& screen,
 void Crane::display(Platform::Screen& screen)
 {
     Sprite spr;
-    spr.set_size(Sprite::Size::w16_h32);
+    spr.set_size(Sprite::Size::w16_h16);
 
     auto pos = center();
     pos.x += 14.0_fixed;
@@ -152,13 +152,13 @@ void Crane::display(Platform::Screen& screen)
     }
 
 
-    spr.set_texture_index(92);
+    spr.set_tidx_16x16(92, 0);
 
     screen.draw(spr);
 
     const auto claw_pos = pos;
 
-    spr.set_texture_index(93);
+    spr.set_tidx_16x16(92, 1);
 
     pos = start_pos;
     pos.y -= 1.0_fixed;

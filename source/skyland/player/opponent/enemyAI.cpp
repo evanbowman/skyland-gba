@@ -805,6 +805,26 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
         }
     }
 
+    if (character.wants_to_chat()) {
+        for (auto& slot : slots) {
+            if (auto chr = ai_island_->character_at_location(slot.coord_)) {
+                if (chr not_eq &character) {
+                    if (chr->wants_to_chat()) {
+                        for (auto& sl : slots) {
+                            auto d = manhattan_length(slot.coord_, sl.coord_);
+                            auto is_adjacent = d < 2;
+                            if (sl.coord_ not_eq slot.coord_ and is_adjacent) {
+                                if (sl.ai_weight_ > 0.0_atp) {
+                                    sl.ai_weight_ += 2000.0_atp;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     std::sort(slots.begin(),
               slots.end(),
               [&](const Destination& lhs, const Destination& rhs) {
