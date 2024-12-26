@@ -59,9 +59,6 @@
           (dialog-opts-push
            "I'll buy it!"
            (lambda ()
-             (coins-add (* -1 (get info 1)))
-             (adventure-log-add 50 (list name (get info 1)))
-
              (alloc-space (get info 0))
 
              (sel-input (get info 0)
@@ -69,6 +66,9 @@
                         (lambda (isle x y)
                           (room-new (player) (list (get info 0) x y))
                           (sound "build0")
+
+                          (coins-add (* -1 (get info 1)))
+                          (adventure-log-add 50 (list name (get info 1)))
 
                           (setq shop-items
                                 (filter

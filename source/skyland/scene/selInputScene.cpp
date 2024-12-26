@@ -36,6 +36,7 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "scriptHookScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/salvageRoomScene.hpp"
@@ -209,10 +210,19 @@ ScenePtr SelInputScene::update(Time delta)
 
 
     if (near_ and APP.player().key_down(Key::action_2)) {
-        auto next = make_scene<SalvageRoomScene>();
-        next->set_next_scene(
-            make_deferred_scene<SelInputScene>(parameters_.get(), near_));
-        return next;
+        if (APP.player_island().get_room(globals().near_cursor_loc_)) {
+            auto next = make_scene<SalvageRoomScene>();
+            next->set_next_scene(
+                make_deferred_scene<SelInputScene>(parameters_.get(), near_));
+            return next;
+        } else {
+            const auto loc = APP.current_world_location();
+            auto& node = APP.world_graph().nodes_[loc];
+            if (node.type_ == WorldGraph::Node::Type::shop) {
+                invoke_hook("on-shop-enter");
+                return null_scene();
+            }
+        }
     } else if (APP.player().key_down(Key::action_1)) {
 
         auto& cursor_loc =
