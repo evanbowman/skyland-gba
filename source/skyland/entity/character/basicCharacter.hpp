@@ -348,8 +348,7 @@ public:
     void set_wants_to_chat(bool status);
 
 
-    enum class Personality
-    {
+    enum class Personality {
         practical,
         adventurous,
         cautious,

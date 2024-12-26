@@ -50,41 +50,6 @@ namespace skyland
 
 
 
-class MessageBubble : public Entity
-{
-public:
-    MessageBubble(const Vec2<Fixnum>& position, bool xflip) :
-        Entity({{}, {}})
-    {
-        sprite_.set_position(position);
-        sprite_.set_size(Sprite::Size::w16_h16);
-        sprite_.set_tidx_16x16(93, 0);
-        sprite_.set_priority(0);
-        sprite_.set_flip({xflip, false});
-    }
-
-
-    void update(Time delta) override
-    {
-        timer_ += delta;
-        if (timer_ > milliseconds(100)) {
-            kill();
-        }
-    }
-
-
-    void rewind(Time delta) override
-    {
-        kill();
-    }
-
-
-private:
-    Time timer_ = 0;
-};
-
-
-
 static Time movement_step_duration(int race)
 {
     return milliseconds(300);
@@ -486,8 +451,7 @@ void BasicCharacter::update(Time delta, Room* room)
 
     case State::chatting: {
         timer_ += delta;
-        if (has_movement_path() or
-            timer_ > seconds(7) + milliseconds(100)) {
+        if (has_movement_path() or timer_ > seconds(7) + milliseconds(200)) {
             timer_ = 0;
             set_wants_to_chat(false);
             // Number of "wants to chat" cycles until the character will seek
@@ -496,15 +460,17 @@ void BasicCharacter::update(Time delta, Room* room)
             set_idle();
         }
         anim_timer_ += delta;
-        if (anim_timer_ > milliseconds(100)) {
-            anim_timer_ = 0;
-            // auto pos = sprite_.get_position();
-            // pos.y -= 4.0_fixed;
-            // bool xflip = sprite_.get_flip().x;
-            // if (auto e = alloc_entity<MessageBubble>(pos, xflip)) {
-            //     APP.effects().push(std::move(e));
-            // }
+        if (anim_timer_ > milliseconds(200)) {
+            anim_timer_ -= milliseconds(200);
+            auto index = sprite_.get_texture_index();
+            if (index == base_frame(this) + 5) {
+                index = 93;
+            } else {
+                index = base_frame(this) + 5;
+            }
+            sprite_.set_texture_index(index);
         }
+
         sprite_.set_position(o);
         break;
     }
@@ -540,22 +506,36 @@ void BasicCharacter::update(Time delta, Room* room)
                 ++idle_count_;
             }
 
+            if (not APP.opponent_island()) {
+                if (idle_count_ > 60 * 10) {
+                    if (owner_ == &APP.player()) {
+                        if (antisocial_) {
+                            --antisocial_;
+                            idle_count_ = 0;
+                        } else {
+                            // Uncomment to enable experimental crew social
+                            // features.
+                            // set_wants_to_chat(true);
+                        }
+                    }
+                }
+            } else {
+                wants_to_chat_ = false;
+            }
+
             if (wants_to_chat()) {
                 // Check if adjacent crewmembers want to chat...
 
                 auto adjacent_chr = [&](int xo, int yo) {
-                    return parent()->character_at_location({
-                            (u8)(grid_position_.x + xo),
-                            (u8)(grid_position_.y + yo)
-                        });
+                    return parent()->character_at_location(
+                        {(u8)(grid_position_.x + xo),
+                         (u8)(grid_position_.y + yo)});
                 };
 
                 BasicCharacter* chr = nullptr;
 
-                if ((chr = adjacent_chr(-1, 0)) or
-                    (chr = adjacent_chr(1, 0)) or
-                    (chr = adjacent_chr(0, -1)) or
-                    (chr = adjacent_chr(0, 1))) {
+                if ((chr = adjacent_chr(-1, 0)) or (chr = adjacent_chr(1, 0)) or
+                    (chr = adjacent_chr(0, -1)) or (chr = adjacent_chr(0, 1))) {
 
                     if (chr->wants_to_chat() and
                         not chr->has_movement_path() and
@@ -1263,9 +1243,6 @@ void BasicCharacter::set_wants_to_chat(bool status)
 {
     wants_to_chat_ = status;
     idle_count_ = 0;
-
-    // sprite_.set_mix({ColorConstant::rich_black, (u8)(128 * (int)status)});
-
 }
 
 
