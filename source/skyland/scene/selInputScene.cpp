@@ -221,6 +221,8 @@ ScenePtr SelInputScene::update(Time delta)
             if (node.type_ == WorldGraph::Node::Type::shop) {
                 invoke_hook("on-shop-enter");
                 return null_scene();
+            } else {
+                PLATFORM.speaker().play_sound("beep_error", 1);
             }
         }
     } else if (APP.player().key_down(Key::action_1)) {
