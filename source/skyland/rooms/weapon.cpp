@@ -149,6 +149,12 @@ void Weapon::timer_expired()
             return;
         }
 
+        if (parent()->phase()) {
+            parent()->bulk_timer().schedule(this, reload() - 1);
+            Timer::__override_clock(0);
+            return;
+        }
+
         auto island = other_island();
 
         if (island and not island->is_destroyed()) {
