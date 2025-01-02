@@ -116,6 +116,7 @@ enum class SystemString {
     block_bulkhead_door,
     block_cannon,
     block_cargo_bay,
+    block_phase_shifter,
     block_power_core,
     block_portal,
     block_decimator,
@@ -443,6 +444,7 @@ enum class SystemString {
     description_amplifier,
     description_sylph_cannon,
     description_flimsy_cannon,
+    description_phase_shifter,
 
     gs_paused,
     gs_slow,

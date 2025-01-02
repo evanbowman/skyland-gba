@@ -53,6 +53,7 @@ market-stall
 bulkhead-door
 cannon
 cargo-bay
+phase-shifter
 power-core
 portal
 decimator
@@ -350,6 +351,7 @@ One of the few pieces of technology goblins have managed to invent. Generates % 
 Speeds up recharge times for nearby blocks. Rare, fragile, and incredibly valuable.
 A specialized beam weapon that deals %% of a block's maximum health in damage. More effective against hull than regular cannons, weak against delicate blocks.
 Goblins tried to design a better cannon; it's powerful, yet flawed - starts at % damage, drops to % at half health, and % at quarter health.
+...
 paused
 slow
 regular

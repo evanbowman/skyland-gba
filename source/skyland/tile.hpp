@@ -345,6 +345,9 @@ struct Tile
         amplifier,
         sylph_cannon,
         flimsy_cannon_1,
+        phase_shifter_1,
+        phase_shifter_2,
+        phase_shifter_3,
         count
     };
 };
@@ -649,6 +652,9 @@ struct InteriorTile
         amplifier,
         sylph_cannon,
         flimsy_cannon_1,
+        phase_shifter_1,
+        phase_shifter_2,
+        phase_shifter_3,
         count
     };
 };
