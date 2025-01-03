@@ -348,6 +348,13 @@ struct Tile
         phase_shifter_1,
         phase_shifter_2,
         phase_shifter_3,
+        terrain_slope_left,
+        terrain_ledge_left,
+        terrain_ledge_right,
+        terrain_slope_right,
+        terrain_center,
+        terrain_mountain_top,
+        terrain_mountain_bottom,
         count
     };
 };
@@ -655,6 +662,13 @@ struct InteriorTile
         phase_shifter_1,
         phase_shifter_2,
         phase_shifter_3,
+        terrain_slope_left,
+        terrain_ledge_left,
+        terrain_ledge_right,
+        terrain_slope_right,
+        terrain_center,
+        terrain_mountain_top,
+        terrain_mountain_bottom,
         count
     };
 };

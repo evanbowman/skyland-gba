@@ -438,6 +438,9 @@ public:
     void unamplify_blocks();
 
 
+    void set_mountain_terrain(bool enabled);
+
+
 private:
     void recompute_deflector_shields();
 
@@ -531,6 +534,7 @@ private:
     bool show_powerdown_opts_ : 1 = false;
     bool should_recompute_deflector_shields_ : 1 = false;
     bool dark_smoke_ : 1 = false;
+    bool mountain_terrain_ : 1 = false;
     u8 phase_ : 1 = 0;
 
     // During repaint(), the game caches the results of plot_rooms() in this

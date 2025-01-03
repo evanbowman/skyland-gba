@@ -364,6 +364,10 @@ void Island::rewind(Time delta)
     s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
+    if (mountain_terrain_) {
+        ambient_offset = 0;
+    }
+
     ambient_movement_ = ambient_offset;
 
 
@@ -777,6 +781,10 @@ void Island::update_simple(Time dt)
 
     s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
+
+    if (mountain_terrain_) {
+        ambient_offset = 0;
+    }
 
     ambient_movement_ = ambient_offset;
 
@@ -1437,8 +1445,51 @@ u8 Island::phase() const
 
 
 
+void Island::set_mountain_terrain(bool enabled)
+{
+    mountain_terrain_ = enabled;
+}
+
+
+
 void Island::render_terrain()
 {
+    auto load_tile = [&](u16 t) {
+        return layer_ == Layer::map_0_ext
+            ? PLATFORM.map_tile0_chunk(t)
+            : PLATFORM.map_tile1_chunk(t);
+    };
+
+    if (mountain_terrain_) {
+        auto sl = load_tile(Tile::terrain_slope_left);
+        auto ll = load_tile(Tile::terrain_ledge_left);
+        auto sr = load_tile(Tile::terrain_slope_right);
+        auto lr = load_tile(Tile::terrain_ledge_right);
+        auto cn = load_tile(Tile::terrain_center);
+        auto mt = load_tile(Tile::terrain_mountain_top);
+        auto mb = load_tile(Tile::terrain_mountain_bottom);
+
+        for (u32 i = 0; i < terrain_.size(); ++i) {
+            auto fill = cn;
+            if (i == 0) {
+                PLATFORM.set_tile(layer_, i, 15, sl);
+                fill = ll;
+            } else if (i == terrain_.size() - 1) {
+                PLATFORM.set_tile(layer_, i, 15, sr);
+                fill = lr;
+            } else {
+                PLATFORM.set_tile(layer_, i, 15, mt);
+            }
+
+            PLATFORM.set_tile(layer_, i, 0, fill);
+            PLATFORM.set_tile(layer_, i, 1, fill);
+            PLATFORM.set_tile(layer_, i, 2, fill);
+            PLATFORM.set_tile(layer_, i, 3, mb);
+        }
+
+        return;
+    }
+
     for (u32 i = 0; i < terrain_.size(); ++i) {
         auto tile_handle = layer_ == Layer::map_0_ext
                                ? PLATFORM.map_tile0_chunk(terrain_[i])
@@ -2017,7 +2068,9 @@ void Island::repaint()
                 }
             } else if (y == 14 and mem->tiles[x][y] == 0 and
                        x < (int)terrain_.size()) {
-                mem->tiles[x][y] = Tile::grass;
+                if (not mountain_terrain_ or (x > 0 and x < terrain_.size() - 1)) {
+                    mem->tiles[x][y] = Tile::grass;
+                }
             } else if (mem->mat[x][y] == 0 and mem->mat[x][y + 1] == 2) {
                 bool placed_chimney_this_tile = false;
                 if (not placed_chimney and y > 5) {

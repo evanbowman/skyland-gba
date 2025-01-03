@@ -1422,6 +1422,13 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"mountain-terrain-mode",
+     {SIG2(nil, wrapped, integer),
+      [](int argc) {
+          auto island = unwrap_isle(lisp::get_op(1));
+          island->set_mountain_terrain(L_LOAD_INT(0));
+          return L_NIL;
+      }}},
     {"room-new",
      {SIG2(nil, wrapped, cons),
       [](int argc) {
