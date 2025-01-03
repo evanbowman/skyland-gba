@@ -184,31 +184,6 @@ bool BasicCharacter::is_superpinned() const
 
 void BasicCharacter::finalize()
 {
-    // if (mind_controlled_) {
-    //     mind_controlled_ = false;
-    //     for (auto& room : APP.player_island().rooms()) {
-    //         if (auto mc = room->cast<MindControl>()) {
-    //             if (mc->bound_character() == id()) {
-    //                 stop_mind_control(app,
-    //                                   &mc->other_island()->owner(),
-    //                                   mc);
-    //                 return;
-    //             }
-    //         }
-    //     }
-    //     if (APP.opponent_island()) {
-    //         for (auto& room : APP.opponent_island()->rooms()) {
-    //             if (auto mc = room->cast<MindControl>()) {
-    //                 if (mc->bound_character() == id()) {
-    //                     stop_mind_control(app,
-    //                                       &mc->other_island()->owner(),
-    //                                       mc);
-    //                     return;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 
