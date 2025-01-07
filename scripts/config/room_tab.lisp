@@ -26,6 +26,7 @@
   (missile-silo 200 1400 30)
   (warhead      80 5500 10)
   (decimator    140 3300 160)
+  (phase-shifter 30 4000 150)
   (stairwell    60  500  0)
   (stairwell+   75  550  0)
   (stairwell++  90  600  0)

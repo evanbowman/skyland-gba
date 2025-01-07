@@ -1414,6 +1414,13 @@ void Island::test_collision(Entity& entity)
 
 void Island::set_phase(u8 phase)
 {
+    if (phase_ not_eq phase) {
+        time_stream::event::IslePhaseChange e;
+        e.prev_phase_ = phase_;
+        e.near_ = is_player_island(this);
+        APP.time_stream().push(APP.level_timer(), e);
+    }
+
     phase_ = phase;
 
     for (auto& r : rooms()) {
@@ -1421,6 +1428,15 @@ void Island::set_phase(u8 phase)
             chr->set_phase(phase);
         }
     }
+
+    if (APP.game_speed() not_eq GameSpeed::rewind) {
+        for (auto& bird : APP.birds()) {
+            if (bird->island() == this) {
+                bird->signal();
+            }
+        }
+    }
+
 
     Buffer<Layer, 4> translucent_layers;
     if (APP.player_island().phase()) {
@@ -1455,9 +1471,8 @@ void Island::set_mountain_terrain(bool enabled)
 void Island::render_terrain()
 {
     auto load_tile = [&](u16 t) {
-        return layer_ == Layer::map_0_ext
-            ? PLATFORM.map_tile0_chunk(t)
-            : PLATFORM.map_tile1_chunk(t);
+        return layer_ == Layer::map_0_ext ? PLATFORM.map_tile0_chunk(t)
+                                          : PLATFORM.map_tile1_chunk(t);
     };
 
     if (mountain_terrain_) {
@@ -2068,7 +2083,8 @@ void Island::repaint()
                 }
             } else if (y == 14 and mem->tiles[x][y] == 0 and
                        x < (int)terrain_.size()) {
-                if (not mountain_terrain_ or (x > 0 and x < terrain_.size() - 1)) {
+                if (not mountain_terrain_ or
+                    (x > 0 and x < terrain_.size() - 1)) {
                     mem->tiles[x][y] = Tile::grass;
                 }
             } else if (mem->mat[x][y] == 0 and mem->mat[x][y + 1] == 2) {

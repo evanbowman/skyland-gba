@@ -234,13 +234,13 @@ enum Type : u8 {
     score_increased_huge,
     score_decreased,
 
-    mind_control_started,
-    mind_control_stopped,
-
     cargo_bay_contents,
 
     player_room_powerchange,
     opponent_room_powerchange,
+
+    isle_phase_change,
+    phase_shifter_state_change,
 };
 
 
@@ -1481,32 +1481,6 @@ struct ScoreDecreased
 
 
 
-struct MindControlStarted
-{
-    Header header_;
-    HostInteger<CharacterId> prev_id_;
-    u8 controller_x_ : 4;
-    u8 controller_y_ : 4;
-    u8 controller_near_ : 1;
-
-    static constexpr const auto t = Type::mind_control_started;
-};
-
-
-
-struct MindControlStopped
-{
-    Header header_;
-    HostInteger<CharacterId> id_;
-    u8 controller_x_ : 4;
-    u8 controller_y_ : 4;
-    u8 controller_near_ : 1;
-
-    static constexpr const auto t = Type::mind_control_stopped;
-};
-
-
-
 struct CargoBayContents
 {
     Header header_;
@@ -1517,6 +1491,40 @@ struct CargoBayContents
     bool near_;
 
     static constexpr const auto t = Type::cargo_bay_contents;
+};
+
+
+
+struct IslePhaseChange
+{
+    Header header_;
+    u8 prev_phase_ : 1;
+    u8 near_ : 1;
+    u8 unused_ : 6;
+
+    static constexpr const auto t = Type::isle_phase_change;
+};
+
+
+
+enum class PhaseMode : u8 {
+    loading,
+    loaded,
+    phased,
+};
+
+
+struct PhaseShifterStateChange
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    PhaseMode prev_mode_;
+    u8 near_ : 1;
+    u8 unused_ : 7;
+
+    static constexpr const auto t = Type::phase_shifter_state_change;
 };
 
 

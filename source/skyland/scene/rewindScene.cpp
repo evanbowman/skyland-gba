@@ -60,6 +60,7 @@
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/phaseShifter.hpp"
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -1899,64 +1900,6 @@ ScenePtr RewindScene::update(Time)
             break;
         }
 
-        case time_stream::event::mind_control_started: {
-            auto e = (time_stream::event::MindControlStarted*)end;
-            // Island* ctrl_island = nullptr;
-            // if (e->controller_near_) {
-            //     ctrl_island = &APP.player_island();
-            // } else {
-            //     ctrl_island = APP.opponent_island();
-            // }
-            // if (ctrl_island) {
-            //     Vec2<u8> pos{e->controller_x_,
-            //                  e->controller_y_};
-            //     if (auto room = ctrl_island->get_room(pos)) {
-            //         if (auto ctrl = room->cast<MindControl>()) {
-            //             auto current = ctrl->bound_character();
-            //             ctrl->bind_character(e->prev_id_.get());
-            //             auto [chr, room] = BasicCharacter::find_by_id(current);
-            //             if (chr) {
-            //                 Player* owner = &APP.opponent();
-            //                 if (ctrl_island == APP.opponent_island()) {
-            //                     owner = &APP.player();
-            //                 }
-            //                 chr->stop_mind_control(owner, room);
-            //             }
-            //         }
-            //     }
-            // }
-            APP.time_stream().pop(sizeof *e);
-            break;
-        }
-
-        case time_stream::event::mind_control_stopped: {
-            auto e = (time_stream::event::MindControlStopped*)end;
-            // Island* ctrl_island = nullptr;
-            // if (e->controller_near_) {
-            //     ctrl_island = &APP.player_island();
-            // } else {
-            //     ctrl_island = APP.opponent_island();
-            // }
-            // if (ctrl_island) {
-            //     Vec2<u8> pos{e->controller_x_, e->controller_y_};
-            //     if (auto room = ctrl_island->get_room(pos)) {
-            //         if (auto ctrl = room->cast<MindControl>()) {
-            //             ctrl->bind_character(e->id_.get());
-            //             auto [chr, room] = BasicCharacter::find_by_id(e->id_.get());
-            //             if (chr) {
-            //                 Player* owner = &APP.player();
-            //                 if (ctrl_island == APP.opponent_island()) {
-            //                     owner = &APP.opponent();
-            //                 }
-            //                 chr->start_mind_control(owner, room);
-            //             }
-            //         }
-            //     }
-            // }
-            APP.time_stream().pop(sizeof *e);
-            break;
-        }
-
         case time_stream::event::cargo_bay_contents: {
             auto e = (time_stream::event::CargoBayContents*)end;
             Island* island =
@@ -1977,6 +1920,40 @@ ScenePtr RewindScene::update(Time)
             APP.time_stream().pop(sizeof *e);
             break;
         }
+
+        case time_stream::event::isle_phase_change: {
+            auto e = (time_stream::event::IslePhaseChange*)end;
+
+            Island* isle =
+                e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (isle) {
+                isle->set_phase(e->prev_phase_);
+            }
+
+            APP.time_stream().pop(sizeof *e);
+            break;
+        };
+
+
+        case time_stream::event::phase_shifter_state_change: {
+            auto e = (time_stream::event::PhaseShifterStateChange*)end;
+
+            Island* isle =
+                e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (isle) {
+                if (auto room = isle->get_room({e->x_, e->y_})) {
+                    if (auto ps = room->cast<PhaseShifter>()) {
+                        ps->rewind_state(e->prev_mode_);
+                    }
+                }
+            }
+
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
 
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;

@@ -355,6 +355,9 @@ struct Tile
         terrain_center,
         terrain_mountain_top,
         terrain_mountain_bottom,
+        phase_shifter_1_charging,
+        phase_shifter_2_charging,
+        phase_shifter_3_charging,
         count
     };
 };
@@ -669,6 +672,9 @@ struct InteriorTile
         terrain_center,
         terrain_mountain_top,
         terrain_mountain_bottom,
+        phase_shifter_1_charging,
+        phase_shifter_2_charging,
+        phase_shifter_3_charging,
         count
     };
 };
