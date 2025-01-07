@@ -36,6 +36,7 @@
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -44,15 +45,15 @@ namespace skyland
 
 
 
-static const auto phase_shifter_countdown = seconds(25);
-static const auto phase_shifter_duration = seconds(10);
+SHARED_VARIABLE(phase_shifter_cooldown_ms);
+SHARED_VARIABLE(phase_shifter_duration_ms);
 
 
 
 PhaseShifter::PhaseShifter(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
-    timer_ = phase_shifter_countdown;
+    timer_ = milliseconds(phase_shifter_cooldown_ms);
 }
 
 
@@ -110,7 +111,7 @@ void PhaseShifter::update(Time delta)
             if (timer_ <= 0) {
                 activated_ = false;
                 parent()->set_phase(0);
-                timer_ = phase_shifter_countdown;
+                timer_ = milliseconds(phase_shifter_cooldown_ms);
                 schedule_repaint();
 
                 time_stream::event::PhaseShifterStateChange e;
@@ -155,13 +156,13 @@ void PhaseShifter::rewind(Time delta)
 
     if (activated_) {
         timer_ += delta;
-        if (timer_ > phase_shifter_duration) {
-            timer_ = phase_shifter_duration;
+        if (timer_ > milliseconds(phase_shifter_duration_ms)) {
+            timer_ = milliseconds(phase_shifter_duration_ms);
         }
     } else if (not loaded_) {
         timer_ += delta;
-        if (timer_ > phase_shifter_countdown) {
-            timer_ = phase_shifter_countdown;
+        if (timer_ > milliseconds(phase_shifter_cooldown_ms)) {
+            timer_ = milliseconds(phase_shifter_cooldown_ms);
         }
     }
 }
@@ -189,7 +190,7 @@ ScenePtr PhaseShifter::select_impl(const RoomCoord& cursor)
 
     if (not was_activated) {
         schedule_repaint();
-        timer_ = phase_shifter_duration;
+        timer_ = milliseconds(phase_shifter_duration_ms);
     }
 
     parent()->set_phase(1);
