@@ -147,10 +147,20 @@ public:
     void rewind_state(time_stream::event::PhaseMode p);
 
 
+    void amplify(bool enabled) override;
+
+
+    Time cooldown_interval() const;
+
+
+    void finalize() override;
+
+
 private:
     bool activated_ = false;
     bool loaded_ = false;
     Time timer_;
+    bool amplify_ : 1 = false;
 };
 
 

@@ -50,10 +50,23 @@ SHARED_VARIABLE(phase_shifter_duration_ms);
 
 
 
+Time PhaseShifter::cooldown_interval() const
+{
+    auto ret = milliseconds(phase_shifter_cooldown_ms);
+    if (amplify_) {
+        // reload time times 5/8
+        ret *= 5;
+        ret /= 8;
+    }
+    return ret;
+}
+
+
+
 PhaseShifter::PhaseShifter(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
-    timer_ = milliseconds(phase_shifter_cooldown_ms);
+    timer_ = cooldown_interval();
 }
 
 
@@ -95,6 +108,17 @@ void PhaseShifter::rewind_state(time_stream::event::PhaseMode p)
 
 
 
+void PhaseShifter::finalize()
+{
+    Room::finalize();
+
+    if (activated_) {
+        parent()->set_phase(0);
+    }
+}
+
+
+
 void PhaseShifter::update(Time delta)
 {
     Room::update(delta);
@@ -114,7 +138,7 @@ void PhaseShifter::update(Time delta)
             if (timer_ <= 0) {
                 activated_ = false;
                 parent()->set_phase(0);
-                timer_ = milliseconds(phase_shifter_cooldown_ms);
+                timer_ = cooldown_interval();
                 schedule_repaint();
                 PLATFORM.speaker().play_sound("exit_phase.raw", 6);
                 time_stream::event::PhaseShifterStateChange e;
@@ -164,8 +188,8 @@ void PhaseShifter::rewind(Time delta)
         }
     } else if (not loaded_) {
         timer_ += delta;
-        if (timer_ > milliseconds(phase_shifter_cooldown_ms)) {
-            timer_ = milliseconds(phase_shifter_cooldown_ms);
+        if (timer_ > cooldown_interval()) {
+            timer_ = cooldown_interval();
         }
     }
 }
@@ -203,6 +227,13 @@ ScenePtr PhaseShifter::select_impl(const RoomCoord& cursor)
     Room::ready();
 
     return null_scene();
+}
+
+
+
+void PhaseShifter::amplify(bool enabled)
+{
+    amplify_ = enabled;
 }
 
 
