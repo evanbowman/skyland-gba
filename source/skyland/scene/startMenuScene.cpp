@@ -84,6 +84,8 @@ void StartMenuScene::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(0);
 
+    hide_translucence();
+
     if (APP.game_mode() == App::GameMode::macro) {
         start_y_ = 0;
     }
@@ -462,6 +464,7 @@ AGAIN:
                 []() -> ScenePtr {
                     APP.swap_player<SandboxSpectatorPlayer>();
                     PLATFORM.screen().schedule_fade(0.f);
+                    show_phase();
                     return make_scene<SpectatorScene>();
                 },
                 cut);
@@ -881,6 +884,7 @@ AGAIN:
         if (APP.game_mode() == App::GameMode::macro) {
             return make_scene<macro::SelectorScene>();
         } else {
+            show_phase();
             return make_scene<ReadyScene>();
         }
 

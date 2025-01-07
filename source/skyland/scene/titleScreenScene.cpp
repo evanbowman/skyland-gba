@@ -241,6 +241,8 @@ void TitleScreenScene::enter(Scene& prev)
 
     PLATFORM.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
+    hide_translucence();
+
     APP.effects().clear();
     APP.birds().clear();
 

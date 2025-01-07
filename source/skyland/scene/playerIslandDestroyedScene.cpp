@@ -890,6 +890,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 PLATFORM.screen().set_shader_argument(0);
                 PLATFORM_EXTENSION(force_vsync);
                 PLATFORM.screen().fade(1.f);
+                hide_translucence();
 
                 if (PLATFORM.network_peer().is_connected()) {
                     PLATFORM.network_peer().disconnect();

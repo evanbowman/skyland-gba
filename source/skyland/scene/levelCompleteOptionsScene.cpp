@@ -138,7 +138,7 @@ ScenePtr LevelCompleteOptionsScene::update(Time delta)
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
             PLATFORM.load_overlay_texture("overlay");
-
+            hide_translucence();
             return make_scene<LevelExitScene<ZoneImageScene>>();
         } else {
             const auto amount =

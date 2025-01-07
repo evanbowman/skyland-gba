@@ -108,9 +108,14 @@ ScenePtr FadeOutScene::update(Time delta)
         PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
 
         APP.player_island().set_hidden(false);
+        APP.player_island().set_phase(0);
+
         if (APP.opponent_island()) {
             APP.opponent_island()->set_hidden(false);
+            APP.opponent_island()->set_phase(0);
         }
+
+        hide_translucence();
 
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.screen().fade(1.f);

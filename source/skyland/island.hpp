@@ -587,4 +587,10 @@ void collect_outer_rooms(Island& isle, Vector<Room*>& output);
 
 
 
+void show_phase();
+
+
+void hide_translucence();
+
+
 } // namespace skyland

@@ -1412,6 +1412,32 @@ void Island::test_collision(Entity& entity)
 
 
 
+void show_phase()
+{
+    Buffer<Layer, 4> translucent_layers;
+    if (APP.player_island().phase()) {
+        translucent_layers.push_back(APP.player_island().layer());
+    }
+
+    APP.with_opponent_island([&](auto& isle) {
+        if (isle.phase()) {
+            translucent_layers.push_back(isle.layer());
+        }
+    });
+
+    PLATFORM_EXTENSION(enable_translucence, translucent_layers);
+}
+
+
+
+void hide_translucence()
+{
+    Buffer<Layer, 4> translucent_layers;
+    PLATFORM_EXTENSION(enable_translucence, translucent_layers);
+}
+
+
+
 void Island::set_phase(u8 phase)
 {
     if (phase_ not_eq phase) {
@@ -1437,19 +1463,7 @@ void Island::set_phase(u8 phase)
         }
     }
 
-
-    Buffer<Layer, 4> translucent_layers;
-    if (APP.player_island().phase()) {
-        translucent_layers.push_back(APP.player_island().layer());
-    }
-
-    APP.with_opponent_island([&](auto& isle) {
-        if (isle.phase()) {
-            translucent_layers.push_back(isle.layer());
-        }
-    });
-
-    PLATFORM_EXTENSION(enable_translucence, translucent_layers);
+    show_phase();
 }
 
 
