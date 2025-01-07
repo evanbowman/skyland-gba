@@ -49,9 +49,7 @@ int file_line_count(const char* name);
 class DroneStatsScene : public Scene
 {
 public:
-
-    DroneStatsScene(SharedEntityRef<Drone> drone) :
-        drone_(drone)
+    DroneStatsScene(SharedEntityRef<Drone> drone) : drone_(drone)
     {
     }
 
@@ -74,25 +72,23 @@ public:
             }
         }
 
-        Text::print(SYS_CSTR(drone_info_heading), OverlayCoord{3, 3},
-                    text_colors);
+        Text::print(
+            SYS_CSTR(drone_info_heading), OverlayCoord{3, 3}, text_colors);
 
-        Text::print("________________________",
-                    OverlayCoord{3, 4},
-                    text_colors);
+        Text::print(
+            "________________________", OverlayCoord{3, 4}, text_colors);
 
         StringBuffer<96> temp;
         temp = "name:";
         temp += drone_->name();
         Text::print(temp.c_str(), OverlayCoord{3, 6}, text_colors);
 
-        Text::print("________________________",
-                    OverlayCoord{3, 7},
-                    text_colors);
+        Text::print(
+            "________________________", OverlayCoord{3, 7}, text_colors);
 
 
-        Text::print(SYS_CSTR(drone_info_notes), OverlayCoord{3, 9},
-                    text_colors_inv);
+        Text::print(
+            SYS_CSTR(drone_info_notes), OverlayCoord{3, 9}, text_colors_inv);
 
         temp.clear();
 
@@ -100,18 +96,16 @@ public:
 
         auto lcnt = file_line_count(drone_info_file);
 
-        int linum = (drone_->position().x + drone_->position().y
-                     + APP.current_world_location()) % lcnt;
+        int linum = (drone_->position().x + drone_->position().y +
+                     APP.current_world_location()) %
+                    lcnt;
 
         auto line = get_line_from_file(drone_info_file, linum + 1);
 
         const char* str = line->c_str();
         tv_.emplace();
-        tv_->assign(str,
-                    OverlayCoord{3, 11},
-                    OverlayCoord{25, 5},
-                    0,
-                    text_colors);
+        tv_->assign(
+            str, OverlayCoord{3, 11}, OverlayCoord{25, 5}, 0, text_colors);
     }
 
 
@@ -140,4 +134,4 @@ private:
 
 
 
-}
+} // namespace skyland
