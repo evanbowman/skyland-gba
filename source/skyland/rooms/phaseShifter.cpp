@@ -60,7 +60,10 @@ PhaseShifter::PhaseShifter(Island* parent, const RoomCoord& position)
 
 void PhaseShifter::format_description(StringBuffer<512>& buffer)
 {
-    buffer += SYSTR(description_phase_shifter)->c_str();
+    make_format(buffer,
+                SYSTR(description_phase_shifter)->c_str(),
+                phase_shifter_duration_ms / 1000,
+                phase_shifter_cooldown_ms / 1000);
 }
 
 
@@ -113,7 +116,7 @@ void PhaseShifter::update(Time delta)
                 parent()->set_phase(0);
                 timer_ = milliseconds(phase_shifter_cooldown_ms);
                 schedule_repaint();
-
+                PLATFORM.speaker().play_sound("exit_phase.raw", 6);
                 time_stream::event::PhaseShifterStateChange e;
                 e.x_ = position().x;
                 e.y_ = position().y;
@@ -180,6 +183,8 @@ ScenePtr PhaseShifter::select_impl(const RoomCoord& cursor)
     activated_ = true;
     loaded_ = false;
     schedule_repaint();
+
+    PLATFORM.speaker().play_sound("enter_phase.raw", 6);
 
     time_stream::event::PhaseShifterStateChange e;
     e.x_ = position().x;
