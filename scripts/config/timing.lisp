@@ -6,7 +6,7 @@
 (foreach (lambda (kvp) (setvar (second kvp) (first kvp)))
  '((25000 . "decimator_reload_ms")
    (25000 . "drone_bay_reload_ms")
-   (20000 . "phase_shifter_cooldown_ms")
+   (18000 . "phase_shifter_cooldown_ms")
    (10000 . "phase_shifter_duration_ms")
    (18000 . "transporter_reload_ms")
    (7000 . "transporter_goblin_perk_ms")
