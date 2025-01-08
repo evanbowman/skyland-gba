@@ -363,6 +363,7 @@ void BasicCharacter::set_phase(u8 phase)
 {
     sprite_.set_alpha(phase ? Sprite::Alpha::translucent
                             : Sprite::Alpha::opaque);
+    sprite_.set_mix({});
 }
 
 
@@ -398,6 +399,33 @@ void BasicCharacter::update(Time delta, Room* room)
             if (radiation_counter_ == 0) {
                 sprite_.set_mix({});
             }
+        }
+    }
+
+    if (parent_->phase()) {
+        if (not PLATFORM.screen().fade_active() and
+            state_ not_eq State::after_transport) {
+
+            if (sprite_.get_mix().amount_ not_eq 128) {
+                auto shader = APP.environment().shader();
+                // Apply weather effects to the background sky tone.
+                auto sky_tone = shader(ShaderPalette::background,
+                                       custom_color(0x63b2e0),
+                                       0,
+                                       1);
+                const ColorMix fake_blend{sky_tone, 128};
+                // GBA hardware blending stacks blend intensities. Fake a blend
+                // effect by mixing the background sky color into the character
+                // color. This is far from perfect, as the crewmemmber sprite
+                // isn't actually translucent, but looks better than the
+                // alternative.
+                sprite_.set_mix(fake_blend);
+                sprite_.set_alpha(Sprite::Alpha::opaque);
+            }
+
+        } else {
+            sprite_.set_alpha(Sprite::Alpha::translucent);
+            sprite_.set_mix({});
         }
     }
 
