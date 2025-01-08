@@ -274,7 +274,10 @@ void PhaseShifter::update(Time delta)
         if (loaded_) {
             timer_ = 0;
         } else if (timer_ >= 0) {
-            timer_ -= delta;
+
+            if (not parent()->phase()) {
+                timer_ -= delta;
+            }
 
             if (timer_ <= 0) {
                 loaded_ = true;
