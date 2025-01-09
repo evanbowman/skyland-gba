@@ -142,3 +142,11 @@
 
 (defn/c chance ((n . int)) ; 1 in n chance
   (equal 0 (choice n)))
+
+
+(setvar "enabled_factions_bitfield"
+        (|
+         (<< 1 0) ; goblin
+         (<< 1 1) ; human
+         ;; (<< 1 2) ; sylph
+         ))

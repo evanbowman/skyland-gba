@@ -36,6 +36,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -303,6 +304,10 @@ void AdventureModeSettingsScene::exit(Scene& prev)
 
 
 
+SHARED_VARIABLE(enabled_factions_bitfield);
+
+
+
 void AdventureModeSettingsScene::update_field(bool inc)
 {
     switch (sel_) {
@@ -329,20 +334,30 @@ void AdventureModeSettingsScene::update_field(bool inc)
     }
 
     case 2: {
-        const auto faction = APP.faction();
-        if (inc) {
-            if ((int)faction + 1 == (int)Faction::count - 1) {
-                APP.faction() = Faction::start;
-            } else {
-                APP.faction() = (Faction)((int)faction + 1);
-            }
-        } else {
-            if (faction == Faction::start) {
-                APP.faction() = (Faction)((int)Faction::count - 2);
-            } else {
-                APP.faction() = (Faction)((int)faction - 1);
+        u32 index = 0;
+        Buffer<Faction, (int)Faction::count> factions;
+        for (int i = 0; i < (int)Faction::count; ++i) {
+            if (enabled_factions_bitfield & (1 << i)) {
+                factions.push_back((Faction)i);
+                if ((Faction)i == APP.faction()) {
+                    index = i;
+                }
             }
         }
+        if (inc) {
+            if (index == factions.size() - 1) {
+                index = 0;
+            } else {
+                ++index;
+            }
+        } else {
+            if (index == 0) {
+                index = factions.size() - 1;
+            } else {
+                --index;
+            }
+        }
+        APP.faction() = (Faction)index;
         break;
     }
     }
