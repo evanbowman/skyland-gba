@@ -146,7 +146,7 @@
 
 (setvar "enabled_factions_bitfield"
         (|
-         (<< 1 0) ; goblin
-         (<< 1 1) ; human
+         (<< 1 0) ; human
+         (<< 1 1) ; goblin
          ;; (<< 1 2) ; sylph
          ))
