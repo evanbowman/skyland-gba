@@ -99,7 +99,8 @@
          (defn on-dialog-closed ()
            (setq on-dialog-closed nil)
            (dialog "The monk joined your crew!")
-           (exit))))))
+           (run-util-script "pickup-cart" 10
+                            "The ashwalker monk reluctantly hands over a datacart that he'd been keeping..."))))))
 
 
 
