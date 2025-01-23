@@ -622,7 +622,7 @@ void BasicCharacter::update(Time delta, Room* room)
                             if (room->is_powered_down() or
                                 (not ai_automated_ and
                                  (not room->cast<Infirmary>() or
-                                  health() == max_health) and
+                                  health() == max_health_) and
                                  not room->cast<Replicator>() and
                                  not room->cast<Decimator>() and
                                  (not room->cast<Transporter>() or
