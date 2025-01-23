@@ -774,7 +774,7 @@ void describe_room(Island* island,
                                             return SYSTR(
                                                 character_label_bad_human);
 
-                                        case 1:
+                                        case 1: {
                                             auto ret =
                                                 SYSTR(character_label_goblin);
                                             ret->pop_back();
@@ -788,6 +788,10 @@ void describe_room(Island* island,
                                             ret->push_back(')');
                                             ret->push_back(' ');
                                             return ret;
+                                        }
+
+                                        case 3:
+                                            return SYSTR(character_label_dog);
                                         }
                                     }();
 

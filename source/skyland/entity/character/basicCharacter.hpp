@@ -146,10 +146,7 @@ public:
     void transported();
 
 
-    Player* owner() const
-    {
-        return owner_;
-    }
+    Player* owner() const;
 
 
     void heal(int amount);
@@ -348,50 +345,38 @@ public:
     void set_wants_to_chat(bool status);
 
 
-    enum class Personality {
-        practical,
-        adventurous,
-        cautious,
-        goblin,
-    };
-
-
-    Personality get_personality() const;
-
-
 private:
     Island* parent_;
-    Player* owner_;
     Time timer_ = 0;
     Time anim_timer_ = 0;
     Optional<Path> movement_path_;
+    Optional<Platform::DynamicTexturePtr> custom_texture_;
 
     CharacterId id_;
     u16 idle_count_ = 0;
 
     RoomCoord grid_position_;
+    State state_ = State::moving_or_idle;
+
     u8 awaiting_movement_ : 1;
     u8 can_move_ : 1;
     u8 is_replicant_ : 1;
-
     u8 co_op_locked_ : 1;
-
     u8 mark_ : 1;
     u8 ai_mark_ : 1;
-
-    u8 race_ : 2;
-
-    State state_ = State::moving_or_idle;
+    u8 ai_automated_ : 1;
+    u8 superpinned_ : 1;
+    u8 wants_to_chat_ : 1 = 0;
+    u8 antisocial_ : 4 = 0;
+    u8 race_ : 3;
+    u8 owner_is_player_ : 1 = 0;
+    u8 parent_near_ : 1 = 0;
+    u8 unused_ : 6;
 
     u8 icon_;
     u8 radiation_counter_ = 0;
     u8 max_health_ = max_health;
 
-    u8 ai_automated_ : 1;
-    u8 superpinned_ : 1;
-    u8 wants_to_chat_ : 1 = 0;
-    u8 antisocial_ : 4 = 0;
-    u8 unused_ : 1;
 
     CharacterStats stats_;
 

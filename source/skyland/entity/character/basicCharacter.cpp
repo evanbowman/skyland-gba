@@ -52,6 +52,9 @@ namespace skyland
 
 static Time movement_step_duration(int race)
 {
+    if (race == 3) {
+        return milliseconds(150);
+    }
     return milliseconds(300);
 }
 
@@ -71,6 +74,14 @@ static u16 base_frame(BasicCharacter* character)
 void BasicCharacter::set_race(int gfx)
 {
     race_ = gfx;
+
+    if (race_ == 3) {
+        custom_texture_ = PLATFORM.make_dynamic_texture();
+        if (custom_texture_) {
+            (*custom_texture_)->remap(84 * 2);
+        }
+        set_max_health(200);
+    }
 }
 
 
@@ -112,9 +123,11 @@ BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const RoomCoord& position,
                                bool is_replicant)
-    : Entity({{}, {}}), parent_(parent), owner_(owner),
+    : Entity({{}, {}}), parent_(parent),
       id_(alloc_character_id()), race_(0), icon_(0)
 {
+    owner_is_player_ = owner == &APP.player();
+
     grid_position_ = position;
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -294,13 +307,12 @@ void BasicCharacter::rewind(Time delta)
 
 
 
-BasicCharacter::Personality BasicCharacter::get_personality() const
+Player* BasicCharacter::owner() const
 {
-    switch (icon_) {
-        // TODO: individual character icons might have distinct personalities.
-        // Ideally I would make something like this configurable...
-    default:
-        return Personality::practical;
+    if (owner_is_player_) {
+        return &APP.player();
+    } else {
+        return &APP.opponent();
     }
 }
 
@@ -355,6 +367,7 @@ u8 BasicCharacter::get_max_health() const
 void BasicCharacter::set_max_health(u8 val)
 {
     max_health_ = val;
+    health_ = clamp(health_, (Health)0, (Health)max_health_);
 }
 
 
@@ -481,6 +494,9 @@ void BasicCharacter::update(Time delta, Room* room)
     case State::moving_or_idle: {
 
         if (movement_path_) {
+            if (race_ == 3) {
+                can_move_ = true;
+            }
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
                 // is grid-based
@@ -504,14 +520,29 @@ void BasicCharacter::update(Time delta, Room* room)
             awaiting_movement_ = true;
             can_move_ = false;
             sprite_.set_position(o);
-            sprite_.set_texture_index(base_frame(this) + 5);
             if (delta > 0) {
                 ++idle_count_;
             }
 
+            if (race_ == 3) {
+                anim_timer_ += delta;
+                if (anim_timer_ > milliseconds(100)) {
+                    anim_timer_ = 0;
+                    auto index = sprite_.get_texture_index();
+                    if (index == base_frame(this) + 5) {
+                        index = base_frame(this) + 4;
+                    } else {
+                        index = base_frame(this) + 5;
+                    }
+                    sprite_.set_texture_index(index);
+                }
+            } else {
+                sprite_.set_texture_index(base_frame(this) + 5);
+            }
+
             if (not APP.opponent_island()) {
                 if (idle_count_ > 60 * 10) {
-                    if (owner_ == &APP.player()) {
+                    if (owner_is_player_) {
                         if (antisocial_) {
                             --antisocial_;
                             idle_count_ = 0;
@@ -637,7 +668,7 @@ void BasicCharacter::update(Time delta, Room* room)
         if (timer_ > milliseconds(500)) {
             timer_ = 0;
 
-            if (&parent_->owner() == owner_) {
+            if (&parent_->owner() == owner()) {
                 // Wouldn't happen under normal circumstances, but if we're in a
                 // plundering state and rewind a transport, the character can
                 // end up in the player's island while continuing to plunder as
@@ -749,7 +780,11 @@ void BasicCharacter::update(Time delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    room->heal(2);
+                    if (race_ == 3) {
+                        room->heal(1);
+                    } else {
+                        room->heal(2);
+                    }
                     if (room->health() == room->max_health()) {
                         record_stats();
                         CharacterStats::inc(stats_.blocks_repaired_);
@@ -816,6 +851,29 @@ Sprite BasicCharacter::prepare_sprite() const
                 break;
             }
             break;
+
+        case 3:
+            if (custom_texture_) {
+                switch (ret.get_texture_index()) {
+                case 39:
+                    ret.set_texture_index((*custom_texture_)->mapping_index() * 2);
+                    break;
+
+                case 40:
+                    ret.set_texture_index((*custom_texture_)->mapping_index() * 2 + 1);
+                    break;
+                }
+            }
+            if (state_ == State::moving_or_idle and has_movement_path()) {
+                if (custom_texture_ and (*custom_texture_)->mapping_index() not_eq 85 * 2) {
+                    (*custom_texture_)->remap(85 * 2);
+                }
+            } else {
+                if (custom_texture_ and (*custom_texture_)->mapping_index() not_eq 84 * 2) {
+                    (*custom_texture_)->remap(84 * 2);
+                }
+            }
+            break;
         }
     }
 
@@ -850,6 +908,10 @@ void BasicCharacter::update_attack(Time delta)
 
         if (auto chr = get_opponent()) {
             chr->apply_damage(4);
+            if (race_ == 3) {
+                // Dog deals some extra damage
+                chr->apply_damage(2);
+            }
             if (chr->health() <= 0) {
                 record_stats();
                 CharacterStats::inc(stats_.enemies_vanquished_);
@@ -1087,7 +1149,7 @@ void BasicCharacter::heal(int amount)
 
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
-    e.owned_by_player_ = owner_ == &APP.player();
+    e.owned_by_player_ = owner_is_player_;
     e.near_ = is_player_island(parent_);
     static_assert(max_health <= 255);
     e.previous_health_ = health_;
@@ -1119,7 +1181,7 @@ void BasicCharacter::apply_damage(Health damage)
 {
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
-    e.owned_by_player_ = owner_ == &APP.player();
+    e.owned_by_player_ = owner_is_player_;
     e.near_ = is_player_island(parent_);
     e.previous_health_ = health_;
     APP.time_stream().push(APP.level_timer(), e);

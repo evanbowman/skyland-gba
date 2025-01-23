@@ -85,6 +85,10 @@ bool Replicator::create_replicant()
         }
     }
 
+    if (found_chr->get_race() == 3) {
+        return false;
+    }
+
     if (character_count == 1) {
         const auto chr_pos = found_chr->grid_position();
         const auto chr_health = found_chr->health();

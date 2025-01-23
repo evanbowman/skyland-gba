@@ -405,7 +405,7 @@ o----------------------------o
    0 - human (default)
    1 - goblin
    2 - hostile human
-   3 - unused
+   3 - dog
 
 'icon: character artwork
 
