@@ -1155,8 +1155,8 @@ void BasicCharacter::heal(int amount)
     e.previous_health_ = health_;
     APP.time_stream().push(APP.level_timer(), e);
 
-    if (health_ + amount > max_health) {
-        health_ = max_health;
+    if (health_ + amount > max_health_) {
+        health_ = max_health_;
     } else {
         health_ += amount;
     }
