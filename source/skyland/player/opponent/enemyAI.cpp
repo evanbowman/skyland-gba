@@ -719,14 +719,16 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
                 if (character.is_replicant()) {
                     // Replicants cannot heal, so don't bother.
                 } else {
+                    const auto chr_max_health = character.get_max_health();
                     if (not damaged_habitable_rooms and
-                        character.health() < 255) {
+                        character.health() < chr_max_health) {
                         // Character has no rooms to repair and character is
                         // injured.
                         slot.ai_weight_ += 5000.0_atp;
                     } else if (character.health() < 25) {
                         slot.ai_weight_ += 2000.0_atp;
                     } else if (character.health() < 200 and
+                               character.health() < chr_max_health and
                                not player_characters_local) {
                         slot.ai_weight_ += 2000.0_atp;
                     } else {
