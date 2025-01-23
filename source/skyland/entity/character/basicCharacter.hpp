@@ -350,7 +350,7 @@ private:
     Time timer_ = 0;
     Time anim_timer_ = 0;
     Optional<Path> movement_path_;
-    Optional<Platform::DynamicTexturePtr> custom_texture_;
+    mutable Optional<Platform::DynamicTexturePtr> custom_texture_;
 
     CharacterId id_;
     u16 idle_count_ = 0;

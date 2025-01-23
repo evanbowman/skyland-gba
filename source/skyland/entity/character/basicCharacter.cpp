@@ -853,6 +853,9 @@ Sprite BasicCharacter::prepare_sprite() const
             break;
 
         case 3:
+            if (not custom_texture_) {
+                custom_texture_ = PLATFORM.make_dynamic_texture();
+            }
             if (custom_texture_) {
                 switch (ret.get_texture_index()) {
                 case 39:
