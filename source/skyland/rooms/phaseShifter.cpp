@@ -34,9 +34,9 @@
 
 #include "phaseShifter.hpp"
 #include "skyland/island.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 

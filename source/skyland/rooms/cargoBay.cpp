@@ -105,7 +105,7 @@ void CargoBay::display(Platform::Screen& screen)
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
             if (pos.y.as_integer() < 700) {
-                screen.draw(c->prepare_sprite());
+                c->draw(screen);
             }
         }
 

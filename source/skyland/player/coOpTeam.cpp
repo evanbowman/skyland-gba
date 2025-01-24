@@ -216,7 +216,7 @@ void CoOpTeam::receive(const network::packet::ChrDiedV2& packet)
 
         if (found.first) {
             // kill character
-            found.first->apply_damage(BasicCharacter::max_health);
+            found.first->apply_damage(Character::max_health);
         }
     }
 }
@@ -329,7 +329,7 @@ void CoOpTeam::receive(const network::packet::ReplicantCreated& packet)
 
     const RoomCoord loc = {packet.src_x_, packet.src_y_};
 
-    auto chr = APP.alloc_entity<BasicCharacter>(
+    auto chr = APP.alloc_entity<Character>(
         &APP.player_island(), &APP.player(), loc, true);
 
     if (chr) {
@@ -547,7 +547,7 @@ void CoOpTeam::receive(const network::packet::CoOpChrLockAcquire& packet)
     resp.chr_id_.set(chr_id);
     resp.status_ = RespType::failure;
 
-    if (auto chr = BasicCharacter::find_by_id(chr_id).first) {
+    if (auto chr = Character::find_by_id(chr_id).first) {
         if (chr->co_op_acquire_lock()) {
             resp.status_ = RespType::success;
         }
@@ -562,7 +562,7 @@ void CoOpTeam::receive(const network::packet::CoOpChrLockRelease& packet)
 {
     const auto chr_id = packet.chr_id_.get();
 
-    if (auto chr = BasicCharacter::find_by_id(chr_id).first) {
+    if (auto chr = Character::find_by_id(chr_id).first) {
         chr->co_op_release_lock();
     }
 }

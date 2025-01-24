@@ -373,7 +373,7 @@ void Decimator::___rewind___ability_used()
 
 
 void Decimator::plot_walkable_zones(bool matrix[16][16],
-                                    BasicCharacter* for_character)
+                                    Character* for_character)
 {
     auto pos = position();
 

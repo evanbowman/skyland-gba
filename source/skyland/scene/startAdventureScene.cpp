@@ -215,7 +215,7 @@ void StartAdventureScene::reset_state()
 {
     APP.set_coins(0);
 
-    BasicCharacter::__reset_ids();
+    Character::__reset_ids();
 
     APP.current_world_location() = 0;
     APP.world_graph().generate();

@@ -47,7 +47,7 @@ namespace skyland
 
 
 void Bulkhead::plot_walkable_zones(bool matrix[16][16],
-                                   BasicCharacter* for_character)
+                                   Character* for_character)
 {
     if (is_powered_down()) {
         return;

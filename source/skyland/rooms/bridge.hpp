@@ -61,7 +61,7 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override
+                             Character* for_character) override
     {
         matrix[position().x][position().y] = true;
         matrix[position().x + 1][position().y] = true;
@@ -99,9 +99,9 @@ public:
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
             if (pos.y < 700.0_fixed) {
-                auto spr = c->prepare_sprite();
-                spr.set_priority(3);
-                screen.draw(spr);
+                Character::DrawTransform t;
+                t.priority_ = 3;
+                c->draw(screen, t);
             }
         }
     }

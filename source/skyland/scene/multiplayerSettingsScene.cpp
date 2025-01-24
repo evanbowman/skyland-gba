@@ -35,7 +35,7 @@
 #include "multiplayerSettingsScene.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/entity/character/basicCharacter.hpp"
+#include "skyland/entity/character/character.hpp"
 #include "skyland/player/coOpTeam.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
@@ -240,7 +240,7 @@ void MultiplayerSettingsScene::setup_co_op_game()
         Platform::fatal("Session error code 9001");
     }
 
-    BasicCharacter::__reset_ids();
+    Character::__reset_ids();
 
     globals().unhide_multiplayer_prep_ = true;
     globals().co_op_cursor_icon_ = 15;
@@ -278,13 +278,13 @@ void MultiplayerSettingsScene::setup_vs_game()
 {
     const bool is_host = PLATFORM.network_peer().is_host();
     const auto non_host_start_id =
-        BasicCharacter::multiplayer_vs_client_chr_start_id;
+        Character::multiplayer_vs_client_chr_start_id;
 
     if (is_host) {
-        BasicCharacter::__reset_ids();
+        Character::__reset_ids();
     } else {
         const auto start = non_host_start_id;
-        BasicCharacter::__reset_ids(start);
+        Character::__reset_ids(start);
     }
 
 
@@ -319,7 +319,7 @@ void MultiplayerSettingsScene::setup_vs_game()
     APP.player_island().add_room<Core>({player_start_x, 13}, true);
 
     auto add_player_chr = [](u8 x, u8 y, int id) {
-        auto chr = alloc_entity<BasicCharacter>(
+        auto chr = alloc_entity<Character>(
             &APP.player_island(), &APP.player(), RoomCoord{x, y}, false);
 
         chr->__assign_id(id);
@@ -336,7 +336,7 @@ void MultiplayerSettingsScene::setup_vs_game()
     APP.opponent_island()->add_room<Core>({opponent_start_x, 13}, true);
 
     auto add_opponent_chr = [](u8 x, u8 y, int id) {
-        auto chr = alloc_entity<BasicCharacter>(
+        auto chr = alloc_entity<Character>(
             APP.opponent_island(), &APP.opponent(), RoomCoord{x, y}, false);
         chr->__assign_id(id);
         APP.opponent_island()->add_character(std::move(chr));

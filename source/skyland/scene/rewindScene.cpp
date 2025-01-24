@@ -685,7 +685,7 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::player_room_plundered:
         case time_stream::event::Type::opponent_room_plundered: {
             auto e = (time_stream::event::RoomPlundered*)end;
-            Buffer<EntityRef<BasicCharacter>, 16> chrs;
+            Buffer<EntityRef<Character>, 16> chrs;
 
             Island* island =
                 (time_stream::event::Type)end->type_ ==
@@ -1215,7 +1215,7 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::character_stats_changed: {
             auto e = (time_stream::event::CharacterStatsChanged*)end;
-            auto chr_info = BasicCharacter::find_by_id(e->id_.get());
+            auto chr_info = Character::find_by_id(e->id_.get());
             if (chr_info.first) {
                 chr_info.first->stats() = e->prev_stats_;
             }
@@ -1236,7 +1236,7 @@ ScenePtr RewindScene::update(Time)
             const bool is_replicant = e->is_replicant_;
 
             auto alloc_chr = [&] {
-                return APP.alloc_entity<BasicCharacter>(
+                return APP.alloc_entity<Character>(
                     island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
                 ;
             };
@@ -1258,7 +1258,7 @@ ScenePtr RewindScene::update(Time)
 
             if (chr) {
                 chr->__assign_id(e->id_.get());
-                chr->set_race(e->race_);
+                chr->set_race((Character::Race)e->race_);
                 chr->set_icon(e->icon_);
                 chr->set_max_health(e->max_health_);
                 chr->__set_health(e->health_);

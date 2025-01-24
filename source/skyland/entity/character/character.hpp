@@ -59,16 +59,16 @@ class Player;
 
 
 
-class BasicCharacter : public Entity
+class Character : public Entity
 {
 public:
     static constexpr const Health max_health = 255;
 
 
-    BasicCharacter(Island* parent,
-                   Player* owner,
-                   const RoomCoord& position,
-                   bool is_replicant);
+    Character(Island* parent,
+              Player* owner,
+              const RoomCoord& position,
+              bool is_replicant);
 
 
     void finalize();
@@ -228,10 +228,13 @@ public:
     }
 
 
-    void set_race(int race);
+    enum class Race : int { default_race, goblin, hostile_human, dog };
 
 
-    int get_race() const;
+    void set_race(Race race);
+
+
+    Race get_race() const;
 
 
     static constexpr const int multiplayer_vs_client_chr_start_id = 4000;
@@ -249,7 +252,7 @@ public:
     bool co_op_locked() const;
 
 
-    static std::pair<BasicCharacter*, Room*> find_by_id(CharacterId id);
+    static std::pair<Character*, Room*> find_by_id(CharacterId id);
 
 
     void mark()
@@ -293,10 +296,24 @@ public:
 
     bool has_alternate_sprite() const
     {
-        return get_race() or is_replicant();
+        return (int)get_race() or is_replicant();
     }
 
-    Sprite prepare_sprite() const;
+
+    struct DrawTransform {
+        Fixnum y_displace_;
+        int priority_;
+        ColorMix mix_;
+        Sprite::Alpha alpha_;
+
+        DrawTransform()
+            : y_displace_(0.0_fixed)
+            , priority_(1)
+            , mix_()
+            , alpha_(Sprite::Alpha::opaque)
+        {}
+    };
+    void draw(Platform::Screen& s, const DrawTransform& tr = DrawTransform{});
 
 
     using IconId = u8;

@@ -76,17 +76,13 @@ bool Replicator::create_replicant()
 {
     int character_count = 0;
 
-    BasicCharacter* found_chr = nullptr;
+    Character* found_chr = nullptr;
 
     for (auto& chr : characters()) {
         if (chr->owner() == &parent()->owner()) {
             character_count++;
             found_chr = chr.get();
         }
-    }
-
-    if (found_chr->get_race() == 3) {
-        return false;
     }
 
     if (character_count == 1) {
@@ -107,7 +103,7 @@ bool Replicator::create_replicant()
             }
         }();
 
-        auto chr = APP.alloc_entity<BasicCharacter>(
+        auto chr = APP.alloc_entity<Character>(
             parent(), found_chr->owner(), dst, true);
 
         if (chr) {
@@ -126,8 +122,12 @@ bool Replicator::create_replicant()
             e.owned_by_player_ = found_chr->owner() == &APP.player();
             APP.time_stream().push(APP.level_timer(), e);
 
-
             chr->apply_damage(255 - replicant_health);
+
+            if (found_chr->get_race() == Character::Race::dog) {
+                chr->set_race(Character::Race::dog);
+            }
+
             chr->set_max_health(replicant_health);
             chr->transported();
             edit_characters().push(std::move(chr));
@@ -163,7 +163,7 @@ ScenePtr Replicator::select_impl(const RoomCoord& cursor)
         return null_scene();
     }
 
-    BasicCharacter* found_chr = nullptr;
+    Character* found_chr = nullptr;
 
     for (auto& chr : characters()) {
         if (chr->owner() == &parent()->owner()) {

@@ -58,7 +58,7 @@ class IonCannon;
 class FireCharge;
 class RocketSilo;
 class MissileSilo;
-class BasicCharacter;
+class Character;
 
 
 
@@ -85,13 +85,13 @@ public:
     void on_room_damaged(Room&) override;
 
 
-    static void assign_boarded_character(BasicCharacter& character,
+    static void assign_boarded_character(Character& character,
                                          Player* owner,
                                          Island* ai_island,
                                          Island* target_island);
 
 
-    static void assign_local_character(BasicCharacter& character,
+    static void assign_local_character(Character& character,
                                        Player* owner,
                                        Island* ai_island,
                                        bool repair_priority = false);

@@ -142,7 +142,7 @@ void Island::remove_character(const RoomCoord& location)
 }
 
 
-BasicCharacter* Island::character_at_location(const RoomCoord& loc)
+Character* Island::character_at_location(const RoomCoord& loc)
 {
     if (auto room = get_room(loc)) {
         for (auto& chr : room->characters()) {
@@ -162,7 +162,7 @@ BasicCharacter* Island::character_at_location(const RoomCoord& loc)
 
 
 
-std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
+std::pair<Character*, Room*> Island::find_character_by_id(CharacterId id)
 {
     for (auto& room : rooms_) {
         for (auto& character : room->characters()) {
@@ -814,7 +814,7 @@ void Island::update(Time dt)
     is_boarded_ = false;
 
 
-    auto on_character_died = [&](BasicCharacter& c) {
+    auto on_character_died = [&](Character& c) {
         if (not PLATFORM.network_peer().is_connected() and
             c.owner() == &APP.player()) {
 
@@ -832,7 +832,7 @@ void Island::update(Time dt)
         e.id_.set(c.id());
         e.owned_by_player_ = c.owner() == &APP.player();
         e.near_ = is_player_island(this);
-        e.race_ = c.get_race();
+        e.race_ = (int)c.get_race();
         e.is_replicant_ = c.is_replicant();
         e.icon_ = c.get_icon();
         e.max_health_ = c.get_max_health();
@@ -1301,12 +1301,11 @@ void Island::display()
         // The interior floor is two pixels thick. But our character is now
         // standing outside, where there's no floor, so we need to shift the
         // character down by two pixels.
-        Sprite cpy = c->prepare_sprite();
-        auto pos = cpy.get_position();
+        auto pos = c->sprite().get_position();
         if (pos.y.as_integer() < screen_limit_y) {
-            pos.y += 2.0_fixed;
-            cpy.set_position(pos);
-            PLATFORM.screen().draw(cpy);
+            Character::DrawTransform t;
+            t.y_displace_ = 2.0_fixed;
+            c->draw(PLATFORM.screen(), t);
         }
     }
 
@@ -1679,7 +1678,7 @@ void Island::recalculate_power_usage()
 
 
 
-bool Island::add_character(EntityRef<BasicCharacter> character)
+bool Island::add_character(EntityRef<Character> character)
 {
     if (auto room = get_room(character->grid_position())) {
         return room->add_occupant(std::move(character));
@@ -1773,7 +1772,7 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
 
 
 void Island::plot_walkable_zones(bool matrix[16][16],
-                                 BasicCharacter* for_character) const
+                                 Character* for_character) const
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {

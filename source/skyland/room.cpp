@@ -205,21 +205,19 @@ void Room::display(Platform::Screen& screen)
         const auto& pos = c->sprite().get_position();
         if (pos.y.as_integer() < 700) {
             if (parent_->interior_visible()) {
-                if (c->has_alternate_sprite()) {
-                    screen.draw(c->prepare_sprite());
-                } else {
-                    screen.draw(c->sprite());
-                }
-            } else if (c->state() == BasicCharacter::State::repair_room or
-                       c->state() == BasicCharacter::State::extinguish_fire) {
-                auto spr = c->prepare_sprite();
+                c->draw(screen);
+            } else if (c->state() == Character::State::repair_room or
+                       c->state() == Character::State::extinguish_fire) {
+                ColorMix mix;
                 if (parent()->layer() == Layer::map_1_ext) {
-                    spr.set_mix({custom_color(0x28457b), 50});
+                    mix = {custom_color(0x28457b), 50};
                 } else {
-                    spr.set_mix({custom_color(0x28457b), 200});
+                    mix = {custom_color(0x28457b), 200};
                 }
-                spr.set_alpha(Sprite::Alpha::translucent);
-                screen.draw(spr);
+                Character::DrawTransform t;
+                t.mix_ = mix;
+                t.alpha_ = Sprite::Alpha::translucent;
+                c->draw(screen, t);
             }
         }
     }
@@ -228,17 +226,16 @@ void Room::display(Platform::Screen& screen)
 
 
 void Room::display_on_hover(Platform::Screen& screen,
-
                             const RoomCoord& cursor)
 {
     if (not parent_->interior_visible() and parent_ == &player_island()) {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
-            auto spr = c->prepare_sprite();
-            spr.set_mix({custom_color(0x28457b), 200});
-            spr.set_alpha(Sprite::Alpha::translucent);
             if (pos.y.as_integer() < 700) {
-                screen.draw(spr);
+                Character::DrawTransform t;
+                t.mix_ = {custom_color(0x28457b), 200};
+                t.alpha_ = Sprite::Alpha::translucent;
+                c->draw(screen, t);
             }
         }
     }
@@ -770,8 +767,7 @@ void Room::deserialize(lisp::Value* list)
 
 
 
-void Room::plot_walkable_zones(bool matrix[16][16],
-                               BasicCharacter* for_character)
+void Room::plot_walkable_zones(bool matrix[16][16], Character* for_character)
 {
     // By default, treat every cell in the lowest row of a room as walkable for
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
@@ -883,7 +879,7 @@ void Room::__unsafe__transmute(MetaclassIndex m)
 
     auto m_prev = metaclass_index();
 
-    EntityList<BasicCharacter> chr_list;
+    EntityList<Character> chr_list;
     characters_.move_contents(chr_list);
 
     if (is_player_island(island)) {
@@ -1039,7 +1035,7 @@ void Room::convert_to_plundered()
     // can occupy one x,y slot in a room (not as a limitation of the code,
     // but as a requirement of the gameplay). The max room size is generally
     // four slots, so we should have eight character entities at most...
-    Buffer<EntityRef<BasicCharacter>, 16> chrs;
+    Buffer<EntityRef<Character>, 16> chrs;
 
     for (auto& chr : edit_characters()) {
         chrs.push_back(std::move(chr));

@@ -76,7 +76,7 @@ void CrewStatsScene::show_page()
 {
     auto chr = chrs_[page_index_];
 
-    auto info = BasicCharacter::find_by_id(chr);
+    auto info = Character::find_by_id(chr);
     if (not info.first) {
         return;
     }
@@ -254,16 +254,16 @@ static constexpr u8 goblin_icons[] = {18, 35, 36, 37, 38, 39, 41, 42, 43, 19};
 
 std::pair<u8*, u32> CrewStatsScene::icons()
 {
-    auto found_chr = BasicCharacter::find_by_id(chrs_[page_index_]);
+    auto found_chr = Character::find_by_id(chrs_[page_index_]);
     if (not found_chr.first) {
         return {(u8*)human_icons, (u32)sizeof(human_icons)};
     } else {
         switch (found_chr.first->get_race()) {
         default:
-        case 0:
+        case Character::Race::default_race:
             return {(u8*)human_icons, (u32)sizeof(human_icons)};
 
-        case 1:
+        case Character::Race::goblin:
             return {(u8*)goblin_icons, (u32)sizeof(goblin_icons)};
         }
     }
@@ -316,7 +316,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             PLATFORM.speaker().play_sound("button_wooden", 3);
             Text::print("choose icon", {2, 6}, bold_colors);
 
-            auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
+            auto found = Character::find_by_id(chrs_[page_index_]);
             if (found.first) {
                 auto icon = found.first->get_icon();
                 for (u32 i = 0; i < icons().second; ++i) {
@@ -334,7 +334,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             if (next_) {
                 return (*next_)();
             }
-            auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
+            auto found = Character::find_by_id(chrs_[page_index_]);
             if (found.first) {
                 if (found.second->parent() == APP.opponent_island()) {
                     globals().far_cursor_loc_ = found.first->grid_position();
@@ -363,7 +363,7 @@ ScenePtr CrewStatsScene::update(Time delta)
                 break;
             }
             PLATFORM.speaker().play_sound("button_wooden", 3);
-            auto found = BasicCharacter::find_by_id(chrs_[page_index_]);
+            auto found = Character::find_by_id(chrs_[page_index_]);
             if (found.first) {
                 found.first->set_icon(icons().first[icon_sel_]);
             }

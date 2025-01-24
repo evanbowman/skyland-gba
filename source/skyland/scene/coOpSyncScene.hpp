@@ -96,7 +96,7 @@ public:
 
         // Note: of course, there should never be this many characters on an
         // island, but who even knows what players will try to do.
-        Buffer<BasicCharacter*, 64> send_chrs_;
+        Buffer<Character*, 64> send_chrs_;
         u32 chr_send_index_ = 0;
     };
 
@@ -300,7 +300,7 @@ public:
             } else {
                 const bool is_replicant = chr_rx.is_replicant_;
                 const Vec2<u8> coord{chr_rx.x_, chr_rx.y_};
-                auto e = alloc_entity<BasicCharacter>(
+                auto e = alloc_entity<Character>(
                     &island, &player(), coord, is_replicant);
                 e->__set_health(chr_rx.health_);
                 e->mark();

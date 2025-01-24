@@ -37,7 +37,7 @@
 #include "block.hpp"
 #include "coord.hpp"
 #include "entity.hpp"
-#include "entity/character/basicCharacter.hpp"
+#include "entity/character/character.hpp"
 #include "health.hpp"
 #include "metaclassIndex.hpp"
 #include "number/numeric.hpp"
@@ -63,7 +63,7 @@ namespace skyland
 class App;
 class Entity;
 class Island;
-class BasicCharacter;
+class Character;
 class Drone;
 struct RoomMeta;
 class Weapon;
@@ -229,7 +229,7 @@ public:
     Room(const Room&) = delete;
 
 
-    virtual bool add_occupant(EntityRef<BasicCharacter> entity)
+    virtual bool add_occupant(EntityRef<Character> entity)
     {
         ready();
         characters_.push(std::move(entity));
@@ -478,7 +478,7 @@ public:
 
 
     virtual void plot_walkable_zones(bool matrix[16][16],
-                                     BasicCharacter* for_character);
+                                     Character* for_character);
 
 
     virtual void on_lightning()
@@ -521,13 +521,13 @@ public:
     }
 
 
-    const EntityList<BasicCharacter>& characters() const
+    const EntityList<Character>& characters() const
     {
         return characters_;
     }
 
 
-    EntityList<BasicCharacter>& edit_characters()
+    EntityList<Character>& edit_characters()
     {
         return characters_;
     }
@@ -837,7 +837,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
 
     Island* parent_;
-    EntityList<BasicCharacter> characters_;
+    EntityList<Character> characters_;
     Time injured_timer_ = 0;
 
     // Many rooms sit around doing nothing most of the time. Each island

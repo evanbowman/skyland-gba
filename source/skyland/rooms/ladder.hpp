@@ -62,7 +62,7 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override;
+                             Character* for_character) override;
 
 
     static ATP atp_value()
@@ -128,7 +128,7 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override;
+                             Character* for_character) override;
 
 
     const char* upgrade_mt_name() const override;

@@ -128,7 +128,7 @@ ScenePtr MindControlTargetScene::update(Time delta)
                 if (auto origin =
                         APP.player_island().get_room(controller_loc_)) {
 
-                    BasicCharacter* ch = nullptr;
+                    Character* ch = nullptr;
                     CharacterId id = 0;
                     for (auto& chr : room->characters()) {
                         if (chr->owner() not_eq &APP.player() and

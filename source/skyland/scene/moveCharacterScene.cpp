@@ -123,7 +123,7 @@ void ModifyCharacterScene::exit(Scene& next)
         pkt.chr_id_.set(chr_id_);
         network::transmit(pkt);
 
-        if (auto chr = BasicCharacter::find_by_id(chr_id_).first) {
+        if (auto chr = Character::find_by_id(chr_id_).first) {
             chr->co_op_release_lock();
         }
     }
@@ -158,7 +158,7 @@ void ModifyCharacterScene::enter(Scene& prev)
         minimap::show();
     }
 
-    auto found = BasicCharacter::find_by_id(chr_id_);
+    auto found = Character::find_by_id(chr_id_);
 
     island->plot_walkable_zones(*matrix_, found.first);
 
@@ -312,8 +312,8 @@ ScenePtr ModifyCharacterScene::update(Time delta)
     if (APP.player().key_down(Key::action_1) and
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
-        auto sel_chr = [&]() -> BasicCharacter* {
-            return BasicCharacter::find_by_id(chr_id_).first;
+        auto sel_chr = [&]() -> Character* {
+            return Character::find_by_id(chr_id_).first;
         }();
 
 

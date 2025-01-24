@@ -174,7 +174,7 @@ void transport_character_impl(Island* src_island,
 
 
 
-void make_transport_effect(BasicCharacter& chr);
+void make_transport_effect(Character& chr);
 
 
 

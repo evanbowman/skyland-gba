@@ -995,7 +995,7 @@ BINDING_TABLE({
                           chr_info.push_back(
                               L_CONS(make_symbol("rplc"), make_integer(1)));
                       }
-                      if (auto race = chr->get_race()) {
+                      if (auto race = (int)chr->get_race()) {
                           chr_info.push_back(
                               L_CONS(make_symbol("race"), make_integer(race)));
                       }
@@ -1564,9 +1564,9 @@ BINDING_TABLE({
           auto old_id = lisp::get_op(1)->integer().value_;
           auto new_id = lisp::get_op(0)->integer().value_;
 
-          if (auto chr = BasicCharacter::find_by_id(old_id).first) {
+          if (auto chr = Character::find_by_id(old_id).first) {
               chr->__assign_id(new_id);
-              BasicCharacter::__rebase_ids(new_id + 1);
+              Character::__rebase_ids(new_id + 1);
           }
 
           return lisp::get_op(0);
@@ -1577,7 +1577,7 @@ BINDING_TABLE({
           if (argc == 2) {
               auto hp = lisp::get_op(0)->integer().value_;
               auto id = lisp::get_op(1)->integer().value_;
-              if (auto chr = BasicCharacter::find_by_id(id).first) {
+              if (auto chr = Character::find_by_id(id).first) {
                   chr->__set_health(hp);
                   if (chr->is_replicant()) {
                       chr->set_max_health(hp);
@@ -1585,7 +1585,7 @@ BINDING_TABLE({
               }
           } else if (argc == 1) {
               auto id = lisp::get_op(0)->integer().value_;
-              if (auto chr = BasicCharacter::find_by_id(id).first) {
+              if (auto chr = Character::find_by_id(id).first) {
                   return lisp::make_integer(chr->health());
               }
           } else {
@@ -1712,17 +1712,18 @@ BINDING_TABLE({
           auto conf = lisp::get_op(1);
           if (str_cmp(conf->symbol().name(), "hostile") == 0) {
               APP.swap_opponent<EnemyAI>();
-              auto chr = ::skyland::alloc_entity<BasicCharacter>(
+              auto chr = ::skyland::alloc_entity<Character>(
                   island, &APP.opponent(), coord, is_replicant);
 
               if (chr) {
                   id = chr->id();
 
                   if (race not_eq -1) {
-                      chr->set_race(race);
+                      chr->set_race((Character::Race)race);
                   }
 
-                  if (not icon and chr->get_race() == 1) {
+                  const auto race = chr->get_race();
+                  if (not icon and race == Character::Race::goblin) {
                       static const int count = 4;
                       static const int goblin_icons[count] = {2, 32, 33, 34};
                       int selection = rng::choice(count, rng::utility_state);
@@ -1734,12 +1735,12 @@ BINDING_TABLE({
               }
 
           } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
-              auto chr = ::skyland::alloc_entity<BasicCharacter>(
+              auto chr = ::skyland::alloc_entity<Character>(
                   island, &APP.player(), coord, is_replicant);
 
               if (chr) {
                   if (race not_eq -1) {
-                      chr->set_race(race);
+                      chr->set_race((Character::Race)race);
                   }
 
                   chr->set_icon(icon);

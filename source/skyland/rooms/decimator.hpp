@@ -88,7 +88,7 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override;
+                             Character* for_character) override;
 
 
     void display(Platform::Screen& screen) override;

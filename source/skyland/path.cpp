@@ -54,7 +54,7 @@ struct PathVertexData
 
 
 Optional<Path> find_path(Island* island,
-                         BasicCharacter* for_character,
+                         Character* for_character,
                          const RoomCoord& start,
                          const RoomCoord& end)
 {

@@ -55,11 +55,11 @@ using PathBuffer = Buffer<RoomCoord, 512>;
 using Path = DynamicMemory<PathBuffer>;
 
 
-class BasicCharacter;
+class Character;
 
 
 Optional<Path> find_path(Island* island,
-                         BasicCharacter* chr,
+                         Character* chr,
                          const RoomCoord& start,
                          const RoomCoord& end);
 

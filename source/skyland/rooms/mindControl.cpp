@@ -81,8 +81,7 @@ void MindControl::update(Time delta)
         next_action_timer_ = milliseconds(1000);
 
         if (controlled_character_) {
-            auto [chr, room] =
-                BasicCharacter::find_by_id(controlled_character_);
+            auto [chr, room] = Character::find_by_id(controlled_character_);
 
             if (not chr) {
                 return;
@@ -147,7 +146,7 @@ ScenePtr MindControl::select(const RoomCoord& cursor)
     if (APP.opponent_island() and controlled_character_ == 0) {
         return make_scene<MindControlTargetScene>(position());
     } else if (controlled_character_) {
-        auto [chr, room] = BasicCharacter::find_by_id(controlled_character_);
+        auto [chr, room] = Character::find_by_id(controlled_character_);
         if (not chr) {
             return make_scene<MindControlTargetScene>(position());
         }
@@ -172,7 +171,7 @@ void MindControl::display_on_hover(Platform::Screen& screen,
         return;
     }
 
-    auto [chr, room] = BasicCharacter::find_by_id(controlled_character_);
+    auto [chr, room] = Character::find_by_id(controlled_character_);
 
     if (chr) {
         Sprite spr;
@@ -191,7 +190,7 @@ void MindControl::finalize()
     Room::finalize();
 
     if (controlled_character_) {
-        auto [chr, room] = BasicCharacter::find_by_id(controlled_character_);
+        auto [chr, room] = Character::find_by_id(controlled_character_);
         if (chr) {
             chr->stop_mind_control(&other_island()->owner(), this);
         }

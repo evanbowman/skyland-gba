@@ -294,7 +294,7 @@ void SelectMenuScene::enter(Scene& scene)
         }
 
         if (not PLATFORM.network_peer().is_connected()) {
-            BasicCharacter* chr = nullptr;
+            Character* chr = nullptr;
             if (auto room = isle->get_room(cursor)) {
                 for (auto& c : room->characters()) {
                     if (c->grid_position() == cursor and
@@ -309,7 +309,7 @@ void SelectMenuScene::enter(Scene& scene)
                              "",
                              true,
                              [id = chr->id()] {
-                                 auto chr = BasicCharacter::find_by_id(id);
+                                 auto chr = Character::find_by_id(id);
                                  if (chr.first) {
                                      chr.first->un_superpin();
                                      chr.first->unpin();
@@ -321,7 +321,7 @@ void SelectMenuScene::enter(Scene& scene)
                              "",
                              true,
                              [id = chr->id()] {
-                                 auto chr = BasicCharacter::find_by_id(id);
+                                 auto chr = Character::find_by_id(id);
                                  if (chr.first) {
                                      chr.first->superpin();
                                  }

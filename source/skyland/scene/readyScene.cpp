@@ -765,16 +765,17 @@ void describe_room(Island* island,
                                     room_description->append(") ", opts);
                                 } else {
                                     auto str = [&] {
+                                        using Race = Character::Race;
                                         switch (chr->get_race()) {
                                         default:
-                                        case 0:
+                                        case Race::default_race:
                                             return SYSTR(character_label_human);
 
-                                        case 2:
+                                        case Race::hostile_human:
                                             return SYSTR(
                                                 character_label_bad_human);
 
-                                        case 1: {
+                                        case Race::goblin: {
                                             auto ret =
                                                 SYSTR(character_label_goblin);
                                             ret->pop_back();
@@ -790,7 +791,7 @@ void describe_room(Island* island,
                                             return ret;
                                         }
 
-                                        case 3:
+                                        case Race::dog:
                                             return SYSTR(character_label_dog);
                                         }
                                     }();

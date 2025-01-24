@@ -155,7 +155,7 @@ void Transporter::___rewind___ability_used()
 class CharacterOutline : public Entity
 {
 public:
-    CharacterOutline(const BasicCharacter& chr) : Entity({})
+    CharacterOutline(const Character& chr) : Entity({})
     {
         if (chr.sprite().get_flip().x) {
             sprite_.set_texture_index(122);
@@ -308,7 +308,7 @@ void Transporter::recover_character(const RoomCoord& position)
 
 
 
-void make_transport_effect(BasicCharacter& chr)
+void make_transport_effect(Character& chr)
 {
     if (chr.parent() == APP.opponent_island() and
         not chr.parent()->interior_visible()) {

@@ -79,7 +79,7 @@ ScenePtr MultiplayerCoOpAwaitLockScene::update(Time delta)
 ScenePtr MultiplayerCoOpAwaitChrLockScene::update(Time delta)
 {
     auto on_failure = [&] {
-        if (auto chr = BasicCharacter::find_by_id(id_).first) {
+        if (auto chr = Character::find_by_id(id_).first) {
             chr->co_op_release_lock();
         }
         PLATFORM.speaker().play_sound("beep_error", 2);

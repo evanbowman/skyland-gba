@@ -302,7 +302,7 @@ void MultiplayerPeer::receive(const network::packet::ChrDiedV2& packet)
 
         if (found.first) {
             // kill character
-            found.first->apply_damage(BasicCharacter::max_health);
+            found.first->apply_damage(Character::max_health);
         }
     }
 }
@@ -316,7 +316,7 @@ void MultiplayerPeer::receive(const network::packet::ReplicantCreated& packet)
 
     const RoomCoord loc = {invert_axis(packet.src_x_), packet.src_y_};
 
-    auto chr = APP.alloc_entity<BasicCharacter>(
+    auto chr = APP.alloc_entity<Character>(
         APP.opponent_island(), &APP.opponent(), loc, true);
 
     chr->__assign_id(packet.chr_id_.get());

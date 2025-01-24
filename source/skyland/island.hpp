@@ -38,7 +38,7 @@
 #include "blockChecksum.hpp"
 #include "bulkTimer.hpp"
 #include "entity.hpp"
-#include "entity/character/basicCharacter.hpp"
+#include "entity/character/character.hpp"
 #include "entity/drones/drone.hpp"
 #include "memory/buffer.hpp"
 #include "player/player.hpp"
@@ -108,7 +108,7 @@ public:
     void init_terrain(int width, bool render = true);
 
 
-    bool add_character(EntityRef<BasicCharacter> character);
+    bool add_character(EntityRef<Character> character);
 
 
     void remove_character(const RoomCoord& location);
@@ -180,13 +180,13 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) const;
+                             Character* for_character) const;
 
 
-    BasicCharacter* character_at_location(const RoomCoord& loc);
+    Character* character_at_location(const RoomCoord& loc);
 
 
-    std::pair<BasicCharacter*, Room*> find_character_by_id(CharacterId id);
+    std::pair<Character*, Room*> find_character_by_id(CharacterId id);
 
 
     // NOTE: generally, you should use render() intead of repaint().
@@ -381,7 +381,7 @@ public:
     void fires_extinguish();
 
 
-    const EntityList<BasicCharacter>& outdoor_characters()
+    const EntityList<Character>& outdoor_characters()
     {
         return characters_;
     }
@@ -465,7 +465,7 @@ private:
 
     BulkTimer bulk_timer_;
 
-    EntityList<BasicCharacter> characters_;
+    EntityList<Character> characters_;
     EntityList<Entity> projectiles_;
     SharedEntityList<Drone> drones_;
 

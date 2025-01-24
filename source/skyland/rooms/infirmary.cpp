@@ -99,7 +99,7 @@ void Infirmary::update(Time delta)
 
     for (auto& character : characters()) {
         if (character->owner() == &parent()->owner() and
-            character->state() not_eq BasicCharacter::State::fighting) {
+            character->state() not_eq Character::State::fighting) {
             ++characters_healing;
         }
     }
@@ -112,7 +112,7 @@ void Infirmary::update(Time delta)
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
                 if (character->owner() == &parent()->owner() and
-                    character->state() not_eq BasicCharacter::State::fighting) {
+                    character->state() not_eq Character::State::fighting) {
                     character->heal(distribute_health);
                 }
             }

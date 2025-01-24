@@ -412,7 +412,7 @@ public:
     }
 
 
-    EntityList<BasicCharacter> characters_;
+    EntityList<Character> characters_;
     Platform::DynamicTexturePtr dt_;
     Island* target_island_ = nullptr;
     Island* source_island_ = nullptr;
@@ -495,7 +495,7 @@ void BoardingPod::update(Time delta)
 
     for (auto& character : characters()) {
         if (character->owner() == &owner()->owner() and
-            character->state() not_eq BasicCharacter::State::fighting) {
+            character->state() not_eq Character::State::fighting) {
             ++characters_healing;
         }
     }
@@ -508,7 +508,7 @@ void BoardingPod::update(Time delta)
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
                 if (character->owner() == &owner()->owner() and
-                    character->state() not_eq BasicCharacter::State::fighting) {
+                    character->state() not_eq Character::State::fighting) {
                     character->heal(distribute_health);
                 }
             }
@@ -627,7 +627,7 @@ void BoardingPod::render_exterior(App* app, TileId buffer[16][16])
 
 
 void BoardingPod::plot_walkable_zones(bool matrix[16][16],
-                                      BasicCharacter* for_character)
+                                      Character* for_character)
 {
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;

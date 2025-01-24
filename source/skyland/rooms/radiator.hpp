@@ -68,7 +68,7 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16],
-                             BasicCharacter* for_character) override
+                             Character* for_character) override
     {
         // one cannot walk through this tile, intentionally do nothing.
     }
@@ -143,7 +143,7 @@ public:
                           const RoomCoord& cursor) override;
 
 
-    using ChrBuffer = Buffer<BasicCharacter*, 16>;
+    using ChrBuffer = Buffer<Character*, 16>;
 
 
     void collect_nearby_chrs(ChrBuffer& output);

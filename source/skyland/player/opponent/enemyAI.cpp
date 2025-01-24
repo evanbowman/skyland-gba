@@ -300,7 +300,7 @@ void EnemyAI::update_room(Room& room,
     // rooms that have the capacity to hold 8 characters. The game used to run
     // all character movement logic at once, and it did periodically pause, but
     // the crew movement is more spaced out now.
-    Buffer<std::pair<BasicCharacter*, Room*>, 8> boarded_ai_characters;
+    Buffer<std::pair<Character*, Room*>, 8> boarded_ai_characters;
     for (auto& room : (*target_island).rooms()) {
         for (auto& character : room->characters()) {
             if (character->owner() == owner) {
@@ -348,7 +348,7 @@ void EnemyAI::update_room(Room& room,
         if (length(transporter->characters()) and transporter->ready()) {
             auto transport_chr = transporter->characters().begin();
             if ((*transport_chr)->state() not_eq
-                    BasicCharacter::State::repair_room and
+                    Character::State::repair_room and
                 (*transport_chr)->owner() == owner) {
 
 
@@ -483,7 +483,7 @@ void flood_fill_through_portals(Island& isle,
 
 
 
-void EnemyAI::assign_local_character(BasicCharacter& character,
+void EnemyAI::assign_local_character(Character& character,
                                      Player* owner,
                                      Island* ai_island_,
                                      bool repair_priority)
@@ -869,7 +869,7 @@ void EnemyAI::assign_local_character(BasicCharacter& character,
 
 
 
-void EnemyAI::assign_boarded_character(BasicCharacter& character,
+void EnemyAI::assign_boarded_character(Character& character,
                                        Player* owner,
                                        Island* ai_island_,
                                        Island* target_island_)

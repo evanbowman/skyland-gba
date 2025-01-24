@@ -95,7 +95,7 @@ void Stairwell::render_exterior(App* app, TileId buffer[16][16])
 
 
 void Stairwell::plot_walkable_zones(bool matrix[16][16],
-                                    BasicCharacter* for_character)
+                                    Character* for_character)
 {
     // All tiles in a stairwell are walkable, that's kind of the point.
     for (int y = 0; y < size().y; ++y) {
@@ -157,7 +157,7 @@ StairwellPlus::StairwellPlus(Island* parent, const RoomCoord& position)
 
 
 void StairwellPlus::plot_walkable_zones(bool matrix[16][16],
-                                        BasicCharacter* for_character)
+                                        Character* for_character)
 {
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;
@@ -198,7 +198,7 @@ StairwellPlusPlus::StairwellPlusPlus(Island* parent, const RoomCoord& position)
 
 
 void StairwellPlusPlus::plot_walkable_zones(bool matrix[16][16],
-                                            BasicCharacter* for_character)
+                                            Character* for_character)
 {
     for (int y = 0; y < size().y; ++y) {
         matrix[position().x][position().y + y] = true;

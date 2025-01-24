@@ -63,7 +63,7 @@ ScenePtr RegressionModule::update(Time delta)
 
     state_bit_store(StateBit::regression, true);
 
-    BasicCharacter::__reset_ids();
+    Character::__reset_ids();
     rng::critical_state = 5;
 
     if (test_index == -1) {
@@ -127,7 +127,7 @@ ScenePtr RegressionModule::update(Time delta)
 
         test_index++;
 
-        BasicCharacter::__reset_ids();
+        Character::__reset_ids();
 
     } else {
 

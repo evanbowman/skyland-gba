@@ -32,7 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "basicCharacter.hpp"
+#include "character.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/decimator.hpp"
@@ -60,23 +60,66 @@ static Time movement_step_duration(int race)
 
 
 
-static u16 base_frame(BasicCharacter* character)
+static Health repair_strength(Character::Race r)
 {
-    if (character->owner() == &APP.player()) {
-        return 35;
+    if (r == Character::Race::dog) {
+        return 1;
     } else {
-        return 42;
+        return 2;
     }
 }
 
 
 
-void BasicCharacter::set_race(int gfx)
+enum CharacterSprite
 {
-    race_ = gfx;
+    begin = 35 * 2,
+    human_fighting = begin,
+    human_repairing,
+    human_extinguish,
+    friendly_goblin_step,
+    human_step,
+    human_still,
+    friendly_goblin_still,
+    goblin_fighting,
+    goblin_repairing,
+    goblin_extinguish,
+    hostile_human_step,
+    goblin_step,
+    goblin_still,
+    hostile_human_still,
+    replicant_step,
+    replicant_still,
+};
 
-    if (race_ == 3) {
-        custom_texture_ = PLATFORM.make_dynamic_texture();
+
+
+static u16 base_frame(Character* character)
+{
+    if (character->owner() == &APP.player()) {
+        return human_fighting;
+    } else {
+        return goblin_fighting;
+    }
+}
+
+
+
+void Character::set_race(Race race)
+{
+    race_ = (int)race;
+
+    if (race_ == (int)Race::dog) {
+        for (auto& r : APP.player_island().rooms()) {
+            for (auto& chr : r->edit_characters()) {
+                if (chr->get_race() == Race::dog and chr->custom_texture_) {
+                    custom_texture_ = chr->custom_texture_;
+                }
+            }
+        }
+        if (not custom_texture_) {
+            custom_texture_ = PLATFORM.make_dynamic_texture();
+        }
         if (custom_texture_) {
             (*custom_texture_)->remap(84 * 2);
         }
@@ -85,9 +128,9 @@ void BasicCharacter::set_race(int gfx)
 }
 
 
-int BasicCharacter::get_race() const
+Character::Race Character::get_race() const
 {
-    return race_;
+    return (Race)race_;
 }
 
 
@@ -103,14 +146,14 @@ static CharacterId alloc_character_id()
 
 
 
-void BasicCharacter::__reset_ids(int start_id)
+void Character::__reset_ids(int start_id)
 {
     character_id_generator = start_id;
 }
 
 
 
-void BasicCharacter::__rebase_ids(CharacterId id)
+void Character::__rebase_ids(CharacterId id)
 {
     if (character_id_generator < id) {
         character_id_generator = id;
@@ -119,18 +162,18 @@ void BasicCharacter::__rebase_ids(CharacterId id)
 
 
 
-BasicCharacter::BasicCharacter(Island* parent,
-                               Player* owner,
-                               const RoomCoord& position,
-                               bool is_replicant)
-    : Entity({{}, {}}), parent_(parent),
-      id_(alloc_character_id()), race_(0), icon_(0)
+Character::Character(Island* parent,
+                     Player* owner,
+                     const RoomCoord& position,
+                     bool is_replicant)
+    : Entity({{}, {}}), parent_(parent), id_(alloc_character_id()), race_(0),
+      icon_(0)
 {
     owner_is_player_ = owner == &APP.player();
 
     grid_position_ = position;
-    sprite_.set_texture_index(40);
-    sprite_.set_size(Sprite::Size::w16_h32);
+    sprite_.set_texture_index(human_still);
+    sprite_.set_size(Sprite::Size::w16_h16);
 
     ai_mark_ = false;
 
@@ -157,28 +200,28 @@ BasicCharacter::BasicCharacter(Island* parent,
 
 
 
-void BasicCharacter::unpin()
+void Character::unpin()
 {
     ai_automated_ = true;
 }
 
 
 
-void BasicCharacter::pin()
+void Character::pin()
 {
     ai_automated_ = false;
 }
 
 
 
-void BasicCharacter::un_superpin()
+void Character::un_superpin()
 {
     superpinned_ = false;
 }
 
 
 
-void BasicCharacter::superpin(bool drop_path)
+void Character::superpin(bool drop_path)
 {
     if (drop_path) {
         drop_movement_path();
@@ -188,27 +231,27 @@ void BasicCharacter::superpin(bool drop_path)
 
 
 
-bool BasicCharacter::is_superpinned() const
+bool Character::is_superpinned() const
 {
     return superpinned_;
 }
 
 
 
-void BasicCharacter::finalize()
+void Character::finalize()
 {
 }
 
 
 
-void BasicCharacter::set_can_move()
+void Character::set_can_move()
 {
     can_move_ = true;
 }
 
 
 
-void BasicCharacter::transported()
+void Character::transported()
 {
     state_ = State::after_transport;
     anim_timer_ = 0;
@@ -220,7 +263,7 @@ void BasicCharacter::transported()
 
 
 
-void BasicCharacter::rewind(Time delta)
+void Character::rewind(Time delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -307,7 +350,7 @@ void BasicCharacter::rewind(Time delta)
 
 
 
-Player* BasicCharacter::owner() const
+Player* Character::owner() const
 {
     if (owner_is_player_) {
         return &APP.player();
@@ -318,7 +361,7 @@ Player* BasicCharacter::owner() const
 
 
 
-void BasicCharacter::set_idle()
+void Character::set_idle()
 {
     sprite_.set_texture_index(base_frame(this) + 5);
     state_ = State::moving_or_idle;
@@ -329,7 +372,7 @@ void BasicCharacter::set_idle()
 
 
 
-bool BasicCharacter::has_opponent(Room* room)
+bool Character::has_opponent(Room* room)
 {
     for (auto& character : room->characters()) {
         if (character->owner() not_eq owner() and
@@ -342,29 +385,29 @@ bool BasicCharacter::has_opponent(Room* room)
 
 
 
-void BasicCharacter::update(Time delta)
+void Character::update(Time delta)
 {
-    Platform::fatal("BasicCharacter::update() called... "
+    Platform::fatal("Character::update() called... "
                     "Use other update method instead.");
 }
 
 
 
-bool BasicCharacter::ai_automated() const
+bool Character::ai_automated() const
 {
     return ai_automated_;
 }
 
 
 
-u8 BasicCharacter::get_max_health() const
+u8 Character::get_max_health() const
 {
     return max_health_;
 }
 
 
 
-void BasicCharacter::set_max_health(u8 val)
+void Character::set_max_health(u8 val)
 {
     max_health_ = val;
     health_ = clamp(health_, (Health)0, (Health)max_health_);
@@ -372,7 +415,7 @@ void BasicCharacter::set_max_health(u8 val)
 
 
 
-void BasicCharacter::set_phase(u8 phase)
+void Character::set_phase(u8 phase)
 {
     sprite_.set_alpha(phase ? Sprite::Alpha::translucent
                             : Sprite::Alpha::opaque);
@@ -381,7 +424,7 @@ void BasicCharacter::set_phase(u8 phase)
 
 
 
-void BasicCharacter::record_stats()
+void Character::record_stats()
 {
     if (owner() not_eq &APP.player()) {
         // Don't bother with opponent stats, as they aren't displayed
@@ -398,7 +441,7 @@ void BasicCharacter::record_stats()
 
 
 
-void BasicCharacter::update(Time delta, Room* room)
+void Character::update(Time delta, Room* room)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -422,10 +465,8 @@ void BasicCharacter::update(Time delta, Room* room)
             if (sprite_.get_mix().amount_ not_eq 128) {
                 auto shader = APP.environment().shader();
                 // Apply weather effects to the background sky tone.
-                auto sky_tone = shader(ShaderPalette::background,
-                                       custom_color(0x63b2e0),
-                                       0,
-                                       1);
+                auto sky_tone = shader(
+                    ShaderPalette::background, custom_color(0x63b2e0), 0, 1);
                 const ColorMix fake_blend{sky_tone, 128};
                 // GBA hardware blending stacks blend intensities. Fake a blend
                 // effect by mixing the background sky color into the character
@@ -566,7 +607,7 @@ void BasicCharacter::update(Time delta, Room* room)
                          (u8)(grid_position_.y + yo)});
                 };
 
-                BasicCharacter* chr = nullptr;
+                Character* chr = nullptr;
 
                 if ((chr = adjacent_chr(-1, 0)) or (chr = adjacent_chr(1, 0)) or
                     (chr = adjacent_chr(0, -1)) or (chr = adjacent_chr(0, 1))) {
@@ -780,11 +821,7 @@ void BasicCharacter::update(Time delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
-                    if (race_ == 3) {
-                        room->heal(1);
-                    } else {
-                        room->heal(2);
-                    }
+                    room->heal(repair_strength(get_race()));
                     if (room->health() == room->max_health()) {
                         record_stats();
                         CharacterStats::inc(stats_.blocks_repaired_);
@@ -813,79 +850,149 @@ void BasicCharacter::update(Time delta, Room* room)
 
 
 
-Sprite BasicCharacter::prepare_sprite() const
+void Character::draw(Platform::Screen& screen, const DrawTransform& t)
 {
-    Sprite ret = sprite_;
-    if (is_replicant_) {
-        switch (ret.get_texture_index()) {
-        case 39:
-            ret.set_texture_index(123);
+    auto& spr = sprite_;
+
+    spr.set_position({
+            spr.get_position().x,
+            spr.get_position().y + t.y_displace_
+        });
+    spr.set_priority(t.priority_);
+
+    const auto prev_mix = spr.get_mix();
+    const auto prev_alpha = spr.get_alpha();
+    spr.set_mix(t.mix_);
+    spr.set_alpha(t.alpha_);
+
+    auto draw_regular = [&] { screen.draw(spr); };
+
+    auto draw_custom = [&](int tidx) {
+        auto old = spr.get_texture_index();
+        spr.set_texture_index(tidx);
+        screen.draw(spr);
+        spr.set_texture_index(old);
+    };
+
+    auto draw_bumped_custom = [&](int tidx) {
+        auto p = spr.get_position();
+        p.y += 1.0_fixed;
+        spr.set_position(p);
+        draw_custom(tidx);
+        p.y -= 1.0_fixed;
+        spr.set_position(p);
+    };
+
+    if (is_replicant_ and get_race() not_eq Race::dog) {
+        switch (spr.get_texture_index()) {
+        case human_step:
+            draw_custom(replicant_step);
             break;
 
-        case 40:
-            ret.set_texture_index(124);
+        case human_still:
+            draw_bumped_custom(replicant_still);
+            break;
+
+        default:
+            draw_regular();
             break;
         }
-    } else if (race_) {
-        switch (race_) {
-        case 2:
-            switch (ret.get_texture_index()) {
-            case 46:
-                ret.set_texture_index(45);
+    } else {
+        switch (get_race()) {
+        case Race::default_race:
+            switch (spr.get_texture_index()) {
+            case human_still:
+                draw_bumped_custom(human_still);
                 break;
 
-            case 47:
-                ret.set_texture_index(77);
+            case goblin_still:
+                draw_bumped_custom(goblin_still);
+                break;
+
+            default:
+                draw_regular();
+            }
+            break;
+
+        case Race::hostile_human:
+            switch (spr.get_texture_index()) {
+            case goblin_step:
+                draw_custom(hostile_human_step);
+                break;
+
+            case goblin_still:
+                draw_bumped_custom(hostile_human_still);
+                break;
+
+            default:
+                draw_regular();
                 break;
             }
             break;
 
-        case 1:
-            switch (ret.get_texture_index()) {
-            case 39:
-                ret.set_texture_index(38);
+        case Race::goblin:
+            switch (spr.get_texture_index()) {
+            case human_step:
+                draw_custom(friendly_goblin_step);
                 break;
 
-            case 40:
-                ret.set_texture_index(41);
+            case human_still:
+                draw_bumped_custom(friendly_goblin_still);
+                break;
+
+            case goblin_still:
+                draw_bumped_custom(goblin_still);
+                break;
+
+            default:
+                draw_regular();
                 break;
             }
             break;
 
-        case 3:
+        case Race::dog:
             if (not custom_texture_) {
                 custom_texture_ = PLATFORM.make_dynamic_texture();
             }
             if (custom_texture_) {
-                switch (ret.get_texture_index()) {
-                case 39:
-                    ret.set_texture_index((*custom_texture_)->mapping_index() * 2);
+                int offset = 0;
+                if (state_ == State::moving_or_idle and has_movement_path()) {
+                    offset = 2;
+                }
+                switch (spr.get_texture_index()) {
+                case human_still:
+                    draw_bumped_custom((*custom_texture_)->mapping_index() * 4 + offset);
                     break;
 
-                case 40:
-                    ret.set_texture_index((*custom_texture_)->mapping_index() * 2 + 1);
+                case human_step:
+                    if (not offset) {
+                        draw_bumped_custom((*custom_texture_)->mapping_index() * 4 + 1);
+                    } else {
+                        draw_custom((*custom_texture_)->mapping_index() * 4 + offset + 1);
+                    }
                     break;
-                }
-            }
-            if (state_ == State::moving_or_idle and has_movement_path()) {
-                if (custom_texture_ and (*custom_texture_)->mapping_index() not_eq 85 * 2) {
-                    (*custom_texture_)->remap(85 * 2);
-                }
-            } else {
-                if (custom_texture_ and (*custom_texture_)->mapping_index() not_eq 84 * 2) {
-                    (*custom_texture_)->remap(84 * 2);
+
+                default:
+                    draw_regular();
+                    break;
                 }
             }
             break;
         }
     }
 
-    return ret;
+    spr.set_priority(1);
+    spr.set_position({
+            spr.get_position().x,
+            spr.get_position().y - t.y_displace_
+        });
+    spr.set_mix(prev_mix);
+    spr.set_alpha(prev_alpha);
 }
 
 
 
-void BasicCharacter::update_attack(Time delta)
+void Character::update_attack(Time delta)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -897,7 +1004,7 @@ void BasicCharacter::update_attack(Time delta)
     timer_ += delta;
     if (timer_ > milliseconds(300)) {
 
-        auto get_opponent = [&]() -> BasicCharacter* {
+        auto get_opponent = [&]() -> Character* {
             if (auto room = parent_->get_room(grid_position_)) {
                 for (auto& chr : room->characters()) {
                     if (chr->grid_position() == grid_position_ and
@@ -911,7 +1018,7 @@ void BasicCharacter::update_attack(Time delta)
 
         if (auto chr = get_opponent()) {
             chr->apply_damage(4);
-            if (race_ == 3) {
+            if (get_race() == Race::dog) {
                 // Dog deals some extra damage
                 chr->apply_damage(2);
             }
@@ -945,7 +1052,7 @@ void BasicCharacter::update_attack(Time delta)
 
 
 
-CharacterStats& BasicCharacter::stats()
+CharacterStats& Character::stats()
 {
     return stats_;
 }
@@ -1000,7 +1107,7 @@ private:
 
 
 
-void BasicCharacter::movement_step(Time delta, Room* current_room)
+void Character::movement_step(Time delta, Room* current_room)
 {
     auto o = parent_->visual_origin();
     o.x += Fixnum::from_integer(grid_position_.x * 16);
@@ -1102,7 +1209,7 @@ void BasicCharacter::movement_step(Time delta, Room* current_room)
 
 
 
-void BasicCharacter::set_movement_path(Path path)
+void Character::set_movement_path(Path path)
 {
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
@@ -1114,7 +1221,7 @@ void BasicCharacter::set_movement_path(Path path)
 
 
 
-void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
+void Character::rewind_movement_step(const RoomCoord& new_pos)
 {
     if (not movement_path_) {
         movement_path_.emplace(allocate_dynamic<PathBuffer>("path-buffer"));
@@ -1143,7 +1250,7 @@ void BasicCharacter::rewind_movement_step(const RoomCoord& new_pos)
 
 
 
-void BasicCharacter::heal(int amount)
+void Character::heal(int amount)
 {
     if (is_replicant_) {
         // Replicants cannot heal
@@ -1171,7 +1278,7 @@ void BasicCharacter::heal(int amount)
 
 
 
-void BasicCharacter::apply_radiation_damage(Health amount)
+void Character::apply_radiation_damage(Health amount)
 {
     radiation_counter_ = 230;
 
@@ -1180,7 +1287,7 @@ void BasicCharacter::apply_radiation_damage(Health amount)
 
 
 
-void BasicCharacter::apply_damage(Health damage)
+void Character::apply_damage(Health damage)
 {
     time_stream::event::CharacterHealthChanged e;
     e.id_.set(id_);
@@ -1205,8 +1312,8 @@ void BasicCharacter::apply_damage(Health damage)
 
 
 
-bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
-                                   const RoomCoord& new_coord)
+bool Character::reassign_room(const RoomCoord& old_coord,
+                              const RoomCoord& new_coord)
 {
     auto target_room = parent_->get_room(new_coord);
     if (not target_room) {
@@ -1215,7 +1322,7 @@ bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
 
     if (auto room = parent_->get_room(old_coord)) {
 
-        Optional<EntityRef<BasicCharacter>> self;
+        Optional<EntityRef<Character>> self;
 
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
@@ -1245,7 +1352,7 @@ bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
 
 
 
-bool BasicCharacter::co_op_acquire_lock()
+bool Character::co_op_acquire_lock()
 {
     if (co_op_locked_) {
         return false;
@@ -1258,21 +1365,21 @@ bool BasicCharacter::co_op_acquire_lock()
 
 
 
-void BasicCharacter::co_op_release_lock()
+void Character::co_op_release_lock()
 {
     co_op_locked_ = false;
 }
 
 
 
-bool BasicCharacter::co_op_locked() const
+bool Character::co_op_locked() const
 {
     return co_op_locked_;
 }
 
 
 
-std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(CharacterId id)
+std::pair<Character*, Room*> Character::find_by_id(CharacterId id)
 {
     auto found = APP.player_island().find_character_by_id(id);
     if (found.first) {
@@ -1291,7 +1398,7 @@ std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(CharacterId id)
 
 
 
-const char* BasicCharacter::name() const
+const char* Character::name() const
 {
     // feature removed...
 
@@ -1300,14 +1407,14 @@ const char* BasicCharacter::name() const
 
 
 
-bool BasicCharacter::wants_to_chat() const
+bool Character::wants_to_chat() const
 {
     return wants_to_chat_;
 }
 
 
 
-void BasicCharacter::set_wants_to_chat(bool status)
+void Character::set_wants_to_chat(bool status)
 {
     wants_to_chat_ = status;
     idle_count_ = 0;
