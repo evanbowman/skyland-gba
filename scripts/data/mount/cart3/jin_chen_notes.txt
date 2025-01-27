@@ -1,0 +1,69 @@
+
+RESEARCH NOTES: PROJECT BACKUP
+
+By Jin Chen, Core Engineer
+
+
+Year 12 Post-Migration
+
+Need to record this while it's
+
+fresh. We did it. After six
+
+failed prototypes, number
+
+seven worked.
+
+Key was scaling everything
+
+down - not just the power
+
+output, but the containment
+
+system too. Previous attempts
+
+tried to match old core
+
+specs. Wrong approach.
+
+Test island stayed aloft for
+
+72 hours on the small core.
+
+Barely enough lift for
+
+essentials, but it works.
+
+Could've saved Fall Harbor if
+
+we'd figured this out sooner.
+
+
+CRITICAL SPECS:
+
+1/4 standard chamber size
+
+Minimal crystal lattice
+
+Simplified cooling
+
+Low-yield fuel mix
+
+
+Won't replace a main core,
+
+but buys time for replacement
+
+or evacuation. Calling it the
+
+standby-core. Sending designs
+
+to other engineers tomorrow.
+
+Never want to see another
+
+island fall because they
+
+couldn't replace a dying
+
+core.
