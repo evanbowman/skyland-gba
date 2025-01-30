@@ -144,6 +144,32 @@
   (equal 0 (choice n)))
 
 
+(defn/c load-commentary ((key . string))
+  (let ((search key)
+        (opts nil))
+    (foreach (lambda (chr)
+               (let ((icon (lookup 'icon (cddr chr))))
+                 (when icon
+                   (let ((text (read-ini "/scripts/data/character_inter.ini"
+                                         (format "character_%" icon)
+                                         search)))
+                     (when text
+                       (setq opts (cons text opts)))))))
+             (chrs (player)))
+    (if opts
+        (sample opts)
+        nil)))
+
+;; Exit a level, with a character on your crew making a comment about what
+;; happened in the level. Key should be a possible key in character_inter.ini.
+(defn/c exit-with-commentary ((key . string))
+  (let ((message (load-commentary key)))
+    (when message
+      (dialog message)
+      (setq on-dialog-closed nil))
+    (exit)))
+
+
 (setvar "enabled_factions_bitfield"
         (|
          (<< 1 0) ; human

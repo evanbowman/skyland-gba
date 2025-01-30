@@ -35,7 +35,8 @@
                            (dialog "One of the goblins joined your crew!")
                            (run-util-script "hostile-pickup-cart"
                                             8
-                                            "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge...")
+                                            "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."
+                                            exit)
 
                           (exit 2)))))
   (let ((cnt 0)

@@ -48,7 +48,8 @@
                   (lambda (x y _)
                     (chr-new (player) x y 'neutral '((icon . 28)))
                     (dialog "The princess joined your crew!")
-                    (setq on-dialog-closed exit))))))
+                    (defn on-dialog-closed ()
+                      (exit-with-commentary "welcomes_warrior_princess")))))))
            (progn
              (dialog "<c:king of Emsshaw Cay:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
 

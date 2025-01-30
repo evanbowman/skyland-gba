@@ -58,7 +58,8 @@
 (defn on-dialog-accepted ()
   (let ((end (lambda ()
                (run-util-script "pickup-cart" 6
-                "One of your crewmembers finds a data cartridge tangled in the fungal roots..."))))
+                                "One of your crewmembers finds a data cartridge tangled in the fungal roots..."
+                                exit))))
     (if (choice 3)
         (progn
           (let ((locs (construction-sites (player) '(1 . 1))))

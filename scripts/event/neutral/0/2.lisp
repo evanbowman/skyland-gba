@@ -34,5 +34,7 @@
 
     (coins-add amt)
 
-    (run-util-script "pickup-cart" 1
-     "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")))
+    (run-util-script "pickup-cart"
+                     1
+                     "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers."
+                     exit)))

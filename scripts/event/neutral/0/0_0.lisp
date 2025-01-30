@@ -74,8 +74,8 @@
                            (dialog "<c:castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The castaway joined your crew!")
-                             (setq on-dialog-closed nil)
-                             (exit)))))))))
+                             (defn on-dialog-closed ()
+                               (exit-with-commentary "welcomes_castaway_1"))))))))))
   (exit))
 
 

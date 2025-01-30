@@ -411,6 +411,19 @@ o----------------------------o
 
 o----------------------------o
 
+ (chr-find isle key value)
+
+ Find all crewmembers where
+ a key in the character info
+ list matches a value.
+
+ Returns a list of crewmember
+ info for each matched
+ cremember.
+
+
+o----------------------------o
+
  (chr-hp id hp)
 
  Set health of character by
@@ -1221,7 +1234,7 @@ o----------------------------o
 
 o----------------------------o
 
- (restore-crash)
+ (recover-crash)
 
  Restores an adventure
  from backup files in the
