@@ -93,7 +93,8 @@
                      "<c:traveller:23> Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here..."))
          (defn on-dialog-closed ()
            (dialog "The mysterious traveller joined your crew!")
-           (setq on-dialog-closed exit))))))
+           (defn on-dialog-closed ()
+             (exit-with-commentary "welcomes_traveller")))))))
 
 
   (defn on-dialog-declined ()
