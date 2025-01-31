@@ -42,6 +42,8 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "script/lisp.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -988,6 +990,46 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
         });
     spr.set_mix(prev_mix);
     spr.set_alpha(prev_alpha);
+}
+
+
+
+lisp::Value* Character::serialize()
+{
+    using namespace lisp;
+
+    ListBuilder chr_info;
+    chr_info.push_back(L_INT(grid_position().x));
+    chr_info.push_back(L_INT(grid_position().y));
+    if (health() not_eq 255) {
+        chr_info.push_back(L_CONS(make_symbol("hp"), make_integer(health())));
+    }
+    if (is_replicant()) {
+        chr_info.push_back(L_CONS(make_symbol("rplc"), make_integer(1)));
+    }
+    if (auto race = (int)get_race()) {
+        chr_info.push_back(L_CONS(make_symbol("race"), make_integer(race)));
+    }
+    if (auto icon = get_icon()) {
+        chr_info.push_back(L_CONS(make_symbol("icon"), make_integer(icon)));
+    }
+    if (auto e = stats().enemies_vanquished_) {
+        chr_info.push_back(L_CONS(L_SYM("kc"), L_INT(e)));
+    }
+    if (auto b = stats().battles_fought_) {
+        chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
+    }
+    if (auto b = stats().blocks_repaired_.get()) {
+        chr_info.push_back(L_CONS(L_SYM("br"), L_INT(b)));
+    }
+    if (auto s = stats().steps_taken_.get()) {
+        chr_info.push_back(L_CONS(L_SYM("sc"), L_INT(s)));
+    }
+    if (auto s = stats().fires_extinguished_) {
+        chr_info.push_back(L_CONS(L_SYM("fe"), L_INT(s)));
+    }
+    chr_info.push_back(L_CONS(make_symbol("id"), make_integer(id())));
+    return chr_info.result();
 }
 
 

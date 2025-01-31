@@ -35,6 +35,7 @@
 
 (chr-new (opponent) 1 12 'neutral 0)
 
+
 (setq on-converge
       (lambda ()
         (dialog
@@ -56,7 +57,9 @@
         (let ((temp (chr-slots (player)))
               (end (lambda ()
                      (run-util-script "pickup-cart" 2
-                      "<c:girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"))))
+                                      "<c:girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"
+                                      (lambda ()
+                                        (exit-with-commentary "welcomes_girl"))))))
           (if temp
               (progn
                 (setq temp (get temp (choice (length temp))))

@@ -72,7 +72,8 @@
                          (dialog "<c:merchant:7>Wonderful! I'll mark the address "
                                  "with an * on your sky chart!")
                          (run-util-script "pickup-cart" 5
-                                          "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge...")))
+                                          "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."
+                                          exit)))
                       (progn
                         (dialog
                          "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "

@@ -42,4 +42,5 @@
                (dialog "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")
                (run-util-script "pickup-cart"
                                 7
-                                "Oh! You notice something else..."))))
+                                "Oh! You notice something else..."
+                                exit))))

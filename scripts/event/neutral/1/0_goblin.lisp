@@ -100,7 +100,8 @@
            (setq on-dialog-closed nil)
            (dialog "The monk joined your crew!")
            (run-util-script "pickup-cart" 10
-                            "The ashwalker monk reluctantly hands over a datacart that he'd been keeping..."))))))
+                            "The ashwalker monk reluctantly hands over a datacart that he'd been keeping..."
+                            exit))))))
 
 
 

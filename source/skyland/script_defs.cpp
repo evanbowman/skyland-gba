@@ -983,48 +983,39 @@ BINDING_TABLE({
           for (auto& room : island->rooms()) {
               for (auto& chr : room->characters()) {
                   if (chr->owner() == &island->owner()) {
-                      using namespace lisp;
-                      ListBuilder chr_info;
-                      chr_info.push_back(L_INT(chr->grid_position().x));
-                      chr_info.push_back(L_INT(chr->grid_position().y));
-                      if (chr->health() not_eq 255) {
-                          chr_info.push_back(L_CONS(
-                              make_symbol("hp"), make_integer(chr->health())));
-                      }
-                      if (chr->is_replicant()) {
-                          chr_info.push_back(
-                              L_CONS(make_symbol("rplc"), make_integer(1)));
-                      }
-                      if (auto race = (int)chr->get_race()) {
-                          chr_info.push_back(
-                              L_CONS(make_symbol("race"), make_integer(race)));
-                      }
-                      if (auto icon = chr->get_icon()) {
-                          chr_info.push_back(
-                              L_CONS(make_symbol("icon"), make_integer(icon)));
-                      }
-                      if (auto e = chr->stats().enemies_vanquished_) {
-                          chr_info.push_back(L_CONS(L_SYM("kc"), L_INT(e)));
-                      }
-                      if (auto b = chr->stats().battles_fought_) {
-                          chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
-                      }
-                      if (auto b = chr->stats().blocks_repaired_.get()) {
-                          chr_info.push_back(L_CONS(L_SYM("br"), L_INT(b)));
-                      }
-                      if (auto s = chr->stats().steps_taken_.get()) {
-                          chr_info.push_back(L_CONS(L_SYM("sc"), L_INT(s)));
-                      }
-                      if (auto s = chr->stats().fires_extinguished_) {
-                          chr_info.push_back(L_CONS(L_SYM("fe"), L_INT(s)));
-                      }
-                      chr_info.push_back(
-                          L_CONS(make_symbol("id"), make_integer(chr->id())));
-                      list.push_front(chr_info.result());
+                      list.push_front(chr->serialize());
                   }
               }
           }
           return list.result();
+      }}},
+    {"chr-find",
+     {SIG3(nil, wrapped, symbol, nil),
+      [](int argc) {
+          lisp::ListBuilder result;
+
+          auto sym = lisp::get_op1()->symbol().name();
+          int match = L_LOAD_INT(0);
+
+          auto island = unwrap_isle(lisp::get_op(2));
+          for (auto& room : island->rooms()) {
+              for (auto& chr : room->characters()) {
+                  auto trymatch = [&](const char* key, int val) {
+                      if (str_eq(sym, key)) {
+                          return val == match;
+                      } else {
+                          return false;
+                      }
+                  };
+                  if (trymatch("race", (int)chr->get_race()) or
+                      trymatch("icon", chr->get_icon()) or
+                      trymatch("id", chr->id()) or
+                      trymatch("rplc", chr->is_replicant())) {
+                      result.push_back(chr->serialize());
+                  }
+              }
+          }
+          return result.result();
       }}},
     {"chr-slots",
      {SIG0(cons),
@@ -2520,6 +2511,7 @@ BINDING_TABLE({
           PLATFORM.fill_overlay(0);
           PLATFORM.speaker().clear_sounds();
           PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+          APP.game_mode() = App::GameMode::adventure;
 
           push_menu_queue.push_back(make_deferred_scene<StartAdventureScene>());
 

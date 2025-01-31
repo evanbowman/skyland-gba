@@ -137,4 +137,5 @@
                      (lambda ()
                       (dialog "<c:mayor:10>Thanks so much for the help!")
                       (run-util-script "pickup-cart" 3
-                       "<c:mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"))))))))))))
+                                       "<c:mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"
+                                       exit))))))))))))

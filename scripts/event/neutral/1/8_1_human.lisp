@@ -59,8 +59,8 @@
                            (dialog "<c:explorer:22> Thanks! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The explorer joined your crew!")
-                             (setq on-dialog-closed nil)
-                             (exit)))))))))
+                             (defn on-dialog-closed ()
+                               (exit-with-commentary "welcomes_explorer"))))))))))
   (exit))
 
 

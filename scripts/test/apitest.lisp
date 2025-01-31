@@ -158,15 +158,32 @@
 (end-test)
 
 
+(begin-test "world graph")
+
+(wg-generate)
+(assert-eq
+ (wg-nodes)
+ '((1 0 . 5) (3 4 . 7) (2 8 . 5) (3 12 . 5) (3 16 . 4) (5 20 . 7) (9 7 . 11) (8 17 . 7) (9 19 . 10) (9 16 . 11) (3 20 . 1) (3 11 . 11) (9 7 . 8) (6 3 . 11) (9 17 . 1) (9 10 . 2) (8 11 . 8) (3 14 . 8)))
+
+(assert-eq (wg-path '(0 . 5) '(8 . 5))
+           '((0 . 5) (4 . 7) (8 . 5)))
+
+(end-test)
+
+
 (begin-test "chr")
 
 (island-configure
  (player)
  '((power-core 1 13)))
 
-(setq temp (chr-new (player) 1 14 'neutral nil))
+(setq temp (chr-new (player) 1 14 'neutral '((icon . 1))))
 (assert-v (not (equal temp (chr-new (player) 1 14 'neutral nil))))
-(assert-eq (chrs (player)) '((1 14 (id . 2)) (1 14 (id . 3))))
+(assert-eq (chrs (player)) '((1 14 (icon . 1) (id . 2)) (1 14 (id . 3))))
+(assert-eq (load-commentary "regression_test") "working!")
+(chr-del (player) 1 14)
+(chr-del (player) 1 14)
+(assert-eq (load-commentary "regression_test") nil)
 
 (end-test)
 
@@ -174,6 +191,11 @@
 (begin-test "misc")
 
 (assert-eq 767268228 (hash '(8 . 7)))
+
+;; Just make sure that reading a nonexistent ini key returns nil...
+(assert-eq nil (read-ini "/scripts/data/character_inter.ini"
+                         "character_1"
+                         "welcomes_9000"))
 
 (end-test)
 
@@ -201,19 +223,6 @@
                (bound? 'on-crew-died)
                (bound? 'on-shop-item-sel)
                (bound? 'on-shop-enter)))
-
-(end-test)
-
-
-(begin-test "world graph")
-
-(wg-generate)
-(assert-eq
- (wg-nodes)
- '((1 0 . 5) (3 4 . 7) (2 8 . 5) (3 12 . 5) (3 16 . 4) (5 20 . 7) (9 7 . 11) (8 17 . 7) (9 19 . 10) (9 16 . 11) (3 20 . 1) (3 11 . 11) (9 7 . 8) (6 3 . 11) (9 17 . 1) (9 10 . 2) (8 11 . 8) (3 14 . 8)))
-
-(assert-eq (wg-path '(0 . 5) '(8 . 5))
-           '((0 . 5) (4 . 7) (8 . 5)))
 
 (end-test)
 

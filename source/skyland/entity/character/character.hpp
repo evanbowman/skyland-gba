@@ -39,6 +39,7 @@
 #include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
+#include "script/value.hpp"
 
 
 
@@ -250,6 +251,9 @@ public:
     void co_op_release_lock();
 
     bool co_op_locked() const;
+
+
+    lisp::Value* serialize();
 
 
     static std::pair<Character*, Room*> find_by_id(CharacterId id);

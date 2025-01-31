@@ -345,9 +345,17 @@ int compile_let(CompilerContext& ctx,
 
     code = code->cons().cdr();
 
+    bool first = true;
+
     while (code not_eq get_nil()) {
 
         bool tail = tail_expr and code->cons().cdr() == get_nil();
+
+        if (not first) {
+            append<instruction::Pop>(buffer, write_pos);
+        } else {
+            first = false;
+        }
 
         write_pos = compile_impl(
             ctx, buffer, write_pos, code->cons().car(), jump_offset, tail);

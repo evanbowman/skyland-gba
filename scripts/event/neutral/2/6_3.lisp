@@ -28,4 +28,5 @@
                (dialog "You picked up a rare piece of sylph technology! What could it's function be?")
                (run-util-script "pickup-cart"
                                 9
-                                "One of your crewmembers hands over another item found aboard the sylph city..."))))
+                                "One of your crewmembers hands over another item found aboard the sylph city..."
+                                exit))))
