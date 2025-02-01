@@ -211,6 +211,10 @@ void Decimator::update(Time delta)
 
     Room::ready();
 
+    if (parent()->phase()) {
+        return;
+    }
+
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (is_powered_down()) {
@@ -327,6 +331,10 @@ void Decimator::update(Time delta)
 void Decimator::rewind(Time delta)
 {
     Room::rewind(delta);
+
+    if (parent()->phase()) {
+        return;
+    }
 
     if (is_powered_down()) {
         return;
