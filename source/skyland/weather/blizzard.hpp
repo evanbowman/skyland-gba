@@ -50,6 +50,7 @@ class Blizzard : public Storm
 public:
     Blizzard() : Storm(12)
     {
+        (*state_).sine_damping_ = 0;
     }
 
 

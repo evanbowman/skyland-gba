@@ -109,6 +109,18 @@ static uint8_t rand8(void)
 
 
 
+State::State()
+{
+    for (auto& v : sine_x_input_) {
+        v = rng::choice<std::numeric_limits<s16>::max()>(rng::utility_state);
+    }
+    for (auto& v : sine_y_input_) {
+        v = rng::choice<std::numeric_limits<s16>::max()>(rng::utility_state);
+    }
+}
+
+
+
 void State::display()
 {
     using Buf = Buffer<Vec2<s32>, 64>;
@@ -182,6 +194,31 @@ void State::update(Time delta)
 
     int fixup = 0;
 
+    u8 sine_add = 1;
+    switch (APP.game_speed()) {
+    default:
+        break;
+
+    case GameSpeed::stopped:
+        sine_add = 0;
+        break;
+
+    case GameSpeed::slow:
+        if (sine_alt_) {
+            sine_add = 0;
+            sine_alt_ = false;
+        } else {
+            sine_alt_ = true;
+        }
+        break;
+    }
+    for (auto& v : sine_x_input_) {
+        v += sine_add;
+    }
+    for (auto& v : sine_y_input_) {
+        v += sine_add;
+    }
+
     for (int i = 0; i < particle_count_; ++i) {
         auto& rd = raindrops_[i];
         if ((rd.x / scale) < 0 or (rd.y / scale) > sy or (rd.x / scale) > sx or
@@ -207,6 +244,11 @@ void State::update(Time delta)
         } else {
             rd.x -= (sd >> 6) + (sd >> 8);
             rd.y += (sd >> 6) + (sd >> 8);
+
+            if (delta) {
+                rd.x += sine8_signed(sine_x_input_[i] >> sine_damping_);
+                rd.y += sine8_signed(sine_y_input_[i] >> (sine_damping_ + 1));
+            }
 
             rd.x -= camera_diff_x * (scale + 48);
             rd.y -= camera_diff_y * (scale + 48);

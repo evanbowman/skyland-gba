@@ -315,6 +315,7 @@ constexpr Time milliseconds(u32 count)
 
 
 u8 sine8(u8 v);
+s8 sine8_signed(u8 angle);
 
 
 // These functions are imprecise versions of sin/cos for embedded

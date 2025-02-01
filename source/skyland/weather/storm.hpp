@@ -49,6 +49,14 @@ struct State
     static const int particle_max = 12;
 
     Vec2<s16> raindrops_[particle_max];
+    u8 sine_x_input_[particle_max];
+    u8 sine_y_input_[particle_max];
+    // NOTE: we already step through the sine table as slow as possible. In the
+    // game's halfspeed mode, we need to toggle whether we increment the sine
+    // input angle. Alternatively, I could use fixed point, but that seems
+    // overkill here...
+    bool sine_alt_ = false;
+    int sine_damping_ = 1;
     Time thunder_timer_;
     Time lightning_timer_;
 
@@ -66,6 +74,8 @@ struct State
     u16 spr_ = 89 * 8;
 
     Vec2<s16> last_camera_;
+
+    State();
 
     void update(Time delta);
     void rewind(Time delta);
