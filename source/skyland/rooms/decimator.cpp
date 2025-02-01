@@ -211,10 +211,6 @@ void Decimator::update(Time delta)
 
     Room::ready();
 
-    if (parent()->phase()) {
-        return;
-    }
-
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (is_powered_down()) {
@@ -245,6 +241,12 @@ void Decimator::update(Time delta)
 
         if (not opponent_friendly) {
             reload_ -= delta;
+
+            if (parent()->phase() and reload_ < 0) {
+                // wait until un-phazed
+                reload_ = 0;
+                return;
+            }
 
             if (reload_ < 0 and not firing_) {
                 if (is_player_island(parent())) {
