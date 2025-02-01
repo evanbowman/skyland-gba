@@ -864,7 +864,9 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
 
     const auto prev_mix = spr.get_mix();
     const auto prev_alpha = spr.get_alpha();
-    spr.set_mix(t.mix_);
+    if (t.mix_.amount_) {
+        spr.set_mix(t.mix_);
+    }
     spr.set_alpha(t.alpha_);
 
     auto draw_regular = [&] { screen.draw(spr); };
