@@ -149,6 +149,21 @@ void State::rewind(Time delta)
 
     auto& gen = rng::utility_state;
 
+    u8 sine_sub = 1;
+    switch (APP.game_speed()) {
+    default:
+        break;
+
+    case GameSpeed::rewind:
+        sine_sub = 2;
+        break;
+    }
+    for (auto& v : sine_x_input_) {
+        v -= sine_sub;
+    }
+    for (auto& v : sine_y_input_) {
+        v -= sine_sub;
+    }
 
     for (int i = 0; i < particle_count_; ++i) {
         auto& rd = raindrops_[i];
@@ -164,6 +179,11 @@ void State::rewind(Time delta)
         } else {
             rd.x += (delta >> 6) + (delta >> 8);
             rd.y -= (delta >> 6) + (delta >> 8);
+
+            if (delta) {
+                rd.x -= sine8_signed(sine_x_input_[i] >> sine_damping_);
+                rd.y -= sine8_signed(sine_y_input_[i] >> (sine_damping_ + 1));
+            }
         }
     }
 }
@@ -201,6 +221,10 @@ void State::update(Time delta)
 
     case GameSpeed::stopped:
         sine_add = 0;
+        break;
+
+    case GameSpeed::fast:
+        sine_add = 2;
         break;
 
     case GameSpeed::slow:
