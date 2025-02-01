@@ -244,8 +244,7 @@ void Decimator::update(Time delta)
 
             if (parent()->phase() and reload_ < 0) {
                 // wait until un-phazed
-                reload_ = 0;
-                return;
+                reload_ = 1;
             }
 
             if (reload_ < 0 and not firing_) {
