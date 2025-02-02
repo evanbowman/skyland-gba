@@ -4,7 +4,7 @@
 
 
 (dialog
- "While docking at a crowded transit hub, you notice a dog wandering between the platforms... ")
+ "<b:/scripts/data/img/docks.img.bin>While docking at a crowded transit hub, you notice a dog wandering between the platforms... ")
 
 
 (opponent-init 11 'neutral)
