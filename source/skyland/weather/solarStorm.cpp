@@ -89,6 +89,9 @@ void SolarStorm::update(Time delta)
             }
 
             auto start_random_fire = [&](auto& isle) {
+                if (isle.phase()) {
+                    return;
+                }
                 Vector<Room*> hr;
                 for (auto& r : isle.rooms()) {
                     auto prop = (*r->metaclass())->properties();
