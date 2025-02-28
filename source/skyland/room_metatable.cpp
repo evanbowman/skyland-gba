@@ -45,6 +45,7 @@
 #include "skyland/rooms/bananaPlant.hpp"
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
+#include "skyland/rooms/ballista.hpp"
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
@@ -313,7 +314,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<13,
+using RoomMetatableType = RoomMetatable<12,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -340,6 +341,7 @@ using RoomMetatableType = RoomMetatable<13,
                                         SparkCannon,
                                         Incinerator,
                                         BeamGun,
+                                        Ballista,
                                         MissileSilo,
                                         RocketSilo,
                                         ClumpBomb,

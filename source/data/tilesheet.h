@@ -3,13 +3,13 @@
 
 //======================================================================
 //
-//	tilesheet, 6912x16@4, 
+//	tilesheet, 6944x16@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 16 entries, not compressed
-//	+ 1728 tiles Metatiled by 2x2 not compressed
-//	Total size: 32 + 55296 = 55328
+//	+ 1736 tiles Metatiled by 2x2 not compressed
+//	Total size: 32 + 55552 = 55584
 //
-//	Time-stamp: 2025-01-07, 13:47:02
+//	Time-stamp: 2025-02-28, 13:27:03
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_TILESHEET_H
 #define GRIT_TILESHEET_H
 
-#define tilesheetTilesLen 55296
-extern const unsigned int tilesheetTiles[13824];
+#define tilesheetTilesLen 55552
+extern const unsigned int tilesheetTiles[13888];
 
 #define tilesheetPalLen 32
 extern const unsigned short tilesheetPal[16];

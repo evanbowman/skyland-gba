@@ -35,9 +35,11 @@
 #include "ext_workram_data.hpp"
 #include "room_metatable.hpp"
 #include "skyland.hpp"
+#include "skyland/rooms/ballista.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/incinerator.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
+#include "skyland/entity/projectile/ballistaBolt.hpp"
 
 
 
@@ -597,7 +599,53 @@ void repaint(const Settings& settings)
         int wpn_emit_px_x = (emit_pos.x + 1) * 3;
         int wpn_emit_px_y = ((emit_pos.y - 3) * 3 + 1) - 2;
 
-        if ((*wpn->metaclass())->weapon_orientation() ==
+        if (wpn and wpn->cast<Ballista>()) {
+            if (APP.opponent_island() and APP.opponent_island()->get_room(cursor_loc)) {
+
+                auto bl = wpn->cast<Ballista>();
+                auto start = bl->emit_xy();
+                auto target = bl->target_xy({cursor_loc.x, cursor_loc.y});
+                auto h = bl->recalc_arc_height(start, target);
+
+                Optional<s16> prev_x;
+                Optional<s16> prev_y;
+                if (h) {
+                    BallistaBolt::Path path;
+                    BallistaBolt::generate_path(path,
+                                                start.x,
+                                                start.y,
+                                                target.x,
+                                                target.y,
+                                                Fixnum::from_integer(*h));
+
+                    for (int i = 0; i < path.size(); ++i) {
+                        auto n = path[i];
+                        auto o = wpn->parent()->origin();
+                        n.x -= o.x.as_integer();
+                        n.y -= o.y.as_integer();
+
+                        n.x += 1;
+                        n.x *= 3;
+                        n.y *= 3;
+                        n.x /= 16;
+                        n.y /= 16;
+                        n.x += 1;
+                        n.y -= 12;
+                        if (n.y > 0) {
+                            if (prev_x and prev_y) {
+                                plot_line(wpn, *prev_x, *prev_y, n.x, n.y);
+                            } else {
+                                plot(n.x, n.y, [](auto x, auto y) {});
+                            }
+                            prev_x = n.x;
+                            prev_y = n.y;
+                        }
+                    }
+                }
+
+            }
+
+        } else if ((*wpn->metaclass())->weapon_orientation() ==
             Room::WeaponOrientation::horizontal) {
             plot_line(wpn,
                       wpn_emit_px_x - 2,

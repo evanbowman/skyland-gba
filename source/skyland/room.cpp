@@ -494,7 +494,7 @@ void Room::rewind(Time delta)
 
 
 
-Island* Room::other_island()
+Island* Room::other_island() const
 {
     if (&APP.player_island() == parent_) {
         if (APP.opponent_island()) {

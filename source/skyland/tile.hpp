@@ -358,6 +358,8 @@ struct Tile
         phase_shifter_1_charging,
         phase_shifter_2_charging,
         phase_shifter_3_charging,
+        ballista_1,
+        ballista_2,
         count
     };
 };
@@ -675,6 +677,8 @@ struct InteriorTile
         phase_shifter_1_charging,
         phase_shifter_2_charging,
         phase_shifter_3_charging,
+        ballista_1,
+        ballista_2,
         count
     };
 };

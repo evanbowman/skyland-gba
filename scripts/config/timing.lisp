@@ -11,6 +11,7 @@
    (18000 . "transporter_reload_ms")
    (7000 . "transporter_goblin_perk_ms")
    (10000 . "beam_reload_ms")
+   (6000 . "ballista_reload_ms")
    (6800 . "incinerator_reload_ms")
    (3500 . "cannon_reload_ms")
    (3500 . "sylph_cannon_reload_ms")

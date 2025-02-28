@@ -13,6 +13,7 @@
   (mirror-hull  240 700  0)
   (stacked-hull 200 600  0)
   (barrier      1   300  0)
+  (ballista     200 2800 34)
   (forcefield   240 300  40)
   (forcefield*  360 400  50)
   (ion-fizzler  40  200  20)

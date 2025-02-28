@@ -83,6 +83,7 @@ enum class SystemString {
     block_arcgun,
     block_arch,
     block_backup_core,
+    block_ballista,
     block_balloon,
     block_banana_plant,
     block_barrier,
@@ -446,6 +447,7 @@ enum class SystemString {
     description_sylph_cannon,
     description_flimsy_cannon,
     description_phase_shifter,
+    description_ballista,
 
     gs_paused,
     gs_slow,

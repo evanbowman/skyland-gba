@@ -284,7 +284,7 @@ public:
                                   const RoomCoord& cursor);
 
 
-    Island* other_island();
+    Island* other_island() const;
 
 
     RoomCoord position() const
