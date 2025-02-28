@@ -470,6 +470,9 @@ void repaint(const Settings& settings)
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
 
     auto plot = [&](int x, int y, auto intersection) {
+        if (y < 0) {
+            return;
+        }
         if (pixel_buffer[x][y] == color_black_index or
             pixel_buffer[x][y] == color_white_index or
             pixel_buffer[x][y] == 12) {
@@ -637,9 +640,9 @@ void repaint(const Settings& settings)
                             } else {
                                 plot(n.x, n.y, [](auto x, auto y) {});
                             }
-                            prev_x = n.x;
-                            prev_y = n.y;
                         }
+                        prev_x = n.x;
+                        prev_y = n.y;
                     }
                 }
 
