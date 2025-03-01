@@ -603,7 +603,8 @@ void repaint(const Settings& settings)
         int wpn_emit_px_y = ((emit_pos.y - 3) * 3 + 1) - 2;
 
         if (wpn and wpn->cast<Ballista>()) {
-            if (APP.opponent_island() and APP.opponent_island()->get_room(cursor_loc)) {
+            if (APP.opponent_island() and APP.opponent_island()->get_room(cursor_loc) and
+                APP.opponent_island()->get_drift() == 0.0_fixed) {
 
                 auto bl = wpn->cast<Ballista>();
                 auto start = bl->emit_xy();
