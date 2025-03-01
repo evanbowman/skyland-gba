@@ -110,7 +110,8 @@ public:
 
 void Ballista::fire()
 {
-    if (last_target_ and *get_target() not_eq *last_target_) {
+    if ((last_target_ and *get_target() not_eq *last_target_) or
+        arc_checksums_ not_eq island_checksums()) {
         arc_height_.reset();
     }
 
@@ -128,6 +129,7 @@ void Ballista::fire()
 
     if (not arc_height_) {
         arc_height_ = recalc_arc_height(start, target);
+        arc_checksums_ = island_checksums();
     }
 
     if (arc_height_) {

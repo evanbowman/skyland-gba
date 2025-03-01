@@ -75,8 +75,7 @@ public:
                  Fixnum arc_height,
                  Island& src);
 
-    BallistaBolt(const Vec2<Fixnum>& pos,
-                 const State& state);
+    BallistaBolt(const Vec2<Fixnum>& pos, const State& state);
 
 
     void update(Time delta) override;

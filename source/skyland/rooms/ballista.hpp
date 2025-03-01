@@ -35,6 +35,7 @@
 #pragma once
 
 
+#include "skyland/blockChecksum.hpp"
 #include "skyland/systemString.hpp"
 #include "weapon.hpp"
 
@@ -137,6 +138,7 @@ public:
     Vec2<Fixnum> target_xy(RoomCoord c) const;
 
 private:
+    BlockChecksum arc_checksums_ = 0;
     Optional<RoomCoord> last_target_;
     Optional<u8> arc_height_;
 };

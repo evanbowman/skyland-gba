@@ -40,8 +40,8 @@
 #include "entity/character/characterStats.hpp"
 #include "img.hpp"
 #include "number/random.hpp"
-#include "skyland/rooms/reconstructionQueue.hpp"
 #include "skyland/entity/projectile/ballistaBolt.hpp"
+#include "skyland/rooms/reconstructionQueue.hpp"
 #include "timeStreamHeader.hpp"
 
 

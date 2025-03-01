@@ -119,7 +119,8 @@ void BallistaBolt::update(Time delta)
     state_.timer_ += delta;
 
     auto current = state_.path_[state_.path_idx_];
-    auto next = state_.path_[std::min(state_.path_idx_ + 1, (int)state_.path_.size() - 1)];
+    auto next = state_.path_[std::min(state_.path_idx_ + 1,
+                                      (int)state_.path_.size() - 1)];
 
     auto wc = [](Vec2<s16> p) {
         return Vec2<Fixnum>{Fixnum::from_integer(p.x),

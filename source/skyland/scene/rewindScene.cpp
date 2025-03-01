@@ -797,7 +797,8 @@ ScenePtr RewindScene::update(Time)
             auto e = (time_stream::event::PlayerBallistaBoltDestroyed*)end;
             auto pos = Vec2<Fixnum>{Fixnum::from_integer(e->x_pos_.get()),
                                     Fixnum::from_integer(e->y_pos_.get())};
-            alignas(BallistaBolt::State) u8 state_mem[sizeof(BallistaBolt::State)];
+            alignas(BallistaBolt::State)
+                u8 state_mem[sizeof(BallistaBolt::State)];
             memcpy(state_mem, e->state_, sizeof state_mem);
             auto& state = *reinterpret_cast<BallistaBolt::State*>(state_mem);
             auto b = APP.alloc_entity<BallistaBolt>(pos, state);
