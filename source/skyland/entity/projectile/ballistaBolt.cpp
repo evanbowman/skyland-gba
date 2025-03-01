@@ -98,16 +98,19 @@ BallistaBolt::BallistaBolt(const Vec2<Fixnum>& position,
                            const Vec2<Fixnum>& target,
                            Fixnum arc_height,
                            Island& src)
-    : Projectile({{10, 10}, {8, 8}})
+    : Projectile({{8, 8}, {8, 8}})
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h16);
-    sprite_.set_texture_index(18 * 2);
+    sprite_.set_tidx_16x16(80, 1);
 
     sprite_.set_origin({8, 8});
 
     generate_path(
         state_.path_, position.x, position.y, target.x, target.y, arc_height);
+
+    state_.interp_ms_ =
+        (arc_height.as_integer() + abs(state_.path_.back().x - state_.path_[0].x)) / 16;
 
     state_.player_src_ = is_player_island(&src);
 }
@@ -251,6 +254,7 @@ BallistaBolt::BallistaBolt(const Vec2<Fixnum>& pos, const State& s)
 
     sprite_.set_size(Sprite::Size::w16_h16);
     sprite_.set_texture_index(18 * 2);
+    sprite_.set_tidx_16x16(80, 1);
 
     sprite_.set_origin({8, 8});
 }
