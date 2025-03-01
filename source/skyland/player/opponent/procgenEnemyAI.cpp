@@ -763,6 +763,7 @@ void ProcgenEnemyAI::generate_missile_defenses()
     int missile_count = 0;
     int lateral_count = 0;
     int clump_count = 0;
+    int ballista_count = 0;
 
     auto& shull = require_metaclass("stacked-hull");
 
@@ -775,11 +776,14 @@ void ProcgenEnemyAI::generate_missile_defenses()
             ++missile_count;
         } else if ((*room->metaclass())->category() == Room::Category::weapon) {
             ++lateral_count;
+        } else if (str_eq(room->name(), "ballista")) {
+            ++ballista_count;
         }
     }
 
     // If the player has a missile heavy build, create extra defenses.
-    if ((clump_count > 0 and rng::choice<2>(rng_source_)) or
+    if ((ballista_count > 1 and rng::choice<3>(rng_source_)) or
+        (clump_count > 0 and rng::choice<2>(rng_source_)) or
         (lateral_count == 0 and missile_count > 0 and
          rng::choice<3>(rng_source_) == 0) or
         (missile_count > lateral_count and missile_count - lateral_count > 3)) {
