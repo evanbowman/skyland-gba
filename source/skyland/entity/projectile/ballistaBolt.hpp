@@ -60,10 +60,23 @@ public:
                               Fixnum arc_height);
 
 
+    struct State
+    {
+        Time timer_ = 0;
+        Path path_;
+        u8 path_idx_ = 0;
+        u8 interp_ms_ : 7 = 12;
+        u8 player_src_ : 1 = 0;
+    };
+
+
     BallistaBolt(const Vec2<Fixnum>& position,
                  const Vec2<Fixnum>& target,
                  Fixnum arc_height,
                  Island& src);
+
+    BallistaBolt(const Vec2<Fixnum>& pos,
+                 const State& state);
 
 
     void update(Time delta) override;
@@ -79,11 +92,7 @@ public:
 
 
 private:
-    Time timer_ = 0;
-    Path path_;
-    u8 path_idx_ = 0;
-    u8 interp_ms_ : 7 = 12;
-    u8 player_src_ : 1 = 0;
+    State state_;
 };
 
 

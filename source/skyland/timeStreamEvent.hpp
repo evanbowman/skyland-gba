@@ -41,6 +41,7 @@
 #include "img.hpp"
 #include "number/random.hpp"
 #include "skyland/rooms/reconstructionQueue.hpp"
+#include "skyland/entity/projectile/ballistaBolt.hpp"
 #include "timeStreamHeader.hpp"
 
 
@@ -87,6 +88,8 @@ enum Type : u8 {
 
     player_room_transmuted,
     opponent_room_transmuted,
+
+    player_ballista_bolt_destroyed,
 
     player_cannonball_destroyed,
     opponent_cannonball_destroyed,
@@ -460,6 +463,18 @@ struct BasicProjectileDestroyed
     host_s16 y_pos_;
     host_s64 x_speed__data_;
     host_s64 y_speed__data_;
+};
+
+
+
+struct PlayerBallistaBoltDestroyed
+{
+    Header header_;
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+    u8 state_[sizeof(BallistaBolt::State)];
+
+    static constexpr const auto t = Type::player_ballista_bolt_destroyed;
 };
 
 

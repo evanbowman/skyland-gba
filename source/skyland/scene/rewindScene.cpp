@@ -793,6 +793,24 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::player_ballista_bolt_destroyed: {
+            auto e = (time_stream::event::PlayerBallistaBoltDestroyed*)end;
+            auto pos = Vec2<Fixnum>{Fixnum::from_integer(e->x_pos_.get()),
+                                    Fixnum::from_integer(e->y_pos_.get())};
+            alignas(BallistaBolt::State) u8 state_mem[sizeof(BallistaBolt::State)];
+            memcpy(state_mem, e->state_, sizeof state_mem);
+            auto& state = *reinterpret_cast<BallistaBolt::State*>(state_mem);
+            auto b = APP.alloc_entity<BallistaBolt>(pos, state);
+            if (b) {
+                medium_explosion_inv(b->sprite().get_position());
+                APP.player_island().projectiles().push(std::move(b));
+            }
+            APP.time_stream().pop(sizeof *e);
+            APP.camera()->shake(8);
+            break;
+        }
+
+
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
             auto p = respawn_basic_projectile<Cannonball>(

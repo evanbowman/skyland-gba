@@ -37,6 +37,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -106,38 +107,38 @@ BallistaBolt::BallistaBolt(const Vec2<Fixnum>& position,
     sprite_.set_origin({8, 8});
 
     generate_path(
-        path_, position.x, position.y, target.x, target.y, arc_height);
+        state_.path_, position.x, position.y, target.x, target.y, arc_height);
 
-    player_src_ = is_player_island(&src);
+    state_.player_src_ = is_player_island(&src);
 }
 
 
 
 void BallistaBolt::update(Time delta)
 {
-    timer_ += delta;
+    state_.timer_ += delta;
 
-    auto current = path_[path_idx_];
-    auto next = path_[std::min(path_idx_ + 1, (int)path_.size() - 1)];
+    auto current = state_.path_[state_.path_idx_];
+    auto next = state_.path_[std::min(state_.path_idx_ + 1, (int)state_.path_.size() - 1)];
 
     auto wc = [](Vec2<s16> p) {
         return Vec2<Fixnum>{Fixnum::from_integer(p.x),
                             Fixnum::from_integer(p.y)};
     };
 
-    auto move_rate = milliseconds(interp_ms_ * 10);
+    auto move_rate = milliseconds(state_.interp_ms_ * 10);
 
-    Fixnum interval(Float(timer_) / move_rate);
+    Fixnum interval(Float(state_.timer_) / move_rate);
 
     auto point = interpolate_fp(wc(next), wc(current), interval);
     sprite_.set_position(point);
 
-    if (timer_ > move_rate) {
-        timer_ -= move_rate;
+    if (state_.timer_ > move_rate) {
+        state_.timer_ -= move_rate;
 
-        path_idx_++;
+        state_.path_idx_++;
 
-        if (path_idx_ == path_.size()) {
+        if (state_.path_idx_ == state_.path_.size()) {
             destroy();
             return;
         }
@@ -148,26 +149,26 @@ void BallistaBolt::update(Time delta)
 
 void BallistaBolt::rewind(Time delta)
 {
-    timer_ -= delta;
+    state_.timer_ -= delta;
 
-    auto move_rate = milliseconds(interp_ms_ * 10);
+    auto move_rate = milliseconds(state_.interp_ms_ * 10);
 
-    if (timer_ <= 0) {
-        timer_ += move_rate;
+    if (state_.timer_ <= 0) {
+        state_.timer_ += move_rate;
 
-        if (path_idx_ == 0) {
+        if (state_.path_idx_ == 0) {
             kill();
             return;
         }
 
-        path_idx_--;
+        state_.path_idx_--;
 
         auto wc = [](Vec2<s16> p) {
             return Vec2<Fixnum>{Fixnum::from_integer(p.x),
                                 Fixnum::from_integer(p.y)};
         };
 
-        sprite_.set_position(wc(path_[path_idx_]));
+        sprite_.set_position(wc(state_.path_[state_.path_idx_]));
     }
 }
 
@@ -183,7 +184,7 @@ void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    auto src = player_src_ ? &player_island() : opponent_island();
+    auto src = state_.player_src_ ? &player_island() : opponent_island();
 
     if (src and src == room.parent() and is_forcefield(room.metaclass())) {
         return;
@@ -231,6 +232,26 @@ void BallistaBolt::destroy()
                       .centerflash_ = true,
                   });
     kill();
+
+    time_stream::event::PlayerBallistaBoltDestroyed e;
+    e.x_pos_.set(sprite_.get_position().x.as_integer());
+    e.y_pos_.set(sprite_.get_position().y.as_integer());
+    memcpy(e.state_, &state_, sizeof(State));
+    APP.time_stream().push(APP.level_timer(), e);
+}
+
+
+
+BallistaBolt::BallistaBolt(const Vec2<Fixnum>& pos, const State& s)
+    : Projectile({{10, 10}, {8, 8}})
+{
+    sprite_.set_position(pos);
+    state_ = s;
+
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_texture_index(18 * 2);
+
+    sprite_.set_origin({8, 8});
 }
 
 
