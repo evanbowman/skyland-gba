@@ -42,6 +42,8 @@
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/room_metatable.hpp"
+
 
 
 Fixnum abs(const Fixnum& val)
@@ -80,10 +82,11 @@ class CollisionTestEntity : public Projectile
 {
 public:
     Optional<Vec2<Fixnum>> coll_pos;
+    Island* parent_;
 
 
-    CollisionTestEntity(const Vec2<Fixnum>& position)
-        : Projectile({{10, 10}, {8, 8}})
+    CollisionTestEntity(const Vec2<Fixnum>& position, Island* parent)
+        : Projectile({{10, 10}, {8, 8}}), parent_(parent)
     {
         sprite_.set_position(position);
         sprite_.set_origin({8, 8});
@@ -102,6 +105,9 @@ public:
 
     void on_collision(Room& r, Vec2<u8> origin)
     {
+        if (r.parent() == parent_ and is_forcefield(r.metaclass())) {
+            return;
+        }
         coll_pos = r.center();
     }
 };
@@ -196,7 +202,8 @@ Optional<u8> Ballista::recalc_arc_height(const Vec2<Fixnum>& start,
         for (int i = 0; i < path.size(); ++i) {
             auto node = path[i];
             CollisionTestEntity ct(Vec2<Fixnum>{Fixnum::from_integer(node.x),
-                                                Fixnum::from_integer(node.y)});
+                                                Fixnum::from_integer(node.y)},
+                parent());
             other_island()->test_collision(ct);
 
             if (ct.coll_pos) {
