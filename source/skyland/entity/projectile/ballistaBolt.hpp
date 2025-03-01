@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include "projectile.hpp"
 #include "memory/tinyBuffer.hpp"
+#include "projectile.hpp"
 
 
 
@@ -48,7 +48,6 @@ namespace skyland
 class BallistaBolt : public Projectile
 {
 public:
-
     using PathNode = Vec2<s16>;
     using Path = TinyBuffer<PathNode, 9>;
 
@@ -89,4 +88,4 @@ private:
 
 
 
-}
+} // namespace skyland

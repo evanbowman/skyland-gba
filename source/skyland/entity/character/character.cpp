@@ -33,6 +33,8 @@
 
 
 #include "character.hpp"
+#include "script/lisp.hpp"
+#include "script/listBuilder.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/decimator.hpp"
@@ -42,8 +44,6 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "script/lisp.hpp"
-#include "script/listBuilder.hpp"
 
 
 
@@ -73,8 +73,7 @@ static Health repair_strength(Character::Race r)
 
 
 
-enum CharacterSprite
-{
+enum CharacterSprite {
     begin = 35 * 2,
     human_fighting = begin,
     human_repairing,
@@ -856,10 +855,8 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
 {
     auto& spr = sprite_;
 
-    spr.set_position({
-            spr.get_position().x,
-            spr.get_position().y + t.y_displace_
-        });
+    spr.set_position(
+        {spr.get_position().x, spr.get_position().y + t.y_displace_});
     spr.set_priority(t.priority_);
 
     const auto prev_mix = spr.get_mix();
@@ -965,14 +962,17 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
                 }
                 switch (spr.get_texture_index()) {
                 case human_still:
-                    draw_bumped_custom((*custom_texture_)->mapping_index() * 4 + offset);
+                    draw_bumped_custom((*custom_texture_)->mapping_index() * 4 +
+                                       offset);
                     break;
 
                 case human_step:
                     if (not offset) {
-                        draw_bumped_custom((*custom_texture_)->mapping_index() * 4 + 1);
+                        draw_bumped_custom(
+                            (*custom_texture_)->mapping_index() * 4 + 1);
                     } else {
-                        draw_custom((*custom_texture_)->mapping_index() * 4 + offset + 1);
+                        draw_custom((*custom_texture_)->mapping_index() * 4 +
+                                    offset + 1);
                     }
                     break;
 
@@ -986,10 +986,8 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
     }
 
     spr.set_priority(1);
-    spr.set_position({
-            spr.get_position().x,
-            spr.get_position().y - t.y_displace_
-        });
+    spr.set_position(
+        {spr.get_position().x, spr.get_position().y - t.y_displace_});
     spr.set_mix(prev_mix);
     spr.set_alpha(prev_alpha);
 }

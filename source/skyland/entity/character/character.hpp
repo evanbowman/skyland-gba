@@ -36,10 +36,10 @@
 
 #include "characterStats.hpp"
 #include "memory/buffer.hpp"
+#include "script/value.hpp"
 #include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
-#include "script/value.hpp"
 
 
 
@@ -304,18 +304,18 @@ public:
     }
 
 
-    struct DrawTransform {
+    struct DrawTransform
+    {
         Fixnum y_displace_;
         int priority_;
         ColorMix mix_;
         Sprite::Alpha alpha_;
 
         DrawTransform()
-            : y_displace_(0.0_fixed)
-            , priority_(1)
-            , mix_()
-            , alpha_(Sprite::Alpha::opaque)
-        {}
+            : y_displace_(0.0_fixed), priority_(1), mix_(),
+              alpha_(Sprite::Alpha::opaque)
+        {
+        }
     };
     void draw(Platform::Screen& s, const DrawTransform& tr = DrawTransform{});
 

@@ -35,11 +35,11 @@
 #include "ext_workram_data.hpp"
 #include "room_metatable.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/projectile/ballistaBolt.hpp"
 #include "skyland/rooms/ballista.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/incinerator.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
-#include "skyland/entity/projectile/ballistaBolt.hpp"
 
 
 
@@ -603,8 +603,16 @@ void repaint(const Settings& settings)
         int wpn_emit_px_y = ((emit_pos.y - 3) * 3 + 1) - 2;
 
         if (wpn and wpn->cast<Ballista>()) {
-            if (APP.opponent_island() and APP.opponent_island()->get_room(cursor_loc) and
-                APP.opponent_island()->get_drift() == 0.0_fixed) {
+            if (APP.opponent_island() and
+                APP.opponent_island()->get_room(cursor_loc)) {
+
+                auto old_opp_pos = APP.opponent_island()->get_position();
+                auto player_xpos = APP.player_island().get_position().x;
+                auto opp_converge_offset = Fixnum::from_integer(
+                    APP.player_island().terrain().size() * 16 + 48);
+
+                APP.opponent_island()->set_position(
+                    {player_xpos + opp_converge_offset, old_opp_pos.y});
 
                 auto bl = wpn->cast<Ballista>();
                 auto start = bl->emit_xy();
@@ -647,10 +655,11 @@ void repaint(const Settings& settings)
                     }
                 }
 
+                APP.opponent_island()->set_position(old_opp_pos);
             }
 
         } else if ((*wpn->metaclass())->weapon_orientation() ==
-            Room::WeaponOrientation::horizontal) {
+                   Room::WeaponOrientation::horizontal) {
             plot_line(wpn,
                       wpn_emit_px_x - 2,
                       wpn_emit_px_y,

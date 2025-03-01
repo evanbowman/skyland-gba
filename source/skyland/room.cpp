@@ -225,8 +225,7 @@ void Room::display(Platform::Screen& screen)
 
 
 
-void Room::display_on_hover(Platform::Screen& screen,
-                            const RoomCoord& cursor)
+void Room::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 {
     if (not parent_->interior_visible() and parent_ == &player_island()) {
         for (auto& c : characters()) {

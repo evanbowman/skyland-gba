@@ -7,6 +7,8 @@
  '((190 . "decimator_burst_damage")
    (25  . "nemesis_blast_damage")
    (40  . "cannonball_damage")
+   (60  . "ballista_damage")
+   (10  . "ballista_splash_damage")
    (120 . "ion_burst_damage")
    (36  . "firebolt_damage")
    (36  . "beam_damage")

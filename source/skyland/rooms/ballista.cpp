@@ -36,12 +36,12 @@
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/misc/animatedEffect.hpp"
+#include "skyland/entity/projectile/ballistaBolt.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/sharedVariable.hpp"
-#include "skyland/entity/projectile/ballistaBolt.hpp"
 
 
 Fixnum abs(const Fixnum& val)
@@ -56,7 +56,6 @@ namespace skyland
 
 
 SHARED_VARIABLE(ballista_reload_ms);
-
 
 
 extern Sound cannon_sound;
@@ -83,8 +82,8 @@ public:
     Optional<Vec2<Fixnum>> coll_pos;
 
 
-    CollisionTestEntity(const Vec2<Fixnum>& position) :
-        Projectile({{10, 10}, {8, 8}})
+    CollisionTestEntity(const Vec2<Fixnum>& position)
+        : Projectile({{10, 10}, {8, 8}})
     {
         sprite_.set_position(position);
         sprite_.set_origin({8, 8});
@@ -105,7 +104,6 @@ public:
     {
         coll_pos = r.center();
     }
-
 };
 
 
@@ -134,7 +132,8 @@ void Ballista::fire()
 
     if (arc_height_) {
         auto arc_height = Fixnum::from_integer(*arc_height_);
-        auto c = APP.alloc_entity<BallistaBolt>(start, target, arc_height, *parent());
+        auto c = APP.alloc_entity<BallistaBolt>(
+            start, target, arc_height, *parent());
         if (c) {
             parent()->projectiles().push(std::move(c));
         }
@@ -189,16 +188,13 @@ Optional<u8> Ballista::recalc_arc_height(const Vec2<Fixnum>& start,
         arc_height = Fixnum::from_integer(i * 10);
 
         BallistaBolt::Path path;
-        BallistaBolt::generate_path(path, start.x, start.y,
-                                    target.x, target.y,
-                                    arc_height);
+        BallistaBolt::generate_path(
+            path, start.x, start.y, target.x, target.y, arc_height);
 
         for (int i = 0; i < path.size(); ++i) {
             auto node = path[i];
-            CollisionTestEntity ct(Vec2<Fixnum>{
-                    Fixnum::from_integer(node.x),
-                    Fixnum::from_integer(node.y)
-                });
+            CollisionTestEntity ct(Vec2<Fixnum>{Fixnum::from_integer(node.x),
+                                                Fixnum::from_integer(node.y)});
             other_island()->test_collision(ct);
 
             if (ct.coll_pos) {
@@ -214,7 +210,8 @@ Optional<u8> Ballista::recalc_arc_height(const Vec2<Fixnum>& start,
         }
     }
 
-    std::sort(arc_test_buffer.begin(), arc_test_buffer.end(),
+    std::sort(arc_test_buffer.begin(),
+              arc_test_buffer.end(),
               [&](auto& lhs, auto& rhs) {
                   return manhattan_length(target, lhs.second).as_integer() <
                          manhattan_length(target, rhs.second).as_integer();

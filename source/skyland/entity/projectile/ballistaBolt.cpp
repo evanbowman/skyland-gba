@@ -33,13 +33,21 @@
 
 #include "ballistaBolt.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 
 
 
 namespace skyland
 {
+
+
+
+extern Sound sound_impact;
+SHARED_VARIABLE(ballista_damage);
+SHARED_VARIABLE(ballista_splash_damage);
 
 
 
@@ -57,14 +65,14 @@ void BallistaBolt::generate_path(Path& path,
     // Pre-computed values for 8 steps
     static_assert(path.capacity() - 1 == 8);
     static constexpr Fixnum t_values[8] = {
-        0.0_fixed,      // 0/8
-        0.125_fixed,    // 1/8
-        0.25_fixed,     // 2/8
-        0.375_fixed,    // 3/8
-        0.5_fixed,      // 4/8
-        0.625_fixed,    // 5/8
-        0.75_fixed,     // 6/8
-        0.875_fixed     // 7/8
+        0.0_fixed,   // 0/8
+        0.125_fixed, // 1/8
+        0.25_fixed,  // 2/8
+        0.375_fixed, // 3/8
+        0.5_fixed,   // 4/8
+        0.625_fixed, // 5/8
+        0.75_fixed,  // 6/8
+        0.875_fixed  // 7/8
     };
 
     for (int i = 0; i < steps; ++i) {
@@ -72,17 +80,15 @@ void BallistaBolt::generate_path(Path& path,
 
         Fixnum x = start_x + (target_x - start_x) * t;
 
-        Fixnum parabolic_factor = 4.0_fixed * t * (1.0_fixed - t); // Peaks at t=0.5
-        Fixnum y = start_y + (target_y - start_y) * t - arc_height * parabolic_factor;
+        Fixnum parabolic_factor =
+            4.0_fixed * t * (1.0_fixed - t); // Peaks at t=0.5
+        Fixnum y =
+            start_y + (target_y - start_y) * t - arc_height * parabolic_factor;
 
         path.push_back({(s16)x.as_integer(), (s16)y.as_integer()});
     }
 
-    path.push_back({
-            (s16)target_x.as_integer(),
-            (s16)target_y.as_integer()
-        });
-
+    path.push_back({(s16)target_x.as_integer(), (s16)target_y.as_integer()});
 }
 
 
@@ -99,12 +105,8 @@ BallistaBolt::BallistaBolt(const Vec2<Fixnum>& position,
 
     sprite_.set_origin({8, 8});
 
-    generate_path(path_,
-                  position.x,
-                  position.y,
-                  target.x,
-                  target.y,
-                  arc_height);
+    generate_path(
+        path_, position.x, position.y, target.x, target.y, arc_height);
 
     player_src_ = is_player_island(&src);
 }
@@ -146,14 +148,34 @@ void BallistaBolt::update(Time delta)
 
 void BallistaBolt::rewind(Time delta)
 {
-    kill();
+    timer_ -= delta;
+
+    auto move_rate = milliseconds(interp_ms_ * 10);
+
+    if (timer_ <= 0) {
+        timer_ += move_rate;
+
+        if (path_idx_ == 0) {
+            kill();
+            return;
+        }
+
+        path_idx_--;
+
+        auto wc = [](Vec2<s16> p) {
+            return Vec2<Fixnum>{Fixnum::from_integer(p.x),
+                                Fixnum::from_integer(p.y)};
+        };
+
+        sprite_.set_position(wc(path_[path_idx_]));
+    }
 }
 
 
 
 void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
 {
-    Health damage = 60;
+    Health damage = ballista_damage;
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() <= damage) {
@@ -182,10 +204,10 @@ void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
     };
 
     apply_damage(0, 0, damage);
-    apply_damage(1, 0, 10);
-    apply_damage(-1, 0, 10);
-    apply_damage(0, 1, 10);
-    apply_damage(0, -1, 10);
+    apply_damage(1, 0, ballista_splash_damage);
+    apply_damage(-1, 0, ballista_splash_damage);
+    apply_damage(0, 1, ballista_splash_damage);
+    apply_damage(0, -1, ballista_splash_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
         destroy();
@@ -193,7 +215,7 @@ void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
         if (room.health()) {
-            // sound_impact.play(1); TODO...
+            sound_impact.play(1);
         }
         destroy();
     }
@@ -213,4 +235,4 @@ void BallistaBolt::destroy()
 
 
 
-}
+} // namespace skyland
