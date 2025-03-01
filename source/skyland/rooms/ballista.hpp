@@ -121,13 +121,13 @@ public:
 
     static Icon icon()
     {
-        return 3208;
+        return 4248;
     }
 
 
     static Icon unsel_icon()
     {
-        return 2504;
+        return 4232;
     }
 
     Optional<u8> recalc_arc_height(const Vec2<Fixnum>& origin,
