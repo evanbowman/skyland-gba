@@ -85,7 +85,7 @@ public:
 
 
     void on_collision(Room& room, Vec2<u8> origin) override;
-
+    void on_collision(Entity& entity) override;
 
     void destroy();
 

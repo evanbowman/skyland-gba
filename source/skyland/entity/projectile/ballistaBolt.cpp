@@ -228,6 +228,28 @@ void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
 
 
 
+void BallistaBolt::on_collision(Entity& entity)
+{
+    bool skip_destroy = false;
+
+    if (auto drone = entity.cast_drone()) {
+        if (drone->ignores_damage()) {
+            skip_destroy = true;
+        }
+    }
+
+
+    if (not skip_destroy) {
+        this->destroy();
+    }
+
+    auto damage = (int)ballista_damage;
+
+    entity.apply_damage(damage);
+}
+
+
+
 void BallistaBolt::destroy()
 {
     APP.camera()->shake(8);

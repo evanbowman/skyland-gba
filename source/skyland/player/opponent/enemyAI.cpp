@@ -40,6 +40,7 @@
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/arcGun.hpp"
+#include "skyland/rooms/ballista.hpp"
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
@@ -321,6 +322,8 @@ void EnemyAI::update_room(Room& room,
         set_target(matrix, *beam, owner, ai_island, target_island);
     } else if (auto flak_gun = room.cast<FlakGun>()) {
         set_target(matrix, *flak_gun, owner, ai_island, target_island);
+    } else if (auto ballista = room.cast<Ballista>()) {
+        set_target(matrix, *ballista, owner, ai_island, target_island);
     } else if (auto ion_cannon = room.cast<IonCannon>()) {
         set_target(matrix, *ion_cannon, owner, ai_island, target_island);
     } else if (auto arc_gun = room.cast<ArcGun>()) {
@@ -1980,6 +1983,100 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     if (not buffer->empty()) {
         assign_weapon_target(beam_gun, (*buffer)[0].position_, ai_island);
+    }
+}
+
+
+
+void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+                         Ballista& ballista,
+                         Player* owner,
+                         Island* ai_island,
+                         Island* target_island)
+{
+    struct RoomInfo
+    {
+        Room* room_;
+        int x_;
+        int y_;
+    };
+    Buffer<RoomInfo, 32> visible_rooms;
+
+    if (ai_island == APP.opponent_island()) {
+        for (u8 x = (u8)target_island->terrain().size() - 1; x > 0; --x) {
+            u8 y = std::max(target_island->min_y() - 1, construction_zone_min_y);
+            u8 xx = x;
+            while (y < 14 and xx > 0) {
+                if (auto r = target_island->get_room({xx, y})) {
+                    visible_rooms.push_back({r, xx, y});
+                    break;
+                }
+                --xx;
+                ++y;
+            }
+        }
+    } else {
+        for (u8 x = 0; x < (u8)target_island->terrain().size(); ++x) {
+            u8 y = std::max(target_island->min_y() - 1, construction_zone_min_y);
+            u8 xx = x;
+            while (y < 14 and xx < (u8)target_island->terrain().size()) {
+                if (auto r = target_island->get_room({xx, y})) {
+                    visible_rooms.push_back({r, xx, y});
+                    break;
+                }
+                ++xx;
+                ++y;
+            }
+        }
+    }
+
+   for (u8 y = 0; y < 16; ++y) {
+        if (ai_island == APP.opponent_island()) {
+            for (int x = target_island->terrain().size(); x > -1; --x) {
+                if (matrix.get(x, y)) {
+                    if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
+                        visible_rooms.push_back({room, (u8)x, y});
+                    }
+                    break;
+                }
+            }
+        } else {
+            for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
+                if (matrix.get(x, y)) {
+                    if (auto room = (*target_island).get_room({u8(x), y})) {
+                        if (room->is_decoration() and
+                            not room->cast<Masonry>()) {
+                            // Ignore decoration blocks
+                            continue;
+                        }
+                        visible_rooms.push_back({room, (u8)x, y});
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    Room* highest_weighted_room = nullptr;
+    ATP highest_weight = 0.0_atp;
+
+    for (auto room_info : visible_rooms) {
+        auto w = room_info.room_->get_atp();
+
+        if (w > highest_weight) {
+            highest_weighted_room = room_info.room_;
+            highest_weight = w;
+        }
+    }
+
+    if (highest_weighted_room) {
+        assign_weapon_target(
+            ballista, highest_weighted_room->position(), ai_island);
     }
 }
 

@@ -52,6 +52,7 @@ class Cannon;
 class ArcGun;
 class BeamGun;
 class FlakGun;
+class Ballista;
 class DroneBay;
 class ClumpBomb;
 class IonCannon;
@@ -169,6 +170,13 @@ private:
 
     static void set_target(const Bitmatrix<16, 16>& matrix,
                            FlakGun& gun,
+                           Player* owner,
+                           Island* ai_island,
+                           Island* target_island);
+
+
+    static void set_target(const Bitmatrix<16, 16>& matrix,
+                           Ballista& ballista,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
