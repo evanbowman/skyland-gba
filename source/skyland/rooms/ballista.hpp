@@ -79,7 +79,7 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::multiboot_compatible |
-               RoomProperties::manufactory_required;
+               RoomProperties::only_constructible_in_sandbox;
     }
 
 
