@@ -53,7 +53,7 @@
 (let ((pc (filter (car-equalto? 'power-core)  (rooms (player))))
       (rc (filter (car-equalto? 'reactor)     (rooms (player))))
       (sc (filter (car-equalto? 'backup-core) (rooms (player))))
-      (wpn (sample '(flak-gun fire-charge))))
+      (wpn (sample '(flak-gun fire-charge ballista))))
 
     (when pc
       (secret 1 14 (string "Notice: surplus " wpn " in stock!")))
@@ -87,7 +87,7 @@
                       ;; The player has no powercore, but is instead donating a
                       ;; reactor. Give a potentially rare weapon!
                       (setq c (car rc))
-                      (setq wpn (sample '(flak-gun
+                      (setq wpn (sample '(ballista
                                           annihilator
                                           decimator
                                           rocket-bomb
