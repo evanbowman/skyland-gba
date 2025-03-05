@@ -1,6 +1,6 @@
 
 (dialog
- ;"<b:/scripts/data/img/wanderer_town.img.bin>" TODO: redraw cover image
+ "<b:/scripts/data/img/surface_keeper.img.bin>"
  "Your sensors detect movement in the radioactive clouds below... <B:0> A figure emerges, wrapped in thick robes and wearing elaborate breathing apparatus. <B:0> They signal your fortress from their floating observation post...")
 
 
