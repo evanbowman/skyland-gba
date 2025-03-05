@@ -1,0 +1,36 @@
+
+(dialog "Your castle sails through a dense bank of clouds, and when the mist finally clears... <B:0> <b:/scripts/data/img/sylph_archive.img.bin> An impossible sight emerges - massive walls of ancient stonework stretch upward as far as you can see, flanking a narrow chasm that seems to have no bottom. <B:0> Your island drifts forward, a tiny speck between towering structures of ornate masonry and bronze. <B:0> A sudden voice crackles over your radio, precise and formal...")
+
+
+(opponent-init 4 'hostile)
+(island-configure (opponent) '((power-core 1 13)))
+
+
+(defn on-fadein ()
+  (dialog "<c:Sylph Archivist:21>Greetings, traveler. Few outsiders reach the Central Archive of the Sylph Conclave. <B:0> We have observed your fortress with great interest. Your configuration of technology, your adaptations to the changing skies... they represent solutions we would not have designed. Our archive seeks to document all knowledge of sky survival. Your castle's design holds valuable insights for our studies. <B:0> We propose an exchange. Allow us to keep your current fortress for our archives. In return, we offer one of our own warships. Your crew would transfer completely. Nothing would be lost but the structure itself...")
+  (dialog-await-binary-q "accept the exchange" "decline and leave"))
+
+
+(defn on-dialog-accepted ()
+  (let ((chr-list (chrs (player))))
+
+    (island-configure
+     (player)
+     '((workshop 0 10) (bronze-hull 0 9) (phase-shifter 0 12) (reactor 1 12) (bronze-hull 1 8) (bronze-hull 1 9) (bronze-hull 2 9) (manufactory 2 10) (bronze-hull 2 8) (bronze-hull 3 8) (bronze-hull 3 7) (reactor 3 12) (bronze-hull 3 9) (bronze-hull 4 7) (bronze-hull 4 9) (bronze-hull 4 8) (portal 5 11) (amplifier 5 13) (deflector 5 10) (portal 5 14) (bronze-hull 5 9) (bronze-hull 5 12) (bronze-hull 6 9) (bronze-hull 6 10) (sylph-cannon 6 12) (sylph-cannon 6 13) (sylph-cannon 6 14) (bronze-hull 6 11) (forcefield 8 14) (forcefield* 8 13) (forcefield 8 12) (forcefield* 8 11)))
+
+    (terrain-set (player) 9)
+
+    (while chr-list
+      (let ((slots (chr-slots (player))))
+        (when slots
+          (let ((slot (car slots)))
+            (chr-new (player) (car slot) (cdr slot) 'neutral (cdr (cdr (car chr-list))))))
+        (setq chr-list (cdr chr-list))))
+
+    (dialog "<c:Sylph Archivist:21>A wise decision. Your fortress will be preserved in our archives, studied and honored. <B:0> May the winds favor your journey!")
+    (setq on-dialog-closed exit)))
+
+
+(defn on-dialog-declined ()
+  (dialog "<c:Sylph Archivist:21>We understand your attachment to your fortress. It is a creation you have shaped with your own hands and vision.")
+  (exit))
