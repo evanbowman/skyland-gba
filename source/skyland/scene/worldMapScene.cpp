@@ -695,6 +695,14 @@ ScenePtr WorldMapScene::update(Time delta)
     }
 
 
+    auto load_savegame_txtr = [&] {
+        if (APP.faction() == Faction::goblin) {
+            PLATFORM.load_tile1_texture("goblin_savegame_flattened");
+        } else {
+            PLATFORM.load_tile1_texture("savegame_flattened");
+        }
+    };
+
     auto exit_nav_mode = [&] {
         cursor_ = cached_cursor_;
         navigation_buffer_.clear();
@@ -1596,7 +1604,7 @@ ScenePtr WorldMapScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 5, 112);
         }
         state_ = State::show_saved_text;
-        PLATFORM.load_tile1_texture("savegame_flattened");
+        load_savegame_txtr();
         __draw_image(1, 0, 4, 30, 13, Layer::map_1);
         heading_.emplace(SYSTR(wg_saved)->c_str(), OverlayCoord{1, 1});
         PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -1608,7 +1616,7 @@ ScenePtr WorldMapScene::update(Time delta)
     case State::show_saved_text: {
         if (timer_ == 0) {
             PLATFORM.screen().schedule_fade(0.f);
-            PLATFORM.load_tile1_texture("savegame_flattened");
+            load_savegame_txtr();
         }
         const auto prev_timer = timer_;
         timer_ += delta;
