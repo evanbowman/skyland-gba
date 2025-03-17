@@ -4,7 +4,7 @@
 
 
 
-(dialog "<b:/scripts/data/img/decimator.img.bin>An ancient warship approaches, flying a pirate flag. <B:0> The fortress gives off a strange radiation signature, but the pirates have not yet decided to attack...")
+(dialog "An ancient warship approaches, flying a pirate flag. <B:0> The fortress gives off a strange radiation signature, but the pirates have not yet decided to attack...")
 
 
 
