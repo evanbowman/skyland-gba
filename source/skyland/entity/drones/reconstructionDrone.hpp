@@ -88,6 +88,12 @@ public:
     }
 
 
+    static bool spawn_near()
+    {
+        return true;
+    }
+
+
     static const auto reload_time = seconds(1);
 
 

@@ -190,8 +190,10 @@ ScenePtr ConstructDroneScene::update(Time delta)
     if (APP.player().key_down(Key::action_1)) {
         const auto cost = templates[selector_]->cost();
         if (APP.coins() >= cost) {
+            auto mt = &templates[selector_];
             return make_scene<PlaceDroneScene>(position_,
-                                               &templates[selector_]);
+                                               mt,
+                                               (*mt)->spawn_near());
         }
     }
 

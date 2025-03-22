@@ -221,6 +221,12 @@ public:
     }
 
 
+    static bool spawn_near()
+    {
+        return false;
+    }
+
+
     enum State : u8 {
         __derived = Drone::State::ready,
         wait,

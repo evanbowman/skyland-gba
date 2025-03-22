@@ -154,6 +154,12 @@ public:
     }
 
 
+    static bool spawn_near()
+    {
+        return true;
+    }
+
+
     ScenePtr select() override
     {
         PLATFORM.speaker().play_sound("drone_beep", 1);

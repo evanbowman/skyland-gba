@@ -67,6 +67,9 @@ struct DroneMeta
                const RoomCoord& grid_pos) const = 0;
 
 
+        virtual bool spawn_near() const = 0;
+
+
         virtual const char* name() const = 0;
 
 
@@ -89,6 +92,12 @@ struct DroneMeta
     {
         BoxImpl()
         {
+        }
+
+
+        bool spawn_near() const override
+        {
+            return T::spawn_near();
         }
 
 
