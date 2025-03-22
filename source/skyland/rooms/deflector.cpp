@@ -77,6 +77,10 @@ void Deflector::update(Time delta)
     Room::update(delta);
 
     if (active_timer_ < activate_time) {
+        Room::ready();
+        if (is_powered_down()) {
+            return;
+        }
         static const auto ripple_offset = milliseconds(280);
         if (active_timer_ < activate_time - ripple_offset) {
             if (active_timer_ + delta >= activate_time - ripple_offset) {
@@ -85,7 +89,6 @@ void Deflector::update(Time delta)
             }
         }
         active_timer_ += delta;
-        Room::ready();
         if (active_timer_ >= activate_time) {
             parent()->schedule_repaint();
         }
@@ -111,6 +114,8 @@ bool Deflector::allows_powerdown()
 void Deflector::on_powerchange()
 {
     parent()->schedule_recompute_deflector_shields();
+    active_timer_ = 0;
+    Room::ready();
 }
 
 
