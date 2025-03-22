@@ -64,6 +64,43 @@ Deflector::Deflector(Island* parent, const RoomCoord& position)
 
 
 
+static const auto activate_time = milliseconds(750);
+
+
+
+void phase_ripple(const Vec2<Fixnum>& pos);
+
+
+
+void Deflector::update(Time delta)
+{
+    Room::update(delta);
+
+    if (active_timer_ < activate_time) {
+        static const auto ripple_offset = milliseconds(280);
+        if (active_timer_ < activate_time - ripple_offset) {
+            if (active_timer_ + delta >= activate_time - ripple_offset) {
+                phase_ripple(visual_center());
+                PLATFORM.speaker().play_sound("deflector.raw", 0);
+            }
+        }
+        active_timer_ += delta;
+        Room::ready();
+        if (active_timer_ >= activate_time) {
+            parent()->schedule_repaint();
+        }
+    }
+}
+
+
+
+void Deflector::rewind(Time delta)
+{
+    active_timer_  = activate_time;
+}
+
+
+
 bool Deflector::allows_powerdown()
 {
     return true;
@@ -118,6 +155,10 @@ void Deflector::render_exterior(App* app, TileId buffer[16][16])
     buffer[position().x][position().y] = Tile::deflector_source;
 
     if (is_powered_down()) {
+        return;
+    }
+
+    if (active_timer_ < activate_time) {
         return;
     }
 
