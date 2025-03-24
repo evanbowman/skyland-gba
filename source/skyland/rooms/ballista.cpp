@@ -37,12 +37,12 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/misc/animatedEffect.hpp"
 #include "skyland/entity/projectile/ballistaBolt.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -203,7 +203,7 @@ Optional<u8> Ballista::recalc_arc_height(const Vec2<Fixnum>& start,
             auto node = path[i];
             CollisionTestEntity ct(Vec2<Fixnum>{Fixnum::from_integer(node.x),
                                                 Fixnum::from_integer(node.y)},
-                parent());
+                                   parent());
             other_island()->test_collision(ct);
 
             if (ct.coll_pos) {

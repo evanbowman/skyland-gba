@@ -99,7 +99,7 @@ void Deflector::update(Time delta)
 
 void Deflector::rewind(Time delta)
 {
-    active_timer_  = activate_time;
+    active_timer_ = activate_time;
 }
 
 

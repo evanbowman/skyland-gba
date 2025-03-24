@@ -2004,7 +2004,8 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     if (ai_island == APP.opponent_island()) {
         for (u8 x = (u8)target_island->terrain().size() - 1; x > 0; --x) {
-            u8 y = std::max(target_island->min_y() - 1, construction_zone_min_y);
+            u8 y =
+                std::max(target_island->min_y() - 1, construction_zone_min_y);
             u8 xx = x;
             while (y < 14 and xx > 0) {
                 if (auto r = target_island->get_room({xx, y})) {
@@ -2017,7 +2018,8 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         }
     } else {
         for (u8 x = 0; x < (u8)target_island->terrain().size(); ++x) {
-            u8 y = std::max(target_island->min_y() - 1, construction_zone_min_y);
+            u8 y =
+                std::max(target_island->min_y() - 1, construction_zone_min_y);
             u8 xx = x;
             while (y < 14 and xx < (u8)target_island->terrain().size()) {
                 if (auto r = target_island->get_room({xx, y})) {
@@ -2030,7 +2032,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
         }
     }
 
-   for (u8 y = 0; y < 16; ++y) {
+    for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = target_island->terrain().size(); x > -1; --x) {
                 if (matrix.get(x, y)) {

@@ -109,8 +109,9 @@ BallistaBolt::BallistaBolt(const Vec2<Fixnum>& position,
     generate_path(
         state_.path_, position.x, position.y, target.x, target.y, arc_height);
 
-    state_.interp_ms_ =
-        (arc_height.as_integer() + abs(state_.path_.back().x - state_.path_[0].x)) / 16;
+    state_.interp_ms_ = (arc_height.as_integer() +
+                         abs(state_.path_.back().x - state_.path_[0].x)) /
+                        16;
 
     state_.player_src_ = is_player_island(&src);
 }
