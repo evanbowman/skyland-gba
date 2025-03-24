@@ -118,9 +118,13 @@ public:
     Time heal_interval() const;
 
 
+    void display(Platform::Screen& screen) override;
+
+
 private:
     Time heal_timer_ = 0;
     bool amplify_ = false;
+    u8 anim_cyc_ = 0;
 };
 
 

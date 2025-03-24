@@ -165,4 +165,49 @@ void Infirmary::finalize()
 
 
 
+void Infirmary::display(Platform::Screen& screen)
+{
+    if (parent()->interior_visible()) {
+
+        static const u8 anim_frames = 48;
+
+        anim_cyc_++;
+        if (anim_cyc_ > anim_frames) {
+            anim_cyc_ = 0;
+        }
+
+        static const u8 half_cyc = anim_frames / 2 - 1;
+
+        if (anim_cyc_ > half_cyc) {
+            for (auto& chr : characters()) {
+                if (chr->owner() == &parent()->owner() and
+                    chr->state() not_eq Character::State::fighting and
+                    not chr->is_replicant() and
+                    chr->health() < chr->get_max_health()) {
+                    Sprite spr;
+
+                    spr.set_tidx_8x8(43, 0);
+                    spr.set_size(Sprite::Size::w8_h8);
+                    auto pos = chr->sprite().get_position();
+                    pos.y -= 8.0_fixed;
+                    pos.x += 4.0_fixed;
+                    spr.set_position(pos);
+
+                    static const u8 anim_pad = 3;
+
+                    if (anim_cyc_ < (half_cyc + anim_pad) or
+                        anim_cyc_ > anim_frames - anim_pad) {
+                        spr.set_alpha(Sprite::Alpha::translucent);
+                    }
+
+                    screen.draw(spr);
+                }
+            }
+        }
+    }
+
+    Room::display(screen);
+}
+
+
 } // namespace skyland
