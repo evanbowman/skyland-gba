@@ -35,6 +35,11 @@
 (let ((wpn 'rocket-bomb)
       (pos '(7 . 12)))
 
+  (when (chance 3)
+    (setq wpn 'ballista)
+    (setq pos '(7 . 14))
+    (terrain-set (opponent) 9))
+
   (when (chance 7)
     (setq wpn 'splitter)
     (setq pos '(7 . 13))
@@ -72,13 +77,13 @@
                  (cond
                   ((equal wpn 'rocket-bomb)
                    (dialog "Like a missile-silo, but starts fires! A useful addition!"))
-                  ((equal wpn 'splitter)
-                   (dialog "Wow, a very powerful weapon! <B:0> You're lucky to have found this..."))
+                  ((equal wpn 'ballista)
+                   (dialog "A special cannon that fires projectiles in a wide arc. How useful!"))
                   (true
-                   (dialog "...")))
+                   (dialog "Wow, a very powerful weapon! <B:0> You're lucky to have found this...")))
 
                  (setq on-dialog-closed exit)))
-    (adventure-log-add 9 '()))
+    (adventure-log-add 9 (list wpn)))
 
   (defn on-dialog-declined ()
     (dialog "Huh!? Who doesn't want free stuff? Suit yourself...")

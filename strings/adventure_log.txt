@@ -6,7 +6,7 @@ __unused__
 defeated the storm king!
 rescued a castaway!
 found an abandoned wreck, but did not explore.
-found an abandoned wreck, found rocket-bomb!
+found an abandoned wreck, found %!
 bought two % from some merchants for %@!
 explored abandoned ruins, found %@
 met pirate redbeard, failed to bribe

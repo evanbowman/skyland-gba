@@ -6,7 +6,7 @@ __unused__
 defeated the king of the sstorm, now goblins can pillage ssafely!
 resscued a castaway!
 found an abandoned wreck, but did not explore.
-found an abandoned wreck, found rocket-bomb!
+found an abandoned wreck, found %!
 bought two % from some sscavengers for %@!
 explored abandoned ruinss, found %@
 met sstinker redbeard, failed to bribe
