@@ -65,3 +65,6 @@ retrieved atomic arsenal!
 encountered a solar storm!
 encountered warrior monks!
 bought two % from some scavengers for %@!
+unable to make payment to anvil annie!
+paid bribe to anvil annie (-%@)
+refused to pay anvil annie

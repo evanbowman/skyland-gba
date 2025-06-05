@@ -1,53 +1,26 @@
 ;;;
-;;; neutral/0/1.lisp
+;;; neutral/0/1_1.lisp
 ;;;
 
 
 (dialog
- "<b:/scripts/data/img/toll_station.img.bin> "
- "An ancient imperial missile platform contacts you and demands payment...")
+ "A small but heavily fortified island appears on your scanners. Scattered debris floats nearby - twisted metal and charred wood from recent conflicts...")
 
 
-(opponent-init 5 'neutral)
+(opponent-init 7 'neutral)
 
 (island-configure
  (opponent)
- '((hull 0 12)
-   (arc-gun 0 10)
-   (hull 0 13)
-   (hull 0 8)
-   (hull 0 9)
-   (hull 0 7)
-   (hull 0 11)
-   (power-core 1 11)
-   (hull 1 14)
-   (hull 1 7)
-   (hull 1 8)
-   (power-core 1 9)
-   (hull 1 13)
-   (hull 2 14)
-   (missile-silo 2 7)
-   (hull 2 13)
-   (hull 3 7)
-   (hull 3 8)
-   (hull 3 9)
-   (hull 3 10)
-   (hull 3 11)
-   (hull 3 12)
-   (hull 3 13)
-   (rocket-bomb 4 8)
-   (hull 4 11)))
+ '((hull 0 10) (masonry 0 14 3) (hull 0 12) (shrubbery 0 9) (ballista 0 11) (hull 0 13) (hull 1 10) (power-core 1 12) (masonry 1 14 3) (masonry 2 14 3) (missile-silo 2 10) (hull 3 10) (masonry 3 12 3) (masonry 3 14 3) (shrubbery 3 9) (masonry 3 13 3) (masonry 3 11 3) (hull 4 11) (canvas 4 12 (64 -536840192 973887664 941621762 1155265 -1318431487 71595039 1149989184 789571075 -281183620 1587057927 -997232256 119726179 1046381783 503348496 1750011868 6 60 16 0)) (windmill 4 14) (hull 4 10) (hull 5 11) (canvas 5 12 (42 -1593804800 -2088697312 469770270 1621229768 1210056818 389277569 254175190 1715241193 13171200 253756484 0 56)) (hull 6 11) (canvas 6 12 (28 -862298880 3184651 1108289 1712167477 -2055305215 2146439166 131 252 30 224)) (masonry 6 14 3) (bronze-hull 6 13) (hull 6 10) (lemon-tree 5 9)))
 
 (flag-show (opponent) 4)
 
 
 (defn on-converge ()
   (dialog
-   "While the old empire is now fragmented and most of its weapons systems are offline, "
-   "this automated vessel seems to still be functioning. <B:0>"
-   "The station's computers demand a toll of 600@. Pay?")
+   "<c:anvil annie:44> Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away! <B:0> Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)")
   (dialog-opts-reset)
-  (dialog-await-y/n)
+  (dialog-await-binary-q "pay 700@" "refuse bribe")
   (setq on-converge nil))
 
 
@@ -57,18 +30,18 @@
          (opponent-mode 'hostile))))
   (setq on-dialog-accepted
         (lambda ()
-          (if (< (coins) 600)
+          (if (< (coins) 700)
               (progn
-                (adventure-log-add 59 '())
-                (scr "Insufficient funds! The station begins charging its weapons!"))
+                (adventure-log-add 68 '())
+                (scr "<c:anvil annie:44> Broke, eh? Well Sweet Bertha doesn't work for free! Time to collect your scrap as payment instead!"))
             (progn
-              (adventure-log-add 60 (list 600))
-              (coins-add -600)
-              (dialog "The station deactivates and allows you to pass.")
+              (adventure-log-add 69 (list 700))
+              (coins-add -700)
+              (dialog "<c:anvil annie:44> There we go! See how easy that was? Now get out of my airspace before I change my mind!")
               (exit)))))
 
 
   (setq on-dialog-declined
         (lambda ()
-          (adventure-log-add 61 '())
-          (scr "The station begins charging its weapons!"))))
+          (adventure-log-add 70 '())
+          (scr "<c:anvil annie:44>I KNEW IT! Only goblin spies would refuse to pay! Time to blast some answers out of you!"))))
