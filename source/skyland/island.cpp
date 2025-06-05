@@ -2486,6 +2486,19 @@ u8 Island::character_count() const
 
 
 
+void show_island(Island* island)
+{
+    if (island) {
+        if (island->interior_visible()) {
+            show_island_interior(island);
+        } else {
+            show_island_exterior(island);
+        }
+    }
+}
+
+
+
 void show_island_interior(Island* island)
 {
     if (island) {

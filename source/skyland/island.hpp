@@ -551,6 +551,8 @@ private:
 void show_island_interior(Island* island);
 void show_island_exterior(Island* island);
 
+void show_island(Island* island);
+
 
 
 Island& player_island();

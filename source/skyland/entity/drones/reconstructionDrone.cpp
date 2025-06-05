@@ -264,7 +264,6 @@ private:
 
 
 Coins get_room_cost(Island* island, const RoomMeta& meta);
-void make_construction_effect(Vec2<Fixnum> pos);
 
 
 

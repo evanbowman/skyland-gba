@@ -67,7 +67,6 @@ public:
         sprite_.set_tidx_16x16(31, 0);
         sprite_.set_position(pos);
         sprite_.set_origin({});
-        // sprite_.set_alpha(Sprite::Alpha::translucent);
         sprite_.set_mix({custom_color(0x80a5cd), 40});
     }
 

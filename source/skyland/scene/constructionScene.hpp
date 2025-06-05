@@ -164,4 +164,8 @@ private:
 
 
 
+void make_construction_effect(Vec2<Fixnum> pos);
+
+
+
 } // namespace skyland
