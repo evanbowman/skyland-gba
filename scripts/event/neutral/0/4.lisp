@@ -35,7 +35,7 @@
 (let ((wpn 'rocket-bomb)
       (pos '(7 . 12)))
 
-  (when (chance 3)
+  (when (chance 4)
     (setq wpn 'ballista)
     (setq pos '(7 . 14))
     (terrain-set (opponent) 9))
