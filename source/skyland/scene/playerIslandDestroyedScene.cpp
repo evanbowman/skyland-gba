@@ -1072,7 +1072,7 @@ void PlayerIslandDestroyedScene::enter(Scene& prev)
 
     for (auto& room : APP.player_island().rooms()) {
         for (auto& chr : room->characters()) {
-            chr->stats().battles_fought_++;
+            chr->stats().info_.battles_fought_++;
         }
     }
 

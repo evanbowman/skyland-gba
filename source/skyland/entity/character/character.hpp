@@ -13,6 +13,7 @@
 
 #include "characterStats.hpp"
 #include "memory/buffer.hpp"
+#include "memory/extension.hpp"
 #include "script/value.hpp"
 #include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
@@ -333,7 +334,7 @@ public:
     void set_phase(u8 phase);
 
 
-    CharacterStats& stats();
+    CompleteCharacterStats& stats();
 
 
     void record_stats();
@@ -377,7 +378,7 @@ private:
     u8 max_health_ = max_health;
 
 
-    CharacterStats stats_;
+    ExtensionField<CompleteCharacterStats> stats_;
 
     bool has_opponent(Room* room);
 
@@ -387,6 +388,9 @@ private:
     void movement_step(Time delta, Room* current_room);
 
     void update_attack(Time delta);
+
+
+    void update_favorite_room_stat(Room* current_room);
 };
 
 

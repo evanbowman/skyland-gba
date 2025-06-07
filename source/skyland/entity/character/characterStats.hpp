@@ -26,6 +26,7 @@ struct CharacterStats
     using FiresExtinguished = u8;
     using BattlesFought = u8;
     using StepCount = u16;
+    using FavoriteRoom = u8;
 
     EnemiesVanquished enemies_vanquished_;
     BattlesFought battles_fought_;
@@ -34,6 +35,8 @@ struct CharacterStats
     HostInteger<StepCount> steps_taken_;
 
     FiresExtinguished fires_extinguished_;
+
+    FavoriteRoom favorite_room_;
 
 
     template <typename T> static void inc(T& val)
@@ -62,4 +65,20 @@ struct CharacterStats
 
 
 
-} // namespace skyland
+struct CompleteCharacterStats
+{
+    CharacterStats info_;
+
+    struct FavoriteRoomInfo
+    {
+        u8 metaclass_index_;
+        HostInteger<u16> counter_;
+    };
+
+    FavoriteRoomInfo current_room_;
+    FavoriteRoomInfo highest_room_[3];
+};
+
+
+
+} // Namespace skyland

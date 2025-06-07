@@ -796,6 +796,8 @@ enum class SystemString {
     crewmember_stats_repaired,
     crewmember_stats_steps,
     crewmember_stats_fires,
+    crewmember_stats_fav,
+    crewmember_stats_fave_abbrev,
 
     weapon_target_queue,
 

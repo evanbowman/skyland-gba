@@ -12,6 +12,7 @@
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -64,7 +65,7 @@ void CrewStatsScene::show_page()
     }
 
     for (int x = 2; x < 28; ++x) {
-        for (int y = 1; y < 19; ++y) {
+        for (int y = 1; y < 20; ++y) {
             PLATFORM.set_tile(Layer::overlay, x, y, 90);
         }
     }
@@ -99,19 +100,19 @@ void CrewStatsScene::show_page()
     Text::print(health_text.c_str(), {9, 3});
 
     for (int x = 3; x < 27; ++x) {
-        for (int y = 7; y < 18; ++y) {
+        for (int y = 7; y < 19; ++y) {
             PLATFORM.set_tile(Layer::overlay, x, y, 138);
         }
     }
 
-    for (int y = 7; y < 17; ++y) {
+    for (int y = 7; y < 18; ++y) {
         PLATFORM.set_tile(Layer::overlay, 2, y, 151);
         PLATFORM.set_tile(Layer::overlay, 27, y, 152);
     }
 
     for (int x = 3; x < 27; ++x) {
         PLATFORM.set_tile(Layer::overlay, x, 6, 149);
-        PLATFORM.set_tile(Layer::overlay, x, 17, 150);
+        PLATFORM.set_tile(Layer::overlay, x, 18, 150);
     }
 
     const auto stat_colors =
@@ -131,17 +132,21 @@ void CrewStatsScene::show_page()
 
     StringBuffer<96> temp;
 
-    auto append_stat = [&](int val) {
-        auto tl = integer_text_length(val);
+    auto append_str = [&](const char* val) {
+        auto tl = utf8::len(val);
         while (utf8::len(temp.c_str()) + tl < 20) {
             temp.push_back(' ');
         }
-        temp += stringify(val);
+        temp += val;
+    };
+
+    auto append_stat = [&](int val) {
+        append_str(stringify(val).c_str());
     };
 
     PLATFORM.set_tile(Layer::overlay, 25, 7, 139);
     temp = SYS_CSTR(crewmember_stats_battles);
-    append_stat(st.battles_fought_);
+    append_stat(st.info_.battles_fought_);
     Text::print(temp.c_str(), {4, 7}, stat_colors);
 
     separator(8);
@@ -150,7 +155,7 @@ void CrewStatsScene::show_page()
     PLATFORM.set_tile(Layer::overlay, 25, 9, 143);
     PLATFORM.set_tile(Layer::overlay, 25, 10, 145);
     temp = SYS_CSTR(crewmember_stats_vanquished);
-    append_stat(st.enemies_vanquished_);
+    append_stat(st.info_.enemies_vanquished_);
     Text::print(temp.c_str(), {4, 9}, stat_colors);
 
     separator(10);
@@ -158,30 +163,47 @@ void CrewStatsScene::show_page()
     PLATFORM.set_tile(Layer::overlay, 25, 11, 147);
     PLATFORM.set_tile(Layer::overlay, 26, 11, 148);
     temp = SYS_CSTR(crewmember_stats_repaired);
-    append_stat(st.damage_repaired_.get());
+    append_stat(st.info_.damage_repaired_.get());
     Text::print(temp.c_str(), {4, 11}, stat_colors);
 
     separator(12);
 
     PLATFORM.set_tile(Layer::overlay, 25, 13, 154);
     temp = SYS_CSTR(crewmember_stats_fires);
-    append_stat(st.fires_extinguished_);
+    append_stat(st.info_.fires_extinguished_);
     Text::print(temp.c_str(), {4, 13}, stat_colors);
 
     separator(14);
 
     PLATFORM.set_tile(Layer::overlay, 25, 15, 153);
     temp = SYS_CSTR(crewmember_stats_steps);
-    append_stat(st.steps_taken_.get());
+    append_stat(st.info_.steps_taken_.get());
     Text::print(temp.c_str(), {4, 15}, stat_colors);
 
     separator(16);
 
+    auto append_fav = [&](const char* val) {
+        if (utf8::len(val) < 16) {
+            temp = SYS_CSTR(crewmember_stats_fav);
+        } else {
+            temp = SYS_CSTR(crewmember_stats_fave_abbrev);
+        }
+
+        auto tl = utf8::len(val);
+        while (utf8::len(temp.c_str()) + tl < 22) {
+            temp.push_back(' ');
+        }
+        temp += val;
+    };
+
+    append_fav((*load_metaclass(st.info_.favorite_room_))->ui_name()->c_str());
+    Text::print(temp.c_str(), {4, 17}, stat_colors);
+
     temp = "id:";
     temp += stringify(info.first->id());
-    Text::print(temp.c_str(), {(u8)(28 - temp.length()), 18});
+    Text::print(temp.c_str(), {(u8)(28 - temp.length()), 19});
 
-    PLATFORM.set_tile(Layer::overlay, 2, 18, 155);
+    PLATFORM.set_tile(Layer::overlay, 2, 19, 155);
 
     draw_image(156, 20, 2, 5, 4, Layer::overlay);
 
@@ -209,6 +231,7 @@ void CrewStatsScene::enter(Scene& prev)
     PLATFORM.load_overlay_texture("overlay_adventurelog");
     show_page();
     PLATFORM.screen().schedule_fade(bkg_fade_amount_);
+    PLATFORM.set_overlay_origin(0, 4);
 }
 
 
@@ -217,6 +240,7 @@ void CrewStatsScene::exit(Scene& next)
 {
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.screen().schedule_fade(exit_fade_);
+    PLATFORM.set_overlay_origin(0, 0);
 }
 
 

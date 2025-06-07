@@ -813,7 +813,7 @@ void describe_room(Island* island,
                             auto icon_x = [&] {
                                 return xo + room_description->len() - 1;
                             };
-                            auto b = chr->stats().battles_fought_;
+                            auto b = chr->stats().info_.battles_fought_;
                             room_description->append("  ");
                             PLATFORM.set_tile(Layer::overlay, icon_x(), y, 484);
                             room_description->append(b);

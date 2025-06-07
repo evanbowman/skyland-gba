@@ -18,7 +18,7 @@ struct ExtensionMem
 
 struct Extensions
 {
-    Buffer<ExtensionMem, 55> slots_;
+    Buffer<ExtensionMem, 56> slots_;
 };
 
 
@@ -40,6 +40,7 @@ bool extension_alloc(ExtensionRef* ref)
     (*extension_mem)->slots_.emplace_back();
     (*extension_mem)->slots_.back().backlink_ = ref;
     ref->cell_ = (*extension_mem)->slots_.size() - 1;
+
     return true;
 }
 
@@ -68,4 +69,4 @@ void extension_free(ExtensionRef* ref)
 
 
 
-}
+} // namespace skyland

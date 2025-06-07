@@ -1213,7 +1213,7 @@ ScenePtr RewindScene::update(Time)
             auto e = (time_stream::event::CharacterStatsChanged*)end;
             auto chr_info = Character::find_by_id(e->id_.get());
             if (chr_info.first) {
-                chr_info.first->stats() = e->prev_stats_;
+                chr_info.first->stats().info_ = e->prev_stats_;
             }
             APP.time_stream().pop(sizeof *e);
             break;
@@ -1258,7 +1258,7 @@ ScenePtr RewindScene::update(Time)
                 chr->set_icon(e->icon_);
                 chr->set_max_health(e->max_health_);
                 chr->__set_health(e->health_);
-                chr->stats() = e->stats_;
+                chr->stats().info_ = e->stats_;
 
                 island->add_character(std::move(chr));
             }

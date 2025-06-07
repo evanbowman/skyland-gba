@@ -36,21 +36,19 @@ void extension_free(ExtensionRef* ref);
 
 
 
-template <typename T>
-struct ExtensionField
+template <typename T> struct ExtensionField
 {
 private:
     ExtensionRef ref_;
 
 public:
-    template <typename... Args>
-    ExtensionField(Args&& ...args)
+    template <typename... Args> ExtensionField(Args&&... args)
     {
         if (not extension_alloc(&ref_)) {
             PLATFORM.fatal("failed to allocate extension!");
         }
         static_assert(sizeof(T) <= 32);
-        static_assert(alignof(T) >= alignof(void*));
+        static_assert(alignof(T) <= alignof(void*));
         static_assert(std::is_trivially_copyable_v<T>);
         new (extension_deref(&ref_)) T(std::forward<Args>(args)...);
     }
@@ -59,13 +57,13 @@ public:
     ExtensionField(const ExtensionRef&) = delete;
 
 
-    T* operator->() const
+    T* operator->()
     {
         return reinterpret_cast<T*>(extension_deref(&ref_));
     }
 
 
-    T& operator*() const
+    T& operator*()
     {
         return *reinterpret_cast<T*>(extension_deref(&ref_));
     }
@@ -80,4 +78,4 @@ public:
 
 
 
-}
+} // namespace skyland

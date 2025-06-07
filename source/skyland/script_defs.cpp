@@ -1714,11 +1714,11 @@ BINDING_TABLE({
                   chr->set_icon(icon);
 
                   id = chr->id();
-                  chr->stats().enemies_vanquished_ = kills;
-                  chr->stats().battles_fought_ = battles;
-                  chr->stats().damage_repaired_.set(repaired);
-                  chr->stats().steps_taken_.set(step_count);
-                  chr->stats().fires_extinguished_ = fires;
+                  chr->stats().info_.enemies_vanquished_ = kills;
+                  chr->stats().info_.battles_fought_ = battles;
+                  chr->stats().info_.damage_repaired_.set(repaired);
+                  chr->stats().info_.steps_taken_.set(step_count);
+                  chr->stats().info_.fires_extinguished_ = fires;
                   island->add_character(std::move(chr));
               }
           }
