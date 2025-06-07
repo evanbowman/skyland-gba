@@ -1005,7 +1005,7 @@ lisp::Value* Character::serialize()
         chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
     }
     if (auto b = stats().damage_repaired_.get()) {
-        chr_info.push_back(L_CONS(L_SYM("br"), L_INT(b)));
+        chr_info.push_back(L_CONS(L_SYM("dr"), L_INT(b)));
     }
     if (auto s = stats().steps_taken_.get()) {
         chr_info.push_back(L_CONS(L_SYM("sc"), L_INT(s)));
