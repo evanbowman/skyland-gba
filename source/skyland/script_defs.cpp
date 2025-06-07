@@ -1660,7 +1660,7 @@ BINDING_TABLE({
                           if (auto b = find_param("bt")) {
                               battles = b;
                           }
-                          if (auto b = find_param("br")) {
+                          if (auto b = find_param("dr")) {
                               repaired = b;
                           }
                           if (auto b = find_param("sc")) {
@@ -1716,7 +1716,7 @@ BINDING_TABLE({
                   id = chr->id();
                   chr->stats().enemies_vanquished_ = kills;
                   chr->stats().battles_fought_ = battles;
-                  chr->stats().blocks_repaired_.set(repaired);
+                  chr->stats().damage_repaired_.set(repaired);
                   chr->stats().steps_taken_.set(step_count);
                   chr->stats().fires_extinguished_ = fires;
                   island->add_character(std::move(chr));

@@ -158,7 +158,7 @@ void CrewStatsScene::show_page()
     PLATFORM.set_tile(Layer::overlay, 25, 11, 147);
     PLATFORM.set_tile(Layer::overlay, 26, 11, 148);
     temp = SYS_CSTR(crewmember_stats_repaired);
-    append_stat(st.blocks_repaired_.get());
+    append_stat(st.damage_repaired_.get());
     Text::print(temp.c_str(), {4, 11}, stat_colors);
 
     separator(12);

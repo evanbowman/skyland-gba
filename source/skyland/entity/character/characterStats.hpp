@@ -21,7 +21,7 @@ namespace skyland
 
 struct CharacterStats
 {
-    using BlockRepairCount = u16;
+    using DamageRepairCount = u16;
     using EnemiesVanquished = u8;
     using FiresExtinguished = u8;
     using BattlesFought = u8;
@@ -30,7 +30,7 @@ struct CharacterStats
     EnemiesVanquished enemies_vanquished_;
     BattlesFought battles_fought_;
 
-    HostInteger<BlockRepairCount> blocks_repaired_;
+    HostInteger<DamageRepairCount> damage_repaired_;
     HostInteger<StepCount> steps_taken_;
 
     FiresExtinguished fires_extinguished_;

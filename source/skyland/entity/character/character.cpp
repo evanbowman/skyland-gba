@@ -799,10 +799,18 @@ void Character::update(Time delta, Room* room)
             timer_ = 0;
             if (room) {
                 if (room->health() not_eq room->max_health()) {
+                    auto prev = room->health();
                     room->heal(repair_strength(get_race()));
-                    if (room->health() == room->max_health()) {
-                        record_stats();
-                        CharacterStats::inc(stats_.blocks_repaired_);
+                    auto healed_hp = room->health() - prev;
+                    if (healed_hp) {
+                        repair_wb_ = (repair_wb_ + 1) % 4;
+                        if (repair_wb_ == 3) {
+                            // Don't waste too much history mem on this...
+                            record_stats();
+                        }
+                        for (int i = 0; i < healed_hp; ++i) {
+                            CharacterStats::inc(stats_.damage_repaired_);
+                        }
                     }
                 } else {
                     this->set_idle();
@@ -996,7 +1004,7 @@ lisp::Value* Character::serialize()
     if (auto b = stats().battles_fought_) {
         chr_info.push_back(L_CONS(L_SYM("bt"), L_INT(b)));
     }
-    if (auto b = stats().blocks_repaired_.get()) {
+    if (auto b = stats().damage_repaired_.get()) {
         chr_info.push_back(L_CONS(L_SYM("br"), L_INT(b)));
     }
     if (auto s = stats().steps_taken_.get()) {
