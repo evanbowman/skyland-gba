@@ -143,7 +143,7 @@ void scratch_buffer_memory_diagnostics()
                     buffers_used * 2,
                     free_sbr,
                     free_sbr * 2)
-        .c_str();
+                 .c_str();
 
     info(output);
 }

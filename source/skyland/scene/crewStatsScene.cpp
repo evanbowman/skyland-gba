@@ -11,8 +11,8 @@
 #include "crewStatsScene.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -140,9 +140,7 @@ void CrewStatsScene::show_page()
         temp += val;
     };
 
-    auto append_stat = [&](int val) {
-        append_str(stringify(val).c_str());
-    };
+    auto append_stat = [&](int val) { append_str(stringify(val).c_str()); };
 
     PLATFORM.set_tile(Layer::overlay, 25, 7, 139);
     temp = SYS_CSTR(crewmember_stats_battles);
