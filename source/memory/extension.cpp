@@ -16,30 +16,24 @@ struct ExtensionMem
 
 
 
-struct Extensions
+Vector<ExtensionMem> extension_mem("extension-mem");
+
+
+
+ExtensionStats extension_stats()
 {
-    Buffer<ExtensionMem, 56> slots_;
-};
-
-
-
-Optional<DynamicMemory<Extensions>> extension_mem;
+    ExtensionStats result;
+    result.used = extension_mem.size();
+    return result;
+}
 
 
 
 bool extension_alloc(ExtensionRef* ref)
 {
-    if (not extension_mem) {
-        extension_mem = allocate_dynamic<Extensions>("extension-mem");
-    }
-
-    if ((*extension_mem)->slots_.full()) {
-        return false;
-    }
-
-    (*extension_mem)->slots_.emplace_back();
-    (*extension_mem)->slots_.back().backlink_ = ref;
-    ref->cell_ = (*extension_mem)->slots_.size() - 1;
+    extension_mem.emplace_back();
+    extension_mem.back().backlink_ = ref;
+    ref->cell_ = extension_mem.size() - 1;
 
     return true;
 }
@@ -48,22 +42,23 @@ bool extension_alloc(ExtensionRef* ref)
 
 void* extension_deref(ExtensionRef* ref)
 {
-    return (*extension_mem)->slots_[ref->cell_].mem_;
+    return extension_mem[ref->cell_].mem_;
 }
 
 
 
 void extension_free(ExtensionRef* ref)
 {
-    if (ref->cell_ == (*extension_mem)->slots_.size() - 1) {
-        (*extension_mem)->slots_.pop_back();
+    if (ref->cell_ == extension_mem.size() - 1) {
+        extension_mem.pop_back();
     } else {
         auto gap_idx = ref->cell_;
-        auto& slots = (*extension_mem)->slots_;
+        auto& slots = extension_mem;
         slots[gap_idx].backlink_ = slots.back().backlink_;
         slots[gap_idx].backlink_->cell_ = gap_idx;
         memcpy(slots[gap_idx].mem_, slots.back().mem_, 32);
         slots.pop_back();
+        extension_mem.shrink_to_fit();
     }
 }
 

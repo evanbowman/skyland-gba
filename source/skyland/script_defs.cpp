@@ -1725,6 +1725,53 @@ BINDING_TABLE({
 
           return lisp::make_integer(id);
       }}},
+    {"mem-log-diagnostics",
+     {SIG0(nil),
+      [](int argc) {
+          info("__MEMORY_DIAGNOSTICS______");
+          scratch_buffer_memory_diagnostics();
+          info(format("extension mem: used %", extension_stats().used));
+
+          info("pool diagnostics:");
+          info("        name        |   size  |  total  |  used");
+          info("--------------------|---------|---------|--------");
+          auto pool = GenericPool::instances();
+          while (pool) {
+              StringBuffer<96> output;
+              output = pool->name();
+              auto name_len = strlen(pool->name());
+              if (name_len < 20) {
+                  output += StringBuffer<20>(' ', 20 - name_len);
+              }
+              output += "| ";
+              auto size_str = stringify(pool->pooled_element_size());
+              if (size_str.length() < 7) {
+                  output += StringBuffer<7>(' ', 7 - size_str.length());
+              }
+              output += size_str;
+              output += " | ";
+
+              auto elem_count_str = stringify(pool->pooled_element_count());
+              if (elem_count_str.length() < 7) {
+                  output += StringBuffer<7>(' ', 7 - elem_count_str.length());
+              }
+              output += elem_count_str;
+              output += " | ";
+
+              auto remaining_str = stringify(pool->pooled_element_count() -
+                                             pool->pooled_element_remaining());
+              if (remaining_str.length() < 7) {
+                  output += StringBuffer<7>(' ', 7 - remaining_str.length());
+              }
+              output += remaining_str;
+
+              info(output);
+
+
+              pool = pool->next();
+          }
+          return L_NIL;
+      }}},
     {"click",
      {SIG3(nil, wrapped, integer, integer),
       [](int argc) {

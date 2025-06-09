@@ -903,6 +903,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (mem-log-diagnostics)
+
+ Write memory diagnostics to
+ the system-log.
+
+
+o----------------------------o
+
  (mem-sbr-free)
 
  Return the number of memory

@@ -113,22 +113,24 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 
-#ifndef __TEST__
 void scratch_buffer_memory_diagnostics()
 {
-    auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
-        "sbr-annotation-buffer");
+    StringBuffer<96> output;
 
     int buffer_num = 0;
     int buffers_used = 0;
 
+    info("scratch buffer (sbr) diagnostics: ");
+    info("  # |  name");
+    info("----|----------------------------");
+
     for (auto& cell : scratch_buffer_pool.cells()) {
         if (not scratch_buffer_pool.is_freed(&cell)) {
-            *output += "@";
-            *output += stringify(buffer_num);
-            *output += ": ";
-            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
-            *output += "\r\n";
+            output = " ";
+            output += stringify(buffer_num);
+            output += " | ";
+            output += ((ScratchBuffer*)cell.mem_.data())->tag_;
+            info(output);
             ++buffers_used;
         }
         ++buffer_num;
@@ -136,16 +138,16 @@ void scratch_buffer_memory_diagnostics()
 
     const int free_sbr = scratch_buffer_count - buffers_used;
 
-    *output += format("used: % (%kb), free: % (%kb)\r\n",
-                      buffers_used,
-                      buffers_used * 2,
-                      free_sbr,
-                      free_sbr * 2)
-                   .c_str();
+    output = format("sbr used: % (%kb), free: % (%kb)",
+                    buffers_used,
+                    buffers_used * 2,
+                    free_sbr,
+                    free_sbr * 2)
+        .c_str();
 
-    PLATFORM.remote_console().printline(output->c_str(), "sc> ");
+    info(output);
 }
-#endif
+
 
 
 #ifndef __TEST__

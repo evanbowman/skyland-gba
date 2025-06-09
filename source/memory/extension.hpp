@@ -36,6 +36,17 @@ void extension_free(ExtensionRef* ref);
 
 
 
+struct ExtensionStats
+{
+    int used;
+};
+
+
+
+ExtensionStats extension_stats();
+
+
+
 template <typename T> struct ExtensionField
 {
 private:

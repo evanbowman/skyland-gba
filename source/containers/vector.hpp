@@ -359,7 +359,7 @@ public:
         }
 
         if (size == (int)Chunk::elems() and not current->header_.next_) {
-            auto sbr = make_zeroed_sbr("vector-segment");
+            auto sbr = make_zeroed_sbr(data_->tag_);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
@@ -387,6 +387,46 @@ public:
 
         --size_;
         (current->array() + (size - 1))->~T();
+    }
+
+
+    void shrink_to_fit()
+    {
+        if (size_ == 0) {
+            Chunk* first = (Chunk*)data_->data_;
+            if (first->header_.next_) {
+                ((Chunk*)(*first->header_.next_)->data_)->~Chunk();
+                first->header_.next_.reset();
+            }
+            end_cache_ = nullptr;
+            return;
+        }
+
+        // Find the last chunk that actually contains data
+        int elements_in_last_chunk = size_ % Chunk::elems();
+        if (elements_in_last_chunk == 0) {
+            elements_in_last_chunk = Chunk::elems();
+        }
+
+        int chunks_needed = (size_ + Chunk::elems() - 1) / Chunk::elems();
+
+        // Walk to the last chunk we need
+        Chunk* current = (Chunk*)data_->data_;
+        for (int i = 1; i < chunks_needed; ++i) {
+            if (current->header_.next_) {
+                current = (Chunk*)(*current->header_.next_)->data_;
+            } else {
+                end_cache_ = nullptr;
+                return;
+            }
+        }
+
+        if (current->header_.next_) {
+            ((Chunk*)(*current->header_.next_)->data_)->~Chunk();
+            current->header_.next_.reset();
+        }
+
+        end_cache_ = nullptr;
     }
 
 
