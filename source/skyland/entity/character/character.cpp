@@ -178,6 +178,13 @@ Character::Character(Island* parent,
 
 
 
+void Character::set_spr_flip(bool flipped)
+{
+    sprite_.set_flip({flipped, false});
+}
+
+
+
 void Character::unpin()
 {
     ai_automated_ = true;
@@ -280,9 +287,10 @@ void Character::rewind(Time delta)
                                        3); // floor is two pixels thick
 
         if (dest_grid_pos.x < grid_position_.x) {
+            set_spr_flip(false);
             sprite_.set_flip({false, false});
         } else if (dest_grid_pos.x > grid_position_.x) {
-            sprite_.set_flip({true, false});
+            set_spr_flip(true);
         }
 
         timer_ -= delta;

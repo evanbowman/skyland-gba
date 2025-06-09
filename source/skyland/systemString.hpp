@@ -787,6 +787,7 @@ enum class SystemString {
     sel_menu_select_all,
     sel_menu_crewmember_stats,
     sel_menu_drone_stats,
+    sel_menu_eight_bells,
 
     drone_info_heading,
     drone_info_notes,

@@ -65,7 +65,6 @@ ScenePtr IntroCreditsScene::update(Time delta)
     timer_ += delta;
 
     if (wait_) {
-        flower_effect_timer_ += delta;
         if (timer_ > milliseconds(500)) {
             wait_ = false;
             timer_ = 0;
@@ -79,7 +78,6 @@ ScenePtr IntroCreditsScene::update(Time delta)
                           OverlayCoord{margin, (u8)(st.y / 2 - 3)});
         }
     } else if (text_) {
-        flower_effect_timer_ += delta;
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
             auto amount =
                 smoothstep(milliseconds(500), milliseconds(2000), timer_);

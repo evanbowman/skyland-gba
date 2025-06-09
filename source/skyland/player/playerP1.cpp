@@ -535,4 +535,11 @@ void PlayerP1::delay_autofire(Time duration)
 
 
 
+void PlayerP1::delay_crew_automation(Time duration)
+{
+    ai_state_->next_action_timer_ = duration;
+}
+
+
+
 } // namespace skyland

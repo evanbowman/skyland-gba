@@ -50,6 +50,9 @@ public:
               bool is_replicant);
 
 
+    void set_spr_flip(bool flipped);
+
+
     void finalize();
 
 

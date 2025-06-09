@@ -42,11 +42,10 @@ public:
 
 
 private:
-    bool wait_ = true;
     Optional<Text> text_;
     Optional<Text> copyright_text_;
     Time timer_ = 0;
-    Time flower_effect_timer_ = 0;
+    Time bell_chime_timer_ = 0;
 
     Time bird_anim_timer_ = 0;
     Time bird_seq_timer_ = 0;
@@ -54,6 +53,8 @@ private:
     Time bird_seq_timer3_ = 0;
     u8 bird_anim_ = 1;
     bool skip_ = false;
+    bool wait_ = true;
+    u8 bell_chime_cnt_ = 0;
 };
 
 

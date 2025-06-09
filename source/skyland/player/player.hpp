@@ -205,6 +205,11 @@ public:
     }
 
 
+    virtual void delay_crew_automation(Time duration)
+    {
+    }
+
+
     int rooms_lost_ = 0;
     int rooms_built_ = 0;
 };

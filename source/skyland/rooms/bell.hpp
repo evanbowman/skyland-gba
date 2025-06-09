@@ -36,6 +36,8 @@ public:
 
     void update(Time delta) override
     {
+        Room::update(delta);
+
         if (chime_count_) {
             Room::ready();
             timer_ += delta;
@@ -43,6 +45,29 @@ public:
                 timer_ -= chime_spacing_;
                 --chime_count_;
                 ring();
+                if (chime_repeat_) {
+                    repeat_on_ = true;
+                    reps_completed_ = 0;
+                    repeat_timer_ = 0;
+                }
+            }
+        }
+
+        if (repeat_on_) {
+            Room::ready();
+
+            const auto repeat_interval = milliseconds(350);
+
+            repeat_timer_ += delta;
+            if (repeat_timer_ >= repeat_interval) {
+                repeat_timer_ -= repeat_interval;
+
+                ring();
+                ++reps_completed_;
+
+                if (reps_completed_ == chime_repeat_) {
+                    repeat_on_ = false;
+                }
             }
         }
     }
@@ -122,18 +147,27 @@ public:
     }
 
 
-    void schedule_chimes(Time chime_spacing, u8 chime_count)
+    void schedule_chimes(Time chime_spacing, u8 chime_count, u8 chime_repeat)
     {
         chime_count_ = chime_count;
         chime_spacing_ = chime_spacing;
+        chime_repeat_ = chime_repeat;
+        repeat_on_ = false;
+        reps_completed_ = 0;
         Room::ready();
     }
 
 
 private:
     Time timer_ = 0;
+    Time repeat_timer_ = 0;
+
     Time chime_spacing_ = 0;
     u8 chime_count_ = 0;
+
+    bool repeat_on_ = false;
+    u8 reps_completed_ = 0;
+    u8 chime_repeat_ = 0;
 };
 
 
