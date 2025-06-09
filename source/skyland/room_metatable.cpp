@@ -24,6 +24,7 @@
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/beamGun.hpp"
+#include "skyland/rooms/bell.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -291,7 +292,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<12,
+using RoomMetatableType = RoomMetatable<11,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -362,6 +363,7 @@ using RoomMetatableType = RoomMetatable<12,
                                         Amplifier,
                                         PhaseShifter,
                                         // decoration
+                                        Bell,
                                         Speaker,
                                         Synth,
                                         Statue,

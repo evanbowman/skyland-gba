@@ -68,6 +68,7 @@ enum class SystemString {
     block_basalt_brick,
     block_basalt_carved,
     block_beam_gun,
+    block_bell,
     block_big_hull,
     block_war_engine,
     block_bridge,
@@ -425,6 +426,7 @@ enum class SystemString {
     description_flimsy_cannon,
     description_phase_shifter,
     description_ballista,
+    description_bell,
 
     gs_paused,
     gs_slow,

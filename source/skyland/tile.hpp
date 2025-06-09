@@ -337,6 +337,7 @@ struct Tile
         phase_shifter_3_charging,
         ballista_1,
         ballista_2,
+        bell,
         count
     };
 };
@@ -656,6 +657,7 @@ struct InteriorTile
         phase_shifter_3_charging,
         ballista_1,
         ballista_2,
+        bell,
         count
     };
 };

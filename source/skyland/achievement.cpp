@@ -72,7 +72,7 @@ static const AchievementInfo info[Achievement::count] = {
 
     {SystemString::achievement_explorer_name,
      SystemString::achievement_explorer_description,
-     "coconut-palm",
+     "bell",
      []() { return APP.zone() > 1; },
      [](bool awarded) {
          set_enabled(metaclass_index(info[explorer].reward_), awarded);
