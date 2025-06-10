@@ -478,8 +478,8 @@ void SelectMenuScene::enter(Scene& scene)
                                  }
                              }
                              auto interval = milliseconds(1300);
-                             b->schedule_chimes(interval, 4, 1);
-                             auto delay = interval * 4 + milliseconds(500);
+                             b->schedule_chimes(interval, 4, 1, milliseconds(500));
+                             auto delay = interval * 4;
                              APP.player().delay_crew_automation(delay);
 
 

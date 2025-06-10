@@ -39,6 +39,9 @@ public:
 
 
     void on_room_damaged(Room&) override;
+
+
+    void on_level_start() override;
 };
 
 

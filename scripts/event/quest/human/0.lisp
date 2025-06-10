@@ -14,6 +14,7 @@
    (bronze-hull 0 10)
    (hull 0 9)
    (statue 0 7)
+   (bell 2 9)
    (bronze-hull 0 14)
    (bronze-hull 0 12)
    (bronze-hull 0 13)

@@ -147,8 +147,9 @@ public:
     }
 
 
-    void schedule_chimes(Time chime_spacing, u8 chime_count, u8 chime_repeat)
+    void schedule_chimes(Time chime_spacing, u8 chime_count, u8 chime_repeat, Time start_delay)
     {
+        timer_ = chime_spacing - start_delay;
         chime_count_ = chime_count;
         chime_spacing_ = chime_spacing;
         chime_repeat_ = chime_repeat;
