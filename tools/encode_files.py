@@ -148,7 +148,7 @@ def encode_file(path, real_name, out):
         if extension(path) == 'lisp':
             src_contents = data.decode('utf-8')
             build_lisp_symtab(src_contents)
-            file_contents = minify_lisp(src_contents).encode('utf-8')
+            #file_contents = minify_lisp(src_contents).encode('utf-8')
 
         null_padding = 1
 

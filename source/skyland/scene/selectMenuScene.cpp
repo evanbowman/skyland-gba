@@ -23,6 +23,7 @@
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "setGamespeedScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/rooms/bell.hpp"
 #include "skyland/scene/adjustPowerScene.hpp"
@@ -30,7 +31,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 
@@ -453,70 +453,71 @@ void SelectMenuScene::enter(Scene& scene)
                                  });
                     }
                 }
-            } else if (is_player_island(isle) and room and
-                       room->cast<Bell>()) {
-                add_line(SystemString::sel_menu_eight_bells,
-                         "",
-                         true,
-                         [this, c = cursor]() {
-                             auto room = island()->get_room(c);
-                             if (not room) {
-                                 return null_scene();
-                             }
+            } else if (is_player_island(isle) and room and room->cast<Bell>()) {
+                add_line(
+                    SystemString::sel_menu_eight_bells,
+                    "",
+                    true,
+                    [this, c = cursor]() {
+                        auto room = island()->get_room(c);
+                        if (not room) {
+                            return null_scene();
+                        }
 
-                             auto b = room->cast<Bell>();
-                             if (not b) {
-                                 return null_scene();
-                             }
+                        auto b = room->cast<Bell>();
+                        if (not b) {
+                            return null_scene();
+                        }
 
-                             const auto rx = room->position().x;
+                        const auto rx = room->position().x;
 
-                             for (auto& r : island()->rooms()) {
-                                 for (auto& c : r->characters()) {
-                                     c->set_spr_flip(c->grid_position().x < rx);
-                                     c->drop_movement_path();
-                                 }
-                             }
-                             auto interval = milliseconds(1300);
-                             b->schedule_chimes(interval, 4, 1, milliseconds(500));
-                             auto delay = interval * 4;
-                             APP.player().delay_crew_automation(delay);
+                        for (auto& r : island()->rooms()) {
+                            for (auto& c : r->characters()) {
+                                c->set_spr_flip(c->grid_position().x < rx);
+                                c->drop_movement_path();
+                            }
+                        }
+                        auto interval = milliseconds(1300);
+                        b->schedule_chimes(interval, 4, 1, milliseconds(500));
+                        auto delay = interval * 4;
+                        APP.player().delay_crew_automation(delay);
 
 
-                             APP.on_timeout(delay, [isle = island()] {
+                        APP.on_timeout(delay, [isle = island()] {
+                            Buffer<RoomCoord, 20> positions;
+                            for (auto& r : isle->rooms()) {
+                                for (auto& c : r->characters()) {
+                                    positions.push_back(c->grid_position());
+                                }
+                            }
 
-                                 Buffer<RoomCoord, 20> positions;
-                                 for (auto& r : isle->rooms()) {
-                                     for (auto& c : r->characters()) {
-                                         positions.push_back(c->grid_position());
-                                     }
-                                 }
+                            rng::shuffle(positions, rng::utility_state);
+                            for (auto& r : isle->rooms()) {
+                                for (auto& c : r->characters()) {
+                                    auto p1 = c->grid_position();
+                                    auto p2 = positions.back();
+                                    positions.pop_back();
 
-                                 rng::shuffle(positions, rng::utility_state);
-                                 for (auto& r : isle->rooms()) {
-                                     for (auto& c : r->characters()) {
-                                         auto p1 = c->grid_position();
-                                         auto p2 = positions.back();
-                                         positions.pop_back();
+                                    auto path =
+                                        find_path(isle, c.get(), p1, p2);
+                                    if (path and *path) {
+                                        c->set_movement_path(std::move(*path));
+                                        c->pin();
 
-                                         auto path = find_path(isle, c.get(), p1, p2);
-                                         if (path and *path) {
-                                             c->set_movement_path(std::move(*path));
-                                             c->pin();
+                                        network::packet::ChrSetTargetV2 packet;
+                                        packet.target_x_ = p2.x;
+                                        packet.target_y_ = p2.y;
+                                        packet.chr_id_.set(c->id());
+                                        packet.near_island_ =
+                                            isle not_eq &APP.player_island();
+                                        network::transmit(packet);
+                                    }
+                                }
+                            }
+                        });
 
-                                             network::packet::ChrSetTargetV2 packet;
-                                             packet.target_x_ = p2.x;
-                                             packet.target_y_ = p2.y;
-                                             packet.chr_id_.set(c->id());
-                                             packet.near_island_ = isle not_eq &APP.player_island();
-                                             network::transmit(packet);
-                                         }
-                                     }
-                                 }
-                             });
-
-                             return null_scene();
-                         });
+                        return null_scene();
+                    });
 
             } else if (drone) {
                 if (not PLATFORM.network_peer().is_connected()) {

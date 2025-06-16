@@ -36,6 +36,12 @@ public:
     enum class FileSystem : u8 { sram, rom, device };
 
 
+    ScenePtr save();
+
+
+    void copy_selected(Vector<char>& output);
+    void paste(Vector<char>& contents);
+
 
     enum class SyntaxMode : u8 {
         lisp,
@@ -44,6 +50,16 @@ public:
         python,
     };
 
+
+    static StringBuffer<32> extract_filename(const char* path);
+
+    StringBuffer<64> file_path();
+
+
+    void deselect();
+
+
+    void shade_cursor();
 
 
     TextEditorModule(UserContext&& context,
@@ -97,7 +113,17 @@ public:
     void handle_char(Vector<char>::Iterator data, char c, ParserState& ps);
 
 
-private:
+    void repaint();
+
+
+    u8 cursor_y_offset() const;
+
+
+    int y_max() const;
+
+
+    bool gui_mode_ = false;
+
     enum class Mode {
         nav,
         edit,
@@ -105,6 +131,13 @@ private:
     } mode_ = Mode::nav;
 
 
+    FileSystem which_fs() const;
+
+
+    bool has_text();
+
+
+private:
     void render(int start_line);
     void render_keyboard();
     void render_completions();

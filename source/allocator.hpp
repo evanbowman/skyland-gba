@@ -60,29 +60,20 @@ template <typename T> struct DynamicMemory
     template <typename U> DynamicMemory& operator=(DynamicMemory<U>&& rebind)
     {
         memory_ = rebind.memory_;
-        obj_ = {rebind.obj_.release(), [](T* val) {
-                    if (val) {
-                        if constexpr (not std::is_trivial<T>()) {
-                            val->~T();
-                        }
-                    }
-                }};
+        // Preserve the original deleter instead of creating a new one
+        obj_ = {static_cast<T*>(rebind.obj_.release()),
+                reinterpret_cast<void (*)(T*)>(rebind.obj_.get_deleter())};
         return *this;
     }
-
 
     template <typename U>
     DynamicMemory(DynamicMemory<U>&& rebind)
         : memory_(rebind.memory_),
-          obj_(UniquePtr<T, void (*)(T*)>(rebind.obj_.release(), [](T* val) {
-              if (val) {
-                  if constexpr (not std::is_trivial<T>()) {
-                      val->~T();
-                  }
-              }
-          }))
+          obj_(static_cast<T*>(rebind.obj_.release()),
+               reinterpret_cast<void (*)(T*)>(rebind.obj_.get_deleter()))
     {
     }
+
 
     T& operator*() const
     {

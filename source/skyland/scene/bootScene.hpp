@@ -22,6 +22,7 @@
 #include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/scene/desktopOS.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
 
@@ -33,7 +34,6 @@ namespace skyland
 
 
 static constexpr const char* lang_file = "/lang.txt";
-
 
 
 void init_clouds();
@@ -247,6 +247,10 @@ public:
             " Cartridge Operating System ",
         };
 
+        Text::print("(hold select for boot menu)",
+                    {1, 8},
+                    FontColors{custom_color(0xd9b059), back_color});
+
         int i = 0;
         for (auto& l : lines) {
             Text::print(l, {0, u8(1 + i)}, fc);
@@ -285,6 +289,12 @@ public:
         auto fc = FontColors{amber_color, back_color};
 
         if (state_bit_load(StateBit::verbose_boot)) {
+
+            for (int x = 0; x < 30; ++x) {
+                // Clean boot select hint
+                PLATFORM.set_tile(Layer::overlay, x, 8, 0);
+            }
+
             Text::print(format("Mem: [%/%]",
                                scratch_buffers_in_use() * 2,
                                scratch_buffer_count * 2)
@@ -363,6 +373,77 @@ public:
             auto col = ColorProfileModule::load_current_profile();
             if (col.length()) {
                 cm(col.c_str());
+            }
+        }
+
+        PLATFORM.keyboard().poll();
+
+        if (PLATFORM.keyboard().pressed<Key::select>()) {
+            auto fc = FontColors{amber_color, back_color};
+            auto fc_inv = FontColors{back_color, amber_color};
+
+            int opt = 0;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 7; y < 20; ++y) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            Text::print("Select Boot Mode:", {2, 8}, fc);
+            Text::print(" .__________________________.", {0, 17}, fc);
+
+            auto redraw = [&] {
+                Text::print(
+                    "- Enter Skyland  ", {3, 10}, opt == 0 ? fc_inv : fc);
+                Text::print(
+                    "- Nimbus GUI     ", {3, 12}, opt == 1 ? fc_inv : fc);
+            };
+
+            redraw();
+
+            Time autoboot_timer = seconds(15);
+            bool any_button_pressed = false;
+
+            while (true) {
+                PLATFORM.screen().clear();
+                PLATFORM.keyboard().poll();
+                PLATFORM.screen().display();
+
+                if (key_down<Key::up>() or key_down<Key::down>()) {
+                    opt = not opt;
+                    redraw();
+                    PLATFORM.speaker().play_sound("cursor_tick", 0);
+                    any_button_pressed = true;
+                }
+
+                if (not any_button_pressed) {
+                    autoboot_timer -= PLATFORM.delta_clock().reset();
+                    Text::print(format("autoboot in % seconds...",
+                                       autoboot_timer / seconds(1))
+                                    .c_str(),
+                                {2, 16},
+                                fc);
+                } else {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, 16, 0);
+                    }
+                }
+
+
+                if ((not any_button_pressed and autoboot_timer <= 0) or
+                    key_down<Key::action_1>()) {
+                    if (opt == 1) {
+                        PLATFORM.fill_overlay(0);
+                        PLATFORM.screen().schedule_fade(1.f);
+                        PLATFORM.screen().clear();
+                        PLATFORM.screen().display();
+                        PLATFORM.sleep(10);
+                        return boot_desktop_os();
+                    } else {
+                        break;
+                    }
+                }
+
+                PLATFORM_EXTENSION(feed_watchdog);
             }
         }
 

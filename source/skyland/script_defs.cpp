@@ -50,6 +50,7 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
+#include "skyland/scene/desktopOS.hpp"
 
 
 
@@ -119,6 +120,10 @@ DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line)
 
     return result;
 }
+
+
+
+void restore_overworld_textures();
 
 
 
@@ -401,6 +406,25 @@ BINDING_TABLE({
 
           s.set_block({x, y, z}, type);
 
+          return L_NIL;
+      }}},
+    {"load-nimbus",
+     {SIG0(nil),
+      [](int argc) {
+          push_menu_queue.emplace_back([] {
+              return boot_desktop_os([] {
+                  restore_overworld_textures();
+                  if (APP.opponent_island()) {
+                      show_island(APP.opponent_island());
+                  }
+                  PLATFORM.load_sprite_texture("spritesheet");
+                  PLATFORM.load_overlay_texture("overlay");
+                  PLATFORM.set_overlay_origin(0, 0);
+                  PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
+                                                  0);
+                  return make_scene<LispReplScene>();
+              });
+          });
           return L_NIL;
       }}},
     {"help",

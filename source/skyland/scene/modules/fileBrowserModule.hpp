@@ -83,6 +83,36 @@ public:
 
     Optional<Function<8, void(const char*)>> on_select_;
 
+    bool gui_mode_ = false;
+
+    void repaint();
+
+    using CwdName = StringBuffer<30>;
+    using CwdNames = Vector<CwdName>;
+    CwdNames& get_cwd_names()
+    {
+        return **cwd_names_;
+    }
+
+    StringBuffer<200> cwd() const;
+
+
+    StringBuffer<200> select_entry(int opt, bool visit);
+
+
+    void backout();
+
+
+    void on_dir_changed();
+
+
+    enum SelectedFilesystem {
+        none,
+        sram,
+        rom,
+    } selected_filesystem_ = SelectedFilesystem::none;
+
+
 private:
     Buffer<Text, 15> lines_;
     Optional<Text> info_;
@@ -94,24 +124,12 @@ private:
 
     UserContext user_context_;
 
-
-    StringBuffer<200> cwd() const;
-
-    using CwdNames = Vector<StringBuffer<30>>;
     Optional<DynamicMemory<CwdNames>> cwd_names_;
-
-    enum SelectedFilesystem {
-        none,
-        sram,
-        rom,
-    } selected_filesystem_ = SelectedFilesystem::none;
 
     enum Mode {
         browse,
         options,
     } mode_ = Mode::browse;
-
-    void repaint();
 
     int scroll_index_ = 0;
 

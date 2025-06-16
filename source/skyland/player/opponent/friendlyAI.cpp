@@ -11,9 +11,9 @@
 
 #include "friendlyAI.hpp"
 #include "enemyAI.hpp"
+#include "skyland/rooms/bell.hpp"
 #include "skyland/scene/scriptHookScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/rooms/bell.hpp"
 
 
 

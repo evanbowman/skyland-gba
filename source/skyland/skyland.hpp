@@ -382,7 +382,10 @@ public:
     lisp::Value* invoke_ram_script(const char* ram_fs_path);
 
 
-    lisp::Value* invoke_script(const char* path, bool rom_fs_only = false);
+    lisp::Value* invoke_script(
+        const char* path,
+        bool rom_fs_only = false,
+        Optional<Function<16, void(lisp::Value& err)>> err_handler = nullopt());
 
 
     bool load_file(const char* path, Vector<char>& result);

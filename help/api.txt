@@ -882,6 +882,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (load-nimbus)
+
+ Load SKYLAND OS's nimbus gui
+ layer.
+
+
+o----------------------------o
+
  (lint-file path)
 
  Run a linter program on the

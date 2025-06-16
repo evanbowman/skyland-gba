@@ -350,6 +350,7 @@ ScenePtr DataCartModule::update(Time delta)
     case State::wait:
         timer_ += delta;
         if (timer_ > wait_time_) {
+            timer_ = 0;
             if (auto cart = carts_->load(cart_index_)) {
                 auto str = format("booting %...", cart->name().c_str());
                 auto tp = cart->expect_content_string("type");
@@ -363,7 +364,6 @@ ScenePtr DataCartModule::update(Time delta)
                 auto margin = centered_text_margins(utf8::len(str.c_str()));
                 Text::print(str.c_str(), {(u8)margin, 9});
             }
-            timer_ = 0;
             state_ = State::booting;
         }
         break;

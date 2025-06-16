@@ -201,6 +201,31 @@ private:
 
 
 
+void restore_overworld_textures()
+{
+    auto& isle = APP.player_island();
+    if (isle.interior_visible()) {
+        auto t = APP.environment().player_island_interior_texture();
+        PLATFORM.load_tile0_texture(t);
+    } else {
+        PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
+    }
+    if (isle.interior_visible()) {
+        show_island_interior(&APP.player_island());
+    } else {
+        show_island_exterior(&APP.player_island());
+    }
+    PLATFORM.set_scroll(isle.layer(),
+                        -isle.get_position().x.as_integer(),
+                        -isle.get_position().y.as_integer());
+
+    auto view = PLATFORM.screen().get_view();
+    view.set_center(APP.camera()->center());
+    PLATFORM.screen().set_view(view);
+}
+
+
+
 ScenePtr StartMenuScene::update(Time delta)
 {
     player().update(delta);
@@ -361,29 +386,7 @@ AGAIN:
                     auto next = make_scene<GlossaryViewerModule>();
                     next->disable_backdrop_ = true;
                     next->set_next_scene([]() {
-                        auto& isle = APP.player_island();
-                        if (isle.interior_visible()) {
-                            auto t = APP.environment()
-                                         .player_island_interior_texture();
-                            PLATFORM.load_tile0_texture(t);
-                        } else {
-                            PLATFORM.load_tile0_texture(
-                                APP.environment().player_island_texture());
-                        }
-                        if (isle.interior_visible()) {
-                            show_island_interior(&APP.player_island());
-                        } else {
-                            show_island_exterior(&APP.player_island());
-                        }
-                        PLATFORM.set_scroll(
-                            isle.layer(),
-                            -isle.get_position().x.as_integer(),
-                            -isle.get_position().y.as_integer());
-
-                        auto view = PLATFORM.screen().get_view();
-                        view.set_center(APP.camera()->center());
-                        PLATFORM.screen().set_view(view);
-
+                        restore_overworld_textures();
                         auto next = make_scene<StartMenuScene>(1);
                         return next;
                     });

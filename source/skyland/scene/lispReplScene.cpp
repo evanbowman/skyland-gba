@@ -31,7 +31,6 @@ LispReplScene::LispReplScene()
     : command_(allocate_dynamic<Command>("lisp-repl-command-buffer")),
       cpl_(allocate_dynamic<Completions>("lisp-repl-completion-buffer"))
 {
-    *command_ = "try: (help)";
 }
 
 
@@ -83,23 +82,38 @@ void LispReplScene::repaint_entry(bool show_cursor)
 {
     const auto screen_tiles = calc_screen_tiles();
 
-    const auto darker_clr = Text::OptColors{
+    auto darker_clr = Text::OptColors{
         {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
+
+    if (gui_mode_) {
+        darker_clr->foreground_ = custom_color(0x9595b9);
+        darker_clr->background_ = custom_color(0x00002e);
+    }
 
     entry_->assign(":", darker_clr);
 
-    for (int i = 1; i < 32; ++i) {
-        PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+    if (gui_mode_) {
+        for (int i = 1; i < 32; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 4, 97);
+        }
+    } else {
+        for (int i = 1; i < 32; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+        }
     }
 
-    auto colors = [this]() -> Text::OptColors {
+
+    auto colors = [this, darker_clr]() -> Text::OptColors {
         switch (display_mode_) {
         default:
         case DisplayMode::entry:
+            if (gui_mode_) {
+                return darker_clr;
+            }
             return std::nullopt;
 
         case DisplayMode::show_result:
-            return {{ColorConstant::med_blue_gray, ColorConstant::rich_black}};
+            return darker_clr;
         }
     }();
 
@@ -122,24 +136,41 @@ void LispReplScene::repaint_entry(bool show_cursor)
                        Text::OptColors{{ColorConstant::aerospace_orange,
                                         ColorConstant::rich_black}});
     } else {
-        entry_->append(command_->c_str() + scroll, colors);
+        StringBuffer<30> truncate = command_->c_str() + scroll;
+        entry_->append(truncate.c_str(), colors);
     }
 
     keyboard_.clear();
 
-    keyboard_top_.emplace(OverlayCoord{2, 2});
-    keyboard_bottom_.emplace(OverlayCoord{2, 10});
+    u8 k_top = 2;
+    u8 k_bot = 10;
+    u8 k_mid = 3;
+
+    if (gui_mode_) {
+        k_top = 4;
+        k_bot = 12;
+        k_mid = 5;
+    }
+
+    keyboard_top_.emplace(OverlayCoord{2, k_top});
+    keyboard_bottom_.emplace(OverlayCoord{2, k_bot});
 
     auto& kb = alt_ ? alt_keyboard : keyboard;
 
-    for (int x = 0; x < 6; ++x) {
-        keyboard_top_->append(kb[6][x], darker_clr);
-        keyboard_bottom_->append(kb[0][x], darker_clr);
+    if (not gui_mode_) {
+        for (int x = 0; x < 6; ++x) {
+            keyboard_top_->append(kb[6][x], darker_clr);
+            keyboard_bottom_->append(kb[0][x], darker_clr);
+        }
     }
 
     for (int i = 0; i < 7; ++i) {
-        keyboard_.emplace_back(OverlayCoord{1, u8(3 + i)});
-        keyboard_.back().append(kb[i][5], darker_clr);
+        keyboard_.emplace_back(OverlayCoord{1, u8(k_mid + i)});
+        if (not gui_mode_) {
+            keyboard_.back().append(kb[i][5], darker_clr);
+        } else {
+            keyboard_.back().append(" ", darker_clr);
+        }
 
         for (int j = 0; j < 6; ++j) {
             if (show_cursor and j == keyboard_cursor_.x and
@@ -149,47 +180,70 @@ void LispReplScene::repaint_entry(bool show_cursor)
                                      ColorConstant::aerospace_orange}};
                 keyboard_.back().append(kb[i][j], colors);
             } else {
-                keyboard_.back().append(kb[i][j]);
+                if (gui_mode_) {
+                    keyboard_.back().append(kb[i][j], darker_clr);
+                } else {
+                    keyboard_.back().append(kb[i][j]);
+                }
             }
         }
-        keyboard_.back().append(kb[i][0], darker_clr);
+        if (not gui_mode_) {
+            keyboard_.back().append(kb[i][0], darker_clr);
+        }
     }
 }
 
 
 void LispReplScene::enter(Scene& prev)
 {
+    if (not gui_mode_) {
+        *command_ = "try: (help)";
+    }
+
     enable_text_icon_glyphs(false);
 
-    PLATFORM.fill_overlay(0);
-
-    Text::print("A: enter text", {11, 3});
-    Text::print("B: backspace", {11, 4});
-    Text::print("R: shift", {11, 6});
-    Text::print("L: autocomplete", {11, 5});
-    Text::print("START: submit", {11, 7});
-    Text::print("SELECT: history", {11, 8});
+    if (not gui_mode_) {
+        PLATFORM.fill_overlay(0);
+        Text::print("A: enter text", {11, 3});
+        Text::print("B: backspace", {11, 4});
+        Text::print("R: shift", {11, 6});
+        Text::print("L: autocomplete", {11, 5});
+        Text::print("START: submit", {11, 7});
+        Text::print("SELECT: history", {11, 8});
+    }
 
     keyboard_cursor_ = {2, 4}; // For convenience, place cursor at left paren
 
     const auto screen_tiles = calc_screen_tiles();
 
-    entry_.emplace(OverlayCoord{0, u8(screen_tiles.y - 1)});
+    u8 offset = 1;
+    if (gui_mode_) {
+        offset = 4;
+    }
+    entry_.emplace(OverlayCoord{0, u8(screen_tiles.y - offset)});
 
     const char* version_text = "Skyland LISP v05";
-
-    for (int i = 0; i < 31; ++i) {
-        PLATFORM.set_tile(Layer::overlay, i, 0, 112);
-    }
-
     const auto vrsn_coord =
         OverlayCoord{u8((screen_tiles.x - 2) - strlen(version_text)), 0};
 
     version_text_.emplace(vrsn_coord);
 
-    version_text_->assign(version_text);
+    if (not gui_mode_) {
+
+        for (int i = 0; i < 31; ++i) {
+            PLATFORM.set_tile(Layer::overlay, i, 0, 112);
+        }
+
+        version_text_->assign(version_text);
+    }
 
     repaint_entry();
+}
+
+
+void LispReplScene::repaint(bool focused)
+{
+    repaint_entry(focused);
 }
 
 
@@ -232,8 +286,13 @@ void LispReplScene::repaint_completions()
 {
     cpl_->completions_.clear();
 
+    u32 throttle = 9999;
+    if (gui_mode_) {
+        throttle = 10;
+    }
+
     for (u32 i = 0; i < cpl_->completion_strs_.size() and
-                    i < cpl_->completions_.capacity();
+                    i < cpl_->completions_.capacity() and i < throttle;
          ++i) {
         Text::OptColors opts;
         if (i == cpl_->completion_cursor_) {
@@ -241,7 +300,12 @@ void LispReplScene::repaint_completions()
                 {ColorConstant::rich_black, ColorConstant::aerospace_orange}};
         }
 
-        cpl_->completions_.emplace_back(OverlayCoord{10, u8(2 + i)});
+        u8 offset = 2;
+        if (gui_mode_) {
+            offset = 4;
+        }
+
+        cpl_->completions_.emplace_back(OverlayCoord{10, u8(offset + i)});
 
         const auto str = cpl_->completion_strs_[i];
         int j;
@@ -250,12 +314,17 @@ void LispReplScene::repaint_completions()
 
         for (j = 0; j < cpl_->completion_prefix_len_; ++j) {
             tempstr[0] = str[j];
+
+            auto shade_opts = Text::OptColors{
+                {custom_color(0x766df7), ColorConstant::rich_black}};
+
+            if (gui_mode_) {
+                shade_opts->background_ = custom_color(0xbfccde);
+            }
+
+
             cpl_->completions_.back().append(
-                tempstr,
-                i == cpl_->completion_cursor_
-                    ? opts
-                    : Text::OptColors{
-                          {custom_color(0x766df7), ColorConstant::rich_black}});
+                tempstr, i == cpl_->completion_cursor_ ? opts : shade_opts);
         }
 
         const int len = strlen(str);
@@ -281,20 +350,30 @@ void LispReplScene::repaint_completions()
 }
 
 
+
+bool LispReplScene::entry_empty() const
+{
+    return command_->empty();
+}
+
+
+
 ScenePtr LispReplScene::update(Time delta)
 {
 TOP:
-    constexpr auto fade_duration = milliseconds(500);
-    if (timer_ < fade_duration) {
-        if (timer_ + delta > fade_duration) {
-            PLATFORM.screen().fade(0.34f);
-        }
-        timer_ += delta;
-
-        const auto amount = 0.34f * smoothstep(0.f, fade_duration, timer_);
-
+    if (not gui_mode_) {
+        constexpr auto fade_duration = milliseconds(500);
         if (timer_ < fade_duration) {
-            PLATFORM.screen().fade(amount);
+            if (timer_ + delta > fade_duration) {
+                PLATFORM.screen().fade(0.34f);
+            }
+            timer_ += delta;
+
+            const auto amount = 0.34f * smoothstep(0.f, fade_duration, timer_);
+
+            if (timer_ < fade_duration) {
+                PLATFORM.screen().fade(amount);
+            }
         }
     }
 
@@ -324,6 +403,9 @@ TOP:
             repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
+            if (gui_mode_) {
+                clobbered_tiles_ = true;
+            }
             display_mode_ = DisplayMode::entry;
         } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
             *command_ += (cpl_->completion_strs_[cpl_->completion_cursor_] +
@@ -331,6 +413,9 @@ TOP:
             repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
+            if (gui_mode_) {
+                clobbered_tiles_ = true;
+            }
             PLATFORM.speaker().play_sound("typewriter", 2);
             display_mode_ = DisplayMode::entry;
         }
@@ -398,9 +483,11 @@ TOP:
                     lisp::apropos(ident.c_str(), cpl_->completion_strs_);
 
                     if (cpl_->completion_strs_.size() not_eq 0) {
-                        for (int x = 11; x < 30; ++x) {
-                            for (int y = 3; y < 27; ++y) {
-                                PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                        if (not gui_mode_) {
+                            for (int x = 11; x < 30; ++x) {
+                                for (int y = 3; y < 27; ++y) {
+                                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                                }
                             }
                         }
                         display_mode_ = DisplayMode::completion_list;
@@ -537,6 +624,20 @@ TOP:
         break;
     }
     return null_scene();
+}
+
+
+
+void LispReplScene::inject_command(const char* str)
+{
+    command_->clear();
+    display_mode_ = DisplayMode::entry;
+    while (*str not_eq '\0') {
+        command_->push_back(*(str++));
+        reset_history_index();
+    }
+    repaint_entry();
+    PLATFORM.speaker().play_sound("typewriter", 2);
 }
 
 
