@@ -19,10 +19,10 @@
 #include "script/lisp.hpp"
 #include "skyland/latency.hpp"
 #include "skyland/player/coOpTeam.hpp"
+#include "skyland/scene/desktopOS.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/scene/desktopOS.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
 

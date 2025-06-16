@@ -364,6 +364,11 @@ public:
 
         void on_click() override
         {
+            if (icon_gfx_ == 29) {
+                g_os_->boot_rom();
+                return;
+            }
+
             switch (state_) {
             case State::closed:
                 state_ = State::opening;
@@ -587,6 +592,74 @@ public:
 
 
 
+    class SystemMonitorWindow : public Window
+    {
+    public:
+        SystemMonitorWindow(DockIcon* application) : Window(application)
+        {
+        }
+
+
+        enum class View : u8 {
+            main_page,
+        } view_ = View::main_page;
+
+
+        void repaint() override
+        {
+            Window::repaint();
+            int sbr_used = scratch_buffers_in_use();
+            int sbr_total =
+                scratch_buffers_in_use() + scratch_buffers_remaining();
+            Text::print(format("SBR:[%/%]", sbr_used, sbr_total).c_str(),
+                        {1, 5});
+            auto lisp_mem = lisp::value_pool_info();
+            Text::print(format("lisp:[%/%]",
+                               lisp_mem.first,
+                               lisp_mem.first + lisp_mem.second)
+                            .c_str(),
+                        {1, 7});
+            int ent_used = 0;
+            int ent_total = 0;
+            for (auto& pl : globals().entity_pools_.pools()) {
+                ent_used += pl->pooled_element_count() - pl->pooled_element_remaining();
+                ent_total += pl->pooled_element_count();
+            }
+            Text::print(format("entity:[%/%]", ent_used, ent_total).c_str(),
+                        {13, 5});
+
+            auto stat = flash_filesystem::statistics();
+            Text::print(format("disk:[%/%]", stat.bytes_used_ / 1024,
+                       (stat.bytes_used_ + stat.bytes_available_) / 1024).c_str(), {1, 9});
+
+            u32 mstack = 0;
+            if (auto s = PLATFORM.get_extensions().get_stack_usage) {
+                mstack = s();
+            }
+
+            Text::print(format("stk: [%]", mstack).c_str(), {14, 9});
+
+        }
+
+
+        void build_menu_bar_opts() override
+        {
+            if (auto file_menu = g_os_->insert_dropdown_menu("File")) {
+                file_menu->add_option("close", [] {
+                    if (auto win = g_os_->get_window("System Monitor")) {
+                        win->close();
+                    }
+                });
+            }
+
+            if (auto view_menu = g_os_->insert_dropdown_menu("View")) {
+                (void)view_menu;
+            }
+        }
+    };
+
+
+
     class SeekerWindow : public Window
     {
     public:
@@ -629,7 +702,7 @@ public:
             base += ": ";
             if (impl_->selected_filesystem_ ==
                 FileBrowserModule::SelectedFilesystem::none) {
-                base += "mount disk";
+                base += "mount drive";
             } else {
                 base += impl_->cwd().c_str();
             }
@@ -1099,7 +1172,6 @@ public:
             : Window(application), capture_(this)
         {
             open_file("/scratch.txt", false);
-
         }
 
 
@@ -1503,15 +1575,33 @@ public:
     }
 
 
-    DesktopOS(Optional<DeferredScene> resume) : mem_(allocate_dynamic<Mem>("desktop-gui"))
+    DesktopOS(Optional<DeferredScene> resume)
+        : mem_(allocate_dynamic<Mem>("desktop-gui"))
     {
         mem_->resume_ = resume;
         g_os_ = this;
     }
 
 
+    void exit(Scene&) override
+    {
+        mem_->clickables_.clear();
+        mem_->dock_icons_.clear();
+        mem_->windows_.clear();
+        mem_->menu_bar_opts_.clear();
+        PLATFORM.screen().set_shader(APP.environment().shader());
+    }
+
+
     void enter(Scene&) override
     {
+        PLATFORM.screen().set_shader(passthrough_shader);
+
+        PLATFORM.screen().schedule_fade(
+            1.f, ColorConstant::rich_black, true, true);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+
         PLATFORM.load_sprite_texture("spritesheet_os");
 
         PLATFORM.speaker().stop_music();
@@ -1561,16 +1651,15 @@ public:
         icon_pos.x += spacing + 1.0_fixed;
         mem_->dock_icons_.emplace_back("Lisp", 17, icon_pos);
         icon_pos.x += spacing;
-        mem_->dock_icons_.emplace_back("mGBA", 19, icon_pos);
+        if (mem_->resume_) {
+            mem_->dock_icons_.emplace_back("Skyland", 29, icon_pos);
+        } else {
+            mem_->dock_icons_.emplace_back("mGBA", 19, icon_pos);
+        }
+        icon_pos.x += spacing;
+        mem_->dock_icons_.emplace_back("System Monitor", 14, icon_pos);
         icon_pos.x += spacing;
         mem_->dock_icons_.emplace_back("...", 14, icon_pos);
-        icon_pos.x += spacing;
-        mem_->dock_icons_.emplace_back("...", 14, icon_pos);
-    }
-
-
-    void exit(Scene&) override
-    {
     }
 
 
@@ -1588,6 +1677,17 @@ public:
     ScenePtr update(Time delta) override
     {
         player().update(delta);
+
+        constexpr auto fade_duration = milliseconds(1200);
+        if (mem_->fade_timer_ < fade_duration) {
+            mem_->fade_timer_ += delta;
+            const auto amount =
+                1.f - smoothstep(0.f, fade_duration, mem_->fade_timer_);
+            PLATFORM.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
+        } else {
+            PLATFORM.screen().schedule_fade(0);
+        }
 
         if (mem_->resume_flag_ and mem_->resume_) {
             return (*mem_->resume_)();
@@ -1836,6 +1936,9 @@ public:
         } else if (str_eq(application->name(), "Lisp")) {
             mem_->windows_.push_back(
                 allocate_dynamic<LispWindow>("os-window", application));
+        } else if (str_eq(application->name(), "System Monitor")) {
+            mem_->windows_.push_back(allocate_dynamic<SystemMonitorWindow>(
+                "os-window", application));
         } else {
             mem_->windows_.push_back(
                 allocate_dynamic<Window>("os-window", application));
@@ -1912,6 +2015,7 @@ private:
         Buffer<Clickable*, 40> clickables_;
         Buffer<DropdownMenu, 4> menu_bar_opts_;
         Optional<DeferredScene> resume_;
+        Time fade_timer_ = 0;
         bool resume_flag_ = false;
 
         Mem()

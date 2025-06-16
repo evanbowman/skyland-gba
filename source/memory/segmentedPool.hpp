@@ -108,8 +108,12 @@ public:
         return true;
     }
 
-
+    using PoolsBuffer = Buffer<DynamicMemory<Pool>, pool_count>;
+    PoolsBuffer& pools()
+    {
+        return pools_;
+    }
 
 private:
-    Buffer<DynamicMemory<Pool>, pool_count> pools_;
+    PoolsBuffer pools_;
 };

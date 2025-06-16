@@ -43,6 +43,7 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/lightningStrike.hpp"
 #include "skyland/rooms/weapon.hpp"
+#include "skyland/scene/desktopOS.hpp"
 #include "skyland/scene/itemShopScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
@@ -50,7 +51,6 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
-#include "skyland/scene/desktopOS.hpp"
 
 
 
@@ -408,7 +408,7 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
-    {"load-nimbus",
+    {"nimbus",
      {SIG0(nil),
       [](int argc) {
           push_menu_queue.emplace_back([] {
@@ -417,11 +417,14 @@ BINDING_TABLE({
                   if (APP.opponent_island()) {
                       show_island(APP.opponent_island());
                   }
+                  PLATFORM_EXTENSION(force_vsync);
+                  PLATFORM.screen().fade(
+                      1, ColorConstant::rich_black, {}, true, true);
                   PLATFORM.load_sprite_texture("spritesheet");
                   PLATFORM.load_overlay_texture("overlay");
                   PLATFORM.set_overlay_origin(0, 0);
-                  PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
-                                                  0);
+                  PLATFORM.speaker().stream_music(
+                      APP.environment().music()->c_str(), 0);
                   return make_scene<LispReplScene>();
               });
           });

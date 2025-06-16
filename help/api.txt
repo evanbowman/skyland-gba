@@ -882,14 +882,6 @@ o----------------------------o
 
 o----------------------------o
 
- (load-nimbus)
-
- Load SKYLAND OS's nimbus gui
- layer.
-
-
-o----------------------------o
-
  (lint-file path)
 
  Run a linter program on the
@@ -947,6 +939,14 @@ o----------------------------o
  (mem-pool-info pool-num)
 
  Info about a memory pool.
+
+
+o----------------------------o
+
+ (nimbus)
+
+ Load SKYLAND OS's nimbus gui
+ layer.
 
 
 o----------------------------o
