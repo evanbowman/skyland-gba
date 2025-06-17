@@ -352,6 +352,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (terrain-add-left island)
+
+ Add terrain to the lefthand-
+ side of an island, pushing
+ all blocks on the island
+ rightwards by one x
+ coordinate.
+
+
+o----------------------------o
+
  (terrain-set island size)
 
  Set island terrain size.
