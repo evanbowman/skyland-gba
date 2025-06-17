@@ -14,7 +14,7 @@
 
 
 (defn on-converge ()
-  (dialog "<c:spotter:36> Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting grounds!")
+  (dialog "<c:spotter:45> Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting grounds!")
 
   (setq on-dialog-closed
         (lambda ()
@@ -22,13 +22,15 @@
 
           (dialog-await-binary-q-w/lore "welcome aboard!" "sorry, but no"
                                         '(("let's chat…" .
-                                           "<c:spotter:36> When rich islandsss pass overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")))
+                                           "<c:spotter:45> When rich islandsss pass overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
+                                          ("explain your goggles?" .
+                                           "<c:spotter:45> Ohhh! These ssspecial goggles are necesssary! <B:0> It's so bright when staring out at the cloudsss, without this visor, I'd go ssun-blind! <B:0> Anyway, I've got lotsss of experience, need a sspotter?")))
 
           (setq on-dialog-closed '())))
   (setq on-converge nil))
 
 
-(chr-new (opponent) 1 14 'neutral '((icon . 36) (race . 1)))
+(chr-new (opponent) 1 14 'neutral '((icon . 45) (race . 1)))
 
 
 (defn on-dialog-accepted ()
@@ -39,7 +41,7 @@
     (if temp
         (progn
           (setq temp (get temp (choice (length temp))))
-          (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 36) (race . 1)))
+          (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 45) (race . 1)))
           (chr-del (opponent) 1 14)
           (if (or (chance 2) (< (coins) 600))
               (join "The spotter joined your crew!")
@@ -49,7 +51,7 @@
         (progn
           (dialog "Sadly, there's no room...")
           (defn on-dialog-closed ()
-            (dialog "<c:spotter:36> No room in your castle? Hold on, I've got some supplies, I'll help out...")
+            (dialog "<c:spotter:45> No room in your castle? Hold on, I've got some supplies, I'll help out...")
             (defn on-dialog-closed ()
               (alloc-space 'ladder)
               (sel-input 'ladder
@@ -58,8 +60,8 @@
                            (sound "build0")
                            (room-new (player) `(ladder ,x ,y))
                            (chr-del (opponent) 1 14)
-                           (chr-new (player) x (+ 1 y) 'neutral '((icon . 36) (race . 1)))
-                           (dialog "<c:spotter:36> Thanks! I'll try to help out however I can!")
+                           (chr-new (player) x (+ 1 y) 'neutral '((icon . 45) (race . 1)))
+                           (dialog "<c:spotter:45> Thanks! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The spotter joined your crew!")
                              (setq on-dialog-closed nil)
