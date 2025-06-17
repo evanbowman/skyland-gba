@@ -25,5 +25,5 @@
  'shop-items
  'zone-shop-items
  'qvar
- 'current-level
+ 'pending-events
  'adventure-vars)

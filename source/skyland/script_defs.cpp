@@ -247,7 +247,7 @@ BINDING_TABLE({
      {SIG0(string),
       [](int argc) { return lisp::make_string(systemstring_bound_file()); }}},
     {"log",
-     {SIG1(nil, string),
+     {SIG1(nil, nil),
       [](int argc) {
           if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
               debug(lisp::get_op(0)->string().value());

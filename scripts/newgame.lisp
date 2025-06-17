@@ -46,6 +46,10 @@
 
 (setq zone-shop-items nil)
 
+;; hint: ((countdown . script) (coutdown . script) ... etc.)
+(setq pending-events nil)
+
+
 ;; Variables associated with quests
 (setq qvar nil)
 

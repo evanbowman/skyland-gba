@@ -21,6 +21,31 @@
 (flag-show (opponent) 1)
 
 
+(defn/temp place-items (variant resp)
+  (let ((reply resp)
+        (item variant))
+    (lambda ()
+      (alloc-space item)
+      (sel-input
+       item
+       (string
+        "place first "
+        (rinfo 'name item)
+        (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
+       (lambda (isle x y)
+         (room-new (player) (list item x y))
+         (sound "build0")
+         (alloc-space item)
+         (sel-input
+          item
+          (string "place second " (rinfo 'name item) ":")
+          (lambda (isle x y)
+            (room-new (player) (list item x y))
+            (sound "build0")
+            (dialog reply)
+            (setq on-dialog-closed exit))))))))
+
+
 (let ((item (sample '(arc-gun flak-gun fire-charge)))
       (skip 1))
 
@@ -30,6 +55,7 @@
          (room-new (opponent) (list item 5 y))
          (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) y)))
        '(11 12 13 14))
+
 
   (setq on-converge
         (lambda ()
@@ -43,7 +69,16 @@
                   (if (< (coins) 1300)
                       "...but you don't ssseem to have enough. Do you want to ssalvage some stuff to come up with the funds? I'll check back in 15 seconds?"
                       ""))
-          (dialog-await-y/n)
+          (dialog-opts-reset)
+          (dialog-opts-push "purchase for 1300@" on-dialog-accepted)
+          (dialog-opts-push "take by force"
+                            (lambda ()
+                              (adventure-log-add 71 (list (rinfo 'name item)))
+                              (dialog "<c:scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss...")
+                              (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengence.lisp")
+                              (setq on-dialog-closed
+                                    (place-items item "The goblins storm off, swearing vengence..."))))
+          (dialog-opts-push "decline offer" on-dialog-declined)
           (setq on-converge nil)))
 
 
@@ -75,24 +110,6 @@
               (progn
                 (adventure-log-add 67 (list (rinfo 'name item) 1300))
                 (coins-add -1300)
-                (alloc-space item)
-                (sel-input
-                 item
-                 (string
-                  "place first "
-                  (rinfo 'name item)
-                  (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
-                 (lambda (isle x y)
-                   (room-new (player) (list item x y))
-                   (sound "build0")
-                   (alloc-space item)
-                   (sel-input
-                    item
-                    (string "place second " (rinfo 'name item) ":")
-                    (lambda (isle x y)
-                      (room-new (player) (list item x y))
-                      (sound "build0")
-                      (dialog "<c:scavenger:35> Yesss! Ssmart choice! Don't mind the burn marksss, they add character!")
-                      (setq on-dialog-closed exit))))))))))
+                ((place-items item "<c:scavenger:35> Yesss! Ssmart choice! Don't mind the burn marksss, they add character!")))))))
 
 (setq on-dialog-declined exit)

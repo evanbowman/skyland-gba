@@ -170,6 +170,10 @@
     (exit)))
 
 
+(defn/c push-pending-event ((turns . int) (script . string))
+  (setq pending-events (cons (cons turns script) pending-events)))
+
+
 (setvar "enabled_factions_bitfield"
         (|
          (<< 1 0) ; human

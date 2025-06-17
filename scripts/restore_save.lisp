@@ -56,6 +56,7 @@
       (setq last-zone (load 'last-zone))
 
       (setq qids (load 'qids))
+      (setq pending-events (load 'pending-events))
       (setq zone-shop-items (load 'zone-shop-items)))
 
     (let ((grp (load 'groups))

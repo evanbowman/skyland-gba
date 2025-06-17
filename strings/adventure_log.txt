@@ -68,3 +68,6 @@ bought two % from some scavengers for %@!
 unable to make payment to anvil annie!
 paid bribe to anvil annie (-%@)
 refused to pay anvil annie
+stole %s from some scavengers
+scavengers extorted % in revenge
+scavengers return and attack!

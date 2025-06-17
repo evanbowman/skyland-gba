@@ -27,4 +27,5 @@
  (cons 'zone-shop-items zone-shop-items)
  (cons 'groups (groups))
  (cons 'nav (wg-nav-path))
- (cons 'faction (faction)))
+ (cons 'faction (faction))
+ (cons 'pending-events pending-events))
