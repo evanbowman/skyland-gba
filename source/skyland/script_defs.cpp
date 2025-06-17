@@ -78,6 +78,7 @@ extern Sound missile_sound;
 
 
 bool is_x_behind_storm_frontier(int x, int storm_offset);
+void shift_rooms_right(Island& island);
 
 
 
@@ -1415,6 +1416,14 @@ BINDING_TABLE({
           auto island = unwrap_isle(lisp::get_op(0));
           return lisp::make_integer(island->terrain().size());
 
+          return L_NIL;
+      }}},
+    {"terrain-add-left",
+     {SIG1(nil, wrapped),
+      [](int argc) {
+          auto island = unwrap_isle(lisp::get_op(0));
+          island->init_terrain(island->terrain().size() + 1);
+          shift_rooms_right(*island);
           return L_NIL;
       }}},
     {"mountain-terrain-mode",

@@ -12,7 +12,8 @@
 
 
 (defn on-dialog-accepted ()
-  (let ((chr-list (chrs (player))))
+  (let ((chr-list (chrs (player)))
+        (rem-list nil))
 
     (island-configure
      (player)
@@ -22,10 +23,20 @@
 
     (while chr-list
       (let ((slots (chr-slots (player))))
-        (when slots
-          (let ((slot (car slots)))
-            (chr-new (player) (car slot) (cdr slot) 'neutral (cdr (cdr (car chr-list))))))
+        (if slots
+            (let ((slot (car slots)))
+              (chr-new (player) (car slot) (cdr slot) 'neutral (cdr (cdr (car chr-list)))))
+            (setq rem-list (cons (car chr-list) rem-list)))
         (setq chr-list (cdr chr-list))))
+
+    (while rem-list
+      (let ((sl (chr-slots (player))))
+        (when (not sl)
+          (terrain-add-left (player))
+          (room-new (player) '(stairwell 0 11))
+          (setq sl (chr-slots (player))))
+        (chr-new (player) (caar sl) (cdar sl) 'neutral (cdr (cdr (car rem-list))))
+        (setq rem-list (cdr rem-list))))
 
     (dialog "<c:Sylph Archivist:21>A wise decision. Your fortress will be preserved in our archives, studied and honored. <B:0> May the winds favor your journey!")
     (setq on-dialog-closed exit)))
