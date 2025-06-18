@@ -121,11 +121,10 @@
 
 (assert-eq 1 (mod 10 3))
 
-;; FIXME: this test case breaks syntax highlighting in emacs.
-;(assert-eq 0xffffffff (| 0xff00ff00 0x00ff00ff))
-(assert-eq 0x22222222 (& 0x33333333 0xaaaaaaaa))
-(assert-eq 0xffff0000 (~ 0xffff))
-(assert-eq 0x55555555 (^ 0xaaaaaaaa 0xffffffff))
+(assert-eq 0xffffffff (bit-or 0xff00ff00 0x00ff00ff))
+(assert-eq 0x22222222 (bit-and 0x33333333 0xaaaaaaaa))
+(assert-eq 0xffff0000 (bit-not 0xffff))
+(assert-eq 0x55555555 (bit-xor 0xaaaaaaaa 0xffffffff))
 
 (assert-eq 0xaff (read (hex 0xaff)))
 

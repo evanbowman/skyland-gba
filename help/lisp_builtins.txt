@@ -435,12 +435,12 @@ o----------------------------o
 
 o----------------------------o
 
- (& a b)
- (| a b ...)
- (^ a b)
- (~ a)
- (<< a b)
- (>> a b)
+ (bit-and a b)
+ (bit-or a b ...)
+ (bit-xor a b)
+ (bit-not a)
+ (bit-shift-left a b)
+ (bit-shift-right a b)
 
  Bitwise operators. Arguments
  must be integers.

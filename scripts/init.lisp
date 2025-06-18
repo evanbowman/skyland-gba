@@ -135,7 +135,7 @@
   (cond
     ((and (pair? v) (int? (car v)) (int? (cdr v))) ;; hash for xy coord pair
      (let ((h (+ (* (first v) 374761393) (* (second v) 668265263))))
-       (abs (* (^ h (>> h 13)) 1274126177))))
+       (abs (* (bit-xor h (bit-shift-right h 13)) 1274126177))))
     (true
      (error (format "cannot hash %" v)))))
 
@@ -175,8 +175,8 @@
 
 
 (setvar "enabled_factions_bitfield"
-        (|
-         (<< 1 0) ; human
-         (<< 1 1) ; goblin
-         ;; (<< 1 2) ; sylph
+        (bit-or
+         (bit-shift-left 1 0) ; human
+         (bit-shift-left 1 1) ; goblin
+         ;; (bit-shift-left 1 2) ; sylph
          ))

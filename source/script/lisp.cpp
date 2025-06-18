@@ -4659,14 +4659,14 @@ BUILTIN_TABLE(
            return make_integer(get_op1()->integer().value_ >
                                get_op0()->integer().value_);
        }}},
-     {"&",
+     {"bit-and",
       {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) & L_LOAD_INT(0));
        }}},
-     {"|",
+     {"bit-or",
       {SIG2(integer, integer, integer),
        [](int argc) {
            int accum = 0;
@@ -4676,14 +4676,14 @@ BUILTIN_TABLE(
            }
            return make_integer(accum);
        }}},
-     {"^",
+     {"bit-xor",
       {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) ^ L_LOAD_INT(0));
        }}},
-     {"~",
+     {"bit-not",
       {SIG1(integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
@@ -4696,14 +4696,14 @@ BUILTIN_TABLE(
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) % L_LOAD_INT(0));
        }}},
-     {">>",
+     {"bit-shift-right",
       {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
            L_EXPECT_OP(1, integer);
            return L_INT(L_LOAD_INT(1) >> L_LOAD_INT(0));
        }}},
-     {"<<",
+     {"bit-shift-left",
       {SIG2(integer, integer, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
