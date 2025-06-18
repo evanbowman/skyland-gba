@@ -72,3 +72,4 @@ stole %s from some scavengers
 scavengers extorted % in revenge
 scavengers return and attack!
 vandalized imperial missile station
+goblins try to steal decimator back
