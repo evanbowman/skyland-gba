@@ -158,6 +158,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
   ${SOURCE_DIR}/skyland/scene/rewindScene.cpp
+  ${SOURCE_DIR}/skyland/scene/debriefScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
   ${SOURCE_DIR}/skyland/scene/itemShopScene.cpp
   ${SOURCE_DIR}/skyland/scene/qrViewerScene.cpp

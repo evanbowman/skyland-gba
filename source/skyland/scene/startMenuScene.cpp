@@ -677,7 +677,7 @@ AGAIN:
                     SYSTR(start_menu_sky_map)->c_str(),
                     []() -> ScenePtr {
                         if (APP.current_world_location() == 0) {
-                            return make_scene<LevelExitScene<WorldMapScene>>();
+                            return make_scene<LevelExitScene<ZoneImageScene>>();
                         } else {
                             return make_scene<LevelExitScene<ZoneImageScene>>();
                         }

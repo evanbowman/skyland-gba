@@ -35,7 +35,7 @@
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
-#include "zoneImageScene.hpp"
+#include "debriefScene.hpp"
 
 
 
@@ -841,7 +841,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                         return next;
                     } else {
-                        return make_scene<LevelExitScene<ZoneImageScene>>();
+                        return make_scene<LevelExitScene<DebriefScene>>();
                     }
                 }
 

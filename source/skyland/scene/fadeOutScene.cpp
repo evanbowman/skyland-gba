@@ -18,7 +18,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
-#include "zoneImageScene.hpp"
+#include "debriefScene.hpp"
 
 
 
@@ -106,7 +106,7 @@ ScenePtr FadeOutScene::update(Time delta)
             return make_scene<LevelExitScene<SelectTutorialScene>>();
 
         case App::GameMode::adventure:
-            return make_scene<LevelExitScene<ZoneImageScene>>();
+            return make_scene<LevelExitScene<DebriefScene>>();
 
         case App::GameMode::challenge:
             return make_scene<LevelExitScene<SelectChallengeScene>>();

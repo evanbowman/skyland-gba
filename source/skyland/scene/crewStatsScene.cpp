@@ -247,7 +247,8 @@ static constexpr u8 human_icons[] = {5,  1,  6,  7,  8,  9,  10, 11, 12, 14, 15,
                                      16, 17, 20, 21, 22, 23, 19, 26, 27, 28};
 
 
-static constexpr u8 goblin_icons[] = {18, 35, 36, 37, 38, 39, 41, 42, 43, 19, 45};
+static constexpr u8 goblin_icons[] =
+    {18, 35, 36, 37, 38, 39, 41, 42, 43, 19, 45};
 
 
 

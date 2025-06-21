@@ -21,6 +21,7 @@
 #include "inspectP2Scene.hpp"
 #include "keyComboScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
+#include "levelExitScene.hpp"
 #include "modifierKeyHintScene.hpp"
 #include "moveRoomScene.hpp"
 #include "notificationScene.hpp"
@@ -41,6 +42,7 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 

@@ -26,4 +26,5 @@
  'zone-shop-items
  'qvar
  'pending-events
+ 'debrief-strs
  'adventure-vars)

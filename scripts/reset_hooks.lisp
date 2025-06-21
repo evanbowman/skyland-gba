@@ -18,6 +18,12 @@
 
 (destroy-temps)
 
+
+;; Upon completing a level, the game will construct a dialog sequence from the
+;; debrief-strs variable. If you'd like dialog to play after the screen fades to
+;; black, push some text to debrief-strs.
+(setq debrief-strs nil)
+
 ;; legacy callbacks, no longer invoked by the engine, but still used in various
 ;; scripts.
 (setq on-dialog-accepted '())  ; Upon selecting yes in a dialog prompt.

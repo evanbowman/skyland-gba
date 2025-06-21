@@ -1,3 +1,9 @@
+;; The game evaluates this script in adventure mode after leaving a level.
+;;
+;; After a level ends, the game will construct a dialog sequence using the
+;; debrief-strs variable. If you would like a dialog sequence to run after a
+;; level, push some stuff to debrief-strs.
+
 
 (defn/temp gen (cb n)
   (let ((i 0)
@@ -18,16 +24,13 @@
   (lookup 'icon (cddr chr)))
 
 
-(lambda (k)
+(lambda (scenario)
   (let ((crew (filter get-icon (chrs (player))))
-        (key k))
-    (setq crew (map get-icon (slice (shuffle crew) 0 (+ 1 (choice 3)))))
-    ((lambda ()
-       (if crew
-           (progn
-             (dialog (read-ini "/scripts/data/character_inter.ini"
-                               (format "character_%" (car crew))
-                               key))
-             (setq crew (cdr crew))
-             (setq on-dialog-closed (this)))
-           (setq on-dialog-closed exit))))))
+        (key scenario))
+    (setq crew (map get-icon (slice (shuffle crew) 0 (choice 4))))
+    (setq debrief-strs
+          (map (lambda (icon)
+                 (read-ini "/scripts/data/character_inter.ini"
+                           (format "character_%" icon)
+                           key))
+               crew))))

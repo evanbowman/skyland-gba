@@ -622,15 +622,20 @@ public:
             int ent_used = 0;
             int ent_total = 0;
             for (auto& pl : globals().entity_pools_.pools()) {
-                ent_used += pl->pooled_element_count() - pl->pooled_element_remaining();
+                ent_used +=
+                    pl->pooled_element_count() - pl->pooled_element_remaining();
                 ent_total += pl->pooled_element_count();
             }
             Text::print(format("entity:[%/%]", ent_used, ent_total).c_str(),
                         {13, 5});
 
             auto stat = flash_filesystem::statistics();
-            Text::print(format("disk:[%/%]", stat.bytes_used_ / 1024,
-                       (stat.bytes_used_ + stat.bytes_available_) / 1024).c_str(), {1, 9});
+            Text::print(
+                format("disk:[%/%]",
+                       stat.bytes_used_ / 1024,
+                       (stat.bytes_used_ + stat.bytes_available_) / 1024)
+                    .c_str(),
+                {1, 9});
 
             u32 mstack = 0;
             if (auto s = PLATFORM.get_extensions().get_stack_usage) {
@@ -638,7 +643,6 @@ public:
             }
 
             Text::print(format("stk: [%]", mstack).c_str(), {14, 9});
-
         }
 
 
