@@ -1951,6 +1951,24 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::room_width_adjusted: {
+            auto e = (time_stream::event::RoomWidthAdjusted*)end;
+
+            Island* isle =
+                e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (isle) {
+                if (auto room = isle->get_room({e->room_x_, e->room_y_})) {
+                    room->adjust_width(-1 * e->diff_);
+                    isle->schedule_repaint();
+                }
+            }
+
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;
 

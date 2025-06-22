@@ -176,21 +176,6 @@ struct DroneSetTarget
 
 
 
-struct TimekeeperSync
-{
-    Header header_;
-    HostInteger<u16> microseconds_;
-    HostInteger<u16> seconds_;
-
-    // TODO:
-    //
-    // In case there's any delay on either console, we should periodically
-    // transmit TimekeeperSync messages, to jump ahead one of the game clocks,
-    // if necessary.
-};
-
-
-
 struct RoomDestroyed
 {
     Header header_;

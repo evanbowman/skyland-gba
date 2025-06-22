@@ -162,6 +162,7 @@ workshop
 /gotta-go-fast
 red
 black
+resize bridge: <- ->
 (bird)
 (human) 
 (goblin) 
@@ -357,6 +358,7 @@ Goblins tried to design a better cannon; it's powerful, yet flawed - starts at %
 An ancient sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
 While similar in concept to classical siege weapons, this artillery gun is much more destructive. Fires heavy bolts in a wide arc, bypassing standard defenses.
 A ship's bell. Click to ring it!
+A decorative bridge... click to resize its width!
 paused
 slow
 regular

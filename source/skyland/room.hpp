@@ -276,6 +276,9 @@ public:
     }
 
 
+    bool adjust_width(int size_diff);
+
+
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room finished
     // reloading.
@@ -797,6 +800,9 @@ protected:
     virtual void on_powerchange()
     {
     }
+
+
+    void constrain_chrs();
 
 
 private:

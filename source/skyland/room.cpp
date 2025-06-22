@@ -882,6 +882,24 @@ void Room::__unsafe__transmute(MetaclassIndex m)
     auto new_room = (Room*)address;
     chr_list.move_contents(new_room->characters_);
 
+    for (auto& chr : new_room->characters()) {
+        auto r_extent = new_room->position();
+        r_extent.x += new_room->size().x;
+        r_extent.y += new_room->size().y;
+        if (chr->grid_position().x >= r_extent.x or chr->grid_position().y >= r_extent.y) {
+            time_stream::event::CharacterPositionJump e;
+            e.id_.set(chr->id());
+            auto chr_pos = chr->grid_position();
+            e.previous_x_ = chr_pos.x;
+            e.previous_y_ = chr_pos.y;
+            APP.time_stream().push(APP.level_timer(), e);
+            chr->set_grid_position({
+                    clamp(chr_pos.x, new_room->position().x, u8(r_extent.x - 1)),
+                    clamp(chr_pos.y, new_room->position().y, u8(r_extent.y - 1))
+                });
+        }
+    }
+
     const int size_diff_y = mt->size().y - sz.y;
 
     island->schedule_repaint();
@@ -910,6 +928,66 @@ void Room::__unsafe__transmute(MetaclassIndex m)
 
                 chr->set_grid_position({pos.x, u8(pos.y + size_diff_y)});
             }
+        }
+    }
+}
+
+
+
+bool Room::adjust_width(int size_diff)
+{
+    auto current = size().x;
+    auto new_sz = current + size_diff;
+    if (new_sz <= 0 or new_sz >= 15 or
+        position().x + new_sz > (int)parent()->terrain().size()) {
+        return false;
+    }
+
+    for (int x = 0; x < new_sz; ++x) {
+        if (auto room = parent()->get_room({u8(x_position_ + x), y_position_})) {
+            if (room not_eq this) {
+                return false; // collision with other existing block.
+            }
+        }
+    }
+
+    time_stream::event::RoomWidthAdjusted e;
+    e.room_x_ = position().x;
+    e.room_y_ = position().y;
+    e.diff_ = size_diff;
+    e.near_ = parent() == &APP.player_island();
+    APP.time_stream().push(APP.level_timer(), e);
+
+    size_x_ = current + size_diff;
+    parent()->rooms().reindex(true);
+    auto change_pt = position();
+    change_pt.x += new_sz;
+    parent()->on_layout_changed(change_pt);
+
+    constrain_chrs();
+
+    return true;
+}
+
+
+
+void Room::constrain_chrs()
+{
+    for (auto& chr : characters()) {
+        auto r_extent = position();
+        r_extent.x += size().x;
+        r_extent.y += size().y;
+        if (chr->grid_position().x >= r_extent.x or chr->grid_position().y >= r_extent.y) {
+            time_stream::event::CharacterPositionJump e;
+            e.id_.set(chr->id());
+            auto chr_pos = chr->grid_position();
+            e.previous_x_ = chr_pos.x;
+            e.previous_y_ = chr_pos.y;
+            APP.time_stream().push(APP.level_timer(), e);
+            chr->set_grid_position({
+                    clamp(chr_pos.x, position().x, u8(r_extent.x - 1)),
+                    clamp(chr_pos.y, position().y, u8(r_extent.y - 1))
+                });
         }
     }
 }

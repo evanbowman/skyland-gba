@@ -209,6 +209,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
                 }
 
                 room->__unsafe__transmute(upgrade_to_);
+                room->parent()->rooms().reindex(true);
 
                 APP.set_coins(APP.coins() - cost);
                 APP.level_coins_spent() += cost;

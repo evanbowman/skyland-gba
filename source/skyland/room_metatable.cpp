@@ -65,7 +65,6 @@
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/phaseShifter.hpp"
-#include "skyland/rooms/piston.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/portal.hpp"
 #include "skyland/rooms/poweredHull.hpp"

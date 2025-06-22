@@ -206,6 +206,8 @@ enum class SystemString {
     red,
     black,
 
+    resize_bridge,
+
     bird_label,
 
     character_label_human,
@@ -427,6 +429,7 @@ enum class SystemString {
     description_phase_shifter,
     description_ballista,
     description_bell,
+    description_bridge,
 
     gs_paused,
     gs_slow,

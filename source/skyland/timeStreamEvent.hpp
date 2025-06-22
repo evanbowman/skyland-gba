@@ -221,6 +221,8 @@ enum Type : u8 {
 
     isle_phase_change,
     phase_shifter_state_change,
+
+    room_width_adjusted,
 };
 
 
@@ -1408,6 +1410,19 @@ struct BoardingPodLanded
     HostInteger<u16> y_;
 
     static constexpr const auto t = Type::boarding_pod_landed;
+};
+
+
+
+struct RoomWidthAdjusted
+{
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    s8 diff_;
+    bool near_;
+
+    static constexpr const auto t = Type::room_width_adjusted;
 };
 
 

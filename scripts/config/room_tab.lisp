@@ -76,7 +76,7 @@
   (ice          30  30   0)
   (snow         1   1    0)
   (mycelium     60  2500 5)
-  (bridge       30  30   0)
+  (bridge       30  900  0)
   (dynamite     60  80   0)
   (dynamite-ii  51  500  0)
   (balloon      40  300 -10)
