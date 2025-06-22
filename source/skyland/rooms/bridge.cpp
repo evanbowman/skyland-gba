@@ -14,6 +14,7 @@
 #include "skyland/scene/inspectP2Scene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -198,6 +199,20 @@ void Bridge::deserialize(lisp::Value* list)
         // compatibility...
         adjust_width(2 - size().x);
     }
+}
+
+
+
+void Bridge::finalize()
+{
+    Room::finalize();
+
+    time_stream::event::RoomWidthAdjusted e;
+    e.room_x_ = position().x;
+    e.room_y_ = position().y;
+    e.prev_width_ = ((Room*)this)->size().x;
+    e.near_ = parent() == &APP.player_island();
+    APP.time_stream().push(APP.level_timer(), e);
 }
 
 

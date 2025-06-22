@@ -954,7 +954,7 @@ bool Room::adjust_width(int size_diff)
     time_stream::event::RoomWidthAdjusted e;
     e.room_x_ = position().x;
     e.room_y_ = position().y;
-    e.diff_ = size_diff;
+    e.prev_width_ = current;
     e.near_ = parent() == &APP.player_island();
     APP.time_stream().push(APP.level_timer(), e);
 

@@ -1959,7 +1959,7 @@ ScenePtr RewindScene::update(Time)
 
             if (isle) {
                 if (auto room = isle->get_room({e->room_x_, e->room_y_})) {
-                    room->adjust_width(-1 * e->diff_);
+                    room->adjust_width(e->prev_width_ - room->size().x);
                     isle->schedule_repaint();
                 }
             }

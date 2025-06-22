@@ -1419,7 +1419,7 @@ struct RoomWidthAdjusted
     Header header_;
     u8 room_x_ : 4;
     u8 room_y_ : 4;
-    s8 diff_;
+    u8 prev_width_;
     bool near_;
 
     static constexpr const auto t = Type::room_width_adjusted;
