@@ -168,6 +168,7 @@ public:
         weapon,
         factory,
         power,
+        passage,
         misc,
         decoration,
         count

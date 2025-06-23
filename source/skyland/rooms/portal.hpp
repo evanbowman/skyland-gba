@@ -31,6 +31,12 @@ public:
     }
 
 
+    static Category category()
+    {
+        return Category::passage;
+    }
+
+
     static void format_description(StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_portal)->c_str();

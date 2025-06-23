@@ -271,6 +271,7 @@ enum class SystemString {
     category_weapon,
     category_factory,
     category_power,
+    category_passage,
     category_misc,
     category_decoration,
 

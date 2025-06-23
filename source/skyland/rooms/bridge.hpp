@@ -133,7 +133,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return (Decoration::properties() & ~RoomProperties::roof_hidden) |
-               RoomProperties::habitable;
+               RoomProperties::disabled_in_tutorials | RoomProperties::habitable;
     }
 
 
@@ -149,7 +149,13 @@ public:
     }
 
 
-    ScenePtr resize_bridge_scene();
+    static Category category()
+    {
+        return Category::passage;
+    }
+
+
+   ScenePtr resize_bridge_scene();
 
 
     ScenePtr select_impl(const RoomCoord& cursor) override;

@@ -75,9 +75,13 @@ public:
                 k, milliseconds(500), milliseconds(150));
         };
 
+        auto& cursor_loc =
+            near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
+
+        Room* room = parent->get_room(bridge_loc_);
 
         if (test_key(Key::left)) {
-            if (auto room = parent->get_room(bridge_loc_)) {
+            if (room) {
                 if (auto bridge = room->cast<Bridge>()) {
                     if (bridge->resize(-1)) {
                         PLATFORM.speaker().play_sound("build0", 4);
@@ -87,7 +91,7 @@ public:
                 }
             }
         } else if (test_key(Key::right)) {
-            if (auto room = parent->get_room(bridge_loc_)) {
+            if (room) {
                 if (auto bridge = room->cast<Bridge>()) {
                     if (bridge->resize(1)) {
                         PLATFORM.speaker().play_sound("build0", 4);
@@ -96,6 +100,10 @@ public:
                     }
                 }
             }
+        }
+
+        if (room) {
+            cursor_loc.x = room->position().x + room->size().x - 1;
         }
 
         return null_scene();
@@ -166,12 +174,7 @@ ScenePtr Bridge::select_impl(const RoomCoord& cursor)
         show_island_interior(parent());
     }
 
-    auto ret = Room::do_select();
-    if (ret) {
-        return ret;
-    }
-
-    return resize_bridge_scene();
+    return Room::do_select();
 }
 
 

@@ -214,6 +214,7 @@ walls
 weapons
 factories
 power
+passages
 misc
 decor
 Evan Bowman presents
@@ -358,7 +359,7 @@ Goblins tried to design a better cannon; it's powerful, yet flawed - starts at %
 An ancient sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
 While similar in concept to classical siege weapons, this artillery gun is much more destructive. Fires heavy bolts in a wide arc, bypassing standard defenses.
 A ship's bell. Click to ring it!
-A decorative bridge... click to resize its width!
+A decorative bridge... resize it via the SELECT menu!
 paused
 slow
 regular

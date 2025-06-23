@@ -256,18 +256,14 @@ void GlossaryViewerModule::load_filters()
 void GlossaryViewerModule::draw_category_line(int line, Text::OptColors colors)
 {
     int offset = 0;
-    if (line == (int)Room::Category::count) {
-        ++offset;
-    }
     const u8 y = offset + 4 + line * 2;
     const u8 x = 5;
     Text t(OverlayCoord{x, y});
     if (line == (int)Room::Category::count) {
-        ++offset;
         auto category_str = SYSTR(glossary_filters);
         t.append(category_str->c_str(), colors);
 
-        PLATFORM.set_tile(Layer::overlay, 3, y, 385);
+        PLATFORM.set_tile(Layer::overlay, 3, y, 386);
 
     } else {
         auto category_str =
@@ -317,11 +313,7 @@ void GlossaryViewerModule::load_categories()
 
     draw_category_line(i);
 
-    if (cg_cursor_ == (int)Room::Category::count) {
-        PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
-    } else {
-        PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-    }
+    PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
 
     show_category_image(cg_cursor_);
 }

@@ -39,6 +39,12 @@ public:
     const char* upgrade_mt_name() const override;
 
 
+    static Category category()
+    {
+        return Category::passage;
+    }
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
