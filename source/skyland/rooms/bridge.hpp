@@ -150,6 +150,9 @@ public:
     }
 
 
+    ScenePtr resize_bridge_scene();
+
+
     ScenePtr select_impl(const RoomCoord& cursor) override;
 
 

@@ -150,6 +150,14 @@ private:
 
 
 
+ScenePtr Bridge::resize_bridge_scene()
+{
+    return make_scene<ResizeBridgeScene>(parent() == &player_island(),
+                                         position());
+}
+
+
+
 ScenePtr Bridge::select_impl(const RoomCoord& cursor)
 {
     // Unlike most rooms, the bridge shows inhabitants while viewing a
@@ -164,8 +172,7 @@ ScenePtr Bridge::select_impl(const RoomCoord& cursor)
         return ret;
     }
 
-    return make_scene<ResizeBridgeScene>(parent() == &player_island(),
-                                         position());
+    return resize_bridge_scene();
 }
 
 

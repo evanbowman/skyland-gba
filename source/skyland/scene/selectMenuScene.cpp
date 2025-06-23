@@ -26,6 +26,7 @@
 #include "skyland/network.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/rooms/bell.hpp"
+#include "skyland/rooms/bridge.hpp"
 #include "skyland/scene/adjustPowerScene.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -453,6 +454,23 @@ void SelectMenuScene::enter(Scene& scene)
                                  });
                     }
                 }
+            } else if (is_player_island(isle) and room and room->cast<Bridge>()) {
+                add_line(SystemString::sel_menu_resize_bridge,
+                         "",
+                         true,
+                         [this, c = cursor] {
+                             auto room = island()->get_room(c);
+                             if (not room) {
+                                 return null_scene();
+                             }
+
+                             auto b = room->cast<Bridge>();
+                             if (not b) {
+                                 return null_scene();
+                             }
+
+                             return b->resize_bridge_scene();
+                         });
             } else if (is_player_island(isle) and room and room->cast<Bell>()) {
                 add_line(
                     SystemString::sel_menu_eight_bells,
