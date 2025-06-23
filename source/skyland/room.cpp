@@ -886,17 +886,17 @@ void Room::__unsafe__transmute(MetaclassIndex m)
         auto r_extent = new_room->position();
         r_extent.x += new_room->size().x;
         r_extent.y += new_room->size().y;
-        if (chr->grid_position().x >= r_extent.x or chr->grid_position().y >= r_extent.y) {
+        if (chr->grid_position().x >= r_extent.x or
+            chr->grid_position().y >= r_extent.y) {
             time_stream::event::CharacterPositionJump e;
             e.id_.set(chr->id());
             auto chr_pos = chr->grid_position();
             e.previous_x_ = chr_pos.x;
             e.previous_y_ = chr_pos.y;
             APP.time_stream().push(APP.level_timer(), e);
-            chr->set_grid_position({
-                    clamp(chr_pos.x, new_room->position().x, u8(r_extent.x - 1)),
-                    clamp(chr_pos.y, new_room->position().y, u8(r_extent.y - 1))
-                });
+            chr->set_grid_position(
+                {clamp(chr_pos.x, new_room->position().x, u8(r_extent.x - 1)),
+                 clamp(chr_pos.y, new_room->position().y, u8(r_extent.y - 1))});
         }
     }
 
@@ -944,7 +944,8 @@ bool Room::adjust_width(int size_diff)
     }
 
     for (int x = 0; x < new_sz; ++x) {
-        if (auto room = parent()->get_room({u8(x_position_ + x), y_position_})) {
+        if (auto room =
+                parent()->get_room({u8(x_position_ + x), y_position_})) {
             if (room not_eq this) {
                 return false; // collision with other existing block.
             }
@@ -977,17 +978,17 @@ void Room::constrain_chrs()
         auto r_extent = position();
         r_extent.x += size().x;
         r_extent.y += size().y;
-        if (chr->grid_position().x >= r_extent.x or chr->grid_position().y >= r_extent.y) {
+        if (chr->grid_position().x >= r_extent.x or
+            chr->grid_position().y >= r_extent.y) {
             time_stream::event::CharacterPositionJump e;
             e.id_.set(chr->id());
             auto chr_pos = chr->grid_position();
             e.previous_x_ = chr_pos.x;
             e.previous_y_ = chr_pos.y;
             APP.time_stream().push(APP.level_timer(), e);
-            chr->set_grid_position({
-                    clamp(chr_pos.x, position().x, u8(r_extent.x - 1)),
-                    clamp(chr_pos.y, position().y, u8(r_extent.y - 1))
-                });
+            chr->set_grid_position(
+                {clamp(chr_pos.x, position().x, u8(r_extent.x - 1)),
+                 clamp(chr_pos.y, position().y, u8(r_extent.y - 1))});
         }
     }
 }

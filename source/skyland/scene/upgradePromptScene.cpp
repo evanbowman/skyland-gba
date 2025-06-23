@@ -243,8 +243,7 @@ void UpgradePromptScene::display()
         for (u8 x = (target_coord_.x + to_sz.x) - size_diff_x;
              x < target_coord_.x + to_sz.x;
              ++x) {
-            for (u8 y = target_coord_.y; y < target_coord_.y + to_sz.y;
-                 ++y) {
+            for (u8 y = target_coord_.y; y < target_coord_.y + to_sz.y; ++y) {
                 Sprite spr;
                 spr.set_tidx_16x16(13, 1);
                 spr.set_size(Sprite::Size::w16_h16);
@@ -265,8 +264,7 @@ void UpgradePromptScene::display()
         }
     }
     if (size_diff_y) {
-        for (u8 x = target_coord_.x; x < target_coord_.x + to_sz.x;
-             ++x) {
+        for (u8 x = target_coord_.x; x < target_coord_.x + to_sz.x; ++x) {
             for (u8 y = target_coord_.y - size_diff_y; y < target_coord_.y;
                  ++y) {
                 Sprite spr;

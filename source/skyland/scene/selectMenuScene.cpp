@@ -454,7 +454,8 @@ void SelectMenuScene::enter(Scene& scene)
                                  });
                     }
                 }
-            } else if (is_player_island(isle) and room and room->cast<Bridge>()) {
+            } else if (is_player_island(isle) and room and
+                       room->cast<Bridge>()) {
                 add_line(SystemString::sel_menu_resize_bridge,
                          "",
                          true,

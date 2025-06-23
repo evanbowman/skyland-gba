@@ -57,7 +57,8 @@ public:
         for (int x = 0; x < size().x; ++x) {
             buffer[position().x + x][position().y] = InteriorTile::bridge;
             if (buffer[position().x + x][position().y + 1] == 0) {
-                buffer[position().x + x][position().y + 1] = InteriorTile::bridge_truss;
+                buffer[position().x + x][position().y + 1] =
+                    InteriorTile::bridge_truss;
             }
         }
     }
@@ -116,7 +117,6 @@ public:
     {
         return 1560;
     }
-
 };
 
 
@@ -132,9 +132,8 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return (Decoration::properties() &
-                ~RoomProperties::roof_hidden) |
-            RoomProperties::habitable;
+        return (Decoration::properties() & ~RoomProperties::roof_hidden) |
+               RoomProperties::habitable;
     }
 
 
@@ -177,8 +176,6 @@ public:
 
 
     void finalize() override;
-
-
 };
 
 

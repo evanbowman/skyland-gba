@@ -8,11 +8,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "worldScene.hpp"
 #include "debriefScene.hpp"
-#include "zoneImageScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "script/lisp.hpp"
+#include "worldScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 
@@ -47,4 +47,4 @@ ScenePtr DebriefScene::update(Time delta)
 
 
 
-}
+} // namespace skyland

@@ -15,6 +15,7 @@
 #include "boxedDialogScene.hpp"
 #include "coOpSyncScene.hpp"
 #include "crewStatsScene.hpp"
+#include "debriefScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "levelExitScene.hpp"
@@ -35,7 +36,6 @@
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
-#include "debriefScene.hpp"
 
 
 

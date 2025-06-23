@@ -599,7 +599,8 @@ void ProcgenEnemyAI::generate_weapons(int max)
 
                 if ((room or
                      APP.opponent_island()->get_room({x, u8(y + 1)})) and
-                    has_space({x, y}, (*mt)->constructed_size()) and not invalid) {
+                    has_space({x, y}, (*mt)->constructed_size()) and
+                    not invalid) {
 
                     slots.push_back({x, y});
                     break;

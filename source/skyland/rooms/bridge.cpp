@@ -9,11 +9,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "bridge.hpp"
-#include "skyland/scene/worldScene.hpp"
-#include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/inspectP2Scene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/worldScene.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
 
@@ -27,8 +27,7 @@ class ResizeBridgeScene : public ActiveWorldScene
 {
 public:
     ResizeBridgeScene(bool near, const RoomCoord& coord)
-        : bridge_loc_(coord),
-          near_(near)
+        : bridge_loc_(coord), near_(near)
     {
     }
 
@@ -224,4 +223,4 @@ void Bridge::finalize()
 
 
 
-}
+} // namespace skyland

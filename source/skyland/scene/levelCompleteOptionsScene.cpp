@@ -10,11 +10,11 @@
 
 
 #include "levelCompleteOptionsScene.hpp"
+#include "debriefScene.hpp"
 #include "levelExitScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
-#include "debriefScene.hpp"
 
 
 

@@ -23,16 +23,14 @@ namespace skyland
 class DebriefScene : public Scene
 {
 public:
-
     DebriefScene()
     {
     }
 
 
     ScenePtr update(Time delta);
-
 };
 
 
 
-}
+} // namespace skyland
