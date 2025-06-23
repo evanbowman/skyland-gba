@@ -50,9 +50,9 @@ void GlossaryViewerModule::load_page(int page)
     StringBuffer<30> temp;
     temp += mt[page]->ui_name()->c_str();
     temp += " (";
-    temp += stringify(mt[page]->size().x);
+    temp += stringify(mt[page]->constructed_size().x);
     temp += "x";
-    temp += stringify(mt[page]->size().y);
+    temp += stringify(mt[page]->constructed_size().y);
     temp += ")";
 
     item_name_->assign(temp.c_str());

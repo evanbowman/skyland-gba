@@ -719,7 +719,7 @@ BINDING_TABLE({
 
           append("name", lisp::make_string((*mt)->ui_name()->c_str()));
 
-          auto sz = (*mt)->size();
+          auto sz = (*mt)->constructed_size();
 
           append("size", L_CONS(L_INT(sz.x), L_INT(sz.y)));
           append("ico1", L_INT((*mt)->icon()));

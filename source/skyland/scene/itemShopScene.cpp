@@ -80,9 +80,9 @@ void ItemShopScene::describe_selection()
     *info += ", ";
     *info += SYSTR(size)->c_str();
     *info += " ";
-    *info += stringify((*mt)->size().x);
+    *info += stringify((*mt)->constructed_size().x);
     *info += "x";
-    *info += stringify((*mt)->size().y);
+    *info += stringify((*mt)->constructed_size().y);
     *info += ", ";
     *info += stringify((*mt)->consumes_power());
     *info += "`";

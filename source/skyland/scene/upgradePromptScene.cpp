@@ -142,8 +142,10 @@ ScenePtr UpgradePromptScene::update(Time delta)
             if (room->metaclass_index() == upgrade_from_) {
                 const auto& from = load_metaclass(upgrade_from_);
                 const auto& to = load_metaclass(upgrade_to_);
-                int size_diff_y = (*to)->size().y - (*from)->size().y;
-                int size_diff_x = (*to)->size().x - (*from)->size().x;
+                auto to_sz = (*to)->constructed_size();
+                auto from_sz = (*from)->constructed_size();
+                int size_diff_y = to_sz.y - from_sz.y;
+                int size_diff_x = to_sz.x - from_sz.x;
 
                 const auto props = (*to)->properties();
 
@@ -161,10 +163,10 @@ ScenePtr UpgradePromptScene::update(Time delta)
                 }
 
                 if (size_diff_x) {
-                    auto sx = (target_coord_.x + (*to)->size().x) - size_diff_x;
-                    auto ex = target_coord_.x + (*to)->size().x;
+                    auto sx = (target_coord_.x + to_sz.x) - size_diff_x;
+                    auto ex = target_coord_.x + to_sz.x;
                     auto sy = target_coord_.y;
-                    auto ey = target_coord_.y + (*to)->size().y;
+                    auto ey = target_coord_.y + to_sz.y;
 
                     if (ex > (int)APP.player_island().terrain().size()) {
                         err = SYS_CSTR(construction_not_enough_space);
@@ -184,7 +186,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
 
                 if (size_diff_y) {
                     auto sx = target_coord_.x;
-                    auto ex = target_coord_.x + (*to)->size().x;
+                    auto ex = target_coord_.x + to_sz.x;
                     auto sy = target_coord_.y - size_diff_y;
 
                     for (u8 x = sx; x < ex; ++x) {
@@ -232,14 +234,16 @@ void UpgradePromptScene::display()
 
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_);
-    int size_diff_y = (*to)->size().y - (*from)->size().y;
-    int size_diff_x = (*to)->size().x - (*from)->size().x;
+    auto to_sz = (*to)->constructed_size();
+    auto from_sz = (*from)->constructed_size();
+    int size_diff_y = to_sz.y - from_sz.y;
+    int size_diff_x = to_sz.x - from_sz.x;
 
     if (size_diff_x) {
-        for (u8 x = (target_coord_.x + (*to)->size().x) - size_diff_x;
-             x < target_coord_.x + (*to)->size().x;
+        for (u8 x = (target_coord_.x + to_sz.x) - size_diff_x;
+             x < target_coord_.x + to_sz.x;
              ++x) {
-            for (u8 y = target_coord_.y; y < target_coord_.y + (*to)->size().y;
+            for (u8 y = target_coord_.y; y < target_coord_.y + to_sz.y;
                  ++y) {
                 Sprite spr;
                 spr.set_tidx_16x16(13, 1);
@@ -261,7 +265,7 @@ void UpgradePromptScene::display()
         }
     }
     if (size_diff_y) {
-        for (u8 x = target_coord_.x; x < target_coord_.x + (*to)->size().x;
+        for (u8 x = target_coord_.x; x < target_coord_.x + to_sz.x;
              ++x) {
             for (u8 y = target_coord_.y - size_diff_y; y < target_coord_.y;
                  ++y) {

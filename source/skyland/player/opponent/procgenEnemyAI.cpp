@@ -549,7 +549,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
 
     auto place_missile_silo = [&](RoomMeta* mt) {
         Buffer<RoomCoord, 16> slots;
-        const u8 ht = (*mt)->size().y;
+        const u8 ht = (*mt)->constructed_size().y;
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = construction_zone_min_y; y < 14; ++y) {
                 auto room = APP.opponent_island()->get_room({x, u8(y + ht)});
@@ -588,10 +588,10 @@ void ProcgenEnemyAI::generate_weapons(int max)
             for (u8 x = 0; x < 15; ++x) {
 
                 auto room = APP.opponent_island()->get_room(
-                    {u8(x + (*mt)->size().x), y});
+                    {u8(x + (*mt)->constructed_size().x), y});
 
                 bool invalid = false;
-                for (int xx = x; xx < x + (*mt)->size().x; ++xx) {
+                for (int xx = x; xx < x + (*mt)->constructed_size().x; ++xx) {
                     if (c->invalidated_cannon_cells_[xx][y]) {
                         invalid = true;
                     }
@@ -599,7 +599,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
 
                 if ((room or
                      APP.opponent_island()->get_room({x, u8(y + 1)})) and
-                    has_space({x, y}, (*mt)->size()) and not invalid) {
+                    has_space({x, y}, (*mt)->constructed_size()) and not invalid) {
 
                     slots.push_back({x, y});
                     break;
@@ -1195,7 +1195,7 @@ void ProcgenEnemyAI::generate_walls_behind_weapons()
             not str_eq(room->name(), "rocket-bomb")) {
 
             auto behind = room->position();
-            behind.x += (*room->metaclass())->size().x;
+            behind.x += (*room->metaclass())->constructed_size().x;
 
             if (not APP.opponent_island()->get_room(behind)) {
                 bool skip = false;
@@ -1319,7 +1319,7 @@ void ProcgenEnemyAI::generate_stairwells()
             if (count == 0) {
                 break;
             }
-            if (has_space(slot.coord_, (*mt)->size())) {
+            if (has_space(slot.coord_, (*mt)->constructed_size())) {
                 (*mt)->create(APP.opponent_island(), slot.coord_);
                 --count;
                 tries = 0;
@@ -1567,7 +1567,7 @@ void ProcgenEnemyAI::place_room_adjacent(const char* room_name)
                 if (slot.coord_.x == 0) {
                     continue;
                 }
-                if (has_space(slot.coord_, m->size())) {
+                if (has_space(slot.coord_, m->constructed_size())) {
                     m->create(APP.opponent_island(), slot.coord_);
                     return;
                 }
@@ -1578,7 +1578,7 @@ void ProcgenEnemyAI::place_room_adjacent(const char* room_name)
 
     auto& mt = require_metaclass(room_name);
 
-    find_connected_slots(mt->size().y);
+    find_connected_slots(mt->constructed_size().y);
     try_place_room(mt);
 }
 
@@ -1718,7 +1718,7 @@ void ProcgenEnemyAI::place_room_random_loc(int x_start, const char* room_name)
         u8 x = x_start + rng::choice((levelgen_size_.x - x_start), rng_source_);
         u8 y = 14 - rng::choice(levelgen_size_.y, rng_source_);
 
-        if (has_space({x, y}, (*mt)->size())) {
+        if (has_space({x, y}, (*mt)->constructed_size())) {
             make_room({x, y});
             return;
         }

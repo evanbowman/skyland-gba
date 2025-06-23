@@ -71,7 +71,7 @@ void MultiplayerPeer::receive(const network::packet::RoomConstructed& packet)
     auto metac = load_metaclass(packet.metaclass_index_.get());
 
     if (APP.opponent_island()) {
-        const auto size = (*metac)->size();
+        const auto size = (*metac)->constructed_size();
         RoomCoord pos{packet.x_, packet.y_};
 
         pos.x = ((APP.opponent_island()->terrain().size() - 1) - pos.x) -

@@ -215,7 +215,7 @@ public:
             auto origin = APP.player_island().visual_origin();
 
             auto mt = load_metaclass(e.block_metaclass_);
-            auto sz = (*mt)->size();
+            auto sz = (*mt)->constructed_size();
 
             for (int x = 0; x < sz.x; ++x) {
                 for (int y = 0; y < sz.y; ++y) {

@@ -99,7 +99,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    Vec2<u8> size() const override
+    Vec2<u8> constructed_size() const override
     {
         auto& pair = fetch_info<FieldTag::size, lisp::Cons>();
         return {(u8)pair.car()->expect<lisp::Integer>().value_,

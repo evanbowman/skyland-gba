@@ -70,7 +70,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
         if (str_eq(name, current->name())) {
             metaclass_index_ = i;
 
-            auto mt_size = current->size();
+            auto mt_size = current->constructed_size();
             if (mt_size.x > 15 or mt_size.y > 15) {
                 Platform::fatal("Room size too large!");
             }
@@ -900,7 +900,7 @@ void Room::__unsafe__transmute(MetaclassIndex m)
         }
     }
 
-    const int size_diff_y = mt->size().y - sz.y;
+    const int size_diff_y = mt->constructed_size().y - sz.y;
 
     island->schedule_repaint();
     if (size_diff_y) {
@@ -1111,14 +1111,14 @@ void Room::convert_to_plundered()
         return;
     }
 
-    for (int x = 0; x < size().x; x += (*plunder_metac)->size().x) {
+    for (int x = 0; x < size().x; x += (*plunder_metac)->constructed_size().x) {
         int y = 0;
         if (size().y % 2 not_eq 0) {
             // NOTE: plundered-room occupies two tiles vertically. For an
             // odd-sized room height, start at 1.
             y = 1;
         }
-        for (; y < size().y; y += (*plunder_metac)->size().y) {
+        for (; y < size().y; y += (*plunder_metac)->constructed_size().y) {
             const RoomCoord pos = {
                 u8(((u8)x_position_) + x),
                 u8(((u8)y_position_) + y),

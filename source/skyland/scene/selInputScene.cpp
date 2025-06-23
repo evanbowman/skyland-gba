@@ -45,8 +45,8 @@ void SelInputScene::enter(Scene& prev)
 
         auto mt = load_metaclass(cdr->symbol().name());
         if (mt) {
-            auto xrange = (*mt)->size().x;
-            auto yrange = (*mt)->size().y;
+            auto xrange = (*mt)->constructed_size().x;
+            auto yrange = (*mt)->constructed_size().y;
 
             required_space_ = {(u8)xrange, (u8)yrange};
             w_ot_ = (*mt)->weapon_orientation();

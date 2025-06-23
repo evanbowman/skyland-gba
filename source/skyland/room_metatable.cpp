@@ -157,7 +157,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return T::unsel_icon();
     }
 
-    Vec2<u8> size() const override
+    Vec2<u8> constructed_size() const override
     {
         return T::size();
     }

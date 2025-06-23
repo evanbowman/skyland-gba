@@ -698,7 +698,7 @@ ScenePtr ConstructionScene::update(Time delta)
             APP.set_coins(APP.coins() - diff);
             APP.level_coins_spent() += diff;
 
-            const auto sz = target->size().y;
+            const auto sz = target->constructed_size().y;
             const u8 dest_x = data_->construction_sites_[selector_].x;
             const u8 dest_y =
                 data_->construction_sites_[selector_].y - (sz - 1);
@@ -708,7 +708,7 @@ ScenePtr ConstructionScene::update(Time delta)
             target->create(island(), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
 
-            stack_ += target->size().y;
+            stack_ += target->constructed_size().y;
 
             checksum_ = island()->checksum();
 
@@ -1202,7 +1202,7 @@ void ConstructionScene::display()
         if (not data_->available_buildings_.empty()) {
             const auto& meta = *load_metaclass(
                 data_->available_buildings_[building_selector_]);
-            const auto sz = meta->size();
+            const auto sz = meta->constructed_size();
 
             auto origin = island()->visual_origin();
             origin.x += Fixnum::from_integer(
@@ -1406,8 +1406,9 @@ bool ConstructionScene::site_has_space(MetaclassIndex m)
 
     auto& meta = *load_metaclass(m);
 
-    return meta->size().x <= avail_x_space and
-           meta->size().y <= calc_avail_y_space(meta->size().x);
+    auto constr_sz = meta->constructed_size();
+    return constr_sz.x <= avail_x_space and
+           constr_sz.y <= calc_avail_y_space(constr_sz.x);
 }
 
 
