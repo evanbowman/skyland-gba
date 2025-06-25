@@ -73,22 +73,28 @@
                                (adventure-log-add 62 '())
                                (setq on-dialog-closed (curry exit 2)))))))
                       (progn
-                        (room-del (opponent) x y)
-                        (sound "gravel")
-                        (alloc-space took)
-                        (sel-input
-                         took
-                         (format "Place block: (%/%)" (- tot cnt) tot)
-                         (lambda (isle x y)
-                           (room-new (player) (list took x y))
-                           (sound "build0")
-                           (setq cnt (- cnt 1))
-                           (if (equal cnt 0)
-                               (progn
-                                 (dialog (format "Accepted surrender, and acquired % blocks!" tot))
-                                 (adventure-log-add 62 '())
-                                 (setq on-dialog-closed (curry exit 2)))
-                               (rtry))))))))))))))
+                        (if (not took)
+                            (progn
+                              (sound "beep_error")
+                              (rtry))
+                            (progn
+                              (room-del (opponent) x y)
+                              (sound "gravel")
+                              (alloc-space took)
+                              (sel-input
+                               took
+                               (format "Place block: (%/%)" (- tot cnt) tot)
+                               (lambda (isle x y)
+                                 (room-new (player) (list took x y))
+                                 (sound "build0")
+                                 (setq cnt (- cnt 1))
+                                 (if (equal cnt 0)
+                                     (progn
+                                       (dialog (format "Accepted surrender, and acquired % blocks!" tot))
+                                       (adventure-log-add 62 '())
+                                       (setq on-dialog-closed (curry exit 2)))
+                                     (rtry))))))))))))))))
+
 
     (dialog-opts-push (format "unacceptable! (+%@)" (coins-victory)) (lambda ()))))
 
