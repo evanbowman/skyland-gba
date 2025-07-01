@@ -3,13 +3,13 @@
 
 @=======================================================================
 @
-@	tilesheet_enemy_0_interior, 6960x16@4, 
+@	tilesheet_enemy_0_interior, 6992x16@4, 
 @	Transparent color : FF,00,FF
 @	+ palette 16 entries, not compressed
-@	+ 1740 tiles Metatiled by 2x2 not compressed
-@	Total size: 32 + 55680 = 55712
+@	+ 1748 tiles Metatiled by 2x2 not compressed
+@	Total size: 32 + 55936 = 55968
 @
-@	Time-stamp: 2025-06-09, 09:37:34
+@	Time-stamp: 2025-07-01, 17:27:46
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -17,7 +17,7 @@
 
 	.section .rodata
 	.align	2
-	.global tilesheet_enemy_0_interiorTiles		@ 55680 unsigned chars
+	.global tilesheet_enemy_0_interiorTiles		@ 55936 unsigned chars
 	.hidden tilesheet_enemy_0_interiorTiles
 tilesheet_enemy_0_interiorTiles:
 	.word 0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000
@@ -1977,6 +1977,15 @@ tilesheet_enemy_0_interiorTiles:
 	.word 0x0FFFFFFF,0xF0000000,0xF00000FF,0xF0000FFF,0xF0000FFF,0xF0000F7F,0xF0000FFF,0xF0000F7F
 	.word 0xFFFEF00F,0xFFFFEF0F,0x1000000F,0x0000000F,0x0000000F,0x22222222,0x22222222,0x11111112
 	.word 0xF000FF7F,0xF00FFFFF,0xF0000000,0xF0000000,0xF0000000,0x22222222,0x22222222,0x21111111
+	.word 0x11221211,0x22211221,0x22221222,0xB1282122,0xB112221C,0x9B11221C,0x99BB2211,0x9B1122CC
+	.word 0x22222111,0x22221122,0x22211222,0x22112221,0x12122211,0x1112211B,0x11122BB9,0xCCC2211B
+	.word 0xB1122211,0xB1222111,0x22221151,0x22211111,0x11111111,0x11114441,0x11114441,0x11112244
+	.word 0x1CC22211,0x11112221,0x11111222,0x11111122,0x41414411,0x11414411,0x11414441,0x21212221
+
+	.word 0x22222222,0x22222222,0x22222222,0x22222222,0x1111111C,0x1111111C,0x1111111C,0x1444111C
+	.word 0x11222222,0x11222222,0x11112222,0x11222222,0x11111111,0x11515111,0x11111111,0x14441144
+	.word 0x14441111,0x11111111,0x44441111,0x44441111,0x44444444,0x11111111,0x11111111,0x44444442
+	.word 0x14441144,0x14441144,0x14441144,0x14441144,0x14441144,0x14441111,0x14441111,0x44444444
 
 	.section .rodata
 	.align	2

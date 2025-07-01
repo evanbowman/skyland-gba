@@ -39,12 +39,22 @@ OverdriveCore::OverdriveCore(Island* parent, const RoomCoord& position, const ch
 
 
 
+extern Sound core_destroyed;
+
+
+
 void OverdriveCore::finalize()
 {
     Room::finalize();
 
     if (health() == 0) {
-        core_explosion(parent(), center());
+        core_destroyed.play(4, milliseconds(600));
+        core_explosion(parent(),
+                       center(),
+                       CoreExplosionConfig{
+                           .arms_ = 4,
+                           .rot_ = rng::choice<45>(rng::utility_state),
+                       });
     }
 }
 
