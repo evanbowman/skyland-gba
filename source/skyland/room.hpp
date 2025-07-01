@@ -768,7 +768,8 @@ public:
     }
 
 
-    virtual const char* upgrade_mt_name() const;
+    using UpgradeList = Buffer<MetaclassIndex, 5>;
+    virtual Optional<UpgradeList> upgrade_mt_list() const;
 
 
     bool is_powered_down() const

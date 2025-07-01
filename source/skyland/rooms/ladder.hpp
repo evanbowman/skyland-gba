@@ -80,7 +80,7 @@ public:
     }
 
 
-    const char* upgrade_mt_name() const override;
+    Optional<UpgradeList> upgrade_mt_list() const override;
 
 
     static Icon icon()
@@ -114,7 +114,7 @@ public:
                              Character* for_character) override;
 
 
-    const char* upgrade_mt_name() const override;
+    Optional<UpgradeList> upgrade_mt_list() const override;
 
 
     static SystemString ui_name()

@@ -16,7 +16,7 @@ namespace skyland
 
 UpgradePromptScene::UpgradePromptScene(const Vec2<u8>& coord,
                                        MetaclassIndex upgrade_from,
-                                       MetaclassIndex upgrade_to)
+                                       const Room::UpgradeList& upgrade_to)
     : upgrade_from_(upgrade_from), upgrade_to_(upgrade_to), target_coord_(coord)
 {
 }
@@ -27,18 +27,12 @@ Coins get_room_cost(Island* island, const RoomMeta& meta);
 
 
 
-void UpgradePromptScene::enter(Scene& prev)
+void UpgradePromptScene::repaint()
 {
-    ActiveWorldScene::enter(prev);
-
-    PLATFORM.speaker().play_sound("openbag", 8);
-
-    persist_ui();
-
     auto st = calc_screen_tiles();
 
     const auto& from = load_metaclass(upgrade_from_);
-    const auto& to = load_metaclass(upgrade_to_);
+    const auto& to = load_metaclass(upgrade_to_[upgrade_index_]);
 
     StringBuffer<30> text(
         format(SYS_CSTR(upgrade_prompt), (*to)->ui_name()->c_str()).c_str());
@@ -55,34 +49,30 @@ void UpgradePromptScene::enter(Scene& prev)
         PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
-    for (int i = 0; i < st.x; ++i) {
-        PLATFORM.set_tile(Layer::overlay, i, st.y - 2, 425);
+    int x_margin = (st.x - (4 * upgrade_to_.size())) / 2;
+
+    static const int vram_locs[] = {258, 181, 197, 213, 274};
+    for (u32 i = 0; i < upgrade_to_.size(); ++i) {
+        draw_image(vram_locs[i], x_margin + i * 4, st.y - 5, 4, 4, Layer::overlay);
+        auto mt = load_metaclass(upgrade_to_[i]);
+        auto icon = i == upgrade_index_ ? (*mt)->icon() : (*mt)->unsel_icon();
+        PLATFORM.load_overlay_chunk(vram_locs[i], icon, 16);
     }
+}
 
-    yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
-    no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
-    yes_text_->assign(SYSTR(salvage_option_A)->c_str());
-    no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
-    for (int i = 23; i < st.x; ++i) {
-        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
-    }
+void UpgradePromptScene::enter(Scene& prev)
+{
+    ActiveWorldScene::enter(prev);
 
-    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
-    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+    PLATFORM.speaker().play_sound("openbag", 8);
 
     persist_ui();
 
-    PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 245);
-    PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 246);
-    PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 247);
-    PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 248);
+    repaint();
 
-    PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
-    PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
-    PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
-    PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
+    persist_ui();
 }
 
 
@@ -92,16 +82,8 @@ void UpgradePromptScene::exit(Scene& next)
     ActiveWorldScene::exit(next);
 
     text_.reset();
-    yes_text_.reset();
-    no_text_.reset();
 
-    const auto st = calc_screen_tiles();
-    for (int x = 0; x < st.x; ++x) {
-        PLATFORM.set_tile(Layer::overlay, x, st.y - 1, 0);
-        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 0);
-        PLATFORM.set_tile(Layer::overlay, x, st.y - 3, 0);
-        PLATFORM.set_tile(Layer::overlay, x, st.y - 4, 0);
-    }
+    PLATFORM.fill_overlay(0);
 }
 
 
@@ -127,6 +109,21 @@ ScenePtr UpgradePromptScene::update(Time delta)
         return make_scene<ReadyScene>();
     }
 
+    if (upgrade_to_.size() > 1) {
+        if (player().key_down(Key::right)) {
+            ++upgrade_index_;
+            upgrade_index_ %= upgrade_to_.size();
+            repaint();
+        } else if (player().key_down(Key::left)) {
+            if (upgrade_index_ == 0) {
+                upgrade_index_ = upgrade_to_.size() - 1;
+            } else {
+                --upgrade_index_;
+            }
+            repaint();
+        }
+    }
+
     if (player().key_down(Key::action_1)) {
         if (auto room = APP.player_island().get_room(target_coord_)) {
 
@@ -141,7 +138,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
 
             if (room->metaclass_index() == upgrade_from_) {
                 const auto& from = load_metaclass(upgrade_from_);
-                const auto& to = load_metaclass(upgrade_to_);
+                const auto& to = load_metaclass(upgrade_to_[upgrade_index_]);
                 auto to_sz = (*to)->constructed_size();
                 auto from_sz = (*from)->constructed_size();
                 int size_diff_y = to_sz.y - from_sz.y;
@@ -210,7 +207,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
                     return make_scene<NotificationScene>(err, next);
                 }
 
-                room->__unsafe__transmute(upgrade_to_);
+                room->__unsafe__transmute(upgrade_to_[upgrade_index_]);
                 room->parent()->rooms().reindex(true);
 
                 APP.set_coins(APP.coins() - cost);
@@ -233,7 +230,7 @@ void UpgradePromptScene::display()
     ActiveWorldScene::display();
 
     const auto& from = load_metaclass(upgrade_from_);
-    const auto& to = load_metaclass(upgrade_to_);
+    const auto& to = load_metaclass(upgrade_to_[upgrade_index_]);
     auto to_sz = (*to)->constructed_size();
     auto from_sz = (*from)->constructed_size();
     int size_diff_y = to_sz.y - from_sz.y;

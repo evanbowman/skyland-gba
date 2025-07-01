@@ -35,7 +35,7 @@ public:
     void rewind(Time delta) override;
 
 
-    const char* upgrade_mt_name() const override;
+    Optional<UpgradeList> upgrade_mt_list() const override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -159,7 +159,7 @@ public:
     }
 
 
-    const char* upgrade_mt_name() const override;
+    Optional<UpgradeList> upgrade_mt_list() const override;
 
 
     void update(Time delta) override;

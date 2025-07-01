@@ -133,13 +133,13 @@ void AchievementViewerModule::enter(Scene& prev)
     PLATFORM.screen().fade(1.f, custom_color(0x39395a));
 
     int count = 0;
-    for (int i = 0; i < achievements::count; ++i) {
+    for (int i = 1; i < achievements::count; ++i) {
         if (achievements::is_unlocked((achievements::Achievement)i)) {
             ++count;
         }
     }
 
-    auto count_str = format("(%/%)", count, achievements::count);
+    auto count_str = format("(%/%)", count, achievements::count - 1);
     count_text_.emplace(OverlayCoord{u8(29 - count_str.length()), 1});
     count_text_->assign(
         count_str.c_str(),

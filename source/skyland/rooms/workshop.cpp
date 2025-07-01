@@ -13,6 +13,7 @@
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -21,9 +22,11 @@ namespace skyland
 
 
 
-const char* Workshop::upgrade_mt_name() const
+Optional<Room::UpgradeList> Workshop::upgrade_mt_list() const
 {
-    return "manufactory";
+    UpgradeList upgrades;
+    upgrades.push_back(skyland::metaclass_index("manufactory"));
+    return upgrades;
 }
 
 

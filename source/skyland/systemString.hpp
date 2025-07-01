@@ -140,6 +140,7 @@ enum class SystemString {
     block_mycelium,
     block_nemesis,
     block_ocher,
+    block_overdrive_core,
     block_palm,
     block_pearls,
     block_piston,
@@ -431,6 +432,7 @@ enum class SystemString {
     description_ballista,
     description_bell,
     description_bridge,
+    description_overdrive_core,
 
     gs_paused,
     gs_slow,

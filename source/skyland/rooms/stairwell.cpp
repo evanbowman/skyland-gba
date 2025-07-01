@@ -23,9 +23,12 @@ namespace skyland
 
 
 
-const char* Stairwell::upgrade_mt_name() const
+Optional<Room::UpgradeList> Stairwell::upgrade_mt_list() const
 {
-    return "stairwell+";
+    UpgradeList result;
+    result.push_back(skyland::metaclass_index("stairwell+"));
+    result.push_back(skyland::metaclass_index("stairwell++"));
+    return result;
 }
 
 
@@ -97,9 +100,11 @@ void Stairwell::finalize()
 
 
 
-const char* StairwellPlus::upgrade_mt_name() const
+Optional<Room::UpgradeList> StairwellPlus::upgrade_mt_list() const
 {
-    return "stairwell++";
+    UpgradeList result;
+    result.push_back(skyland::metaclass_index("stairwell++"));
+    return result;
 }
 
 
@@ -184,9 +189,9 @@ void StairwellPlusPlus::plot_walkable_zones(bool matrix[16][16],
 
 
 
-const char* StairwellPlusPlus::upgrade_mt_name() const
+Optional<Room::UpgradeList> StairwellPlusPlus::upgrade_mt_list() const
 {
-    return nullptr;
+    return nullopt();
 }
 
 

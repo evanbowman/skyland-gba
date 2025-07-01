@@ -344,7 +344,7 @@ void SelectMenuScene::enter(Scene& scene)
             auto room = island()->get_room(cursor);
 
             if (is_player_island(island()) and room) {
-                if (room->upgrade_mt_name()) {
+                if (room->upgrade_mt_list()) {
                     add_line(
                         SystemString::sel_menu_upgrade_block,
                         "",
@@ -354,13 +354,12 @@ void SelectMenuScene::enter(Scene& scene)
                             if (not room) {
                                 return null_scene();
                             }
-                            auto up = room->upgrade_mt_name();
-                            if (not up) {
+                            auto up = room->upgrade_mt_list();
+                            if (not up or up->empty()) {
                                 return null_scene();
                             }
-                            auto to = metaclass_index(up);
                             return make_scene<UpgradePromptScene>(
-                                room->position(), room->metaclass_index(), to);
+                                room->position(), room->metaclass_index(), *up);
                         });
                 }
             }

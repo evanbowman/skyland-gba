@@ -14,6 +14,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -22,9 +23,14 @@ namespace skyland
 
 
 
-const char* Ladder::upgrade_mt_name() const
+Optional<Room::UpgradeList> Ladder::upgrade_mt_list() const
 {
-    return "ladder+";
+    UpgradeList upgrades;
+    upgrades.push_back(skyland::metaclass_index("ladder+"));
+    upgrades.push_back(skyland::metaclass_index("stairwell"));
+    upgrades.push_back(skyland::metaclass_index("stairwell+"));
+    upgrades.push_back(skyland::metaclass_index("stairwell++"));
+    return upgrades;
 }
 
 
@@ -118,9 +124,13 @@ LadderPlus::LadderPlus(Island* parent, const RoomCoord& position)
 
 
 
-const char* LadderPlus::upgrade_mt_name() const
+Optional<Room::UpgradeList> LadderPlus::upgrade_mt_list() const
 {
-    return "stairwell";
+    UpgradeList upgrades;
+    upgrades.push_back(skyland::metaclass_index("stairwell"));
+    upgrades.push_back(skyland::metaclass_index("stairwell+"));
+    upgrades.push_back(skyland::metaclass_index("stairwell++"));
+    return upgrades;
 }
 
 

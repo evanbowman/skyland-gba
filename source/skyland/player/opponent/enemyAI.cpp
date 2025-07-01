@@ -34,6 +34,7 @@
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/sparkCannon.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/overdriveCore.hpp"
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
@@ -513,6 +514,8 @@ void EnemyAI::assign_local_character(Character& character,
 
     Buffer<Room*, 10> radiators;
 
+    auto overdrive_mt = load_metaclass("overdrive-core");
+
     for (auto& room : ai_island_->rooms()) {
         auto mt = room->metaclass();
 
@@ -663,7 +666,7 @@ void EnemyAI::assign_local_character(Character& character,
                 // }
             }
 
-            if (room->is_powered_down()) {
+            if (room->is_powered_down() and room->metaclass() not_eq overdrive_mt) {
                 slot.ai_weight_ /= 2.0_atp;
             }
 

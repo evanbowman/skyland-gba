@@ -35,9 +35,9 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    const char* upgrade_mt_name() const override
+    Optional<UpgradeList> upgrade_mt_list() const override
     {
-        return nullptr;
+        return nullopt();
     }
 
 

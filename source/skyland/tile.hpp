@@ -338,6 +338,8 @@ struct Tile
         ballista_1,
         ballista_2,
         bell,
+        overdrive_core_1,
+        overdrive_core_2,
         count
     };
 };
@@ -658,6 +660,8 @@ struct InteriorTile
         ballista_1,
         ballista_2,
         bell,
+        overdrive_core_1,
+        overdrive_core_2,
         count
     };
 };

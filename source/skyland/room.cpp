@@ -1499,9 +1499,9 @@ void Room::finalize()
 
 
 
-const char* Room::upgrade_mt_name() const
+Optional<Room::UpgradeList> Room::upgrade_mt_list() const
 {
-    return nullptr;
+    return nullopt();
 }
 
 

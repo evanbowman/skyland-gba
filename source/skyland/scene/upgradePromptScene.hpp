@@ -26,7 +26,7 @@ class UpgradePromptScene : public ActiveWorldScene
 public:
     UpgradePromptScene(const Vec2<u8>& coord,
                        MetaclassIndex upgrade_from,
-                       MetaclassIndex upgrade_to);
+                       const Room::UpgradeList& upgrade_to);
 
 
     void enter(Scene& prev) override;
@@ -41,17 +41,19 @@ public:
     void display() override;
 
 
+    void repaint();
+
+
 private:
     MetaclassIndex upgrade_from_;
-    MetaclassIndex upgrade_to_;
+    Room::UpgradeList upgrade_to_;
     Vec2<u8> target_coord_;
 
     Optional<Text> text_;
-    Optional<Text> yes_text_;
-    Optional<Text> no_text_;
 
     Time flicker_timer_ = 0;
     bool flicker_on_ = false;
+    u8 upgrade_index_ = 0;
 };
 
 

@@ -32,6 +32,7 @@
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/chaosCore.hpp"
+#include "skyland/rooms/overdriveCore.hpp"
 #include "skyland/rooms/cloak.hpp"
 #include "skyland/rooms/clumpBomb.hpp"
 #include "skyland/rooms/commandModule.hpp"
@@ -291,7 +292,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<11,
+using RoomMetatableType = RoomMetatable<10,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -328,6 +329,7 @@ using RoomMetatableType = RoomMetatable<11,
                                         Manufactory,
                                         // power generation
                                         Core,
+                                        OverdriveCore,
                                         Reactor,
                                         SolarCell,
                                         BackupCore,

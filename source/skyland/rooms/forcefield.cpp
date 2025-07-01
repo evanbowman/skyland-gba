@@ -14,6 +14,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -22,16 +23,18 @@ namespace skyland
 
 
 
-const char* Forcefield::upgrade_mt_name() const
+Optional<Room::UpgradeList> Forcefield::upgrade_mt_list() const
 {
-    return Forcefield2::name();
+    UpgradeList upgrades;
+    upgrades.push_back(skyland::metaclass_index(Forcefield2::name()));
+    return upgrades;
 }
 
 
 
-const char* Forcefield2::upgrade_mt_name() const
+Optional<Room::UpgradeList> Forcefield2::upgrade_mt_list() const
 {
-    return nullptr;
+    return nullopt();
 }
 
 

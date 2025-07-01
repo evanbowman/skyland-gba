@@ -23,14 +23,18 @@ namespace skyland
 
 
 
-const char* Core::upgrade_mt_name() const
+Optional<Room::UpgradeList> Core::upgrade_mt_list() const
 {
+    UpgradeList upgrades;
     if (APP.faction() == Faction::goblin) {
-        return "chaos-core";
+        upgrades.push_back(skyland::metaclass_index("chaos-core"));
     } else if (APP.faction() == Faction::sylph) {
-        return nullptr;
+        // ...
+    } else {
+        upgrades.push_back(skyland::metaclass_index("reactor"));
     }
-    return "reactor";
+    upgrades.push_back(skyland::metaclass_index("overdrive-core"));
+    return upgrades;
 }
 
 
@@ -113,9 +117,11 @@ Power BackupCore::power_usage() const
 
 
 
-const char* BackupCore::upgrade_mt_name() const
+Optional<Room::UpgradeList> BackupCore::upgrade_mt_list() const
 {
-    return "power-core";
+    UpgradeList upgrades;
+    upgrades.push_back(skyland::metaclass_index("power-core"));
+    return upgrades;
 }
 
 
