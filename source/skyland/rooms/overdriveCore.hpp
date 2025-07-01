@@ -32,9 +32,6 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    void finalize() override;
-
-
     static void format_description(StringBuffer<512>& buffer);
 
 
@@ -95,7 +92,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
-               RoomProperties::habitable | RoomProperties::destroy_quietly |
+               RoomProperties::habitable | RoomProperties::oversize_explosion |
                RoomProperties::multiboot_compatible | RoomProperties::not_constructible;
     }
 
