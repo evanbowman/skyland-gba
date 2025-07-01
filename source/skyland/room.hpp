@@ -768,7 +768,7 @@ public:
     }
 
 
-    using UpgradeList = Buffer<MetaclassIndex, 5>;
+    using UpgradeList = Buffer<MetaclassIndex, 4>;
     virtual Optional<UpgradeList> upgrade_mt_list() const;
 
 

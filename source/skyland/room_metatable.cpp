@@ -329,12 +329,12 @@ using RoomMetatableType = RoomMetatable<10,
                                         Manufactory,
                                         // power generation
                                         Core,
-                                        OverdriveCore,
                                         Reactor,
                                         SolarCell,
                                         BackupCore,
                                         WarEngine,
                                         ChaosCore,
+                                        OverdriveCore,
                                         Windmill,
                                         Balloon,
                                         // passages

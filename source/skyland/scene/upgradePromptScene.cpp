@@ -53,7 +53,7 @@ void UpgradePromptScene::repaint()
         PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 425);
     }
 
-    int x_margin = (st.x - (4 * upgrade_to_.size())) / 2;
+    int x_margin = (st.x - (4 * upgrade_to_.size())) / 2 - 2;
 
     static const int vram_locs[] = {258, 181, 197, 213, 274};
     for (u32 i = 0; i < upgrade_to_.size(); ++i) {
@@ -85,6 +85,20 @@ void UpgradePromptScene::repaint()
     PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 3, 433);
     PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 4, 433);
     PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 5, 433);
+
+    yes_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
+    no_text_.emplace(OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
+
+    yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+    no_text_->assign(SYSTR(salvage_option_B)->c_str());
+
+    for (int i = 23; i < st.x; ++i) {
+        PLATFORM.set_tile(Layer::overlay, i, st.y - 4, 425);
+    }
+
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
+
 }
 
 
@@ -121,6 +135,11 @@ ScenePtr UpgradePromptScene::update(Time delta)
         return next;
     }
 
+    auto test_key = [&](Key k) {
+        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
+    };
+
+
     flicker_timer_ += delta;
     if (flicker_timer_ > milliseconds(300)) {
         flicker_timer_ -= milliseconds(300);
@@ -137,11 +156,12 @@ ScenePtr UpgradePromptScene::update(Time delta)
     }
 
     if (upgrade_to_.size() > 1) {
-        if (player().key_down(Key::right)) {
+        if (test_key(Key::right)) {
             ++upgrade_index_;
             upgrade_index_ %= upgrade_to_.size();
             repaint();
-        } else if (player().key_down(Key::left)) {
+        }
+        if (test_key(Key::left)) {
             if (upgrade_index_ == 0) {
                 upgrade_index_ = upgrade_to_.size() - 1;
             } else {
