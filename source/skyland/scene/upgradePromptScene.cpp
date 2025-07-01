@@ -49,15 +49,42 @@ void UpgradePromptScene::repaint()
         PLATFORM.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
     }
 
+    for (int x = 0; x < st.x; ++x) {
+        PLATFORM.set_tile(Layer::overlay, x, st.y - 2, 425);
+    }
+
     int x_margin = (st.x - (4 * upgrade_to_.size())) / 2;
 
     static const int vram_locs[] = {258, 181, 197, 213, 274};
     for (u32 i = 0; i < upgrade_to_.size(); ++i) {
-        draw_image(vram_locs[i], x_margin + i * 4, st.y - 5, 4, 4, Layer::overlay);
+        int x_start = x_margin + i * 4;
+        draw_image(vram_locs[i], x_start, st.y - 5, 4, 4, Layer::overlay);
         auto mt = load_metaclass(upgrade_to_[i]);
         auto icon = i == upgrade_index_ ? (*mt)->icon() : (*mt)->unsel_icon();
         PLATFORM.load_overlay_chunk(vram_locs[i], icon, 16);
+        for (int x = 0; x < 4; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x_start + x, st.y - 6, 425);
+        }
     }
+
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 3, 245);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 3, 246);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 2, 247);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 2, 248);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, 2, st.y - 3, 433);
+    PLATFORM.set_tile(Layer::overlay, 0, st.y - 4, 425);
+    PLATFORM.set_tile(Layer::overlay, 1, st.y - 4, 425);
+
+    PLATFORM.set_tile(Layer::overlay, x_margin - 1, st.y - 2, 419);
+    PLATFORM.set_tile(Layer::overlay, x_margin - 1, st.y - 3, 130);
+    PLATFORM.set_tile(Layer::overlay, x_margin - 1, st.y - 4, 130);
+    PLATFORM.set_tile(Layer::overlay, x_margin - 1, st.y - 5, 130);
+    auto sel_end = x_margin + (upgrade_to_.size() * 4);
+    PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 2, 418);
+    PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 3, 433);
+    PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 4, 433);
+    PLATFORM.set_tile(Layer::overlay, sel_end, st.y - 5, 433);
 }
 
 

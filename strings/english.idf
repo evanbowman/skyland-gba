@@ -100,7 +100,7 @@ missile-silo
 mycelium
 nemesis
 ocher
-overdrive-core
+overdrive
 coconut-palm
 pearls
 piston
@@ -301,7 +301,7 @@ An unusual cannon-type weapon. Damage starts at %, and rises to % when health dr
 An essential defensive structure.
 Blocks enemy projectiles, but allows your own weapons to shoot through. Vulnerable to ion damage.
 An upgraded forcefield.
-An upgraded overdrive-core. Supplies much more energy, continues running when damaged, but is succeptible to ion damage.
+An upgraded power-core. Supplies much more energy, continues running when damaged, but is succeptible to ion damage.
 Used for restricting the movement of enemy boarding parties. Your crew may walk through doors, but not enemy units. Fireproof.
 Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.
 Upgraded hull. Much more durable, but succeptible to ion damage.
