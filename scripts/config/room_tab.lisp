@@ -86,5 +86,5 @@
   (weather-engine 60 500 0)
   (energized-hull 380 450 20)
   (plundered-room 20  30  0)
-  (overdrive-core 70  3500 -225)
+  (overdrive-core 70  3500 -230)
   (targeting-computer 40 150 1))
