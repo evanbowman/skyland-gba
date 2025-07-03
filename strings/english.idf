@@ -100,7 +100,7 @@ missile-silo
 mycelium
 nemesis
 ocher
-overdrive
+overdrive-core
 coconut-palm
 pearls
 piston
@@ -361,7 +361,7 @@ An ancient sylph technology that briefly shifts matter between realities. While 
 While similar in concept to classical siege weapons, this artillery gun is much more destructive. Fires heavy bolts in a wide arc, bypassing standard defenses.
 A ship's bell. Click to ring it!
 A decorative bridge... resize it via the SELECT menu!
-A power-core, modified to boost its energy output. The jury-rigged modifications make the core delicate - it will overload if its health drops below %.
+A power-core, modified to boost its energy output. The jury-rigged modifications make the core delicate - it will overload if its health drops below %% (%).
 paused
 slow
 regular

@@ -55,6 +55,9 @@
       (sc (filter (car-equalto? 'backup-core) (rooms (player))))
       (wpn (sample '(flak-gun fire-charge ballista))))
 
+    (if (not pc)
+        (setq pc (filter (car-equalto? 'overdrive-core) (rooms (player)))))
+
     (when pc
       (secret 1 14 (string "Notice: surplus " wpn " in stock!")))
 

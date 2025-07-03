@@ -34,8 +34,14 @@ void UpgradePromptScene::repaint()
     const auto& from = load_metaclass(upgrade_from_);
     const auto& to = load_metaclass(upgrade_to_[upgrade_index_]);
 
-    StringBuffer<30> text(
+    StringBuffer<64> text(
         format(SYS_CSTR(upgrade_prompt), (*to)->ui_name()->c_str()).c_str());
+
+    if (utf8::len(text.c_str()) >= 27 and text[text.length() - 1] == ' ') {
+        // The text + the cost likely overflows the screen width. Pop off a
+        // space character to squeeze everything in.
+        text.pop_back();
+    }
 
     text += stringify(get_room_cost(&APP.player_island(), *to) -
                       get_room_cost(&APP.player_island(), *from));

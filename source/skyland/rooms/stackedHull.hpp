@@ -31,6 +31,12 @@ public:
     using Hull::Hull;
 
 
+    Optional<UpgradeList> upgrade_mt_list() const override
+    {
+        return nullopt();
+    }
+
+
     void update(Time delta) override;
     void rewind(Time delta) override;
 

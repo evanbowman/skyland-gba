@@ -23,10 +23,30 @@ namespace skyland
 
 
 
+static const Fixnum overdrive_shutdown_ratio = 0.75_fixed;
+
+
+
+Health OverdriveCore::overload_threshold(Health max_hp)
+{
+    return (Fixnum::from_integer(max_hp) * overdrive_shutdown_ratio).as_integer();
+}
+
+
+
+bool OverdriveCore::is_overloaded() const
+{
+    return health() <= overload_threshold(max_health());
+}
+
+
+
 void OverdriveCore::format_description(StringBuffer<512>& buffer)
 {
     const auto max_hp = (*load_metaclass(OverdriveCore::name()))->full_health();
     buffer += format<256>(SYS_CSTR(description_overdrive_core),
+                          (overdrive_shutdown_ratio * 100.0_fixed).as_integer(),
+                          "%",
                           OverdriveCore::overload_threshold(max_hp)).c_str();
 }
 
@@ -55,24 +75,6 @@ void OverdriveCore::update(Time delta)
             PLATFORM.speaker().play_sound("poweron.raw", 4);
         }
     }
-}
-
-
-
-static const Fixnum overdrive_shutdown_ratio = 0.75_fixed;
-
-
-
-Health OverdriveCore::overload_threshold(Health max_hp)
-{
-    return (Fixnum::from_integer(max_hp) * overdrive_shutdown_ratio).as_integer();
-}
-
-
-
-bool OverdriveCore::is_overloaded() const
-{
-    return health() <= overload_threshold(max_health());
 }
 
 
