@@ -14,7 +14,6 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 

@@ -29,7 +29,8 @@ static const Fixnum overdrive_shutdown_ratio = 0.75_fixed;
 
 Health OverdriveCore::overload_threshold(Health max_hp)
 {
-    return (Fixnum::from_integer(max_hp) * overdrive_shutdown_ratio).as_integer();
+    return (Fixnum::from_integer(max_hp) * overdrive_shutdown_ratio)
+        .as_integer();
 }
 
 
@@ -47,12 +48,15 @@ void OverdriveCore::format_description(StringBuffer<512>& buffer)
     buffer += format<256>(SYS_CSTR(description_overdrive_core),
                           (overdrive_shutdown_ratio * 100.0_fixed).as_integer(),
                           "%",
-                          OverdriveCore::overload_threshold(max_hp)).c_str();
+                          OverdriveCore::overload_threshold(max_hp))
+                  .c_str();
 }
 
 
 
-OverdriveCore::OverdriveCore(Island* parent, const RoomCoord& position, const char* n)
+OverdriveCore::OverdriveCore(Island* parent,
+                             const RoomCoord& position,
+                             const char* n)
     : Room(parent, n, position)
 {
 }
@@ -128,4 +132,4 @@ void OverdriveCore::render_exterior(App* app, TileId buffer[16][16])
 
 
 
-}
+} // namespace skyland

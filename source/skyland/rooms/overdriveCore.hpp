@@ -25,7 +25,9 @@ namespace skyland
 class OverdriveCore : public Room
 {
 public:
-    OverdriveCore(Island* parent, const RoomCoord& position, const char* n = name());
+    OverdriveCore(Island* parent,
+                  const RoomCoord& position,
+                  const char* n = name());
 
 
     void render_interior(App* app, TileId buffer[16][16]) override;
@@ -93,7 +95,8 @@ public:
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
                RoomProperties::habitable | RoomProperties::oversize_explosion |
-               RoomProperties::multiboot_compatible | RoomProperties::not_constructible;
+               RoomProperties::multiboot_compatible |
+               RoomProperties::not_constructible;
     }
 
 

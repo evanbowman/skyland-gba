@@ -31,10 +31,10 @@
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/overdriveCore.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/sparkCannon.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/rooms/overdriveCore.hpp"
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
@@ -666,7 +666,8 @@ void EnemyAI::assign_local_character(Character& character,
                 // }
             }
 
-            if (room->is_powered_down() and room->metaclass() not_eq overdrive_mt) {
+            if (room->is_powered_down() and
+                room->metaclass() not_eq overdrive_mt) {
                 slot.ai_weight_ /= 2.0_atp;
             }
 

@@ -104,7 +104,6 @@ void UpgradePromptScene::repaint()
 
     PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 2, 419);
     PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - 3, 130);
-
 }
 
 
