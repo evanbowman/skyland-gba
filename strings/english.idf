@@ -453,6 +453,8 @@ recover character?
 start mind control?
 showing: repair range
 create replicant? -
+cancel
+autoresolve
 Reset sandbox?
 exit
 setup switch: connect ON:

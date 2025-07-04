@@ -549,6 +549,9 @@ enum class SystemString {
 
     create_replicant,
 
+    upgrade_displace_cancel,
+    upgrade_displace_affirm,
+
     reset_sandbox_query,
     exit,
 

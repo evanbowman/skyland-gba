@@ -56,6 +56,7 @@ private:
     Time flicker_timer_ = 0;
     bool flicker_on_ = false;
     u8 upgrade_index_ = 0;
+    bool displacement_prompt_ = false;
 };
 
 
