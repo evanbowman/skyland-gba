@@ -99,15 +99,7 @@ void OverdriveCore::apply_damage(Health damage, const DamageConfiguration& conf)
 
 Optional<Room::UpgradeList> OverdriveCore::upgrade_mt_list() const
 {
-    UpgradeList upgrades;
-    if (APP.faction() == Faction::goblin) {
-        upgrades.push_back(skyland::metaclass_index("chaos-core"));
-    } else if (APP.faction() == Faction::sylph) {
-        return nullopt();
-    } else {
-        upgrades.push_back(skyland::metaclass_index("reactor"));
-    }
-    return upgrades;
+    return nullopt();
 }
 
 
