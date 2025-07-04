@@ -134,6 +134,23 @@ void UpgradePromptScene::exit(Scene& next)
 
 
 
+void displace_rooms_upwards(Island& island,
+                            bool move,
+                            const RoomCoord& current_coord,
+                            const Vec2<u8>& current_room_size)
+{
+    for (int x = 0; x < current_room_size.x; ++x) {
+        if (auto room = island.get_room({u8(current_coord.x + x), u8(current_coord.y - 1)})) {
+            displace_rooms_upwards(island, true, room->position(), room->size());
+        }
+    }
+    if (move) {
+        island.move_room(current_coord, {current_coord.x, u8(current_coord.y - 1)});
+    }
+}
+
+
+
 ScenePtr UpgradePromptScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
@@ -242,6 +259,8 @@ ScenePtr UpgradePromptScene::update(Time delta)
                         for (u8 y = sy; y < target_coord_.y; ++y) {
 
                             if (APP.player_island().get_room({x, y})) {
+                                // TODO:
+                                // displace_rooms_upwards(player_island(), false, target_coord_, room->size());
                                 PLATFORM.speaker().play_sound("beep_error", 3);
                                 err = SYS_CSTR(construction_not_enough_space);
                                 return make_scene<NotificationScene>(err, next);
