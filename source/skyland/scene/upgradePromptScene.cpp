@@ -137,6 +137,50 @@ void UpgradePromptScene::exit(Scene& next)
 
 
 
+bool has_gap_left(Room& room)
+{
+    bool gap_left = true;
+    auto target_coord = room.position();
+    for (int y = 0; y < room.size().y; ++y) {
+        if (room.parent()->get_room(
+                {u8(target_coord.x - 1), u8(target_coord.y + y)})) {
+            gap_left = false;
+        }
+    }
+    return gap_left;
+}
+
+
+
+int seek_max_displaced_x(Island& island,
+                         const RoomCoord& current_coord,
+                         const Vec2<u8>& current_room_size)
+{
+    Optional<u8> max_x;
+
+    for (int y = 0; y < current_room_size.y; ++y) {
+        if (auto room =
+                island.get_room({u8(current_coord.x + current_room_size.x),
+                                 u8(current_coord.y + y)})) {
+            auto max =
+                seek_max_displaced_x(island, room->position(), room->size());
+            if (max_x and max > *max_x) {
+                max_x = max;
+            } else if (not max_x) {
+                max_x = max;
+            }
+        }
+    }
+
+    if (max_x) {
+        return *max_x;
+    }
+
+    return current_coord.x + (current_room_size.x - 1);
+}
+
+
+
 int seek_min_displaced_y(Island& island,
                          const RoomCoord& current_coord,
                          const Vec2<u8>& current_room_size)
@@ -177,6 +221,18 @@ bool can_displace_upwards(Island& island, const RoomCoord& locus, int amount)
 
 
 
+bool can_displace_rightwards(Island& island, const RoomCoord& locus, int amount)
+{
+    if (auto room = island.get_room(locus)) {
+        return seek_max_displaced_x(island, room->position(), room->size()) +
+                   amount <
+               (int)island.terrain().size();
+    }
+    return false;
+}
+
+
+
 void displace_rooms_upwards(Island& island,
                             bool move,
                             const RoomCoord& current_coord,
@@ -191,7 +247,6 @@ void displace_rooms_upwards(Island& island,
                     island, true, room->position(), room->size(), 1);
             }
         }
-        // Move current room after clearing the path
         if (move) {
             island.move_room(current_coord,
                              {current_coord.x, u8(current_coord.y - 1)});
@@ -201,22 +256,41 @@ void displace_rooms_upwards(Island& island,
 
 
 
+void displace_rooms_rightwards(Island& island,
+                               bool move,
+                               const RoomCoord& current_coord,
+                               const Vec2<u8> current_room_size,
+                               int displacement_amount = 1)
+{
+    for (int i = 0; i < displacement_amount; ++i) {
+        for (int y = 0; y < current_room_size.y; ++y) {
+            if (auto room = island.get_room(
+                    {u8(current_coord.x + current_room_size.x + i),
+                     u8(current_coord.y + y)})) {
+                displace_rooms_rightwards(
+                    island, true, room->position(), room->size(), 1);
+            }
+        }
+    }
+    if (move) {
+        island.move_room(current_coord,
+                         {u8(current_coord.x + 1), current_coord.y});
+    }
+}
+
+
+
 class UpgradeDisplaceScene : public ActiveWorldScene
 {
 public:
-
     UpgradeDisplaceScene(MetaclassIndex upgrade_from,
                          MetaclassIndex upgrade_to,
                          const RoomCoord& coord,
-                         int size_diff_y,
-                         Coins cost) :
-        upgrade_from_(upgrade_from),
-        upgrade_to_(upgrade_to),
-        target_coord_(coord),
-        size_diff_y_(size_diff_y),
-        cost_(cost)
+                         int size_diff,
+                         Coins cost)
+        : upgrade_from_(upgrade_from), upgrade_to_(upgrade_to),
+          target_coord_(coord), size_diff_(size_diff), cost_(cost)
     {
-
     }
 
 
@@ -298,11 +372,32 @@ public:
                 return make_scene<ReadyScene>();
             }
             if (auto room = player_island().get_room(target_coord_)) {
-                displace_rooms_upwards(player_island(),
-                                       false,
-                                       target_coord_,
-                                       room->size(),
-                                       size_diff_y_);
+                const auto& from = load_metaclass(upgrade_from_);
+                const auto& to = load_metaclass(upgrade_to_);
+                auto to_sz = (*to)->constructed_size();
+                auto from_sz = (*from)->constructed_size();
+                int size_diff_y = to_sz.y - from_sz.y;
+
+                if (size_diff_y == size_diff_) {
+                    displace_rooms_upwards(player_island(),
+                                           false,
+                                           target_coord_,
+                                           room->size(),
+                                           size_diff_);
+                } else {
+                    if (has_gap_left(*room)) {
+                        player_island().move_room(
+                            target_coord_,
+                            {u8(target_coord_.x - 1), target_coord_.y});
+                    } else {
+                        displace_rooms_rightwards(player_island(),
+                                                  false,
+                                                  target_coord_,
+                                                  room->size(),
+                                                  size_diff_);
+                    }
+                }
+
                 room->__unsafe__transmute(upgrade_to_);
                 room->parent()->rooms().reindex(true);
 
@@ -333,7 +428,8 @@ public:
             for (u8 x = (target_coord_.x + to_sz.x) - size_diff_x;
                  x < target_coord_.x + to_sz.x;
                  ++x) {
-                for (u8 y = target_coord_.y; y < target_coord_.y + to_sz.y; ++y) {
+                for (u8 y = target_coord_.y; y < target_coord_.y + to_sz.y;
+                     ++y) {
                     Sprite spr;
                     spr.set_tidx_16x16(13, 1);
                     spr.set_size(Sprite::Size::w16_h16);
@@ -415,7 +511,7 @@ private:
     MetaclassIndex upgrade_from_;
     MetaclassIndex upgrade_to_;
     RoomCoord target_coord_;
-    int size_diff_y_;
+    int size_diff_;
     Coins cost_;
     Time flicker_timer_ = 0;
     bool flicker_on_ = false;
@@ -525,8 +621,24 @@ ScenePtr UpgradePromptScene::update(Time delta)
                         for (u8 y = sy; y < ey; ++y) {
 
                             if (APP.player_island().get_room({x, y})) {
-                                err = SYS_CSTR(construction_not_enough_space);
-                                return notify_err();
+                                if (not size_diff_y and
+                                    (has_gap_left(*room) or
+                                     can_displace_rightwards(player_island(),
+                                                             target_coord_,
+                                                             size_diff_x))) {
+                                    PLATFORM.speaker().play_sound("beep_error",
+                                                                  3);
+                                    return make_scene<UpgradeDisplaceScene>(
+                                        upgrade_from_,
+                                        upgrade_to_[upgrade_index_],
+                                        target_coord_,
+                                        size_diff_x,
+                                        cost);
+                                } else {
+                                    err =
+                                        SYS_CSTR(construction_not_enough_space);
+                                    return notify_err();
+                                }
                             }
                         }
                     }
@@ -544,12 +656,14 @@ ScenePtr UpgradePromptScene::update(Time delta)
                                 if (can_displace_upwards(player_island(),
                                                          target_coord_,
                                                          size_diff_y)) {
-                                    PLATFORM.speaker().play_sound("beep_error", 3);
-                                    return make_scene<UpgradeDisplaceScene>(upgrade_from_,
-                                                                            upgrade_to_[upgrade_index_],
-                                                                            target_coord_,
-                                                                            size_diff_y,
-                                                                            cost);
+                                    PLATFORM.speaker().play_sound("beep_error",
+                                                                  3);
+                                    return make_scene<UpgradeDisplaceScene>(
+                                        upgrade_from_,
+                                        upgrade_to_[upgrade_index_],
+                                        target_coord_,
+                                        size_diff_y,
+                                        cost);
                                 } else {
                                     err =
                                         SYS_CSTR(construction_not_enough_space);
