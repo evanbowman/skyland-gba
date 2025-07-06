@@ -21,8 +21,6 @@ template <typename T, u32 Capacity> struct TinyBuffer
 {
     alignas(T) std::array<u8, Capacity * sizeof(T)> mem_;
     u8 count_ = 0;
-
-
     using ValueType = T;
 
 
@@ -41,13 +39,20 @@ template <typename T, u32 Capacity> struct TinyBuffer
     }
 
 
-    TinyBuffer(const TinyBuffer&) = delete;
+    TinyBuffer(const TinyBuffer&) = default;
+    TinyBuffer& operator=(const TinyBuffer&) = default;
 
 
     ~TinyBuffer()
+        requires(!std::is_trivially_destructible_v<T>)
     {
         clear();
     }
+
+
+    ~TinyBuffer()
+        requires(std::is_trivially_destructible_v<T>)
+    = default;
 
 
     bool full() const
@@ -90,7 +95,11 @@ template <typename T, u32 Capacity> struct TinyBuffer
         if (empty()) {
             return;
         }
-        ((T*)mem_.data() + --count_)->~T();
+        if constexpr (!std::is_trivially_destructible_v<T>) {
+            ((T*)mem_.data() + --count_)->~T();
+        } else {
+            --count_;
+        }
     }
 
 
@@ -108,8 +117,12 @@ template <typename T, u32 Capacity> struct TinyBuffer
 
     void clear()
     {
-        while (count_) {
-            pop_back();
+        if constexpr (!std::is_trivially_destructible_v<T>) {
+            while (count_) {
+                pop_back();
+            }
+        } else {
+            count_ = 0;
         }
     }
 };

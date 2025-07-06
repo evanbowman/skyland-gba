@@ -276,16 +276,26 @@ void DroneBay::amplify(bool enable)
 
 
 
+ReconstructionQueue& DroneBay::get_rq()
+{
+    if (not rq_) {
+        rq_.emplace();
+    }
+    return **rq_;
+}
+
+
+
 void DroneBay::finalize()
 {
     detach_drone(false);
 
-    if (not rq_.empty()) {
+    if (rq_ and not(*rq_)->empty()) {
         time_stream::event::AttachReconstructionQueue e;
         e.db_x_ = position().x;
         e.db_y_ = position().y;
-        e.previous_queue_memory_ = rq_.mem_;
-        e.previous_queue_size_ = rq_.count_;
+        e.previous_queue_memory_ = get_rq().mem_;
+        e.previous_queue_size_ = get_rq().count_;
         APP.time_stream().push(APP.level_timer(), e);
     }
 
@@ -296,11 +306,13 @@ void DroneBay::finalize()
 
 void DroneBay::parent_layout_changed(RoomCoord moved_from, RoomCoord to)
 {
-    for (int i = 0; i < rq_.size(); ++i) {
-        auto& elem = rq_[i];
-        if (elem.x_ == moved_from.x and elem.y_ == moved_from.y) {
-            elem.x_ = to.x;
-            elem.y_ = to.y;
+    if (rq_) {
+        for (int i = 0; i < get_rq().size(); ++i) {
+            auto& elem = get_rq()[i];
+            if (elem.x_ == moved_from.x and elem.y_ == moved_from.y) {
+                elem.x_ = to.x;
+                elem.y_ = to.y;
+            }
         }
     }
 }

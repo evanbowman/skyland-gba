@@ -19,7 +19,7 @@ struct ReconstructionQueueEntry
 
 
 
-static constexpr const int reconstruction_queue_size = 8;
+static constexpr const int reconstruction_queue_size = 15;
 
 
 

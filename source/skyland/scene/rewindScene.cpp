@@ -650,8 +650,8 @@ ScenePtr RewindScene::update(Time)
                 if (auto db = room->cast<DroneBay>()) {
                     static_assert(std::is_trivially_copyable_v<
                                   ReconstructionQueue::ValueType>);
-                    db->rq_.mem_ = e->previous_queue_memory_;
-                    db->rq_.count_ = e->previous_queue_size_;
+                    db->get_rq().mem_ = e->previous_queue_memory_;
+                    db->get_rq().count_ = e->previous_queue_size_;
                 }
             }
             APP.time_stream().pop(sizeof *e);
