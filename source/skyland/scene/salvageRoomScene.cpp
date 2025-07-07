@@ -250,15 +250,15 @@ ScenePtr SalvageRoomScene::update(Time delta)
                                 e.room_x_ = cursor_loc.x;
                                 e.room_y_ = cursor_loc.y;
                                 e.prev_group_ = (u8)room->group();
-                                APP.time_stream().push(APP.level_timer(), e);
+                                APP.push_time_stream(e);
                             }
                             time_stream::event::PlayerRoomSalvaged e;
                             setup(e);
-                            APP.time_stream().push(APP.level_timer(), e);
+                            APP.push_time_stream(e);
                         } else {
                             time_stream::event::OpponentRoomSalvaged e;
                             setup(e);
-                            APP.time_stream().push(APP.level_timer(), e);
+                            APP.push_time_stream(e);
                         }
                     }
 

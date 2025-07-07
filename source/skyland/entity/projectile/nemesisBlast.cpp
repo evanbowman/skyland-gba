@@ -200,12 +200,12 @@ void NemesisBlast::timestream_record_destroyed()
         time_stream::event::PlayerNemesisBlastDestroyed e;
         timestream_record(e);
         e.variant_ = variant_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::PlayerNemesisBlastDestroyed e;
         timestream_record(e);
         e.variant_ = variant_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 }
 

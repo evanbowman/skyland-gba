@@ -235,7 +235,7 @@ void GenericBird::update(Time delta)
                 e.color_ = color_;
                 e.flip_ = sprite_.get_flip().x;
                 e.near_ = near_;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
 
             kill();

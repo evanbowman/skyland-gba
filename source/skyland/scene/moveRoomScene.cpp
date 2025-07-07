@@ -317,7 +317,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                 PLATFORM.speaker().play_sound("build0", 4);
 
                 time_stream::event::MoveRegionBegin e;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
 
                 for (auto& r : (*group_selection_)->rooms_) {
                     if (auto room = island_->get_room(r)) {
@@ -330,7 +330,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                 }
 
                 time_stream::event::MoveRegionEnd e2;
-                APP.time_stream().push(APP.level_timer(), e2);
+                APP.push_time_stream(e2);
 
                 for (auto& room : island_->rooms()) {
                     room->set_hidden(false);

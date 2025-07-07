@@ -341,7 +341,7 @@ public:
         e.y_.set(sprite_.get_position().y.as_integer());
         e.room_x_ = coord.x;
         e.room_y_ = coord.y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
 
@@ -535,7 +535,7 @@ void BoardingPod::update(Time delta)
                     e.is_replicant_ = c.is_replicant();
                     e.race_ = c.get_race();
                     e.icon_ = c.get_icon();
-                    APP.time_stream().push(APP.level_timer(), e);
+                    APP.push_time_stream(e);
                 }
                 edit_characters().move_contents(bp->characters_);
                 update_description();

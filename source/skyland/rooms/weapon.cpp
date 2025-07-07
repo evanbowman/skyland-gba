@@ -102,12 +102,12 @@ void Weapon::timer_expired()
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
     }
 
@@ -177,7 +177,7 @@ void Weapon::update_targets()
         e.room_y_ = position().y;
         e.queue_elem_x_ = target_queue_.back().x_;
         e.queue_elem_y_ = target_queue_.back().y_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
         target_queue_.pop_back();
     }
@@ -378,7 +378,7 @@ void Weapon::clear_target_queue()
             e.has_previous_target_ = false;
         }
 
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
     } else {
 
@@ -397,13 +397,13 @@ void Weapon::clear_target_queue()
             e.queue_elem_x_ = elem.x_;
             e.queue_elem_y_ = elem.y_;
 
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
 
         time_stream::event::TargetQueueClear e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     target_queue_.clear();

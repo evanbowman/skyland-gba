@@ -229,12 +229,12 @@ void Decimator::update(Time delta)
                     time_stream::event::PlayerRoomReloadComplete e;
                     e.room_x_ = position().x;
                     e.room_y_ = position().y;
-                    APP.time_stream().push(APP.level_timer(), e);
+                    APP.push_time_stream(e);
                 } else {
                     time_stream::event::OpponentRoomReloadComplete e;
                     e.room_x_ = position().x;
                     e.room_y_ = position().y;
-                    APP.time_stream().push(APP.level_timer(), e);
+                    APP.push_time_stream(e);
                 }
             }
         }
@@ -271,13 +271,13 @@ void Decimator::update(Time delta)
                 e.src_x_ = position().x;
                 e.src_y_ = position().y;
                 e.prev_counter_ = counter_;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             } else {
                 time_stream::event::OpponentDecimatorBurstCreated e;
                 e.src_x_ = position().x;
                 e.src_y_ = position().y;
                 e.prev_counter_ = counter_;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
 
             firing_ = true;

@@ -246,12 +246,12 @@ void Cannonball::record_destroyed()
         time_stream::event::PlayerCannonballDestroyed c;
         timestream_record(c);
         c.variant_ = variant_;
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     } else {
         time_stream::event::OpponentCannonballDestroyed c;
         timestream_record(c);
         c.variant_ = variant_;
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     }
 }
 

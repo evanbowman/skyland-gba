@@ -222,11 +222,11 @@ void Missile::on_destroy()
     if (is_player_island(source_)) {
         time_stream::event::PlayerMissileDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentMissileDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     kill();
@@ -461,11 +461,11 @@ void RocketBomb::on_destroy()
     if (is_player_island(source_)) {
         time_stream::event::PlayerRocketBombDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentRocketBombDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     make_flak_smoke(sprite_.get_position());
@@ -600,11 +600,11 @@ void ClumpMissile::on_destroy()
     if (is_player_island(source_)) {
         time_stream::event::PlayerClumpMissileDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentClumpMissileDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     make_flak_smoke(sprite_.get_position());
@@ -712,11 +712,11 @@ void AtomicMissile::on_destroy()
     if (is_player_island(source_)) {
         time_stream::event::PlayerAtomicDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentAtomicDestroyed e;
         setup_event(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
 

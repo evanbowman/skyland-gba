@@ -221,7 +221,7 @@ void Bridge::finalize()
     e.room_y_ = position().y;
     e.prev_width_ = ((Room*)this)->size().x;
     e.near_ = parent() == &APP.player_island();
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 }
 
 

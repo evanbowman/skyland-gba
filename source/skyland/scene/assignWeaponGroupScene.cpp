@@ -65,7 +65,7 @@ ScenePtr AssignWeaponGroupScene::update(Time delta)
                     e.room_x_ = cursor_loc.x;
                     e.room_y_ = cursor_loc.y;
                     e.prev_group_ = (u8)group;
-                    APP.time_stream().push(APP.level_timer(), e);
+                    APP.push_time_stream(e);
 
                     if ((int)group < (int)Room::Group::three) {
                         group = (Room::Group)((int)group + 1);

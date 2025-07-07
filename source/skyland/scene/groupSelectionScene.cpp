@@ -365,7 +365,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
                         e.room_x_ = r->position().x;
                         e.room_y_ = r->position().y;
                         e.prev_group_ = (u8)prev;
-                        APP.time_stream().push(APP.level_timer(), e);
+                        APP.push_time_stream(e);
 
                         r->set_group(*group);
                         APP.player_island().schedule_repaint();

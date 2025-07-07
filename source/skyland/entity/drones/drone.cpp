@@ -221,7 +221,7 @@ void Drone::clear_target_queue()
         }
         e.previous_target_near_ = target_near_;
         e.destination_near_ = is_player_island(destination_);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
         target_queue_.clear();
 
@@ -235,14 +235,14 @@ void Drone::clear_target_queue()
             e.queue_elem_y_ = elem.y_;
             e.destination_near_ = is_player_island(destination_);
             e.previous_target_near_ = target_near_;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
 
         time_stream::event::DroneTargetQueueClear e;
         e.x_pos_ = grid_pos_.x;
         e.y_pos_ = grid_pos_.y;
         e.destination_near_ = is_player_island(destination_);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
         target_queue_.clear();
     }
@@ -320,7 +320,7 @@ void Drone::apply_damage(Health amount)
     e.y_pos_ = grid_pos_.y;
     e.destination_near_ = is_player_island(destination_);
     e.previous_health_.set(health());
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     Entity::apply_damage(amount);
 }
@@ -356,7 +356,7 @@ void Drone::update(Time delta)
             e.duration_.set(duration_);
 
             if (not suppress_time_stream_) {
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
             break;
         }
@@ -419,7 +419,7 @@ void Drone::update_targets()
         e.queue_elem_y_ = elem.y_;
         e.destination_near_ = is_player_island(destination_);
         e.previous_target_near_ = target_near_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
         target_queue_.pop_back();
     }

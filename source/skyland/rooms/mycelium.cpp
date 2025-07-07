@@ -103,12 +103,12 @@ void Mycelium::timer_expired()
             time_stream::event::PlayerRoomCreated p;
             p.x_ = x;
             p.y_ = y;
-            APP.time_stream().push(APP.level_timer(), p);
+            APP.push_time_stream(p);
         } else {
             time_stream::event::OpponentRoomCreated p;
             p.x_ = x;
             p.y_ = y;
-            APP.time_stream().push(APP.level_timer(), p);
+            APP.push_time_stream(p);
         }
     };
 

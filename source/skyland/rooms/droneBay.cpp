@@ -73,12 +73,12 @@ void DroneBay::update(Time delta)
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
         }
     }
@@ -254,7 +254,7 @@ void DroneBay::detach_drone(bool quiet)
         e.duration_.set((*drone_)->duration());
         e.db_x_pos_ = position().x;
         e.db_y_pos_ = position().y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
         if (not PLATFORM.screen().fade_active()) {
             PLATFORM.speaker().play_sound("explosion1", 0);
@@ -296,7 +296,7 @@ void DroneBay::finalize()
         e.db_y_ = position().y;
         e.previous_queue_memory_ = get_rq().mem_;
         e.previous_queue_size_ = get_rq().count_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     Room::finalize();
@@ -307,8 +307,9 @@ void DroneBay::finalize()
 void DroneBay::parent_layout_changed(RoomCoord moved_from, RoomCoord to)
 {
     if (rq_) {
-        for (int i = 0; i < get_rq().size(); ++i) {
-            auto& elem = get_rq()[i];
+        auto& q = get_rq();
+        for (int i = 0; i < q.size(); ++i) {
+            auto& elem = q[i];
             if (elem.x_ == moved_from.x and elem.y_ == moved_from.y) {
                 elem.x_ = to.x;
                 elem.y_ = to.y;

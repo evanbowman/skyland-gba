@@ -379,7 +379,7 @@ void award(Achievement achievement)
 
     time_stream::event::Achievement e;
     e.which_ = achievement;
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 }
 
 

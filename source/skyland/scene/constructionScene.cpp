@@ -731,12 +731,12 @@ ScenePtr ConstructionScene::update(Time delta)
                 time_stream::event::PlayerRoomCreated p;
                 p.x_ = dest_x;
                 p.y_ = dest_y;
-                APP.time_stream().push(APP.level_timer(), p);
+                APP.push_time_stream(p);
             } else {
                 time_stream::event::OpponentRoomCreated p;
                 p.x_ = dest_x;
                 p.y_ = dest_y;
-                APP.time_stream().push(APP.level_timer(), p);
+                APP.push_time_stream(p);
             }
 
 
@@ -804,7 +804,7 @@ ScenePtr ConstructionScene::update(Time delta)
             time_stream::event::IslandTerrainChanged e;
             e.previous_terrain_size_ = island()->terrain().size();
             e.near_ = is_player_island(island());
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
 
 
             auto& terrain = island()->terrain();

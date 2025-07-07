@@ -196,11 +196,11 @@ void Curveshot::destroy(bool explosion)
     // if (source_ == &APP.player_island()) {
     //     time_stream::event::PlayerCurveshotDestroyed c;
     //     timestream_record(c);
-    //     APP.time_stream().push(APP.level_timer(), c);
+    //     APP.push_time_stream(c);
     // } else {
     //     time_stream::event::OpponentCurveshotDestroyed c;
     //     timestream_record(c);
-    //     APP.time_stream().push(APP.level_timer(), c);
+    //     APP.push_time_stream(c);
     // }
 
 

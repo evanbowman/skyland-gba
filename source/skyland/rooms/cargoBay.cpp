@@ -169,7 +169,7 @@ void CargoBay::finalize()
             e.y_ = position().y;
             e.near_ = is_player_island(parent());
 
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
     }
 }

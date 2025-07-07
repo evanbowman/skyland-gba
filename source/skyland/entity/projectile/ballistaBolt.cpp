@@ -241,7 +241,7 @@ void BallistaBolt::destroy()
     e.x_pos_.set(sprite_.get_position().x.as_integer());
     e.y_pos_.set(sprite_.get_position().y.as_integer());
     memcpy(e.state_, &state_, sizeof(State));
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 }
 
 

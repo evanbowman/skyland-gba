@@ -63,7 +63,7 @@ public:
                 e.y_.set(pos.y.as_integer());
                 e.half_angle_ = half_angle_;
                 e.spd_ = speed_int_;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
                 kill();
             }
         }

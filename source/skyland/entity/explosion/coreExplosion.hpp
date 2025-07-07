@@ -75,7 +75,7 @@ public:
                     const auto pos = sprite_.get_position();
                     e.x_.set(pos.x.as_integer());
                     e.y_.set(pos.y.as_integer());
-                    APP.time_stream().push(APP.level_timer(), e);
+                    APP.push_time_stream(e);
                 }
             } else {
                 if (quarter_ == 0) {

@@ -243,7 +243,7 @@ void PhaseShifter::update(Time delta)
                 e.y_ = position().y;
                 e.prev_mode_ = time_stream::event::PhaseMode::phased;
                 e.near_ = is_player_island(parent());
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
         }
     } else {
@@ -265,7 +265,7 @@ void PhaseShifter::update(Time delta)
                 e.y_ = position().y;
                 e.prev_mode_ = time_stream::event::PhaseMode::loading;
                 e.near_ = is_player_island(parent());
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
         }
     }
@@ -317,7 +317,7 @@ ScenePtr PhaseShifter::select_impl(const RoomCoord& cursor)
     e.y_ = position().y;
     e.prev_mode_ = time_stream::event::PhaseMode::loaded;
     e.near_ = is_player_island(parent());
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     if (not was_activated) {
         schedule_repaint();

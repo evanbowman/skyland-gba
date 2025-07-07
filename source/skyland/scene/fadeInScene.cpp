@@ -122,7 +122,7 @@ ScenePtr FadeInScene::update(Time delta)
             APP.time_stream().clear();
 
             time_stream::event::Initial e;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
 
         const auto loc = APP.current_world_location();

@@ -204,11 +204,11 @@ void FireBolt::record_destroyed()
     if (is_player_island(source_)) {
         time_stream::event::PlayerFireboltDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     } else {
         time_stream::event::OpponentFireboltDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     }
 }
 

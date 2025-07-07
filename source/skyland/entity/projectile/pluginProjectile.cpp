@@ -156,11 +156,11 @@ void PluginProjectile::timestream_record_destroyed()
     if (is_player_island(source_)) {
         time_stream::event::PlayerPluginProjectileDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     } else {
         time_stream::event::OpponentPluginProjectileDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     }
 }
 

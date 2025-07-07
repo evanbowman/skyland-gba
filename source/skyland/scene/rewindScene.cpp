@@ -369,7 +369,7 @@ ScenePtr RewindScene::update(Time)
             // to. Our implementation only allows rewinding until the earliest
             // existing event.
             time_stream::event::Initial e;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
 
         if (far_camera_) {

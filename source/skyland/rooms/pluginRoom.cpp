@@ -195,7 +195,7 @@ void PluginRoom::set_target(const RoomCoord& target, bool pinned)
         e.has_previous_target_ = false;
     }
 
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     target_ = target;
 }
@@ -225,7 +225,7 @@ void PluginRoom::unset_target()
         e.has_previous_target_ = false;
     }
 
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     target_.reset();
 }

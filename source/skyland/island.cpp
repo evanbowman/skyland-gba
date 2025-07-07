@@ -455,12 +455,12 @@ void Island::fire_extinguish(const RoomCoord& coord)
         time_stream::event::PlayerFireExtinguished e;
         e.x_ = x;
         e.y_ = y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentFireExtinguished e;
         e.x_ = x;
         e.y_ = y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     fire_.positions_.set(x, y, false);
@@ -482,12 +482,12 @@ void Island::fire_create(const RoomCoord& coord)
         time_stream::event::PlayerFireCreated e;
         e.x_ = x;
         e.y_ = y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentFireCreated e;
         e.x_ = x;
         e.y_ = y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     fire_.positions_.set(x, y, true);
@@ -815,7 +815,7 @@ void Island::update(Time dt)
         e.max_health_ = c.get_max_health();
         e.health_ = c.health();
         e.stats_ = c.stats().info_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     };
 
 
@@ -1041,20 +1041,20 @@ void Island::update(Time dt)
                     p.y_ = pos.y;
                     p.type_ = mt;
                     p.group_ = (u8)group;
-                    APP.time_stream().push(APP.level_timer(), p);
+                    APP.push_time_stream(p);
                 } else {
                     time_stream::event::PlayerRoomDestroyed p;
                     p.x_ = pos.x;
                     p.y_ = pos.y;
                     p.type_ = mt;
-                    APP.time_stream().push(APP.level_timer(), p);
+                    APP.push_time_stream(p);
                 }
             } else {
                 time_stream::event::OpponentRoomDestroyed p;
                 p.x_ = pos.x;
                 p.y_ = pos.y;
                 p.type_ = mt;
-                APP.time_stream().push(APP.level_timer(), p);
+                APP.push_time_stream(p);
             }
 
 
@@ -1420,7 +1420,7 @@ void Island::set_phase(u8 phase)
         time_stream::event::IslePhaseChange e;
         e.prev_phase_ = phase_;
         e.near_ = is_player_island(this);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     phase_ = phase;
@@ -1712,14 +1712,14 @@ void Island::move_room(const RoomCoord& from, const RoomCoord& to)
                 e.y_ = to.y;
                 e.prev_x_ = from.x;
                 e.prev_y_ = from.y;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             } else {
                 time_stream::event::OpponentRoomMoved e;
                 e.x_ = to.x;
                 e.y_ = to.y;
                 e.prev_x_ = from.x;
                 e.prev_y_ = from.y;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
 
             Buffer<Vec2<u8>, 16> fire_respawn_locs;
@@ -2300,7 +2300,7 @@ void Island::set_drift(Fixnum drift)
         time_stream::event::OpponentIslandDriftChanged e;
         e.previous_speed__data_.set(drift_.data());
 
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     if (is_player_island(this)) {

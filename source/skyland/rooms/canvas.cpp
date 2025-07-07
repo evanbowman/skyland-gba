@@ -129,7 +129,7 @@ void Canvas::record_removed()
         e.y_ = position().y;
         e.near_ = is_player_island(parent());
         memcpy(e.data_, &(**img_data_), sizeof **img_data_);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 }
 

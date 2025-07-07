@@ -575,13 +575,13 @@ void Room::set_powerdown(bool powerdown)
         e.x_ = position().x;
         e.y_ = position().y;
         e.status_ = not powerdown_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentRoomPowerchange e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.status_ = not powerdown_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     parent_->recalculate_power_usage();
@@ -796,13 +796,13 @@ void Room::apply_damage(Health damage, const DamageConfiguration& conf)
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.diff_ = damage;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             } else {
                 time_stream::event::OpponentRoomDamagedSmall e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.diff_ = damage;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
         } else {
             if (is_player_island(parent_)) {
@@ -810,13 +810,13 @@ void Room::apply_damage(Health damage, const DamageConfiguration& conf)
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.previous_health_.set(health_);
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             } else {
                 time_stream::event::OpponentRoomDamaged e;
                 e.x_ = position().x;
                 e.y_ = position().y;
                 e.previous_health_.set(health_);
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
         }
     }
@@ -863,13 +863,13 @@ void Room::__unsafe__transmute(MetaclassIndex m)
         e.prev_type_ = m_prev;
         e.x_ = pos.x;
         e.y_ = pos.y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentRoomTransmuted e;
         e.prev_type_ = m_prev;
         e.x_ = pos.x;
         e.y_ = pos.y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     this->finalize();
@@ -893,7 +893,7 @@ void Room::__unsafe__transmute(MetaclassIndex m)
             auto chr_pos = chr->grid_position();
             e.previous_x_ = chr_pos.x;
             e.previous_y_ = chr_pos.y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
             chr->set_grid_position(
                 {clamp(chr_pos.x, new_room->position().x, u8(r_extent.x - 1)),
                  clamp(chr_pos.y, new_room->position().y, u8(r_extent.y - 1))});
@@ -921,7 +921,7 @@ void Room::__unsafe__transmute(MetaclassIndex m)
                 e.id_.set(chr->id());
                 e.previous_x_ = pos.x;
                 e.previous_y_ = pos.y;
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
 
                 chr->drop_movement_path();
                 chr->set_idle();
@@ -957,7 +957,7 @@ bool Room::adjust_width(int size_diff)
     e.room_y_ = position().y;
     e.prev_width_ = current;
     e.near_ = parent() == &APP.player_island();
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     size_x_ = current + size_diff;
     parent()->rooms().reindex(true);
@@ -985,7 +985,7 @@ void Room::constrain_chrs()
             auto chr_pos = chr->grid_position();
             e.previous_x_ = chr_pos.x;
             e.previous_y_ = chr_pos.y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
             chr->set_grid_position(
                 {clamp(chr_pos.x, position().x, u8(r_extent.x - 1)),
                  clamp(chr_pos.y, position().y, u8(r_extent.y - 1))});
@@ -1047,13 +1047,13 @@ void Room::heal(Health amount)
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentRoomRepaired e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     const Health new_health = health_ + amount;
@@ -1069,14 +1069,14 @@ void Room::convert_to_plundered()
         e.x_ = position().x;
         e.y_ = position().y;
         e.type_ = metaclass_index_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
 
     } else {
         time_stream::event::PlayerRoomPlundered e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.type_ = metaclass_index_;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     // Ok, so when a character plunders a room, we don't actually want to
@@ -1245,13 +1245,13 @@ void Room::set_ai_aware(bool ai_aware)
             e.room_x_ = position().x;
             e.room_y_ = position().y;
             e.prev_aware_ = ai_aware_;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         } else {
             time_stream::event::OpponentRoomAiAwareness e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
             e.prev_aware_ = ai_aware_;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
     }
 

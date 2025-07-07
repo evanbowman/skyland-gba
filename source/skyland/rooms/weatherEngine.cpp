@@ -107,7 +107,7 @@ public:
             time_stream::event::WeatherChanged e;
 
             e.prev_weather_ = APP.environment().id();
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
 
             environment_init(index_ + 1);
 

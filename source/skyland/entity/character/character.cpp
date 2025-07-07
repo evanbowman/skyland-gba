@@ -422,7 +422,7 @@ void Character::record_stats()
     time_stream::event::CharacterStatsChanged e;
     e.id_.set(id());
     e.prev_stats_ = stats_->info_;
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 }
 
 
@@ -1218,7 +1218,7 @@ void Character::movement_step(Time delta, Room* current_room)
             e.near_ = is_player_island(parent_);
 
             if (reassign_room(grid_position_, current_position)) {
-                APP.time_stream().push(APP.level_timer(), e);
+                APP.push_time_stream(e);
             }
 
             if (auto room = parent_->get_room(grid_position())) {
@@ -1255,7 +1255,7 @@ void Character::set_movement_path(Path path)
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
     e.near_ = is_player_island(parent_);
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     movement_path_ = std::move(path);
 }
@@ -1304,7 +1304,7 @@ void Character::heal(int amount)
     e.near_ = is_player_island(parent_);
     static_assert(max_health <= 255);
     e.previous_health_ = health_;
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     if (health_ + amount > max_health_) {
         health_ = max_health_;
@@ -1335,7 +1335,7 @@ void Character::apply_damage(Health damage)
     e.owned_by_player_ = owner_is_player_;
     e.near_ = is_player_island(parent_);
     e.previous_health_ = health_;
-    APP.time_stream().push(APP.level_timer(), e);
+    APP.push_time_stream(e);
 
     if (auto room = parent_->get_room(grid_position())) {
         room->update_description();

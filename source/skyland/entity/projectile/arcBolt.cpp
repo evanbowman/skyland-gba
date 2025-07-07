@@ -252,11 +252,11 @@ void ArcBolt::record_destroyed()
     if (is_player_island(source_)) {
         time_stream::event::PlayerArcboltDestroyed e;
         timestream_record(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentArcboltDestroyed e;
         timestream_record(e);
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 }
 

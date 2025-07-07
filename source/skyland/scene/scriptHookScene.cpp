@@ -49,7 +49,7 @@ void invoke_hook(const char* lisp_hook_name, const InvokeHookConfig& config)
         if (config.reset_timestream_) {
             APP.time_stream().clear();
             time_stream::event::Initial e;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
 
         lisp::pop_op(); // funcall result

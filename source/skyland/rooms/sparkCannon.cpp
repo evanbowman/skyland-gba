@@ -57,12 +57,12 @@ void SparkCannon::on_lightning()
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
     }
 }
@@ -247,12 +247,12 @@ ScenePtr SparkCannon::select_impl(const RoomCoord& cursor)
             time_stream::event::PlayerRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         } else {
             time_stream::event::OpponentRoomReloadComplete e;
             e.room_x_ = position().x;
             e.room_y_ = position().y;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
         }
     };
 

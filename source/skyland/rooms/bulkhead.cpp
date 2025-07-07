@@ -181,12 +181,12 @@ void Bulkhead::set_open(bool open)
         time_stream::event::PlayerRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     } else {
         time_stream::event::OpponentRoomReloadComplete e;
         e.room_x_ = position().x;
         e.room_y_ = position().y;
-        APP.time_stream().push(APP.level_timer(), e);
+        APP.push_time_stream(e);
     }
 
     if (APP.time_stream().pushes_enabled()) {

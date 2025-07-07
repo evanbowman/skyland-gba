@@ -138,11 +138,11 @@ void Antimatter::destroy(bool explosion)
     if (is_player_island(source_)) {
         time_stream::event::PlayerAntimatterDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     } else {
         time_stream::event::OpponentAntimatterDestroyed c;
         timestream_record(c);
-        APP.time_stream().push(APP.level_timer(), c);
+        APP.push_time_stream(c);
     }
 
     kill();

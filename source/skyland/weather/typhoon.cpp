@@ -176,7 +176,7 @@ void Typhoon::update(Time delta)
             PLATFORM.speaker().play_sound("thunder_close_1", 0);
 
             time_stream::event::Lightning e;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
 
             for (auto& room : player_island().rooms()) {
                 room->on_lightning();
@@ -218,7 +218,7 @@ void Typhoon::update(Time delta)
             PLATFORM.screen().schedule_fade(0.f);
 
             time_stream::event::LightningDone e;
-            APP.time_stream().push(APP.level_timer(), e);
+            APP.push_time_stream(e);
 
         } else {
             const auto amount =
