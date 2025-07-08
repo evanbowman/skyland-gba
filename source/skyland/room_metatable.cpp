@@ -365,6 +365,7 @@ using RoomMetatableType = RoomMetatable<10,
                                         Deflector,
                                         Amplifier,
                                         PhaseShifter,
+                                        PlunderedRoom,
                                         // decoration
                                         Bell,
                                         Speaker,
@@ -383,7 +384,6 @@ using RoomMetatableType = RoomMetatable<10,
                                         Basalt,
                                         Snow,
                                         MarketStall,
-                                        PlunderedRoom,
                                         Canvas>;
 
 

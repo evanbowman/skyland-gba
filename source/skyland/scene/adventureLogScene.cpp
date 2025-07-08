@@ -113,7 +113,7 @@ void AdventureLogScene::enter(Scene& prev)
     PLATFORM.load_overlay_texture("overlay_adventurelog");
     show_page(0);
     PLATFORM.speaker().play_sound("page_flip", 0);
-    PLATFORM.screen().schedule_fade(1, custom_color(0xcdd6a1));
+    PLATFORM.screen().schedule_fade(1, {custom_color(0xcdd6a1)});
 }
 
 
@@ -214,7 +214,7 @@ ScenePtr AdventureLogScene::update(Time delta)
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount, {ColorConstant::rich_black, true, true});
         }
         break;
     }
@@ -326,7 +326,7 @@ ScenePtr AdventureLogScene::update(Time delta)
                         if (x == 0 and y == 0) {
                             state_ = State::page_fade_in_anim;
                             PLATFORM.screen().schedule_fade(
-                                1, custom_color(0x0e0984), true, true);
+                                1, {custom_color(0x0e0984), true, true});
                             ++page_;
                             show_page(page_);
 
@@ -355,7 +355,7 @@ ScenePtr AdventureLogScene::update(Time delta)
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, custom_color(0x0e0984), true, true);
+                amount, {custom_color(0x0e0984), true, true});
             PLATFORM.set_overlay_origin(0, -amount * 16);
         }
         break;

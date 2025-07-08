@@ -52,7 +52,7 @@ public:
         }
 
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-        PLATFORM.screen().schedule_fade(amount, ColorConstant::electric_blue);
+        PLATFORM.screen().schedule_fade(amount, {ColorConstant::electric_blue});
 
         return null_scene();
     }

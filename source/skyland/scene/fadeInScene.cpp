@@ -205,7 +205,7 @@ ScenePtr FadeInScene::update(Time delta)
         Color color(fast_interpolate(ao.r_, input.r_, amt),
                     fast_interpolate(ao.g_, input.g_, amt),
                     fast_interpolate(ao.b_, input.b_, amt));
-        PLATFORM.screen().schedule_fade(amount, color.hex());
+        PLATFORM.screen().schedule_fade(amount, {.color = color.hex()});
     }
 
     return null_scene();

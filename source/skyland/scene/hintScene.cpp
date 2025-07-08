@@ -92,9 +92,7 @@ ScenePtr HintScene::update(Time delta)
         if (timer_ < fade_duration) {
             PLATFORM.screen().schedule_fade(
                 1.f - smoothstep(0.f, fade_duration, timer_),
-                ColorConstant::rich_black,
-                true,
-                true);
+                {ColorConstant::rich_black, true, true});
         } else {
             PLATFORM.screen().fade(0.f);
             timer_ = 0;

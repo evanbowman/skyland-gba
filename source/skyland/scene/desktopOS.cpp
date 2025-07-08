@@ -1602,7 +1602,7 @@ public:
         PLATFORM.screen().set_shader(passthrough_shader);
 
         PLATFORM.screen().schedule_fade(
-            1.f, ColorConstant::rich_black, true, true);
+            1.f, {ColorConstant::rich_black, true, true});
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
 
@@ -1688,7 +1688,7 @@ public:
             const auto amount =
                 1.f - smoothstep(0.f, fade_duration, mem_->fade_timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount, {ColorConstant::rich_black, true, true});
         } else {
             PLATFORM.screen().schedule_fade(0);
         }

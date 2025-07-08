@@ -161,7 +161,7 @@ void MacrocosmFreebuildModule::init()
     m.sector().render();
 
     PLATFORM.sleep(1);
-    PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+    PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
     PLATFORM.screen().schedule_fade(0.f);
 
     PLATFORM_EXTENSION(update_parallax_macro, macrocosm().data_->cloud_scroll_);

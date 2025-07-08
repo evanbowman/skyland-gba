@@ -192,7 +192,8 @@ void FullscreenDialogScene::exit(Scene& prev)
         int frames = 25;
         for (int i = 0; i < frames; ++i) {
             PLATFORM.screen().schedule_fade(
-                Float(i) / (frames - 1), ColorConstant::rich_black, true, true);
+                Float(i) / (frames - 1),
+                {ColorConstant::rich_black, true, true});
             PLATFORM.keyboard().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -464,7 +465,7 @@ void FullscreenDialogScene::process_command()
         int frames = 45;
         for (int i = 0; i < frames; ++i) {
             PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
-                                            ColorConstant::rich_black);
+                                            {ColorConstant::rich_black});
             PLATFORM.keyboard().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();

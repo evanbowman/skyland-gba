@@ -83,23 +83,23 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
     if (player.key_pressed(Key::alt_1) or player.key_pressed(Key::alt_2)) {
 
         if (player.key_down(Key::left)) {
-            PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+            PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
             sector.rotate();
             sector.render();
-            PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
             draw_compass(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         } else if (player.key_down(Key::right)) {
-            PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
+            PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
             sector.rotate();
             sector.rotate();
             sector.rotate();
             sector.render();
-            PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
             draw_compass(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         } else if (test_key(Key::down) and sector.get_z_view() > 0) {

@@ -126,7 +126,8 @@ public:
                     APP.environment().music()->c_str(), 0);
             }
 
-            PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+            PLATFORM.screen().schedule_fade(
+                1.f, {.color = ColorConstant::silver_white});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
             PLATFORM.sleep(4);

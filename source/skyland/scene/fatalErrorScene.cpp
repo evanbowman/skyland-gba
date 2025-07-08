@@ -27,7 +27,7 @@ void FatalErrorScene::enter(Scene& prev)
     }
 
     const auto bkg_color = custom_color(0xcb1500);
-    PLATFORM.screen().schedule_fade(1.f, bkg_color);
+    PLATFORM.screen().schedule_fade(1.f, {.color = bkg_color});
 
     static constexpr const Text::OptColors text_colors{
         {custom_color(0xffffff), bkg_color}};

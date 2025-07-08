@@ -43,8 +43,8 @@ void SelectSampleScene::enter(Scene& prev)
 
     show_options();
 
-    PLATFORM.screen().schedule_fade(
-        default_fade, ColorConstant::rich_black, {}, false);
+    PLATFORM.screen().schedule_fade(default_fade,
+                                    {ColorConstant::rich_black, {}, false});
 }
 
 

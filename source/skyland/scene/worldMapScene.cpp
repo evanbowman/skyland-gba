@@ -1349,7 +1349,7 @@ ScenePtr WorldMapScene::update(Time delta)
                         {ColorConstant::rich_black, custom_color(0xff8e38)}});
         exit_label_.reset();
         PLATFORM.screen().schedule_fade(
-            0.5f, ColorConstant::rich_black, true, true);
+            0.5f, {ColorConstant::rich_black, true, true});
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
         PLATFORM.speaker().play_sound("cancel", 5);
@@ -1409,7 +1409,7 @@ ScenePtr WorldMapScene::update(Time delta)
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount, {ColorConstant::rich_black, true, true});
         }
         break;
     }

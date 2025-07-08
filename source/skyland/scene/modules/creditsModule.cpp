@@ -136,11 +136,11 @@ ScenePtr CreditsModule::update(Time delta)
             timer_ = 0;
             state_ = State::idle;
             PLATFORM.screen().schedule_fade(
-                0.f, ColorConstant::rich_black, true, true, true, true);
+                0.f, {ColorConstant::rich_black, true, true, true, true});
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+                amount, {ColorConstant::rich_black, true, true});
         }
         break;
 
@@ -150,11 +150,11 @@ ScenePtr CreditsModule::update(Time delta)
             timer_ = 0;
             state_ = State::page_swap;
             PLATFORM.screen().schedule_fade(
-                1, ColorConstant::rich_black, true, true);
+                1, {ColorConstant::rich_black, true, true});
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true, true, true);
+                amount, {ColorConstant::rich_black, true, true, true, true});
         }
         break;
 
@@ -168,7 +168,7 @@ ScenePtr CreditsModule::update(Time delta)
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true, true, false);
+                amount, {ColorConstant::rich_black, true, true, true, false});
         }
         break;
 

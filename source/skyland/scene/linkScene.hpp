@@ -32,7 +32,7 @@ public:
 
     void enter(Scene&) override
     {
-        PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+        PLATFORM.screen().schedule_fade(1.f, {ColorConstant::silver_white});
 
         PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
 

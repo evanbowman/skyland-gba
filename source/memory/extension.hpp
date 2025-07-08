@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "platform/scratch_buffer.hpp"
 #include "platform/platform.hpp"
+#include "platform/scratch_buffer.hpp"
 
 
 

@@ -80,7 +80,7 @@ void DlcManagerModule::enter(Scene& prev)
     flash_filesystem::walk_directory("/dlc/", on_match);
 
     PLATFORM.screen().fade(0.95);
-    PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+    PLATFORM.screen().schedule_fade(1.f, {ColorConstant::silver_white});
 
     show();
 }

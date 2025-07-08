@@ -190,7 +190,8 @@ public:
 
     static void init()
     {
-        PLATFORM.screen().schedule_fade(1.f, ColorConstant::silver_white);
+        PLATFORM.screen().schedule_fade(1.f,
+                                        {.color = ColorConstant::silver_white});
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
 
@@ -223,8 +224,12 @@ public:
         PLATFORM.screen().display();
 
 
-        PLATFORM.screen().schedule_fade(
-            1.f, back_color, true, false, true, false);
+        PLATFORM.screen().schedule_fade(1.f,
+                                        {.color = back_color,
+                                         .include_sprites = true,
+                                         .include_overlay = false,
+                                         .include_background = true,
+                                         .include_tiles = false});
 
         Text::print("(R)", {19, 5}, fc);
 

@@ -47,7 +47,7 @@ void MacroverseScene::enter(Scene& prev)
     PLATFORM.load_sprite_texture("spritesheet_macroverse");
 
     PLATFORM.screen().schedule_fade(0.f);
-    PLATFORM.screen().schedule_fade(1.f, ColorConstant::rich_black, false);
+    PLATFORM.screen().schedule_fade(1.f, {ColorConstant::rich_black, false});
 
     PLATFORM.screen().set_view({});
 
@@ -580,8 +580,8 @@ ScenePtr MacroverseScene::update(Time delta)
             const auto step = smoothstep(0.f, tm, timer_);
             const auto amount = 1.f - 0.6f * step;
             PLATFORM.screen().set_shader_argument(step * 255);
-            PLATFORM.screen().schedule_fade(
-                amount, ColorConstant::rich_black, false);
+            PLATFORM.screen().schedule_fade(amount,
+                                            {ColorConstant::rich_black, false});
         }
         break;
     }

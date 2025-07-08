@@ -166,7 +166,7 @@ ScenePtr SkylandForever::update(Time delta)
 
     if (unveil_) {
         PLATFORM.screen().schedule_fade(
-            0.6f, ColorConstant::rich_black, false, false);
+            0.6f, {ColorConstant::rich_black, false, false});
     } else {
         unveil_ = true;
     }
@@ -181,9 +181,9 @@ ScenePtr SkylandForever::update(Time delta)
         PLATFORM.screen().set_shader_argument(0);
 
         PLATFORM.screen().schedule_fade(
-            0.7f, ColorConstant::rich_black, false, false);
+            0.7f, {ColorConstant::rich_black, false, false});
         PLATFORM.screen().schedule_fade(
-            0.6f, ColorConstant::rich_black, false, false);
+            0.6f, {ColorConstant::rich_black, false, false});
 
         auto new_ambiance = APP.environment().ambiance();
         if (*last_ambiance not_eq new_ambiance->c_str()) {

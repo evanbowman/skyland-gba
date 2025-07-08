@@ -32,7 +32,7 @@ public:
     void enter(Scene& prev) override
     {
         PLATFORM.screen().schedule_fade(
-            1.f, ColorConstant::rich_black, {}, true, true);
+            1.f, {ColorConstant::rich_black, {}, true, true});
 
         PLATFORM.load_overlay_texture("overlay_textview");
 
@@ -70,7 +70,7 @@ public:
         if (PLATFORM.keyboard().down_transition(Key::action_2)) {
             PLATFORM.screen().clear();
             PLATFORM.screen().schedule_fade(
-                1, ColorConstant::rich_black, {}, true, true);
+                1, {ColorConstant::rich_black, {}, true, true});
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().display();
             PLATFORM.load_overlay_texture("overlay");
@@ -103,7 +103,7 @@ public:
             if (timer_ < fade_duration) {
                 auto sstep = 1.f - smoothstep(0.f, fade_duration, timer_);
                 PLATFORM.set_overlay_origin(0, -20 * sstep);
-                PLATFORM.screen().schedule_fade(sstep, fc, {}, true, true);
+                PLATFORM.screen().schedule_fade(sstep, {fc, {}, true, true});
             } else {
                 timer_ = 0;
                 PLATFORM.screen().schedule_fade(0.f);
@@ -143,11 +143,11 @@ public:
             if (timer_ < fade_duration) {
                 auto sstep = smoothstep(0.f, fade_duration, timer_);
                 PLATFORM.set_overlay_origin((dir_ ? -32 : 32) * sstep, 0);
-                PLATFORM.screen().schedule_fade(sstep, fc, {}, true, true);
+                PLATFORM.screen().schedule_fade(sstep, {fc, {}, true, true});
             } else {
                 timer_ = 0;
                 PLATFORM.set_overlay_origin(0, 0);
-                PLATFORM.screen().schedule_fade(1.f, fc, {}, true, true);
+                PLATFORM.screen().schedule_fade(1.f, {fc, {}, true, true});
                 display_mode_ = DisplayMode::transition;
             }
             break;

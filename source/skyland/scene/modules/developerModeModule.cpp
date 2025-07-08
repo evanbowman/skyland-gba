@@ -83,7 +83,7 @@ void DeveloperModeModule::enter(Scene& prev)
 
     PLATFORM.screen().set_shader(passthrough_shader);
     PLATFORM.load_tile0_texture("developer_mode_flattened");
-    PLATFORM.screen().schedule_fade(0.f, custom_color(0x163061));
+    PLATFORM.screen().schedule_fade(0.f, {custom_color(0x163061)});
 
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {

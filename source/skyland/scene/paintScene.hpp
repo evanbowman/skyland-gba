@@ -101,8 +101,12 @@ public:
                 }
             }
 
-            PLATFORM.screen().schedule_fade(
-                1, *backdrop_color_, false, false, true, false);
+            PLATFORM.screen().schedule_fade(1,
+                                            {.color = *backdrop_color_,
+                                             .include_sprites = false,
+                                             .include_overlay = false,
+                                             .include_background = true,
+                                             .include_tiles = false});
         }
     }
 

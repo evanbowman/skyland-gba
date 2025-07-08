@@ -80,8 +80,8 @@ void StartAdventureScene::enter(Scene& prev)
             PersistentData::permadeath_on) and
         loaded_) {
 
-        PLATFORM.screen().schedule_fade(0, ColorConstant::rich_black);
-        PLATFORM.screen().schedule_fade(1.f, ColorConstant::rich_black);
+        PLATFORM.screen().schedule_fade(0, {ColorConstant::rich_black});
+        PLATFORM.screen().schedule_fade(1.f, {ColorConstant::rich_black});
 
         Text::print(SYSTR(newgame)->c_str(), {3, 4});
         Text::print(SYSTR(continue_game)->c_str(), {3, 2});

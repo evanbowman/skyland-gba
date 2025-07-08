@@ -28,12 +28,9 @@ public:
         }
 
         if (counter_ < 10) {
-            PLATFORM.screen().schedule_fade(counter_ / 10.f,
-                                            ColorConstant::rich_black,
-                                            false,
-                                            false,
-                                            true,
-                                            false);
+            PLATFORM.screen().schedule_fade(
+                counter_ / 10.f,
+                {ColorConstant::rich_black, false, false, true, false});
         } else if (counter_ == 10) {
             PLATFORM.speaker().set_music_volume(2);
         }

@@ -76,7 +76,7 @@ void FileBrowserModule::enter(Scene& prev)
     }
 
     if (not gui_mode_) {
-        PLATFORM.screen().schedule_fade(0.95f, custom_color(0x007cbf));
+        PLATFORM.screen().schedule_fade(0.95f, {custom_color(0x007cbf)});
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
         PLATFORM.fill_overlay(0);
@@ -91,7 +91,7 @@ void FileBrowserModule::exit(Scene& next)
 {
     lines_.clear();
     info_.reset();
-    PLATFORM.screen().schedule_fade(1, custom_color(0x007cbf));
+    PLATFORM.screen().schedule_fade(1, {custom_color(0x007cbf)});
     PLATFORM.screen().clear();
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();

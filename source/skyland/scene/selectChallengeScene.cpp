@@ -63,8 +63,8 @@ void SelectChallengeScene::enter(Scene& prev)
 
     PLATFORM.screen().set_view({});
 
-    PLATFORM.screen().schedule_fade(
-        default_fade, ColorConstant::rich_black, {}, false);
+    PLATFORM.screen().schedule_fade(default_fade,
+                                    {ColorConstant::rich_black, {}, false});
 
     if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind")) {
         PLATFORM.speaker().stream_music("unaccompanied_wind", 0);

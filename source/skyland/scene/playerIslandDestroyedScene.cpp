@@ -609,7 +609,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(amount,
-                                            ColorConstant::silver_white);
+                                            {ColorConstant::silver_white});
         }
         break;
     }

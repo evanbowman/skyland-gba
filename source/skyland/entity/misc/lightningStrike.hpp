@@ -17,10 +17,11 @@ public:
     {
         sprite_.set_alpha(Sprite::Alpha::transparent);
         PLATFORM.screen().schedule_fade(
-            0.6f, ColorConstant::rich_black, true, false, false, true, true);
+            0.6f, {ColorConstant::rich_black, true, false, false, true, true});
 
         PLATFORM.screen().schedule_fade(
-            0.6f, ColorConstant::silver_white, false, false, true, false, true);
+            0.6f,
+            {ColorConstant::silver_white, false, false, true, false, true});
     }
 
     enum class LightningState : u8 {
@@ -46,20 +47,20 @@ public:
                 lightning_timer_ = milliseconds(48);
                 ls_ = LightningState::begin2;
                 PLATFORM.screen().schedule_fade(0.25f,
-                                                ColorConstant::rich_black,
-                                                true,
-                                                false,
-                                                false,
-                                                true,
-                                                true);
+                                                {ColorConstant::rich_black,
+                                                 true,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 true});
 
                 PLATFORM.screen().schedule_fade(0.25f,
-                                                ColorConstant::silver_white,
-                                                false,
-                                                false,
-                                                true,
-                                                false,
-                                                true);
+                                                {ColorConstant::silver_white,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 false,
+                                                 true});
             }
             break;
 
@@ -80,20 +81,20 @@ public:
                 }
 
                 PLATFORM.screen().schedule_fade(1.f,
-                                                ColorConstant::rich_black,
-                                                true,
-                                                false,
-                                                false,
-                                                true,
-                                                true);
+                                                {ColorConstant::rich_black,
+                                                 true,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 true});
 
                 PLATFORM.screen().schedule_fade(1.f,
-                                                ColorConstant::silver_white,
-                                                false,
-                                                false,
-                                                true,
-                                                false,
-                                                true);
+                                                {ColorConstant::silver_white,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 false,
+                                                 true});
             }
             break;
 
@@ -117,20 +118,20 @@ public:
                 const auto amount =
                     smoothstep(0.f, milliseconds(430), lightning_timer_);
                 PLATFORM.screen().schedule_fade(amount,
-                                                ColorConstant::rich_black,
-                                                true,
-                                                false,
-                                                false,
-                                                true,
-                                                true);
+                                                {ColorConstant::rich_black,
+                                                 true,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 true});
 
                 PLATFORM.screen().schedule_fade(amount,
-                                                ColorConstant::silver_white,
-                                                false,
-                                                false,
-                                                true,
-                                                false,
-                                                true);
+                                                {ColorConstant::silver_white,
+                                                 false,
+                                                 false,
+                                                 true,
+                                                 false,
+                                                 true});
             }
             break;
         }

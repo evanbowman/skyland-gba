@@ -77,7 +77,7 @@ public:
         Text t("abcdef0123456789.", OverlayCoord{0, 20});
         t.__detach();
 
-        PLATFORM.screen().schedule_fade(1.f, custom_color(0x00210f));
+        PLATFORM.screen().schedule_fade(1.f, {.color = custom_color(0x00210f)});
     }
 
 

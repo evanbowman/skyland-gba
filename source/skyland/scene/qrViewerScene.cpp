@@ -145,7 +145,8 @@ void QRViewerScene::enter(Scene& prev)
     }
 
     PLATFORM.screen().schedule_fade(
-        1.f, overworld_ ? custom_color(0x4e4e73) : ColorConstant::silver_white);
+        1.f,
+        {overworld_ ? custom_color(0x4e4e73) : ColorConstant::silver_white});
 }
 
 
@@ -181,7 +182,7 @@ ScenePtr QRViewerScene::update(Time delta)
         if (overworld_) {
             PLATFORM.screen().schedule_fade(0.f);
         } else {
-            PLATFORM.screen().schedule_fade(1.f, exit_color_);
+            PLATFORM.screen().schedule_fade(1.f, {.color = exit_color_});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
         }

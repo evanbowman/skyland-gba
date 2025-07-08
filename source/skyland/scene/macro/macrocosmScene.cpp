@@ -118,8 +118,8 @@ ScenePtr MacrocosmScene::update(Time delta)
         m.sector().shadowcast();
         raster::globalstate::_changed = true;
         m.sector().render();
-        PLATFORM.screen().schedule_fade(0.1f, ColorConstant::rich_black);
-        PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
+        PLATFORM.screen().schedule_fade(0.1f, {ColorConstant::rich_black});
+        PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
     }
 
     if (ui_ and not m.data_->freebuild_mode_) {

@@ -45,7 +45,7 @@ ScenePtr RegressionModule::update(Time delta)
 
     if (test_index == -1) {
         PLATFORM.screen().schedule_fade(0);
-        PLATFORM.screen().schedule_fade(1, bkg_color);
+        PLATFORM.screen().schedule_fade(1, {bkg_color});
         PLATFORM.screen().clear();
         Text::print("please wait...", {1, 1}, text_colors);
         Text::print("running tests...", {1, 3}, text_colors);
@@ -125,7 +125,7 @@ ScenePtr RegressionModule::update(Time delta)
         if (test_index == SelectTutorialScene::tutorial_count()) {
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().schedule_fade(0);
-            PLATFORM.screen().schedule_fade(1, bkg_color);
+            PLATFORM.screen().schedule_fade(1, {bkg_color});
             PLATFORM.screen().clear();
             Text::print("all regression passed!", {1, 1}, text_colors);
             u32 mstack = 0;

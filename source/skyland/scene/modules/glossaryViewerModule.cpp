@@ -564,7 +564,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         auto fade_duration = milliseconds(200);
         const auto amt = smoothstep(0.f, fade_duration, timer_);
         PLATFORM.screen().schedule_fade(
-            0.25f * amt, ColorConstant::rich_black, false, false, false);
+            0.25f * amt, {ColorConstant::rich_black, false, false, false});
 
         s16 scrl = -1 * (amt * 16);
         PLATFORM.set_scroll(Layer::map_0_ext, scrl, 0);
@@ -655,7 +655,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         const auto amt = smoothstep(0.f, fade_duration, timer_);
 
         PLATFORM.screen().schedule_fade(
-            amt, ColorConstant::rich_black, true, true, true);
+            amt, {ColorConstant::rich_black, true, true, true});
 
         s16 scrl = amt * 10;
         PLATFORM.set_scroll(Layer::map_0_ext, 0, -scrl);
@@ -744,7 +744,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         const auto amt = 1.f - smoothstep(0.f, fade_duration, timer_);
 
         PLATFORM.screen().schedule_fade(
-            0.45f * amt, ColorConstant::rich_black, false, false, false);
+            0.45f * amt, {ColorConstant::rich_black, false, false, false});
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;
@@ -785,7 +785,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 
 
         PLATFORM.screen().schedule_fade(
-            0.45f * amt, ColorConstant::rich_black, false, false, false);
+            0.45f * amt, {ColorConstant::rich_black, false, false, false});
 
         auto progress = 8 * 14 * amt;
         auto low = (int)progress / 8;

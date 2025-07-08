@@ -58,7 +58,7 @@ void TextEntryScene::enter(Scene& prev)
     auto base_colors =
         FontColors{custom_color(0xffffff), custom_color(0x007cbf)};
 
-    PLATFORM.screen().schedule_fade(1.f, custom_color(0x007cbf));
+    PLATFORM.screen().schedule_fade(1.f, {.color = custom_color(0x007cbf)});
 
     auto mapping_info_lbrace = locale_texture_map()('<');
     const u16 lbrace = PLATFORM.map_glyph('<', *mapping_info_lbrace);

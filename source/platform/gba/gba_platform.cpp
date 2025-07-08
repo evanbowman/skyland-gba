@@ -2896,45 +2896,40 @@ bool Platform::Screen::fade_active() const
 
 
 
-void Platform::Screen::schedule_fade(Float amount,
-                                     ColorConstant k,
-                                     bool include_sprites,
-                                     bool include_overlay,
-                                     bool include_background,
-                                     bool include_tiles,
-                                     bool dodge)
+void Platform::Screen::schedule_fade(Float amount, const FadeProperties& p)
 {
     const u8 amt = amount * 255;
 
-    if (amt == last_fade_amt and k == last_color and
-        last_fade_include_sprites == include_sprites) {
+    if (amt == last_fade_amt and p.color == last_color and
+        last_fade_include_sprites == p.include_sprites) {
         return;
     }
 
     last_fade_amt = amt;
-    last_color = k;
-    last_fade_include_sprites = include_sprites;
+    last_color = p.color;
+    last_fade_include_sprites = p.include_sprites;
 
-    const auto c = invoke_shader(real_color(k), ShaderPalette::tile0, 0);
+    const auto c = invoke_shader(real_color(p.color), ShaderPalette::tile0, 0);
 
 
     set_gflag(GlobalFlag::palette_sync, true);
 
 
     // Sprite palette
-    if (include_sprites or not dodge) {
+    if (p.include_sprites or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(sprite_palette[i]);
             sp_palette_back_buffer[i] =
-                blend(from, c, include_sprites ? amt : 0);
+                blend(from, c, p.include_sprites ? amt : 0);
         }
     }
 
     // Tile0 palette
-    if (include_tiles or not dodge) {
+    if (p.include_tiles or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-            bg_palette_back_buffer[i] = blend(from, c, include_tiles ? amt : 0);
+            bg_palette_back_buffer[i] =
+                blend(from, c, p.include_tiles ? amt : 0);
         }
         // Tile0 darkened palette
         for (int i = 0; i < 16; ++i) {
@@ -2945,7 +2940,7 @@ void Platform::Screen::schedule_fade(Float amount,
     }
 
     // Custom flag/tile/sprite palette:
-    if (include_tiles or not dodge) {
+    if (p.include_tiles or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(custom_flag_palette[i]);
             auto val = blend(from, c, amt);
@@ -2955,28 +2950,28 @@ void Platform::Screen::schedule_fade(Float amount,
     }
 
     // Tile1 palette
-    if (include_tiles or not dodge) {
+    if (p.include_tiles or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             bg_palette_back_buffer[32 + i] =
-                blend(from, c, include_tiles ? amt : 0);
+                blend(from, c, p.include_tiles ? amt : 0);
         }
     }
 
-    if (include_background or not dodge) {
+    if (p.include_background or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(background_palette[i]);
             bg_palette_back_buffer[16 * 11 + i] =
-                blend(from, c, include_background ? amt : 0);
+                blend(from, c, p.include_background ? amt : 0);
         }
     }
 
     // Overlay palette
-    if (include_overlay or not dodge) {
+    if (p.include_overlay or not p.dodge) {
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(overlay_palette[i]);
             bg_palette_back_buffer[16 + i] =
-                blend(from, c, include_overlay ? amt : 0);
+                blend(from, c, p.include_overlay ? amt : 0);
         }
     }
 }

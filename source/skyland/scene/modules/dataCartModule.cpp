@@ -265,7 +265,7 @@ ScenePtr DataCartModule::update(Time delta)
         if (APP.player().key_down(Key::action_2)) {
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().schedule_fade(
-                1.f, ColorConstant::rich_black, {}, true, true);
+                1.f, {ColorConstant::rich_black, {}, true, true});
             state_ = State::exit;
         } else if (APP.player().key_down(Key::action_1)) {
             if (auto cart = carts_->load(cart_index_)) {

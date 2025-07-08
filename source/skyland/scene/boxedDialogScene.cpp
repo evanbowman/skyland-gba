@@ -167,7 +167,7 @@ void BoxedDialogScene::process_command()
         int frames = 45;
         for (int i = 0; i < frames; ++i) {
             PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
-                                            ColorConstant::rich_black);
+                                            {ColorConstant::rich_black});
             PLATFORM.keyboard().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -822,7 +822,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             int frames = 30;
             for (int i = 0; i < frames; ++i) {
                 PLATFORM.screen().schedule_fade(
-                    Float(i) / frames, ColorConstant::rich_black, true, true);
+                    Float(i) / frames, {ColorConstant::rich_black, true, true});
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
                 if (ambience_) {
