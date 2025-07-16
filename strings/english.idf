@@ -234,7 +234,7 @@ no crops ready for harvest!
 enter
 create colony
 isle (fullsize)
-atol (tiny)
+atoll (tiny)
 edit name
 available: %
 cost: %_
