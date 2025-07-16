@@ -22,7 +22,7 @@ resold tiles for %@!
 completed merchant quest, earned %@
 farmer meyer's brother paid %@ for delivery of % trees
 saved banana man's banana plants!
-completed chauffer's quest (picked up three crew)
+completed chauffeur's quest (picked up three crew)
 reached zone %!
 hired a mercenary for @%!
 declined mercenaries' offer...
@@ -55,7 +55,7 @@ accepted quest from orphan boy!
 returned lost child to the Sylph...
 dropped below the clouds to avoid bad weather
 accepted miners' quest (deliver 7 explosives)
-completed miners quest! (+%@)
+completed miners' quest! (+%@)
 unable to make payment to imperial missile station!
 made payment to imperial missile station
 refused to pay imperial missile station
