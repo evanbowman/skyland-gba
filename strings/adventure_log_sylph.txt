@@ -24,7 +24,7 @@ farmer meyer's brother paid %@ for delivery of % trees
 saved banana man's banana plants!
 completed chauffeur's quest (picked up three crew)
 reached zone %!
-hired a mercenary for @%!
+hired a mercenary for %@!
 declined mercenaries' offer...
 salvaged %@ from an abandoned castle
 abandoned fortress was a trap!?
@@ -52,7 +52,7 @@ accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
 accepted quest from orphan boy!
-returned lost child to the Sylph...
+returned lost child to the sylph...
 dropped below the clouds to avoid bad weather
 accepted miners' quest (deliver 7 explosives)
 completed miners' quest! (+%@)
