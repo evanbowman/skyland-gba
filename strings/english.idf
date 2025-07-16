@@ -286,7 +286,7 @@ Water source block.
 Slightly lowers the construction cost of all blocks.
 Shows the interior of hostile castles! Radars also improve transporter accuracy, as well as movement range on the world map!
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
-"Give me your tired, your poor, Your huddled masses yearning to breathe free"
+"Give me your tired, your poor, your huddled masses yearning to breathe free"
 Flows across an island, sets non-fireproof blocks aflame.
 Lava source block.
 ...
@@ -348,7 +348,7 @@ Like a ladder, but one block taller. (Upgrade a ladder via the SELECT menu)
 Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
-A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
+A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well-placed shot can easily demolish half of a castle. Single use.
 ...
 What could this be? You'll have to try it out in the sandbox level editor and see what it does... (max % allowed per level).
 Originally designed to shield against harsh radiation on the surface. Emits a defensive energy field--all nearby blocks will take % damage less.
@@ -357,7 +357,7 @@ One of the few pieces of technology goblins have managed to invent. Generates % 
 Speeds up recharge times for nearby blocks. Rare, fragile, and incredibly valuable.
 A specialized beam weapon that deals %% of a block's maximum health in damage. More effective against hull than regular cannons, weak against delicate blocks.
 Goblins tried to design a better cannon; it's powerful, yet flawed - starts at % damage, drops to % at half health, and % at quarter health.
-An ancient sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
+An ancient Sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
 While similar in concept to classical siege weapons, this artillery gun is much more destructive. Fires heavy bolts in a wide arc, bypassing standard defenses.
 A ship's bell. Click to ring it!
 A decorative bridge... resize it via the SELECT menu!
@@ -434,7 +434,7 @@ Enter your token:
 Step 1: Scan to request a login token!
 
 Scan to upload score!
- A: next 
+A: next 
 Preparing QR Code...
 combos: START + ?
 set weapon groups
@@ -624,7 +624,7 @@ Name crewmember:
 ENTER: submit
 You've just loaded a saved game. With permadeath enabled, each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
 Tip: You can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
-Tip: You may also change the gamespeed by pressing and holding the pause (left shoulder) button. See the "gamespeed" tutorial for more help!
+Tip: You may also change the game speed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
 Tip: The SELECT menu lists extra features not always available elsewhere. Try SELECTing different things to access more options!
 ok
 don't show again
@@ -640,7 +640,7 @@ name crewmember
 stop firing
 set target
 salvage
-set gamespeed
+set game speed
 unpause
 build
 back
