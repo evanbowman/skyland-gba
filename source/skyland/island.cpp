@@ -1547,6 +1547,10 @@ void Island::render_interior_fast()
 
 
 
+void set_glow_color();
+
+
+
 void Island::render_interior()
 {
     interior_visible_ = true;
@@ -1554,6 +1558,7 @@ void Island::render_interior()
     if (layer_ == Layer::map_0_ext) {
         auto t = APP.environment().player_island_interior_texture();
         PLATFORM.load_tile0_texture(t);
+        set_glow_color();
     } else {
         auto t = APP.environment().opponent_island_interior_texture();
         PLATFORM.load_tile1_texture(t);
@@ -1585,6 +1590,7 @@ void Island::render_exterior()
 
     if (layer_ == Layer::map_0_ext) {
         PLATFORM.load_tile0_texture(APP.environment().player_island_texture());
+        set_glow_color();
     } else {
         PLATFORM.load_tile1_texture(
             APP.environment().opponent_island_texture());
@@ -1946,6 +1952,8 @@ void Island::repaint()
     if (hidden_) {
         return;
     }
+
+    set_glow_color();
 
     // The engine only knows how to draw an island wholistically, because some
     // tiles need to be joined etc., so whenever the island changes, the whole
@@ -2472,6 +2480,7 @@ void show_island(Island* island)
             show_island_exterior(island);
         }
     }
+    set_glow_color();
 }
 
 

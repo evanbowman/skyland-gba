@@ -28,4 +28,7 @@
  (cons 'groups (groups))
  (cons 'nav (wg-nav-path))
  (cons 'faction (faction))
- (cons 'pending-events pending-events))
+ (cons 'pending-events pending-events)
+ (cons 'crystal-tone (list (getvar "energy_glow_color")
+                           (getvar "spr_energy_color_1")
+                           (getvar "spr_energy_color_2"))))

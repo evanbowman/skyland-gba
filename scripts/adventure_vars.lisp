@@ -3,7 +3,8 @@
 ;;
 
 (setq adventure-vars
-      '(("mercenary-event" . nil)))
+      '(("mercenary-event" . nil)
+        ("sylph-shop-intro" . nil)))
 
 (defn/c adv-var-load ((name . string))
   (lookup name adventure-vars))
@@ -19,5 +20,5 @@
 (if (equal (difficulty) 0)
     (setvar "powerdown_allowed" 1)
     (setvar "powerdown_allowed" 0))
-    
+
 (setvar "rewind_disabled" 0)

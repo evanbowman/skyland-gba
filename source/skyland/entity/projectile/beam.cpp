@@ -62,6 +62,10 @@ Beam::Beam(const Vec2<Fixnum>& position,
 
     auto step = direction(fvec(position), fvec(target)) * speed;
     step_vector_ = Vec2<Fixnum>{Fixnum(step.x), Fixnum(step.y)};
+
+    if (source == &player_island()) {
+        sprite_.set_palette(2);
+    }
 }
 
 

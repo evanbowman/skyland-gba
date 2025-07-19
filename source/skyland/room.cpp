@@ -1284,6 +1284,12 @@ public:
     }
 
 
+    Sprite& spr()
+    {
+        return sprite_;
+    }
+
+
     void update(Time delta) override
     {
         // NOTE: a lot of our update logic simply multiplies speed by delta
@@ -1461,6 +1467,9 @@ void Room::finalize()
             const int count = debris_count();
             for (int i = 0; i < count; ++i) {
                 if (auto e = alloc_entity<Debris>(center(), max_y, t)) {
+                    if (parent() == &player_island()) {
+                        e->spr().set_palette(2);
+                    }
                     int angle = rng::choice<45>(rng::utility_state);
                     if (rng::choice<2>(rng::utility_state)) {
                         angle = 360 - 45;

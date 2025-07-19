@@ -78,6 +78,10 @@ void Decimator::display(Platform::Screen& screen)
     auto pos = visual_center();
     spr.set_size(Sprite::Size::w16_h16);
 
+    if (parent() == &player_island()) {
+        spr.set_palette(2);
+    }
+
     pos.y -= 16.0_fixed;
 
     if (reload_ < seconds(7) and not counter_) {

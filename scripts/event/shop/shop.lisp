@@ -137,6 +137,10 @@
                (dialog "<c:shopkeeper:7> Let me have my repairman come over and assess the damages...")
                (setq on-dialog-closed (run-util-script "repairman" ret)))))
 
+        (dialog-opts-push "retune core"
+                          (lambda ()
+                            (dialog "<c:shopkeeper:7> Core service, eh? Well... I've got this Sylph fellow who showed up last week. Bit odd, claims he can 'retune' your power matrix or some such...")
+                            (setq on-dialog-closed (run-util-script "core-service" ret))))
 
         (dialog-opts-push "chat"
                           (lambda ()

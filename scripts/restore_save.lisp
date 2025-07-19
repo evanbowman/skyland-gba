@@ -59,6 +59,12 @@
       (setq pending-events (load 'pending-events))
       (setq zone-shop-items (load 'zone-shop-items)))
 
+    (let ((ct (load 'crystal-tone)))
+      (when ct
+        (setvar "energy_glow_color" (get ct 0))
+        (setvar "spr_energy_color_1" (get ct 1))
+        (setvar "spr_energy_color_2" (get ct 2))))
+
     (let ((grp (load 'groups))
           (join (lambda (g)
                   (let ((grp g))

@@ -226,7 +226,7 @@ static bool overlay_back_buffer_changed = false;
 
 
 
-alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[32];
+alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[48];
 alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
 
 
@@ -1171,6 +1171,7 @@ static Color invoke_shader(const Color& c, ShaderPalette palette, int index)
 
 
 EWRAM_DATA u16 sprite_palette[16];
+EWRAM_DATA u16 sprite_alt_palette[16];
 EWRAM_DATA u16 tilesheet_0_palette[16];
 EWRAM_DATA u16 tilesheet_1_palette[16];
 EWRAM_DATA u16 overlay_palette[16];
@@ -1207,6 +1208,12 @@ void Platform::Screen::set_shader_argument(int arg)
     init_palette(current_spritesheet->palette_data_,
                  sprite_palette,
                  ShaderPalette::spritesheet);
+
+    auto hack_idx_9 = sprite_alt_palette[9];
+    auto hack_idx_10 = sprite_alt_palette[10];
+    memcpy(sprite_alt_palette, sprite_palette, sizeof sprite_palette);
+    sprite_alt_palette[9] = hack_idx_9;
+    sprite_alt_palette[10] = hack_idx_10;
 
     init_palette(current_tilesheet0->palette_data_,
                  tilesheet_0_palette,
@@ -2136,7 +2143,7 @@ void Platform::Screen::clear()
 
     if (get_gflag(GlobalFlag::palette_sync)) {
 
-        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 16);
+        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 24);
 
         memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer,
                  24); // word count
@@ -2832,6 +2839,11 @@ void Platform::Screen::fade(float amount,
             auto from = Color::from_bgr_hex_555(sprite_palette[i]);
             MEM_PALETTE[i] = blend(from, c, include_sprites ? amt : 0);
         }
+        // Sprite alt palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(sprite_alt_palette[i]);
+            MEM_PALETTE[i + 32] = blend(from, c, include_sprites ? amt : 0);
+        }
         // Tile0 palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
@@ -2921,6 +2933,12 @@ void Platform::Screen::schedule_fade(Float amount, const FadeProperties& p)
             auto from = Color::from_bgr_hex_555(sprite_palette[i]);
             sp_palette_back_buffer[i] =
                 blend(from, c, p.include_sprites ? amt : 0);
+        }
+
+        // Sprite alt palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(sprite_alt_palette[i]);
+            sp_palette_back_buffer[i + 32] = blend(from, c, p.include_sprites ? amt : 0);
         }
     }
 
@@ -3064,6 +3082,10 @@ void Platform::load_sprite_texture(const char* name)
                          sprite_palette,
                          ShaderPalette::spritesheet);
 
+            init_palette(current_spritesheet->palette_data_,
+                         sprite_alt_palette,
+                         ShaderPalette::spritesheet);
+
 
             // NOTE: There are four tile blocks, so index four points to the
             // end of the tile memory.
@@ -3077,7 +3099,9 @@ void Platform::load_sprite_texture(const char* name)
                 real_color(last_color), ShaderPalette::spritesheet, 0);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(sprite_palette[i]);
-                MEM_PALETTE[i] = blend(from, c, last_fade_amt);
+                auto bld = blend(from, c, last_fade_amt);
+                MEM_PALETTE[i] = bld;
+                MEM_PALETTE[i + 32] = bld;
             }
         }
     }
@@ -7385,6 +7409,18 @@ static const Platform::Extensions extensions{
                 }
             }
         },
+    .override_palette = [](Layer l, u8 index, ColorConstant color) {
+        const auto c = invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
+        if (l == Layer::map_0_ext) {
+            tilesheet_0_palette[index] = Color(color).bgr_hex_555();
+            MEM_BG_PALETTE[index] = blend(color, c, last_fade_amt);
+        }
+    },
+    .override_sprite_palette = [](u8 index, ColorConstant color) {
+        const auto c = invoke_shader(real_color(last_color), ShaderPalette::spritesheet, 0);
+        sprite_alt_palette[index] = Color(color).bgr_hex_555();
+        MEM_PALETTE[32 + index] = blend(color, c, last_fade_amt);
+    },
     .__test_compare_sound =
         [](const char* name) {
             if (auto s = get_sound(name)) {

@@ -246,6 +246,10 @@ void RewindScene::print_timestamp()
 
 
 
+void set_glow_color();
+
+
+
 ScenePtr RewindScene::update(Time)
 {
     bool speed_changed = false;
@@ -295,7 +299,11 @@ ScenePtr RewindScene::update(Time)
         delta *= 4;
     }
 
+
     APP.delta_fp() = delta;
+
+
+    set_glow_color();
 
 
     // Some functions called in this block may try to call other functions that

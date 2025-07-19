@@ -30,6 +30,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "surrenderWaitScene.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -263,12 +264,37 @@ void WorldScene::reset_gamespeed()
 
 
 
+SHARED_VARIABLE(energy_glow_color);
+SHARED_VARIABLE(spr_energy_color_1);
+SHARED_VARIABLE(spr_energy_color_2);
+
+
+void set_glow_color()
+{
+    auto cl = custom_color(energy_glow_color);
+
+    const auto default_neon_blue_color = 0x66fff7;
+    if (energy_glow_color == default_neon_blue_color) {
+        cl = APP.environment().shader()(ShaderPalette::tile0,
+                                        custom_color(energy_glow_color),
+                                        0,
+                                        11);
+    }
+
+    PLATFORM_EXTENSION(override_palette, Layer::map_0_ext, 11, cl);
+    PLATFORM_EXTENSION(override_sprite_palette, 9, custom_color(spr_energy_color_1));
+    PLATFORM_EXTENSION(override_sprite_palette, 10, custom_color(spr_energy_color_2));
+}
+
+
+
 ScenePtr ActiveWorldScene::update(Time delta)
 {
     APP.player().update(delta);
 
     APP.opponent().update(delta);
 
+    // set_glow_color();
 
     if (auto new_scene = WorldScene::update(delta)) {
         return new_scene;
