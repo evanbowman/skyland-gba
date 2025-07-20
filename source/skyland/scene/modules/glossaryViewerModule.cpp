@@ -396,11 +396,7 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         for (int y = 2; y < 20; ++y) {
             PLATFORM.set_tile(Layer::overlay, 1, y, 112);
         }
-        if (cg_cursor_ == (int)Room::Category::count) {
-            PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2 + 1, 483);
-        } else {
-            PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
-        }
+        PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
     if (APP.player().key_down(Key::action_1)) {
