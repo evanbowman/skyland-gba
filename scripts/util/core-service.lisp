@@ -58,7 +58,7 @@
                                                                (lambda (isle x y)
                                                                  (room-new (player) `(tuning-crystal ,x ,y))
                                                                  (sound "build0")
-                                                                 (achieve 46))))
+                                                                 (achieve 21))))
                                                   (dialog "<c:sylph:46> Unfortunately, you don't seem to have enough to buy it yet..."))))
 
                           (dialog-opts-push "nevermind" done)))

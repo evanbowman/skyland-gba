@@ -122,9 +122,10 @@ public:
         spr_energy_color_2.set(lisp::get_list(elem, 3)->integer().value_);
         parent()->schedule_repaint();
         auto freq = lisp::get_list(elem, 5)->integer().value_;
+        auto oct = lisp::get_list(elem, 6)->integer().value_;
         Platform::Speaker::NoteDesc n;
         n.regular_.note_ = (Platform::Speaker::Note)freq;
-        n.regular_.octave_ = 0;
+        n.regular_.octave_ = oct;
         PLATFORM_EXTENSION(psg_play_note,
                            Platform::Speaker::Channel::square_1,
                            n);
