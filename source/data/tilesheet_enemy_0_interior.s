@@ -3,13 +3,13 @@
 
 @=======================================================================
 @
-@	tilesheet_enemy_0_interior, 6992x16@4, 
+@	tilesheet_enemy_0_interior, 7008x16@4, 
 @	Transparent color : FF,00,FF
 @	+ palette 16 entries, not compressed
-@	+ 1748 tiles Metatiled by 2x2 not compressed
-@	Total size: 32 + 55936 = 55968
+@	+ 1752 tiles Metatiled by 2x2 not compressed
+@	Total size: 32 + 56064 = 56096
 @
-@	Time-stamp: 2025-07-03, 07:21:17
+@	Time-stamp: 2025-07-20, 08:43:15
 @	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -17,7 +17,7 @@
 
 	.section .rodata
 	.align	2
-	.global tilesheet_enemy_0_interiorTiles		@ 55936 unsigned chars
+	.global tilesheet_enemy_0_interiorTiles		@ 56064 unsigned chars
 	.hidden tilesheet_enemy_0_interiorTiles
 tilesheet_enemy_0_interiorTiles:
 	.word 0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000
@@ -1986,6 +1986,10 @@ tilesheet_enemy_0_interiorTiles:
 	.word 0x11222222,0x11222222,0x11112222,0x11222222,0x11111111,0x11111111,0x11414141,0x14414144
 	.word 0x14441111,0x11111111,0x44441111,0x44441141,0x44444444,0x44444444,0x44444444,0x44444442
 	.word 0x14444444,0x14444444,0x14444444,0x14444444,0x14444444,0x14444444,0x14444444,0x44444444
+	.word 0xEEEEDEDD,0xFFFFFFFF,0x1111FFEF,0x91111FFF,0x911111FF,0x9B11111F,0x9911111F,0x99B1111F
+	.word 0xEEEEEEEE,0xFFFFFFFF,0xFEFF1111,0xFFF1111B,0xFF11111B,0xF11111BB,0xF11111BB,0xF1111BBB
+	.word 0xBBB1111F,0xBB11111F,0xBB11111F,0xB11111FF,0xB1111FFF,0x1111FFEF,0xFFFFFFFF,0x11111111
+	.word 0xF1111CCC,0xF11111CC,0xF11111CC,0xFF11111C,0xFFF1111C,0xFEFF1111,0xFFFFFFFF,0x11111111
 
 	.section .rodata
 	.align	2

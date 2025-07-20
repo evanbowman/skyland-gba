@@ -340,6 +340,7 @@ struct Tile
         bell,
         overdrive_core_1,
         overdrive_core_2,
+        tuning_crystal,
         count
     };
 };
@@ -662,6 +663,7 @@ struct InteriorTile
         bell,
         overdrive_core_1,
         overdrive_core_2,
+        tuning_crystal,
         count
     };
 };

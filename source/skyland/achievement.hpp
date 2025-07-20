@@ -62,6 +62,7 @@ enum Achievement : u8 {
     mycelium        = 18,
     primitive       = 19,
     hero            = 20,
+    core_technician = 21,
     // pacifist        = 23,
     count
     // clang-format on

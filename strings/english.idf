@@ -140,6 +140,7 @@ targeting-computer
 tea
 terrain
 tulips
+tuning-crystal
 dynamite
 dynamite-ii
 torch
@@ -362,6 +363,7 @@ While similar in concept to classical siege weapons, this artillery gun is much 
 A ship's bell. Click to ring it!
 A decorative bridge... resize it via the SELECT menu!
 A power-core, modified to boost its energy output. The jury-rigged modifications make the core delicate - it will overload if its health drops below %% (%).
+...
 paused
 slow
 regular
@@ -559,6 +561,8 @@ Raid
 Board opponent's island w/ more than 4 of your own crew
 Pacifist
 Reach zone 4 without killing any opponent crewmembers!
+Core Technician
+Buy a tuning crystal from a Sylph technician!
 options
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!

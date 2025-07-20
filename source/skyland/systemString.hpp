@@ -180,6 +180,7 @@ enum class SystemString {
     block_tea,
     block_terrain,
     block_tulips,
+    block_tuning_crystal,
     block_dynamite_1,
     block_dynamite_2,
     block_torch,
@@ -433,6 +434,7 @@ enum class SystemString {
     description_bell,
     description_bridge,
     description_overdrive_core,
+    description_tuning_crystal,
 
     gs_paused,
     gs_slow,
@@ -669,6 +671,8 @@ enum class SystemString {
     achievement_raid_description,
     achievement_pacifist_name,
     achievement_pacifist_description,
+    achievement_core_technician_name,
+    achievement_core_technician_description,
 
     options,
 

@@ -267,6 +267,17 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[hero].reward_), awarded);
      }},
 
+    {SystemString::achievement_core_technician_name,
+     SystemString::achievement_core_technician_description,
+     "tuning-crystal",
+     []() {
+         // invoked manually through achievements::raise().
+         return false;
+     },
+     [](bool awarded) {
+         set_enabled(metaclass_index(info[core_technician].reward_), awarded);
+     }},
+
     // {SystemString::achievement_pacifist_name,
     //  SystemString::achievement_pacifist_description,
     //  "mind-control",

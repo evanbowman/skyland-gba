@@ -25,6 +25,7 @@
 #include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/beamGun.hpp"
 #include "skyland/rooms/bell.hpp"
+#include "skyland/rooms/tuningCrystal.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -292,7 +293,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<9,
+using RoomMetatableType = RoomMetatable<8,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -368,6 +369,7 @@ using RoomMetatableType = RoomMetatable<9,
                                         PlunderedRoom,
                                         // decoration
                                         Bell,
+                                        TuningCrystal,
                                         Speaker,
                                         Synth,
                                         Statue,
