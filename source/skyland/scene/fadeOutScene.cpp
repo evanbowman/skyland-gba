@@ -18,6 +18,7 @@
 #include "skyland/scene/modules/regressionModule.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -79,10 +80,7 @@ ScenePtr FadeOutScene::update(Time delta)
         }
 
 
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
+        psg_stop_all();
 
         APP.player_island().set_hidden(false);
         APP.player_island().set_phase(0);

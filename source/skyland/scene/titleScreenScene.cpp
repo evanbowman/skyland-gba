@@ -30,6 +30,7 @@
 #include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "skyland/systemString.hpp"
 #include "startAdventureScene.hpp"
 #include "zoneImageScene.hpp"
@@ -201,6 +202,8 @@ void TitleScreenScene::enter(Scene& prev)
     APP.camera().emplace<Camera>();
 
     APP.swap_player<PlayerP1>();
+
+    psg_stop_all();
 
     init_clouds();
     PLATFORM_EXTENSION(vertical_parallax_enable, false);

@@ -69,4 +69,8 @@ private:
 
 
 
+void psg_stop_all();
+
+
+
 } // namespace skyland

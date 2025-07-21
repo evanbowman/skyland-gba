@@ -13,6 +13,7 @@
 
 #include "decoration.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -101,8 +102,7 @@ public:
             Room::ready();
             note_stop_timer_ -= delta;
             if (note_stop_timer_ <= 0) {
-                PLATFORM_EXTENSION(psg_stop_note,
-                                   Platform::Speaker::Channel::square_1);
+                psg_stop_all();
             }
         }
     }
@@ -132,6 +132,13 @@ public:
         note_stop_timer_ = seconds(1);
         Room::ready();
         return null_scene();
+    }
+
+
+    void finalize() override
+    {
+        Room::finalize();
+        psg_stop_all();
     }
 
 

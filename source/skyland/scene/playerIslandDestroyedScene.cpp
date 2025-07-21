@@ -35,6 +35,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -1149,10 +1150,7 @@ void PlayerIslandDestroyedScene::exit(Scene& next)
     PLATFORM.load_overlay_texture("overlay");
     PLATFORM.screen().pixelate(0);
 
-    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
-    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
-    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
-    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
+    psg_stop_all();
 
     if (restore_volume_) {
         PLATFORM.speaker().set_music_volume(

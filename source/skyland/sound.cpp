@@ -77,4 +77,14 @@ Sound::~Sound()
 
 
 
+void psg_stop_all()
+{
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
+    PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
+}
+
+
+
 } // namespace skyland

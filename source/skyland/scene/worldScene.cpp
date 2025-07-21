@@ -28,9 +28,9 @@
 #include "skyland/latency.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "surrenderWaitScene.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 
@@ -275,15 +275,15 @@ void set_glow_color()
 
     const auto default_neon_blue_color = 0x66fff7;
     if (energy_glow_color == default_neon_blue_color) {
-        cl = APP.environment().shader()(ShaderPalette::tile0,
-                                        custom_color(energy_glow_color),
-                                        0,
-                                        11);
+        cl = APP.environment().shader()(
+            ShaderPalette::tile0, custom_color(energy_glow_color), 0, 11);
     }
 
     PLATFORM_EXTENSION(override_palette, Layer::map_0_ext, 11, cl);
-    PLATFORM_EXTENSION(override_sprite_palette, 9, custom_color(spr_energy_color_1));
-    PLATFORM_EXTENSION(override_sprite_palette, 10, custom_color(spr_energy_color_2));
+    PLATFORM_EXTENSION(
+        override_sprite_palette, 9, custom_color(spr_energy_color_1));
+    PLATFORM_EXTENSION(
+        override_sprite_palette, 10, custom_color(spr_energy_color_2));
 }
 
 

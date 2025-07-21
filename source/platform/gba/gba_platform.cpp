@@ -2938,7 +2938,8 @@ void Platform::Screen::schedule_fade(Float amount, const FadeProperties& p)
         // Sprite alt palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(sprite_alt_palette[i]);
-            sp_palette_back_buffer[i + 32] = blend(from, c, p.include_sprites ? amt : 0);
+            sp_palette_back_buffer[i + 32] =
+                blend(from, c, p.include_sprites ? amt : 0);
         }
     }
 
@@ -7409,18 +7410,22 @@ static const Platform::Extensions extensions{
                 }
             }
         },
-    .override_palette = [](Layer l, u8 index, ColorConstant color) {
-        const auto c = invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
-        if (l == Layer::map_0_ext) {
-            tilesheet_0_palette[index] = Color(color).bgr_hex_555();
-            MEM_BG_PALETTE[index] = blend(color, c, last_fade_amt);
-        }
-    },
-    .override_sprite_palette = [](u8 index, ColorConstant color) {
-        const auto c = invoke_shader(real_color(last_color), ShaderPalette::spritesheet, 0);
-        sprite_alt_palette[index] = Color(color).bgr_hex_555();
-        MEM_PALETTE[32 + index] = blend(color, c, last_fade_amt);
-    },
+    .override_palette =
+        [](Layer l, u8 index, ColorConstant color) {
+            const auto c =
+                invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
+            if (l == Layer::map_0_ext) {
+                tilesheet_0_palette[index] = Color(color).bgr_hex_555();
+                MEM_BG_PALETTE[index] = blend(color, c, last_fade_amt);
+            }
+        },
+    .override_sprite_palette =
+        [](u8 index, ColorConstant color) {
+            const auto c = invoke_shader(
+                real_color(last_color), ShaderPalette::spritesheet, 0);
+            sprite_alt_palette[index] = Color(color).bgr_hex_555();
+            MEM_PALETTE[32 + index] = blend(color, c, last_fade_amt);
+        },
     .__test_compare_sound =
         [](const char* name) {
             if (auto s = get_sound(name)) {

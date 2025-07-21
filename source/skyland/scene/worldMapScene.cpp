@@ -20,6 +20,7 @@
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/worldGraph.hpp"
 #include "titleScreenScene.hpp"
@@ -1969,6 +1970,8 @@ void WorldMapScene::enter(Scene& prev_scene)
     auto view = PLATFORM.screen().get_view();
     view.set_center({});
     PLATFORM.screen().set_view(view);
+
+    psg_stop_all();
 
     APP.time_stream().clear();
 

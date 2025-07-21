@@ -11,6 +11,7 @@
 
 #include "speaker.hpp"
 #include "skyland/island.hpp"
+#include "skyland/sound.hpp"
 #include "synth.hpp"
 
 
@@ -71,16 +72,7 @@ void Speaker::update(Time delta)
         if (timer_ < milliseconds(750)) {
             timer_ += delta;
             if (timer_ > milliseconds(750)) {
-
-                PLATFORM_EXTENSION(psg_stop_note,
-                                   Platform::Speaker::Channel::square_1);
-                PLATFORM_EXTENSION(psg_stop_note,
-                                   Platform::Speaker::Channel::square_2);
-                PLATFORM_EXTENSION(psg_stop_note,
-                                   Platform::Speaker::Channel::noise);
-                PLATFORM_EXTENSION(psg_stop_note,
-                                   Platform::Speaker::Channel::wave);
-
+                psg_stop_all();
                 end_music_ = false;
             }
         }
@@ -379,10 +371,7 @@ void Speaker::finalize()
     }
 
     if (playing_) {
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_1);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::square_2);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::noise);
-        PLATFORM_EXTENSION(psg_stop_note, Platform::Speaker::Channel::wave);
+        psg_stop_all();
     }
 }
 

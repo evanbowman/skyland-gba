@@ -319,11 +319,11 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"repaint",
-            {SIG0(nil),
-            [](int argc) {
-                APP.player_island().repaint();
-                return L_NIL;
-            }}},
+     {SIG0(nil),
+      [](int argc) {
+          APP.player_island().repaint();
+          return L_NIL;
+      }}},
     {"emit",
      {EMPTY_SIG(5),
       [](int argc) {
