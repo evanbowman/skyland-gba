@@ -41,7 +41,7 @@ cloak
 cocoa
 command-module
 splinter-rocket
-cesium
+caesium
 salvage-arm
 crops (rotten! pick sooner!)
 carved-crystal
@@ -235,7 +235,7 @@ no crops ready for harvest!
 enter
 create colony
 isle (fullsize)
-atol (tiny)
+atoll (tiny)
 edit name
 available: %
 cost: %_
@@ -287,7 +287,7 @@ Water source block.
 Slightly lowers the construction cost of all blocks.
 Shows the interior of hostile castles! Radars also improve transporter accuracy, as well as movement range on the world map!
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
-"Give me your tired, your poor, Your huddled masses yearning to breathe free"
+"Give me your tired, your poor, your huddled masses yearning to breathe free."
 Flows across an island, sets non-fireproof blocks aflame.
 Lava source block.
 ...
@@ -302,10 +302,10 @@ An unusual cannon-type weapon. Damage starts at %, and rises to % when health dr
 An essential defensive structure.
 Blocks enemy projectiles, but allows your own weapons to shoot through. Vulnerable to ion damage.
 An upgraded forcefield.
-An upgraded power-core. Supplies much more energy, continues running when damaged, but is succeptible to ion damage.
+An upgraded power-core. Supplies much more energy, continues running when damaged, but is susceptible to ion damage.
 Used for restricting the movement of enemy boarding parties. Your crew may walk through doors, but not enemy units. Fireproof.
 Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.
-Upgraded hull. Much more durable, but succeptible to ion damage.
+Upgraded hull. Much more durable, but susceptible to ion damage.
 Deals low damage, but spread over large areas. Highly destructive when used in groups against castles with thin hull.
 An upgraded workshop. Slightly lowers the construction cost of all blocks.
 While ineffective against most modern weaponry, villagers in skyland still build structures with stone, because it looks nice. Click to change style.
@@ -313,7 +313,7 @@ A shiny metal statue. Click to change style.
 A massively destructive weapon with a sluggish %.% second recharge. Reloads and fires only when inhabited by a character.
 A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
 A placeholder structure created after a character destroys a room by plundering.
-Programmable audio block. Must be placed within three tiles to the right of a speaker block. Position determines  channel (+1 sqr, +2 sqr, +3 noise).
+Programmable audio block. Must be placed within three tiles to the right of a speaker block. Position determines channel (+1 sqr, +2 sqr, +3 noise).
 Stores one unit of cargo. Required for quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
@@ -349,16 +349,16 @@ Like a ladder, but one block taller. (Upgrade a ladder via the SELECT menu)
 Like a stairwell, but one block taller.
 Like a stairwell+1, but one block taller.
 A small single-person vessel. Often used by villagers to make long trips between islands; it doesn't use much fuel.
-A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well placed shot can easily demolish half of a castle. Single use.
+A barbaric weapon from long ago. Creates a huge explosion, spreading damage and fire over a large area. A well-placed shot can easily demolish half of a castle. Single use.
 ...
 What could this be? You'll have to try it out in the sandbox level editor and see what it does... (max % allowed per level).
-Originally designed to shield against harsh radiation on the surface. Emits a defensive energy field--all nearby blocks will take % damage less.
+Originally designed to shield against harsh radiation on the surface. Emits a defensive energy field - all nearby blocks will take % damage less.
 Allows crewmembers to travel instantly to any other portal on your island! More resource-hungry than a stairwell, but allows you to design very compact castles!
 One of the few pieces of technology goblins have managed to invent. Generates % power for each unique block in your castle! Don't let it explode, though...
 Speeds up recharge times for nearby blocks. Rare, fragile, and incredibly valuable.
 A specialized beam weapon that deals %% of a block's maximum health in damage. More effective against hull than regular cannons, weak against delicate blocks.
 Goblins tried to design a better cannon; it's powerful, yet flawed - starts at % damage, drops to % at half health, and % at quarter health.
-An ancient sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
+An ancient Sylph technology that briefly shifts matter between realities. While activated, provides % seconds of invulnerability, % second recharge.
 While similar in concept to classical siege weapons, this artillery gun is much more destructive. Fires heavy bolts in a wide arc, bypassing standard defenses.
 A ship's bell. Click to ring it!
 A decorative bridge... resize it via the SELECT menu!
@@ -436,7 +436,7 @@ Enter your token:
 Step 1: Scan to request a login token!
 
 Scan to upload score!
- A: next 
+A: next 
 Preparing QR Code...
 combos: START + ?
 set weapon groups
@@ -536,7 +536,7 @@ Complete three challenge levels!
 Triage
 Destroy invading goblins with dynamite!
 Banana Man
-Complete banana man's quest!
+Complete Banana Man's quest!
 Borrowed tech
 Destroy a decimator by plundering!
 Ship of Theseus
@@ -558,14 +558,14 @@ Defeat the Storm King!
 Edge of the world!
 Reach the rightmost level of zone 4!
 Raid
-Board opponent's island w/ more than 4 of your own crew
+Board opponent's island w/ more than 4 of your own crew!
 Pacifist
 Reach zone 4 without killing any opponent crewmembers!
 Core Technician
 Buy a tuning crystal from a Sylph technician!
 options
 tips and tricks
-Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!
+Press and hold the pause button to set the game speed. Slow motion and fast-forward speeds available! You can even rewind!
 Build an infirmary to heal your crew!
 In the construction menu, the up/down buttons scroll through categories: defenses, weapons, workshops, power, misc.
 On the sky chart, you can press SELECT to plot a course! Press SELECT again to finish drawing.
@@ -576,7 +576,7 @@ The Glossary, found on the title screen extras menu, describes all structures in
 Raid and plunder castles for extra resources!
 If you lose a power-core, systems may shut down til you rebalance power.
 For more help, scroll right on the title screen and open the tutorial viewer!
-Objective: defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
+Objective: Defeat the Storm King! Build up your castle until you're strong enough, then enter the storm!
 Stuck on the world map? Storm catching up to you? You can increase your movement range by building a radar...
 filters
 requires workshop
@@ -603,21 +603,21 @@ cannot divert power from this!
 Beginner mode: auto-rewind:
 Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.
-Welcome! <b:datacarts_flattened> Here you'll find your collection of data cartridges from your adventures! Cartridges are the main way of storing information across Skyland! See how many you can find...
+Welcome! <b:datacarts_flattened> Here you'll find your collection of data cartridges from your adventures! Cartridges are the main way of storing information across SKYLAND! See how many you can find...
 Beep... collating... Welcome back! <B:0><b:datacarts_flattened> <B:0> Find any new cartridges lately?
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
-The Storm King's stronghold disintigrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
+The Storm King's stronghold disintegrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
 session connecting...
 Failed to connect to multiplayer peer!
 The system will now enter a low-power mode. Press L+R+SELECT to wake!
-The system will now accept software updates from another gameboy advance console. If you have a SKYLAND software update ROM, or an e-Reader card, connect a link cable to install  updates. Press A when ready...
+The system will now accept software updates from another Game Boy Advance console. If you have a SKYLAND software update ROM, or an e-Reader card, connect a link cable to install updates. Press A when ready...
 WARNING: Gravitational collapse detected!!!
 The isle imploded!
 Locked! Why not try out the regular macrocosm mode for a bit!
 terrain size?
 Error! Island has too many blocks to compress into a legible QR code! Sorry, this is a technical limitation, not much can be done, other than reducing the number of blocks in your island.
-WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (hint: if you are using Android, you may need to scan with Google lens).
-The Nintendo DS does not have a Gameboy Advance Link Port, sorry!
+WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (Hint: If you are using Android, you may need to scan with Google Lens).
+The Nintendo DS does not have a Game Boy Advance Link Port, sorry!
 Connect two GBA consoles by plugging the 1p end of a link cable into the first device, and the 2p end of the link cable into the second device. When both devices display the following white screen, press START to connect.
  (showdown)
 ai thinking...
@@ -627,9 +627,9 @@ jump again!
 Name crewmember:
 ENTER: submit
 You've just loaded a saved game. With permadeath enabled, each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
-Tip: you can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
-Tip: you may also change gamespeed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
-Tip: the SELECT menu lists extra features not always available elsewhere. Try SELECTing different things to access more options!
+Tip: You can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
+Tip: You may also change the game speed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
+Tip: The SELECT menu lists extra features not always available elsewhere. Try SELECTing different things to access more options!
 ok
 don't show again
 retry
@@ -644,7 +644,7 @@ name crewmember
 stop firing
 set target
 salvage
-set gamespeed
+set game speed
 unpause
 build
 back
