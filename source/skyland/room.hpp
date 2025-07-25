@@ -44,6 +44,8 @@ class Character;
 class Drone;
 struct RoomMeta;
 class Weapon;
+class SelectMenuScene;
+enum class SystemString;
 
 
 
@@ -788,6 +790,9 @@ public:
 
 
     virtual void amplify(bool enabled);
+
+
+    virtual void register_select_menu_options(SelectMenuScene&);
 
 
 protected:

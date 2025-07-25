@@ -1508,6 +1508,13 @@ void Room::finalize()
 
 
 
+void Room::register_select_menu_options(SelectMenuScene&)
+{
+    // ...
+}
+
+
+
 Optional<Room::UpgradeList> Room::upgrade_mt_list() const
 {
     return nullopt();

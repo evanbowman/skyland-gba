@@ -12,6 +12,7 @@
 #pragma once
 
 #include "decoration.hpp"
+#include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -34,43 +35,7 @@ public:
     }
 
 
-    void update(Time delta) override
-    {
-        Room::update(delta);
-
-        if (chime_count_) {
-            Room::ready();
-            timer_ += delta;
-            if (timer_ >= chime_spacing_) {
-                timer_ -= chime_spacing_;
-                --chime_count_;
-                ring();
-                if (chime_repeat_) {
-                    repeat_on_ = true;
-                    reps_completed_ = 0;
-                    repeat_timer_ = 0;
-                }
-            }
-        }
-
-        if (repeat_on_) {
-            Room::ready();
-
-            const auto repeat_interval = milliseconds(350);
-
-            repeat_timer_ += delta;
-            if (repeat_timer_ >= repeat_interval) {
-                repeat_timer_ -= repeat_interval;
-
-                ring();
-                ++reps_completed_;
-
-                if (reps_completed_ == chime_repeat_) {
-                    repeat_on_ = false;
-                }
-            }
-        }
-    }
+    void update(Time delta) override;
 
 
     void render_interior(App* app, TileId buffer[16][16]) override
@@ -130,35 +95,19 @@ public:
     }
 
 
-    virtual ScenePtr select_impl(const RoomCoord& cursor) override
-    {
-        ring();
-        return null_scene();
-    }
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
-    void ring()
-    {
-        PLATFORM.speaker().play_sound("ship_bell.raw", 7);
-        auto p = visual_center();
-        p.y -= 1.0_fixed;
-        make_construction_effect(p);
-    }
+    void ring();
 
 
     void schedule_chimes(Time chime_spacing,
                          u8 chime_count,
                          u8 chime_repeat,
-                         Time start_delay)
-    {
-        timer_ = chime_spacing - start_delay;
-        chime_count_ = chime_count;
-        chime_spacing_ = chime_spacing;
-        chime_repeat_ = chime_repeat;
-        repeat_on_ = false;
-        reps_completed_ = 0;
-        Room::ready();
-    }
+                         Time start_delay);
+
+
+    void register_select_menu_options(SelectMenuScene&) override;
 
 
 private:

@@ -124,11 +124,24 @@ public:
     using ImagePtr = UniquePtr<img::Image, void (*)(img::Image*)>;
 
 
+    void set_custom_name(const char* name);
+
+
+    const char* get_custom_name();
+
+
+    void register_select_menu_options(SelectMenuScene& sel) override;
+
+
+    void append_name_suffix(StringBuffer<32>& result) override;
+
+
 private:
     TileId tile_;
     int canvas_texture_slot_ = -1;
 
     Optional<ImagePtr> img_data_;
+    Optional<ExtensionField<TinyBuffer<char, 31>>> name_;
 };
 
 

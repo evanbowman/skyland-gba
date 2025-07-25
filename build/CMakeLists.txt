@@ -258,6 +258,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/rooms/ice.cpp
   ${SOURCE_DIR}/skyland/rooms/tnt.cpp
+  ${SOURCE_DIR}/skyland/rooms/bell.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/lava.cpp

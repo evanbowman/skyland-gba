@@ -12,8 +12,8 @@
 #pragma once
 
 #include "decoration.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -126,9 +126,8 @@ public:
         Platform::Speaker::NoteDesc n;
         n.regular_.note_ = (Platform::Speaker::Note)freq;
         n.regular_.octave_ = oct;
-        PLATFORM_EXTENSION(psg_play_note,
-                           Platform::Speaker::Channel::square_1,
-                           n);
+        PLATFORM_EXTENSION(
+            psg_play_note, Platform::Speaker::Channel::square_1, n);
         note_stop_timer_ = seconds(1);
         Room::ready();
         return null_scene();

@@ -16,6 +16,8 @@
 #include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene/paintScene.hpp"
 #include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/selectMenuScene.hpp"
+#include "skyland/scene/textEntryScene.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
 
@@ -338,6 +340,10 @@ lisp::Value* Canvas::serialize()
         builder.push_back(out_list.result());
     }
 
+    if (name_) {
+        builder.push_back(lisp::make_string((*name_)->data()));
+    }
+
     return builder.result();
 }
 
@@ -346,6 +352,11 @@ lisp::Value* Canvas::serialize()
 void Canvas::deserialize(lisp::Value* v)
 {
     auto data_list = get_list(v, 3);
+    auto name_str = get_list(v, 4);
+
+    if (name_str->type() == lisp::Value::Type::string) {
+        set_custom_name(name_str->string().value());
+    }
 
     if (lisp::is_list(data_list)) {
 
@@ -375,6 +386,78 @@ void Canvas::deserialize(lisp::Value* v)
             img.data_[i].data_ = data[i];
         }
         bind_graphics(img);
+    }
+}
+
+
+
+void Canvas::set_custom_name(const char* name)
+{
+    if (name == nullptr or *name == '\0') {
+        name_.reset();
+    }
+
+    name_.emplace();
+
+    while (*name not_eq '\0') {
+        (*name_)->push_back(*name);
+        ++name;
+    }
+
+    if ((*name_)->full()) {
+        (*name_)->pop_back();
+    }
+
+    (*name_)->push_back('\0');
+}
+
+
+
+const char* Canvas::get_custom_name()
+{
+    if (not name_) {
+        return nullptr;
+    }
+
+    return (*name_)->data();
+}
+
+
+
+void Canvas::register_select_menu_options(SelectMenuScene& sel)
+{
+    sel.register_option(SystemString::macro_set_name,
+                        [this, c = position(), par = parent()]() {
+                            auto default_text = "";
+                            if (name_) {
+                                default_text = (*name_)->data();
+                            }
+                            return make_scene<TextEntryScene>(
+                                "edit name: ",
+                                [c, par](const char* name) {
+                                    PLATFORM.screen().schedule_fade(0);
+                                    if (auto r = par->get_room(c)) {
+                                        if (auto cv = r->cast<Canvas>()) {
+                                            cv->set_custom_name(name);
+                                        }
+                                    }
+                                    return make_scene<ReadyScene>();
+                                },
+                                0,
+                                20,
+                                default_text);
+                        });
+}
+
+
+
+void Canvas::append_name_suffix(StringBuffer<32>& result)
+{
+    if (name_ and (*name_)->size()) {
+        result = "(";
+        for (int i = 0; i < (*name_)->size() - 1; ++i) {
+            result.push_back((**name_)[i]);
+        }
     }
 }
 

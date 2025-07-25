@@ -139,6 +139,9 @@ void UpgradePromptScene::exit(Scene& next)
 
 bool has_gap_left(Room& room)
 {
+    if (room.position().x == 0) {
+        return false;
+    }
     bool gap_left = true;
     auto target_coord = room.position();
     for (int y = 0; y < room.size().y; ++y) {

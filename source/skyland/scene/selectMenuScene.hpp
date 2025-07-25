@@ -47,6 +47,10 @@ public:
     Island* island() const;
 
 
+    using SelMenuCallback = Function<16, ScenePtr()>;
+    void register_option(SystemString name, SelMenuCallback cb);
+
+
 private:
     struct Options
     {
@@ -62,6 +66,11 @@ private:
 
         Buffer<SystemString, cap> pushed_strings_;
     };
+
+    void add_line(SystemString str,
+                  const char* suffix,
+                  bool specific,
+                  Function<16, ScenePtr()> callback);
 
     void redraw_line(int line, bool highlight);
 

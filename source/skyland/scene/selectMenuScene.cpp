@@ -25,7 +25,6 @@
 #include "setGamespeedScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/player/player.hpp"
-#include "skyland/rooms/bell.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/scene/adjustPowerScene.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
@@ -187,6 +186,39 @@ static ScenePtr set_gamespeed_setup()
 
 
 
+void SelectMenuScene::add_line(SystemString str,
+                               const char* suffix,
+                               bool specific,
+                               Function<16, ScenePtr()> callback)
+{
+    auto line = loadstr(str);
+    opts_->specific_.set(opts_->lines_.size(), specific);
+    u8 y = opts_->lines_.size() + 1;
+    opts_->lines_.emplace_back(OverlayCoord{1, y});
+    if (opts_->lines_.size() == 1) {
+        opts_->lines_.back().assign(line->c_str(), highlight_colors);
+        opts_->lines_.back().append(suffix);
+    } else {
+        auto clr = specific ? specific_colors : Text::OptColors{};
+        opts_->lines_.back().assign(line->c_str(), clr);
+        opts_->lines_.back().append(suffix, clr);
+    }
+    opts_->longest_line_ =
+        std::max(utf8::len(line->c_str()), size_t(opts_->longest_line_));
+    opts_->strings_.push_back(str);
+    opts_->suffixes_.push_back(suffix);
+    opts_->callbacks_.push_back(std::move(callback));
+}
+
+
+
+void SelectMenuScene::register_option(SystemString name, SelMenuCallback cb)
+{
+    add_line(name, "", true, cb);
+}
+
+
+
 void SelectMenuScene::enter(Scene& scene)
 {
     disable_ui();
@@ -215,29 +247,6 @@ void SelectMenuScene::enter(Scene& scene)
     display();
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().display();
-
-    auto add_line = [&](SystemString str,
-                        const char* suffix,
-                        bool specific,
-                        auto callback) {
-        auto line = loadstr(str);
-        opts_->specific_.set(opts_->lines_.size(), specific);
-        u8 y = opts_->lines_.size() + 1;
-        opts_->lines_.emplace_back(OverlayCoord{1, y});
-        if (opts_->lines_.size() == 1) {
-            opts_->lines_.back().assign(line->c_str(), highlight_colors);
-            opts_->lines_.back().append(suffix);
-        } else {
-            auto clr = specific ? specific_colors : Text::OptColors{};
-            opts_->lines_.back().assign(line->c_str(), clr);
-            opts_->lines_.back().append(suffix, clr);
-        }
-        opts_->longest_line_ =
-            std::max(utf8::len(line->c_str()), size_t(opts_->longest_line_));
-        opts_->strings_.push_back(str);
-        opts_->suffixes_.push_back(suffix);
-        opts_->callbacks_.push_back(callback);
-    };
 
     if (auto isle = island()) {
         if (is_player_island(isle) or
@@ -471,72 +480,6 @@ void SelectMenuScene::enter(Scene& scene)
 
                              return b->resize_bridge_scene();
                          });
-            } else if (is_player_island(isle) and room and room->cast<Bell>()) {
-                add_line(
-                    SystemString::sel_menu_eight_bells,
-                    "",
-                    true,
-                    [this, c = cursor]() {
-                        auto room = island()->get_room(c);
-                        if (not room) {
-                            return null_scene();
-                        }
-
-                        auto b = room->cast<Bell>();
-                        if (not b) {
-                            return null_scene();
-                        }
-
-                        const auto rx = room->position().x;
-
-                        for (auto& r : island()->rooms()) {
-                            for (auto& c : r->characters()) {
-                                c->set_spr_flip(c->grid_position().x < rx);
-                                c->drop_movement_path();
-                            }
-                        }
-                        auto interval = milliseconds(1300);
-                        b->schedule_chimes(interval, 4, 1, milliseconds(500));
-                        auto delay = interval * 4;
-                        APP.player().delay_crew_automation(delay);
-
-
-                        APP.on_timeout(delay, [isle = island()] {
-                            Buffer<RoomCoord, 20> positions;
-                            for (auto& r : isle->rooms()) {
-                                for (auto& c : r->characters()) {
-                                    positions.push_back(c->grid_position());
-                                }
-                            }
-
-                            rng::shuffle(positions, rng::utility_state);
-                            for (auto& r : isle->rooms()) {
-                                for (auto& c : r->characters()) {
-                                    auto p1 = c->grid_position();
-                                    auto p2 = positions.back();
-                                    positions.pop_back();
-
-                                    auto path =
-                                        find_path(isle, c.get(), p1, p2);
-                                    if (path and *path) {
-                                        c->set_movement_path(std::move(*path));
-                                        c->pin();
-
-                                        network::packet::ChrSetTargetV2 packet;
-                                        packet.target_x_ = p2.x;
-                                        packet.target_y_ = p2.y;
-                                        packet.chr_id_.set(c->id());
-                                        packet.near_island_ =
-                                            isle not_eq &APP.player_island();
-                                        network::transmit(packet);
-                                    }
-                                }
-                            }
-                        });
-
-                        return null_scene();
-                    });
-
             } else if (drone) {
                 if (not PLATFORM.network_peer().is_connected()) {
 
@@ -572,6 +515,9 @@ void SelectMenuScene::enter(Scene& scene)
                                  return null_scene();
                              });
                 }
+            }
+            if (room) {
+                room->register_select_menu_options(*this);
             }
         }
     }
