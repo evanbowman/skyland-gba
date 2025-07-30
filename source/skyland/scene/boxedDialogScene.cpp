@@ -327,7 +327,11 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         if (mapping_info) {
             auto current_char = *text_state_.current_word_;
             if (conlang_ and not punctuation_or_whitespace(current_char)) {
-                t = (current_char - 'a') + 150;
+                auto c = current_char;
+                if (c < 'a') {
+                    c += 'a' - 'A';
+                }
+                t = (c - 'a') + 150;
             } else {
                 t = PLATFORM.map_glyph(cp, *mapping_info);
             }
