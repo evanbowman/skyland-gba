@@ -721,9 +721,11 @@ void TextEditorModule::enter(Scene& prev)
         }
     }
 
-    // render(0);
+    if (not gui_mode_) {
+        render(0);
+    }
 }
-// /scripts/event/quest/human/0.lisp
+
 
 
 void TextEditorModule::repaint()
