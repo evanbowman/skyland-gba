@@ -411,6 +411,10 @@ static constexpr const int cbb_overlay_texture =
 static constexpr const int cbb_t0_texture = sbb_t0_texture / sbb_per_cbb;
 static constexpr const int cbb_t1_texture = sbb_t1_texture / sbb_per_cbb;
 
+// NOTE: There are four tile blocks, so index four points to the
+// end of the tile memory.
+static constexpr const int cbb_sprite_texture = 4;
+
 
 //
 //
@@ -3067,71 +3071,9 @@ Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 }
 
 
-void Platform::load_sprite_texture(const char* name)
-{
-    for (auto& mapping : dynamic_texture_mappings) {
-        mapping.dirty_ = true;
-    }
-
-    for (auto& info : sprite_textures) {
-
-        if (str_cmp(name, info.name_) == 0) {
-
-            current_spritesheet = &info;
-
-            init_palette(current_spritesheet->palette_data_,
-                         sprite_palette,
-                         ShaderPalette::spritesheet);
-
-            init_palette(current_spritesheet->palette_data_,
-                         sprite_alt_palette,
-                         ShaderPalette::spritesheet);
-
-
-            // NOTE: There are four tile blocks, so index four points to the
-            // end of the tile memory.
-            memcpy16((void*)&MEM_TILE[4][1],
-                     info.tile_data_,
-                     std::min((u32)16128, info.tile_data_length_ / 2));
-
-            // We need to do this, otherwise whatever screen fade is currently
-            // active will be overwritten by the copy.
-            const auto c = invoke_shader(
-                real_color(last_color), ShaderPalette::spritesheet, 0);
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(sprite_palette[i]);
-                auto bld = blend(from, c, last_fade_amt);
-                MEM_PALETTE[i] = bld;
-                MEM_PALETTE[i + 32] = bld;
-            }
-        }
-    }
-
-    // By replacing the sprite texture, we overwrote whatever was in the dynamic
-    // texture memory. Let's try an recover.
-    map_dynamic_textures();
-}
-
-
-
-void init_darkened_palette()
-{
-    auto darken_c = Color::from_bgr_hex_555(tilesheet_0_palette[1]).hex();
-
-    const auto c = invoke_shader(darken_c, ShaderPalette::tile0, 0);
-
-    for (int i = 0; i < 16; ++i) {
-        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-        auto r = blend(from, c, 90);
-        // MEM_BG_PALETTE[(9 * 16) + i] = r;
-        tilesheet_0_darkened_palette[i] = r;
-    }
-}
-
-
 
 static bool
-load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
+load_img_from_file(const char* path, ShaderPalette pal, void* dest, u16* pd)
 {
     auto file = filesystem::load(path, nullopt());
     if (std::get<1>(file)) {
@@ -3153,7 +3095,7 @@ load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
                 Platform::fatal(format("% missing palette", pf.c_str()));
             }
             init_palette((u16*)std::get<0>(pal_file), pd, pal);
-            LZ77UnCompVram(std::get<0>(file), (void*)&MEM_SCREENBLOCKS[sbb][0]);
+            LZ77UnCompVram(std::get<0>(file), dest);
             return true;
 
         } else if (ends_with(StringBuffer<10>(".skg"), name_str)) {
@@ -3169,12 +3111,81 @@ load_img_from_file(const char* path, ShaderPalette pal, int sbb, u16* pd)
                 auto from = Color::from_bgr_hex_555(pd[i]);
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
             }
-            memcpy16((void*)&MEM_SCREENBLOCKS[sbb][0], data, data_len);
+            memcpy16(dest, data, data_len);
             return true;
         }
     }
 
     return false;
+}
+
+
+
+void Platform::load_sprite_texture(const char* name)
+{
+    for (auto& mapping : dynamic_texture_mappings) {
+        mapping.dirty_ = true;
+    }
+
+    bool matched = false;
+    for (auto& info : sprite_textures) {
+
+        if (str_cmp(name, info.name_) == 0) {
+            matched = true;
+            current_spritesheet = &info;
+
+            init_palette(current_spritesheet->palette_data_,
+                         sprite_palette,
+                         ShaderPalette::spritesheet);
+
+            init_palette(current_spritesheet->palette_data_,
+                         sprite_alt_palette,
+                         ShaderPalette::spritesheet);
+
+
+            memcpy16((void*)&MEM_TILE[cbb_sprite_texture][1],
+                     info.tile_data_,
+                     std::min((u32)16128, info.tile_data_length_ / 2));
+
+            // We need to do this, otherwise whatever screen fade is currently
+            // active will be overwritten by the copy.
+            const auto c = invoke_shader(
+                real_color(last_color), ShaderPalette::spritesheet, 0);
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+                auto bld = blend(from, c, last_fade_amt);
+                MEM_PALETTE[i] = bld;
+                MEM_PALETTE[i + 32] = bld;
+            }
+        }
+    }
+
+    // By replacing the sprite texture, we overwrote whatever was in the dynamic
+    // texture memory. Let's try an recover.
+    map_dynamic_textures();
+
+    if (not matched) {
+        load_img_from_file(name,
+                           ShaderPalette::spritesheet,
+                           (void*)&MEM_TILE[cbb_sprite_texture][1],
+                           sprite_palette);
+    }
+}
+
+
+
+void init_darkened_palette()
+{
+    auto darken_c = Color::from_bgr_hex_555(tilesheet_0_palette[1]).hex();
+
+    const auto c = invoke_shader(darken_c, ShaderPalette::tile0, 0);
+
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+        auto r = blend(from, c, 90);
+        // MEM_BG_PALETTE[(9 * 16) + i] = r;
+        tilesheet_0_darkened_palette[i] = r;
+    }
 }
 
 
@@ -3224,7 +3235,10 @@ void Platform::load_tile0_texture(const char* name)
     }
 
     if (load_img_from_file(
-            name, ShaderPalette::tile0, sbb_t0_texture, tilesheet_0_palette)) {
+            name,
+            ShaderPalette::tile0,
+            (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
+            tilesheet_0_palette)) {
         return;
     }
 
@@ -3273,7 +3287,10 @@ void Platform::load_tile1_texture(const char* name)
     }
 
     if (load_img_from_file(
-            name, ShaderPalette::tile1, sbb_t1_texture, tilesheet_1_palette)) {
+            name,
+            ShaderPalette::tile1,
+            (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
+            tilesheet_1_palette)) {
         return;
     }
 
@@ -5269,7 +5286,7 @@ bool Platform::load_overlay_texture(const char* name)
 
     if (load_img_from_file(name,
                            ShaderPalette::overlay,
-                           sbb_overlay_texture,
+                           (void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
                            overlay_palette)) {
         return true;
     }
