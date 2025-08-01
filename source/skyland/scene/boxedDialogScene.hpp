@@ -87,6 +87,12 @@ public:
     void display() override;
 
 
+    bool img_view() const
+    {
+        return img_view_;
+    }
+
+
 private:
     void process_command();
 
@@ -166,7 +172,9 @@ public:
     void display() override
     {
         dialog_scene_.display();
-        WorldScene::display();
+        if (not dialog_scene_.img_view()) {
+            WorldScene::display();
+        }
     }
 
 

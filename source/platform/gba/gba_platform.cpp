@@ -3169,6 +3169,10 @@ void Platform::load_sprite_texture(const char* name)
                            ShaderPalette::spritesheet,
                            (void*)&MEM_TILE[cbb_sprite_texture][1],
                            sprite_palette);
+
+        for (int i = 0; i < 16; ++i) {
+            MEM_PALETTE[i] = sprite_palette[i];
+        }
     }
 }
 

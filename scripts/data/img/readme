@@ -8,3 +8,10 @@ Or use the img_enc.lua script provided in the tools directory.
 Grit will produce smaller images, because it supports compression.  But I can't
 ship the grit program with the rom because it's too big, so if you don't have
 access to grit, try the lua script.
+
+NOTE:
+The game allows you to display images when entering a level, and during a level
+when dialog boxes are active. To encode an image that can be displayed in-level,
+you'll need to run the script boxed-img.sh instead of rungrit.sh. It's not
+ideal, but hardware resource limitations require in-level image overlays to be
+drawn differently.

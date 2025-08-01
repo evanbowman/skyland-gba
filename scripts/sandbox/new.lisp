@@ -15,7 +15,7 @@
 
 
 (defn sb-help ()
-  (dialog "Sandbox mode gives you nearly unlimited resources, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
+  (dialog "Sandbox mode gives you nearly unlimited resources, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition <b:/scripts/data/img/decimator.img.bin>your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
 (if (not (save-bit-load 3))
