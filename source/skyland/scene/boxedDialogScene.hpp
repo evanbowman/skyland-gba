@@ -124,6 +124,7 @@ private:
 
     int choice_sel_ = 0;
     bool img_view_ = false;
+    bool img_view_2_ = false;
     bool cursor_anim_ = false;
 
     struct Data

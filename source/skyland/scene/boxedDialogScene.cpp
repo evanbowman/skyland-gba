@@ -137,6 +137,50 @@ void BoxedDialogScene::process_command()
         break;
     }
 
+    case 'j': {
+        const auto bkg_name = parse_command_str();
+        PLATFORM.screen().set_shader(passthrough_shader);
+        PLATFORM.screen().set_view(View{});
+        APP.camera().emplace<Camera>();
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                PLATFORM.set_tile(Layer::map_0_ext, i, j, 0);
+                PLATFORM.set_tile(Layer::map_1_ext, i, j, 0);
+            }
+        }
+        for (int x = 0; x < 30; ++x) {
+            for (int y = 0; y < 2; ++y) {
+                PLATFORM.set_tile(Layer::overlay, x, y, 123);
+            }
+            PLATFORM.set_tile(Layer::overlay, x, 13, 123);
+            PLATFORM.set_tile(Layer::overlay, x, 19, 123);
+        }
+        PLATFORM.load_tile1_texture(bkg_name.c_str());
+        PLATFORM.set_scroll(Layer::map_1_ext, 0, 0);
+        __draw_image(1, 0, 2, 30, 14, Layer::map_1);
+
+        // Replace the textbox border with a tileset with an opaque dark
+        // background.
+        PLATFORM.load_overlay_chunk(83, 124, 8);
+        img_view_2_ = true;
+
+        int frames = 45;
+        for (int i = 0; i < frames; ++i) {
+            PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
+                                            {ColorConstant::rich_black});
+            PLATFORM.keyboard().poll();
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
+            if (ambience_) {
+                if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
+                    PLATFORM.speaker().play_sound(ambience_, 9);
+                }
+            }
+        }
+
+        break;
+    }
+
     case 'b': {
         const auto img_name = parse_command_str();
         img_view_ = true;
@@ -455,6 +499,22 @@ void BoxedDialogScene::enter(Scene& prev)
 
 void BoxedDialogScene::exit(Scene& prev)
 {
+    if (img_view_2_) {
+        PLATFORM.fill_overlay(123);
+        PLATFORM.screen().schedule_fade(1.f);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
+            }
+        }
+        PLATFORM.load_tile1_texture("tilesheet");
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+        PLATFORM.fill_overlay(0);
+    }
+
     PLATFORM.fill_overlay(0);
 
     PLATFORM.load_overlay_texture("overlay");
@@ -790,6 +850,20 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
     case DisplayMode::animate_out:
         display_mode_ = DisplayMode::clear;
+        if (img_view_2_) {
+            int frames = 30;
+            for (int i = 0; i < frames; ++i) {
+                PLATFORM.screen().schedule_fade(Float(i) / frames, {ColorConstant::rich_black, true, true});
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
+                if (ambience_) {
+                    if (not PLATFORM.speaker().is_sound_playing(ambience_)) {
+                        PLATFORM.speaker().play_sound(ambience_, 9);
+                    }
+                }
+            }
+            PLATFORM.sleep(20);
+        }
         if (img_view_) {
             img_view_ = false;
             PLATFORM.load_sprite_texture("spritesheet");
