@@ -1,43 +1,45 @@
-I'm writing down some info
-about the SKYLAND macrocosm
-here, until I manage to create
-in-game help menus.
 
-Macro mode implements a
-psuedo-macroeconomics-inspired
-city-building game.
+ macrocosm.txt
 
-Most things should be self-
-explanatory. But I'd like to
-comment on a few
-non-obvious things:
+ I'm writing down some info
+ about the SKYLAND macrocosm
+ here, until I manage to create
+ in-game help menus.
 
-1) Population: both food
-supply and available housing
-influence population growth.
-With insufficient food, the
-population will shrink.
+ Macro mode implements a
+ psuedo-macroeconomics-inspired
+ city-building game.
 
-2) Specialization: it's
-cheaper to build a crop or
-livestock next to an existing
-tile of the same type,
-encouraging you to specialize
-in producing certain
-commodities.
+ Most things should be self-
+ explanatory. But I'd like to
+ comment on a few
+ non-obvious things:
 
-3) Scarcity and diminishing
-returns: Each additional
-commodity of the same type
-added to a local economy
-produces diminished
-coin yields. Use ports to
-export excess of a commodity
-to other islands, where
-the item is more scarce.
+ 1) Population: both food
+ supply and available housing
+ influence population growth.
+ With insufficient food, the
+ population will shrink.
 
-4) Light:
-Some crops and commodity tiles
-will produce reduced output,
-or no output, when not
-provided light.
+ 2) Specialization: It's
+ cheaper to build a crop or
+ livestock next to an existing
+ tile of the same type,
+ encouraging you to specialize
+ in producing certain
+ commodities.
+
+ 3) Scarcity and diminishing
+ returns: Each additional
+ commodity of the same type
+ added to a local economy
+ produces diminished
+ coin yields. Use ports to
+ export excess of a commodity
+ to other islands, where
+ the item is more scarce.
+
+ 4) Light: Some crops and 
+ commodity tiles will produce 
+ reduced output, or no output,
+ when not provided light.

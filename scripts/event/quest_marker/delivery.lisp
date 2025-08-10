@@ -1,3 +1,7 @@
+;;;
+;;; quest_marker/delivery.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/castaway.img.bin>"

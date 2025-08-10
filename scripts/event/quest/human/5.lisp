@@ -1,3 +1,7 @@
+;;;
+;;; quest/human/5.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/wanderer_town.img.bin>"
@@ -68,9 +72,9 @@
 (defn on-converge ()
   (setq on-converge nil)
 
-  (dialog "<c:traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched goblins ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
+  (dialog "<c:Traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched goblins ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
 
-  (dialog-await-binary-q "of course!" "I'm kind of busy…")
+  (dialog-await-binary-q "Of course!" "I'm kind of busy…")
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -81,7 +85,7 @@
 
       (run-util-script
        "find-crew-slot"
-       "<c:traveller:23> Oh! It looks like you're out of room! Let me fix that..."
+       "<c:Traveller:23>Oh! It looks like you're out of room! Let me fix that..."
        'ladder
        "Place block (1x2):"
        (lambda (x y _)
@@ -89,8 +93,8 @@
            (push 'qvar (cons 5 id)))
 
          (dialog (if m
-                     "<c:traveller:23> Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *..."
-                     "<c:traveller:23> Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here..."))
+                     "<c:Traveller:23>Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *..."
+                     "<c:Traveller:23>Looking at your sky chart, doesn't seem like we can get there before the storm overtakes us. I'll join your crew anyway, better than waiting in line for a transporter here..."))
          (defn on-dialog-closed ()
            (dialog "The mysterious traveller joined your crew!")
            (defn on-dialog-closed ()

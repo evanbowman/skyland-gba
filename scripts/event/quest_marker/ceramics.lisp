@@ -1,3 +1,7 @@
+;;;
+;;; quest_marker/ceramics.lisp
+;;;
+
 
 (dialog "Still got those ceramics? The locals might be interested...")
 
@@ -41,7 +45,7 @@
 
                   (dialog
                    (format
-                    "<c:the collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!"
+                    "<c:The Collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!"
                     sale))
 
                   (coins-add sale)

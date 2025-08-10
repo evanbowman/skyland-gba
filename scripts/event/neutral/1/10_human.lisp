@@ -40,13 +40,13 @@
 
 
 (defn on-converge ()
-  (dialog "<c:villager:5> Oh! Just in time! Can you help us!? That goblin ship over there is very strong, but there's a chance you could defeat them...")
+  (dialog "<c:Villager:5>Oh! Just in time! Can you help us!? That goblin ship over there is very strong, but there's a chance you could defeat them...")
 
   (dialog-opts-reset)
 
   (let ((opty (lambda ()
                 (opponent-mode 'hostile)
-                (dialog "<c:goblin:2> You think you can fight usss?! Hah!!")
+                (dialog "<c:Goblin:2>You think you can fight usss?! Hah!!")
                 (defn on-dialog-closed ()
                   (dialog "One of the villagers came aboard to help out!")
                   (when (not (chr-slots (player)))
@@ -66,15 +66,15 @@
                 (dialog "The goblins resume their attack. <B:0> Maybe you weren't strong enough to face them anyway…")
                 (exit))))
 
-    (dialog-opts-push "of course!" opty)
+    (dialog-opts-push "Of course!" opty)
 
-    (dialog-opts-push "what's going on here?"
+    (dialog-opts-push "What's going on here?"
                       (lambda ()
                         (dialog-opts-reset)
-                        (dialog "<c:villager:5> That goblin harvester is slicing chunks off of our town! They just let the scrap fall to the ruined world below, where their friends collect the fallen resources. Anyway, can you help??")
+                        (dialog "<c:Villager:5>That goblin harvester is slicing chunks off of our town! They just let the scrap fall to the ruined world below, where their friends collect the fallen resources. Anyway, can you help??")
                         (dialog-opts-push "of course!" opty)
                         (dialog-opts-push "sorry, but no." optn)))
 
-    (dialog-opts-push "sorry, I can't help" optn)
+    (dialog-opts-push "Sorry, I can't help." optn)
 
     (setq on-converge nil)))

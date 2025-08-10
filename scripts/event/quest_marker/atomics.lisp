@@ -1,3 +1,7 @@
+;;;
+;;; quest_marker/atomics.lisp
+;;;
+
 
 (dialog "You arrive at the coordinates of the hidden stash of atomics...")
 
@@ -13,11 +17,11 @@
   (dialog "You arrive, but the princess looks troubled...")
 
   (defn on-dialog-closed ()
-    (dialog "<c:warrior princess of E. Cay:28> Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:")
+    (dialog "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:")
     (defn on-dialog-closed ()
       (dialog "[You write down the launch codes...]")
       (defn on-dialog-closed ()
-        (dialog "<c:warrior princess of E. Cay:28> Now, be very careful when moving them...")
+        (dialog "<c:Warrior Princess of E. Cay:28>Now, be very careful when moving them...")
         (defn on-dialog-closed ()
           (foreach (lambda (r)
                      (when (equal (car r) 'cloak)
@@ -38,5 +42,5 @@
                        (sound "build0")
                        (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
                        (defn on-dialog-closed ()
-                         (dialog "<c:warrior princess of E. Cay:28> Those goblins will be sorry they crossed us!")
+                         (dialog "<c:Warrior Princess of E. Cay:28>Those goblins will be sorry they crossed us!")
                          (setq on-dialog-closed exit)))))))))

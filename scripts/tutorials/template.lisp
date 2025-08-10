@@ -33,7 +33,7 @@
 
 
 (defn tutorial-done ()
-  (fatal "see log.txt in save data for key presses..."))
+  (fatal "See log.txt in save data for key presses..."))
 
 ;; Hold start, then press the right bumper to enter shortcut mode. Next press
 ;; down twice to finish recording. This will trigger writing log.txt to save

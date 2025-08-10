@@ -1,7 +1,11 @@
+;;;
+;;; quest_marker/civ.lisp
+;;;
+
 
 (dialog "You arrive at the location that the orphan boy marked on your map. <B:0> "
         "<b:/scripts/data/img/ornate.img.bin>"
-        " As you approach, an advanced walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with a brilliant light...")
+        "As you approach, an advanced walled city emerges from the clouds. Its gleaming canals and skillful stonework shimmer with a brilliant light...")
 
 
 (opponent-init 9 'neutral)
@@ -64,13 +68,13 @@
 
   (if boy
       (defn on-converge ()
-        (dialog "<c:sylph:21><S:1> hello, traveller...")
+        (dialog "<c:Sylph:21><S:1>Hello, traveller...")
 
         (defn on-dialog-closed ()
-          (dialog "<c:orphan boy:26><S:1>oh!!! i'm home at last!")
+          (dialog "<c:Orphan Boy:26><S:1>Oh!!! I'm home at last!")
 
           (defn on-dialog-closed ()
-            (dialog "<c:sylph:21><S:1>oh! what have we here?!")
+            (dialog "<c:Sylph:21><S:1>Oh! What have we here?!")
 
             (defn on-dialog-closed ()
               (map (lambda (chr)
@@ -81,7 +85,7 @@
               (adventure-log-add 55 nil)
               (dialog "The orphan boy returned to his home!")
               (defn on-dialog-closed ()
-                (dialog "<c:sylph:21>hello, traveller...<B:0> I am very grateful to you for bringing him back! ...")
+                (dialog "<c:Sylph:21>Hello, traveller...<B:0> I am very grateful to you for bringing him back! ...")
                 (setq on-dialog-closed (lambda ()
                                          (on-timeout 500 'fut)
                                          (setq on-dialog-closed nil)))
@@ -95,7 +99,7 @@
                   (on-timeout 1000 'fut)
 
                   (defn fut ()
-                    (dialog "A flash of resplendant light emanates from the city... <B:0> the approaching storm clouds receed far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island... <B:0> Where do you want to place it?")
+                    (dialog "A flash of resplendent light emanates from the city... <B:0> the approaching storm clouds recede far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island... <B:0> Where do you want to place it?")
                     (unbind 'fut)
                     (defn on-dialog-closed ()
                       (run-util-script "place-new-block"

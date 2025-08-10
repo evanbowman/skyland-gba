@@ -1,3 +1,7 @@
+;;;
+;;; Solar storm event
+;;;
+
 
 (dialog "Your castle passes under a hole in the atmosphere! <B:0>"
         "Be careful! Periodic solar flares may ignite random things! <B:0>"

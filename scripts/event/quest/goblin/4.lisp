@@ -1,6 +1,10 @@
+;;;
+;;; quest/goblin/4.lisp
+;;;
+
 
 (dialog
- ;"<b:/scripts/data/img/ceramics.img.bin>" TODO: draw image
+ ;"<b:/scripts/data/img/ceramics.img.bin>" TODO: Insert image from the mentioned link.
  "You encounter a goblin salvage crew hauling up strange artifacts through a break in the clouds. Your crew recognizes them as valuable relics from the surface wars...")
 
 
@@ -73,11 +77,11 @@
     (setq on-converge nil)
     (dialog
      (format
-      "<c:scavenger:34>Found thessse rare artifactsss in the ruinsss below! Worth a fortune to the right collector. Only %@ for the lot!"
+      "<c:Scavenger:34>Found thessse rare artifactsss in the ruinsss below! Worth a fortune to the right collector. Only %@ for the lot!"
       fee
       (* fee 2)))
 
-    (dialog-await-binary-q "ok!" "no thanks")
+    (dialog-await-binary-q "OK!" "No thanks.")
 
     (defn on-dialog-accepted ()
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -92,14 +96,14 @@
                  (push 'qvar (cons qid fee))
                  (coins-set (- (coins) fee))
                  (cargo-set (player) x y "artifacts")
-                 (dialog "<c:scavenger:34>Careful with the ancient tech!")
+                 (dialog "<c:Scavenger:34>Careful with the ancient tech!")
                  (defn on-dialog-closed ()
                    (dialog "(Your crew marks a collector's location on your sky chart with an *)")
                    (exit)
                    (setq on-dialog-closed exit)))))
           (progn
             (dialog
-             "<c:scavenger:34>Bah, sssomeone else already claimed the artifactsss...")
+             "<c:Scavenger:34>Bah, sssomeone else already claimed the artifactsss...")
             (setq on-dialog-closed exit)))))
 
     (setq on-dialog-declined

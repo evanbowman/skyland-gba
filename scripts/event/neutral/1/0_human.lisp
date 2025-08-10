@@ -94,7 +94,7 @@
             (setq dest (sample dest))
             (chr-new (player) (car dest) (cdr dest) 'neutral '((race . 0) (icon . 17)))
             (chr-del (opponent) 0 14)
-            (dialog "<c:mercenary:17> Ahoy! Ready to knock some heads!?")
+            (dialog "<c:Mercenary:17> Ahoy! Ready to knock some heads!?")
             (defn on-dialog-closed ()
               (setq on-dialog-closed nil)
               (dialog "The mercenary joined your crew!")

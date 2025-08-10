@@ -100,13 +100,13 @@
                         (/ (coins) 2))))))
   (defn on-converge ()
     (dialog
-     "<c:goblin queen:40>#cackle# You're tresspasssing in my territory! I demand a tribute of "
+     "<c:Goblin Queen:40>#cackle# You're tressspasssing in my territory! I demand a tribute of "
      (string val)
      "@! Pay!")
 
     (dialog-await-binary-q-w/lore
-     (format "I'll pay… (%@)" val) "no way!"
-     '(("goblin queen?" . "It's said that she began as a promising Ashwalker apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?")))
+     (format "I'll pay… (%@)" val) "No way!"
+     '(("Goblin Queen?" . "It's said that she began as a promising Ashwalker Apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?")))
 
     (setq on-converge nil))
 
@@ -116,11 +116,11 @@
         (progn
           (opponent-mode 'hostile)
           (adventure-log-add 32 '())
-          (dialog "<c:globlin queen:40>Thatsss not enough! Letss ssee if theress anything we can take!!"))
+          (dialog "<c:Goblin Queen:40>Thatsss not enough! Letsss sssee if theresss anything we can take!!"))
       (progn
         (coins-add (- val))
         (adventure-log-add 31 (list val))
-        (dialog "The goblin queen rejoices, having successfully extorted "
+        (dialog "The Goblin Queen rejoices, having successfully extorted "
                 (string val)
                 "@.")
         (exit)))))
@@ -130,7 +130,7 @@
 (defn on-dialog-declined ()
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
-  (dialog "<c:goblin queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!"))
+  (dialog "<c:Goblin Queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!"))
 
 
 (defn on-room-destroyed (isle sym)

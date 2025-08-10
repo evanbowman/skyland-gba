@@ -125,7 +125,7 @@
 (defn/c max (lat) (car (sort lat >)))
 
 (defn/c replace (lat p n)
-  ;; Note: the interpreter doesn't support capturing an enclosing function's
+  ;; Note: The interpreter doesn't support capturing an enclosing function's
   ;; arguments, hence the let binding. Obviously, this is inconvenient in some
   ;; cases, but it's not that bad.
   (let ((pred p)

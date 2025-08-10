@@ -1,3 +1,7 @@
+;;;
+;;; check_zone.lisp
+;;;
+
 
 (when (not (equal (zone) last-zone))
   (setq friendlies-seen nil)

@@ -1,3 +1,6 @@
-;; URL for the highscore leaderboard
+;;;
+;;; feedback.lisp
+;;;
+
 
 "skylandgame.io/beta/feedback"

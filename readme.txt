@@ -5,9 +5,9 @@
  Welcome to the SKYLAND
  source code!
 
- NOTE: this readme is
+ NOTE: This readme is
  intended to be displayed on
- a gba screen when running
+ a GBA screen when running
  Skyland in developer mode,
  hence the narrow formatting.
 
@@ -15,10 +15,11 @@
  scripts and rebuild the rom
  using the modding toolchain,
  run the following commands
- after editing script files simply run repack.sh.
+ after editing script files
+ simply run repack.sh.
 
- If you have the Skyland rom
- but not the engine rom or the
+ If you have the Skyland ROM
+ but not the engine ROM or the
  scripts, download the
  unpack_rom.py script, place
  it in the same directory as
@@ -26,21 +27,21 @@
  unpack_rom.py.
 
  If you only have the Skyland
- rom and not the unpack_rom.py
+ ROM and not the unpack_rom.py
  script, then you may extract
  the unpack_rom.py file from
- the Skyland.gba rom by
- opening the rom in a text
+ the Skyland.gba ROM by
+ opening the ROM in a text
  editor, searching for the
  filename, and copy-pasting
  it to another file (all tools
- appended to the skyland
+ appended to the Skyland
  engine are encoded in plain-
  text).
 
  The below info is intended
  for those who want to edit
- scripts on the gba itself,
+ scripts on the GBA itself,
  using the developer mode
  setting:
 
@@ -51,30 +52,30 @@
  You may either:
 
  1) create new scripts in
- the sram filesystem, and
+ the SRAM filesystem, and
  load them in
  mods/init.lisp
 
  2) simply edit scripts in
- the rom filesystem, and
+ the ROM filesystem, and
  the engine will write your
  modified scripts to the
- sram filesystem.
+ SRAM filesystem.
 
- You cannot edit rom
+ You cannot edit ROM
  scripts directly, of
  course, as the files
- live in read only memory.
+ live in Read-only memory.
 
- But SKYLAND preferentially
- loads files from sram
+ But Skyland preferentially
+ loads files from SRAM
  before attempting to load
- them from rom, so if you
- create an sram file with an
+ them from ROM, so if you
+ create an SRAM file with an
  identical name and path
- to a file in rom, you can
+ to a file in ROM, you can
  effectively override
- the rom script.
+ the ROM script.
 
  If you're just getting
  started, try playing
@@ -96,11 +97,11 @@
  browser and delete the
  problematic file in sram/
  (by selecting the file,
- pressing start, and then
- choosing the delete
+ pressing START, and then
+ choosing the 'delete'
  option).
 
- One final note: the game
+ One final note: The game
  will not run any custom
  code when in multiplayer
  mode. Keeping games sync'd

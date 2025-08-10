@@ -11,7 +11,7 @@
 (setq friendlies-seen nil)
 (setq surprises-seen nil)
 
-;; Ids of previously seen quests
+;; Ids of previously seen quests.
 (setq qids nil)
 
 
@@ -27,7 +27,7 @@
 
 (terrain-set (player) 4)
 
-;; Initial setup for player's island
+;; Initial setup for player's island.
 (island-configure
  (player)
  '((power-core 1 13)))
@@ -46,11 +46,11 @@
 
 (setq zone-shop-items nil)
 
-;; hint: ((countdown . script) (coutdown . script) ... etc.)
+;; Hint: ((countdown . script) (countdown . script) ... etc.)
 (setq pending-events nil)
 
 
-;; Variables associated with quests
+;; Variables associated with quests.
 (setq qvar nil)
 
 (chr-new (player) 2 14 'neutral

@@ -27,7 +27,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:castaway:27>Argh. I'm in a tough spot here. After years of fighting goblins, my crew "
+   "<c:Castaway:27>Argh. I'm in a tough spot here. After years of fighting goblins, my crew "
    "mutinied and left me stranded here. <B:0> At least they picked an island with food, but I'm "
    "getting so fed up with eating coconuts and bananas!")
 
@@ -54,7 +54,7 @@
         (progn
           (dialog "Sadly, there's no room...")
           (defn on-dialog-closed ()
-            (dialog "<c:castaway:27>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")
+            (dialog "<c:Castaway:27>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")
             (defn on-dialog-closed ()
               (alloc-space 'ladder)
               (sel-input 'ladder
@@ -64,7 +64,7 @@
                            (room-new (player) `(ladder ,x ,y))
                            (chr-del (opponent) 1 14)
                            (chr-new (player) x (+ 1 y) 'neutral '((icon . 27)))
-                           (dialog "<c:castaway:27> Thanks for rescuing me! I'll try to help out however I can!")
+                           (dialog "<c:Castaway:27> Thanks for rescuing me! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The castaway joined your crew!")
                              (defn on-dialog-closed ()

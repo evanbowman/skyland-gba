@@ -1,3 +1,7 @@
+;;;
+;;; quest/goblin/2.lisp
+;;;
+
 
 (dialog "<b:/scripts/data/img/farm_colony.img.bin>A nearby farming colony requests assistance...")
 
@@ -79,13 +83,13 @@
                                 (lambda ()
                                   (dialog s)
                                   (setq on-dialog-closed t))))))
-                  (dialog-opts-push "farming?"
+                  (dialog-opts-push "Farming?"
                                     (chat "<c:Farmer Meyer:9>Farms up here grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island reactor core..."))
 
-                  (dialog-opts-push "irrigation?"
+                  (dialog-opts-push "Irrigation?"
                                     (chat "<c:Farmer Meyer:9>Although we do get some light rain up here, it's not enough for growing crops. But we can harvest water from the clouds, of course..."))
 
-                  (dialog-opts-push "nope" (lambda ()
+                  (dialog-opts-push "Nope!" (lambda ()
                                              (dialog "<c:Farmer Meyer:9>Good luck!")
                                              (setq on-dialog-closed exit)
                                              (exit)))))

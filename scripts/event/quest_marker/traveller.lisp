@@ -1,3 +1,6 @@
+;;;
+;;; quest_marker/traveller.lisp
+;;;
 
 
 (dialog "You reach the location that the mysterious man labeled on your map...")
@@ -31,7 +34,7 @@
                   (when (> cost 1000)
                     (setq sel (cons (car pick) sel))))))
 
-            (dialog "<c:traveller:23> We've arrived! Unfortunately, it's time we parted ways; I need to start repairs and move my island out of the way of this storm. I'm grateful for your help, here're a few things that you may find useful (2000@ and one random block) ")
+            (dialog "<c:Traveller:23>We've arrived! Unfortunately, it's time we parted ways; I need to start repairs and move my island out of the way of this storm. I'm grateful for your help, here're a few things that you may find useful. (2000@ and one random block) ")
             (defn on-dialog-closed ()
               (coins-add 2000)
               (let ((sym0 (get sel 0)))
@@ -41,7 +44,7 @@
                            (lambda (isle x y)
                              (sound "build0")
                              (room-new (player) (list sym0 x y))
-                             (dialog "<c:traveller:23> Goodbye, and good luck!")
+                             (dialog "<c:Traveller:23>Goodbye, and good luck!")
                              (map (lambda (chr)
                                     (if (equal id (lookup 'id (cddr chr)))
                                         (chr-del (player) (car chr) (cadr chr))))

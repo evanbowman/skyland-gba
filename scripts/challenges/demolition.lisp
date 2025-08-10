@@ -1,17 +1,16 @@
 ;;;
-;;; demolition.lisp
+;;; challenges/demolition.lisp
 ;;;
 
 
-
 (defn on-fadein ()
-  (dialog "<c:goblin king:3>This whole island needs to be demolissshed! That'sss right, every ssingle block! Not one block can remain!")
+  (dialog "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!")
   (defn on-dialog-closed ()
     (dialog
-     "<c:goblin:2>Hey King, we've finished wiring the island with explossivesss!")
+     "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!")
     (defn on-dialog-closed ()
       (dialog
-       "<c:goblin king:3>Heh. Well this complicates things... hahahahaha")
+       "<c:Goblin King:3>Heh. Well, this complicatesss things... hahahahaha!")
       (setq on-dialog-closed nil))))
 
 
@@ -50,8 +49,8 @@
               (setq hint (cons "(" hint))
               (setq hint (apply string hint))
 
-              (dialog "<c:goblin king:3>NO! WRONG!! "
-                      "The island is sssinking and some blockss remain! "
+              (dialog "<c:Goblin King:3>NO! WRONG!! "
+                      "The island is sssinking and some blocksss remain! "
                       hint)
               (setq skip 1)
               (exit 3)))

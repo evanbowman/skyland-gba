@@ -36,7 +36,7 @@
     (push 'zone-shop-items (cons (wg-pos)
                                  (eval-file "/scripts/event/shop/shop_items.lisp"))))
 
-;; Bind shop items for the current world map location
+;; Bind shop items for the current world map location.
 (setq shop-items (lookup (wg-pos) zone-shop-items))
 
 
@@ -50,7 +50,7 @@
               (push-menu "item-shop" '())))
         (progn
           (dialog
-           "<c:shopkeeper:7>"
+           "<c:Shopkeeper:7>"
            name
            (format "? I'll sell you one for %@..." (get info 1)))
 
@@ -62,7 +62,7 @@
              (alloc-space (get info 0))
 
              (sel-input (get info 0)
-                        "pick a slot:"
+                        "Pick a slot:"
                         (lambda (isle x y)
                           (room-new (player) (list (get info 0) x y))
                           (sound "build0")
@@ -81,7 +81,7 @@
                                                 (- (get info 2) 1)
                                                 (get info 2)))))
 
-                          ;; Writeback the modified inner list
+                          ;; Writeback the modified inner list.
                           (setq zone-shop-items
                                 (map (lambda (z)
                                        (if (equal (car z) (wg-pos))
@@ -93,23 +93,23 @@
                               (push-menu "item-shop" '())
                             (progn
                               (dialog
-                               "<c:shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED.")
+                               "<c:Shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED.")
                               (let ((xy (cdr (wg-pos))))
-                                ;; switch the current map node to a visited node
+                                ;; Switch the current map node to a visited node
                                 ;; type, preventing us from talking to the
-                                ;; shopkeeper if we return (empty shop!)
+                                ;; shopkeeper if we return. (empty shop!)
                                 (wg-node-set (first xy) (second xy) 1))
                               (exit)))))))
 
           (dialog-opts-push (if (> (length name) 13)
-                                ;; use alternate text for long block names
+                                ;; Use alternate text for long block names.
                                 (string name " stats?")
                               (format "describe %" name))
                             (lambda ()
                               (push-menu "glossary" (list (car info)))
                               (push-menu "item-shop" '())))
 
-          (dialog-opts-push "no thanks…"
+          (dialog-opts-push "No thanks…"
                             (lambda ()
                               (push-menu "item-shop" '()))))))))
 
@@ -121,7 +121,7 @@
 
       (let ((ret (this)))
 
-        (dialog "<c:shopkeeper:7>What would you like to do?")
+        (dialog "<c:Shopkeeper:7>What would you like to do?")
         (setq on-dialog-closed nil)
 
         (dialog-opts-reset)
@@ -134,17 +134,17 @@
             (dialog-opts-push
              "repair"
              (lambda ()
-               (dialog "<c:shopkeeper:7> Let me have my repairman come over and assess the damages...")
+               (dialog "<c:Shopkeeper:7>Let me have my repairman come over and assess the damages...")
                (setq on-dialog-closed (run-util-script "repairman" ret)))))
 
         (dialog-opts-push "retune core"
                           (lambda ()
-                            (dialog "<c:shopkeeper:7> Core service, eh? Well... I've got this Sylph fellow who showed up last week. Bit odd, claims he can 'retune' your power matrix or some such...")
+                            (dialog "<c:Shopkeeper:7>Core service, eh? Well... I've got this Sylph fellow who showed up last week. Bit odd, claims he can 'retune' your power matrix or some such...")
                             (setq on-dialog-closed (run-util-script "core-service" ret))))
 
         (dialog-opts-push "chat"
                           (lambda ()
-                            (dialog "<c:shopkeeper:7> One piece of news that I learned today is: "
+                            (dialog "<c:Shopkeeper:7>One piece of news that I learned today is: "
                                     txt
                                     "<B:0> Interesting, huh?")
                             (setq on-dialog-closed ret)))
@@ -155,7 +155,7 @@
 
 (defn on-fadein ()
   (dialog
-   "<c:shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
-   "(when done, use the start menu to return to your sky chart)")
+   "<c:Shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
+   "(When done, use the START menu to return to your sky chart!)")
 
   (setq on-dialog-closed on-shop-enter))

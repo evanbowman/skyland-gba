@@ -125,7 +125,7 @@ important thing I've learned:
 
 every island needs a backup
 
-plan. Keep a standby- core
+plan. Keep a standby-core
 
 ready. Test it monthly.  Don't
 

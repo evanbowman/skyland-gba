@@ -8,7 +8,7 @@
 (setvar "rewind_disabled" 0)
 
 
-;; NOTE: the list should not exceed 64 tutorials.
+;; NOTE: The list should not exceed 64 tutorials.
 
 
 (append '(("Introduction" "tutorials/overview.lisp" 0)
@@ -27,6 +27,6 @@
           ("Adding Terrain" "tutorials/terrain.lisp" 12)
           ("Power Balance" "tutorials/power_balance.lisp" 13)
           ("Diverting Power" "tutorials/power_balance_2.lisp" 14))
-        (if (is-developer-mode) ; In developer mode, append the extra tutorial, otherwise, append nothing
+        (if (is-developer-mode) ;; In developer mode, append the extra tutorial, otherwise, append nothing.
             '(("template" "tutorials/template.lisp" 16))
             nil))

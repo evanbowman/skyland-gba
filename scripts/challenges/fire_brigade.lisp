@@ -1,5 +1,5 @@
 ;;;
-;;; fire_brigade.lisp
+;;; challenges/fire_brigade.lisp
 ;;;
 
 

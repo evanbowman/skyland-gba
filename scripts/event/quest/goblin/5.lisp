@@ -1,3 +1,7 @@
+;;;
+;;; quest/goblin/5.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/surface_keeper.img.bin>"
@@ -17,7 +21,7 @@
 (defn on-converge ()
   (setq on-converge nil)
 
-  (dialog "<c:surface keeper:43>The cloudsss thin here... allowing us to reach the sky dwellers. <B:0> Our instruments detect... disturbing energy readings in the ruinsss below. <B:0> Something awakensss. We require aid from those who command flying fortressesss.")
+  (dialog "<c:Surface Keeper:43>The cloudsss thin here... allowing usss to reach the sssky dwellersss. <B:0> Our instruments detect... disturbing energy readingsss in the ruinsss below. <B:0> Something awakensss. We require aid from those who command flying fortressesss.")
 
   (dialog-await-binary-q "I accept!" "I'm kind of busy…")
 
@@ -30,7 +34,7 @@
 
       (run-util-script
        "find-crew-slot"
-       "<c:surface keeper:43> No sspace! Let's ssseee..."
+       "<c:Surface Keeper:43>No ssspace! Let's ssseee..."
        'ladder
        "Place block (1x2):"
        (lambda (x y _)
@@ -39,8 +43,8 @@
            (push 'qvar (cons 5 id)))
 
          (dialog (if m
-                     "<c:suface keeper:43>Yesss... time is critical. I've marked the source of the disturbance on your chart with an *."
-                     "<c:surface keeper:43>The energy readingsss have grown too unstable... We can no longer approach sssafely. The containment must have already failed..."))
+                     "<c:Surface Keeper:43>Yesss... time is critical. I've marked the sssource of the disturbance on your chart with an *."
+                     "<c:Surface Keeper:43>The energy readingsss have grown too unstable... We can no longer approach sssafely. The containment mussst have already failed..."))
          (defn on-dialog-closed ()
            (dialog "The surface keeper goblin joined your crew!")
            (setq on-dialog-closed exit))))))

@@ -1,3 +1,7 @@
+;;;
+;;; restore.lisp
+;;;
+
 
 (lambda (d)
   (eval-file "/scripts/reset_hooks.lisp")

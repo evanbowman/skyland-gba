@@ -1,5 +1,5 @@
 ;;;
-;;; goliath.lisp
+;;; challenges/goliath.lisp
 ;;;
 
 

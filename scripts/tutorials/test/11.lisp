@@ -2,6 +2,7 @@
 ;;; transporter.lisp
 ;;;
 
+
 (assert-eq
  (rooms (player))
  '((power-core 1 13) (transporter 3 13) (transporter 4 13)))

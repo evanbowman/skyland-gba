@@ -44,7 +44,7 @@
                 (lambda ()
                   (sound "click_digital_1")
                   (cart-add 0)
-                  (dialog "You pick up a cart labled "
+                  (dialog "You pick up a cart labeled "
                           (get info 0)
                           "! (cartridge 1)")
                   (setq on-dialog-closed nil)

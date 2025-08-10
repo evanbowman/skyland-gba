@@ -3,7 +3,6 @@
 ;;;
 
 
-
 (opponent-init 7 'hostile)
 
 

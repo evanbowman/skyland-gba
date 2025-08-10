@@ -1,3 +1,7 @@
+;;;
+;;; neutral/2/6_4.lisp
+;;;
+
 
 (dialog "Your castle sails through a dense bank of clouds, and when the mist finally clears... <B:0> <b:/scripts/data/img/sylph_archive.img.bin> An impossible sight emerges - massive walls of ancient stonework stretch upward as far as you can see, flanking a narrow chasm that seems to have no bottom. <B:0> Your island drifts forward, a tiny speck between towering structures of ornate masonry and bronze. <B:0> A sudden voice crackles over your radio, precise and formal...")
 
@@ -7,8 +11,8 @@
 
 
 (defn on-fadein ()
-  (dialog "<c:Sylph Archivist:21>Greetings, traveler. Few outsiders reach the Central Archive of the Sylph Conclave. <B:0> We have observed your fortress with great interest. Your configuration of technology, your adaptations to the changing skies... they represent solutions we would not have designed. Our archive seeks to document all knowledge of sky survival. Your castle's design holds valuable insights for our studies. <B:0> We propose an exchange. Allow us to keep your current fortress for our archives. In return, we offer one of our own warships. Your crew would transfer completely. Nothing would be lost but the structure itself...")
-  (dialog-await-binary-q "accept the exchange" "decline and leave"))
+  (dialog "<c:Sylph Archivist:21>Greetings, traveller. Few outsiders reach the Central Archive of the Sylph Conclave. <B:0> We have observed your fortress with great interest. Your configuration of technology, your adaptations to the changing skies... they represent solutions we would not have designed. Our archive seeks to document all knowledge of sky survival. Your castle's design holds valuable insights for our studies. <B:0> We propose an exchange. Allow us to keep your current fortress for our archives. In return, we offer one of our own warships. Your crew would transfer completely. Nothing would be lost but the structure itself...")
+  (dialog-await-binary-q "Accept the exchange." "Decline and leave."))
 
 
 (defn on-dialog-accepted ()

@@ -1,5 +1,7 @@
 
- SKYLAND lisp standard
+ lisp_builtins.txt
+ 
+ SKYLAND LISP standard
  library documentation
 
 
@@ -222,7 +224,7 @@ o----------------------------o
 
  Return length of a list
  or a string. For strings,
- length represents the utf-8
+ length represents the UTF-8
  length of the text (i.e.
  characters rather than
  bytes).
@@ -249,11 +251,11 @@ o----------------------------o
  return output list with
  call results.
 
- Note: for advanced users:
- map does allow you to
+ Note: For advanced users:
+ Map does allow you to
  pass multiple lists,
- like in other popular lisp
- dialects.
+ like in other popular
+ LISP dialects.
 
 
 o----------------------------o
@@ -429,7 +431,7 @@ o----------------------------o
  argument flips a number's
  sign.
 
- Note: the mod operator does
+ Note: The mod operator does
  not support floats.
 
 
@@ -479,7 +481,7 @@ o----------------------------o
 
  (read string)
 
- Parse a lisp datastructure
+ Parse a LISP datastructure
  encoded as a string.
 
 
@@ -488,7 +490,7 @@ o----------------------------o
  (rot13 string)
 
  Encrypt/decrypt a string
- using a rot13 cypher.
+ using a ROT13 cypher.
 
 
 o----------------------------o
@@ -503,9 +505,9 @@ o----------------------------o
 
  (split string delim)
 
- NOTE: split only currently
- works with ascii delimiters!
- i.e. delim must be an ascii
+ NOTE: Split only currently
+ works with ASCII delimiters!
+ I.e. delim must be an ASCII
  character. Otherwise, split
  does what you'd expect it to
  do.
@@ -598,7 +600,7 @@ o----------------------------o
  Technically, return values
  wrap around after a few
  hundred thousand gensym
- calls. But a gba program
+ calls. But a GBA program
  would never use a macro that
  big! :)
 
@@ -695,12 +697,12 @@ o----------------------------o
 
  If the function is not
  compiled, then return the
- lisp representation of the
+ LISP representation of the
  function.
 
  If the function is compiled,
  and there is a remote console
- (e.g. uart) connected, then
+ (e.g. UART) connected, then
  print to the console.
  Otherwise, write the
  disassembler output to the
@@ -744,7 +746,7 @@ o----------------------------o
 
  (eval list)
 
- Evaluate a list as lisp
+ Evaluate a list as LISP
  code.
 
 
@@ -775,13 +777,13 @@ o----------------------------o
  running out of memory.
  I try to avoid getting into
  situations like that,
- because the gc is a bit
+ because the GC is a bit
  buggy in cases where it
  runs in the middle of
  allocating new values
- inside builtin functions,
+ inside built-in functions,
  perhaps I failed to
- declare somethign as a gc
+ declare something as a GC
  root.
 
 
@@ -789,7 +791,7 @@ o----------------------------o
 
  (lisp-mem-set-gc-thresh n)
 
- Run the gc more frequently
+ Run the GC more frequently
  than strictly needed, when
  the number of remaining
  values drops below n.
@@ -800,11 +802,11 @@ o----------------------------o
  (lisp-mem-...)
 
  * vals-remaining:
- remaining unallocated
- lisp values.
+ Remaining unallocated
+ LISP values.
 
  * global-count:
- global vars allocated
+ Global vars allocated.
 
  * string-internb:
  Bytes in memory internalized
@@ -886,7 +888,7 @@ o----------------------------o
  Set a global variable or
  let binding to a new value.
 
- The standard libary defines
+ The standard library defines
  a setq macro, so usually no
  need to call set manually.
 
@@ -895,7 +897,7 @@ o----------------------------o
 
  (stacktrace)
 
- Returns a list contining
+ Returns a list containing
  functions on the callstack.
 
 
@@ -974,8 +976,8 @@ o----------------------------o
 
  (cond)
 
- TODO: document cond.
- It works like most lisp
+ TODO: Document cond.
+ It works like most LISP
  dialects.
 
 
@@ -1063,7 +1065,7 @@ o----------------------------o
 
  (databuffer)
 
- Allocate a 2kb buffer.
+ Allocate a 2 KB buffer.
 
 
 o----------------------------o

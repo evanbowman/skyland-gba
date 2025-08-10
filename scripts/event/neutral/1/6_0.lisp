@@ -1,5 +1,5 @@
 ;;;
-;;; neutral/1/6.lisp
+;;; neutral/1/6_0.lisp
 ;;;
 
 
@@ -59,12 +59,12 @@
         (setq pc (filter (car-equalto? 'overdrive-core) (rooms (player)))))
 
     (when pc
-      (secret 1 14 (string "Notice: surplus " wpn " in stock!")))
+      (secret 1 14 (string "Notice: Surplus " wpn " in stock!")))
 
-    (if (or sc (and (not rc) (not pc))) ;; player must have a core and not already have a backup
+    (if (or sc (and (not rc) (not pc))) ;; Player must have a core and not already have a backup.
         (progn
           (defn on-converge ()
-            (dialog "<c:mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
+            (dialog "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
             (exit)))
         (progn
           (dialog "A small village radios you... sounds like they're having trouble with their power-core...")
@@ -77,8 +77,8 @@
             (setq rc (filter (car-equalto? 'reactor) (rooms (player))))
 
             (dialog
-             "<c:mayor:10>After a few years of use, our old power supply ran out of atomic fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
-            (dialog-await-binary-q "ok, let's trade!" "sorry, I can't…")
+             "<c:Mayor:10>After a few years of use, our old power supply ran out of atomic fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
+            (dialog-await-binary-q "OK, let's trade!" "Sorry, I can't…")
 
             (setq on-dialog-declined exit)
 
@@ -87,7 +87,7 @@
                 (if pc
                     (setq c (car pc))
                     (progn
-                      ;; The player has no powercore, but is instead donating a
+                      ;; The player has no power-core, but is instead donating a
                       ;; reactor. Give a potentially rare weapon!
                       (setq c (car rc))
                       (setq wpn (sample '(ballista
@@ -138,7 +138,7 @@
                    (lambda ()
                     (impl
                      (lambda ()
-                      (dialog "<c:mayor:10>Thanks so much for the help!")
+                      (dialog "<c:Mayor:10>Thanks so much for the help!")
                       (run-util-script "pickup-cart" 3
-                                       "<c:mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"
+                                       "<c:Mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"
                                        exit))))))))))))

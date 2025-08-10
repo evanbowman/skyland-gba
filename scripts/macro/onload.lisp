@@ -1,5 +1,7 @@
 ;;;
+;;; macro/onload.lisp
+;;;
 ;;; Invoked when loading a saved macrocosm.
 ;;;
 
-;; Inputs: bound to conf global variable by engine.
+;; Inputs: Bound to conf global variable by engine.

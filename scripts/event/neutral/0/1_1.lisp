@@ -1,17 +1,18 @@
 ;;;
 ;;; neutral/0/1_1.lisp
 ;;;
+;;; Anvil Annie is a highly paranoid hermit. I thought about making different
+;;; dialog when playing as goblins, but you know what, I think I'll keep it. Even
+;;; crazy consipracy theorists are right sometimes. A broken clock is right twice
+;;; a day, so they say. It also means her character works on multiple levels:
+;;; Surface level: Crazy hermit with trust issues.
+;;; Meta level: Commentary on how truth and madness can coexist.
+;;; It lets the context completely reframe the character without changing a
+;;; word. When playing as goblins, when meeting this character for the first
+;;; time, one might think, she's a hardened realist. Then later when running into
+;;; this character as humans -- no wait, she's entirely crazy.
+;;;
 
-;; Anvil Annie is a highly paranoid hermit. I thought about making different
-;; dialog when playing as goblins, but you know what, I think I'll keep it. Even
-;; crazy consipracy theorists are right sometimes. A broken clock is right twice
-;; a day, so they say. It also means her character works on multiple levels:
-;; Surface level: Crazy hermit with trust issues
-;; Meta level: Commentary on how truth and madness can coexist
-;; It lets the context completely reframe the character without changing a
-;; word. When playing as goblins, when meeting this character for the first
-;; time, one might think, she's a hardened realist. Then later when running into
-;; this character as humans--no wait, she's entirely crazy.
 
 (dialog
  "A small but heavily fortified island appears on your scanners. Scattered debris floats nearby - twisted metal and charred wood from recent conflicts...")
@@ -28,13 +29,13 @@
 
 (defn on-converge ()
   (dialog
-   "<c:anvil annie:44> Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away! <B:0> Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)")
+   "<c:Anvil Annie:44>Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away! <B:0> Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)")
   (dialog-opts-reset)
-  (dialog-await-binary-q-w/lore "pay 700@" "refuse bribe"
-                                '(("we aren't spies!" .
-                                   "<c:anvil annie:44> Course you'd say that. Real spies always deny it. Innocent traders? They get confused, ask what I'm talking about. But you knew EXACTLY what I meant...")
-                                  ("what's this debris field?" .
-                                   "<c:anvil annie:44> Spies, saboteurs, sleeper agents! They think they're so clever with their fake distress calls and forged cargo manifests! But I can spot 'em from leagues away! <B:0> See that scorched hull fragment? 'Friendly trader' who tried to scan my weapon configurations! <B:0> The nerve! They're ALL connected, part of some massive intelligence network! <B:0> Anyway...")))
+  (dialog-await-binary-q-w/lore "Pay 700@." "Refuse bribe."
+                                '(("We aren't spies!" .
+                                   "<c:Anvil Annie:44>Course you'd say that. Real spies always deny it. Innocent traders? They get confused, ask what I'm talking about. But you knew EXACTLY what I meant...")
+                                  ("What's this debris field?" .
+                                   "<c:Anvil Annie:44>Spies, saboteurs, sleeper agents! They think they're so clever with their fake distress calls and forged cargo manifests! But I can spot 'em from leagues away! <B:0> See that scorched hull fragment? 'Friendly trader' who tried to scan my weapon configurations! <B:0> The nerve! They're ALL connected, part of some massive intelligence network! <B:0> Anyway...")))
   (setq on-converge nil))
 
 
@@ -47,15 +48,15 @@
           (if (< (coins) 700)
               (progn
                 (adventure-log-add 68 '())
-                (scr "<c:anvil annie:44> Broke, eh? Well Sweet Bertha doesn't work for free! Time to collect your scrap as payment instead!"))
+                (scr "<c:Anvil Annie:44>Broke, eh? Well, Sweet Bertha doesn't work for free! Time to collect your scrap as payment instead!"))
             (progn
               (adventure-log-add 69 (list 700))
               (coins-add -700)
-              (dialog "<c:anvil annie:44> There we go! See how easy that was? Now get out of my airspace before I change my mind!")
+              (dialog "<c:Anvil Annie:44>There we go! See how easy that was? Now get out of my airspace before I change my mind!")
               (exit)))))
 
 
   (setq on-dialog-declined
         (lambda ()
           (adventure-log-add 70 '())
-          (scr "<c:anvil annie:44>I KNEW IT! Only goblin spies would refuse to pay! Time to blast some answers out of you!"))))
+          (scr "<c:Anvil Annie:44>I KNEW IT! Only goblin spies would refuse to pay! Time to blast some answers out of you!"))))

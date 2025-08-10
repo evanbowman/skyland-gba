@@ -526,7 +526,7 @@ Reach zone 2!
 Strategist
 Reach zone 3!
 Stronghold
-Build a castle with at least four power cores!
+Build a castle with at least four power-cores!
 dynamite
 Complete any challenge level!
 Virtuoso (1)
@@ -605,7 +605,7 @@ Try again? (lives: x%)
 Reset the game to factory settings? Press B to cancel. Press A five times while holding select to continue.
 Welcome! <j:datacarts_flattened> Here you'll find your collection of data cartridges from your adventures! Cartridges are the main way of storing information across SKYLAND! See how many you can find...
 Beep... collating... Welcome back! <B:0><j:datacarts_flattened> <B:0> Find any new cartridges lately?
-<c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
+<c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's OK... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
 The Storm King's stronghold disintegrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
 session connecting...
 Failed to connect to multiplayer peer!
@@ -616,7 +616,7 @@ The isle imploded!
 Locked! Why not try out the regular macrocosm mode for a bit!
 terrain size?
 Error! Island has too many blocks to compress into a legible QR code! Sorry, this is a technical limitation, not much can be done, other than reducing the number of blocks in your island.
-WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (Hint: If you are using Android, you may need to scan with Google Lens).
+WARNING: Your island is pretty big, and the resulting QR code does not fit on-screen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (Hint: If you are using Android, you may need to scan with Google Lens).
 The Nintendo DS does not have a Game Boy Advance Link Port, sorry!
 Connect two GBA consoles by plugging the 1p end of a link cable into the first device, and the 2p end of the link cable into the second device. When both devices display the following white screen, press START to connect.
  (showdown)
@@ -627,8 +627,8 @@ jump again!
 Name crewmember:
 ENTER: submit
 You've just loaded a saved game. With permadeath enabled, each adventure mode save may only be restored once before saving again. Remember to save before turning off the game!
-Tip: You can also move blocks by holding B over an empty space. See the "moving blocks" tutorial for more advanced features!
-Tip: You may also change the game speed by pressing and holding the pause (left shoulder) button. See the "game speed" tutorial for more help!
+Tip: You can also move blocks by holding B over an empty space. See the "Moving Blocks" tutorial for more advanced features!
+Tip: You may also change the game speed by pressing and holding the pause (left shoulder) button. See the "Game Speed" tutorial for more help!
 Tip: The SELECT menu lists extra features not always available elsewhere. Try SELECTing different things to access more options!
 ok
 don't show again
@@ -675,7 +675,7 @@ Dmg. Repaired
 Steps Taken
 Fires Quenched
 Fav. Room:
-Fav. :
+Fav.:
 setup target queue (%/%):
 choose flag:
 colonial

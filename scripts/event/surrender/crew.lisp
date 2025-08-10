@@ -1,10 +1,14 @@
+;;;
+;;; surrender/crew.lisp
+;;;
+
 
 (dialog
  (cond
   ((equal (faction) 'goblin)
-    "<c:goblin pirates:2>We surrender! Honesst, we promise to help you pillage any other cassstles!")
+    "<c:Goblin Pirates:2>We sssurrender! Honessst, we promise to help you pillage any other cassstles!")
   (true
-    "<c:goblin pirates:2>We surrender! Honesst, we promise not to pillage any other cassstles!")))
+    "<c:Goblin Pirates:2>We sssurrender! Honessst, we promise not to pillage any other cassstles!")))
 
 (defn on-dialog-closed ()
   (setq on-dialog-closed '())
@@ -20,8 +24,8 @@
                         (run-util-script
                          "find-crew-slot"
                         (if (equal (faction) 'goblin)
-                          "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce friends will not leave usss! I'll build an ledarr!"
-                          "<c:goblin:18> gahh! <B:0> You are out of ssspace! <B:0> NIce hoomansses will not leave us! I'll build an ledarr!")
+                          "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice friendsss will not leave usss! I'll build an ledarr!"
+                          "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice humansss will not leave usss! I'll build an ledarr!")
                          'ladder
                          "Place block (1x2):"
                          (lambda (x y _)
@@ -44,7 +48,7 @@
       (setq cnt tot)
       (when cnt
         (dialog-opts-push
-         (format "salvage rights: % blocks" cnt)
+         (format "Salvage rights: % blocks" cnt)
          (lambda ()
            (let ((rtry (this)))
              (sel-input-opponent

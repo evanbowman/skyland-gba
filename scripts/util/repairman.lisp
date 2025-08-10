@@ -1,3 +1,7 @@
+;;;
+;;; util/repairman.lisp
+;;;
+
 
 (lambda (ret)
   (let ((done ret))
@@ -15,7 +19,7 @@
                               (+= weapon-damage damage)))))))
                  (rooms (player)))
 
-        (dialog "<c:repairman:30> What a nice ship you have here... <B:0> "
+        (dialog "<c:Repairman:30>What a nice ship you have here... <B:0> "
                 "GAH! It's got dents all over it! <B:0>"
                 "Let's see... <B:0>"
                 (if weapon-damage
@@ -38,7 +42,7 @@
                             (lambda ()
                               (if (< (coins) cost)
                                   (progn
-                                    (dialog "<c:repairman:30> Sorry, you can't afford it!")
+                                    (dialog "<c:Repairman:30>Sorry, you can't afford it!")
                                     (setq on-dialog-closed done))
                                   (progn
                                     (sound "build0")
@@ -49,11 +53,11 @@
                                                             (get room 2)
                                                             (rinfo 'max-hp (car room))))
                                              (rooms (player)))
-                                    (dialog "<c:repairman:30> <s:3>. . . . . <s:0> "
+                                    (dialog "<c:Repairman:30> <s:3>. . . . . <s:0> "
                                             "OK! All finished! <B:0> Nice working with ya!")
                                     (setq on-dialog-closed done)))))
 
-          (dialog-opts-push "nevermind..."
+          (dialog-opts-push "Nevermind..."
                             (lambda ()
-                              (dialog "<c:repairman:30> No problem! Have a nice day!")
+                              (dialog "<c:Repairman:30>No problem! Have a nice day!")
                               (setq on-dialog-closed done))))))))

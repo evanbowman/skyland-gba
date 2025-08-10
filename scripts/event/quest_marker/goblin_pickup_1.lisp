@@ -1,3 +1,8 @@
+;;;
+;;; quest_marker/goblin_pickup_1.lisp
+;;;
+
+
 (dialog "It was a trap!")
 
 (opponent-init 8 'hostile)

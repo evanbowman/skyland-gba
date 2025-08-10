@@ -1,3 +1,7 @@
+;;;
+;;; quest_marker/goblin_atomics.lisp
+;;;
+
 
 (dialog "You arrive at the coordinates marked in the ancient texts...")
 
@@ -14,11 +18,11 @@
   (dialog "You arrive, but the Ashwalker Apprentice seems disturbed...")
 
   (defn on-dialog-closed ()
-    (dialog "<c:ashwalker apprentice:41>The Order's chants... they've gone ssssilent. <B:0> Our ritualsss teach that if the Order falls, we must use the old weaponsss to take retribution against our enemies. Take thisss:")
+    (dialog "<c:Ashwalker Apprentice:41>The Order's chants... they've gone ssssilent. <B:0> Our ritualsss teach that if the Order falls, we must use the old weaponsss to take retribution against our enemies. Take thisss:")
     (defn on-dialog-closed ()
       (dialog "[You write down the launch codes...]")
       (defn on-dialog-closed ()
-        (dialog "<c:ashwalker apprentice:41>Handle with care... the radiation still singsss..")
+        (dialog "<c:Ashwalker Apprentice:41>Handle with care... the radiation still singsss..")
         (defn on-dialog-closed ()
           (foreach (lambda (r)
                      (when (equal (car r) 'cloak)
@@ -39,5 +43,5 @@
                        (sound "build0")
                        (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
                        (defn on-dialog-closed ()
-                         (dialog "<c:ashwalker apprentice:41>Now they'll learn why even the ssstorm fears usss!")
+                         (dialog "<c:Ashwalker Apprentice:41>Now they'll learn why even the ssstorm fears usss!")
                          (setq on-dialog-closed exit)))))))))

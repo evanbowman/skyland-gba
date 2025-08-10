@@ -1,24 +1,27 @@
-Not all images in the project
-are possible to easily modify
-with the modding toolchain.
-But the game does allow you
-to draw custom cover images
-for level events. The
-img_enc.lua script in the
-tools directory converts
-image data to the format
-expected by the engine when
-loading image files.
-For organizational purposes,
-you may put your images in
-/scripts/data/img/, and by
-searching /scripts/data/img/
-in the scripts direction, you
-will see how I've attached
-images to the existing level
-scenarios. I did not include
-tools for unpacking .skg
-images, sorry. But as the game
-is open-source, you can get
-them from the project's main
-repository.
+
+ images.txt
+
+ Not all images in the project
+ are possible to easily modify
+ with the modding toolchain.
+ But the game does allow you
+ to draw custom cover images
+ for level events. The
+ img_enc.lua script in the
+ tools directory converts
+ image data to the format
+ expected by the engine when
+ loading image files.
+ For organizational purposes,
+ you may put your images in
+ /scripts/data/img/, and by
+ searching /scripts/data/img/
+ in the scripts direction, you
+ will see how I've attached
+ images to the existing level
+ scenarios. I did not include
+ tools for unpacking .skg
+ images, sorry. But as the game
+ is open source, you can get
+ them from the project's main
+ repository.

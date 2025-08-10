@@ -1,11 +1,14 @@
+;;;
+;;; shop_items.lisp
+;;;
 
 
 (let ((ret '())
-      (rooms (eval-file "/scripts/config/room_tab.lisp")) ;; load pricing info...
+      (rooms (eval-file "/scripts/config/room_tab.lisp")) ;; Load pricing info...
       (opts (eval-file (format "/scripts/event/shop/%/%.lisp"
                                (zone)
                                (choice 4)))))
-  ;; Ok, so we want to make shop items cheaper than if players built them
+  ;; OK, so we want to make shop items cheaper than if players built them
   ;; manually, but not so cheap that you could increase your coin count by
   ;; salvaging the purchased blocks.
   (let ((find-entry (lambda (n)
@@ -14,10 +17,10 @@
                             (equal (get room 0) name))
                           rooms)))))
 
-    (let ((low (lambda (rsym) ;; minimum price that we'll sell at
+    (let ((low (lambda (rsym) ;; Minimum price that we'll sell at.
                  (let ((r (car (find-entry rsym))))
                    (let ((cost (get r 2)))
-                     ;; lower limit is 65 percent, the salvage factor
+                     ;; Lower limit is 65 percent, the salvage factor.
                      (/ (* cost 65) 100))))))
 
       (let ((push-result (lambda (sym qty size)

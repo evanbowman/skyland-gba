@@ -1,3 +1,6 @@
+;;;
+;;; storm_king_hard.lisp
+;;;
 
 
 (terrain-set (opponent) 14)

@@ -1,5 +1,5 @@
 ;;;
-;;; porcupine1.lisp
+;;; challenges/porcupine1.lisp
 ;;;
 
 
@@ -20,7 +20,7 @@
   (dialog-await-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "clear out some of that masonry, then, flak-guns might be useful..."))
+    (dialog "Clear out some of that masonry, then, flak-guns might be useful..."))
 
   (setq on-dialog-declined (lambda ())))
 

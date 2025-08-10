@@ -1,21 +1,25 @@
+;;;
+;;; util/core-service.lisp
+;;;
+
 
 (lambda (ret)
   (let ((done ret)
         (text nil)
         (skip (list)))
 
-    (setq text "<c:sylph:46>Ah! A sky-dweller with a… <S:1>harmonic matrix<S:0> …what is your word… ah yes, 'power core'! <B:0> Fascinating construction, though the harmonic resonance is quite… <S:1>limited<S:0> … limited? <B:0> Your crystal vibrates at such a… <S:1>pedestrian tone<S:0> …forgive me, your language lacks precision.<B:0> Perhaps I could… <S:1>retune<S:0> … retune? Yes, retune your matrix to sing in different frequencies? I have studied many resonance patterns from the ancient archives…")
+    (setq text "<c:Sylph:46>Ah! A sky-dweller with a… <S:1>harmonic matrix<S:0> …what is your word… ah yes, 'power-core'! <B:0> Fascinating construction, though the harmonic resonance is quite… <S:1>limited<S:0> … limited? <B:0> Your crystal vibrates at such a… <S:1>pedestrian tone<S:0> …forgive me, your language lacks precision.<B:0> Perhaps I could… <S:1>retune<S:0> … retune? Yes, retune your matrix to sing in different frequencies? I have studied many resonance patterns from the ancient archives…")
 
     (lambda ()
 
       (when (adv-var-load "sylph-shop-intro")
-        (setq text "<c:sylph:46>What would you like to do?"))
+        (setq text "<c:Sylph:46>What would you like to do?"))
 
       (dialog text)
       (adv-var-store "sylph-shop-intro" 1)
       (dialog-opts-reset)
 
-      (dialog-opts-push "tune core frequency"
+      (dialog-opts-push "Tune core frequency."
                         (lambda ()
                           (let ((t (this)))
                             (let ((update-color (lambda (cl sp1 sp2 txt)
@@ -29,12 +33,12 @@
                                                       (setvar "spr_energy_color_2" spr2)
                                                       (repaint)
                                                       (if (filter (equalto? color) skip)
-                                                          (setq text "done!")
+                                                          (setq text "Done!")
                                                           (setq skip (cons color skip)))
-                                                      (dialog "<c:sylph:46>" text)
+                                                      (dialog "<c:Sylph:46>" text)
                                                       (setq on-dialog-closed t))))))
 
-                              (dialog "<c:sylph:46>Which color?")
+                              (dialog "<c:Sylph:46>Which color?")
                               (dialog-opts-reset)
 
                               (map (lambda (info)
@@ -42,13 +46,13 @@
                                                        (apply update-color (cdr info))))
                                    (eval-file "/scripts/data/tuning-crystal.lisp"))
 
-                              (dialog-opts-push "done" done)))))
+                              (dialog-opts-push "Done." done)))))
 
-      (dialog-opts-push "buy tuning crystal"
+      (dialog-opts-push "Buy tuning crystal."
                         (lambda ()
-                          (dialog "<c:sylph:46> You'd like to buy this tuning equipment? Maybe... <B:0> It'll be a bit pricey, 8000@, but you'll be able to retune your core whenever you want...")
+                          (dialog "<c:Sylph:46>You'd like to buy this tuning equipment? Maybe... <B:0> It'll be a bit pricey, 8000@, but you'll be able to retune your core whenever you want...")
                           (dialog-opts-reset)
-                          (dialog-opts-push "buy equipment (8000@)"
+                          (dialog-opts-push "Buy equipment. (8000@)"
                                             (lambda ()
                                               (if (> (coins) 7999)
                                                   (progn
@@ -59,8 +63,8 @@
                                                                  (room-new (player) `(tuning-crystal ,x ,y))
                                                                  (sound "build0")
                                                                  (achieve 21))))
-                                                  (dialog "<c:sylph:46> Unfortunately, you don't seem to have enough to buy it yet..."))))
+                                                  (dialog "<c:Sylph:46>Unfortunately, you don't seem to have enough to buy it yet..."))))
 
-                          (dialog-opts-push "nevermind" done)))
+                          (dialog-opts-push "Nevermind." done)))
 
-      (dialog-opts-push "nevermind" done))))
+      (dialog-opts-push "Nevermind." done))))

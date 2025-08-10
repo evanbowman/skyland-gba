@@ -2,6 +2,7 @@
 ;;; storm_king.lisp
 ;;;
 
+
 (eval-file "/scripts/reset_hooks.lisp")
 
 
@@ -16,7 +17,7 @@
 
 (setq on-fadein
       (lambda ()
-        (dialog "<c:storm king:4> . . .")))
+        (dialog "<c:Storm King:4> . . .")))
 
 
 (adventure-log-add 48 '())

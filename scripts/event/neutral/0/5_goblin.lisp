@@ -40,13 +40,13 @@
 
 (defn on-converge ()
   (dialog
-   "<c:goblin raider:39>Finally, ssomeone answered! <B:0> My raid crew left me behind when the town's defensses were stronger than expected. <B:0> Got knocked out by some debris when their ion cannon hit us... By the time I came to, everyone wasss gone. _bitter_laugh_ Guesss they figured I was dead weight. <B:0> Would you have room for a more... reliable crewmember?")
+   "<c:Goblin Raider:39>Finally, sssomeone answered! <B:0> My raid crew left me behind when the town's defenssses were stronger than expected. <B:0> Got knocked out by some debris when their ion cannon hit us... By the time I came to, everyone wasss gone. _bitter_laugh_ Guesss they figured I was dead weight. <B:0> Would you have room for a more... reliable crew member?")
 
   (setq on-dialog-closed
         (lambda ()
             (dialog "She seems decent, invite her aboard?")
 
-          (dialog-await-binary-q "welcome aboard!" "not today")
+          (dialog-await-binary-q "Welcome aboard!" "Not today.")
 
           (setq on-dialog-closed '())))
 
@@ -56,13 +56,13 @@
 (defn on-dialog-accepted ()
   (run-util-script
    "find-crew-slot"
-   "<c:goblin raider:39>Hold on, don't leave me here! I know your casstle's full, but thiss island is burning!"
+   "<c:Goblin Raider:39>Hold on, don't leave me here! I know your cassstle's full, but thisss island is burning!"
    'ladder
    "Place block (1x2):"
    (lambda (x y _)
      (chr-del (opponent) 1 12)
      (chr-new (player) x y 'neutral '((race . 1) (icon . 39)))
-     (dialog "<c:goblin raider:39> Thanks for ressscuing me! I'll try to help out however I can!")
+     (dialog "<c:Goblin Raider:39>Thanks for ressscuing me! I'll try to help out however I can!")
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
        (dialog "The goblin joined your crew!")

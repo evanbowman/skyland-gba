@@ -1,3 +1,7 @@
+;;;
+;;; neutral/1/0.lisp
+;;;
+
 
 (let ((scenarios
        '("scripts/event/neutral/1/0_goblin.lisp"

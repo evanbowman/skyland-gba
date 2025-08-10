@@ -1,4 +1,5 @@
 
+ editor_keys.txt
 
  Describes keyboard
  shortcuts for our in-game
@@ -14,38 +15,38 @@ o---------------------------o
 o---------------------------o
  nav-mode
 
- D-pad: move cursor
- B: save and quit
+ D-pad: Move cursor
+ B: Save and quit
 
- LBumper+A: insert newline
- LBumper+B: backspace
+ LBumper+A: Insert newline
+ LBumper+B: Backspace
 
- LBumper+Right-D-pad: jump to end of line
- LBumper+Left-D-pad: jump to start of line
- LBumper+Down-D-pad: jump to end of file
- LBumper+Up-D-pad: jump to beginning of file
+ LBumper+D-pad-right: Jump to end of line
+ LBumper+D-pad-left: Jump to start of line
+ LBumper+D-pad-down: Jump to end of file
+ LBumper+D-pad-up: Jump to beginning of file
 
- RBumper+LBumper: center the view over the cursor
- LBumper+RBumper: center the view over the cursor
+ RBumper+LBumper: Center the view over the cursor
+ LBumper+RBumper: Center the view over the cursor
 
- RBumper+Right-D-pad: cursor forwards one word
- RBumper+Left-D-pad: cursor backwards one word
- RBumper+Down-D-pad: cursor forwards one paragraph
- RBumper+Up-D-pad: cursor backwards one paragraph
+ RBumper+D-pad-right: Cursor forwards one word
+ RBumper+D-pad-left: Cursor backwards one word
+ RBumper+D-pad-down: Cursor forwards one paragraph
+ RBumper+D-pad-up: Cursor backwards one paragraph
 
- RBumper+A: copy selection
- RBumper+B: paste selection
+ RBumper+A: Copy selection
+ RBumper+B: Paste selection
 
- A: switch to edit-mode
+ A: Switch to edit-mode
 
 
 o---------------------------o
  edit-mode
 
- B: back to nav-mode
- D-pad: move keyboard cursor
- A: insert character
- LBumper: open autocomplete
+ B: Back to nav-mode
+ D-pad: Move keyboard cursor
+ A: Insert character
+ LBumper: Open autocomplete
 
 
 o---------------------------o

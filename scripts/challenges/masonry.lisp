@@ -1,14 +1,13 @@
 ;;;
-;;; masonry.lisp
+;;; challenges/masonry.lisp
 ;;;
-
 
 
 (setq on-fadein
       (lambda ()
         (dialog
-         "<c:goblin king:3>Masssonry! Massonry! I hate it! Sssooo old fasshioned! "
-         "Destroy all of it for me? Don't desstroy anything else!")))
+         "<c:Goblin King:3>Masssonry! Masssonry! I hate it! Sssooo old fassshioned! "
+         "Dessstroy all of it for me? Don't dessstroy anything else!")))
 
 
 
@@ -22,16 +21,16 @@
         (if (equal isle (opponent))
             (if (not (equal sym 'masonry))
                 (progn
-                  (dialog "<c:goblin king:3>Gaahh, I ssaid only masssonry!")
+                  (dialog "<c:Goblin King:3>Gaahh, I sssaid only masssonry!")
                   (setq on-room-destroyed nil)
                   (setq on-dialog-closed
                         (lambda ()
                           (exit 3))))
-              ;; NOTE: equal 1 because the room is in the process of being
+              ;; NOTE: Equal 1 because the room is in the process of being
               ;; destroyed, it still exists on the island.
               (if (equal 1 (room-count (opponent) 'masonry))
                   (progn
-                    (dialog "<c:goblin king:3>Wowowow! Beautiful! Ssspectacular!")
+                    (dialog "<c:Goblin King:3>Wowowow! Beautiful! Ssspectacular!")
                     (challenge-complete 3)
                     (setq on-dialog-closed
                           (lambda ()

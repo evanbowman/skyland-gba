@@ -5,10 +5,10 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 
-;; NOTE: engine binds config fields from the sandbox settings menu to a list
+;; NOTE: Engine binds config fields from the sandbox settings menu to a list
 ;; variable called conf.
 
-(global 'conf) ; declaration for the linter
+(global 'conf) ;; Declaration for the linter.
 
 (coins-set (get conf 0))
 (terrain-set (player) (get conf 1))
@@ -24,7 +24,7 @@
             (setq on-fadein nil)
             (save-bit-store 3 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
-            (dialog-await-binary-q "sure!" "no thanks")
+            (dialog-await-binary-q "Sure!" "No thanks!")
             (setq on-dialog-accepted sb-help)
             (setq on-dialog-declined nil))))
 
@@ -32,7 +32,7 @@
 
 
 
-;; NOTE: in case I haven't explained elsewhere, the interpreter does a small
+;; NOTE: In case I haven't explained elsewhere, the interpreter does a small
 ;; symbol optimization to save space in the string intern table, hence all of
 ;; the four-character variable names.
 (defn mkch (i m)
@@ -41,13 +41,13 @@
   (let ((isle i)
         (mode m))
 
-    ;; NOTE: conf[5] holds the character count config
+    ;; NOTE: conf[5] holds the character count config.
     (dotimes (get conf 5)
       (let ((slot (chr-slots isle)))
         (if (not slot)
             (let ((s (construction-sites isle '(2 . 2))))
               (if (not s)
-                  (fatal "not enough room to place chrs!"))
+                  (fatal "Not enough room to place chrs!"))
               (room-new isle (list 'workshop (caar s) (cdr (car s))))
               (setq slot (chr-slots isle))))
         (if slot

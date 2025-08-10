@@ -1,3 +1,7 @@
+;;;
+;;; hostile_pick_template.lisp
+;;;
+
 
 (let ((lvs (filter
             (lambda (enmy)
@@ -6,13 +10,13 @@
                                (equal cmp lv))
                              enemies-seen))))
             (range
-             ;; number of levels to select from based on current zone
+             ;; Number of levels to select from based on current zone.
              (get '(8 8 7 3) (zone))))))
 
   (if lvs
       (let ((lv (sample lvs)))
 
-        ;; Ok, so if we're at the point where we've exhausted all of the possible
+        ;; OK, so if we're at the point where we've exhausted all of the possible
         ;; level scenarios (which shouldn't really happen, anyway), we should clear
         ;; the list of seen enemies, so that next time we won't end up with nil.
         (when (equal (length lvs) 1)

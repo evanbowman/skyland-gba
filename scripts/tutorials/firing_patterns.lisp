@@ -103,7 +103,7 @@
    (183 Right)
    (530 Down)
    (1500 nil)
-   (100 "<c:Milo:5>Now let's switch the firing pattern to salvo mode!")
+   (100 "<c:Milo:5>Now, let's switch the firing pattern to salvo mode!")
    (500 A)
    (383 R)
    (612 R)

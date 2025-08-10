@@ -1,3 +1,6 @@
+;;;
+;;; neutral/2/1_alt0.lisp
+;;;
 
 
 (dialog "A damaged fortress floats into view. The residents do not respond to your radio signals.")
@@ -63,11 +66,11 @@
                       (adventure-log-add 41 '())
                       (setq on-dialog-closed
                             (lambda ()
-                              (dialog "<c:goblin:2>Die "
+                              (dialog "<c:Goblin:2>Die "
                                       (cond
-                                        ((equal (faction) 'goblin) "traitorsss")
-                                        ((equal (faction) 'human) "humansss")
-                                        ((equal (faction) 'sylph) "sylph sscum"))
+                                        ((equal (faction) 'goblin) "Traitorsss")
+                                        ((equal (faction) 'human) "Humansss")
+                                        ((equal (faction) 'sylph) "Sssylph ssscum"))
                                       "!")
                               (setq on-dialog-closed '()))))))
               (progn

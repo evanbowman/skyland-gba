@@ -1,3 +1,7 @@
+;;;
+;;; quest/goblin/6.lisp
+;;;
+
 
 (dialog "<b:/scripts/data/img/ruins.img.bin>"
         "You discover the ruins of an ancient civilization. "
@@ -16,16 +20,16 @@
   (dialog "A small injured boy begins speaking softly in an archaic language...")
 
   (defn on-dialog-closed ()
-    (dialog "<c:injured boy:26> "
-            "<S:1>i am the only survivor! can you help me get back home?")
+    (dialog "<c:Injured Boy:26> "
+            "<S:1>I am the only survivor! Can you help me get back home?")
 
     (defn on-dialog-closed ()
       (dialog "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")
 
       (setq on-dialog-closed nil)
 
-      (dialog-await-binary-q-w/lore "yes" "I'll pass"
-                                    '(("who might he be?" .
+      (dialog-await-binary-q-w/lore "Yes." "I'll pass."
+                                    '(("Who might he be?" .
                                        "He looks like he might be a Sylph child. They've been up here a long time, but not much is known about them. <B:0> Invite him aboard?")))
 
       (defn on-dialog-accepted ()

@@ -2,6 +2,7 @@
 ;;; weapon_groups.lisp
 ;;;
 
+
 (assert-eq
  (groups)
  '((Up (3 . 13) (3 . 14)) (Left (0 . 13)) (Right) (poweroff)))

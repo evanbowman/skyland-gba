@@ -52,7 +52,7 @@
    (667 A)
    (183 B)
    (500 nil)
-   (100 "<c:Milo:5>Ok, now, we've assigned our cannons to the UP group, and our missiles to the LEFT group. By holding the START button and pressing the up directional button, we can assign a target for the whole group of cannons! Same thing for the missile group!")
+   (100 "<c:Milo:5>OK, now, we've assigned our cannons to the UP group, and our missiles to the LEFT group. By holding the START button and pressing the up directional button, we can assign a target for the whole group of cannons! Same thing for the missile group!")
    (350 Right)
    (350 Right)
    (767 Right)

@@ -1,3 +1,7 @@
+;;;
+;;; neutral/1/9.lisp
+;;;
+
 
 (dialog "<b:/scripts/data/img/drone_carrier.img.bin> An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time...")
 

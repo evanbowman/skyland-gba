@@ -1,10 +1,10 @@
 ;;;
 ;;; apitest.lisp
 ;;;
-;;; This test case file tests for the correct behavior of the skyland lisp
-;;; sdk. It is in a separate file to allow for running unittest.lisp with the
-;;; command line build of the skyland lisp interpreter--the functions tested in
-;;; this file require the skyland executable.
+;;; This test case file tests for the correct behavior of the SKYLAND LISP
+;;; SDK. It is in a separate file to allow for running unittest.lisp with the
+;;; command line build of the SKYLAND LISP interpreter -- the functions tested
+;;; in this file require the Skyland executable.
 ;;;
 
 
@@ -18,11 +18,11 @@
 
 (defn assert-v (v)
   (when (not v)
-    (error (format "in test %: assert failed! %" current-test v))))
+    (error (format "In test %: assert failed! %" current-test v))))
 
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
-    (error (format "in test %: expected % not equal %"
+    (error (format "In test %: expected % not equal %"
                    current-test
                    lhs
                    rhs))))
@@ -30,7 +30,7 @@
 
 (defn begin-test (name)
   (setq current-test name)
-  (let ((msg (string "running tests: " name "...")))
+  (let ((msg (string "Running tests: " name "...")))
     (when (bound? 'regr-print)
       (regr-print msg 1 3))
     (put msg)))
@@ -192,7 +192,7 @@
 
 (assert-eq 767268228 (hash '(8 . 7)))
 
-;; Just make sure that reading a nonexistent ini key returns nil...
+;; Just make sure that reading a non-existent ini key returns nil...
 (assert-eq nil (read-ini "/scripts/data/character_inter.ini"
                          "character_1"
                          "welcomes_9000"))
@@ -235,7 +235,7 @@
 (coins-add 40)
 (assert-eq (coins) 95)
 
-;; This has to be true to get into the regression module
+;; This has to be true to get into the regression module.
 (assert-v (is-developer-mode))
 
 (assert-eq 15 ((eval-file "/scripts/data/test-eval.lisp") 5))
@@ -254,7 +254,7 @@
 (assert-eq "Here's some text..."
            (bytes-to-string (filter (lambda (c)
                                       ;; Some files, particularly the ones
-                                      ;; appended to rom, have trailing null
+                                      ;; appended to ROM, have trailing null
                                       ;; bytes for padding purposes. Also,
                                       ;; filter out the ending newline.
                                       (and (> c 0) (not (equal c 10))))
@@ -295,14 +295,14 @@
 (end-test)
 
 
-(regr-print "all tests passed!" 1 3)
+(regr-print "All tests passed!" 1 3)
 
 (unbind 'begin-test
         'end-test
         'ensure
         'put)
 
-(regr-print "linting all scripts!" 1 3)
+(regr-print "Linting all scripts!" 1 3)
 
 (defn ends-with (str sufx)
   (let ((m1 (string-explode str))
@@ -326,7 +326,7 @@
              (y 5)
              (spl (split path "/")))
          (if (< (length spl) (length last))
-             ;; Clean up lines if the directory depth is less than last printed
+             ;; Clean up lines if the directory depth is less than last printed.
              (foreach (lambda (yy)
                         (regr-print "" 1 (+ y (- yy 1))))
                       (range (length spl) (length last))))
@@ -341,7 +341,7 @@
                (fatal (string "in file " (cdr spl) ": " r)))))))))
 
 
-;; Clear directory listing from screen
+;; Clear directory listing from screen.
 (foreach (lambda (y)
            (regr-print "" 1 y))
          (range 5 10))

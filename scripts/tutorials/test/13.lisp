@@ -2,6 +2,7 @@
 ;;; power_balance.lisp
 ;;;
 
+
 (assert-eq
  (rooms (player))
  '((power-core 1 13) (hull 1 12) (hull 2 12) (cannon 5 14) (cannon 5 13) (cannon 5 12) (cannon 5 11 100)))

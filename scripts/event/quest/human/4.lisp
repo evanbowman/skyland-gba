@@ -2,6 +2,7 @@
 ;;; quest/human/4.lisp
 ;;;
 
+
 (dialog
  "<b:/scripts/data/img/ceramics.img.bin>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
 
@@ -75,11 +76,11 @@
     (setq on-converge nil)
     (dialog
      (format
-      "<c:merchant:7>So, whaddya you say? Purchase a batch of ceramics for %@?"
+      "<c:Merchant:7>So, whaddya say? Purchase a batch of ceramics for %@?"
       fee
       (* fee 2)))
 
-    (dialog-await-binary-q "ok!" "no thanks")
+    (dialog-await-binary-q "OK!" "No thanks.")
 
     (defn on-dialog-accepted ()
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -94,18 +95,18 @@
                  (push 'qvar (cons qid fee))
                  (coins-set (- (coins) fee))
                  (cargo-set (player) x y "ceramic tiles")
-                 (dialog "<c:merchant:7>Great, here are your tiles!")
+                 (dialog "<c:Merchant:7>Great, here are your tiles!")
                  (defn on-dialog-closed ()
                    (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
                    (exit)
                    (setq on-dialog-closed exit)))))
           (progn
             (dialog
-             "<c:merchant:7>Oh, I'm so sorry! We can't actually sell you anything today.")
+             "<c:Merchant:7>Oh, I'm so sorry! We can't actually sell you anything today.")
             (setq on-dialog-closed exit)))))
 
 
     (setq on-dialog-declined
           (lambda ()
-            (dialog "<c:merchant:7>No problem!")
+            (dialog "<c:Merchant:7>No problem!")
             (setq on-dialog-closed exit)))))

@@ -1,8 +1,12 @@
-;; The game evaluates this script in adventure mode after leaving a level.
-;;
-;; After a level ends, the game will construct a dialog sequence using the
-;; debrief-strs variable. If you would like a dialog sequence to run after a
-;; level, push some stuff to debrief-strs.
+;;;
+;;; util/debrief.lisp
+;;;
+;;; The game evaluates this script in adventure mode after leaving a level.
+;;;
+;;; After a level ends, the game will construct a dialog sequence using the
+;;; debrief-strs variable. If you would like a dialog sequence to run after a
+;;; level, push some stuff to debrief-strs.
+;;;
 
 
 (defn/temp gen (cb n)

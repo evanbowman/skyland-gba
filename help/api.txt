@@ -5,7 +5,7 @@
  SKYLAND API calls.
 
  Does not describe the
- SKYLAND lisp standard
+ SKYLAND LISP standard
  library. For builtin
  functions, see
  lisp_builtins.txt.
@@ -171,7 +171,7 @@ o----------------------------o
 
  Returns a reference to the
  opponent's island. NOTE:
- make sure that you've
+ Make sure that you've
  called opponent-init before
  trying to access the
  opponent.
@@ -398,7 +398,7 @@ o----------------------------o
  nil, or an association list
  of properties.
 
- Note: for historical
+ Note: For historical
  reasons (need to support
  old save files), this
  function accepts zero in
@@ -408,17 +408,20 @@ o----------------------------o
  '((rplc . 1))
 
  Available properties:
- 'rplc: the character is a
+ 'rplc: The character is a
  replicant.
 
- 'race: the race of the
+ 'race: The race of the
  character:
-   0 - human (default)
-   1 - goblin
-   2 - hostile human
-   3 - dog
+   0 - Human (default)
+   1 - Goblin
+   2 - Hostile human
+   3 - Dog 
+   ? - Sylph
 
-'icon: character artwork
+ TODO: Number for Sylph.
+
+ 'icon: Character artwork
 
 o----------------------------o
 
@@ -682,7 +685,7 @@ o----------------------------o
  (coins-add integer)
 
  Add integer coins to the
- player's coint count.
+ player's coin count.
 
 
 o----------------------------o
@@ -830,19 +833,19 @@ o----------------------------o
  allow you to remap all of
  the buttons, SKYLAND
  allows you to press the
- start button and enter
+ START button and enter
  sequences of keys. To create
  a custom binding, specify
  a key sequence in str,
- along with a lisp symbol
+ along with a LISP symbol
  representing a callback
  function name.
 
  Key character codes:
- u: dpad-up
- d: dpad-down
- l: dpad-left
- r: dpad-right
+ u: D-pad-up
+ d: D-pad-down
+ l: D-pad-left
+ r: D-pad-right
  a: A
  b: B
 
@@ -850,7 +853,7 @@ o----------------------------o
 
  (key-bind "uulb" 'repl)
 
- Would launch a lisp repl
+ Would launch a LISP repl
  after the user pressed
  up-up-left-B.
 
@@ -896,7 +899,7 @@ o----------------------------o
  (lint-file path)
 
  Run a linter program on the
- lisp code in the file given
+ LISP code in the file given
  by path.
 
  Returns an error upon
@@ -978,8 +981,8 @@ o----------------------------o
  Configure serial port.
  Supported modes:
 
- 1: serve a command line over
-    uart, at 9600 baud.
+ 1: Serve a command line over
+    UART, at 9600 baud.
 
 
 o----------------------------o
@@ -999,7 +1002,7 @@ o----------------------------o
  be passed to push-menu for
  certain menus. See below:
 
- Builtin menu names:
+ Built-in menu names:
  "ready", no params
  "item-shop", no params
  "glossary", room type symbol
@@ -1126,7 +1129,7 @@ o----------------------------o
 
  (show-fps bool)
 
- Display fps in the top left
+ Display FPS in the top left
  corner.
 
 
@@ -1147,7 +1150,7 @@ o----------------------------o
  of a file.
 
  This function can only load
- files smaller than 2kb.
+ files smaller than 2 KB.
 
 
 o----------------------------o
@@ -1189,20 +1192,20 @@ o----------------------------o
 
  Delete a file.
 
- NOTE: files in ROM cannot
+ NOTE: Files in ROM cannot
  be unlinked, for obvious
  reasons. The game sort of
  has two filesystems, one in
- save ram, and one in rom.
+ save RAM, and one in ROM.
  The game will preferentially
- load save ram files before
- searching the rom filesystem,
+ load save RAM files before
+ searching the ROM filesystem,
  so you can override rom
  files with files generated
  at runtime, but you cannot
- delete rom files. Of course,
+ delete ROM files. Of course,
  you could write a mostly
- empty file to the save ram
+ empty file to the save RAM
  filesystem...
 
 
@@ -1215,7 +1218,7 @@ o----------------------------o
  integer line, and path to
  file given by path.
 
- Note: file lines start from
+ Note: File lines start from
  1. As they do in virtually
  all text editors. Passing 0
  will give you an empty

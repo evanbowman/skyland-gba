@@ -10,7 +10,7 @@
 
   (let ((lv 0)
         (lvs
-         ;; Collect all quest ids not in the qids (seen) list
+         ;; Collect all quest ids not in the qids (seen) list.
          (filter (lambda (qi)
                    (not (filter (equalto? qi) qids)))
                  opts)))

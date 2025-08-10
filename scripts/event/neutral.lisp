@@ -11,8 +11,8 @@
     (eval-file "scripts/event/neutral/3/dev_cameo.lisp")
   (let ((lvs (difference friendlies-seen
                          (range
-                          ;; number of levels to select from based on
-                          ;; current zone
+                          ;; Number of levels to select from based on
+                          ;; current zone.
                           (get '(6 11 7 2) (zone))))))
 
     (when (equal (length lvs) 1)
@@ -22,6 +22,6 @@
       (setq friendlies-seen (cons lv friendlies-seen))
 
       (eval-file
-       ;"scripts/event/neutral/2/5.lisp"
+       ;; "scripts/event/neutral/2/5.lisp"
        (format "scripts/event/neutral/%/%.lisp" (zone) lv)
        ))))

@@ -3,7 +3,6 @@
 ;;;
 
 
-
 (defn challenge-hint ()
   (dialog "Sorry, no hints..."))
 

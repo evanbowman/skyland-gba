@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to the SKYAND source code! To get started, I recommend familiarizing yourself with some of the most critical classes:
+Welcome to the SKYLAND source code! To get started, I recommend familiarizing yourself with some of the most critical classes:
 
 
 ## Room

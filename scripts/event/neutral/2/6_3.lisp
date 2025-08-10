@@ -1,10 +1,14 @@
+;;;
+;;; neutral/2/6_3.lisp
+;;;
+
 
 (dialog
  "Your navigational instruments begin behaving strangely, "
  "their readings pulled toward a point far below. <B:0> "
  "<b:/scripts/data/img/crashed_city.img.bin>"
  "Descending through the clounds, you catch glimpses of white stone and still-glowing runes. <B:0>"
- "You discover a fallen sylph city, partially submerged in the ash...")
+ "You discover a fallen Sylph city, partially submerged in the ash...")
 
 (weather-set 6)
 
@@ -25,8 +29,8 @@
              (lambda (isle x y)
                (room-new (player) (list 'phase-shifter x y))
                (sound "build0")
-               (dialog "You picked up a rare piece of sylph technology! What could it's function be?")
+               (dialog "You picked up a rare piece of Sylph technology! What could it's function be?")
                (run-util-script "pickup-cart"
                                 9
-                                "One of your crewmembers hands over another item found aboard the sylph city..."
+                                "One of your crewmembers hands over another item found aboard the Sylph city..."
                                 exit))))

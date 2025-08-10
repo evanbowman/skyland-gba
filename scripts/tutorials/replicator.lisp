@@ -2,6 +2,7 @@
 ;;; replicator.lisp
 ;;;
 
+
 (terrain-set (player) 6)
 (island-configure
  (player)
@@ -51,7 +52,7 @@
    (200 Left)
    (467 A)
    (1500 nil)
-   (100 "<c:Milo:5> Pretty cool! right? <B:0> There is no limit to the number of replicants you can create, but beware: replicants have less HP, and they cannot be healed.")
+   (100 "<c:Milo:5>Pretty cool! right? <B:0> There is no limit to the number of replicants you can create, but beware: replicants have less HP, and they cannot be healed.")
    (3055 Right)
    (801 A)
    (317 Left)
@@ -68,4 +69,4 @@
    (1736 A)
    (250 A)
    (1800 nil)
-   (100 "<c:Milo:5> You can even create replicants from replicants, but they will be even weaker than the replicant that they were created from!")))
+   (100 "<c:Milo:5>You can even create replicants from replicants, but they will be even weaker than the replicant that they were created from!")))

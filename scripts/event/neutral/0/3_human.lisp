@@ -32,12 +32,12 @@
 
   (setq on-converge
         (lambda ()
-          (dialog "<c:merchant:7> We ordered too many "
+          (dialog "<c:Merchant:7>We ordered too many "
                   (rinfo 'name item)
                   "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, "
                   (if (< (coins) 1300)
                       "...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
-                      "what do you say?"))
+                      "What do you say?"))
           (dialog-await-y/n)
           (setq on-converge nil)))
 
@@ -54,7 +54,7 @@
                   (defn fut ()
                     (if (> (coins) 1299)
                         (progn
-                          (dialog "<c:merchant:7> Seems like you have enough now!")
+                          (dialog "<c:Merchant:7>Seems like you have enough now!")
                           (setq on-dialog-closed f))
                         (f))))
 
@@ -63,7 +63,7 @@
                       (setq skip 0)
                       (on-timeout 15000 'fut))
                     (progn
-                      (dialog "<c:merchant:7> Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?")
+                      (dialog "<c:Merchant:7>Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?")
                       (dialog-await-y/n)
                       (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
                       (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
@@ -74,7 +74,7 @@
                 (sel-input
                  item
                  (string
-                  "place first "
+                  "Place first "
                   (rinfo 'name item)
                   (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
                  (lambda (isle x y)
@@ -83,11 +83,11 @@
                    (alloc-space item)
                    (sel-input
                     item
-                    (string "place second " (rinfo 'name item) ":")
+                    (string "Place second " (rinfo 'name item) ":")
                     (lambda (isle x y)
                       (room-new (player) (list item x y))
                       (sound "build0")
-                      (dialog "<c:merchant:7> Looks great! You made a fine choice!")
+                      (dialog "<c:Merchant:7>Looks great! You made a fine choice!")
                       (setq on-dialog-closed exit))))))))))
 
 (setq on-dialog-declined exit)

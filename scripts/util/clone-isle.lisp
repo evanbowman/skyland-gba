@@ -1,3 +1,7 @@
+;;;
+;;; util/clone-isle.lisp
+;;;
+
 
 (lambda (src dest)
   (let ((t (terrain src))

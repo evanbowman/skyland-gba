@@ -1,3 +1,7 @@
+;;;
+;;; neutral/1/8_goblin.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/flares.img.bin>"
@@ -14,17 +18,17 @@
 
 
 (defn on-converge ()
-  (dialog "<c:spotter:45> Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting grounds!")
+  (dialog "<c:Spotter:45>Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting groundsss!")
 
   (setq on-dialog-closed
         (lambda ()
           (dialog "He seems harmless, invite him aboard?")
 
-          (dialog-await-binary-q-w/lore "welcome aboard!" "sorry, but no"
-                                        '(("let's chat…" .
-                                           "<c:spotter:45> When rich islandsss pass overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
-                                          ("explain your goggles?" .
-                                           "<c:spotter:45> Ohhh! These ssspecial goggles are necesssary! <B:0> It's so bright when staring out at the cloudsss, without this visor, I'd go ssun-blind! <B:0> Anyway, I've got lotsss of experience, need a sspotter?")))
+          (dialog-await-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
+                                        '(("Let's chat…" .
+                                           "<c:Spotter:45>When rich islandsss passs overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
+                                          ("Explain your goggles?" .
+                                           "<c:Spotter:45>Ohhh! These ssspecial goggles are necesssary! <B:0> It's so bright when staring out at the cloudsss, without this visor, I'd go sssun-blind! <B:0> Anyway, I've got lotsss of experience, need a ssspotter?")))
 
           (setq on-dialog-closed '())))
   (setq on-converge nil))
@@ -51,7 +55,7 @@
         (progn
           (dialog "Sadly, there's no room...")
           (defn on-dialog-closed ()
-            (dialog "<c:spotter:45> No room in your castle? Hold on, I've got some supplies, I'll help out...")
+            (dialog "<c:Spotter:45>No room in your castle? Hold on, I've got some supplies, I'll help out...")
             (defn on-dialog-closed ()
               (alloc-space 'ladder)
               (sel-input 'ladder
@@ -61,7 +65,7 @@
                            (room-new (player) `(ladder ,x ,y))
                            (chr-del (opponent) 1 14)
                            (chr-new (player) x (+ 1 y) 'neutral '((icon . 45) (race . 1)))
-                           (dialog "<c:spotter:45> Thanks! I'll try to help out however I can!")
+                           (dialog "<c:Spotter:45>Thanks! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The spotter joined your crew!")
                              (setq on-dialog-closed nil)

@@ -15,7 +15,7 @@
 (if (choice 2)
     (secret
      1 12
-     "To the earth below, I will not go"))
+     "To the earth below, I will not go."))
 
 
 

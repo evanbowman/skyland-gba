@@ -1,9 +1,9 @@
 
-  '(SKYLAND LISP)
+ '(SKYLAND LISP)
 
  You may be wondering, why
- lisp? I never intended to
- write a lisp interpreter.
+ LISP? I never intended to
+ write a LISP interpreter.
  
  I started out with a simple
  cheat system, where I could
@@ -11,19 +11,18 @@
  certain behavior. But I
  couldn't remember any of the
  numeric codes, so I wrote a
- little command-prompt.
+ little command prompt.
  
  Then often found myself
  wanting to write compound
- expressions, and lisp
+ expressions, and LISP
  was the easiest thing to
  write a parser for. Over
  the years, the interpreter
  snowballed into a lexically-
- scoped scheme-inspired lisp
+ scoped scheme-inspired LISP
  with an optimizing bytecode
  compiler...
-
 
  Generally, you should refer
  to the existing game scripts
@@ -46,9 +45,9 @@
  any assumptions about the
  results of (read) based on
  your experience with other
- lisps. Engineering an
- efficient lisp that runs
- on a gameboy means that
+ LISPs. Engineering an
+ efficient LISP that runs
+ on a Game Boy means that
  sometimes one needs to cut
  corners a bit.
 
@@ -117,7 +116,7 @@
  this scripting language in
  another project.
 
- databuffer: A 2kb fixed
+ databuffer: A 2 KB fixed
  size buffer, to be used in
  whatever way you want. A
  very low level datatype for
@@ -126,7 +125,7 @@
  the only mutable datatype.
 
  string: It's a string.
- Encoded in utf-8.
+ Encoded in UTF-8.
 
  float: IEEE-754 floating
  point number.

@@ -27,7 +27,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:castaway:1>Fancy meeting you here! I've been marooned on this island... "
+   "<c:Castaway:1>Fancy meeting you here! I've been marooned on this island... "
    "who knows how long! Looks like a nasty storm's brewing, mind "
    "if I hitch a ride?")
 
@@ -35,9 +35,9 @@
         (lambda ()
             (dialog "He seems harmless, invite him aboard?")
 
-          (dialog-await-binary-q-w/lore "welcome aboard!" "not today"
-                                        '(("how'd you get here?" .
-                                           "<c:castaway:1>I was travelling on an airship that got boarded by goblins. I panicked and jumped in a transporter. I guess things could have turned out much worse, heh. <B:0> Wanna join up?")))
+          (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
+                                        '(("How'd you get here?" .
+                                           "<c:Castaway:1>I was travelling on an airship that got boarded by goblins. I panicked and jumped in a transporter. I guess things could have turned out much worse, heh. <B:0> Wanna join up?")))
 
           (setq on-dialog-closed '())))
 
@@ -61,7 +61,7 @@
         (progn
           (dialog "Sadly, there's no room...")
           (defn on-dialog-closed ()
-            (dialog "<c:castaway:1>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")
+            (dialog "<c:Castaway:1>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")
             (defn on-dialog-closed ()
               (alloc-space 'ladder)
               (sel-input 'ladder
@@ -71,7 +71,7 @@
                            (room-new (player) `(ladder ,x ,y))
                            (chr-del (opponent) 1 14)
                            (chr-new (player) x (+ 1 y) 'neutral '((race . 0) (icon . 1)))
-                           (dialog "<c:castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
+                           (dialog "<c:Castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
                            (defn on-dialog-closed ()
                              (join "The castaway joined your crew!")
                              (defn on-dialog-closed ()

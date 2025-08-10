@@ -9,30 +9,30 @@ found an abandoned wreck, but did not explore.
 found an abandoned wreck, found %!
 bought two % from some merchants for %@!
 explored abandoned ruins, found %@
-met pirate redbeard, failed to bribe
-met pirate redbeard, paid %@ toll
+met pirate redbeard, failed to bribe.
+met pirate redbeard, paid %@ toll.
 met pirate redbeard, refused to pay bribe
 rescued an orphan girl! she joined the crew!
 accepted delivery quest from a merchant outpost!
 accepted banana man's mysterious task!
 accepted farmer meyer's quest! (deliver % trees)
 accepted chauffeur's quest!
-purchased tiles for resale, cost %@
+purchased tiles for resale, cost %@.
 resold tiles for %@!
-completed merchant quest, earned %@
-farmer meyer's brother paid %@ for delivery of % trees
+completed merchant quest, earned %@.
+farmer meyer's brother paid %@ for delivery of % trees.
 saved banana man's banana plants!
-completed chauffeur's quest (picked up three crew)
+completed chauffeur's quest. (picked up three crew)
 reached zone %!
 hired a mercenary for %@!
 declined mercenaries' offer...
-salvaged %@ from an abandoned castle
+salvaged %@ from an abandoned castle.
 abandoned fortress was a trap!?
-paid %@ to goblin king
+paid %@ to goblin king.
 goblin king rejected bribe and attacked!
-goblin king attacked after bribe refused
-island contaminated by infested castle
-scavenged %@ from infested isle
+goblin king attacked after bribe refused.
+island contaminated by infested castle.
+scavenged %@ from infested isle.
 donated core to village, +2 % and +3 crew!
 upgraded all hull to staked hull!
 collected %@ from forsaken town!
@@ -44,21 +44,21 @@ pirates in stolen warship move on after bribe...
 bought stolen decimator from runaway vessel!
 bought some mirror-hull!
 recovered incinerator from burning island!!
-collected %@ from abandoned isle
+collected %@ from abandoned isle.
 a massive warship attacks...
 discovered a shop!
-purchased % for %@
+purchased % for %@.
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
 accepted quest from orphan boy!
 returned lost child to the sylph...
-dropped below the clouds to avoid bad weather
-accepted miners' quest (deliver 7 explosives)
+dropped below the clouds to avoid bad weather.
+accepted miners' quest! (deliver 7 explosives)
 completed miners' quest! (+%@)
 unable to make payment to imperial missile station!
-made payment to imperial missile station
-refused to pay imperial missile station
+made payment to imperial missile station!
+refused to pay imperial missile station!
 accepted goblin surrender, salvaged blocks...
 accepted atomic arsenal quest!
 retrieved atomic arsenal!
@@ -66,10 +66,10 @@ encountered a solar storm!
 encountered warrior monks!
 bought two % from some scavengers for %@!
 unable to make payment to anvil annie!
-paid bribe to anvil annie (-%@)
-refused to pay anvil annie
-stole %s from some scavengers
-scavengers extorted % in revenge
+paid bribe to anvil annie. (-%@)
+refused to pay anvil annie.
+stole %s from some scavengers.
+scavengers extorted % in revenge.
 scavengers return and attack!
-vandalized imperial missile station
-goblins try to steal decimator back
+vandalized imperial missile station!
+goblins try to steal decimator back!

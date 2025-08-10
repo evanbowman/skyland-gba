@@ -1,10 +1,11 @@
 ;;;
 ;;; unittest.lisp
 ;;;
-;;; This test case file intends to test the behavior of the lisp interpreter and
-;;; standard library. For extended functions related to game logic speficially,
+;;; This test case file intends to test the behavior of the LISP interpreter and
+;;; standard library. For extended functions related to game logic specifically,
 ;;; see apitest.lisp.
 ;;;
+
 
 (gc)
 
@@ -26,7 +27,7 @@
     (error (format "in test %: assert failed! %" current-test v))))
 
 (if (not (error? (assert-v false)))
-    (error "something has gone terribly wrong"))
+    (error "Something has gone terribly wrong!"))
 
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
@@ -41,10 +42,10 @@
 (assert-eq 6 (lisp-mem-stack-used))
 
 (if (not (error? (assert-eq 1 2)))
-    (error "something is wrong with assert-eq..."))
+    (error "Something is wrong with assert-eq..."))
 
 (if (not (error? (error "...")))
-    (fatal "unable to raise errors!?"))
+    (fatal "Unable to raise errors!?"))
 
 ;; First, test the functions used in the implementations of the assert
 ;; functions. If they don't work, then the rest is pointless.
@@ -92,7 +93,7 @@
 
 (begin-test "math")
 
-;; basic math
+;; Basic math
 (assert-eq 5.0 (* 2.5 2.0))
 (assert-eq 10 (* 2 5))
 (assert-eq 1 (*))
@@ -148,9 +149,9 @@
 ;; The interpreter does an internal buffer optimization for small strings, which
 ;; is the reason why there is no character datatype. Although... technically the
 ;; internal buffer optimization only covers strings that are three bytes or
-;; shorter, so some extended utf8 chars will not be optimized and, instead,
-;; require an extra allocation. But looking at the list of four byte untf8
-;; charsets... is anyone going to care if emojis, egyptian heiroglyphics, or
+;; shorter, so some extended UTF-8 chars will not be optimized and, instead,
+;; require an extra allocation. But looking at the list of four byte UTF-8
+;; charsets... is anyone going to care if emojis, egyptian hieroglyphs, or
 ;; musical symbols are not hyper-optimized?
 (assert-eq (lisp-mem-string-storage) (+ temp 7))
 "yy"
@@ -209,8 +210,8 @@
   (* arg 2))
 
 (assert-eq (foo 2) 4)
-(assert-v (error? (foo 'abcd)))           ; pass invalid type
-(assert-v (error? ((compile foo) 'abcd))) ; compilation preserves type signature
+(assert-v (error? (foo 'abcd)))           ;; Pass invalid type.
+(assert-v (error? ((compile foo) 'abcd))) ;; Compilation preserves type signature.
 
 (defn foo ((str . string) (iv . int))
   (format str iv iv))
@@ -232,18 +233,18 @@
 (setq temp 99)
 (assert-eq temp 99)
 (unbind 'temp)
-(assert-v (error? temp)) ;; should raise undefined variable error
+(assert-v (error? temp)) ;; Should raise undefined variable error.
 
 (assert-eq 10100 (apply + (map (curry * 2) (range 0 101))))
 
 (defn cons (a b)
   (list a b))
-(assert-eq '(5 6) (cons 5 6)) ;; you may override builtins
+(assert-eq '(5 6) (cons 5 6)) ;; You may override built-ins.
 (unbind 'cons)
-(assert-v (not (error? cons))) ;; the builtin still exits when deleting the override value
+(assert-v (not (error? cons))) ;; The built-in still exits when deleting the override value.
 (unbind 'cons)
-(assert-v (not (error? cons))) ;; you may not delete a builtin
-(assert-eq '(5 . 6) (cons 5 6)) ;; the builtin function is back
+(assert-v (not (error? cons))) ;; You may not delete a built-in.
+(assert-eq '(5 . 6) (cons 5 6)) ;; The built-in function is back.
 
 (end-test)
 
@@ -308,9 +309,9 @@
 ;; you're really doing something strange.
 
 (global 'test-var)
-(assert-v (nil? test-var)) ; Declared global variables are initialized to nil
+(assert-v (nil? test-var)) ;; Declared global variables are initialized to nil.
 (unbind 'test-var)
-(assert-v (error? (setq test-var 8))) ; Write to undefined variable raises error
+(assert-v (error? (setq test-var 8))) ;; Write to undefined variable raises error.
 
 (global 'temp)
 (setq temp (read "(lambda (a b c) (+ a b c))"))
@@ -319,7 +320,7 @@
 ;; about this. But we want test coverage for these sorts of weird cases.
 ;; Really, when doing argument substitution, we shouldn't be modifying the input
 ;; list. Nothing should modify lists. But for practical purposes, it creates a
-;; whole bunch of pressure on the gc if we need to clone an entire function
+;; whole bunch of pressure on the GC if we need to clone an entire function
 ;; implementation every time we do argument substitution.
 (assert-eq temp '(lambda (a b c) (+ $0 $1 $2)))
 
@@ -357,7 +358,7 @@
 (let ((result (eval (read "(defn temp (a b c d e f) (+ a b c d e f))"))))
   (assert-v (and (error? result)
                  (equal (error-info result)
-                        "no more than 5 named args allowed in function"))))
+                        "No more than 5 named args allowed in function!"))))
 
 (end-test)
 
@@ -380,11 +381,11 @@
 
 (let ((str "Hello, there!"))
   (buffer-write! temp 6 (string-to-bytes str))
-  ;; FIXME: the string is ascii, so (length str) works here... but it's not good
+  ;; FIXME: The string is ASCII, so (length str) works here... but it's not good
   ;; style.
   (assert-eq str (bytes-to-string (buffer-read temp 6 (length str)))))
 
-(assert-eq (buffer-read temp 0 5) '(1 2 3 4 255)) ; make sure it's still there...
+(assert-eq (buffer-read temp 0 5) '(1 2 3 4 255)) ;; Make sure it's still there...
 
 (assert-eq 2147483647 (bytes-to-int (int-to-bytes 2147483647)))
 
@@ -425,12 +426,12 @@
 
 (begin-test "syntax")
 
-(assert-eq "invalid let binding list" (error-info (lint '(let (a 5) a))))
-(assert-eq "malformed let expr!" (error-info (lint '(let ))))
-(assert-eq "let binding missing symbol" (error-info (lint '(let ((a 6) (7 8))))))
-(assert-eq "invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
-(assert-eq "invalid lambda syntax!" (error-info (lint '(lambda ))))
-(assert-eq "invalid while syntax!" (error-info (lint '(while ))))
+(assert-eq "Invalid let binding list!" (error-info (lint '(let (a 5) a))))
+(assert-eq "Malformed let expr!" (error-info (lint '(let ))))
+(assert-eq "let binding missing symbol!" (error-info (lint '(let ((a 6) (7 8))))))
+(assert-eq "Invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
+(assert-eq "Invalid lambda syntax!" (error-info (lint '(lambda ))))
+(assert-eq "Invalid while syntax!" (error-info (lint '(while ))))
 
 (end-test)
 

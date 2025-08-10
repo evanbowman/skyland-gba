@@ -1,3 +1,7 @@
+;;;
+;;; util/find-crew-slot.lisp
+;;;
+
 
 (lambda (no-space-text room-sym prompt-text callback)
   (let ((slots (chr-slots (player))))

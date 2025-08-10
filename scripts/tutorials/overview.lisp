@@ -99,5 +99,5 @@
    (349 Down)
    (400 Down)
    (100 nil)
-   (100 "<c:Milo:5>Well, that covers the basics of construction and combat! As your castle grows, you'll want to build a workshop, to enable you to build new weapons, sheilds, and power supplies. If you ever need help with anything else, I'll be in a room labeled 'extras', you know, to the right of the room labelled 'challenges'. Just press the Tutorials button to get my attention!")
+   (100 "<c:Milo:5>Well, that covers the basics of construction and combat! As your castle grows, you'll want to build a workshop, to enable you to build new weapons, shields, and power supplies. If you ever need help with anything else, I'll be in a room labeled 'extras', you know, to the right of the room labelled 'challenges'. Just press the 'Tutorials' button to get my attention!")
    (2800 nil)))

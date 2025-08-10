@@ -1,3 +1,7 @@
+;;;
+;;; neutral/2/6_0.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/burning_isle.img.bin> "
@@ -29,7 +33,7 @@
 
 (defn on-converge ()
   (dialog
-   "Looks like a terrible battle happened here... the crew seems to have abandoned the burning island, leaving behind a powerful weapon...")
+   "Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon...")
   (setq on-converge nil)
   (alloc-space 'incinerator)
   (adventure-log-add 46 '())

@@ -2,6 +2,7 @@
 ;;; Ash storm event
 ;;;
 
+
 (dialog "Unexpected bad weather forces your island to retreat below the clouds. <B:0> "
         "<b:/scripts/data/img/radiation_warning.img.bin>"
         "Heavy particles and radioactive ash blow through the air, periodically damaging "

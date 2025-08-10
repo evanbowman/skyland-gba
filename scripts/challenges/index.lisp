@@ -1,3 +1,7 @@
+;;;
+;;; challenges/index.lisp
+;;;
+
 
 '(;; ("test" . "event/neutral/2/2.lisp")
   ("1: Goliath" . "challenges/goliath.lisp")

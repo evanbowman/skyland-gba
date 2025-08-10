@@ -1,7 +1,7 @@
 ;;;
 ;;; hostile.lisp
 ;;;
-;;; Entry point for loading hostile enemy scenarios
+;;; Entry point for loading hostile enemy scenarios.
 ;;;
 
 
@@ -42,13 +42,13 @@
      ((eval-file "/scripts/event/hostile_pick_template.lisp")))))
 
 
-(let ((vfn on-victory) ; save cached copy of on-victory hook in case already set
+(let ((vfn on-victory) ;; Save cached copy of on-victory hook in case already set.
       (c (coins))
       (crew (length (chrs (player)))))
   (defn on-victory ()
 
-    ;; For each crew member at the start of the level, check if crewmember still
-    ;; exists. if not, record death in the adventure log.
+    ;; For each crew member at the start of the level, check if crew member still
+    ;; exists. If not, record death in the adventure log.
     (let ((rem (length (chrs (player)))))
       (when (< rem crew)
         (adventure-log-add 4 (list (- crew rem)))))

@@ -7,7 +7,7 @@
 
 
 (defn starts-with (str prefix)
-  ;; Yeah, string handling is extremely minimal in this lisp
+  ;; Yeah, string handling is extremely minimal in this LISP
   ;; interpreter. Convert them to lists first.
   (let ((m1 (string-explode str))
         (m2 (string-explode prefix)))
@@ -24,10 +24,10 @@
     (if (not found)
         (progn
           (if (is-developer-mode)
-             (fatal (string "invalid quest marker! " (wg-pos))))
+             (fatal (string "Invalid quest marker! " (wg-pos))))
           (if quests
               (setq found quests)
-              (fatal "quest marker with no active quests!?"))))
+              (fatal "Quest marker with no active quests!?"))))
 
     (eval-file
      ;; NOTE: For backwards compatibility with old save files. We used to

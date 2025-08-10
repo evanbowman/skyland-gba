@@ -1,29 +1,31 @@
 
+ uart.txt
+
  SKYLAND UART Console info
 
  In addition to providing an
- onscreen lisp repl when
+ onscreen LISP repl when
  calling the repl function,
  SKYLAND offers a repl via
  uart.
 
- Using the uart terminal
+ Using the UART terminal
  requires some familiarity
  with soldering. But fear
  not, there's no need to open
- up your gba! you just need
+ up your GBA! you just need
  to splice a link cable into
- an rs232 cable.
+ an RS-232 cable.
 
  Before proceeding, make
  absolutely certain that your
- rs232 adapter operates at
+ RS-232 adapter operates at
  3.3 volts, the voltage of
- the gameboy link port.
+ the Game Boy link port.
 
 
  Figure 1:
- diagram of a gba link cable
+ diagram of a GBA link cable
   _______
  / 1 3 5 \
  l 2 4 6 l
@@ -47,32 +49,32 @@
  cable plug.
 
  Aside: Please don't ruin an
- original gba link cable from
+ original GBA link cable from
  back in the day, it's
  sort of a historical
  artifact at this point, and
  expensive besides.
 
  Next, you'll need to solder
- the gba link cable's SO
- line into the rs232 cable's
+ the GBA link cable's SO
+ line into the RS-232 cable's
  RxD line.
  
  Solder the link cable's SI
- line into the rs232 cable's
+ line into the RS-232 cable's
  TxD line.
 
  You do not need to connect
  the flow control lines.
 
- I typically use picocom
- in linux to connect to
+ I typically use Picocom
+ in Linux to connect to
  SKYLAND.
 
- To launch picocom, figure
- out which file linux mapped
+ To launch Picocom, figure
+ out which file Linux mapped
  your serial cable to, and
- run the picocom program,
+ run the Picocom program,
  like so (on my computer,
  the file is called
  /dev/ttyUSB0):
@@ -82,19 +84,19 @@
  SKYLAND uses a transmission
  frequency of 9600 baud,
  which at time of writing,
- is the default in picocom.
+ is the default in Picocom.
 
  Ok, you should be all set
  up! Enable developer mode,
- Restart skyland, and
+ Restart Skyland, and
  the game should print
  a command prompt into
- picocom.
+ Picocom.
 
  If you're unfamiliar with
- picocom or linux, you may
- instead use Putty in Windows,
- or serial-term in emacs.
+ Picocom or Linux, you may
+ instead use PuTTY in Windows,
+ or serial-term in Emacs.
 
  All of the functions in
  /help/api.txt are of course

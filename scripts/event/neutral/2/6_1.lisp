@@ -1,3 +1,7 @@
+;;;
+;;; neutral/2/6_1.lisp
+;;;
+
 
 (dialog
  "An unexpected storm forces your island to retreat below the clouds... <B:0>"
@@ -20,7 +24,7 @@
 
 
 (defn on-converge ()
-  (dialog "<c:scavenger:29> Hello! Having trouble there? <B:0> Fortunately for you, we have a large stockpile of spare deflector fields! Here, take this one!")
+  (dialog "<c:Scavenger:29>Hello! Having trouble there? <B:0> Fortunately for you, we have a large stockpile of spare deflector fields! Here, take this one!")
   (setq on-converge nil)
   (alloc-space 'deflector)
   (sel-input 'deflector
@@ -28,7 +32,7 @@
              (lambda (isle x y)
                (room-new (player) (list 'deflector x y))
                (sound "build0")
-               (dialog "<c:scavenger:29> Careful with that shield, it's very old and handmade! <B:0> "
+               (dialog "<c:Scavenger:29>Careful with that shield, it's very old and handmade! <B:0> "
                        "We've been living near the radioactive ash for a long time, and we've managed to coexist with it! Unfortunately, some others were not so lucky...<B:0>"
                        "We have to be moving on, good luck!")
                (exit))))

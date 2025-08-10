@@ -71,11 +71,11 @@
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:goblin monk:41>We are the Ashwalker Order. While other goblins chase mere plunder, we seek the ancient strength that let our ancestors survive the surface world. <B:0> Our training could serve your crew well... for the right price.")
+         "<c:Goblin Monk:41>We are the Ashwalker Order. While other goblins chase mere plunder, we seek the ancient strength that let our ancestors survive the surface world. <B:0> Our training could serve your crew well... for the right price.")
 
         (dialog-await-binary-q
          (format "Recruit? %@" (* 400 (zone)))
-         "no thanks")
+         "No thanks.")
 
         (setq on-converge nil)))
 
@@ -87,7 +87,7 @@
         (exit))
       (run-util-script
        "find-crew-slot"
-       "<c:goblin monk:41>This is inconvienent, but I suppose we can help you out..."
+       "<c:Goblin Monk:41>This is inconvenient, but I suppose we can help you out..."
        'ladder
        "Place block (1x2):"
        (lambda (x y _)
@@ -95,12 +95,12 @@
          (chr-new (player) x y 'neutral '((race . 1) (icon . 41)))
          (coins-add (* -400 (zone)))
          (adventure-log-add 66 '())
-         (dialog "<c:warrior monk:41> I live to serve!")
+         (dialog "<c:Warrior Monk:41>I live to serve!")
          (defn on-dialog-closed ()
            (setq on-dialog-closed nil)
            (dialog "The monk joined your crew!")
            (run-util-script "pickup-cart" 10
-                            "The ashwalker monk reluctantly hands over a datacart that he'd been keeping..."
+                            "The Ashwalker Monk reluctantly hands over a datacart that he'd been keeping..."
                             exit))))))
 
 

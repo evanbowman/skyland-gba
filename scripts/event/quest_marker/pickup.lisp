@@ -1,3 +1,6 @@
+;;;
+;;; quest_marker/pickup.lisp
+;;;
 
 
 (dialog "At last, the pickup address...")
@@ -47,5 +50,5 @@
 
 (defn on-converge ()
   (dialog
-   "<c:passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
+   "<c:Passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
   (coins-add 1500))

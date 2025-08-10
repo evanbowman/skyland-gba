@@ -21,7 +21,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:station master:9>Poor thing's owner had to evacuate ahead of the storm. Been trying to find someone to take him in before we have to close the station...")
+   "<c:Station Master:9>Poor thing's owner had to evacuate ahead of the storm. Been trying to find someone to take him in before we have to close the station...")
 
   (setq on-dialog-closed
         (lambda ()
@@ -35,18 +35,18 @@
 (defn on-dialog-accepted ()
   (run-util-script
    "find-crew-slot"
-   "<c:dog:24>BOWOWOWOW"
+   "<c:Dog:24>BOWOWOWOW!"
    'ladder
    "Place block (1x2):"
    (lambda (x y _)
      (chr-del (opponent) 0 12)
      (chr-new (player) x y 'neutral '((race . 3) (icon . 24)))
-     (dialog "<c:dog :24> Woof! bowowow!")
+     (dialog "<c:Dog:24>Woof! Bowowow!")
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
        (dialog "A new friend joins your crew!")
        (defn on-dialog-closed ()
-         (dialog "<c:station master:9> Not much of a mechanic, but quick on his feet and fierce in a fight!")
+         (dialog "<c:Station Master:9>Not much of a mechanic, but quick on his feet and fierce in a fight!")
          (setq on-dialog-closed exit))))))
 
 

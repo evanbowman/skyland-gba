@@ -1,4 +1,5 @@
 
+ coord_system.txt
 
  Describes the coordinate
  system used by SKYLAND's
@@ -46,14 +47,14 @@
  increase from top to
  bottom.
 
- One final note: in addition
+ One final note: In addition
  to manually defining a room
  layout in the script editor, 
  you may also use the
  Battle Sandbox. I mainly
  designed the game's levels
  in the sandbox mode, and used
- the uart shell to dump level
+ the UART shell to dump level
  data. You could also use the
  sandbox's saving feature,
  and copy the file data out

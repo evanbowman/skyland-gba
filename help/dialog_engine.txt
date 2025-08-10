@@ -1,4 +1,6 @@
 
+ dialog_engine.txt
+
  Dialog Commands:
 
 
@@ -78,9 +80,10 @@ o----------------------------o
 o----------------------------o
 
  <S:INTEGER>
-0 = OFF, 1 = ON
+ 0 = OFF, 1 = ON
+ 
  Enable/disable text printing
- via skyland conlang symbols.
+ via Skyland conlang symbols.
 
  (Certain characters speak in
  an invented language)

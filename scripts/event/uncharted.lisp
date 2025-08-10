@@ -1,15 +1,15 @@
 ;;;
 ;;; uncharted.lisp
 ;;;
-;;; Some unexpected, randomly occuring, events.
+;;; Some unexpected, randomly occurring, events.
 ;;;
 
 
 (eval-file "scripts/event/hostile.lisp")
 
 
-(let ((prob (get '(26 10 8) (difficulty)))          ; chance of surprise event occuring
-      (lvs (difference surprises-seen (range 3))))  ; list of avail surprise events
+(let ((prob (get '(26 10 8) (difficulty)))          ; Chance of surprise event occurring.
+      (lvs (difference surprises-seen (range 3))))  ; List of available surprise events.
 
   (if (and lvs
            (not (has-dialog?))

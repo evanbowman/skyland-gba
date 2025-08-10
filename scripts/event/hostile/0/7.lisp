@@ -1,3 +1,6 @@
+;;;
+;;; hostile/0/7.lisp
+;;;
 
 
 (opponent-init 6 'hostile)

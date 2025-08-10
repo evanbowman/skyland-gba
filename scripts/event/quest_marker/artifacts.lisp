@@ -1,3 +1,7 @@
+;;;
+;;; quest_marker/artifacts.lisp
+;;;
+
 
 (dialog "Still got those artifacts? The locals might be interested...")
 
@@ -32,7 +36,7 @@
               c)))
       (if p
           (let ((sale (+ 1000 (* (lookup 4 qvar) 2))))
-            ;; Clear out cargo
+            ;; Clear out cargo.
             (cargo-set (player)
                        (caar p)
                        (cdr (car p))
@@ -40,7 +44,7 @@
 
             (dialog
              (format
-              "<c:the collector:6>Wow, such rare artifacts! I must have them!! How much would you sell them for? Here, take %@!"
+              "<c:The Collector:6>Wow, such rare artifacts! I must have them!! How much would you sell them for? Here, take %@!"
               sale))
 
             (coins-add sale)

@@ -1,5 +1,5 @@
 ;;;
-;;; porcupine2.lisp
+;;; challenges/porcupine2.lisp
 ;;;
 
 

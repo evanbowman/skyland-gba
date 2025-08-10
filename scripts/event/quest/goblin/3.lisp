@@ -1,3 +1,7 @@
+;;;
+;;; quest/goblin/3.lisp
+;;;
+
 
 (dialog
  "<b:/scripts/data/img/flares.img.bin>"
@@ -23,7 +27,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:goblin scout:38>Ssseeing your flag on the horizon givesss us hope! <B:0> Our clan was scattered when the ssstorm changed course. We're too few to survive alone, but together... <B:0> Help gather my crew, and we'll join your strength with oursss!")
+   "<c:Goblin Scout:38>Ssseeing your flag on the horizon givesss us hope! <B:0> Our clan was ssscattered when the ssstorm changed course. We're too few to sssurvive alone, but together... <B:0> Help gather my crew, and we'll join your ssstrength with oursss!")
 
   (dialog-await-binary-q "I accept!" "I'm kind of busy…"))
 
@@ -36,11 +40,11 @@
           (push 'qids 3)
           (push 'quests (cons "goblin_pickup.lisp" m))
           (adventure-log-add 19 '())
-          (dialog "<c:goblin scout:38>Yesss! I've marked their sssignals on your chart with an *!"))
+          (dialog "<c:Goblin Scout:38>Yesss! I've marked their sssignals on your chart with an *!"))
       (progn
-        (dialog "<c:goblin scout:38>The ssstorm moves too fast... we won't reach them in time. My clan is lost...")))))
+        (dialog "<c:Goblin Scout:38>The ssstorm movesss too fast... we won't reach them in time. My clan isss lossst...")))))
 
 
 (defn on-dialog-declined ()
-  (dialog "<c:goblin scout:38>Fine then... we'll find another way...")
+  (dialog "<c:Goblin Scout:38>Fine then... we'll find another way...")
   (setq on-dialog-closed exit))

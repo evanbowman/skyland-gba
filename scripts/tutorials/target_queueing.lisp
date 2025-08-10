@@ -36,7 +36,7 @@
 
 (autopilot
  '((500 nil)
-   (100 "<c:Milo:5> To make target assignment easier, weapons have command queues. <B:0> When picking a weapon target, you can press the SELECT button to create a target queue, allowing you to pick a weapon's (or weapon group's) next three targets all at once! Just like this:")
+   (100 "<c:Milo:5>To make target assignment easier, weapons have command queues. <B:0> When picking a weapon target, you can press the SELECT button to create a target queue, allowing you to pick a weapon's (or weapon group's) next three targets all at once! Just like this:")
    (2406 Right)
    (350 Right)
    (767 Up)

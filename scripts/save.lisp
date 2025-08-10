@@ -1,4 +1,6 @@
 ;;;
+;;; save.lisp
+;;;
 ;;; The game invokes this script when creating a save file. The result of this
 ;;; script will be stored in save memory, and passed to restore_save.lisp when
 ;;; reloading a game. As you see below, the list itself is an association list,

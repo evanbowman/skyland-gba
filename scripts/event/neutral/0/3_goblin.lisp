@@ -29,7 +29,7 @@
       (sel-input
        item
        (string
-        "place first "
+        "Place first "
         (rinfo 'name item)
         (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
        (lambda (isle x y)
@@ -38,7 +38,7 @@
          (alloc-space item)
          (sel-input
           item
-          (string "place second " (rinfo 'name item) ":")
+          (string "Place second " (rinfo 'name item) ":")
           (lambda (isle x y)
             (room-new (player) (list item x y))
             (sound "build0")
@@ -59,26 +59,26 @@
 
   (setq on-converge
         (lambda ()
-          (dialog "<c:scavenger:35> Found thessse "
+          (dialog "<c:Scavenger:35> Found thessse "
                   (rinfo 'name item)
                   "s"
                   (if (equal (faction) 'goblin)
-                      " on a human issle!"
+                      " on a human isssle!"
                       "... err ... Well, don't worry where I got them! <B:0>")
                   " Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!"
                   (if (< (coins) 1300)
-                      "...but you don't ssseem to have enough. Do you want to ssalvage some stuff to come up with the funds? I'll check back in 15 seconds?"
+                      "...but you don't ssseem to have enough. Do you want to sssalvage some stuff to come up with the fundsss? I'll check back in 15 secondsss?"
                       ""))
           (dialog-opts-reset)
-          (dialog-opts-push "purchase for 1300@" on-dialog-accepted)
-          (dialog-opts-push "take by force"
+          (dialog-opts-push "Purchase for 1300@." on-dialog-accepted)
+          (dialog-opts-push "Take by force."
                             (lambda ()
                               (adventure-log-add 71 (list (rinfo 'name item)))
                               (dialog "<c:scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss...")
-                              (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengence.lisp")
+                              (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengence.lisp") ;; TODO: Fix for the misspelled file name. [recte /scripts/event/hostile/scavenger-vengeance.lisp]
                               (setq on-dialog-closed
-                                    (place-items item "The goblins storm off, swearing vengence..."))))
-          (dialog-opts-push "decline offer" on-dialog-declined)
+                                    (place-items item "The goblins storm off, swearing vengeance..."))))
+          (dialog-opts-push "Decline offer." on-dialog-declined)
           (setq on-converge nil)))
 
 
@@ -94,7 +94,7 @@
                   (defn fut ()
                     (if (> (coins) 1299)
                         (progn
-                          (dialog "<c:scavenger:35> Seems like you have enough now!")
+                          (dialog "<c:Scavenger:35>Ssseems like you have enough now!")
                           (setq on-dialog-closed f))
                         (f))))
 
@@ -103,13 +103,13 @@
                       (setq skip 0)
                       (on-timeout 15000 'fut))
                     (progn
-                      (dialog "<c:scavenger:35> Sorry, that's not enough! Do you want to salvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?")
+                      (dialog "<c:Scavenger:35>Sorry, that's not enough! Do you want to sssalvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?")
                       (dialog-await-y/n)
                       (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
                       (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
               (progn
                 (adventure-log-add 67 (list (rinfo 'name item) 1300))
                 (coins-add -1300)
-                ((place-items item "<c:scavenger:35> Yesss! Ssmart choice! Don't mind the burn marksss, they add character!")))))))
+                ((place-items item "<c:Scavenger:35>Yesss! Sssmart choice! Don't mind the burn marksss, they add character!")))))))
 
 (setq on-dialog-declined exit)

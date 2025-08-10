@@ -1,3 +1,9 @@
+;;;
+;;; util/find_create_cargo_bay.lisp
+;;;
+;;; TODO: Rename this file in accordance with the other files in the "util" directory. [recte util/find-create-cargo-bay.lisp]
+;;;
+
 
 (let ((c (cargo-bays (player))))
   (setq c (filter

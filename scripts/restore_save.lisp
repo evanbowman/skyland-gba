@@ -1,4 +1,6 @@
 ;;;
+;;; restore_save.lisp
+;;;
 ;;; The game invokes this script when loading a save file. The script must
 ;;; return a function, which receives and processes the save data.
 ;;;

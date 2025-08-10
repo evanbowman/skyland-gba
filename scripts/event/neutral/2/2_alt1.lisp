@@ -1,4 +1,5 @@
 ;;;
+;;; neutral/2/2_alt1.lisp
 ;;;
 
 
@@ -84,7 +85,7 @@
                 (wake
                  (lambda ()
                    (opponent-mode 'hostile)
-                   (dialog "<c:abandoned ship ai:25> .<d:500>.<d:500>.<d:500>.<d:500> "
+                   (dialog "<c:Abandoned Ship AI:25> .<d:500>.<d:500>.<d:500>.<d:500> "
                            "PROCESSING INTERRUPT... <B:0> BLOCK DETECTED MISSING! "
                            "<B:0> HOSTILE THREAT DETECTED")
                    (defn on-dialog-closed ()

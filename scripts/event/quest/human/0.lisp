@@ -1,3 +1,6 @@
+;;;
+;;; quest/human/0.lisp
+;;;
 
 
 (dialog
@@ -50,13 +53,13 @@
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:merchant:7>We promised to deliver some cargo to our customers, but with "
+         "<c:Merchant:7>We promised to deliver some cargo to our customers, but with "
          "this storm approaching, we don't think we can make the delivery. "
          "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
          "you generously.")
-        (dialog-await-binary-q-w/lore "I accept!" "sorry, but no."
-                                      '(("explain deliveries?" .
-                                         "<c:merchant:7>Usually we have stuff delivered by balloon. Customers place orders, and we send then out by airship. But with this terrible weather coming in, it's too risky to send anything. Can you help us out?")))
+        (dialog-await-binary-q-w/lore "I accept!" "Sorry, but no."
+                                      '(("Explain deliveries?" .
+                                         "<c:Merchant:7>Usually we have stuff delivered by balloon. Customers place orders, and we send then out by airship. But with this terrible weather coming in, it's too risky to send anything. Can you help us out?")))
 
         (setq on-dialog-accepted
               (lambda ()
@@ -70,14 +73,14 @@
                          (push 'qids 0)
                          (adventure-log-add 16 '())
                          (cargo-set (player) x y "parcel")
-                         (dialog "<c:merchant:7>Wonderful! I'll mark the address "
+                         (dialog "<c:Merchant:7>Wonderful! I'll mark the address "
                                  "with an * on your sky chart!")
                          (run-util-script "pickup-cart" 5
                                           "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."
                                           exit)))
                       (progn
                         (dialog
-                         "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
+                         "<c:Merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
                          "she had to relocate to flee the storm. Here's 400@ for your trouble.")
                         (setq on-dialog-closed
                               (lambda ()
@@ -86,5 +89,5 @@
 
         (setq on-dialog-declined
               (lambda ()
-                (dialog "<c:merchant:7>I understand... I guess we'll try to find someone else...")
+                (dialog "<c:Merchant:7>I understand... I guess we'll try to find someone else...")
                 (setq on-dialog-closed exit)))))

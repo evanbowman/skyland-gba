@@ -1,3 +1,6 @@
+;;;
+;;; quest_marker/surface_keeper.lisp
+;;;
 
 
 (dialog "You reach the destination that the surface keeper marked on your map! <B:0> Beyond the clouds, pulses of strange energy light up the toxic atmosphere...")
@@ -23,7 +26,7 @@
                   (when (> cost 1000)
                     (setq sel (cons (car pick) sel))))))
 
-            (dialog "<c:surface keeper:43>The readingsss grow stronger... <B:0> Beneath usss lies a cache of ancient weaponsss, their containment failing. <B:0> I must descend to stabilize them, before their radiation spreadsss upward. <B:0> Take thisss payment for your aid (2000@ and one random block) ")
+            (dialog "<c:Surface Keeper:43>The readingsss grow stronger... <B:0> Beneath usss lies a cache of ancient weaponsss, their containment failing. <B:0> I must descend to stabilize them, before their radiation spreadsss upward. <B:0> Take thisss payment for your aid. (2000@ and one random block) ")
             (defn on-dialog-closed ()
               (coins-add 2000)
               (let ((sym0 (get sel 0)))
@@ -33,7 +36,7 @@
                            (lambda (isle x y)
                              (sound "build0")
                              (room-new (player) (list sym0 x y))
-                             (dialog "<c:surface keeper:43>The anchient machinesss require my attention...")
+                             (dialog "<c:Surface Keeper:43>The ancient machinesss require my attention...")
                              (map (lambda (chr)
                                     (if (equal id (lookup 'id (cddr chr)))
                                         (chr-del (player) (car chr) (cadr chr))))

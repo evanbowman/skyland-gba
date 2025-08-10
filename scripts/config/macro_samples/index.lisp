@@ -1,10 +1,14 @@
+;;;
+;;; index.lisp
+;;;
+;;; (display-name filename type-override)
+;;; FIXME: Some types from the QR-encoded base string don't look correct when
+;;; decoding with the base32 Linux command line tool. For now, I'm manually
+;;; entering the island layout shape (3 == standard, 4 == wider, 5 == superflat).
+;;; Obviously there's a logical explanation why stuff doesn't decode correctly,
+;;; but I don't have time to look into it now.
+;;;
 
-;; (display-name filename type-override)
-;; FIXME: some types from the qr-encoded base string don't look correct when
-;; decoding with the base32 linux commandline tool. For now, I'm manually
-;; entering the island layout shape (3 == standard, 4 == wider, 5 == superflat).
-;; Obviously there's a logical explanation why stuff doesn't decode correctly,
-;; but I don't have time to look into it now.
 
 '(("clifftop" "clifftop.dat" 3)
   ("oasis" "oasis.dat" 5)

@@ -1,3 +1,7 @@
+;;;
+;;; neutral/0/5.lisp
+;;;
+
 
 (cond
   ((equal (faction) 'goblin)

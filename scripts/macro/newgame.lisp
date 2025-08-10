@@ -1,3 +1,6 @@
+;;;
+;;; macro/newgame.lisp
+;;;
 
 
 (eval-file "/scripts/reset_hooks.lisp")

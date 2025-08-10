@@ -40,7 +40,7 @@
    (3099 B)
    (866 B)
    (100 nil)
-   (100 "We seem to only be able to build a small set of structures. By constructing a workshop, we unlock a large number of additional rooms. Workshops also reduce construction cost for all new rooms by a bit.")
+   (100 "<c:Milo:5>We seem to only be able to build a small set of structures. By constructing a workshop, we unlock a large number of additional rooms. Workshops also reduce construction cost for all new rooms by a bit.")
    (2334 R)
    (1116 A)
    (700 Left)
