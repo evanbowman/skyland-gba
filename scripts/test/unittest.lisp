@@ -358,7 +358,7 @@
 (let ((result (eval (read "(defn temp (a b c d e f) (+ a b c d e f))"))))
   (assert-v (and (error? result)
                  (equal (error-info result)
-                        "No more than 5 named args allowed in function!"))))
+                        "no more than 5 named args allowed in function"))))
 
 (end-test)
 
@@ -426,12 +426,12 @@
 
 (begin-test "syntax")
 
-(assert-eq "Invalid let binding list!" (error-info (lint '(let (a 5) a))))
-(assert-eq "Malformed let expr!" (error-info (lint '(let ))))
-(assert-eq "let binding missing symbol!" (error-info (lint '(let ((a 6) (7 8))))))
-(assert-eq "Invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
-(assert-eq "Invalid lambda syntax!" (error-info (lint '(lambda ))))
-(assert-eq "Invalid while syntax!" (error-info (lint '(while ))))
+(assert-eq "invalid let binding list" (error-info (lint '(let (a 5) a))))
+(assert-eq "malformed let expr!" (error-info (lint '(let ))))
+(assert-eq "let binding missing symbol" (error-info (lint '(let ((a 6) (7 8))))))
+(assert-eq "invalid value in lambda arglist!" (error-info (lint '(lambda (1)))))
+(assert-eq "invalid lambda syntax!" (error-info (lint '(lambda ))))
+(assert-eq "invalid while syntax!" (error-info (lint '(while ))))
 
 (end-test)
 

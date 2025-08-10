@@ -180,7 +180,7 @@
 (setq temp (chr-new (player) 1 14 'neutral '((icon . 1))))
 (assert-v (not (equal temp (chr-new (player) 1 14 'neutral nil))))
 (assert-eq (chrs (player)) '((1 14 (icon . 1) (id . 2)) (1 14 (id . 3))))
-(assert-eq (load-commentary "regression_test") "working!")
+(assert-eq (load-commentary "regression_test") "Working!")
 (chr-del (player) 1 14)
 (chr-del (player) 1 14)
 (assert-eq (load-commentary "regression_test") nil)
