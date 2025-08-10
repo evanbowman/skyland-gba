@@ -472,6 +472,8 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"å"): return 308;
         case UTF8_GETCHR(u8"Ä"): return 309;
         case UTF8_GETCHR(u8"…"): return 310;
+        case UTF8_GETCHR(u8"Ö"): return 314;
+        case UTF8_GETCHR(u8"ẞ"): return 315;
 
             // clang-format on
 
