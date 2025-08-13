@@ -643,6 +643,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
             u32 max_text_len = 0;
             int opt_count = lisp::length(opts);
+            utf8::Codepoint final_char = '\0';
 
             lisp::l_foreach(opts, [&](lisp::Value* elem) {
                 auto text = elem->cons().car()->string().value();
@@ -650,9 +651,19 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
                 if (t_len > max_text_len) {
                     max_text_len = t_len;
+                    final_char = text[strlen(text) - 1];
                 }
             });
 
+            // Trailing periods or exclamation points are aligned close to the
+            // left edge of a tile, but push the overall length of a dialog
+            // option one extra tile out, which wastes screen space. As a
+            // compromise, do not create a right margin of whitespace when the
+            // final character of the longest dialog line has a lot of
+            // rightwards trailing whitespace.
+            if (final_char == '.' or final_char == '!') {
+                --max_text_len;
+            }
 
             for (int x = (st.x - 1) - (max_text_len + 3); x < st.x - 1; ++x) {
                 for (int y = st.y - (6 + (opt_count * 2 - 1) + y_start);
