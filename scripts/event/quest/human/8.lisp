@@ -23,7 +23,7 @@
    "<c:King of Emsshaw Cay:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
 
    (dialog-await-binary-q-w/lore "Okay..." "Sorry, but no."
-                                 '(("atomics?" .
+                                 '(("Atomics?" .
                                     "<c:King of Emsshaw Cay:27> During the surface wars, ancient civilizations fought each other with powerful atomic weapons. <B:0> When our ancestors moved up here, they stashed their arsenal in a hidden place for safe keeping. <B:0> Can you go retrieve them?")))
 
    (defn on-dialog-accepted ()

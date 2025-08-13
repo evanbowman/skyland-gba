@@ -48,7 +48,7 @@
       (setq cnt tot)
       (when cnt
         (dialog-opts-push
-         (format "Salvage rights: % blocks" cnt)
+         (format "Salvage rights: % blocks." cnt)
          (lambda ()
            (let ((rtry (this)))
              (sel-input-opponent
@@ -100,6 +100,6 @@
                                      (rtry))))))))))))))))
 
 
-    (dialog-opts-push (format "unacceptable! (+%@)" (coins-victory)) (lambda ()))))
+    (dialog-opts-push (format "Unacceptable! (+%@)" (coins-victory)) (lambda ()))))
 
 (gc)
