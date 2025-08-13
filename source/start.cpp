@@ -36,6 +36,10 @@ namespace skyland
 
 
 
+void init_glow_color();
+
+
+
 static inline int boot_init()
 {
     systemstring_bind_file("english");
@@ -75,6 +79,8 @@ static inline int boot_init()
     BootScene::message("initializing initializer...");
 
     scene_pool::pool_ = &globals().scene_pool_;
+
+    init_glow_color();
 
     return clean_boot;
 }

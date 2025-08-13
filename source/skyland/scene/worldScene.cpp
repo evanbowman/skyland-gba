@@ -269,6 +269,14 @@ SHARED_VARIABLE(spr_energy_color_1);
 SHARED_VARIABLE(spr_energy_color_2);
 
 
+
+void init_glow_color()
+{
+    energy_glow_color.set(0x66fff7);
+}
+
+
+
 void set_glow_color()
 {
     auto cl = custom_color(energy_glow_color);
