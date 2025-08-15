@@ -19,6 +19,8 @@
  (opponent)
  '((bronze-hull 1 12 56) (masonry 1 14 0) (bronze-hull 1 13 56) (bronze-hull 2 14 56) (bronze-hull 3 14 56) (deflector 4 12) (masonry 4 13 0) (masonry 4 14 0) (war-engine 5 11) (masonry 7 10 0) (power-core 8 13) (masonry 8 12 0) (masonry 8 10 0) (masonry 8 11 0) (masonry 9 10 0) (masonry 9 9 0) (masonry 9 11 0) (masonry 9 12 0) (masonry 10 10 0) (masonry 10 9 0) (deflector 10 11) (phase-shifter 10 12) (masonry 11 14 0) (masonry 11 13 0) (masonry 11 12 0) (masonry 11 11 0)))
 
+(flag-show (opponent) 36)
+
 
 (defn on-converge ()
   (dialog "Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script.")

@@ -37,6 +37,8 @@
    (bronze-hull 9 14)))
 
 
+(flag-show (opponent) 36)
+
 (defn on-fadein ()
   (foreach (lambda (room)
              (if (equal (get room 0) 'torch)

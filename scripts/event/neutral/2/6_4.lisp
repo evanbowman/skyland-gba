@@ -9,6 +9,7 @@
 (opponent-init 4 'hostile)
 (island-configure (opponent) '((power-core 1 13)))
 
+(flag-show (opponent) 36)
 
 (defn on-fadein ()
   (dialog "<c:Sylph Archivist:21>Greetings, traveller. Few outsiders reach the Central Archive of the Sylph Conclave. <B:0> We have observed your fortress with great interest. Your configuration of technology, your adaptations to the changing skies... they represent solutions we would not have designed. Our archive seeks to document all knowledge of sky survival. Your castle's design holds valuable insights for our studies. <B:0> We propose an exchange. Allow us to keep your current fortress for our archives. In return, we offer one of our own warships. Your crew would transfer completely. Nothing would be lost but the structure itself...")
