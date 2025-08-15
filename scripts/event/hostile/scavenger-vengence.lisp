@@ -19,7 +19,8 @@
 
 
 (defn on-converge()
-  (dialog "<c:Scavenger:35>Ssso... we meet again! <B:0> Did you think we'd just forget what you did to usss? <B:0> We've spent hoursss gathering friendsss and better weaponsss. <B:0> Now, you can pay usss back... with interessst!")
+  (dialog "<c:Scavenger:35>Ssso... we meet again! <B:0> Did you think we'd just forget what you did to usss? <B:0> We've spent hours gathering friendsss and better weaponsss. <B:0> Now, you can pay us back... with interessst!")
+  (setq on-converge nil)
 
   (dialog-opts-reset)
   (when (> (coins) 2799)
