@@ -123,6 +123,15 @@ o----------------------------o
  display. Otherwise, pass
  zero in the variant argument.
 
+ 1: marauder
+ 2: second empire
+ 3: pirate
+ 4: old empire
+ 5: banana
+ 6: merchant
+ 7: colonist
+ ... reserved slots ...
+ 36: sylph
 
 o----------------------------o
 

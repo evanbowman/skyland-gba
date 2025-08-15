@@ -1264,12 +1264,12 @@ void Island::display()
 
         Optional<u16> palette;
 
-        if (layer_ == Layer::map_0_ext) {
-            // NOTE: the player can design his/her own flag, so we reserve a
-            // specific palette bank just for the flag image. Untimately, doing
-            // so simplifies things.
-            palette = 12;
-        }
+        // NOTE: the player can design his/her own flag, so we reserve a
+        // specific palette bank just for the flag image. Untimately, doing so
+        // simplifies things. The opponent island doesn't necessarily need the
+        // custom flag palette, but why not keep things simple and consistent...
+        palette = 12;
+
         PLATFORM.set_tile(
             layer_, flag_pos_->x, flag_pos_->y, flag_anim_index_, palette);
     }
