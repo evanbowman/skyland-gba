@@ -4,15 +4,10 @@
 
 
 (let ((scenarios
-       '("scripts/event/neutral/1/0_goblin.lisp"
-         "scripts/event/neutral/1/0_human.lisp")))
+       '("scripts/event/neutral/1/0_human.lisp"
+         "scripts/event/neutral/1/0_goblin.lisp"
+         "scripts/event/neutral/1/0_sylph.lisp")))
 
-  (when (chance 3)
-    ;; Sometimes, swap the two scenarios for interesting variability. The goblin
-    ;; scenario is still more likely when playing as goblins, but sometimes you
-    ;; get the human scenario.
-    (setq scenarios (reverse scenarios)))
-
-  (eval-file (get scenarios (if (equal (faction) 'goblin)
-                                0
-                                1))))
+  (eval-file (if (chance 3)
+                 (get scenarios (choice 3))
+                 (format "scripts/event/neutral/1/0_%.lisp" (faction)))))

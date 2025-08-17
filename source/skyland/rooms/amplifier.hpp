@@ -12,6 +12,7 @@
 #pragma once
 
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
 
@@ -19,6 +20,10 @@
 
 namespace skyland
 {
+
+
+
+extern SharedVariable energy_glow_color;
 
 
 
@@ -31,7 +36,7 @@ public:
         sprite_.set_tidx_16x16(31, 0);
         sprite_.set_position(pos);
         sprite_.set_origin({});
-        sprite_.set_mix({ColorConstant::electric_blue, 255});
+        sprite_.set_mix({custom_color(energy_glow_color), 255});
     }
 
 
@@ -179,7 +184,7 @@ public:
         Sprite sprite;
         sprite.set_size(Sprite::Size::w16_h32);
         sprite.set_texture_index(13);
-        sprite.set_mix({ColorConstant::electric_blue, 255});
+        sprite.set_mix({custom_color(energy_glow_color), 255});
 
         for (int x = pos.x - 1; x < pos.x + 2; ++x) {
 
