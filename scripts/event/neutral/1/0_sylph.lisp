@@ -39,7 +39,7 @@
         (exit))
       (run-util-script
        "find-crew-slot"
-       "<c:Sylph Sentry:41>This is inconvenient, but I suppose we can help you out..."
+       "<c:Sylph Sentry:41>You're out of space. This is inconvenient, but I suppose I can help you out..."
        'ladder
        "Place block (1x2):"
        (lambda (x y _)
@@ -47,7 +47,7 @@
          (chr-new (player) x y 'neutral '((race . 4) (icon . 47)))
          (coins-add (* -400 (zone)))
          (adventure-log-add 76 '())
-         (dialog "<c:Sylph Sentry:47> Acceptable. I will transfer my observation logs to your archives before departure. <B:0> Be advised: I do not engage in unnecessary conversation during duty periods. <B:0> Efficiency is paramount.")
+         (dialog "<c:Sylph Sentry:47> Acceptable. The storm patterns grow more unpredictable each cycle... this requires closer study. <B:0> Your crew's movement patterns suggest competent leadership. I am prepared to serve.")
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
            (dialog "The sentry joined your crew!"))))))
@@ -61,6 +61,6 @@
               (get gender 0)
               " vigil, bronze helmet gleaming in the cold light as "
               (get gender 1)
-              " resumes watching the storms below..."))
+              " resumes silent vigil over the storms below..."))
     (setq on-dialog-closed exit))
   (adventure-log-add 76 '()))
