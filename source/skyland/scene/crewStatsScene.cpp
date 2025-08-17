@@ -243,8 +243,8 @@ void CrewStatsScene::exit(Scene& next)
 
 
 
-static constexpr u8 human_icons[] = {5,  1,  6,  7,  8,  9,  10, 11, 12, 14, 15,
-                                     16, 17, 20, 22, 23, 19, 26, 27, 28};
+static constexpr u8 human_icons[] = {5,  1,  6,  7,  8,  9,  10, 11, 12, 14,
+                                     15, 16, 17, 20, 22, 23, 19, 26, 27, 28};
 
 
 static constexpr u8 goblin_icons[] =

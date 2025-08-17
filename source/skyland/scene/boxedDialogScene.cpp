@@ -187,14 +187,14 @@ void BoxedDialogScene::process_command()
         int frames = 16;
         for (int i = 0; i < frames; ++i) {
             auto amt = Float(i / 2) / frames;
-            for (u8 x = 2; x < 28  * 2 * amt; ++x) {
+            for (u8 x = 2; x < 28 * 2 * amt; ++x) {
                 for (u8 y = 1; y < 12; ++y) {
                     PLATFORM.set_tile(Layer::overlay, x, y, 82);
                 }
             }
-            PLATFORM.screen().schedule_fade(amt,
-                                            {.color = ColorConstant::rich_black,
-                                             .include_sprites = false});
+            PLATFORM.screen().schedule_fade(
+                amt,
+                {.color = ColorConstant::rich_black, .include_sprites = false});
             PLATFORM.keyboard().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -864,7 +864,8 @@ ScenePtr BoxedDialogScene::update(Time delta)
         if (img_view_2_) {
             int frames = 30;
             for (int i = 0; i < frames; ++i) {
-                PLATFORM.screen().schedule_fade(Float(i) / frames, {ColorConstant::rich_black, true, true});
+                PLATFORM.screen().schedule_fade(
+                    Float(i) / frames, {ColorConstant::rich_black, true, true});
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
                 if (ambience_) {
@@ -909,10 +910,8 @@ void BoxedDialogScene::display()
         int t = 0;
         for (int y = 0; y < 3; ++y) {
             for (int x = 0; x < 6; ++x) {
-                spr.set_position({
-                        Fixnum::from_integer(p.x + x * 32 + 24),
-                        Fixnum::from_integer(p.y + y * 32 + 12)
-                    });
+                spr.set_position({Fixnum::from_integer(p.x + x * 32 + 24),
+                                  Fixnum::from_integer(p.y + y * 32 + 12)});
                 spr.set_texture_index(t++);
                 PLATFORM.screen().draw(spr);
             }

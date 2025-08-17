@@ -731,7 +731,8 @@ void describe_room(Island* island,
                             room_description->append(",");
                         }
                         Text::OptColors opts;
-                        if (chr->owner() == &APP.player()) {
+                        if (chr->owner() == &APP.player() or
+                            chr->get_race() == Character::Race::sylph) {
                             opts = {custom_color(0xff6675),
                                     ColorConstant::rich_black};
                             if (chr->is_replicant()) {
@@ -751,7 +752,8 @@ void describe_room(Island* island,
                                             return SYSTR(character_label_human);
 
                                         case Race::sylph:
-                                            opts->foreground_ = custom_color(0xeac50b);
+                                            opts->foreground_ =
+                                                custom_color(0xeac50b);
                                             return SYSTR(character_label_sylph);
 
                                         case Race::hostile_human:

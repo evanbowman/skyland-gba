@@ -917,10 +917,12 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
         case Race::sylph:
             switch (spr.get_texture_index()) {
             case human_step:
+            case goblin_step:
                 draw_custom(sylph_step);
                 break;
 
             case human_still:
+            case goblin_still:
                 draw_bumped_custom(sylph_still);
                 break;
 

@@ -3238,11 +3238,10 @@ void Platform::load_tile0_texture(const char* name)
         }
     }
 
-    if (load_img_from_file(
-            name,
-            ShaderPalette::tile0,
-            (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
-            tilesheet_0_palette)) {
+    if (load_img_from_file(name,
+                           ShaderPalette::tile0,
+                           (void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
+                           tilesheet_0_palette)) {
         return;
     }
 
@@ -3290,11 +3289,10 @@ void Platform::load_tile1_texture(const char* name)
         }
     }
 
-    if (load_img_from_file(
-            name,
-            ShaderPalette::tile1,
-            (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
-            tilesheet_1_palette)) {
+    if (load_img_from_file(name,
+                           ShaderPalette::tile1,
+                           (void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
+                           tilesheet_1_palette)) {
         return;
     }
 
