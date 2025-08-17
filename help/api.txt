@@ -426,9 +426,7 @@ o----------------------------o
    1 - Goblin
    2 - Hostile human
    3 - Dog 
-   ? - Sylph
-
- TODO: Number for Sylph.
+   4 - Sylph
 
  'icon: Character artwork
 

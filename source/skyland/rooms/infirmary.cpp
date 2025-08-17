@@ -163,7 +163,7 @@ void Infirmary::display(Platform::Screen& screen)
                     chr->health() < chr->get_max_health()) {
                     Sprite spr;
 
-                    spr.set_tidx_8x8(43, 0);
+                    spr.set_tidx_8x8(34, 3);
                     spr.set_size(Sprite::Size::w8_h8);
                     auto pos = chr->sprite().get_position();
                     pos.y -= 8.0_fixed;

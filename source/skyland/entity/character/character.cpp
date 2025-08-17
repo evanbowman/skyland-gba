@@ -68,6 +68,8 @@ enum CharacterSprite {
     hostile_human_still,
     replicant_step,
     replicant_still,
+    sylph_step,
+    sylph_still,
 };
 
 
@@ -902,15 +904,29 @@ void Character::draw(Platform::Screen& screen, const DrawTransform& t)
         case Race::default_race:
             switch (spr.get_texture_index()) {
             case human_still:
-                draw_bumped_custom(human_still);
-                break;
-
+            case sylph_still:
             case goblin_still:
-                draw_bumped_custom(goblin_still);
+                draw_bumped_custom(spr.get_texture_index());
                 break;
 
             default:
                 draw_regular();
+            }
+            break;
+
+        case Race::sylph:
+            switch (spr.get_texture_index()) {
+            case human_step:
+                draw_custom(sylph_step);
+                break;
+
+            case human_still:
+                draw_bumped_custom(sylph_still);
+                break;
+
+            default:
+                draw_regular();
+                break;
             }
             break;
 

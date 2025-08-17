@@ -210,7 +210,7 @@ public:
     }
 
 
-    enum class Race : int { default_race, goblin, hostile_human, dog };
+    enum class Race : int { default_race, goblin, hostile_human, dog, sylph };
 
 
     void set_race(Race race);
@@ -370,11 +370,11 @@ private:
     u8 superpinned_ : 1;
     u8 wants_to_chat_ : 1 = 0;
     u8 antisocial_ : 4 = 0;
-    u8 race_ : 3;
+    u8 race_ : 4;
     u8 owner_is_player_ : 1 = 0;
     u8 parent_near_ : 1 = 0;
     u8 repair_wb_ : 2 = 0;
-    u8 unused_ : 4;
+    u8 unused_ : 3;
 
     u8 icon_;
     u8 radiation_counter_ = 0;
