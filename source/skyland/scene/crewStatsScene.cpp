@@ -252,7 +252,7 @@ static constexpr u8 goblin_icons[] =
 
 
 
-static constexpr u8 sylph_icons[] = {21, 26, 46};
+static constexpr u8 sylph_icons[] = {21, 26, 46, 47};
 
 
 
