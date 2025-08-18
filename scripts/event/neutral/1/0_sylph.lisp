@@ -47,10 +47,10 @@
          (chr-new (player) x y 'neutral '((race . 4) (icon . 47)))
          (coins-add (* -400 (zone)))
          (adventure-log-add 76 '())
-         (dialog "<c:Sylph Sentry:47> Acceptable. The storm patterns grow more unpredictable each cycle... this requires closer study. <B:0> Your crew's movement patterns suggest competent leadership. I am prepared to serve.")
+         (dialog "<c:Sylph Sentry:47> Acceptable. I am prepared to serve.")
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
-           (dialog "The sentry joined your crew!"))))))
+           (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> The sentry joined your crew!"))))))
 
 
 (defn on-dialog-declined ()
