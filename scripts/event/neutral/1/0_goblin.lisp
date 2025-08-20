@@ -12,7 +12,7 @@
 
 (island-configure
  (opponent)
- (if (not (adv-var-load "mercenary-event"))
+ (if (not (adv-var-load 'mercenary-event))
      '((cannon 1 13)
        (hull 2 14)
        (hull 2 13)

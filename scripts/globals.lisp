@@ -31,4 +31,5 @@
  'qvar
  'pending-events
  'debrief-strs
- 'adventure-vars)
+ 'adv-var-set
+ 'adv-var-list)

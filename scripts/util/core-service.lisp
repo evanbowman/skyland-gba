@@ -12,11 +12,11 @@
 
     (lambda ()
 
-      (when (adv-var-load "sylph-shop-intro")
+      (when (adv-var-load 'sylph-shop-intro)
         (setq text "<c:Sylph:46>What would you like to do?"))
 
       (dialog text)
-      (adv-var-store "sylph-shop-intro" 1)
+      (adv-var-store 'sylph-shop-intro 1)
       (dialog-opts-reset)
 
       (dialog-opts-push "Tune core frequency."

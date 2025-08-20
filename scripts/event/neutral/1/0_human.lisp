@@ -5,7 +5,7 @@
 
 (dialog
  ;; The first time this event happens, show a cover image
- (if (not (adv-var-load "mercenary-event"))
+ (if (not (adv-var-load 'mercenary-event))
      "<b:/scripts/data/img/marauder.img.bin> "
    "")
  "You discover a fortress inhabited by some mercenaries...")
@@ -16,7 +16,7 @@
 
 (island-configure
  (opponent)
- (if (not (adv-var-load "mercenary-event"))
+ (if (not (adv-var-load 'mercenary-event))
      '((cannon 1 13)
        (hull 2 14)
        (hull 2 13)
@@ -113,4 +113,4 @@
         (exit)))
 
 
-(adv-var-store "mercenary-event" true)
+(adv-var-store 'mercenary-event true)

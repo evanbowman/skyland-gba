@@ -3,21 +3,34 @@
 ;;;
 ;;; Some variables used to keep state in adventure mode.
 ;;;
+;;; You may set boolean variables, associated with symbols, by using
+;;; adv-var-load and adv-var-store.
+;;;
 
 
-(setq adventure-vars
-      '(("mercenary-event" . nil)
-        ("sylph-shop-intro" . nil)))
+(setq adv-var-list '(mercenary-event
+                     sylph-shop-intro))
 
-(defn/c adv-var-load ((name . string))
-  (lookup name adventure-vars))
+(when (> (length adv-var-list) 31)
+  (fatal "Too many adventure vars! Cannot fit in integer bitfield adv-var-set"))
 
-(defn/c adv-var-store ((name . string) val)
-  (let ((n name))
-    (setq adventure-vars (replace adventure-vars
-                                  (lambda (kvp)
-                                    (equal (car kvp) n))
-                                  (cons name val)))))
+(setq adv-var-set 0)
+
+(defn/c adv-var-mask ((name . symbol))
+  (let ((found (find name adv-var-list)))
+    (when (nil? found)
+      (fatal (string "bad adv var " name)))
+    (bit-shift-left 1 found)))
+
+(defn/c adv-var-load ((name . symbol))
+  (bit-and adv-var-set (adv-var-mask name)))
+
+(defn/c adv-var-store ((name . symbol) val)
+  (let ((mask (adv-var-mask name)))
+    ;; clear slot
+    (setq adv-var-set (bit-and adv-var-set (bit-not mask)))
+    (if val
+        (setq adv-var-set (bit-or adv-var-set mask)))))
 
 
 (if (equal (difficulty) 0)

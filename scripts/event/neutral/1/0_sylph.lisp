@@ -39,7 +39,7 @@
         (exit))
       (run-util-script
        "find-crew-slot"
-       "<c:Sylph Sentry:41>You're out of space. This is inconvenient, but I suppose I can help you out..."
+       "<c:Sylph Sentry:47>You're out of space. This is inconvenient, but I suppose I can help you out..."
        'ladder
        "Place block (1x2):"
        (lambda (x y _)
@@ -50,6 +50,7 @@
          (dialog "<c:Sylph Sentry:47> Acceptable. I am prepared to serve.")
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
+           (sound "click_digital_1")
            (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> The sentry joined your crew!"))))))
 
 
