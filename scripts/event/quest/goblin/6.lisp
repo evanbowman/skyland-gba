@@ -48,7 +48,8 @@
                              (caar sl)
                              (cdar sl)
                              'neutral
-                             '((icon . 26)))))
+                             '((icon . 26)
+                               (race . 4)))))
             (chr-hp id 128)
             (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
               (if m
