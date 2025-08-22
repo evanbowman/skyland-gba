@@ -120,6 +120,11 @@
 (assert-v (int? -22))
 (assert-v (int? -0))
 
+(assert-v (boolean? nil))
+(assert-v (boolean? true))
+(assert-v (boolean? false))
+(assert-v (not (boolean? 55)))
+
 (assert-eq 1 (mod 10 3))
 
 (assert-eq 0xffffffff (bit-or 0xff00ff00 0x00ff00ff))

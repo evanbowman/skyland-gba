@@ -650,6 +650,16 @@ o----------------------------o
 
  Standard predicates.
 
+ (boolean? v)
+
+ Returns true if v is 0, 1 or
+ nil. The language treats all
+ non-nil as true in control
+ flow expressions, but the
+ boolean? predicate also
+ exists for convenience.
+
+
 o----------------------------o
 
  (equalto? v)

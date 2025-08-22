@@ -4274,6 +4274,14 @@ BUILTIN_TABLE(
      {"equal",
       {EMPTY_SIG(2),
        [](int argc) { return make_integer(is_equal(get_op0(), get_op1())); }}},
+     {"boolean?",
+      {EMPTY_SIG(1),
+       [](int argc) {
+           return make_boolean((get_op0()->type() == Value::Type::integer and
+                                (get_op0()->integer().value_ == 1 or
+                                 get_op0()->integer().value_ == 0)) or
+                               get_op0()->type() == Value::Type::nil);
+       }}},
      {"list?",
       {EMPTY_SIG(1),
        [](int argc) { return make_boolean(is_list(get_op0())); }}},
