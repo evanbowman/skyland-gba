@@ -150,7 +150,7 @@ void GlossaryViewerModule::enter(Scene& prev)
     }
 
     if (last_cover_img == -1) {
-        cover_img_ = 3;
+        cover_img_ = rng::choice<5>(rng::utility_state);
     } else {
         do {
             cover_img_ = rng::choice<5>(rng::utility_state);
