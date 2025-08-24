@@ -91,4 +91,4 @@
   (challenge-complete 6))
 
 
-(weather-set 3)
+(weather-set weather-id-rain)

@@ -47,7 +47,7 @@
    (stairwell 8 11)
    (shrubbery 8 9)))
 
-(flag-show (opponent) 6)
+(flag-show (opponent) flag-id-merchant)
 
 
 (setq on-converge

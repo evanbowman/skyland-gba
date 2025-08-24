@@ -90,7 +90,7 @@
 
 
 
-(weather-set 3)
+(weather-set weather-id-rain)
 
 
 (defn on-victory ()

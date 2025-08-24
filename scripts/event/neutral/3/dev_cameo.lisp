@@ -33,7 +33,7 @@
    (ice 5 14)
    (bronze-hull 6 14)))
 
-(flag-show (opponent) 4)
+(flag-show (opponent) flag-id-old-empire)
 
 
 (setq on-converge

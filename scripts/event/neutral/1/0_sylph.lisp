@@ -14,7 +14,7 @@
  (opponent)
  '((bronze-hull 0 14) (bronze-hull 0 8) (bronze-hull 0 13) (sylph-cannon 0 9) (bronze-hull 1 8) (masonry 1 11 3) (masonry 1 12 3) (masonry 1 13 3) (masonry 1 14 3) (power-core 1 9) (masonry 2 14 3) (masonry 2 13 3) (masonry 2 12 3) (masonry 2 11 3) (bronze-hull 2 8) (bronze-hull 3 14) (bronze-hull 3 13) (bronze-hull 3 8)))
 
-(flag-show (opponent) 36)
+(flag-show (opponent) flag-id-sylph)
 
 (chr-new (opponent) 0 7 'neutral '((race . 4)))
 

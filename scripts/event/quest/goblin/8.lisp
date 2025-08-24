@@ -9,7 +9,7 @@
  "An ancient fortress appears in the moonlight. <B:0>"
  "You almost ran right into it! Inside, you hear the sounds of ritual chanting...")
 
-(weather-set 7)
+(weather-set weather-id-night)
 
 (opponent-init 10 'neutral)
 

@@ -58,7 +58,7 @@
 
 
 
-(flag-show (opponent) 4)
+(flag-show (opponent) flag-id-old-empire)
 
 
 (defn take (w)

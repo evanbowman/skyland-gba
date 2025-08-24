@@ -40,7 +40,7 @@
    (missile-silo 4 13)
    (missile-silo 5 13)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (autopilot

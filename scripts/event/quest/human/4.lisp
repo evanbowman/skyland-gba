@@ -64,7 +64,7 @@
    (windmill 12 10)))
 
 
-(flag-show (opponent) 6)
+(flag-show (opponent) flag-id-merchant)
 
 
 (let ((fee (cond

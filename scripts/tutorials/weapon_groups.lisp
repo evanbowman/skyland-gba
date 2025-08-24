@@ -25,7 +25,7 @@
    (hull 1 12)
    (hull 2 12)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (autopilot

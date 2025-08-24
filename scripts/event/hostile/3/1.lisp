@@ -47,7 +47,7 @@
    (energized-hull 10 12)))
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (chr-new (opponent) 2 13 'hostile 0)

@@ -18,7 +18,7 @@
 
 
 
-(flag-show (opponent) 1)
+(flag-show (opponent) flag-id-marauder)
 
 
 (defn/temp place-items (variant resp)

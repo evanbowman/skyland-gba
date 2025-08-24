@@ -33,7 +33,7 @@
    (hull 3 9)))
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (chr-new (opponent) 2 14 'hostile 0)

@@ -30,7 +30,7 @@
  (opponent)
  '((power-core 1 13)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 (autopilot
  '((1219 Select)

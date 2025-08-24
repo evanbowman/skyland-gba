@@ -17,7 +17,7 @@
 (chr-new (opponent) 2 14 'neutral nil)
 
 
-(flag-show (opponent) 6)
+(flag-show (opponent) flag-id-merchant)
 
 
 (let ((item (sample '(arc-gun flak-gun fire-charge)))

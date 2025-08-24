@@ -65,7 +65,7 @@
        (masonry 4 8 3)
        (shrubbery 4 7))))))
 
-(flag-show (opponent) 1)
+(flag-show (opponent) flag-id-marauder)
 
 
 (chr-new (opponent) 0 14 'neutral 0)

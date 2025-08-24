@@ -47,7 +47,7 @@
    (banana-plant 10 13)))
 
 
-(flag-show (opponent) 7)
+(flag-show (opponent) flag-id-colonist)
 
 
 (let ((pc (filter (car-equalto? 'power-core)  (rooms (player))))

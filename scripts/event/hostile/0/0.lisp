@@ -6,7 +6,7 @@
 (opponent-init 3 'hostile)
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (dialog

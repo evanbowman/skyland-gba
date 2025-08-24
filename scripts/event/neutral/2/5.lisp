@@ -46,5 +46,5 @@
    (hull 7 12)))
 
 
-(flag-show (opponent) 6)
+(flag-show (opponent) flag-id-merchant)
 (chr-new (opponent) 6 11 'neutral 0)

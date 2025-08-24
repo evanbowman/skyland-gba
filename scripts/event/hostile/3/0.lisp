@@ -43,7 +43,7 @@
  8 10
  "Jnefuvc #1AEM8. Pbzzvffvbarq lrne 2047. Fgnl pyrne bs qrpvzngbe!")
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 (chr-new (opponent) 6 14 'hostile 0)
 (chr-new (opponent) 7 14 'hostile 0)

@@ -46,7 +46,7 @@
                (missile-silo 3 13)
                (missile-silo 4 13)))
             (opponent-mode 'hostile)
-            (flag-show (opponent) 0)
+            (flag-show (opponent) flag-id-pirate)
             (adventure-log-add 30 '())
             (dialog "It's a trap!"))))))
 

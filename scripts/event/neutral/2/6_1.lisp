@@ -11,7 +11,7 @@
  "They contact you offering assistance...")
 
 
-(weather-set 6)
+(weather-set weather-id-ash)
 
 
 (opponent-init 10 'neutral)
@@ -20,7 +20,7 @@
  (opponent)
  '((masonry 0 12 3) (masonry 0 14 3) (masonry 0 13 3) (masonry 1 14 3) (masonry 3 14 0) (deflector 3 11) (transporter 3 12) (masonry 4 14 3) (reactor 4 11) (masonry 5 14 3) (masonry 6 12 0) (power-core 6 13) (deflector 6 11) (masonry 8 14 3) (masonry 9 14 3) (masonry 9 13 3) (masonry 9 12 3)))
 
-(flag-show (opponent) 1)
+(flag-show (opponent) flag-id-marauder)
 
 
 (defn on-converge ()

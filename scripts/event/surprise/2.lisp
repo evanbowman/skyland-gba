@@ -9,4 +9,4 @@
 
 (adventure-log-add 65 '())
 
-(weather-set 8)
+(weather-set weather-id-solar-storm)

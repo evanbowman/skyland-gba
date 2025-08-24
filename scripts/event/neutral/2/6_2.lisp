@@ -37,7 +37,7 @@
    (bronze-hull 9 14)))
 
 
-(flag-show (opponent) 36)
+(flag-show (opponent) flag-id-sylph)
 
 (defn on-fadein ()
   (foreach (lambda (room)

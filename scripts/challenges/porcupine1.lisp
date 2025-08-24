@@ -89,11 +89,11 @@
    (stacked-hull 6 5)))
 
 (chr-new (opponent) 5 14 'hostile 0)
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (defn on-victory ()
   (challenge-complete 5))
 
 
-(weather-set 3)
+(weather-set weather-id-rain)

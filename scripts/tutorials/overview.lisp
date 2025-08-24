@@ -18,7 +18,7 @@
  '((power-core 1 13)
    (missile-silo 0 13)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 ;; Captured with a keylogger that I hacked into playerP1.cpp (commented out)

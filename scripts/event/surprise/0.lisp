@@ -12,5 +12,5 @@
         "also sheltering from the storm, "
         "emerges from the murk...")
 
-(weather-set 6)
+(weather-set weather-id-ash)
 (adventure-log-add 56 nil)

@@ -71,7 +71,7 @@
 (opponent-init (get conf 1) 'hostile)
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (island-configure

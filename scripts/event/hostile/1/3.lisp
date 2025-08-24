@@ -26,7 +26,7 @@
    (cannon 0 14)
    (cannon 0 13)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 (chr-new (opponent) 2 14 'hostile 0)
 (chr-new (opponent) 3 14 'hostile 0)

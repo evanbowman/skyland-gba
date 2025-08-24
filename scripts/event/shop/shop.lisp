@@ -26,7 +26,7 @@
 
 
 
-(flag-show (opponent) 6)
+(flag-show (opponent) flag-id-merchant)
 
 
 ;; The engine only knows how to process a global variable called shop-items, but

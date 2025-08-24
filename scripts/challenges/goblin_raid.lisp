@@ -106,7 +106,7 @@
    (hull 7 9)))
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (foreach
@@ -121,4 +121,4 @@
    (7 . 12)))
 
 
-(weather-set 3)
+(weather-set weather-id-rain)

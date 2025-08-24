@@ -121,4 +121,4 @@
    (mycelium 8 12)))
 
 
-(weather-set 3)
+(weather-set weather-id-rain)

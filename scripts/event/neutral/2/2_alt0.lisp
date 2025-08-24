@@ -13,7 +13,7 @@
 
 (opponent-mode 'neutral)
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (let ((val (+ 1000 (choice 800))))

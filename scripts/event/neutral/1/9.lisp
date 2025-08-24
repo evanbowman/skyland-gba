@@ -39,7 +39,7 @@
 
 (secret 6 14 "yes no")
 
-(flag-show (opponent) 4)
+(flag-show (opponent) flag-id-old-empire)
 
 
 (defn on-converge ()

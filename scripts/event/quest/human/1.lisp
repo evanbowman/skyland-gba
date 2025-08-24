@@ -37,7 +37,7 @@
    (masonry 7 14)))
 
 
-(flag-show (opponent) 5)
+(flag-show (opponent) flag-id-banana)
 
 
 (secret

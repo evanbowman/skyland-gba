@@ -23,7 +23,7 @@
    (hull 2 12)
    (hull 1 13)))
 
-(flag-show (opponent) 1)
+(flag-show (opponent) flag-id-marauder)
 
 
 (defn on-converge ()

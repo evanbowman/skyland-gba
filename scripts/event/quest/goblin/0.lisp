@@ -14,7 +14,7 @@
  (opponent)
  '((hull 0 11 60) (cannon 0 14) (cannon 0 12) (hull 0 13 60) (hull 1 9 60) (hull 1 14) (hull 1 10) (hull 1 11 60) (hull 1 13) (hull 1 12 60) (hull 2 9 60) (workshop 2 10) (masonry 2 14 0) (workshop 2 12) (masonry 3 14 3) (chaos-core 4 12) (hull 4 9) (power-core 4 10) (missile-silo 5 8) (plundered-room 6 10) (plundered-room 6 12) (masonry 6 14 2) (missile-silo 6 8) (crane 7 11) (masonry 7 14 0) (masonry 7 13 0) (hull 7 10) (shrubbery 7 9) (hull 8 14) (hull 8 13) (hull 8 10) (hull 9 14) (banana-plant 9 10)))
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (setq on-converge

@@ -8,7 +8,7 @@
   "<b:/scripts/data/img/goblin_queen_close.img.bin> "
  "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew warns that those who refuse her demands rarely survive to regret it...")
 
-(weather-set 3)
+(weather-set weather-id-rain)
 
 (opponent-init 9 'hostile)
 
@@ -75,7 +75,7 @@
    (mycelium 8 9)))
 
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (foreach

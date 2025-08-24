@@ -43,7 +43,7 @@
    (mycelium 6 10)
    (mycelium 6 9)))
 
-(flag-show (opponent) 4)
+(flag-show (opponent) flag-id-old-empire)
 
 
 (defn on-converge ()

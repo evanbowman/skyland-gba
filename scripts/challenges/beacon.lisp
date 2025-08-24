@@ -114,7 +114,7 @@
 
 (click (opponent) 4 12)
 
-(weather-set 3)
+(weather-set weather-id-rain)
 
 
 (foreach

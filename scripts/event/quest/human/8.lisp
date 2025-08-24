@@ -9,7 +9,7 @@
  "An unknown island appears in the moonlight. <B:0>"
  "You almost ran right into it! Upon contacting them, you find the inhabitants in a heated discussion...")
 
-(weather-set 7)
+(weather-set weather-id-night)
 
 (opponent-init 10 'neutral)
 

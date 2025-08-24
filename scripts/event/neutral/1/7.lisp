@@ -40,7 +40,7 @@
    (masonry 8 13 0)
    (masonry 8 14 0)))
 
-(flag-show (opponent) 7)
+(flag-show (opponent) flag-id-colonist)
 
 
 (defn on-converge ()

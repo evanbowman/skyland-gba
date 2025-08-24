@@ -32,7 +32,7 @@
   (fire-new (opponent) 0 10)
   (setq on-fadein nil))
 
-(flag-show (opponent) 7)
+(flag-show (opponent) flag-id-colonist)
 
 
 (chr-new (opponent) 1 12 'neutral '((race . 1)))

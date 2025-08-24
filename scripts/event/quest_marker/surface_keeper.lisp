@@ -49,7 +49,7 @@
         (exit)))))
 
 
-(weather-set 6)
+(weather-set weather-id-ash)
 
 (opponent-init 6 'neutral)
 

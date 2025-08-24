@@ -36,7 +36,7 @@
 
 (opponent-mode 'neutral)
 
-(flag-show (opponent) 0)
+(flag-show (opponent) flag-id-pirate)
 
 
 (defn on-converge ()

@@ -16,7 +16,7 @@
 
 (secret 4 14 "Because they're highly reclusive and technologically advanced, many myths exist about the Sylph. But they're only human...")
 
-(flag-show (opponent) 36)
+(flag-show (opponent) flag-id-sylph)
 
 
 (let ((id (lookup 6 qvar))
