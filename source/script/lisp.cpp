@@ -244,6 +244,9 @@ struct Context
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
 
+    const char* external_constant_tab_ = nullptr;
+    u32 external_constant_tab_size_;
+
     NativeInterface native_interface_;
 
     int string_intern_pos_ = 0;
@@ -1949,6 +1952,8 @@ void lint(Value* expr, Value* variable_list)
                         return;
                     }
                     is_special_form = true;
+                } else if (str_eq(name, "defconstant")) {
+                    is_special_form = true;
                 }
 
                 auto fn = get_var(fn_sym);
@@ -2221,7 +2226,8 @@ Value* lint_code(CharSequence& code)
                                   }
                               });
                 } else if (str_eq(invoke->symbol().name(), "setfn") or
-                           str_eq(invoke->symbol().name(), "set-temp")) {
+                           str_eq(invoke->symbol().name(), "set-temp") or
+                           str_eq(invoke->symbol().name(), "defconstant")) {
                     auto pair = get_list(reader_result, 1);
                     if (pair->type() == Value::Type::cons) {
                         auto sym = pair->cons().cdr();
@@ -3563,6 +3569,32 @@ static void eval_macro(Value* code)
 }
 
 
+static void eval_defconstant(Value* code)
+{
+    if (code->cons().car()->type() not_eq lisp::Value::Type::symbol) {
+        // FIXME!
+        PLATFORM.fatal("invalid defconstant syntax!");
+    }
+
+    if (bound_context->external_constant_tab_) {
+        // We will load the value from our constant table, so there's no need to
+        // do anything when we encounter a defconstant line.
+    } else {
+        // We don't have an external constant table defined. Instead, we'll need
+        // to load the variable into memory.
+        eval(code->cons().cdr()->cons().car()); // The constant value...
+
+        // TODO: load and check for a precomputed constant table, and don't
+        // store values in memory.
+        set_var(code->cons().car(), get_op0(), true);
+
+        pop_op(); // eval result.
+    }
+
+    push_op(get_nil());
+}
+
+
 static void eval_if(Value* code)
 {
     if (code->type() not_eq Value::Type::cons) {
@@ -3738,6 +3770,13 @@ void eval(Value* code)
                 return;
             } else if (str_eq(form->symbol().name(), "while")) {
                 eval_while(code->cons().cdr());
+                auto result = get_op0();
+                pop_op();
+                pop_op();
+                push_op(result);
+                return;
+            } else if (str_eq(form->symbol().name(), "defconstant")) {
+                eval_defconstant(code->cons().cdr());
                 auto result = get_op0();
                 pop_op();
                 pop_op();
@@ -3976,6 +4015,16 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
 
     get_env(handle_completion);
     get_interns(handle_completion);
+
+    if (bound_context->external_constant_tab_) {
+        u32 i = 0;
+        for (; i < bound_context->external_constant_tab_size_;) {
+            const char* name = bound_context->external_constant_tab_ + i;
+            handle_completion(name);
+            i += 64;
+        }
+    }
+
 }
 
 
@@ -6233,6 +6282,19 @@ Value* get_var(Value* symbol)
         return fn;
     }
 
+    // Ok, and as a final step, let's look for any builtin constants, if the
+    // system is running with a precomputed constant table.
+    if (bound_context->external_constant_tab_) {
+        u32 i = 0;
+        for (; i < bound_context->external_constant_tab_size_;) {
+            const char* name = bound_context->external_constant_tab_ + i;
+            if (str_eq(name, symbol->symbol().name())) {
+                return dostring(name + 32);
+            }
+            i += 64;
+        }
+    }
+
     StringBuffer<31> hint("[var: ");
     hint += symbol->symbol().name();
     hint += "]";
@@ -6324,7 +6386,8 @@ void gc()
 }
 
 
-void init(Optional<std::pair<const char*, u32>> external_symtab)
+void init(Optional<std::pair<const char*, u32>> external_symtab,
+          Optional<std::pair<const char*, u32>> external_constant_tab)
 {
     if (bound_context) {
         return;
@@ -6341,6 +6404,11 @@ void init(Optional<std::pair<const char*, u32>> external_symtab)
     if (external_symtab and external_symtab->second) {
         bound_context->external_symtab_contents_ = external_symtab->first;
         bound_context->external_symtab_size_ = external_symtab->second;
+    }
+
+    if (external_constant_tab and external_constant_tab->second) {
+        bound_context->external_constant_tab_ = external_constant_tab->first;
+        bound_context->external_constant_tab_size_ = external_constant_tab->second;
     }
 
     auto& ctx = bound_context;

@@ -41,7 +41,7 @@
 
 
 (defn on-converge ()
-  (let ((bloc (if (equal (difficulty) 0)
+  (let ((bloc (if (equal (difficulty) difficulty-beginner)
                   'dynamite
                 'dynamite-ii)))
     (let ((pos 2)

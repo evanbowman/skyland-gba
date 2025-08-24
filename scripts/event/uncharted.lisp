@@ -9,7 +9,7 @@
 
 
 (let ((prob (get '(26 10 8) (difficulty)))          ; Chance of surprise event occurring.
-      (lvs (difference surprises-seen (range 3))))  ; List of available surprise events.
+      (lvs (difference surprises-seen (range surprise-count))))
 
   (if (and lvs
            (not (has-dialog?))

@@ -2685,7 +2685,8 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 {
     msg("lisp init...");
 
-    lisp::init(PLATFORM.load_file("", "/lisp_symtab.dat"));
+    lisp::init(PLATFORM.load_file("", "/lisp_symtab.dat"),
+               PLATFORM.load_file("", "/lisp_constant_tab.dat"));
 
     msg("export api...");
 

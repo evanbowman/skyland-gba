@@ -17,7 +17,7 @@
 (opponent-init 7 'hostile)
 (run-util-script "clone-isle" (player) (opponent))
 
-(when (< (difficulty) 2)
+(when (< (difficulty) difficulty-hard)
   (foreach (lambda (room)
              ;; Don't make the player fight a ship with atomic warheads unless
              ;; we're in hard mode.

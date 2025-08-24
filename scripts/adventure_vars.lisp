@@ -33,7 +33,7 @@
         (setq adv-var-set (bit-or adv-var-set mask)))))
 
 
-(if (equal (difficulty) 0)
+(if (equal (difficulty) difficulty-beginner)
     (setvar "powerdown_allowed" 1)
     (setvar "powerdown_allowed" 0))
 

@@ -2746,7 +2746,8 @@ void Platform::fatal(const char* msg)
 
     show_default_scrn();
 
-    lisp::init(PLATFORM.load_file("", "/lisp_symtab.dat"));
+    lisp::init(PLATFORM.load_file("", "/lisp_symtab.dat"),
+               PLATFORM.load_file("", "/lisp_constant_tab.dat"));
 
     auto show_verbose_msg = [&] {
         irqEnable(IRQ_VBLANK);

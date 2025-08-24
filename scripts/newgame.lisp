@@ -22,7 +22,8 @@
 
 (flag-show (player) 0)
 
-(coins-set (if (equal (difficulty) 0) 4000 2500))
+
+(coins-set (if (equal (difficulty) difficulty-beginner) 4000 2500))
 
 
 (terrain-set (player) 4)
@@ -33,7 +34,7 @@
  '((power-core 1 13)))
 
 
-(when (equal (difficulty) 0)
+(when (equal (difficulty) difficulty-beginner)
   (terrain-set (player) 5)
   (island-configure
    (player)

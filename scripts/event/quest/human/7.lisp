@@ -83,7 +83,7 @@
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))
-          (bloc (if (equal (difficulty) 0)
+          (bloc (if (equal (difficulty) difficulty-beginner)
                     'dynamite
                   'dynamite-ii)))
       (if m

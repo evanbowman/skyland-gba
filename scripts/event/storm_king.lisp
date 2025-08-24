@@ -91,11 +91,11 @@
    (hull 12 7)))
 
 
-(when (> (difficulty) 1)
+(when (> (difficulty) difficulty-normal)
   (eval-file "/scripts/event/storm_king_hard.lisp"))
 
 
-(if (> (difficulty) 1)
+(if (> (difficulty) difficulty-normal)
     (let ((s (filter (lambda (xy)
                        (> (second xy) 10))
                      (chr-slots (opponent)))))

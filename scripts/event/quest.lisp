@@ -6,7 +6,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(let ((opts (range 9)))
+(let ((opts (range quest-count)))
 
   (let ((lv 0)
         (lvs

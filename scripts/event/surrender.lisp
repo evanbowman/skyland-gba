@@ -8,7 +8,7 @@
   (cond
    ((equal c 0)
     (eval-file (string p "crew.lisp")))
-   ((and (equal c 1) (equal (difficulty) 0))
+   ((and (equal c 1) (equal (difficulty) difficulty-beginner))
     (eval-file (string p "crew.lisp")))
    (true
     (if (chance 3)
