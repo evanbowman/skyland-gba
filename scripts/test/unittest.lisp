@@ -441,6 +441,21 @@
 (end-test)
 
 
+(begin-test "constants")
+
+(defconstant test-const 5)
+(assert-eq test-const 5)
+
+;; NOTE: you may initialize a constant with a runtime expression, but if you do,
+;; that runtime expression will be evaluated every time that the constant is
+;; accessed. Arguably, this behavior makes constants not really constant, but
+;; it's needed to allow constant definition in terms of other constants.
+(defconstant test-const-2 (string (* test-const 2)))
+(assert-eq test-const-2 "10")
+
+(end-test)
+
+
 
 (assert-v (bound? 'begin-test))
 (assert-v (bound? 'end-test))

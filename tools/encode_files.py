@@ -28,6 +28,7 @@ def build_lisp_constant_tab(codestring):
         symbol = codestring[sym_start:i]
         while i < len(codestring) and codestring[i].isspace():
             i += 1
+        # Extract constant value (handle expressions with parens)
         const_start = i
         if i < len(codestring) and codestring[i] == '"':
             # Handle quoted strings
@@ -36,7 +37,20 @@ def build_lisp_constant_tab(codestring):
                 i += 1
             if i < len(codestring):
                 i += 1
+        elif i < len(codestring) and codestring[i] == '(':
+            # Handle parenthesized expressions
+            paren_count = 0
+            while i < len(codestring):
+                if codestring[i] == '(':
+                    paren_count += 1
+                elif codestring[i] == ')':
+                    paren_count -= 1
+                    if paren_count == 0:
+                        i += 1
+                        break
+                i += 1
         else:
+            # Handle unquoted atomic values
             while i < len(codestring) and not codestring[i].isspace() and codestring[i] != ')':
                 i += 1
         constant = codestring[const_start:i]

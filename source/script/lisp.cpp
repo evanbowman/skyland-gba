@@ -2259,8 +2259,10 @@ Value* lint_code(CharSequence& code)
 Value* dostring(const char* code)
 {
     BasicCharSequence cs(code);
-    return dostring(
-        cs, [](Value&) { Platform::fatal("fatal error in dostring..."); });
+    return dostring(cs, [](Value& err) {
+        Platform::fatal(::format("fatal error in dostring: %",
+                                 val_to_string<86>(&err).c_str()));
+    });
 }
 
 
