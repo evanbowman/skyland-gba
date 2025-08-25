@@ -4026,7 +4026,6 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
             i += 64;
         }
     }
-
 }
 
 
@@ -6410,7 +6409,8 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     if (external_constant_tab and external_constant_tab->second) {
         bound_context->external_constant_tab_ = external_constant_tab->first;
-        bound_context->external_constant_tab_size_ = external_constant_tab->second;
+        bound_context->external_constant_tab_size_ =
+            external_constant_tab->second;
     }
 
     auto& ctx = bound_context;
