@@ -244,17 +244,15 @@ with open('fs.bin', 'wb') as filesystem:
     with open(consttab_path, 'wb') as const_file:
         for sym, v in lisp_constant_tab.items():
             enc_sym = sym.encode('utf-8')
-            const_file.write(enc_sym)
-            for i in range(len(enc_sym), 31):
-                const_file.write('\0'.encode('utf-8'))
-            const_file.write('\0'.encode('utf-8'))
             enc_constant = v.encode('utf-8')
+            const_file.write((len(enc_sym) + 1).to_bytes(1, 'little'))
+            const_file.write((len(enc_constant) + 1).to_bytes(1, 'little'))
+            const_file.write(enc_sym)
+            const_file.write('\0'.encode('utf-8'))
             const_file.write(enc_constant)
-            if len(enc_constant) > 30:
-                raise Error("constant value " + enc_constant + " for constant " + enc_sym + " exceeds 31 bytes!")
-            for i in range(len(enc_constant), 31):
-                const_file.write('\0'.encode('utf-8'))
-            const_file.write('\n'.encode('utf-8'))
+            const_file.write('\0'.encode('utf-8'))
+            if len(enc_constant) > 255:
+                raise Error("constant value " + enc_constant + " for constant " + enc_sym + " exceeds 255 bytes!")
 
     encode_file(consttab_path, "/" + consttab_fname, filesystem)
     print("constant tab count: %d" % len(lisp_constant_tab))

@@ -3988,6 +3988,13 @@ Value* gensym()
 }
 
 
+struct ConstantTabEntryHeader
+{
+    u8 field_size_;
+    u8 value_size_;
+};
+
+
 void apropos(const char* match, Vector<const char*>& completion_strs)
 {
     StringBuffer<16> ident(match);
@@ -4021,9 +4028,12 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
     if (bound_context->external_constant_tab_) {
         u32 i = 0;
         for (; i < bound_context->external_constant_tab_size_;) {
-            const char* name = bound_context->external_constant_tab_ + i;
+            auto ptr = bound_context->external_constant_tab_ + i;
+            u8 field_size = ((ConstantTabEntryHeader*)ptr)->field_size_;
+            u8 value_size = ((ConstantTabEntryHeader*)ptr)->value_size_;
+            const char* name = ptr + sizeof(ConstantTabEntryHeader);
             handle_completion(name);
-            i += 64;
+            i += sizeof(ConstantTabEntryHeader) + field_size + value_size;
         }
     }
 }
@@ -6288,11 +6298,14 @@ Value* get_var(Value* symbol)
     if (bound_context->external_constant_tab_) {
         u32 i = 0;
         for (; i < bound_context->external_constant_tab_size_;) {
-            const char* name = bound_context->external_constant_tab_ + i;
+            auto ptr = bound_context->external_constant_tab_ + i;
+            u8 name_size = ((ConstantTabEntryHeader*)ptr)->field_size_;
+            u8 value_size = ((ConstantTabEntryHeader*)ptr)->value_size_;
+            const char* name = ptr + sizeof(ConstantTabEntryHeader);
             if (str_eq(name, symbol->symbol().name())) {
-                return dostring(name + 32);
+                return dostring(ptr + sizeof(ConstantTabEntryHeader) + name_size);
             }
-            i += 64;
+            i += sizeof(ConstantTabEntryHeader) + name_size + value_size;
         }
     }
 
