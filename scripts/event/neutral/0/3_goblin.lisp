@@ -74,8 +74,8 @@
           (dialog-opts-push "Take by force."
                             (lambda ()
                               (adventure-log-add 71 (list (rinfo 'name item)))
-                              (dialog "<c:scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss...")
-                              (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengence.lisp") ;; TODO: Fix for the misspelled file name. [recte /scripts/event/hostile/scavenger-vengeance.lisp]
+                              (dialog "<c:Scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss...")
+                              (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengeance.lisp")
                               (setq on-dialog-closed
                                     (place-items item "The goblins storm off, swearing vengeance..."))))
           (dialog-opts-push "Decline offer." on-dialog-declined)

@@ -417,8 +417,8 @@ void Character::record_stats()
     if (owner() not_eq &APP.player()) {
         // Don't bother with opponent stats, as they aren't displayed
         // anyway. But... maybe displaying stats for enemies might be fun?
-        // e.g. if a goblin killed one of your crew, knowing which goblin it was
-        // would allow your crew to exact vengence on that goblin...
+        // E.g. if a goblin killed one of your crew, knowing which goblin it was
+        // would allow your crew to exact vengeance on that goblin...
         return;
     }
     time_stream::event::CharacterStatsChanged e;
@@ -458,7 +458,7 @@ void Character::update(Time delta, Room* room)
                 const ColorMix fake_blend{sky_tone, 128};
                 // GBA hardware blending stacks blend intensities. Fake a blend
                 // effect by mixing the background sky color into the character
-                // color. This is far from perfect, as the crewmemmber sprite
+                // color. This is far from perfect, as the crewmember sprite
                 // isn't actually translucent, but looks better than the
                 // alternative.
                 sprite_.set_mix(fake_blend);
@@ -528,7 +528,7 @@ void Character::update(Time delta, Room* room)
             }
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
-                // is grid-based
+                // is grid-based.
                 sprite_.set_position(o);
             } else {
                 timer_ += delta;
@@ -1078,7 +1078,7 @@ void Character::update_attack(Time delta)
         if (auto chr = get_opponent()) {
             chr->apply_damage(4);
             if (get_race() == Race::dog) {
-                // Dog deals some extra damage
+                // Dog deals some extra damage.
                 chr->apply_damage(2);
             }
             if (chr->health() <= 0) {
@@ -1183,7 +1183,7 @@ void Character::movement_step(Time delta, Room* current_room)
         auto dest = parent_->visual_origin();
         dest.x += Fixnum::from_integer(dest_grid_pos.x * 16);
         dest.y += Fixnum::from_integer(dest_grid_pos.y * 16 -
-                                       3); // floor is two pixels thick
+                                       3); // Floor is two pixels thick.
 
         if (current_room and current_room->cast<Portal>()) {
             if (auto d = parent()->get_room(dest_grid_pos)) {
@@ -1312,7 +1312,7 @@ void Character::rewind_movement_step(const RoomCoord& new_pos)
 void Character::heal(int amount)
 {
     if (is_replicant_) {
-        // Replicants cannot heal
+        // Replicants cannot heal.
         return;
     }
 
@@ -1459,7 +1459,7 @@ std::pair<Character*, Room*> Character::find_by_id(CharacterId id)
 
 const char* Character::name() const
 {
-    // feature removed...
+    // Feature removed...
 
     return nullptr;
 }
@@ -1501,13 +1501,13 @@ void Character::update_favorite_room_stat(Room* room)
         }
     }
 
-    // Increment current room counter
+    // Increment current room counter.
     stats_->current_room_.counter_.set(stats_->current_room_.counter_.get() +
                                        1);
 
     auto current_count = stats_->current_room_.counter_.get();
 
-    // Check if current room should be promoted to highest_room_ array
+    // Check if current room should be promoted to highest_room_ array.
     for (int i = 0; i < 3; ++i) {
         if (stats_->highest_room_[i].metaclass_index_ == current_mt) {
             // Update existing entry
@@ -1523,7 +1523,7 @@ void Character::update_favorite_room_stat(Room* room)
         }
     }
 
-    // Room not in highest_room_ array, check if it should be inserted
+    // Room not in highest_room_ array, check if it should be inserted.
     if (current_count > stats_->highest_room_[2].counter_.get()) {
         stats_->highest_room_[2] = stats_->current_room_;
         // Bubble up
