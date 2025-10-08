@@ -1,7 +1,6 @@
 ;;;
-;;; hostile/scavenger-vengence.lisp [sic]
+;;; hostile/scavenger-vengeance.lisp
 ;;;
-;;; TODO: Fix for the misspelled file name. [recte hostile/scavenger-vengeance.lisp]
 
 (dialog "A heavily armed goblin vessel emerges from the clouds, weapons already charging... <B:0> You recognize the distinctive markings on their hull - these are the same scavengers you robbed earlier! <B:0> They've returned with reinforcements and better equipment, eager for revenge...")
 

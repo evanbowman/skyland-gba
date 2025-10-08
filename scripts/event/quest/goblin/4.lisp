@@ -4,7 +4,7 @@
 
 
 (dialog
- ;"<b:/scripts/data/img/ceramics.img.bin>" TODO: Insert image from the mentioned link.
+ "<b:/scripts/data/img/ceramics.img.bin>"
  "You encounter a goblin salvage crew hauling up strange artifacts through a break in the clouds. Your crew recognizes them as valuable relics from the surface wars...")
 
 
@@ -108,5 +108,5 @@
 
     (setq on-dialog-declined
           (lambda ()
-            (dialog "<c:scavenger:34>Argh, off with you then!")
+            (dialog "<c:Scavenger:34>Argh, off with you then!")
             (setq on-dialog-closed exit)))))

@@ -10,7 +10,7 @@
      "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!")
     (defn on-dialog-closed ()
       (dialog
-       "<c:Goblin King:3>Heh. Well, this complicatesss things... hahahahaha!")
+       "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!")
       (setq on-dialog-closed nil))))
 
 
@@ -50,7 +50,7 @@
               (setq hint (apply string hint))
 
               (dialog "<c:Goblin King:3>NO! WRONG!! "
-                      "The island is sssinking and some blocksss remain! "
+                      "The island is sssinking and sssome blocksss remain! "
                       hint)
               (setq skip 1)
               (exit 3)))
