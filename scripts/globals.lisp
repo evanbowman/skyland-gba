@@ -57,3 +57,7 @@
 (defconstant flag-id-merchant 6)
 (defconstant flag-id-colonist 7)
 (defconstant flag-id-sylph 36)
+
+(defconstant faction-enable-human-mask (bit-shift-left 1 0))
+(defconstant faction-enable-goblin-mask (bit-shift-left 1 1))
+(defconstant faction-enable-sylph-mask (bit-shift-left 1 2))
