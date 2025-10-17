@@ -358,7 +358,7 @@ public:
         PLATFORM.load_background_texture(
             APP.environment().background_texture());
 
-        message("booting...", false);
+        message("conversion, software vn. 7.0", false);
 
         APP.init_scripts([&](const char* text) { message(text); });
 
