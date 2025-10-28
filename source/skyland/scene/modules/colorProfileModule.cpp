@@ -80,6 +80,16 @@ void ColorProfileModule::exit(Scene& next)
 
 
 
+void ColorProfileModule::bind_default()
+{
+    auto cached_sel = sel_;
+    sel_ = 0;
+    bind_selected_profile();
+    sel_ = cached_sel;
+}
+
+
+
 void ColorProfileModule::bind_selected_profile()
 {
     auto v = lisp::get_list(*options_, sel_);
@@ -122,6 +132,16 @@ ScenePtr ColorProfileModule::update(Time delta)
     auto test_key = [&](Key k) {
         return player().test_key(k, milliseconds(500), milliseconds(100));
     };
+
+    if (player().key_down(Key::alt_2) or player().key_down(Key::alt_1)) {
+        bind_default();
+    } else if (player().key_up(Key::alt_2) or player().key_up(Key::alt_1)) {
+        if (not (player().key_pressed(Key::alt_2) or player().key_pressed(Key::alt_1))) {
+            bind_selected_profile();
+        }
+    } else if (player().key_pressed(Key::alt_2) or player().key_pressed(Key::alt_1)) {
+        return null_scene();
+    }
 
     if (test_key(Key::down)) {
         if (sel_ < (int)text_.size() - 1) {

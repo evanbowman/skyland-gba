@@ -60,7 +60,11 @@ private:
     int sel_ = 0;
     int last_sel_ = -1;
 
+    Optional<Key> preview_key_;
+
     void bind_selected_profile();
+
+    void bind_default();
 
     static Factory factory_;
 };

@@ -7435,16 +7435,18 @@ static const Platform::Extensions extensions{
             const auto c =
                 invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
             if (l == Layer::map_0_ext) {
-                tilesheet_0_palette[index] = Color(color).bgr_hex_555();
-                MEM_BG_PALETTE[index] = blend(color, c, last_fade_amt);
+                auto corrected_color = agb_color_correction(Color(color));
+                tilesheet_0_palette[index] = corrected_color.bgr_hex_555();
+                MEM_BG_PALETTE[index] = blend(corrected_color.hex(), c, last_fade_amt);
             }
         },
     .override_sprite_palette =
         [](u8 index, ColorConstant color) {
             const auto c = invoke_shader(
                 real_color(last_color), ShaderPalette::spritesheet, 0);
-            sprite_alt_palette[index] = Color(color).bgr_hex_555();
-            MEM_PALETTE[32 + index] = blend(color, c, last_fade_amt);
+            auto corrected_color = agb_color_correction(Color(color));
+            sprite_alt_palette[index] = corrected_color.bgr_hex_555();
+            MEM_PALETTE[32 + index] = blend(corrected_color.hex(), c, last_fade_amt);
         },
     .__test_compare_sound =
         [](const char* name) {
