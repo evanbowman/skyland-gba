@@ -82,8 +82,19 @@ public:
             if (++beam_count_ < 10) {
                 auto c = APP.alloc_entity<Beam>(
                     position_, target_, source_, origin_tile_, beam_count_);
+
                 if (c) {
-                    source_->projectiles().push(std::move(c));
+                    if (beam_count_ == 1) {
+                        source_->projectiles().push(std::move(c));
+                    } else {
+                        // As an optimization, only the first element in the
+                        // beam effect actually deals damage. Because the other
+                        // beam segments do not deal damage, they can be pushed
+                        // to a different entity queue containing visual
+                        // effects, which does not waste cpu on collision
+                        // checking for beam segments that don't deal damage.
+                        APP.effects().push(std::move(c));
+                    }
                 }
 
             } else {

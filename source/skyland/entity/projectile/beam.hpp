@@ -61,6 +61,15 @@ public:
     void on_collision(Entity&) override;
 
 
+    bool entity_oom_deletable() const override
+    {
+        // Some beam segments are just visual effects and don't deal damage, but
+        // we don't want the beam effect to be erased for lower priority
+        // explosion effects, for example.
+        return false;
+    }
+
+
 private:
     void destroy(bool explosion) override;
 
