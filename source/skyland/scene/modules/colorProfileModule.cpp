@@ -136,10 +136,12 @@ ScenePtr ColorProfileModule::update(Time delta)
     if (player().key_down(Key::alt_2) or player().key_down(Key::alt_1)) {
         bind_default();
     } else if (player().key_up(Key::alt_2) or player().key_up(Key::alt_1)) {
-        if (not (player().key_pressed(Key::alt_2) or player().key_pressed(Key::alt_1))) {
+        if (not(player().key_pressed(Key::alt_2) or
+                player().key_pressed(Key::alt_1))) {
             bind_selected_profile();
         }
-    } else if (player().key_pressed(Key::alt_2) or player().key_pressed(Key::alt_1)) {
+    } else if (player().key_pressed(Key::alt_2) or
+               player().key_pressed(Key::alt_1)) {
         return null_scene();
     }
 

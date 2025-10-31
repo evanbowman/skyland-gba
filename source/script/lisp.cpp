@@ -6303,7 +6303,8 @@ Value* get_var(Value* symbol)
             u8 value_size = ((ConstantTabEntryHeader*)ptr)->value_size_;
             const char* name = ptr + sizeof(ConstantTabEntryHeader);
             if (str_eq(name, symbol->symbol().name())) {
-                return dostring(ptr + sizeof(ConstantTabEntryHeader) + name_size);
+                return dostring(ptr + sizeof(ConstantTabEntryHeader) +
+                                name_size);
             }
             i += sizeof(ConstantTabEntryHeader) + name_size + value_size;
         }

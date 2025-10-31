@@ -7437,7 +7437,8 @@ static const Platform::Extensions extensions{
             if (l == Layer::map_0_ext) {
                 auto corrected_color = agb_color_correction(Color(color));
                 tilesheet_0_palette[index] = corrected_color.bgr_hex_555();
-                MEM_BG_PALETTE[index] = blend(corrected_color.hex(), c, last_fade_amt);
+                MEM_BG_PALETTE[index] =
+                    blend(corrected_color.hex(), c, last_fade_amt);
             }
         },
     .override_sprite_palette =
@@ -7446,7 +7447,8 @@ static const Platform::Extensions extensions{
                 real_color(last_color), ShaderPalette::spritesheet, 0);
             auto corrected_color = agb_color_correction(Color(color));
             sprite_alt_palette[index] = corrected_color.bgr_hex_555();
-            MEM_PALETTE[32 + index] = blend(corrected_color.hex(), c, last_fade_amt);
+            MEM_PALETTE[32 + index] =
+                blend(corrected_color.hex(), c, last_fade_amt);
         },
     .__test_compare_sound =
         [](const char* name) {
