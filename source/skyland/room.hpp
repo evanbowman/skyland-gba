@@ -483,7 +483,10 @@ public:
     RoomMeta* metaclass() const;
 
 
-    MetaclassIndex metaclass_index() const;
+    inline MetaclassIndex metaclass_index() const
+    {
+        return metaclass_index_;
+    }
 
 
     const char* name() const;

@@ -155,12 +155,6 @@ RoomMeta* Room::metaclass() const
 
 
 
-MetaclassIndex Room::metaclass_index() const
-{
-    return metaclass_index_;
-}
-
-
 Power Room::power_usage() const
 {
     if (powerdown_) {

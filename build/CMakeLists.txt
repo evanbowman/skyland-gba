@@ -105,7 +105,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/console.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
-  ${SOURCE_DIR}/skyland/minimap.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/dataCart.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
@@ -256,6 +255,7 @@ set(SOURCES
 add_library(FASTPATH
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/island.cpp
+  ${SOURCE_DIR}/skyland/minimap.cpp
   ${SOURCE_DIR}/skyland/rooms/ice.cpp
   ${SOURCE_DIR}/skyland/rooms/tnt.cpp
   ${SOURCE_DIR}/skyland/rooms/bell.cpp

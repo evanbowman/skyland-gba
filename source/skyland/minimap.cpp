@@ -290,15 +290,14 @@ void repaint(const Settings& settings)
 
         for (auto& room : APP.player_island().rooms()) {
             auto pos = room->position();
-            auto mt = room->metaclass();
+            auto mt = &room_metatable().first[room->metaclass_index()];
             auto category = (*mt)->category();
             const auto sz = room->size();
 
             u8 base_clr;
             switch (category) {
             case Room::Category::wall:
-                if ((*mt)->properties() &
-                    RoomProperties::accepts_ion_damage) {
+                if ((*mt)->properties() & RoomProperties::accepts_ion_damage) {
                     base_clr = color_el_blue_index;
                 } else {
                     base_clr = color_gray_index;
@@ -313,6 +312,8 @@ void repaint(const Settings& settings)
                 base_clr = color_tan_index;
                 break;
             }
+
+            const auto group = room->group();
 
             for (u8 x = pos.x; x < pos.x + sz.x; ++x) {
                 for (u8 y = pos.y; y < pos.y + sz.y; ++y) {
@@ -337,9 +338,8 @@ void repaint(const Settings& settings)
                     if (category == Room::Category::weapon and
                         ((settings.weapon_loc_ and
                           *settings.weapon_loc_ == Vec2<u8>{x, y}) or
-                         (room->group() not_eq Room::Group::none and
-                          settings.group_ and
-                          room->group() == (*settings.group_)) or
+                         (group not_eq Room::Group::none and settings.group_ and
+                          group == (*settings.group_)) or
                          is_selected({x, y}))) {
                         bool found = false;
                         for (auto& wpn : weapons) {
@@ -353,11 +353,11 @@ void repaint(const Settings& settings)
                         }
                     }
 
-                    bool wpn_match = ((settings.weapon_loc_ and
-                                       *settings.weapon_loc_ == Vec2<u8>{x, y}) or
-                                      (room->group() not_eq Room::Group::none and
-                                       settings.group_ and
-                                       room->group() == *settings.group_));
+                    bool wpn_match =
+                        ((settings.weapon_loc_ and
+                          *settings.weapon_loc_ == Vec2<u8>{x, y}) or
+                         (group not_eq Room::Group::none and settings.group_ and
+                          group == *settings.group_));
 
                     for (int xx = 0; xx < 3; ++xx) {
                         for (int yy = 0; yy < 3; ++yy) {
@@ -393,7 +393,7 @@ void repaint(const Settings& settings)
         APP.with_opponent_island([&](auto& isle) {
             for (auto& room : isle.rooms()) {
                 auto pos = room->position();
-                auto mt = room->metaclass();
+                auto mt = &room_metatable().first[room->metaclass_index()];
                 auto category = (*mt)->category();
                 const auto sz = room->size();
 
