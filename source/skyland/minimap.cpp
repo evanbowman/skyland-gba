@@ -67,28 +67,6 @@ static u8 minimap_width()
 
 
 
-static Platform::EncodedTile encode_small_tile(u8 tile_data[16][16])
-{
-    Platform::EncodedTile t;
-    u8* out = t.bytes_;
-
-    u8 temp = 0;
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            if (j % 2) {
-                temp |= tile_data[j][i] << 4;
-                *(out++) = temp;
-            } else {
-                temp = tile_data[j][i] & 0xff;
-            }
-        }
-    }
-
-    return t;
-}
-
-
-
 void move(u8 new_y_anchor)
 {
     hide();
@@ -720,13 +698,24 @@ void repaint(const Settings& settings)
     u16 tile = minimap_start_tile;
     for (int y = 0; y < 5; ++y) {
         for (int x = 0; x < width; ++x) {
-            Platform::TilePixels td;
-            for (int xx = 0; xx < 8; ++xx) {
-                for (int yy = 0; yy < 8; ++yy) {
-                    td.data_[xx][yy] = pixel_buffer[x * 8 + xx][y * 8 + yy];
+
+            Platform::EncodedTile t;
+            u8* out = t.bytes_;
+
+            u8 temp = 0;
+            for (int i = 0; i < 8; ++i) {
+                for (int j = 0; j < 8; ++j) {
+                    auto p = pixel_buffer[x * 8 + j][y * 8 + i];
+                    if (j % 2) {
+                        temp |= p << 4;
+                        *(out++) = temp;
+                    } else {
+                        temp = p & 0xff;
+                    }
                 }
             }
-            PLATFORM.overwrite_overlay_tile(tile, encode_small_tile(td.data_));
+
+            PLATFORM.overwrite_overlay_tile(tile, t);
             tile++;
         }
     }
