@@ -35,6 +35,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "ext_workram_data.hpp"
 
 
 
@@ -74,9 +75,14 @@ void Island::init_terrain(int width, bool render)
 }
 
 
+EXT_WORKRAM_DATA RoomMatrix player_room_matrix;
+EXT_WORKRAM_DATA RoomMatrix opponent_room_matrix;
+
 
 Island::Island(Layer layer, u8 width, Player& owner)
-    : owner_(&owner), layer_(layer), timer_(0),
+    : owner_(&owner),
+      rooms_(owner_ == &APP.opponent() ? &opponent_room_matrix : &player_room_matrix),
+      layer_(layer), timer_(0),
       flag_anim_index_(Tile::flag_start), interior_visible_(false),
       show_flag_(false), dispatch_cancelled_(false), schedule_repaint_(false),
       schedule_repaint_partial_(false), has_radar_(false), is_boarded_(false),
@@ -1333,6 +1339,16 @@ void Island::test_collision(Entity& entity)
         return;
     }
 
+    Vec2<Fixnum> hitbox_pos = this->origin();
+    HitBox island_hitbox;
+    island_hitbox.position_ = &hitbox_pos;
+    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
+    island_hitbox.dimension_.size_.y = 16 * 16;
+
+    if (not island_hitbox.overlapping(entity.hitbox())) {
+        return;
+    }
+
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
     auto entity_pos = ivec((entity.sprite().get_position() - this->origin()));
@@ -1370,18 +1386,10 @@ void Island::test_collision(Entity& entity)
         }
     }
 
-    Vec2<Fixnum> hitbox_pos = this->origin();
-    HitBox island_hitbox;
-    island_hitbox.position_ = &hitbox_pos;
-    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
-    island_hitbox.dimension_.size_.y = 16 * 16;
-
-    if (island_hitbox.overlapping(entity.hitbox())) {
-        for (auto& drone_sp : drones_) {
-            if (entity.hitbox().overlapping((drone_sp)->hitbox())) {
-                entity.on_collision(*drone_sp);
-                (drone_sp)->on_collision(entity);
-            }
+    for (auto& drone_sp : drones_) {
+        if (entity.hitbox().overlapping((drone_sp)->hitbox())) {
+            entity.on_collision(*drone_sp);
+            (drone_sp)->on_collision(entity);
         }
     }
 }

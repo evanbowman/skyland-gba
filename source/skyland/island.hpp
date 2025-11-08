@@ -36,7 +36,6 @@ public:
     Island(Layer layer, u8 width, Player& owner);
     Island(const Island&) = delete;
 
-
     using Rooms = RoomTable<92, 16>;
 
 

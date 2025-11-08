@@ -335,6 +335,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                 for (auto& room : island_->rooms()) {
                     room->set_hidden(false);
                 }
+                island_->rooms().reindex(true);
             }
 
             auto st = calc_screen_tiles();

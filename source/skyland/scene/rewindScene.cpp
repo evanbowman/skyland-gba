@@ -603,8 +603,13 @@ ScenePtr RewindScene::update(Time)
             for (auto& room : APP.player_island().rooms()) {
                 room->set_hidden(false);
             }
-            for (auto& room : APP.opponent_island()->rooms()) {
-                room->set_hidden(false);
+            APP.player_island().rooms().reindex(true);
+
+            if (APP.opponent_island()) {
+                for (auto& room : APP.opponent_island()->rooms()) {
+                    room->set_hidden(false);
+                }
+                APP.opponent_island()->rooms().reindex(true);
             }
             APP.time_stream().pop(sizeof *e);
             break;
