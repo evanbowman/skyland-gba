@@ -403,6 +403,7 @@ public:
 
                 room->__unsafe__transmute(upgrade_to_);
                 room->parent()->rooms().reindex(true);
+                room->parent()->recalculate_power_usage();
 
                 APP.set_coins(APP.coins() - cost_);
                 APP.level_coins_spent() += cost_;
@@ -679,6 +680,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
 
                 room->__unsafe__transmute(upgrade_to_[upgrade_index_]);
                 room->parent()->rooms().reindex(true);
+                room->parent()->recalculate_power_usage();
 
                 APP.set_coins(APP.coins() - cost);
                 APP.level_coins_spent() += cost;
