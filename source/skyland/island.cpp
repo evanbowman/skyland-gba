@@ -14,6 +14,7 @@
 #include "entity/explosion/explosion.hpp"
 #include "entity/misc/smokePuff.hpp"
 #include "entity/projectile/projectile.hpp"
+#include "ext_workram_data.hpp"
 #include "globals.hpp"
 #include "latency.hpp"
 #include "minimap.hpp"
@@ -35,7 +36,6 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "ext_workram_data.hpp"
 
 
 
@@ -80,13 +80,12 @@ EXT_WORKRAM_DATA RoomMatrix opponent_room_matrix;
 
 
 Island::Island(Layer layer, u8 width, Player& owner)
-    : owner_(&owner),
-      rooms_(owner_ == &APP.opponent() ? &opponent_room_matrix : &player_room_matrix),
-      layer_(layer), timer_(0),
-      flag_anim_index_(Tile::flag_start), interior_visible_(false),
-      show_flag_(false), dispatch_cancelled_(false), schedule_repaint_(false),
-      schedule_repaint_partial_(false), has_radar_(false), is_boarded_(false),
-      hidden_(false)
+    : owner_(&owner), rooms_(owner_ == &APP.opponent() ? &opponent_room_matrix
+                                                       : &player_room_matrix),
+      layer_(layer), timer_(0), flag_anim_index_(Tile::flag_start),
+      interior_visible_(false), show_flag_(false), dispatch_cancelled_(false),
+      schedule_repaint_(false), schedule_repaint_partial_(false),
+      has_radar_(false), is_boarded_(false), hidden_(false)
 {
     init_terrain(width, false);
 }

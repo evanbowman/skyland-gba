@@ -56,7 +56,7 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::sylph_only |
+               RoomProperties::sylph_only | RoomProperties::oversize_explosion |
                RoomProperties::manufactory_required |
                RoomProperties::multiboot_compatible;
     }

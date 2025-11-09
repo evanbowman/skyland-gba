@@ -28,8 +28,7 @@ struct RoomMatrix
 template <u32 room_count, int map_width> class RoomTable
 {
 public:
-    RoomTable(RoomMatrix* data) :
-        data_(data)
+    RoomTable(RoomMatrix* data) : data_(data)
     {
         reindex(true);
     }
@@ -155,8 +154,12 @@ public:
             if (room->hidden()) {
                 continue;
             }
-            for (int x = room->position().x; x < room->position().x + room->size().x; ++x) {
-                for (int y = room->position().y; y < room->position().y + room->size().y; ++y) {
+            for (int x = room->position().x;
+                 x < room->position().x + room->size().x;
+                 ++x) {
+                for (int y = room->position().y;
+                     y < room->position().y + room->size().y;
+                     ++y) {
                     if (x < 16 and y < 16) {
                         data_->data_[x][y] = room.get();
                     }

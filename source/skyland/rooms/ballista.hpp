@@ -56,7 +56,8 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::multiboot_compatible |
-               RoomProperties::only_constructible_in_sandbox;
+               RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::oversize_explosion;
     }
 
 

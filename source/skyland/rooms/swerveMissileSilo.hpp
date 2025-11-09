@@ -103,6 +103,7 @@ public:
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::only_constructible_in_sandbox |
                RoomProperties::disabled_in_tutorials |
+               RoomProperties::oversize_explosion |
                RoomProperties::multiplayer_unsupported;
     }
 

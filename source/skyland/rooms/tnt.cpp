@@ -217,7 +217,7 @@ void Explosive::ignite(int range, Health damage, bool spread_fire)
     make_flak_smoke(center());
     make_flak_smoke(center());
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 3; ++i) {
         if (auto e =
                 alloc_entity<ExploTrail>(center(),
                                          rng::choice<360>(rng::utility_state),

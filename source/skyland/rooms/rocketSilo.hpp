@@ -105,6 +105,7 @@ public:
                RoomProperties::manufactory_required |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::multiboot_compatible |
+               RoomProperties::oversize_explosion |
                RoomProperties::multiplayer_unsupported;
     }
 

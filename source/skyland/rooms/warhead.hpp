@@ -99,6 +99,7 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::only_constructible_in_sandbox |
+               RoomProperties::oversize_explosion |
                RoomProperties::disabled_in_tutorials;
     }
 

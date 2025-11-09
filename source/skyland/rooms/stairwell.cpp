@@ -10,10 +10,13 @@
 
 
 #include "stairwell.hpp"
+#include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/entity/explosion/exploTrail.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/upgradePromptScene.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -95,6 +98,16 @@ void Stairwell::finalize()
         ExploSpawner::create(pos);
         pos.y -= 32.0_fixed;
         ExploSpawner::create(pos);
+
+        if (rng::choice<2>(rng::utility_state)) {
+            if (auto e = alloc_entity<ExploTrail>(
+                    center(),
+                    rng::choice<360>(rng::utility_state),
+                    1.25_fixed,
+                    seconds(2))) {
+                APP.effects().push(std::move(e));
+            }
+        }
     }
 }
 
