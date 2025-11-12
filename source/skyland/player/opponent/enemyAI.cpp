@@ -14,6 +14,7 @@
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/latency.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/arcGun.hpp"
@@ -37,7 +38,6 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/scene/constructionScene.hpp"
-#include "skyland/minimap.hpp"
 #include "skyland/skyland.hpp"
 
 

@@ -29,6 +29,7 @@
 #include "rooms/weapon.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/ghost.hpp"
 #include "skyland/rooms/canvas.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -897,6 +898,7 @@ void Island::update(Time dt)
             medium_explosion((*it)->sprite().get_position());
 
             minimap::schedule_repaint();
+            ExploSpawner::create((*it)->sprite().get_position());
             it = drones_.erase(it);
         } else {
             (*it)->update(dt);

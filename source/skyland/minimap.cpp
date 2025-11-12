@@ -455,9 +455,8 @@ void repaint(const Settings& settings)
     };
 
     draw_drones(APP.player_island().drones(), 1, 0);
-    APP.with_opponent_island([&](auto& isle) {
-        draw_drones(isle.drones(), opp_offset, 2);
-    });
+    APP.with_opponent_island(
+        [&](auto& isle) { draw_drones(isle.drones(), opp_offset, 2); });
 
     const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1 - 2;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
