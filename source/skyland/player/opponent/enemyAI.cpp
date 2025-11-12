@@ -37,6 +37,7 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/warhead.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/minimap.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -1272,6 +1273,7 @@ static void place_offensive_drone(DroneBay& db,
             (*drone)->set_movement_target(*ideal_coord);
             db.attach_drone(*drone);
             player_island.drones().push(*drone);
+            minimap::schedule_repaint();
         }
     } else {
         // ...
@@ -1473,6 +1475,7 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
                         (*drone)->set_movement_target({x, y});
                         db.attach_drone(*drone);
                         ai_island->drones().push(*drone);
+                        minimap::schedule_repaint();
                         return;
                     }
                 }

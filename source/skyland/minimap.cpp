@@ -431,6 +431,34 @@ void repaint(const Settings& settings)
         save_pixels();
     }
 
+    auto draw_drones = [&](auto& drone_list, int xoff, int x_align) {
+        for (auto& drone : drone_list) {
+            auto cl = color_red_index;
+            if (drone->parent() == &APP.player_island()) {
+                cl = color_green_index;
+            }
+            auto pos = drone->position();
+            auto x = pos.x;
+            auto y = pos.y;
+
+            const int px = x_align;
+
+            pixel_buffer[(x + xoff) * 3 + 0 - px][((y - 3) * 3 + 0) - 2] = cl;
+            pixel_buffer[(x + xoff) * 3 + 1 - px][((y - 3) * 3 + 0) - 2] = cl;
+            pixel_buffer[(x + xoff) * 3 + 2 - px][((y - 3) * 3 + 0) - 2] = cl;
+
+            pixel_buffer[(x + xoff) * 3 + 1 - px][((y - 3) * 3 + 1) - 2] = cl;
+
+            pixel_buffer[(x + xoff) * 3 + 0 - px][((y - 3) * 3 + 2) - 2] = cl;
+            pixel_buffer[(x + xoff) * 3 + 2 - px][((y - 3) * 3 + 2) - 2] = cl;
+        }
+    };
+
+    draw_drones(APP.player_island().drones(), 1, 0);
+    APP.with_opponent_island([&](auto& isle) {
+        draw_drones(isle.drones(), opp_offset, 2);
+    });
+
     const u8 cursor_center_px_x = (cursor_loc.x + opp_offset) * 3 + 1 - 2;
     const u8 cursor_center_px_y = ((cursor_loc.y - 3) * 3) - 2 + 1;
 

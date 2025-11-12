@@ -896,6 +896,7 @@ void Island::update(Time dt)
 
             medium_explosion((*it)->sprite().get_position());
 
+            minimap::schedule_repaint();
             it = drones_.erase(it);
         } else {
             (*it)->update(dt);
