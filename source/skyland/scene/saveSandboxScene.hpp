@@ -21,11 +21,65 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "titleScreenScene.hpp"
+#include "textEntryScene.hpp"
 
 
 
 namespace skyland
 {
+
+
+
+using SandboxNames = Buffer<StringBuffer<16>, 3>;
+
+
+
+inline const char* sb_names_file()
+{
+    return "/save/sb_names.txt";
+}
+
+
+
+inline SandboxNames load_sandbox_names()
+{
+    SandboxNames result;
+
+    Vector<char> data;
+    auto bytes = flash_filesystem::read_file_data_binary(sb_names_file(), data);
+    if (bytes == 0) {
+        result.push_back("sandbox 1");
+        result.push_back("sandbox 2");
+        result.push_back("sandbox 3");
+    } else {
+        StringBuffer<16> name;
+        for (char c : data) {
+            if (c == '\n') {
+                result.emplace_back();
+                result.back() = name;
+                name.clear();
+            } else {
+                name.push_back(c);
+            }
+        }
+    }
+
+    return result;
+}
+
+
+
+inline void store_sandbox_names(const SandboxNames& names)
+{
+    Vector<char> data;
+    for (auto& name : names) {
+        for (char c : name) {
+            data.push_back(c);
+        }
+        data.push_back('\n');
+    }
+    flash_filesystem::store_file_data_binary(sb_names_file(), data);
+}
 
 
 
@@ -37,6 +91,7 @@ public:
         PLATFORM.fill_overlay(0);
         text_.clear();
     }
+
 
     void enter(Scene& prev) override
     {
@@ -59,14 +114,16 @@ public:
         const auto colors =
             FontColors{ColorConstant::indigo_tint, custom_color(0xd9dee6)};
 
+        auto sb_names = load_sandbox_names();
+
         text_.emplace_back(OverlayCoord{2, 5});
-        text_.back().assign("sandbox 1", colors);
+        text_.back().assign(sb_names[0].c_str(), colors);
 
         text_.emplace_back(OverlayCoord{2, 10});
-        text_.back().assign("sandbox 2", colors);
+        text_.back().assign(sb_names[1].c_str(), colors);
 
         text_.emplace_back(OverlayCoord{2, 15});
-        text_.back().assign("sandbox 3", colors);
+        text_.back().assign(sb_names[2].c_str(), colors);
     }
 
 
@@ -161,38 +218,55 @@ public:
 
     virtual ScenePtr on_selected()
     {
-        VectorPrinter p;
-        auto val = APP.invoke_script("/scripts/sandbox/save.lisp");
-        lisp::format(val, p);
+        auto callback = [cursor = cursor_](const char* text_entry) {
 
-        p.data_.push_back('\0');
+            auto sb_names = load_sandbox_names();
+            if (sb_names[cursor] not_eq text_entry) {
+                sb_names[cursor] = text_entry;
+                store_sandbox_names(sb_names);
+            }
 
-        // For debugging purposes: don't compress sandbox data in developer
-        // mode.
-        const bool compress_output = not APP.is_developer_mode();
+            VectorPrinter p;
+            auto val = APP.invoke_script("/scripts/sandbox/save.lisp");
+            lisp::format(val, p);
 
-        flash_filesystem::store_file_data_text(
-            format("/save/sb%.lisp", cursor_).c_str(),
-            p.data_,
-            {.use_compression_ = compress_output});
+            p.data_.push_back('\0');
 
-        synth_notes_store(APP.player_island(),
-                          format("/save/sb%_p_synth.dat", cursor()).c_str());
+            // For debugging purposes: don't compress sandbox data in developer
+            // mode.
+            const bool compress_output = not APP.is_developer_mode();
 
-        speaker_data_store(APP.player_island(),
-                           format("/save/sb%_p_speaker.dat", cursor()).c_str());
+            flash_filesystem::store_file_data_text(
+                                                   format("/save/sb%.lisp", cursor).c_str(),
+                                                   p.data_,
+                                                   {.use_compression_ = compress_output});
+
+            synth_notes_store(APP.player_island(),
+                              format("/save/sb%_p_synth.dat", cursor).c_str());
+
+            speaker_data_store(APP.player_island(),
+                               format("/save/sb%_p_speaker.dat", cursor).c_str());
 
 
-        synth_notes_store(*APP.opponent_island(),
-                          format("/save/sb%_o_synth.dat", cursor()).c_str());
+            synth_notes_store(*APP.opponent_island(),
+                              format("/save/sb%_o_synth.dat", cursor).c_str());
 
-        speaker_data_store(*APP.opponent_island(),
-                           format("/save/sb%_o_speaker.dat", cursor()).c_str());
+            speaker_data_store(*APP.opponent_island(),
+                               format("/save/sb%_o_speaker.dat", cursor).c_str());
 
 
-        PLATFORM.fill_overlay(0);
+            PLATFORM.fill_overlay(0);
 
-        return make_scene<FadeInScene>();
+            return make_scene<FadeInScene>();
+        };
+
+        auto sb_names = load_sandbox_names();
+
+        return make_scene<TextEntryScene>("pick a name?",
+                                          callback,
+                                          1,
+                                          16,
+                                          sb_names[cursor_].c_str());
     }
 
 
