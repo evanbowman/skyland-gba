@@ -773,7 +773,7 @@ public:
     }
 
 
-    using UpgradeList = Buffer<MetaclassIndex, 4>;
+    using UpgradeList = TinyBuffer<MetaclassIndex, 4>;
     virtual Optional<UpgradeList> upgrade_mt_list() const;
 
 

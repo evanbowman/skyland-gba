@@ -367,6 +367,7 @@ void SelectMenuScene::enter(Scene& scene)
                             if (not up or up->empty()) {
                                 return null_scene();
                             }
+                            PLATFORM.speaker().play_sound("openbag", 8);
                             return make_scene<UpgradePromptScene>(
                                 room->position(), room->metaclass_index(), *up);
                         });

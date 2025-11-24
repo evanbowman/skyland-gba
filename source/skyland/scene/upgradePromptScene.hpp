@@ -44,6 +44,9 @@ public:
     void repaint();
 
 
+    void jump_selection(u8 opt);
+
+
 private:
     MetaclassIndex upgrade_from_;
     Room::UpgradeList upgrade_to_;

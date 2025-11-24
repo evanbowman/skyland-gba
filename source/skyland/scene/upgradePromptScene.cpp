@@ -1,5 +1,6 @@
 #include "upgradePromptScene.hpp"
 #include "constructionScene.hpp"
+#include "modules/glossaryViewerModule.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
@@ -112,8 +113,6 @@ void UpgradePromptScene::repaint()
 void UpgradePromptScene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
-
-    PLATFORM.speaker().play_sound("openbag", 8);
 
     persist_ui();
 
@@ -524,6 +523,13 @@ private:
 
 
 
+void UpgradePromptScene::jump_selection(u8 opt)
+{
+    upgrade_index_ = opt;
+}
+
+
+
 ScenePtr UpgradePromptScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
@@ -534,6 +540,27 @@ ScenePtr UpgradePromptScene::update(Time delta)
         return APP.player().test_key(k, milliseconds(500), milliseconds(150));
     };
 
+    if (APP.player().key_down(Key::start)) {
+        auto mt = upgrade_to_[upgrade_index_];
+        auto next = make_scene<GlossaryViewerModule>(mt);
+        next->skip_categories();
+        if (next) {
+            auto coord = target_coord_;
+            auto from = upgrade_from_;
+            auto to = upgrade_to_;
+            u8 index = upgrade_index_;
+            next->set_next_scene([coord, from, to, index] {
+                                     PLATFORM.screen().schedule_fade(0);
+                                     auto next =
+                                         make_scene<UpgradePromptScene>(coord,
+                                                                        from,
+                                                                        to);
+                                     next->jump_selection(index);
+                                     return next;
+                                 });
+            return next;
+        }
+    }
 
     flicker_timer_ += delta;
     if (flicker_timer_ > milliseconds(300)) {
