@@ -85,6 +85,7 @@ public:
 private:
     void load_page(int page);
     void load_drone_page(int page);
+    void load_appendix_page(int page);
 
     void load_categories();
 

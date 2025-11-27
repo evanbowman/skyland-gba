@@ -385,6 +385,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_qr.s
     ${DATA_DIR}/overlay_dialog.s
+    ${DATA_DIR}/appendix.s
     ${DATA_DIR}/overlay_datacart.s
     ${DATA_DIR}/overlay_textview.s
     ${DATA_DIR}/overlay_dialog_fullscreen.s
@@ -812,6 +813,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(colorProfiles 12 7 NO NO)
     add_overlay(flags 2 2 NO NO)
     add_overlay(character_art 4 4 NO NO)
+    add_overlay(appendix 4 4 NO NO)
     add_overlay(paint_icons 2 2 NO NO)
     add_overlay(traded_core 0 0 YES YES)
     add_overlay(photo_village 0 0 YES YES)

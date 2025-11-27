@@ -37,6 +37,80 @@ static const s16 cg_page_count = 2;
 
 
 
+struct AppendixEntry
+{
+    const char* name_;
+    const char* description_;
+    int icon_;
+};
+
+
+
+static const AppendixEntry appendix_entries[] = {
+    {"weather: Rain", "Despite the elevation, rainfall sometimes occurs in Skyland. Reduces solar cell output by 1/2, windmill output doubled! Stay dry out there!", 1},
+    {"weather: Storm", "Reduces solar cell output by 1/2, windmill output doubled! The worst storms seem to follow patterns - almost as if driven by purpose...", 2},
+    {"weather: Snow", "The temperature in these weather systems can drop dramatically. Reduces solar cell output by 1/2, windmill output doubled! Water blocks will freeze solid.", 3},
+    {"weather: Ash", "Beneath the cloud layer lies the surface world, drowned in radioactive ash. It periodically damages exposed areas of your castle... careful!", 4},
+    {"weather: Night", "Solar cell output reduced to zero! The darkness reveals the true extent of the ruined world below - glowing with residual radiation.", 5},
+    {"weather: Solar Storm", "Occurs in rare instances, when you pass under an ozone hole. Solar cell output doubled! Increased damage from fires. Periodic risk of spontaneous fires occurring across your isle...", 6}
+};
+
+
+
+[[maybe_unused]] static const int appendix_entry_count()
+{
+    return (sizeof appendix_entries) / sizeof(AppendixEntry);
+}
+
+
+
+void GlossaryViewerModule::load_appendix_page(int page)
+{
+    item_name_.reset();
+    item_details_.reset();
+
+    for (int x = 0; x < 30; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            PLATFORM.set_tile(Layer::overlay, x, y, 112);
+        }
+    }
+
+    auto entry = appendix_entries[page];
+
+    auto icon = entry.icon_;
+    draw_image(181, 1, 1, 4, 4, Layer::overlay);
+    PLATFORM.load_overlay_chunk(181, icon * 16, 16, "appendix");
+
+    if (not item_name_) {
+        item_name_.emplace(OverlayCoord{6, 1});
+    }
+
+    StringBuffer<30> temp;
+    temp += entry.name_;
+    // temp += " (";
+    // temp += stringify(mt[page]->constructed_size().x);
+    // temp += "x";
+    // temp += stringify(mt[page]->constructed_size().y);
+    // temp += ")";
+
+    item_name_->assign(temp.c_str());
+
+    temp.clear();
+
+    StringBuffer<512> description;
+
+    description = entry.description_;
+
+    if (not item_description_) {
+        item_description_.emplace();
+    }
+
+    item_description_->assign(
+        description.c_str(), OverlayCoord{1, 6}, OverlayCoord{28, 11});
+}
+
+
+
 void GlossaryViewerModule::load_drone_page(int page)
 {
     item_name_.reset();
@@ -475,7 +549,7 @@ s16 GlossaryViewerModule::entries_on_current_page()
     case 0:
         return 7;
     case 1:
-        return 2;
+        return 3;
     }
     return 1;
 }
@@ -601,6 +675,26 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 
     switch (state_) {
     case State::appendix_main:
+        if ((test_key(Key::down) or test_key(Key::right)) and page_ < appendix_entry_count() - 1) {
+            load_appendix_page(++page_);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+        }
+
+        if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
+            load_appendix_page(--page_);
+            PLATFORM.speaker().play_sound("cursor_tick", 0);
+        }
+
+        if (APP.player().key_down(Key::action_2)) {
+            state_ = State::category_transition_in;
+            PLATFORM.fill_overlay(112);
+            PLATFORM.screen().clear();
+            PLATFORM.screen().display();
+            show_category_image(cg_cursor_);
+            PLATFORM.fill_overlay(112);
+            timer_ = 0;
+            page_ = 0;
+        }
         break;
 
     case State::filters:
@@ -807,6 +901,16 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                     load_filters();
                     PLATFORM.screen().schedule_fade(0.5); // wtf? fixme
                     PLATFORM.screen().schedule_fade(1);
+                    break;
+
+                case 2:
+                    for (int x = 0; x < 30; ++x) {
+                        for (int y = 0; y < 20; ++y) {
+                            PLATFORM.set_tile(Layer::overlay, x, y, 112);
+                        }
+                    }
+                    load_appendix_page(0);
+                    state_ = State::appendix_main;
                     break;
                 }
                 break;
