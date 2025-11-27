@@ -11,6 +11,41 @@
 
 #include "string.hpp"
 #include "platform/platform.hpp"
+#include "skyland/sharedVariable.hpp"
+
+
+
+int is_alpha(int c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+
+
+void expand_escape_sequences(const char* str, Function<16, void(char)> on_char)
+{
+    while (*str not_eq '\0') {
+        char c = *str;
+        if (c == '\\') {
+            ++str;
+            if (*str == 'V') {
+                ++str;
+                StringBuffer<64> var;
+                while (*str == '_' or is_alpha(*str)) {
+                    var.push_back(*(str++));
+                }
+                if (auto sv = skyland::SharedVariable::load(var.c_str())) {
+                    for (char c : stringify(sv->get())) {
+                        on_char(std::move(c));
+                    }
+                }
+            }
+        } else {
+            on_char(std::move(c));
+        }
+        ++str;
+    }
+}
 
 
 

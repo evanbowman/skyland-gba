@@ -38,6 +38,10 @@ char* float_to_string(float x, int buffersize, char* p);
 
 
 
+void expand_escape_sequences(const char* str, Function<16, void(char)> on_char);
+
+
+
 // NOTE: Capacity is a holdover from before StringAdapter was a template,
 // originally, the class was backed by a Buffer<>. Eventually maybe I'll
 // refactor out the parameter.

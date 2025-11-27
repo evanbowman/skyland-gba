@@ -50,9 +50,16 @@ static const AppendixEntry appendix_entries[] = {
     {"weather: Rain", "Despite the elevation, rainfall sometimes occurs in Skyland. Reduces solar cell output by 1/2, windmill output doubled! Stay dry out there!", 1},
     {"weather: Storm", "Reduces solar cell output by 1/2, windmill output doubled! The worst storms seem to follow patterns - almost as if driven by purpose...", 2},
     {"weather: Snow", "The temperature in these weather systems can drop dramatically. Reduces solar cell output by 1/2, windmill output doubled! Water blocks will freeze solid.", 3},
-    {"weather: Ash", "Beneath the cloud layer lies the surface world, drowned in radioactive ash. It periodically damages exposed areas of your castle... careful!", 4},
+    {"weather: Ash", "Beneath the cloud layer lies the surface world, drowned in radioactive ash. It periodically deals \\Vdust_storm_damage  damage exposed areas of your castle... careful!", 4},
     {"weather: Night", "Solar cell output reduced to zero! The darkness reveals the true extent of the ruined world below - glowing with residual radiation.", 5},
-    {"weather: Solar Storm", "Occurs in rare instances, when you pass under an ozone hole. Solar cell output doubled! Increased damage from fires. Periodic risk of spontaneous fires occurring across your isle...", 6}
+    {"weather: Solar Storm", "Occurs in rare instances, when you pass under an ozone hole. Solar cell output doubled! Increased damage from fires. Periodic risk of spontaneous fires occurring across your isle...", 6},
+
+    {"faction: Colonial", "Independent settlements that broke away during the chaotic migration to the skies. Each colony governs itself, and maintain cautious neutrality...", 11},
+    {"faction: Goblin Horde", "Humans who remained on the toxic surface too long, transformed by radiation and harsh conditions. Some retain their intelligence and can be reasoned with... carefully.", 12},
+    {"faction: Old Empire",  "Remnants of the pre-migration surface governments. Their automated defenses still patrol certain territories. Few living crew remain aboard these aging fortresses.", 9},
+    {"faction: Second Empire", "Formed in the early years of sky civilization, attempting to reunify scattered humanity under a single banner. Their ambitions have faded as colonies developed distinct identities.", 8},
+    {"faction: Marauder", "A generally unaligned faction of humans, goblins, etc., who, although violent, may ally themselves with you... for the right price.", 7},
+    {"faction: Sylph", "Mountain dwellers who methodically lifted their entire cities skyward before the surface collapsed. They live at high altitudes, rarely interacting with others.", 10},
 };
 
 
@@ -99,7 +106,9 @@ void GlossaryViewerModule::load_appendix_page(int page)
 
     StringBuffer<512> description;
 
-    description = entry.description_;
+    expand_escape_sequences(entry.description_, [&description](char c) {
+        description.push_back(c);
+    });
 
     if (not item_description_) {
         item_description_.emplace();
