@@ -39,11 +39,23 @@ public:
     {
         sprite_.set_texture_index(65);
 
-        health_ = 65;
+        health_ = full_health();
+    }
+
+
+    static Health full_health()
+    {
+        return 65;
     }
 
 
     static const auto reload_time = milliseconds(3000);
+
+
+    static SystemString get_description()
+    {
+        return SystemString::combat_drone_description;
+    }
 
 
     Time reload_time_remaining() const override

@@ -36,6 +36,12 @@ public:
     }
 
 
+    static SystemString get_description()
+    {
+        return SystemString::flak_drone_description;
+    }
+
+
     static const char* get_name()
     {
         return "flak-drone";

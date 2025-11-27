@@ -346,6 +346,11 @@ enum class SystemString {
 
     macro_mode_lock,
 
+    cannon_drone_description,
+    combat_drone_description,
+    repair_drone_description,
+    reconstruction_drone_description,
+    flak_drone_description,
 
     description_annihilator,
     description_crane,
@@ -708,6 +713,10 @@ enum class SystemString {
 
     no_dlc_prompt = filter_end,
     dlc_erase_hint,
+
+    glossary_drones,
+    glossary_projectiles,
+    glossary_appendix,
 
     glossary_workshop_required,
     glossary_manufactory_required,

@@ -277,6 +277,11 @@ wider
 standard
 superflat
 (mode-lock)
+Like a cannon, but in drone form! Can be deployed anywhere around the perimeter of your opponent's fortress.
+A drone specialized in targeting other drones. Combat drones are the only unit that can successfully lock weapons on a drone.
+Repairs blocks in a 3x3 radius around the repair drone, at a rate of 6hp per second. Also puts out fires.
+Select a reconstruction drone to choose a set of blocks to automatically rebuild. The reconstruction drone will spend resources and rebuild the selected blocks for you!
+Like a flak-gun, but as a drone!
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
 Dredging crane, salvage scrap from the flooded world below! Adventure mode only. Usable once per level, during clear weather.
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
@@ -590,6 +595,9 @@ goblin exclusive
 sylph exclusive
 You don't have any DLC installed!
 hold A to erase!
+drones
+attacks
+appendix
 (requires workshop)
 (requires manufactory)
 (not constructible)

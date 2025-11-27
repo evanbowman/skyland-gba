@@ -56,6 +56,12 @@ struct DroneMeta
         virtual u16 unsel_icon() const = 0;
 
 
+        virtual Health full_health() const = 0;
+
+
+        virtual SystemString get_description() const = 0;
+
+
         virtual void configure(/* TODO... */)
         {
         }
@@ -75,6 +81,12 @@ struct DroneMeta
         bool spawn_near() const override
         {
             return T::spawn_near();
+        }
+
+
+        Health full_health() const override
+        {
+            return T::full_health();
         }
 
 
@@ -99,6 +111,12 @@ struct DroneMeta
         Coins cost() const override
         {
             return T::cost();
+        }
+
+
+        SystemString get_description() const override
+        {
+            return T::get_description();
         }
 
 

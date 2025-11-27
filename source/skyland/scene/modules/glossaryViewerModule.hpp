@@ -54,6 +54,9 @@ public:
     }
 
 
+    void display() override;
+
+
     void enter(Scene& prev) override;
 
 
@@ -81,6 +84,7 @@ public:
 
 private:
     void load_page(int page);
+    void load_drone_page(int page);
 
     void load_categories();
 
@@ -101,29 +105,48 @@ private:
 
     void draw_category_line(int line, Text::OptColors = {});
 
+    void show_scrollbar(u8 tile);
+
+    void show_glossary_heading();
+
     enum class State {
         show_categories,
         filters,
         view_filtered,
         view,
+        view_drones,
         quickview,
         exit,
         swap_category_image,
         category_transition_out,
         category_transition_in,
         category_transition_enter,
+        appendix_main,
         fadeout,
     } state_ = State::category_transition_enter;
 
-    int page_ = 0;
-    int cg_cursor_ = 0;
-    int filter_cursor_ = 0;
 
-    int filter_begin_ = 0;
-    int filter_end_ = 0;
+    s16 entries_on_current_page();
 
-    int cover_img_ = 0;
+
+    void show_cg_page_marker();
+
+
+    s16 page_ = 0;
+    s16 cg_cursor_ = 0;
+    s16 cg_scroll_ = 0;
+    s16 cg_page_ = 0;
+    s16 filter_cursor_ = 0;
+
+    s16 filter_begin_ = 0;
+    s16 filter_end_ = 0;
+
+    s16 cover_img_ = 0;
     Time timer_ = 0;
+
+    static const s16 scrollbar_sustain = -256;
+
+    s16 scrollbar_glow_ = -256;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
     Optional<DynamicMemory<FilterBuf>> filter_buf_;

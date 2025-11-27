@@ -35,9 +35,21 @@ public:
     }
 
 
+    static SystemString get_description()
+    {
+        return SystemString::reconstruction_drone_description;
+    }
+
+
     static Coins cost()
     {
         return 0;
+    }
+
+
+    static Health full_health()
+    {
+        return 100;
     }
 
 

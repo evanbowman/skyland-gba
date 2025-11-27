@@ -88,6 +88,12 @@ public:
     }
 
 
+    static Health full_health()
+    {
+        return 40;
+    }
+
+
     void __set_health(Health health)
     {
         health_ = health;

@@ -45,6 +45,12 @@ public:
     }
 
 
+    static SystemString get_description()
+    {
+        return SystemString::cannon_drone_description;
+    }
+
+
     const char* name() const override
     {
         return get_name();

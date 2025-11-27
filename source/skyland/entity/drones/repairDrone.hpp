@@ -31,7 +31,13 @@ public:
         : Drone(get_name(), parent, destination, grid_pos)
     {
         sprite_.set_texture_index(70);
-        health_ = 50;
+        health_ = full_health();
+    }
+
+
+    static Health full_health()
+    {
+        return 50;
     }
 
 
@@ -44,6 +50,12 @@ public:
     static Coins cost()
     {
         return 400;
+    }
+
+
+    static SystemString get_description()
+    {
+        return SystemString::repair_drone_description;
     }
 
 

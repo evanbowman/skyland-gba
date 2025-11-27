@@ -261,7 +261,7 @@ ReconstructionDrone::ReconstructionDrone(Island* parent,
     : Drone(get_name(), parent, destination, grid_pos)
 {
     sprite_.set_texture_index(50);
-    health_ = 100;
+    health_ = full_health();
 }
 
 
