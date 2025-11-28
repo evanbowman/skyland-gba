@@ -50,7 +50,7 @@ static const AppendixEntry appendix_entries[] = {
     {"weather: Rain", "Despite the elevation, rainfall sometimes occurs in Skyland. Reduces solar cell output by 1/2, windmill output doubled! Stay dry out there!", 1},
     {"weather: Storm", "Reduces solar cell output by 1/2, windmill output doubled! The worst storms seem to follow patterns - almost as if driven by purpose...", 2},
     {"weather: Snow", "The temperature in these weather systems can drop dramatically. Reduces solar cell output by 1/2, windmill output doubled! Water blocks will freeze solid.", 3},
-    {"weather: Ash", "Beneath the cloud layer lies the surface world, drowned in radioactive ash. It periodically deals \\Vdust_storm_damage  damage exposed areas of your castle... careful!", 4},
+    {"weather: Ash", "Beneath the cloud layer lies the surface world, drowned in radioactive ash. It periodically deals \\Vdust_storm_damage  damage to exposed areas of your castle... careful!", 4},
     {"weather: Night", "Solar cell output reduced to zero! The darkness reveals the true extent of the ruined world below - glowing with residual radiation.", 5},
     {"weather: Solar Storm", "Occurs in rare instances, when you pass under an ozone hole. Solar cell output doubled! Increased damage from fires. Periodic risk of spontaneous fires occurring across your isle...", 6},
 
@@ -60,6 +60,7 @@ static const AppendixEntry appendix_entries[] = {
     {"faction: Second Empire", "Formed in the early years of sky civilization, attempting to reunify scattered humanity under a single banner. Their ambitions have faded as colonies developed distinct identities.", 8},
     {"faction: Marauder", "A generally unaligned faction of humans, goblins, etc., who, although violent, may ally themselves with you... for the right price.", 7},
     {"faction: Sylph", "Mountain dwellers who methodically lifted their entire cities skyward before the surface collapsed. They live at high altitudes, rarely interacting with others.", 10},
+    {"faction: Merchant", "While merchants would seem to be a decentralized organization, they're in fact tightly controlled by the mining guild, which controls the supply of ore dredged from the surface...", 13}
 };
 
 
