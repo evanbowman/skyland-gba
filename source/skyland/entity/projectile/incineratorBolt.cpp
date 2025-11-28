@@ -67,8 +67,17 @@ void IncineratorBolt::update(Time delta)
     pos = pos + APP.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
-    timer_ += delta;
+    timer2_ += delta;
+    if (timer2_ > milliseconds(60)) {
+        timer2_ -= milliseconds(60);
 
+        auto pos = sprite_.get_position();
+        pos = rng::sample<4>(pos, rng::utility_state);
+
+        if (auto e = alloc_entity<Explosion>(pos)) {
+            APP.effects().push(std::move(e));
+        }
+    }
 
     Island* target;
     if (is_player_island(source_)) {
@@ -80,6 +89,8 @@ void IncineratorBolt::update(Time delta)
     if (target) {
         destroy_out_of_bounds(target);
     }
+
+    timer_ += delta;
 
     if (timer_ > seconds(2)) {
         kill();

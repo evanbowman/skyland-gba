@@ -62,6 +62,7 @@ private:
     void record_destroyed();
 
     Time timer_ = 0;
+    Time timer2_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
 
