@@ -59,8 +59,8 @@ static const AppendixEntry appendix_entries[] = {
     {"faction: Old Empire",  "Remnants of the pre-migration surface governments. Their automated defenses still patrol certain territories. Few living crew remain aboard these aging fortresses.", 9},
     {"faction: Second Empire", "Formed in the early years of sky civilization, attempting to reunify scattered humanity under a single banner. Their ambitions have faded as colonies developed distinct identities.", 8},
     {"faction: Marauder", "A generally unaligned faction of humans, goblins, etc., who, although violent, may ally themselves with you... for the right price.", 7},
+    {"faction: Merchant", "While merchants would seem to be a decentralized organization, they're in fact tightly controlled by the mining guild, which controls the supply of ore dredged from the surface...", 13},
     {"faction: Sylph", "Mountain dwellers who methodically lifted their entire cities skyward before the surface collapsed. They live at high altitudes, rarely interacting with others.", 10},
-    {"faction: Merchant", "While merchants would seem to be a decentralized organization, they're in fact tightly controlled by the mining guild, which controls the supply of ore dredged from the surface...", 13}
 };
 
 
