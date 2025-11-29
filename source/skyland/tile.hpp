@@ -341,6 +341,9 @@ struct Tile
         overdrive_core_1,
         overdrive_core_2,
         tuning_crystal,
+        particle_lance_1,
+        particle_lance_2,
+        particle_lance_3,
         count
     };
 };
@@ -664,6 +667,9 @@ struct InteriorTile
         overdrive_core_1,
         overdrive_core_2,
         tuning_crystal,
+        particle_lance_1,
+        particle_lance_2,
+        particle_lance_3,
         count
     };
 };

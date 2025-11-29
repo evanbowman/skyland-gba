@@ -66,6 +66,7 @@
                     manufactory
                     incinerator
                     warhead
+                    particle-lance
                     beam-gun
                     deflector
                     splitter)))

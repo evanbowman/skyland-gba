@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2023 Evan Bowman
+// Copyright (c) 2025 Evan Bowman
 //
 // This Source Code Form is subject to the terms of the Mozilla Public License,
 // v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -24,28 +24,24 @@ namespace skyland
 
 
 
-class SparkCannon final : public Room
+class ParticleLance final : public Room
 {
 public:
-    SparkCannon(Island* parent, const RoomCoord& position);
+    ParticleLance(Island* parent, const RoomCoord& position);
 
 
-    static int default_health()
-    {
-        return 200;
-    }
+    void render_interior(App* app, TileId buffer[16][16]) override;
+    void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    static int default_cost()
-    {
-        return 2500;
-    }
+    ScenePtr select_impl(const RoomCoord& cursor) override;
 
 
-    static int default_power()
-    {
-        return 30;
-    }
+    void update(Time delta) override;
+    void rewind(Time delta) override;
+
+
+    void display(Platform::Screen&) override;
 
 
     static WeaponOrientation weapon_orientation()
@@ -54,18 +50,10 @@ public:
     }
 
 
-    void render_interior(App* app, TileId buffer[16][16]) override;
-    void render_exterior(App* app, TileId buffer[16][16]) override;
-
-
-    void on_lightning() override;
-    void on_lightning_rewind() override;
-
-
-    void ___rewind___finished_reload() override;
-
-
     static void format_description(StringBuffer<512>& buffer);
+
+
+    void project_damage(Health damage);
 
 
     static Category category()
@@ -77,11 +65,9 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::disabled_in_tutorials |
+               RoomProperties::multiboot_compatible |
                RoomProperties::oversize_explosion |
-               RoomProperties::multiplayer_unsupported |
-               RoomProperties::locked_by_default |
-               RoomProperties::manufactory_required;
+               RoomProperties::only_constructible_in_sandbox;
     }
 
 
@@ -93,25 +79,28 @@ public:
 
     static Vec2<u8> size()
     {
-        return {2, 1};
+        return {3, 1};
     }
+
+
+    void finalize() override;
 
 
     static const char* name()
     {
-        return "spark-cannon";
+        return "particle-lance";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_spark_cannon;
+        return SystemString::block_particle_lance;
     }
 
 
     static ATP atp_value()
     {
-        return 900.0_atp;
+        return 2000.0_atp;
     }
 
 
@@ -124,31 +113,21 @@ public:
 
     static Icon icon()
     {
-        return 3672;
+        return 4344;
     }
 
 
     static Icon unsel_icon()
     {
-        return 3656;
+        return 4328;
     }
 
-
-    ScenePtr select_impl(const RoomCoord& cursor) override;
-
-
-    Time reload_time_remaining() const override
-    {
-        return seconds(level_) - 1;
-    }
-
-    u8 level() const
-    {
-        return level_;
-    }
+    Health dmg_count_ = 0;
+    bool active_ = false;
 
 private:
-    u8 level_ = 0;
+    Time timer_ = 0;
+    u8 flicker_cyc_ = 0;
 };
 
 

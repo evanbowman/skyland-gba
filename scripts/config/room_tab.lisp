@@ -26,6 +26,7 @@
   (rocket-bomb  200 2600 30)
   (missile-silo 200 1400 30)
   (warhead      80 5500 10)
+  (particle-lance 150 5000 10)
   (decimator    140 3300 160)
   (phase-shifter 30 4000 150)
   (stairwell    60  500  0)

@@ -65,6 +65,7 @@
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/overdriveCore.hpp"
 #include "skyland/rooms/palm.hpp"
+#include "skyland/rooms/particleLance.hpp"
 #include "skyland/rooms/phaseShifter.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/portal.hpp"
@@ -293,7 +294,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<8,
+using RoomMetatableType = RoomMetatable<7,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -320,6 +321,7 @@ using RoomMetatableType = RoomMetatable<8,
                                         SparkCannon,
                                         Incinerator,
                                         BeamGun,
+                                        ParticleLance,
                                         Ballista,
                                         MissileSilo,
                                         RocketSilo,

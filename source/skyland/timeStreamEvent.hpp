@@ -223,6 +223,8 @@ enum Type : u8 {
     phase_shifter_state_change,
 
     room_width_adjusted,
+
+    particle_lance_destroyed,
 };
 
 
@@ -292,6 +294,20 @@ struct CanvasBlockDestroyed
     u8 data_[sizeof(img::Image)];
 
     static constexpr const auto t = Type::canvas_block_destroyed;
+};
+
+
+
+struct ParticleLanceDestroyed
+{
+    Header header_;
+    bool active_;
+    bool near_;
+    host_u16 accum_dmg_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    static constexpr const auto t = Type::particle_lance_destroyed;
 };
 
 

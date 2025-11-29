@@ -95,6 +95,7 @@ enum class SystemString {
     block_bulkhead_door,
     block_cannon,
     block_cargo_bay,
+    block_particle_lance,
     block_phase_shifter,
     block_power_core,
     block_portal,
@@ -441,6 +442,7 @@ enum class SystemString {
     description_bridge,
     description_overdrive_core,
     description_tuning_crystal,
+    description_particle_lance,
 
     gs_paused,
     gs_slow,

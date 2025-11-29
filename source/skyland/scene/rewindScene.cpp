@@ -37,6 +37,7 @@
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/particleLance.hpp"
 #include "skyland/rooms/phaseShifter.hpp"
 #include "skyland/rooms/weapon.hpp"
 #include "skyland/skyland.hpp"
@@ -1975,6 +1976,26 @@ ScenePtr RewindScene::update(Time)
                 if (auto room = isle->get_room({e->room_x_, e->room_y_})) {
                     room->adjust_width(e->prev_width_ - room->size().x);
                     isle->schedule_repaint();
+                }
+            }
+
+            APP.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::particle_lance_destroyed: {
+            auto e = (time_stream::event::ParticleLanceDestroyed*)end;
+
+            Island* isle =
+                e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (isle) {
+                if (auto room = isle->get_room({e->x_, e->y_})) {
+                    if (auto l = room->cast<ParticleLance>()) {
+                        l->active_ = e->active_;
+                        l->dmg_count_ = e->accum_dmg_.get();
+                    }
                 }
             }
 

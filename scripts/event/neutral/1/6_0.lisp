@@ -95,6 +95,7 @@
                                           decimator
                                           rocket-bomb
                                           warhead
+                                          particle-lance
                                           incinerator)))))
 
                 (room-mut (player) (get c 1) (get c 2) 'backup-core)
