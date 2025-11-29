@@ -22,7 +22,7 @@
 
     (island-configure
      (player)
-     '((bronze-hull 0 9) (power-core 0 10) (phase-shifter 0 12) (reactor 1 12) (bronze-hull 1 8) (bronze-hull 1 9) (bronze-hull 2 9) (workshop 2 10) (bronze-hull 2 8) (forcefield 3 7) (reactor 3 12) (missile-silo 3 8) (bulkhead-door 4 10) (bronze-hull 4 9) (bronze-hull 4 8) (ballista 5 12) (bronze-hull 5 10) (bronze-hull 5 9) (portal 5 14) (amplifier 5 13) (portal 5 11) (sylph-cannon 6 13) (sylph-cannon 6 14) (bronze-hull 6 10) (deflector 6 11) (forcefield 8 14) (forcefield* 8 13) (forcefield 8 12) (forcefield* 8 11) (forcefield 8 10)))
+     '((power-core 0 10) (bronze-hull 0 9) (phase-shifter 0 12) (bronze-hull 0 8) (missile-silo 1 8) (reactor 1 12) (forcefield 1 7) (particle-lance 2 9) (workshop 2 10) (bronze-hull 2 8) (reactor 3 12) (bronze-hull 3 8) (bulkhead-door 4 10) (bronze-hull 4 8) (portal 5 11) (bronze-hull 5 8) (bronze-hull 5 10) (portal 5 14) (amplifier 5 13) (ballista 5 12) (sylph-cannon 6 13) (sylph-cannon 6 14) (bronze-hull 6 10) (deflector 6 11) (bronze-hull 6 9) (forcefield 8 14) (forcefield* 8 13) (forcefield 8 12) (forcefield* 8 11) (forcefield 8 10)))
 
     (terrain-set (player) 9)
 
