@@ -16,6 +16,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 
 
 
@@ -430,6 +431,7 @@ void Decimator::finalize()
 
     if (health() <= 0) {
         ExploSpawner::create(center());
+        dramatic_explosion(center());
     }
 }
 

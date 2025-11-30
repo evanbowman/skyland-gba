@@ -298,4 +298,35 @@ void big_explosion_inv(const Vec2<Fixnum>& position)
 
 
 
+void dramatic_explosion(const Vec2<Fixnum>& position)
+{
+    auto first = APP.alloc_entity<ExpFlash>(
+        rng::sample<24>(position, rng::utility_state));
+
+    if (first) {
+        APP.effects().push(std::move(first));
+    }
+
+    APP.on_timeout(milliseconds(60), [pos = position]() {
+        APP.rumble().activate(milliseconds(200));
+
+        auto second = APP.alloc_entity<ExpFlash>(
+            rng::sample<24>(pos, rng::utility_state));
+        if (second) {
+            APP.effects().push(std::move(second));
+        }
+
+        APP.on_timeout(milliseconds(120), [pos = pos]() {
+            auto third = APP.alloc_entity<ExpFlash>(
+                rng::sample<36>(pos, rng::utility_state));
+
+            if (third) {
+                APP.effects().push(std::move(third));
+            }
+        });
+    });
+}
+
+
+
 } // namespace skyland

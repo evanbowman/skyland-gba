@@ -130,5 +130,7 @@ void big_explosion(const Vec2<Fixnum>& position,
 void big_explosion_inv(const Vec2<Fixnum>& position);
 
 
+void dramatic_explosion(const Vec2<Fixnum>& position);
+
 
 } // namespace skyland
