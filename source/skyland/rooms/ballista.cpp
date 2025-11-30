@@ -80,7 +80,7 @@ public:
     }
 
 
-    void on_collision(Room& r, Vec2<u8> origin)
+    void on_collision(Room& r, Vec2<u8> origin) override
     {
         if (r.parent() == parent_ and is_forcefield(r.metaclass())) {
             return;

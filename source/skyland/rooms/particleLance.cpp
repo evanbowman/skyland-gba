@@ -110,6 +110,13 @@ void ParticleLance::finalize()
         }
     }
 
+    on_destroy();
+}
+
+
+
+void ParticleLance::on_destroy()
+{
     time_stream::event::ParticleLanceDestroyed e;
     e.active_ = active_;
     e.accum_dmg_.set(dmg_count_);
@@ -117,6 +124,13 @@ void ParticleLance::finalize()
     e.x_ = position().x;
     e.y_ = position().y;
     APP.push_time_stream(e);
+}
+
+
+
+void ParticleLance::on_salvage()
+{
+    on_destroy();
 }
 
 

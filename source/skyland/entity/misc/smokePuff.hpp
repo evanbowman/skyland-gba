@@ -54,7 +54,7 @@ public:
     }
 
 
-    void rewind(Time delta)
+    void rewind(Time delta) override
     {
         // In some older code I was accidentally updating effects twice per
         // frame. Multiply delta x2 until I get around to fixing all the timers.
@@ -88,7 +88,7 @@ public:
     }
 
 
-    void update(Time delta)
+    void update(Time delta) override
     {
         delta *= 2;
         timer_ += delta;

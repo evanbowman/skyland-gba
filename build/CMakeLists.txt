@@ -350,6 +350,7 @@ add_library(FASTPATH
 
 target_compile_options(FASTPATH PRIVATE
   -O3
+  -Wsuggest-override
   ${G_COMPILE_FLAGS})
 
 
@@ -368,6 +369,7 @@ target_compile_options(LISP PRIVATE
   -g
   -O3 # Script execution is a bit of a bottleneck
   -fno-rtti
+  -Wsuggest-override
   ${G_COMPILE_FLAGS})
 
 

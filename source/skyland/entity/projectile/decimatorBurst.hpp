@@ -58,7 +58,7 @@ public:
     int burst_index_ = 0;
 
 
-    DecimatorBurst* cast_decimator_burst()
+    DecimatorBurst* cast_decimator_burst() override
     {
         return this;
     }

@@ -117,6 +117,12 @@ public:
     }
 
 
+    void on_salvage() override;
+
+
+    void on_destroy();
+
+
     static Icon unsel_icon()
     {
         return 4328;

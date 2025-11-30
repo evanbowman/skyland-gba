@@ -133,7 +133,7 @@ public:
     void detach_drone(bool quiet) override;
 
 
-    Time reload_interval() const;
+    Time reload_interval() const override;
 
 
     void start_reload()

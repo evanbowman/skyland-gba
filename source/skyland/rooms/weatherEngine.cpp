@@ -48,7 +48,7 @@ public:
     }
 
 
-    void enter(Scene& prev)
+    void enter(Scene& prev) override
     {
         ActiveWorldScene::enter(prev);
 
@@ -62,7 +62,7 @@ public:
     }
 
 
-    void exit(Scene& next)
+    void exit(Scene& next) override
     {
         ActiveWorldScene::exit(next);
 
@@ -80,7 +80,7 @@ public:
     }
 
 
-    ScenePtr update(Time delta)
+    ScenePtr update(Time delta) override
     {
         ActiveWorldScene::update(delta);
 
