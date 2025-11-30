@@ -11,12 +11,12 @@
 
 #include "decimator.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/entity/explosion/explosion.hpp"
 
 
 

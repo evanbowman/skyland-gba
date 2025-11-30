@@ -550,14 +550,11 @@ ScenePtr UpgradePromptScene::update(Time delta)
             auto to = upgrade_to_;
             u8 index = upgrade_index_;
             next->set_next_scene([coord, from, to, index] {
-                                     PLATFORM.screen().schedule_fade(0);
-                                     auto next =
-                                         make_scene<UpgradePromptScene>(coord,
-                                                                        from,
-                                                                        to);
-                                     next->jump_selection(index);
-                                     return next;
-                                 });
+                PLATFORM.screen().schedule_fade(0);
+                auto next = make_scene<UpgradePromptScene>(coord, from, to);
+                next->jump_selection(index);
+                return next;
+            });
             return next;
         }
     }

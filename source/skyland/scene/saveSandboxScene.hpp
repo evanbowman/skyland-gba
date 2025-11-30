@@ -20,8 +20,8 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
-#include "titleScreenScene.hpp"
 #include "textEntryScene.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -219,7 +219,6 @@ public:
     virtual ScenePtr on_selected()
     {
         auto callback = [cursor = cursor_](const char* text_entry) {
-
             auto sb_names = load_sandbox_names();
             if (sb_names[cursor] not_eq text_entry) {
                 sb_names[cursor] = text_entry;
@@ -237,22 +236,24 @@ public:
             const bool compress_output = not APP.is_developer_mode();
 
             flash_filesystem::store_file_data_text(
-                                                   format("/save/sb%.lisp", cursor).c_str(),
-                                                   p.data_,
-                                                   {.use_compression_ = compress_output});
+                format("/save/sb%.lisp", cursor).c_str(),
+                p.data_,
+                {.use_compression_ = compress_output});
 
             synth_notes_store(APP.player_island(),
                               format("/save/sb%_p_synth.dat", cursor).c_str());
 
-            speaker_data_store(APP.player_island(),
-                               format("/save/sb%_p_speaker.dat", cursor).c_str());
+            speaker_data_store(
+                APP.player_island(),
+                format("/save/sb%_p_speaker.dat", cursor).c_str());
 
 
             synth_notes_store(*APP.opponent_island(),
                               format("/save/sb%_o_synth.dat", cursor).c_str());
 
-            speaker_data_store(*APP.opponent_island(),
-                               format("/save/sb%_o_speaker.dat", cursor).c_str());
+            speaker_data_store(
+                *APP.opponent_island(),
+                format("/save/sb%_o_speaker.dat", cursor).c_str());
 
 
             PLATFORM.fill_overlay(0);
@@ -262,11 +263,8 @@ public:
 
         auto sb_names = load_sandbox_names();
 
-        return make_scene<TextEntryScene>("pick a name?",
-                                          callback,
-                                          1,
-                                          16,
-                                          sb_names[cursor_].c_str());
+        return make_scene<TextEntryScene>(
+            "pick a name?", callback, 1, 16, sb_names[cursor_].c_str());
     }
 
 

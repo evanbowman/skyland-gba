@@ -847,6 +847,8 @@ enum class SystemString {
     flag_designer_presets,
     flag_designer_flood,
 
+    ignite_dynamite_prompt,
+
     the_end,
 
     flag,

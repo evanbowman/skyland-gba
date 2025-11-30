@@ -12,14 +12,14 @@
 #include "particleLance.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/explosion/exploSpawner.hpp"
+#include "skyland/entity/explosion/exploTrail.hpp"
 #include "skyland/entity/misc/animatedEffect.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/entity/explosion/exploSpawner.hpp"
-#include "skyland/entity/explosion/exploTrail.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
 
@@ -102,10 +102,11 @@ void ParticleLance::finalize()
 
     ExploSpawner::create(center());
     for (int i = 0; i < 3; ++i) {
-        if (auto e = alloc_entity<ExploTrail>(center(),
-                                              rng::choice<360>(rng::utility_state),
-                                              1.25_fixed,
-                                              seconds(2))) {
+        if (auto e =
+                alloc_entity<ExploTrail>(center(),
+                                         rng::choice<360>(rng::utility_state),
+                                         1.25_fixed,
+                                         seconds(2))) {
             APP.effects().push(std::move(e));
         }
     }
@@ -190,10 +191,14 @@ void ParticleLance::display(Platform::Screen& screen)
     }
 
     Fixnum dist;
-    dist += pos.x + Fixnum::from_integer((APP.player_island().terrain().size() - position().x) * 16);
+    dist +=
+        pos.x + Fixnum::from_integer(
+                    (APP.player_island().terrain().size() - position().x) * 16);
     if (APP.opponent_island()) {
-        dist += APP.opponent_island()->get_position().x - APP.player_island().get_position().x;
-        dist += Fixnum::from_integer(APP.opponent_island()->terrain().size() * 16);
+        dist += APP.opponent_island()->get_position().x -
+                APP.player_island().get_position().x;
+        dist +=
+            Fixnum::from_integer(APP.opponent_island()->terrain().size() * 16);
     }
 
     while (dist >= 16.0_fixed) {

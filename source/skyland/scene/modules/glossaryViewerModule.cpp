@@ -109,9 +109,8 @@ void GlossaryViewerModule::load_appendix_page(int page)
     StringBuffer<512> description;
 
     auto desc = load_entry(entry.description_linenum_);
-    expand_escape_sequences(desc->c_str(), [&description](char c) {
-        description.push_back(c);
-    });
+    expand_escape_sequences(
+        desc->c_str(), [&description](char c) { description.push_back(c); });
 
     if (not item_description_) {
         item_description_.emplace();
@@ -496,7 +495,8 @@ void GlossaryViewerModule::load_categories()
         draw_category_line(i);
     }
 
-    PLATFORM.set_tile(Layer::overlay, 1, 4 + (cg_cursor_ - cg_scroll_) * 2, 483);
+    PLATFORM.set_tile(
+        Layer::overlay, 1, 4 + (cg_cursor_ - cg_scroll_) * 2, 483);
 
     show_category_image(cg_cursor_);
 }
@@ -687,7 +687,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 
     switch (state_) {
     case State::appendix_main:
-        if ((test_key(Key::down) or test_key(Key::right)) and page_ < appendix_entry_count() - 1) {
+        if ((test_key(Key::down) or test_key(Key::right)) and
+            page_ < appendix_entry_count() - 1) {
             load_appendix_page(++page_);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
@@ -1151,7 +1152,6 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 void GlossaryViewerModule::display()
 {
     Module::display();
-
 }
 
 
