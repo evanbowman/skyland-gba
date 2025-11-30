@@ -10,6 +10,7 @@
 
 
 #include "tnt.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/explosion/exploSpawner.hpp"
 #include "skyland/entity/explosion/exploTrail.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
@@ -327,6 +328,7 @@ void TNT::finalize()
     } else {
         ignite(2, 180, true);
         ExploSpawner::create(center());
+        dramatic_explosion(center());
 
         if (not PLATFORM.network_peer().is_connected()) {
             for (int i = 0; i < 10; ++i) {
