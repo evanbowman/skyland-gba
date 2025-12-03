@@ -57,7 +57,7 @@ public:
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::sylph_only | RoomProperties::oversize_explosion |
-               RoomProperties::manufactory_required |
+               RoomProperties::workshop_required |
                RoomProperties::multiboot_compatible;
     }
 
