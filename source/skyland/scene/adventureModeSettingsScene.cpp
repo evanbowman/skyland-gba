@@ -437,6 +437,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
         if (APP.faction() == Faction::random) {
             APP.faction() = (Faction)rng::choice<3>(rng::critical_state);
+            sel_ = sel_max;
             repaint();
             for (int i = 0; i < 25; ++i) {
                 PLATFORM.screen().clear();
