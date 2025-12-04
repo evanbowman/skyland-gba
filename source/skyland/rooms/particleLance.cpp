@@ -144,6 +144,10 @@ ScenePtr ParticleLance::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
+    if (not APP.opponent_island() or APP.opponent().is_friendly()) {
+        return null_scene();
+    }
+
     if (mt_prep_seconds) {
         return null_scene();
     }

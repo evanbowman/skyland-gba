@@ -14,6 +14,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   (dialog "<c:Conclave Elder:51>Aestria was among the first cities we lifted from the mountains. <B:0> The archive lights are dark now. The data matrices, silent. <B:0> [pause] We should have acted sooner.")
 
   (defn on-dialog-closed ()
