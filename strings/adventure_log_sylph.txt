@@ -51,8 +51,8 @@ purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
-accepted quest from orphan boy!
-returned lost child to the sylph...
+accepted quest from goblin child!
+returned lost child to the goblin horde...
 dropped below the clouds to avoid bad weather.
 accepted miners' quest! (deliver 7 explosives)
 completed miners' quest! (+%@)
@@ -60,8 +60,8 @@ unable to make payment to imperial missile station!
 made payment to imperial missile station!
 refused to pay imperial missile station!
 accepted goblin surrender, salvaged blocks...
-accepted atomic arsenal quest!
-retrieved atomic arsenal!
+accepted particle lance quest!
+retrieved particle lance!
 encountered a solar storm!
 encountered warrior monks!
 bought two % from some scavengers for %@!

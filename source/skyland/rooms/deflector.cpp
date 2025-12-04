@@ -62,7 +62,9 @@ void Deflector::update(Time delta)
         if (active_timer_ < activate_time - ripple_offset) {
             if (active_timer_ + delta >= activate_time - ripple_offset) {
                 phase_ripple(visual_center());
-                PLATFORM.speaker().play_sound("deflector.raw", 0);
+                if (not PLATFORM.speaker().is_sound_playing("deflector.raw")) {
+                    PLATFORM.speaker().play_sound("deflector.raw", 0);
+                }
             }
         }
         active_timer_ += delta;

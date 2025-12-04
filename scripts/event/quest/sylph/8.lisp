@@ -1,15 +1,14 @@
 ;;;
-;;; quest/human/8.lisp
+;;; quest/sylph/8.lisp
 ;;;
 
 
 (dialog
- "A proximity alarm wakes your crew in the night! <B:0>"
- "<b:/scripts/data/img/night.img.bin>"
- "An unknown island appears in the moonlight. <B:0>"
- "You almost ran right into it! Upon contacting them, you find the inhabitants in a heated discussion...")
+ "<b:/scripts/data/img/ornate.img.bin>"
+ "An impossibly large Sylph city emerges from the clouds. Before you can react, your radio crackles with coordinates and docking instructions... <B:0> "
+ "<b:/scripts/data/img/sylph_conclave.img.bin>"
+ "You're guided into the innermost chambers, where you meet the Sylph High Conclave...")
 
-(weather-set weather-id-night)
 
 (opponent-init 10 'neutral)
 
@@ -18,40 +17,45 @@
  '((shrubbery 0 14) (bronze-hull 1 13) (shrubbery 1 12) (masonry 1 14 0) (masonry 2 14 0) (power-core 2 11) (masonry 3 14 0) (power-core 4 8) (power-core 4 12) (masonry 4 14 0) (power-core 4 10) (masonry 5 14 0) (masonry 6 14 0) (reactor 6 10) (masonry 6 13 0) (windmill 7 14) (masonry 7 13 0) (masonry 8 14 0) (masonry 8 13 0) (bronze-hull 8 12) (lemon-tree 8 10) (shrubbery 9 14)))
 
 
+
 (defn on-converge ()
   (dialog
-   "<c:King of Emsshaw Cay:27>As this storm approaches, we keep getting horrible transmissions from islands that fall into the bad weather. <B:0> We're debating what to do with our kingdom's arsenal of atomic weapons... <B:0> Even though they're disabled, we wouldn't want them to fall into the wrong hands. <B:0> Can you go retrieve our stash of deactivated atomics and keep them safe?")
+   "<c:Conclave Elder:51>We have monitored your vessel's progress, your fortress demonstrates... adaptability. <B:0> This quality is required for a matter of immediate concern. <B:0>"
+   "City Aestria has ceased all transmissions. Core crystal failure - complete power loss. <B:0> The city carried a particle lance, mining technology from our mountain era. In trained hands, merely a tool. <B:0> In desperate or ignorant hands... the device destabilizes catastrophically. <B:0>"
+   "We cannot allow scavengers to claim what remains. You will retrieve the particle lance before the city falls into the wrong hands.")
 
-   (dialog-await-binary-q-w/lore "Okay..." "Sorry, but no."
-                                 '(("Atomics?" .
-                                    "<c:King of Emsshaw Cay:27> During the surface wars, ancient civilizations fought each other with powerful atomic weapons. <B:0> When our ancestors moved up here, they stashed their arsenal in a hidden place for safe keeping. <B:0> Can you go retrieve them?")))
+  (dialog-await-binary-q-w/lore
+   "We'll retrieve it."
+   "Sorry, we can't."
+   '(("Particle lance?" .
+      "<c:Conclave Elder:51>An adapted bore-beam designed for extracting ore from dense mountain deposits. <B:0> Its focused particle stream can cut through virtually any material. <B:0> If mishandled or damaged, the containment field collapses. The resulting energy release is... significant.")
+     ("Why us?" .
+      "<c:Conclave Elder:51>Our own vessels are engaged in evacuations and core stabilization efforts across multiple cities. <B:0> You are capable, and more importantly, you are proximate. <B:0> Time is not on our side.")))
 
-   (defn on-dialog-accepted ()
-     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-       (setq on-dialog-closed exit)
-       (if m
-           (progn
-             (adventure-log-add 63 '())
-             (push 'qids 8)
-             (push 'quests (cons "atomics.lisp" m))
-             (dialog "<c:King of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
-             (defn on-dialog-closed ()
-               (dialog "<c:Warrior Princess of E. Cay:28> I'm going too! Better than sitting around here doing nothing... <B:0> Don't worry, I can pull my own weight!")
+  (defn on-dialog-accepted ()
+    (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+      (setq on-dialog-closed exit)
+      (if m
+          (progn
+            (adventure-log-add 63 '())
+            (push 'qids 8)
+            (push 'quests (cons "particle_lance.lisp" m))
+            (dialog "<c:Conclave Elder:51>The coordinates have been transmitted to your navigation system. <B:0> I will accompany you personally to ensure proper handling of the device.")
+            (defn on-dialog-closed ()
+              (setq on-dialog-closed nil)
+              (run-util-script
+               "find-crew-slot"
+               "<c:Conclave Elder:51>Your fortress layout is... unconventional. I will need a position from which to work."
+               'ladder
+               "Place block (1x2):"
+               (lambda (x y _)
+                 (chr-new (player) x y 'neutral '((icon . 51) (race . 4)))
+                 (dialog "The Conclave Elder joined your crew!")
+                 (defn on-dialog-closed ()
+                   (exit))))))
+          (progn
+            (dialog "<c:Conclave Elder:51>Unfortunate. The navigation data indicates you lack sufficient range to reach City Aestria before the storm front overtakes it. <B:0> We will seek alternative solutions.")))))
 
-               (defn on-dialog-closed ()
-                 (setq on-dialog-closed nil)
-                 (run-util-script
-                  "find-crew-slot"
-                  "<c:Warrior Princess of E. Cay:28> Hmm... you seem to be out of space... <B:0> Let me fix that!"
-                  'ladder
-                  "Place block (1x2):"
-                  (lambda (x y _)
-                    (chr-new (player) x y 'neutral '((icon . 28)))
-                    (dialog "The princess joined your crew!")
-                    (defn on-dialog-closed ()
-                      (exit-with-commentary "welcomes_warrior_princess")))))))
-           (progn
-             (dialog "<c:King of Emsshaw Cay:27> Hmm, looking at the sky chart, it seems that, unfortunately, you won't be able to make it there in time...")))))
-
-
-   (setq on-dialog-declined exit))
+  (defn on-dialog-declined ()
+    (dialog "<c:Conclave Elder:51>Your caution is noted...")
+    (setq on-dialog-closed exit)))
