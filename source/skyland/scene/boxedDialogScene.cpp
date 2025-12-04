@@ -295,23 +295,14 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             if (text_state_.timer_ < 0) {
                 return true;
             }
-            bool done = false;
             bool seen_char = false;
-            utf8::scan(
-                [&](const utf8::Codepoint& cp, const char*, int) {
-                    if (done) {
-                        return false;
-                    }
-                    if (cp == ' ' or cp == '<' or cp == '\0') {
-                        done = true;
-                    } else {
-                        seen_char = true;
-                        text_state_.current_word_remaining_++;
-                    }
-                    return true;
-                },
-                text_state_.current_word_,
-                strlen(text_state_.current_word_));
+
+            auto cp = text_state_.current_word_;
+            while (*cp not_eq ' ' and *cp not_eq '<' and *cp not_eq '\0') {
+                seen_char = true;
+                text_state_.current_word_remaining_++;
+                ++cp;
+            }
 
             if (not seen_char and *text_state_.current_word_ == '\0') {
                 display_mode_ = DisplayMode::key_released_check2;
