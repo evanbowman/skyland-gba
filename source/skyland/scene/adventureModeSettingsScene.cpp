@@ -49,7 +49,8 @@ static const SettingInfo difficulty_text[] = {
 static const SettingInfo faction_text[] = {
     {SystemString::faction_human, SystemString::faction_desc_human},
     {SystemString::faction_goblin, SystemString::faction_desc_goblin},
-    {SystemString::faction_sylph, SystemString::faction_desc_sylph}};
+    {SystemString::faction_sylph, SystemString::faction_desc_sylph},
+    {SystemString::faction_random, SystemString::faction_desc_random}};
 
 
 
@@ -195,6 +196,10 @@ void AdventureModeSettingsScene::repaint()
         case Faction::sylph:
             filter = RoomProperties::sylph_only;
             break;
+
+        case Faction::random:
+            filter = RoomProperties::none;
+            break;
         }
 
         Buffer<int, 5> icons;
@@ -242,6 +247,10 @@ void AdventureModeSettingsScene::enter(Scene& prev)
                    Text::OptColors{{ColorConstant::med_blue_gray,
                                     ColorConstant::rich_black}});
 
+
+    if (APP.gp_.stateflags_.get(GlobalPersistentData::random_faction)) {
+        APP.faction() = Faction::random;
+    }
 
     if (APP.gp_.stateflags_.get(GlobalPersistentData::goblin_faction)) {
         APP.faction() = Faction::goblin;
@@ -314,11 +323,9 @@ void AdventureModeSettingsScene::update_field(bool inc)
         u32 index = 0;
         Buffer<Faction, (int)Faction::count> factions;
         for (int i = 0; i < (int)Faction::count; ++i) {
-            if (enabled_factions_bitfield & (1 << i)) {
-                factions.push_back((Faction)i);
-                if ((Faction)i == APP.faction()) {
-                    index = i;
-                }
+            factions.push_back((Faction)i);
+            if ((Faction)i == APP.faction()) {
+                index = i;
             }
         }
         if (inc) {
@@ -401,6 +408,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction,
                                     false);
             APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, false);
+            APP.gp_.stateflags_.set(GlobalPersistentData::random_faction, false);
 
             switch (APP.faction()) {
             default:
@@ -415,14 +423,27 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
                 APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction,
                                         true);
                 break;
+
+            case Faction::random:
+                APP.gp_.stateflags_.set(GlobalPersistentData::random_faction,
+                                        true);
             }
         }
-
 
         if ((u8)APP.gp_.difficulty_ not_eq original_ or
             APP.gp_.stateflags_ not_eq stateflags_cached_) {
             save::store_global_data(APP.gp_);
         }
+
+        if (APP.faction() == Faction::random) {
+            APP.faction() = (Faction)rng::choice<3>(rng::critical_state);
+            repaint();
+            for (int i = 0; i < 25; ++i) {
+                PLATFORM.screen().clear();
+                PLATFORM.screen().display();
+            }
+        }
+
 
         if (newgame_) {
             APP.invoke_script("/scripts/newgame.lisp");

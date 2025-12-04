@@ -21,6 +21,7 @@ enum class Faction : u8 {
     human = start,
     goblin,
     sylph,
+    random,
     count,
 };
 

@@ -519,9 +519,11 @@ faction
 Balanced. Innovative, resourceful, and able to construct neat tech.
 Strategy focused, with strong support blocks.
 Powerful blocks with risky drawbacks, improved transporter efficiency.
+Select a faction at random
 human
 sylph
 goblin
+random
 Exit tutorial?
 Builder
 Build an island with more than ten structures!
