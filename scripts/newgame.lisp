@@ -57,7 +57,7 @@
 (chr-new (player) 2 14 'neutral
          (cond
            ((equal (faction) 'goblin) '((race . 1)))
-           ((equal (faction) 'sylph) nil)
+           ((equal (faction) 'sylph) '((race . 4)))
            ((equal (faction) 'human) nil)))
 
 (eval-file "/scripts/adventure_vars.lisp")

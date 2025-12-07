@@ -674,7 +674,9 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     auto load_savegame_txtr = [&] {
-        if (APP.faction() == Faction::goblin) {
+        if (APP.faction() == Faction::sylph) {
+            PLATFORM.load_tile1_texture("sylph_savegame_flattened");
+        } else if (APP.faction() == Faction::goblin) {
             PLATFORM.load_tile1_texture("goblin_savegame_flattened");
         } else {
             PLATFORM.load_tile1_texture("savegame_flattened");

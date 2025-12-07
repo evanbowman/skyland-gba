@@ -50,6 +50,7 @@ struct GlobalPersistentData
         agb_color_mode,
         goblin_faction,
         sylph_faction,
+        random_faction,
     };
 
     enum class Difficulty : u8 {

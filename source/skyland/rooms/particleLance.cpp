@@ -75,7 +75,9 @@ void ParticleLance::update(Time delta)
 
     if (parent() == APP.opponent_island()) {
         // Don't allow opponents to build this block.
-        apply_damage(9999);
+        if (not APP.opponent().is_friendly()) {
+            apply_damage(9999);
+        }
     }
 
     if (active_) {
@@ -100,14 +102,16 @@ void ParticleLance::finalize()
 {
     Room::finalize();
 
-    ExploSpawner::create(center());
-    for (int i = 0; i < 3; ++i) {
-        if (auto e =
+    if (health() == 0) {
+        ExploSpawner::create(center());
+        for (int i = 0; i < 3; ++i) {
+            if (auto e =
                 alloc_entity<ExploTrail>(center(),
                                          rng::choice<360>(rng::utility_state),
                                          1.25_fixed,
                                          seconds(2))) {
-            APP.effects().push(std::move(e));
+                APP.effects().push(std::move(e));
+            }
         }
     }
 
@@ -139,6 +143,10 @@ void ParticleLance::on_salvage()
 ScenePtr ParticleLance::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
+
+    if (not APP.opponent_island() or APP.opponent().is_friendly()) {
+        return null_scene();
+    }
 
     if (mt_prep_seconds) {
         return null_scene();

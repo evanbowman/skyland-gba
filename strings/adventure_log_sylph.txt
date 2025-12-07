@@ -12,17 +12,17 @@ explored abandoned ruins, found %@
 met pirate redbeard, failed to bribe.
 met pirate redbeard, paid %@ toll.
 met pirate redbeard, refused to pay bribe.
-rescued an orphan girl! she joined the crew!
+rescued an sylph researcher! he joined the crew!
 accepted delivery quest from a merchant outpost!
 accepted banana man's mysterious task!
 accepted farmer meyer's quest! (deliver % trees)
-accepted chauffeur's quest!
+accepted rescue quest for research platform delta!
 purchased tiles for resale, cost %@.
 resold tiles for %@!
 completed merchant quest, earned %@.
 farmer meyer's brother paid %@ for delivery of % trees.
 saved banana man's banana plants!
-completed chauffeur's quest! (picked up three crew)
+completed rescue quest! (picked up three crew)
 reached zone %!
 hired a mercenary for %@!
 declined mercenaries' offer...
@@ -51,8 +51,8 @@ purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
 invited an explorer aboard!
-accepted quest from orphan boy!
-returned lost child to the sylph...
+accepted quest from goblin child!
+returned lost child to the goblin horde...
 dropped below the clouds to avoid bad weather.
 accepted miners' quest! (deliver 7 explosives)
 completed miners' quest! (+%@)
@@ -60,8 +60,8 @@ unable to make payment to imperial missile station!
 made payment to imperial missile station!
 refused to pay imperial missile station!
 accepted goblin surrender, salvaged blocks...
-accepted atomic arsenal quest!
-retrieved atomic arsenal!
+accepted particle lance quest!
+retrieved particle lance!
 encountered a solar storm!
 encountered warrior monks!
 bought two % from some scavengers for %@!

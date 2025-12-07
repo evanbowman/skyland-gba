@@ -8,6 +8,11 @@
 
 (let ((opts (range quest-count)))
 
+  (when (equal (faction) 'sylph)
+    ;; Disable a few sylph quests until we can finish writing new scripts for
+    ;; the sylph faction...
+    (setq opts (difference opts '(0 4))))
+
   (let ((lv 0)
         (lvs
          ;; Collect all quest ids not in the qids (seen) list.

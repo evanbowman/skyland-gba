@@ -178,5 +178,4 @@
 (setvar "enabled_factions_bitfield"
         (bit-or faction-enable-human-mask
                 faction-enable-goblin-mask
-                ;; faction-enable-sylph-mask
-                ))
+                faction-enable-sylph-mask))
