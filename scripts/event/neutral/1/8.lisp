@@ -4,8 +4,9 @@
 
 
 (cond
-  ((equal (faction) 'sylph)
-   (eval-file "/scripts/event/neutral/1/8_sylph.lisp"))
+  ;; TODO...
+  ;; ((equal (faction) 'sylph)
+  ;;  (eval-file "/scripts/event/neutral/1/8_sylph.lisp"))
   ((equal (faction) 'goblin)
    (eval-file "/scripts/event/neutral/1/8_goblin.lisp"))
   (true
