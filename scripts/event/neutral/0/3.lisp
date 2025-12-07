@@ -3,9 +3,13 @@
 ;;;
 
 
-(let ((path "scripts/event/neutral/0/3_%.lisp"))
-  (let ((default (format path (faction)))
-        (scenarios (map (curry format path) '(human goblin sylph))))
-    (eval-file (if (chance (if (equal (faction) 'goblin) 4 2))
-                   (sample (filter (notequal? default) scenarios))
-                   default))))
+(let ((scenarios
+       '("/scripts/event/neutral/0/3_goblin.lisp"
+         "/scripts/event/neutral/0/3_human.lisp")))
+
+  (when (chance (if (equal (faction) 'human) 2 4))
+    (setq scenarios (reverse scenarios)))
+
+  (eval-file (get scenarios (if (equal (faction) 'goblin)
+                                0
+                                1))))
