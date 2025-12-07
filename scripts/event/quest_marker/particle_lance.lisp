@@ -10,7 +10,7 @@
 
 (island-configure
  (opponent)
- '((bronze-hull 0 12) (particle-lance 0 14) (bronze-hull 0 13) (shrubbery 0 11) (masonry 1 12 0) (bronze-hull 1 13) (lemon-tree 2 11) (bronze-hull 2 13) (masonry 3 13 0) (masonry 3 14 0) (war-engine 3 9) (deflector 3 8) (masonry 4 14 0) (masonry 5 13 0) (bridge 5 8 30 1) (masonry 5 14 0) (deflector 6 7) (water-source 6 14) (power-core 6 11) (bridge 6 8 30 1) (bridge 7 8 30 1) (deflector 7 7) (water 7 14) (bridge 8 8 30 1) (masonry 8 14 0) (masonry 8 13 0) (war-engine 8 9) (masonry 9 14 0) (masonry 10 13 0) (deflector 10 8) (masonry 10 14 0) (bronze-hull 11 14) (bronze-hull 11 13) (bronze-hull 12 14) (water-source 12 13) (bronze-hull 13 14) (bronze-hull 13 13) (bronze-hull 13 12)))
+ '((bronze-hull 0 12) (particle-lance 0 14) (bronze-hull 0 13) (shrubbery 0 11) (masonry 1 12 0) (bronze-hull 1 13) (lemon-tree 2 11) (bronze-hull 2 13) (masonry 3 13 0) (masonry 3 14 0) (war-engine 3 9) (deflector 3 8) (masonry 4 14 0) (masonry 5 13 0) (bridge 5 8 30 1) (masonry 5 14 0) (deflector 6 7) (water-source 6 14) (power-core 6 11) (bridge 6 8 30 1) (bridge 7 8 30 1) (deflector 7 7) (water-source 7 14) (bridge 8 8 30 1) (masonry 8 14 0) (masonry 8 13 0) (war-engine 8 9) (masonry 9 14 0) (masonry 10 13 0) (deflector 10 8) (masonry 10 14 0) (bronze-hull 11 14) (bronze-hull 11 13) (bronze-hull 12 14) (water-source 12 13) (bronze-hull 13 14) (bronze-hull 13 13) (bronze-hull 13 12)))
 
 
 (defn on-converge ()

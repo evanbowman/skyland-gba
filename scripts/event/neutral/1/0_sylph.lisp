@@ -50,8 +50,9 @@
          (dialog "<c:Sylph Sentry:47> Acceptable. I am prepared to serve.")
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
-           (sound "click_digital_1")
-           (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> The sentry joined your crew!"))))))
+           ;; (sound "click_digital_1")
+           ;; TODO: fix rendering so I can draw this image... <b:/scripts/data/img/sentry_closeup.img.bin>
+           (dialog "The sentry joined your crew!"))))))
 
 
 (defn on-dialog-declined ()
