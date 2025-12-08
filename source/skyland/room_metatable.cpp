@@ -64,6 +64,7 @@
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/overdriveCore.hpp"
+#include "skyland/rooms/resonanceCore.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/particleLance.hpp"
 #include "skyland/rooms/phaseShifter.hpp"
@@ -294,7 +295,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<7,
+using RoomMetatableType = RoomMetatable<6,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -338,6 +339,7 @@ using RoomMetatableType = RoomMetatable<7,
                                         WarEngine,
                                         ChaosCore,
                                         OverdriveCore,
+                                        ResonanceCore,
                                         Windmill,
                                         Balloon,
                                         // passages

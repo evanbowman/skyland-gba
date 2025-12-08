@@ -113,6 +113,7 @@ radar
 radiator
 reactor
 replicator
+resonator
 rice
 rail-ns (decoration)
 rail-we (decoration)
@@ -372,6 +373,7 @@ A decorative bridge... resize it via the SELECT menu!
 A power-core, modified to boost its energy output. The jury-rigged modifications make the core delicate - it will overload if its health drops below %% (%).
 When activated, causes your reactor crystals to resonate at a matching frequency, changing their energy output color!
 Built by the Sylph for mining dense ore deposits, this particle beam burns though everything in its path horizontally. Due to its age, it will disintigrate after one use.
+An advanced Sylph power supply. Each resonator generates % additional power for every other resonator on your island.
 paused
 slow
 regular

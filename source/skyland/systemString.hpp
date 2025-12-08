@@ -153,6 +153,7 @@ enum class SystemString {
     block_radiator,
     block_reactor,
     block_replicator,
+    block_resonance_core,
     block_rice,
     block_road_ns,
     block_road_we,
@@ -443,6 +444,7 @@ enum class SystemString {
     description_overdrive_core,
     description_tuning_crystal,
     description_particle_lance,
+    description_resonance_core,
 
     gs_paused,
     gs_slow,

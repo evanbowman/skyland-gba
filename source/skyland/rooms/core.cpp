@@ -29,7 +29,7 @@ Optional<Room::UpgradeList> Core::upgrade_mt_list() const
     if (APP.faction() == Faction::goblin) {
         upgrades.push_back(skyland::metaclass_index("chaos-core"));
     } else if (APP.faction() == Faction::sylph) {
-        // ...
+        upgrades.push_back(skyland::metaclass_index("resonator"));
     } else {
         upgrades.push_back(skyland::metaclass_index("reactor"));
     }

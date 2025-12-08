@@ -10,6 +10,7 @@
 (setvar "chaos_core_yield_rate" 32)
 (setvar "chaos_core_placement_chance" 9)
 
+(setvar "resonance_core_ability_power" 30)
 
 (setvar "energy_glow_color" 0x66fff7)
 (setvar "spr_energy_color_1" 0x94fff9)
