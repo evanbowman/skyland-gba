@@ -339,7 +339,7 @@ using RoomMetatableType = RoomMetatable<6,
                                         WarEngine,
                                         ChaosCore,
                                         OverdriveCore,
-                                        ResonanceCore,
+                                        // ResonanceCore,
                                         Windmill,
                                         Balloon,
                                         // passages
