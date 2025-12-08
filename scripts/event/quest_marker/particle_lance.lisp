@@ -3,7 +3,9 @@
 ;;;
 
 
-(dialog "You arrive at Aestria, the destination indicated by the conclave elder...")
+(dialog
+ "<b:/scripts/data/img/sylph_city_1.img.bin>"
+ "You arrive at Aestria, the destination indicated by the conclave elder...")
 
 
 (opponent-init 14 'neutral)
@@ -15,7 +17,7 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (dialog "<c:Conclave Elder:51>Aestria was among the first cities we lifted from the mountains. <B:0> The archive lights are dark now. The data matrices, silent. <B:0> [pause] We should have acted sooner.")
+  (dialog "<c:Conclave Elder:51>Aestria was among the first cities we lifted from the mountains. <B:0> The archive lights are dark now... sad to see it like this.")
 
   (defn on-dialog-closed ()
     (dialog "<c:Conclave Elder:51> The Conclave believes documentation will save us. Careful observation. Measured response. <B:0> But our cities go dark while we _debate_. <B:0> The particle lance... I never meant for you to merely retrieve it...")

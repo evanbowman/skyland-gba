@@ -1,5 +1,5 @@
 ;;;
-;;; quest/human/7.lisp
+;;; quest/sylph/7.lisp
 ;;;
 
 
