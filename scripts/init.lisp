@@ -39,13 +39,11 @@
    (true v)))
 
 (defn/c procgen ()
-  (opponent-generate
-   (cond
-    ((equal (zone) 0)
-     (clamp (- (length enemies-seen) 1) 0 3))
-    ((equal (zone) 1) 5)
-    ((equal (zone) 2) 12)
-    (true 16))))
+  (opponent-generate (case (zone)
+                       (0 (clamp (- (length enemies-seen) 1) 0 3))
+                       (1 5)
+                       (2 12)
+                       (else 16))))
 
 (defn/c zone ()
   (car (wg-pos)))

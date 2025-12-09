@@ -74,14 +74,10 @@
                (lambda (isle x y)
                  (room-new (player) (list wpn x y))
                  (sound "build0")
-                 (cond
-                  ((equal wpn 'rocket-bomb)
-                   (dialog "Like a missile-silo, but starts fires! A useful addition!"))
-                  ((equal wpn 'ballista)
-                   (dialog "A special cannon that fires projectiles in a wide arc. How useful!"))
-                  (true
-                   (dialog "Wow, a very powerful weapon! <B:0> You're lucky to have found this...")))
-
+                 (dialog (case wpn
+                           ('rocket-bomb "Like a missile-silo, but starts fires! A useful addition!")
+                           ('ballista "A special cannon that fires projectiles in a wide arc. How useful!")
+                           (else "Wow, a very powerful weapon! <B:0> You're lucky to have found this...")))
                  (setq on-dialog-closed exit)))
     (adventure-log-add 9 (list wpn)))
 

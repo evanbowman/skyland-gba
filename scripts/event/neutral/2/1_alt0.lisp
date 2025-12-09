@@ -67,10 +67,10 @@
                       (setq on-dialog-closed
                             (lambda ()
                               (dialog "<c:Goblin:2>Die "
-                                      (cond
-                                        ((equal (faction) 'goblin) "Traitorsss")
-                                        ((equal (faction) 'human) "Humansss")
-                                        ((equal (faction) 'sylph) "Sssylph ssscum"))
+                                      (case (faction)
+                                        ('goblin "Traitorsss")
+                                        ('human "Humansss")
+                                        ('sylph "Sssylph ssscum"))
                                       "!")
                               (setq on-dialog-closed '()))))))
               (progn

@@ -8,11 +8,11 @@
 
 (dialog
  "The storm overtakes your castle... A massive fortress emerges from the tempest... "
- (cond
-  ((equal (zone) 0) "There is little hope of survival...")
-  ((equal (zone) 1) "You probably aren't strong enough yet...")
-  ((equal (zone) 2) "You just might survive...")
-  ((equal (zone) 3) "Ready for the final showdown?")))
+ (case (zone)
+  (0 "There is little hope of survival...")
+  (1 "You probably aren't strong enough yet...")
+  (2 "You just might survive...")
+  (3 "Ready for the final showdown?")))
 
 
 (setq on-fadein

@@ -11,12 +11,9 @@
         (foreach (lambda (room)
                    (let ((damage (room-damage (player) (get room 1) (get room 2))))
                      (if damage
-                         (let ((cg (rinfo 'category (car room))))
-                           (cond
-                             ((equal cg 'wall)
-                              (+= hull-damage damage))
-                             ((equal cg 'weapon)
-                              (+= weapon-damage damage)))))))
+                         (case (rinfo 'category (car room))
+                           ('wall   (+= hull-damage damage))
+                           ('weapon (+= weapon-damage damage))))))
                  (rooms (player)))
 
         (dialog "<c:Repairman:30>What a nice ship you have here... <B:0> "

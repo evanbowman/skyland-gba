@@ -101,11 +101,11 @@
                 (dialog "<c:Goblin Chieftain:42>Here. #gestures to raiders who bring forward supplies# Payment. We pay our debtsss, even to Sssylph. <B:0> But don't expect thisss to change anything between our people. One act doesn't erase centuriesss.")
                 (setq on-dialog-closed nil)
                 (defn on-dialog-closed ()
-                  (dialog "The goblins have also gifted you a salvaged weapon! Where do you want to place it?")
+                  (dialog "The goblins have also gifted you a salvaged power supply! Where do you want to place it?")
                   (setq on-dialog-closed nil)
                   (run-util-script "place-new-block"
-                                   'decimator
-                                   "Place decimator:"
+                                   'chaos-core
+                                   "Place chaos-core:"
                                    (lambda (x y)
                                      (exit)))))))))
 

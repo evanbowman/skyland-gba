@@ -20,13 +20,26 @@
          (cons 'and (cdr EXPR))
        1)))
 
-
 (macro cond (EXPR)
  `(if ,(car (car EXPR))
       ,(cons 'progn (cdr (car EXPR)))
     ,(if (cdr EXPR)
          (cons 'cond (cdr EXPR))
        nil)))
+
+
+(macro -case-r (EXPR)
+ `(if (equal --TEMP-CASE-V ,(car (car EXPR)))
+      ,(cons 'progn (cdr (car EXPR)))
+    ,(if (cdr EXPR)
+         (if (equal (car (car (cdr EXPR))) 'else)
+             (cons 'progn (cdr (car (cdr EXPR))))
+           (cons '-case-r (cdr EXPR)))
+       nil)))
+
+(macro case (EXPR)
+       `(let ((--TEMP-CASE-V ,(car EXPR)))
+          ,(cons '-case-r (cdr EXPR))))
 
 
 (macro dotimes (N BODY)

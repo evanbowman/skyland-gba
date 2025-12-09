@@ -6,11 +6,11 @@
 
 
 (opponent-generate
- (cond
-   ((equal (zone) 0) 5)
-   ((equal (zone) 1) 8)
-   ((equal (zone) 2) 16)
-   (true 20)))
+ (case (zone)
+   (0 5)
+   (1 8)
+   (2 16)
+   (else 20)))
 
 
 (opponent-mode 'neutral)
