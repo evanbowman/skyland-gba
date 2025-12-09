@@ -23,7 +23,11 @@
 (defn on-converge ()
   (dialog
    "<c:Sylph Sentry:47>The patterns below grow more chaotic with each passing cycle. <B:0> My observations are complete. The archive has been updated. <B:0> My current assignment concludes with the approach of the storm front. <B:0> Your vessel appears... adequate for continued surveillance duties. <B:0>"
-   "I am trained in combat protocols and defensive systems analysis. <B:0> My people value knowledge above all else. Your journey may provide... useful data. <B:0> Do you require additional crew?")
+   "I am trained in combat protocols and defensive systems analysis. <B:0> "
+   (case (faction)
+     ('sylph "<B:0>")
+     (else "My people value knowledge above all else. Your journey may provide... useful data. <B:0>"))
+   " Do you require additional crew?")
 
   (dialog-await-binary-q
    (format "Recruit? %@" (* 400 (zone)))
@@ -35,7 +39,11 @@
 (defn on-dialog-accepted ()
   (if (> (* 400 (zone)) (coins))
       (progn
-        (dialog "You cannot afford to pay. The Sylph becomes impatient, and cuts the transmission.")
+        (dialog "You cannot afford to pay. The "
+                (case (faction)
+                  ('sylph "sentry")
+                  (else "Sylph"))
+                " becomes impatient, and cuts the transmission.")
         (exit))
       (run-util-script
        "find-crew-slot"
