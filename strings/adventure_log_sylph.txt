@@ -7,7 +7,7 @@ defeated the storm king!
 rescued a castaway!
 found an abandoned wreck, but did not explore.
 found an abandoned wreck, found %!
-bought two % from some merchants for %@!
+bought two % for %@!
 explored abandoned ruins, found %@
 met pirate redbeard, failed to bribe.
 met pirate redbeard, paid %@ toll.
@@ -50,7 +50,7 @@ discovered a shop!
 purchased % for %@
 accepting defeat, a goblin joined your crew!
 accepted mysterious traveller's quest!
-invited an explorer aboard!
+invited a deserter aboard!
 accepted quest from goblin child!
 returned lost child to the goblin horde...
 dropped below the clouds to avoid bad weather.
