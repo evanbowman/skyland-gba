@@ -628,6 +628,7 @@ enum class SystemString {
     faction_setting,
     faction_desc_human,
     faction_desc_sylph,
+    faction_desc_sylph_locked,
     faction_desc_goblin,
     faction_desc_random,
     faction_human,

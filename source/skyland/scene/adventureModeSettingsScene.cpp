@@ -10,11 +10,11 @@
 
 
 #include "adventureModeSettingsScene.hpp"
+#include "skyland/achievement.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-
 
 
 namespace skyland
@@ -54,6 +54,12 @@ static const SettingInfo faction_text[] = {
 
 
 
+bool has_completed_adv_mode()
+{
+    return achievements::is_unlocked(achievements::hero);
+}
+
+
 void AdventureModeSettingsScene::repaint_difficulty(int difficulty,
                                                     bool selected)
 {
@@ -66,7 +72,11 @@ void AdventureModeSettingsScene::repaint_difficulty(int difficulty,
 void AdventureModeSettingsScene::repaint_faction(Faction faction, bool selected)
 {
     auto d = faction_text[(int)faction];
-    render_line(2, d.text_, d.desc_, selected);
+    auto desc = d.desc_;
+    if (faction == Faction::sylph and not has_completed_adv_mode()) {
+        desc = SystemString::faction_desc_sylph_locked;
+    }
+    render_line(2, d.text_, desc, selected);
 }
 
 
@@ -401,6 +411,12 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
 
     if (APP.player().key_down(Key::action_1)) {
+
+        if (APP.faction() == Faction::sylph and not has_completed_adv_mode()) {
+            PLATFORM.speaker().play_sound("beep_error", 3);
+            return null_scene();
+        }
+
         PLATFORM.speaker().play_sound("button_wooden", 3);
         load_difficulty_profile();
 
@@ -437,6 +453,10 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
         if (APP.faction() == Faction::random) {
             APP.faction() = (Faction)rng::choice<3>(rng::critical_state);
+            if (not has_completed_adv_mode()) {
+                // Sylph are not selectable yet...
+                APP.faction() = (Faction)rng::choice<2>(rng::critical_state);
+            }
             sel_ = sel_max;
             repaint();
             for (int i = 0; i < 25; ++i) {
