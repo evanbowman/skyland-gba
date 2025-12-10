@@ -16,12 +16,14 @@
 #include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "modules/glossaryViewerModule.hpp"
 #include "moveRoomScene.hpp"
 #include "notificationScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "selectMenuScene.hpp"
+#include "skyland/builtinFlagGraphics.hpp"
 #include "skyland/minimap.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -29,6 +31,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
+
 
 
 
@@ -106,6 +109,43 @@ bool tapped_topleft_corner();
 
 
 ScenePtr process_exit_condition(App::ExitCondition c);
+
+
+
+ScenePtr lookup_flag_in_glossary_appendix(int custom_flag_graphics)
+{
+    auto open_appendix = [&](int page) -> ScenePtr {
+        auto ret = make_scene<GlossaryViewerModule>(page);
+        ret->skip_to_appendix();
+        ret->set_next_scene([] {
+            PLATFORM.screen().schedule_fade(0);
+            return make_scene<InspectP2Scene>();
+        });
+        return ret;
+    };
+
+    switch ((BuiltinFlagGraphics)custom_flag_graphics) {
+    case BuiltinFlagGraphics::marauder:
+        return open_appendix(10);
+    case BuiltinFlagGraphics::old_empire:
+        return open_appendix(8);
+    case BuiltinFlagGraphics::null:
+    case BuiltinFlagGraphics::goblin_horde:
+        return open_appendix(7);
+    case BuiltinFlagGraphics::second_empire:
+        return open_appendix(9);
+
+    case BuiltinFlagGraphics::banana:
+    case BuiltinFlagGraphics::merchant:
+        return null_scene();
+
+    case BuiltinFlagGraphics::sylph:
+        return open_appendix(11);
+    case BuiltinFlagGraphics::colonial:
+        return open_appendix(6);
+    }
+    return null_scene();
+}
 
 
 
@@ -317,6 +357,7 @@ ScenePtr InspectP2Scene::update(Time delta)
     }
 
     if (APP.player().key_down(Key::action_1)) {
+        const auto flag_pos = APP.opponent_island()->flag_pos();
         if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
             if (APP.game_mode() == App::GameMode::sandbox or
                 room->non_owner_selectable() or
@@ -330,6 +371,10 @@ ScenePtr InspectP2Scene::update(Time delta)
                 return (*drone)->select();
             } else {
                 PLATFORM.speaker().play_sound("beep_error", 2);
+            }
+        } else if (flag_pos and *flag_pos == cursor_loc) {
+            if (auto scn = lookup_flag_in_glossary_appendix(APP.opponent_island()->custom_flag_graphics())) {
+                return scn;
             }
         }
     }

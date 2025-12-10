@@ -43,6 +43,10 @@ SHARED_VARIABLE(powerdown_allowed);
 
 
 
+ScenePtr lookup_flag_in_glossary_appendix(int custom_flag_graphics);
+
+
+
 Island* SelectMenuScene::island() const
 {
     if (is_far_camera()) {
@@ -348,6 +352,19 @@ void SelectMenuScene::enter(Scene& scene)
                 });
         }
 
+        const auto flag_pos = island()->flag_pos();
+        if (flag_pos and *flag_pos == cursor) {
+            auto scn = lookup_flag_in_glossary_appendix(island()->custom_flag_graphics());
+            auto opp = island() == opponent_island();
+            if (scn and opp) {
+                add_line(SystemString::sel_menu_flag_info,
+                         "",
+                         true,
+                         [this, cursor]() -> ScenePtr {
+                             return lookup_flag_in_glossary_appendix(island()->custom_flag_graphics());
+                         });
+            }
+        }
 
         if (not PLATFORM.network_peer().is_connected()) {
             auto room = island()->get_room(cursor);

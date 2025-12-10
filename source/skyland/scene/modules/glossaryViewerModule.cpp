@@ -302,7 +302,8 @@ s8 last_cover_img = -1;
 void GlossaryViewerModule::enter(Scene& prev)
 {
     PLATFORM.fill_overlay(0);
-    if (state_ not_eq State::quickview) {
+    if (state_ not_eq State::quickview and
+        state_ not_eq State::quickview_appendix) {
         PLATFORM.screen().set_shader(passthrough_shader);
     }
 
@@ -315,8 +316,9 @@ void GlossaryViewerModule::enter(Scene& prev)
     }
     last_cover_img = cover_img_;
 
-
-    if (state_ == State::quickview) {
+    if (state_ == State::quickview_appendix) {
+        load_appendix_page(page_);
+    } else if (state_ == State::quickview) {
         load_page(page_);
     } else {
         for (int x = 0; x < 32; ++x) {
@@ -327,7 +329,8 @@ void GlossaryViewerModule::enter(Scene& prev)
         load_categories();
     }
 
-    if (state_ not_eq State::quickview) {
+    if (state_ not_eq State::quickview and
+        state_ not_eq State::quickview_appendix) {
         for (int x = 15; x < 32; ++x) {
             for (int y = 0; y < 20; ++y) {
                 PLATFORM.set_tile(Layer::overlay, x, y, 112);
@@ -335,8 +338,10 @@ void GlossaryViewerModule::enter(Scene& prev)
         }
     }
 
-    PLATFORM.screen().set_view(View{});
-    PLATFORM.set_scroll(Layer::map_0_ext, 0, 0);
+    if (state_ not_eq State::quickview_appendix) {
+        PLATFORM.screen().set_view(View{});
+        PLATFORM.set_scroll(Layer::map_0_ext, 0, 0);
+    }
 
     PLATFORM.screen().schedule_fade(0.95f);
     PLATFORM.screen().schedule_fade(1.f);
@@ -356,7 +361,8 @@ void set_gamespeed(GameSpeed speed);
 
 void GlossaryViewerModule::exit(Scene& next)
 {
-    if (state_ not_eq State::quickview) {
+    if (state_ not_eq State::quickview and
+        state_ not_eq State::quickview_appendix) {
         PLATFORM.screen().set_shader(APP.environment().shader());
         PLATFORM.screen().set_shader_argument(0);
     }
@@ -686,19 +692,27 @@ ScenePtr GlossaryViewerModule::update(Time delta)
     };
 
     switch (state_) {
+    case State::quickview_appendix:
     case State::appendix_main:
-        if ((test_key(Key::down) or test_key(Key::right)) and
-            page_ < appendix_entry_count() - 1) {
-            load_appendix_page(++page_);
-            PLATFORM.speaker().play_sound("cursor_tick", 0);
-        }
+        if (state_ not_eq State::quickview_appendix) {
+            if ((test_key(Key::down) or test_key(Key::right)) and
+                page_ < appendix_entry_count() - 1) {
+                load_appendix_page(++page_);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
 
-        if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
-            load_appendix_page(--page_);
-            PLATFORM.speaker().play_sound("cursor_tick", 0);
+            if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
+                load_appendix_page(--page_);
+                PLATFORM.speaker().play_sound("cursor_tick", 0);
+            }
         }
 
         if (APP.player().key_down(Key::action_2)) {
+            if (state_ == State::quickview_appendix) {
+                if (next_scene_) {
+                    return (*next_scene_)();
+                }
+            }
             state_ = State::category_transition_in;
             PLATFORM.fill_overlay(112);
             PLATFORM.screen().clear();

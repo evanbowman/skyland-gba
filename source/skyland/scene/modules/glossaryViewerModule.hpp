@@ -36,6 +36,12 @@ public:
     }
 
 
+    void skip_to_appendix()
+    {
+        state_ = State::quickview_appendix;
+    }
+
+
     static SystemString module_name()
     {
         return SystemString::module_glossary;
@@ -117,6 +123,7 @@ private:
         view,
         view_drones,
         quickview,
+        quickview_appendix,
         exit,
         swap_category_image,
         category_transition_out,
