@@ -3705,6 +3705,91 @@ static void eval_quasiquote(Value* code)
 }
 
 
+
+
+#if defined(__GBA__) or defined(__APPLE__)
+#define STANDARD_FORMS                                                      \
+    MAPBOX_ETERNAL_CONSTEXPR const auto standard_forms =                    \
+        mapbox::eternal::hash_map<mapbox::eternal::string, EvalCB>
+#else
+#define STANDARD_FORMS                                                  \
+    const auto standard_forms = std::unordered_map<std::string, EvalCB>
+#endif
+
+
+using EvalCB = void(*)(Value*);
+// clang-format off
+STANDARD_FORMS({
+        {"if", [](Value* code) {
+            eval_if(code->cons().cdr());
+            auto result = get_op0();
+            pop_op(); // result
+            pop_op(); // code
+            push_op(result);
+            --bound_context->interp_entry_count_;
+        }},
+        {"lambda", [](Value* code) {
+            eval_argumented_function(code->cons().cdr());
+            auto result = get_op0();
+            pop_op(); // result
+            pop_op(); // code
+            push_op(result);
+            --bound_context->interp_entry_count_;
+            return;
+        }},
+        {"fn", [](Value* code) {
+            eval_function(code->cons().cdr());
+            auto result = get_op0();
+            pop_op(); // result
+            pop_op(); // code
+            push_op(result);
+            --bound_context->interp_entry_count_;
+        }},
+        {"'", [](Value* code) {
+            pop_op(); // code
+            push_op(code->cons().cdr());
+            --bound_context->interp_entry_count_;
+        }},
+        {"`", [](Value* code) {
+            eval_quasiquote(code->cons().cdr());
+            auto result = get_op0();
+            pop_op(); // result
+            pop_op(); // code
+            push_op(result);
+            --bound_context->interp_entry_count_;
+        }},
+        {"let", [](Value* code) {
+            eval_let(code->cons().cdr());
+            auto result = get_op0();
+            pop_op();
+            pop_op();
+            push_op(result);
+            --bound_context->interp_entry_count_;
+        }},
+        {"macro", [](Value* code) {
+            eval_macro(code->cons().cdr());
+            pop_op();
+            // TODO: store macro!
+            --bound_context->interp_entry_count_;
+        }},
+        {"while", [](Value* code) {
+            eval_while(code->cons().cdr());
+            auto result = get_op0();
+            pop_op();
+            pop_op();
+            push_op(result);
+        }},
+        {"defconstant", [](Value* code) {
+            eval_defconstant(code->cons().cdr());
+            auto result = get_op0();
+            pop_op();
+            pop_op();
+            push_op(result);
+        }}
+    });
+
+
+
 void eval(Value* code)
 {
     ++bound_context->interp_entry_count_;
@@ -3719,70 +3804,9 @@ void eval(Value* code)
     } else if (code->type() == Value::Type::cons) {
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
-            if (str_eq(form->symbol().name(), "if")) {
-                eval_if(code->cons().cdr());
-                auto result = get_op0();
-                pop_op(); // result
-                pop_op(); // code
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "lambda")) {
-                eval_argumented_function(code->cons().cdr());
-                auto result = get_op0();
-                pop_op(); // result
-                pop_op(); // code
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "fn")) {
-                eval_function(code->cons().cdr());
-                auto result = get_op0();
-                pop_op(); // result
-                pop_op(); // code
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "'")) {
-                pop_op(); // code
-                push_op(code->cons().cdr());
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "`")) {
-                eval_quasiquote(code->cons().cdr());
-                auto result = get_op0();
-                pop_op(); // result
-                pop_op(); // code
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "let")) {
-                eval_let(code->cons().cdr());
-                auto result = get_op0();
-                pop_op();
-                pop_op();
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "macro")) {
-                eval_macro(code->cons().cdr());
-                pop_op();
-                // TODO: store macro!
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_eq(form->symbol().name(), "while")) {
-                eval_while(code->cons().cdr());
-                auto result = get_op0();
-                pop_op();
-                pop_op();
-                push_op(result);
-                return;
-            } else if (str_eq(form->symbol().name(), "defconstant")) {
-                eval_defconstant(code->cons().cdr());
-                auto result = get_op0();
-                pop_op();
-                pop_op();
-                push_op(result);
+            auto std_form = standard_forms.find(form->symbol().name());
+            if (std_form not_eq standard_forms.end()) {
+                std_form->second(code);
                 return;
             }
         }
