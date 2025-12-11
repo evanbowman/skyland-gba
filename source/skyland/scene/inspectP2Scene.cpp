@@ -373,8 +373,11 @@ ScenePtr InspectP2Scene::update(Time delta)
                 PLATFORM.speaker().play_sound("beep_error", 2);
             }
         } else if (flag_pos and *flag_pos == cursor_loc) {
-            if (auto scn = lookup_flag_in_glossary_appendix(APP.opponent_island()->custom_flag_graphics())) {
-                return scn;
+            auto gfx = APP.opponent_island()->custom_flag_graphics();
+            if (auto scn = lookup_flag_in_glossary_appendix(gfx)) {
+                if (not PLATFORM.network_peer().is_connected()) {
+                    return scn;
+                }
             }
         }
     }
