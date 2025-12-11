@@ -955,6 +955,7 @@ struct ArgBinding
 
     u8 replacement_;
     u8 type_;
+    bool referenced_in_closure_;
 };
 
 
@@ -1006,8 +1007,7 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
         } else {
             sym = val;
         }
-        if (not b.bindings_.push_back(
-                ArgBinding{&sym->symbol(), (u8)arg++, type})) {
+        if (not b.bindings_.push_back(ArgBinding{&sym->symbol(), (u8)arg++, type, false})) {
             PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
@@ -1080,6 +1080,35 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                         val->cons().set_car(make_symbol("fn")); //
                         val->cons().set_cdr(fn_impl);           // very naughty!
 
+                        ListBuilder closure;
+                        bool arg_closure_exists = false;
+                        for (auto& binding : bindings.bindings_) {
+                            if (binding.referenced_in_closure_) {
+                                ListBuilder bind;
+                                bind.push_back((lisp::Value*)binding.sym_);
+                                bind.push_back(ctx->argument_symbols_[binding.replacement_]);
+                                closure.push_back(bind.result());
+                                arg_closure_exists = true;
+                            }
+                        }
+
+                        if (arg_closure_exists) {
+                            // Very naughty indeed... we need to inject
+                            // arguments into closures, but, we're implementing
+                            // function argument reference by replacing argument
+                            // names with stack slots. To preserve access into
+                            // stack slots in captured lambdas (funarg problem),
+                            // we're wrapping the enclosed function in a
+                            // synthetic let binding, which binds the values of
+                            // function arguments from stack slots to actual
+                            // variable names.
+                            val->cons().set_car(make_symbol("let"));
+                            val->cons().set_cdr(L_CONS(closure.result(),
+                                                       L_CONS(L_CONS(make_symbol("fn"),
+                                                                     fn_impl),
+                                                              L_NIL)));
+                        }
+
                     } else if (str_eq(first->symbol().name(), "fn")) {
                         // Do nothing... cannot substitute a function argument
                         // within a lambda implementation.
@@ -1116,10 +1145,8 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                 while (current and not replaced) {
                     for (auto& b : current->bindings_) {
                         if (b.sym_->unique_id() == val->symbol().unique_id()) {
-                            PLATFORM.fatal(::format("parent argument capture "
-                                                    "unsupported in closure, "
-                                                    "var: '%'",
-                                                    val->symbol().name()));
+                            b.referenced_in_closure_ = true;
+                            break;
                         }
                     }
                     current = current->parent_;

@@ -106,11 +106,10 @@
   (remove-if lat (equalto? elem)))
 
 (defn/c assoc (k alst)
-  (let ((temp k))
-    (get (filter (lambda (v)
-                   (equal (car v) temp))
-                 alst)
-         0)))
+  (get (filter (lambda (v)
+                 (equal (car v) k))
+               alst)
+       0))
 
 (defn/c lookup (key alst)
   (let ((kvp (assoc key alst)))
@@ -137,17 +136,15 @@
 (defn/c min (lat) (car (sort lat <)))
 (defn/c max (lat) (car (sort lat >)))
 
-(defn/c replace (lat p n)
+(defn/c replace (lat pred newv)
   ;; Note: The interpreter doesn't support capturing an enclosing function's
   ;; arguments, hence the let binding. Obviously, this is inconvenient in some
   ;; cases, but it's not that bad.
-  (let ((pred p)
-        (newv n))
-    (map (lambda (v)
-          (if (pred v)
-              newv
-              v))
-         lat)))
+  (map (lambda (v)
+         (if (pred v)
+             newv
+             v))
+       lat))
 
 (defn/c curry ((fn . lambda))
   (let ((func fn)

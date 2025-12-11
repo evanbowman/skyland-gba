@@ -187,6 +187,11 @@
 
 (begin-test "closure")
 
+(assert-eq 10 (((lambda (a b c)
+                  (lambda (d e) (+ a d e)))
+                1 2 3)
+               4 5))
+
 (setq temp 1)
 
 (let ((temp 4))
@@ -338,6 +343,31 @@
 ;; Now a more complex one with a nested lambda:
 (setq temp (read "(lambda (a b c) (let ((x a) (y (+ b c))) (lambda (w v) (+ w v x y))))"))
 (assert-eq (disassemble (eval temp)) '(fn (let ((x $0) (y (+ $1 $2))) (fn (+ $0 $1 x y)))))
+
+;; Ok, now this gets really nasty. Because we're substituting function arguments
+;; for stack slots, returning a lambda that forms a closure over arguments
+;; doesn't work, because the stack no longer exists. So we use a bad hack where
+;; we generate a synthetic let binding representing the function arguments that
+;; need to be injected into the closure.
+(assert-eq (disassemble (lambda (a b c)
+                          (lambda (d e) (+ a b d e))))
+           '(fn (let ((a $0)
+                      (b $1))
+                  (fn (+ a b $0 $1)))))
+
+;; Let's make sure that argument closure nesting works correctly...
+(assert-eq (disassemble (lambda (a)
+                          (lambda (b)
+                            (lambda (c)
+                              (+ a b c)))))
+           '(fn (let ((a $0))
+                  (fn (let ((b $0))
+                        (fn (+ a b $0)))))))
+;; The above stuff is such a mess... but the important thing is that nobody ever
+;; really needs to know how it actually works when they're writing scripts,
+;; unless for some reason they're disassembling functions and messing around
+;; with the reader...
+
 
 ;; Test some macros... the reader eagerly expands macros. This is pretty bad,
 ;; but again, macroexpanding stuff during evaluation every time isn't

@@ -67,19 +67,6 @@
  the macro that references
  it.
 
- 3) Capturing enclosing
- function parameters in a
- nested lambda is not
- supported, and will raise a
- fatal error. You can work
- around this by binding the
- vals to local vars with a
- let expression. I know it's
- annoying, but, with the way
- argument substition works,
- it would be fairly complex
- to support this.
-
 
  DATA TYPES:
 
