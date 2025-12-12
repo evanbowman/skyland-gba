@@ -47,7 +47,7 @@ public:
     Island* island() const;
 
 
-    using SelMenuCallback = Function<16, ScenePtr()>;
+    using SelMenuCallback = Function<4 * sizeof(void*), ScenePtr()>;
     void register_option(SystemString name, SelMenuCallback cb);
 
 
@@ -59,7 +59,7 @@ private:
         Buffer<Text, cap> lines_;
         Buffer<SystemString, cap> strings_;
         Buffer<StringBuffer<8>, cap> suffixes_;
-        Buffer<Function<16, ScenePtr()>, cap> callbacks_;
+        Buffer<Function<4 * sizeof(void*), ScenePtr()>, cap> callbacks_;
         u8 longest_line_;
 
         Bitvector<cap> specific_;
@@ -70,7 +70,7 @@ private:
     void add_line(SystemString str,
                   const char* suffix,
                   bool specific,
-                  Function<16, ScenePtr()> callback);
+                  Function<4 * sizeof(void*), ScenePtr()> callback);
 
     void redraw_line(int line, bool highlight);
 

@@ -88,7 +88,6 @@ private:
         history_insert_pos_ = -1;
     }
 
-    Time scroll_timer_ = 0;
     Optional<Text> entry_;
     s16 history_insert_pos_ = -1;
     u8 history_index_ = 0;

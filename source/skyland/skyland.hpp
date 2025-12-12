@@ -385,7 +385,7 @@ public:
     lisp::Value* invoke_script(
         const char* path,
         bool rom_fs_only = false,
-        Optional<Function<16, void(lisp::Value& err)>> err_handler = nullopt());
+        Optional<Function<4 * sizeof(void*), void(lisp::Value& err)>> err_handler = nullopt());
 
 
     bool load_file(const char* path, Vector<char>& result);

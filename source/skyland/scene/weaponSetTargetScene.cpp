@@ -61,7 +61,6 @@ WeaponSetTargetScene::WeaponSetTargetScene(const RoomCoord& weapon_loc,
 
 
 
-static const int minimap_start_tile = 181;
 static const int minimap_isle_spacing = 3;
 static bool minimap_disabled = false;
 

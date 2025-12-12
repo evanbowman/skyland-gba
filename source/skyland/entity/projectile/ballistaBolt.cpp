@@ -41,7 +41,7 @@ void BallistaBolt::generate_path(Path& path,
     path.clear();
 
     // Pre-computed values for 8 steps
-    static_assert(path.capacity() - 1 == 8);
+    static_assert(Path::capacity() - 1 == 8);
     static constexpr Fixnum t_values[8] = {
         0.0_fixed,   // 0/8
         0.125_fixed, // 1/8
@@ -121,7 +121,7 @@ void BallistaBolt::update(Time delta)
         state_.path_idx_++;
 
         if (state_.path_idx_ == state_.path_.size()) {
-            destroy();
+            record_destroyed();
             return;
         }
     }
@@ -193,14 +193,14 @@ void BallistaBolt::on_collision(Room& room, Vec2<u8> origin)
     apply_damage(0, -1, ballista_splash_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
-        destroy();
+        record_destroyed();
         // TODO!!!
         PLATFORM.speaker().play_sound("cling", 2);
     } else {
         if (room.health()) {
             sound_impact.play(1);
         }
-        destroy();
+        record_destroyed();
     }
 }
 
@@ -218,7 +218,7 @@ void BallistaBolt::on_collision(Entity& entity)
 
 
     if (not skip_destroy) {
-        this->destroy();
+        this->record_destroyed();
     }
 
     auto damage = (int)ballista_damage;
@@ -228,7 +228,7 @@ void BallistaBolt::on_collision(Entity& entity)
 
 
 
-void BallistaBolt::destroy()
+void BallistaBolt::record_destroyed()
 {
     APP.camera()->shake(8);
     big_explosion(sprite_.get_position(),

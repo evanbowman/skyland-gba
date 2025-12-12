@@ -640,13 +640,6 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
 
 
 
-bool TextEditorModule::has_text()
-{
-    return not text_buffer_.size() not_eq 0 and text_buffer_[0] not_eq '\0';
-}
-
-
-
 void TextEditorModule::tabs_to_spaces()
 {
     Vector<char> temp_buffer;

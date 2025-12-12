@@ -193,7 +193,7 @@ static ScenePtr set_gamespeed_setup()
 void SelectMenuScene::add_line(SystemString str,
                                const char* suffix,
                                bool specific,
-                               Function<16, ScenePtr()> callback)
+                               Function<4 * sizeof(void*), ScenePtr()> callback)
 {
     auto line = loadstr(str);
     opts_->specific_.set(opts_->lines_.size(), specific);
@@ -360,7 +360,7 @@ void SelectMenuScene::enter(Scene& scene)
                 add_line(SystemString::sel_menu_flag_info,
                          "",
                          true,
-                         [this, cursor]() -> ScenePtr {
+                         [this]() -> ScenePtr {
                              return lookup_flag_in_glossary_appendix(island()->custom_flag_graphics());
                          });
             }
@@ -423,7 +423,7 @@ void SelectMenuScene::enter(Scene& scene)
                     add_line(SystemString::sel_menu_adjust_power,
                              "",
                              true,
-                             [this, cursor]() {
+                             []() {
                                  return make_scene<AdjustPowerScene>();
                              });
                 }

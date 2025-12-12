@@ -24,6 +24,8 @@ namespace skyland
 
 
 
+class Drone;
+
 // An implementation of Player, controlled directly by a player via the device's
 // physical buttons.
 

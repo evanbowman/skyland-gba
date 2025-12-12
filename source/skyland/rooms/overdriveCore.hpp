@@ -102,9 +102,6 @@ public:
 
     Optional<UpgradeList> upgrade_mt_list() const override;
 
-
-private:
-    Time surge_timer_;
 };
 
 

@@ -60,11 +60,9 @@ private:
 
     Buffer<Text, 8> text_opts_;
 
-    bool clean_boot_;
-
 public:
-    LanguageSelectScene(bool clean_boot)
-        : opts_(load_language_options()), clean_boot_(clean_boot)
+    LanguageSelectScene()
+        : opts_(load_language_options())
     {
     }
 
@@ -497,7 +495,7 @@ public:
 
         if (not flash_filesystem::file_exists(lang_file) or clean_boot_) {
             info("lang selection...");
-            return make_scene<LanguageSelectScene>(clean_boot_);
+            return make_scene<LanguageSelectScene>();
         } else {
             message("bind strings file...");
             Vector<char> data;
