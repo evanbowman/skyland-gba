@@ -46,7 +46,7 @@
      (adventure-log-add 7 '())
      (chr-del (opponent) 1 14)
      (chr-new (player) x y 'neutral '((race . 4) (icon . 48)))
-     (dialog "<c:Sylph Engineer:48>Thank you. Truly. <B:0> ... <B:0> Your core is in better shape than I expected. Old human design, yes, but maintained well. <B:0> I can help keep it running. It's... good to have work again.")
+     (dialog "<c:Sylph Engineer:48>Thank you. Truly. <B:0> ... <B:0> Your core is in better shape than I expected. Old human design, yes, but maintained well. <B:0> I can help keep it running. It's... it feels good to have systems to work on again. Purpose. <B:0> Thank you for that.")
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
        (dialog "The engineer joined your crew!")

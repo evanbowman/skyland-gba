@@ -41,7 +41,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was here conducting field research into human settlements when raiders attacked! <B:0> I tried to stay hidden, but the building I was in collapsed. By the time I dug myself out, everyone was gone - the villagers, the raiders, everyone.")
+   "<c:Sylph Researcher:49>Contact! Finally! <B:0> #clears throat# My apologies. Composure. <B:0> I was here conducting field research into human settlements when raiders attacked! <B:0> I tried to stay hidden, but the building I was in collapsed. By the time I dug myself out, everyone was gone - the villagers, the raiders, everyone.")
 
   (setq on-dialog-closed
         (lambda ()
@@ -63,7 +63,7 @@
    (lambda (x y _)
      (chr-del (opponent) 1 12)
      (chr-new (player) x y 'neutral '((race . 4) (icon . 49)))
-     (dialog "<c:Sylph Researcher:49>Thank you. I won't forget this!")
+     (dialog "<c:Sylph Researcher:49>Your assistance is... #breath catches# ...deeply appreciated. <B:0> I will not forget this intervention.")
      (adventure-log-add 15 '())
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
