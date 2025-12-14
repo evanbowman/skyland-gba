@@ -704,6 +704,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (coins-victory)
+
+ The coin count that is set
+ to be given to the player if
+ victorious.
+
+
+o----------------------------o
+
  (configure-rooms config)
 
  See
