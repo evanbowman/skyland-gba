@@ -65,7 +65,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "stairwell";
     }
@@ -129,7 +129,7 @@ public:
                              Character* for_character) override;
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "stairwell+";
     }
@@ -180,7 +180,7 @@ public:
                              Character* for_character) override;
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "stairwell++";
     }

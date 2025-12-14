@@ -86,7 +86,7 @@ public:
     void finalize() override;
 
 
-    static const char* name()
+    static constexpr const char* name()
     {
         return "particle-lance";
     }

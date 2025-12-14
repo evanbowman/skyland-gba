@@ -80,7 +80,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "water";
     }
@@ -160,7 +160,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "water-source";
     }

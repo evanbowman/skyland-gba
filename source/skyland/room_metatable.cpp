@@ -252,6 +252,10 @@ void RoomMeta::init_plugin()
 template <int plugin_slots, typename... Rooms> struct RoomMetatable
 {
 public:
+
+    static constexpr const char* room_names_[sizeof...(Rooms)] = {Rooms::name()...};
+
+
     template <size_t i, typename First, typename... Rest> void init()
     {
         table_[i].template init<First>();
@@ -339,7 +343,6 @@ using RoomMetatableType = RoomMetatable<6,
                                         WarEngine,
                                         ChaosCore,
                                         OverdriveCore,
-                                        // ResonanceCore,
                                         Windmill,
                                         Balloon,
                                         // passages
@@ -504,7 +507,7 @@ MetaclassIndex metaclass_index(const char* name)
     auto [mt, ms] = room_metatable();
 
     for (int i = 0; i < ms; ++i) {
-        if (str_cmp(mt[i]->name(), name) == 0) {
+        if (str_cmp(__metatable().room_names_[i], name) == 0) {
             return i;
         }
     }

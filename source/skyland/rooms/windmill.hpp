@@ -103,7 +103,7 @@ public:
     void collect_sprites(Buffer<Sprite, 4>& out) const;
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "windmill";
     }

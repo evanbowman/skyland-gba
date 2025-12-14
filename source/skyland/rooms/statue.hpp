@@ -129,7 +129,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "statue";
     }

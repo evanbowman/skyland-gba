@@ -93,7 +93,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "dynamite";
     }
@@ -154,7 +154,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "dynamite-ii";
     }
@@ -217,7 +217,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "cesium";
     }

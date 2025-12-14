@@ -27,7 +27,7 @@ public:
     Switch(Island* parent, const RoomCoord& position);
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "switch";
     }

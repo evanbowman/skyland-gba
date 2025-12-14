@@ -38,7 +38,7 @@ public:
     void render_exterior(App* app, TileId buffer[16][16]) override;
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "phase-shifter";
     }

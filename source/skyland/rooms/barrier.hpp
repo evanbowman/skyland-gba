@@ -34,7 +34,7 @@ public:
     void apply_damage(Health damage, const DamageConfiguration& conf) override;
 
 
-    static const char* name()
+    static constexpr const char* name()
     {
         return "barrier";
     }

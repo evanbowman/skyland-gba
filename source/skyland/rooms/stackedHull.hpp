@@ -44,7 +44,7 @@ public:
     TileId tile() const;
 
 
-    static const char* name()
+    static constexpr const char* name()
     {
         return "stacked-hull";
     }

@@ -65,7 +65,7 @@ public:
     }
 
 
-    static const char* name()
+    static constexpr const char* name()
     {
         return "warhead";
     }

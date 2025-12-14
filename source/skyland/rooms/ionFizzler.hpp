@@ -63,7 +63,7 @@ public:
     }
 
 
-    static const char* name()
+    static constexpr const char* name()
     {
         return "ion-fizzler";
     }

@@ -59,7 +59,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "power-core";
     }
@@ -123,7 +123,7 @@ public:
     }
 
 
-    static const char* name()
+    static const constexpr char* name()
     {
         return "backup-core";
     }
