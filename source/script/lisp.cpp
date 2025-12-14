@@ -2056,7 +2056,15 @@ void lint(Value* expr, Value* variable_list)
                                     }
                                 }
                             } else {
-                                // TODO: check return type of function call, if possible...
+                                // TODO: check return type of function call, if
+                                // possible...
+                                //
+                                // NOTE: this is the specific case where a
+                                // function is defined in the first position of
+                                // a list, like: ((lambda (x y) ...) args...)
+                                // But in this case, we're unlikely to know for
+                                // certain what the return type is,
+                                // unfortunately.
                                 return true;
                             }
                         }
@@ -2534,15 +2542,20 @@ void Symbol::set_name(const char* name)
         set_intern_name(name);
         break;
 
-    case ModeBits::small:
-        set_intern_name(0);
-        memset(data_.small_name_, '\0', sizeof data_.small_name_);
+    case ModeBits::small: {
+        char* ptr = &small_name_begin_;
+        memset(ptr, '\0', buffer_size + 1);
         for (u32 i = 0; i < buffer_size; ++i) {
             if (*name not_eq '\0') {
-                data_.small_name_[i] = *(name++);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic ignored "-Warray-bounds"
+                ptr[i] = *(name++);
+#pragma GCC diagnostic pop
             }
         }
         break;
+    }
     }
 }
 
@@ -6154,14 +6167,24 @@ const char* intern(const char* string)
 
     if (ctx->external_symtab_contents_) {
         const char* search = ctx->external_symtab_contents_;
-        for (u32 i = 0; i < ctx->external_symtab_size_;) {
-            if (string[len - 1] == (search + i)[len - 1] and
-                str_eq(search + i, string)) {
-                return search + i;
+        u32 left = 0;
+        u32 right = ctx->external_symtab_size_ / 32;
+
+        while (left < right) {
+            u32 mid = left + (right - left) / 2;
+            const char* candidate = search + (mid * 32);
+
+            int cmp = str_cmp(candidate, string);
+            if (cmp == 0) {
+                return candidate;
+            } else if (cmp < 0) {
+                left = mid + 1;
             } else {
-                i += 32;
+                right = mid;
             }
         }
+
+        return nullptr; // not found
     }
 
     // Ok, no stable pointer to the string exists anywhere, so we'll have to

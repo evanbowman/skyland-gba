@@ -227,7 +227,7 @@ with open('fs.bin', 'wb') as filesystem:
     symtab_fname = "lisp_symtab.dat"
     symtab_path = os.path.join(project_root_path, symtab_fname)
     with open(symtab_path, 'wb') as sym_file:
-        for sym, v in reversed(sorted(lisp_symbol_tab.items(), key=lambda item: item[1])):
+        for sym, v in sorted(lisp_symbol_tab.items(), key=lambda item: item[0]):
             enc_sym = sym.encode('utf-8')
             if len(enc_sym) > 30:
                 raise Error("symbol " + sym + " too long!")
