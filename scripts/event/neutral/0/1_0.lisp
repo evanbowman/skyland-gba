@@ -26,6 +26,21 @@
 (flag-show (opponent) flag-id-marauder)
 
 
+(defn on-room-destroyed (isle sym)
+  (if (and (equal isle (opponent))
+           (equal 2 (+ (room-count (opponent) 'cannon)
+                       (room-count (opponent) 'missile-silo))))
+      (progn
+        (setq on-room-destroyed nil)
+        (opponent-mode 'neutral)
+        (dialog "<c:Redbeard:12>Alright, alright! You've bested me! I yield! <B:0> You've disarmed the great Redbeard without sinking him - not many can claim that. <B:0> Take what you want from my hold, just... leave me vessel intact, aye?")
+        (run-util-script "pickup-cart" 11
+                         "Among the scattered coins and looted cargo, you find a battered data cartridge, its label barely legible. <B:0> Redbeard waves dismissively. 'Old stories, mostly lies. Take it if you want.'"
+                         (lambda ()
+                           (coins-add (coins-victory))
+                           (exit 2))))))
+
+
 (defn on-converge ()
   (dialog "<c:Redbeard:12>Aarrrgh!! You're trespassing in my domain. Gimme 600@ or I'll blast your island to bits!")
   (dialog-opts-reset)
