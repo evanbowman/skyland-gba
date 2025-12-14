@@ -1170,7 +1170,11 @@ ScenePtr TextEditorModule::update(Time delta)
             bool do_render = false;
 
             if (cursor_.y < start_line_) {
-                start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
+                if (syntax_mode_ == SyntaxMode::plain_text) {
+                    --start_line_;
+                } else {
+                    start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
+                }
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
@@ -1214,7 +1218,11 @@ ScenePtr TextEditorModule::update(Time delta)
             }
 
             if (cursor_.y > start_line_ + (y_max() - yo)) {
-                start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
+                if (syntax_mode_ == SyntaxMode::plain_text) {
+                    ++start_line_;
+                } else {
+                    start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
+                }
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
