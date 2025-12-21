@@ -73,12 +73,21 @@ bool FullscreenDialogScene::advance_text(Time delta, bool sfx)
             if (text_state_.timer_ < 0) {
                 return true;
             }
-
-            auto cp = text_state_.current_word_;
-            while (*cp not_eq ' ' and *cp not_eq '<' and *cp not_eq '\0') {
-                text_state_.current_word_remaining_++;
-                ++cp;
-            }
+            bool done = false;
+            utf8::scan(
+                [&](const utf8::Codepoint& cp, const char*, int) {
+                    if (done) {
+                        return false;
+                    }
+                    if (cp == ' ') {
+                        done = true;
+                    } else {
+                        text_state_.current_word_remaining_++;
+                    }
+                    return true;
+                },
+                text_state_.current_word_,
+                strlen(text_state_.current_word_));
         }
 
         if (sfx) {
