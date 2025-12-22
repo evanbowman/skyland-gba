@@ -248,6 +248,7 @@ ScenePtr PlaceDroneScene::update(Time delta)
 
                     globals().near_cursor_loc_ = origin_;
                     globals().near_cursor_loc_.y--;
+                    island->schedule_recompute_deflector_shields();
                     return make_scene<ReadyScene>();
                 }
             }

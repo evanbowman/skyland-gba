@@ -99,6 +99,36 @@ void Deflector::on_powerchange()
 
 
 
+void Deflector::display_on_hover(Platform::Screen& screen,
+                                 const RoomCoord& cursor)
+{
+    auto origin = parent()->visual_origin();
+
+    Sprite sprite;
+    sprite.set_mix({ColorConstant::electric_blue, 255});
+    sprite.set_size(Sprite::Size::w16_h16);
+    sprite.set_tidx_16x16(13, 0);
+
+    int left = clamp(position().x - 3, 0, 15);
+    int right =
+        clamp(position().x + 3, 0, (int)(parent()->terrain().size() - 1));
+    int top = clamp(position().y - 3, 4, 15);
+    int bot = clamp(position().y + 3, 0, 15);
+
+    for (int x = left; x < right + 1; ++x) {
+        for (int y = top; y < bot + 1; ++y) {
+            if (x == left or y == top or x == right or y == bot) {
+                sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
+                        origin.y + Fixnum::from_integer(y * 16)});
+
+                screen.draw(sprite);
+            }
+        }
+    }
+}
+
+
+
 void Deflector::project_deflector_shield()
 {
     if (is_powered_down()) {
@@ -116,10 +146,9 @@ void Deflector::project_deflector_shield()
             if (auto room = parent()->get_room({x, y})) {
                 room->set_shielded(true);
             }
-            // FIXME: this doesn't work...
-            // if (auto drone = parent()->get_drone({x, y})) {
-            //     (*drone)->set_shielded(true);
-            // }
+            if (auto drone = parent()->get_drone({x, y})) {
+                (*drone)->set_shielded(true);
+            }
         }
     }
 }
