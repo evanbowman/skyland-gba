@@ -852,6 +852,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
                 lisp::Value* cb = lisp::get_list(old_dialog_opts, choice_sel_);
 
                 lisp::safecall(cb->cons().cdr(), 0);
+                lisp::pop_op();
             }
 
             display_mode_ = DisplayMode::animate_out;
