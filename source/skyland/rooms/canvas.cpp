@@ -28,49 +28,110 @@ namespace skyland
 
 
 static const int slot_count = Tile::canvas_tiles_end - Tile::canvas_tiles_begin;
-static Bitvector<slot_count> canvas_texture_slots;
 
+// We have two separate VRAM regions - one per island layer
+static Bitvector<slot_count> canvas_texture_slots_layer0;
+static Bitvector<slot_count> canvas_texture_slots_layer1;
 
-
+// Separate image pools for each layer
 using ImgPool = ObjectPool<img::Image, slot_count>;
-Optional<DynamicMemory<ImgPool>> img_pool;
+Optional<DynamicMemory<ImgPool>> img_pool_layer0;
+Optional<DynamicMemory<ImgPool>> img_pool_layer1;
 
 
 
-Canvas::ImagePtr alloc_img()
+static void delete_img_layer0(img::Image* ptr)
 {
-    if (not img_pool) {
-        img_pool = allocate_dynamic<ImgPool>("canvas-img-pool", "canvas-img");
+    if (ptr == nullptr) {
+        PLATFORM.fatal("cannot free null image ptr!");
     }
 
-    return {(*img_pool)->alloc(), [](img::Image* ptr) {
-                if (ptr == nullptr) {
-                    PLATFORM.fatal("cannot free null image ptr!");
-                }
-                if (not img_pool) {
-                    PLATFORM.fatal("img pool dealloc logic error!");
-                }
-                (*img_pool)->free(ptr);
+    if (not img_pool_layer0) {
+        PLATFORM.fatal("img pool dealloc logic error!");
+    }
 
-                if ((*img_pool)->remaining() == slot_count) {
-                    // The image pool is no longer in use. Drop it to free memory.
-                    img_pool.reset();
-                }
-            }};
+    (*img_pool_layer0)->free(ptr);
+
+    if ((*img_pool_layer0)->remaining() == slot_count) {
+        // The image pool is no longer in use. Drop it to free memory.
+        img_pool_layer0.reset();
+    }
 }
 
 
 
-static int alloc_canvas_texture()
+static void delete_img_layer1(img::Image* ptr)
 {
+    if (ptr == nullptr) {
+        PLATFORM.fatal("cannot free null image ptr!");
+    }
+
+    if (not img_pool_layer1) {
+        PLATFORM.fatal("img pool dealloc logic error!");
+    }
+
+    (*img_pool_layer1)->free(ptr);
+
+    if ((*img_pool_layer1)->remaining() == slot_count) {
+        // The image pool is no longer in use. Drop it to free memory.
+        img_pool_layer1.reset();
+    }
+}
+
+
+
+Canvas::ImagePtr alloc_img(Layer layer)
+{
+    if (layer == Layer::map_0_ext) {
+        if (not img_pool_layer0) {
+            img_pool_layer0 =
+                allocate_dynamic<ImgPool>("canvas-img-pool-0", "canvas-img-0");
+        }
+        return {(*img_pool_layer0)->alloc(), delete_img_layer0};
+    } else {
+        if (not img_pool_layer1) {
+            img_pool_layer1 =
+                allocate_dynamic<ImgPool>("canvas-img-pool-1", "canvas-img-1");
+        }
+        return {(*img_pool_layer1)->alloc(), delete_img_layer1};
+    }
+}
+
+
+
+static int alloc_canvas_texture(Layer layer)
+{
+    Bitvector<slot_count>* slots = nullptr;
+
+    if (layer == Layer::map_0_ext) {
+        slots = &canvas_texture_slots_layer0;
+    } else {
+        slots = &canvas_texture_slots_layer1;
+    }
+
     for (int i = 0; i < slot_count; ++i) {
-        if (not canvas_texture_slots.get(i)) {
-            canvas_texture_slots.set(i, true);
+        if (not slots->get(i)) {
+            slots->set(i, true);
             return i;
         }
     }
 
     return -1;
+}
+
+
+
+static void free_canvas_texture(int slot, Layer layer)
+{
+    if (slot < 0) {
+        return;
+    }
+
+    if (layer == Layer::map_0_ext) {
+        canvas_texture_slots_layer0.set(slot, false);
+    } else {
+        canvas_texture_slots_layer1.set(slot, false);
+    }
 }
 
 
@@ -85,16 +146,15 @@ Canvas::Canvas(Island* parent, const RoomCoord& position)
 
 void Canvas::format_description(StringBuffer<512>& buffer)
 {
-    make_format(buffer, SYSTR(description_canvas)->c_str(), slot_count);
+    // Now we have double the slots since each island has its own VRAM
+    make_format(buffer, SYSTR(description_canvas)->c_str(), slot_count * 2);
 }
 
 
 
 Canvas::~Canvas()
 {
-    if (canvas_texture_slot_ > -1) {
-        canvas_texture_slots.set(canvas_texture_slot_, false);
-    }
+    free_canvas_texture(canvas_texture_slot_, parent()->layer());
 }
 
 
@@ -102,7 +162,7 @@ Canvas::~Canvas()
 void Canvas::bind_graphics(const img::Image& img)
 {
     if (canvas_texture_slot_ < 0) {
-        canvas_texture_slot_ = alloc_canvas_texture();
+        canvas_texture_slot_ = alloc_canvas_texture(parent()->layer());
     }
 
     if (canvas_texture_slot_ < 0) {
@@ -111,7 +171,7 @@ void Canvas::bind_graphics(const img::Image& img)
     } else {
         tile_ = Tile::canvas_tiles_begin + canvas_texture_slot_;
         if (not img_data_) {
-            img_data_ = alloc_img();
+            img_data_ = alloc_img(parent()->layer());
         }
         **img_data_ = img;
 
@@ -223,15 +283,25 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
 
     auto isle = parent();
     auto p = position();
+    auto layer = isle->layer();
+
+    // Check if there are available slots in this island's layer
+    Bitvector<slot_count>* slots = nullptr;
+    if (layer == Layer::map_0_ext) {
+        slots = &canvas_texture_slots_layer0;
+    } else {
+        slots = &canvas_texture_slots_layer1;
+    }
 
     bool found_slot = false;
     for (int i = 0; i < slot_count; ++i) {
-        if (not canvas_texture_slots.get(i)) {
+        if (not slots->get(i)) {
             found_slot = true;
+            break;
         }
     }
 
-    if (not found_slot) {
+    if (canvas_texture_slot_ < 0 and not found_slot) {
         apply_damage(Room::health_upper_limit());
         return null_scene();
     }
