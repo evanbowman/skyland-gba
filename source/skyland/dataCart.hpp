@@ -83,7 +83,7 @@ public:
 
 
 private:
-    u32 carts_;
+    u64 carts_;
     u32 max_carts_;
 };
 

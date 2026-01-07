@@ -88,25 +88,25 @@ static const char* const save_path = "/save/carts.dat";
 
 
 // In case sram fails?
-static u32 cart_lib_backup_data;
+static u64 cart_lib_backup_data;
 
 
 
 DataCartLibrary::DataCartLibrary() : carts_(cart_lib_backup_data)
 {
     Vector<char> output;
-    host_u32 input;
+    host_u64 input;
+    input.set(0);
 
     const auto bytes_read =
         flash_filesystem::read_file_data_binary(save_path, output);
 
-    if (bytes_read == sizeof(input)) {
-        for (u32 i = 0; i < bytes_read; ++i) {
-            ((u8*)&input)[i] = output[i];
-        }
-
-        carts_ = input.get();
+    // NOTE: the old cart data in previous versions was a 32 bit mask. Loop
+    // condition adjusted to handle either 32 or 64 bit input.
+    for (u32 i = 0; i < std::min((size_t)bytes_read, sizeof(input)); ++i) {
+        ((u8*)&input)[i] = output[i];
     }
+    carts_ = input.get();
 
     Conf c;
     auto f = PLATFORM.load_file_contents("", "scripts/data/cart/library.ini");
@@ -122,7 +122,7 @@ DataCartLibrary::DataCartLibrary() : carts_(cart_lib_backup_data)
 
 void DataCartLibrary::store(DataCart cart)
 {
-    if ((u32)cart.id() > sizeof(carts_) * 8 or (u32) cart.id() >= max_carts_) {
+    if ((u64)cart.id() > sizeof(carts_) * 8 or (u64)cart.id() >= max_carts_) {
         Platform::fatal("cart id too high!");
     }
 
@@ -135,7 +135,7 @@ void DataCartLibrary::store(DataCart cart)
     cart_lib_backup_data = carts_;
 
     Vector<char> output;
-    host_u32 d;
+    host_u64 d;
     d.set(carts_);
 
     for (u32 i = 0; i < sizeof d; ++i) {
